@@ -8,22 +8,28 @@ export const importer = async (
   importHistoryId,
   associatedContentType,
   associatedField,
-  user
+  user,
+  models,
+  subdomain
 ) => {
   try {
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
-    await receiveImportCreate({
-      action: 'createImport',
-      contentTypes,
-      files,
-      uploadType: UPLOAD_SERVICE_TYPE,
-      columnsConfig,
-      user,
-      importHistoryId,
-      associatedContentType,
-      associatedField
-    });
+    await receiveImportCreate(
+      {
+        action: 'createImport',
+        contentTypes,
+        files,
+        uploadType: UPLOAD_SERVICE_TYPE,
+        columnsConfig,
+        user,
+        importHistoryId,
+        associatedContentType,
+        associatedField
+      },
+      models,
+      subdomain
+    );
   } catch (e) {
     console.log(e);
     // throw new Error();

@@ -10,21 +10,54 @@ import { Wrapper } from '@erxes/ui/src/layout';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 import Datetime from '@nateradebaugh/react-datetime';
 import * as dayjs from 'dayjs';
+import FormControl from '@erxes/ui/src/components/form/Control';
 
 function Sidebar({ history, queryParams }: { history: any; queryParams: any }) {
+  let timer: NodeJS.Timer;
+
   const setFilter = (name, value) => {
+    router.removeParams(history, 'page');
     router.setParams(history, { [name]: value });
   };
 
   const onChangeDate = (lbl, date) => {
-    console.log(lbl, date);
     const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    router.setParams(history, { [lbl]: cDate });
+    setFilter(lbl, cDate);
+  };
+
+  const moveCursorAtTheEnd = e => {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
+  };
+
+  const search = e => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    const searchValue = e.target.value;
+
+    timer = setTimeout(() => {
+      setFilter('searchValue', searchValue);
+    }, 500);
   };
 
   return (
     <Wrapper.Sidebar>
       <PaddingTop>
+        <FormGroup>
+          <ControlLabel>{__('Search')}</ControlLabel>
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={search}
+            defaultValue={queryParams.searchValue}
+            autoFocus={true}
+            onFocus={moveCursorAtTheEnd}
+          />
+        </FormGroup>
         <FormGroup>
           <ControlLabel>{__('Begin Date')}</ControlLabel>
           <Datetime
@@ -45,7 +78,7 @@ function Sidebar({ history, queryParams }: { history: any; queryParams: any }) {
             inputProps={{ placeholder: 'Click to select a date' }}
             dateFormat="YYYY-MM-DD"
             timeFormat="HH:mm"
-            value={queryParams.beginDate || null}
+            value={queryParams.endDate || null}
             closeOnSelect={true}
             utc={true}
             input={true}

@@ -1,4 +1,5 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
+import { IModels } from '../../connectionResolvers';
 import {
   IImportHistory,
   IImportHistoryDocument,
@@ -14,13 +15,13 @@ export interface IImportHistoryModel extends Model<IImportHistoryDocument> {
   removeHistory(_id: string): Promise<string>;
 }
 
-export const loadClass = () => {
+export const loadImportHistoryClass = (models: IModels) => {
   class ImportHistory {
     /*
-     * Get a import history
+     * Get a Import history
      */
     public static async getImportHistory(_id: string) {
-      const importHistory = await ImportHistories.findOne({ _id });
+      const importHistory = await models.ImportHistory.findOne({ _id });
 
       if (!importHistory) {
         throw new Error('Import history not found');
@@ -33,7 +34,7 @@ export const loadClass = () => {
      * Create new history
      */
     public static async createHistory(doc: IImportHistory, user: any) {
-      return ImportHistories.create({
+      return models.ImportHistory.create({
         userId: user._id,
         date: new Date(),
         ...doc
@@ -44,13 +45,13 @@ export const loadClass = () => {
      * Remove Imported history
      */
     public static async removeHistory(_id: string) {
-      const historyObj = await ImportHistories.findOne({ _id });
+      const historyObj = await models.ImportHistory.findOne({ _id });
 
       if (!historyObj) {
         throw new Error('Import history not found');
       }
 
-      await ImportHistories.deleteOne({ _id });
+      await models.ImportHistory.deleteOne({ _id });
 
       return _id;
     }
@@ -60,13 +61,3 @@ export const loadClass = () => {
 
   return importHistorySchema;
 };
-
-loadClass();
-
-// tslint:disable-next-line
-const ImportHistories = model<IImportHistoryDocument, IImportHistoryModel>(
-  'import_history',
-  importHistorySchema
-);
-
-export default ImportHistories;

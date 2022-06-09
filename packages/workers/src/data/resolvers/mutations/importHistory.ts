@@ -1,9 +1,7 @@
-import { ImportHistory } from './../../../db/models';
+import { IContext } from '../../../connectionResolvers';
 import messageBroker from '../../../messageBroker';
 import { importer } from '../../../middlewares/fileMiddleware';
 import { RABBITMQ_QUEUES } from '../../constants';
-
-import { IContext } from '../../types';
 
 const importHistoryMutations = {
   /**
@@ -12,19 +10,23 @@ const importHistoryMutations = {
    */
   async importHistoriesRemove(
     _root,
-    { _id, contentType }: { _id: string; contentType }
+    { _id, contentType }: { _id: string; contentType },
+    { models }: IContext
   ) {
-    const importHistory = await ImportHistory.getImportHistory(_id);
+    const importHistory = await models.ImportHistory.getImportHistory(_id);
 
-    await ImportHistory.updateOne(
+    await models.ImportHistory.updateOne(
       { _id: importHistory._id },
       { $push: { removed: contentType } }
     );
 
     return messageBroker().sendMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
-      action: 'removeImport',
-      importHistoryId: importHistory._id,
-      contentType
+      contet: {
+        action: 'removeImport',
+        importHistoryId: importHistory._id,
+        contentType
+      },
+      models
     });
   },
 
@@ -56,9 +58,9 @@ const importHistoryMutations = {
       associatedContentType: string;
       associatedField: string;
     },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const importHistory = await ImportHistory.createHistory(
+    const importHistory = await models.ImportHistory.createHistory(
       {
         success: 0,
         updated: 0,
@@ -78,7 +80,9 @@ const importHistoryMutations = {
       importHistory._id,
       associatedContentType,
       associatedField,
-      user
+      user,
+      models,
+      subdomain
     );
 
     return 'success';

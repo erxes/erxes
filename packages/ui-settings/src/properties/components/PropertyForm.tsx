@@ -20,6 +20,7 @@ import { IField } from '@erxes/ui/src/types';
 import { IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
 import Map from '@erxes/ui/src/components/Map';
+import ObjectListConfigs from './ObjectListConfigs';
 
 type Props = {
   queryParams: any;
@@ -33,13 +34,13 @@ type Props = {
 type State = {
   options: any[];
   locationOptions: any[];
+  objectListConfigs: any[];
   type: string;
   hasOptions: boolean;
   add: boolean;
   currentLocation: ILocationOption;
   searchable: boolean;
   showInCard: boolean;
-  keys: string[];
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -49,8 +50,8 @@ class PropertyForm extends React.Component<Props, State> {
     let doc = {
       options: [],
       type: '',
-      keys: [],
       locationOptions: [],
+      objectListConfigs: [],
       hasOptions: false,
       searchable: false,
       showInCard: false
@@ -60,8 +61,8 @@ class PropertyForm extends React.Component<Props, State> {
       const {
         type,
         options,
-        keys,
         locationOptions,
+        objectListConfigs,
         searchable = false,
         showInCard = false
       } = props.field;
@@ -70,8 +71,7 @@ class PropertyForm extends React.Component<Props, State> {
         ...doc,
         type,
         searchable,
-        showInCard,
-        keys
+        showInCard
       };
 
       if (
@@ -85,9 +85,9 @@ class PropertyForm extends React.Component<Props, State> {
           hasOptions: true,
           options: Object.assign([], options || []),
           locationOptions: [],
+          objectListConfigs: [],
           searchable: searchable || false,
-          showInCard,
-          keys
+          showInCard
         };
       }
 
@@ -97,9 +97,9 @@ class PropertyForm extends React.Component<Props, State> {
           hasOptions: false,
           options: [],
           locationOptions: Object.assign([], locationOptions || []),
+          objectListConfigs: Object.assign([], objectListConfigs || []),
           searchable: searchable || false,
-          showInCard: false,
-          keys
+          showInCard: false
         };
       }
     }
@@ -123,9 +123,9 @@ class PropertyForm extends React.Component<Props, State> {
       type,
       options,
       locationOptions,
+      objectListConfigs,
       showInCard,
-      searchable,
-      keys
+      searchable
     } = this.state;
 
     const finalValues = values;
@@ -140,9 +140,9 @@ class PropertyForm extends React.Component<Props, State> {
       type,
       options,
       locationOptions,
+      objectListConfigs,
       searchable,
-      showInCard,
-      keys
+      showInCard
     };
   };
 
@@ -150,12 +150,12 @@ class PropertyForm extends React.Component<Props, State> {
     this.setState({ options });
   };
 
-  onChangeKeys = keys => {
-    this.setState({ keys });
-  };
-
   onChangeLocationOption = locationOptions => {
     this.setState({ locationOptions });
+  };
+
+  onChangeObjectListConfig = objectListConfigs => {
+    this.setState({ objectListConfigs });
   };
 
   onRemoveOption = options => {
@@ -203,17 +203,22 @@ class PropertyForm extends React.Component<Props, State> {
     );
   };
 
-  renderKeys = () => {
+  renderObjectListConfigs = () => {
     if (this.state.type !== 'objectList') {
       return null;
     }
 
+    const { objectListConfigs = [] } = this.state;
+
     return (
-      <ModifiableList
-        options={this.state.keys}
-        onChangeOption={this.onChangeKeys}
-        emptyMessage={'There is no keys'}
-      />
+      <FormGroup>
+        <ControlLabel>Object List Configs:</ControlLabel>
+
+        <ObjectListConfigs
+          objectListConfigs={objectListConfigs}
+          onChange={this.onChangeObjectListConfig}
+        />
+      </FormGroup>
     );
   };
 
@@ -384,7 +389,7 @@ class PropertyForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
-        {this.renderKeys()}
+        {this.renderObjectListConfigs()}
         {this.renderLocationOptions()}
         {this.renderShowInCard()}
 

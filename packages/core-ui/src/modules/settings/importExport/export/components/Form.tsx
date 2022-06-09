@@ -33,7 +33,7 @@ import {
 type Props = {
   contentType: string;
   columns: IConfigColumn[];
-  count: number;
+  count: string;
   loading: boolean;
   previewCount: (segmentId?: string) => void;
 };
@@ -89,7 +89,7 @@ class ExportForm extends React.Component<Props, State> {
 
     const stringified = queryString.stringify({
       configs: JSON.stringify(columnsConfig),
-      type: contentType,
+      type: contentType.split(':')[1],
       segment: segmentId,
       unlimited: true
     });

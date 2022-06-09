@@ -6,11 +6,18 @@ import {
   DEFAULT_COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from '../constants';
-import { FieldValue, IField, IFieldError, ILocationOption } from '../types';
+import {
+  FieldValue,
+  IField,
+  IFieldError,
+  ILocationOption,
+  IObjectListConfig
+} from '../types';
 import MSFmultiSelect from '../multipleSelectScript';
 import { __ } from '../../utils';
 import Map from './Map';
 import Marker from './Marker';
+import ObjectList from './ObjectList';
 
 type Props = {
   field: IField;
@@ -33,6 +40,9 @@ type State = {
   multipleSelectValues?: string[];
   isMapDraggable: boolean;
   currentLocation: ILocationOption;
+  value?: any;
+  objectListConfigs: IObjectListConfig[];
+  editing: boolean;
 };
 
 export default class Field extends React.Component<Props, State> {
@@ -41,7 +51,8 @@ export default class Field extends React.Component<Props, State> {
       <select
         {...attrs}
         className="form-control"
-        id={attrs.multiple ? `_id${attrs.id}` : ''}>
+        id={attrs.multiple ? `_id${attrs.id}` : ''}
+      >
         {options.map((option, index) => (
           <option key={index} value={option} selected={true}>
             {option}
@@ -136,11 +147,16 @@ export default class Field extends React.Component<Props, State> {
     }
 
     this.state = {
+      editing: false,
       dateValue: '',
       dateTimeValue: '',
       multipleSelectValues: [],
       isMapDraggable,
-      currentLocation: props.currentLocation || { lat: 0.0, lng: 0.0 }
+      currentLocation: props.currentLocation || {
+        lat: 0.0,
+        lng: 0.0
+      },
+      objectListConfigs: []
     };
   }
 
@@ -160,7 +176,7 @@ export default class Field extends React.Component<Props, State> {
             multipleSelectValues.push(value);
           } else {
             multipleSelectValues = multipleSelectValues.filter(
-              e => e === value
+              (e) => e === value
             );
           }
           this.onChange(multipleSelectValues.toString());
@@ -173,7 +189,7 @@ export default class Field extends React.Component<Props, State> {
         this.setState({ multipleSelectValues: values });
       };
 
-      multiSelects.map(query => {
+      multiSelects.map((query) => {
         const select = new MSFmultiSelect(query, {
           theme: 'theme2',
           selectAll: true,
@@ -190,7 +206,7 @@ export default class Field extends React.Component<Props, State> {
         const selectedValues: any = this.props.value || [];
 
         select.loadSource(
-          options.map(e => {
+          options.map((e) => {
             const selected = selectedValues.indexOf(e) > -1 ? true : false;
 
             return { caption: e, value: e, selected };
@@ -237,7 +253,7 @@ export default class Field extends React.Component<Props, State> {
             self.setState({ isAttachingFile: false });
           },
 
-          onError: message => {
+          onError: (message) => {
             alert(message);
             self.setState({ isAttachingFile: false });
           }
@@ -293,8 +309,8 @@ export default class Field extends React.Component<Props, State> {
     const { multipleSelectValues } = this.state;
     if (multipleSelectValues) {
       if (
-        multipleSelectValues.filter(value => value === selectedValue).length ===
-        0
+        multipleSelectValues.filter((value) => value === selectedValue)
+          .length === 0
       ) {
         multipleSelectValues.push(selectedValue);
       }
@@ -367,7 +383,10 @@ export default class Field extends React.Component<Props, State> {
 
     if (selectedValue) {
       selectedOption = selectedValue as ILocationOption;
-      currentLocation = { lat: selectedOption.lat, lng: selectedOption.lng };
+      currentLocation = {
+        lat: selectedOption.lat,
+        lng: selectedOption.lng
+      };
     }
 
     return (
@@ -380,7 +399,8 @@ export default class Field extends React.Component<Props, State> {
             controlSize={25}
             streetViewControl={false}
             zoom={4}
-            style={{ width: '100%', height: '250px' }}>
+            style={{ width: '100%', height: '250px' }}
+          >
             {locationOptions.length > 0 ? (
               locationOptions.map((option, index) => (
                 <Marker
@@ -423,7 +443,8 @@ export default class Field extends React.Component<Props, State> {
       <select
         onChange={this.onSelectChange}
         className="form-control"
-        id={field._id}>
+        id={field._id}
+      >
         <option>-</option>
         {products.map(({ _id, name, unitPrice }) => (
           <option key={_id} value={_id}>
@@ -434,10 +455,45 @@ export default class Field extends React.Component<Props, State> {
     );
   }
 
+  renderObjectList(objectListConfigs: any, attrs: any) {
+    let { value = [] } = attrs;
+
+    if (typeof value === 'string' && value.length > 0) {
+      try {
+        value = JSON.parse(value);
+      } catch {
+        value = [];
+      }
+    }
+
+    const onChange = (values: any[]) => {
+      this.setState({ value });
+      this.onChange(values);
+    };
+
+    return (
+      <>
+        <ObjectList
+          objectListConfigs={objectListConfigs}
+          value={value}
+          onChange={onChange}
+          isEditing={this.state.editing}
+        />
+      </>
+    );
+  }
+
   renderControl() {
     const { field, value } = this.props;
     const { options = [], validation = 'text' } = field;
     const name = field._id;
+
+    const attrs = {
+      id: field._id,
+      value: this.state.objectListConfigs,
+      onChange: this.onChange,
+      name: ''
+    };
 
     if (validation === 'date') {
       return this.renderDatepicker(field._id);
@@ -594,6 +650,9 @@ export default class Field extends React.Component<Props, State> {
       case 'productCategory':
         return this.renderProduct(field);
 
+      case 'objectList':
+        return this.renderObjectList(field.objectListConfigs, attrs);
+
       default:
         return Field.renderInput({
           onChange: this.onInputChange,
@@ -602,6 +661,37 @@ export default class Field extends React.Component<Props, State> {
           value
         });
     }
+  }
+
+  renderAddButton() {
+    const { field } = this.props;
+    const { objectListConfigs = [] } = field;
+
+    if (field.type !== 'objectList' || !field.objectListConfigs) {
+      return null;
+    }
+
+    const onClick = () => {
+      const object = objectListConfigs.reduce(
+        (previousValue: any, currentValue: any) => {
+          previousValue[`${currentValue.key}`] = '';
+
+          return previousValue;
+        },
+        {}
+      );
+
+      const objectListValue = this.state.objectListConfigs || [];
+      this.setState({
+        objectListConfigs: [object, ...objectListValue]
+      });
+    };
+
+    return (
+      <button onClick={onClick} type="button">
+        add value
+      </button>
+    );
   }
 
   render() {
@@ -629,6 +719,8 @@ export default class Field extends React.Component<Props, State> {
         {field.description ? (
           <span className="description">{field.description}</span>
         ) : null}
+
+        {this.renderAddButton()}
 
         {this.renderControl()}
 

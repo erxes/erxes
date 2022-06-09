@@ -169,67 +169,6 @@ class PlaceHolderInput extends React.Component<Props, State> {
     this.props.onChange(config);
   };
 
-  onKeyPress = (e: React.KeyboardEvent) => {
-    if (['Backspace', 'Delete'].includes(e.key)) {
-      e.preventDefault();
-
-      const { config, inputName, fieldType } = this.props;
-
-      if (fieldType === 'select') {
-        config[inputName] = '';
-
-        this.props.onChange(config);
-        return;
-      }
-
-      const target = e.target as HTMLInputElement;
-      const start = target.selectionStart || 0;
-      const end = target.selectionEnd || 0;
-      let chIndex = 0;
-      let index = 0;
-
-      const re = /(\[\[( ?\w* |)\]\]|\{\{( ?\w* |)\}\})|\w| /gi;
-      const value = target.value;
-
-      const matches = value.match(re) || [];
-      const by = {};
-
-      for (const match of matches) {
-        const len = match.length;
-        const prevCh = chIndex;
-        chIndex += len;
-
-        by[index] = { min: prevCh + 1, max: chIndex };
-        index += 1;
-      }
-
-      const deletes = Object.keys(by).filter(key => {
-        const val = by[key];
-
-        if (start === end && val.min < start && val.max < start) {
-          return null;
-        }
-
-        if (start < end && val.min <= start && val.max <= start) {
-          return null;
-        }
-
-        if (val.min > end && val.max > end) {
-          return null;
-        }
-
-        return key;
-      });
-
-      config[inputName] = matches
-        .filter((_m, i) => !deletes.includes(String(i)))
-        .join('');
-
-      this.setState({ config });
-      this.props.onChange(config);
-    }
-  };
-
   render() {
     const { config } = this.state;
     const { options = [], inputName, label, fieldType = 'string' } = this.props;
@@ -274,8 +213,6 @@ class PlaceHolderInput extends React.Component<Props, State> {
             name={inputName}
             value={converted}
             onChange={this.onChange}
-            onKeyPress={this.onKeyPress}
-            onKeyDown={this.onKeyPress}
           />
         </FormGroup>
       </BoardHeader>
