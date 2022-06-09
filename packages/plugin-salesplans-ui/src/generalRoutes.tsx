@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
-import SalesplanRoutes from './routes';
+import SalesPlansRoutes from './routes';
 
 const Routes = () => (
   <Router>
-    <SalesplanRoutes />
+    <SalesPlansRoutes />
   </Router>
 );
 
