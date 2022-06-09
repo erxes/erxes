@@ -61,6 +61,10 @@ class EventForm extends React.Component<Props, State> {
   renderInput = attributeName => {
     const { eventAttributeFilters } = this.state;
 
+    const defaultOperators = [
+      ...new Set(DEFAULT_OPERATORS.map(data => data.value))
+    ] as any;
+
     const eventAttributeFilter =
       eventAttributeFilters[0] || ({} as IConditionFilter);
 
@@ -82,7 +86,7 @@ class EventForm extends React.Component<Props, State> {
           <FormGroup>
             <Select
               placeholder="Select operator"
-              options={DEFAULT_OPERATORS.map(b => ({
+              options={defaultOperators.map(b => ({
                 value: b.value,
                 label: b.name
               }))}

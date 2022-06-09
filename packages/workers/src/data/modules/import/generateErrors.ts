@@ -1,11 +1,10 @@
 import * as json2csv from 'json2csv';
 import { generateModels } from 'src/connectionResolvers';
 
-export const generateErrors = async (args: any) => {
+export const generateErrors = async (args: any, subdomain) => {
   const { contentType, importHistoryId } = args;
   const { Parser } = json2csv;
-
-  const models = await generateModels('os');
+  const models = await generateModels(subdomain);
 
   const importHistory = await models.ImportHistory.findOne({
     _id: importHistoryId

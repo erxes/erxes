@@ -1,5 +1,4 @@
 import { ITrigger } from '../../types';
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Title } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -14,7 +13,6 @@ type Props = {
   contentType: string;
   fields: any[];
   events: IEvent[];
-  boards: IBoard[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   segment: ISegment;
   headSegments: ISegment[];
@@ -47,7 +45,6 @@ const SegmentsForm = (props: Props) => {
     segment,
     events,
     headSegments,
-    boards,
     isModal,
     hideDetailForm,
     closeModal,
@@ -93,7 +90,6 @@ const SegmentsForm = (props: Props) => {
       contentType={contentType}
       fields={fields}
       events={events}
-      boards={boards}
       renderButton={renderButton}
       segment={segment}
       headSegments={headSegments}

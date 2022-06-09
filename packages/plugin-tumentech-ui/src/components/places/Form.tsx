@@ -10,7 +10,7 @@ import {
   ILocationOption
 } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IPlace } from '../../types';
 import { PROVINCES } from '../../constants';
 import Select from 'react-select-plus';
@@ -62,24 +62,32 @@ const PlaceForm = (props: Props) => {
     setProvince(option.value);
   };
 
+  const onChangeLocation = option => {
+    setCenter(option);
+  };
+
+  const onChangeLocationOption = (option, index) => {
+    setCenter(option);
+  };
+
+  const onChangeInput = e => {
+    const { id, value } = e.target;
+    switch (id) {
+      case 'name':
+        setName(value);
+        break;
+      case 'code':
+        setCode(value);
+    }
+  };
+
+  useEffect(() => {
+    setCenter(center);
+  }, [center]);
+
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
-
-    const onChangeLocation = option => {
-      setCenter(option);
-    };
-
-    const onChangeInput = e => {
-      const { id, value } = e.target;
-      switch (id) {
-        case 'name':
-          setName(value);
-          break;
-        case 'code':
-          setCode(value);
-      }
-    };
 
     return (
       <>
@@ -148,7 +156,7 @@ const PlaceForm = (props: Props) => {
           <LocationOption
             key={'location'}
             option={center}
-            onChangeOption={onChangeLocation}
+            onChangeOption={onChangeLocationOption}
             index={0}
           />
         </FormGroup>
@@ -169,6 +177,7 @@ const PlaceForm = (props: Props) => {
       </>
     );
   };
+
   return <Form renderContent={renderContent} />;
 };
 
