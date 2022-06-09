@@ -250,7 +250,25 @@ export const carDetail = `
         type
         size
       }
-      fourAttachments {
+      frontAttachments {
+        name
+        url
+        type
+        size
+      }
+      leftAttachments {
+        name
+        url
+        type
+        size
+      }
+      rightAttachments {
+        name
+        url
+        type
+        size
+      }
+      backAttachments {
         name
         url
         type
