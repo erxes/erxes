@@ -1,5 +1,5 @@
-import { commonDefs, commonVariables } from "../../common/graphq";
-import { lotteryFields } from "./queries";
+import { commonDefs, commonVariables } from '../../common/graphq';
+import { lotteryFields } from './queries';
 
 const lotteriesAdd = `
   mutation lotteriesAdd(${commonDefs}, $status: String) {
@@ -23,8 +23,28 @@ const lotteriesRemove = `
   }
 `;
 
+const doLotteries = `
+mutation doLottery($awardId:String,$campaignId:String){
+  doLottery(awardId:$awardId,campaignId:$campaignId)
+}
+`;
+const multipledoLottery = `
+mutation doLotteryMultiple($awardId:String,$campaignId: String,$multiple: Int){
+  doLotteryMultiple(awardId:$awardId,campaignId:$campaignId,multiple:$multiple)
+}
+`;
+
+const getNextChar = `
+mutation getNextChar($awardId:String,$campaignId:String,$prevChars:String){
+  getNextChar(awardId:$awardId,campaignId:$campaignId,prevChars:$prevChars)
+}
+`;
+
 export default {
   lotteriesAdd,
   lotteriesEdit,
   lotteriesRemove,
-}
+  doLotteries,
+  getNextChar,
+  multipledoLottery
+};

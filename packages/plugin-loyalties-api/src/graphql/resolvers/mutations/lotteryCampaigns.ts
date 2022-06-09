@@ -33,6 +33,20 @@ const lotteriesMutations = {
     { models }: IContext
   ) {
     return models.LotteryCampaigns.doLottery(params);
+  },
+  async doLotteryMultiple(
+    _root,
+    params: { campaignId: string; awardId: string; multiple: number },
+    { models }: IContext
+  ) {
+    return models.LotteryCampaigns.multipleDoLottery(params);
+  },
+  async getNextChar(
+    _root,
+    params: { campaignId: string; awardId: string; prevChars: string },
+    { models }: IContext
+  ) {
+    return models.LotteryCampaigns.getNextChar(params);
   }
 };
 

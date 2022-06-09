@@ -1,4 +1,8 @@
-import { commonFields, commonParamsDef, commonParamsValue } from '../../common/graphq';
+import {
+  commonFields,
+  commonParamsDef,
+  commonParamsValue
+} from '../../common/graphq';
 
 export const lotteryFields = `
   ${commonFields}
@@ -35,8 +39,28 @@ export const lotteriesMain = `
     }
   }
 `;
+export const lotteryCampaignWinnerList = `
+  query lotteryCampaignWinnerList(${listParamsDef},$awardId: String) {
+    lotteryCampaignWinnerList(${listParamsValue},awardId:$awardId) {
+      list {
+        ${lotteryFields}
+      }
 
+      totalCount
+    }
+  }
+`;
+export const lotteriesCampaignMain = `
+  query lotteriesCampaignCustomerList(${listParamsDef}) {
+    lotteriesCampaignCustomerList(${listParamsValue}) {
+      list {
+        ${lotteryFields}
+      }
 
+      totalCount
+    }
+  }
+`;
 const lotteryDetail = `
   query lotteryDetail($_id: String!) {
     lotteryDetail(_id: $_id) {
@@ -49,4 +73,6 @@ export default {
   lotteries,
   lotteriesMain,
   lotteryDetail,
+  lotteriesCampaignMain,
+  lotteryCampaignWinnerList
 };

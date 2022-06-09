@@ -1,9 +1,16 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { ICommonCampaignParams } from '../../../models/definitions/common';
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import {
+  ICommonCampaignParams,
+  ICommonParams
+} from '../../../models/definitions/common';
 import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
+interface IParams extends ICommonParams {
+  voucherCampaignId: string;
+  awardId: string;
+}
 const generateFilter = async params => {
   const filter: any = {};
 
@@ -57,6 +64,53 @@ const lotteryCampaignQueries = {
 
   lotteryCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.LotteryCampaigns.getLotteryCampaign(_id);
+  },
+  async lotteryCampaignWinnerList(
+    _root,
+    params: IParams,
+    { models }: IContext
+  ) {
+    const awardId = params.awardId;
+
+    const filter: any = await generateFilter(params);
+
+    const list = await paginate(
+      models.Lotteries.find({ ...filter, status: 'won', awardId }),
+      params
+    );
+
+    const totalCount = await models.Lotteries.find({
+      ...filter,
+      status: 'won',
+      awardId
+    }).countDocuments();
+
+    return {
+      list,
+      totalCount
+    };
+  },
+  async lotteriesCampaignCustomerList(
+    _root,
+    params: IParams,
+    { models }: IContext
+  ) {
+    const filter: any = await generateFilter(params);
+
+    const list = await paginate(
+      models.Lotteries.find({ ...filter, status: 'new' }),
+      params
+    );
+
+    const totalCount = await models.Lotteries.find({
+      ...filter,
+      status: 'new'
+    }).countDocuments();
+
+    return {
+      list,
+      totalCount
+    };
   }
 };
 
