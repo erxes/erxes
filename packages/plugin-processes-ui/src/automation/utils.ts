@@ -57,7 +57,7 @@ export const yesEndPoint = {
       'Label',
       {
         location: [1.8, 0.5],
-        label: 'True',
+        // label: 'True',
         visible: true,
         labelStyle: {
           color: colors.colorCoreGreen
@@ -111,41 +111,53 @@ export const targetEndpoint = {
 
 export const createInitialConnections = (actions: IJob[], instance: any) => {
   for (const action of actions) {
-    // if (action.type === 'if') {
-    //   if (action.config) {
-    //     if (action.config.yes) {
-    //       instance.connect({
-    //         source: `action-${action.id}`,
-    //         target: `action-${action.config.yes}`,
-    //         anchors: [[1, 0.3], 'Left']
-    //       });
-    //     }
+    const jobIds = action.nextJobIds;
 
-    //     if (action.config.no) {
-    //       instance.connect({
-    //         source: `action-${action.id}`,
-    //         target: `action-${action.config.no}`,
-    //         anchors: [[1, 0.7], 'Left']
-    //       });
-    //     }
+    // for (const job of jobIds) {
+    //   if (job) {
+    //     instance.connect({
+    //       source: `action-${action.id}`,
+    //       target: `action-${job}`,
+    //       anchors: ['Right', 'Left']
+    //     });
     //   }
-    // } else {
+    // }
 
-    if (action.nextJobIds.length && action.nextJobIds[0]) {
+    jobIds.map(job =>
       instance.connect({
         source: `action-${action.id}`,
-        target: `action-${action.nextJobIds[0]}`,
+        target: `action-${job}`,
         anchors: ['Right', 'Left']
-      });
-    }
+      })
+    );
+
+    // if (jobIds.length && jobIds[1]) {
+    //   instance.connect({
+    //     source: `action-${action.id}`,
+    //     target: `action-${jobIds[1]}`,
+    //     anchors: ['Right', 'Left']
+    //   });
+    // }
+
+    // if (jobIds.length && jobIds[0]) {
+    //   instance.connect({
+    //     source: `action-${action.id}`,
+    //     target: `action-${jobIds[0]}`,
+    //     anchors: ['Right', 'Left']
+    //   });
+    // }
   }
-  // }
 };
 
-export const connection = (actions: IJob[], info: any, actionId: any) => {
+export const connection = (
+  actions: IJob[],
+  info: any,
+  actionId: any,
+  type: string
+) => {
   const sourceId = info.sourceId;
 
-  console.log('info:', sourceId, actionId);
+  console.log('info:', sourceId, actionId, type);
 
   if (sourceId.includes('action')) {
     const sourceAction = actions.find(
@@ -153,7 +165,18 @@ export const connection = (actions: IJob[], info: any, actionId: any) => {
     );
 
     if (sourceAction) {
-      sourceAction.nextJobIds[0] = actionId;
+      let jobIds = sourceAction.nextJobIds;
+
+      if (type === 'connect') {
+        if (!jobIds.includes(actionId)) {
+          jobIds.push(actionId);
+        }
+      } else {
+        const leftJobIds = jobIds.filter(j => j !== actionId);
+        jobIds = leftJobIds;
+      }
+
+      sourceAction.nextJobIds = jobIds;
     }
   }
 };
