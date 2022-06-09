@@ -68,13 +68,13 @@ export default {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
-        const { query, user } = req;
+        const { query } = req;
         const { segment } = query;
 
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, subdomain, query, user);
+        const result = await buildFile(models, subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
 
