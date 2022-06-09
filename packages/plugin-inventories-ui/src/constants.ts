@@ -1,6 +1,6 @@
 export const menuRemainder = [
   { title: 'Live Remainders', link: '/inventories/remainders' },
-  { title: 'Census', link: '/inventories/census' }
+  { title: 'Safe Remainders', link: '/inventories/safe-remainders' }
 ];
 
 export const FILTER_PARAMS = [
