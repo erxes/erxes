@@ -1,5 +1,5 @@
 import * as json2csv from 'json2csv';
-import { generateModels } from 'src/connectionResolvers';
+import { generateModels } from '../../../connectionResolvers';
 
 export const generateErrors = async (args: any, subdomain) => {
   const { contentType, importHistoryId } = args;
@@ -12,16 +12,26 @@ export const generateErrors = async (args: any, subdomain) => {
 
   let errors = [] as any;
 
+  const parser = new Parser();
+
+  let csv = '';
+
   if (importHistory) {
     const errorMsgs = importHistory.errorMsgs as any;
 
     if (errorMsgs.length > 0) {
       errors = errorMsgs.filter(msgs => msgs.contentType === contentType);
+    } else {
+      csv = parser.parse([{ errors: 'empty' }]);
+
+      return {
+        name: `${contentType}-errors`,
+        response: csv
+      };
     }
   }
 
-  const parser = new Parser();
-  const csv = parser.parse(errors);
+  csv = parser.parse(errors);
 
   return {
     name: `${contentType}-errors`,

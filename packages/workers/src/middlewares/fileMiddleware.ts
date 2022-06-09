@@ -31,7 +31,9 @@ export const importer = async (
       subdomain
     );
   } catch (e) {
-    console.log(e);
-    // throw new Error();
+    return models.ImportHistory.updateOne(
+      { _id: 'importHistoryId' },
+      { error: e.message }
+    );
   }
 };
