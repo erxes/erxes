@@ -31,7 +31,7 @@ import {
   connection,
   morePoint
 } from '../../utils';
-import NewJobForm from './actions/subForms/NewJobForm';
+import NewJobForm from './actions/NewJobForm';
 import Icon from '@erxes/ui/src/components/Icon';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
@@ -552,10 +552,17 @@ class AutomationForm extends React.Component<Props, State> {
       // console.log('actions: ', actions);
 
       if (showAction && activeAction) {
+        const checkArray = Object.keys(activeAction);
+        let checkedActiveAction = activeAction;
+        if (!checkArray.includes('nextJobIds')) {
+          checkedActiveAction = { ...activeAction, nextJobIds: [] };
+          console.log('checkedActiveAction:', checkedActiveAction);
+        }
+
         return (
           <>
             <NewJobForm
-              activeAction={activeAction}
+              activeAction={checkedActiveAction}
               addAction={this.addAction}
               closeModal={this.onBackAction}
               jobRefers={this.props.jobRefers}

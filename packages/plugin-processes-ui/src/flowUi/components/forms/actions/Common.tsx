@@ -1,10 +1,12 @@
-import React from 'react';
-import { ScrolledContent } from '../../../styles';
 import { __ } from 'coreui/utils';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
-import { ActionFooter } from './styles';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+
 import { IJob } from '../../../../flow/types';
+import { ScrolledContent } from '../../../styles';
+import { ActionFooter } from './styles';
 
 type Props = {
   closeModal: () => void;
