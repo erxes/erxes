@@ -278,7 +278,7 @@ export const generateQueryBySegment = async (
   const selectorNegativeList =
     cj === 'and' ? selector.must_not : selector.must[0].bool.must_not;
 
-  const parentSegment = await models.Segments.getSegment(segment.subOf || '');
+  const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
     selectorPositiveList.push({ bool: {} });
