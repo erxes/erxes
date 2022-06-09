@@ -53,17 +53,26 @@ function Layout({
 }: Props) {
   return (
     <>
-      <Header
-        config={config}
-        currentUser={currentUser}
-        headingSpacing={headingSpacing}
-        headerBottomComponent={headerBottomComponent}
-      />
+      {config.headerHtml ? (
+        <div dangerouslySetInnerHTML={{ __html: config.headerHtml }} />
+      ) : (
+        <Header
+          config={config}
+          currentUser={currentUser}
+          headingSpacing={headingSpacing}
+          headerBottomComponent={headerBottomComponent}
+        />
+      )}
+
       <MainContent
         baseColor={getConfigColor(config, "baseColor")}
         bodyColor={getConfigColor(config, "bodyColor")}
       >
-        <Container>{children({ config, topic })}</Container>
+        <Container>
+          {children({ config, topic })}
+
+          <div dangerouslySetInnerHTML={{ __html: config.footerHtml || '' }} />
+        </Container>
       </MainContent>
 
       {config.messengerBrandCode ? (
