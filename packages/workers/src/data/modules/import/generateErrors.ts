@@ -1,11 +1,15 @@
 import * as json2csv from 'json2csv';
-import ImportHistories from 'src/db/models/ImportHistory';
+import { generateModels } from 'src/connectionResolvers';
 
 export const generateErrors = async (args: any) => {
   const { contentType, importHistoryId } = args;
   const { Parser } = json2csv;
 
-  const importHistory = await ImportHistories.findOne({ _id: importHistoryId });
+  const models = await generateModels('os');
+
+  const importHistory = await models.ImportHistory.findOne({
+    _id: importHistoryId
+  });
 
   let errors = [] as any;
 

@@ -6,7 +6,6 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import { createAWS, getS3FileInfo, uploadsFolderPath } from '../data/utils';
-import { default as ImportHistory } from '../db/models/ImportHistory';
 
 import CustomWorker from './workerUtil';
 import * as streamify from 'stream-array';
@@ -14,6 +13,7 @@ import * as os from 'os';
 import { debugWorkers } from './debugger';
 import { getFileUploadConfigs, initBroker } from '../messageBroker';
 import { redis } from '../serviceDiscovery';
+import { IModels } from '../connectionResolvers';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
@@ -26,6 +26,8 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
     }
 
     const property: { [key: string]: any } = {};
+
+    console.log(columnConfig);
 
     if (columnConfig) {
       if (columnConfig[fieldName]) {
@@ -311,7 +313,11 @@ export const updateDuplicatedValue = async (
 };
 
 // csv file import, cancel, removal
-export const receiveImportRemove = async (content: any) => {
+export const receiveImportRemove = async (
+  content: any,
+  models: IModels,
+  subdomain: string
+) => {
   try {
     debugWorkers(`Remove import called`);
 
@@ -323,7 +329,9 @@ export const receiveImportRemove = async (content: any) => {
 
     myWorker.setHandleEnd(handleOnEndWorker);
 
-    const importHistory = await ImportHistory.getImportHistory(importHistoryId);
+    const importHistory = await models.ImportHistory.getImportHistory(
+      importHistoryId
+    );
 
     const ids = importHistory.ids || [];
 
@@ -345,7 +353,7 @@ export const receiveImportRemove = async (content: any) => {
     }
 
     for (const result of results) {
-      await myWorker.createWorker(workerPath, {
+      await myWorker.createWorker(subdomain, workerPath, {
         contentType,
         importHistoryId,
         result
@@ -365,7 +373,11 @@ export const receiveImportCancel = () => {
   return { status: 'ok' };
 };
 
-export const receiveImportCreate = async (content: any) => {
+export const receiveImportCreate = async (
+  content: any,
+  models: IModels,
+  subdomain: string
+) => {
   const {
     contentTypes,
     files,
@@ -377,7 +389,7 @@ export const receiveImportCreate = async (content: any) => {
     associatedContentType
   } = content;
 
-  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
+  const useElkSyncer = false;
 
   const config: any = {};
 
@@ -405,14 +417,23 @@ export const receiveImportCreate = async (content: any) => {
 
     const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
-    const properties = await checkFieldNames(updatedColumns, columnConfig);
+    let properties;
+
+    try {
+      properties = await checkFieldNames(updatedColumns, columnConfig);
+    } catch (e) {
+      return models.ImportHistory.updateOne(
+        { _id: 'importHistoryId' },
+        { error: e.message }
+      );
+    }
 
     config[contentType.contentType] = { total: rows, properties, fileName };
   }
 
   debugWorkers(config);
 
-  await ImportHistory.updateOne(
+  await models.ImportHistory.updateOne(
     { _id: importHistoryId },
     {
       contentTypes,
@@ -423,11 +444,11 @@ export const receiveImportCreate = async (content: any) => {
   );
 
   const updateImportHistory = async doc => {
-    return ImportHistory.updateOne({ _id: importHistoryId }, doc);
+    return models.ImportHistory.updateOne({ _id: importHistoryId }, doc);
   };
 
   const handleOnEndBulkOperation = async () => {
-    const updatedImportHistory = await ImportHistory.findOne({
+    const updatedImportHistory = await models.ImportHistory.findOne({
       _id: importHistoryId
     });
 
@@ -481,7 +502,7 @@ export const receiveImportCreate = async (content: any) => {
 
     const workerPath = path.resolve(getWorkerFile('bulkInsert'));
 
-    await myWorker.createWorker(workerPath, {
+    await myWorker.createWorker(subdomain, workerPath, {
       rowIndex,
       scopeBrandIds,
       user,
@@ -549,7 +570,7 @@ const importWebhookStream = ({
   });
 };
 
-export const importFromWebhook = async (content: any) => {
+export const importFromWebhook = async (subdomain: string, content: any) => {
   const { data, type } = content;
 
   const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
@@ -573,7 +594,7 @@ export const importFromWebhook = async (content: any) => {
 
     const workerPath = path.resolve(getWorkerFile('bulkInsert'));
 
-    await myWorker.createWorker(workerPath, {
+    await myWorker.createWorker(subdomain, workerPath, {
       contentType: type,
       properties,
       result,
