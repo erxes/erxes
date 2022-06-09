@@ -29,7 +29,8 @@ import {
   connectorPaintStyle,
   connectorHoverStyle,
   hoverPaintStyle,
-  connection
+  connection,
+  morePoint
 } from '../../utils';
 import JobForm from './actions/subForms/CustomCode';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -306,7 +307,6 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({
       showAction: true,
       showDrawer: true,
-      showTrigger: false,
       currentTab: 'actions',
       activeAction: action ? action : ({} as IJob)
     });
@@ -315,7 +315,7 @@ class AutomationForm extends React.Component<Props, State> {
   onConnection = info => {
     const { actions } = this.state;
 
-    connection(actions, info, info.targetId.replace('action-', ''));
+    connection(actions, info, info.targetId.replace('action-', ''), 'connect');
 
     this.setState({ actions });
   };
@@ -323,7 +323,12 @@ class AutomationForm extends React.Component<Props, State> {
   onDettachConnection = info => {
     const { actions } = this.state;
 
-    connection(actions, info, undefined);
+    connection(
+      actions,
+      info,
+      info.targetId.replace('action-', ''),
+      'disconnect'
+    );
 
     this.setState({ actions });
   };
@@ -367,13 +372,8 @@ class AutomationForm extends React.Component<Props, State> {
     const { actions } = this.state;
     const { jobRefers } = this.props;
 
-    console.log('addAction start: ');
-
     let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
-
     let actionIndex = -1;
-
-    console.log('addAction step1');
 
     if (actionId) {
       actionIndex = actions.findIndex(a => a.id === actionId);
@@ -382,8 +382,6 @@ class AutomationForm extends React.Component<Props, State> {
         action = actions[actionIndex];
       }
     }
-
-    console.log('addAction step2');
 
     action.jobReferId = jobReferId;
 
@@ -398,15 +396,11 @@ class AutomationForm extends React.Component<Props, State> {
       actions.push(action);
     }
 
-    console.log('addAction step3');
-
     this.setState({ actions, activeAction: action }, () => {
       if (!actionId) {
         this.renderControl('action', action, this.onClickAction);
       }
     });
-
-    console.log('addAction step4');
   };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
@@ -439,37 +433,27 @@ class AutomationForm extends React.Component<Props, State> {
       </div>
     `);
 
-    console.log('renderControl step1');
-
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
       onClick(item);
     });
 
-    console.log('renderControl step2');
-
     if (key === 'action') {
-      console.log('renderControl step3.1');
-
       instance.addEndpoint(idElm, targetEndpoint, {
         anchor: ['Left']
       });
-
-      console.log('renderControl step3.2');
 
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: ['Right']
       });
 
-      console.log('renderControl step3.3');
+      instance.addEndpoint(idElm, morePoint, {
+        anchor: ['Right']
+      });
 
       instance.draggable(instance.getSelector(`#${idElm}`));
-
-      console.log('renderControl step3.4');
     }
-
-    console.log('renderControl step4');
   };
 
   renderButtons() {
@@ -566,7 +550,7 @@ class AutomationForm extends React.Component<Props, State> {
     if (currentTab === 'actions') {
       const { actions } = this.state;
 
-      console.log('actions: ', actions);
+      // console.log('actions: ', actions);
 
       if (showAction && activeAction) {
         return (
@@ -665,9 +649,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   render() {
     const { automation } = this.props;
-
-    const { jobRefers } = this.props;
-    console.log('jobRefers on automationForm:', jobRefers);
 
     return (
       <>
