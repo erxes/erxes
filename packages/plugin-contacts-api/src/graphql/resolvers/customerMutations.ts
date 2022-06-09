@@ -73,6 +73,47 @@ const customerMutations = {
   },
 
   /**
+   * Finding customer to update by searching primaryEmail,primarPhone etc ...
+   */
+  async customersEditByField(
+    _root,
+    {
+      selector,
+      doc
+    }: {
+      selector: { primaryEmail?: string; primaryPhone?: string; code?: string };
+      doc: ICustomersEdit;
+    },
+    { user, models }: IContext
+  ) {
+    let customer;
+
+    if (selector.primaryEmail) {
+      customer = await models.Customers.findOne({
+        primaryEmail: selector.primaryEmail
+      }).lean();
+    }
+
+    if (!customer && selector.primaryPhone) {
+      customer = await models.Customers.findOne({
+        primarPhone: selector.primaryPhone
+      }).lean();
+    }
+
+    if (!customer && selector.code) {
+      customer = await models.Customers.findOne({ code: selector.code }).lean();
+    }
+
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    const updated = await models.Customers.updateCustomer(customer._id, doc);
+
+    return updated;
+  },
+
+  /**
    * Change state
    */
   async customersChangeState(
@@ -166,6 +207,7 @@ const customerMutations = {
 
 checkPermission(customerMutations, 'customersAdd', 'customersAdd');
 checkPermission(customerMutations, 'customersEdit', 'customersEdit');
+checkPermission(customerMutations, 'customersEditByField', 'customersEdit');
 checkPermission(customerMutations, 'customersMerge', 'customersMerge');
 checkPermission(customerMutations, 'customersRemove', 'customersRemove');
 checkPermission(
