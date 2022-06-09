@@ -5,13 +5,13 @@ import { Route } from 'react-router-dom';
 
 const ProductList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
+    /* webpackChunkName: "Settings List - FlowService" */ './containers/flow/FlowList'
   )
 );
 
 const Details = asyncComponent(() =>
   import(
-    /* webpackChunkName: "AutomationDetails" */ '../automation/containers/forms/EditAutomation'
+    /* webpackChunkName: "FlowForm" */ '../flowUi/containers/forms/FlowForm'
   )
 );
 

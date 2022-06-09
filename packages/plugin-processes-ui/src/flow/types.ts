@@ -1,17 +1,9 @@
-import { mutations } from '@erxes/ui-settings/src/properties/graphql';
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC,
   IUom as IUomC
 } from '@erxes/ui-products/src/types';
-
-import {
-  IAction as IActionA,
-  IAutomation as IAutomationA,
-  ITrigger as ITriggerA,
-  IAutomationNote as IAutomationNoteA
-} from '@erxes/plugin-automations-ui/src/types';
 
 import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
 
