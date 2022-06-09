@@ -32,7 +32,7 @@ export const safeRemainderFields = `
   modifiedAt
   modifiedBy
 
-  date: Date
+  date
   description
 
   status

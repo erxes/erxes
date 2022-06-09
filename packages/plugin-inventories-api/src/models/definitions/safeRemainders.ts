@@ -19,6 +19,7 @@ export interface ISafeRemainderDocument extends ISafeRemainder, Document {
 }
 
 export interface ISafeRemItem {
+  remainderId: string;
   productId: string;
   quantity: number;
   uomId: string;

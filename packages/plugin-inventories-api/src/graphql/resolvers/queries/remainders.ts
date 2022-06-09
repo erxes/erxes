@@ -106,7 +106,7 @@ const remainderQueries = {
       remQuery.branchId = params.branchId;
     }
 
-    const remainders = await models.Remainders.find(remQuery);
+    const remainders = await models.Remainders.find(remQuery).lean();
 
     for (const product of products) {
       const { count = 0, uomId = '' } =

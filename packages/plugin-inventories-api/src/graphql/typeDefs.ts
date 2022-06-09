@@ -4,6 +4,10 @@ import {
   queries as RemainderQueries,
   mutations as RemainderMutations
 } from './schema/remainder';
+import {
+  types as SafeRemainderTypes,
+  queries as SafeRemainderQueries
+} from './schema/safeRemainder';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
@@ -22,9 +26,11 @@ const typeDefs = async _serviceDiscovery => {
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
     ${RemainderTypes}
+    ${SafeRemainderTypes}
 
     extend type Query {
       ${RemainderQueries}
+      ${SafeRemainderQueries}
     }
 
     extend type Mutation {
