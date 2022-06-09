@@ -147,7 +147,11 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { type, validation } = field;
 
-    const operators = OPERATORS[validation || type] || DEFAULT_OPERATORS;
+    const defaultOperators = [
+      ...new Set(DEFAULT_OPERATORS.map(data => data.value))
+    ];
+
+    const operators = OPERATORS[validation || type || ' '] || defaultOperators;
 
     return operators.map((operator, index) => {
       return (
