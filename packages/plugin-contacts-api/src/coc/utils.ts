@@ -48,7 +48,7 @@ export const countBySegment = async (
     segments = await sendSegmentsMessage({
       subdomain,
       action: 'find',
-      data: {},
+      data: { name: { $exists: true } },
       isRPC: true,
       defaultValue: []
     });
@@ -56,7 +56,7 @@ export const countBySegment = async (
     segments = await sendSegmentsMessage({
       subdomain,
       action: 'find',
-      data: { contentType },
+      data: { contentType, name: { $exists: true } },
       isRPC: true,
       defaultValue: []
     });

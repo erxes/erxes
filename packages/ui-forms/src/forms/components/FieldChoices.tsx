@@ -122,6 +122,12 @@ function FieldChoices(props: Props) {
           icon="shoppingcart"
         />
       )}
+      <FieldChoice
+        {...props}
+        type="objectList"
+        text={__('Object List')}
+        icon="sort-amount-down"
+      />
     </Options>
   );
 }
