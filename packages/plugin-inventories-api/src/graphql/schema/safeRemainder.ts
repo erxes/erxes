@@ -7,6 +7,10 @@ export const types = `
     _id: String! @external
   }
 
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type SafeRemainder @key(fields: "_id") {
     _id: String!
     createdAt: Date
@@ -21,6 +25,7 @@ export const types = `
 
     branch: Branch
     department: Department
+    modifiedUser: User
   }
 
   type SafeRemainders {
@@ -31,4 +36,8 @@ export const types = `
 
 export const queries = `
   safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
+`;
+
+export const mutations = `
+  createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
 `;

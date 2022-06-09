@@ -1,20 +1,26 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import RemainderProduct from './customResolvers/remainder';
-import { Remainders as remainderMutations } from './mutations';
+import SafeRemainder from './customResolvers/safeRemainder';
 import {
-  Remainders as RemainderQueries,
-  SafeRemainders as SafeRemainderQueries
+  Remainders as remainderMutations,
+  SafeRemainders as safeRemainderMutations
+} from './mutations';
+import {
+  Remainders as remainderQueries,
+  SafeRemainders as safeRemainderQueries
 } from './queries';
 
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
   RemainderProduct,
+  SafeRemainder,
   Mutation: {
-    ...remainderMutations
+    ...remainderMutations,
+    ...safeRemainderMutations
   },
   Query: {
-    ...RemainderQueries,
-    ...SafeRemainderQueries
+    ...remainderQueries,
+    ...safeRemainderQueries
   }
 });
 

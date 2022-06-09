@@ -1,25 +1,27 @@
 import { safeRemainderFields } from './queries';
 
-const updateRemaindersFields = `
-  $productCategoryId: String,
-  $productIds: [String],
+const createSafeRemainderFields = `
+  $branchId: String,
   $departmentId: String,
-  $branchId: String
+  $date: Date,
+  $description: String,
+  $productCategoryId: String
 `;
 
-const updateRemaindersVariables = `
-  productCategoryId: $productCategoryId,
-  productIds: $productIds,
-  departmentId: $departmentId,
+const createSafeRemainderVariables = `
   branchId: $branchId,
+  departmentId: $departmentId,
+  date: $date,
+  description: $description,
+  productCategoryId: $productCategoryId
 `;
 
-const updateRemainders = `
-  mutation updateRemainders(${updateRemaindersFields}) {
-    updateRemainders(${updateRemaindersVariables}) {
+const createSafeRemainder = `
+  mutation createSafeRemainder(${createSafeRemainderFields}) {
+    createSafeRemainder(${createSafeRemainderVariables}) {
       ${safeRemainderFields}
     }
   }
 `;
 
-export default { updateRemainders };
+export default { createSafeRemainder };

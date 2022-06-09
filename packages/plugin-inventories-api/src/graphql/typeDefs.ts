@@ -1,12 +1,13 @@
 import { gql } from 'apollo-server-express';
 import {
-  types as RemainderTypes,
+  mutations as RemainderMutations,
   queries as RemainderQueries,
-  mutations as RemainderMutations
+  types as RemainderTypes
 } from './schema/remainder';
 import {
-  types as SafeRemainderTypes,
-  queries as SafeRemainderQueries
+  mutations as SafeRemainderMutations,
+  queries as SafeRemainderQueries,
+  types as SafeRemainderTypes
 } from './schema/safeRemainder';
 
 const typeDefs = async _serviceDiscovery => {
@@ -35,6 +36,7 @@ const typeDefs = async _serviceDiscovery => {
 
     extend type Mutation {
       ${RemainderMutations}
+      ${SafeRemainderMutations}
     }
   `;
 };

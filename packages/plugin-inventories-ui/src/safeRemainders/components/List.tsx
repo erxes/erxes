@@ -15,6 +15,8 @@ import { ISafeRemainder } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { menuRemainder } from '../../constants';
 import Button from '@erxes/ui/src/components/Button';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import SafeRemainderForm from '../containers/SafeRemainderForm';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -25,17 +27,9 @@ interface IProps extends IRouterProps {
   removeRemainder: (_id: string) => void;
 }
 
-type State = {
-  searchValue?: string;
-};
-
-class List extends React.Component<IProps, State> {
+class List extends React.Component<IProps, {}> {
   constructor(props) {
     super(props);
-
-    this.state = {
-      searchValue: this.props.queryParams.searchValue
-    };
   }
 
   renderRow = () => {
@@ -54,9 +48,23 @@ class List extends React.Component<IProps, State> {
   render() {
     const { loading, queryParams, history, totalCount } = this.props;
 
+    const trigger = (
+      <Button btnStyle="success" icon="plus-circle">
+        Add safe remainder
+      </Button>
+    );
+
+    const modalContent = props => <SafeRemainderForm {...props} />;
+
     let actionBarRight = (
       <BarItems>
-        <Button></Button>
+        <ModalTrigger
+          title="Add Product/Services"
+          trigger={trigger}
+          autoOpenKey="showProductModal"
+          content={modalContent}
+          size="lg"
+        />
       </BarItems>
     );
 

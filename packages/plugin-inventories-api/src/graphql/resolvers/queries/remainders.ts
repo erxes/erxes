@@ -48,9 +48,9 @@ const remainderQueries = {
         defaultValue: []
       });
 
-      const product_category_ids = productCategories.map(p => p._id);
+      const productCategoryIds = productCategories.map(p => p._id);
 
-      query.categoryId = { $in: product_category_ids };
+      query.categoryId = { $in: productCategoryIds };
     }
 
     if (params.searchValue) {
@@ -68,7 +68,7 @@ const remainderQueries = {
         }
       ];
     }
-    console.log(JSON.stringify(query));
+
     const limit = params.perPage || 20;
     const skip = params.page ? (params.page - 1) * limit : 0;
 

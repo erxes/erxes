@@ -49,6 +49,13 @@ export const safeRemainderFields = `
     code
     title
   }
+  modifiedUser {
+    _id
+    details {
+      avatar
+      fullName
+    }
+  }
 
 `;
 

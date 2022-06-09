@@ -3,11 +3,16 @@ import { field, schemaHooksWrapper } from './utils';
 
 export interface ISafeRemainder {
   date: Date;
-  description: string;
+  description?: string;
 
   status: string;
   branchId: string;
   departmentId: string;
+  productCategoryId: string;
+  createdAt?: Date;
+  createdBy?: string;
+  modifiedAt?: Date;
+  modifiedBy?: string;
 }
 
 export interface ISafeRemainderDocument extends ISafeRemainder, Document {
@@ -64,6 +69,7 @@ export const safeRemainderSchema = schemaHooksWrapper(
     status: field({ type: String, label: 'Status' }),
     branchId: field({ type: String, label: 'Branch' }),
     departmentId: field({ type: String, label: 'Department' }),
+    productCategoryId: field({ type: String, label: 'Product Category' }),
 
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String, label: 'Created User' },

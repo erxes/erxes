@@ -22,12 +22,12 @@ class Row extends React.Component<Props> {
       department,
       description,
       status,
-      modifiedUser,
-      remove
+      modifiedUser
+      // remove
     } = remainder;
 
     const onClick = () => {
-      remove(remainder._id);
+      // remove(remainder._id);
     };
 
     return (
@@ -37,8 +37,8 @@ class Row extends React.Component<Props> {
         <td>{department ? department.title : ''}</td>
         <td>{description}</td>
         <td>{status}</td>
-        <td>{modifiedAt.toDateString()}</td>
-        <td>{renderUserFullName(modifiedUser)}</td>
+        <td>{modifiedAt}</td>
+        <td>{renderUserFullName(modifiedUser || {})}</td>
         <td>
           <ActionButtons>
             <Tip text="Delete" placement="top">

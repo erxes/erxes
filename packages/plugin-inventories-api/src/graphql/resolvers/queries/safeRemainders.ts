@@ -54,7 +54,9 @@ const safeRemainderQueries = {
 
     return {
       totalCount: await models.SafeRemainders.find(query).count(),
-      remainders: paginate(models.Remainders.find(query), { ...params })
+      remainders: await paginate(models.SafeRemainders.find(query), {
+        ...params
+      })
     };
   }
 };

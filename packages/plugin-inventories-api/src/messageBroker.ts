@@ -38,6 +38,15 @@ export const sendCommonMessage = async (
   });
 };
 
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
+};
+
 export const sendProductsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {

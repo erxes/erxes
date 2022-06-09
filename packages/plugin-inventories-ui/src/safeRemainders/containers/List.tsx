@@ -5,11 +5,7 @@ import React from 'react';
 import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
 import { graphql } from 'react-apollo';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import {
-  SafeRemaindersQueryResponse,
-  UpdateRemaindersMutationResponse,
-  UpdateRemaindersMutationVariables
-} from '../types';
+import { SafeRemaindersQueryResponse } from '../types';
 import { mutations, queries } from '../graphql';
 import { FILTER_PARAMS } from '../../constants';
 import queryString from 'query-string';
@@ -24,8 +20,7 @@ type Props = {
 type FinalProps = {
   safeRemaindersQuery: SafeRemaindersQueryResponse;
 } & Props &
-  IRouterProps &
-  UpdateRemaindersMutationResponse;
+  IRouterProps;
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
@@ -88,7 +83,7 @@ class ProductListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { safeRemaindersQuery, queryParams, updateRemainders } = this.props;
+    const { safeRemaindersQuery, queryParams } = this.props;
 
     if (safeRemaindersQuery.loading) {
       return <Spinner />;
@@ -107,13 +102,13 @@ class ProductListContainer extends React.Component<FinalProps> {
       //   });
     };
 
-    const products =
-      (safeRemaindersQuery.safeRemainder &&
-        safeRemaindersQuery.safeRemainder.remainders) ||
+    const remainders =
+      (safeRemaindersQuery.safeRemainders &&
+        safeRemaindersQuery.safeRemainders.remainders) ||
       [];
     const totalCount =
-      (safeRemaindersQuery.safeRemainder &&
-        safeRemaindersQuery.safeRemainder.totalCount) ||
+      (safeRemaindersQuery.safeRemainders &&
+        safeRemaindersQuery.safeRemainders.totalCount) ||
       0;
 
     const searchValue = this.props.queryParams.searchValue || '';
@@ -123,7 +118,7 @@ class ProductListContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       queryParams,
-      products,
+      remainders,
       totalCount,
       loading: safeRemaindersQuery.loading,
       searchValue,
@@ -171,14 +166,14 @@ export default withProps<Props>(
         },
         fetchPolicy: 'network-only'
       })
-    }),
-    graphql<
-      {},
-      UpdateRemaindersMutationResponse,
-      UpdateRemaindersMutationVariables
-    >(gql(mutations.updateRemainders), {
-      name: 'updateRemainders',
-      options: generateOptions
     })
+    // graphql<
+    //   {},
+    //   UpdateRemaindersMutationResponse,
+    //   UpdateRemaindersMutationVariables
+    // >(gql(mutations.updateRemainders), {
+    //   name: 'updateRemainders',
+    //   options: generateOptions
+    // })
   )(ProductListContainer)
 );
