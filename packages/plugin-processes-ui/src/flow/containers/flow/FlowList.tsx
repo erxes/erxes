@@ -5,7 +5,7 @@ import { Alert, withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../../components/product/ProductList';
+import List from '../../components/flow/FlowList';
 import { mutations, queries } from '../../graphql';
 import {
   CategoryDetailQueryResponse,

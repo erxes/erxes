@@ -10,9 +10,9 @@ import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import CategoryList from '../../containers/productCategory/CategoryList';
+import CategoryList from '../../containers/flowCategory/CategoryList';
 import { IProductCategory, IFlowDocument } from '../../types';
-import Row from './ProductRow';
+import Row from './FlowListRow';
 import { menuContacts } from '../../../constants';
 
 interface IProps extends IRouterProps {

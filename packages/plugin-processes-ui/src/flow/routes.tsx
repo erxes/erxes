@@ -5,7 +5,7 @@ import { Route } from 'react-router-dom';
 
 const ProductList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
+    /* webpackChunkName: "Settings List - FlowService" */ './containers/flow/FlowList'
   )
 );
 

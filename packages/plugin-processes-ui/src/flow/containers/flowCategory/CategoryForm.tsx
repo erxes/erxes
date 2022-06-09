@@ -1,7 +1,7 @@
 import React from 'react';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import CategoryForm from '../../components/productCategory/CategoryForm';
+import CategoryForm from '../../components/flowCategory/CategoryForm';
 import { mutations } from '../../graphql';
 import { IJobCategory } from '../../types';
 

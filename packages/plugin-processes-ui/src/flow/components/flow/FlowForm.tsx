@@ -12,7 +12,7 @@ import {
 } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { JOB_TYPE_CHOISES, DURATION_TYPES } from '../../../constants';
-import CategoryForm from '../../containers/productCategory/CategoryForm';
+import CategoryForm from '../../containers/flowCategory/CategoryForm';
 import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import {
   IJobRefer,
