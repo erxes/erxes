@@ -37,40 +37,10 @@ export const sourceEndpoint = {
   }
 };
 
-export const yesEndPoint = {
+export const morePoint = {
   endpoint: 'Dot',
   paintStyle: {
-    fill: rgba(colors.colorCoreGreen, 1),
-    radius: 10
-  },
-  isSource: true,
-  connector: [
-    'Bezier',
-    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
-  ],
-  connectorStyle: connectorPaintStyle,
-  hoverPaintStyle,
-  connectorHoverStyle,
-  anchor: [1, 0.3],
-  overlays: [
-    [
-      'Label',
-      {
-        location: [1.8, 0.5],
-        // label: 'True',
-        visible: true,
-        labelStyle: {
-          color: colors.colorCoreGreen
-        }
-      }
-    ]
-  ]
-};
-
-export const noEndPoint = {
-  endpoint: 'Dot',
-  paintStyle: {
-    fill: rgba(colors.colorCoreRed, 1),
+    fill: rgba(colors.colorCoreGray, 1),
     radius: 10
   },
   isSource: true,
@@ -87,10 +57,10 @@ export const noEndPoint = {
       'Label',
       {
         location: [1.9, 0.6],
-        label: 'False',
+        label: '+1',
         visible: true,
         labelStyle: {
-          color: colors.colorCoreRed
+          color: colors.colorCoreGray
         }
       }
     ]

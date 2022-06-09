@@ -30,8 +30,7 @@ import {
   connectorHoverStyle,
   hoverPaintStyle,
   connection,
-  yesEndPoint,
-  noEndPoint
+  morePoint
 } from '../../utils';
 import JobForm from './actions/subForms/CustomCode';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -449,13 +448,9 @@ class AutomationForm extends React.Component<Props, State> {
         anchor: ['Right']
       });
 
-      instance.addEndpoint(idElm, yesEndPoint, {
+      instance.addEndpoint(idElm, morePoint, {
         anchor: ['Right']
       });
-
-      // instance.addEndpoint(idElm, noEndPoint, {
-      //   anchor: ['Right']
-      // });
 
       instance.draggable(instance.getSelector(`#${idElm}`));
     }
