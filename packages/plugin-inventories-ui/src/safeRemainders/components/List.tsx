@@ -14,6 +14,7 @@ import {
 import { ISafeRemainder } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { menuRemainder } from '../../constants';
+import Button from '@erxes/ui/src/components/Button';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -29,8 +30,6 @@ type State = {
 };
 
 class List extends React.Component<IProps, State> {
-  private timer?: NodeJS.Timer;
-
   constructor(props) {
     super(props);
 
@@ -52,42 +51,12 @@ class List extends React.Component<IProps, State> {
     ));
   };
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    const { history } = this.props;
-    const searchValue = e.target.value;
-
-    this.setState({ searchValue });
-
-    this.timer = setTimeout(() => {
-      router.removeParams(history, 'page');
-      router.setParams(history, { searchValue });
-    }, 500);
-  };
-
-  moveCursorAtTheEnd(e) {
-    const tmpValue = e.target.value;
-
-    e.target.value = '';
-    e.target.value = tmpValue;
-  }
-
   render() {
     const { loading, queryParams, history, totalCount } = this.props;
 
     let actionBarRight = (
       <BarItems>
-        <FormControl
-          type="text"
-          placeholder={__('Type to search')}
-          onChange={this.search}
-          defaultValue={queryParams.searchValue}
-          autoFocus={true}
-          onFocus={this.moveCursorAtTheEnd}
-        />
+        <Button></Button>
       </BarItems>
     );
 

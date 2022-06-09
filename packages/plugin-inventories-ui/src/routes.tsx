@@ -28,8 +28,8 @@ const safeRemainders = ({ location, history }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/inventories/remainders/" component={remainders} />;
-      <Route path="/inventories/safe-remainders/" component={safeRemainders} />;
+      <Route path="/inventories/remainders/" component={remainders} />
+      <Route path="/inventories/safe-remainders/" component={safeRemainders} />
     </>
   );
 };
