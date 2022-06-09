@@ -1,6 +1,6 @@
-export const menuPos = [
+export const menuRemainder = [
   { title: 'Live Remainders', link: '/inventories/remainders' },
-  { title: 'Pos Items', link: '/pos-order-items' }
+  { title: 'Safe Remainders', link: '/inventories/safe-remainders' }
 ];
 
 export const FILTER_PARAMS = [

@@ -21,7 +21,7 @@ const sendMessage = async (
     if ((await isAvailable(serviceName)) && service) {
       const meta = service.config ? service.config.meta : {};
 
-      if (meta.cronjobs && meta.cronjobs[`${action}Available`]) {
+      if (meta && meta.cronjobs && meta.cronjobs[`${action}Available`]) {
         sendCommonMessage({
           subdomain,
           serviceName,

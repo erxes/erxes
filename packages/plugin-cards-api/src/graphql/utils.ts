@@ -144,14 +144,16 @@ export const sendNotifications = async (
   }
 
   if (!invitedUsers && !removedUsers) {
+    const action = notificationDoc?.action
+      ? notificationDoc?.action
+      : `has updated ${contentType}`;
     sendCoreMessage({
       subdomain: 'os',
       action: 'sendMobileNotification',
       data: {
         title: `Updated Task`,
         body: `${notificationDoc.createdUser?.details?.fullName ||
-          notificationDoc.createdUser?.details
-            ?.shortName} has updated ${contentType}`,
+          notificationDoc.createdUser?.details?.shortName} ${action}`,
         receivers: notificationDoc?.receivers
       }
     });
