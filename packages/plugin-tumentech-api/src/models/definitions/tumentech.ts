@@ -55,7 +55,10 @@ export interface ICar {
   mergedIds: String[];
   searchText: String;
   attachments?: any;
-  fourAttachments?: any;
+  frontAttachments?: any;
+  leftAttachments?: any;
+  rightAttachments?: any;
+  backAttachments?: any;
   floorAttachments?: any;
   transformationAttachments?: any;
 
@@ -532,7 +535,10 @@ export const carSchema = schemaHooksWrapper(
     searchText: field({ type: String, optional: true, index: true }),
 
     attachments: field({ type: [attachmentSchema] }),
-    fourAttachments: field({ type: [fourAttachmentSchema] }),
+    frontAttachments: field({ type: [fourAttachmentSchema] }),
+    leftAttachments: field({ type: [fourAttachmentSchema] }),
+    rightAttachments: field({ type: [fourAttachmentSchema] }),
+    backAttachments: field({ type: [fourAttachmentSchema] }),
     floorAttachments: field({ type: [floorAttachmentSchema] }),
     transformationAttachments: field({
       type: [transformationAttachmentSchema]

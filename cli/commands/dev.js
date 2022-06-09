@@ -177,8 +177,8 @@ module.exports.devCmd = async program => {
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
-        ...(plugin.extra_env || {}),
         ...commonEnv,
+        ...(plugin.extra_env || {}),
       },
     });
   }

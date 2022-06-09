@@ -74,7 +74,10 @@ const commonFields = `
   $forceValue: Float
 
   $attachments: [AttachmentInput]
-  $fourAttachments: [AttachmentInput]
+  $frontAttachments: [AttachmentInput]
+  $leftAttachments: [AttachmentInput]
+  $rightAttachments: [AttachmentInput]
+  $backAttachments: [AttachmentInput]
   $floorAttachments: [AttachmentInput]
   $transformationAttachments: [AttachmentInput]
 `;
@@ -154,7 +157,10 @@ const commonVariables = `
   forceValue: $forceValue,
 
   attachments: $attachments,
-  fourAttachments: $fourAttachments
+  frontAttachments: $frontAttachments
+  leftAttachments: $leftAttachments
+  rightAttachments: $rightAttachments
+  backAttachments: $backAttachments
   floorAttachments: $floorAttachments
   transformationAttachments: $transformationAttachments
 `;

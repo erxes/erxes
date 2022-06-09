@@ -13,6 +13,7 @@ export interface IImportHistory {
   status: string;
   percentage: number;
   errorMsgs: string[];
+  error: string;
 }
 
 export interface IImportHistoryItem {
