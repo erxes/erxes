@@ -4,6 +4,9 @@ export const types = `
     name: String!
     content: String
     status: String
+    createdBy: String
+    createdAt: Date
+    modifiedAt: Date
   }
 `;
 
@@ -17,4 +20,5 @@ export const mutations = `
   emailTemplatesEdit(_id: String!, name: String!, content: String): EmailTemplate
   emailTemplatesRemove(_id: String!): JSON
   emailTemplatesChangeStatus(_id: String!, status: String): EmailTemplate
+  emailTemplatesDuplicate(_id: String!): EmailTemplate
 `;
