@@ -45,7 +45,7 @@ const HeaderLogo = styled.div`
   }
 `;
 
-const HeaderTitle = styledTS<{ color?: boolean }>(styled.span)`
+const HeaderTitle = styledTS<{ color?: string }>(styled.span)`
   margin-left: 10px;
   padding-left: 10px;
   border-left: 1px solid ${(props) =>
@@ -70,7 +70,7 @@ const HeaderLeft = styled.div`
   align-items: baseline;
 `;
 
-const SupportMenus = styledTS<{ color?: boolean }>(styled.div)`
+const SupportMenus = styledTS<{ color?: string }>(styled.div)`
   display: flex;
   align-items: baseline;
   justify-content: flex-end;
@@ -99,7 +99,7 @@ const HeaderLinks = styled.div`
   text-align: right;
 `;
 
-const LinkItem = styledTS<{ active?: boolean; color?: boolean }>(styled.span)`
+const LinkItem = styledTS<{ active?: boolean; color?: string }>(styled.span)`
   display: inline-block;
   padding-right: ${dimensions.unitSpacing}px;
   margin-right: ${dimensions.unitSpacing}px;
