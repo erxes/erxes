@@ -32,9 +32,7 @@ class PropertyDetail extends React.Component<Props, {}> {
       return op.value === propertyOperator;
     });
 
-    const text = operator.name;
-
-    return text;
+    return operator ? operator.name : '';
   };
 
   renderValue = () => {
