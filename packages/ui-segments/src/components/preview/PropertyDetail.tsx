@@ -23,18 +23,12 @@ class PropertyDetail extends React.Component<Props, {}> {
     const { type } = field;
     const { propertyOperator } = condition;
 
-    const defaultOperators = [
-      ...new Set(DEFAULT_OPERATORS.map(data => data.value))
-    ];
-
-    const operators = OPERATORS[type || ''] || defaultOperators;
+    const operators = OPERATORS[type || ''] || DEFAULT_OPERATORS;
     const operator = operators.find(op => {
       return op.value === propertyOperator;
     });
 
-    const text = operator.name;
-
-    return text;
+    return operator ? operator.name : '';
   };
 
   renderValue = () => {
