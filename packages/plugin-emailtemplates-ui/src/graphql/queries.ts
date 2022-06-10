@@ -4,6 +4,9 @@ const emailTemplates = `
       _id
       name
       content
+      createdAt
+      modifiedAt
+      createdBy
     }
   }
 `;

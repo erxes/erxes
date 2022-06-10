@@ -4,6 +4,9 @@ export const types = `
     name: String!
     content: String
     status: String
+    createdBy: String
+    createdAt: Date
+    modifiedAt: Date
   }
 `;
 

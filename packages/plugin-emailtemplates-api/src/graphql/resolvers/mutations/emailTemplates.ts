@@ -18,7 +18,12 @@ const emailTemplateMutations = {
     doc: IEmailTemplate,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    const template = await models.EmailTemplates.create(docModifier(doc));
+    const modifiedDoc = docModifier(doc);
+
+    const template = await models.EmailTemplates.createEmailTemplate(
+      modifiedDoc,
+      user
+    );
 
     await putCreateLog(
       subdomain,
