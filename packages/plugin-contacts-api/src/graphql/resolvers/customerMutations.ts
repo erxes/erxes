@@ -84,7 +84,7 @@ const customerMutations = {
       selector: { primaryEmail?: string; primaryPhone?: string; code?: string };
       doc: ICustomersEdit;
     },
-    { user, models }: IContext
+    { models }: IContext
   ) {
     let customer;
 
@@ -108,9 +108,25 @@ const customerMutations = {
       throw new Error('Customer not found');
     }
 
-    const updated = await models.Customers.updateCustomer(customer._id, doc);
+    if (doc.customFieldsData) {
+      const prevCustomFieldsData = customer.customFieldsData || [];
 
-    return updated;
+      for (const data of doc.customFieldsData) {
+        const prevEntry = prevCustomFieldsData.find(
+          d => d.field === data.field
+        );
+
+        if (prevEntry) {
+          prevEntry.value = data.value;
+        } else {
+          prevCustomFieldsData.push(data);
+        }
+      }
+
+      doc.customFieldsData = prevCustomFieldsData;
+    }
+
+    return models.Customers.updateCustomer(customer._id, doc);
   },
 
   /**
