@@ -1,5 +1,11 @@
 import * as mongoose from 'mongoose';
-import { removeCompanies } from '../messageBroker';
+import {
+  removeCompanies,
+  removeCustomers,
+  removeDeals,
+  removeTasks,
+  removeTickets
+} from '../messageBroker';
 
 import { connect } from './utils';
 
@@ -16,29 +22,25 @@ connect()
       case 'company':
         await removeCompanies(subdomain, result);
         break;
-      // case 'customer':
-      //   await Customers.removeCustomers(result);
-      //   break;
-      // case 'lead':
-      //   await Customers.removeCustomers(result);
-      //   break;
-      // case 'product':
-      //   await Products.removeProducts(result);
-      //   break;
-      // case 'deal':
-      //   await Deals.removeDeals(result);
-      //   break;
-      // case 'task':
-      //   await Tasks.removeTasks(result);
-      //   break;
-      // case 'ticket':
-      //   await Tickets.removeTickets(result);
-      //   break;
+      case 'customer':
+        await removeCustomers(subdomain, result);
+        break;
+      case 'lead':
+        await removeCustomers(subdomain, result);
+        break;
+
+      case 'deal':
+        await removeDeals(subdomain, result);
+        break;
+      case 'task':
+        await removeTasks(subdomain, result);
+        break;
+      case 'ticket':
+        await removeTickets(subdomain, result);
+        break;
       default:
         break;
     }
-
-    console.log(result, contentType);
 
     mongoose.connection.close();
 
