@@ -389,7 +389,7 @@ export const receiveImportCreate = async (
     associatedContentType
   } = content;
 
-  const useElkSyncer = false;
+  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
   const config: any = {};
 
