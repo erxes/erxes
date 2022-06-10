@@ -139,13 +139,6 @@ class AutomationForm extends React.Component<Props, State> {
       this.connectInstance();
     }
 
-    // if (
-    //   prevState.actions.length !== prevProps.automation.actions.length ||
-    //   prevState.triggers.length !== prevProps.automation.triggers.length
-    // ) {
-    //   this.runJquery();
-    // }
-
     this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
       transformOrigin = transformOrigin || [0.5, 0.5];
       instanceZoom = instanceZoom || jsPlumb;
@@ -191,7 +184,6 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     const { triggers, actions } = this.state;
-    console.log('connectic');
     instance.bind('ready', () => {
       instance.bind('connection', info => {
         this.onConnection(info);
@@ -545,7 +537,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderControl = (key: string, item: ITrigger | IAction, onClick: any) => {
     const idElm = `${key}-${item.id}`;
-    console.log(item);
+
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
         <div class="trigger-header">
