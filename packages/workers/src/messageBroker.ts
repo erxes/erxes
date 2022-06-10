@@ -44,6 +44,30 @@ export const removeCompanies = (subdomain, _ids) =>
     data: { _ids }
   });
 
+export const removeCustomers = (subdomain, _ids) =>
+  sendRPCMessage('contacts:customers.removeCustomers', {
+    subdomain,
+    data: { customerIds: _ids }
+  });
+
+export const removeTickets = (subdomain, _ids) =>
+  sendRPCMessage('cards:tickets.remove', {
+    subdomain,
+    data: { _ids }
+  });
+
+export const removeDeals = (subdomain, _ids) =>
+  sendRPCMessage('cards:deaks.remove', {
+    subdomain,
+    data: { _ids }
+  });
+
+export const removeTasks = (subdomain, _ids) =>
+  sendRPCMessage('cards:tasks.remove', {
+    subdomain,
+    data: { _ids }
+  });
+
 export const getFileUploadConfigs = async () =>
   sendRPCMessage('core:getFileUploadConfigs', {});
 
