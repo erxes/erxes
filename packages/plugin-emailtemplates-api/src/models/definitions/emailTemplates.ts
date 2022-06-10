@@ -26,6 +26,6 @@ export const emailTemplateSchema = schemaWrapper(
       label: 'Created at'
     }),
     createdBy: field({ type: String, label: 'Created by' }),
-    modifiedAt: field({ type: Date, label: 'Modified at' })
+    modifiedAt: field({ type: Date, default: Date.now, label: 'Modified at' })
   })
 );

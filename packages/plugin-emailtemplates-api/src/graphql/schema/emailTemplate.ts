@@ -20,4 +20,5 @@ export const mutations = `
   emailTemplatesEdit(_id: String!, name: String!, content: String): EmailTemplate
   emailTemplatesRemove(_id: String!): JSON
   emailTemplatesChangeStatus(_id: String!, status: String): EmailTemplate
+  emailTemplatesDuplicate(_id: String!): EmailTemplate
 `;

@@ -119,6 +119,22 @@ const emailTemplateMutations = {
     );
 
     return removed;
+  },
+
+  /**
+   * Duplicate an email template
+   */
+  async emailTemplatesDuplicate(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext
+  ) {
+    const template = await models.EmailTemplates.duplicateEmailTemplate(
+      _id,
+      user._id
+    );
+
+    return template;
   }
 };
 
