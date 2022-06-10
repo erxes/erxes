@@ -45,9 +45,9 @@ export const removeCompanies = (subdomain, _ids) =>
   });
 
 export const removeCustomers = (subdomain, _ids) =>
-  sendRPCMessage('contacts:companies.removeCustomers', {
+  sendRPCMessage('contacts:customers.removeCustomers', {
     subdomain,
-    data: { _ids }
+    data: { customerIds: _ids }
   });
 
 export const removeTickets = (subdomain, _ids) =>
