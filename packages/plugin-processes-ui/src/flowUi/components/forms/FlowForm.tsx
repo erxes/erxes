@@ -317,6 +317,16 @@ class AutomationForm extends React.Component<Props, State> {
     connection(actions, info, info.targetId.replace('action-', ''), 'connect');
 
     this.setState({ actions });
+
+    const sourceAction = actions.find(
+      a => a.id.toString() === info.sourceId.replace('action-', '')
+    );
+
+    const idElm = 'action-' + sourceAction.id;
+    instance.addEndpoint(idElm, sourceEndpoint, {
+      anchor: ['Right']
+    });
+    instance.draggable(instance.getSelector(`#${idElm}`));
   };
 
   onDettachConnection = info => {
@@ -447,9 +457,9 @@ class AutomationForm extends React.Component<Props, State> {
         anchor: ['Right']
       });
 
-      instance.addEndpoint(idElm, morePoint, {
-        anchor: ['Right']
-      });
+      // instance.addEndpoint(idElm, morePoint, {
+      //   anchor: ['Right']
+      // });
 
       instance.draggable(instance.getSelector(`#${idElm}`));
     }
@@ -549,7 +559,7 @@ class AutomationForm extends React.Component<Props, State> {
     if (currentTab === 'actions') {
       const { actions } = this.state;
 
-      // console.log('actions: ', actions);
+      console.log('actions: ', actions);
 
       if (showAction && activeAction) {
         const checkArray = Object.keys(activeAction);
