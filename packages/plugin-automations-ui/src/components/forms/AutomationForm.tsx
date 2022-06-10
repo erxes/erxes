@@ -184,6 +184,7 @@ class AutomationForm extends React.Component<Props, State> {
     });
 
     const { triggers, actions } = this.state;
+
     instance.bind('ready', () => {
       instance.bind('connection', info => {
         this.onConnection(info);
@@ -410,7 +411,13 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   toggleDrawer = (type: string) => {
-    this.setState({ showDrawer: !this.state.showDrawer, currentTab: type });
+    const { showDrawer, triggers } = this.state;
+
+    if (type === 'actions' && triggers.length === 0) {
+      return Alert.warning('Please add a Trigger first!');
+    }
+
+    this.setState({ showDrawer: !showDrawer, currentTab: type });
   };
 
   getNewId = (checkIds: string[]) => {
