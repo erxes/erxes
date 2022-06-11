@@ -14,7 +14,7 @@ type Props = {
 
 class Row extends React.Component<Props> {
   render() {
-    const { remainder } = this.props;
+    const { remainder, history } = this.props;
     const {
       date,
       modifiedAt,
@@ -26,12 +26,16 @@ class Row extends React.Component<Props> {
       // remove
     } = remainder;
 
-    const onClick = () => {
-      // remove(remainder._id);
+    const onClick = e => {
+      e.stopPropagation();
+    };
+
+    const onTrClick = () => {
+      history.push(`/inventories/safe-remainders/details/${remainder._id}`);
     };
 
     return (
-      <tr>
+      <tr onClick={onTrClick}>
         <td>{date}</td>
         <td>{branch ? branch.title : ''}</td>
         <td>{department ? department.title : ''}</td>
@@ -39,7 +43,7 @@ class Row extends React.Component<Props> {
         <td>{status}</td>
         <td>{modifiedAt}</td>
         <td>{renderUserFullName(modifiedUser || {})}</td>
-        <td>
+        <td onClick={onClick}>
           <ActionButtons>
             <Tip text="Delete" placement="top">
               <Button btnStyle="link" onClick={onClick}>

@@ -31,6 +31,10 @@ export type SafeRemaindersQueryResponse = {
   safeRemainders: { remainders: ISafeRemainder[]; totalCount: number };
 } & QueryResponse;
 
+export type SafeRemainderDetailQueryResponse = {
+  safeRemainderDetail: ISafeRemainder;
+} & QueryResponse;
+
 export type UpdateRemaindersMutationVariables = {
   productCategoryId?: string;
   productIds?: string[];

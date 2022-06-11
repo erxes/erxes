@@ -102,7 +102,7 @@ class List extends React.Component<IProps, {}> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Remainder of Products')}
+            title={__('Safe Remainders')}
             submenu={menuRemainder}
           />
         }

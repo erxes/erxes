@@ -75,6 +75,19 @@ const safeRemainders = `
   }
 `;
 
+const safeRemainderDetail = `
+query safeRemainderDetail(
+  $_id: String!
+) {
+  safeRemainderDetail(
+    _id: $_id
+  ) {
+    ${safeRemainderFields}
+  }
+}
+`;
+
 export default {
-  safeRemainders
+  safeRemainders,
+  safeRemainderDetail
 };

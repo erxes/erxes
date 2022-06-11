@@ -36,6 +36,7 @@ export const types = `
 
 export const queries = `
   safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
+  safeRemainderDetail(_id: String!): SafeRemainder
 `;
 
 export const mutations = `

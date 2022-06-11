@@ -15,6 +15,12 @@ const SafeRemainders = asyncComponent(() =>
   )
 );
 
+const SafeRemainderDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - SafeRemainders" */ './safeRemainders/containers/Details'
+  )
+);
+
 const remainders = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   return <Remainders queryParams={queryParams} history={history} />;
@@ -25,11 +31,35 @@ const safeRemainders = ({ location, history }) => {
   return <SafeRemainders queryParams={queryParams} history={history} />;
 };
 
+const safeRemainderDetails = ({ match }) => {
+  const id = match.params.id;
+
+  return <SafeRemainderDetails id={id} />;
+};
+
 const routes = () => {
   return (
     <>
-      <Route path="/inventories/remainders/" component={remainders} />
-      <Route path="/inventories/safe-remainders/" component={safeRemainders} />
+      <Route
+        exact={true}
+        path="/inventories/remainders/"
+        key="/inventories/remainders/"
+        component={remainders}
+      />
+
+      <Route
+        exact={true}
+        path="/inventories/safe-remainders/"
+        key="/inventories/safe-remainders/"
+        component={safeRemainders}
+      />
+
+      <Route
+        exact={true}
+        path="/inventories/safe-remainders/details/:id"
+        key="/inventories/safe-remainders/details/:id"
+        component={safeRemainderDetails}
+      />
     </>
   );
 };

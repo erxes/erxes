@@ -9,8 +9,8 @@ const safeRemainderQueries = {
   /**
    * Get one tag
    */
-  remainderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Remainders.findOne({ _id });
+  safeRemainderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.SafeRemainders.findOne({ _id });
   },
 
   safeRemainders: async (_root, params, { models, subdomain }: IContext) => {
