@@ -6,6 +6,8 @@ export const clientPortalGetConfig = `
       description
       logo
       icon
+      headerHtml
+      footerHtml
       url
       messengerBrandCode
       knowledgeBaseLabel

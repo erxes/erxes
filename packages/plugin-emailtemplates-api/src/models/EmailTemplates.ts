@@ -8,11 +8,13 @@ import {
 
 export interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
   getEmailTemplate(_id: string): IEmailTemplateDocument;
+  createEmailTemplate(doc: IEmailTemplate, user?: any): IEmailTemplateDocument;
   updateEmailTemplate(
     _id: string,
     fields: IEmailTemplate
   ): IEmailTemplateDocument;
   removeEmailTemplate(_id: string): void;
+  duplicateEmailTemplate(_id: string, userId: string): IEmailTemplateDocument;
 }
 
 export const loadEmailTemplateClass = (models: IModels) => {
@@ -31,13 +33,30 @@ export const loadEmailTemplateClass = (models: IModels) => {
     }
 
     /**
+     * create an email template
+     */
+    public static async createEmailTemplate(doc: IEmailTemplate, user?: any) {
+      const template = await models.EmailTemplates.create({
+        ...doc,
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+        createdBy: user._id
+      });
+
+      return models.EmailTemplates.getEmailTemplate(template._id);
+    }
+
+    /**
      * Updates an email template
      */
     public static async updateEmailTemplate(
       _id: string,
       fields: IEmailTemplate
     ) {
-      await models.EmailTemplates.updateOne({ _id }, { $set: fields });
+      await models.EmailTemplates.updateOne(
+        { _id },
+        { $set: { ...fields, modifiedAt: new Date() } }
+      );
 
       return models.EmailTemplates.findOne({ _id });
     }
@@ -53,6 +72,19 @@ export const loadEmailTemplateClass = (models: IModels) => {
       }
 
       return emailTemplateObj.remove();
+    }
+
+    /**
+     * Duplicate an email template
+     */
+    public static async duplicateEmailTemplate(_id: string, userId: string) {
+      const template = await models.EmailTemplates.getEmailTemplate(_id);
+
+      return models.EmailTemplates.create({
+        name: `${template.name} copied`,
+        content: template.content,
+        createdBy: userId
+      });
     }
   }
 

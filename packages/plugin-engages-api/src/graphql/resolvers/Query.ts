@@ -7,7 +7,11 @@ import { getCustomerName } from '@erxes/api-utils/src/editorAttributeUtils';
 import { IContext, IModels } from '../../connectionResolver';
 import { awsRequests } from '../../trackers/engageTracker';
 import { prepareAvgStats } from '../../utils';
-import { sendContactsMessage, sendTagsMessage } from '../../messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendTagsMessage
+} from '../../messageBroker';
 import { debug } from '../../configs';
 
 interface IPaged {
@@ -102,7 +106,10 @@ const countsByStatus = async (
     live: await count(models, { ...query, ...statusQueryBuilder('live') }),
     draft: await count(models, { ...query, ...statusQueryBuilder('draft') }),
     paused: await count(models, { ...query, ...statusQueryBuilder('paused') }),
-    yours: await count(models, { ...query, ...statusQueryBuilder('yours', user) })
+    yours: await count(models, {
+      ...query,
+      ...statusQueryBuilder('yours', user)
+    })
   };
 };
 
@@ -142,7 +149,10 @@ const countsByTag = async (
   const response: ICountsByTag = {};
 
   for (const tag of tags) {
-    response[tag._id] = await count(models, { ...query, ...tagQueryBuilder(tag._id) });
+    response[tag._id] = await count(models, {
+      ...query,
+      ...tagQueryBuilder(tag._id)
+    });
   }
 
   return response;
@@ -191,7 +201,11 @@ const listQuery = async (
   return query;
 };
 
-interface ICountParams { name: string; kind: string; status: string }
+interface ICountParams {
+  name: string;
+  kind: string;
+  status: string;
+}
 
 const engageQueries = {
   /**
@@ -210,7 +224,11 @@ const engageQueries = {
       return countsByStatus(models, commonQuerySelector, { kind, user });
     }
 
-    return countsByTag(models, subdomain, commonQuerySelector, { kind, status, user });
+    return countsByTag(models, subdomain, commonQuerySelector, {
+      kind,
+      status,
+      user
+    });
   },
 
   /**
@@ -245,7 +263,11 @@ const engageQueries = {
     return models.Configs.find({});
   },
 
-  async engageReportsList(_root, params: IReportParams, { models, subdomain }: IContext) {
+  async engageReportsList(
+    _root,
+    params: IReportParams,
+    { models, subdomain }: IContext
+  ) {
     const { page, perPage, customerId, status } = params;
     const _page = Number(page || '1');
     const _limit = Number(perPage || '20');
@@ -311,14 +333,30 @@ const engageQueries = {
   /**
    * Get all verified emails
    */
-  engageVerifiedEmails(_root, _args, { models }: IContext) {
-    return awsRequests.getVerifiedEmails(models);
+  async engageVerifiedEmails(_root, _args, { models, subdomain }: IContext) {
+    const users = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      isRPC: true,
+      data: { isActive: true },
+      defaultValue: []
+    });
+
+    const userEmails = users.map(u => u.email);
+    const allVerifiedEmails: any =
+      (await awsRequests.getVerifiedEmails(models)) || [];
+
+    if (!allVerifiedEmails) {
+      return [];
+    }
+
+    return allVerifiedEmails.filter(email => userEmails.includes(email));
   },
 
   async engageEmailPercentages(_root, _args, { models }: IContext) {
     try {
       const stats = await prepareAvgStats(models);
-  
+
       return stats[0];
     } catch (e) {
       debug.error(e.message);
@@ -336,29 +374,33 @@ const engageQueries = {
     );
   },
 
-  async engageSmsDeliveries(_root, params: ISmsDeliveryParams, { models }: IContext) {
+  async engageSmsDeliveries(
+    _root,
+    params: ISmsDeliveryParams,
+    { models }: IContext
+  ) {
     const { type, to, page, perPage } = params;
 
     if (type !== 'campaign') {
       return { status: 'error', message: `Invalid parameter type: "${type}"` };
     }
-  
+
     const filter: any = {};
-  
+
     if (to && !(to === 'undefined' || to === 'null')) {
       filter.to = { $regex: to, $options: '$i' };
     }
-  
+
     const _page = Number(page || '1');
     const _limit = Number(perPage || '20');
-  
+
     const data = await models.SmsRequests.find(filter)
       .sort({ createdAt: -1 })
       .limit(_limit)
       .skip((_page - 1) * _limit);
-  
+
     const totalCount = await models.SmsRequests.countDocuments(filter);
-  
+
     return { list: data, totalCount };
   }
 };

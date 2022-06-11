@@ -5,7 +5,13 @@ import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { ListQueryVariables, OrdersQueryResponse, OrdersSummaryQueryResponse, PosOrderSyncErkhetMutationResponse, PosOrderReturnBillMutationResponse } from '../types';
+import {
+  ListQueryVariables,
+  OrdersQueryResponse,
+  OrdersSummaryQueryResponse,
+  PosOrderSyncErkhetMutationResponse,
+  PosOrderReturnBillMutationResponse
+} from '../types';
 import { mutations, queries } from '../graphql';
 import { withRouter } from 'react-router-dom';
 import { Bulk, withProps, router, Alert, Spinner } from '@erxes/ui/src';
@@ -19,7 +25,7 @@ type Props = {
 
 type FinalProps = {
   ordersQuery: OrdersQueryResponse;
-  ordersSummaryQuery: OrdersSummaryQueryResponse
+  ordersSummaryQuery: OrdersSummaryQueryResponse;
 } & Props &
   IRouterProps &
   PosOrderSyncErkhetMutationResponse &
@@ -43,6 +49,8 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   }
 
   onSearch = (search: string) => {
+    router.removeParams(this.props.history, 'page');
+
     if (!search) {
       return router.removeParams(this.props.history, 'search');
     }
@@ -52,6 +60,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
 
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
+    router.removeParams(this.props.history, 'page');
 
     if (params[key] === values) {
       return router.removeParams(this.props.history, key);
@@ -61,6 +70,8 @@ class OrdersContainer extends React.Component<FinalProps, State> {
   };
 
   onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(this.props.history, 'page');
+
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
         router.setParams(this.props.history, { [key]: filterParams[key] });
@@ -69,8 +80,8 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       }
     }
 
-    return router
-  }
+    return router;
+  };
 
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
@@ -89,7 +100,7 @@ class OrdersContainer extends React.Component<FinalProps, State> {
     router.removeParams(this.props.history, ...Object.keys(params));
   };
 
-  onSyncErkhet = (posId) => {
+  onSyncErkhet = posId => {
     const { posOrderSyncErkhet, ordersQuery } = this.props;
 
     posOrderSyncErkhet({
@@ -104,9 +115,9 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       .catch(e => {
         Alert.error(e.message);
       });
-  }
+  };
 
-  onReturnBill = (posId) => {
+  onReturnBill = posId => {
     const { posOrderReturnBill, ordersQuery } = this.props;
 
     posOrderReturnBill({
@@ -121,16 +132,13 @@ class OrdersContainer extends React.Component<FinalProps, State> {
       .catch(e => {
         Alert.error(e.message);
       });
-  }
+  };
 
   render() {
-    const {
-      ordersQuery,
-      ordersSummaryQuery
-    } = this.props;
+    const { ordersQuery, ordersSummaryQuery } = this.props;
 
     if (ordersSummaryQuery.loading || ordersQuery.loading) {
-      return <Spinner />
+      return <Spinner />;
     }
 
     const summary = ordersSummaryQuery.posOrdersSummary;
@@ -176,7 +184,7 @@ const generateParams = ({ queryParams }) => ({
   createdEndDate: queryParams.createdEndDate,
   paidDate: queryParams.paidDate,
   userId: queryParams.userId,
-  customerId: queryParams.customerId,
+  customerId: queryParams.customerId
 });
 
 export default withProps<Props>(
@@ -191,27 +199,28 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<{ queryParams: any }, OrdersSummaryQueryResponse, ListQueryVariables>(
-      gql(queries.posOrdersSummary),
-      {
-        name: 'ordersSummaryQuery',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<
+      { queryParams: any },
+      OrdersSummaryQueryResponse,
+      ListQueryVariables
+    >(gql(queries.posOrdersSummary), {
+      name: 'ordersSummaryQuery',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, PosOrderSyncErkhetMutationResponse, { _id: string }>(
       gql(mutations.posOrderSyncErkhet),
       {
-        name: 'posOrderSyncErkhet',
+        name: 'posOrderSyncErkhet'
       }
     ),
     graphql<Props, PosOrderReturnBillMutationResponse, { _id: string }>(
       gql(mutations.posOrderReturnBill),
       {
-        name: 'posOrderReturnBill',
+        name: 'posOrderReturnBill'
       }
-    ),
+    )
   )(withRouter<IRouterProps>(OrdersContainer))
 );

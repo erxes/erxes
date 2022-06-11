@@ -1,7 +1,7 @@
 import { fetchSegment } from '../../../messageBroker';
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { paginate, getImportCsvInfo, getCsvHeadersInfo } from '../../utils';
-import { IContext } from 'src/connectionResolvers';
+import { IContext } from '../../../connectionResolvers';
 
 const importHistoryQueries = {
   async importHistoryGetTypes() {

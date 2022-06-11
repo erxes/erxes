@@ -19,6 +19,7 @@ type Props = {
   automation: IAutomation;
   history: any;
   isChecked: boolean;
+  duplicate: (_id: string) => void;
   toggleBulk: (automation: IAutomation, isChecked?: boolean) => void;
   removeAutomations: (automations: IAutomation[]) => void;
 };
@@ -27,6 +28,7 @@ function ActionRow({
   automation,
   history,
   isChecked,
+  duplicate,
   toggleBulk,
   removeAutomations
 }: Props) {
@@ -53,6 +55,21 @@ function ActionRow({
           </Tip>
         </Button>
       </Link>
+    );
+  };
+
+  const duplicateAction = () => {
+    const onDuplicate = () => duplicate(automation._id);
+
+    return (
+      <Tip text={__('Duplicate')} placement="top">
+        <Button
+          id="automationDuplicate"
+          btnStyle="link"
+          onClick={onDuplicate}
+          icon="copy-1"
+        />
+      </Tip>
     );
   };
 
@@ -130,6 +147,7 @@ function ActionRow({
         <ActionButtons>
           {editAction()}
           {removeAction()}
+          {duplicateAction()}
         </ActionButtons>
       </td>
     </tr>

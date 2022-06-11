@@ -1,4 +1,3 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 
@@ -39,7 +38,6 @@ type Props = {
   contentType: string;
   fields: IField[];
   events: IEvent[];
-  boards?: IBoard[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
