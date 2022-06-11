@@ -4,8 +4,11 @@ import { EmailTemplates as EmailTemplateMutations } from './mutations';
 
 import { EmailTemplates as EmailTemplateQueries } from './queries';
 
+import EmailTemplate from './emailTemplates';
+
 const resolvers: any = async _serviceDiscovery => ({
   ...customScalars,
+  EmailTemplate,
 
   Mutation: {
     ...EmailTemplateMutations
