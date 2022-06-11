@@ -8,10 +8,10 @@ import Info from '@erxes/ui/src/components/Info';
 import Label from '@erxes/ui/src/components/Label';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
-import { IJob } from '../../../../../flow/types';
-import { IJobRefer } from '../../../../../job/types';
-import { DrawerDetail } from '../../../../styles';
-import Common from '../Common';
+import { IJob } from '../../../../flow/types';
+import { IJobRefer } from '../../../../job/types';
+import { DrawerDetail } from '../../../styles';
+import Common from './Common';
 
 type Props = {
   closeModal: () => void;
@@ -86,7 +86,7 @@ class Delay extends React.Component<Props, State> {
     beforeActions: IJob[]
   ) => {
     let beforeResultProducts = [];
-    if (beforeActions.length) {
+    if (beforeActions.length > 0) {
       for (const before of beforeActions) {
         const jobRefer = jobRefers.find(job => job._id === before.jobReferId);
         const resultProducts = jobRefer.resultProducts || [];
@@ -127,9 +127,15 @@ class Delay extends React.Component<Props, State> {
   renderContent() {
     const { jobRefers, actions, activeAction } = this.props;
 
+    console.log('beforeActions before before: ', actions);
+
+    const activeActionId =
+      activeAction && activeAction.id ? activeAction.id : '';
     const beforeActions = actions.filter(e =>
-      e.nextJobIds.includes(activeAction.id)
+      e.nextJobIds.includes(activeActionId)
     );
+
+    console.log('beforeActions before: ', beforeActions);
 
     // const afterActions = actions.filter(
     //   e => e.id === activeAction.nextJobIds[0]

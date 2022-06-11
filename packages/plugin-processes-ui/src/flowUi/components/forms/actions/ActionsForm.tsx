@@ -1,12 +1,14 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { ScrolledContent } from '../../../styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import { ACTIONS } from '../../../constants';
-import Tip from '@erxes/ui/src/components/Tip';
+
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ActionBox } from './styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+
 import { IJob } from '../../../../flow/types';
+import { ACTIONS } from '../../../constants';
+import { ScrolledContent } from '../../../styles';
+import { ActionBox } from './styles';
 
 type Props = {
   onClickAction: (action: IJob) => void;
