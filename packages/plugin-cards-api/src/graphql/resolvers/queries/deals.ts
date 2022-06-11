@@ -33,8 +33,6 @@ const dealQueries = {
       ...(await generateDealCommonFilters(models, subdomain, user._id, args))
     };
 
-    serverTiming.startTime('deals');
-
     const getExtraFields = async (item: any) => ({
       amount: await dealResolvers.amount(item)
     });
@@ -101,8 +99,6 @@ const dealQueries = {
         });
       }
     }
-
-    serverTiming.endTime('deals');
 
     return deals;
   },
