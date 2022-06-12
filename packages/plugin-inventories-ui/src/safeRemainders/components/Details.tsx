@@ -3,7 +3,6 @@ import React from 'react';
 import Row from './DetailRow';
 import Sidebar from './DetailSidebar';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { IQueryParams } from '@erxes/ui/src/types';
@@ -13,6 +12,7 @@ import {
   SafeRemItemsQueryResponse
 } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
+import { TableOver } from '../../styles';
 
 type Props = {
   queryParams: IQueryParams;
@@ -49,12 +49,12 @@ class CompanyDetails extends React.Component<Props> {
 
     const content = (
       <>
-        <Table hover={true}>
+        <TableOver hover={true}>
           <thead>
             <tr>
               <th>{__('Product')}</th>
               <th>{__('Live remainder')}</th>
-              <th>{__('Department')}</th>
+              <th>{__('UOM')}</th>
               <th>{__('Product Category')}</th>
               <th>{__('Description')}</th>
               <th>{__('Status')}</th>
@@ -64,7 +64,7 @@ class CompanyDetails extends React.Component<Props> {
             </tr>
           </thead>
           <tbody>{this.renderRow(remItems)}</tbody>
-        </Table>
+        </TableOver>
       </>
     );
     const actionBarRight = <></>;
