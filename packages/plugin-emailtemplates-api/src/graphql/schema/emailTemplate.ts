@@ -1,4 +1,9 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
+
   type EmailTemplate @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String!
@@ -7,6 +12,7 @@ export const types = `
     createdBy: String
     createdAt: Date
     modifiedAt: Date
+    createdUser: User
   }
 `;
 
