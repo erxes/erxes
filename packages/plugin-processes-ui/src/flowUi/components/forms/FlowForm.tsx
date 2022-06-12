@@ -28,8 +28,7 @@ import {
   connectorPaintStyle,
   connectorHoverStyle,
   hoverPaintStyle,
-  connection,
-  morePoint
+  connection
 } from '../../utils';
 import NewJobForm from './actions/NewJobForm';
 import Icon from '@erxes/ui/src/components/Icon';

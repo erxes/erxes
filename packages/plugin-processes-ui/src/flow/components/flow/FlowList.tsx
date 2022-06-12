@@ -19,7 +19,7 @@ interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
   flows: IFlowDocument[];
-  jobRefersCount: number;
+  flowsTotalCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
@@ -76,10 +76,10 @@ class List extends React.Component<IProps, State> {
     this.props.remove({ flowIds }, this.props.emptyBulk);
   };
 
-  renderCount = productCount => {
+  renderCount = flowCount => {
     return (
       <Count>
-        {productCount} job{productCount > 1 && 's'}
+        {flowCount} flow{flowCount > 1 && 's'}
       </Count>
     );
   };
@@ -109,7 +109,7 @@ class List extends React.Component<IProps, State> {
 
   render() {
     const {
-      jobRefersCount,
+      flowsTotalCount,
       loading,
       queryParams,
       isAllSelected,
@@ -119,11 +119,6 @@ class List extends React.Component<IProps, State> {
       currentCategory,
       addFlow
     } = this.props;
-
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service') }
-    ];
 
     let actionBarRight = (
       <BarItems>
@@ -148,7 +143,7 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        {this.renderCount(currentCategory.productCount || jobRefersCount)}
+        {this.renderCount(currentCategory.productCount || flowsTotalCount)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -221,13 +216,13 @@ class List extends React.Component<IProps, State> {
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
         }
-        footer={<Pagination count={jobRefersCount} />}
+        footer={<Pagination count={flowsTotalCount} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={jobRefersCount}
-            emptyText="There is no data"
+            count={flowsTotalCount}
+            emptyText="There is no data 2022"
             emptyImage="/images/actions/5.svg"
           />
         }

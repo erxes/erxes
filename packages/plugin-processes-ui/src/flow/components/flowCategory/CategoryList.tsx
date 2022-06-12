@@ -12,31 +12,27 @@ import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import CategoryForm from '../../containers/flowCategory/CategoryForm';
-import { IJobCategory } from '../../types';
-// import TagFilter from '../../containers/TagFilter';
-// import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-// import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
+import { IFlowCategory } from '../../types';
 import { pluginsOfJobCategoryActions } from 'coreui/pluginUtils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   history: any;
   queryParams: any;
-  remove: (jobCategoryId: string) => void;
-  jobCategories: IJobCategory[];
+  remove: (flowCategoryId: string) => void;
+  flowCategories: IFlowCategory[];
   loading: boolean;
-  jobCategoriesCount: number;
+  flowCategoriesCount: number;
 }
 
 class List extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, category?: IJobCategory) {
+  renderFormTrigger(trigger: React.ReactNode, category?: IFlowCategory) {
     const content = props => (
       <CategoryForm
         {...props}
         category={category}
-        categories={this.props.jobCategories}
+        categories={this.props.flowCategories}
       />
     );
 
@@ -56,7 +52,7 @@ class List extends React.Component<IProps> {
     return currentGroup === id;
   };
 
-  renderEditAction(category: IJobCategory) {
+  renderEditAction(category: IFlowCategory) {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -68,7 +64,7 @@ class List extends React.Component<IProps> {
     return this.renderFormTrigger(trigger, category);
   }
 
-  renderRemoveAction(category: IJobCategory) {
+  renderRemoveAction(category: IFlowCategory) {
     const { remove } = this.props;
 
     return (
@@ -81,11 +77,11 @@ class List extends React.Component<IProps> {
   }
 
   renderContent() {
-    const { jobCategories } = this.props;
+    const { flowCategories } = this.props;
 
     const result: React.ReactNode[] = [];
 
-    for (const category of jobCategories) {
+    for (const category of flowCategories) {
       const order = category.order || '';
 
       const m = order.match(/[/]/gi);
@@ -97,10 +93,10 @@ class List extends React.Component<IProps> {
       }
 
       const name = category.isRoot ? (
-        `${category.name} (${category.productCount || 0})`
+        `${category.name} (${category.flowCount || 0})`
       ) : (
         <span>
-          {category.name} ({category.productCount || 0})
+          {category.name} ({category.flowCount || 0})
         </span>
       );
 
@@ -153,15 +149,15 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryList() {
-    const { jobCategoriesCount, loading } = this.props;
+    const { flowCategoriesCount, loading } = this.props;
 
     return (
       <SidebarList>
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}
-          count={jobCategoriesCount}
-          emptyText="There is no job & service category"
+          count={flowCategoriesCount}
+          emptyText="There is no flow category"
           emptyIcon="folder-2"
           size="small"
         />
@@ -174,14 +170,11 @@ class List extends React.Component<IProps> {
       <Sidebar wide={true} hasBorder={true}>
         <Section
           maxHeight={488}
-          collapsible={this.props.jobCategoriesCount > 9}
+          collapsible={this.props.flowCategoriesCount > 9}
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>
-        {/* <CategoryStatusFilter /> */}
-        {/* <ProductTypeFilter />
-        {isEnabled('tags') && <TagFilter />} */}
       </Sidebar>
     );
   }

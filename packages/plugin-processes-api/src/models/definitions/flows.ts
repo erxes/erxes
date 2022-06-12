@@ -18,9 +18,9 @@ export interface IJobDocument extends IJob {
 
 export interface IFlow {
   name: string;
-  categoryId: string;
+  categoryId?: string;
   status: string;
-  jobs: IJob[];
+  jobs?: IJob[];
 }
 
 export interface IFlowDocument extends IFlow, Document {
@@ -54,13 +54,18 @@ export const flowSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     name: { type: String, required: true },
-    categoryId: field({ type: String, label: 'Category', index: true }),
+    categoryId: field({
+      type: String,
+      label: 'Category',
+      optional: true,
+      index: true
+    }),
     status: field({ type: String, label: 'Status' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String },
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
     updatedBy: { type: String },
-    jobs: field({ type: [jobSchema], label: 'Jobs' })
+    jobs: field({ type: [jobSchema], optional: true, label: 'Jobs' })
   }),
   'erxes_flows'
 );
