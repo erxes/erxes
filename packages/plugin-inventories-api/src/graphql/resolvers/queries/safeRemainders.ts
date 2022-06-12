@@ -33,6 +33,8 @@ const generateFilterItems = async (params, subdomain) => {
     const productIds = products.map(p => p._id);
     query.productId = { $in: productIds };
   }
+
+  return query;
 };
 const safeRemainderQueries = {
   /**
