@@ -88,7 +88,13 @@ export default {
     return models.Deals.findOne({ _id });
   },
 
-  async companies(deal: IDealDocument, _args, { subdomain }: IContext) {
+  async companies(
+    deal: IDealDocument,
+    _args,
+    { subdomain, serverTiming }: IContext
+  ) {
+    serverTiming.startTime('companiesResolver:savedConformity');
+
     const companyIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -100,6 +106,10 @@ export default {
       isRPC: true,
       defaultValue: []
     });
+
+    serverTiming.endTime('companiesResolver:savedConformity');
+
+    serverTiming.startTime('companiesResolver:findActiveCompanies');
 
     const activeCompanies = await sendContactsMessage({
       subdomain,
@@ -114,10 +124,18 @@ export default {
       _id: c._id
     }));
 
+    serverTiming.endTime('companiesResolver:findActiveCompanies');
+
     return response;
   },
 
-  async customers(deal: IDealDocument, _args, { subdomain }: IContext) {
+  async customers(
+    deal: IDealDocument,
+    _args,
+    { subdomain, serverTiming }: IContext
+  ) {
+    serverTiming.startTime('customersResolver:savedConformity');
+
     const customerIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
@@ -129,6 +147,10 @@ export default {
       isRPC: true,
       defaultValue: []
     });
+
+    serverTiming.endTime('customersResolver:savedConformity');
+
+    serverTiming.startTime('customersResolver:findActiveCustomers');
 
     const activeCustomers = await sendContactsMessage({
       subdomain,
@@ -143,11 +165,21 @@ export default {
       _id: c._id
     }));
 
+    serverTiming.endTime('customersResolver:findActiveCustomers');
+
     return response;
   },
 
-  async products(deal: IDealDocument, _args, { subdomain }: IContext) {
+  async products(
+    deal: IDealDocument,
+    _args,
+    { subdomain, serverTiming }: IContext
+  ) {
+    serverTiming.startTime('customersResolver:products');
+
     const response = await generateProducts(subdomain, deal.productsData);
+
+    serverTiming.endTime('customersResolver:products');
 
     return response;
   },
@@ -189,7 +221,13 @@ export default {
     return false;
   },
 
-  async hasNotified(deal: IDealDocument, _args, { user, subdomain }: IContext) {
+  async hasNotified(
+    deal: IDealDocument,
+    _args,
+    { user, subdomain, serverTiming }: IContext
+  ) {
+    serverTiming.startTime('hasNotifified');
+
     const response = await sendNotificationsMessage({
       subdomain,
       action: 'checkIfRead',
@@ -198,6 +236,8 @@ export default {
         itemId: deal._id
       }
     });
+
+    serverTiming.endTime('hasNotifified');
 
     return response;
   },
