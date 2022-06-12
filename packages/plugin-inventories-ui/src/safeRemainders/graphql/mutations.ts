@@ -24,4 +24,13 @@ const createSafeRemainder = `
   }
 `;
 
-export default { createSafeRemainder };
+const removeSafeRemainder = `
+  mutation removeSafeRemainder($_id: String!) {
+    removeSafeRemainder(_id: $_id)
+  }
+`;
+
+export default {
+  createSafeRemainder,
+  removeSafeRemainder
+};

@@ -1,18 +1,23 @@
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import { renderUserFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { ISafeRemainder } from '../types';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
 
 type Props = {
   remainder: ISafeRemainder;
   history: any;
-  remove: (_id: string) => void;
+  removeRemainder: (remainder: ISafeRemainder) => void;
 };
 
 class Row extends React.Component<Props> {
+  remove = () => {
+    const { removeRemainder, remainder } = this.props;
+
+    removeRemainder(remainder);
+  };
+
   render() {
     const { remainder, history } = this.props;
     const {
@@ -24,7 +29,6 @@ class Row extends React.Component<Props> {
       description,
       status,
       modifiedUser
-      // remove
     } = remainder;
 
     const onClick = e => {
@@ -52,9 +56,11 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <ActionButtons>
             <Tip text="Delete" placement="top">
-              <Button btnStyle="link" onClick={onClick}>
-                <Icon icon="times-circle" />
-              </Button>
+              <Button
+                btnStyle="link"
+                onClick={this.remove}
+                icon="times-circle"
+              />
             </Tip>
           </ActionButtons>
         </td>

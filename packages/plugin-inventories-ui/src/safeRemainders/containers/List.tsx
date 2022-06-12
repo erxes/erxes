@@ -1,15 +1,19 @@
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
 import List from '../components/List';
-import React from 'react';
-import { Bulk, withProps, router, Spinner } from '@erxes/ui/src';
-import { graphql } from 'react-apollo';
-import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { SafeRemaindersQueryResponse } from '../types';
-import { mutations, queries } from '../graphql';
-import { FILTER_PARAMS } from '../../constants';
 import queryString from 'query-string';
-import { Alert } from '@erxes/ui/src/utils';
+import React from 'react';
+import { Alert, confirm, router, withProps } from '@erxes/ui/src/utils';
+import { Bulk, Spinner } from '@erxes/ui/src/components';
+import { FILTER_PARAMS } from '../../constants';
+import { graphql } from 'react-apollo';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+import {
+  ISafeRemainder,
+  RemoveSafeRemainderMutationResponse,
+  SafeRemaindersQueryResponse
+} from '../types';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   queryParams: any;
@@ -20,7 +24,8 @@ type Props = {
 type FinalProps = {
   safeRemaindersQuery: SafeRemaindersQueryResponse;
 } & Props &
-  IRouterProps;
+  IRouterProps &
+  RemoveSafeRemainderMutationResponse;
 
 const generateQueryParams = ({ location }) => {
   return queryString.parse(location.search);
@@ -83,23 +88,31 @@ class ProductListContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { safeRemaindersQuery, queryParams } = this.props;
+    const {
+      safeRemaindersQuery,
+      queryParams,
+      removeSafeRemainder
+    } = this.props;
 
     if (safeRemaindersQuery.loading) {
       return <Spinner />;
     }
 
-    // recalc action
-    const removeRemainder = (_id: string) => {
-      // updateRemainders({
-      //   variables: { _id }
-      // })
-      //   .then(data => {
-      //     refetch();
-      //   })
-      //   .catch(e => {
-      //     Alert.error(e.message);
-      //   });
+    const removeRemainder = (remainder: ISafeRemainder) => {
+      confirm(`This action will remove the remainder. Are you sure?`)
+        .then(() => {
+          removeSafeRemainder({ variables: { _id: remainder._id } })
+            .then(() => {
+              Alert.success('You successfully deleted a census');
+              safeRemaindersQuery.refetch();
+            })
+            .catch(e => {
+              Alert.error(e.message);
+            });
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
     };
 
     const remainders =
@@ -166,14 +179,15 @@ export default withProps<Props>(
         },
         fetchPolicy: 'network-only'
       })
-    })
-    // graphql<
-    //   {},
-    //   UpdateRemaindersMutationResponse,
-    //   UpdateRemaindersMutationVariables
-    // >(gql(mutations.updateRemainders), {
-    //   name: 'updateRemainders',
-    //   options: generateOptions
-    // })
+    }),
+    graphql<Props, RemoveSafeRemainderMutationResponse, { _id: string }>(
+      gql(mutations.removeSafeRemainder),
+      {
+        name: 'removeSafeRemainder',
+        options: () => ({
+          refetchQueries: ['safeRemaindersQuery']
+        })
+      }
+    )
   )(ProductListContainer)
 );

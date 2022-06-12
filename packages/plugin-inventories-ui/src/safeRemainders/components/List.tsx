@@ -1,12 +1,11 @@
 import React from 'react';
 import Row from './Row';
 import Sidebar from './Sidebar';
-import { __, router } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import {
   BarItems,
   DataWithLoader,
   EmptyState,
-  FormControl,
   Pagination,
   Table,
   Wrapper
@@ -24,7 +23,7 @@ interface IProps extends IRouterProps {
   remainders: ISafeRemainder[];
   totalCount: number;
   loading: boolean;
-  removeRemainder: (_id: string) => void;
+  removeRemainder: (remainder: ISafeRemainder) => void;
 }
 
 class List extends React.Component<IProps, {}> {
@@ -40,7 +39,7 @@ class List extends React.Component<IProps, {}> {
         history={history}
         key={rem._id}
         remainder={rem}
-        remove={removeRemainder}
+        removeRemainder={removeRemainder}
       />
     ));
   };

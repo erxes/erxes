@@ -45,7 +45,7 @@ class CompanyDetails extends React.Component<Props> {
       return <Spinner />;
     }
 
-    const remItems = safeRemItemsQuery.items;
+    const remItems = safeRemItemsQuery.safeRemItems;
 
     const content = (
       <>

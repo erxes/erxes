@@ -52,22 +52,13 @@ export type SafeRemainderDetailQueryResponse = {
 } & QueryResponse;
 
 export type SafeRemItemsQueryResponse = {
-  items: ISafeRemaItem[];
+  safeRemItems: ISafeRemaItem[];
 } & QueryResponse;
 
 export type SafeRemItemsCountQueryResponse = {
   safeRemItemsCount: number;
 } & QueryResponse;
 
-export type UpdateRemaindersMutationVariables = {
-  productCategoryId?: string;
-  productIds?: string[];
-  departmentId: string;
-  branchId: string;
-};
-
-export type UpdateRemaindersMutationResponse = {
-  updateRemainders: (params: {
-    variables: UpdateRemaindersMutationVariables;
-  }) => Promise<any>;
+export type RemoveSafeRemainderMutationResponse = {
+  removeSafeRemainder: (params: { variables: { _id: string } }) => Promise<any>;
 };
