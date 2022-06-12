@@ -3,11 +3,11 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import CategoryForm from '../../components/flowCategory/CategoryForm';
 import { mutations } from '../../graphql';
-import { IJobCategory } from '../../types';
+import { IFlowCategory } from '../../types';
 
 type Props = {
-  categories: IJobCategory[];
-  category?: IJobCategory;
+  categories: IFlowCategory[];
+  category?: IFlowCategory;
   closeModal: () => void;
 };
 
@@ -29,7 +29,7 @@ class CategoryFormContainer extends React.Component<Props> {
       return (
         <ButtonMutate
           mutation={
-            object ? mutations.jobCategoriesEdit : mutations.jobCategoriesAdd
+            object ? mutations.flowCategoriesEdit : mutations.flowCategoriesAdd
           }
           variables={values}
           callback={callback}
@@ -54,7 +54,7 @@ class CategoryFormContainer extends React.Component<Props> {
 }
 
 const getRefetchQueries = () => {
-  return ['jobCategories', 'jobCategoriesTotalCount', 'products'];
+  return ['flowCategories', 'flowCategoriesTotalCount', 'flows'];
 };
 
 export default CategoryFormContainer;

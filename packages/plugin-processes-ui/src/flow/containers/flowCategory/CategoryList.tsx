@@ -6,38 +6,34 @@ import { graphql } from 'react-apollo';
 import List from '../../components/flowCategory/CategoryList';
 import { mutations, queries } from '../../graphql';
 import {
-  JobCategoriesCountQueryResponse,
-  JobCategoriesQueryResponse,
-  JobCategoriesRemoveMutationResponse,
-  ProductsQueryResponse
+  FlowCategoriesCountQueryResponse,
+  FlowCategoriesQueryResponse,
+  FlowCategoriesRemoveMutationResponse
 } from '../../types';
 type Props = { history: any; queryParams: any };
 
 type FinalProps = {
-  jobCategoriesCountQuery: JobCategoriesCountQueryResponse;
-  productsQuery: ProductsQueryResponse;
-  jobCategoriesQuery: JobCategoriesQueryResponse;
+  flowCategoriesCountQuery: FlowCategoriesCountQueryResponse;
+  flowCategoriesQuery: FlowCategoriesQueryResponse;
 } & Props &
-  JobCategoriesRemoveMutationResponse;
+  FlowCategoriesRemoveMutationResponse;
 class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
-      jobCategoriesCountQuery,
-      productsQuery,
-      jobCategoriesQuery,
-      jobCategoriesRemove
+      flowCategoriesCountQuery,
+      flowCategoriesQuery,
+      flowCategoriesRemove
     } = this.props;
 
     const remove = jobId => {
       confirm().then(() => {
-        jobCategoriesRemove({
+        flowCategoriesRemove({
           variables: { _id: jobId }
         })
           .then(() => {
-            jobCategoriesQuery.refetch();
-            jobCategoriesCountQuery.refetch();
-            productsQuery.refetch();
-            Alert.success(`You successfully deleted a job & service category`);
+            flowCategoriesQuery.refetch();
+            flowCategoriesCountQuery.refetch();
+            Alert.success(`You successfully deleted a flow category`);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -45,14 +41,15 @@ class ProductListContainer extends React.Component<FinalProps> {
       });
     };
 
-    const jobCategories = jobCategoriesQuery.jobCategories || [];
+    const flowCategories = flowCategoriesQuery.flowCategories || [];
 
     const updatedProps = {
       ...this.props,
       remove,
-      jobCategories,
-      loading: jobCategoriesQuery.loading,
-      jobCategoriesCount: jobCategoriesCountQuery.jobCategoriesTotalCount || 0
+      flowCategories,
+      loading: flowCategoriesQuery.loading,
+      flowCategoriesCount:
+        flowCategoriesCountQuery.flowCategoriesTotalCount || 0
     };
 
     return <List {...updatedProps} />;
@@ -60,7 +57,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['jobCategories', 'jobCategoriesTotalCount', 'products'];
+  return ['flowCategories', 'flowCategoriesTotalCount', 'flows'];
 };
 
 const options = () => ({
@@ -69,8 +66,8 @@ const options = () => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, JobCategoriesQueryResponse>(gql(queries.jobCategories), {
-      name: 'jobCategoriesQuery',
+    graphql<Props, FlowCategoriesQueryResponse>(gql(queries.flowCategories), {
+      name: 'flowCategoriesQuery',
       options: ({ queryParams }) => ({
         variables: {
           status: queryParams.status,
@@ -81,21 +78,18 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, JobCategoriesCountQueryResponse>(
-      gql(queries.jobCategoriesTotalCount),
+    graphql<Props, FlowCategoriesCountQueryResponse>(
+      gql(queries.flowCategoriesTotalCount),
       {
-        name: 'jobCategoriesCountQuery'
+        name: 'flowCategoriesCountQuery'
       }
     ),
-    graphql<Props, JobCategoriesRemoveMutationResponse, { _id: string }>(
-      gql(mutations.jobCategoriesRemove),
+    graphql<Props, FlowCategoriesRemoveMutationResponse, { _id: string }>(
+      gql(mutations.flowCategoriesRemove),
       {
-        name: 'jobCategoriesRemove',
+        name: 'flowCategoriesRemove',
         options
       }
-    ),
-    graphql<Props, ProductsQueryResponse>(gql(queries.products), {
-      name: 'productsQuery'
-    })
+    )
   )(ProductListContainer)
 );

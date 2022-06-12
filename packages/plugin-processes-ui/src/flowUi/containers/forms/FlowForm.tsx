@@ -41,7 +41,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     flowDetailQuery,
     currentUser,
     history,
-    flowsEditMutation,
+    flowsEdit,
     jobRefersAllQuery
   } = props;
 
@@ -50,7 +50,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   const save = (doc: IFlowDocument) => {
     setLoading(true);
 
-    flowsEditMutation({
+    flowsEdit({
       variables: {
         ...doc
       }
@@ -110,7 +110,7 @@ export default withProps<Props>(
     graphql<{}, FlowsEditMutationResponse, IFlowDocument>(
       gql(flowMutations.flowsEdit),
       {
-        name: 'flowsEditMutation',
+        name: 'flowsEdit',
         options: () => ({
           refetchQueries: [
             'flows',
@@ -124,7 +124,7 @@ export default withProps<Props>(
     graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
       gql(flowMutations.flowsAdd),
       {
-        name: 'flowsAddMutation',
+        name: 'flowsAdd',
         options: () => ({
           refetchQueries: [
             'flows',

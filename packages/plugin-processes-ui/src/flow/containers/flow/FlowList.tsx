@@ -10,7 +10,7 @@ import { mutations, queries } from '../../graphql';
 import {
   CategoryDetailQueryResponse,
   flowsRemoveMutationResponse,
-  jobReferTotalCountQueryResponse,
+  flowTotalCountQueryResponse,
   FlowsQueryResponse,
   FlowsAddMutationResponse,
   IFlowDocument
@@ -24,7 +24,7 @@ type Props = {
 
 type FinalProps = {
   flowsQuery: FlowsQueryResponse;
-  jobRefersCountQuery: jobReferTotalCountQueryResponse;
+  flowTotalCountQuery: flowTotalCountQueryResponse;
   productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
   flowsRemoveMutationResponse &
@@ -41,22 +41,20 @@ class ProductListContainer extends React.Component<FinalProps> {
 
   render() {
     const {
-      flowsQuery,
-      jobRefersCountQuery,
-      flowsRemove,
       queryParams,
+      history,
+      flowsQuery,
+      flowTotalCountQuery,
       productCategoryDetailQuery,
-      flowsAddMutation,
-      history
+      flowsRemove,
+      flowsAdd
     } = this.props;
 
     const addFlow = () => {
-      flowsAddMutation({
+      flowsAdd({
         variables: {
           name: 'Your automation title',
-          status: 'draft',
-          triggers: [],
-          actions: []
+          status: 'draft'
         }
       })
         .then(data => {
@@ -75,8 +73,6 @@ class ProductListContainer extends React.Component<FinalProps> {
       return false;
     }
 
-    const flows = flowsQuery.flows || [];
-
     // remove action
     const remove = ({ flowIds }, emptyBulk) => {
       flowsRemove({
@@ -86,6 +82,7 @@ class ProductListContainer extends React.Component<FinalProps> {
           emptyBulk();
 
           const status = removeStatus.data.flowsRemove;
+          getRefetchQueries();
 
           status === 'deleted'
             ? Alert.success('You successfully deleted a flow')
@@ -96,18 +93,16 @@ class ProductListContainer extends React.Component<FinalProps> {
         });
     };
 
-    const searchValue = this.props.queryParams.searchValue || '';
-
     const updatedProps = {
       ...this.props,
       queryParams,
-      flows,
+      flows: flowsQuery.flows || [],
       remove,
       addFlow,
       loading: flowsQuery.loading,
-      searchValue,
-      jobRefersCount: jobRefersCountQuery.jobReferTotalCount || 0,
-      currentCategory: productCategoryDetailQuery.productCategoryDetail || {}
+      searchValue: this.props.queryParams.searchValue || '',
+      flowsTotalCount: flowTotalCountQuery.flowTotalCount || 0,
+      currentCategory: {}
     };
 
     const flowList = props => {
@@ -123,13 +118,7 @@ class ProductListContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'flows',
-    'jobCategories',
-    'jobCategoriesTotalCount',
-    'jobReferTotalCount',
-    'productCountByTags'
-  ];
+  return ['flows', 'flowCategories', 'flowTotalCount'];
 };
 
 const options = () => ({
@@ -152,15 +141,17 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, jobReferTotalCountQueryResponse>(
-      gql(queries.jobReferTotalCount),
-      {
-        name: 'jobRefersCountQuery',
-        options: () => ({
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<Props, flowTotalCountQueryResponse>(gql(queries.flowTotalCount), {
+      name: 'flowTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          categoryId: queryParams.categoryId,
+          searchValue: queryParams.searchValue,
+          ...generatePaginationParams(queryParams)
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, flowsRemoveMutationResponse, { flowsIds: string[] }>(
       gql(mutations.flowsRemove),
       {
@@ -168,28 +159,12 @@ export default withProps<Props>(
         options
       }
     ),
-    graphql<Props, CategoryDetailQueryResponse>(
-      gql(queries.productCategoryDetail),
-      {
-        name: 'productCategoryDetailQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            _id: queryParams.categoryId
-          }
-        })
-      }
-    ),
     graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
       gql(mutations.flowsAdd),
       {
-        name: 'flowsAddMutation',
+        name: 'flowsAdd',
         options: () => ({
-          refetchQueries: [
-            'flows',
-            'automationsMain',
-            'flowDetail',
-            'jobRefersAll'
-          ]
+          refetchQueries: ['flows', 'flowDetail', 'jobRefersAll']
         })
       }
     )
