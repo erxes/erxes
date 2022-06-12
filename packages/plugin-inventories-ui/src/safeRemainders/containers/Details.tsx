@@ -1,5 +1,4 @@
 import * as compose from 'lodash.flowright';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import gql from 'graphql-tag';
 import ProductDetails from '../components/Details';
 import React from 'react';
@@ -44,7 +43,6 @@ const SafeRemainderDetailsContainer = (props: FinalProps) => {
     safeRemainderQuery.safeRemainderDetail || ({} as ISafeRemainder);
 
   const totalCount = safeRemItemsCountQuery.safeRemItemsCount || 0;
-  console.log(totalCount, 'zzzzzzzzzzzzzzzzzz', safeRemItemsCountQuery);
 
   const updatedProps = {
     ...props,
@@ -59,7 +57,13 @@ const SafeRemainderDetailsContainer = (props: FinalProps) => {
 };
 
 const getStatuses = queryParams => {
-  return ['temp'];
+  const result: string[] = [];
+
+  if (queryParams.isTemp) {
+    result.push('temp');
+  }
+
+  return result;
 };
 
 export default withProps<Props>(

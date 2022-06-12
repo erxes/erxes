@@ -54,7 +54,9 @@ class List extends React.Component<IProps, {}> {
       </Button>
     );
 
-    const modalContent = props => <SafeRemainderForm {...props} />;
+    const modalContent = props => (
+      <SafeRemainderForm {...props} history={history} />
+    );
 
     let actionBarRight = (
       <BarItems>
