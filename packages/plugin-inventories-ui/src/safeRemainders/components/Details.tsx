@@ -17,6 +17,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 type Props = {
   queryParams: IQueryParams;
   totalCount: number;
+  history: any;
   safeRemItemsQuery: SafeRemItemsQueryResponse;
   safeRemainder: ISafeRemainder;
   currentUser: IUser;
@@ -31,6 +32,7 @@ class CompanyDetails extends React.Component<Props> {
     const {
       safeRemainder,
       queryParams,
+      history,
       totalCount,
       safeRemItemsQuery
     } = this.props;

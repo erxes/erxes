@@ -55,6 +55,10 @@ export type SafeRemItemsQueryResponse = {
   items: ISafeRemaItem[];
 } & QueryResponse;
 
+export type SafeRemItemsCountQueryResponse = {
+  safeRemItemsCount: number;
+} & QueryResponse;
+
 export type UpdateRemaindersMutationVariables = {
   productCategoryId?: string;
   productIds?: string[];

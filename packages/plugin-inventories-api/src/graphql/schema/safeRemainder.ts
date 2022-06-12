@@ -47,12 +47,17 @@ export const types = `
     branchId: String,
     departmentId: String,
   }
+
+  type SafeRemItemCount {
+    count: Int
+  }
 `;
 
 export const queries = `
   safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
   safeRemItems(remainderId: String!, statuses: [String], productCategoryId: String, searchValue: String): [SafeRemItem]
+  safeRemItemsCount(remainderId: String!, statuses: [String], productCategoryId: String, searchValue: String): Int
 `;
 
 export const mutations = `

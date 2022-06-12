@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { IGetRemainder } from '../../../models/definitions/remainders';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { ISafeRemainderDocument } from '../../../models/definitions/safeRemainders';
 

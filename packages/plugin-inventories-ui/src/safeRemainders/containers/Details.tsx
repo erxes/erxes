@@ -13,6 +13,7 @@ import {
 import { IUser } from '@erxes/ui/src/auth/types';
 import { queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { SafeRemItemsCountQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
@@ -23,30 +24,33 @@ type Props = {
 type FinalProps = {
   safeRemainderQuery: SafeRemainderDetailQueryResponse;
   safeRemItemsQuery: SafeRemItemsQueryResponse;
+  safeRemItemsCountQuery: SafeRemItemsCountQueryResponse;
   currentUser: IUser;
 } & Props;
 
-const ProductDetailsContainer = (props: FinalProps) => {
-  const { safeRemainderQuery, safeRemItemsQuery, currentUser } = props;
+const SafeRemainderDetailsContainer = (props: FinalProps) => {
+  const {
+    safeRemainderQuery,
+    safeRemItemsQuery,
+    currentUser,
+    safeRemItemsCountQuery
+  } = props;
 
-  if (safeRemainderQuery.loading) {
+  if (safeRemainderQuery.loading || safeRemItemsCountQuery.loading) {
     return <Spinner />;
-  }
-
-  if (!safeRemainderQuery.safeRemainderDetail) {
-    return (
-      <EmptyState text="Product not found" image="/images/actions/24.svg" />
-    );
   }
 
   const safeRemainder =
     safeRemainderQuery.safeRemainderDetail || ({} as ISafeRemainder);
 
+  const totalCount = safeRemItemsCountQuery.safeRemItemsCount || 0;
+  console.log(totalCount, 'zzzzzzzzzzzzzzzzzz', safeRemItemsCountQuery);
+
   const updatedProps = {
     ...props,
     loading: safeRemItemsQuery.loading,
     safeRemItemsQuery,
-    totalCount: 0,
+    totalCount,
     safeRemainder,
     currentUser
   };
@@ -80,6 +84,19 @@ export default withProps<Props>(
         },
         fetchPolicy: 'network-only'
       })
-    })
-  )(ProductDetailsContainer)
+    }),
+    graphql<Props, SafeRemItemsCountQueryResponse, {}>(
+      gql(queries.safeRemItemsCount),
+      {
+        name: 'safeRemItemsCountQuery',
+        options: ({ id, queryParams }) => ({
+          variables: {
+            remainderId: id,
+            statuses: getStatuses(queryParams)
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
+  )(SafeRemainderDetailsContainer)
 );

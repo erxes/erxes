@@ -120,8 +120,21 @@ const safeRemItems = `
   }
 `;
 
+const safeRemItemsCount = `
+  query safeRemItemsCount (
+    $remainderId: String!
+    $statuses: [String]
+  ) {
+    safeRemItemsCount (
+      remainderId: $remainderId,
+      statuses: $statuses
+    )
+  }
+`;
+
 export default {
   safeRemainders,
   safeRemainderDetail,
-  safeRemItems
+  safeRemItems,
+  safeRemItemsCount
 };
