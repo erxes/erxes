@@ -6,7 +6,7 @@ import {
 export const types = (tagsAvailable, contactsAvailable) => `
   ${attachmentType}
   ${attachmentInput}
-  
+
   ${
     tagsAvailable
       ? `
@@ -125,5 +125,5 @@ export const mutations = `
   productsMerge(productIds: [String], productFields: JSON): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
-  productCategoriesRemove(_id: String!): JSON  
+  productCategoriesRemove(_id: String!): JSON
 `;

@@ -20,6 +20,7 @@ class Row extends React.Component<Props> {
       modifiedAt,
       branch,
       department,
+      productCategory,
       description,
       status,
       modifiedUser
@@ -39,6 +40,11 @@ class Row extends React.Component<Props> {
         <td>{date}</td>
         <td>{branch ? branch.title : ''}</td>
         <td>{department ? department.title : ''}</td>
+        <td>
+          {productCategory
+            ? `${productCategory.code} - ${productCategory.name}`
+            : ''}
+        </td>
         <td>{description}</td>
         <td>{status}</td>
         <td>{modifiedAt}</td>

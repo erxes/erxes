@@ -102,7 +102,9 @@ class Form extends React.Component<Props, State> {
                 closeOnSelect={true}
                 utc={true}
                 input={true}
-                onChange={date => this.setState({ date: new Date(date) })}
+                onChange={date =>
+                  this.setState({ date: new Date(date || new Date()) })
+                }
                 viewMode={'days'}
               />
             </FormGroup>

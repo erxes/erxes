@@ -9,23 +9,35 @@ import { mutations } from '../graphql';
 
 type Props = {
   closeModal: () => void;
+  history: any;
 };
 
 type FinalProps = {} & Props;
 
 class SafeRemainderFormContainer extends React.Component<FinalProps> {
   render() {
+    const { history } = this.props;
     const renderButton = ({
       name,
       values,
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
+      const callBack = data => {
+        if (callback) {
+          callback(data);
+        }
+
+        history.push(
+          `/inventories/safe-remainders/details/${data.createSafeRemainder._id}`
+        );
+      };
+
       return (
         <ButtonMutate
           mutation={mutations.createSafeRemainder}
           variables={values}
-          callback={callback}
+          callback={callBack}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"

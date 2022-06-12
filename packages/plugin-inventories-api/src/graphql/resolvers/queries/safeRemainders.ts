@@ -4,7 +4,36 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
+import { sendProductsMessage } from '../../../messageBroker';
 
+const generateFilterItems = async (params, subdomain) => {
+  const { remainderId, productCategoryId, statuses } = params;
+  const query: any = { remainderId };
+  if (productCategoryId) {
+    const productCategories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.withChilds',
+      data: {
+        _id: params.categoryId
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const productCategoryIds = productCategories.map(p => p._id);
+
+    const products = await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { query: { categoryId: { $in: productCategoryIds } } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const productIds = products.map(p => p._id);
+    query.productId = { $in: productIds };
+  }
+};
 const safeRemainderQueries = {
   /**
    * Get one tag
@@ -58,6 +87,16 @@ const safeRemainderQueries = {
         ...params
       })
     };
+  },
+
+  safeRemItems: async (_root, params, { models, subdomain }: IContext) => {
+    const query = await generateFilterItems(params, subdomain);
+    return models.SafeRemItems.find(query);
+  },
+
+  safeRemItemsCount: async (_root, params, { models, subdomain }: IContext) => {
+    const query = await generateFilterItems(params, subdomain);
+    return models.SafeRemItems.find(query).count();
   }
 };
 

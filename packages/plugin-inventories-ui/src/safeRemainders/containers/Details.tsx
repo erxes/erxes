@@ -1,48 +1,69 @@
 import * as compose from 'lodash.flowright';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import gql from 'graphql-tag';
 import ProductDetails from '../components/Details';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
-import { ISafeRemainder, SafeRemainderDetailQueryResponse } from '../types';
+import {
+  ISafeRemainder,
+  SafeRemainderDetailQueryResponse,
+  SafeRemItemsQueryResponse
+} from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
+import { SafeRemItemsCountQueryResponse } from '../types';
 
 type Props = {
+  queryParams: any;
+  history: any;
   id: string;
 };
 
 type FinalProps = {
   safeRemainderQuery: SafeRemainderDetailQueryResponse;
+  safeRemItemsQuery: SafeRemItemsQueryResponse;
+  safeRemItemsCountQuery: SafeRemItemsCountQueryResponse;
   currentUser: IUser;
 } & Props;
 
-const ProductDetailsContainer = (props: FinalProps) => {
-  const { safeRemainderQuery, currentUser } = props;
+const SafeRemainderDetailsContainer = (props: FinalProps) => {
+  const {
+    safeRemainderQuery,
+    safeRemItemsQuery,
+    currentUser,
+    safeRemItemsCountQuery
+  } = props;
 
-  if (safeRemainderQuery.loading) {
-    return <Spinner objective={true} />;
-  }
-
-  if (!safeRemainderQuery.safeRemainderDetail) {
-    return (
-      <EmptyState text="Product not found" image="/images/actions/24.svg" />
-    );
+  if (safeRemainderQuery.loading || safeRemItemsCountQuery.loading) {
+    return <Spinner />;
   }
 
   const safeRemainder =
     safeRemainderQuery.safeRemainderDetail || ({} as ISafeRemainder);
 
+  const totalCount = safeRemItemsCountQuery.safeRemItemsCount || 0;
+
   const updatedProps = {
     ...props,
-    loading: safeRemainderQuery.loading,
+    loading: safeRemItemsQuery.loading,
+    safeRemItemsQuery,
+    totalCount,
     safeRemainder,
     currentUser
   };
 
   return <ProductDetails {...updatedProps} />;
+};
+
+const getStatuses = queryParams => {
+  const result: string[] = [];
+
+  if (queryParams.isTemp) {
+    result.push('temp');
+  }
+
+  return result;
 };
 
 export default withProps<Props>(
@@ -57,6 +78,29 @@ export default withProps<Props>(
           }
         })
       }
+    ),
+    graphql<Props, SafeRemItemsQueryResponse, {}>(gql(queries.safeRemItems), {
+      name: 'safeRemItemsQuery',
+      options: ({ id, queryParams }) => ({
+        variables: {
+          remainderId: id,
+          statuses: getStatuses(queryParams)
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props, SafeRemItemsCountQueryResponse, {}>(
+      gql(queries.safeRemItemsCount),
+      {
+        name: 'safeRemItemsCountQuery',
+        options: ({ id, queryParams }) => ({
+          variables: {
+            remainderId: id,
+            statuses: getStatuses(queryParams)
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
     )
-  )(ProductDetailsContainer)
+  )(SafeRemainderDetailsContainer)
 );

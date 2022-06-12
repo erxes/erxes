@@ -56,7 +56,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       return {
-        data: await models.ProductCategories.findOne(data),
+        data: await models.ProductCategories.findOne(data).lean(),
         status: 'success'
       };
     }

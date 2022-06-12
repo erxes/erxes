@@ -31,10 +31,13 @@ const safeRemainders = ({ location, history }) => {
   return <SafeRemainders queryParams={queryParams} history={history} />;
 };
 
-const safeRemainderDetails = ({ match }) => {
+const safeRemainderDetails = ({ match, location, history }) => {
   const id = match.params.id;
+  const queryParams = queryString.parse(location.search);
 
-  return <SafeRemainderDetails id={id} />;
+  return (
+    <SafeRemainderDetails id={id} queryParams={queryParams} history={history} />
+  );
 };
 
 const routes = () => {

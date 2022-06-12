@@ -1,5 +1,4 @@
 import { IContext } from '../../../connectionResolver';
-import { IGetRemainder } from '../../../models/definitions/remainders';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { ISafeRemainderDocument } from '../../../models/definitions/safeRemainders';
 
@@ -44,6 +43,21 @@ export default {
       action: 'branches.findOne',
       data: {
         _id: safeRemainder.branchId
+      },
+      isRPC: true
+    });
+  },
+
+  async productCategory(
+    safeRemainder: ISafeRemainderDocument,
+    _,
+    { subdomain }: IContext
+  ) {
+    return sendProductsMessage({
+      subdomain,
+      action: 'categories.findOne',
+      data: {
+        _id: safeRemainder.productCategoryId
       },
       isRPC: true
     });
