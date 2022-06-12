@@ -134,8 +134,26 @@ export const PaddingTop = styled.div`
 
 export const TableOver = styled(StyledTable)`
   thead {
-    th:nth-of-type(3) {
-      border-right: 1px solid black;
+    th,
+    td {
+      border-bottom: 1px dotted black;
+    }
+  }
+
+  thead {
+    tr:first-child {
+      th {
+        text-align: center;
+      }
+
+      th:nth-of-type(2) {
+        border-right: 1px solid black;
+      }
+    }
+    tr:last-child {
+      th:nth-of-type(2) {
+        border-right: 1px solid black;
+      }
     }
   }
 

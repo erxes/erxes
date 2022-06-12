@@ -52,7 +52,11 @@ class CompanyDetails extends React.Component<Props> {
         <TableOver hover={true}>
           <thead>
             <tr>
-              <th>{__('Product')}</th>
+              <th rowSpan={2}>{__('Product')}</th>
+              <th colSpan={2}>{__('LIVE')}</th>
+              <th colSpan={6}>{__('Census')}</th>
+            </tr>
+            <tr>
               <th>{__('Live remainder')}</th>
               <th>{__('UOM')}</th>
               <th>{__('Product Category')}</th>
