@@ -76,6 +76,7 @@ class List extends React.Component<IProps, {}> {
               <th>{__('Date')}</th>
               <th>{__('Branch')}</th>
               <th>{__('Department')}</th>
+              <th>{__('Product Category')}</th>
               <th>{__('Description')}</th>
               <th>{__('Status')}</th>
               <th>{__('ModifiedAt')}</th>

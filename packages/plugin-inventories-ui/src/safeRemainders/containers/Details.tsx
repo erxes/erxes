@@ -5,25 +5,32 @@ import ProductDetails from '../components/Details';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
-import { ISafeRemainder, SafeRemainderDetailQueryResponse } from '../types';
+import {
+  ISafeRemainder,
+  SafeRemainderDetailQueryResponse,
+  SafeRemItemsQueryResponse
+} from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { queries } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
+  queryParams: any;
+  history: any;
   id: string;
 };
 
 type FinalProps = {
   safeRemainderQuery: SafeRemainderDetailQueryResponse;
+  safeRemItemsQuery: SafeRemItemsQueryResponse;
   currentUser: IUser;
 } & Props;
 
 const ProductDetailsContainer = (props: FinalProps) => {
-  const { safeRemainderQuery, currentUser } = props;
+  const { safeRemainderQuery, safeRemItemsQuery, currentUser } = props;
 
   if (safeRemainderQuery.loading) {
-    return <Spinner objective={true} />;
+    return <Spinner />;
   }
 
   if (!safeRemainderQuery.safeRemainderDetail) {
@@ -37,12 +44,18 @@ const ProductDetailsContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    loading: safeRemainderQuery.loading,
+    loading: safeRemItemsQuery.loading,
+    safeRemItemsQuery,
+    totalCount: 0,
     safeRemainder,
     currentUser
   };
 
   return <ProductDetails {...updatedProps} />;
+};
+
+const getStatuses = queryParams => {
+  return ['temp'];
 };
 
 export default withProps<Props>(
@@ -57,6 +70,16 @@ export default withProps<Props>(
           }
         })
       }
-    )
+    ),
+    graphql<Props, SafeRemItemsQueryResponse, {}>(gql(queries.safeRemItems), {
+      name: 'safeRemItemsQuery',
+      options: ({ id, queryParams }) => ({
+        variables: {
+          remainderId: id,
+          statuses: getStatuses(queryParams)
+        },
+        fetchPolicy: 'network-only'
+      })
+    })
   )(ProductDetailsContainer)
 );

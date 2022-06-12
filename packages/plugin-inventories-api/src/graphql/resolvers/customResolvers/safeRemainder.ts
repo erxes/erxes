@@ -47,5 +47,20 @@ export default {
       },
       isRPC: true
     });
+  },
+
+  async productCategory(
+    safeRemainder: ISafeRemainderDocument,
+    _,
+    { subdomain }: IContext
+  ) {
+    return sendProductsMessage({
+      subdomain,
+      action: 'categories.findOne',
+      data: {
+        _id: safeRemainder.productCategoryId
+      },
+      isRPC: true
+    });
   }
 };

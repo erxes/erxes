@@ -22,9 +22,11 @@ export const types = `
     status: String
     branchId: String
     departmentId: String
+    productCategoryId: String
 
-    branch: Branch
     department: Department
+    branch: Branch
+    productCategory: ProductCategory
     modifiedUser: User
   }
 
@@ -32,11 +34,25 @@ export const types = `
     remainders: [SafeRemainder],
     totalCount: Float,
   }
+
+  type SafeRemItem {
+    _id: String,
+    modifiedAt: Date,
+    lastTrDate: Date,
+    remainderId: String,
+    productId: String,
+    quantity: Float,
+    uomId: String,
+    count: Float,
+    branchId: String,
+    departmentId: String,
+  }
 `;
 
 export const queries = `
   safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
+  safeRemItems(remainderId: String!, statuses: [String], productCategoryId: String, searchValue: String): [SafeRemItem]
 `;
 
 export const mutations = `

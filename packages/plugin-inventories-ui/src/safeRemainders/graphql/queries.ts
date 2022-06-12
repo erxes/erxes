@@ -38,6 +38,7 @@ export const safeRemainderFields = `
   status
   branchId
   departmentId
+  productCategoryId
 
   branch {
     _id
@@ -49,6 +50,11 @@ export const safeRemainderFields = `
     code
     title
   }
+  productCategory {
+    _id
+    code
+    name
+  }
   modifiedUser {
     _id
     details {
@@ -59,11 +65,24 @@ export const safeRemainderFields = `
 
 `;
 
+const safeRemItemFields = `
+  _id
+  modifiedAt
+  lastTrDate
+  remainderId
+  productId
+  quantity
+  uomId
+  count
+  branchId
+  departmentId
+`;
+
 const safeRemainders = `
-  query safeRemainders(
+  query safeRemainders (
     ${listParamsDef}
   ) {
-    safeRemainders(
+    safeRemainders (
       ${listParamsValue}
     ) {
       remainders {
@@ -76,18 +95,33 @@ const safeRemainders = `
 `;
 
 const safeRemainderDetail = `
-query safeRemainderDetail(
-  $_id: String!
-) {
-  safeRemainderDetail(
-    _id: $_id
+  query safeRemainderDetail (
+    $_id: String!
   ) {
-    ${safeRemainderFields}
+    safeRemainderDetail (
+      _id: $_id
+    ) {
+      ${safeRemainderFields}
+    }
   }
-}
+`;
+
+const safeRemItems = `
+  query safeRemItems (
+    $remainderId: String!
+    $statuses: [String]
+  ) {
+    safeRemItems (
+      remainderId: $remainderId,
+      statuses: $statuses
+    ) {
+      ${safeRemItemFields}
+    }
+  }
 `;
 
 export default {
   safeRemainders,
-  safeRemainderDetail
+  safeRemainderDetail,
+  safeRemItems
 };
