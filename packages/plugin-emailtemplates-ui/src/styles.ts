@@ -108,4 +108,28 @@ const Template = styled.div`
   }
 `;
 
-export { Template, Actions, TemplateBox, Templates, IframePreview };
+const TemplateInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 0 ${dimensions.unitSpacing}px;
+
+  > p {
+    color: ${colors.colorCoreGray};
+    line-height: 10px;
+  }
+`;
+
+const Divider = styled.div`
+  border-bottom: 1px solid ${colors.borderDarker};
+  margin: 0 0 ${dimensions.unitSpacing}px 0px;
+`;
+
+export {
+  Template,
+  Actions,
+  TemplateBox,
+  Templates,
+  IframePreview,
+  TemplateInfo,
+  Divider
+};

@@ -70,8 +70,30 @@ class EmailListContainer extends React.Component<Props> {
     });
   };
 
+  duplicate = (id: string) => {
+    client
+      .mutate({
+        mutation: gql(mutations.duplicateEmailTemplate),
+        variables: { _id: id }
+      })
+      .then(() => {
+        Alert.success('Successfully duplicated a template');
+
+        this.props.refetch();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
   render() {
-    return <List {...this.props} changeStatus={this.changeStatus} />;
+    return (
+      <List
+        {...this.props}
+        changeStatus={this.changeStatus}
+        duplicate={this.duplicate}
+      />
+    );
   }
 }
 

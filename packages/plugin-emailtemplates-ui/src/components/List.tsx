@@ -11,19 +11,23 @@ import {
   IframePreview,
   Template,
   TemplateBox,
-  Templates
+  Templates,
+  TemplateInfo,
+  Divider
 } from '../styles';
 import Form from './Form';
 import { EMAIL_TEMPLATE_STATUSES, EMAIL_TEMPLATE_TIPTEXT } from '../constants';
 import Tip from '@erxes/ui/src/components/Tip';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { router } from 'coreui/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   changeStatus: (_id: string, status: string) => void;
+  duplicate: (id: string) => void;
 } & ICommonListProps;
 
 type State = {
@@ -74,16 +78,18 @@ class EmailTemplateList extends React.Component<Props, State> {
     const onClick = () => changeStatus(_id, status);
 
     return (
-      <Tip text={__(text)}>
-        <div onClick={onClick}>
-          <Icon icon={icon} /> {text}
-        </div>
-      </Tip>
+      <div onClick={onClick}>
+        <Icon icon={icon} /> {text}
+      </div>
     );
   };
 
   removeTemplate = object => {
     this.props.remove(object._id);
+  };
+
+  duplicateTemplate = id => {
+    this.props.duplicate(id);
   };
 
   renderEditAction = object => {
@@ -108,6 +114,15 @@ class EmailTemplateList extends React.Component<Props, State> {
     );
   };
 
+  renderDuplicateAction(object) {
+    return (
+      <div onClick={this.duplicateTemplate.bind(this, object._id)}>
+        <Icon icon="copy-1" />
+        Duplicate
+      </div>
+    );
+  }
+
   renderRow = () => {
     return this.state.items.map((object, index) => (
       <Template key={index}>
@@ -118,12 +133,34 @@ class EmailTemplateList extends React.Component<Props, State> {
               <Icon icon="cancel-1" /> Delete
             </div>
             {this.renderDisableAction(object)}
+            {this.renderDuplicateAction(object)}
           </Actions>
           <IframePreview>
             <iframe title="content-iframe" srcDoc={object.content} />
           </IframePreview>
         </TemplateBox>
         <h5>{object.name}</h5>
+        <Divider />
+        <TemplateInfo>
+          <p>
+            {object.createdAt === object.modifiedAt
+              ? `Created at:`
+              : `Modified at:`}
+          </p>
+          <p>
+            {object.createdAt === object.modifiedAt
+              ? `${dayjs(object.createdAt).format('DD MMM YYYY')}`
+              : `${dayjs(object.modifiedAt).format('DD MMM YYYY')}`}
+          </p>
+        </TemplateInfo>
+        {object.createdUser && (
+          <TemplateInfo>
+            <p>Created by:</p>
+            {object.createdUser.details.fullName && (
+              <p>{object.createdUser.details.fullName}</p>
+            )}
+          </TemplateInfo>
+        )}
       </Template>
     ));
   };

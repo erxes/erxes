@@ -38,9 +38,19 @@ const emailTemplatesChangeStatus = `
   }
 `;
 
+const duplicateEmailTemplate = `
+	mutation duplicateEmailTemplate($_id: String, $userId: String) {
+		duplicateEmailTemplate(_id: $_id, userId: $userId) {
+			_id,
+      userId
+		}
+	}
+`;
+
 export default {
   emailTemplatesAdd,
   emailTemplatesEdit,
   emailTemplatesRemove,
-  emailTemplatesChangeStatus
+  emailTemplatesChangeStatus,
+  duplicateEmailTemplate
 };
