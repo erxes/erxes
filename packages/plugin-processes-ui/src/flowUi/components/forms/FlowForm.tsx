@@ -46,7 +46,7 @@ const plumb: any = jsPlumb;
 let instance;
 
 type Props = {
-  automation: IFlowDocument;
+  flow: IFlowDocument;
   jobRefers: IJobRefer[];
   save: (params: any) => void;
   saveLoading: boolean;
@@ -74,6 +74,7 @@ type State = {
   zoomStep: number;
   zoom: number;
   percentage: number;
+  actionEdited: boolean;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -83,18 +84,16 @@ class AutomationForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { automation } = this.props;
-    const lenAutomation = Object.keys(automation);
+    const { flow } = this.props;
+    const lenFlow = Object.keys(flow);
 
     this.state = {
-      name: lenAutomation.length ? automation.name : 'Your flow title',
-      actions: JSON.parse(
-        JSON.stringify(lenAutomation.length ? automation.jobs : [])
-      ),
+      name: lenFlow.length ? flow.name : 'Your flow title',
+      actions: JSON.parse(JSON.stringify(lenFlow.length ? flow.jobs : [])),
       activeId: '',
       currentTab: 'actions',
       isActionTab: true,
-      isActive: lenAutomation.length ? automation.status === 'active' : false,
+      isActive: lenFlow.length ? flow.status === 'active' : false,
       showNoteForm: false,
       showTemplateForm: false,
       showTrigger: false,
@@ -104,7 +103,8 @@ class AutomationForm extends React.Component<Props, State> {
       zoomStep: 0.025,
       zoom: 1,
       percentage: 100,
-      activeAction: {} as IJob
+      activeAction: {} as IJob,
+      actionEdited: false
     };
   }
 
@@ -121,8 +121,15 @@ class AutomationForm extends React.Component<Props, State> {
   componentDidUpdate(prevProps, prevState) {
     const { isActionTab } = this.state;
 
+    console.log(
+      'component did update console log ........ ',
+      this.state.actionEdited
+    );
+
     if (isActionTab && isActionTab !== prevState.isActionTab) {
       this.connectInstance();
+
+      // this.setState({ actionEdited: false });
     }
 
     this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
@@ -172,8 +179,14 @@ class AutomationForm extends React.Component<Props, State> {
       instance.bind('connectionDetached', info => {
         this.onDettachConnection(info);
       });
+
+      let n = 0;
+
       for (const action of actions) {
+        console.log('counter1: ', n);
         this.renderControl('action', action, this.onClickAction);
+        console.log('counter2: ', n);
+        n = n + 1;
       }
 
       // create connections ===================
@@ -212,7 +225,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   handleSubmit = () => {
     const { name, isActive, actions } = this.state;
-    const { automation, save } = this.props;
+    const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
       return Alert.error('Enter an Flow title');
@@ -220,7 +233,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     const generateValues = () => {
       const finalValues = {
-        _id: automation._id || '',
+        _id: flow._id || '',
         name,
         status: isActive ? 'active' : 'draft',
         jobs: actions.map(a => ({
@@ -259,10 +272,10 @@ class AutomationForm extends React.Component<Props, State> {
 
     this.setState({ isActive });
 
-    const { save, automation } = this.props;
+    const { save, flow } = this.props;
 
-    if (Object.keys(automation).length) {
-      save({ _id: automation._id, status: isActive ? 'active' : 'draft' });
+    if (Object.keys(flow).length) {
+      save({ _id: flow._id, status: isActive ? 'active' : 'draft' });
     }
   };
 
@@ -405,7 +418,7 @@ class AutomationForm extends React.Component<Props, State> {
       actions.push(action);
     }
 
-    this.setState({ actions, activeAction: action }, () => {
+    this.setState({ actions, activeAction: action, actionEdited: true }, () => {
       if (!actionId) {
         this.renderControl('action', action, this.onClickAction);
       }
@@ -442,26 +455,38 @@ class AutomationForm extends React.Component<Props, State> {
       </div>
     `);
 
+    console.log('renderControl: step1');
+
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
       onClick(item);
     });
 
+    console.log('renderControl: step2');
+
     if (key === 'action') {
+      console.log('renderControl: step3');
+
       instance.addEndpoint(idElm, targetEndpoint, {
         anchor: ['Left']
       });
 
+      console.log('renderControl: step4');
+
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: ['Right']
       });
+
+      console.log('renderControl: step5');
 
       // instance.addEndpoint(idElm, morePoint, {
       //   anchor: ['Right']
       // });
 
       instance.draggable(instance.getSelector(`#${idElm}`));
+
+      console.log('renderControl: step6');
     }
   };
 
@@ -639,7 +664,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderConfirmation() {
-    const { id, queryParams, history, saveLoading, automation } = this.props;
+    const { id, queryParams, history, saveLoading, flow } = this.props;
     const { actions, name } = this.state;
 
     if (saveLoading) {
@@ -649,7 +674,7 @@ class AutomationForm extends React.Component<Props, State> {
     const when = queryParams.isCreate
       ? !!id
       : JSON.stringify(actions) !== JSON.stringify([]) ||
-        automation.name !== this.state.name;
+        flow.name !== this.state.name;
 
     return (
       <Confirmation
@@ -664,7 +689,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { automation } = this.props;
+    const { flow } = this.props;
 
     return (
       <>
@@ -672,10 +697,10 @@ class AutomationForm extends React.Component<Props, State> {
         <HeightedWrapper>
           <AutomationFormContainer>
             <Wrapper.Header
-              title={`${(automation && automation.name) || 'Automation'}`}
+              title={`${(flow && flow.name) || 'Flow detail'}`}
               breadcrumb={[
                 { title: __('Flows'), link: '/processes/Flows' },
-                { title: `${(automation && automation.name) || 'New Form'}` }
+                { title: `${(flow && flow.name) || 'New Form'}` }
               ]}
             />
             <PageContent
