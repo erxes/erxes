@@ -81,7 +81,7 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     loading: flowDetailQuery.loading,
-    automation: flowDetail,
+    flow: flowDetail,
     currentUser,
     save,
     saveLoading,
