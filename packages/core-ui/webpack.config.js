@@ -51,7 +51,7 @@ module.exports = {
 
   devServer: {
     port: 3000,
-    allowedHosts: 'all',
+    allowedHosts: "all",
     historyApiFallback: true,
   },
 
@@ -80,7 +80,6 @@ module.exports = {
           path.resolve(__dirname, "../ui-segments/src"),
           path.resolve(__dirname, "../ui-forms/src"),
           path.resolve(__dirname, "../ui-inbox/src"),
-          path.resolve(__dirname, "../ui-team/src"),
           path.resolve(__dirname, "../ui-products/src"),
           path.resolve(__dirname, "../ui-cards/src"),
           path.resolve(__dirname, "../ui-knowledgeBase/src"),

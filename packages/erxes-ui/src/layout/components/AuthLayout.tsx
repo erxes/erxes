@@ -81,7 +81,7 @@ class AuthLayout extends React.Component<Props, {}> {
   }
 
   render() {
-    const { content, col = { first: 6, second: 6 } } = this.props;
+    const { content } = this.props;
 
     return (
       <AuthWrapper>
