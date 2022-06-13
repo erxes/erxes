@@ -13,6 +13,7 @@ type Props = {
 export default class RightSidebar extends React.Component<Props> {
   render() {
     const { user } = this.props;
+
     if (isEnabled('cards')) {
       return (
         <Sidebar>
