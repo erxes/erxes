@@ -4,6 +4,7 @@ import DumbLayout from "../components/Layout";
 import AppProvider, { AppConsumer } from "../../appContext";
 import { Store } from "../../types";
 import { readFile } from "../../common/utils";
+import "erxes-icon/css/erxes.min.css";
 
 type Props = {
   children: (values: any) => JSX.Element;
@@ -28,6 +29,7 @@ const Layout = (props: Props) => {
                     type="image/x-icon"
                   />
                 )}
+                {config.name && <title>{config.name}</title>}
                 {baseFont && (
                   <style
                     dangerouslySetInnerHTML={{

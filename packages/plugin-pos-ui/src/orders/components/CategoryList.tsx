@@ -26,7 +26,7 @@ interface IProps {
 
 class List extends React.Component<IProps> {
   clearCategoryFilter = () => {
-    router.setParams(this.props.history, { categoryId: null });
+    router.removeParams(this.props.history, 'categoryId');
   };
 
   isActive = (id: string) => {
@@ -41,7 +41,7 @@ class List extends React.Component<IProps> {
 
     const otherParams = { ...queryParams };
     delete otherParams.categoryId;
-    const qryString = queryString.stringify(otherParams)
+    const qryString = queryString.stringify(otherParams);
 
     const result: React.ReactNode[] = [];
 
@@ -125,9 +125,7 @@ class List extends React.Component<IProps> {
   render() {
     return (
       <Sidebar wide={true}>
-        <Section
-          maxHeight={488}
-        >
+        <Section maxHeight={488}>
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>

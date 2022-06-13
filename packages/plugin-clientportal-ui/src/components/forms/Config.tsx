@@ -2,8 +2,8 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import React, { useState } from 'react';
-import { ClientPortalConfig, OTPConfig } from '../../types';
+import React from 'react';
+import { ClientPortalConfig } from '../../types';
 import Select from 'react-select-plus';
 import { CONFIGURATIONS } from '../../constants';
 

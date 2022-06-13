@@ -1,3 +1,5 @@
+import * as serverTiming from 'server-timing';
+
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
@@ -60,6 +62,7 @@ export default {
 
     return context;
   },
+  middlewares: [(serverTiming as any)()],
   onServerInit: async options => {
     mainDb = options.db;
 
@@ -68,13 +71,13 @@ export default {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
-        const { query, user } = req;
+        const { query } = req;
         const { segment } = query;
 
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, subdomain, query, user);
+        const result = await buildFile(models, subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
 

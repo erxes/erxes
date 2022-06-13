@@ -7,14 +7,18 @@ import {
 import { ILocationOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { LogicItem, LogicRow, RowSmall } from '@erxes/ui-forms/src/forms/styles';
+import {
+  LogicItem,
+  LogicRow,
+  RowSmall
+} from '@erxes/ui-forms/src/forms/styles';
 import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
   onChangeOption: (option: ILocationOption, index: number) => void;
   option: ILocationOption;
   index: number;
-  removeOption: (index: number) => void;
+  removeOption?: (index: number) => void;
 };
 
 function LocationOption(props: Props) {
@@ -26,18 +30,15 @@ function LocationOption(props: Props) {
   };
 
   const onChangeLat = e => {
-    option.lat = Number(e.target.value);
-
-    onChangeOption(option, index);
+    onChangeOption({ ...option, lat: Number(e.target.value) }, index);
   };
 
   const onChangeLng = e => {
-    option.lng = Number(e.target.value);
-    onChangeOption(option, index);
+    onChangeOption({ ...option, lng: Number(e.target.value) }, index);
   };
 
   const remove = () => {
-    removeOption(index);
+    removeOption && removeOption(index);
   };
 
   return (
@@ -48,7 +49,6 @@ function LocationOption(props: Props) {
             <RowSmall>
               <ControlLabel htmlFor="lat">{__('Latitude')}:</ControlLabel>
               <FormControl
-                defaultValue={option.lat}
                 value={option.lat}
                 name="lat"
                 onChange={onChangeLat}
@@ -58,7 +58,6 @@ function LocationOption(props: Props) {
             <Column>
               <ControlLabel htmlFor="lng">{__('Longitude')}:</ControlLabel>
               <FormControl
-                defaultValue={option.lng}
                 value={option.lng}
                 name="lng"
                 onChange={onChangeLng}
@@ -77,7 +76,9 @@ function LocationOption(props: Props) {
             />
           </FormGroup>
         </Column>
-        <Button onClick={remove} btnStyle="danger" icon="times" />
+        {removeOption && (
+          <Button onClick={remove} btnStyle="danger" icon="times" />
+        )}
       </LogicRow>
     </LogicItem>
   );

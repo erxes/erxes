@@ -4,7 +4,6 @@ import {
 } from '@erxes/api-utils/src/automations';
 import { generateModels, IModels } from './connectionResolver';
 import { itemsAdd } from './graphql/resolvers/mutations/utils';
-import { putActivityLog } from './logUtils';
 import { sendCommonMessage, sendCoreMessage } from './messageBroker';
 import { getCollection } from './models/utils';
 

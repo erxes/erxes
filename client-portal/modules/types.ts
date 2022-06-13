@@ -27,6 +27,8 @@ export type Config = {
   description?: string;
   logo?: string;
   icon?: string;
+  headerHtml?: string;
+  footerHtml?: string;
   url?: string;
 
   messengerBrandCode?: string;

@@ -27,6 +27,7 @@ type Props = {
   currentUser: IUser;
   logout: () => void;
   router: any;
+  headerHtml?: string;
   headingSpacing?: boolean;
   headerBottomComponent?: React.ReactNode;
 };
@@ -36,6 +37,7 @@ function Header({
   currentUser,
   logout,
   router,
+  headerHtml,
   headingSpacing,
   headerBottomComponent,
 }: Props) {
@@ -80,12 +82,12 @@ function Header({
           Sign up
         </Button>
         {/* <Button
-                    btnStyle="primary"
-                    uppercase={false}
-                    onClick={() => setResetPassword(true)}
-                  >
-                    Reset password
-                  </Button> */}
+          btnStyle="primary"
+          uppercase={false}
+          onClick={() => setResetPassword(true)}
+        >
+          Reset password
+        </Button> */}
         <Button
           btnStyle="warning"
           uppercase={false}
@@ -97,13 +99,12 @@ function Header({
     );
   };
 
-  return (
-    <Head
-      background={getConfigColor(config, "headerColor")}
-      color={getConfigColor(config, "headingColor")}
-      headingSpacing={headingSpacing}
-    >
-      <Container transparent={true}>
+  const renderTopHeader = () => {
+    if (headerHtml)
+      return <div dangerouslySetInnerHTML={{ __html: headerHtml }} />;
+
+    return (
+      <Container>
         <HeaderTop>
           <HeaderRight>
             <SupportMenus color={getConfigColor(config, "headingColor")}>
@@ -138,6 +139,18 @@ function Header({
               : null}
           </HeaderLinks>
         </HeaderTop>
+      </Container>
+    );
+  };
+
+  return (
+    <Head
+      background={getConfigColor(config, "headerColor")}
+      color={getConfigColor(config, "headingColor")}
+      headingSpacing={headingSpacing}
+    >
+      {renderTopHeader()}
+      <Container transparent={true}>
         <h3>{config.description}</h3>
         {headerBottomComponent && headerBottomComponent}
       </Container>

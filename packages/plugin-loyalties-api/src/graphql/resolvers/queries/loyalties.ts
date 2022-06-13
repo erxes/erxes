@@ -17,7 +17,7 @@ const loyaltyQueries = {
     const score = (await getOwner(models, params.ownerType, params.ownerType) || {}).score || 0;
     const filter: any = { ownerType: params.ownerType, ownerId: params.ownerId }
 
-    filter.statuses = (params.statuses && params.statuses.length) ? params.statuses : ['new']
+    filter.status = (params.statuses && params.statuses.length) ? params.statuses : ['new']
 
     return {
       ownerId: params.ownerId,

@@ -250,7 +250,25 @@ export const carDetail = `
         type
         size
       }
-      fourAttachments {
+      frontAttachments {
+        name
+        url
+        type
+        size
+      }
+      leftAttachments {
+        name
+        url
+        type
+        size
+      }
+      rightAttachments {
+        name
+        url
+        type
+        size
+      }
+      backAttachments {
         name
         url
         type
@@ -331,6 +349,92 @@ const carsListConfig = `
   }
 `;
 
+const directions = `
+query directions($searchValue: String) {
+  directions(searchValue: $searchValue) {
+    _id
+    duration
+    placeIds
+    places {
+      _id
+      center
+      code
+      name
+      province
+    }
+    roadCode
+    roadConditions
+    routeCode
+    totalDistance
+  }
+}
+`;
+
+const directionDetail = `
+query directionDetail($id: String!) {
+  directionDetail(_id: $id) {
+    _id
+    duration
+    placeIds
+    places {
+      _id
+      center
+      code
+      name
+      province
+    }
+    roadCode
+    roadConditions
+    routeCode
+    totalDistance
+  }
+}
+`;
+
+const routesQuery = `
+query routes($searchValue: String) {
+  routes(searchValue: $searchValue) {
+    _id
+    code
+    directionIds
+    directions {
+      _id
+      duration
+      placeIds
+      places {
+        _id
+        center
+        code
+        name
+        province
+      }
+      roadCode
+      roadConditions
+      routeCode
+      totalDistance
+    }
+    name
+    summary {
+      placeNames
+      totalDistance
+      totalDuration
+    }
+  }
+}
+`;
+
+const placesQuery = `
+query places($searchValue: String) {
+  places(searchValue: $searchValue) {
+    _id
+    province
+    name
+    code
+    center
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -350,5 +454,11 @@ export default {
   carCategoryMatchProducts,
   productCategoryMatchCarCategories,
   participants,
-  carsListConfig
+  carsListConfig,
+
+  placesQuery,
+  directions,
+  directionDetail,
+
+  routesQuery
 };

@@ -21,6 +21,7 @@ import {
   WhiteBox,
   WhiteBoxRoot
 } from '@erxes/ui/src/layout/styles';
+import { Modal } from 'react-bootstrap';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -684,11 +685,16 @@ const GotoFormWrapper = styled.div`
 `;
 
 const GotoContentWrapper = styled.div`
-  max-height: 400px;
+  max-height: 423px;
   overflow-y: scroll;
+  scroll-behaviour: smooth;
 
-  a {
-    text-decoration: none;
+  & a:focus {
+    outline: none;
+  }
+
+  & .active {
+    background: ${rgba(colors.colorBlack, 0.06)};
   }
 `;
 
@@ -727,6 +733,19 @@ const GotoItem = styled.div`
 
   &:hover {
     background: ${rgba(colors.colorBlack, 0.06)};
+  }
+`;
+
+const GotoModal = styled(Modal)`
+  & > div {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+`;
+
+const GotoMenuItem = styled(NavMenuItem)`
+  > a {
+    height: 50px;
   }
 `;
 
@@ -784,5 +803,7 @@ export {
   GotoFormWrapper,
   GotoContentWrapper,
   GotoCategory,
-  GotoItem
+  GotoItem,
+  GotoModal,
+  GotoMenuItem
 };

@@ -5,6 +5,9 @@ export interface IEmailTemplate {
   name: string;
   content: string;
   status: string;
+  createdAt: Date;
+  modifiedAt: Date;
+  createdBy: string;
 }
 
 export interface IEmailTemplateDocument extends IEmailTemplate, Document {
@@ -16,6 +19,13 @@ export const emailTemplateSchema = schemaWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     status: field({ type: String, label: 'Status' }),
-    content: field({ type: String, optional: true, label: 'Content' })
+    content: field({ type: String, optional: true, label: 'Content' }),
+    createdAt: field({
+      type: Date,
+      default: Date.now,
+      label: 'Created at'
+    }),
+    createdBy: field({ type: String, label: 'Created by' }),
+    modifiedAt: field({ type: Date, default: Date.now, label: 'Modified at' })
   })
 );
