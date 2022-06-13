@@ -64,7 +64,7 @@ class EmailListContainer extends React.Component<Props> {
   duplicate = (id: string) => {
     client
       .mutate({
-        mutation: gql(mutations.duplicateEmailTemplate),
+        mutation: gql(mutations.emailTemplatesDuplicate),
         variables: { _id: id }
       })
       .then(() => {
