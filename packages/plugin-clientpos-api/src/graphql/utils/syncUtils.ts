@@ -1,5 +1,4 @@
 import { Products, ProductCategories } from '../../models/Products';
-import { ICustomerDocument } from '../../models/definitions/customers';
 
 export const importUsers = async (isAdmin: boolean = false) => {};
 
@@ -92,7 +91,7 @@ export const preImportCustomers = async customers => {
   const importCustomerIds = customers.map(c => c._id);
 };
 
-export const importCustomers = async (customers: ICustomerDocument[]) => {
+export const importCustomers = async customers => {
   let bulkOps: {
     updateOne: {
       filter: { _id: string };
@@ -226,7 +225,7 @@ export const receiveProductCategory = async data => {
     return ProductCategories.createProductCategory(object);
   }
 
-  const category = await ProductCategories.findOne({ _id: object._id });
+  const category: any = await ProductCategories.findOne({ _id: object._id });
 
   if (action === 'update' && category) {
     return ProductCategories.updateProductCategory(
