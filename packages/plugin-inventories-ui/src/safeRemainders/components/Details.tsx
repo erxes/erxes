@@ -53,18 +53,22 @@ class CompanyDetails extends React.Component<Props> {
           <thead>
             <tr>
               <th rowSpan={2}>{__('Product')}</th>
+
               <th colSpan={2}>{__('LIVE')}</th>
-              <th colSpan={6}>{__('Census')}</th>
+              <th rowSpan={2}>{__('Checked')}</th>
+              <th colSpan={2}>{__('Census')}</th>
+              <th colSpan={2}>{__('Difference')}</th>
+              <th rowSpan={2}>{__('Actions')}</th>
             </tr>
             <tr>
               <th>{__('Live remainder')}</th>
               <th>{__('UOM')}</th>
-              <th>{__('Product Category')}</th>
-              <th>{__('Description')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('ModifiedAt')}</th>
-              <th>{__('ModifiedBy')}</th>
-              <th>{__('Actions')}</th>
+
+              <th>{__('Safe remainder')}</th>
+              <th>{__('UOM')}</th>
+
+              <th>{__('Diff')}</th>
+              <th>{__('UOM')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow(remItems)}</tbody>

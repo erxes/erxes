@@ -45,6 +45,7 @@ type Props = {
   maxHeight?: number;
   maxLength?: number;
   color?: string;
+  align?: string;
 };
 
 const renderElement = (Element, attributes, type, child) => {
@@ -96,8 +97,11 @@ class FormControl extends React.Component<Props> {
       onBlur: props.onBlur,
       value: props.value,
       defaultValue: props.defaultValue,
-      [props.defaultChecked ? 'defaultChecked' : 'checked']:
-        props.defaultChecked ? props.defaultChecked : props.checked,
+      [props.defaultChecked
+        ? 'defaultChecked'
+        : 'checked']: props.defaultChecked
+        ? props.defaultChecked
+        : props.checked,
       placeholder: props.placeholder,
       hasError: errorMessage ? true : false,
       type: props.type,
@@ -114,6 +118,7 @@ class FormControl extends React.Component<Props> {
       maxHeight: props.maxHeight,
       maxLength: props.maxLength,
       color: props.color,
+      align: props.align
     };
 
     if (elementType === 'select') {
@@ -124,7 +129,11 @@ class FormControl extends React.Component<Props> {
               <Select {...attributes}>
                 {props.options.map((option, index) => {
                   return (
-                    <option key={index} value={option.value || '' } disabled={option.disabled}>
+                    <option
+                      key={index}
+                      value={option.value || ''}
+                      disabled={option.disabled}
+                    >
                       {option.label || ''}
                     </option>
                   );

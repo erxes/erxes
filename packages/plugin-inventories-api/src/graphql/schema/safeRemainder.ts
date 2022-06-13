@@ -11,6 +11,10 @@ export const types = `
     _id: String! @external
   }
 
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type SafeRemainder @key(fields: "_id") {
     _id: String!
     createdAt: Date
@@ -46,6 +50,9 @@ export const types = `
     count: Float,
     branchId: String,
     departmentId: String,
+
+    product: Product
+    uom: Uom_
   }
 
   type SafeRemItemCount {

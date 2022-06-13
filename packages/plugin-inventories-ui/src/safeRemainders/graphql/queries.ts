@@ -76,6 +76,17 @@ const safeRemItemFields = `
   count
   branchId
   departmentId
+
+  product {
+    _id
+    code
+    name
+  }
+  uom {
+    _id
+    code
+    name
+  }
 `;
 
 const safeRemainders = `

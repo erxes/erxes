@@ -1,4 +1,4 @@
-import { IProductCategory } from '@erxes/ui-products/src/types';
+import { IProduct, IProductCategory, IUom } from '@erxes/ui-products/src/types';
 import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -41,6 +41,9 @@ export type ISafeRemaItem = {
   count: number;
   branchId: string;
   departmentId: string;
+
+  product: IProduct;
+  uom: IUom;
 };
 
 export type SafeRemaindersQueryResponse = {
