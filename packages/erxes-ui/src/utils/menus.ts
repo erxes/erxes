@@ -7,7 +7,8 @@ const menuContacts = [
   { title: 'Leads', link: '/contacts/lead' },
   { title: 'Customers', link: '/contacts/customer' },
   { title: 'Companies', link: '/companies' },
-  { title: 'Team members', link: '/settings/team' }
+  { title: 'Team members', link: '/settings/team' },
+  { title: 'Client Portal Users', link: '/settings/client-portal/user' }
 ];
 
 export { menuContacts, menuInbox, menuDeal };

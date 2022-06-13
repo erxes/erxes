@@ -15,6 +15,12 @@ const ClientPortal = asyncComponent(() =>
   )
 );
 
+const ClientPortalUserList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "ClientPortalDetail - Settings" */ './containers/ClientPortalUserList'
+  )
+);
+
 const clientPortal = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -25,6 +31,12 @@ const configsForm = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
   return <ClientPortalDetail queryParams={queryParams} history={history} />;
+};
+
+const list = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <ClientPortalUserList />;
 };
 
 const routes = () => (
@@ -39,6 +51,11 @@ const routes = () => (
       key="/settings/client-portal/form"
       path="/settings/client-portal/form"
       component={configsForm}
+    />
+    <Route
+      key="/settings/client-portal/user"
+      path="/settings/client-portal/user"
+      component={list}
     />
   </>
 );

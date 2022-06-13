@@ -8,6 +8,7 @@ export interface IUser {
   username?: string;
   firstName?: string;
   lastName?: string;
+  code?: string;
   password?: string;
   type?: string;
   deviceTokens?: string[];
@@ -47,10 +48,11 @@ export const clientPortalUserSchema = new Schema({
   }),
   phone: field({ type: String, unique: true, optional: true }),
   username: field({ type: String, optional: true, unique: true }),
+  code: field({ type: String, optional: true }),
   password: field({ type: String }),
   firstName: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true }),
-  clientPortalId: field({ type: String, required: true }),
+  clientPortalId: field({ type: String, optional: true }),
 
   erxesCustomerId: field({ type: String, optional: true }),
   phoneVerificationCode: field({ type: String, optional: true }),

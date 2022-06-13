@@ -13,6 +13,21 @@ export interface IVerificationParams {
 }
 
 const clientPortalUserMutations = {
+  async clientPortalUsersAdd(
+    _root,
+    doc: IUser,
+    { user, docModifier, models, subdomain }: IContext
+  ) {
+    const modifiedDoc = docModifier(doc);
+
+    const clientPortalUser = await models.ClientPortalUsers.createUser(
+      subdomain,
+      modifiedDoc
+    );
+
+    return clientPortalUser;
+  },
+
   clientPortalRegister: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
     const clientPortal = await models.ClientPortals.getConfig(

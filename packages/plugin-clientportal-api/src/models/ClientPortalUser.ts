@@ -26,6 +26,11 @@ export interface ILoginParams {
 }
 
 export interface IUserModel extends Model<IUserDocument> {
+  checkDuplication(clientPortalUserFields: {
+    email?: string;
+    phone?: string;
+    code?: string;
+  }): never;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
   checkPassword(password: string): void;
@@ -90,11 +95,68 @@ export interface IUserModel extends Model<IUserDocument> {
 
 export const loadClientPortalUserClass = (models: IModels) => {
   class ClientPortalUser {
+    public static async checkDuplication(
+      clientPortalUserFields: {
+        email?: string;
+        phone?: string;
+        code?: string;
+      },
+      idsToExclude?: string[] | string
+    ) {
+      const query: { status: {}; [key: string]: any } = {
+        status: { $ne: 'deleted' }
+      };
+      let previousEntry;
+
+      if (idsToExclude) {
+        query._id = { $nin: idsToExclude };
+      }
+
+      if (!clientPortalUserFields) {
+        return;
+      }
+
+      if (clientPortalUserFields.email) {
+        // check duplication from primaryName
+        previousEntry = await models.ClientPortalUsers.find({
+          email: clientPortalUserFields.email
+        });
+
+        if (previousEntry.length > 0) {
+          throw new Error('Duplicated email');
+        }
+      }
+
+      if (clientPortalUserFields.phone) {
+        // check duplication from primaryName
+        previousEntry = await models.ClientPortalUsers.find({
+          ...query,
+          phone: clientPortalUserFields.phone
+        });
+
+        if (previousEntry.length > 0) {
+          throw new Error('Duplicated phone');
+        }
+      }
+
+      if (clientPortalUserFields.code) {
+        // check duplication from code
+        previousEntry = await models.ClientPortalUsers.find({
+          ...query,
+          code: clientPortalUserFields.code
+        });
+
+        if (previousEntry.length > 0) {
+          throw new Error('Duplicated code');
+        }
+      }
+    }
+
     public static async createUser(
       subdomain: string,
       { password, email, phone, clientPortalId, ...doc }: IUser
     ) {
-      if (password) this.checkPassword(password);
+      // if (password) this.checkPassword(password);
 
       const document: any = doc;
 
