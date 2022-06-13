@@ -12,7 +12,7 @@ import {
   StepHeaderTitle,
   StepImg,
   StepItem,
-  ButtonBack,
+  StepButton,
   ButtonContainer
 } from './styles';
 
@@ -32,6 +32,7 @@ type Props = {
   link?: string;
   additionalButton?: React.ReactNode;
   direction?: 'horizontal' | 'vertical';
+  progress?: number;
 };
 
 class Step extends React.Component<Props> {
@@ -45,54 +46,59 @@ class Step extends React.Component<Props> {
     }
   };
 
-  renderBackButton(text: string) {
-    const { back, stepNumber = 1 } = this.props;
+  renderBackButton = () => {
+    const { back, link, stepNumber = 1 } = this.props;
 
-    if (back)
+    if (link)
       return (
-        <ButtonBack size={1} onClick={() => back(stepNumber)}>
-          {text}
-        </ButtonBack>
+        <Link to={link}>
+          <StepButton>{__('Cancel')}</StepButton>
+        </Link>
       );
 
-    return null;
-  }
+    return (
+      <StepButton onClick={() => back && back(stepNumber)}>
+        {__('Back')}
+      </StepButton>
+    );
+  };
+
+  renderNextButton = () => {
+    const { next, additionalButton, direction } = this.props;
+
+    if (additionalButton) return additionalButton;
+
+    if (direction === 'horizontal')
+      return (
+        <StepButton next={true} onClick={() => next && next(0)}>
+          {__('Next')}
+        </StepButton>
+      );
+
+    return (
+      <Button
+        btnStyle="primary"
+        size="small"
+        icon="arrow-right"
+        onClick={() => next && next(0)}
+      >
+        Next
+      </Button>
+    );
+  };
 
   renderButton = () => {
-    const { next, link, additionalButton, direction } = this.props;
+    const { direction } = this.props;
 
-    if (direction === 'horizontal') {
+    if (direction === 'horizontal')
       return (
         <BoxRow>
-          {link ? (
-            <Link to={link}>{this.renderBackButton(__('Cancel'))}</Link>
-          ) : (
-            this.renderBackButton(__('Back'))
-          )}
-          {additionalButton
-            ? additionalButton
-            : next && (
-                <ButtonBack size={1} onClick={() => next && next(0)}>
-                  {__('Skip')}
-                </ButtonBack>
-              )}
+          {this.renderBackButton()}
+          {this.renderNextButton()}
         </BoxRow>
       );
-    }
 
-    if (next)
-      return (
-        <Button
-          btnStyle="primary"
-          size="small"
-          icon="arrow-right"
-          onClick={() => next && next(0)}
-        >
-          Next
-        </Button>
-      );
-
-    return null;
+    return this.renderNextButton();
   };
 
   renderImage = () => {
@@ -116,14 +122,13 @@ class Step extends React.Component<Props> {
       title,
       children,
       noButton,
-      direction
+      direction,
+      progress = 0
     } = this.props;
 
     let show = false;
 
     if (stepNumber === active) show = true;
-
-    console.log(stepNumber, active);
 
     switch (direction) {
       case 'vertical':
@@ -132,7 +137,7 @@ class Step extends React.Component<Props> {
             <StepItem
               show={show}
               direction={direction}
-              active={active >= stepNumber}
+              active={progress >= stepNumber}
             >
               <ShortStep
                 show={true}
@@ -140,7 +145,10 @@ class Step extends React.Component<Props> {
                 direction={direction}
                 onClick={() => this.handleOnClick(stepNumber)}
               >
-                <StepCount direction={direction} active={active >= stepNumber}>
+                <StepCount
+                  direction={direction}
+                  active={progress >= stepNumber}
+                >
                   {stepNumber}
                 </StepCount>
                 <StepHeaderTitle>{__(title || '')}</StepHeaderTitle>

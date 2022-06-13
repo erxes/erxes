@@ -36,7 +36,8 @@ import {
   sendCoreMessage,
   sendIntegrationsMessage,
   sendLogsMessage,
-  sendToWebhook
+  sendToWebhook,
+  sendAutomationsMessage
 } from '../../messageBroker';
 import { trackViewPageEvent } from '../../events';
 import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
@@ -297,13 +298,36 @@ const createFormConversation = async (
     subdomain,
     action: 'submissions.createFormSubmission',
     data: {
-      submissions: docs,
-      customer: cachedCustomer,
-      conversationId: conversation._id,
-      userId: args.userId
+      submissions: docs
     },
     isRPC: false
   });
+
+  // automation trigger =========
+  if (cachedCustomer) {
+    const submissionValues = {};
+
+    for (const submit of submissions) {
+      submissionValues[submit.formFieldId] = submit.value;
+    }
+
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `contacts:${cachedCustomer.state}`,
+        targets: [
+          {
+            ...cachedCustomer,
+            ...submissionValues,
+            isFormSubmission: true,
+            conversationId: conversation._id,
+            userId: args.userId
+          }
+        ]
+      }
+    });
+  }
 
   return {
     status: 'ok',
@@ -558,6 +582,18 @@ const widgetMutations = {
       });
     }
 
+    // customer automation trigger =========
+    if (customer) {
+      sendAutomationsMessage({
+        subdomain,
+        action: 'trigger',
+        data: {
+          type: `contacts:${customer.state}`,
+          targets: [customer]
+        }
+      });
+    }
+
     // get or create company
     if (companyData && companyData.name) {
       let company = await sendContactsMessage({
@@ -583,19 +619,15 @@ const widgetMutations = {
       if (!company) {
         companyData.primaryName = companyData.name;
 
-        try {
-          company = await sendContactsMessage({
-            subdomain,
-            action: 'companies.createCompany',
-            data: {
-              ...companyData,
-              scopeBrandIds: [brand._id]
-            },
-            isRPC: true
-          });
-        } catch (e) {
-          debug.error(e.message);
-        }
+        company = await sendContactsMessage({
+          subdomain,
+          action: 'companies.createCompany',
+          data: {
+            ...companyData,
+            scopeBrandIds: [brand._id]
+          },
+          isRPC: true
+        });
       } else {
         company = await sendContactsMessage({
           subdomain,
@@ -604,6 +636,19 @@ const widgetMutations = {
             _id: company._id,
             doc: companyData,
             scopeBrandIds: [brand._id]
+          },
+          isRPC: true
+        });
+      }
+
+      // company automation trigger =========
+      if (company) {
+        sendAutomationsMessage({
+          subdomain,
+          action: 'trigger',
+          data: {
+            type: `contacts:company`,
+            targets: [company]
           }
         });
       }
@@ -618,8 +663,7 @@ const widgetMutations = {
             mainTypeId: customer._id,
             relType: 'company',
             relTypeId: company._id
-          },
-          isRPC: true
+          }
         });
       }
     }
@@ -1082,7 +1126,8 @@ const widgetMutations = {
       const replacedContent = await new EditorAttributeUtil(
         msgBrokerClient,
         `${process.env.DOMAIN}/gateway/pl:core`,
-        await getServices()
+        await getServices(),
+        subdomain
       ).replaceAttributes({
         content,
         customer,

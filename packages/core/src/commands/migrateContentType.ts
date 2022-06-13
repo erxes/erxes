@@ -158,7 +158,7 @@ const command = async () => {
 
   await Webhooks.find({}).forEach(webhook => {
     const actions = webhook.actions || [];
-    let fixedActions = [] as any;
+    const fixedActions = [] as any;
 
     for (const action of actions) {
       const type = switchContentType(action.type);

@@ -4,6 +4,8 @@ import { buildSubgraphSchema } from '@apollo/federation';
 import * as dotenv from 'dotenv';
 import resolvers from './data/resolvers';
 import * as typeDefDetails from './data/schema';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolvers';
 
 // load environment variables
 dotenv.config();
@@ -33,8 +35,11 @@ export const initApolloServer = async (_app, httpServer) => {
     ]),
     // for graceful shutdowns
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ req, res }) => {
+    context: async ({ req, res }) => {
       let user: any = null;
+
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
 
       if (req.headers.user) {
         const userJson = Buffer.from(req.headers.user, 'base64').toString(
@@ -56,7 +61,9 @@ export const initApolloServer = async (_app, httpServer) => {
         commonQuerySelector: {},
         user,
         res,
-        requestInfo
+        requestInfo,
+        subdomain,
+        models
       };
     }
   });

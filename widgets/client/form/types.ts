@@ -17,6 +17,12 @@ export interface IProduct {
   unitPrice: number;
 }
 
+export interface IObjectListConfig {
+  key: string;
+  label: string;
+  type: string;
+}
+
 export interface IField {
   _id: string;
   contentType: string;
@@ -28,6 +34,7 @@ export interface IField {
   description?: string;
   options?: string[];
   locationOptions?: ILocationOption[];
+  objectListConfigs?: IObjectListConfig[];
   isRequired: boolean;
   isDefinedByErxes: boolean;
   order: number;
@@ -77,7 +84,8 @@ export type FieldValue =
   | Date
   | string[]
   | IAttachment[]
-  | ILocationOption;
+  | ILocationOption
+  | IObjectListConfig[];
 
 export interface IFieldError {
   fieldId?: string;

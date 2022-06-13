@@ -24,6 +24,10 @@ ${
    extend type KnowledgeBaseTopic @key(fields: "_id") {
     _id: String! @external
   }
+
+   extend type KnowledgeBaseArticle @key(fields: "_id") {
+    _id: String! @external
+  }
    `
     : ''
 }
@@ -49,6 +53,9 @@ ${
     url: String
     logo: String
     icon: String
+    headerHtml: String
+    footerHtml: String
+
     domain: String
     dnsStatus: String
     messengerBrandCode: String
@@ -135,6 +142,7 @@ export const queries = (cardAvailable, kbAvailable) => `
     kbAvailable
       ? `
     clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String]): [KnowledgeBaseArticle]
    `
       : ''
   }
@@ -147,6 +155,8 @@ export const mutations = cardAvailable => `
     description: String
     logo: String
     icon: String
+    headerHtml: String
+    footerHtml: String
     url: String
     domain: String
     messengerBrandCode: String

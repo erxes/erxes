@@ -2,38 +2,6 @@ import * as teamQueries from '@erxes/ui/src/team/graphql';
 
 const detailFields = teamQueries.detailFields;
 
-const departmentField = `
-  _id
-  title
-  description
-  parentId
-  code
-  supervisorId
-  userIds
-  users {
-    _id
-    details {
-      ${detailFields}
-    }
-  }
-`;
-
-const contactInfoFields = `
-  phoneNumber
-  email
-  links
-  coordinate {
-    longitude
-    latitude
-  }
-  image {
-    url
-    name
-    type
-    size
-  }
-`;
-
 const userDetail = `
   query userDetail($_id: String) {
     userDetail(_id: $_id) {
@@ -131,56 +99,26 @@ const structureDetail = `
         }
       }
 
-      ${contactInfoFields}
+      ${teamQueries.contactInfoFields}
     }
   }
 `;
 
-const departments = `
-  query departments {
-    departments {
-      ${departmentField}
-    }
-  }
-`;
+const departments = teamQueries.departments;
 
 const departmentDetail = `
   query departmentDetail($_id: String) {
     departmentDetail(_id: $_id) {
-      ${departmentField}
+      ${teamQueries.departmentField}
     }
   }
 `;
 
-const unitField = `
-  _id
-  title
-  description
-  departmentId
-  supervisorId
-  code
-  userIds
-  users {
-    _id
-    details {
-      avatar
-      fullName
-    }
-  }
-`;
-
-const units = `
-  query units {
-    units {
-      ${unitField}
-    }
-  }
-`;
-
+const units = teamQueries.units;
 const unitDetail = `
   query unitDetail($_id: String) {
     unitDetail(_id: $_id) {
-      ${unitField}
+      ${teamQueries.unitField}
     }
   }
 `;
@@ -198,36 +136,12 @@ const noDepartmentUsers = `
   }
 `;
 
-const branchField = `
-  _id
-  title
-  address
-  parentId
-  supervisorId
-  code
-  userIds
-  users {
-    _id
-    details {
-      avatar
-      fullName
-    }
-  }
-  ${contactInfoFields}
-`;
-
-const branches = `
-  query branches {
-    branches {
-      ${branchField}
-    }
-  }
-`;
+const branches = teamQueries.branches;
 
 const branchDetail = `
   query branchDetail($_id: String) {
     branchDetail(_id: $_id) {
-      ${branchField}
+      ${teamQueries.branchField}
     }
   }
 `;

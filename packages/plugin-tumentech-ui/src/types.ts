@@ -10,6 +10,7 @@ import {
   IActivityLogForMonth
 } from '@erxes/ui/src/activityLogs/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ILocationOption } from '@erxes/ui/src/types';
 
 export interface IRouterProps {
   history: any;
@@ -150,7 +151,10 @@ export interface ICarDoc {
   liftWagonCapacityValue?: string;
 
   attachments?: any;
-  fourAttachments?: any;
+  frontAttachments?: any;
+  leftAttachments?: any;
+  rightAttachments?: any;
+  backAttachments?: any;
   floorAttachments?: any;
   transformationAttachments?: any;
   meterWarranty?: Date;
@@ -423,3 +427,42 @@ export type AddParticipantsMutation = ({
 export type RemoveParticipantsMutation = ({
   variables: { dealId, customerIds }
 }) => Promise<any>;
+
+export type IPlace = {
+  _id: string;
+  province: string;
+  name: string;
+  code: string;
+  center: ILocationOption;
+};
+
+export type IDirection = {
+  _id: string;
+  placeIds: [string, string];
+  places: [IPlace, IPlace];
+  totalDistance: number;
+  roadConditions: string[];
+  roadCode: string;
+  routeCode: string;
+  duration: number;
+};
+
+export type IDirectionItem = {
+  directionId: string;
+  order: number;
+};
+
+export type IRouteSummary = {
+  placeNames: string;
+  totalDistance: number;
+  totalDuration: number;
+};
+
+export type IRoute = {
+  _id: string;
+  name: string;
+  code: string;
+  directionIds: string[];
+  directions: IDirection[];
+  summary: IRouteSummary;
+};

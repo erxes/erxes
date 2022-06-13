@@ -9,6 +9,9 @@ import { initApolloServer } from './apolloClient';
 import { initBroker } from './messageBroker';
 import { join, leave, redis } from './serviceDiscovery';
 import * as mongoose from 'mongoose';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { generateErrors } from './data/modules/import/generateErrors';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 
 async function closeMongooose() {
   try {
@@ -58,6 +61,20 @@ app.disable('x-powered-by');
 app.get('/health', async (_req, res) => {
   res.end('ok');
 });
+
+app.get(
+  '/download-import-error',
+  routeErrorHandling(async (req: any, res) => {
+    const { query } = req;
+
+    const subdomain = getSubdomain(req);
+
+    const { name, response } = await generateErrors(query, subdomain);
+
+    res.attachment(`${name}.csv`);
+    return res.send(response);
+  })
+);
 
 app.use(express.urlencoded());
 app.use(express.json());

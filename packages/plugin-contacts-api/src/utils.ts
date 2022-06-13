@@ -18,7 +18,7 @@ import messageBroker, {
   sendInboxMessage,
   sendTagsMessage
 } from './messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels, IModels } from './connectionResolver';
 import {
   COMPANY_INFO,
@@ -29,6 +29,17 @@ import {
 import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+
+const EXTEND_FIELDS = {
+  CUSTOMER: [
+    { name: 'companiesPrimaryNames', label: 'Company Primary Names' },
+    { name: 'companiesPrimaryEmails', label: 'Company Primary Emails' }
+  ],
+  ALL: [
+    { name: 'tag', label: 'Tag' },
+    { name: 'ownerEmail', label: 'Owner email' }
+  ]
+};
 
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
@@ -191,7 +202,7 @@ const getIntegrations = async (subdomain: string) => {
   const integrations = await sendInboxMessage({
     subdomain,
     action: 'integrations.find',
-    data: {},
+    data: { query: {} },
     isRPC: true,
     defaultValue: []
   });
@@ -313,11 +324,10 @@ export const generateFields = async ({ subdomain, data }) => {
 
   fields = [...fields, tags];
 
-  if (type === 'customer') {
+  if (type === 'customer' || type === 'lead') {
     const integrations = await getIntegrations(subdomain);
 
     fields = [...fields, integrations];
-
     if (usageType === 'import') {
       fields.push({
         _id: Math.random(),
@@ -334,6 +344,13 @@ export const generateFields = async ({ subdomain, data }) => {
   }
 
   fields = [...fields, ownerOptions];
+
+  for (const extendField of EXTEND_FIELDS.ALL) {
+    fields.push({
+      _id: Math.random(),
+      ...extendField
+    });
+  }
 
   return fields;
 };
@@ -384,12 +401,13 @@ export const getContentItem = async (
   return null;
 };
 
-export const getEditorAttributeUtil = async () => {
+export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
     `${process.env.DOMAIN}/gateway/pl:core`,
-    services
+    services,
+    subdomain
   );
 
   return editor;
@@ -412,7 +430,7 @@ export const prepareEngageCustomers = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
-  const editorAttributeUtil = await getEditorAttributeUtil();
+  const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
   const customerFields = await editorAttributeUtil.getCustomerFields(
     emailContent
   );
@@ -898,7 +916,7 @@ export const updateContactsField = async (
     }
   }
 
-  return cachedCustomer;
+  return models.Customers.findOne({ _id: cachedCustomerId });
 };
 
 export const updateCustomerFromForm = async (
@@ -962,7 +980,7 @@ const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
 ) => {
-  const customFieldsData: ICustomField[] = [];
+  const customFieldsData: ICustomField[] = customerData;
 
   if (customerData.length === 0) {
     return submissionData;
@@ -971,11 +989,15 @@ const prepareCustomFieldsData = (
   for (const data of submissionData) {
     const existingData = customerData.find(e => e.field === data.field);
 
-    if (existingData && Array.isArray(existingData.value)) {
-      data.value = existingData.value.concat(data.value);
+    if (existingData) {
+      if (Array.isArray(existingData.value)) {
+        existingData.value = existingData.value.concat(data.value);
+      } else {
+        existingData.value = data.value;
+      }
+    } else {
+      customFieldsData.push(data);
     }
-
-    customFieldsData.push(data);
   }
 
   return customFieldsData;
