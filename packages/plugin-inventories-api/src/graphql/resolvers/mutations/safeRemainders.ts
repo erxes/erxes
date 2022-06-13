@@ -8,6 +8,12 @@ import {
 import { SAFE_REMAINDER_STATUSES } from '../../../models/definitions/constants';
 import { updateLiveRemainder } from './utils';
 
+export interface IUpdateSafeRemItemParams {
+  _id: string;
+  status: string;
+  remainder: number;
+}
+
 const remainderMutations = {
   async createSafeRemainder(
     _root,
@@ -105,6 +111,20 @@ const remainderMutations = {
     //  TODO delete tr
 
     return models.SafeRemainders.deleteOne({ _id });
+  },
+
+  async updateSafeRemItem(
+    _root,
+    params: IUpdateSafeRemItemParams,
+    { models }: IContext
+  ) {
+    const { _id, status, remainder } = params;
+    const item = await models.SafeRemItems.getRemItemObject(_id);
+    await models.SafeRemItems.updateOne(
+      { _id },
+      { $set: { count: remainder, status } }
+    );
+    return models.SafeRemItems.getRemItemObject(_id);
   }
 };
 

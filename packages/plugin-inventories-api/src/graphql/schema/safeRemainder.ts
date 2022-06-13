@@ -71,4 +71,5 @@ export const queries = `
 export const mutations = `
   createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
   removeSafeRemainder(_id: String!): JSON
+  updateSafeRemItem(_id: String, status: String, remainder: Float): SafeRemItem
 `;

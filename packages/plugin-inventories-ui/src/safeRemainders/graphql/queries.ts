@@ -65,7 +65,7 @@ export const safeRemainderFields = `
 
 `;
 
-const safeRemItemFields = `
+export const safeRemItemFields = `
   _id
   modifiedAt
   lastTrDate

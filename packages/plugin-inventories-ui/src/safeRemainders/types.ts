@@ -66,3 +66,15 @@ export type SafeRemItemsCountQueryResponse = {
 export type RemoveSafeRemainderMutationResponse = {
   removeSafeRemainder: (params: { variables: { _id: string } }) => Promise<any>;
 };
+
+export type UpdateSafeRemItemsMutationVariables = {
+  _id: string;
+  status: string;
+  remainder: number;
+};
+
+export type UpdateSafeRemItemMutationResponse = {
+  updateSafeRemItem: (params: {
+    variables: UpdateSafeRemItemsMutationVariables;
+  }) => Promise<any>;
+};

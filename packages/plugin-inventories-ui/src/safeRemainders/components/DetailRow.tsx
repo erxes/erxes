@@ -10,40 +10,69 @@ import { FinanceAmount } from '../../styles';
 
 type Props = {
   item: ISafeRemaItem;
+  updateItem: (_id: string, remainder: number, status: string) => void;
   // remove: (_id: string) => void;
 };
 
 type State = {
+  status: string;
   remainder: number;
   diff: number;
 };
 
 class Row extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
     this.state = {
+      status: 'new',
       remainder: props.item.count,
       diff: props.item.count - props.item.preCount
     };
   }
 
   displayNumber = value => {
-    return value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    return (value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+  };
+
+  update = () => {
+    console.log('qqqqqqqqqqqqqqqqqq');
+    const { remainder, status } = this.state;
+    const { updateItem, item } = this.props;
+
+    updateItem(item._id, remainder, status);
   };
 
   onChangeCheck() {}
 
   onChangeRemainder = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
     e.preventDefault();
     const value = Number(e.target.value);
     this.setState({ remainder: value, diff: value - this.props.item.preCount });
+
+    this.timer = setTimeout(() => {
+      this.update();
+    }, 500);
   };
 
   onChangeDiff = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
     e.preventDefault();
     const value = Number(e.target.value);
     this.setState({ diff: value, remainder: value + this.props.item.preCount });
+
+    this.timer = setTimeout(() => {
+      this.update();
+    }, 500);
   };
 
   renderDate(date) {

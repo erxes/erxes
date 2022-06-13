@@ -166,7 +166,8 @@ export const TableOver = styled(StyledTable)`
 
     td:nth-of-type(5),
     td:nth-of-type(6),
-    td:nth-of-type(7) {
+    td:nth-of-type(7),
+    td:nth-of-type(8) {
       padding-top: 0px;
       padding-bottom: 0px;
     }

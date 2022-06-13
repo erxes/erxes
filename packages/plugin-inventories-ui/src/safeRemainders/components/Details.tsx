@@ -21,11 +21,16 @@ type Props = {
   safeRemItemsQuery: SafeRemItemsQueryResponse;
   safeRemainder: ISafeRemainder;
   currentUser: IUser;
+  updateRemItem: (_id: string, remainder: number, status: string) => void;
 };
 
 class CompanyDetails extends React.Component<Props> {
   renderRow = (remItems: ISafeRemaItem[]) => {
-    return (remItems || []).map(rem => <Row key={rem._id} item={rem} />);
+    const { updateRemItem } = this.props;
+
+    return (remItems || []).map(rem => (
+      <Row key={rem._id} item={rem} updateItem={updateRemItem} />
+    ));
   };
 
   render() {
