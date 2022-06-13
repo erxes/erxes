@@ -38,11 +38,10 @@ const emailTemplatesChangeStatus = `
   }
 `;
 
-const duplicateEmailTemplate = `
-	mutation duplicateEmailTemplate($_id: String, $userId: String) {
-		duplicateEmailTemplate(_id: $_id, userId: $userId) {
-			_id,
-      userId
+const emailTemplatesDuplicate = `
+	mutation emailTemplatesDuplicate($_id: String!) {
+		emailTemplatesDuplicate(_id: $_id) {
+			_id
 		}
 	}
 `;
@@ -52,5 +51,5 @@ export default {
   emailTemplatesEdit,
   emailTemplatesRemove,
   emailTemplatesChangeStatus,
-  duplicateEmailTemplate
+  emailTemplatesDuplicate
 };
