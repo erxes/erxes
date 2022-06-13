@@ -40,7 +40,8 @@ export const loadEmailTemplateClass = (models: IModels) => {
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-        createdBy: user._id
+        createdBy: user._id,
+        status: 'active'
       });
 
       return models.EmailTemplates.getEmailTemplate(template._id);

@@ -5,6 +5,7 @@ const emailTemplates = `
       name
       content
       createdAt
+      status
       modifiedAt
       createdUser {
         _id
