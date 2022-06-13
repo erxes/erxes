@@ -7,7 +7,8 @@ import moment from 'moment';
 import React from 'react';
 import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import { Container, Description, TriggerTabs } from '../../../styles';
-import AwardContent from '../containers/AwardContent';
+import AwardContent from '../containers/award/content';
+import AwardDetail from '../containers/award/detail';
 import { lotteriesCampaignCustomerList } from '../types';
 import Sidebar from './Sidebar';
 
@@ -44,8 +45,7 @@ class VouchersAward extends React.Component<IProps, State> {
   }
   onClick(currentTab: any) {
     this.setState({
-      currentTab,
-      multiple: 0
+      currentTab
     });
   }
 
@@ -119,13 +119,29 @@ class VouchersAward extends React.Component<IProps, State> {
         </Container>
       );
     };
+
+    const Modalcontent = () => {
+      const ids = [];
+
+      for (const award of lotteryCampaign?.awards || []) {
+        ids.push(award?.voucherCampaignId);
+      }
+
+      const updatedProps = {
+        lotteryCampaign,
+        queryParams: { ids }
+      };
+
+      return <AwardDetail {...updatedProps} />;
+    };
+
     const actionBarRight = () => {
       return (
         <ModalTrigger
           title="Lottery Detail"
           trigger={detailBtn}
           autoOpenKey="showVoucherModal"
-          content={LotteryDetail}
+          content={Modalcontent}
           backDrop="static"
         />
       );

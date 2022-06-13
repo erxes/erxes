@@ -1,10 +1,10 @@
-import { Button, Table } from '@erxes/ui/src/';
+import { Table } from '@erxes/ui/src/';
 import { colors } from '@erxes/ui/src/styles/';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { Badge, TableContainer } from '../../../styles';
-import { ILottery } from '../types';
+import { Link, withRouter } from 'react-router-dom';
+import { Badge, TableContainer } from '../../../../styles';
+import { ILottery } from '../../types';
 
 interface IProps extends IRouterProps {
   lotteries: ILottery[];
@@ -19,7 +19,7 @@ class AwardList extends React.Component<IProps> {
   }
 
   render() {
-    const { lotteries, totalCount } = this.props;
+    const { lotteries } = this.props;
 
     const status = value => {
       switch (value) {
@@ -34,24 +34,45 @@ class AwardList extends React.Component<IProps> {
       }
     };
 
+    const route = type => {
+      switch (type) {
+        case 'customer':
+          return 'contacts';
+        case 'user':
+          return 'settings/team';
+        case 'company':
+          return 'companies';
+      }
+    };
+
     return (
       <TableContainer>
         <Table>
           <thead>
             <tr>
               <th>Email</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>Owner Type</th>
+              <th>Number</th>
+              <th style={{ textAlign: 'left' }}>Status</th>
             </tr>
           </thead>
           <tbody>
             {lotteries?.map((lottery, i) => (
               <tr key={i}>
-                <td> {lottery.owner.email}</td>
-                <td>{status(lottery.status)}</td>
                 <td>
-                  <Button btnStyle="white" icon="ellipsis-h" />
+                  <Link
+                    to={`/${route(lottery.ownerType)}/details/${
+                      lottery.ownerId
+                    }`}
+                  >
+                    {lottery.owner.email}
+                  </Link>
                 </td>
+
+                <td>{lottery.ownerType}</td>
+
+                <td>{lottery.number}</td>
+                <td>{status(lottery.status)}</td>
               </tr>
             ))}
           </tbody>

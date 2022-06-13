@@ -52,7 +52,9 @@ export const TriggerTabs = styled.div`
 `;
 
 export const TableContainer = styled.div`
-  width: 50%;
+  width: 45%;
+  border-radius: 5px;
+  margin: 15px;
 `;
 export const AwardContainer = styled.div`
   display: flex;
@@ -98,4 +100,15 @@ export const Badge = styled.div`
   max-width: 50px;
   color: white;
   text-align: center;
+`;
+
+export const Column = styled.div`
+  columns: 250px 2;
+`;
+
+export const CardBorder = styled.div`
+  border: 2px solid rgb(161 161 161);
+  border-radius: 3px;
+  padding: 12px;
+  margin: 12px;
 `;

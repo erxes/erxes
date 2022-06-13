@@ -1,7 +1,7 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { ICommonCampaignParams } from '../../../models/definitions/common';
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../../connectionResolver';
+import { ICommonCampaignParams } from '../../../models/definitions/common';
 import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
 const generateFilter = async (models, params) => {
@@ -73,6 +73,14 @@ const voucherCampaignQueries = {
 
   voucherCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.VoucherCampaigns.getVoucherCampaign(_id);
+  },
+
+  voucherCampaignDetails(
+    _root,
+    { _id }: { _id: [string] },
+    { models }: IContext
+  ) {
+    return models.VoucherCampaigns.getVoucherCampaigns(_id);
   }
 };
 

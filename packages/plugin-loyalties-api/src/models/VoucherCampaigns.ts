@@ -1,16 +1,16 @@
-import * as _ from 'underscore';
-import { CAMPAIGN_STATUS } from './definitions/constants';
-import { Model, model } from 'mongoose';
-import { validCampaign } from './utils';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { CAMPAIGN_STATUS } from './definitions/constants';
 import {
   IVoucherCampaign,
   IVoucherCampaignDocument,
   voucherCampaignSchema
 } from './definitions/voucherCampaigns';
+import { validCampaign } from './utils';
 
 export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   getVoucherCampaign(_id: string): Promise<IVoucherCampaignDocument>;
+  getVoucherCampaigns(_id: [string]): Promise<IVoucherCampaignDocument[]>;
   createVoucherCampaign(
     doc: IVoucherCampaign
   ): Promise<IVoucherCampaignDocument>;
@@ -54,6 +54,16 @@ export const loadVoucherCampaignClass = (
   _subdomain: string
 ) => {
   class VoucherCampaign {
+    public static async getVoucherCampaigns(_id: [string]) {
+      const result: object[] = [];
+
+      for (const id of _id) {
+        const res = await this.getVoucherCampaign(id);
+        result.push(res);
+      }
+      return result;
+    }
+
     public static async getVoucherCampaign(_id: string) {
       const voucherCampaign = await models.VoucherCampaigns.findOne({ _id });
 

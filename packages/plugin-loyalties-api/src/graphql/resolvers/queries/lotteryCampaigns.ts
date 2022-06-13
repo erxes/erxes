@@ -75,7 +75,9 @@ const lotteryCampaignQueries = {
     const filter: any = await generateFilter(params);
 
     const list = await paginate(
-      models.Lotteries.find({ ...filter, status: 'won', awardId }),
+      models.Lotteries.find({ ...filter, status: 'won', awardId }).sort({
+        usedAt: -1
+      }),
       params
     );
 

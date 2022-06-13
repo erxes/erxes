@@ -1,3 +1,4 @@
+import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
 import {
   commonFields,
   commonParamsDef,
@@ -69,10 +70,26 @@ const lotteryDetail = `
   }
 `;
 
+const lotteryDetails = `
+query VoucherCampaignDetails($id: [String!]) {
+  voucherCampaignDetails(_id: $id) 
+  }
+`;
+
+const customerDetail = `
+  query customerDetail($_id: String!) {
+    customerDetail(_id: $_id) {
+      ${customerQueries.customerFields}
+    }
+  }
+`;
+
 export default {
   lotteries,
   lotteriesMain,
   lotteryDetail,
+  lotteryDetails,
   lotteriesCampaignMain,
-  lotteryCampaignWinnerList
+  lotteryCampaignWinnerList,
+  customerDetail
 };

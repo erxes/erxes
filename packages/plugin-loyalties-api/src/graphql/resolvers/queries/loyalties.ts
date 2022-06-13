@@ -1,7 +1,7 @@
-import { ICommonParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
-import { checkVouchersSale } from '../../../utils';
+import { ICommonParams } from '../../../models/definitions/common';
 import { getOwner } from '../../../models/utils';
+import { checkVouchersSale } from '../../../utils';
 
 interface IParams extends ICommonParams {
   voucherCampaignId: string;
@@ -14,10 +14,16 @@ const loyaltyQueries = {
   },
 
   async loyalties(_root, params: IParams, { models }: IContext) {
-    const score = (await getOwner(models, params.ownerType, params.ownerType) || {}).score || 0;
-    const filter: any = { ownerType: params.ownerType, ownerId: params.ownerId }
+    const score =
+      ((await getOwner(models, params.ownerType, params.ownerType)) || {})
+        .score || 0;
+    const filter: any = {
+      ownerType: params.ownerType,
+      ownerId: params.ownerId
+    };
 
-    filter.statuses = (params.statuses && params.statuses.length) ? params.statuses : ['new']
+    filter.status =
+      params.statuses && params.statuses.length ? params.statuses : ['new'];
 
     return {
       ownerId: params.ownerId,

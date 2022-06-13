@@ -1,4 +1,4 @@
-import { Bulk } from '@erxes/ui/src';
+import { Alert, Bulk } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router } from '@erxes/ui/src/utils';
 import { withProps } from '@erxes/ui/src/utils/core';
@@ -6,10 +6,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import AwardContentComponent from '../components/AwardContent';
-import { mutations, queries } from '../graphql';
-import { lotteriesCampaignMain } from '../graphql/queries';
-import { MainQueryResponse } from '../types';
+import AwardContentComponent from '../../components/award/content';
+import { mutations, queries } from '../../graphql';
+import { lotteriesCampaignMain } from '../../graphql/queries';
+import { MainQueryResponse } from '../../types';
 
 type Props = { queryParams: any; nextChar: string };
 type FinalProps = {
@@ -35,23 +35,36 @@ class AwardContent extends React.Component<FinalProps, Props> {
   }
 
   doLotteries(variables: any) {
-    this.props.doLottery({ variables }).then(() => {
-      this.props.lotteryCampaignWinnerList.refetch();
-      // this.props.lotteriesCampaignCustomerList.refetch();
-    });
+    this.props
+      .doLottery({ variables })
+      .then(() => {
+        this.props.lotteryCampaignWinnerList.refetch();
+        this.props.lotteriesCampaignCustomerList.refetch();
+      })
+      .catch(error => {
+        Alert.error(error);
+      });
   }
 
   multipledoLottery(variables: any) {
-    this.props.multipledoLottery({ variables }).then(() => {
-      this.props.lotteryCampaignWinnerList.refetch();
-    });
+    this.props
+      .multipledoLottery({ variables })
+      .then(() => {})
+      .catch(error => {
+        Alert.error(error);
+      });
   }
 
   getNextChar(variables) {
     this.props.getNextChar({ variables }).then(res => {
-      const { afterChars, nextChar } = res.data.getNextChar;
-
+      const { afterChars, nextChar, fitLotteriesCount } = res.data.getNextChar;
       this.setState({ nextChar: nextChar === '' ? nextChar : afterChars });
+      console.log(afterChars.length);
+      if (afterChars.length === 6 && nextChar.length === 1) {
+        if (fitLotteriesCount === 0) {
+          Alert.error('No customers won');
+        }
+      }
     });
   }
 
@@ -118,10 +131,22 @@ export default withProps<Props>(
       }
     ),
     graphql(gql(mutations.doLotteries), {
-      name: 'doLottery'
+      name: 'doLottery',
+      options: {
+        refetchQueries: [
+          'lotteryCampaignWinnerList',
+          'lotteriesCampaignCustomerList'
+        ]
+      }
     }),
     graphql(gql(mutations.multipledoLottery), {
-      name: 'multipledoLottery'
+      name: 'multipledoLottery',
+      options: {
+        refetchQueries: [
+          'lotteriesCampaignCustomerList',
+          'lotteryCampaignWinnerList'
+        ]
+      }
     }),
     graphql(gql(mutations.getNextChar), {
       name: 'getNextChar'

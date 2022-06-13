@@ -1,14 +1,15 @@
 import {
   Alert,
   Button,
+  ControlLabel,
   FormControl,
-  ModalTrigger,
+  FormGroup,
   Wrapper
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { AwardContainer, Card } from '../../../styles';
-import AwardList from './award list';
+import { AwardContainer, Card } from '../../../../styles';
+import AwardList from './list';
 
 type State = {
   multiple: number;
@@ -29,6 +30,8 @@ interface IProps extends IRouterProps {
   totalCount: number;
   lotteryCampaign: any;
   nextChar: any;
+  lotteryCampaignWinnerList: any;
+  lotteriesCampaignCustomerList: any;
 }
 
 class AwardContentComponent extends React.Component<IProps, State> {
@@ -52,32 +55,26 @@ class AwardContentComponent extends React.Component<IProps, State> {
     } = this.props;
     const { multiple, isOpenNextChar, isOpenInput } = this.state;
 
-    const lotterydetailbtn = (
-      <Button btnStyle="success" size="small" icon="plus-circle">
-        Detail
-      </Button>
-    );
-    const LotteryCampaignDetail = () => {
-      return (
-        <div>
-          <p>shit</p>
-        </div>
-      );
-    };
     const actionbarLotteryRight = () => {
       return (
-        <ModalTrigger
-          title="Lottery Detail"
-          trigger={lotterydetailbtn}
-          autoOpenKey="showLotteryModal"
-          content={LotteryCampaignDetail}
-          backDrop="static"
-        />
+        <AwardContainer>
+          {CheckBox('Use Next Character', isOpenNextChar, () =>
+            this.setState({
+              isOpenNextChar: !isOpenNextChar,
+              isOpenInput: isOpenInput && false
+            })
+          )}
+          {CheckBox('Use  MultiDoLottery', isOpenInput, () =>
+            this.setState({
+              isOpenInput: !isOpenInput,
+              isOpenNextChar: isOpenNextChar && false
+            })
+          )}
+        </AwardContainer>
       );
     };
     const List = (data: any, isWinnerList: boolean) => {
       const updatedProps = {
-        //   loading: this.props.loading,
         lotteries: data,
         totalCount: totalCount,
         isWinnerList
@@ -99,20 +96,18 @@ class AwardContentComponent extends React.Component<IProps, State> {
       );
     };
     const doLottery = () => {
-      const { campaignId } = list[Math.floor(Math.random() * list.length)];
-
       const { _id } = lotteryCampaign;
 
       if (totalCount === 0) {
         Alert.error('No customers in this Lottery Campaign');
-      }
-      if (isOpenNextChar) {
+      } else if (isOpenNextChar) {
         this.props.getNextChar({
           campaignId: _id,
           awardId: currentTab._id,
           prevChars: nextChar
         });
       } else {
+        const { campaignId } = list[Math.floor(Math.random() * list.length)];
         const Count = currentTab.count - winnersTotalCount;
 
         if (Count > 0 && totalCount > 0) {
@@ -131,52 +126,67 @@ class AwardContentComponent extends React.Component<IProps, State> {
       }
     };
 
-    const getNextChars = () => {
-      this.setState({ isOpenNextChar: !isOpenNextChar });
-    };
     const handleMultiple = (e: any) => {
       this.setState({ multiple: parseInt(e.currentTarget.value) });
     };
 
     const MultiplyInput = () => {
       const inputMax = currentTab.count - winnersTotalCount;
+      const input = inputMax > totalCount ? totalCount : inputMax;
       return (
         <div style={{ width: '150px', margin: ' 0 15px' }}>
+          <ControlLabel>Enter the number:</ControlLabel>
           <FormControl
             defaultValue={multiple}
             name="buyScore"
             type="number"
             min={0}
             onChange={handleMultiple}
-            max={inputMax || 0}
+            max={input || 0}
             required={true}
           />
         </div>
       );
     };
 
+    const CheckBox = (title: string, value: boolean, onchange: () => void) => {
+      return (
+        <FormGroup>
+          <ControlLabel>{title}</ControlLabel>
+          <FormControl
+            componentClass="checkbox"
+            checked={value}
+            onChange={onchange}
+          />
+        </FormGroup>
+      );
+    };
+
+    const BtnText = () => {
+      if (isOpenNextChar) {
+        if (nextChar.length === 6) {
+          return 'Restart';
+        }
+        return 'Next Character';
+      }
+      return 'Start';
+    };
+
     return (
       <>
         <Wrapper.ActionBar
-          left={currentTab.name}
+          left={<Button onClick={() => doLottery()}>{BtnText()}</Button>}
           right={actionbarLotteryRight()}
         />
-        <AwardContainer>
-          <Button onClick={() => doLottery()}>Start</Button>
-          <FormControl
-            componentClass="checkbox"
-            checked={isOpenNextChar}
-            onChange={() => getNextChars()}
-          />
-          <FormControl
-            componentClass="checkbox"
-            checked={isOpenInput}
-            onChange={() => this.setState({ isOpenInput: !isOpenInput })}
-          />
-        </AwardContainer>
         {isOpenInput && MultiplyInput()}
         {isOpenNextChar && NextChar()}
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
           {List(list, true)}
           {List(winners, true)}
         </div>
