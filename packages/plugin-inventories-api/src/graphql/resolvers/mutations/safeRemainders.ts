@@ -6,6 +6,7 @@ import {
   ISafeRemItemDocument
 } from '../../../models/definitions/safeRemainders';
 import { SAFE_REMAINDER_STATUSES } from '../../../models/definitions/constants';
+import { updateLiveRemainder } from './utils';
 
 const remainderMutations = {
   async createSafeRemainder(
@@ -20,6 +21,12 @@ const remainderMutations = {
       departmentId,
       branchId
     } = params;
+    await updateLiveRemainder({
+      subdomain,
+      departmentId,
+      branchId,
+      productCategoryId
+    });
 
     const safeRemainder = await models.SafeRemainders.createRemainder({
       date,
@@ -68,13 +75,16 @@ const remainderMutations = {
     const bulkOps: any[] = [];
 
     for (const product of products) {
+      const live = liveRemainders.find(l => l.productId === product._id) || 0;
+
       bulkOps.push({
         modifiedAt: now,
         lastTrDate: now,
         remainderId: safeRemainder._id,
         productId: product._id,
         uomId: product.uomId || defaultUomId,
-        count: liveRemainders.find(l => l.productId === product._id) || 0,
+        preCount: live,
+        count: live,
         branchId: safeRemainder.branchId,
         departmentId: safeRemainder.departmentId
       });
