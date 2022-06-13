@@ -47,6 +47,7 @@ export const types = `
     productId: String,
     quantity: Float,
     uomId: String,
+    preCount: Float,
     count: Float,
     branchId: String,
     departmentId: String,

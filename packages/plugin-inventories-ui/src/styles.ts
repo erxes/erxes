@@ -151,32 +151,28 @@ export const TableOver = styled(StyledTable)`
       }
     }
     tr:last-child {
-      th:nth-of-type(2) {
+      th:nth-of-type(3) {
         border-right: 1px solid ${colors.borderPrimary};
       }
     }
   }
 
   tr {
-    td:nth-of-type(3),
     td:nth-of-type(4),
-    td:nth-of-type(6) {
+    td:nth-of-type(5),
+    td:nth-of-type(7) {
       border-right: 1px solid ${colors.borderPrimary};
     }
 
-    td:nth-of-type(4),
-    td:nth-of-type(5) {
-      padding: 0px;
-    }
-
-    td:nth-of-type(4) {
-      text-align: center;
-    }
-
-    td:nth-of-type(2),
     td:nth-of-type(5),
+    td:nth-of-type(6),
     td:nth-of-type(7) {
-      text-align: right;
+      padding-top: 0px;
+      padding-bottom: 0px;
+    }
+
+    td:nth-of-type(5) {
+      text-align: center;
     }
   }
 `;

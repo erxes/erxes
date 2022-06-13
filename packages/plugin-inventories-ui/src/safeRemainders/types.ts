@@ -38,6 +38,7 @@ export type ISafeRemaItem = {
   productId: string;
   quantity: number;
   uomId: string;
+  preCount: number;
   count: number;
   branchId: string;
   departmentId: string;

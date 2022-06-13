@@ -73,6 +73,7 @@ const safeRemItemFields = `
   productId
   quantity
   uomId
+  preCount
   count
   branchId
   departmentId
