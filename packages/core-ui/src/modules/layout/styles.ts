@@ -199,7 +199,8 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
 
   > a {  
     display: flex;
-    color: ${colors.bgLight}
+    color: ${colors.bgLight};
+    background: ${colors.colorWhite};
     height: ${props =>
       props.isMoreItem || props.navCollapse === 2
         ? dimensions.headerSpacingWide
@@ -270,7 +271,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     }
 
     &.active {
-      background: rgba(79, 51, 175, 0.08);
+      background: #f0eef9;
 
       &:before {
         content: "";
