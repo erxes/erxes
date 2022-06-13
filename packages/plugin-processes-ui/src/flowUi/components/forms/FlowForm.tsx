@@ -20,6 +20,9 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import {
   createInitialConnections,
   deleteConnection,
@@ -38,7 +41,7 @@ import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import Confirmation from '../../containers/forms/Confirmation';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import { IFlowDocument, IJob } from '../../../flow/types';
+import { IFlowCategory, IFlowDocument, IJob } from '../../../flow/types';
 import { IJobRefer } from '../../../job/types';
 
 const plumb: any = jsPlumb;
@@ -47,6 +50,7 @@ let instance;
 type Props = {
   flow: IFlowDocument;
   jobRefers: IJobRefer[];
+  flowCategories: IFlowCategory[];
   save: (params: any) => void;
   saveLoading: boolean;
   id: string;
@@ -74,6 +78,7 @@ type State = {
   zoom: number;
   percentage: number;
   actionEdited: boolean;
+  categoryId: string;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -103,7 +108,8 @@ class AutomationForm extends React.Component<Props, State> {
       zoom: 1,
       percentage: 100,
       activeAction: {} as IJob,
-      actionEdited: false
+      actionEdited: false,
+      categoryId: flow.categoryId || ''
     };
   }
 
@@ -179,13 +185,8 @@ class AutomationForm extends React.Component<Props, State> {
         this.onDettachConnection(info);
       });
 
-      let n = 0;
-
       for (const action of actions) {
-        console.log('counter1: ', n);
         this.renderControl('action', action, this.onClickAction);
-        console.log('counter2: ', n);
-        n = n + 1;
       }
 
       // create connections ===================
@@ -209,6 +210,8 @@ class AutomationForm extends React.Component<Props, State> {
       event.preventDefault();
 
       const item = event.currentTarget.id;
+      console.log('delete item:', item);
+
       const splitItem = item.split('-');
       const type = splitItem[0];
 
@@ -223,7 +226,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { name, isActive, actions } = this.state;
+    const { name, isActive, actions, categoryId } = this.state;
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -235,6 +238,7 @@ class AutomationForm extends React.Component<Props, State> {
         _id: flow._id || '',
         name,
         status: isActive ? 'active' : 'draft',
+        categoryId,
         jobs: actions.map(a => ({
           id: a.id,
           nextJobIds: a.nextJobIds,
@@ -276,6 +280,12 @@ class AutomationForm extends React.Component<Props, State> {
     if (Object.keys(flow).length) {
       save({ _id: flow._id, status: isActive ? 'active' : 'draft' });
     }
+  };
+
+  onChange = e => {
+    const value = e.target.value;
+    console.log('onchange category: ', value);
+    this.setState({ categoryId: value });
   };
 
   doZoom = (step: number, inRange: boolean) => {
@@ -420,6 +430,40 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ actions, activeAction: action, actionEdited: true }, () => {
       if (!actionId) {
         this.renderControl('action', action, this.onClickAction);
+
+        // hover action control ===================
+        // jquery('#canvas .control').hover(event => {
+        //   event.preventDefault();
+
+        //   console.log("event.currentTarget.id step1:", event.currentTarget.id);
+
+        //   jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+
+        //   console.log("event.currentTarget.id step2:", event.currentTarget.id);
+
+        //   this.setState({ activeId: event.currentTarget.id });
+        // });
+
+        // delete control ===================
+        // jquery('#canvas').on('click', '.delete-control', event => {
+        //   event.preventDefault();
+
+        //   const item = event.currentTarget.id;
+        //   console.log("delete item:", item);
+
+        //   const splitItem = item.split('-');
+        //   const type = splitItem[0];
+
+        //   instance.remove(item);
+
+        //   console.log("left actions: ", actions);
+
+        //   if (type === 'action') {
+        //     return this.setState({
+        //       actions: actions.filter(actioon => actioon.id !== splitItem[1])
+        //     });
+        //   }
+        // });
       }
     });
   };
@@ -431,8 +475,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderControl = (key: string, item: IJob, onClick: any) => {
     const idElm = `${key}-${item.id}`;
-
-    console.log('renderControl: ', idElm);
 
     jquery('#canvas').append(`
       <div class="${key} control" id="${idElm}" style="${item.style}">
@@ -454,38 +496,26 @@ class AutomationForm extends React.Component<Props, State> {
       </div>
     `);
 
-    console.log('renderControl: step1');
-
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
       onClick(item);
     });
 
-    console.log('renderControl: step2');
-
     if (key === 'action') {
-      console.log('renderControl: step3');
-
       instance.addEndpoint(idElm, targetEndpoint, {
         anchor: ['Left']
       });
 
-      console.log('renderControl: step4');
-
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: ['Right']
       });
-
-      console.log('renderControl: step5');
 
       // instance.addEndpoint(idElm, morePoint, {
       //   anchor: ['Right']
       // });
 
       instance.draggable(instance.getSelector(`#${idElm}`));
-
-      console.log('renderControl: step6');
     }
   };
 
@@ -535,6 +565,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderLeftActionBar() {
     const { isActionTab, name } = this.state;
+    const { flowCategories } = this.props;
 
     return (
       <FlexContent>
@@ -554,14 +585,32 @@ class AutomationForm extends React.Component<Props, State> {
           <Icon icon="edit-alt" size={16} />
         </Title>
         <CenterBar>
-          <Tabs full={true}>
+          {/* <Tabs full={true}>
             <TabTitle
               className={isActionTab ? 'active' : ''}
               onClick={this.switchActionbarTab.bind(this, 'action')}
             >
               {__('Actions')}
             </TabTitle>
-          </Tabs>
+          </Tabs> */}
+
+          <ToggleWrapper>
+            <span>{__('Category: ')}</span>
+            <FormControl
+              name="categoryId"
+              componentClass="select"
+              defaultValue={this.state.categoryId}
+              onChange={this.onChange}
+              required={true}
+            >
+              <option value="" />
+              {flowCategories.map(categoryMap => (
+                <option key={categoryMap._id} value={categoryMap._id}>
+                  {categoryMap.name}
+                </option>
+              ))}
+            </FormControl>
+          </ToggleWrapper>
         </CenterBar>
       </FlexContent>
     );
