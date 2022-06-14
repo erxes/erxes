@@ -209,6 +209,8 @@ class AutomationForm extends React.Component<Props, State> {
     jquery('#canvas').on('click', '.delete-control', event => {
       event.preventDefault();
 
+      const innerActions = this.state.actions;
+
       const item = event.currentTarget.id;
       console.log('delete item:', item);
 
@@ -217,9 +219,14 @@ class AutomationForm extends React.Component<Props, State> {
 
       instance.remove(item);
 
+      const leftActions = innerActions.filter(
+        action => action.id !== splitItem[1]
+      );
+      console.log('leftActions', leftActions);
+
       if (type === 'action') {
         return this.setState({
-          actions: actions.filter(action => action.id !== splitItem[1])
+          actions: leftActions
         });
       }
     });
