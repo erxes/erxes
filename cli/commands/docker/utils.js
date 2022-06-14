@@ -268,7 +268,8 @@ const up = async ({ uis, fromInstaller }) => {
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
           NGINX_HOST,
           NODE_ENV: 'production',
-          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000
+          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
+          ...((configs.coreui || {}).extra_env || {})
         },
         ports: ['3000:80'],
         volumes: [
