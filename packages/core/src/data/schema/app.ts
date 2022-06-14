@@ -1,6 +1,7 @@
 const commonFields = `
   name: String
   userGroupId: String
+  expireDate: Date
 `;
 
 export const types = `

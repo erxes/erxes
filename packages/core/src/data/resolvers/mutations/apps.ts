@@ -1,21 +1,21 @@
 import { IContext } from '../../../connectionResolver';
+import { IApp } from '../../../db/models/definitions/apps';
 
-interface IAppParams {
-  name: string;
-  userGroupId: string;
-}
-
-interface IEditParams extends IAppParams {
+interface IEditParams extends IApp {
   _id: string;
 }
 
 export default {
-  async appsAdd(_root, params: IAppParams, { models }: IContext) {
-    const app = await models.Apps.createApp(params);
+  async appsAdd(_root, params: IApp, { models }: IContext) {
+    try {
+      const app = await models.Apps.createApp(params);
 
-    await models.Users.createSystemUser(app);
+      await models.Users.createSystemUser(app);
 
-    return app;
+      return app;
+    } catch (e) {
+      throw new Error(e);
+    }
   },
   appsEdit(
     _root,
