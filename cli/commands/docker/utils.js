@@ -245,7 +245,6 @@ const up = async ({ uis, fromInstaller }) => {
   const dashboard_domain = `${domain}/dashboard/front`;
   const dashboard_api_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
-  const allowed_origins = configs.allowed_origins || '';
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
