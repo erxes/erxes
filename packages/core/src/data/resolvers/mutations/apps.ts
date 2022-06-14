@@ -1,5 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { IApp } from '../../../db/models/definitions/apps';
+import { debugError } from '../../../debuggers';
 
 interface IEditParams extends IApp {
   _id: string;
@@ -14,6 +15,8 @@ export default {
 
       return app;
     } catch (e) {
+      debugError(`Error occurred when creating an app: ${e.message}`);
+
       throw new Error(e);
     }
   },

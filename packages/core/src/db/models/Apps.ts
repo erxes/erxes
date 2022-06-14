@@ -38,9 +38,11 @@ export const loadAppClass = (models: IModels) => {
         const oneDay = 30 * 24 * 3600 * 1000; // 1 day
 
         // accepts time in seconds
-        tokenOptions.expiresIn = date.getTime() / 1000;
-        refreshOptions.expiresIn =
-          new Date(date.getTime() + 30 * oneDay).getTime() / 1000;
+        tokenOptions.expiresIn = Math.round(date.getTime() / 1000);
+
+        refreshOptions.expiresIn = Math.round(
+          new Date(date.getTime() + 30 * oneDay).getTime() / 1000
+        );
       }
 
       const accessToken = await jwt.sign(
