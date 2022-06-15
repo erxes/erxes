@@ -85,70 +85,79 @@ export interface IProductGroupDocument extends Document, IProductGroup {
 
 const ebarimtConfigSchema = new Schema(
   {
-    companyName: { type: String, label: 'Company name' },
-    ebarimtUrl: { type: String, label: 'Ebarimt server url' },
-    checkCompanyUrl: { type: String, label: 'Company info url' },
-    hasVat: { type: Boolean },
-    hasCitytax: { type: Boolean },
-    districtCode: { type: String, label: 'Province or district code' },
-    companyRD: { type: String, label: 'Company register number' },
-    defaultGSCode: { type: String, label: 'Default inventory code' },
-    vatPercent: { type: Number, optional: true, label: 'Vat percent' },
+    companyName: field({ type: String, label: 'Company name' }),
+    ebarimtUrl: field({ type: String, label: 'Ebarimt server url' }),
+    checkCompanyUrl: field({ type: String, label: 'Company info url' }),
+    hasVat: field({ type: Boolean }),
+    hasCitytax: field({ type: Boolean }),
+    districtCode: field({ type: String, label: 'Province or district code' }),
+    companyRD: field({ type: String, label: 'Company register number' }),
+    defaultGSCode: field({ type: String, label: 'Default inventory code' }),
+    vatPercent: field({ type: Number, optional: true, label: 'Vat percent' }),
     cityTaxPercent: {
       type: Number,
       optional: true,
       label: 'UB city tax percent'
     },
-    footerText: { type: String, label: 'Footer text' }
+    footerText: field({ type: String, label: 'Footer text' })
   },
   { _id: false }
 );
 
 const qpayConfigSchema = new Schema(
   {
-    url: { type: String, label: 'QPay url' },
-    callbackUrl: { type: String, label: 'Callback url' },
-    username: { type: String, label: 'QPay username' },
-    password: { type: String, label: 'QPay password' },
-    invoiceCode: { type: String, label: 'QPay invoice' }
+    url: field({ type: String, label: 'QPay url' }),
+    callbackUrl: field({ type: String, label: 'Callback url' }),
+    username: field({ type: String, label: 'QPay username' }),
+    password: field({ type: String, label: 'QPay password' }),
+    invoiceCode: field({ type: String, label: 'QPay invoice' })
   },
   { _id: false }
 );
 
 export const configSchema = new Schema({
   _id: field({ pkey: true }),
-  name: { type: String, label: 'Name' },
-  description: { type: String, label: 'Description' },
-  userId: { type: String, optional: true, label: 'Created by' },
+  name: field({ type: String, label: 'Name' }),
+  description: field({ type: String, label: 'Description' }),
+  userId: field({ type: String, optional: true, label: 'Created by' }),
   createdAt: getDateFieldDefinition('Created at'),
-  integrationId: { type: String, label: 'Erxes integration' },
-  productDetails: { type: [String] },
-  adminIds: { type: [String] },
-  cashierIds: { type: [String] },
-  beginNumber: { type: String },
-  maxSkipNumber: { type: Number },
-  waitingScreen: { type: Object },
-  kioskMachine: { type: Object, optional: true },
-  kitchenScreen: { type: Object },
-  formSectionTitle: { type: String },
-  formIntegrationIds: { type: [String] },
-  brandId: { type: String },
-  token: { type: String, label: 'Token generated at erxes-api' },
-  uiOptions: { type: Object, label: 'Logo & color configs' },
-  ebarimtConfig: { type: ebarimtConfigSchema },
-  qpayConfig: { type: qpayConfigSchema },
-  syncInfo: { type: Object, optional: true },
-  catProdMappings: { type: [Object], label: 'Product category mappings' },
-  initialCategoryIds: { type: [String], label: 'Pos initial categories' },
-  kioskExcludeProductIds: { type: [String], label: 'kiosk Exclude Products' }
+  integrationId: field({ type: String, label: 'Erxes integration' }),
+  productDetails: field({ type: [String] }),
+  adminIds: field({ type: [String] }),
+  cashierIds: field({ type: [String] }),
+  beginNumber: field({ type: String }),
+  maxSkipNumber: field({ type: Number }),
+  waitingScreen: field({ type: Object }),
+  kioskMachine: field({ type: Object, optional: true }),
+  kitchenScreen: field({ type: Object }),
+  formSectionTitle: field({ type: String }),
+  formIntegrationIds: field({ type: [String] }),
+  brandId: field({ type: String }),
+  token: field({ type: String, label: 'Token generated at erxes-api' }),
+  uiOptions: field({ type: Object, label: 'Logo & color configs' }),
+  ebarimtConfig: field({ type: ebarimtConfigSchema }),
+  qpayConfig: field({ type: qpayConfigSchema }),
+  syncInfo: field({ type: Object, optional: true }),
+  catProdMappings: field({
+    type: [Object],
+    label: 'Product category mappings'
+  }),
+  initialCategoryIds: field({
+    type: [String],
+    label: 'Pos initial categories'
+  }),
+  kioskExcludeProductIds: field({
+    type: [String],
+    label: 'kiosk Exclude Products'
+  })
 });
 
 export const productGroupSchema = new Schema({
   _id: field({ pkey: true }),
-  name: { type: String },
-  description: { type: String },
-  posId: { type: String },
-  categoryIds: { type: [String], optional: true },
-  excludedCategoryIds: { type: [String], optional: true },
-  excludedProductIds: { type: [String], optional: true }
+  name: field({ type: String }),
+  description: field({ type: String }),
+  posId: field({ type: String }),
+  categoryIds: field({ type: [String], optional: true }),
+  excludedCategoryIds: field({ type: [String], optional: true }),
+  excludedProductIds: field({ type: [String], optional: true })
 });
