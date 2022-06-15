@@ -14,7 +14,7 @@ export interface IEmailTemplateModel extends Model<IEmailTemplateDocument> {
     fields: IEmailTemplate
   ): IEmailTemplateDocument;
   removeEmailTemplate(_id: string): void;
-  duplicateEmailTemplate(_id: string, userId: string): IEmailTemplateDocument;
+  duplicateEmailTemplate(_id: string, user: any): IEmailTemplateDocument;
 }
 
 export const loadEmailTemplateClass = (models: IModels) => {
@@ -78,14 +78,16 @@ export const loadEmailTemplateClass = (models: IModels) => {
     /**
      * Duplicate an email template
      */
-    public static async duplicateEmailTemplate(_id: string, userId: string) {
+    public static async duplicateEmailTemplate(_id: string, user: any) {
       const template = await models.EmailTemplates.getEmailTemplate(_id);
 
-      return models.EmailTemplates.create({
-        name: `${template.name} copied`,
-        content: template.content,
-        createdBy: userId
-      });
+      return models.EmailTemplates.createEmailTemplate(
+        {
+          name: `${template.name} copied`,
+          content: template.content
+        },
+        user
+      );
     }
   }
 
