@@ -163,6 +163,8 @@ const SideContent = styledTS<{
       : `${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0`}
   border-right: ${props =>
     props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  box-shadow: ${props =>
+    props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 
   ${TabContainer} {
     position: sticky;
@@ -198,15 +200,13 @@ const SidebarHeader = styledTS<{
 
 const SidebarTitle = styledTS<{
   children: any;
-  noBackground?: boolean;
-  noPadding?: boolean;
-  noMargin?: boolean;
+  basic?: boolean;
 }>(styled(SidebarHeader.withComponent('h3')))`
-  padding: ${props => (props.noPadding ? 0 : `0 ${dimensions.coreSpacing}px`)};
-  margin: ${props => (!props.noMargin ? 0 : `0px ${dimensions.coreSpacing}px`)};
+  padding: ${props => (props.basic ? 0 : `0 ${dimensions.coreSpacing}px`)};
+  margin: ${props => (!props.basic ? 0 : `0px ${dimensions.coreSpacing}px`)};
   text-transform: uppercase;
   position: relative;
-  background-color: ${props => props.noBackground && 'white'};
+  background-color: ${props => props.basic && 'white'};
 `;
 
 const SidebarMainContent = styled.div`

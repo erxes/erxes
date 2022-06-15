@@ -13,10 +13,7 @@ interface IProps extends IRouterProps {
   counts: any;
   manageUrl: string;
   loading: boolean;
-  noTitleMargin?: boolean;
-  noTitlePadding?: boolean;
-  noTitleBackground?: boolean;
-
+  basicTitle?: boolean;
   noShadow?: boolean;
 }
 
@@ -26,9 +23,7 @@ function CountsByTag({
   counts,
   manageUrl,
   loading,
-  noTitleBackground,
-  noTitleMargin,
-  noTitlePadding,
+  basicTitle,
   noShadow
 }: IProps) {
   const onClick = () => {
@@ -55,9 +50,7 @@ function CountsByTag({
       title={__('Filter by tags')}
       collapsible={tags.length > 7}
       name="showFilterByTags"
-      noTitleMargin={noTitleMargin}
-      noTitlePadding={noTitlePadding}
-      noTitleBackground={noTitleBackground}
+      basicTitle={basicTitle}
       noShadow={noShadow}
     >
       <FilterByParams

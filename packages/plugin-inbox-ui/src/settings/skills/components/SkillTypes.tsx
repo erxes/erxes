@@ -105,9 +105,7 @@ function SkillTypes({
     return (
       <>
         <Header>{renderFormTrigger(trigger)}</Header>
-        <Section.Title noBackground noPadding noMargin>
-          {__('Skill types')}
-        </Section.Title>
+        <Section.Title basic>{__('Skill types')}</Section.Title>
       </>
     );
   }

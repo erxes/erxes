@@ -45,9 +45,7 @@ export default function View({ structure, showEdit }: Props) {
       name="showStructure"
       noShadow={true}
       noMarginBottom={true}
-      noTitleMargin
-      noTitlePadding
-      noTitleBackground
+      basicTitle
     >
       <StructureList className="no-link">
         {renderRow('Name', title)}

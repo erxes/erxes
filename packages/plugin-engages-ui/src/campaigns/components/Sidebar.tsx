@@ -31,9 +31,7 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Section noShadow noMargin>
-        <Section.Title noMargin noPadding>
-          {__('Kind')}
-        </Section.Title>
+        <Section.Title basic>{__('Kind')}</Section.Title>
 
         <SidebarList>
           <li>
@@ -67,9 +65,7 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Section noShadow noMargin>
-        <Section.Title noMargin noPadding>
-          {__('Status')}
-        </Section.Title>
+        <Section.Title basic>{__('Status')}</Section.Title>
 
         <SidebarList>
           {statusFilters.map((status, index) => (
@@ -107,9 +103,7 @@ class Sidebar extends React.Component<Props> {
             manageUrl="/tags?type=engages:engageMessage"
             counts={tagCounts}
             loading={false}
-            noTitleBackground
-            noTitleMargin
-            noTitlePadding
+            basicTitle
             noShadow
           />
         )}

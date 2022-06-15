@@ -136,7 +136,7 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title noMargin noPadding noBackground>
+        <Section.Title basic>
           {__('Categories')}
 
           <Section.QuickButtons>
