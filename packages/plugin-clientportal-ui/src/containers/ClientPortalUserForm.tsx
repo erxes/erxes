@@ -74,6 +74,7 @@ class ClientPortalUserFromContainer extends React.Component<FinalProps> {
       clientPortalGetConfigs,
       renderButton
     };
+
     return (
       <AppConsumer>
         {({ currentUser }) => (
@@ -88,7 +89,7 @@ class ClientPortalUserFromContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return ['clientPortalUsers'];
+  return ['clientPortalUsers', 'clientPortalUserCounts'];
 };
 
 export default withProps<Props>(

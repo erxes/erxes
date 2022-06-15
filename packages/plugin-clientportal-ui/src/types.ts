@@ -22,19 +22,22 @@ export interface IClientPortalUserDoc {
 
 export interface IClientPortalUser extends IClientPortalUserDoc {
   _id: string;
+  createdAt: Date;
 }
 
-export type MainQueryResponse = {
-  clientPortalUsersMain: { list: IClientPortalUser[]; totalCount: number };
+export type ClientPortalUsersQueryResponse = {
+  clientPortalUsers: IClientPortalUser[];
 } & QueryResponse;
 
-export type RemoveMutationVariables = {
-  clientPortalUserIds: string[];
+export type ClientPortalUserTotalCountQueryResponse = {
+  clientPortalUserCounts: number;
+  loading: boolean;
+  refetch: () => void;
 };
 
-export type RemoveMutationResponse = {
-  clientPortalUsersRemove: (doc: {
-    variables: RemoveMutationVariables;
+export type ClientPortalUserRemoveMutationResponse = {
+  clientPortalUsersRemove: (mutation: {
+    variables: { clientPortalUserIds: string[] };
   }) => Promise<any>;
 };
 
@@ -69,24 +72,6 @@ export type ClientPortalConfig = {
   ticketToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
-};
-
-// query types
-export type ListQueryVariables = {
-  page?: number;
-  perPage?: number;
-  segment?: string;
-  tag?: string;
-  ids?: string;
-  searchValue?: string;
-  brand?: string;
-  integration?: string;
-  form?: string;
-  startDate?: string;
-  endDate?: string;
-  leadStatus?: string;
-  sortField?: string;
-  sortDirection?: number;
 };
 
 export type Styles = {

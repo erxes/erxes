@@ -49,7 +49,7 @@ export const queries = () => `
   clientPortalUserDetail(_id: String!): ClientPortalUser
   clientPortalUsers(${queryParams}): [ClientPortalUser]
   clientPortalUsersMain(${queryParams}): clientPortalUsersListResponse
-  clientPortalUserCounts(${queryParams}, only: String): Int
+  clientPortalUserCounts(type: String): Int
 `;
 
 const userParams = `
@@ -72,7 +72,7 @@ const userParams = `
 export const mutations = () => `
   clientPortalUsersAdd(${userParams}): ClientPortalUser
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
-  clientPortalUsersRemove(clientPortalUserIds: [String]): [String]
+  clientPortalUsersRemove(clientPortalUserIds: [String!]): [String]
   clientPortalRegister(${userParams}): String
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String

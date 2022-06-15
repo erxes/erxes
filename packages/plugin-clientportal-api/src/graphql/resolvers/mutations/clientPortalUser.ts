@@ -2,7 +2,10 @@ import { authCookieOptions } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
-import { IUser } from '../../../models/definitions/clientPortalUser';
+import {
+  IUser,
+  IUserDocument
+} from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
 
 export interface IVerificationParams {
@@ -26,6 +29,28 @@ const clientPortalUserMutations = {
     );
 
     return clientPortalUser;
+  },
+
+  /**
+   * Removes a clientPortal User
+   * @param {string} param1._id clientPortal User id
+   */
+  async clientPortalUsersRemove(
+    _root,
+    { clientPortalUserIds }: { clientPortalUserIds: string[] },
+    { user, models, subdomain }: IContext
+  ) {
+    const clientPortalUsers: IUserDocument[] = await models.ClientPortalUsers.find(
+      {
+        _id: { $in: clientPortalUserIds }
+      }
+    ).lean();
+
+    const response = await models.ClientPortalUsers.removeUsers(
+      clientPortalUserIds
+    );
+
+    return response;
   },
 
   clientPortalRegister: async (_root, args: IUser, context: IContext) => {

@@ -33,6 +33,7 @@ export interface IUserModel extends Model<IUserDocument> {
   }): never;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
+  removeUsers(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -177,7 +178,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
       const customer = await sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
-        data: { customerPrimaryEmail: tEmail, customerPrimaryPhone: phone },
+        data: {
+          customerPrimaryEmail: tEmail,
+          customerPrimaryPhone: phone
+        },
         isRPC: true
       });
 
@@ -221,6 +225,17 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       return user;
+    }
+
+    /**
+     * Remove remove Client Portal Users
+     */
+    public static async removeUsers(clientPortalUserIds: string[]) {
+      // Removing every modules that associated with customer
+
+      return models.ClientPortalUsers.deleteMany({
+        _id: { $in: clientPortalUserIds }
+      });
     }
 
     public static async getUser(doc: any) {
@@ -368,7 +383,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       this.checkPassword(newPassword);
 
-      const user = await models.ClientPortalUsers.findOne({ _id }).lean();
+      const user = await models.ClientPortalUsers.findOne({
+        _id
+      }).lean();
 
       if (!user) {
         throw new Error('User not found');
@@ -485,7 +502,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
         lastName: _user.lastName
       };
 
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
+      const createToken = await jwt.sign({ user }, secret, {
+        expiresIn: '1d'
+      });
 
       const createRefreshToken = await jwt.sign({ user }, secret, {
         expiresIn: '7d'

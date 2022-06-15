@@ -36,7 +36,7 @@ const configsForm = ({ location, history }) => {
 const list = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <ClientPortalUserList />;
+  return <ClientPortalUserList queryParams={queryParams} history={history} />;
 };
 
 const routes = () => (

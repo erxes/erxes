@@ -2,43 +2,39 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
-import * as routerUtils from '@erxes/ui/src/utils/router';
 import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import Sidebar from './Sidebar';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Button from '@erxes/ui/src/components/Button';
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
+import { IClientPortalUser } from '../../types';
+import ClientPortalUserRow from './ClientPortalUserRow';
 
 interface IProps extends IRouterProps {
+  history: any;
   type: string;
-  totalCount: number;
+  queryParams: any;
+  clientPortalUsers: IClientPortalUser[];
+  clientPortalUserCount: number;
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
+  toggleBulk: () => void;
   loading: boolean;
   searchValue: string;
-  queryParams: any;
-  refetch?: () => void;
-  isExpand?: boolean;
-  page: number;
-  perPage: number;
 }
 
 type State = {
   searchValue?: string;
-  searchType?: string;
-  showDropDown?: boolean;
 };
 
 class ClientportalUserList extends React.Component<IProps, State> {
@@ -53,7 +49,13 @@ class ClientportalUserList extends React.Component<IProps, State> {
   }
 
   renderContent() {
-    const { isAllSelected } = this.props;
+    const {
+      isAllSelected,
+      clientPortalUsers,
+      toggleBulk,
+      bulk,
+      history
+    } = this.props;
 
     return (
       <withTableWrapper.Wrapper>
@@ -79,34 +81,24 @@ class ClientportalUserList extends React.Component<IProps, State> {
               <th>{__('Created date')}</th>
             </tr>
           </thead>
-          {/* <tbody id="clientPortalUsers">
-            {(clientPortalUsers || []).map((clientPortalUsers, i) => (
-              <CLientPortalUsersRow
-                index={(page - 1) * perPage + i + 1}
-                clientPortalUsers={clientPortalUsers}
-                key={clientPortalUsers._id}
-                isChecked={bulk.includes(clientPortalUsers)}
+          <tbody id="clientPortalUsers">
+            {(clientPortalUsers || []).map((clientPortalUser, i) => (
+              <ClientPortalUserRow
+                clientPortalUser={clientPortalUser}
+                key={clientPortalUser._id}
+                isChecked={bulk.includes(clientPortalUser)}
                 toggleBulk={toggleBulk}
                 history={history}
               />
             ))}
-          </tbody> */}
+          </tbody>
         </Table>
       </withTableWrapper.Wrapper>
     );
   }
 
   render() {
-    const {
-      type,
-      totalCount,
-      bulk,
-      emptyBulk,
-      loading,
-      location,
-      history,
-      queryParams
-    } = this.props;
+    const { clientPortalUserCount, queryParams, loading, type } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
@@ -152,13 +144,13 @@ class ClientportalUserList extends React.Component<IProps, State> {
           />
         }
         actionBar={actionBar}
-        // footer={<Pagination count={totalCount} />}
-        // leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
+        footer={<Pagination count={clientPortalUserCount} />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
         content={
           <DataWithLoader
             data={this.renderContent()}
-            loading={false}
-            // count={0}
+            loading={loading}
+            count={clientPortalUserCount}
             emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }

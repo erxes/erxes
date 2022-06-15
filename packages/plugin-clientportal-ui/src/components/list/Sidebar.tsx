@@ -19,7 +19,7 @@ function Sidebar({
       {isEnabled("tags") && (
         <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
       )} */}
-      <div>helloo</div>
+      <div>Side bar</div>
     </Wrapper.Sidebar>
   );
 }

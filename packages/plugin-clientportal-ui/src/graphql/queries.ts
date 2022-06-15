@@ -81,20 +81,10 @@ export const clientPortalUserFields = `
 export const listParamsDef = `
   $page: Int,
   $perPage: Int,
-  $segment: String,
-  $tag: String,
   $type: String,
   $ids: [String],
   $excludeIds: Boolean,
   $searchValue: String,
-  $autoCompletionType: String,
-  $autoCompletion: Boolean,
-  $brand: String,
-  $integration: String,
-  $form: String,
-  $startDate: String,
-  $endDate: String,
-  $leadStatus: String,
   $sortField: String,
   $sortDirection: Int,
   ${conformityQueryFields}
@@ -103,20 +93,10 @@ export const listParamsDef = `
 export const listParamsValue = `
   page: $page,
   perPage: $perPage,
-  segment: $segment,
-  tag: $tag,
   type: $type,
   ids: $ids,
   excludeIds: $excludeIds,
-  autoCompletionType: $autoCompletionType,
-  autoCompletion: $autoCompletion,
   searchValue: $searchValue,
-  brand: $brand,
-  integration: $integration
-  form: $form,
-  startDate: $startDate,
-  endDate: $endDate,
-  leadStatus: $leadStatus,
   sortField: $sortField,
   sortDirection: $sortDirection,
   ${conformityQueryFieldDefs}
@@ -173,8 +153,8 @@ const clientPortalUsersMain = `
 `;
 
 const clientPortalUserCounts = `
-  query clientPortalUserCounts(${listParamsDef}, $only: String) {
-    clientPortalUserCounts(${listParamsValue}, only: $only)
+  query clientPortalUserCounts {
+    clientPortalUserCounts
   }
 `;
 
