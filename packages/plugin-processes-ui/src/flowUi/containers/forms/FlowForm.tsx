@@ -17,7 +17,8 @@ import {
   FlowDetailQueryResponse,
   FlowsEditMutationResponse,
   FlowsAddMutationResponse,
-  IFlowDocument
+  IFlowDocument,
+  FlowCategoriesQueryResponse
 } from '../../../flow/types';
 import { JobRefersAllQueryResponse } from '../../../job/types';
 
@@ -29,6 +30,7 @@ type Props = {
 type FinalProps = {
   flowDetailQuery: FlowDetailQueryResponse;
   jobRefersAllQuery: JobRefersAllQueryResponse;
+  flowCategoriesQuery: FlowCategoriesQueryResponse;
   currentUser: IUser;
   saveAsTemplateMutation: any;
 } & Props &
@@ -42,7 +44,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     currentUser,
     history,
     flowsEdit,
-    jobRefersAllQuery
+    jobRefersAllQuery,
+    flowCategoriesQuery
   } = props;
 
   const [saveLoading, setLoading] = useState(false);
@@ -70,12 +73,16 @@ const AutomationDetailsContainer = (props: FinalProps) => {
       });
   };
 
-  if (flowDetailQuery.loading || jobRefersAllQuery.loading) {
+  if (
+    flowDetailQuery.loading ||
+    jobRefersAllQuery.loading ||
+    flowCategoriesQuery.loading
+  ) {
     return <Spinner objective={true} />;
   }
 
   const flowDetail = flowDetailQuery.flowDetail || ({} as IFlowDocument);
-
+  const flowCategories = flowCategoriesQuery.flowCategories || [];
   const jobRefers = jobRefersAllQuery.jobRefersAll || [];
 
   const updatedProps = {
@@ -85,7 +92,8 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     currentUser,
     save,
     saveLoading,
-    jobRefers
+    jobRefers,
+    flowCategories
   };
 
   return <FlowForm {...updatedProps} />;
@@ -96,6 +104,12 @@ export default withProps<Props>(
     graphql<Props, JobRefersAllQueryResponse>(gql(jobQueries.jobRefersAll), {
       name: 'jobRefersAllQuery'
     }),
+    graphql<Props, FlowCategoriesQueryResponse>(
+      gql(flowQueries.flowCategories),
+      {
+        name: 'flowCategoriesQuery'
+      }
+    ),
     graphql<Props, FlowDetailQueryResponse, { _id: string }>(
       gql(flowQueries.flowDetail),
       {

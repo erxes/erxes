@@ -305,7 +305,7 @@ class Form extends React.Component<Props, State> {
                 required={true}
               >
                 {Object.keys(TYPES).map((typeName, index) => (
-                  <option key={index} value={typeName}>
+                  <option key={index} value={TYPES[typeName]}>
                     {typeName}
                   </option>
                 ))}
