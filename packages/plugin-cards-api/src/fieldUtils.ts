@@ -200,7 +200,7 @@ export const generateFields = async ({ subdomain, data }) => {
     ]
   ];
 
-  if (type === 'deal') {
+  if (type === 'deal' && usageType !== 'export') {
     const productOptions = await generateProductsOptions(
       subdomain,
       'productsData.productId',
@@ -214,9 +214,7 @@ export const generateFields = async ({ subdomain, data }) => {
   if (type === 'deal' && usageType === 'export') {
     const extendFieldsDealExport = [
       { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
-      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' },
-      { _id: Math.random(), name: 'boardId', label: 'Board' },
-      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' }
+      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' }
     ];
 
     fields = [...fields, ...extendFieldsDealExport];

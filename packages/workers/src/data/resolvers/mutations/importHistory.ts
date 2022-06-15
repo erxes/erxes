@@ -1,9 +1,47 @@
-import { ImportHistory } from './../../../db/models';
-import messageBroker from '../../../messageBroker';
-import { importer } from '../../../middlewares/fileMiddleware';
+import {
+  receiveImportCreate,
+  receiveImportRemove
+} from '../../../worker/utils';
+import { IContext } from '../../../connectionResolvers';
+import messageBroker, { getFileUploadConfigs } from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 
-import { IContext } from '../../types';
+const importer = async (
+  contentTypes,
+  files,
+  columnsConfig,
+  importHistoryId,
+  associatedContentType,
+  associatedField,
+  user,
+  models,
+  subdomain
+) => {
+  try {
+    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+    await receiveImportCreate(
+      {
+        action: 'createImport',
+        contentTypes,
+        files,
+        uploadType: UPLOAD_SERVICE_TYPE,
+        columnsConfig,
+        user,
+        importHistoryId,
+        associatedContentType,
+        associatedField
+      },
+      models,
+      subdomain
+    );
+  } catch (e) {
+    return models.ImportHistory.updateOne(
+      { _id: 'importHistoryId' },
+      { error: e.message }
+    );
+  }
+};
 
 const importHistoryMutations = {
   /**
@@ -12,20 +50,22 @@ const importHistoryMutations = {
    */
   async importHistoriesRemove(
     _root,
-    { _id, contentType }: { _id: string; contentType }
+    { _id, contentType }: { _id: string; contentType },
+    { models, subdomain }: IContext
   ) {
-    const importHistory = await ImportHistory.getImportHistory(_id);
+    const importHistory = await models.ImportHistory.getImportHistory(_id);
 
-    await ImportHistory.updateOne(
+    await models.ImportHistory.updateOne(
       { _id: importHistory._id },
       { $push: { removed: contentType } }
     );
-
-    return messageBroker().sendMessage(RABBITMQ_QUEUES.RPC_API_TO_WORKERS, {
+    const content = {
       action: 'removeImport',
       importHistoryId: importHistory._id,
       contentType
-    });
+    };
+
+    return receiveImportRemove(content, models, subdomain);
   },
 
   /**
@@ -56,9 +96,9 @@ const importHistoryMutations = {
       associatedContentType: string;
       associatedField: string;
     },
-    { user }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    const importHistory = await ImportHistory.createHistory(
+    const importHistory = await models.ImportHistory.createHistory(
       {
         success: 0,
         updated: 0,
@@ -78,7 +118,9 @@ const importHistoryMutations = {
       importHistory._id,
       associatedContentType,
       associatedField,
-      user
+      user,
+      models,
+      subdomain
     );
 
     return 'success';

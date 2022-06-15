@@ -146,7 +146,10 @@ type Car {
   forceValue: Float
 
   attachments: [Attachment]
-  fourAttachments: [Attachment]
+  frontAttachments: [Attachment]
+  leftAttachments: [Attachment]
+  rightAttachments: [Attachment]
+  backAttachments: [Attachment]
   floorAttachments: [Attachment]
   transformationAttachments: [Attachment]
 }
@@ -316,7 +319,10 @@ const tumentechCommonFields = `
   forceValue: Float
 
   attachments: [AttachmentInput]
-  fourAttachments: [AttachmentInput]
+  frontAttachments: [AttachmentInput]
+  leftAttachments: [AttachmentInput]
+  rightAttachments: [AttachmentInput]
+  backAttachments: [AttachmentInput]
   floorAttachments: [AttachmentInput]
   transformationAttachments: [AttachmentInput]
 `;

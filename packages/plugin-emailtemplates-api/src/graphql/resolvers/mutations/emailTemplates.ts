@@ -18,7 +18,12 @@ const emailTemplateMutations = {
     doc: IEmailTemplate,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    const template = await models.EmailTemplates.create(docModifier(doc));
+    const modifiedDoc = docModifier(doc);
+
+    const template = await models.EmailTemplates.createEmailTemplate(
+      modifiedDoc,
+      user
+    );
 
     await putCreateLog(
       subdomain,
@@ -114,6 +119,22 @@ const emailTemplateMutations = {
     );
 
     return removed;
+  },
+
+  /**
+   * Duplicate an email template
+   */
+  async emailTemplatesDuplicate(
+    _root,
+    { _id }: { _id: string },
+    { models, user }: IContext
+  ) {
+    const template = await models.EmailTemplates.duplicateEmailTemplate(
+      _id,
+      user._id
+    );
+
+    return template;
   }
 };
 

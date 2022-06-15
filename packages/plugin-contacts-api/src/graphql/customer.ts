@@ -127,6 +127,7 @@ const fields = `
 export const mutations = `
   customersAdd(state: String, ${fields}): Customer
   customersEdit(_id: String!, ${fields}): Customer
+  customersEditByField(selector: JSON, doc: JSON): Customer
   customersMerge(customerIds: [String], customerFields: JSON): Customer
   customersRemove(customerIds: [String]): [String]
   customersChangeState(_id: String!, value: String!): Customer

@@ -57,14 +57,18 @@ function Layout({
         config={config}
         currentUser={currentUser}
         headingSpacing={headingSpacing}
+        headerHtml={config.headerHtml}
         headerBottomComponent={headerBottomComponent}
       />
+
       <MainContent
         baseColor={getConfigColor(config, "baseColor")}
         bodyColor={getConfigColor(config, "bodyColor")}
       >
         <Container>{children({ config, topic })}</Container>
       </MainContent>
+
+      <div dangerouslySetInnerHTML={{ __html: config.footerHtml || "" }} />
 
       {config.messengerBrandCode ? (
         <Script brandCode={config.messengerBrandCode} />

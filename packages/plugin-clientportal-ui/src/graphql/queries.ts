@@ -5,6 +5,8 @@ export const commonFields = `
   description
   logo
   icon
+  headerHtml,
+  footerHtml,
   domain
   dnsStatus
   messengerBrandCode

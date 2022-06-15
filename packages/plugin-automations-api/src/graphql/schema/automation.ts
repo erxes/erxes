@@ -103,7 +103,6 @@ export const types = `
   }
 `;
 
-
 const queryParams = `
   page: Int
   perPage: Int
@@ -155,7 +154,7 @@ export const mutations = `
   automationsEdit(_id: String, ${commonFields}): Automation
   automationsRemove(automationIds: [String]): [String]
 
-  automationsSaveAsTemplate(_id: String!, name: String!): Automation
+  automationsSaveAsTemplate(_id: String!, name: String, duplicate: Boolean): Automation
   automationsCreateFromTemplate(_id: String): Automation
 
   automationsAddNote(${commonNoteFields}): AutomationNote

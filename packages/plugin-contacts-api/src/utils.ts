@@ -345,11 +345,13 @@ export const generateFields = async ({ subdomain, data }) => {
 
   fields = [...fields, ownerOptions];
 
-  for (const extendField of EXTEND_FIELDS.ALL) {
-    fields.push({
-      _id: Math.random(),
-      ...extendField
-    });
+  if (usageType === 'import') {
+    for (const extendField of EXTEND_FIELDS.ALL) {
+      fields.push({
+        _id: Math.random(),
+        ...extendField
+      });
+    }
   }
 
   return fields;

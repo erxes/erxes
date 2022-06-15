@@ -1,17 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Button from "modules/common/components/Button";
+import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
 import EmptyState from 'modules/common/components/EmptyState';
 import Wrapper from 'modules/layout/components/Wrapper';
-import ModalTrigger from "modules/common/components/ModalTrigger";
+import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
 import { __ } from 'modules/common/utils';
 import AppRow from './AppRow';
 import AppForm from './AppForm';
-import { IApp, IAppAddEditParams } from '../types';
+import { IApp, IAppParams } from '../types';
 
 // due to token column containing too long value
 const FixedTable = styled(Table)`
@@ -30,10 +30,10 @@ type Props = {
   count: number;
   errorMessage: string;
   userGroups: any[];
-  addApp: (doc: IAppAddEditParams) => void;
-  editApp: (_id: string, doc: IAppAddEditParams) => void;
+  addApp: (doc: IAppParams) => void;
+  editApp: (_id: string, doc: IAppParams) => void;
   removeApp: (_id: string) => void;
-}
+};
 
 export default class AppList extends React.Component<Props> {
   renderObjects() {
@@ -68,6 +68,7 @@ export default class AppList extends React.Component<Props> {
             <th>{__('Name')}</th>
             <th>{__('User group')}</th>
             <th>{__('Token')}</th>
+            <th>{__('Token expire date')}</th>
             <th>{__('Action')}</th>
           </tr>
         </thead>
@@ -77,7 +78,14 @@ export default class AppList extends React.Component<Props> {
   }
 
   render() {
-    const { isLoading, count, errorMessage, userGroups, addApp, editApp } = this.props;
+    const {
+      isLoading,
+      count,
+      errorMessage,
+      userGroups,
+      addApp,
+      editApp
+    } = this.props;
 
     if (errorMessage.indexOf('Permission required') !== -1) {
       return (
@@ -90,7 +98,7 @@ export default class AppList extends React.Component<Props> {
 
     const trigger = (
       <Button
-        id={"new-app-btn"}
+        id={'new-app-btn'}
         btnStyle="success"
         block={true}
         icon="plus-circle"
@@ -99,7 +107,7 @@ export default class AppList extends React.Component<Props> {
       </Button>
     );
 
-    const content = (props) => (
+    const content = props => (
       <AppForm
         {...props}
         extended={true}
@@ -123,9 +131,7 @@ export default class AppList extends React.Component<Props> {
       <Wrapper
         header={<Wrapper.Header title={__('Apps')} breadcrumb={breadcrumb} />}
         footer={<Pagination count={count} />}
-        actionBar={
-          <Wrapper.ActionBar right={righActionBar} />
-        }
+        actionBar={<Wrapper.ActionBar right={righActionBar} />}
         content={
           <DataWithLoader
             data={this.renderContent()}

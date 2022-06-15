@@ -25,14 +25,14 @@ type FinalProps = {
 
 class FormContainer extends React.Component<
   FinalProps,
-  { loading: boolean; count: number }
+  { loading: boolean; count: string }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
       loading: false,
-      count: 0
+      count: ''
     };
   }
 
@@ -40,6 +40,8 @@ class FormContainer extends React.Component<
     const { contentType } = this.props;
 
     this.setState({ loading: true });
+
+    console.log(segmentId);
 
     client
       .query({

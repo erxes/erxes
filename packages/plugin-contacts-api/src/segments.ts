@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { sendCoreMessage } from './messageBroker';
 
@@ -95,6 +96,8 @@ export default {
         positiveQuery,
         negativeQuery
       });
+
+      ids = _.uniq(ids);
     }
 
     return { data: ids, status: 'success' };

@@ -51,7 +51,7 @@ const countByForm = async (
 
   for (const form of forms) {
     await qb.buildAllQueries();
-    await qb.formFilter(form._id, params);
+    await qb.formFilter(subdomain, form._id);
 
     counts[form._id] = await qb.runQueries('count');
   }
