@@ -1,5 +1,4 @@
 import { sendGraphQLRequest } from './utils';
-import { Orders } from '../../../models/Orders';
 import { IContext } from '../../types';
 import { escapeRegExp, paginate, sendRequest } from '../../utils/commonUtils';
 

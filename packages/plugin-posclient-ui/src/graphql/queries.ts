@@ -1,6 +1,6 @@
 const list = `
-  query clientpossQuery {
-    clientposs {
+  query posclientsQuery {
+    posclients {
       _id
       name
     }
@@ -8,8 +8,8 @@ const list = `
 `;
 
 const totalCount = `
-  query clientpossTotalCountQuery {
-    clientpossTotalCount
+  query posclientsTotalCountQuery {
+    posclientsTotalCount
   }
 `;
 

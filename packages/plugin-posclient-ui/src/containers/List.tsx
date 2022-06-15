@@ -26,7 +26,7 @@ class ListContainer extends React.Component<Props> {
 
 export default commonListComposer<Props>({
   text: 'list',
-  label: 'clientposs',
+  label: 'posclients',
   stringAddMutation: mutations.add,
 
   gqlListQuery: graphql(gql(queries.list), {

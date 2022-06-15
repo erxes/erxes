@@ -23,7 +23,7 @@ export interface IOrder {
   cardAmount?: number;
   cashAmount?: number;
   mobileAmount?: number;
-  totalAmount?: number;
+  totalAmount: number;
   finalAmount?: number;
   shouldPrintEbarimt?: boolean;
   printedEbarimt?: boolean;

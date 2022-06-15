@@ -1,12 +1,12 @@
 {
-  "name": "@erxes/plugin-clientpos-api",
+  "name": "@erxes/plugin-posclient-api",
   "version": "1.0.0",
   "scripts": {
     "test": "jest --coverage --forceExit --runInBand",
     "install-deps": "cd .erxes && yarn install",
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-clientpos-api/.erxes && node src"
+    "start": "cd .erxes/dist/plugin-posclient-api/.erxes && node src"
   },
   "dependencies": {
     "@types/body-parser": "^1.17.0",
@@ -15,7 +15,8 @@
     "meteor-random": "^0.0.3",
     "nodemailer": "^6.2.1",
     "telnyx": "^1.7.2",
-    "xss": "^1.0.6"
+    "xss": "^1.0.6",
+    "twilio": "^3.66.0"
   },
   "peerOptionalDependencies": {
     "kerberos": "^1.0.0"

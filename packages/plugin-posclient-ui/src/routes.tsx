@@ -3,15 +3,15 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Clientposs" */ './containers/List')
+  import(/* webpackChunkName: "List - Posclients" */ './containers/List')
 );
 
-const clientposs = ({ history }) => {
+const posclients = ({ history }) => {
   return <List history={history} />;
 };
 
 const routes = () => {
-  return <Route path="/clientposs/" component={clientposs} />;
+  return <Route path="/posclients/" component={posclients} />;
 };
 
 export default routes;

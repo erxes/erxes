@@ -5,7 +5,7 @@ import { field, schemaHooksWrapper } from './util';
 
 export interface IOrderItem {
   createdAt?: Date;
-  productId?: string;
+  productId: string;
   count?: number;
   unitPrice?: number;
   discountAmount?: number;

@@ -207,7 +207,7 @@ export const prepareEbarimtData = async (
     const amount = (item.count || 0) * (item.unitPrice || 0);
 
     details.push({
-      count: item.count,
+      count: item.count || 0,
       amount,
       inventoryCode: productsById[item.productId].code,
       productId: item.productId

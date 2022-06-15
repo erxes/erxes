@@ -1,22 +1,22 @@
 module.exports = {
-  name: 'clientpos',
+  name: 'posclient',
   port: 3012,
-  scope: 'clientpos',
+  scope: 'posclient',
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
     url: 'http://localhost:3012/remoteEntry.js',
-    scope: 'clientpos',
+    scope: 'posclient',
     module: './routes'
   },
   menus: [
     {
-      text: 'Clientposs',
-      to: '/clientposs',
+      text: 'Posclients',
+      to: '/posclients',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
-      scope: 'clientpos'
+      scope: 'posclient'
     }
   ]
 };

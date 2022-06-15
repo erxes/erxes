@@ -2,8 +2,8 @@ const commonParamDefs = `$name: String!`;
 const commonParams = `name: $name`;
 
 const add = `
-  mutation clientpossAdd(${commonParamDefs}) {
-    clientpossAdd(${commonParams}) {
+  mutation posclientsAdd(${commonParamDefs}) {
+    posclientsAdd(${commonParams}) {
       _id
     }
   }
