@@ -20,7 +20,8 @@ export const routeSchema = schemaHooksWrapper(
       required: true
     }),
     code: field({ type: String, label: 'Code' }),
-    name: field({ type: String, label: 'Name' })
+    name: field({ type: String, label: 'Name' }),
+    searchText: field({ type: String, optional: true, index: true })
   }),
   'routes'
 );

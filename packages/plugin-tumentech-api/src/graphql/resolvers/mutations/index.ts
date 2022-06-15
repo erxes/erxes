@@ -4,6 +4,7 @@ import participantMutations from './participants';
 import directionMutations from './directions';
 import routeMutations from './routes';
 import placeMutations from './places';
+import tripMutations from './trips';
 
 export default {
   ...tumentechMutations,
@@ -11,5 +12,6 @@ export default {
   ...participantMutations,
   ...directionMutations,
   ...routeMutations,
-  ...placeMutations
+  ...placeMutations,
+  ...tripMutations
 };

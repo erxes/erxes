@@ -36,6 +36,8 @@ const Row = (props: Props) => {
 
   const formContent = props => <RouteForm {...props} route={route} />;
 
+  const duration = route.summary.totalDuration || 0;
+
   return (
     <tr>
       <td key={Math.random()}>
@@ -51,7 +53,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{route.summary.totalDuration || '0'}</RowTitle>
+        <RowTitle>{`${Math.floor(duration / 60)}H:${duration % 60}m`}</RowTitle>
       </td>
 
       <td key={Math.random()}>
