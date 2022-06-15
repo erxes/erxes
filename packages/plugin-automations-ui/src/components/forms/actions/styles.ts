@@ -90,9 +90,3 @@ export const ActionBox = styledTS<{
       }
     }
   `;
-  
-export const BoardItemWrapper = styled(DrawerDetail)`
-  > div > div {
-    padding: 0;
-  }
-`;

@@ -2,7 +2,7 @@ import React from 'react';
 import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
 import styled from 'styled-components';
 import { dimensions, colors } from '@erxes/ui/src/styles';
-import Common from '../Common';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import FormControl from '@erxes/ui/src/components/form/Control';
 
 export const DrawerDetail = styled.div`
@@ -31,7 +31,7 @@ class ChangeScore extends React.Component<Props, State> {
     const fillConfig = config || {};
 
     this.state = {
-      config: fillConfig,
+      config: fillConfig
     };
   }
 

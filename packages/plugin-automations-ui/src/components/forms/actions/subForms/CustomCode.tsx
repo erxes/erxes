@@ -1,6 +1,6 @@
 import React from 'react';
 import { IAction } from '../../../../types';
-import Common from '../Common';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import { BoardHeader, DrawerDetail } from '../../../../styles';
 import { __ } from 'coreui/utils';
 import Editor from 'react-simple-code-editor';

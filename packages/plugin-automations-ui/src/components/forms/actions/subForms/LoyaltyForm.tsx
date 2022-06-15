@@ -4,7 +4,7 @@ import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
 import { IVoucherCampaign } from '@erxes/plugin-loyalties-ui/src/configs/voucherCampaign/types';
 import styled from 'styled-components';
 import { dimensions, colors } from '@erxes/ui/src/styles';
-import Common from '../Common';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 
 export const DrawerDetail = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -33,7 +33,7 @@ class LoyaltyForm extends React.Component<Props, State> {
     const fillConfig = config || {};
 
     this.state = {
-      config: fillConfig,
+      config: fillConfig
     };
   }
 

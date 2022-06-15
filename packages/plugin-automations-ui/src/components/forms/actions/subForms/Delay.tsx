@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from 'react-select-plus';
 import { IAction } from '../../../../types';
-import Common from '../Common';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import { BoardHeader, DrawerDetail } from '../../../../styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';

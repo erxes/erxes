@@ -12,9 +12,9 @@ import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 import React from 'react';
 import Select from 'react-select-plus';
 
-import Common from '../Common';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
-import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
+import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 
