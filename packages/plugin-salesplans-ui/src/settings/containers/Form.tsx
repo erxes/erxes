@@ -7,6 +7,7 @@ import Form from '../components/Form';
 const FormContainer = (props: any) => {
   const productsQuery = useQuery(gql(queries.products));
   const productCategoriesQuery = useQuery(gql(queries.productCategories));
+  const getTimeframesQuery = useQuery(gql(queries.getTimeframes));
 
   return (
     <Form
@@ -16,6 +17,9 @@ const FormContainer = (props: any) => {
         productCategoriesQuery.data
           ? productCategoriesQuery.data.productCategories
           : []
+      }
+      timeframes={
+        getTimeframesQuery.data ? getTimeframesQuery.data.getTimeframes : []
       }
     />
   );

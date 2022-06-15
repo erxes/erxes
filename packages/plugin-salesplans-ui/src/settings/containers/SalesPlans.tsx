@@ -1,19 +1,19 @@
 import React from 'react';
 import gql from 'graphql-tag';
-import Settings from '../components/Settings';
+import SalesPlans from '../components/SalesPlans';
 import { useQuery } from 'react-apollo';
 import { queries } from '../graphql';
 
-function SettingsContainer() {
+function SalesPlansContainer() {
   const a = useQuery(gql(queries.getSalesLogs), {
     fetchPolicy: 'network-only'
   });
 
   return (
-    <Settings
+    <SalesPlans
       listData={a.data ? a.data.getSalesLogs : []}
       refetch={a.refetch}
     />
   );
 }
-export default SettingsContainer;
+export default SalesPlansContainer;

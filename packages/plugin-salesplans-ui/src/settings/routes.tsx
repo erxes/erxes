@@ -2,9 +2,9 @@ import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { Route } from 'react-router-dom';
 
-const Settings = asyncComponent(() =>
+const SalesPlans = asyncComponent(() =>
   import(
-    /* webpackChunkName: 'Salesplans - Settings' */ './containers/Settings'
+    /* webpackChunkName: 'Salesplans - Settings' */ './containers/SalesPlans'
   )
 );
 
@@ -21,20 +21,20 @@ const EditPlan = asyncComponent(() =>
 const routes = () => (
   <>
     <Route
-      path="/settings/sales-plans"
-      key="/settings/sales-plans"
+      path="/sales-plans"
+      key="/sales-plans"
       exact={true}
-      component={Settings}
+      component={SalesPlans}
     />
     <Route
-      path="/settings/sales-plans/create"
-      key="/settings/sales-plans/create"
+      path="/sales-plans/create"
+      key="/sales-plans/create"
       exact={true}
       component={CreatePlan}
     />
     <Route
-      path="/settings/sales-plans/edit"
-      key="/settings/sales-plans/edit"
+      path="/sales-plans/edit"
+      key="/sales-plans/edit"
       component={EditPlan}
     />
   </>

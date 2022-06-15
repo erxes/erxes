@@ -10,10 +10,11 @@ type Props = {
   refetch: () => void;
 };
 
-function ListContainer({ data, refetch }: Props) {
+function ListContainer(props: Props) {
+  const { data, refetch } = props;
   const [remove] = useMutation(gql(mutations.removeSalesLog));
 
-  const removedata = (_id: string) => {
+  const removeData = (_id: string) => {
     remove({ variables: { _id } })
       .then(() => {
         Alert.success('Successfully removed');
@@ -23,6 +24,6 @@ function ListContainer({ data, refetch }: Props) {
       });
   };
 
-  return <List removedata={removedata} data={data} />;
+  return <List removeData={removeData} data={data} />;
 }
 export default ListContainer;

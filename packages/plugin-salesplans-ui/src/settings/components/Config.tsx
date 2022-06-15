@@ -24,8 +24,8 @@ type Props = {
 type State = { currentTab: string };
 
 function Config({ save, data, closeModal, removedata }: Props) {
-  const [configs, setConfigs] = useState([]);
-  const [configsData, setConfigsData] = useState(data ? data : []);
+  const [configs, setConfigs] = useState<any[]>([]);
+  const [configsData, setConfigsData] = useState<any[]>(data ? data : []);
 
   useEffect(() => {
     data.map(value => {
@@ -39,7 +39,7 @@ function Config({ save, data, closeModal, removedata }: Props) {
   };
 
   const onChangeConfig = (e, index, key) => {
-    const updatedLabels = [...configs];
+    const updatedLabels: any = [...configs];
 
     let value = (e.target as HTMLInputElement).value;
 
