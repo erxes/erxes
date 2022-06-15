@@ -22,9 +22,9 @@ const getTimeframes = `
   }
 `;
 
-const units = `
-  query units {
-    units {
+const departments = `
+  query departments {
+    departments {
       _id,
       title
     }
@@ -47,7 +47,26 @@ const getSalesLogs = `
       date,
       name,
       type,
-      unitDetail {
+      departmentDetail {
+        _id,
+        title
+      },
+      branchDetail {
+        _id,
+        title
+      }
+    }
+  }
+`;
+
+const getSalesLogDetail = `
+  query getSalesLogDetail($salesLogId: String) {
+    getSalesLogDetail(salesLogId: $salesLogId) {
+      _id,
+      name,
+      description,
+      type,
+      departmentDetail {
         _id,
         title
       },
@@ -116,9 +135,10 @@ const productCategories = `
 export default {
   getLabels,
   getTimeframes,
-  units,
+  departments,
   branches,
   getSalesLogs,
+  getSalesLogDetail,
   getMonthPlanConfig,
   getDayPlanConfig,
   getYearPlanConfig,

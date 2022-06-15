@@ -4,7 +4,7 @@ const salesLogVariables = `
   $date:Date,
   $name:String,
   $type:String,
-  $unitId:String
+  $departmentId:String
 `;
 
 const salesLogValues = `
@@ -13,7 +13,7 @@ const salesLogValues = `
   description: $description,
   name: $name,
   type: $type,
-  unitId: $unitId
+  departmentId: $departmentId
 `;
 
 const removeLabel = `
@@ -50,11 +50,11 @@ const createSalesLog = `
       name
       status
       type
-      unitDetail {
+      departmentDetail {
         _id
         title
       }
-      unitId
+      departmentId
     }
   }
 `;

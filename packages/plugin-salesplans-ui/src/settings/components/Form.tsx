@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import Datetime from '@nateradebaugh/react-datetime';
 import { FlexItem } from '@erxes/ui-settings/src/styles';
@@ -18,7 +17,7 @@ import {
   Table
 } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectUnits from '@erxes/ui/src/team/containers/SelectUnits';
+import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
 import { SalesPlansWrapper } from '../styles';
 import { TYPES } from '../../constants';
 
@@ -27,6 +26,7 @@ type Props = {
   type: string;
   products: any[];
   categories: any[];
+  timeframes: any[];
   edit?: boolean;
   setType: (type: string) => void;
   submit: (data: any) => void;
@@ -38,6 +38,7 @@ const Form = (props: Props) => {
     type,
     products = [],
     categories = [],
+    timeframes = [],
     edit = false,
     setType,
     submit
@@ -48,8 +49,8 @@ const Form = (props: Props) => {
   const [categoryId, setCategoryId] = useState<string>('');
   const [salesPlan, setSalesPlan] = useState<any>({
     type: type,
+    departmentId: '',
     branchId: '',
-    unitId: '',
     name: '',
     description: '',
     labels: '',
@@ -168,26 +169,30 @@ const Form = (props: Props) => {
       );
     };
 
+    const renderTimeframeInputs = () => {
+      if (timeframes.length === 0) return null;
+
+      switch (type) {
+        case 'Day':
+          return timeframes.map((item: any, index: number) => {
+            return (
+              <td key={`timeframeInput-${index}`}>
+                <FormGroup>
+                  <FormControl type="number" name={`timeframeForm-${index}`} />
+                </FormGroup>
+              </td>
+            );
+          });
+        default:
+          return null;
+      }
+    };
+
     return filteredProducts.map((item: any, index: number) => {
       return (
-        <tr key={index}>
+        <tr key={`products-${index}`}>
           <td>{item.name}</td>
-          <td></td>
-          <td>
-            <FormGroup>
-              <FormControl type="number" name="config1" />
-            </FormGroup>
-          </td>
-          <td>
-            <FormGroup>
-              <FormControl type="number" name="config2" />
-            </FormGroup>
-          </td>
-          <td>
-            <FormGroup>
-              <FormControl type="number" name="quantity" />
-            </FormGroup>
-          </td>
+          {renderTimeframeInputs()}
           {renderSubmitButton()}
         </tr>
       );
@@ -201,6 +206,19 @@ const Form = (props: Props) => {
       return <th>Actions</th>;
     };
 
+    const renderTimeframes = () => {
+      if (!timeframes) return null;
+
+      switch (type) {
+        case 'Day':
+          return timeframes.map((item: any, index: number) => {
+            return <th key={`timeframe-${index}`}>{item.name}</th>;
+          });
+        default:
+          return null;
+      }
+    };
+
     return (
       <FlexContent>
         <CommonFlexItem count={2}>
@@ -211,12 +229,11 @@ const Form = (props: Props) => {
         <CommonFlexItem count={8} hasSpace={true}>
           <Table condensed={true}>
             <thead>
-              <th>Name</th>
-              <th>Category</th>
-              <th>UE</th>
-              <th>UU</th>
-              <th>Quantity sold</th>
-              {renderSubmitHeader()}
+              <tr>
+                <th>Name</th>
+                {renderTimeframes()}
+                {renderSubmitHeader()}
+              </tr>
             </thead>
             <tbody>{renderProducts()}</tbody>
           </Table>
@@ -275,6 +292,21 @@ const Form = (props: Props) => {
       <FlexContent>
         <FlexItem>
           <FormGroup>
+            <ControlLabel required={true}>Department</ControlLabel>
+            <SelectDepartment
+              label="Choose department"
+              name="department"
+              initialValue={salesPlan.departmentId}
+              onSelect={departmentId =>
+                handleState(departmentId, 'departmentId')
+              }
+              multi={false}
+              customOption={{ value: '', label: 'All Departments' }}
+            />
+          </FormGroup>
+        </FlexItem>
+        <FlexItem>
+          <FormGroup>
             <ControlLabel required={true}>Branch</ControlLabel>
             <SelectBranches
               label="Choose branch"
@@ -283,19 +315,6 @@ const Form = (props: Props) => {
               onSelect={branchId => handleState(branchId, 'branchId')}
               multi={false}
               customOption={{ value: '', label: 'All branches' }}
-            />
-          </FormGroup>
-        </FlexItem>
-        <FlexItem>
-          <FormGroup>
-            <ControlLabel required={true}>Unit</ControlLabel>
-            <SelectUnits
-              label="Choose unit"
-              name="unit"
-              initialValue={salesPlan.unitId}
-              onSelect={unitId => handleState(unitId, 'unitId')}
-              multi={false}
-              customOption={{ value: '', label: 'All units' }}
             />
           </FormGroup>
         </FlexItem>
