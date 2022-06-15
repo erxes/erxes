@@ -4,7 +4,7 @@ import { useQuery } from 'react-apollo';
 
 import Spinner from '@erxes/ui/src/components/Spinner';
 import List from '../../components/unit/List';
-import { queries } from '@erxes/ui-team/src/graphql';
+import { queries } from '@erxes/ui/src/team/graphql';
 import { __ } from 'modules/common/utils';
 import Box from '@erxes/ui/src/components/Box';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';

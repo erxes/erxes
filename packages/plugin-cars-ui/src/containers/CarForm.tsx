@@ -7,7 +7,7 @@ import { graphql } from 'react-apollo';
 import CarForm from '../components/list/CarForm';
 import { mutations, queries } from '../graphql';
 import { CarCategoriesQueryResponse, ICar } from '../types';
-import { UsersQueryResponse } from '@erxes/ui-team/src/types';
+import { UsersQueryResponse } from '@erxes/ui/src/team/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
@@ -54,8 +54,9 @@ class CarFromContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };

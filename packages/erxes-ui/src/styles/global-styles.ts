@@ -1033,7 +1033,7 @@ a:hover {
 
 ::-webkit-scrollbar {
   width: 5px;
-  height: 3px;
+  height: 6px;
   background: transparent;
 }                                                                                                                                         
 

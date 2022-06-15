@@ -6,7 +6,7 @@ import { commonListComposer } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { IEmailTemplate } from '../types';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import {
   ICommonFormProps,
@@ -38,31 +38,24 @@ type Props = ICommonListProps &
   };
 
 class EmailListContainer extends React.Component<Props> {
-  changeStatus = (_id: string, status: string, text: string) => {
-    const message = `You are going to ${text} this email template. Are you sure?`;
+  duplicate = (id: string) => {
+    client
+      .mutate({
+        mutation: gql(mutations.emailTemplatesDuplicate),
+        variables: { _id: id }
+      })
+      .then(() => {
+        Alert.success('Successfully duplicated a template');
 
-    confirm(message).then(() => {
-      client
-        .mutate({
-          mutation: gql(mutations.emailTemplatesChangeStatus),
-          variables: { _id, status }
-        })
-        .then(({ data }) => {
-          const template = data.emailTemplatesChangeStatus;
-
-          if (template && template._id) {
-            Alert.success(`Email template has been ${status}.`);
-            this.props.listQuery.refetch();
-          }
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
+        this.props.refetch();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   render() {
-    return <List {...this.props} changeStatus={this.changeStatus} />;
+    return <List {...this.props} duplicate={this.duplicate} />;
   }
 }
 

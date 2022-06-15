@@ -11,14 +11,15 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from 'modules/common/utils';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ICommonFormProps,
   ICommonListProps
 } from '@erxes/ui-settings/src/common/types';
-import UserForm from '@erxes/ui-team/src/containers/UserForm';
-import UserResetPasswordForm from '@erxes/ui-team/src/containers/UserResetPasswordForm';
+import UserForm from '@erxes/ui/src/team/containers/UserForm';
+import UserResetPasswordForm from '@erxes/ui/src/team/containers/UserResetPasswordForm';
 import { UserAvatar } from '../styles';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 
@@ -179,28 +180,31 @@ class UserList extends React.Component<FinalProps, States> {
 
   renderContent = props => {
     return (
-      <Table wideHeader={true}>
-        <thead>
-          <tr>
-            <th>
-              <ControlLabel>{__('Full name')}</ControlLabel>
-            </th>
-            <th>
-              <ControlLabel>{__('Invitation status')}</ControlLabel>
-            </th>
-            <th>
-              <ControlLabel>{__('Email')}</ControlLabel>
-            </th>
-            <th>
-              <ControlLabel>{__('Status')}</ControlLabel>
-            </th>
-            <th>
-              <ControlLabel>{__('Actions')}</ControlLabel>
-            </th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
+      <>
+        <Table wideHeader={true}>
+          <thead>
+            <tr>
+              <th>
+                <ControlLabel>{__('Full name')}</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>{__('Invitation status')}</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>{__('Email')}</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>{__('Status')}</ControlLabel>
+              </th>
+              <th>
+                <ControlLabel>{__('Actions')}</ControlLabel>
+              </th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRows(props)}</tbody>
+        </Table>
+        <Pagination count={this.props.totalCount} />
+      </>
     );
   };
 

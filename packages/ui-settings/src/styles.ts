@@ -323,6 +323,21 @@ const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
     font-size: 75%;
     color: #666;
   }
+  `;
+
+const MarginRight = styled.div`
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+const CreatedDate = styled.div`
+  float: left;
+  font-size: 10px;
+  margin-top: 10px;
+  display: flex;
+  > p {
+    color: #000;
+    margin-right: 5px;
+  }
 `;
 
 export {
@@ -343,5 +358,7 @@ export {
   LogoContainer,
   InputBar,
   Header,
-  Title
+  Title,
+  MarginRight,
+  CreatedDate
 };
