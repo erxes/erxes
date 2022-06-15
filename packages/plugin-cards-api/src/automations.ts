@@ -213,7 +213,13 @@ const actionCreate = async ({
       }
     });
 
-    return item;
+    return {
+      name: item.name,
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: newData.pipelineId,
+      boardId: newData.boardId
+    };
   } catch (e) {
     return { error: e.message };
   }
