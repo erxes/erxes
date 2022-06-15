@@ -4,6 +4,17 @@ const emailTemplates = `
       _id
       name
       content
+      createdAt
+      status
+      modifiedAt
+      createdUser {
+        _id
+        username
+        details {
+          fullName
+          avatar
+        }
+      }
     }
   }
 `;

@@ -1,4 +1,4 @@
-import { IProductCategory } from '@erxes/ui-products/src/types';
+import { IProduct, IProductCategory, IUom } from '@erxes/ui-products/src/types';
 import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -38,9 +38,13 @@ export type ISafeRemaItem = {
   productId: string;
   quantity: number;
   uomId: string;
+  preCount: number;
   count: number;
   branchId: string;
   departmentId: string;
+
+  product: IProduct;
+  uom: IUom;
 };
 
 export type SafeRemaindersQueryResponse = {
@@ -61,4 +65,16 @@ export type SafeRemItemsCountQueryResponse = {
 
 export type RemoveSafeRemainderMutationResponse = {
   removeSafeRemainder: (params: { variables: { _id: string } }) => Promise<any>;
+};
+
+export type UpdateSafeRemItemsMutationVariables = {
+  _id: string;
+  status: string;
+  remainder: number;
+};
+
+export type UpdateSafeRemItemMutationResponse = {
+  updateSafeRemItem: (params: {
+    variables: UpdateSafeRemItemsMutationVariables;
+  }) => Promise<any>;
 };

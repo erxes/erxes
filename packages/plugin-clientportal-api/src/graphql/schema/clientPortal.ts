@@ -53,6 +53,9 @@ ${
     url: String
     logo: String
     icon: String
+    headerHtml: String
+    footerHtml: String
+
     domain: String
     dnsStatus: String
     messengerBrandCode: String
@@ -152,6 +155,8 @@ export const mutations = cardAvailable => `
     description: String
     logo: String
     icon: String
+    headerHtml: String
+    footerHtml: String
     url: String
     domain: String
     messengerBrandCode: String

@@ -11,6 +11,10 @@ export const types = `
     _id: String! @external
   }
 
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type SafeRemainder @key(fields: "_id") {
     _id: String!
     createdAt: Date
@@ -43,9 +47,13 @@ export const types = `
     productId: String,
     quantity: Float,
     uomId: String,
+    preCount: Float,
     count: Float,
     branchId: String,
     departmentId: String,
+
+    product: Product
+    uom: Uom_
   }
 
   type SafeRemItemCount {
@@ -63,4 +71,5 @@ export const queries = `
 export const mutations = `
   createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
   removeSafeRemainder(_id: String!): JSON
+  updateSafeRemItem(_id: String, status: String, remainder: Float): SafeRemItem
 `;

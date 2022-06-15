@@ -28,6 +28,7 @@ type FinalProps = {
   automationsMainQuery: MainQueryResponse;
   automationsTotalCountQuery: CountQueryResponse;
   automationsListConfigQuery: DefaultColumnsConfigQueryResponse;
+  duplicateMutation: any;
 } & Props &
   IRouterProps &
   RemoveMutationResponse &
@@ -66,6 +67,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       automationsTotalCountQuery,
       automationsRemove,
       addAutomationMutation,
+      duplicateMutation,
       history
     } = this.props;
 
@@ -114,6 +116,20 @@ class ListContainer extends React.Component<FinalProps, State> {
       });
     };
 
+    const duplicate = _id => {
+      confirm().then(() => {
+        duplicateMutation({
+          variables: { _id, duplicate: true }
+        })
+          .then(() => {
+            Alert.success('You successfully duplicated a automation.');
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } =
       automationsMainQuery.automationsMain || {};
@@ -126,6 +142,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       automations: list,
       loading: automationsMainQuery.loading || this.state.loading,
       addAutomation,
+      duplicate,
       removeAutomations,
       refetch: this.refetchWithDelay
     };
@@ -195,6 +212,12 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{}, {}, IAutomationDoc>(gql(mutations.automationsSaveAsTemplate), {
+      name: 'duplicateMutation',
+      options: () => ({
+        refetchQueries: ['automations', 'automationsMain', 'automationDetail']
+      })
+    }),
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.automationsRemove),
       {

@@ -136,7 +136,7 @@ export const TableOver = styled(StyledTable)`
   thead {
     th,
     td {
-      border-bottom: 1px dotted black;
+      border-bottom: 1px dotted ${colors.borderPrimary};
     }
   }
 
@@ -147,19 +147,33 @@ export const TableOver = styled(StyledTable)`
       }
 
       th:nth-of-type(2) {
-        border-right: 1px solid black;
+        border-right: 1px solid ${colors.borderPrimary};
       }
     }
     tr:last-child {
-      th:nth-of-type(2) {
-        border-right: 1px solid black;
+      th:nth-of-type(3) {
+        border-right: 1px solid ${colors.borderPrimary};
       }
     }
   }
 
   tr {
-    td:nth-of-type(3) {
-      border-right: 1px solid black;
+    td:nth-of-type(4),
+    td:nth-of-type(5),
+    td:nth-of-type(7) {
+      border-right: 1px solid ${colors.borderPrimary};
+    }
+
+    td:nth-of-type(5),
+    td:nth-of-type(6),
+    td:nth-of-type(7),
+    td:nth-of-type(8) {
+      padding-top: 0px;
+      padding-bottom: 0px;
+    }
+
+    td:nth-of-type(5) {
+      text-align: center;
     }
   }
 `;

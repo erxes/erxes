@@ -65,7 +65,7 @@ export const safeRemainderFields = `
 
 `;
 
-const safeRemItemFields = `
+export const safeRemItemFields = `
   _id
   modifiedAt
   lastTrDate
@@ -73,9 +73,21 @@ const safeRemItemFields = `
   productId
   quantity
   uomId
+  preCount
   count
   branchId
   departmentId
+
+  product {
+    _id
+    code
+    name
+  }
+  uom {
+    _id
+    code
+    name
+  }
 `;
 
 const safeRemainders = `

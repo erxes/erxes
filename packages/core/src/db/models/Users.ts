@@ -789,7 +789,8 @@ export const loadUserClass = (models: IModels) => {
         code: await this.generateUserCode(),
         groupIds: [app.userGroupId],
         appId: app._id,
-        isActive: true
+        isActive: true,
+        email: `${app._id}@domain.com`
       });
     }
 

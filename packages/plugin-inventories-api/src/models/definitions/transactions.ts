@@ -39,8 +39,8 @@ export const trItemSchema = schemaHooksWrapper(
     createdBy: { type: String, label: 'Created User' },
 
     productId: { type: String, index: true },
-    branchId: field({ type: String, label: 'Branch' }),
-    departmentId: field({ type: String, label: 'Department' }),
+    branchId: field({ type: String, default: '', label: 'Branch' }),
+    departmentId: field({ type: String, default: '', label: 'Department' }),
 
     quantity: field({ type: Number, label: 'Quantity' }),
     uomId: field({ type: String, label: 'UOM' }),

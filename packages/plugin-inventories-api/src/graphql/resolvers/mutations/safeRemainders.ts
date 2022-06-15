@@ -6,6 +6,13 @@ import {
   ISafeRemItemDocument
 } from '../../../models/definitions/safeRemainders';
 import { SAFE_REMAINDER_STATUSES } from '../../../models/definitions/constants';
+import { updateLiveRemainder } from './utils';
+
+export interface IUpdateSafeRemItemParams {
+  _id: string;
+  status: string;
+  remainder: number;
+}
 
 const remainderMutations = {
   async createSafeRemainder(
@@ -20,6 +27,12 @@ const remainderMutations = {
       departmentId,
       branchId
     } = params;
+    await updateLiveRemainder({
+      subdomain,
+      departmentId,
+      branchId,
+      productCategoryId
+    });
 
     const safeRemainder = await models.SafeRemainders.createRemainder({
       date,
@@ -68,13 +81,16 @@ const remainderMutations = {
     const bulkOps: any[] = [];
 
     for (const product of products) {
+      const live = liveRemainders.find(l => l.productId === product._id) || 0;
+
       bulkOps.push({
         modifiedAt: now,
         lastTrDate: now,
         remainderId: safeRemainder._id,
         productId: product._id,
         uomId: product.uomId || defaultUomId,
-        count: liveRemainders.find(l => l.productId === product._id) || 0,
+        preCount: live,
+        count: live,
         branchId: safeRemainder.branchId,
         departmentId: safeRemainder.departmentId
       });
@@ -95,6 +111,20 @@ const remainderMutations = {
     //  TODO delete tr
 
     return models.SafeRemainders.deleteOne({ _id });
+  },
+
+  async updateSafeRemItem(
+    _root,
+    params: IUpdateSafeRemItemParams,
+    { models }: IContext
+  ) {
+    const { _id, status, remainder } = params;
+    const item = await models.SafeRemItems.getRemItemObject(_id);
+    await models.SafeRemItems.updateOne(
+      { _id },
+      { $set: { count: remainder, status } }
+    );
+    return models.SafeRemItems.getRemItemObject(_id);
   }
 };
 

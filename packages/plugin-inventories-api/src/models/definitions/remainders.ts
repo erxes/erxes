@@ -48,8 +48,8 @@ export const remainderSchema = schemaHooksWrapper(
     productId: field({ type: String, index: true }),
     count: field({ type: Number, label: 'Remainder count' }),
 
-    branchId: field({ type: String, label: 'Branch' }),
-    departmentId: field({ type: String, label: 'Department' })
+    branchId: field({ type: String, default: '', label: 'Branch' }),
+    departmentId: field({ type: String, default: '', label: 'Department' })
   }),
   'erxes_transactions'
 );

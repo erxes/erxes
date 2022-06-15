@@ -48,7 +48,9 @@ const Formgroup = styledTS<{ horizontal?: boolean }>(styled.div)`
   }
 `;
 
-const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
+const Input = styledTS<{ round?: boolean; hasError?: boolean; align?: string }>(
+  styled.input
+)`
   display: block;
   border: none;
   width: 100%;
@@ -68,6 +70,16 @@ const Input = styledTS<{ round?: boolean; hasError?: boolean }>(styled.input)`
         border: 1px solid ${colors.borderDarker};
         border-radius: 20px;
         padding: 5px 20px;
+      `;
+    }
+
+    return '';
+  }};
+
+  ${props => {
+    if (props.align) {
+      return `
+        text-align: ${props.align};
       `;
     }
 

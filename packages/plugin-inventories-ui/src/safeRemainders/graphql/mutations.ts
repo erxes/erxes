@@ -1,4 +1,4 @@
-import { safeRemainderFields } from './queries';
+import { safeRemainderFields, safeRemItemFields } from './queries';
 
 const createSafeRemainderFields = `
   $branchId: String,
@@ -30,7 +30,25 @@ const removeSafeRemainder = `
   }
 `;
 
+const updateSafeRemItem = `
+  mutation updateSafeRemItem(
+    $_id: String,
+    $status: String,
+    $remainder: Float,
+  ) {
+    updateSafeRemItem(
+      _id: $_id,
+      status: $status,
+      remainder: $remainder,
+    ) {
+      ${safeRemItemFields}
+    }
+  }
+`;
+
 export default {
   createSafeRemainder,
-  removeSafeRemainder
+  removeSafeRemainder,
+
+  updateSafeRemItem
 };
