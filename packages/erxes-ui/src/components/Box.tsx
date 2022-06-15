@@ -14,7 +14,8 @@ type BoxProps = {
   isOpen?: boolean;
   noShadow?: boolean;
   noMarginBottom?: boolean;
-  basicTitle?: boolean;
+  noBackground?: boolean;
+  noSpacing?: boolean;
 };
 
 type BoxState = {
@@ -80,12 +81,17 @@ export default class Box extends React.Component<BoxProps, BoxState> {
       collapsible,
       noShadow,
       noMarginBottom,
-      basicTitle
+      noBackground,
+      noSpacing
     } = this.props;
 
     return (
       <SectionContainer noShadow={noShadow} noMarginBottom={noMarginBottom}>
-        <Title onClick={this.toggle} basic={basicTitle}>
+        <Title
+          onClick={this.toggle}
+          noBackground={noBackground}
+          noSpacing={noSpacing}
+        >
           {title}
         </Title>
         {this.renderDropBtn()}

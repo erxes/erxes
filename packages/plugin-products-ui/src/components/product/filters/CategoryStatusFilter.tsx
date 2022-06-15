@@ -40,7 +40,8 @@ class CategoryStatusFilter extends React.Component<IProps> {
         name="showFilterByType"
         noShadow
         noMarginBottom
-        basicTitle
+        noBackground
+        noSpacing
       >
         <SidebarList>
           {categoryStatusChoises(__).map(

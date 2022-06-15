@@ -39,7 +39,8 @@ class ProductTypeFilter extends React.Component<IProps> {
         name="showFilterByType"
         noShadow
         noMarginBottom
-        basicTitle
+        noBackground
+        noSpacing
       >
         <SidebarList>
           {productTypeChoises(__).map(

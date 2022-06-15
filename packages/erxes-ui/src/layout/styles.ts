@@ -178,15 +178,14 @@ const SidebarHeader = styledTS<{
   uppercase?: boolean;
   bold?: boolean;
   noBackground?: boolean;
-  noPadding?: boolean;
-  noMargin?: boolean;
+  noSpacing?: boolean;
 }>(styled.div)`
   background-color: ${props => !props.noBackground && colors.bgLight};
   height: ${dimensions.headerSpacing}px;
-  margin-bottom: ${props => !props.noMargin && props.spaceBottom && '10px'};
+  margin-bottom: ${props => !props.noSpacing && props.spaceBottom && '10px'};
   align-items: center;
   padding: ${props =>
-    !props.noPadding &&
+    !props.noSpacing &&
     `0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
@@ -195,18 +194,20 @@ const SidebarHeader = styledTS<{
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
   justify-content: space-between;
-  margin: ${props => props.noMargin && `0px ${dimensions.coreSpacing}px`};
+  margin: ${props => props.noSpacing && `0px ${dimensions.coreSpacing}px`};
 `;
 
 const SidebarTitle = styledTS<{
   children: any;
-  basic?: boolean;
+  noBackground?: boolean;
+  noSpacing?: boolean;
 }>(styled(SidebarHeader.withComponent('h3')))`
-  padding: ${props => (props.basic ? 0 : `0 ${dimensions.coreSpacing}px`)};
-  margin: ${props => (!props.basic ? 0 : `0px ${dimensions.coreSpacing}px`)};
+  padding: ${props => (props.noSpacing ? 0 : `0 ${dimensions.coreSpacing}px`)};
+  margin: ${props =>
+    !props.noSpacing ? 0 : `0px ${dimensions.coreSpacing}px`};
   text-transform: uppercase;
   position: relative;
-  background-color: ${props => props.basic && 'white'};
+  background-color: ${props => props.noBackground && 'white'};
 `;
 
 const SidebarMainContent = styled.div`

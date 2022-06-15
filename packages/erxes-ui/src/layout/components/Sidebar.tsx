@@ -15,14 +15,20 @@ import {
 function Title({
   children,
   onClick,
-  basic
+  noBackground,
+  noSpacing
 }: {
   children: React.ReactNode;
   onClick?: () => void;
-  basic?: boolean;
+  noBackground?: boolean;
+  noSpacing?: boolean;
 }) {
   return (
-    <SidebarTitle onClick={onClick} basic={basic}>
+    <SidebarTitle
+      onClick={onClick}
+      noBackground={noBackground}
+      noSpacing={noSpacing}
+    >
       {children}
     </SidebarTitle>
   );
@@ -124,8 +130,7 @@ type HeaderProps = {
   bold?: boolean;
   spaceBottom?: boolean;
   noBackground?: boolean;
-  noMargin?: boolean;
-  noPadding?: boolean;
+  noSpacing?: boolean;
 };
 
 function Header({
@@ -134,14 +139,12 @@ function Header({
   uppercase,
   bold,
   noBackground,
-  noMargin,
-  noPadding
+  noSpacing
 }: HeaderProps) {
   return (
     <SidebarHeader
       noBackground={noBackground}
-      noMargin={noMargin}
-      noPadding={noPadding}
+      noSpacing={noSpacing}
       spaceBottom={spaceBottom}
       uppercase={uppercase}
       bold={bold}

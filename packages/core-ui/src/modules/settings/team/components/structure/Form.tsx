@@ -142,7 +142,8 @@ export default function StructureForm(props: Props) {
       name="showStructure"
       noShadow={true}
       noMarginBottom={true}
-      basicTitle
+      noBackground
+      noSpacing
     >
       <Form renderContent={renderContent} />
     </Box>

@@ -25,7 +25,8 @@ export default function ListContainer() {
         name="showUnit"
         noShadow
         noMarginBottom
-        basicTitle
+        noBackground
+        noSpacing
       >
         <MenuFooter>
           <ErrorMsg>{listQuery.error.message}</ErrorMsg>

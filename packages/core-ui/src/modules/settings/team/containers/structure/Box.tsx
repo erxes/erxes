@@ -31,7 +31,8 @@ export default function BoxContainer() {
         name="showStructure"
         noShadow
         noMarginBottom
-        basicTitle
+        noBackground
+        noSpacing
       >
         <MenuFooter>
           <ErrorMsg>{error.message}</ErrorMsg>
