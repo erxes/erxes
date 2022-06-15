@@ -116,7 +116,9 @@ class EmailTemplateList extends React.Component<Props, State> {
           </p>
           <p>
             {object.createdAt === object.modifiedAt
-              ? `${dayjs(object.createdAt).format('DD MMM YYYY')}`
+              ? object.createdAt === null
+                ? '-'
+                : `${dayjs(object.createdAt).format('DD MMM YYYY')}`
               : `${dayjs(object.modifiedAt).format('DD MMM YYYY')}`}
           </p>
         </TemplateInfo>
