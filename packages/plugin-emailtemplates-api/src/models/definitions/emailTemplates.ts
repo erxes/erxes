@@ -4,10 +4,10 @@ import { field, schemaWrapper } from './utils';
 export interface IEmailTemplate {
   name: string;
   content: string;
-  status: string;
-  createdAt: Date;
-  modifiedAt: Date;
-  createdBy: string;
+  status?: string;
+  createdAt?: Date;
+  modifiedAt?: Date;
+  createdBy?: string;
 }
 
 export interface IEmailTemplateDocument extends IEmailTemplate, Document {
@@ -22,10 +22,9 @@ export const emailTemplateSchema = schemaWrapper(
     content: field({ type: String, optional: true, label: 'Content' }),
     createdAt: field({
       type: Date,
-      default: Date.now,
       label: 'Created at'
     }),
     createdBy: field({ type: String, label: 'Created by' }),
-    modifiedAt: field({ type: Date, default: Date.now, label: 'Modified at' })
+    modifiedAt: field({ type: Date, label: 'Modified at' })
   })
 );
