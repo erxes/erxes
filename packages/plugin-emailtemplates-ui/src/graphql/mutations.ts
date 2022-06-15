@@ -38,9 +38,18 @@ const emailTemplatesChangeStatus = `
   }
 `;
 
+const emailTemplatesDuplicate = `
+	mutation emailTemplatesDuplicate($_id: String!) {
+		emailTemplatesDuplicate(_id: $_id) {
+			_id
+		}
+	}
+`;
+
 export default {
   emailTemplatesAdd,
   emailTemplatesEdit,
   emailTemplatesRemove,
-  emailTemplatesChangeStatus
+  emailTemplatesChangeStatus,
+  emailTemplatesDuplicate
 };

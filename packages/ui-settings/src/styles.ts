@@ -301,6 +301,21 @@ const InputBar = styledTS<{ type?: string }>(styled.div)`
   }
 `;
 
+const MarginRight = styled.div`
+  margin-right: ${dimensions.unitSpacing}px;
+`;
+
+const CreatedDate = styled.div`
+  float: left;
+  font-size: 10px;
+  margin-top: 10px;
+  display: flex;
+  > p {
+    color: #000;
+    margin-right: 5px;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -317,5 +332,7 @@ export {
   SidebarList,
   ContentBox,
   LogoContainer,
-  InputBar
+  InputBar,
+  MarginRight,
+  CreatedDate
 };

@@ -11,53 +11,52 @@ import {
   IframePreview,
   Template,
   TemplateBox,
-  Templates
+  Templates,
+  TemplateInfo
 } from '../styles';
 import Form from './Form';
-import CategoryList from '@erxes/ui-settings/src/templates/containers/productCategory/CategoryList';
-import { EMAIL_TEMPLATE_STATUSES, EMAIL_TEMPLATE_TIPTEXT } from '../constants';
-import Tip from '@erxes/ui/src/components/Tip';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { router } from 'coreui/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   queryParams: any;
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  changeStatus: (_id: string, status: string, text: string) => void;
+  duplicate: (id: string) => void;
 } & ICommonListProps;
 
-class EmailTemplateList extends React.Component<Props> {
+type State = {
+  items: any;
+  searchValue: string;
+};
+
+class EmailTemplateList extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    this.state = {
+      items: props.objects,
+      searchValue: ''
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.objects !== this.props.objects) {
+      this.setState({ items: nextProps.objects });
+    }
+  }
+
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
-  renderDisableAction = object => {
-    const { changeStatus } = this.props;
-    const _id = object._id;
-    const isActive = object.status !== EMAIL_TEMPLATE_STATUSES.ARCHIVED;
-
-    const status = isActive
-      ? EMAIL_TEMPLATE_STATUSES.ARCHIVED
-      : EMAIL_TEMPLATE_STATUSES.ACTIVE;
-
-    const icon = isActive ? 'archive-alt' : 'redo';
-
-    const text = isActive
-      ? EMAIL_TEMPLATE_TIPTEXT.ARCHIVED
-      : EMAIL_TEMPLATE_TIPTEXT.ACTIVE;
-
-    const onClick = () => changeStatus(_id, status, text.toLowerCase());
-
-    return (
-      <Tip text={__(text)}>
-        <div onClick={onClick}>
-          <Icon icon={icon} /> {text}
-        </div>
-      </Tip>
-    );
-  };
-
   removeTemplate = object => {
     this.props.remove(object._id);
+  };
+
+  duplicateTemplate = id => {
+    this.props.duplicate(id);
   };
 
   renderEditAction = object => {
@@ -82,28 +81,83 @@ class EmailTemplateList extends React.Component<Props> {
     );
   };
 
-  renderRow({ objects }) {
-    return objects.map((object, index) => (
-      <Template key={index}>
-        <TemplateBox>
-          <Actions>
-            {this.renderEditAction(object)}
-            <div onClick={this.removeTemplate.bind(this, object)}>
-              <Icon icon="cancel-1" /> Delete
-            </div>
-            {this.renderDisableAction(object)}
-          </Actions>
-          <IframePreview>
-            <iframe title="content-iframe" srcDoc={object.content} />
-          </IframePreview>
-        </TemplateBox>
-        <h5>{object.name}</h5>
-      </Template>
-    ));
+  renderDuplicateAction(object) {
+    return (
+      <div onClick={this.duplicateTemplate.bind(this, object._id)}>
+        <Icon icon="copy-1" />
+        Duplicate
+      </div>
+    );
   }
 
-  renderContent = props => {
-    return <Templates>{this.renderRow(props)}</Templates>;
+  renderDate(createdAt, modifiedAt) {
+    if (createdAt === modifiedAt) {
+      if (createdAt === null) return '-';
+
+      return dayjs(createdAt).format('DD MMM YYYY');
+    }
+
+    return dayjs(modifiedAt).format('DD MMM YYYY');
+  }
+
+  renderRow = () => {
+    return this.state.items.map((object, index) => {
+      const { name, content, createdAt, modifiedAt, createdUser } =
+        object || {};
+
+      return (
+        <Template key={index} isLongName={name.length > 46}>
+          <h5>{name}</h5>
+          <TemplateBox>
+            <Actions>
+              {this.renderEditAction(object)}
+              <div onClick={this.removeTemplate.bind(this, object)}>
+                <Icon icon="cancel-1" /> Delete
+              </div>
+              {this.renderDuplicateAction(object)}
+            </Actions>
+            <IframePreview>
+              <iframe title="content-iframe" srcDoc={content} />
+            </IframePreview>
+          </TemplateBox>
+          <TemplateInfo>
+            <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+            <p>{this.renderDate(createdAt, modifiedAt)}</p>
+          </TemplateInfo>
+          <TemplateInfo>
+            <p>Created by</p>
+            {createdUser ? (
+              createdUser.details.fullName && (
+                <p>{createdUser.details.fullName}</p>
+              )
+            ) : (
+              <p>erxes Inc</p>
+            )}
+          </TemplateInfo>
+        </Template>
+      );
+    });
+  };
+
+  searchHandler = event => {
+    const searchValue = event.target.value.toLowerCase();
+    const { history, objects } = this.props;
+
+    router.setParams(history, { searchValue: event.target.value });
+
+    let updatedObjects = objects;
+
+    if (searchValue) {
+      updatedObjects = objects.filter(p =>
+        p.name.toLowerCase().includes(searchValue)
+      );
+    }
+
+    this.setState({ items: updatedObjects });
+  };
+
+  renderContent = () => {
+    return <Templates>{this.renderRow()}</Templates>;
   };
 
   render() {
@@ -130,14 +184,19 @@ class EmailTemplateList extends React.Component<Props> {
           />
         }
         renderForm={this.renderForm}
-        // rightActionBar={true}
         renderContent={this.renderContent}
         {...this.props}
         queryParams={this.props.queryParams}
         history={this.props.history}
-        // hasBorder={true}
-        // transparent={true}
-        leftSpacing={true}
+        additionalButton={
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.searchHandler}
+            value={router.getParam(this.props.history, 'searchValue')}
+            autoFocus={true}
+          />
+        }
       />
     );
   }
