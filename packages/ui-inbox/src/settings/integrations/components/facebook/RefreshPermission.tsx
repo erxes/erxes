@@ -52,11 +52,8 @@ class RefreshPermissionForm extends React.PureComponent<Props, CommonTypes> {
 
   renderFacebookContent = () => {
     const onClick = () => {
-      const link = 'fblogin';
-      const kind = 'facebook';
-
       const { REACT_APP_API_URL } = getEnv();
-      const url = `${REACT_APP_API_URL}/pl:integrations/connect-integration?link=${link}&kind=${kind}`;
+      const url = `${REACT_APP_API_URL}/pl:integrations/fblogin?kind=facebook`;
 
       this.popupWindow(url, 'Integration', window, 660, 750);
     };
