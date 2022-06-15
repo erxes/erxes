@@ -131,7 +131,7 @@ export const loadUserClass = models => {
       const { companyName, firstName, lastName, type, phone } = doc;
 
       if (type === USER_LOGIN_TYPES.COMPANY) {
-        const company: { _id?: string } = await sendGraphQLRequest({
+        const company: any = await sendGraphQLRequest({
           query: clientPortalCreateCompany,
           name: 'clientPortalCreateCompany',
           variables: {
