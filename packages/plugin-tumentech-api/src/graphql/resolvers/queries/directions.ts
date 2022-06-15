@@ -17,10 +17,13 @@ const directionsQuery = {
       filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
     }
 
-    return paginate(models.Directions.find(filter).lean(), {
-      page: page || 1,
-      perPage: perPage || 20
-    });
+    return {
+      list: paginate(models.Directions.find(filter).lean(), {
+        page: page || 1,
+        perPage: perPage || 20
+      }),
+      totalCount: models.Directions.find(filter).count()
+    };
   }
 };
 

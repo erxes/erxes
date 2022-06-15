@@ -350,22 +350,25 @@ const carsListConfig = `
 `;
 
 const directions = `
-query directions($searchValue: String) {
-  directions(searchValue: $searchValue) {
-    _id
-    duration
-    placeIds
-    places {
+query directions($searchValue: String, $page: Int, $perPage: Int) {
+  directions(searchValue: $searchValue, page: $page, perPage: $perPage) {
+    list {
       _id
-      center
-      code
-      name
-      province
+      placeIds
+      places {
+        _id
+        province
+        name
+        code
+        center
+      }
+      totalDistance
+      roadConditions
+      duration
+      routeCode
+      roadCode
     }
-    roadCode
-    roadConditions
-    routeCode
-    totalDistance
+    totalCount
   }
 }
 `;
@@ -392,45 +395,51 @@ query directionDetail($id: String!) {
 `;
 
 const routesQuery = `
-query routes($searchValue: String) {
-  routes(searchValue: $searchValue) {
-    _id
-    code
-    directionIds
-    directions {
+query routes($searchValue: String, $page: Int, $perPage: Int) {
+  routes(searchValue: $searchValue, page: $page, perPage: $perPage) {
+    list {
       _id
-      duration
-      placeIds
-      places {
+      code
+      directionIds
+      directions {
         _id
-        center
-        code
-        name
-        province
+        duration
+        placeIds
+        places {
+          _id
+          center
+          code
+          name
+          province
+        }
+        roadCode
+        roadConditions
+        routeCode
+        totalDistance
       }
-      roadCode
-      roadConditions
-      routeCode
-      totalDistance
+      name
+      summary {
+        placeNames
+        totalDistance
+        totalDuration
+      }
     }
-    name
-    summary {
-      placeNames
-      totalDistance
-      totalDuration
-    }
+    totalCount
   }
 }
 `;
 
 const placesQuery = `
-query places($searchValue: String) {
-  places(searchValue: $searchValue) {
-    _id
-    province
-    name
-    code
-    center
+query places($searchValue: String, $page: Int, $perPage: Int) {
+  places(searchValue: $searchValue, page: $page, perPage: $perPage) {
+    list {
+      _id
+      province
+      name
+      code
+      center
+    }
+    totalCount
   }
 }
 `;

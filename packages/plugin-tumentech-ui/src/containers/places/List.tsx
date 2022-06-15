@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import List from '../../components/places/List';
 import { mutations, queries } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src';
 
 type Props = {
   refetch: () => void;
@@ -12,6 +13,9 @@ type Props = {
 
 export default function PlaceContainer(props: Props) {
   const { data, loading, refetch } = useQuery(gql(queries.placesQuery), {
+    variables: {
+      ...router.generatePaginationParams(props.queryParams || {})
+    },
     fetchPolicy: 'network-only'
   });
 
@@ -35,13 +39,15 @@ export default function PlaceContainer(props: Props) {
     });
   };
 
-  const places = (data && data.places) || [];
+  const places = (data && data.places.list) || [];
+
+  const totalCount = (data && data.places.totalCount) || 0;
 
   const extendedProps = {
     ...props,
     loading,
     places,
-    totalCount: places.length,
+    totalCount,
     refetch,
     remove
   };
