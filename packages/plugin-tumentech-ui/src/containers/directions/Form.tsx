@@ -39,7 +39,7 @@ const DirectionFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    places: (data && data.places) || [],
+    places: (data && data.places.list) || [],
     renderButton
   };
 
