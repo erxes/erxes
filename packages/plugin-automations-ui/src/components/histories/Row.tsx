@@ -1,13 +1,11 @@
 import dayjs from 'dayjs';
-import {
-  IAutomationHistory,
-  IAutomationHistoryAction
-} from '../../types';
+import { IAutomationHistory, IAutomationHistoryAction } from '../../types';
 import { __, renderFullName } from 'coreui/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Label from '@erxes/ui/src/components/Label';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   history: IAutomationHistory;
@@ -83,20 +81,6 @@ class HistoryRow extends React.Component<Props, State> {
       return result.error;
     }
 
-    if (
-      ['cards:task.create', 'cards:deal.create', 'cards:ticket.create'].includes(action.actionType)
-    ) {
-      const type = action.actionType.substr(6).toLowerCase();
-      return (
-        <Link
-          target="_blank"
-          to={`/${type}/board?_id=${result.boardId}&itemId=${result.itemId}&key=&pipelineId=${result.pipelineId}`}
-        >
-          {`Created ${type}: ${result.name}`}
-        </Link>
-      );
-    }
-
     if (action.actionType === 'setProperty') {
       return `Update for ${(result.result || []).length} ${
         result.module
@@ -107,6 +91,24 @@ class HistoryRow extends React.Component<Props, State> {
 
     if (action.actionType === 'if') {
       return `Condition: ${result.condition}`;
+    }
+
+    const plugins: any[] = (window as any).plugins || [];
+
+    for (const plugin of plugins) {
+      if (action.actionType.includes(`${plugin.name}:`) && plugin.automation) {
+        return (
+          <RenderDynamicComponent
+            scope={plugin.scope}
+            component={plugin.automation}
+            injectedProps={{
+              action,
+              result: action.result,
+              componentType: 'actionResult'
+            }}
+          />
+        );
+      }
     }
 
     return JSON.stringify(result);

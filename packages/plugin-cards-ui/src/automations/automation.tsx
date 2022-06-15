@@ -1,11 +1,10 @@
 import React from 'react';
 import BoardItemForm from './containers/BoardItemForm';
 import SelectBoard from './components/SelectBoard';
+import ActionResult from './components/ActionResult';
 
 const Automations = props => {
   const { componentType } = props;
-
-  console.log('working............', componentType);
 
   switch (componentType) {
     case 'actionForm':
@@ -14,8 +13,11 @@ const Automations = props => {
     case 'selectBoard':
       return <SelectBoard {...props} />;
 
+    case 'actionResult':
+      return <ActionResult {...props} />;
+
     default:
-      return <div>hahahahahah</div>;
+      return null;
   }
 };
 
