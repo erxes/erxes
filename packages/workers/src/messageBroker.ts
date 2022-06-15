@@ -1,29 +1,9 @@
 import { init as initBrokerCore } from '@erxes/api-utils/src/messageBroker';
-import { RABBITMQ_QUEUES } from './constants';
-import { importFromWebhook } from '../src/worker/utils';
 
 let client;
 
 export const initBroker = async options => {
   client = await initBrokerCore(options);
-
-  const { consumeRPCQueue } = client;
-
-  // listen for rpc queue =========
-
-  consumeRPCQueue(RABBITMQ_QUEUES.RPC_API_TO_WEBHOOK_WORKERS, async content => {
-    const response = { status: 'success', data: {}, errorMessage: '' };
-    const { subdomain } = content;
-
-    try {
-      await importFromWebhook(subdomain, content);
-    } catch (e) {
-      response.status = 'error';
-      response.errorMessage = e.message;
-    }
-
-    return response;
-  });
 
   return client;
 };
