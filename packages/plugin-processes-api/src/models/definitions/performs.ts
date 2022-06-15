@@ -24,15 +24,16 @@ export const performSchema = schemaHooksWrapper(
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
     endAt: field({ type: Date, optional: true, label: 'End at' }),
 
-    overallWorkId: { typd: String },
+    overallWorkId: { type: String },
 
     needProducts: field({ type: productsDataSchema, label: 'Need products' }),
-    resultProducts: field({ type: productsDataSchema, label: 'Result products' }),
+    resultProducts: field({
+      type: productsDataSchema,
+      label: 'Result products'
+    })
   }),
   'erxes_performs'
 );
 
 // for performSchema query. increases search speed, avoids in-memory sorting
 performSchema.index({ status: 1 });
-
-

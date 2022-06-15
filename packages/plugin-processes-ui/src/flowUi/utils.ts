@@ -114,12 +114,32 @@ export const connection = (
   console.log('info:', sourceId, actionId, type);
 
   if (sourceId.includes('action')) {
+    let innerActions = [];
+
+    const replacedSourceId = sourceId.replace('action-', '');
+
+    console.log('replacedSourceId:', replacedSourceId);
+
     const sourceAction = actions.find(
-      a => a.id.toString() === sourceId.replace('action-', '')
+      a => a.id.toString() === replacedSourceId
     );
 
-    if (sourceAction) {
+    innerActions = actions.filter(a => a.id.toString() !== replacedSourceId);
+
+    console.log(
+      'replacedSourceId:',
+      replacedSourceId,
+      sourceAction,
+      innerActions
+    );
+
+    if (
+      Object.keys(sourceAction).length > 0 &&
+      sourceAction.id === replacedSourceId
+    ) {
       let jobIds = sourceAction.nextJobIds;
+
+      console.log('object keys sourceAction step1:', jobIds);
 
       if (type === 'connect') {
         if (!jobIds.includes(actionId)) {
@@ -131,7 +151,13 @@ export const connection = (
       }
 
       sourceAction.nextJobIds = jobIds;
+
+      console.log('object keys sourceAction step2:', jobIds);
     }
+    innerActions.push(sourceAction);
+    return innerActions;
+  } else {
+    return actions;
   }
 };
 

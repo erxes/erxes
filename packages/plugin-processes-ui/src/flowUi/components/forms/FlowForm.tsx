@@ -343,9 +343,14 @@ class AutomationForm extends React.Component<Props, State> {
   onConnection = info => {
     const { actions } = this.state;
 
-    connection(actions, info, info.targetId.replace('action-', ''), 'connect');
-
-    this.setState({ actions });
+    this.setState({
+      actions: connection(
+        actions,
+        info,
+        info.targetId.replace('action-', ''),
+        'connect'
+      )
+    });
 
     const sourceAction = actions.find(
       a => a.id.toString() === info.sourceId.replace('action-', '')
@@ -361,14 +366,14 @@ class AutomationForm extends React.Component<Props, State> {
   onDettachConnection = info => {
     const { actions } = this.state;
 
-    connection(
-      actions,
-      info,
-      info.targetId.replace('action-', ''),
-      'disconnect'
-    );
-
-    this.setState({ actions });
+    this.setState({
+      actions: connection(
+        actions,
+        info,
+        info.targetId.replace('action-', ''),
+        'disconnect'
+      )
+    });
   };
 
   handleClickOutside = event => {
