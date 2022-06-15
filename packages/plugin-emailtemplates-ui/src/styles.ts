@@ -82,7 +82,7 @@ const Actions = styled.div`
   }
 `;
 
-const Template = styledTS<{ longName?: boolean }>(styled.div)`
+const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
   flex-basis: 300px;
   padding: 10px 10px;
   display: flex;
@@ -100,8 +100,8 @@ const Template = styledTS<{ longName?: boolean }>(styled.div)`
     height: ${dimensions.coreSpacing * 2}px;
     overflow: hidden;
     font-weight: normal;
-    display: ${props => !props.longName && 'flex'};
-    align-items: ${props => !props.longName && 'center'};
+    display: ${props => !props.isLongName && 'flex'};
+    align-items: ${props => !props.isLongName && 'center'};
     font-weight: 500;
     font-size: 15px;
   }

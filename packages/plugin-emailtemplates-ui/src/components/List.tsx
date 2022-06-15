@@ -92,7 +92,7 @@ class EmailTemplateList extends React.Component<Props, State> {
 
   renderRow = () => {
     return this.state.items.map((object, index) => (
-      <Template key={index} longName={object.name.length > 46}>
+      <Template key={index} isLongName={object.name.length > 46}>
         <h5>{object.name}</h5>
         <TemplateBox>
           <Actions>
