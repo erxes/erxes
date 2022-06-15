@@ -6,10 +6,16 @@ export const types = `
     code: String
     center: JSON
   }
+
+  type PlaceListResponse {
+    list: [Place],
+    totalCount: Int
+  }
 `;
 
 export const queries = `
-    places(searchValue: String): [Place]
+    places(searchValue: String, page: Int, perPage: Int): PlaceListResponse
+
     placeDetail(_id: String!): Place
 `;
 
