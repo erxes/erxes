@@ -51,7 +51,12 @@ interface IOrderEditParams extends IOrderInput {
 }
 
 const orderMutations = {
-  async ordersAdd(_root, models, doc: IOrderInput, {}: IContext) {
+  async ordersAdd(
+    _root,
+    models,
+    doc: IOrderInput,
+    { posUser, config }: IContext
+  ) {
     const { totalAmount, type, customerId, branchId } = doc;
 
     await validateOrder(doc);
@@ -64,7 +69,7 @@ const orderMutations = {
     };
 
     try {
-      const preparedDoc = await prepareOrderDoc(doc);
+      const preparedDoc = await prepareOrderDoc(doc, config);
 
       const order = await models.Orders.createOrder({
         ...doc,
@@ -92,7 +97,7 @@ const orderMutations = {
       return e;
     }
   },
-  async ordersEdit(_root, models, doc: IOrderEditParams, {}: IContext) {
+  async ordersEdit(_root, models, doc: IOrderEditParams, { config }: IContext) {
     const order = await models.Orders.getOrder(doc._id);
 
     checkOrderStatus(order);
@@ -101,7 +106,7 @@ const orderMutations = {
 
     await cleanOrderItems(doc._id, doc.items);
 
-    const preparedDoc = await prepareOrderDoc({ ...doc });
+    const preparedDoc = await prepareOrderDoc({ ...doc }, config);
 
     await updateOrderItems(doc._id, preparedDoc.items);
 
@@ -159,7 +164,7 @@ const orderMutations = {
 
     await checkUnpaidInvoices(_id);
 
-    const items: IOrderDocument[] = await OrderItems.find({
+    const items = await OrderItems.find({
       orderId: order._id
     }).lean();
 
@@ -304,7 +309,7 @@ const orderMutations = {
 
     await checkUnpaidInvoices(_id);
 
-    const items: IOrderDocument[] = await OrderItems.find({
+    const items = await OrderItems.find({
       orderId: order._id
     }).lean();
 

@@ -1,6 +1,7 @@
+import { IQPayConfig } from '../../models/definitions/configs';
 import { sendRequest } from './commonUtils';
 
-export const fetchQPayToken = async qpayConfig => {
+export const fetchQPayToken = async (qpayConfig: IQPayConfig) => {
   const response = await sendRequest({
     url: `${qpayConfig.url}/v2/auth/token`,
     method: 'POST',
@@ -14,10 +15,14 @@ export const fetchQPayToken = async qpayConfig => {
   return response;
 };
 
-export const requestQPayInvoice = async (data: any, accessToken: string) => {
+export const requestQPayInvoice = async (
+  data: any,
+  accessToken: string,
+  qpayConfig: IQPayConfig
+) => {
   const response = await sendRequest({
     method: 'POST',
-
+    url: `${qpayConfig.url}/v2/invoice`,
     headers: {
       Authorization: `Bearer ${accessToken}`
     },
@@ -29,10 +34,12 @@ export const requestQPayInvoice = async (data: any, accessToken: string) => {
 
 export const fetchQPayInvoice = async (
   invoiceId: string,
-  accessToken: string
+  accessToken: string,
+  config: IQPayConfig
 ) => {
   const response = await sendRequest({
     method: 'GET',
+    url: `${config.url}/v2/invoice/${invoiceId}`,
     headers: {
       Authorization: `Bearer ${accessToken}`
     }
@@ -43,10 +50,12 @@ export const fetchQPayInvoice = async (
 
 export const requestInvoiceDeletion = async (
   invoiceId: string,
-  accessToken: string
+  accessToken: string,
+  config: IQPayConfig
 ) => {
   const response = await sendRequest({
     method: 'DELETE',
+    url: `${config.url}/v2/invoice/${invoiceId}`,
     headers: {
       Authorization: `Bearer ${accessToken}`
     }
@@ -57,10 +66,12 @@ export const requestInvoiceDeletion = async (
 
 export const fetchInvoicePayment = async (
   invoiceId: string,
-  accessToken: string
+  accessToken: string,
+  config: IQPayConfig
 ) => {
   const response = await sendRequest({
     method: 'POST',
+    url: `${config.url}/v2/payment/check`,
     headers: {
       Authorization: `Bearer ${accessToken}`
     },

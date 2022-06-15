@@ -65,8 +65,8 @@ export interface IConfig {
   formIntegrationIds?: string[];
   token?: string;
   uiOptions: IUIOptions;
-  ebarimtConfig?: IEbarimtConfig;
-  qpayConfig?: IQPayConfig;
+  ebarimtConfig: IEbarimtConfig;
+  qpayConfig: IQPayConfig;
   syncInfo: ISyncInfo;
   catProdMappings: ICatProd[];
   initialCategoryIds: string[];
