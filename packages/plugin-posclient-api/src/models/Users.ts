@@ -69,7 +69,7 @@ export interface IUserModel extends Model<IUserDocument> {
   }): string;
 }
 
-export const loadClass = () => {
+export const loadUserClass = models => {
   class User {
     public static getSecret() {
       return process.env.JWT_TOKEN_SECRET || '';
@@ -115,12 +115,12 @@ export const loadClass = () => {
 
       const tEmail = (email || '').toLowerCase().trim();
 
-      if (await Users.findOne({ email: tEmail })) {
+      if (await models.Users.findOne({ email: tEmail })) {
         throw new Error('The user is already exists');
       }
 
       const performCreate = async () => {
-        return Users.create({
+        return models.Users.create({
           ...doc,
           email: tEmail,
           // hash password
@@ -144,7 +144,7 @@ export const loadClass = () => {
         if (company && company._id) {
           const user = await performCreate();
 
-          await Users.updateOne(
+          await models.Users.updateOne(
             { _id: user._id },
             { $set: { erxesCompanyId: company._id } }
           );
@@ -178,7 +178,7 @@ export const loadClass = () => {
         );
 
         if (response && response._id) {
-          customer = await Customers.createCustomer(response);
+          customer = await models.Customers.createCustomer(response);
         }
       }
 
@@ -198,7 +198,7 @@ export const loadClass = () => {
       if (customer && customer._id) {
         const user = await performCreate();
 
-        await Users.updateOne(
+        await models.Users.updateOne(
           { _id: user._id },
           { $set: { erxesCustomerId: customer._id } }
         );
@@ -208,7 +208,7 @@ export const loadClass = () => {
     }
 
     public static async editProfile(_id: string, { password, ...doc }: IUser) {
-      const user = await Users.findOne({ _id }).lean();
+      const user = await models.Users.findOne({ _id }).lean();
 
       if (!user) {
         throw new Error('User not found');
@@ -224,15 +224,15 @@ export const loadClass = () => {
       const email = doc.email;
 
       // Checking duplicated email
-      const exisitingUser = await Users.findOne({ email }).lean();
+      const exisitingUser = await models.Users.findOne({ email }).lean();
 
       if (exisitingUser) {
         throw new Error('Email duplicated');
       }
 
-      await Users.updateOne({ _id }, { $set: doc });
+      await models.Users.updateOne({ _id }, { $set: doc });
 
-      return Users.findOne({ _id });
+      return models.Users.findOne({ _id });
     }
 
     public static async resetPassword({
@@ -242,7 +242,7 @@ export const loadClass = () => {
       token: string;
       newPassword: string;
     }) {
-      const user = await Users.findOne({
+      const user = await models.Users.findOne({
         resetPasswordToken: token,
         resetPasswordExpires: {
           $gt: Date.now()
@@ -260,7 +260,7 @@ export const loadClass = () => {
       this.checkPassword(newPassword);
 
       // set new password
-      await Users.findByIdAndUpdate(
+      await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           password: await this.generatePassword(newPassword),
@@ -269,7 +269,7 @@ export const loadClass = () => {
         }
       );
 
-      return Users.findOne({ _id: user._id });
+      return models.Users.findOne({ _id: user._id });
     }
 
     public static async changePassword({
@@ -288,7 +288,7 @@ export const loadClass = () => {
 
       this.checkPassword(newPassword);
 
-      const user = await Users.findOne({ _id }).lean();
+      const user = await models.Users.findOne({ _id }).lean();
 
       if (!user) {
         throw new Error('User not found');
@@ -302,18 +302,18 @@ export const loadClass = () => {
       }
 
       // set new password
-      await Users.findByIdAndUpdate(
+      await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           password: await this.generatePassword(newPassword)
         }
       );
 
-      return Users.findOne({ _id: user._id });
+      return models.Users.findOne({ _id: user._id });
     }
 
     public static async forgotPassword(email: string) {
-      const user = await Users.findOne({ email });
+      const user = await models.Users.findOne({ email });
 
       if (!user) {
         throw new Error('Invalid email');
@@ -324,7 +324,7 @@ export const loadClass = () => {
       const token = buffer.toString('hex');
 
       // save token & expiration date
-      await Users.findByIdAndUpdate(
+      await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           resetPasswordToken: token,
@@ -344,7 +344,7 @@ export const loadClass = () => {
       code: string;
       password: string;
     }) {
-      const user = await Users.findOne({
+      const user = await models.Users.findOne({
         phone,
         verificationCode: code
       }).lean();
@@ -361,7 +361,7 @@ export const loadClass = () => {
       this.checkPassword(password);
 
       // set new password
-      await Users.findByIdAndUpdate(
+      await models.Users.findByIdAndUpdate(
         { _id: user._id },
         {
           password: await this.generatePassword(password)
@@ -381,7 +381,9 @@ export const loadClass = () => {
         erxesCompanyId: _user.erxesCompanyId
       };
 
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
+      const createToken = await jwt.sign({ user }, secret, {
+        expiresIn: '1d'
+      });
 
       const createRefreshToken = await jwt.sign({ user }, secret, {
         expiresIn: '7d'
@@ -435,7 +437,7 @@ export const loadClass = () => {
         throw new Error('User not found');
       }
 
-      await Users.updateOne(
+      await models.Users.updateOne(
         { _id: user._id },
         {
           $set: {
@@ -455,7 +457,7 @@ export const loadClass = () => {
       description,
       deviceToken
     }: ILoginParams) {
-      const user = await Users.findOne({
+      const user = await models.Users.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${email}$`, 'i') } },
           { phone: { $regex: new RegExp(`^${email}$`, 'i') } }
@@ -508,8 +510,6 @@ export const loadClass = () => {
 
   return userSchema;
 };
-
-loadClass();
 
 // tslint:disable-next-line
 delete mongoose.connection.models['users'];

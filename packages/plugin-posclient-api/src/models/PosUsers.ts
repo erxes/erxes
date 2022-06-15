@@ -41,10 +41,10 @@ export interface IPosUserModel extends Model<IPosUserDocument> {
   getTokenFields(user: IPosUserDocument);
 }
 
-export const loadPosUserClass = models => {
+export const loadUserClass = models => {
   class User {
     public static async getUser(_id: string) {
-      const user = await PosUsers.findOne({ _id });
+      const user = await models.PosUsers.findOne({ _id });
 
       if (!user) {
         throw new Error('User not found');
@@ -81,7 +81,7 @@ export const loadPosUserClass = models => {
 
       // Checking if user has email
       if (email) {
-        previousEntry = await PosUsers.find({ ...query, email });
+        previousEntry = await models.PosUsers.find({ ...query, email });
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -109,11 +109,11 @@ export const loadPosUserClass = models => {
       }
 
       // Checking duplicated email
-      await PosUsers.checkDuplication({ email });
+      await models.PosUsers.checkDuplication({ email });
 
       this.checkPassword(password);
 
-      return PosUsers.create({
+      return models.PosUsers.create({
         isOwner,
         username,
         email,
@@ -133,13 +133,13 @@ export const loadPosUserClass = models => {
       const query = (doc as IPosUserDocument)._id
         ? { _id: (doc as IPosUserDocument)._id }
         : { email: doc.email };
-      const user = await PosUsers.findOne(query);
+      const user = await models.PosUsers.findOne(query);
 
       user && user._id
-        ? await PosUsers.updateOne({ _id: user._id }, doc)
-        : await PosUsers.create(doc);
+        ? await models.PosUsers.updateOne({ _id: user._id }, doc)
+        : await models.PosUsers.create(doc);
 
-      return PosUsers.findOne(query);
+      return models.PosUsers.findOne(query);
     }
 
     public static async generateToken() {
@@ -210,7 +210,7 @@ export const loadPosUserClass = models => {
         return {};
       }
 
-      const dbUser = await PosUsers.getUser(_id);
+      const dbUser = await models.PosUsers.getUser(_id);
 
       // recreate tokens
       const [newToken, newRefreshToken] = await this.createTokens(
@@ -239,7 +239,7 @@ export const loadPosUserClass = models => {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
-      const user = await PosUsers.findOne({
+      const user = await models.PosUsers.findOne({
         $or: [
           { email: { $regex: new RegExp(`^${email}$`, 'i') } },
           { username: { $regex: new RegExp(`^${email}$`, 'i') } }

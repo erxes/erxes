@@ -5,10 +5,10 @@ export interface ILogModel extends Model<ILogDocument> {
   createLog(doc: ILog): Promise<ILogDocument>;
 }
 
-export const loadClass = () => {
+export const loadLogClass = models => {
   class Log {
     public static async createLog(doc: ILog) {
-      const log = await Logs.create(doc);
+      const log = await models.Logs.create(doc);
 
       return log._id;
     }
@@ -18,8 +18,6 @@ export const loadClass = () => {
 
   return logSchema;
 };
-
-loadClass();
 
 // tslint:disable-next-line
 delete mongoose.connection.models['logs'];

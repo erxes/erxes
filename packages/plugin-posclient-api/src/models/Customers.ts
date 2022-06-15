@@ -29,7 +29,7 @@ export interface ICustomerModel extends Model<ICustomerDocument> {
   removeCustomer(_id: string): Promise<string>;
 }
 
-export const loadClass = () => {
+export const loadCustomerClass = models => {
   class Customer {
     public static async checkDuplication(
       customerFields: ICustomerFieldsInput,
@@ -50,7 +50,7 @@ export const loadClass = () => {
 
       if (customerFields.primaryEmail) {
         // check duplication from primaryEmail
-        previousEntry = await Customers.find({
+        previousEntry = await models.Customers.find({
           ...query,
           primaryEmail: customerFields.primaryEmail
         });
@@ -62,7 +62,7 @@ export const loadClass = () => {
 
       if (customerFields.primaryPhone) {
         // check duplication from primaryPhone
-        previousEntry = await Customers.find({
+        previousEntry = await models.Customers.find({
           ...query,
           primaryPhone: customerFields.primaryPhone
         });
@@ -74,7 +74,7 @@ export const loadClass = () => {
 
       if (customerFields.code) {
         // check duplication from code
-        previousEntry = await Customers.find({
+        previousEntry = await models.Customers.find({
           ...query,
           code: customerFields.code
         });
@@ -104,14 +104,14 @@ export const loadClass = () => {
     }
 
     public static async findActiveCustomers(selector, fields) {
-      return Customers.find(
+      return models.Customers.find(
         { ...selector, status: { $ne: 'deleted' } },
         fields
       );
     }
 
     public static async getCustomer(_id: string) {
-      const customer = await Customers.findOne({ _id });
+      const customer = await models.Customers.findOne({ _id });
 
       if (!customer) {
         throw new Error('Customer not found');
@@ -125,7 +125,7 @@ export const loadClass = () => {
     ): Promise<ICustomerDocument> {
       // Checking duplicated fields of customer
       try {
-        await Customers.checkDuplication(doc);
+        await models.Customers.checkDuplication(doc);
       } catch (e) {
         throw new Error(e.message);
       }
@@ -142,40 +142,42 @@ export const loadClass = () => {
         doc.relatedIntegrationIds = [doc.integrationId];
       }
 
-      const customer = await Customers.create({
+      const customer = await models.Customers.create({
         createdAt: new Date(),
         modifiedAt: new Date(),
         ...doc
       });
 
-      return Customers.getCustomer(customer._id);
+      return models.Customers.getCustomer(customer._id);
     }
 
     public static async updateCustomer(_id: string, doc: ICustomer) {
       // Checking duplicated fields of customer
       try {
-        await Customers.checkDuplication(doc, _id);
+        await models.Customers.checkDuplication(doc, _id);
       } catch (e) {
         throw new Error(e.message);
       }
 
-      await Customers.updateOne(
+      await models.Customers.updateOne(
         { _id },
         { $set: { ...doc, modifiedAt: new Date() } }
       );
 
-      return Customers.findOne({ _id });
+      return models.Customers.findOne({ _id });
     }
 
     public static async removeCustomer(_id: string) {
-      const customer = await Customers.getCustomer(_id);
-      const orders = await Orders.countDocuments({ customerId: customer._id });
+      const customer = await models.Customers.getCustomer(_id);
+      const orders = await models.Orders.countDocuments({
+        customerId: customer._id
+      });
 
       if (orders === 0) {
-        return Customers.deleteOne({ _id: customer._id });
+        return models.Customers.deleteOne({ _id: customer._id });
       }
 
-      return Customers.updateOne(
+      return models.Customers.updateOne(
         { _id: customer._id },
         { $set: { status: 'Deleted' } }
       );
@@ -186,8 +188,6 @@ export const loadClass = () => {
 
   return customerSchema;
 };
-
-loadClass();
 
 delete mongoose.connection.models['customers'];
 
