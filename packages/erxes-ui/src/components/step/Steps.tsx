@@ -8,8 +8,6 @@ import {
   StepHeaderTitle,
   StepItem
 } from './styles';
-import { Link } from 'react-router-dom';
-import Button from '../Button';
 import { __ } from '../../utils/core';
 
 type Props = {

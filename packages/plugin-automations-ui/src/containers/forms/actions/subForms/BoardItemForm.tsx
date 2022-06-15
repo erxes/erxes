@@ -4,7 +4,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import BoardItemForm from '../../../../components/forms/actions/subForms/BoardItemForm';
 import { IAction } from '../../../../types';
 import { graphql } from 'react-apollo';
-import { allUsers } from '@erxes/ui/src/team/graphql';
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
 import React from 'react';
 import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
@@ -50,7 +50,7 @@ class BoardItemSelectContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AllUsersQueryResponse, {}>(gql(allUsers), {
+    graphql<Props, AllUsersQueryResponse, {}>(gql(teamQueries.allUsers), {
       name: 'allUserQuery',
       options: () => ({
         variables: {

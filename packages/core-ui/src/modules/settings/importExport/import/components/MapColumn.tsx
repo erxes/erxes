@@ -6,7 +6,7 @@ import Row from './Row';
 import { ColumnTable } from 'modules/settings/importExport/styles';
 import { isBoardKind } from '@erxes/ui-segments/src/utils';
 import { Info } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'modules/common/utils';
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 

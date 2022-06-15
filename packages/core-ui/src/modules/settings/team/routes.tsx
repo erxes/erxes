@@ -5,7 +5,7 @@ import { Route } from 'react-router-dom';
 
 const UserDetail = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings - UserDetail" */ '@erxes/ui-team/src/containers/UserDetailForm'
+    /* webpackChunkName: "Settings - UserDetail" */ '@erxes/ui/src/team/containers/UserDetailForm'
   )
 );
 
@@ -28,16 +28,16 @@ const userDetail = ({ match, location }) => {
 const routes = () => (
   <React.Fragment>
     <Route
-      path='/settings/team/'
+      path="/settings/team/"
       exact={true}
-      key='/settings/team/'
+      key="/settings/team/"
       component={team}
     />
 
     <Route
-      key='/settings/team/details/:id'
+      key="/settings/team/details/:id"
       exact={true}
-      path='/settings/team/details/:id'
+      path="/settings/team/details/:id"
       component={userDetail}
     />
   </React.Fragment>

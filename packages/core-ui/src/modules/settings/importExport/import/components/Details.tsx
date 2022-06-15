@@ -7,7 +7,7 @@ import {
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components/form';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'modules/common/utils';
 import { ImportHeader } from '../../styles';
 
 type Props = {
