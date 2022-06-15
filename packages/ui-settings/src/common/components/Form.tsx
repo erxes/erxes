@@ -52,7 +52,7 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
         <ModalFooter>
           {createdAt && (
             <CreatedDate>
-              Created at {dayjs(createdAt).format('lll')}
+              <p>Created at</p> {dayjs(createdAt).format('lll')}
             </CreatedDate>
           )}
           <Button

@@ -12,8 +12,7 @@ import {
   Template,
   TemplateBox,
   Templates,
-  TemplateInfo,
-  Divider
+  TemplateInfo
 } from '../styles';
 import Form from './Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -94,6 +93,7 @@ class EmailTemplateList extends React.Component<Props, State> {
   renderRow = () => {
     return this.state.items.map((object, index) => (
       <Template key={index} longName={object.name.length > 46}>
+        <h5>{object.name}</h5>
         <TemplateBox>
           <Actions>
             {this.renderEditAction(object)}
@@ -106,8 +106,6 @@ class EmailTemplateList extends React.Component<Props, State> {
             <iframe title="content-iframe" srcDoc={object.content} />
           </IframePreview>
         </TemplateBox>
-        <h5>{object.name}</h5>
-        <Divider />
         <TemplateInfo>
           <p>
             {object.createdAt === object.modifiedAt

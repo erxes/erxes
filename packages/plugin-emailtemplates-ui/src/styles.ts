@@ -54,6 +54,7 @@ const TemplateBox = styled.div`
   border-radius: 2px;
   border: 1px solid ${colors.borderDarker};
   position: relative;
+  margin: 10px 0 15px 0;
 `;
 
 const Actions = styled.div`
@@ -93,7 +94,7 @@ const Template = styledTS<{ longName?: boolean }>(styled.div)`
 
   > h5 {
     line-height: ${dimensions.coreSpacing}px;
-    margin: ${dimensions.unitSpacing}px 0;
+    margin: 0;
     color: ${colors.textPrimary};
     width: 100%;
     height: ${dimensions.coreSpacing * 2}px;
@@ -127,17 +128,11 @@ const TemplateInfo = styled.div`
   }
 `;
 
-const Divider = styled.div`
-  border-bottom: 1px dotted rgb(238, 238, 238);
-  margin: 0 0 ${dimensions.unitSpacing}px 0px;
-`;
-
 export {
   Template,
   Actions,
   TemplateBox,
   Templates,
   IframePreview,
-  TemplateInfo,
-  Divider
+  TemplateInfo
 };
