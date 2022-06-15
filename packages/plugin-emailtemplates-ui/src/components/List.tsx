@@ -111,8 +111,8 @@ class EmailTemplateList extends React.Component<Props, State> {
         <TemplateInfo>
           <p>
             {object.createdAt === object.modifiedAt
-              ? `Created at:`
-              : `Modified at:`}
+              ? `Created at`
+              : `Modified at`}
           </p>
           <p>
             {object.createdAt === object.modifiedAt
@@ -123,7 +123,7 @@ class EmailTemplateList extends React.Component<Props, State> {
           </p>
         </TemplateInfo>
         <TemplateInfo>
-          <p>Created by:</p>
+          <p>Created by</p>
           {object.createdUser ? (
             object.createdUser.details.fullName && (
               <p>{object.createdUser.details.fullName}</p>

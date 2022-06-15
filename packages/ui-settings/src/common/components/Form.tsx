@@ -5,7 +5,7 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICommonFormProps } from '../types';
 import dayjs from 'dayjs';
-import { Left } from '@erxes/ui-cards/src/boards/styles/item';
+import { CreatedDate } from '../../styles';
 
 type Props = {
   confirmationUpdate?: boolean;
@@ -51,7 +51,9 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
 
         <ModalFooter>
           {createdAt && (
-            <Left>Created at {dayjs(createdAt).format('lll')}</Left>
+            <CreatedDate>
+              Created at {dayjs(createdAt).format('lll')}
+            </CreatedDate>
           )}
           <Button
             btnStyle="simple"

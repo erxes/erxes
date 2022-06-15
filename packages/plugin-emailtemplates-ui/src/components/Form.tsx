@@ -83,7 +83,11 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
         object={this.props.object}
-        createdAt={this.props.object.createdAt}
+        createdAt={
+          this.props.object &&
+          this.props.object.modifiedAt !== this.props.object.createdAt &&
+            this.props.object.createdAt
+        }
       />
     );
   }
