@@ -61,7 +61,7 @@ const clientPortalUserQueries = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    return models.ClientPortalUsers.getUser({ _id });
+    return models.ClientPortalUsers.findOne({ _id });
   },
 
   async clientPortalCurrentUser(_root, _args, context: IContext) {

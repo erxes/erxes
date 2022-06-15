@@ -38,16 +38,14 @@ class ClientportalUserListContainer extends React.Component<FinalProps> {
       clientPortalUserTotalCountQuery
     } = this.props;
 
-    const removeCustomers = ({ clientPortalUserIds }, emptyBulk) => {
+    // remove action
+    const removeUsers = ({ clientPortalUserIds }, emptyBulk) => {
       clientPortalUsersRemove({
         variables: { clientPortalUserIds }
       })
         .then(() => {
           emptyBulk();
-          Alert.success(
-            'You successfully deleted a user. The changes will take a few seconds',
-            4500
-          );
+          Alert.success('You successfully deleted a client portal user');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -66,7 +64,7 @@ class ClientportalUserListContainer extends React.Component<FinalProps> {
       searchValue,
       queryParams,
       loading: clientPortalUsersQuery.loading,
-      removeCustomers
+      removeUsers
     };
 
     const content = props => {
@@ -118,6 +116,14 @@ export default withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    )
+    ),
+    graphql<
+      Props,
+      ClientPortalUserRemoveMutationResponse,
+      { clientPortalUserIds: string[] }
+    >(gql(mutations.clientPortalUsersRemove), {
+      name: 'clientPortalUsersRemove',
+      options
+    })
   )(ClientportalUserListContainer)
 );

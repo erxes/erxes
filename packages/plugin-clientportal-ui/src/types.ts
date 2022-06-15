@@ -35,6 +35,11 @@ export type ClientPortalUserTotalCountQueryResponse = {
   refetch: () => void;
 };
 
+export type ClientPoratlUserDetailQueryResponse = {
+  clientPortalUserDetail: IClientPortalUser;
+  loading: boolean;
+};
+
 export type ClientPortalUserRemoveMutationResponse = {
   clientPortalUsersRemove: (mutation: {
     variables: { clientPortalUserIds: string[] };

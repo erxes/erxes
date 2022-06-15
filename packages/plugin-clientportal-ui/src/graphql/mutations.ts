@@ -111,7 +111,7 @@ const clientPortalUsersEdit = `
 `;
 
 const clientPortalUsersRemove = `
-  mutation clientPortalUsersRemove($clientPortalUserIds: [String]) {
+  mutation clientPortalUsersRemove($clientPortalUserIds: [String!]) {
     clientPortalUsersRemove(clientPortalUserIds: $clientPortalUserIds)
   }
 `;

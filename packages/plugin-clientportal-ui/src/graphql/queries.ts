@@ -158,6 +158,14 @@ const clientPortalUserCounts = `
   }
 `;
 
+const clientPortalUserDetail = `
+  query clientPortalUserDetail($_id: String!) {
+    clientPortalUserDetail(_id: $_id) {
+      ${clientPortalUserFields}
+    }
+  }
+`;
+
 export default {
   getConfig,
   getConfigs,
@@ -165,5 +173,6 @@ export default {
   getConfigLast,
   clientPortalUsers,
   clientPortalUsersMain,
+  clientPortalUserDetail,
   clientPortalUserCounts
 };

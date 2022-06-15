@@ -7,9 +7,9 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
 import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Sidebar from './Sidebar';
 import { BarItems } from '@erxes/ui/src/layout/styles';
@@ -18,6 +18,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import { IClientPortalUser } from '../../types';
 import ClientPortalUserRow from './ClientPortalUserRow';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -29,8 +30,13 @@ interface IProps extends IRouterProps {
   isAllSelected: boolean;
   emptyBulk: () => void;
   toggleBulk: () => void;
+  toggleAll: (targets: IClientPortalUser[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
+  removeUsers: (
+    doc: { clientPortalUserIds: string[] },
+    emptyBulk: () => void
+  ) => void;
 }
 
 type State = {
@@ -47,6 +53,24 @@ class ClientportalUserList extends React.Component<IProps, State> {
       searchValue: this.props.searchValue
     };
   }
+
+  onChange = () => {
+    const { toggleAll, clientPortalUsers } = this.props;
+
+    toggleAll(clientPortalUsers, 'clientPortalUsers');
+  };
+
+  removeUsers = clientPortalUsers => {
+    const clientPortalUserIds: string[] = [];
+
+    clientPortalUsers.forEach((cpUser: any) => {
+      clientPortalUserIds.push(cpUser._id);
+    });
+
+    const { removeUsers, emptyBulk } = this.props;
+
+    removeUsers({ clientPortalUserIds }, emptyBulk);
+  };
 
   renderContent() {
     const {
@@ -72,6 +96,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
+                  onChange={this.onChange}
                 />
               </th>
               <th>{__('First Name')}</th>
@@ -98,7 +123,15 @@ class ClientportalUserList extends React.Component<IProps, State> {
   }
 
   render() {
-    const { clientPortalUserCount, queryParams, loading, type } = this.props;
+    const {
+      clientPortalUserCount,
+      queryParams,
+      loading,
+      type,
+      bulk,
+      emptyBulk,
+      removeUsers
+    } = this.props;
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
@@ -132,13 +165,43 @@ class ClientportalUserList extends React.Component<IProps, State> {
       </BarItems>
     );
 
-    const actionBar = <Wrapper.ActionBar right={actionBarRight} />;
+    let actionBarLeft: React.ReactNode;
+
+    if (bulk.length > 0) {
+      const onClick = () =>
+        confirm()
+          .then(() => {
+            this.removeUsers(bulk);
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+
+      actionBarLeft = (
+        <BarItems>
+          {/* <Widget customers={bulk} emptyBulk={emptyBulk} /> */}
+
+          <Button
+            btnStyle="danger"
+            size="small"
+            icon="times-circle"
+            onClick={onClick}
+          >
+            Remove
+          </Button>
+        </BarItems>
+      );
+    }
+
+    const actionBar = (
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+    );
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__(`ClientPortal Users`)}
+            title={__(`ClientPortal Users` + ` (${clientPortalUserCount})`)}
             queryParams={queryParams}
             submenu={menuContacts}
           />
@@ -159,4 +222,4 @@ class ClientportalUserList extends React.Component<IProps, State> {
   }
 }
 
-export default withTableWrapper('Customer', withRouter(ClientportalUserList));
+export default ClientportalUserList;

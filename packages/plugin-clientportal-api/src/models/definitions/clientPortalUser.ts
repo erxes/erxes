@@ -15,6 +15,7 @@ export interface IUser {
   clientPortalId: string;
   erxesCustomerId: string;
   createdAt?: Date;
+  modifiedAt?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
 }
@@ -59,8 +60,16 @@ export const clientPortalUserSchema = new Schema({
   phoneVerificationCodeExpires: field({ type: Date, optional: true }),
   emailVerificationCode: field({ type: String, optional: true }),
   emailVerificationCodeExpires: field({ type: Date, optional: true }),
-  isPhoneVerified: field({ type: Boolean, optional: true, default: false }),
-  isEmailVerified: field({ type: Boolean, optional: true, default: false }),
+  isPhoneVerified: field({
+    type: Boolean,
+    optional: true,
+    default: false
+  }),
+  isEmailVerified: field({
+    type: Boolean,
+    optional: true,
+    default: false
+  }),
   deviceTokens: field({
     type: [String],
     default: [],
@@ -70,6 +79,7 @@ export const clientPortalUserSchema = new Schema({
     type: Date,
     default: Date.now
   }),
+  modifiedAt: field({ type: Date, label: 'Modified at' }),
 
   resetPasswordToken: field({ type: String, optional: true }),
   resetPasswordExpires: field({ type: Date, optional: true })

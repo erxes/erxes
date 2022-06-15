@@ -15,6 +15,10 @@ export interface IVerificationParams {
   password?: string;
 }
 
+interface IClientPortalUserEdit extends IUser {
+  _id: string;
+}
+
 const clientPortalUserMutations = {
   async clientPortalUsersAdd(
     _root,
@@ -31,6 +35,18 @@ const clientPortalUserMutations = {
     return clientPortalUser;
   },
 
+  async clientPortalUsersEdit(
+    _root,
+    { _id, ...doc }: IClientPortalUserEdit,
+    { user, models, subdomain }: IContext
+  ) {
+    const customer = await models.ClientPortalUsers.getUser({ _id });
+
+    const updated = await models.ClientPortalUsers.updateUser(_id, doc);
+
+    return updated;
+  },
+
   /**
    * Removes a clientPortal User
    * @param {string} param1._id clientPortal User id
@@ -40,13 +56,7 @@ const clientPortalUserMutations = {
     { clientPortalUserIds }: { clientPortalUserIds: string[] },
     { user, models, subdomain }: IContext
   ) {
-    const clientPortalUsers: IUserDocument[] = await models.ClientPortalUsers.find(
-      {
-        _id: { $in: clientPortalUserIds }
-      }
-    ).lean();
-
-    const response = await models.ClientPortalUsers.removeUsers(
+    const response = await models.ClientPortalUsers.removeUser(
       clientPortalUserIds
     );
 

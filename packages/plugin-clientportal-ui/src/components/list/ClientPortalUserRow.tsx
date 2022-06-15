@@ -26,6 +26,12 @@ class Row extends React.Component<Props> {
       e.stopPropagation();
     };
 
+    const onTrClick = () => {
+      history.push(
+        `/settings/client-portal/userdetails/${clientPortalUser._id}`
+      );
+    };
+
     const {
       firstName,
       lastName,
@@ -35,7 +41,7 @@ class Row extends React.Component<Props> {
     } = clientPortalUser;
 
     return (
-      <tr>
+      <tr onClick={onTrClick}>
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}

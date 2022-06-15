@@ -33,7 +33,8 @@ export interface IUserModel extends Model<IUserDocument> {
   }): never;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
-  removeUsers(_ids: string[]): Promise<{ n: number; ok: number }>;
+  updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
+  removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -227,10 +228,19 @@ export const loadClientPortalUserClass = (models: IModels) => {
       return user;
     }
 
+    public static async updateUser(_id, doc: IUser) {
+      await models.ClientPortalUsers.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedAt: new Date() } }
+      );
+
+      return models.ClientPortalUsers.findOne({ _id });
+    }
+
     /**
      * Remove remove Client Portal Users
      */
-    public static async removeUsers(clientPortalUserIds: string[]) {
+    public static async removeUser(clientPortalUserIds: string[]) {
       // Removing every modules that associated with customer
 
       return models.ClientPortalUsers.deleteMany({

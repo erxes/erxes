@@ -113,3 +113,26 @@ export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   filter: ${props => !props.isToggled && `blur(4px)`};
   pointer-events: ${props => !props.isToggled && `none`};
 `;
+
+export const Action = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: ${dimensions.unitSpacing}px;
+`;
+
+export const Name = styledTS<{ fontSize?: number }>(styled.div)`
+  font-size: ${props => props.fontSize && `${props.fontSize}px`};
+  font-weight: 500;
+
+  i {
+    margin-left: 10px;
+    transition: all 0.3s ease;
+    color: ${colors.colorCoreLightGray};
+
+    &:hover {
+      cursor: pointer;
+      color: ${colors.colorCoreGray};
+    }
+  }
+`;
