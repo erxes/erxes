@@ -159,7 +159,7 @@ const fillCellValue = async (
 
       break;
     case 'stageId':
-      let stage: IStageDocument | null = await models.Stages.findOne({
+      const stage: IStageDocument | null = await models.Stages.findOne({
         _id: item.stageId
       });
 
@@ -168,25 +168,40 @@ const fillCellValue = async (
       break;
 
     case 'boardId':
-      stage = await models.Stages.findOne({
+      const stageForBoard = await models.Stages.findOne({
         _id: item.stageId
       });
 
-      let pipeline = await models.Pipelines.findOne({ _id: stage?._id });
-      const board = await models.Boards.findOne({ _id: pipeline?._id });
+      cellValue = emptyMsg;
 
-      cellValue = board ? board.name : emptyMsg;
+      if (stageForBoard) {
+        const pipeline = await models.Pipelines.findOne({
+          _id: stageForBoard.pipelineId
+        });
+
+        if (pipeline) {
+          const board = await models.Boards.findOne({ _id: pipeline.boardId });
+
+          cellValue = board ? board.name : emptyMsg;
+        }
+      }
 
       break;
 
     case 'pipelineId':
-      stage = await models.Stages.findOne({
+      const stageForPipeline = await models.Stages.findOne({
         _id: item.stageId
       });
 
-      pipeline = await models.Pipelines.findOne({ _id: stage?._id });
+      cellValue = emptyMsg;
 
-      cellValue = pipeline ? pipeline.name : emptyMsg;
+      if (stageForPipeline) {
+        const pipeline = await models.Pipelines.findOne({
+          _id: stageForPipeline.pipelineId
+        });
+
+        cellValue = pipeline ? pipeline.name : emptyMsg;
+      }
 
       break;
 

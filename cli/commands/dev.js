@@ -82,6 +82,7 @@ module.exports.devCmd = async program => {
     `
       PORT=3000
       NODE_ENV="development"
+      REACT_APP_PUBLIC_PATH=""
       REACT_APP_CDN_HOST="http://localhost:3200"
       REACT_APP_API_URL="http://localhost:4000"
       REACT_APP_DASHBOARD_URL="http://localhost:4200"
