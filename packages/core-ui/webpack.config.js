@@ -116,6 +116,13 @@ module.exports = {
     },
     alias: {
       "coreui/apolloClient": path.resolve(__dirname, "./src/apolloClient.ts"),
+      "coreui/utils": path.resolve(__dirname, "./src/modules/common/utils"),
+      "coreui/pluginUtils": path.resolve(__dirname, "./src/pluginUtils"),
+      "coreui/appContext": path.resolve(__dirname, "./src/appContext"),
+      "coreui/withPermission": path.resolve(
+        __dirname,
+        "./src/modules/common/components/WithPermission"
+      ),
     },
     extensions: ["*", ".js", ".jsx", ".ts", ".tsx"],
   },

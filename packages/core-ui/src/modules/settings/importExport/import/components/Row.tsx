@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { FlexRow, ImportColumnRow } from 'modules/settings/importExport/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   columns: any[];

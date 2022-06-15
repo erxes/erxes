@@ -41,8 +41,6 @@ class FormContainer extends React.Component<
 
     this.setState({ loading: true });
 
-    console.log(segmentId);
-
     client
       .query({
         query: gql(queries.importHistoryPreviewExportCount),
