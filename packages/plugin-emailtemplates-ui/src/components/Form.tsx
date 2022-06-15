@@ -76,17 +76,17 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   };
 
   render() {
+    const { object } = this.props;
+
     return (
       <CommonForm
         {...this.props}
         name="email template"
         renderContent={this.renderContent}
         generateDoc={this.generateDoc}
-        object={this.props.object}
+        object={object}
         createdAt={
-          this.props.object &&
-          this.props.object.modifiedAt !== this.props.object.createdAt &&
-            this.props.object.createdAt
+          object && object.modifiedAt !== object.createdAt && object.createdAt
         }
       />
     );

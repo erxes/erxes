@@ -90,48 +90,53 @@ class EmailTemplateList extends React.Component<Props, State> {
     );
   }
 
+  renderDate(createdAt, modifiedAt) {
+    if (createdAt === modifiedAt) {
+      if (createdAt === null) return '-';
+
+      return dayjs(createdAt).format('DD MMM YYYY');
+    }
+
+    return dayjs(modifiedAt).format('DD MMM YYYY');
+  }
+
   renderRow = () => {
-    return this.state.items.map((object, index) => (
-      <Template key={index} isLongName={object.name.length > 46}>
-        <h5>{object.name}</h5>
-        <TemplateBox>
-          <Actions>
-            {this.renderEditAction(object)}
-            <div onClick={this.removeTemplate.bind(this, object)}>
-              <Icon icon="cancel-1" /> Delete
-            </div>
-            {this.renderDuplicateAction(object)}
-          </Actions>
-          <IframePreview>
-            <iframe title="content-iframe" srcDoc={object.content} />
-          </IframePreview>
-        </TemplateBox>
-        <TemplateInfo>
-          <p>
-            {object.createdAt === object.modifiedAt
-              ? `Created at`
-              : `Modified at`}
-          </p>
-          <p>
-            {object.createdAt === object.modifiedAt
-              ? object.createdAt === null
-                ? '-'
-                : `${dayjs(object.createdAt).format('DD MMM YYYY')}`
-              : `${dayjs(object.modifiedAt).format('DD MMM YYYY')}`}
-          </p>
-        </TemplateInfo>
-        <TemplateInfo>
-          <p>Created by</p>
-          {object.createdUser ? (
-            object.createdUser.details.fullName && (
-              <p>{object.createdUser.details.fullName}</p>
-            )
-          ) : (
-            <p>erxes Inc</p>
-          )}
-        </TemplateInfo>
-      </Template>
-    ));
+    return this.state.items.map((object, index) => {
+      const { name, content, createdAt, modifiedAt, createdUser } =
+        object || {};
+
+      return (
+        <Template key={index} isLongName={name.length > 46}>
+          <h5>{name}</h5>
+          <TemplateBox>
+            <Actions>
+              {this.renderEditAction(object)}
+              <div onClick={this.removeTemplate.bind(this, object)}>
+                <Icon icon="cancel-1" /> Delete
+              </div>
+              {this.renderDuplicateAction(object)}
+            </Actions>
+            <IframePreview>
+              <iframe title="content-iframe" srcDoc={content} />
+            </IframePreview>
+          </TemplateBox>
+          <TemplateInfo>
+            <p>{createdAt === modifiedAt ? `Created at` : `Modified at`}</p>
+            <p>{this.renderDate(createdAt, modifiedAt)}</p>
+          </TemplateInfo>
+          <TemplateInfo>
+            <p>Created by</p>
+            {createdUser ? (
+              createdUser.details.fullName && (
+                <p>{createdUser.details.fullName}</p>
+              )
+            ) : (
+              <p>erxes Inc</p>
+            )}
+          </TemplateInfo>
+        </Template>
+      );
+    });
   };
 
   searchHandler = event => {
