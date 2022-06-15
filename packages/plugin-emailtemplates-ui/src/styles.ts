@@ -92,7 +92,6 @@ const Template = styledTS<{ longName?: boolean }>(styled.div)`
   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.1);
 
   > h5 {
-    text-align: center;
     line-height: ${dimensions.coreSpacing}px;
     margin: ${dimensions.unitSpacing}px 0;
     color: ${colors.textPrimary};
@@ -101,8 +100,9 @@ const Template = styledTS<{ longName?: boolean }>(styled.div)`
     overflow: hidden;
     font-weight: normal;
     display: ${props => !props.longName && 'flex'};
-    justify-content: ${props => !props.longName && 'center'};
     align-items: ${props => !props.longName && 'center'};
+    font-weight: 500;
+    font-size: 15px;
   }
 
   &:hover {
@@ -115,16 +115,20 @@ const Template = styledTS<{ longName?: boolean }>(styled.div)`
 const TemplateInfo = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 0 ${dimensions.unitSpacing}px;
+  font-size: 10px;
 
   > p {
     color: ${colors.colorCoreGray};
-    line-height: 10px;
+    line-height: 8px;
+
+    &:first-child {
+      color: #333;
+    }
   }
 `;
 
 const Divider = styled.div`
-  border-bottom: 1px solid ${colors.borderDarker};
+  border-bottom: 1px dotted rgb(238, 238, 238);
   margin: 0 0 ${dimensions.unitSpacing}px 0px;
 `;
 
