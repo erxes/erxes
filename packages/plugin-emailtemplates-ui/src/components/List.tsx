@@ -17,7 +17,6 @@ import {
 } from '../styles';
 import Form from './Form';
 import { EMAIL_TEMPLATE_STATUSES, EMAIL_TEMPLATE_TIPTEXT } from '../constants';
-import Tip from '@erxes/ui/src/components/Tip';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { router } from 'coreui/utils';
 import dayjs from 'dayjs';
@@ -120,7 +119,7 @@ class EmailTemplateList extends React.Component<Props, State> {
 
   renderRow = () => {
     return this.state.items.map((object, index) => (
-      <Template key={index}>
+      <Template key={index} longName={object.name.length > 46}>
         <TemplateBox>
           <Actions>
             {this.renderEditAction(object)}
@@ -148,14 +147,16 @@ class EmailTemplateList extends React.Component<Props, State> {
               : `${dayjs(object.modifiedAt).format('DD MMM YYYY')}`}
           </p>
         </TemplateInfo>
-        {object.createdUser && (
-          <TemplateInfo>
-            <p>Created by:</p>
-            {object.createdUser.details.fullName && (
+        <TemplateInfo>
+          <p>Created by:</p>
+          {object.createdUser ? (
+            object.createdUser.details.fullName && (
               <p>{object.createdUser.details.fullName}</p>
-            )}
-          </TemplateInfo>
-        )}
+            )
+          ) : (
+            <p>erxes Inc</p>
+          )}
+        </TemplateInfo>
       </Template>
     ));
   };

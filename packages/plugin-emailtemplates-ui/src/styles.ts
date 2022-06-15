@@ -1,6 +1,7 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Templates = styled.div`
   display: flex;
@@ -80,7 +81,7 @@ const Actions = styled.div`
   }
 `;
 
-const Template = styled.div`
+const Template = styledTS<{ longName?: boolean }>(styled.div)`
   flex-basis: 300px;
   padding: 10px 10px;
   display: flex;
@@ -94,11 +95,14 @@ const Template = styled.div`
     text-align: center;
     line-height: ${dimensions.coreSpacing}px;
     margin: ${dimensions.unitSpacing}px 0;
-    color: ${colors.colorCoreGray};
+    color: ${colors.textPrimary};
     width: 100%;
     height: ${dimensions.coreSpacing * 2}px;
     overflow: hidden;
     font-weight: normal;
+    display: ${props => !props.longName && 'flex'};
+    justify-content: ${props => !props.longName && 'center'};
+    align-items: ${props => !props.longName && 'center'};
   }
 
   &:hover {
