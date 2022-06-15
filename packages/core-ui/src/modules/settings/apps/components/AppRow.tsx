@@ -9,7 +9,7 @@ import Icon from 'modules/common/components/Icon';
 import Tip from 'modules/common/components/Tip';
 // import ModalTrigger from "modules/common/components/ModalTrigger";
 import { __, Alert } from 'modules/common/utils';
-import { IApp, IAppAddEditParams } from '../types';
+import { IApp, IAppParams } from '../types';
 // import AppForm from './AppForm';
 
 const TokenWrapper = styled.span`
@@ -28,9 +28,9 @@ type Props = {
   removeApp: (_id: string) => void;
   userGroups: any[];
   closeModal?: () => void;
-  addApp?: (doc: IAppAddEditParams) => void;
-  editApp: (_id: string, doc: IAppAddEditParams) => void;
-}
+  addApp?: (doc: IAppParams) => void;
+  editApp: (_id: string, doc: IAppParams) => void;
+};
 
 export default class AppRow extends React.Component<Props> {
   render() {
@@ -38,7 +38,7 @@ export default class AppRow extends React.Component<Props> {
 
     const onClick = () => {
       removeApp(app._id);
-    }
+    };
 
     // const editTrigger = (
     //   <Tip text="Edit" placement="top">
@@ -67,23 +67,29 @@ export default class AppRow extends React.Component<Props> {
       Alert.success(__('Token has been copied to clipboard'));
     };
 
+    const dateFormat = 'YYYY-MM-DD HH:mm:ss';
+
     return (
       <tr>
-        <td>{dayjs(app.createdAt).format('YYYY-MM-DD HH:mm:ss')}</td>
+        <td>{dayjs(app.createdAt).format(dateFormat)}</td>
         <td>{app.name}</td>
         <td>{app.userGroupName}</td>
         <td>
           <Tip text="Click to copy token" placement="right">
-            <TokenWrapper onClick={onClickToken}>{app.accessToken}</TokenWrapper>
+            <TokenWrapper onClick={onClickToken}>
+              {app.accessToken}
+            </TokenWrapper>
           </Tip>
+        </td>
+        <td>
+          {app.expireDate
+            ? dayjs(app.expireDate).format(dateFormat)
+            : 'No expire date set'}
         </td>
         <td>
           <ActionButtons>
             <Tip text="Delete" placement="top">
-              <Button
-                btnStyle="link"
-                onClick={onClick}
-              >
+              <Button btnStyle="link" onClick={onClick}>
                 <Icon icon="times-circle" />
               </Button>
             </Tip>
