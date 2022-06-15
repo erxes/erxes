@@ -131,7 +131,7 @@ const emailTemplateMutations = {
   ) {
     const template = await models.EmailTemplates.duplicateEmailTemplate(
       _id,
-      user._id
+      user
     );
 
     return template;

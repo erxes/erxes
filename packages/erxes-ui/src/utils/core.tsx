@@ -572,3 +572,15 @@ export const removeTypename = (obj?: any[] | any) => {
 
   return obj;
 };
+
+export const publicUrl = path => {
+  const { REACT_APP_PUBLIC_PATH } = window.env || {};
+
+  let prefix = '';
+
+  if (REACT_APP_PUBLIC_PATH) {
+    prefix = `${REACT_APP_PUBLIC_PATH}/`;
+  }
+
+  return `${prefix}${path}`;
+};
