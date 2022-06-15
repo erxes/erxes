@@ -223,6 +223,9 @@ class List extends React.Component<Props> {
 
     const actionBar = (
       <Wrapper.ActionBar
+        withMargin
+        wide
+        background="colorWhite"
         left={isEnabled('tags') && this.renderTagger()}
         right={this.renderRightActionBar()}
       />
@@ -287,6 +290,8 @@ class List extends React.Component<Props> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_ENGAGE} />}
           />
         }
+        hasBorder
+        noPadding
       />
     );
   }

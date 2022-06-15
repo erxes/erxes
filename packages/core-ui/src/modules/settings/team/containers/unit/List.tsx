@@ -19,7 +19,15 @@ export default function ListContainer() {
 
   if (listQuery.error) {
     return (
-      <Box isOpen={true} title={__('Unit')} name="showUnit">
+      <Box
+        isOpen={true}
+        title={__('Unit')}
+        name="showUnit"
+        noShadow
+        noMarginBottom
+        noBackground
+        noSpacing
+      >
         <MenuFooter>
           <ErrorMsg>{listQuery.error.message}</ErrorMsg>
         </MenuFooter>

@@ -17,6 +17,7 @@ type Props = {
 function HomeContainer(props: Props) {
   const usersGroupQuery = useQuery(gql(permissionQueries.usersGroups));
   const configsEnvQuery = useQuery(gql(generalQueries.configsGetEnv));
+  const totalCountQuery = useQuery(gql(queries.usersTotalCount));
 
   const getRefetchQueries = () => {
     return [
@@ -51,12 +52,17 @@ function HomeContainer(props: Props) {
     ? []
     : usersGroupQuery.data.usersGroups || [];
 
+  const totalCount = totalCountQuery.loading
+    ? []
+    : totalCountQuery.data.usersTotalCount || [];
+
   return (
     <Home
       configsEnvQuery={configsEnvQuery}
       usersGroups={usersGroups}
       renderButton={renderButton}
       loading={usersGroupQuery.loading}
+      totalCount={totalCount}
       {...props}
     />
   );

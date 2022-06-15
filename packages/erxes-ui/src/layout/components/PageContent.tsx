@@ -7,7 +7,7 @@ type Props = {
   children?: React.ReactNode;
   transparent: boolean;
   center?: boolean;
-  leftSpacing?: boolean;
+  noPadding?: boolean;
   initialOverflow?: boolean;
 };
 
@@ -17,14 +17,14 @@ function PageContent({
   children,
   transparent,
   center,
-  leftSpacing,
+  noPadding,
   initialOverflow
 }: Props) {
   return (
     <MainContent
       transparent={transparent}
       center={center}
-      leftSpacing={leftSpacing}
+      noPadding={noPadding}
     >
       {actionBar}
       <ContentBox transparent={transparent} initialOverflow={initialOverflow}>

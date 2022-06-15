@@ -53,7 +53,7 @@ class UserListContainer extends React.Component<Props> {
   }
 
   render() {
-    const { totalCountQuery, renderButton } = this.props;
+    const { renderButton } = this.props;
 
     return (
       <UserList
@@ -61,7 +61,6 @@ class UserListContainer extends React.Component<Props> {
         changeStatus={this.changeStatus}
         resendInvitation={this.resendInvitation}
         renderButton={renderButton}
-        totalCount={totalCountQuery.usersTotalCount || 0}
       />
     );
   }

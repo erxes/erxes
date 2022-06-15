@@ -54,6 +54,7 @@ class ClientPortal extends React.Component<Props, {}> {
         }
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

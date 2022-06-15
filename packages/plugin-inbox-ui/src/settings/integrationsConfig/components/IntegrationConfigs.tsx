@@ -4,11 +4,10 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Info from '@erxes/ui/src/components/Info';
-import { Title } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
-import { ContentBox } from '@erxes/ui-settings/src/styles';
+import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
 import { KEY_LABELS } from '@erxes/ui-settings/src/general/constants';
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 

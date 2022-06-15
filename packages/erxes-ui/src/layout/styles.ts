@@ -75,7 +75,7 @@ const MainHead = styled.div`
 const MainContent = styledTS<{
   transparent?: boolean;
   center?: boolean;
-  leftSpacing?: boolean;
+  noPadding?: boolean;
 }>(styled.section)`
   flex: 1;
   display: flex;
@@ -84,8 +84,7 @@ const MainContent = styledTS<{
   box-shadow: ${props =>
     !props.transparent && `0 0 6px 1px ${colors.shadowPrimary}`};
   height: ${props => props.center && '100%'};
-  margin: ${props => !props.center && '10px 10px 10px 0'};
-  padding-left: ${props => props.leftSpacing && `${dimensions.coreSpacing}px`}
+  margin: ${props => !props.center && !props.noPadding && '10px 10px 10px 0'};
 `;
 
 const ContentBox = styledTS<{
@@ -101,12 +100,19 @@ const ContentBox = styledTS<{
 const ContentHeader = styledTS<{
   background: string;
   zIndex?: number;
+  withMargin?: boolean;
+  wide?: boolean;
   noBorder?: boolean;
 }>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
   padding: ${props =>
-    props.background === 'transparent' ? 0 : `0 ${dimensions.coreSpacing}px`};
+    props.wide
+      ? '0 0 12px 0'
+      : props.background === 'transparent'
+      ? 0
+      : `0 ${dimensions.coreSpacing}px`}
+  margin: ${props => props.withMargin && '12px 20px 0 20px'};
   border-bottom: ${props =>
     !props.noBorder && `1px solid ${colors.borderPrimary}`};
   z-index: ${props => props.zIndex || 2};
@@ -141,6 +147,7 @@ const SideContent = styledTS<{
   half?: boolean;
   full?: boolean;
   hasBorder?: boolean;
+  noMargin?: boolean;
 }>(styled.section)`
   box-sizing: border-box;
   display: flex;
@@ -150,9 +157,10 @@ const SideContent = styledTS<{
   width: ${props => (props.wide ? '340px' : '290px')};
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
-  margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${
-  dimensions.unitSpacing
-}px 0;
+  margin: ${props =>
+    props.noMargin
+      ? 0
+      : `${dimensions.unitSpacing}px ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0`}
   border-right: ${props =>
     props.hasBorder && `1px solid ${colors.borderPrimary}`};
   box-shadow: ${props =>
@@ -169,12 +177,16 @@ const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
   uppercase?: boolean;
   bold?: boolean;
+  noBackground?: boolean;
+  noSpacing?: boolean;
 }>(styled.div)`
-  background-color: ${colors.bgLight};
+  background-color: ${props => !props.noBackground && colors.bgLight};
   height: ${dimensions.headerSpacing}px;
-  margin-bottom: ${props => props.spaceBottom && '10px'};
+  margin-bottom: ${props => !props.noSpacing && props.spaceBottom && '10px'};
   align-items: center;
-  padding: 0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px;
+  padding: ${props =>
+    !props.noSpacing &&
+    `0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
   font-weight: ${props => (props.bold ? 'bold' : '500')};
@@ -182,13 +194,17 @@ const SidebarHeader = styledTS<{
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
   justify-content: space-between;
+  margin: ${props => props.noSpacing && `0px ${dimensions.coreSpacing}px`};
 `;
 
-const SidebarTitle = styledTS<{ children: any; noBackground?: boolean }>(
-  styled(SidebarHeader.withComponent('h3'))
-)`
-  padding: 0 ${dimensions.coreSpacing}px;
-  margin: 0;
+const SidebarTitle = styledTS<{
+  children: any;
+  noBackground?: boolean;
+  noSpacing?: boolean;
+}>(styled(SidebarHeader.withComponent('h3')))`
+  padding: ${props => (props.noSpacing ? 0 : `0 ${dimensions.coreSpacing}px`)};
+  margin: ${props =>
+    !props.noSpacing ? 0 : `0px ${dimensions.coreSpacing}px`};
   text-transform: uppercase;
   position: relative;
   background-color: ${props => props.noBackground && 'white'};
@@ -211,9 +227,10 @@ const SidebarBox = styledTS<{
   noShadow?: boolean;
   collapsible?: boolean;
   full?: boolean;
+  noMargin?: boolean;
 }>(styled.div)`
   background-color: ${props => (props.noBackground ? '' : colors.colorWhite)};
-  margin-bottom: ${dimensions.unitSpacing}px;
+  margin-bottom: ${props => !props.noMargin && dimensions.unitSpacing}px;
   box-shadow: ${props =>
     props.noShadow ? 'none' : `0 0 6px 1px ${colors.shadowPrimary}`};
   padding-bottom: ${props =>
@@ -306,7 +323,11 @@ const SidebarCounter = styledTS<{ nowrap?: boolean; fullLength?: boolean }>(
     `};
 `;
 
-const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
+const SidebarList = styledTS<{
+  capitalize?: boolean;
+  noTextColor?: boolean;
+  noBackground?: boolean;
+}>(styled.ul)`
   margin: 0;
   padding: 0;
   list-style: none;
@@ -337,10 +358,10 @@ const SidebarList = styledTS<{ capitalize?: boolean }>(styled.ul)`
     &:hover,
     &.active {
       cursor: pointer;
-      background: ${colors.bgActive};
+      background: ${props => !props.noBackground && colors.bgActive};
       text-decoration: none;
       outline: 0;
-      color: ${lighten(colors.textPrimary, 40)};
+      color: ${props => !props.noTextColor && lighten(colors.textPrimary, 40)};
     }
     &.active {
       background: ${rgba(colors.colorPrimary, 0.2)};
@@ -383,10 +404,14 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styledTS<{ noShadow?: boolean }>(styled.div)`
+const SectionContainer = styledTS<{
+  noShadow?: boolean;
+  noMarginBottom?: boolean;
+}>(styled.div)`
   position: relative;
   box-shadow: ${props => !props.noShadow && `0 0 6px 0 rgba(0, 0, 0, 0.08)`};
-  margin-bottom: 10px;
+  margin-bottom: ${props => !props.noMarginBottom && '10px'};
+
   > div {
     margin-bottom: 0;
   }

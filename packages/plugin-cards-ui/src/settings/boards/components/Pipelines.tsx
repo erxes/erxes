@@ -4,7 +4,6 @@ import Button from '@erxes/ui/src/components/Button';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from 'coreui/utils';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -21,6 +20,7 @@ import { IOption } from '../types';
 import { PipelineCount } from '@erxes/ui-settings/src/boards/styles';
 import PipelineRow from './PipelineRow';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   type: string;
@@ -274,7 +274,13 @@ class Pipelines extends React.Component<Props, State> {
 
     return (
       <div id="pipelines-content">
-        <Wrapper.ActionBar left={leftActionBar} right={this.renderButton()} />
+        <Wrapper.ActionBar
+          withMargin
+          wide
+          background="colorWhite"
+          left={leftActionBar}
+          right={this.renderButton()}
+        />
         {this.renderContent()}
         {this.renderAddForm()}
       </div>

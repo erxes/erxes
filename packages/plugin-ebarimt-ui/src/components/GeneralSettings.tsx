@@ -1,6 +1,11 @@
-import { Button, CollapseContent, ControlLabel, FormControl, FormGroup } from '@erxes/ui/src/components';
+import {
+  Button,
+  CollapseContent,
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
 import { KEY_LABELS } from '../constants';
@@ -8,6 +13,7 @@ import { ContentBox } from '../styles';
 import { IConfigsMap } from '../types';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
@@ -23,7 +29,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      currentMap: props.configsMap.EBARIMT || {},
+      currentMap: props.configsMap.EBARIMT || {}
     };
   }
 
@@ -88,7 +94,7 @@ class GeneralSettings extends React.Component<Props, State> {
           {this.renderItem('checkCompanyUrl')}
         </CollapseContent>
       </ContentBox>
-    )
+    );
 
     return (
       <Wrapper
@@ -101,6 +107,9 @@ class GeneralSettings extends React.Component<Props, State> {
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
+            withMargin
+            wide
+            background="colorWhite"
             left={<Title>{__('Ebarimt configs')}</Title>}
             right={actionButtons}
           />
@@ -109,6 +118,7 @@ class GeneralSettings extends React.Component<Props, State> {
         content={content}
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

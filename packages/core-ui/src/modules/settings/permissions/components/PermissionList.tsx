@@ -4,7 +4,6 @@ import { FormControl } from 'modules/common/components/form';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
-import { Title } from 'modules/common/styles/main';
 import { __, router } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -12,7 +11,11 @@ import React from 'react';
 import Select from 'react-select-plus';
 import { isObject } from 'util';
 import GroupList from '../containers/GroupList';
-import { NotWrappable, FilterItem, FilterWrapper } from '@erxes/ui-settings/src/permissions/styles';
+import {
+  NotWrappable,
+  FilterItem,
+  FilterWrapper
+} from '@erxes/ui-settings/src/permissions/styles';
 import { IActions, IModule, IPermissionDocument } from '../types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import PermissionFixer from './PermissionFixer';
@@ -24,6 +27,7 @@ import {
   generatedList,
   generateModuleParams
 } from './utils';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   history: any;
@@ -218,6 +222,8 @@ class PermissionList extends React.Component<Props> {
         left={title}
         right={actionBarRight}
         background="colorWhite"
+        withMargin
+        wide
       />
     );
   }
@@ -256,6 +262,9 @@ class PermissionList extends React.Component<Props> {
         leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={this.renderContent()}
+        hasBorder={true}
+        center={false}
+        noPadding={true}
       />
     );
   }
