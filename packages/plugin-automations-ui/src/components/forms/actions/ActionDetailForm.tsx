@@ -22,22 +22,15 @@ class ActionDetailForm extends React.Component<Props> {
     const { activeAction } = this.props;
 
     let { type } = activeAction;
-
-    if (['cards:deal.create', 'cards:task.create', 'cards:ticket.create'].includes(type)) {
-      type = 'boardItem';
+    if ('loyalties:voucher.create' === type) {
+      type = 'voucher';
     }
 
-    if ('loyalties:voucher.create' === type ) {
-      type = 'voucher'
+    if ('loyalties:scoreLog.create' === type) {
+      type = 'changeScore';
     }
 
-    if ('loyalties:scoreLog.create' === type ) {
-      type = 'changeScore'
-    }
-
-    const Content = ActionForms[type] || ActionForms.default;
-
-    return <Content onSave={this.onSave} {...this.props} />;
+    return <>{ActionForms({ onSave: this.onSave, ...this.props })[type]}</>;
   }
 }
 

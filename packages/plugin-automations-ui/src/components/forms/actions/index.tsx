@@ -1,5 +1,4 @@
 import { ACTIONS } from '../../../constants';
-import BoardItemForm from '../../../containers/forms/actions/subForms/BoardItemForm';
 import IfForm from '../../../containers/forms/actions/subForms/IfForm';
 import SetProperty from '../../../containers/forms/actions/subForms/SetProperty';
 import { IAction } from '../../../types';
@@ -7,11 +6,12 @@ import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import React from 'react';
-import Common from './Common';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
 import ChangeScore from './subForms/ChangeScore';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   onSave: () => void;
@@ -20,6 +20,43 @@ type Props = {
   addAction: (action: IAction, actionId?: string, config?: any) => void;
 };
 
+const renderExtraContent = props => {
+  const plugins: any[] = (window as any).plugins || [];
+  const {
+    activeAction: { type }
+  } = props;
+
+  // ! will refactor
+  const response = {
+    default: <DefaultForm {...props} />,
+    delay: <Delay {...props} />,
+    setProperty: <SetProperty {...props} />,
+    if: <IfForm {...props} />,
+    customCode: <CustomCode {...props} />,
+    voucher: <LoyaltyForm {...props} />,
+    changeScore: <ChangeScore {...props} />
+  };
+
+  for (const plugin of plugins) {
+    if (type.includes(`${plugin.name}:`) && plugin.automation) {
+      const Component = (
+        <RenderDynamicComponent
+          scope={plugin.scope}
+          component={plugin.automation}
+          injectedProps={{
+            triggerType: type,
+            ...props,
+            componentType: 'actionForm'
+          }}
+        />
+      );
+
+      response[type] = Component;
+    }
+  }
+
+  return response;
+};
 class DefaultForm extends React.Component<Props> {
   render() {
     const { activeAction, onSave, closeModal } = this.props;
@@ -57,13 +94,4 @@ class DefaultForm extends React.Component<Props> {
   }
 }
 
-export const ActionForms = {
-  default: DefaultForm,
-  delay: Delay,
-  setProperty: SetProperty,
-  if: IfForm,
-  boardItem: BoardItemForm,
-  customCode: CustomCode,
-  voucher: LoyaltyForm,
-  changeScore: ChangeScore
-};
+export const ActionForms = renderExtraContent;
