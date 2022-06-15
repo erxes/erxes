@@ -32,3 +32,9 @@ export const BoardHeader = styled(HeaderContent)`
     }
   }
 `;
+
+export const DrawerDetail = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 5px;
+`;

@@ -669,12 +669,6 @@ export const UnEnroll = styled.div`
   }
 `;
 
-export const DrawerDetail = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 5px;
-`;
-
 export const ZoomActions = styled.div`
   position: absolute;
   font-size: 11px;
@@ -716,20 +710,6 @@ export const ZoomIcon = styledTS<{ disabled: boolean }>(styled.div)`
   &:hover {
     background: ${colors.bgLight};
     opacity: .8;
-  }
-`;
-
-export const BoardHeader = styled(HeaderContent)`
-  .header-row {
-    display: flex;
-    justify-content: space-between;
-
-    > div > span {
-      color: ${colors.colorSecondary};
-      font-weight: 500;
-      cursor: pointer;
-      margin-left: ${dimensions.unitSpacing}px;
-    }
   }
 `;
 

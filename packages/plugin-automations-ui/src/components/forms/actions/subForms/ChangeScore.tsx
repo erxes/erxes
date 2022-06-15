@@ -1,15 +1,8 @@
 import React from 'react';
 import { __, ControlLabel, FormGroup } from '@erxes/ui/src';
-import styled from 'styled-components';
-import { dimensions, colors } from '@erxes/ui/src/styles';
 import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
 import FormControl from '@erxes/ui/src/components/form/Control';
-
-export const DrawerDetail = styled.div`
-  padding: ${dimensions.coreSpacing}px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 5px;
-`;
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 
 type Props = {
   closeModal: () => void;

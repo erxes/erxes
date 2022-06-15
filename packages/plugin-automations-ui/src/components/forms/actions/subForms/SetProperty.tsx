@@ -1,7 +1,7 @@
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
-import { DrawerDetail } from '../../../../styles';
+import { DrawerDetail } from '@erxes/ui-automations/src/styles';
 import { IAction } from '../../../../types';
 import Button from '@erxes/ui/src/components/Button';
 import FormGroup from '@erxes/ui/src/components/form/Group';

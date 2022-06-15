@@ -26,7 +26,6 @@ const renderExtraContent = props => {
     activeAction: { type }
   } = props;
 
-  // ! will refactor
   const response = {
     default: <DefaultForm {...props} />,
     delay: <Delay {...props} />,
@@ -44,7 +43,6 @@ const renderExtraContent = props => {
           scope={plugin.scope}
           component={plugin.automation}
           injectedProps={{
-            triggerType: type,
             ...props,
             componentType: 'actionForm'
           }}
