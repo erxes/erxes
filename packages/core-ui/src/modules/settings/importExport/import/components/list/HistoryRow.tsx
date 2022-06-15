@@ -91,7 +91,7 @@ class HistoryRow extends React.Component<Props> {
           contentType: value.contentType
         });
 
-        const reqUrl = `${REACT_APP_API_URL}/download-import-error?${stringified}`;
+        const reqUrl = `${REACT_APP_API_URL}/pl:workers/download-import-error?${stringified}`;
 
         return (
           <li key={Math.random()}>
@@ -138,9 +138,11 @@ class HistoryRow extends React.Component<Props> {
   };
 
   renderStatus = history => {
-    if (history.status === 'Done') {
+    if (history.status === 'Done' || history.percentage === 100) {
       return history.contentTypes.map(value => {
         const { removed = [] } = history;
+
+        console.log(value);
 
         const isRemoved = removed.find(
           removedItem => removedItem === value.contentType

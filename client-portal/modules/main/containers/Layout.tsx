@@ -29,6 +29,7 @@ const Layout = (props: Props) => {
                     type="image/x-icon"
                   />
                 )}
+                {config.name && <title>{config.name}</title>}
                 {baseFont && (
                   <style
                     dangerouslySetInnerHTML={{

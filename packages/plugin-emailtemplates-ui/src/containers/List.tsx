@@ -8,7 +8,6 @@ import { mutations, queries } from '../graphql';
 import { IEmailTemplate } from '../types';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import React from 'react';
-import { EMAIL_TEMPLATE_STATUSES } from '../constants';
 import {
   ICommonFormProps,
   ICommonListProps
@@ -39,16 +38,8 @@ type Props = ICommonListProps &
   };
 
 class EmailListContainer extends React.Component<Props> {
-  changeStatus = (_id: string, status: string) => {
-    const isActive =
-      status === null || status === EMAIL_TEMPLATE_STATUSES.ACTIVE;
-    const message = isActive
-      ? 'You are going to archive this email template. Are you sure?'
-      : 'You are going to active this email template. Are you sure?';
-
-    const statusAction = isActive
-      ? EMAIL_TEMPLATE_STATUSES.ACTIVE
-      : EMAIL_TEMPLATE_STATUSES.ARCHIVED;
+  changeStatus = (_id: string, status: string, text: string) => {
+    const message = `You are going to ${text} this email template. Are you sure?`;
 
     confirm(message).then(() => {
       client
@@ -60,7 +51,7 @@ class EmailListContainer extends React.Component<Props> {
           const template = data.emailTemplatesChangeStatus;
 
           if (template && template._id) {
-            Alert.success(`Email template has been ${statusAction}.`);
+            Alert.success(`Email template has been ${status}.`);
             this.props.listQuery.refetch();
           }
         })

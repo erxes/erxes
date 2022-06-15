@@ -245,7 +245,6 @@ const up = async ({ uis, fromInstaller }) => {
   const dashboard_domain = `${domain}/dashboard/front`;
   const dashboard_api_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
-  const allowed_origins = configs.allowed_origins || '';
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
@@ -262,13 +261,15 @@ const up = async ({ uis, fromInstaller }) => {
       coreui: {
         image: 'erxes/erxes:federation',
         environment: {
+          REACT_APP_PUBLIC_PATH: '',
           REACT_APP_CDN_HOST: widgets_domain,
           REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
           NGINX_HOST,
           NODE_ENV: 'production',
-          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000
+          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
+          ...((configs.coreui || {}).extra_env || {})
         },
         ports: ['3000:80'],
         volumes: [

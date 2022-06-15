@@ -11,7 +11,8 @@ import { ModalFooter, MapContainer } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
-  ILocationOption
+  ILocationOption,
+  IObjectListConfig
 } from '@erxes/ui/src/types';
 import { Row } from '../../integrations/styles';
 import React from 'react';
@@ -34,7 +35,7 @@ type Props = {
 type State = {
   options: any[];
   locationOptions: any[];
-  objectListConfigs: any[];
+  objectListConfigs: IObjectListConfig[];
   type: string;
   hasOptions: boolean;
   add: boolean;
@@ -47,7 +48,7 @@ class PropertyForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    let doc = {
+    let doc: any = {
       options: [],
       type: '',
       locationOptions: [],
@@ -101,6 +102,10 @@ class PropertyForm extends React.Component<Props, State> {
           searchable: searchable || false,
           showInCard: false
         };
+      }
+
+      if (objectListConfigs) {
+        doc.objectListConfigs = objectListConfigs;
       }
     }
 
