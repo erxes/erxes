@@ -1,4 +1,3 @@
-import { twilio } from 'twilio';
 import * as express from 'express';
 import { IUser } from '../../../models/definitions';
 import { ILoginParams } from '../../types';
@@ -74,31 +73,6 @@ const userMutations = {
    */
   async userEdit(_root, args: IUser, { user }: IContext) {
     return Users.editProfile(user._id, args);
-  },
-
-  async sendVerificationCode(root, { phone }) {
-    const code = await Users.imposeVerificationCode(phone);
-
-    // Twilio Credentials
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const fromNumber = process.env.TWILIO_FROM_NUMBER;
-
-    // require the Twilio module and create a REST client
-    const client = twilio(accountSid, authToken);
-    client.messages.create(
-      {
-        to: `+976${phone}`,
-        from: fromNumber,
-        body: code
-      },
-      (err, message) => {
-        console.log(err);
-        console.log(message);
-      }
-    );
-
-    return 'sent';
   }
 };
 

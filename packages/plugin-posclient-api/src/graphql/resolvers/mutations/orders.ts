@@ -151,7 +151,7 @@ const orderMutations = {
     _root,
     models,
     { _id, doc }: IPaymentParams,
-    {}: IContext
+    { config }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
@@ -167,9 +167,10 @@ const orderMutations = {
 
     const data = await prepareEbarimtData(
       order,
-
+      config.ebarimtConfig,
       items,
-      doc.billType
+      doc.billType,
+      doc.registerNumber
     );
 
     const ebarimtConfig = {
@@ -295,7 +296,7 @@ const orderMutations = {
     _root,
     models,
     { _id, billType, registerNumber }: ISettlePaymentParams,
-    {}: IContext
+    { config }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
@@ -311,9 +312,10 @@ const orderMutations = {
 
     const data = await prepareEbarimtData(
       order,
-
+      config.ebarimtConfig,
       items,
-      billType
+      billType,
+      registerNumber
     );
 
     const ebarimtConfig = {
