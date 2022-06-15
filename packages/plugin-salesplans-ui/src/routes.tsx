@@ -1,10 +1,10 @@
 import React from 'react';
-import SettingsRoutes from './settings/routes';
+import SalesPlansRoutes from './settings/routes';
 
 const routes = () => {
   return (
     <>
-      <SettingsRoutes />
+      <SalesPlansRoutes />
     </>
   );
 };

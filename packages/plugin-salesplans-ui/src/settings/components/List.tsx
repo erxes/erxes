@@ -43,12 +43,13 @@ function List(props: Props) {
       if (!salesLog || salesLog.length === 0) return null;
 
       return salesLog.map((item: any, index: number) => {
+        console.log(item);
         return (
           <tbody key={index}>
             <tr>
               <td>
                 <RowTitle>
-                  <Link to={`/settings/sales-plans/edit?logId=${item._id}`}>
+                  <Link to={`/sales-plans/edit?salesLogId=${item._id}`}>
                     {item.name || ''}
                   </Link>
                 </RowTitle>
@@ -80,7 +81,7 @@ function List(props: Props) {
                     </Link>
                   </Tip>
                   <Tip text={__('Edit')} placement="bottom">
-                    <Link to={`/settings/sales-plans/edit?logId=${item._id}`}>
+                    <Link to={`/sales-plans/edit?salesLogId=${item._id}`}>
                       <Button btnStyle="link">
                         <Icon icon="edit-3" />
                       </Button>

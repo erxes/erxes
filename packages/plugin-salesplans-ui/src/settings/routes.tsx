@@ -3,19 +3,17 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { Route } from 'react-router-dom';
 
 const SalesPlans = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Salesplans - Settings' */ './containers/SalesPlans'
-  )
+  import(/* webpackChunkName: 'Sales Plans' */ './containers/SalesPlans')
 );
 
 const CreatePlan = asyncComponent(() =>
   import(
-    /* webpackChunkName: 'Salesplans - Create' */ './containers/CreatePlan'
+    /* webpackChunkName: 'Sales Plans - Create' */ './containers/CreatePlan'
   )
 );
 
 const EditPlan = asyncComponent(() =>
-  import(/* webpackChunkName: 'Salesplans - Edit' */ './containers/EditPlan')
+  import(/* webpackChunkName: 'Sales Plans - Edit' */ './containers/EditPlan')
 );
 
 const routes = () => (

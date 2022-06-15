@@ -17,12 +17,11 @@ type Props = {
   refetch: () => void;
 };
 
-function Settings({ listData, refetch }: Props) {
+const SalesPlans = (props: Props) => {
+  const { listData, refetch } = props;
   const [data, setData] = useState(listData);
 
-  useEffect(() => {
-    setData(listData);
-  }, [listData]);
+  useEffect(() => setData(listData), [listData]);
 
   const renderFilter = () => {
     const Filter = (
@@ -97,11 +96,11 @@ function Settings({ listData, refetch }: Props) {
   };
 
   const renderAdd = () => {
-    const config = formProps => {
+    const config = (formProps: any) => {
       return <CreateLabelContainer {...formProps} />;
     };
 
-    const dayConfig = formProps => {
+    const dayConfig = (formProps: any) => {
       return <ConfigContainer {...formProps} />;
     };
 
@@ -118,7 +117,7 @@ function Settings({ listData, refetch }: Props) {
     );
 
     const createPlan = (
-      <Link to="/settings/sales-plans/create">
+      <Link to="/sales-plans/create">
         <Button
           type="button"
           btnStyle="success"
@@ -158,17 +157,14 @@ function Settings({ listData, refetch }: Props) {
     <Wrapper
       header={
         <Wrapper.Header
-          title={__('Salesplans Plan')}
-          breadcrumb={[
-            { title: __('Settings'), link: '/settings' },
-            { title: __('Sales Plans') }
-          ]}
+          title={__('Sales Plans')}
+          breadcrumb={[{ title: __('Sales Plans') }]}
         />
       }
       content={renderList()}
       actionBar={<Wrapper.ActionBar right={renderAdd()} left={<></>} />}
     ></Wrapper>
   );
-}
+};
 
-export default Settings;
+export default SalesPlans;

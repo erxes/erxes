@@ -28,6 +28,7 @@ type Props = {
   categories: any[];
   timeframes: any[];
   edit?: boolean;
+  data?: any;
   setType: (type: string) => void;
   submit: (data: any) => void;
 };
@@ -40,6 +41,7 @@ const Form = (props: Props) => {
     categories = [],
     timeframes = [],
     edit = false,
+    data = {},
     setType,
     submit
   } = props;
@@ -48,13 +50,13 @@ const Form = (props: Props) => {
   const [_categories, setCategories] = useState<any[]>(categories);
   const [categoryId, setCategoryId] = useState<string>('');
   const [salesPlan, setSalesPlan] = useState<any>({
-    type: type,
-    departmentId: '',
-    branchId: '',
-    name: '',
-    description: '',
-    labels: '',
-    date: ''
+    name: data.name ? data.name : '',
+    description: data.description ? data.description : '',
+    type: data.type ? data.type : type,
+    date: data.createdAt ? data.createdAt : '',
+    departmentId: data.departmentId ? data.departmentId : '',
+    branchId: data.branchId ? data.branchId : '',
+    labels: data.labels ? data.labels : ''
   });
 
   useEffect(() => setProducts(products), [products]);
@@ -251,6 +253,7 @@ const Form = (props: Props) => {
             <FormControl
               type="text"
               name="name"
+              value={data.name ? data.name : ''}
               required={true}
               onChange={(event: any) =>
                 handleState((event.target as HTMLInputElement).value, 'name')
@@ -262,8 +265,9 @@ const Form = (props: Props) => {
           <FormGroup>
             <ControlLabel required={true}>Type</ControlLabel>
             <Select
-              value={type}
+              name="type"
               required={true}
+              value={type}
               onChange={(event: any) => setType(event.value)}
               options={TYPES}
             />
@@ -279,6 +283,7 @@ const Form = (props: Props) => {
               type="text"
               componentClass="textarea"
               name="description"
+              value={salesPlan.description}
               onChange={(event: any) =>
                 handleState(
                   (event.target as HTMLInputElement).value,
