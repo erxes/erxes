@@ -8,8 +8,6 @@ import { Writable } from 'stream';
 import { createAWS, getS3FileInfo, uploadsFolderPath } from '../data/utils';
 
 import CustomWorker from './workerUtil';
-import * as streamify from 'stream-array';
-import * as os from 'os';
 import { debugWorkers } from './debugger';
 import { getFileUploadConfigs, initBroker } from '../messageBroker';
 import { redis } from '../serviceDiscovery';
@@ -27,8 +25,6 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
 
     const property: { [key: string]: any } = {};
 
-    console.log(columnConfig);
-
     if (columnConfig) {
       if (columnConfig[fieldName]) {
         fieldName = columnConfig[fieldName].value;
@@ -38,68 +34,12 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
     }
 
     property.name = fieldName;
-    property.type = 'basic';
 
     if (fieldName.includes('customFieldsData')) {
       const fieldId = fieldName.split('.')[1];
 
-      property.type = 'customProperty';
+      property.name = 'customProperty';
       property.id = fieldId;
-    }
-
-    if (fieldName === 'companiesPrimaryNames') {
-      property.name = 'companyIds';
-      property.type = 'companiesPrimaryNames';
-    }
-
-    if (fieldName === 'customersPrimaryEmails') {
-      property.name = 'customerIds';
-      property.type = 'customersPrimaryEmails';
-    }
-
-    if (fieldName === 'ownerEmail') {
-      property.name = 'ownerId';
-      property.type = 'ownerEmail';
-    }
-
-    if (fieldName === 'tag') {
-      property.name = 'tagIds';
-      property.type = 'tag';
-    }
-
-    if (fieldName === 'assignedUserEmail') {
-      property.name = 'assignedUserIds';
-      property.type = 'assignedUserEmail';
-    }
-
-    if (fieldName === 'boardName') {
-      property.name = 'boardId';
-      property.type = 'boardName';
-    }
-
-    if (fieldName === 'pipelineName') {
-      property.name = 'pipelineId';
-      property.type = 'pipelineName';
-    }
-
-    if (fieldName === 'stageName') {
-      property.name = 'stageId';
-      property.type = 'stageName';
-    }
-
-    if (fieldName === 'pronoun') {
-      property.name = 'pronoun';
-      property.type = 'pronoun';
-    }
-
-    if (fieldName === 'categoryCode') {
-      property.name = 'categoryCode';
-      property.type = 'categoryCode';
-    }
-
-    if (fieldName === 'vendorCode') {
-      property.name = 'vendorCode';
-      property.type = 'vendorCode';
     }
 
     properties.push(property);
@@ -363,7 +303,10 @@ export const receiveImportRemove = async (
     return { status: 'ok' };
   } catch (e) {
     debugWorkers(`Failed to remove import: ${e.message}`);
-    throw e;
+    return models.ImportHistory.updateOne(
+      { _id: 'importHistoryId' },
+      { error: e.message }
+    );
   }
 };
 
@@ -466,20 +409,6 @@ export const receiveImportCreate = async (
       await updateImportHistory({
         $set: { status, percentage: 100 }
       });
-
-      // const notifDoc: ISendNotification = {
-      //   title: `your ${updatedImportHistory.name} is done`,
-      //   action: ``,
-      //   createdUser: ``,
-      //   receivers: [user._id],
-      //   content: `your ${updatedImportHistory.name} import is done`,
-      //   link: `/settings/importHistories?${mainType}`,
-      //   notifType: NOTIFICATION_TYPES.IMPORT_DONE,
-      //   contentType: 'import',
-      //   contentTypeId: importHistoryId
-      // };
-
-      // await utils.sendNotification(notifDoc);
     }
 
     debugWorkers(`Import create ended`);
@@ -502,110 +431,43 @@ export const receiveImportCreate = async (
 
     const workerPath = path.resolve(getWorkerFile('bulkInsert'));
 
-    await myWorker.createWorker(subdomain, workerPath, {
-      rowIndex,
-      scopeBrandIds,
-      user,
-      contentType,
-      serviceType,
-      properties: config[contentType].properties,
-      importHistoryId,
-      result,
-      useElkSyncer,
-      percentage: Number(((result.length / total) * 100).toFixed(3))
-    });
+    try {
+      await myWorker.createWorker(subdomain, workerPath, {
+        rowIndex,
+        scopeBrandIds,
+        user,
+        contentType,
+        serviceType,
+        properties: config[contentType].properties,
+        importHistoryId,
+        result,
+        useElkSyncer,
+        percentage: Number(((result.length / total) * 100).toFixed(3))
+      });
+    } catch (e) {
+      return models.ImportHistory.updateOne(
+        { _id: 'importHistoryId' },
+        { error: e.message }
+      );
+    }
   };
 
   myWorker.setHandleEnd(handleOnEndBulkOperation);
 
-  importBulkStream({
-    contentType: mainType,
-    fileName: config[mainType].fileName,
-    uploadType,
-    bulkLimit: WORKER_BULK_LIMIT,
-    handleBulkOperation
-  });
-
-  return { id: importHistoryId };
-};
-
-const importWebhookStream = ({
-  data,
-  bulkLimit,
-  handleBulkOperation
-}: {
-  data: any[];
-  bulkLimit: number;
-  handleBulkOperation: (rows: any) => Promise<void>;
-}) => {
-  return new Promise(async (resolve, reject) => {
-    let rows: any = [];
-
-    const write = (row, _, next) => {
-      rows.push(row);
-
-      if (rows.length === bulkLimit) {
-        return handleBulkOperation(rows)
-          .then(() => {
-            rows = [];
-            next();
-          })
-          .catch(e => {
-            debugWorkers(`Error during bulk insert from webhook: ${e.message}`);
-            reject(e);
-          });
-      }
-
-      return next();
-    };
-
-    streamify(data, os.EOL)
-      .pipe(new Writable({ write, objectMode: true }))
-      .on('finish', () => {
-        handleBulkOperation(rows).then(() => {
-          resolve('success');
-        });
-      })
-      .on('error', e => reject(e));
-  });
-};
-
-export const importFromWebhook = async (subdomain: string, content: any) => {
-  const { data, type } = content;
-
-  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
-
-  if (data.length === 0) {
-    throw new Error('Please import at least one row of data');
+  try {
+    importBulkStream({
+      contentType: mainType,
+      fileName: config[mainType].fileName,
+      uploadType,
+      bulkLimit: WORKER_BULK_LIMIT,
+      handleBulkOperation
+    });
+  } catch (e) {
+    return models.ImportHistory.updateOne(
+      { _id: 'importHistoryId' },
+      { error: e.message }
+    );
   }
 
-  const properties = await checkFieldNames(type, Object.keys(data[0]));
-
-  const handleBulkOperation = async (rows: any) => {
-    if (rows.length === 0) {
-      return debugWorkers('Please import at least one row of data');
-    }
-
-    const result: any[] = [];
-
-    for (const row of rows) {
-      result.push(Object.values(row));
-    }
-
-    const workerPath = path.resolve(getWorkerFile('bulkInsert'));
-
-    await myWorker.createWorker(subdomain, workerPath, {
-      contentType: type,
-      properties,
-      result,
-      useElkSyncer,
-      percentage: 0
-    });
-  };
-
-  importWebhookStream({
-    data,
-    bulkLimit: WORKER_BULK_LIMIT,
-    handleBulkOperation
-  });
+  return { id: importHistoryId };
 };

@@ -40,6 +40,8 @@ const filterHeaders = headers => {
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
 
+  console.log(itemType);
+
   switch (itemType) {
     case MODULE_NAMES.DEAL:
     case MODULE_NAMES.TASK:
