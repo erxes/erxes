@@ -60,7 +60,7 @@ const createSalesLog = `
 `;
 
 const saveTimeframes = `
-  mutation saveTimeframes($update: [DayConfigInput], $add: [AddDayConfigInput]) {
+  mutation saveTimeframes($update: [TimeframeInput], $add: [AddTimeframeInput]) {
     saveTimeframes(update: $update, add: $add){
       _id
     }

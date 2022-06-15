@@ -61,7 +61,7 @@ export const types = () => `
     _id: String
     salesLogId: String
     labelIds: [String]
-    day: Date
+    day: Int
   },
 
   type YearPlanConfig {
@@ -113,6 +113,7 @@ const salesLogPrams = `
 export const queries = `
   getDayPlanConfig(salesLogId: String): [DayPlanConfig]
   getMonthPlanConfig(salesLogId: String): [MonthPlanConfig]
+  getYearPlanConfig(salesLogId: String): [YearPlanConfig]
   getLabels(type: String): [Label]
   getSalesLogs: [SalesLog]
   getTimeframes:[Timeframe]
@@ -122,8 +123,9 @@ export const mutations = `
   createSalesLog(${salesLogPrams}): SalesLog
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
   saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]
-  saveDayPlanConfig(salesLogId: String, data:JSON):DayPlanConfig
+  saveDayPlanConfig(salesLogId: String, data:JSON):[DayPlanConfig]
   saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):[MonthPlanConfig]
+  saveYearPlanConfig(salesLogId: String, data:JSON):[YearPlanConfig]
   removeLabel(_id:String): JSON
   removeTimeframe(_id: String): JSON
   removeSalesLog(_id: String): JSON

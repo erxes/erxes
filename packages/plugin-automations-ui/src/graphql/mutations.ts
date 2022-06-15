@@ -37,8 +37,8 @@ const automationsAdd = `
 `;
 
 const automationsSaveAsTemplate = `
-  mutation automationsSaveAsTemplate($_id: String!, $name: String!) {
-    automationsSaveAsTemplate(_id: $_id, name: $name) {
+  mutation automationsSaveAsTemplate($_id: String!, $name: String, $duplicate: Boolean) {
+    automationsSaveAsTemplate(_id: $_id, name: $name, duplicate: $duplicate) {
       ${automationFields}
     }
   }

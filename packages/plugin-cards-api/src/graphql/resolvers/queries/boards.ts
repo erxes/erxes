@@ -760,7 +760,7 @@ const boardQueries = {
         action: 'fieldsGroups.find',
         data: {
           query: {
-            contentType: ct
+            contentType: `cards:${ct}`
           }
         },
         isRPC: true

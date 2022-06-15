@@ -1,9 +1,10 @@
 import { FormControl } from '@erxes/ui/src/components/form';
+import { IObjectListConfig } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 type Props = {
-  keys: string[];
+  objectListConfigs: IObjectListConfig[];
   object: any;
   index: number;
   onEdit: (index: number) => void;
@@ -11,10 +12,9 @@ type Props = {
 };
 
 export default function ObjectListItem(props: Props) {
-  const { object, keys, index, onEdit } = props;
+  const { object, objectListConfigs, index, onEdit } = props;
 
   const entries = Object.entries(object);
-
   const onFocus = _event => {
     onEdit(index);
   };
@@ -29,18 +29,24 @@ export default function ObjectListItem(props: Props) {
         const key = e[0];
         const value: any = e[1] || '';
 
-        if (!keys || !keys.includes(key)) {
+        if (!objectListConfigs) {
+          return null;
+        }
+
+        const config = objectListConfigs.find(c => c.key === key);
+
+        if (!config) {
           return null;
         }
 
         return (
           <>
-            <p>{key}</p>
+            <p>{config.label}</p>
             <FormControl
               id={key}
-              type="text"
+              componentClass={`${config.type}`}
               value={value}
-              placeholder={key}
+              placeholder={`${config.label}`}
               onChange={onChange}
               onFocus={onFocus}
             />

@@ -25,6 +25,7 @@ import Select from 'react-select-plus';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import LocationOptions from './LocationOptions';
 import { IProductCategory } from '@erxes/ui-products/src/types';
+import ObjectListConfigs from './ObjectListConfigs';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -98,6 +99,10 @@ class FieldForm extends React.Component<Props, State> {
     this.setFieldAttrChanges('locationOptions', options);
   };
 
+  onChangeObjectListConfig = objectListConfigs => {
+    this.setFieldAttrChanges('objectListConfigs', objectListConfigs);
+  };
+
   onPropertyChange = (selectedField: IField) => {
     const { field, group } = this.state;
 
@@ -108,7 +113,7 @@ class FieldForm extends React.Component<Props, State> {
     field.text = selectedField.text;
     field.description = selectedField.description;
 
-    if (group === 'company') {
+    if (group === 'contacts:company') {
       switch (field.type) {
         case 'avatar':
           field.type = 'company_avatar';
@@ -288,6 +293,26 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderObjectListOptions() {
+    const { field } = this.state;
+
+    if (field.type !== 'objectList') {
+      return null;
+    }
+
+    return (
+      <FormGroup>
+        <ControlLabel htmlFor="objectListConfigs">
+          Object List Configs:
+        </ControlLabel>
+        <ObjectListConfigs
+          objectListConfigs={field.objectListConfigs || []}
+          onChange={this.onChangeObjectListConfig}
+        />
+      </FormGroup>
+    );
+  }
+
   renderPageSelect() {
     const { numberOfPages } = this.props;
     const { field } = this.state;
@@ -384,6 +409,8 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderLocationOptions()}
 
           {this.renderMultipleSelectCheckBox()}
+
+          {this.renderObjectListOptions()}
 
           <FormGroup>
             <FlexRow>
@@ -505,8 +532,8 @@ class FieldForm extends React.Component<Props, State> {
             onChange={this.onPropertyGroupChange}
           >
             <option value={''} />
-            <option value={'customer'}>Customer</option>
-            <option value={'company'}>Company</option>
+            <option value={'contacts:customer'}>Customer</option>
+            <option value={'contacts:company'}>Company</option>
           </FormControl>
         </FormGroup>
       </>
@@ -636,7 +663,7 @@ class FieldForm extends React.Component<Props, State> {
       <>
         <FormGroup>
           <SelectProperty
-            queryParams={{ type: `contacts:${group}` }}
+            queryParams={{ type: group }}
             defaultValue={defaultValue}
             description="Any data collected through this field will copy to:"
             onChange={this.onPropertyChange}

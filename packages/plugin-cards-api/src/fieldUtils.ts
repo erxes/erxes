@@ -1,7 +1,73 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { generateModels, IModels } from './connectionResolver';
 import { BOARD_ITEM_EXTENDED_FIELDS } from './constants';
-import { sendSegmentsMessage } from './messageBroker';
+import {
+  sendCoreMessage,
+  sendProductsMessage,
+  sendSegmentsMessage
+} from './messageBroker';
+
+const generateProductsOptions = async (
+  subdomain: string,
+  name: string,
+  label: string,
+  type: string
+) => {
+  const products = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const options: Array<{ label: string; value: any }> = products.map(
+    product => ({
+      value: product._id,
+      label: `${product.code} - ${product.name}`
+    })
+  );
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const generateUsersOptions = async (
+  subdomain: string,
+  name: string,
+  label: string,
+  type: string
+) => {
+  const users = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {}
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  const options: Array<{ label: string; value: any }> = users.map(user => ({
+    value: user._id,
+    label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
 
 const getStageOptions = async (models: IModels, pipelineId) => {
   const stages = await models.Stages.find({ pipelineId });
@@ -46,6 +112,7 @@ const getPipelineLabelOptions = async (models: IModels, pipelineId) => {
 export const generateFields = async ({ subdomain, data }) => {
   const models = await generateModels(subdomain);
   const { type, config = {}, segmentId, usageType } = data;
+
   const { pipelineId } = config;
 
   let schema: any;
@@ -93,6 +160,73 @@ export const generateFields = async ({ subdomain, data }) => {
         ];
       }
     }
+  }
+
+  const createdByOptions = await generateUsersOptions(
+    subdomain,
+    'userId',
+    'Created by',
+    'user'
+  );
+
+  const modifiedByOptions = await generateUsersOptions(
+    subdomain,
+    'modifiedBy',
+    'Modified by',
+    'user'
+  );
+
+  const assignedUserOptions = await generateUsersOptions(
+    subdomain,
+    'assignedUserIds',
+    'Assigned to',
+    'user'
+  );
+
+  const watchedUserOptions = await generateUsersOptions(
+    subdomain,
+    'watchedUserIds',
+    'Watched users',
+    'user'
+  );
+
+  fields = [
+    ...fields,
+    ...[
+      createdByOptions,
+      modifiedByOptions,
+      assignedUserOptions,
+      watchedUserOptions
+    ]
+  ];
+
+  if (type === 'deal' && usageType !== 'export') {
+    const productOptions = await generateProductsOptions(
+      subdomain,
+      'productsData.productId',
+      'Product',
+      'product'
+    );
+
+    fields = [...fields, ...[productOptions, assignedUserOptions]];
+  }
+
+  if (type === 'deal' && usageType === 'export') {
+    const extendFieldsDealExport = [
+      { _id: Math.random(), name: 'productsData.name', label: 'Product Name' },
+      { _id: Math.random(), name: 'productsData.code', label: 'Product Code' }
+    ];
+
+    fields = [...fields, ...extendFieldsDealExport];
+  }
+
+  if (usageType === 'export') {
+    const extendExport = [
+      { _id: Math.random(), name: 'boardId', label: 'Board' },
+      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' }
+    ];
+
+    fields = [...fields, ...extendExport];
   }
 
   if (segmentId || pipelineId) {

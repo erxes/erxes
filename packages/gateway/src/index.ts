@@ -26,6 +26,7 @@ import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { handleUnsubscription } from './util/handleUnsubscription';
 
 const {
+  NODE_ENV,
   DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
@@ -87,6 +88,7 @@ const {
         }
       },
       onProxyReq: (proxyReq, req: any) => {
+        proxyReq.setHeader('hostname', req.hostname);
         proxyReq.setHeader('userid', req.user ? req.user._id : '');
       },
       pathRewrite: async path => {
@@ -159,6 +161,14 @@ const {
     process.exit(1);
   }
 
+  app.use(
+    express.json({
+      limit: '15mb'
+    })
+  );
+
+  app.use(express.urlencoded({ limit: '15mb', extended: true }));
+
   apolloServer.applyMiddleware({
     app,
     path: '/graphql',
@@ -188,3 +198,13 @@ const {
     `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
   );
 })();
+
+(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach(sig => {
+  process.on(sig, async () => {
+    if (NODE_ENV === 'development') {
+      clearCache();
+    }
+
+    process.exit(0);
+  });
+});

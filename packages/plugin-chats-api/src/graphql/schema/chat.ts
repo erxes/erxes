@@ -1,7 +1,7 @@
 import {
   attachmentType,
-  attachmentInput,
-} from "@erxes/api-utils/src/commonTypeDefs";
+  attachmentInput
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = () => `
 
@@ -34,6 +34,7 @@ export const types = () => `
     avatar: String
     description: String
     fullName: String
+    operatorPhone: String
   }
 
   type ChatUser {
@@ -42,6 +43,11 @@ export const types = () => `
     email: String
     details: ChatUserDetails
     isAdmin: Boolean
+  }
+
+  type ChatTypingStatusChangedResponse {
+    chatId: String!
+    userId: String
   }
 
   type Chat {
@@ -108,4 +114,6 @@ export const mutations = `
   chatMessageRemove(_id: String!): JSON
   chatMakeOrRemoveAdmin(_id: String!, userId: String!): String
   chatMessageToggleIsPinned(_id: String!): Boolean
+
+  chatTypingInfo(chatId: String!, userId : String!): String
 `;

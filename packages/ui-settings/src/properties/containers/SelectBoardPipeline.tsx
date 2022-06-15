@@ -10,11 +10,10 @@ import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import SelectBoards from '../components/SelectBoardPipeline';
-import { IBoardSelectItem } from '../types';
 
 type Props = {
   onChangeItems: (items: any) => any;
-  selectedItems: IBoardSelectItem[];
+  selectedItems: any[];
   isRequired?: boolean;
   description?: string;
   type: string;

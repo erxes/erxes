@@ -17,9 +17,9 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 import Icon from '@erxes/ui/src/components/Icon';
-import Pagination from 'modules/common/components/pagination/Pagination';
+import { ButtonContainer } from '../styles';
 
 const ActiveColor = styledTS<{ active: boolean }>(styled.div)`
   background: ${props =>
@@ -35,19 +35,12 @@ type Props = {
   configsEnvQuery: any;
   loading: boolean;
   usersGroups: IUserGroup[];
-  totalCount: number;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 export default function Home(props: Props) {
   let timer;
-  const {
-    queryParams,
-    history,
-    loading,
-    configsEnvQuery = {},
-    totalCount
-  } = props;
+  const { queryParams, history, loading, configsEnvQuery = {} } = props;
   const [searchValue, setSearchValue] = useState('');
   const [active, setActive] = useState(true);
 
@@ -101,7 +94,7 @@ export default function Home(props: Props) {
   };
 
   const renderFilter = (
-    <FilterContainer>
+    <FilterContainer style={{ paddingTop: dimensions.coreSpacing - 10 }}>
       <FlexRow>
         {renderBrandChooser()}
         <InputBar type="searchBar">
@@ -155,9 +148,11 @@ export default function Home(props: Props) {
   };
 
   const trigger = (
-    <Button btnStyle="success" icon="plus">
-      Invite team members
-    </Button>
+    <ButtonContainer>
+      <Button btnStyle="success" icon="plus">
+        Invite team members
+      </Button>
+    </ButtonContainer>
   );
 
   const righActionBar = (
@@ -165,6 +160,7 @@ export default function Home(props: Props) {
       content={renderInvitationForm}
       size="xl"
       title="Invite team members"
+      autoOpenKey="showMemberInviteModal"
       trigger={trigger}
     />
   );
@@ -174,9 +170,6 @@ export default function Home(props: Props) {
       hasFlex={true}
       right={righActionBar}
       left={renderFilter}
-      wide
-      withMargin
-      background="colorWhite"
     />
   );
 
@@ -194,8 +187,6 @@ export default function Home(props: Props) {
       content={<UserList history={history} queryParams={queryParams} />}
       hasBorder={true}
       transparent={true}
-      footer={<Pagination count={totalCount} />}
-      noPadding={true}
     />
   );
 }

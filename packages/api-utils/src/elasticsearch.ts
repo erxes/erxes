@@ -1,5 +1,6 @@
 import * as elasticsearch from 'elasticsearch';
 import { debugError } from './debuggers';
+
 export interface IFetchEsArgs {
   subdomain: string;
   action: string;
@@ -7,6 +8,9 @@ export interface IFetchEsArgs {
   body: any;
   _id?: string;
   defaultValue?: any;
+  scroll?: string;
+  size?: number;
+  ignoreError?: boolean;
 }
 
 export const doSearch = async ({
@@ -77,7 +81,10 @@ export const fetchEs = async ({
   index,
   body,
   _id,
-  defaultValue
+  defaultValue,
+  scroll,
+  size,
+  ignoreError = false
 }: IFetchEsArgs) => {
   try {
     const params: any = {
@@ -93,11 +100,21 @@ export const fetchEs = async ({
       params.id = _id;
     }
 
+    // for returning results more than 10000
+    if (scroll && size) {
+      params.scroll = scroll;
+      params.size = size;
+    }
+
     const response = await client[action](params);
 
     return response;
   } catch (e) {
-    debugError(`Error during es query ${e.message}`);
+    if (!ignoreError) {
+      debugError(
+        `Error during es query: ${JSON.stringify(body)}: ${e.message}`
+      );
+    }
 
     if (typeof defaultValue !== 'undefined') {
       return defaultValue;
@@ -119,4 +136,49 @@ export const getMappings = async (index: string) => {
 
 export const getIndexPrefix = () => {
   return 'erxes__';
+};
+
+// Fetch from es with scroll option than can find results more than the default 10000
+export const fetchEsWithScroll = async (scrollId: string) => {
+  try {
+    const response = await client.scroll({ scrollId, scroll: '1m' });
+
+    return response;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+export const fetchByQuery = async ({
+  subdomain,
+  index,
+  positiveQuery,
+  negativeQuery,
+  _source = '_id'
+}: {
+  subdomain: string;
+  index: string;
+  _source?: string;
+  positiveQuery: any;
+  negativeQuery: any;
+}) => {
+  const response = await fetchEs({
+    subdomain,
+    action: 'search',
+    index,
+    body: {
+      _source,
+      query: {
+        bool: {
+          must: positiveQuery,
+          must_not: negativeQuery
+        }
+      }
+    },
+    defaultValue: { hits: { hits: [] } }
+  });
+
+  return response.hits.hits
+    .map(hit => (_source === '_id' ? hit._id : hit._source[_source]))
+    .filter(r => r);
 };

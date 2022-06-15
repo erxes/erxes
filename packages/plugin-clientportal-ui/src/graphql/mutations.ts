@@ -7,8 +7,11 @@ const createOrUpdateConfig = `
     $description: String
     $logo: String
     $icon: String
+    $headerHtml: String
+    $footerHtml: String
     $url: String
     $domain: String
+    $messengerBrandCode: String
     $knowledgeBaseLabel: String
     $knowledgeBaseTopicId: String
     $ticketLabel: String
@@ -38,7 +41,10 @@ const createOrUpdateConfig = `
       url: $url,
       logo: $logo,
       icon: $icon,
+      headerHtml: $headerHtml,
+      footerHtml: $footerHtml,
       domain: $domain,
+      messengerBrandCode: $messengerBrandCode,
       knowledgeBaseLabel: $knowledgeBaseLabel,
       knowledgeBaseTopicId: $knowledgeBaseTopicId,
       taskPublicBoardId: $taskPublicBoardId,

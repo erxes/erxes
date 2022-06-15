@@ -14,16 +14,17 @@ import {
   AppsAddMutationResponse,
   AppsEditMutationResponse,
   AppsRemoveMutationResponse,
-  IAppAddEditParams,
+  IAppParams,
+  IAppEditParams,
   IApp
 } from '../types';
 
 type Props = {
   listQuery: AppsQueryResponse;
   totalCountQuery: AppsTotalCountQueryResponse;
-  addMutation: ({ variables: any }) => Promise<IApp>;
-  editMutation: ({ variables: any }) => Promise<IApp>;
-  removeMutation: ({ variables: any }) => Promise<string>;
+  addMutation: (params: { variables: IAppParams }) => Promise<IApp>;
+  editMutation: (params: { variables: IAppEditParams }) => Promise<IApp>;
+  removeMutation: (params: { variables: { _id: string } }) => Promise<string>;
   userGroupsQuery: any;
 };
 
@@ -45,7 +46,7 @@ class AppListContainer extends React.Component<Props> {
       return <Spinner />;
     }
 
-    const addApp = (doc: IAppAddEditParams) => {
+    const addApp = (doc: IAppParams) => {
       addMutation({ variables: doc })
         .then(() => {
           Alert.success('You successfully created an app');
@@ -55,7 +56,7 @@ class AppListContainer extends React.Component<Props> {
         });
     };
 
-    const editApp = (_id: string, doc: IAppAddEditParams) => {
+    const editApp = (_id: string, doc: IAppParams) => {
       editMutation({ variables: { _id, ...doc } })
         .then(() => {
           Alert.success('You successfully edited an app');
@@ -81,7 +82,7 @@ class AppListContainer extends React.Component<Props> {
       <AppList
         apps={listQuery.apps}
         isLoading={isLoading}
-        count={totalCountQuery.appsTotalCount || 0}
+        count={totalCountQuery.appsTotalCount}
         errorMessage={listQuery.error || ''}
         addApp={addApp}
         editApp={editApp}

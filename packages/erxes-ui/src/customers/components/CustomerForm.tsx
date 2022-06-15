@@ -305,11 +305,14 @@ class CustomerForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
 
-                {this.renderFormGroup('Middle Name', {
-                  ...formProps,
-                  name: 'middleName',
-                  defaultValue: customer.middleName || ''
-                })}
+                <FormGroup>
+                  <ControlLabel>Middle Name</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="middleName"
+                    defaultValue={customer.middleName || ''}
+                  />
+                </FormGroup>
 
                 <FormGroup>
                   <ControlLabel required={true}>Email</ControlLabel>
@@ -326,13 +329,16 @@ class CustomerForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
 
-                {this.renderFormGroup('Primary email verification status', {
-                  ...formProps,
-                  name: 'emailValidationStatus',
-                  componentClass: 'select',
-                  defaultValue: customer.emailValidationStatus || 'unknown',
-                  options: EMAIL_VALIDATION_STATUSES
-                })}
+                <FormGroup>
+                  <ControlLabel>Primary email verification status</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="emailValidationStatus"
+                    componentClass="select"
+                    defaultValue={customer.emailValidationStatus || 'unknown'}
+                    options={EMAIL_VALIDATION_STATUSES}
+                  />
+                </FormGroup>
 
                 {this.renderFormGroup('Pronoun', {
                   ...formProps,
@@ -393,13 +399,16 @@ class CustomerForm extends React.Component<Props, State> {
                   />
                 </FormGroup>
 
-                {this.renderFormGroup('Primary phone verification status', {
-                  ...formProps,
-                  name: 'phoneValidationStatus',
-                  componentClass: 'select',
-                  defaultValue: customer.phoneValidationStatus || 'unknown',
-                  options: PHONE_VALIDATION_STATUSES
-                })}
+                <FormGroup>
+                  <ControlLabel>Primary phone verification status</ControlLabel>
+                  <FormControl
+                    {...formProps}
+                    name="phoneValidationStatus"
+                    componentClass="select"
+                    defaultValue={customer.phoneValidationStatus || 'unknown'}
+                    options={PHONE_VALIDATION_STATUSES}
+                  />
+                </FormGroup>
 
                 {this.renderFormGroup('Position', {
                   ...formProps,

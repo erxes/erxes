@@ -1,4 +1,3 @@
-import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Select from 'react-select-plus';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -15,7 +14,6 @@ import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentType: string;
-  boards?: IBoard[];
   associationTypes: any[];
   forms?: IIntegration[];
   segment: ISegmentMap;

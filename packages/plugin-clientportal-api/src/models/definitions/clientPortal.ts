@@ -3,6 +3,7 @@ import { field } from './utils';
 
 export interface IOTPConfig {
   content: string;
+  codeLength: number;
   smsTransporterType: '' | 'messagePro' | 'telnyx';
   emailTransporterType: '' | 'ses';
 }
@@ -22,6 +23,7 @@ export interface IClientPortal {
   otpConfig?: IOTPConfig;
   googleCredentials?: string;
 
+  messengerBrandCode?: string;
   knowledgeBaseLabel?: string;
   knowledgeBaseTopicId?: string;
   ticketLabel?: string;
@@ -89,6 +91,7 @@ const stylesSchema = new Schema(
 const otpConfigSchema = new Schema(
   {
     content: field({ type: String, optional: true }),
+    codeLength: field({ type: Number, default: 4, min: 4 }),
     smsTransporterType: field({
       type: String,
       enum: ['', 'messagePro', 'telnyx'],
@@ -110,6 +113,9 @@ export const clientPortalSchema = new Schema({
   url: field({ type: String }),
   logo: field({ type: String, optional: true }),
   icon: field({ type: String, optional: true }),
+  headerHtml: field({ type: String, optional: true }),
+  footerHtml: field({ type: String, optional: true }),
+
   domain: field({ type: String, optional: true }),
   dnsStatus: field({ type: String, optional: true }),
   styles: field({ type: stylesSchema, optional: true }),
@@ -117,6 +123,7 @@ export const clientPortalSchema = new Schema({
   otpConfig: field({ type: otpConfigSchema, optional: true }),
   googleCredentials: field({ type: Object, optional: true }),
 
+  messengerBrandCode: field({ type: String, optional: true }),
   knowledgeBaseLabel: field({ type: String, optional: true }),
   knowledgeBaseTopicId: field({ type: String }),
   ticketLabel: field({ type: String, optional: true }),

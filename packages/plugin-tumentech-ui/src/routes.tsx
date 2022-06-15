@@ -4,24 +4,55 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const CarList = asyncComponent(() =>
-  import(/* webpackChunkName: "SegmentsList" */ './containers/CarsList')
+  import(/* webpackChunkName: "CarList" */ './containers/CarsList')
 );
 
 const CarDetails = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "SegmentsForm" */ './containers/detail/CarDetails'
-  )
+  import(/* webpackChunkName: "CarDetails" */ './containers/detail/CarDetails')
 );
 
 const ProductList = asyncComponent(() =>
-  import(/* webpackChunkName: "SegmentsForm" */ './containers/ProductList')
+  import(/* webpackChunkName: "ProductList" */ './containers/ProductList')
 );
 
 const ProductDetails = asyncComponent(() =>
   import(
-    /* webpackChunkName: "SegmentsForm" */ './containers/detail/ProductDetails'
+    /* webpackChunkName: "ProductDetails" */ './containers/detail/ProductDetails'
   )
 );
+
+const PlaceList = asyncComponent(() =>
+  import(/* webpackChunkName: "PlaceList" */ './containers/places/List')
+);
+
+const DirectionList = asyncComponent(() =>
+  import(/* webpackChunkName: "DirectionList" */ './containers/directions/List')
+);
+
+const RouteList = asyncComponent(() =>
+  import(/* webpackChunkName: "RouteList" */ './containers/routes/List')
+);
+
+const placeList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <PlaceList queryParams={queryParams} history={history} />;
+};
+
+const directionList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <DirectionList queryParams={queryParams} history={history} />;
+};
+
+const routeList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <RouteList queryParams={queryParams} history={history} />;
+};
 
 const details = ({ match }) => {
   const id = match.params.id;
@@ -77,6 +108,27 @@ const routes = () => {
         exact={true}
         path="/product/details/:id"
         component={productdetails}
+      />
+
+      <Route
+        key={'/place'}
+        exact={true}
+        path="/tumentech/place/list"
+        component={placeList}
+      />
+
+      <Route
+        key={'/direction'}
+        exact={true}
+        path="/tumentech/direction/list"
+        component={directionList}
+      />
+
+      <Route
+        key={'/route'}
+        exact={true}
+        path="/tumentech/route/list"
+        component={routeList}
       />
     </React.Fragment>
   );

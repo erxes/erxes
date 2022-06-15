@@ -25,17 +25,11 @@ export default {
   },
   hasSubscriptions: false,
   segment: {},
-  apolloServerContext: async (context, req, res) => {
+  apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
-
-    context.serverTiming = {
-      startTime: res.startTime,
-      endTime: res.endTime,
-      setMetric: res.setMetric
-    };
 
     return context;
   },

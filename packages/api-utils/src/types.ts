@@ -110,7 +110,23 @@ export const customFieldSchema = new Schema(
     value: { type: Schema.Types.Mixed },
     stringValue: { type: String, optional: true },
     numberValue: { type: Number, optional: true },
-    dateValue: { type: Date, optional: true }
+    dateValue: { type: Date, optional: true },
+    locationValue: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: 'Point',
+        required: false,
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        required: false,
+        optional: true,
+        default: [0, 0]
+      },
+      required: false
+    }
   },
   { _id: false }
 );
@@ -121,6 +137,7 @@ export interface ICustomField {
   stringValue?: string;
   numberValue?: number;
   dateValue?: Date;
+  locationValue?: ILocationOption;
 }
 
 export const attachmentSchema = new Schema(
@@ -138,4 +155,10 @@ export interface IEncryptionData {
   iv: string;
   encryptedData: string;
   key: Buffer;
+}
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
 }

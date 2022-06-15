@@ -1,4 +1,4 @@
-export const types = cardAvailable => `
+export const types = (cardAvailable, kbAvailable) => `
 ${
   cardAvailable
     ? `
@@ -18,14 +18,30 @@ ${
     : ''
 }
 
+${
+  kbAvailable
+    ? `
+   extend type KnowledgeBaseTopic @key(fields: "_id") {
+    _id: String! @external
+  }
+
+   extend type KnowledgeBaseArticle @key(fields: "_id") {
+    _id: String! @external
+  }
+   `
+    : ''
+}
+
   type OTPConfig{
     content: String
+    codeLength: Int
     smsTransporterType: String
     emailTransporterType: String
   }
 
   input OTPConfigInput {
     content: String
+    codeLength: Int
     smsTransporterType: String
     emailTransporterType: String
   }
@@ -37,8 +53,12 @@ ${
     url: String
     logo: String
     icon: String
+    headerHtml: String
+    footerHtml: String
+
     domain: String
     dnsStatus: String
+    messengerBrandCode: String
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String
@@ -100,11 +120,32 @@ ${
   }
 `;
 
-export const queries = () => `
+export const queries = (cardAvailable, kbAvailable) => `
   clientPortalGetConfigs(page: Int, perPage: Int): [ClientPortal]
   clientPortalGetConfig(_id: String!): ClientPortal
+  clientPortalGetConfigByDomain: ClientPortal
   clientPortalGetLast: ClientPortal
   clientPortalConfigsTotalCount: Int
+
+  ${
+    cardAvailable
+      ? `
+    clientPortalGetTaskStages: [Stage]
+    clientPortalGetTasks(stageId: String!): [Task]
+    clientPortalTickets(email: String!): [Ticket]
+    clientPortalTicket(_id: String!): Ticket
+   `
+      : ''
+  }
+
+  ${
+    kbAvailable
+      ? `
+    clientPortalKnowledgeBaseTopicDetail(_id: String!): KnowledgeBaseTopic
+    clientPortalKnowledgeBaseArticles(searchValue: String, categoryIds: [String]): [KnowledgeBaseArticle]
+   `
+      : ''
+  }
 `;
 
 export const mutations = cardAvailable => `
@@ -114,8 +155,11 @@ export const mutations = cardAvailable => `
     description: String
     logo: String
     icon: String
+    headerHtml: String
+    footerHtml: String
     url: String
     domain: String
+    messengerBrandCode: String
     knowledgeBaseLabel: String
     knowledgeBaseTopicId: String
     ticketLabel: String

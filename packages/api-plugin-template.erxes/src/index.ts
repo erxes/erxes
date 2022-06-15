@@ -37,6 +37,9 @@ const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
 
 export const app = express();
 
+app.use(bodyParser.json({ limit: '15mb' }));
+app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
+
 if (configs.middlewares) {
   for (const middleware of configs.middlewares) {
     app.use(middleware);
@@ -47,6 +50,14 @@ if (configs.postHandlers) {
   for (const handler of configs.postHandlers) {
     if (handler.path && handler.method) {
       app.post(handler.path, handler.method);
+    }
+  }
+}
+
+if (configs.getHandlers) {
+  for (const handler of configs.getHandlers) {
+    if (handler.path && handler.method) {
+      app.get(handler.path, handler.method);
     }
   }
 }
@@ -79,9 +90,6 @@ app.use((req: any, _res, next) => {
 
   next();
 });
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // Error handling middleware
 app.use((error, _req, res, _next) => {
@@ -222,7 +230,8 @@ async function startServer() {
         automations,
         search,
         webhooks,
-        initialSetup
+        initialSetup,
+        cronjobs
       } = configs.meta;
       const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
@@ -238,12 +247,12 @@ async function startServer() {
           );
         }
 
-        if (segments.associationTypes) {
-          segments.associationTypesAvailable = true;
+        if (segments.associationFilter) {
+          segments.associationFilterAvailable = true;
 
           consumeRPCQueue(
-            `${configs.name}:segments.associationTypes`,
-            segments.associationTypes
+            `${configs.name}:segments.associationFilter`,
+            segments.associationFilter
           );
         }
 
@@ -410,7 +419,34 @@ async function startServer() {
           data: await search(args)
         }));
       }
-    }
+
+      if (cronjobs) {
+        if (cronjobs.handleMinutelyJob) {
+          cronjobs.handleMinutelyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleMinutelyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleMinutelyJob(args)
+          }));
+        }
+        if (cronjobs.handleHourlyJob) {
+          cronjobs.handleHourlyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleHourlyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleHourlyJob(args)
+          }));
+        }
+        if (cronjobs.handleDailyJob) {
+          cronjobs.handleDailyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleDailyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleDailyJob(args)
+          }));
+        }
+      }
+    } // end configs.meta if
 
     await join({
       name: configs.name,
@@ -433,7 +469,7 @@ async function startServer() {
       }
     });
 
-    debugInfo(`${configs.name} server is running on port ${PORT}`);
+    debugInfo(`${configs.name} server is running on port: ${PORT}`);
   } catch (e) {
     debugError(`Error during startup ${e.message}`);
   }

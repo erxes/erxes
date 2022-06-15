@@ -1,5 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
+import { sendFormsMessage } from './messageBroker';
 
 export default {
   importTypes: IMPORT_TYPES,
@@ -52,6 +53,22 @@ export default {
         const value = (fieldValue[colIndex] || '').toString();
 
         switch (property.type) {
+          case 'customProperty':
+            {
+              doc.customFieldsData.push({
+                field: property.id,
+                value: fieldValue[colIndex]
+              });
+
+              doc.customFieldsData = await sendFormsMessage({
+                subdomain,
+                action: 'fields.prepareCustomFieldsData',
+                data: doc.customFieldsData,
+                isRPC: true
+              });
+            }
+            break;
+
           case 'boardName':
             boardName = value;
             break;

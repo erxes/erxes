@@ -48,15 +48,20 @@ interface IProps extends IRouterProps {
   onSelect: (prs: IProduct[]) => void;
   saveMatch: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  page: number;
+  perPage: number;
 }
 
 type State = {
   searchValue?: string;
 };
 
-export const menuPos = [
+export const tumentechMenu = [
   { title: 'Car', link: '/erxes-plugin-tumentech/list' },
-  { title: 'Products', link: '/product' }
+  { title: 'Products', link: '/product' },
+  { title: 'Places', link: '/tumentech/place/list' },
+  { title: 'Directions', link: '/tumentech/direction/list' },
+  { title: 'Routes', link: '/tumentech/route/list' }
 ];
 
 class CarsList extends React.Component<IProps, State> {
@@ -122,7 +127,9 @@ class CarsList extends React.Component<IProps, State> {
       onSelect,
       saveMatch,
       renderButton,
-      columnsConfig
+      columnsConfig,
+      page,
+      perPage
     } = this.props;
 
     const mainContent = (
@@ -137,16 +144,21 @@ class CarsList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
-              {(columnsConfig || []).map(({ name, label }) => (
+              {(columnsConfig || []).map(({ _id, name, label }) => (
                 <th key={name}>
-                  <SortHandler sortField={name} label={__(label)} />
+                  {_id !== '#' ? (
+                    <SortHandler sortField={name} label={__(label)} />
+                  ) : (
+                    <>#</>
+                  )}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody id="cars">
-            {cars.map(car => (
+            {cars.map((car, i) => (
               <CarRow
+                index={(page - 1) * perPage + i + 1}
                 car={car}
                 columnsConfig={columnsConfig}
                 isChecked={bulk.includes(car)}
@@ -271,7 +283,7 @@ class CarsList extends React.Component<IProps, State> {
           <Wrapper.Header
             title={__(`Cars`) + ` (${totalCount})`}
             queryParams={queryParams}
-            submenu={menuPos}
+            submenu={tumentechMenu}
           />
         }
         actionBar={actionBar}

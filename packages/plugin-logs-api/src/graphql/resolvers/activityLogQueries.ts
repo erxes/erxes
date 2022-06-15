@@ -24,19 +24,13 @@ const activityLogQueries = {
   /**
    * Get activity log list
    */
-  async activityLogs(
-    _root,
-    doc: IListArgs,
-    { models, subdomain, serverTiming }: IContext
-  ) {
+  async activityLogs(_root, doc: IListArgs, { models, subdomain }: IContext) {
     const { contentId, contentType, activityType } = doc;
 
     const activities: IActivityLogDocument[] = [];
 
     if (activityType && activityType !== 'activity') {
       const serviceName = activityType.split(':')[0];
-
-      serverTiming.startTime(`collectecItems${serviceName}`);
 
       const result = await fetchService(
         subdomain,
@@ -47,8 +41,6 @@ const activityLogQueries = {
       );
 
       const { data } = result;
-
-      serverTiming.endTime(`collectecItems${serviceName}`);
 
       return data;
     }
@@ -66,8 +58,6 @@ const activityLogQueries = {
         const logs = meta.logs;
 
         if (logs.providesActivityLog) {
-          serverTiming.startTime(`collectItems${serviceName}`);
-
           const result = await fetchService(
             subdomain,
             serviceName,
@@ -75,8 +65,6 @@ const activityLogQueries = {
             { contentId, contentType, activityLogs },
             ''
           );
-
-          serverTiming.endTime(`collectItems${serviceName}`);
 
           const { data } = result;
 
@@ -87,15 +75,11 @@ const activityLogQueries = {
       }
     }
 
-    serverTiming.startTime(`activities`);
-
     activities.push(...activityLogs);
 
     activities.sort((a, b) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-
-    serverTiming.endTime(`activities`);
 
     return activities;
   },

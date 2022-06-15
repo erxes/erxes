@@ -36,7 +36,7 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 
 export interface IModels {
   Pos: IPosModel;
-  ProductGroup: IProductGroupModel;
+  ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
   OrderItems: IOrderItemModel;
   Orders: IOrderModel;
@@ -74,8 +74,8 @@ export const loadClasses = (
     'pos',
     loadPosClass(models, subdomain)
   );
-  models.ProductGroup = db.model<IProductGroupDocument, IProductGroupModel>(
-    'productGroup',
+  models.ProductGroups = db.model<IProductGroupDocument, IProductGroupModel>(
+    'product_groups',
     loadProductGroupClass(models, subdomain)
   );
 
@@ -102,15 +102,15 @@ export const loadClasses = (
   models.ProductCategories = db.model<
     IProductCategoryDocument,
     IProductCategoryModel
-  >('productCategories', loadProductCategoryClass(models));
+  >('product_categories', loadProductCategoryClass(models));
 
   models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
-    'putResponses',
+    'put_responses',
     loadPutResponseClass(models)
   );
 
   models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'qpayInvoices',
+    'qpay_invoices',
     loadQPayInvoiceClass(models)
   );
 

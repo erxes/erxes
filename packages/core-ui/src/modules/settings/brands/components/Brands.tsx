@@ -5,6 +5,7 @@ import HeaderDescription from 'modules/common/components/HeaderDescription';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Pagination from 'modules/common/components/pagination/Pagination';
 import Table from 'modules/common/components/table';
+import { Title } from 'modules/common/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import React from 'react';
@@ -12,7 +13,6 @@ import { __ } from '../../../common/utils';
 import Wrapper from '../../../layout/components/Wrapper';
 import Sidebar from '../containers/Sidebar';
 import { IBrand } from '../types';
-import { Title } from '@erxes/ui/src/styles/main';
 
 type Props = {
   brandsTotalCount: number;
@@ -25,6 +25,9 @@ type Props = {
 class Brands extends React.Component<Props, {}> {
   renderContent() {
     const { currentBrand, queryParams, renderButton } = this.props;
+
+    if (!currentBrand._id)
+      return <EmptyState image="/images/actions/20.svg" text="No brand." />;
 
     return (
       <>
@@ -56,16 +59,6 @@ class Brands extends React.Component<Props, {}> {
       { title: __('Brands'), link: '/settings/brands' },
       { title: `${currentBrand.name || ''}` }
     ];
-
-    if (!currentBrand._id) {
-      return (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
 
     const addBrand = (
       <Button
@@ -123,8 +116,8 @@ class Brands extends React.Component<Props, {}> {
             data={this.renderContent()}
             loading={loading}
             count={brandsTotalCount}
-            emptyText="Add an integration in this Brand"
-            emptyImage="/images/actions/2.svg"
+            emptyText="There is no brand."
+            emptyImage="/images/actions/20.svg"
           />
         }
         footer={currentBrand._id && <Pagination count={brandsTotalCount} />}

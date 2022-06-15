@@ -59,6 +59,8 @@ const CreateMessenger = (props: FinalProps) => {
     knowledgeBaseTopicsQuery
   } = props;
 
+  const [isLoading, setIsLoading] = React.useState(false);
+
   if (usersQuery.loading || brandsQuery.loading) {
     return <Spinner />;
   }
@@ -77,6 +79,8 @@ const CreateMessenger = (props: FinalProps) => {
       channelIds,
       messengerApps
     } = doc;
+
+    setIsLoading(true);
 
     let id = '';
     saveMessengerMutation({
@@ -126,7 +130,8 @@ const CreateMessenger = (props: FinalProps) => {
     teamMembers: users || [],
     brands,
     save,
-    topics
+    topics,
+    isLoading
   };
 
   return <Form {...updatedProps} />;
