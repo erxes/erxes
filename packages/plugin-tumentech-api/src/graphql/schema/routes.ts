@@ -14,10 +14,15 @@ export const types = `
     directions: [Direction]
     summary : Summary
   }
+
+  type RouteListResponse {
+    list: [Route],
+    totalCount: Int
+  }
 `;
 
 export const queries = `
-    routes(searchValue: String): [Route]
+    routes(searchValue: String, page: Int, perPage: Int): RouteListResponse
     routeDetail(_id: String!): Route
 `;
 
