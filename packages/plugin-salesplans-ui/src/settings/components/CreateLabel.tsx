@@ -18,7 +18,7 @@ import {
   Icon,
   Button
 } from '@erxes/ui/src';
-import { COLORS } from '../constant';
+import { COLORS } from '../../constants';
 import { ColorPickerWrapper, ColorPick, ColorPicker } from '../styles';
 
 type Props = {
@@ -40,7 +40,7 @@ function Config({
   closeModal,
   refetch
 }: Props) {
-  const [labels, setLabels] = useState([]);
+  const [labels, setLabels] = useState<any[]>([]);
 
   const [labelsData, setLabelsData] = useState(getLabels);
 
@@ -52,7 +52,7 @@ function Config({
   }, [getLabels]);
 
   const onchangeLabel = (e, index, key) => {
-    const updatedLabels = [...labels];
+    const updatedLabels: any = [...labels];
 
     updatedLabels[index][key] = (e.target as HTMLInputElement).value;
 
@@ -60,13 +60,13 @@ function Config({
   };
 
   const onchangeLabelStatus = (e, index, key) => {
-    const updatedLabels = [...labels];
+    const updatedLabels: any = [...labels];
     updatedLabels[index][key] = e.value;
     setLabels(updatedLabels);
   };
 
   const onchangeDataLabel = (e, index, key) => {
-    const updatedLabels = [...labelsData];
+    const updatedLabels: any = [...labelsData];
     updatedLabels[index][key] = (e.target as HTMLInputElement).value;
     setLabelsData(updatedLabels);
   };
@@ -86,7 +86,7 @@ function Config({
     remove(_id);
   };
 
-  const addLabel = e => {
+  const addLabel = (e: any) => {
     setLabels([
       ...labels,
       {
@@ -110,8 +110,8 @@ function Config({
     );
   };
 
-  const onChangeColor = (e, index) => {
-    const updatedLabels = [...labels];
+  const onChangeColor = (e: any, index: number) => {
+    const updatedLabels: any = [...labels];
 
     updatedLabels[index].color = e.hex;
 
@@ -132,7 +132,7 @@ function Config({
       { value: 'active', label: 'active' }
     ];
 
-    const render = labels.map((t, index) => (
+    const render = labels.map((t: any, index: number) => (
       <FlexRow id={`${index}`}>
         <FlexItem>
           <FormControl

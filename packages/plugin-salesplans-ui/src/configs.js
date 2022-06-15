@@ -11,14 +11,7 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Sales Plans',
-      url: '/sales-plans',
-      icon: 'icon-calendar-alt',
-      location: 'mainNavigation',
-      permission: ''
-    },
-    {
-      text: 'Sales Plans',
+      text: 'Sales Plans Settings',
       to: '/settings/sales-plans',
       image: '/images/icons/erxes-05.svg',
       location: 'settings',

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Wrapper } from '@erxes/ui/src';
-import { __, withProps } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils';
 import { Button } from '@erxes/ui/src';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import CreateSalesPlanContainer from '../containers/CreateSalesPlan';
 import CreateLabelContainer from '../containers/CreateLabel';
 import ConfigContainer from '../containers/Config';
 import ListContainer from '../containers/List';
@@ -97,15 +97,6 @@ function Settings({ listData, refetch }: Props) {
   };
 
   const renderAdd = () => {
-    const salesPlan = formProps => {
-      return (
-        <CreateSalesPlanContainer
-          refetch={refetch}
-          {...formProps}
-        ></CreateSalesPlanContainer>
-      );
-    };
-
     const config = formProps => {
       return <CreateLabelContainer {...formProps} />;
     };
@@ -127,15 +118,17 @@ function Settings({ listData, refetch }: Props) {
     );
 
     const createPlan = (
-      <Button
-        type="button"
-        btnStyle="success"
-        icon="plus-circle"
-        size="small"
-        uppercase={false}
-      >
-        Create sales plan
-      </Button>
+      <Link to="/settings/sales-plans/create">
+        <Button
+          type="button"
+          btnStyle="success"
+          icon="plus-circle"
+          size="small"
+          uppercase={false}
+        >
+          Create sales plan
+        </Button>
+      </Link>
     );
 
     return (
@@ -156,13 +149,7 @@ function Settings({ listData, refetch }: Props) {
           content={dayConfig}
           enforceFocus={false}
         />
-        <ModalTrigger
-          title={'Create sales plan'}
-          autoOpenKey="showKBAddModal"
-          trigger={createPlan}
-          content={salesPlan}
-          enforceFocus={false}
-        />
+        {createPlan}
       </>
     );
   };
@@ -174,7 +161,7 @@ function Settings({ listData, refetch }: Props) {
           title={__('Salesplans Plan')}
           breadcrumb={[
             { title: __('Settings'), link: '/settings' },
-            { title: __('Salesplans Plan') }
+            { title: __('Sales Plans') }
           ]}
         />
       }

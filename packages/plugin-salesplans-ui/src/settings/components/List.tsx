@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Table,
   __,
@@ -14,7 +15,6 @@ import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { Capitalize, RowTitle } from '../styles';
 import ModalTrigger from '@erxes/ui/src/components//ModalTrigger';
 import DateCooserContainer from '../containers/DateChooser';
-import { Link } from 'react-router-dom';
 
 type Props = {
   // type: any;
@@ -23,59 +23,32 @@ type Props = {
 };
 
 function List({ data, removedata }: Props) {
-  const [saleslogs, setSaleslogs] = useState(data);
+  const [salesLog, setSalesLog] = useState(data);
 
   useEffect(() => {
-    setSaleslogs(data);
+    setSalesLog(data);
   }, [data]);
-
-  const removeSalesLog = (index, id) => {
-    setSaleslogs(saleslogs.filter((_element, i) => i !== index));
-  };
-
-  const editSalesLog = data => {
-    const trigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
-
-    const content = formProps => {
-      return <DateCooserContainer data={data} {...formProps} />;
-    };
-
-    return (
-      <ModalTrigger
-        title={`Setting`}
-        trigger={trigger}
-        content={content}
-        isAnimate={true}
-      />
-    );
-  };
 
   const removeDataLabel = (id, index) => {
     removedata(id);
-    setSaleslogs(saleslogs.filter((_element, i) => i !== index));
+    setSalesLog(salesLog.filter((_element: any, i: number) => i !== index));
   };
 
   const renderTable = () => {
     const labelsStype = 'success';
-    if (data.length === 0 && saleslogs.length === 0) {
+    if (data.length === 0 && salesLog.length === 0) {
       return (
         <EmptyState image="/images/actions/12.svg" text="No SaleLogs" size="" />
       );
     }
     const table =
-      saleslogs.map((t, index) => {
+      salesLog.map((t: any, index: number) => {
         return (
-          <tbody>
+          <tbody key={index}>
             <tr>
               <td>
                 <RowTitle>
-                  <Link to={`/plugin-salesplans/saleLogDetails/${t._id}`}>
+                  <Link to={`/settings/sales-plans/edit?logId=${t._id}`}>
                     {t.name || ''}
                   </Link>
                 </RowTitle>
@@ -99,13 +72,15 @@ function List({ data, removedata }: Props) {
               </td>
               <td>
                 <ActionButtons>
-                  {editSalesLog(t)}
+                  <Tip text={__('Edit')} placement="bottom">
+                    <Link to={`/settings/sales-plans/edit?logId=${t._id}`}>
+                      <Button btnStyle="link">
+                        <Icon icon="edit-3" />
+                      </Button>
+                    </Link>
+                  </Tip>
                   <Tip text={__('Duplicate')} placement="bottom">
-                    <Button
-                      id="edit-box-line"
-                      btnStyle="link"
-                      // onClick={(e) => removeDataLabel(index, t._id)}
-                    >
+                    <Button id="edit-box-line" btnStyle="link">
                       <Icon icon="copy-1" />
                     </Button>
                   </Tip>

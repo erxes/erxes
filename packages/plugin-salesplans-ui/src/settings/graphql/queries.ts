@@ -42,7 +42,7 @@ const branches = `
 const getSalesLogs = `
   query getSalesLogs {
     getSalesLogs {
-          _id ,
+      _id,
       description,
       date,
       name,
@@ -98,19 +98,30 @@ const products = `
   query products {
     products {
       _id,
-      name
+      name,
+      categoryId
     }
   } 
+`;
+
+const productCategories = `
+  query productCategories {
+    productCategories {
+      _id,
+      name
+    }
+  }
 `;
 
 export default {
   getLabels,
   getTimeframes,
+  units,
   branches,
   getSalesLogs,
   getMonthPlanConfig,
   getDayPlanConfig,
   getYearPlanConfig,
   products,
-  units
+  productCategories
 };
