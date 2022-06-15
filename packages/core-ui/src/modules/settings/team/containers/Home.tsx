@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import Home from '../components/Home';
 import { options } from './UserList';
-import { queries, mutations } from '@erxes/ui-team/src/graphql';
+import { queries, mutations } from '@erxes/ui/src/team/graphql';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { queries as permissionQueries } from '@erxes/ui-settings/src/permissions/graphql';
@@ -17,7 +17,7 @@ type Props = {
 function HomeContainer(props: Props) {
   const usersGroupQuery = useQuery(gql(permissionQueries.usersGroups));
   const configsEnvQuery = useQuery(gql(generalQueries.configsGetEnv));
-  
+
   const getRefetchQueries = () => {
     return [
       { query: gql(queries.users), options },

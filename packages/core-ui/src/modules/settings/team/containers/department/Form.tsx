@@ -2,10 +2,10 @@ import React from 'react';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from '../../components/department/Form';
-import { mutations, queries } from '@erxes/ui-team/src/graphql';
+import { mutations, queries } from '@erxes/ui/src/team/graphql';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-import { IDepartment } from '@erxes/ui-team/src/types';
+import { IDepartment } from '@erxes/ui/src/team/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
 

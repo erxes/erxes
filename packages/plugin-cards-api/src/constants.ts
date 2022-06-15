@@ -124,6 +124,12 @@ export const BOARD_ITEM_EXTENDED_FIELDS = [
     name: 'assignedUserEmail',
     label: 'Assigned user email',
     type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'labelIds',
+    label: 'Label',
+    type: 'string'
   }
 ];
 

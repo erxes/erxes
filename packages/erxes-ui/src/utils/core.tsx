@@ -19,7 +19,6 @@ export const loadComponent = (scope, module) => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__('default');
 
-    console.log(window, scope, window[scope]);
     const container = window[scope]; // or get the container somewhere else
 
     // Initialize the container, it may provide shared modules

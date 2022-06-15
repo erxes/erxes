@@ -1,18 +1,18 @@
-import EditForm from "../../boards/components/editForm/EditForm";
-import Left from "../../boards/components/editForm/Left";
-import Sidebar from "../../boards/components/editForm/Sidebar";
-import Top from "../../boards/components/editForm/Top";
-import { Flex } from "@erxes/ui/src/styles/main";
-import { HeaderContentSmall } from "../../boards/styles/item";
-import { IEditFormContent, IItem, IOptions } from "../../boards/types";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import ProductSection from "./ProductSection";
-import { IProduct } from "@erxes/ui-products/src/types";
-import PortableTasks from "../../tasks/components/PortableTasks";
-import PortableTickets from "../../tickets/components/PortableTickets";
-import { pluginsOfItemSidebar } from "coreui/pluginUtils";
-import React from "react";
-import { IDeal, IDealParams, IPaymentsData } from "../types";
+import EditForm from '../../boards/components/editForm/EditForm';
+import Left from '../../boards/components/editForm/Left';
+import Sidebar from '../../boards/components/editForm/Sidebar';
+import Top from '../../boards/components/editForm/Top';
+import { Flex } from '@erxes/ui/src/styles/main';
+import { HeaderContentSmall } from '../../boards/styles/item';
+import { IEditFormContent, IItem, IOptions } from '../../boards/types';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ProductSection from './ProductSection';
+import { IProduct } from '@erxes/ui-products/src/types';
+import PortableTasks from '../../tasks/components/PortableTasks';
+import PortableTickets from '../../tickets/components/PortableTickets';
+import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
+import React from 'react';
+import { IDeal, IDealParams, IPaymentsData } from '../types';
 
 type Props = {
   options: IOptions;
@@ -28,7 +28,7 @@ type Props = {
     {
       _id,
       status,
-      timeSpent,
+      timeSpent
     }: { _id: string; status: string; timeSpent: number; startDate?: string },
     callback?: () => void
   ) => void;
@@ -57,7 +57,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       products: item.products ? item.products.map(p => p.product) : [],
       paymentsData: item.paymentsData,
       changePayData: {},
-      refresh: false,
+      refresh: false
     };
   }
 
@@ -86,7 +86,7 @@ export default class DealEditForm extends React.Component<Props, State> {
 
   onChangeRefresh = () => {
     this.setState({
-      refresh: !this.state.refresh,
+      refresh: !this.state.refresh
     });
   };
 
@@ -153,10 +153,10 @@ export default class DealEditForm extends React.Component<Props, State> {
   renderProductSection = () => {
     const { products, productsData, paymentsData } = this.state;
 
-    const pDataChange = pData => this.onChangeField("productsData", pData);
-    const prsChange = prs => this.onChangeField("products", prs);
+    const pDataChange = pData => this.onChangeField('productsData', pData);
+    const prsChange = prs => this.onChangeField('products', prs);
     const payDataChange = payData =>
-      this.onChangeField("paymentsData", payData);
+      this.onChangeField('paymentsData', payData);
 
     return (
       <ProductSection
@@ -177,7 +177,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       <>
         <PortableTickets mainType="deal" mainTypeId={item._id} />
         <PortableTasks mainType="deal" mainTypeId={item._id} />
-        {pluginsOfItemSidebar(item, "deal")}
+        {pluginsOfItemSidebar(item, 'deal')}
       </>
     );
   };
@@ -186,7 +186,7 @@ export default class DealEditForm extends React.Component<Props, State> {
     saveItem,
     onChangeStage,
     copy,
-    remove,
+    remove
   }: IEditFormContent) => {
     const {
       item,
@@ -194,7 +194,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       onUpdate,
       addItem,
       sendToBoard,
-      updateTimeTrack,
+      updateTimeTrack
     } = this.props;
 
     return (
@@ -242,7 +242,7 @@ export default class DealEditForm extends React.Component<Props, State> {
       sidebar: this.renderProductSection,
       formContent: this.renderFormContent,
       beforePopupClose: this.beforePopupClose,
-      refresh: this.state.refresh,
+      refresh: this.state.refresh
     };
 
     return <EditForm {...extendedProps} />;

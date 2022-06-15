@@ -13,7 +13,10 @@ import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import { ChannelsQueryResponse, IChannel } from '@erxes/ui-settings/src/channels/types';
+import {
+  ChannelsQueryResponse,
+  IChannel
+} from '@erxes/ui-settings/src/channels/types';
 import { queries as usersGroupsQueries } from '@erxes/ui-settings/src/permissions/graphql';
 import UserForm from '../components/UserForm';
 

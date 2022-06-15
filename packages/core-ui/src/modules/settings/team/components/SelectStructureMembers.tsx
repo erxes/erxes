@@ -1,11 +1,11 @@
-import gql from "graphql-tag";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { __ } from "modules/common/utils";
-import React, { useEffect, useState } from "react";
-import { useQuery } from "react-apollo";
-import Select from "react-select-plus";
+import gql from 'graphql-tag';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { __ } from 'modules/common/utils';
+import React, { useEffect, useState } from 'react';
+import { useQuery } from 'react-apollo';
+import Select from 'react-select-plus';
 
-import { queries } from "@erxes/ui-team/src/graphql";
+import { queries } from '@erxes/ui/src/team/graphql';
 
 type Props = {
   onSelect: (value: string[] | string) => void;
@@ -26,21 +26,21 @@ export default function SelectStructureMembers({
   excludeUserIds,
   name,
   isAllUsers,
-  placeholder,
+  placeholder
 }: Props) {
-  const queryName = isAllUsers ? "allUsers" : "noDepartmentUsers";
+  const queryName = isAllUsers ? 'allUsers' : 'noDepartmentUsers';
   const variables = isAllUsers ? { isActive: true } : { excludeId: objectId };
 
   const { loading, data } = useQuery(gql(queries[queryName]), {
     variables,
-    fetchPolicy: "network-only",
+    fetchPolicy: 'network-only'
   });
   const [users, setUsers] = useState([] as IUser[]);
 
   useEffect(() => {
     if (!loading) {
       const filteredUsers = data[queryName].filter(
-        (u) => !excludeUserIds.includes(u._id)
+        u => !excludeUserIds.includes(u._id)
       );
 
       setUsers(filteredUsers);
@@ -52,13 +52,13 @@ export default function SelectStructureMembers({
       name={name}
       multi={multi}
       placeholder={placeholder}
-      label={__("Choose team members")}
+      label={__('Choose team members')}
       value={value}
       onChange={onSelect}
-      options={users.map((user) => ({
+      options={users.map(user => ({
         value: user._id,
         label: user.details ? user.details.fullName || user.email : user.email,
-        avatar: user.details ? user.details.avatar : "",
+        avatar: user.details ? user.details.avatar : ''
       }))}
     />
   );

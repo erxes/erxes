@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import Select from "react-select-plus";
-import { FormControl, FormGroup } from "@erxes/ui/src/components/form";
-import { IButtonMutateProps, IFormProps } from "@erxes/ui/src/types";
-import Form from "@erxes/ui/src/components/form/Form";
-import Button from "@erxes/ui/src/components/Button";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import { ModalFooter } from "@erxes/ui/src/styles/main";
-import { __ } from "modules/common/utils";
-import { IDepartment } from "@erxes/ui-team/src/types";
-import SelectTeamMembers from "@erxes/ui/src/team/containers/SelectTeamMembers";
-import { generateTree } from "../../utils";
+import React, { useState } from 'react';
+import Select from 'react-select-plus';
+import { FormControl, FormGroup } from '@erxes/ui/src/components/form';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import Form from '@erxes/ui/src/components/form/Form';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { __ } from 'modules/common/utils';
+import { IDepartment } from '@erxes/ui/src/team/types';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { generateTree } from '../../utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -23,12 +23,12 @@ export default function DepartmentForm(props: Props) {
   const object = props.department || ({} as any);
 
   const [userIds, setUserIds] = useState(
-    (object.users || []).map((user) => user._id)
+    (object.users || []).map(user => user._id)
   );
   const [parentId, setParentId] = useState(object.parentId);
   const [supervisorId, setSupervisorId] = useState(object.supervisorId);
 
-  const generateDoc = (values) => {
+  const generateDoc = values => {
     const finalValues = values;
 
     if (object) {
@@ -39,7 +39,7 @@ export default function DepartmentForm(props: Props) {
       userIds,
       parentId,
       supervisorId,
-      ...finalValues,
+      ...finalValues
     };
   };
 
@@ -51,11 +51,11 @@ export default function DepartmentForm(props: Props) {
     }
   };
 
-  const onSelectUsers = (values) => {
+  const onSelectUsers = values => {
     setUserIds(values);
   };
 
-  const onSelectSupervisor = (value) => {
+  const onSelectSupervisor = value => {
     setSupervisorId(value);
   };
 
@@ -65,7 +65,7 @@ export default function DepartmentForm(props: Props) {
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>{__("Title")}</ControlLabel>
+          <ControlLabel required={true}>{__('Title')}</ControlLabel>
           <FormControl
             {...formProps}
             name="title"
@@ -75,7 +75,7 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Description")}</ControlLabel>
+          <ControlLabel>{__('Description')}</ControlLabel>
           <FormControl
             {...formProps}
             name="description"
@@ -84,11 +84,11 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Code")}</ControlLabel>
+          <ControlLabel>{__('Code')}</ControlLabel>
           <FormControl {...formProps} name="code" defaultValue={object.code} />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Supervisor")}</ControlLabel>
+          <ControlLabel>{__('Supervisor')}</ControlLabel>
 
           <SelectTeamMembers
             label="Choose supervisor"
@@ -99,20 +99,20 @@ export default function DepartmentForm(props: Props) {
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Parent")}</ControlLabel>
+          <ControlLabel>{__('Parent')}</ControlLabel>
           <Select
-            placeholder={__("Choose parent")}
+            placeholder={__('Choose parent')}
             value={parentId}
             clearable={true}
             onChange={onChangeParent}
             options={generateTree(departments, null, (node, level) => ({
               value: node._id,
-              label: `${"---".repeat(level)} ${node.title}`,
+              label: `${'---'.repeat(level)} ${node.title}`
             }))}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>{__("Team Members")}</ControlLabel>
+          <ControlLabel>{__('Team Members')}</ControlLabel>
 
           <SelectTeamMembers
             label="Choose team members"
@@ -136,7 +136,7 @@ export default function DepartmentForm(props: Props) {
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object,
+            object
           })}
         </ModalFooter>
       </>
