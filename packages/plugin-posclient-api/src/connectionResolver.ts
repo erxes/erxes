@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
-import { IPosUserDocument, IPosUser } from './models/definitions/posUsers';
-import { IPosUserModel, loadPosUserClass } from './models/PosUsers';
+import { IPosUserDocument } from './models/definitions/posUsers';
+import { IPosUserModel, loadUserClass } from './models/PosUsers';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
@@ -22,7 +22,7 @@ export const loadClasses = (
 
   models.PosUsers = db.model<IPosUserDocument, IPosUserModel>(
     'posuser',
-    loadPosUserClass(models)
+    loadUserClass(models)
   );
 
   return models;

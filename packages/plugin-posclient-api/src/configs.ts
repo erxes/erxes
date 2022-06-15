@@ -1,12 +1,12 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-
+import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
-import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
 export let debug;
+export let graphqlPubsub;
 export let mainDb;
 export let serviceDiscovery;
 
@@ -17,28 +17,28 @@ export default {
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers
+      resolvers: await resolvers()
     };
   },
+
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
-
-    const models = await generateModels(subdomain);
-
-    context.models = models;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
-  meta: { logs: { consumers: '' } },
+
   onServerInit: async options => {
     mainDb = options.db;
 
-    initBroker();
+    initBroker(options.messageBrokerClient);
 
     initMemoryStorage();
 
     debug = options.debug;
-  }
+    graphqlPubsub = options.pubsubClient;
+  },
+  meta: {}
 };
