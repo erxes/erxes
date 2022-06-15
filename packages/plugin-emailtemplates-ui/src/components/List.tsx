@@ -16,7 +16,6 @@ import {
   Divider
 } from '../styles';
 import Form from './Form';
-import { EMAIL_TEMPLATE_STATUSES, EMAIL_TEMPLATE_TIPTEXT } from '../constants';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { router } from 'coreui/utils';
 import dayjs from 'dayjs';
@@ -26,7 +25,6 @@ type Props = {
   history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   duplicate: (id: string) => void;
-  changeStatus: (_id: string, status: string, text: string) => void;
 } & ICommonListProps;
 
 type State = {
@@ -52,30 +50,6 @@ class EmailTemplateList extends React.Component<Props, State> {
 
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
-  };
-
-  renderDisableAction = object => {
-    const { changeStatus } = this.props;
-    const _id = object._id;
-    const isActive = object.status !== EMAIL_TEMPLATE_STATUSES.ARCHIVED;
-
-    const status = isActive
-      ? EMAIL_TEMPLATE_STATUSES.ARCHIVED
-      : EMAIL_TEMPLATE_STATUSES.ACTIVE;
-
-    const icon = isActive ? 'archive-alt' : 'redo';
-
-    const text = isActive
-      ? EMAIL_TEMPLATE_TIPTEXT.ARCHIVED
-      : EMAIL_TEMPLATE_TIPTEXT.ACTIVE;
-
-    const onClick = () => changeStatus(_id, status, text.toLowerCase());
-
-    return (
-      <div onClick={onClick}>
-        <Icon icon={icon} /> {text}
-      </div>
-    );
   };
 
   removeTemplate = object => {
@@ -126,7 +100,6 @@ class EmailTemplateList extends React.Component<Props, State> {
             <div onClick={this.removeTemplate.bind(this, object)}>
               <Icon icon="cancel-1" /> Delete
             </div>
-            {this.renderDisableAction(object)}
             {this.renderDuplicateAction(object)}
           </Actions>
           <IframePreview>
