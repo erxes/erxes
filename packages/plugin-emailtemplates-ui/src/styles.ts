@@ -79,6 +79,11 @@ const Actions = styled.div`
     i {
       margin-right: 3px;
     }
+
+    &:hover {
+      font-weight: 500;
+      transition: all ease 0.3s;
+    }
   }
 `;
 
@@ -116,11 +121,12 @@ const Template = styledTS<{ isLongName?: boolean }>(styled.div)`
 const TemplateInfo = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: 11px;
 
   > p {
     color: ${colors.colorCoreGray};
-    line-height: 8px;
+    line-height: 12px;
+    margin: 0 0 5px;
 
     &:first-child {
       color: #333;
