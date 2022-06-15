@@ -2,6 +2,7 @@ import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
 import BasicInfo from '../../containers/details/BasicInfo';
 import { IClientPortalUser } from '../../types';
+import DetailInfo from './DetailInfo';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -13,7 +14,7 @@ class LeftSidebar extends React.Component<Props> {
 
     return (
       <Sidebar wide={true}>
-        <BasicInfo clientPortalUser={clientPortalUser} />
+        <DetailInfo clientPortalUser={clientPortalUser} />
       </Sidebar>
     );
   }

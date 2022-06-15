@@ -18,7 +18,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import { IClientPortalUser } from '../../types';
 import ClientPortalUserRow from './ClientPortalUserRow';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -103,7 +103,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
               <th>{__('Last Name')}</th>
               <th>{__('User Name')}</th>
               <th>{__('Email')}</th>
-              <th>{__('Created date')}</th>
+              <th>{__('Code')}</th>
             </tr>
           </thead>
           <tbody id="clientPortalUsers">
@@ -122,15 +122,36 @@ class ClientportalUserList extends React.Component<IProps, State> {
     );
   }
 
+  search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
+    const { history } = this.props;
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
+  };
+
+  moveCursorAtTheEnd(e) {
+    const tmpValue = e.target.value;
+
+    e.target.value = '';
+    e.target.value = tmpValue;
+  }
+
   render() {
     const {
       clientPortalUserCount,
       queryParams,
       loading,
       type,
-      bulk,
-      emptyBulk,
-      removeUsers
+      bulk
     } = this.props;
 
     const addTrigger = (
@@ -148,10 +169,10 @@ class ClientportalUserList extends React.Component<IProps, State> {
         <FormControl
           type="text"
           placeholder={__('Type to search')}
-          // onChange={this.search}
-          // value={this.state.searchValue}
+          onChange={this.search}
+          value={this.state.searchValue}
           autoFocus={true}
-          // onFocus={this.moveCursorAtTheEnd}
+          onFocus={this.moveCursorAtTheEnd}
         />
 
         <ModalTrigger
@@ -179,8 +200,6 @@ class ClientportalUserList extends React.Component<IProps, State> {
 
       actionBarLeft = (
         <BarItems>
-          {/* <Widget customers={bulk} emptyBulk={emptyBulk} /> */}
-
           <Button
             btnStyle="danger"
             size="small"

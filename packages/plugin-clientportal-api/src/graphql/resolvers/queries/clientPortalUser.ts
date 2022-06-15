@@ -40,7 +40,19 @@ const clientPortalUserQueries = {
     if (searchValue) {
       const fields = [
         {
-          name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+          firstName: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        },
+        {
+          lastName: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        },
+        {
+          email: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
         },
         { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
       ];

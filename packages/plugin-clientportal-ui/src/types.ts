@@ -23,6 +23,7 @@ export interface IClientPortalUserDoc {
 export interface IClientPortalUser extends IClientPortalUserDoc {
   _id: string;
   createdAt: Date;
+  modifiedAt: Date;
 }
 
 export type ClientPortalUsersQueryResponse = {

@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from '@erxes/ui/src';
 import { mutations, queries } from '../../graphql';
-// import BasicInfoSection from '../../components/common/BasicInfoSection';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

@@ -65,9 +65,9 @@ const routes = () => (
       component={configsForm}
     />
     <Route
-      key="/settings/client-portal/userdetails/:id"
+      key="/settings/client-portal/users/details/:id"
       exact={true}
-      path="/settings/client-portal/userdetails/:id"
+      path="/settings/client-portal/users/details/:id"
       component={detail}
     />
     <Route

@@ -28,17 +28,11 @@ class Row extends React.Component<Props> {
 
     const onTrClick = () => {
       history.push(
-        `/settings/client-portal/userdetails/${clientPortalUser._id}`
+        `/settings/client-portal/users/details/${clientPortalUser._id}`
       );
     };
 
-    const {
-      firstName,
-      lastName,
-      username,
-      email,
-      createdAt
-    } = clientPortalUser;
+    const { firstName, lastName, username, email, code } = clientPortalUser;
 
     return (
       <tr onClick={onTrClick}>
@@ -53,7 +47,7 @@ class Row extends React.Component<Props> {
         <td>{lastName}</td>
         <td>{username}</td>
         <td>{email}</td>
-        <td>{createdAt}</td>
+        <td>{code}</td>
       </tr>
     );
   }

@@ -2,6 +2,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { RowTitle } from '@erxes/ui-settings/src/main/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 
 export const StyledUrl = styled.div`
   color: ${colors.colorCoreGray};
@@ -114,25 +115,24 @@ export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   pointer-events: ${props => !props.isToggled && `none`};
 `;
 
-export const Action = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: ${dimensions.unitSpacing}px;
-`;
+export const List = styled(SidebarList)`
+  li {
+    border-bottom: 1px solid ${colors.borderPrimary};
+    color: ${colors.textPrimary};
+    white-space: normal;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
 
-export const Name = styledTS<{ fontSize?: number }>(styled.div)`
-  font-size: ${props => props.fontSize && `${props.fontSize}px`};
-  font-weight: 500;
+    span {
+      color: ${colors.colorCoreLightGray};
+      margin: 0;
+    }
 
-  i {
-    margin-left: 10px;
-    transition: all 0.3s ease;
-    color: ${colors.colorCoreLightGray};
+    i {
+      margin-left: ${dimensions.unitSpacing / 2}px;
+    }
 
-    &:hover {
-      cursor: pointer;
-      color: ${colors.colorCoreGray};
+    &:last-child {
+      border: none;
     }
   }
 `;

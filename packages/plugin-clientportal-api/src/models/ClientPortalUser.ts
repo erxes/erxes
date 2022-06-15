@@ -11,7 +11,7 @@ import {
   IUserDocument
 } from './definitions/clientPortalUser';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
-import { sendSms } from '../utils';
+import { generateRandomString, sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
 import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
@@ -158,7 +158,13 @@ export const loadClientPortalUserClass = (models: IModels) => {
       subdomain: string,
       { password, email, phone, clientPortalId, ...doc }: IUser
     ) {
-      // if (password) this.checkPassword(password);
+      if (!password) {
+        password = generateRandomString();
+      }
+
+      if (password) {
+        this.checkPassword(password);
+      }
 
       const document: any = doc;
 
