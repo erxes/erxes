@@ -11,12 +11,11 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Sales Plans Settings',
-      to: '/settings/sales-plans',
-      image: '/images/icons/erxes-05.svg',
-      location: 'settings',
+      text: 'Sales Plans',
+      url: '/sales-plans',
+      icon: 'icon-file-check-alt',
+      location: 'mainNavigation',
       scope: 'salesplans',
-      action: '',
       permissions: [],
     },
   ],
