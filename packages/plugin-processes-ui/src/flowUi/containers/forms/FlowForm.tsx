@@ -1,25 +1,27 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { router, withProps, Alert } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
 import { graphql } from 'react-apollo';
-import { IUser } from '@erxes/ui/src/auth/types';
-import FlowForm from '../../components/forms/FlowForm';
-import {
-  queries as flowQueries,
-  mutations as flowMutations
-} from '../../../flow/graphql';
-import { queries as jobQueries } from '../../../job/graphql';
 import { withRouter } from 'react-router-dom';
+
+import { IUser } from '@erxes/ui/src/auth/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
+
+import {
+  mutations as flowMutations,
+  queries as flowQueries
+} from '../../../flow/graphql';
 import {
   FlowDetailQueryResponse,
-  FlowsEditMutationResponse,
   FlowsAddMutationResponse,
+  FlowsEditMutationResponse,
   IFlowDocument
 } from '../../../flow/types';
+import { queries as jobQueries } from '../../../job/graphql';
 import { JobRefersAllQueryResponse } from '../../../job/types';
+import FlowForm from '../../components/forms/FlowForm';
 
 type Props = {
   id: string;
@@ -90,6 +92,13 @@ const AutomationDetailsContainer = (props: FinalProps) => {
   return <FlowForm {...updatedProps} />;
 };
 
+const refetchQueries = [
+  'flows',
+  'automationsMain',
+  'flowDetail',
+  'jobRefersAll'
+];
+
 export default withProps<Props>(
   compose(
     graphql<Props, JobRefersAllQueryResponse>(gql(jobQueries.jobRefersAll), {
@@ -111,12 +120,7 @@ export default withProps<Props>(
       {
         name: 'flowsEdit',
         options: () => ({
-          refetchQueries: [
-            'flows',
-            'automationsMain',
-            'flowDetail',
-            'jobRefersAll'
-          ]
+          refetchQueries
         })
       }
     ),
@@ -125,12 +129,7 @@ export default withProps<Props>(
       {
         name: 'flowsAdd',
         options: () => ({
-          refetchQueries: [
-            'flows',
-            'automationsMain',
-            'flowDetail',
-            'jobRefersAll'
-          ]
+          refetchQueries
         })
       }
     )

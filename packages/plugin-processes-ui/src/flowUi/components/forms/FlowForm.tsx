@@ -82,6 +82,7 @@ type State = {
   categoryId: string;
   productId: string;
   product: IProduct;
+  lastActionId: string;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -93,6 +94,14 @@ class AutomationForm extends React.Component<Props, State> {
 
     const { flow } = this.props;
     const lenFlow = Object.keys(flow);
+    const actions = JSON.parse(JSON.stringify(lenFlow.length ? flow.jobs : []));
+
+    let actionId = '';
+    for (const action of actions) {
+      if (action.nextJobIds.length === 0 || action.length) {
+        actionId = action.label;
+      }
+    }
 
     this.state = {
       name: lenFlow.length ? flow.name : 'Your flow title',
@@ -114,7 +123,8 @@ class AutomationForm extends React.Component<Props, State> {
       actionEdited: false,
       categoryId: '',
       productId: flow.productId || '',
-      product: flow.product
+      product: flow.product,
+      lastActionId: actionId
     };
   }
 
@@ -702,6 +712,7 @@ class AutomationForm extends React.Component<Props, State> {
               jobRefers={this.props.jobRefers}
               actions={actions}
               onSave={this.onSave}
+              lastActionId={this.state.lastActionId}
             />
           </>
         );
