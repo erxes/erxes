@@ -1,9 +1,13 @@
 import { Model } from 'mongoose';
 import { IModels } from '../../connectionResolver';
+import { isUsingElk } from '../../data/utils';
 import {
   conformityHelper,
+  findElk,
   getMatchConformities,
+  getQueryConformities,
   getSavedAnyConformityMatch,
+  getSavedAnyConformityQuery,
   relatedConformityHelper
 } from './conformitiesUtils';
 import {
@@ -35,7 +39,7 @@ export interface IConformityModel extends Model<IConformityDocument> {
   getConformities(doc: IGetConformityBulk): Promise<IConformityDocument[]>;
 }
 
-export const loadConformityClass = (models: IModels, _subdomain: string) => {
+export const loadConformityClass = (models: IModels, subdomain: string) => {
   class Conformity {
     /**
      * Create a conformity
@@ -117,18 +121,33 @@ export const loadConformityClass = (models: IModels, _subdomain: string) => {
     }
 
     public static async savedConformity(doc: IConformitySaved) {
+      if (!isUsingElk()) {
+        return conformityHelper({
+          doc,
+          getConformities: async () => {
+            return models.Conformities.aggregate([
+              {
+                ...getMatchConformities({
+                  mainType: doc.mainType,
+                  relTypes: doc.relTypes,
+                  mainTypeIds: [doc.mainTypeId]
+                })
+              }
+            ]);
+          }
+        });
+      }
+
       return conformityHelper({
         doc,
         getConformities: async () => {
-          return models.Conformities.aggregate([
-            {
-              ...getMatchConformities({
-                mainType: doc.mainType,
-                relTypes: doc.relTypes,
-                mainTypeIds: [doc.mainTypeId]
-              })
-            }
-          ]);
+          return findElk(subdomain, {
+            ...getQueryConformities({
+              mainType: doc.mainType,
+              relTypes: doc.relTypes,
+              mainTypeIds: [doc.mainTypeId]
+            })
+          });
         }
       });
     }
@@ -153,6 +172,21 @@ export const loadConformityClass = (models: IModels, _subdomain: string) => {
     }
 
     public static async filterConformity(doc: IConformityFilter) {
+      if (isUsingElk()) {
+        return conformityHelper({
+          doc,
+          getConformities: async data => {
+            return findElk(subdomain, {
+              ...getQueryConformities({
+                mainType: data.mainType,
+                relTypes: [data.relType],
+                mainTypeIds: data.mainTypeIds
+              })
+            });
+          }
+        });
+      }
+
       return conformityHelper({
         doc,
         getConformities: async data => {
@@ -170,6 +204,10 @@ export const loadConformityClass = (models: IModels, _subdomain: string) => {
     }
 
     public static async getConformities(doc: IGetConformityBulk) {
+      if (isUsingElk()) {
+        return findElk(subdomain, { ...getQueryConformities({ ...doc }) });
+      }
+
       return models.Conformities.aggregate([
         {
           ...getMatchConformities({ ...doc })
@@ -178,39 +216,93 @@ export const loadConformityClass = (models: IModels, _subdomain: string) => {
     }
 
     public static async relatedConformity(doc: IConformityRelated) {
+      if (!isUsingElk()) {
+        return relatedConformityHelper({
+          doc,
+          getSaved: async data => {
+            return models.Conformities.aggregate([
+              {
+                $match: getSavedAnyConformityMatch({
+                  mainType: data.mainType,
+                  mainTypeId: data.mainTypeId
+                })
+              }
+            ]);
+          },
+          getRelated: async (data, savedList) => {
+            return models.Conformities.aggregate([
+              {
+                $match: {
+                  $or: [
+                    {
+                      $and: [
+                        { mainType: data.relType },
+                        { relTypeId: { $in: savedList } }
+                      ]
+                    },
+                    {
+                      $and: [
+                        { relType: data.relType },
+                        { mainTypeId: { $in: savedList } }
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]);
+          }
+        });
+      }
+
       return relatedConformityHelper({
         doc,
         getSaved: async data => {
-          return models.Conformities.aggregate([
-            {
-              $match: getSavedAnyConformityMatch({
-                mainType: data.mainType,
-                mainTypeId: data.mainTypeId
-              })
-            }
-          ]);
+          return findElk(subdomain, {
+            ...getSavedAnyConformityQuery({
+              mainType: data.mainType,
+              mainTypeId: data.mainTypeId
+            })
+          });
         },
         getRelated: async (data, savedList) => {
-          return models.Conformities.aggregate([
-            {
-              $match: {
-                $or: [
-                  {
-                    $and: [
-                      { mainType: data.relType },
-                      { relTypeId: { $in: savedList } }
-                    ]
-                  },
-                  {
-                    $and: [
-                      { relType: data.relType },
-                      { mainTypeId: { $in: savedList } }
+          return findElk(subdomain, {
+            bool: {
+              should: [
+                {
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          mainType: data.relType
+                        }
+                      },
+                      {
+                        terms: {
+                          relTypeId: savedList
+                        }
+                      }
                     ]
                   }
-                ]
-              }
+                },
+                {
+                  bool: {
+                    must: [
+                      {
+                        match: {
+                          relType: data.relType
+                        }
+                      },
+                      {
+                        terms: {
+                          mainTypeId: savedList
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
             }
-          ]);
+          });
         }
       });
     }
