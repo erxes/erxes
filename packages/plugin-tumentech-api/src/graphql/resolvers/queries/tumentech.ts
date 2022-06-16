@@ -1,4 +1,3 @@
-import { sendCardsMessage } from './../../../../../plugin-inbox-api/src/messageBroker';
 import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
