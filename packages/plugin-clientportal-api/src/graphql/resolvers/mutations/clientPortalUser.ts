@@ -32,6 +32,17 @@ const clientPortalUserMutations = {
       modifiedDoc
     );
 
+    const clientPortal = await models.ClientPortals.getConfig(
+      doc.clientPortalId
+    );
+
+    await models.ClientPortalUsers.sendVerification(
+      subdomain,
+      clientPortal.otpConfig,
+      doc.phone,
+      doc.email
+    );
+
     return clientPortalUser;
   },
 
