@@ -22,9 +22,9 @@ const getTimeframes = `
   }
 `;
 
-const units = `
-  query units {
-    units {
+const departments = `
+  query departments {
+    departments {
       _id,
       title
     }
@@ -42,12 +42,31 @@ const branches = `
 const getSalesLogs = `
   query getSalesLogs {
     getSalesLogs {
-          _id ,
+      _id,
       description,
       date,
       name,
       type,
-      unitDetail {
+      departmentDetail {
+        _id,
+        title
+      },
+      branchDetail {
+        _id,
+        title
+      }
+    }
+  }
+`;
+
+const getSalesLogDetail = `
+  query getSalesLogDetail($salesLogId: String) {
+    getSalesLogDetail(salesLogId: $salesLogId) {
+      _id,
+      name,
+      description,
+      type,
+      departmentDetail {
         _id,
         title
       },
@@ -98,19 +117,31 @@ const products = `
   query products {
     products {
       _id,
-      name
+      name,
+      categoryId
     }
   } 
+`;
+
+const productCategories = `
+  query productCategories {
+    productCategories {
+      _id,
+      name
+    }
+  }
 `;
 
 export default {
   getLabels,
   getTimeframes,
+  departments,
   branches,
   getSalesLogs,
+  getSalesLogDetail,
   getMonthPlanConfig,
   getDayPlanConfig,
   getYearPlanConfig,
   products,
-  units
+  productCategories
 };

@@ -18,6 +18,17 @@ export const sendCommonMessage = async (
   });
 };
 
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

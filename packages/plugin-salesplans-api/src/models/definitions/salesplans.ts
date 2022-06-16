@@ -15,7 +15,7 @@ export interface ISalesLog {
   status: string;
   date: Date;
   branchId: string;
-  unitId: string;
+  departmentId: string;
   createdBy: string;
 }
 
@@ -38,7 +38,7 @@ export const salesLogSchema = schemaWrapper(
     }),
     date: field({ type: String, label: 'Date' }),
     branchId: field({ type: String, label: 'Branch' }),
-    unitId: field({ type: String, label: 'Unit' }),
+    departmentId: field({ type: String, label: 'Department' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' })
   })

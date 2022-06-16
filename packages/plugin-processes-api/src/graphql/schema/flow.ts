@@ -8,6 +8,8 @@ export const types = `
     updatedBy: String,
     name: String,
     categoryId: String,
+    productId: String,
+    product: JSON,
     status: String,
     jobs: JSON,
   }
@@ -38,6 +40,7 @@ export const queries = `
 const flowParams = `
   name: String,
   categoryId: String,
+  productId: String,
   status: String,
   jobs: [JobInput],
 `;

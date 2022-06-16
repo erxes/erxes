@@ -19,6 +19,7 @@ type Props = {
   activeAction?: IJob;
   jobRefers: IJobRefer[];
   actions: IJob[];
+  lastActionId: string;
   addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
 };
 
@@ -96,6 +97,10 @@ class Delay extends React.Component<Props, State> {
       }
     }
 
+    if (type === 'cur') {
+      console.log('current last product:', this.props.lastActionId);
+    }
+
     console.log('beforeResultProducts', beforeResultProducts);
 
     return chosenActions.map(action => {
@@ -117,8 +122,14 @@ class Delay extends React.Component<Props, State> {
             {type === 'prev' && this.renderProducts(resultProducts, 'result')}
             {type === 'cur' &&
               this.renderProducts(needProducts, 'need', beforeResultProducts)}
-            {/* {type === 'cur' && this.renderProducts(resultProducts, 'result')} */}
           </Info>
+
+          {type === 'cur' && action.label === this.props.lastActionId && (
+            <Info type="primary" title="Result Products">
+              {type === 'cur' &&
+                this.renderProducts(resultProducts, 'result', [])}
+            </Info>
+          )}
         </>
       );
     });
@@ -134,8 +145,6 @@ class Delay extends React.Component<Props, State> {
     const beforeActions = actions.filter(e =>
       e.nextJobIds.includes(activeActionId)
     );
-
-    console.log('beforeActions before: ', beforeActions);
 
     // const afterActions = actions.filter(
     //   e => e.id === activeAction.nextJobIds[0]
@@ -197,11 +206,13 @@ class Delay extends React.Component<Props, State> {
           please uncomment below.
           */}
 
-          {/* <FormColumn>
-            <Info type="info" title="Next">
-              {this.renderActions(afterActions, jobRefers, 'next')}
-            </Info>
-          </FormColumn> */}
+          {/* {activeAction.label === this.props.lastActionId &&
+            <FormColumn>
+              <Info type="info" title={this.props.lastActionId}>
+                {this.renderActions(afterActions, jobRefers, 'next', [])}
+              </Info>
+            </FormColumn>
+          } */}
         </FormWrapper>
       </DrawerDetail>
     );

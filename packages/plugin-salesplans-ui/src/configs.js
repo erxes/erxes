@@ -13,17 +13,9 @@ module.exports = {
     {
       text: 'Sales Plans',
       url: '/sales-plans',
-      icon: 'icon-calendar-alt',
+      icon: 'icon-file-check-alt',
       location: 'mainNavigation',
-      permission: ''
-    },
-    {
-      text: 'Sales Plans',
-      to: '/settings/sales-plans',
-      image: '/images/icons/erxes-05.svg',
-      location: 'settings',
       scope: 'salesplans',
-      action: '',
       permissions: [],
     },
   ],

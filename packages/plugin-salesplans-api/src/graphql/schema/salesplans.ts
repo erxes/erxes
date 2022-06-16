@@ -10,7 +10,7 @@ export const types = () => `
     _id: String! @external
   }
 
-  extend type Unit @key(fields: "_id") {
+  extend type Department @key(fields: "_id") {
     _id: String! @external
   }
 
@@ -26,8 +26,8 @@ export const types = () => `
     description: String
     name: String
     type: String
-    unitId:String
-    unitDetail: Unit
+    departmentId:String
+    departmentDetail: Department
     createdBy:String
     createdUser: User
     createdAt: Date
@@ -108,7 +108,7 @@ const salesLogPrams = `
   description:String,
   name:String,
   type:String,
-  unitId:String,
+  departmentId:String,
 `;
 export const queries = `
   getDayPlanConfig(salesLogId: String): [DayPlanConfig]
@@ -116,6 +116,7 @@ export const queries = `
   getYearPlanConfig(salesLogId: String): [YearPlanConfig]
   getLabels(type: String): [Label]
   getSalesLogs: [SalesLog]
+  getSalesLogDetail(salesLogId: String): SalesLog
   getTimeframes:[Timeframe]
 `;
 

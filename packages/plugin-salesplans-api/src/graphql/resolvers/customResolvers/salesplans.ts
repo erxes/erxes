@@ -12,8 +12,8 @@ const SalesLog = {
   //   return models.Branches.findOne({ _id: salesLog.branchId });
   // },
 
-  // async unitDetail(salesLog, {}, { models }) {
-  //   return models.Units.findOne({ _id: salesLog.unitId });
+  // async departmentDetail(salesLog, {}, { models }) {
+  //   return models.Departments.findOne({ _id: salesLog.departmentId });
   // },
   branchDetail(salesLog: ISalesLog) {
     console.log('whahahahshdahf');
@@ -22,8 +22,13 @@ const SalesLog = {
       _id: salesLog.branchId
     };
   },
-  unitDetail(salesLog: ISalesLog) {
-    return salesLog.unitId && { __typename: 'Unit', _id: salesLog.unitId };
+  departmentDetail(salesLog: ISalesLog) {
+    return (
+      salesLog.departmentId && {
+        __typename: 'Department',
+        _id: salesLog.departmentId
+      }
+    );
   },
 
   createdUser(salesLog: ISalesLogDocument) {

@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import Select from 'react-select-plus';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { __, ControlLabel, FormControl, Button, Icon } from '@erxes/ui/src';
-import { MONTH, DAYS } from '../constant';
+import { MONTH, DAYS } from '../../constants';
 type Props = {
   labelData: any;
   data: any;
@@ -100,7 +100,7 @@ function DateChooser({
   }, [timeframes, configs]);
 
   const onChangeLabels = (option, key) => {
-    const upDatedLabel = { ...labels };
+    const upDatedLabel: any = { ...labels };
 
     upDatedLabel[key].data = option.map(option => option.value);
 
@@ -136,7 +136,7 @@ function DateChooser({
   };
 
   const onChange = (time, index, key) => {
-    const updateLabels = dateTimes;
+    const updateLabels: any = dateTimes;
 
     updateLabels[index][key] = time;
   };
@@ -144,7 +144,7 @@ function DateChooser({
   const renderDateLabels = currentDate => {
     switch (data.type) {
       case 'Year':
-        return MONTH.map(t => (
+        return MONTH.map((t: any) => (
           <FlexRow>
             <FlexItem>
               <ControlLabel uppercase={false}>
@@ -157,7 +157,7 @@ function DateChooser({
         ));
 
       case 'Month':
-        return days.map(t => (
+        return days.map((t: any) => (
           <FlexRow>
             <FlexItem>
               <ControlLabel uppercase={false}>
@@ -170,7 +170,7 @@ function DateChooser({
         ));
 
       case 'Day':
-        return timeframes.map(t => (
+        return timeframes.map((t: any) => (
           <FlexRow>
             <FlexItem>
               <ControlLabel uppercase={false}>

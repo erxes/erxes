@@ -15,6 +15,12 @@ export const COLORS = [
   '#EB144C'
 ];
 
+export const TYPES = [
+  { value: 'Year', label: 'Year' },
+  { value: 'Month', label: 'Month' },
+  { value: 'Day', label: 'Day' }
+];
+
 export const MONTH = [
   { value: 1, label: 'January' },
   { value: 2, label: 'February' },

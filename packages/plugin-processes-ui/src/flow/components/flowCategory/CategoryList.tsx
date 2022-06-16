@@ -1,33 +1,35 @@
+import { pluginsOfJobCategoryActions } from 'coreui/pluginUtils';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import { TopHeader } from '@erxes/ui/src/styles/main';
-import { __, router } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { TopHeader } from '@erxes/ui/src/styles/main';
+import { __, router } from '@erxes/ui/src/utils';
+
 import CategoryForm from '../../containers/flowCategory/CategoryForm';
-import { IFlowCategory } from '../../types';
-import { pluginsOfJobCategoryActions } from 'coreui/pluginUtils';
+import { IProductCategory } from '../../types';
 
 const { Section } = Wrapper.Sidebar;
 
 interface IProps {
   history: any;
   queryParams: any;
-  remove: (flowCategoryId: string) => void;
-  flowCategories: IFlowCategory[];
+  remove: (IProductCategory: string) => void;
+  flowCategories: IProductCategory[];
   loading: boolean;
   flowCategoriesCount: number;
 }
 
 class List extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, category?: IFlowCategory) {
+  renderFormTrigger(trigger: React.ReactNode, category?: IProductCategory) {
     const content = props => (
       <CategoryForm
         {...props}
@@ -52,7 +54,7 @@ class List extends React.Component<IProps> {
     return currentGroup === id;
   };
 
-  renderEditAction(category: IFlowCategory) {
+  renderEditAction(category: IProductCategory) {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={__('Edit')} placement="bottom">
@@ -64,7 +66,7 @@ class List extends React.Component<IProps> {
     return this.renderFormTrigger(trigger, category);
   }
 
-  renderRemoveAction(category: IFlowCategory) {
+  renderRemoveAction(category: IProductCategory) {
     const { remove } = this.props;
 
     return (
@@ -93,10 +95,10 @@ class List extends React.Component<IProps> {
       }
 
       const name = category.isRoot ? (
-        `${category.name} (${category.flowCount || 0})`
+        `${category.name} (${category.productCount || 0})`
       ) : (
         <span>
-          {category.name} ({category.flowCount || 0})
+          {category.name} ({category.productCount || 0})
         </span>
       );
 

@@ -1,48 +1,50 @@
 import { __, Alert } from 'coreui/utils';
-import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
-import RTG from 'react-transition-group';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { jsPlumb } from 'jsplumb';
 import React from 'react';
+import { Link } from 'react-router-dom';
+import RTG from 'react-transition-group';
+
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+
+import { IFlowDocument, IJob } from '../../../flow/types';
+import { IJobRefer } from '../../../job/types';
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import Confirmation from '../../containers/forms/Confirmation';
 import {
-  Container,
-  BackButton,
-  Title,
-  RightDrawerContainer,
+  ActionBarButtonsWrapper,
   AutomationFormContainer,
+  BackButton,
   CenterBar,
+  Container,
+  RightDrawerContainer,
+  Title,
   ToggleWrapper,
   ZoomActions,
-  ZoomIcon,
-  ActionBarButtonsWrapper
+  ZoomIcon
 } from '../../styles';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import {
+  connection,
+  connectorHoverStyle,
+  connectorPaintStyle,
   createInitialConnections,
   deleteConnection,
-  sourceEndpoint,
-  targetEndpoint,
-  connectorPaintStyle,
-  connectorHoverStyle,
   hoverPaintStyle,
-  connection
+  sourceEndpoint,
+  targetEndpoint
 } from '../../utils';
 import NewJobForm from './actions/NewJobForm';
-import Icon from '@erxes/ui/src/components/Icon';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import { Link } from 'react-router-dom';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import Confirmation from '../../containers/forms/Confirmation';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import { IFlowCategory, IFlowDocument, IJob } from '../../../flow/types';
-import { IJobRefer } from '../../../job/types';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -50,7 +52,6 @@ let instance;
 type Props = {
   flow: IFlowDocument;
   jobRefers: IJobRefer[];
-  flowCategories: IFlowCategory[];
   save: (params: any) => void;
   saveLoading: boolean;
   id: string;
@@ -79,6 +80,9 @@ type State = {
   percentage: number;
   actionEdited: boolean;
   categoryId: string;
+  productId: string;
+  product: IProduct;
+  lastActionId: string;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -90,6 +94,14 @@ class AutomationForm extends React.Component<Props, State> {
 
     const { flow } = this.props;
     const lenFlow = Object.keys(flow);
+    const actions = JSON.parse(JSON.stringify(lenFlow.length ? flow.jobs : []));
+
+    let actionId = '';
+    for (const action of actions) {
+      if (action.nextJobIds.length === 0 || action.length) {
+        actionId = action.label;
+      }
+    }
 
     this.state = {
       name: lenFlow.length ? flow.name : 'Your flow title',
@@ -109,7 +121,10 @@ class AutomationForm extends React.Component<Props, State> {
       percentage: 100,
       activeAction: {} as IJob,
       actionEdited: false,
-      categoryId: flow.categoryId || ''
+      categoryId: '',
+      productId: flow.productId || '',
+      product: flow.product,
+      lastActionId: actionId
     };
   }
 
@@ -233,7 +248,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { name, isActive, actions, categoryId } = this.state;
+    const { name, isActive, actions, productId } = this.state;
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -245,7 +260,7 @@ class AutomationForm extends React.Component<Props, State> {
         _id: flow._id || '',
         name,
         status: isActive ? 'active' : 'draft',
-        categoryId,
+        productId,
         jobs: actions.map(a => ({
           id: a.id,
           nextJobIds: a.nextJobIds,
@@ -343,9 +358,14 @@ class AutomationForm extends React.Component<Props, State> {
   onConnection = info => {
     const { actions } = this.state;
 
-    connection(actions, info, info.targetId.replace('action-', ''), 'connect');
-
-    this.setState({ actions });
+    this.setState({
+      actions: connection(
+        actions,
+        info,
+        info.targetId.replace('action-', ''),
+        'connect'
+      )
+    });
 
     const sourceAction = actions.find(
       a => a.id.toString() === info.sourceId.replace('action-', '')
@@ -361,14 +381,68 @@ class AutomationForm extends React.Component<Props, State> {
   onDettachConnection = info => {
     const { actions } = this.state;
 
-    connection(
-      actions,
-      info,
-      info.targetId.replace('action-', ''),
-      'disconnect'
+    this.setState({
+      actions: connection(
+        actions,
+        info,
+        info.targetId.replace('action-', ''),
+        'disconnect'
+      )
+    });
+  };
+
+  onChangeCategory = (categoryId: string) => {
+    this.setState({ categoryId });
+  };
+
+  renderProductServiceTrigger(product?: IProduct) {
+    let content = (
+      <div>
+        {__('Choose Product & service ')} <Icon icon="plus-circle" />
+      </div>
     );
 
-    this.setState({ actions });
+    // if product selected
+    if (product) {
+      content = (
+        <div>
+          {product.name} <Icon icon="pen-1" />
+        </div>
+      );
+    }
+
+    return <ProductButton>{content}</ProductButton>;
+  }
+
+  renderProductModal = (currentProduct?: IProduct) => {
+    const productOnChange = (products: IProduct[]) => {
+      const product = products[0];
+      const productId = product ? product._id : '';
+      this.setState({ productId, product, name: product.name });
+    };
+
+    const content = props => (
+      <ProductChooser
+        {...props}
+        onSelect={productOnChange}
+        onChangeCategory={this.onChangeCategory}
+        categoryId={this.state.categoryId}
+        data={{
+          name: 'Product',
+          products: currentProduct ? [currentProduct] : []
+        }}
+        limit={1}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose product & service"
+        trigger={this.renderProductServiceTrigger(currentProduct || null)}
+        size="lg"
+        content={content}
+      />
+    );
   };
 
   handleClickOutside = event => {
@@ -571,8 +645,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderLeftActionBar() {
-    const { isActionTab, name } = this.state;
-    const { flowCategories } = this.props;
+    const { name } = this.state;
 
     return (
       <FlexContent>
@@ -586,37 +659,18 @@ class AutomationForm extends React.Component<Props, State> {
             name="name"
             value={name}
             onChange={this.onNameChange}
+            disabled={true}
             required={true}
             autoFocus={true}
           />
           <Icon icon="edit-alt" size={16} />
         </Title>
         <CenterBar>
-          {/* <Tabs full={true}>
-            <TabTitle
-              className={isActionTab ? 'active' : ''}
-              onClick={this.switchActionbarTab.bind(this, 'action')}
-            >
-              {__('Actions')}
-            </TabTitle>
-          </Tabs> */}
-
           <ToggleWrapper>
-            <span>{__('Category: ')}</span>
-            <FormControl
-              name="categoryId"
-              componentClass="select"
-              defaultValue={this.state.categoryId}
-              onChange={this.onChange}
-              required={true}
-            >
-              <option value="" />
-              {flowCategories.map(categoryMap => (
-                <option key={categoryMap._id} value={categoryMap._id}>
-                  {categoryMap.name}
-                </option>
-              ))}
-            </FormControl>
+            <span>{__('Product: ')}</span>
+            {this.renderProductModal(
+              this.state.product ? this.state.product : null
+            )}
           </ToggleWrapper>
         </CenterBar>
       </FlexContent>
@@ -658,6 +712,7 @@ class AutomationForm extends React.Component<Props, State> {
               jobRefers={this.props.jobRefers}
               actions={actions}
               onSave={this.onSave}
+              lastActionId={this.state.lastActionId}
             />
           </>
         );

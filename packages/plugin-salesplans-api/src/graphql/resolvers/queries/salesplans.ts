@@ -1,4 +1,4 @@
-import { IContext, IModels } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 
 const salesLogQueries = {
   getLabels: async (
@@ -11,6 +11,14 @@ const salesLogQueries = {
 
   getSalesLogs: async (_root, _args, { models }: IContext) => {
     return await models.SalesLogs.find({}).lean();
+  },
+
+  getSalesLogDetail: async (
+    _root,
+    { salesLogId }: { salesLogId: string },
+    { models }: IContext
+  ) => {
+    return await models.SalesLogs.findOne({ _id: salesLogId });
   },
 
   getTimeframes: async (_root, _args, { models }: IContext) => {

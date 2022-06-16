@@ -1,5 +1,8 @@
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IProductCategory as IProductCategoryC } from '@erxes/ui-products/src/types';
+import {
+  IProduct,
+  IProductCategory as IProductCategoryC
+} from '@erxes/ui-products/src/types';
 export type IProductCategory = IProductCategoryC & {};
 export interface IJob {
   id: string;
@@ -32,6 +35,8 @@ export interface IFlowCategory {
 export interface IFlow {
   name: string;
   categoryId?: string;
+  productId?: string;
+  product?: IProduct;
   status: string;
   jobs?: IJob[];
 }
@@ -95,7 +100,7 @@ export type flowTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type FlowCategoriesQueryResponse = {
-  flowCategories: IFlowCategory[];
+  productCategories: IProductCategory[];
 } & QueryResponse;
 
 export type FlowCategoriesCountQueryResponse = {
