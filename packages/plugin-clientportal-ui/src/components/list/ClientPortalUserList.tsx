@@ -151,7 +151,8 @@ class ClientportalUserList extends React.Component<IProps, State> {
       queryParams,
       loading,
       type,
-      bulk
+      bulk,
+      clientPortalUsers
     } = this.props;
 
     const addTrigger = (
@@ -227,7 +228,12 @@ class ClientportalUserList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={clientPortalUserCount} />}
-        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
+        leftSidebar={
+          <Sidebar
+            loadingMainQuery={loading}
+            clientPortalUsers={clientPortalUsers}
+          />
+        }
         content={
           <DataWithLoader
             data={this.renderContent()}

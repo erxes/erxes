@@ -1,25 +1,22 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
-// import SegmentFilter from "../../containers/filters/SegmentFilter";
-// import TagFilter from "../../containers/filters/TagFilter";
+import { __ } from 'coreui/utils';
+import ClientPortalIdFilter from '../../containers/ClientPortalIdFilter';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IClientPortalUser } from '../../types';
 
 function Sidebar({
   loadingMainQuery,
-  type
+  clientPortalUsers
 }: {
   loadingMainQuery: boolean;
-  type: string;
+  clientPortalUsers: IClientPortalUser[];
 }) {
   return (
     <Wrapper.Sidebar>
-      {/* {isEnabled("segments") && (
-        <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
+      {isEnabled('clientportal') && (
+        <ClientPortalIdFilter clientPortalUsers={clientPortalUsers} />
       )}
-      {isEnabled("tags") && (
-        <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
-      )} */}
-      <div>Side bar</div>
     </Wrapper.Sidebar>
   );
 }

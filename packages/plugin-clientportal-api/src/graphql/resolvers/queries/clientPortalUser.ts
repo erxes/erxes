@@ -15,6 +15,7 @@ const clientPortalUserQueries = {
       searchValue,
       ids,
       excludeIds,
+      cpId,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -23,6 +24,7 @@ const clientPortalUserQueries = {
       searchValue: string;
       page: number;
       perPage: number;
+      cpId: string;
     },
     { commonQuerySelector, models }: IContext
   ) {
@@ -58,6 +60,10 @@ const clientPortalUserQueries = {
       ];
 
       filter.$or = fields;
+    }
+
+    if (cpId) {
+      filter.clientPortalId = cpId;
     }
 
     return paginate(

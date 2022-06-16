@@ -87,6 +87,7 @@ export const listParamsDef = `
   $searchValue: String,
   $sortField: String,
   $sortDirection: Int,
+  $cpId: String,
   ${conformityQueryFields}
 `;
 
@@ -99,6 +100,7 @@ export const listParamsValue = `
   searchValue: $searchValue,
   sortField: $sortField,
   sortDirection: $sortDirection,
+  cpId: $cpId,
   ${conformityQueryFieldDefs}
 `;
 

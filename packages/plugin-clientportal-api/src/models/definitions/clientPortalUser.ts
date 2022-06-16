@@ -53,7 +53,7 @@ export const clientPortalUserSchema = new Schema({
   password: field({ type: String }),
   firstName: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true }),
-  clientPortalId: field({ type: String, optional: true }),
+  clientPortalId: field({ type: String, required: true }),
 
   erxesCustomerId: field({ type: String, optional: true }),
   phoneVerificationCode: field({ type: String, optional: true }),

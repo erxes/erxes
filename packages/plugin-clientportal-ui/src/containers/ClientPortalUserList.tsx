@@ -103,6 +103,7 @@ export default withProps<Props>(
       options: ({ queryParams }) => ({
         variables: {
           searchValue: queryParams.searchValue,
+          cpId: queryParams.cpId,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'

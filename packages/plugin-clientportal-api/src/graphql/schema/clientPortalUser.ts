@@ -41,6 +41,7 @@ const queryParams = `
   searchValue: String
   sortField: String
   sortDirection: Int
+  cpId: String
   ${conformityQueryFields}
 `;
 
