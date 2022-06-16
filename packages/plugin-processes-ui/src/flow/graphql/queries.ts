@@ -30,6 +30,8 @@ query flowDetail($_id: String!) {
     updatedBy
     name
     categoryId
+    productId
+    product
     status
     jobs
   }

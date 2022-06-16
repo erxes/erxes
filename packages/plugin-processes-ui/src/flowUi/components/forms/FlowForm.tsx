@@ -41,6 +41,10 @@ import {
   targetEndpoint
 } from '../../utils';
 import NewJobForm from './actions/NewJobForm';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -76,6 +80,8 @@ type State = {
   percentage: number;
   actionEdited: boolean;
   categoryId: string;
+  productId: string;
+  product: IProduct;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -106,7 +112,9 @@ class AutomationForm extends React.Component<Props, State> {
       percentage: 100,
       activeAction: {} as IJob,
       actionEdited: false,
-      categoryId: flow.categoryId || ''
+      categoryId: '',
+      productId: flow.productId || '',
+      product: flow.product
     };
   }
 
@@ -230,7 +238,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { name, isActive, actions, categoryId } = this.state;
+    const { name, isActive, actions, productId } = this.state;
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -242,7 +250,7 @@ class AutomationForm extends React.Component<Props, State> {
         _id: flow._id || '',
         name,
         status: isActive ? 'active' : 'draft',
-        categoryId,
+        productId,
         jobs: actions.map(a => ({
           id: a.id,
           nextJobIds: a.nextJobIds,
@@ -371,6 +379,60 @@ class AutomationForm extends React.Component<Props, State> {
         'disconnect'
       )
     });
+  };
+
+  onChangeCategory = (categoryId: string) => {
+    this.setState({ categoryId });
+  };
+
+  renderProductServiceTrigger(product?: IProduct) {
+    let content = (
+      <div>
+        {__('Choose Product & service ')} <Icon icon="plus-circle" />
+      </div>
+    );
+
+    // if product selected
+    if (product) {
+      content = (
+        <div>
+          {product.name} <Icon icon="pen-1" />
+        </div>
+      );
+    }
+
+    return <ProductButton>{content}</ProductButton>;
+  }
+
+  renderProductModal = (currentProduct?: IProduct) => {
+    const productOnChange = (products: IProduct[]) => {
+      const product = products[0];
+      const productId = product ? product._id : '';
+      this.setState({ productId, product, name: product.name });
+    };
+
+    const content = props => (
+      <ProductChooser
+        {...props}
+        onSelect={productOnChange}
+        onChangeCategory={this.onChangeCategory}
+        categoryId={this.state.categoryId}
+        data={{
+          name: 'Product',
+          products: currentProduct ? [currentProduct] : []
+        }}
+        limit={1}
+      />
+    );
+
+    return (
+      <ModalTrigger
+        title="Choose product & service"
+        trigger={this.renderProductServiceTrigger(currentProduct || null)}
+        size="lg"
+        content={content}
+      />
+    );
   };
 
   handleClickOutside = event => {
@@ -587,39 +649,20 @@ class AutomationForm extends React.Component<Props, State> {
             name="name"
             value={name}
             onChange={this.onNameChange}
+            disabled={true}
             required={true}
             autoFocus={true}
           />
           <Icon icon="edit-alt" size={16} />
         </Title>
-        {/* <CenterBar> */}
-        {/* <Tabs full={true}>
-            <TabTitle
-              className={isActionTab ? 'active' : ''}
-              onClick={this.switchActionbarTab.bind(this, 'action')}
-            >
-              {__('Actions')}
-            </TabTitle>
-          </Tabs> */}
-
-        {/* <ToggleWrapper>
-            <span>{__('Category: ')}</span>
-            <FormControl
-              name="categoryId"
-              componentClass="select"
-              defaultValue={this.state.categoryId}
-              onChange={this.onChange}
-              required={true}
-            >
-              <option value="" />
-              {flowCategories.map(categoryMap => (
-                <option key={categoryMap._id} value={categoryMap._id}>
-                  {categoryMap.name}
-                </option>
-              ))}
-            </FormControl>
-          </ToggleWrapper> */}
-        {/* </CenterBar> */}
+        <CenterBar>
+          <ToggleWrapper>
+            <span>{__('Product: ')}</span>
+            {this.renderProductModal(
+              this.state.product ? this.state.product : null
+            )}
+          </ToggleWrapper>
+        </CenterBar>
       </FlexContent>
     );
   }

@@ -19,6 +19,7 @@ export interface IJobDocument extends IJob {
 export interface IFlow {
   name: string;
   categoryId?: string;
+  productId?: string;
   status: string;
   jobs?: IJob[];
 }
@@ -57,6 +58,12 @@ export const flowSchema = schemaHooksWrapper(
     categoryId: field({
       type: String,
       label: 'Category',
+      optional: true,
+      index: true
+    }),
+    productId: field({
+      type: String,
+      label: 'Product',
       optional: true,
       index: true
     }),

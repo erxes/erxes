@@ -1,7 +1,7 @@
 // FLOW
 
-const flowParamsDef = `$name: String, $categoryId: String, $status: String, $jobs: [JobInput]`;
-const flowParams = `name: $name, categoryId: $categoryId, status: $status, jobs: $jobs`;
+const flowParamsDef = `$name: String, $categoryId: String, $productId: String, $status: String, $jobs: [JobInput]`;
+const flowParams = `name: $name, categoryId: $categoryId, productId: $productId, status: $status, jobs: $jobs`;
 
 const flowsAdd = `
 mutation flowsAdd(${flowParamsDef}) {

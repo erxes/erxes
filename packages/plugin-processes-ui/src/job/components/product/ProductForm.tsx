@@ -26,7 +26,6 @@ import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import { __ } from '@erxes/ui/src/utils';
 import Icon from '@erxes/ui/src/components/Icon';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   jobRefer?: IJobRefer;
