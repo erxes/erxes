@@ -1,30 +1,4 @@
-const jobRefersParamsDef = `$page: Int, $perPage: Int, $categoryId: String, $searchValue: String`;
-const jobRefersParams = `page: $page, perPage: $perPage, categoryId: $categoryId, searchValue: $searchValue`;
-
-const jobRefersFields = `
-_id
-createdAt
-code
-name
-type
-status
-duration
-durationType
-needProducts
-resultProducts
-      `;
-
-const flowCategoryFields = `
-      _id
-      createdAt
-      name
-      code
-      order
-      description
-      parentId
-      status
-      flowCount
-      `;
+import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 
 const flowFields = `
 _id
@@ -68,13 +42,7 @@ query flowTotalCount($categoryId: String, $searchValue: String) {
 }
 `;
 
-const flowCategories = `
-query flowCategories($status: String) {
-  flowCategories(status: $status) {
-      ${flowCategoryFields}
-    }
-  }
-`;
+const flowCategories = productQueries.productCategories;
 
 const flowCategoriesTotalCount = `
   query flowCategoriesTotalCount {

@@ -41,7 +41,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       });
     };
 
-    const flowCategories = flowCategoriesQuery.flowCategories || [];
+    const flowCategories = flowCategoriesQuery.productCategories || [];
 
     const updatedProps = {
       ...this.props,

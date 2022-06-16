@@ -1,48 +1,46 @@
 import { __, Alert } from 'coreui/utils';
-import { jsPlumb } from 'jsplumb';
 import jquery from 'jquery';
-import RTG from 'react-transition-group';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { jsPlumb } from 'jsplumb';
 import React from 'react';
+import { Link } from 'react-router-dom';
+import RTG from 'react-transition-group';
+
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+
+import { IFlowDocument, IJob } from '../../../flow/types';
+import { IJobRefer } from '../../../job/types';
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import Confirmation from '../../containers/forms/Confirmation';
 import {
-  Container,
-  BackButton,
-  Title,
-  RightDrawerContainer,
+  ActionBarButtonsWrapper,
   AutomationFormContainer,
+  BackButton,
   CenterBar,
+  Container,
+  RightDrawerContainer,
+  Title,
   ToggleWrapper,
   ZoomActions,
-  ZoomIcon,
-  ActionBarButtonsWrapper
+  ZoomIcon
 } from '../../styles';
-import { FormControl } from '@erxes/ui/src/components/form';
-import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import {
+  connection,
+  connectorHoverStyle,
+  connectorPaintStyle,
   createInitialConnections,
   deleteConnection,
-  sourceEndpoint,
-  targetEndpoint,
-  connectorPaintStyle,
-  connectorHoverStyle,
   hoverPaintStyle,
-  connection
+  sourceEndpoint,
+  targetEndpoint
 } from '../../utils';
 import NewJobForm from './actions/NewJobForm';
-import Icon from '@erxes/ui/src/components/Icon';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import { Link } from 'react-router-dom';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import Confirmation from '../../containers/forms/Confirmation';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import { IFlowCategory, IFlowDocument, IJob } from '../../../flow/types';
-import { IJobRefer } from '../../../job/types';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -50,7 +48,6 @@ let instance;
 type Props = {
   flow: IFlowDocument;
   jobRefers: IJobRefer[];
-  flowCategories: IFlowCategory[];
   save: (params: any) => void;
   saveLoading: boolean;
   id: string;
@@ -576,8 +573,7 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderLeftActionBar() {
-    const { isActionTab, name } = this.state;
-    const { flowCategories } = this.props;
+    const { name } = this.state;
 
     return (
       <FlexContent>
@@ -596,8 +592,8 @@ class AutomationForm extends React.Component<Props, State> {
           />
           <Icon icon="edit-alt" size={16} />
         </Title>
-        <CenterBar>
-          {/* <Tabs full={true}>
+        {/* <CenterBar> */}
+        {/* <Tabs full={true}>
             <TabTitle
               className={isActionTab ? 'active' : ''}
               onClick={this.switchActionbarTab.bind(this, 'action')}
@@ -606,7 +602,7 @@ class AutomationForm extends React.Component<Props, State> {
             </TabTitle>
           </Tabs> */}
 
-          <ToggleWrapper>
+        {/* <ToggleWrapper>
             <span>{__('Category: ')}</span>
             <FormControl
               name="categoryId"
@@ -622,8 +618,8 @@ class AutomationForm extends React.Component<Props, State> {
                 </option>
               ))}
             </FormControl>
-          </ToggleWrapper>
-        </CenterBar>
+          </ToggleWrapper> */}
+        {/* </CenterBar> */}
       </FlexContent>
     );
   }

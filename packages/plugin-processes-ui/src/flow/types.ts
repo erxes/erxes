@@ -95,7 +95,7 @@ export type flowTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type FlowCategoriesQueryResponse = {
-  flowCategories: IFlowCategory[];
+  productCategories: IProductCategory[];
 } & QueryResponse;
 
 export type FlowCategoriesCountQueryResponse = {
