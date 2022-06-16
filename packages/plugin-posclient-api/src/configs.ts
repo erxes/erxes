@@ -17,7 +17,7 @@ export default {
 
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers()
+      resolvers
     };
   },
 
