@@ -41,7 +41,7 @@ export interface IPosUserModel extends Model<IPosUserDocument> {
   getTokenFields(user: IPosUserDocument);
 }
 
-export const loadUserClass = models => {
+export const loadPosUserClass = models => {
   class User {
     public static async getUser(_id: string) {
       const user = await models.PosUsers.findOne({ _id });

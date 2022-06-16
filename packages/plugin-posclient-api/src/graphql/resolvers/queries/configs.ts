@@ -6,8 +6,8 @@ const configQueries = {
     return Configs.findOne();
   },
 
-  async getBranches(_root, _param) {
-    const config = await Configs.findOne({}).lean();
+  async getBranches(_root, models, _param) {
+    const config = await models.Configs.findOne({}).lean();
     return sendGraphQLRequest({
       query: `
         query ecommerceGetBranches($posToken: String) {

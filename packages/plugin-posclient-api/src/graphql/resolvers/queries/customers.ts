@@ -5,11 +5,13 @@ interface IListArgs {
 }
 
 const customerQueries = {
-  async customers(_root, { searchValue }: IListArgs) {
+  async customers(_root, models, { searchValue }: IListArgs) {
     const filter: any = {};
 
     if (searchValue) {
-      const customerById = await Customers.findOne({ _id: searchValue }).lean();
+      const customerById = await models.Customers.findOne({
+        _id: searchValue
+      }).lean();
 
       if (customerById) {
         return [{ ...customerById, isOne: true }];
@@ -25,13 +27,13 @@ const customerQueries = {
       ];
     }
 
-    return Customers.find(filter)
+    return models.Customers.find(filter)
       .limit(10)
       .lean();
   },
 
-  customerDetail(_root, { _id }: { _id: string }) {
-    return Customers.findOne({ _id });
+  customerDetail(_root, models, { _id }: { _id: string }) {
+    return models.Customers.findOne({ _id });
   }
 };
 

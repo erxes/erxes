@@ -49,10 +49,11 @@ const userMutations = {
    */
   userChangePassword(
     _root,
+    models,
     args: { currentPassword: string; newPassword: string },
     { user }: IContext
   ) {
-    return Users.changePassword({ _id: user._id, ...args });
+    return models.Users.changePassword({ _id: user._id, ...args });
   },
 
   /*
@@ -60,19 +61,20 @@ const userMutations = {
    */
   resetPasswordWithCode(
     _root,
+    models,
     args: { phone: string; password: string; code: string }
   ) {
-    return Users.changePasswordWithCode(args);
+    return models.Users.changePasswordWithCode(args);
   },
 
-  async forgotPassword(_root, { email }: { email: string }) {
-    return Users.forgotPassword(email);
+  async forgotPassword(_root, models, { email }: { email: string }) {
+    return models.Users.forgotPassword(email);
   },
   /*
    * Edit user profile
    */
-  async userEdit(_root, args: IUser, { user }: IContext) {
-    return Users.editProfile(user._id, args);
+  async userEdit(_root, models, args: IUser, { user }: IContext) {
+    return models.Users.editProfile(user._id, args);
   }
 };
 

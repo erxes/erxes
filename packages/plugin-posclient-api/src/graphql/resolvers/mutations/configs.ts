@@ -23,10 +23,10 @@ import { ORDER_STATUSES } from '../../../models/definitions/constants';
 dotenv.config();
 
 const configMutations = {
-  async posConfigsFetch(_root, { token }) {
+  async posConfigsFetch(_root, { token }, models) {
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
-    const config = await Configs.createConfig(token);
+    const config = await models.Configs.createConfig(token);
 
     const response = await sendRequest({
       url: `${REACT_APP_MAIN_API_DOMAIN}/pos-init`,
@@ -46,7 +46,7 @@ const configMutations = {
 
       validateConfig();
 
-      await Configs.updateConfig(config._id, {
+      await models.Configs.updateConfig(config._id, {
         ...extractConfig(pos),
         syncInfo: pos.syncInfo,
         qpayConfig
@@ -55,7 +55,7 @@ const configMutations = {
       await importUsers(cashiers);
       await importUsers(adminUsers);
       await importProducts(productGroups);
-      await Customers.insertMany(customers);
+      await models.Customers.insertMany(customers);
     }
 
     initBroker()
@@ -69,10 +69,10 @@ const configMutations = {
     return config;
   },
 
-  async syncConfig(_root, { type }) {
+  async syncConfig(_root, { type }, models) {
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
-    const config = await Configs.findOne({}).lean();
+    const config = await models.Configs.findOne({}).lean();
 
     const response = await sendRequest({
       url: `${REACT_APP_MAIN_API_DOMAIN}/pos-sync-config`,
@@ -93,7 +93,7 @@ const configMutations = {
           cashiers = [],
           qpayConfig
         } = response;
-        await Configs.updateConfig(config._id, {
+        await models.Configs.updateConfig(config._id, {
           ...extractConfig(pos),
           syncInfo: pos.syncInfo,
           qpayConfig
@@ -115,7 +115,7 @@ const configMutations = {
         break;
     }
 
-    await Configs.updateOne(
+    await models.Configs.updateOne(
       { _id: config._id },
       { $set: { 'syncInfo.date': new Date() } }
     );
@@ -123,7 +123,7 @@ const configMutations = {
     return 'success';
   },
 
-  async syncOrders(_root, _param) {
+  async syncOrders(_root, _param, models) {
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
     const orderFilter = {
@@ -131,8 +131,8 @@ const configMutations = {
       status: { $in: ORDER_STATUSES.FULL },
       paidDate: { $exists: true, $ne: null }
     };
-    let sumCount = await Orders.find({ ...orderFilter }).count();
-    const orders = await Orders.find({ ...orderFilter })
+    let sumCount = await models.Orders.find({ ...orderFilter }).count();
+    const orders = await models.Orders.find({ ...orderFilter })
       .sort({ paidDate: 1 })
       .limit(100)
       .lean();
@@ -152,20 +152,20 @@ const configMutations = {
         );
       }
 
-      putResponses = await PutResponses.find({
+      putResponses = await models.PutResponses.find({
         contentId: { $in: orderIds },
         synced: false
       }).lean();
     } else {
       kind = 'putResponse';
-      sumCount = await PutResponses.find({ synced: false }).count();
-      putResponses = await PutResponses.find({ synced: false })
+      sumCount = await models.PutResponses.find({ synced: false }).count();
+      putResponses = await models.PutResponses.find({ synced: false })
         .sort({ paidDate: 1 })
         .limit(100)
         .lean();
     }
 
-    const config = await Configs.getConfig({});
+    const config = await models.Configs.getConfig({});
 
     try {
       const response = await sendRequest({
@@ -181,11 +181,11 @@ const configMutations = {
         throw new Error(error);
       }
 
-      await Orders.updateMany(
+      await models.Orders.updateMany(
         { _id: { $in: resOrderIds } },
         { $set: { synced: true } }
       );
-      await PutResponses.updateMany(
+      await models.PutResponses.updateMany(
         { _id: { $in: putResponseIds } },
         { $set: { synced: true } }
       );
@@ -200,15 +200,15 @@ const configMutations = {
     };
   },
 
-  async deleteOrders(_root, _param) {
+  async deleteOrders(_root, _param, models) {
     const orderFilter = {
       synced: false,
       status: ORDER_STATUSES.NEW
     };
 
-    const count = await Orders.find({ ...orderFilter }).count();
+    const count = await models.Orders.find({ ...orderFilter }).count();
 
-    await Orders.deleteMany({ ...orderFilter });
+    await models.Orders.deleteMany({ ...orderFilter });
 
     return {
       deletedCount: count
