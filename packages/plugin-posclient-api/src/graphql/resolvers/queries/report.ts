@@ -8,6 +8,7 @@ import { generateOrderNumber } from '../../utils/orderUtils';
 const reportQueries = {
   async dailyReport(
     _root,
+    models,
     { posUserIds, posNumber }: { posUserIds: string[]; posNumber: string }
   ) {
     const report: any = {};
@@ -26,10 +27,12 @@ const reportQueries = {
       number: { $regex: new RegExp(beginNumber) },
       posToken: { $in: ['', null] }
     };
-    const users = await PosUsers.find({ _id: { $in: posUserIds } }).lean();
+    const users = await models.PosUsers.find({
+      _id: { $in: posUserIds }
+    }).lean();
 
     for (const user of users) {
-      const ordersAmounts = await Orders.aggregate([
+      const ordersAmounts = await models.Orders.aggregate([
         { $match: { ...orderQuery, userId: user._id } },
         {
           $project: {
@@ -50,12 +53,12 @@ const reportQueries = {
         }
       ]);
 
-      const orders = await Orders.find({
+      const orders = await models.Orders.find({
         ...orderQuery,
         userId: user._id
       }).lean();
       const orderIds = orders.map(o => o._id);
-      const groupedItems = await OrderItems.aggregate([
+      const groupedItems = await models.OrderItems.aggregate([
         { $match: { orderId: { $in: orderIds } } },
         {
           $project: {
@@ -72,11 +75,11 @@ const reportQueries = {
       ]);
 
       const productIds = groupedItems.map(g => g._id);
-      const products = await Products.find(
+      const products = await models.Products.find(
         { _id: { $in: productIds } },
         { _id: 1, code: 1, name: 1, categoryId: 1 }
       ).lean();
-      const productCategories = await ProductCategories.find(
+      const productCategories = await models.ProductCategories.find(
         { _id: { $in: products.map(p => p.categoryId) } },
         { _id: 1, code: 1, name: 1 }
       )

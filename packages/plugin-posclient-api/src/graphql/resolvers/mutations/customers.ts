@@ -10,7 +10,7 @@ interface IParams {
 }
 
 const customerMutations = {
-  async customersAdd(_root, params: IParams, { config }) {
+  async customersAdd(_root, params: IParams, { config }, models) {
     let customer;
 
     const response = await messageBroker().sendRPCMessage('erxes-pos-to-api', {
@@ -27,7 +27,7 @@ const customerMutations = {
     });
 
     if (response && response._id) {
-      customer = await Customers.createCustomer(response);
+      customer = await models.Customers.createCustomer(response);
     }
 
     return customer;

@@ -23,6 +23,7 @@ const INVOICE_STATUSES = {
 const paymentMutations = {
   async createQpaySimpleInvoice(
     _root,
+    models,
     params: IInvoiceParams,
     { config }: IContext
   ) {
@@ -33,7 +34,7 @@ const paymentMutations = {
     try {
       const { orderId, amount } = params;
 
-      const order = await Orders.getOrder(orderId);
+      const order = await models.Orders.getOrder(orderId);
 
       await checkInvoiceAmount({ order, amount });
 
@@ -52,16 +53,16 @@ const paymentMutations = {
         config.qpayConfig
       );
 
-      const invoice = await QPayInvoices.createInvoice({
+      const invoice = await models.QPayInvoices.createInvoice({
         senderInvoiceNo: order._id,
         amount: amount ? amount.toString() : order.totalAmount.toString()
       });
 
       if (invoiceData) {
-        await QPayInvoices.updateInvoice(invoice._id, invoiceData);
+        await models.QPayInvoices.updateInvoice(invoice._id, invoiceData);
       }
 
-      return QPayInvoices.findOne({ _id: invoice._id });
+      return models.QPayInvoices.findOne({ _id: invoice._id });
     } catch (e) {
       throw new Error(e.message);
     }
@@ -69,12 +70,13 @@ const paymentMutations = {
 
   async qpayCancelInvoice(
     _root,
+    models,
     { _id }: IInvoiceParams,
     { config }: IContext
   ) {
     try {
       const tokenInfo = await fetchQPayToken(config.qpayConfig!);
-      const invoice = await QPayInvoices.getInvoice(_id);
+      const invoice = await models.QPayInvoices.getInvoice(_id);
 
       if (invoice.status === INVOICE_STATUSES.PAID) {
         throw new Error('Can not cancel paid invoice');
@@ -89,7 +91,7 @@ const paymentMutations = {
 
         if (JSON.stringify(response) === '{}') {
           // successful cancel
-          await QPayInvoices.deleteOne({ _id });
+          await models.QPayInvoices.deleteOne({ _id });
         }
 
         return 'success';
@@ -99,8 +101,13 @@ const paymentMutations = {
     }
   },
 
-  async qpayCheckPayment(_root, { _id }: IInvoiceParams, { config }: IContext) {
-    const invoice = await QPayInvoices.getInvoice(_id);
+  async qpayCheckPayment(
+    _root,
+    models,
+    { _id }: IInvoiceParams,
+    { config }: IContext
+  ) {
+    const invoice = await models.QPayInvoices.getInvoice(_id);
 
     if (
       invoice.status === INVOICE_STATUSES.PAID &&
@@ -130,7 +137,7 @@ const paymentMutations = {
         invoice.status !== INVOICE_STATUSES.PAID &&
         !invoice.qpayPaymentId
       ) {
-        await QPayInvoices.updateOne(
+        await models.QPayInvoices.updateOne(
           { _id: invoice._id },
           {
             $set: {
@@ -141,11 +148,13 @@ const paymentMutations = {
           }
         );
 
-        const order = await Orders.getOrder(invoice.senderInvoiceNo!);
+        const order = await models.Orders.getOrder(invoice.senderInvoiceNo!);
 
-        const paidMobileAmount = await QPayInvoices.getPaidAmount(order._id);
+        const paidMobileAmount = await models.QPayInvoices.getPaidAmount(
+          order._id
+        );
 
-        await Orders.updateOne(
+        await models.Orders.updateOne(
           { _id: invoice.senderInvoiceNo },
           {
             $set: { mobileAmount: paidMobileAmount }
@@ -154,7 +163,7 @@ const paymentMutations = {
       }
     }
 
-    return QPayInvoices.findOne({ _id: invoice._id });
+    return models.QPayInvoices.findOne({ _id: invoice._id });
   }
 };
 

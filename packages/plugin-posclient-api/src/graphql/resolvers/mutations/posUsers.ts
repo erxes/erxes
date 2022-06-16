@@ -27,6 +27,7 @@ const login = async (
 const posUserMutations = {
   async posUsersCreateOwner(
     _root,
+    models,
     {
       email,
       password
@@ -39,7 +40,7 @@ const posUserMutations = {
       subscribeEmail?: boolean;
     }
   ) {
-    const userCount = await PosUsers.countDocuments();
+    const userCount = await models.PosUsers.countDocuments();
 
     if (userCount > 0) {
       throw new Error('Access denied');
@@ -51,7 +52,7 @@ const posUserMutations = {
       password: (password || '').trim()
     };
 
-    await PosUsers.createUser(doc);
+    await models.PosUsers.createUser(doc);
 
     return 'success';
   },
