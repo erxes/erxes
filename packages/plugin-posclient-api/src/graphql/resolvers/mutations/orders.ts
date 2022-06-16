@@ -5,7 +5,7 @@ import { OrderItems } from '../../../models/OrderItems';
 import { PutResponses } from '../../../models/PutResponses';
 import { IOrderInput } from '../../types';
 import {
-  generateOrderNumber,
+  // generateOrderNumber,
   validateOrderPayment,
   validateOrder,
   updateOrderItems,

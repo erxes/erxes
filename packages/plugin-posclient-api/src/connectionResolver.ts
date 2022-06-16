@@ -27,7 +27,7 @@ import {
   IProductCategoryDocument
 } from './models/definitions/products';
 import { IPutResponseDocument } from './models/definitions/putResponses';
-import { IQpayInvoiceDocument } from './models/definitions/qPayInvoices';
+// import { IQpayInvoiceDocument } from './models/definitions/qPayInvoices';
 
 export interface IModels {
   Configs: IConfigModel;
@@ -87,10 +87,10 @@ export const loadClasses = (
     'pos_putResponses',
     loadPutResponseClass(models)
   );
-  models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'pos_qpayInvoices',
-    loadQPayInvoiceClass(models)
-  );
+  // models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
+  //   'pos_qpayInvoices',
+  //   loadQPayInvoiceClass(models)
+  // );
   return models;
 };
 

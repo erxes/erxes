@@ -3,7 +3,7 @@ import PosUsers from '../../../models/PosUsers';
 import { OrderItems } from '../../../models/OrderItems';
 import { Products, ProductCategories } from '../../../models/Products';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
-import { generateOrderNumber } from '../../utils/orderUtils';
+// import { generateOrderNumber } from '../../utils/orderUtils';
 
 const reportQueries = {
   async dailyReport(
@@ -17,8 +17,8 @@ const reportQueries = {
 
     if (!beginNumber) {
       let config;
-      const tempNumber = await generateOrderNumber(config);
-      beginNumber = tempNumber.split('_')[0];
+      // const tempNumber = await generateOrderNumber(config);
+      // beginNumber = tempNumber.split('_')[0];
     }
 
     const orderQuery = {

@@ -1,4 +1,5 @@
-import mongoose, { Model, model } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { Model, model } from 'mongoose';
 import {
   IQPayInvoice,
   IQpayInvoiceDocument,

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
-    "dev": "cd .erxes && yarn dev",
+    "dev": "DEBUG=erxes* cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-posclient-api/.erxes && node src"
   }

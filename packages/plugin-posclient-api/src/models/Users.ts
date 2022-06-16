@@ -1,7 +1,8 @@
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
-import mongoose, { Model, model } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { Model, model } from 'mongoose';
 import * as sha256 from 'sha256';
 import { ILoginParams } from '../types';
 import { USER_LOGIN_TYPES } from '../util';
@@ -13,8 +14,7 @@ import {
   clientPortalCreateCompany
 } from '../graphql/mutations';
 import * as randomize from 'randomatic';
-import Customers from './Customers';
-import messageBroker from '../../src/messageBroker';
+// import messageBroker from "../messageBroker"
 import { Configs } from './Configs';
 
 const SALT_WORK_FACTOR = 10;
@@ -160,26 +160,25 @@ export const loadUserClass = models => {
       const config = await Configs.findOne();
 
       if (config) {
-        const response = await messageBroker().sendRPCMessage(
-          'erxes-pos-to-api',
-          {
-            action: 'newCustomer',
-            posToken: config.token,
-            data: {
-              firstName,
-              lastName,
-              emailValidationStatus: 'valid',
-              phoneValidationStatus: 'valid',
-              primaryEmail: tEmail,
-              primaryPhone: phone,
-              state: 'customer'
-            }
-          }
-        );
-
-        if (response && response._id) {
-          customer = await models.Customers.createCustomer(response);
-        }
+        // const response = await messageBroker().sendRPCMessage(
+        //   "erxes-pos-to-api",
+        //   {
+        //     action: "newCustomer",
+        //     posToken: config.token,
+        //     data: {
+        //       firstName,
+        //       lastName,
+        //       emailValidationStatus: "valid",
+        //       phoneValidationStatus: "valid",
+        //       primaryEmail: tEmail,
+        //       primaryPhone: phone,
+        //       state: "customer",
+        //     },
+        //   }
+        // );
+        // if (response && response._id) {
+        //   customer = await models.Customers.createCustomer(response);
+        // }
       }
 
       if (!customer) {

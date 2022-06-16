@@ -1,4 +1,6 @@
-import mongoose, { Model, model } from 'mongoose';
+import * as mongoose from 'mongoose';
+import { Model, model } from 'mongoose';
+
 import { ILog, ILogDocument, logSchema } from './definitions';
 
 export interface ILogModel extends Model<ILogDocument> {

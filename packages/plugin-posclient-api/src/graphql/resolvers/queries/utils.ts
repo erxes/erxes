@@ -1,5 +1,5 @@
 import * as request from 'request';
-import Cors from 'cors';
+// import Cors from 'cors';
 import { getEnv } from '../../utils/commonUtils';
 import { debugError } from '../../../debugger';
 
@@ -55,18 +55,17 @@ export function corsMiddleware(req, res) {
   const POS_UI_DOMAIN = getEnv({ name: 'POS_UI_DOMAIN' });
   const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
-  const cors = Cors({
-    credentials: true,
-    origin: [...(POS_UI_DOMAIN || '').split(','), MAIN_APP_DOMAIN]
-  });
+  // const cors = Cors({
+  //   credentials: true,
+  //   origin: [...(POS_UI_DOMAIN || '').split(','), MAIN_APP_DOMAIN]
+  // });
 
   return new Promise((resolve, reject) => {
-    cors(req, res, result => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-
-      return resolve(result);
-    });
+    // cors(req, res, result => {
+    //   if (result instanceof Error) {
+    //     return reject(result);
+    //   }
+    //   return resolve(result);
+    // });
   });
 }

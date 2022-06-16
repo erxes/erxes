@@ -47,6 +47,14 @@ import {
 import { types as CompanyTypes } from './schema/company';
 
 const typeDefs = async serviceDiscovery => {
+  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
+  const formsEnabled = await serviceDiscovery.isEnabled('forms');
+
+  const isEnabled = {
+    contacts: contactsEnabled,
+    forms: formsEnabled
+  };
+
   return gql`
     scalar JSON
     scalar Date
@@ -69,7 +77,7 @@ const typeDefs = async serviceDiscovery => {
     ${ReportTypes}
 
   
-  extend type Query {
+   extend type Query {
     ${UserQueries}
     ${LogQueries}
     ${ErxesQueries}
@@ -81,11 +89,11 @@ const typeDefs = async serviceDiscovery => {
     ${CustomerQueries}
     ${PaymentQueries}
     ${ReportQueries}
-  }
+   }
 
 
   
-  extend type Mutation {
+   extend type Mutation {
     ${UserMutations}
     ${PosUserMutations}
     ${OrderMutations}
@@ -93,14 +101,14 @@ const typeDefs = async serviceDiscovery => {
     ${PaymentMutations}
     ${CustomerMutations}
     ${ErxesMutations}
-  }
+   }
 
 
 
-  extend type Subscription {
+   extend type Subscription {
     ordersOrdered(statuses: [String]): Order
-  }
-`;
+   }
+  `;
 };
 
 export default typeDefs;
