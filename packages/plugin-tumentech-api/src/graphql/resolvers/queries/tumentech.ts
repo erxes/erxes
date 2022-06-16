@@ -1,7 +1,9 @@
+import { sendCardsMessage } from './../../../../../plugin-inbox-api/src/messageBroker';
 import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { Builder } from './carQueryBuilder';
+import { generateRandomString } from '../../../utils';
 
 const generateFilter = async (params, commonQuerySelector, subdomain) => {
   const filter: any = commonQuerySelector;
@@ -233,6 +235,14 @@ const carQueries = {
 
   cpCarCategoryDetail: async (_root, { _id }, { models }) => {
     return models.CarCategories.findOne({ _id });
+  },
+
+  gererateRandomName: async (
+    _root,
+    { modelName, prefix, numberOfDigits },
+    { subdomain }
+  ) => {
+    return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
   }
 };
 
