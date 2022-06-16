@@ -1,7 +1,7 @@
-import { colors, dimensions } from "@erxes/ui/src/styles";
-import { rgba } from "@erxes/ui/src/styles/ecolor";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
@@ -25,7 +25,7 @@ const HelperText = styled.div`
   line-height: 16px;
 `;
 
-const FlexContainer = styledTS<{ direction?: string }> (styled.div)`
+const FlexContainer = styledTS<{ direction?: string }>(styled.div)`
   display: flex;
   flex-direction: ${props => props.direction};
 `;
@@ -48,11 +48,10 @@ const PreviewContent = styledTS<{
   word-break: break-word;
   min-height: 500px;
 
-  ${(props) => {
+  ${props => {
     if (!props.isFullmessage) {
       return `
-        overflow: ${props.showOverflow ? "auto" : "hidden"};
-        -webkit-box-orient: vertical;
+        overflow: ${props.showOverflow ? 'auto' : 'hidden'};
         display: -webkit-box;
         -webkit-line-clamp: 2;
         word-wrap: break-word;
@@ -71,7 +70,7 @@ const LogoContainer = styled.div`
   height: 56px;
   cursor: pointer;
   box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
-  background-image: url("/images/erxes.png");
+  background-image: url('/images/erxes.png');
   background-color: ${colors.colorPrimary};
   background-position: center;
   background-size: 20px;
@@ -96,7 +95,7 @@ const LogoContainer = styled.div`
     font-size: ${dimensions.unitSpacing}px;
   }
 
-  input[type="file"] {
+  input[type='file'] {
     display: none;
   }
 
@@ -154,7 +153,7 @@ const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
     rgba(0, 0, 0, 0.08) 95%,
     rgba(0, 0, 0, 0.1) 100%
   );
-  width: ${(props) => props.isEngage && "100%"};
+  width: ${props => props.isEngage && '100%'};
 
   .engage-message {
     > div:first-of-type {

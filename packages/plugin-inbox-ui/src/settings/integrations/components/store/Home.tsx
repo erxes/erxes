@@ -15,7 +15,7 @@ import {
   IntegrationWrapper,
   SearchInput
 } from '@erxes/ui-settings/src/integrations/components/store/styles';
-import { Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -138,6 +138,9 @@ class Home extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{queryParams.type || 'All Add-ons'}</Title>}
             right={this.renderSearch()}
+            withMargin
+            wide
+            background="colorWhite"
           />
         }
         mainHead={headerDescription}
@@ -149,6 +152,7 @@ class Home extends React.Component<Props, State> {
         }
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

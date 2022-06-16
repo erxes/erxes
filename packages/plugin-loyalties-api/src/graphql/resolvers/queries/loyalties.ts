@@ -14,10 +14,16 @@ const loyaltyQueries = {
   },
 
   async loyalties(_root, params: IParams, { models }: IContext) {
-    const score = (await getOwner(models, params.ownerType, params.ownerType) || {}).score || 0;
-    const filter: any = { ownerType: params.ownerType, ownerId: params.ownerId }
+    const score =
+      ((await getOwner(models, params.ownerType, params.ownerType)) || {})
+        .score || 0;
+    const filter: any = {
+      ownerType: params.ownerType,
+      ownerId: params.ownerId
+    };
 
-    filter.status = (params.statuses && params.statuses.length) ? params.statuses : ['new']
+    filter.status =
+      params.statuses && params.statuses.length ? params.statuses : ['new'];
 
     return {
       ownerId: params.ownerId,

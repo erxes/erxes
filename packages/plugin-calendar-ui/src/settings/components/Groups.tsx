@@ -3,7 +3,7 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Table from '@erxes/ui/src/components/table';
-import { Count, Title } from '@erxes/ui/src/styles/main';
+import { Count } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -15,6 +15,7 @@ import GroupForm from '../containers/GroupForm';
 import { IBoard, ICalendar, IGroup } from '../types';
 import CalendarForm from './CalendarForm';
 import GroupRow from './GroupRow';
+import { Title } from "@erxes/ui-settings/src/styles";
 
 type Props = {
   groups: IGroup[];

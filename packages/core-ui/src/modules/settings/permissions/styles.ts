@@ -67,7 +67,7 @@ const Divider = styled.span`
 const SidebarItem = styled(SidebarListItem)`
   &:hover {
     ${ActionButtons} {
-      width: 55px;
+      width: 75px;
     }
   }
 `;

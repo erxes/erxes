@@ -27,7 +27,7 @@ type Props = {
 
 class Sidebar extends React.Component<Props> {
   render() {
-    const { item, saveItem, sidebar, options } = this.props;
+    const { item, saveItem, sidebar } = this.props;
 
     const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);

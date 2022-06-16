@@ -7,14 +7,14 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import { queries } from '@erxes/ui-team/src/graphql';
+import { queries } from '@erxes/ui/src/team/graphql';
 import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
 import UserInvitationForm from '../components/UserInvitationForm';
 import {
   BranchesQueryResponse,
   DepartmentsQueryResponse,
   UnitsQueryResponse
-} from '@erxes/ui-team/src/types';
+} from '@erxes/ui/src/team/types';
 
 type WrapperProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

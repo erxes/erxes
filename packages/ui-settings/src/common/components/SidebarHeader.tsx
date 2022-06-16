@@ -1,12 +1,12 @@
 import Button from '@erxes/ui/src/components/Button';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TopHeader } from '@erxes/ui/src/styles/main';
+import { Header } from "@erxes/ui-settings/src/styles";
 
 class SidebarHeader extends React.PureComponent {
   render() {
     return (
-      <TopHeader>
+      <Header>
         <Link to="/settings/">
           <Button
             btnStyle="simple"
@@ -17,7 +17,7 @@ class SidebarHeader extends React.PureComponent {
             Back to Settings
           </Button>
         </Link>
-      </TopHeader>
+      </Header>
     );
   }
 }
