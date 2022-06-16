@@ -147,6 +147,7 @@ class CustomerForm extends React.Component<Props, State> {
                   <FormControl
                     {...formProps}
                     name="email"
+                    required={true}
                     defaultValue={clientPortalUser.email || ''}
                   />
                 </FormGroup>
