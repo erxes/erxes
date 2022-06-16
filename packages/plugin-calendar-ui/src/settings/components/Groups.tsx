@@ -3,7 +3,7 @@ import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Table from '@erxes/ui/src/components/table';
-import { Count, Title } from '@erxes/ui/src/styles/main';
+import { Count } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -15,6 +15,7 @@ import GroupForm from '../containers/GroupForm';
 import { IBoard, ICalendar, IGroup } from '../types';
 import CalendarForm from './CalendarForm';
 import GroupRow from './GroupRow';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   groups: IGroup[];
@@ -123,9 +124,9 @@ class Groups extends React.Component<Props, State> {
     if (groups.length === 0) {
       return (
         <EmptyState
-          text='Get started on your group'
-          size='full'
-          image='/images/actions/16.svg'
+          text="Get started on your group"
+          size="full"
+          image="/images/actions/16.svg"
         />
       );
     }
@@ -151,10 +152,10 @@ class Groups extends React.Component<Props, State> {
     }
 
     return (
-      <Dropdown className='dropdown-btn' alignRight={true}>
-        <Dropdown.Toggle as={DropdownToggle} id='dropdown-customize'>
-          <Button btnStyle='simple'>
-            {__('Add calendar')} <Icon icon='angle-down' />
+      <Dropdown className="dropdown-btn" alignRight={true}>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+          <Button btnStyle="simple">
+            {__('Add calendar')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
@@ -183,7 +184,7 @@ class Groups extends React.Component<Props, State> {
     return (
       <>
         {this.addButton()}
-        <Button btnStyle='success' icon='plus-circle' onClick={this.addGroup}>
+        <Button btnStyle="success" icon="plus-circle" onClick={this.addGroup}>
           Add group
         </Button>
       </>

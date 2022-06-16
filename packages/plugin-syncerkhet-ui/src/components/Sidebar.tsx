@@ -1,4 +1,7 @@
-import { Sidebar as LeftSidebar, SidebarList as List } from '@erxes/ui/src/layout';
+import {
+  Sidebar as LeftSidebar,
+  SidebarList as List
+} from '@erxes/ui/src/layout';
 import { __ } from '@erxes/ui/src/utils';
 import { Button } from '@erxes/ui/src/components';
 import { MainStyleTopHeader as TopHeader } from '@erxes/ui/src/styles/eindex';
@@ -22,7 +25,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+      <LeftSidebar header={<SidebarHeader />} hasBorder={true} noMargin>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-sync-erkhet/settings/general',

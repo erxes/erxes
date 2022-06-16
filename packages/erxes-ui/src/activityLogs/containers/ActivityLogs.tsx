@@ -1,4 +1,3 @@
-import { AppConsumer, AppProvider } from '../../appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';

@@ -9,10 +9,15 @@ export const types = `
     routeCode: String
     roadCode: String
   }
+
+  type DirectionListResponse {
+    list: [Direction],
+    totalCount: Int
+  }
 `;
 
 export const queries = `
-  directions(searchValue: String): [Direction]
+  directions(searchValue: String, page: Int, perPage: Int): DirectionListResponse
   directionDetail(_id: String!): Direction
 `;
 

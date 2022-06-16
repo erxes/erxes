@@ -1,5 +1,5 @@
 import React from 'react';
-import StyledTable from './styles';
+import { StyledTable, TableWrapper } from './styles';
 
 type Props = {
   children: React.ReactNode;
@@ -25,7 +25,11 @@ class Table extends React.Component<Props> {
   };
 
   render() {
-    return <StyledTable {...this.props} />;
+    return (
+      <TableWrapper>
+        <StyledTable {...this.props} />
+      </TableWrapper>
+    );
   }
 }
 

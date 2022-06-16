@@ -11,12 +11,19 @@ const routesQuery = {
     }: { searchValue?: string; page?: number; perPage?: number },
     { models }: IContext
   ) => {
-    const filter: { $or?: any[] } = {};
+    const filter: any = {};
 
-    return paginate(models.Routes.find(filter).lean(), {
-      page: page || 1,
-      perPage: perPage || 20
-    });
+    if (searchValue) {
+      filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+    }
+
+    return {
+      list: paginate(models.Routes.find(filter).lean(), {
+        page: page || 1,
+        perPage: perPage || 20
+      }),
+      totalCount: models.Routes.find(filter).count()
+    };
   }
 };
 

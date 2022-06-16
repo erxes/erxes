@@ -105,7 +105,10 @@ type State = {
 
   nowYear: number;
   attachments: any;
-  fourAttachments: any;
+  frontAttachments: any;
+  leftAttachments: any;
+  rightAttachments: any;
+  backAttachments: any;
   floorAttachments: any;
   transformationAttachments: any;
   wagonLength: number;
@@ -137,7 +140,7 @@ class CarForm extends React.Component<Props, State> {
     const category =
       car.category || (carCategories.length && carCategories[0]) || {};
 
-    (category.collapseContent || []).map((c) => (activeSections[c] = true));
+    (category.collapseContent || []).map(c => (activeSections[c] = true));
 
     this.state = {
       users: [],
@@ -175,8 +178,11 @@ class CarForm extends React.Component<Props, State> {
 
       nowYear,
       attachments: car.attachments || undefined,
-      fourAttachments: car.fourAttachments || undefined,
-      floorAttachments: car.fourAttachments || undefined,
+      frontAttachments: car.frontAttachments || undefined,
+      leftAttachments: car.leftAttachments || undefined,
+      rightAttachments: car.rightAttachments || undefined,
+      backAttachments: car.backAttachments || undefined,
+      floorAttachments: car.floorAttachments || undefined,
       transformationAttachments: car.transformationAttachments || undefined,
 
       moreValues: { ...car },
@@ -228,19 +234,37 @@ class CarForm extends React.Component<Props, State> {
       wagonWidth: Number(this.state.wagonWidth),
       height: Number(this.state.height),
       volume: this.state.volume,
-      attachments: (this.state.attachments || []).map((a) => ({
+      attachments: (this.state.attachments || []).map(a => ({
         name: a.name,
         url: a.url,
         type: a.type,
         size: a.size
       })),
-      fourAttachments: (this.state.fourAttachments || []).map((a) => ({
+      frontAttachments: (this.state.frontAttachments || []).map(a => ({
         name: a.name,
         url: a.url,
         type: a.type,
         size: a.size
       })),
-      floorAttachments: (this.state.floorAttachments || []).map((a) => ({
+      leftAttachments: (this.state.leftAttachments || []).map(a => ({
+        name: a.name,
+        url: a.url,
+        type: a.type,
+        size: a.size
+      })),
+      rightAttachments: (this.state.rightAttachments || []).map(a => ({
+        name: a.name,
+        url: a.url,
+        type: a.type,
+        size: a.size
+      })),
+      backAttachments: (this.state.backAttachments || []).map(a => ({
+        name: a.name,
+        url: a.url,
+        type: a.type,
+        size: a.size
+      })),
+      floorAttachments: (this.state.floorAttachments || []).map(a => ({
         name: a.name,
         url: a.url,
         type: a.type,
@@ -248,7 +272,7 @@ class CarForm extends React.Component<Props, State> {
       })),
       transformationAttachments: (
         this.state.transformationAttachments || []
-      ).map((a) => ({
+      ).map(a => ({
         name: a.name,
         url: a.url,
         type: a.type,
@@ -257,7 +281,7 @@ class CarForm extends React.Component<Props, State> {
     };
   };
 
-  onChangeInput = (e) => {
+  onChangeInput = e => {
     const name = e.target.name;
     let value = e.target.value;
     if (e.target.type === 'number') {
@@ -269,7 +293,7 @@ class CarForm extends React.Component<Props, State> {
     } as any);
   };
 
-  onChangeTrimInput = (e) => {
+  onChangeTrimInput = e => {
     const name = e.target.name;
     let value = e.target.value;
 
@@ -284,15 +308,15 @@ class CarForm extends React.Component<Props, State> {
     } as any);
   };
 
-  onChangeWagonLength = (e) => {
+  onChangeWagonLength = e => {
     this.setState({ wagonLength: e.target.value });
   };
 
-  onChangeWagonWidth = (e) => {
+  onChangeWagonWidth = e => {
     this.setState({ wagonWidth: e.target.value });
   };
 
-  onChangeHeigth = (e) => {
+  onChangeHeigth = e => {
     this.setState({ height: e.target.value });
   };
 
@@ -320,7 +344,7 @@ class CarForm extends React.Component<Props, State> {
       'liftWagonCapacityValue'
     ];
 
-    const foundWagon = wagons.find((element) => element === name);
+    const foundWagon = wagons.find(element => element === name);
 
     if (
       foundWagon &&
@@ -351,7 +375,7 @@ class CarForm extends React.Component<Props, State> {
       'liftWagonCapacityValue'
     ];
 
-    const foundWagon = wagons.find((element) => element === name);
+    const foundWagon = wagons.find(element => element === name);
 
     if (
       foundWagon &&
@@ -363,7 +387,7 @@ class CarForm extends React.Component<Props, State> {
 
     const state: any = {};
 
-    const onChange = (e) => {
+    const onChange = e => {
       state[name] = e.target.value;
 
       this.setState(state);
@@ -400,10 +424,14 @@ class CarForm extends React.Component<Props, State> {
   };
 
   onChangeAttachments = (key: any, files: any[]) => {
-    this.setState((prevState) => ({
+    this.setState(prevState => ({
       ...prevState,
       [key]: files ? files : undefined
     }));
+  };
+
+  onChangeAttachmentss = (key: any, files: any) => {
+    this.setState({ ...this.state, [key]: files ? files : undefined });
   };
 
   updateCarCategoryValue(categoryId) {
@@ -412,7 +440,7 @@ class CarForm extends React.Component<Props, State> {
     }
 
     const category = this.props.carCategories.find(
-      (carCategories) => carCategories._id === categoryId
+      carCategories => carCategories._id === categoryId
     );
 
     if (!category) {
@@ -428,14 +456,14 @@ class CarForm extends React.Component<Props, State> {
       renderForceImformation: false
     };
 
-    (category.collapseContent || []).map((c) => (activeSections[c] = true));
+    (category.collapseContent || []).map(c => (activeSections[c] = true));
 
     this.setState({ req: false }, () => {
       this.setState({ activeSections, req: true });
     });
   }
 
-  onChangeContent = (e) => {
+  onChangeContent = e => {
     this.updateCarCategoryValue(e.target.value);
   };
 
@@ -1013,8 +1041,17 @@ class CarForm extends React.Component<Props, State> {
     const attachments =
       (car.attachments && extractAttachment(car.attachments)) || [];
 
-    const fourAttachments =
-      (car.fourAttachments && extractAttachment(car.fourAttachments)) || [];
+    const frontAttachments =
+      (car.frontAttachments && extractAttachment(car.frontAttachments)) || [];
+
+    const leftAttachments =
+      (car.leftAttachments && extractAttachment(car.leftAttachments)) || [];
+
+    const rightAttachments =
+      (car.rightAttachments && extractAttachment(car.rightAttachments)) || [];
+
+    const backAttachments =
+      (car.backAttachments && extractAttachment(car.backAttachments)) || [];
 
     const floorAttachments =
       (car.floorAttachments && extractAttachment(car.floorAttachments)) || [];
@@ -1036,7 +1073,7 @@ class CarForm extends React.Component<Props, State> {
               <ControlLabel>Гэрчилгээний зураг</ControlLabel>
               <Uploader
                 defaultFileList={attachments}
-                onChange={(e) => this.onChangeAttachments('attachments', e)}
+                onChange={e => this.onChangeAttachments('attachments', e)}
                 multiple={true}
                 single={false}
                 limit={6}
@@ -1046,13 +1083,39 @@ class CarForm extends React.Component<Props, State> {
 
           <FormColumn>
             <FormGroup>
-              <ControlLabel>4 тал зураг</ControlLabel>
+              <ControlLabel>Урд тал зураг</ControlLabel>
               <Uploader
-                defaultFileList={fourAttachments}
-                onChange={(e) => this.onChangeAttachments('fourAttachments', e)}
-                multiple={true}
-                single={false}
-                limit={6}
+                defaultFileList={frontAttachments}
+                onChange={e => this.onChangeAttachmentss('frontAttachments', e)}
+                multiple={false}
+                single={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Зүүн тал зураг</ControlLabel>
+              <Uploader
+                defaultFileList={leftAttachments}
+                onChange={e => this.onChangeAttachmentss('leftAttachments', e)}
+                multiple={false}
+                single={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Баруун тал зураг</ControlLabel>
+              <Uploader
+                defaultFileList={rightAttachments}
+                onChange={e => this.onChangeAttachmentss('rightAttachments', e)}
+                multiple={false}
+                single={true}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Хойд тал зураг</ControlLabel>
+              <Uploader
+                defaultFileList={backAttachments}
+                onChange={e => this.onChangeAttachmentss('backAttachments', e)}
+                multiple={false}
+                single={true}
               />
             </FormGroup>
           </FormColumn>
@@ -1062,9 +1125,7 @@ class CarForm extends React.Component<Props, State> {
               <ControlLabel>Шалны зураг</ControlLabel>
               <Uploader
                 defaultFileList={floorAttachments}
-                onChange={(e) =>
-                  this.onChangeAttachments('floorAttachments', e)
-                }
+                onChange={e => this.onChangeAttachments('floorAttachments', e)}
                 multiple={true}
                 single={false}
                 limit={6}
@@ -1077,7 +1138,7 @@ class CarForm extends React.Component<Props, State> {
               <ControlLabel>Тээвэрлэлтийн зураг</ControlLabel>
               <Uploader
                 defaultFileList={transformationAttachments}
-                onChange={(e) =>
+                onChange={e =>
                   this.onChangeAttachments('transformationAttachments', e)
                 }
                 multiple={true}

@@ -1,4 +1,4 @@
-import { Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
@@ -24,7 +24,12 @@ function EngageConfigs() {
         />
       }
       actionBar={
-        <Wrapper.ActionBar left={<Title>{__('Campaign config')}</Title>} />
+        <Wrapper.ActionBar
+          withMargin
+          wide
+          background="colorWhite"
+          left={<Title>{__('Campaign config')}</Title>}
+        />
       }
       leftSidebar={
         <Sidebar
@@ -37,6 +42,7 @@ function EngageConfigs() {
       content={<EngageSettingsContent />}
       hasBorder={true}
       transparent={true}
+      noPadding
     />
   );
 }

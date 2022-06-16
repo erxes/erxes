@@ -3,8 +3,8 @@ import * as compose from 'lodash.flowright';
 import Segments from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui-team/src/graphql';
-import { CountQueryResponse } from '@erxes/ui-team/src/types';
+import { queries } from '@erxes/ui/src/team/graphql';
+import { CountQueryResponse } from '@erxes/ui/src/team/types';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {

@@ -6,9 +6,8 @@ import { commonListComposer } from '@erxes/ui/src/utils';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import { IEmailTemplate } from '../types';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-import { EMAIL_TEMPLATE_STATUSES } from '../constants';
 import {
   ICommonFormProps,
   ICommonListProps
@@ -39,39 +38,24 @@ type Props = ICommonListProps &
   };
 
 class EmailListContainer extends React.Component<Props> {
-  changeStatus = (_id: string, status: string) => {
-    const isActive =
-      status === null || status === EMAIL_TEMPLATE_STATUSES.ACTIVE;
-    const message = isActive
-      ? 'You are going to archive this email template. Are you sure?'
-      : 'You are going to active this email template. Are you sure?';
+  duplicate = (id: string) => {
+    client
+      .mutate({
+        mutation: gql(mutations.emailTemplatesDuplicate),
+        variables: { _id: id }
+      })
+      .then(() => {
+        Alert.success('Successfully duplicated a template');
 
-    const statusAction = isActive
-      ? EMAIL_TEMPLATE_STATUSES.ACTIVE
-      : EMAIL_TEMPLATE_STATUSES.ARCHIVED;
-
-    confirm(message).then(() => {
-      client
-        .mutate({
-          mutation: gql(mutations.emailTemplatesChangeStatus),
-          variables: { _id, status }
-        })
-        .then(({ data }) => {
-          const template = data.emailTemplatesChangeStatus;
-
-          if (template && template._id) {
-            Alert.success(`Email template has been ${statusAction}.`);
-            this.props.listQuery.refetch();
-          }
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
+        this.props.refetch();
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
   };
 
   render() {
-    return <List {...this.props} changeStatus={this.changeStatus} />;
+    return <List {...this.props} duplicate={this.duplicate} />;
   }
 }
 

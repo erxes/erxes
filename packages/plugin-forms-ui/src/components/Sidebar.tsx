@@ -23,7 +23,11 @@ class Sidebar extends React.Component<Props> {
       <li key={service.contentType}>
         <Link to={`?type=${service.contentType}`} className={className}>
           {__(service.description)}
-          <HeaderItems rightAligned={true}>{this.props.currentType === service.contentType ? <Icon icon="angle-right"/> : null}</HeaderItems>
+          <HeaderItems rightAligned={true}>
+            {this.props.currentType === service.contentType ? (
+              <Icon icon="angle-right" />
+            ) : null}
+          </HeaderItems>
         </Link>
       </li>
     );
@@ -31,7 +35,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+      <LeftSidebar noMargin header={<SidebarHeader />} hasBorder={true}>
         <List>
           {this.props.services.map(service => this.renderListItem(service))}
         </List>

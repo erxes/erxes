@@ -2,8 +2,6 @@ import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { ITrigger } from '../../types';
-import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
@@ -20,7 +18,6 @@ import {
   SegmentDetailQueryResponse,
   SegmentsQueryResponse
 } from '../../types';
-import { isBoardKind } from '../../utils';
 
 type Props = {
   contentType: string;
@@ -39,7 +36,6 @@ type FinalProps = {
   segmentDetailQuery: SegmentDetailQueryResponse;
   headSegmentsQuery: HeadSegmentsQueryResponse;
   eventsQuery: EventsQueryResponse;
-  boardsQuery?: BoardsQueryResponse;
   segmentsQuery: SegmentsQueryResponse;
 } & Props &
   AddMutationResponse &
@@ -158,7 +154,6 @@ class SegmentsFormContainer extends React.Component<
       contentType,
       segmentDetailQuery,
       headSegmentsQuery,
-      boardsQuery,
       eventsQuery,
       segmentsQuery,
       history
@@ -169,7 +164,6 @@ class SegmentsFormContainer extends React.Component<
     }
 
     const events = eventsQuery.segmentsEvents || [];
-    const boards = boardsQuery ? boardsQuery.boards || [] : [];
 
     const segment = segmentDetailQuery.segmentDetail;
     const headSegments = headSegmentsQuery.segmentsGetHeads || [];
@@ -179,7 +173,6 @@ class SegmentsFormContainer extends React.Component<
     const updatedProps = {
       ...this.props,
       segment,
-      boards,
       headSegments: headSegments.filter(s =>
         s.contentType === contentType && segment ? s._id !== segment._id : true
       ),
@@ -231,13 +224,6 @@ export default withProps<Props>(
       options: ({ contentType }) => ({
         variables: { contentType }
       })
-    }),
-    graphql<Props>(gql(boardQueries.boards), {
-      name: 'boardsQuery',
-      options: ({ contentType }) => ({
-        variables: { type: contentType }
-      }),
-      skip: ({ contentType }) => !isBoardKind(contentType)
     })
   )(SegmentsFormContainer)
 );

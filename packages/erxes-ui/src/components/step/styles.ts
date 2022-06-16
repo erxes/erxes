@@ -110,7 +110,8 @@ const Indicator = styled.div`
 
 const FullStep = styledTS<{ show: boolean; direction?: string }>(styled.div)`
   justify-content: ${props => props.direction && 'flex-start'};
-  background: ${colors.colorWhite};
+  background: ${props =>
+    props.direction === 'horizontal' ? 'transparent' : colors.colorWhite};
   height: 100%;
   width: ${props => !props.direction && '100%'};
   transition: all 0.3s ease;
