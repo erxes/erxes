@@ -4,6 +4,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 import { Cars as Car, CarCategory, Participant } from './tumentech';
 import { Direction } from './directions';
 import { Route } from './routes';
+import { Trip } from './trips';
 
 const resolvers: any = async () => ({
   ...customScalars,
@@ -13,6 +14,7 @@ const resolvers: any = async () => ({
   Participant,
   Direction,
   Route,
+  Trip,
 
   Mutation,
   Query

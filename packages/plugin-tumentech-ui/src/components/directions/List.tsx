@@ -72,7 +72,7 @@ const List = (props: Props) => {
           <th>{__('Place A')}</th>
           <th>{__('Place B')}</th>
           <th>{__('Road conditions')}</th>
-          <th>{__('duration (minutes)')}</th>
+          <th>{__('duration')}</th>
           <th>{__('distance (km)')}</th>
           <th>{__('Actions')}</th>
         </tr>
