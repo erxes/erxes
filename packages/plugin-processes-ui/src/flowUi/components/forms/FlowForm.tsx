@@ -45,6 +45,7 @@ import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Label from '@erxes/ui/src/components/Label';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -82,7 +83,8 @@ type State = {
   categoryId: string;
   productId: string;
   product: IProduct;
-  lastActionId: string;
+  lastAction: IJob;
+  flowStatus: boolean;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -96,16 +98,9 @@ class AutomationForm extends React.Component<Props, State> {
     const lenFlow = Object.keys(flow);
     const actions = JSON.parse(JSON.stringify(lenFlow.length ? flow.jobs : []));
 
-    let actionId = '';
-    for (const action of actions) {
-      if (action.nextJobIds.length === 0 || action.length) {
-        actionId = action.label;
-      }
-    }
-
     this.state = {
       name: lenFlow.length ? flow.name : 'Your flow title',
-      actions: JSON.parse(JSON.stringify(lenFlow.length ? flow.jobs : [])),
+      actions,
       activeId: '',
       currentTab: 'actions',
       isActionTab: true,
@@ -124,9 +119,42 @@ class AutomationForm extends React.Component<Props, State> {
       categoryId: '',
       productId: flow.productId || '',
       product: flow.product,
-      lastActionId: actionId
+      lastAction: {} as IJob,
+      flowStatus: false
     };
   }
+
+  findLastAction = () => {
+    const { actions } = this.state;
+    const { jobRefers } = this.props;
+    console.log('start finding lastaction ...');
+    let lastAction;
+    for (const action of actions) {
+      if (!action.nextJobIds.length || action.nextJobIds.length === 0) {
+        lastAction = action;
+        console.log('founded lastAction label: ', action.label);
+      }
+    }
+
+    const jobRefer = jobRefers.find(job => job._id === lastAction.jobReferId);
+    console.log('end finding lastaction ...', jobRefer);
+    const resultProducts = jobRefer.resultProducts
+      ? jobRefer.resultProducts
+      : [];
+    console.log('end finding resultProducts ...', resultProducts);
+
+    const checkResult = resultProducts.find(
+      pro => pro.productId === this.state.productId
+    );
+
+    console.log('end finding checkResult ...', checkResult);
+
+    this.setState({
+      lastAction,
+      flowStatus:
+        Object.keys(checkResult ? checkResult : {}).length > 0 ? true : false
+    });
+  };
 
   setWrapperRef = node => {
     this.wrapperRef = node;
@@ -134,21 +162,15 @@ class AutomationForm extends React.Component<Props, State> {
 
   componentDidMount() {
     this.connectInstance();
-
+    this.findLastAction();
     document.addEventListener('click', this.handleClickOutside, true);
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { isActionTab } = this.state;
 
-    console.log(
-      'component did update console log ........ ',
-      this.state.actionEdited
-    );
-
     if (isActionTab && isActionTab !== prevState.isActionTab) {
       this.connectInstance();
-
       // this.setState({ actionEdited: false });
     }
 
@@ -227,7 +249,7 @@ class AutomationForm extends React.Component<Props, State> {
       const innerActions = this.state.actions;
 
       const item = event.currentTarget.id;
-      console.log('delete item:', item);
+      // console.log('delete item:', item);
 
       const splitItem = item.split('-');
       const type = splitItem[0];
@@ -237,7 +259,7 @@ class AutomationForm extends React.Component<Props, State> {
       const leftActions = innerActions.filter(
         action => action.id !== splitItem[1]
       );
-      console.log('leftActions', leftActions);
+      // console.log('leftActions', leftActions);
 
       if (type === 'action') {
         return this.setState({
@@ -306,7 +328,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   onChange = e => {
     const value = e.target.value;
-    console.log('onchange category: ', value);
+    // console.log('onchange category: ', value);
     this.setState({ categoryId: value });
   };
 
@@ -363,7 +385,8 @@ class AutomationForm extends React.Component<Props, State> {
         actions,
         info,
         info.targetId.replace('action-', ''),
-        'connect'
+        'connect',
+        this.findLastAction
       )
     });
 
@@ -386,7 +409,8 @@ class AutomationForm extends React.Component<Props, State> {
         actions,
         info,
         info.targetId.replace('action-', ''),
-        'disconnect'
+        'disconnect',
+        this.findLastAction
       )
     });
   };
@@ -619,11 +643,22 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
+  renderLabelInfo = (style, text) => {
+    return <Label lblStyle={style}>{text}</Label>;
+  };
+
   rendeRightActionBar() {
     const { isActive } = this.state;
 
     return (
       <BarItems>
+        <ToggleWrapper>
+          <span>{__('Flow status: ')}</span>
+          {this.state.flowStatus === true &&
+            this.renderLabelInfo('success', 'True')}
+          {this.state.flowStatus === false &&
+            this.renderLabelInfo('danger', 'False')}
+        </ToggleWrapper>
         <ToggleWrapper>
           <span className={isActive ? 'active' : ''}>{__('Inactive')}</span>
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
@@ -700,7 +735,7 @@ class AutomationForm extends React.Component<Props, State> {
         let checkedActiveAction = activeAction;
         if (!checkArray.includes('nextJobIds')) {
           checkedActiveAction = { ...activeAction, nextJobIds: [] };
-          console.log('checkedActiveAction:', checkedActiveAction);
+          // console.log('checkedActiveAction:', checkedActiveAction);
         }
 
         return (
@@ -712,7 +747,8 @@ class AutomationForm extends React.Component<Props, State> {
               jobRefers={this.props.jobRefers}
               actions={actions}
               onSave={this.onSave}
-              lastActionId={this.state.lastActionId}
+              lastAction={this.state.lastAction}
+              flowProduct={this.state.product}
             />
           </>
         );

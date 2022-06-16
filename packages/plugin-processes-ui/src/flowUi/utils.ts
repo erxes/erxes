@@ -107,18 +107,19 @@ export const connection = (
   actions: IJob[],
   info: any,
   actionId: any,
-  type: string
+  type: string,
+  findLastAction: any
 ) => {
   const sourceId = info.sourceId;
 
-  console.log('info:', sourceId, actionId, type);
+  // console.log('info:', sourceId, actionId, type);
 
   if (sourceId.includes('action')) {
     let innerActions = [];
 
     const replacedSourceId = sourceId.replace('action-', '');
 
-    console.log('replacedSourceId:', replacedSourceId);
+    // console.log('replacedSourceId:', replacedSourceId);
 
     const sourceAction = actions.find(
       a => a.id.toString() === replacedSourceId
@@ -126,12 +127,12 @@ export const connection = (
 
     innerActions = actions.filter(a => a.id.toString() !== replacedSourceId);
 
-    console.log(
-      'replacedSourceId:',
-      replacedSourceId,
-      sourceAction,
-      innerActions
-    );
+    // console.log(
+    //   'replacedSourceId:',
+    //   replacedSourceId,
+    //   sourceAction,
+    //   innerActions
+    // );
 
     if (
       Object.keys(sourceAction).length > 0 &&
@@ -139,7 +140,7 @@ export const connection = (
     ) {
       let jobIds = sourceAction.nextJobIds;
 
-      console.log('object keys sourceAction step1:', jobIds);
+      // console.log('object keys sourceAction step1:', jobIds);
 
       if (type === 'connect') {
         if (!jobIds.includes(actionId)) {
@@ -151,8 +152,9 @@ export const connection = (
       }
 
       sourceAction.nextJobIds = jobIds;
+      findLastAction();
 
-      console.log('object keys sourceAction step2:', jobIds);
+      // console.log('object keys sourceAction step2:', jobIds);
     }
     innerActions.push(sourceAction);
     return innerActions;
