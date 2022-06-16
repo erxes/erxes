@@ -116,6 +116,14 @@ const configQueries = {
     }
 
     return results;
+  },
+
+  async configsGetValue(
+    _root,
+    { code }: { code: string },
+    { models }: IContext
+  ) {
+    return models.Configs.findOne({ code });
   }
 };
 
