@@ -7,6 +7,8 @@ type Props = {
   triggerType: string;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
   closeModal: () => void;
+  actionsConst: any[];
+  propertyTypesConst: any[];
 };
 
 class ActionDetailForm extends React.Component<Props> {

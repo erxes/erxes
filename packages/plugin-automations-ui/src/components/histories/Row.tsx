@@ -147,7 +147,7 @@ class HistoryRow extends React.Component<Props, State> {
           <tr key={action.actionId}>
             <td>{}</td>
             <td>{dayjs(action.createdAt).format('lll')}</td>
-            <td>{actionsByType[action.actionType]}</td>
+            <td>{__(actionsByType[action.actionType])}</td>
             <td colSpan={2}>{this.generateActionResult(action)}</td>
           </tr>
         ))}

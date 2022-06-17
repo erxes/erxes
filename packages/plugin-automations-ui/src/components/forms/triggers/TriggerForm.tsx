@@ -1,7 +1,6 @@
 import React from 'react';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __, confirm } from 'coreui/utils';
-import { TRIGGERS } from '../../../constants';
 import {
   TypeBox,
   ScrolledContent,
@@ -20,6 +19,7 @@ import client from '@erxes/ui/src/apolloClient';
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
   templates: any[];
+  triggersConst: ITrigger[];
 };
 
 type State = {
@@ -87,9 +87,9 @@ class TriggerForm extends React.Component<Props, State> {
         <img src={`/images/actions/${trigger.img}`} alt={trigger.label} />
         <FormGroup>
           <ControlLabel>
-            {trigger.label} {__('based')}
+            {__(trigger.label)} {__('based')}
           </ControlLabel>
-          <p>{trigger.description}</p>
+          <p>{__(trigger.description)}</p>
         </FormGroup>
       </TypeBox>
     );
@@ -122,7 +122,9 @@ class TriggerForm extends React.Component<Props, State> {
       );
     }
 
-    return TRIGGERS.map((trigger, index) =>
+    const { triggersConst } = this.props;
+
+    return triggersConst.map((trigger, index) =>
       this.renderTriggerItem(trigger, index)
     );
   }

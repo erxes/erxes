@@ -2,7 +2,6 @@ import { __ } from 'coreui/utils';
 import React from 'react';
 import { TriggerTabs, ScrolledContent } from '../../../styles';
 import Icon from '@erxes/ui/src/components/Icon';
-import { ACTIONS } from '../../../constants';
 import { IAction } from '../../../types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -11,6 +10,7 @@ import { ActionBox } from './styles';
 
 type Props = {
   onClickAction: (action: IAction) => void;
+  actionsConst: any[];
 };
 
 type State = {
@@ -91,7 +91,9 @@ class ActionsForm extends React.Component<Props, State> {
     );
 
     const actions =
-      this.state.currentTab === 'favourite' ? localStorageActions : ACTIONS;
+      this.state.currentTab === 'favourite'
+        ? localStorageActions
+        : this.props.actionsConst;
 
     if (actions.length === 0 && localStorageActions.length === 0) {
       return (

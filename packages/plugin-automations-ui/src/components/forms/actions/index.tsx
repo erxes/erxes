@@ -1,4 +1,3 @@
-import { ACTIONS } from '../../../constants';
 import IfForm from '../../../containers/forms/actions/subForms/IfForm';
 import SetProperty from '../../../containers/forms/actions/subForms/SetProperty';
 import { IAction } from '../../../types';
@@ -18,6 +17,8 @@ type Props = {
   closeModal: () => void;
   activeAction: IAction;
   addAction: (action: IAction, actionId?: string, config?: any) => void;
+  actionsConst: any[];
+  propertyTypesConst: any[];
 };
 
 const renderExtraContent = props => {
@@ -57,9 +58,9 @@ const renderExtraContent = props => {
 };
 class DefaultForm extends React.Component<Props> {
   render() {
-    const { activeAction, onSave, closeModal } = this.props;
+    const { activeAction, onSave, closeModal, actionsConst } = this.props;
 
-    const currentAction = ACTIONS.find(
+    const currentAction = actionsConst.find(
       action => action.type === activeAction.type && action.component
     );
 

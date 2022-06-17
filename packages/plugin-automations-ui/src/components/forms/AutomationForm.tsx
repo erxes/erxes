@@ -5,7 +5,13 @@ import RTG from 'react-transition-group';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Form from '@erxes/ui/src/components/form/Form';
-import { IAction, IAutomation, ITrigger, IAutomationNote } from '../../types';
+import {
+  IAction,
+  IAutomation,
+  ITrigger,
+  IAutomationNote,
+  AutomationConstants
+} from '../../types';
 import {
   Container,
   BackButton,
@@ -50,7 +56,6 @@ import NoteFormContainer from '../../containers/forms/NoteForm';
 import TemplateForm from '../../containers/forms/TemplateForm';
 import Histories from '../../components/histories/Wrapper';
 import Confirmation from '../../containers/forms/Confirmation';
-import { TRIGGER_TYPES } from '../../constants';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 const plumb: any = jsPlumb;
@@ -64,6 +69,7 @@ type Props = {
   id: string;
   history: any;
   queryParams: any;
+  constants: AutomationConstants;
 };
 
 type State = {
@@ -535,7 +541,11 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderCount(item: ITrigger | IAction) {
-    if (item.count && TRIGGER_TYPES.includes(item.type)) {
+    const {
+      constants: { triggerTypesConst }
+    } = this.props;
+
+    if (item.count && triggerTypesConst.includes(item.type)) {
       return `(${item.count})`;
     }
 
@@ -587,7 +597,7 @@ class AutomationForm extends React.Component<Props, State> {
       if (instance.getSelector(`#${idElm}`).length > 0) {
         instance.draggable(instance.getSelector(`#${idElm}`), {
           cursor: 'move',
-          stop: function(params) {
+          stop(params) {
             item.style = jquery(`#${idElm}`).attr('style');
           }
         });
@@ -614,7 +624,7 @@ class AutomationForm extends React.Component<Props, State> {
 
       instance.draggable(instance.getSelector(`#${idElm}`), {
         cursor: 'move',
-        stop: function(params) {
+        stop(params) {
           item.style = jquery(`#${idElm}`).attr('style');
         }
       });
@@ -733,6 +743,10 @@ class AutomationForm extends React.Component<Props, State> {
       selectedContentId
     } = this.state;
 
+    const {
+      constants: { triggersConst, actionsConst, propertyTypesConst }
+    } = this.props;
+
     const onBack = () => this.setState({ showTrigger: false });
     const onBackAction = () => this.setState({ showAction: false });
 
@@ -755,7 +769,12 @@ class AutomationForm extends React.Component<Props, State> {
         );
       }
 
-      return <TriggerForm onClickTrigger={this.onClickTrigger} />;
+      return (
+        <TriggerForm
+          triggersConst={triggersConst}
+          onClickTrigger={this.onClickTrigger}
+        />
+      );
     }
 
     if (currentTab === 'actions') {
@@ -772,12 +791,19 @@ class AutomationForm extends React.Component<Props, State> {
               addAction={this.addAction}
               closeModal={onBackAction}
               triggerType={getTriggerType(actions, triggers, activeAction.id)}
+              actionsConst={actionsConst}
+              propertyTypesConst={propertyTypesConst}
             />
           </>
         );
       }
 
-      return <ActionsForm onClickAction={this.onClickAction} />;
+      return (
+        <ActionsForm
+          actionsConst={actionsConst}
+          onClickAction={this.onClickAction}
+        />
+      );
     }
 
     return null;
@@ -824,14 +850,23 @@ class AutomationForm extends React.Component<Props, State> {
       );
     }
 
-    const { automation } = this.props;
+    const {
+      automation,
+      constants: { triggersConst, actionsConst }
+    } = this.props;
 
     if (!this.state.isActionTab) {
       if (!automation) {
         return <div />;
       }
 
-      return <Histories automation={automation} />;
+      return (
+        <Histories
+          automation={automation}
+          triggersConst={triggersConst}
+          actionsConst={actionsConst}
+        />
+      );
     }
 
     return (

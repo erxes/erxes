@@ -9,6 +9,7 @@ import { queries } from '../../../graphql';
 
 type Props = {
   onClickTrigger: (trigger: ITrigger) => void;
+  triggersConst: ITrigger[];
 };
 
 type FinalProps = {

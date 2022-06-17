@@ -14,6 +14,7 @@ type Props = {
   addAction: (action: IAction, id?: string, config?: any) => void;
   closeModal: () => void;
   triggerType: string;
+  propertyTypesConst: any[];
 };
 
 type FinalProps = {

@@ -190,6 +190,12 @@ const automationConfigPrievewCount = `
   }
 `;
 
+const automationConstants = `
+  query automationConstants {
+    automationConstants
+  }
+`;
+
 export default {
   automations,
   automationsMain,
@@ -197,5 +203,6 @@ export default {
   automationNotes,
   automationHistories,
   automationsTotalCount,
-  automationConfigPrievewCount
+  automationConfigPrievewCount,
+  automationConstants
 };

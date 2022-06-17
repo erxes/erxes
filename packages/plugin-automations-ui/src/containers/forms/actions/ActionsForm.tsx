@@ -4,6 +4,7 @@ import { IAction } from '../../../types';
 
 type Props = {
   onClickAction: (action: IAction) => void;
+  actionsConst: any[];
 };
 
 const ActionsFormContainer = (props: Props) => {

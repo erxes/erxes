@@ -162,3 +162,14 @@ export type AutomationsCount = {
 export type CountQueryResponse = {
   automationsTotalCount: AutomationsCount;
 } & QueryResponse;
+
+export type AutomationConstants = {
+  triggersConst: ITrigger[];
+  triggerTypesConst: string[];
+  actionsConst: any[];
+  propertyTypesConst: any[];
+};
+
+export type AutomationConstantsQueryResponse = {
+  automationConstants: AutomationConstants;
+} & QueryResponse;
