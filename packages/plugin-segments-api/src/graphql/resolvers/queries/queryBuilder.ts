@@ -86,12 +86,10 @@ export const fetchSegment = async (
     returnAssociated &&
     !contentType.includes(`:${returnAssociated.relType}`)
   ) {
-    index = returnAssociated.contentType;
-
     const itemsResponse = await fetchEs({
       subdomain,
       action: 'search',
-      index: await getIndexByContentType(serviceConfigs, contentType),
+      index,
       body: {
         query: selector,
         _source: '_id'
@@ -106,7 +104,7 @@ export const fetchSegment = async (
       subdomain,
       action: 'conformities.filterConformity',
       data: {
-        mainType: returnAssociated.contentType,
+        mainType: returnAssociated.contentType.split(':')[1],
         mainTypeIds: itemIds,
         relType: returnAssociated.relType
       },
@@ -118,7 +116,7 @@ export const fetchSegment = async (
         must: [
           {
             terms: {
-              _id: associationIds
+              _id: _.uniq(associationIds)
             }
           }
         ]
@@ -128,6 +126,12 @@ export const fetchSegment = async (
 
   if (options.returnSelector) {
     return selector;
+  }
+
+  if (returnAssociated && returnAssociated.relType) {
+    // relType comes as "customer", but
+    // index names are constructed as "customers"
+    index = `${returnAssociated.relType}s`;
   }
 
   // count entries
