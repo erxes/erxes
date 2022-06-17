@@ -84,7 +84,7 @@ export const fetchSegment = async (
 
   if (
     returnAssociated &&
-    !contentType.includes(`:${returnAssociated.contentType}`)
+    !contentType.includes(`:${returnAssociated.relType}`)
   ) {
     index = returnAssociated.contentType;
 
