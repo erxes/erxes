@@ -2,10 +2,7 @@ import { authCookieOptions } from '../../../auth/authUtils';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
-import {
-  IUser,
-  IUserDocument
-} from '../../../models/definitions/clientPortalUser';
+import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
 
 export interface IVerificationParams {
@@ -23,7 +20,7 @@ const clientPortalUserMutations = {
   async clientPortalUsersAdd(
     _root,
     doc: IUser,
-    { user, docModifier, models, subdomain }: IContext
+    { docModifier, models, subdomain }: IContext
   ) {
     const modifiedDoc = docModifier(doc);
 
@@ -49,10 +46,8 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { user, models, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
-    const customer = await models.ClientPortalUsers.getUser({ _id });
-
     const updated = await models.ClientPortalUsers.updateUser(_id, doc);
 
     return updated;
@@ -65,7 +60,7 @@ const clientPortalUserMutations = {
   async clientPortalUsersRemove(
     _root,
     { clientPortalUserIds }: { clientPortalUserIds: string[] },
-    { user, models, subdomain }: IContext
+    { models }: IContext
   ) {
     const response = await models.ClientPortalUsers.removeUser(
       clientPortalUserIds
