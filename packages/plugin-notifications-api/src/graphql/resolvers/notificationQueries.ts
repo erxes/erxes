@@ -51,8 +51,6 @@ const notificationQueries = {
       };
     }
 
-    console.log(selector, '+++');
-
     if (limit) {
       return models.Notifications.find(selector)
         .sort(sort)
@@ -98,6 +96,6 @@ const notificationQueries = {
   }
 };
 
-// moduleRequireLogin(notificationQueries);
+moduleRequireLogin(notificationQueries);
 
 export default notificationQueries;
