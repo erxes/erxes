@@ -67,7 +67,9 @@ class Delay extends React.Component<Props, State> {
         ? matchProducts.includes(name)
         : matchProducts;
 
-      matchResult = flowProduct && flowProduct.name === name ? true : false;
+      if (flowProduct) {
+        matchResult = flowProduct && flowProduct.name === name ? true : false;
+      }
 
       return (
         <>
