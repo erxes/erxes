@@ -6,19 +6,18 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Form from '@erxes/ui/src/components/form/Form';
 import {
-  IAction,
   IAutomation,
   ITrigger,
   IAutomationNote,
   AutomationConstants
 } from '../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import {
   Container,
   BackButton,
   Title,
   RightDrawerContainer,
   AutomationFormContainer,
-  ScrolledContent,
   BackIcon,
   CenterBar,
   ToggleWrapper,
@@ -26,6 +25,7 @@ import {
   ZoomIcon,
   ActionBarButtonsWrapper
 } from '../../styles';
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';

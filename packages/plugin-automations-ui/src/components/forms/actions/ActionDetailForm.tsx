@@ -1,4 +1,4 @@
-import { IAction } from '../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import React from 'react';
 import { ActionForms } from './';
 

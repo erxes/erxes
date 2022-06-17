@@ -1,7 +1,7 @@
 import React from 'react';
-import { IAction } from '../../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
-import { ScrolledContent } from '../../../../styles';
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 
 type Props = {
   activeAction: IAction;

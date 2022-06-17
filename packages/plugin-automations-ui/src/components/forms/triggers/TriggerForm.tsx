@@ -3,11 +3,11 @@ import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 import { __, confirm } from 'coreui/utils';
 import {
   TypeBox,
-  ScrolledContent,
   Description,
   TriggerTabs,
   TypeBoxContainer
 } from '../../../styles';
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import { ITrigger } from '../../../types';
 import gql from 'graphql-tag';
 import { mutations, queries } from '../../../graphql';

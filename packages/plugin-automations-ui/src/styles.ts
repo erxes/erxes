@@ -382,11 +382,6 @@ export const AutomationFormContainer = styled(Contents)`
   }
 `;
 
-export const ScrolledContent = styled.div`
-  flex: 1;
-  overflow: auto;
-`;
-
 export const Notes = styled.div`
   max-height: 600px;
   overflow: auto;

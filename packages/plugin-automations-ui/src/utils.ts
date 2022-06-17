@@ -1,4 +1,5 @@
-import { ITrigger, IAction } from './types';
+import { ITrigger } from './types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import { confirm, Alert } from '@erxes/ui/src/utils';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import { colors } from '@erxes/ui/src/styles';

@@ -1,22 +1,10 @@
 import styled from 'styled-components';
 import { dimensions, colors } from '@erxes/ui/src/styles';
+import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
 
-// ! main
 export const ScrolledContent = styled.div`
   flex: 1;
   overflow: auto;
-`;
-
-export const HeaderContent = styled.div`
-  flex: 1;
-  textarea {
-    border-bottom: none;
-    min-height: auto;
-    padding: 5px 0;
-    &:focus {
-      border-bottom: 1px solid ${colors.colorSecondary};
-    }
-  }
 `;
 
 export const BoardHeader = styled(HeaderContent)`

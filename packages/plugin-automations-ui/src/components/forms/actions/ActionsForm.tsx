@@ -1,8 +1,9 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { TriggerTabs, ScrolledContent } from '../../../styles';
+import { TriggerTabs } from '../../../styles';
+import { ScrolledContent } from '@erxes/ui-automations/src/styles';
 import Icon from '@erxes/ui/src/components/Icon';
-import { IAction } from '../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import Tip from '@erxes/ui/src/components/Tip';
 import EmptyState from '@erxes/ui/src/components/EmptyState';

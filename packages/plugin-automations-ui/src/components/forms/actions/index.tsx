@@ -1,6 +1,6 @@
 import IfForm from '../../../containers/forms/actions/subForms/IfForm';
 import SetProperty from '../../../containers/forms/actions/subForms/SetProperty';
-import { IAction } from '../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
