@@ -103,10 +103,11 @@ export const fetchSegment = async (
       subdomain,
       action: 'conformities.filterConformity',
       data: {
-        mainType: segment.contentType,
+        mainType: returnAssociated.contentType,
         mainTypeIds: itemIds,
         relType: returnAssociated.relType
-      }
+      },
+      isRPC: true
     });
 
     selector = {

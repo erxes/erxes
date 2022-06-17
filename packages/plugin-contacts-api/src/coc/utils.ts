@@ -12,6 +12,7 @@ import {
   sendTagsMessage
 } from '../messageBroker';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { getName } from '../segments';
 
 export interface ICountBy {
   [index: string]: number;
@@ -66,7 +67,7 @@ export const countBySegment = async (
   for (const s of segments) {
     try {
       await qb.buildAllQueries();
-      await qb.segmentFilter(s._id, source);
+      await qb.segmentFilter(s, source);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
       debug.error(`Error during segment count ${e.message}`);
@@ -222,12 +223,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by segment
-  public async segmentFilter(segmentId: string, source?: string) {
+  public async segmentFilter(segment: any, source?: string) {
     const selector = await fetchSegment(
       this.subdomain,
-      segmentId,
+      segment._id,
       source === 'engages'
-        ? { associatedCustomers: true, returnSelector: true }
+        ? {
+            returnAssociated: {
+              contentType: getName(segment.contentType),
+              relType: this.getRelType()
+            },
+            returnSelector: true
+          }
         : { returnSelector: true }
     );
 
@@ -314,6 +321,10 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     });
   }
 
+  public getRelType() {
+    return this.contentType === 'customers' ? 'customer' : 'company';
+  }
+
   public async conformityFilter() {
     const {
       conformityMainType,
@@ -327,11 +338,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       return;
     }
 
-    const relType = conformityRelType
-      ? conformityRelType
-      : this.contentType === 'customers'
-      ? 'customer'
-      : 'company';
+    const relType = conformityRelType ? conformityRelType : this.getRelType();
 
     if (conformityIsRelated) {
       const relTypeIds = await sendCoreMessage({
@@ -383,7 +390,14 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
 
     // filter by segment
     if (this.params.segment) {
-      await this.segmentFilter(this.params.segment);
+      const segment = await sendSegmentsMessage({
+        isRPC: true,
+        action: 'findOne',
+        subdomain: this.subdomain,
+        data: { _id: this.params.segment }
+      });
+
+      await this.segmentFilter(segment);
     }
 
     // filter by tag
