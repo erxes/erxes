@@ -297,7 +297,8 @@ const up = async ({ uis, fromInstaller }) => {
         extra_hosts,
         volumes: [
           './enabled-services.js:/data/enabled-services.js',
-          './permissions.json:/core-api/permissions.json'
+          './permissions.json:/core-api/permissions.json',
+          './core-api-private:/core-api/dist/core/src/private'
         ],
         networks: ['erxes']
       },
