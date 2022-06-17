@@ -12,7 +12,8 @@ const indexesTypeContentType = {
   'inbox:conversation': 'conversations'
 };
 
-const getName = type => type.replace('contacts:', '').replace('cards:', '');
+export const getName = type =>
+  type.replace('contacts:', '').replace('cards:', '');
 
 export default {
   indexesTypeContentType,

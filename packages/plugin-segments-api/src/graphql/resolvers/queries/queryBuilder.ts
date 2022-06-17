@@ -82,7 +82,10 @@ export const fetchSegment = async (
 
   const { returnAssociated } = options;
 
-  if (returnAssociated && contentType !== returnAssociated.contentType) {
+  if (
+    returnAssociated &&
+    !contentType.includes(`:${returnAssociated.relType}`)
+  ) {
     index = returnAssociated.contentType;
 
     const itemsResponse = await fetchEs({
@@ -103,10 +106,11 @@ export const fetchSegment = async (
       subdomain,
       action: 'conformities.filterConformity',
       data: {
-        mainType: segment.contentType,
+        mainType: returnAssociated.contentType,
         mainTypeIds: itemIds,
         relType: returnAssociated.relType
-      }
+      },
+      isRPC: true
     });
 
     selector = {
