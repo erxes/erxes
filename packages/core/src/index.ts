@@ -37,6 +37,7 @@ import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
+import automations from './automations';
 
 // load environment variables
 dotenv.config();
@@ -270,7 +271,8 @@ httpServer.listen(PORT, async () => {
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
-      segments
+      segments,
+      automations
     }
   });
 
