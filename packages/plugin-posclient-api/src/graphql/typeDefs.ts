@@ -46,15 +46,7 @@ import {
 } from './schema/report';
 import { types as CompanyTypes } from './schema/company';
 
-const typeDefs = async serviceDiscovery => {
-  const contactsEnabled = await serviceDiscovery.isEnabled('contacts');
-  const formsEnabled = await serviceDiscovery.isEnabled('forms');
-
-  const isEnabled = {
-    contacts: contactsEnabled,
-    forms: formsEnabled
-  };
-
+const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
@@ -66,9 +58,8 @@ const typeDefs = async serviceDiscovery => {
     ${UserTypes}
     ${LogTypes}
     ${ErxesTypes}
-
-    ${PosUserTypes}
     ${ProductTypes}
+    ${PosUserTypes}
     ${CompanyTypes}
     ${CustomerTypes}
     ${OrderTypes}

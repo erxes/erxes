@@ -1,16 +1,5 @@
 export const types = `
-  type User {
-    _id: String!
-    firstName: String
-    lastName: String
-    phone: String
-    email: String!
-    type: String
-    companyName: String
-    companyRegistrationNumber: String
-    erxesCustomerId: String
-    erxesCompanyId: String
-  }
+
 `;
 
 export const queries = `

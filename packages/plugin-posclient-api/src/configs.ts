@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { posInitialSetup } from './routes';
 
 export let debug;
 export let graphqlPubsub;
@@ -17,10 +18,12 @@ export default {
     serviceDiscovery = sd;
 
     return {
-      typeDefs: await typeDefs(sd),
+      typeDefs: await typeDefs(),
       resolvers
     };
   },
+  getHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
+  postHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
 
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
