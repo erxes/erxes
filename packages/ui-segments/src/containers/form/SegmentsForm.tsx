@@ -18,7 +18,6 @@ import {
   SegmentDetailQueryResponse,
   SegmentsQueryResponse
 } from '../../types';
-import { isBoardKind } from '../../utils';
 
 type Props = {
   contentType: string;

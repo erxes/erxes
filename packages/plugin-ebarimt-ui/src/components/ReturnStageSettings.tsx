@@ -1,6 +1,6 @@
 import { Button } from '@erxes/ui/src/components';
 import { __ } from '@erxes/ui/src/utils';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
 
@@ -24,7 +24,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap,
+      configsMap: props.configsMap
     };
   }
 
@@ -33,7 +33,7 @@ class GeneralSettings extends React.Component<Props, State> {
     const { configsMap } = this.state;
 
     if (!configsMap.returnStageInEbarimt) {
-      configsMap.returnStageInEbarimt = {}
+      configsMap.returnStageInEbarimt = {};
     }
 
     // must save prev item saved then new item
@@ -44,11 +44,11 @@ class GeneralSettings extends React.Component<Props, State> {
       stageId: '',
       userEmail: '',
       hasVat: false,
-      hasCitytax: false,
-    }
+      hasCitytax: false
+    };
 
     this.setState({ configsMap });
-  }
+  };
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
@@ -58,7 +58,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.setState({ configsMap });
 
     this.props.save(configsMap);
-  }
+  };
 
   renderConfigs(configs) {
     return Object.keys(configs).map(key => {
@@ -70,8 +70,8 @@ class GeneralSettings extends React.Component<Props, State> {
           save={this.props.save}
           delete={this.delete}
         />
-      )
-    })
+      );
+    });
   }
 
   renderContent() {
@@ -113,6 +113,9 @@ class GeneralSettings extends React.Component<Props, State> {
         mainHead={<Header />}
         actionBar={
           <Wrapper.ActionBar
+            background="colorWhite"
+            withMargin
+            wide
             left={<Title>{__('Return Ebarimt configs')}</Title>}
             right={actionButtons}
           />
@@ -121,6 +124,7 @@ class GeneralSettings extends React.Component<Props, State> {
         content={this.renderContent()}
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

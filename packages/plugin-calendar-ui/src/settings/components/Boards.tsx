@@ -1,7 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { TopHeader } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
@@ -10,6 +9,7 @@ import React from 'react';
 import { IBoard } from '../types';
 import BoardForm from './BoardForm';
 import BoardRow from './BoardRow';
+import { Header } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   currentBoardId?: string;
@@ -42,7 +42,7 @@ class Boards extends React.Component<Props, {}> {
     const { renderButton } = this.props;
 
     const addBoard = (
-      <Button btnStyle='success' icon='plus-circle' block={true}>
+      <Button btnStyle="success" icon="plus-circle" block={true}>
         Add New Board
       </Button>
     );
@@ -52,14 +52,14 @@ class Boards extends React.Component<Props, {}> {
     };
 
     return (
-      <TopHeader>
+      <Header>
         <ModalTrigger
           title={__('New Board')}
           trigger={addBoard}
-          autoOpenKey='showBoardModal'
+          autoOpenKey="showBoardModal"
           content={content}
         />
-      </TopHeader>
+      </Header>
     );
   }
 
@@ -67,13 +67,13 @@ class Boards extends React.Component<Props, {}> {
     const { loading, boards } = this.props;
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} full={true} hasBorder={true}>
+      <Sidebar noMargin wide header={this.renderSidebarHeader()} full hasBorder>
         <DataWithLoader
           data={<List>{this.renderItems()}</List>}
           loading={loading}
           count={boards.length}
           emptyText={__('There is no board')}
-          emptyImage='/images/actions/18.svg'
+          emptyImage="/images/actions/18.svg"
           objective={true}
         />
       </Sidebar>

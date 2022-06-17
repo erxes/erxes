@@ -2,6 +2,7 @@ import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { RowTitle } from '@erxes/ui-settings/src/main/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 
 export const StyledUrl = styled.div`
   color: ${colors.colorCoreGray};
@@ -112,4 +113,26 @@ export const Features = styledTS<{ isToggled: boolean }>(styled.span)`
   transition: all ease .3s;
   filter: ${props => !props.isToggled && `blur(4px)`};
   pointer-events: ${props => !props.isToggled && `none`};
+`;
+
+export const List = styled(SidebarList)`
+  li {
+    border-bottom: 1px solid ${colors.borderPrimary};
+    color: ${colors.textPrimary};
+    white-space: normal;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+
+    span {
+      color: ${colors.colorCoreLightGray};
+      margin: 0;
+    }
+
+    i {
+      margin-left: ${dimensions.unitSpacing / 2}px;
+    }
+
+    &:last-child {
+      border: none;
+    }
+  }
 `;

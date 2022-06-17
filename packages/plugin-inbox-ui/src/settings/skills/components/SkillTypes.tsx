@@ -4,7 +4,6 @@ import Icon from '@erxes/ui/src/components/Icon';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
-import { TopHeader } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
@@ -13,8 +12,12 @@ import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
-import { ISkillType, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
+import {
+  ISkillType,
+  ISkillTypesDocument
+} from '@erxes/ui-settings/src/skills/types';
 import SkillTypeForm from './SkillTypeForm';
+import { Header } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   queryParams: any;
@@ -47,9 +50,9 @@ function SkillTypes({
 
   function renderEditAction(object: ISkillTypesDocument) {
     const trigger = (
-      <Button id='skilltype-edit' btnStyle='link'>
-        <Tip text={__('Edit')} placement='bottom'>
-          <Icon icon='edit' />
+      <Button id="skilltype-edit" btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -61,9 +64,9 @@ function SkillTypes({
     const handleRemove = () => remove(object._id);
 
     return (
-      <Button btnStyle='link' onClick={handleRemove}>
-        <Tip text={__('Remove')} placement='bottom'>
-          <Icon icon='cancel-1' />
+      <Button btnStyle="link" onClick={handleRemove}>
+        <Tip text={__('Remove')} placement="bottom">
+          <Icon icon="cancel-1" />
         </Tip>
       </Button>
     );
@@ -80,7 +83,7 @@ function SkillTypes({
 
     return (
       <ModalTrigger
-        title='New skill type'
+        title="New skill type"
         trigger={trigger}
         content={content}
       />
@@ -90,9 +93,9 @@ function SkillTypes({
   function renderHeader() {
     const trigger = (
       <Button
-        id='skilltype-new'
-        btnStyle='success'
-        icon='plus-circle'
+        id="skilltype-new"
+        btnStyle="success"
+        icon="plus-circle"
         block={true}
       >
         Create skill type
@@ -101,15 +104,17 @@ function SkillTypes({
 
     return (
       <>
-        <TopHeader>{renderFormTrigger(trigger)}</TopHeader>
-        <Section.Title>{__('Skill types')}</Section.Title>
+        <Header>{renderFormTrigger(trigger)}</Header>
+        <Section.Title noBackground noSpacing>
+          {__('Skill types')}
+        </Section.Title>
       </>
     );
   }
 
   function renderContent() {
     return (
-      <SidebarList>
+      <SidebarList noTextColor noBackground>
         {objects.map(object => (
           <SidebarListItem key={object._id} isActive={isItemActive(object._id)}>
             <Link to={`?typeId=${object._id}`}>
@@ -126,7 +131,7 @@ function SkillTypes({
   }
 
   return (
-    <Sidebar wide={true} header={renderHeader()} hasBorder={true}>
+    <Sidebar wide={true} header={renderHeader()} hasBorder={true} noMargin>
       <DataWithLoader
         data={renderContent()}
         loading={loading}
@@ -134,7 +139,7 @@ function SkillTypes({
         emptyText={`${__('Get started by grouping the skills into types')}.${__(
           'For example, language skills'
         )}`}
-        emptyImage='/images/actions/26.svg'
+        emptyImage="/images/actions/26.svg"
       />
       <LoadMore all={totalCount} loading={loading} />
     </Sidebar>
