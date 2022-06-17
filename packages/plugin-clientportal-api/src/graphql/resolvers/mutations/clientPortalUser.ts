@@ -12,7 +12,63 @@ export interface IVerificationParams {
   password?: string;
 }
 
+interface IClientPortalUserEdit extends IUser {
+  _id: string;
+}
+
 const clientPortalUserMutations = {
+  async clientPortalUsersAdd(
+    _root,
+    doc: IUser,
+    { docModifier, models, subdomain }: IContext
+  ) {
+    const modifiedDoc = docModifier(doc);
+
+    const clientPortalUser = await models.ClientPortalUsers.createUser(
+      subdomain,
+      modifiedDoc
+    );
+
+    const clientPortal = await models.ClientPortals.getConfig(
+      doc.clientPortalId
+    );
+
+    await models.ClientPortalUsers.sendVerification(
+      subdomain,
+      clientPortal.otpConfig,
+      doc.phone,
+      doc.email
+    );
+
+    return clientPortalUser;
+  },
+
+  async clientPortalUsersEdit(
+    _root,
+    { _id, ...doc }: IClientPortalUserEdit,
+    { models, subdomain }: IContext
+  ) {
+    const updated = await models.ClientPortalUsers.updateUser(_id, doc);
+
+    return updated;
+  },
+
+  /**
+   * Removes a clientPortal User
+   * @param {string} param1._id clientPortal User id
+   */
+  async clientPortalUsersRemove(
+    _root,
+    { clientPortalUserIds }: { clientPortalUserIds: string[] },
+    { models }: IContext
+  ) {
+    const response = await models.ClientPortalUsers.removeUser(
+      clientPortalUserIds
+    );
+
+    return response;
+  },
+
   clientPortalRegister: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
     const clientPortal = await models.ClientPortals.getConfig(

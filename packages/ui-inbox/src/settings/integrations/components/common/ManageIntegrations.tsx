@@ -5,7 +5,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import IntegrationIcon from '@erxes/ui-settings/src/integrations/components/IntegrationIcon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { Column, Columns } from '@erxes/ui/src/styles/chooser';
-import { Title } from "@erxes/ui-settings/src/styles";
+import { Title } from '@erxes/ui-settings/src/styles';
 import { CenterContent, ModalFooter } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { IBrandDoc } from '@erxes/ui/src/brands/types';

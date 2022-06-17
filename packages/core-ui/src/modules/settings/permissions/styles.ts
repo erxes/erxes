@@ -72,10 +72,4 @@ const SidebarItem = styled(SidebarListItem)`
   }
 `;
 
-export {
-  StepItem,
-  StepHeader,
-  StepBody,
-  Divider,
-  SidebarItem
-};
+export { StepItem, StepHeader, StepBody, Divider, SidebarItem };
