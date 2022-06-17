@@ -133,6 +133,7 @@ export const queries = `
   automationHistories(${historiesParams}): [AutomationHistory]
   automationConfigPrievewCount(config: JSON): Int
   automationsTotalCount(status: String): automationsTotalCountResponse
+  automationConstants: JSON
 `;
 
 const commonFields = `
