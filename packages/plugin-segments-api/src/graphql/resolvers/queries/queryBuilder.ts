@@ -82,7 +82,10 @@ export const fetchSegment = async (
 
   const { returnAssociated } = options;
 
-  if (returnAssociated && contentType !== returnAssociated.contentType) {
+  if (
+    returnAssociated &&
+    !contentType.includes(`:${returnAssociated.contentType}`)
+  ) {
     index = returnAssociated.contentType;
 
     const itemsResponse = await fetchEs({
