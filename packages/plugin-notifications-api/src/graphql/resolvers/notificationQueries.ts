@@ -13,6 +13,8 @@ const notificationQueries = {
       title,
       limit,
       notifType,
+      startDate,
+      endDate,
       ...params
     }: {
       requireRead: boolean;
@@ -21,10 +23,13 @@ const notificationQueries = {
       notifType: string;
       page: number;
       perPage: number;
+      startDate: string;
+      endDate: string;
     },
     { models, subdomain, user }: IContext
   ) {
     const sort = { date: -1 };
+
     const selector: any = { receiver: user._id };
 
     if (requireRead) {
@@ -38,6 +43,15 @@ const notificationQueries = {
     if (notifType) {
       selector.notifType = notifType;
     }
+
+    if (startDate && endDate) {
+      selector.date = {
+        $gte: startDate,
+        $lt: endDate
+      };
+    }
+
+    console.log(selector, '+++');
 
     if (limit) {
       return models.Notifications.find(selector)
@@ -84,6 +98,6 @@ const notificationQueries = {
   }
 };
 
-moduleRequireLogin(notificationQueries);
+// moduleRequireLogin(notificationQueries);
 
 export default notificationQueries;
