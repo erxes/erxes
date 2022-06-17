@@ -8,7 +8,7 @@ import { queries } from '@erxes/ui/src/team/graphql';
 import { __ } from 'modules/common/utils';
 import Box from '@erxes/ui/src/components/Box';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import { MenuFooter } from '@erxes/ui-cards/src/boards/styles/rightMenu';
+import { MenuFooter } from 'modules/settings/styles';
 
 export default function ListContainer() {
   const listQuery = useQuery(gql(queries.departments));
