@@ -22,6 +22,12 @@ const importHistoryGetExportableServices = `
   }
 `;
 
+const fieldsCombinedByContentType = `
+  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $config: JSON) {
+    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames, segmentId: $segmentId, config: $config)
+  }
+`;
+
 const importHistories = `
   query importHistories($type: String, $perPage: Int, $page: Int) {
     importHistories(type: $type, perPage: $perPage, page: $page) {
@@ -51,5 +57,6 @@ export default {
   importHistoryGetTypes,
   importHistories,
   importHistoryGetColumns,
-  importHistoryGetDuplicatedHeaders
+  importHistoryGetDuplicatedHeaders,
+  fieldsCombinedByContentType
 };

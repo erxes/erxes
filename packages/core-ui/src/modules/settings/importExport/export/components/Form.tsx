@@ -24,11 +24,8 @@ import {
   Content,
   LeftContent
 } from '@erxes/ui-settings/src/integrations/styles';
-import {
-  ImageWrapper,
-  MessengerPreview,
-  TextWrapper
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { MessengerPreview } from '../../styles';
+import { ImageWrapper, TextWrapper } from '@erxes/ui/src/styles/main';
 
 type Props = {
   contentType: string;

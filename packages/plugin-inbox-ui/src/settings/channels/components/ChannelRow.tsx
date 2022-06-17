@@ -11,7 +11,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
 import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
+import MemberAvatars from '@erxes/ui/src/components/MemberAvatars';
 
 type Props = {
   channel: IChannel;
@@ -31,9 +31,9 @@ class ChannelRow extends React.Component<Props, {}> {
     const { channel, renderButton } = this.props;
 
     const editTrigger = (
-      <Button btnStyle='link'>
-        <Tip text={__('Edit')} placement='bottom'>
-          <Icon icon='edit' />
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -43,7 +43,7 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger title='Edit' trigger={editTrigger} content={content} />
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
   };
 
@@ -64,8 +64,8 @@ class ChannelRow extends React.Component<Props, {}> {
         </Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text='Delete' placement='bottom'>
-            <Button btnStyle='link' onClick={this.remove} icon='cancel-1' />
+          <Tip text="Delete" placement="bottom">
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </SidebarListItem>

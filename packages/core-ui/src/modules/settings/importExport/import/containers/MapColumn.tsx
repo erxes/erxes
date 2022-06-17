@@ -6,7 +6,6 @@ import Spinner from 'modules/common/components/Spinner';
 import { IAttachment } from 'modules/common/types';
 
 import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src//forms/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import MapColumn from '../components/MapColumn';
@@ -74,7 +73,7 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
+    graphql<Props>(gql(queries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
       options: ({ contentType }) => {
         return {

@@ -194,6 +194,24 @@ const Width = styled.div`
   width: ${(dimensions.unitSpacing - 2) * 10}px;
 `;
 
+const OperatorList = styled.div`
+  label {
+    display: block;
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+  p {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+  p:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
+const MessengerPreview = styled.div`
+  width: 40%;
+`;
+
 export {
   ImportColumnRow,
   ColumnTable,
@@ -206,5 +224,7 @@ export {
   TypeContent,
   ImportHeader,
   FileUploadBox,
-  Width
+  Width,
+  MessengerPreview,
+  OperatorList
 };

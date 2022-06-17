@@ -4,7 +4,6 @@ import * as compose from 'lodash.flowright';
 import Spinner from 'modules/common/components/Spinner';
 
 import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src//forms/graphql';
 import Form from '../components/Form';
 import React from 'react';
 import { queries } from '../../graphql';
@@ -95,7 +94,7 @@ class FormContainer extends React.Component<
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
+    graphql<Props>(gql(queries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
       options: ({ contentType }) => {
         return {
