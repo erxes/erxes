@@ -10,9 +10,9 @@ import ProductSection from './ProductSection';
 import { IProduct } from '@erxes/ui-products/src/types';
 import PortableTasks from '../../tasks/components/PortableTasks';
 import PortableTickets from '../../tickets/components/PortableTickets';
-import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
 import React from 'react';
 import { IDeal, IDealParams, IPaymentsData } from '../types';
+import { pluginsOfItemSidebar } from 'pluginUtils';
 
 type Props = {
   options: IOptions;
