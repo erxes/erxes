@@ -54,8 +54,8 @@ function List(props: Props) {
                   </Link>
                 </RowTitle>
               </td>
-              <td>{item.branchDetail.title || 'Branch'}</td>
-              <td>{item.departmentDetail.title || 'Department'}</td>
+              <td>{(item.branchDetail || {}).title || 'Branch'}</td>
+              <td>{(item.departmentDetail || {}).title || 'Department'}</td>
               <td>{item.type || 'Type'}</td>
               <td>
                 <Label lblStyle="success">{__('Active')}</Label>
