@@ -1,11 +1,14 @@
 import { Document, Schema } from 'mongoose';
 
 import { attachmentSchema } from '@erxes/api-utils/src/types';
-import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
 import {
   IProduct,
   productSchema
 } from '@packages/plugin-products-api/src/models/definitions/products';
+import {
+  IBranch,
+  IDepartment
+} from '@packages/core/src/db/models/definitions/structures';
 import { IUom } from '@packages/plugin-products-api/src/models/definitions/uoms';
 
 import { DURATION_TYPES, JOB_TYPES } from './constants';
