@@ -4,7 +4,6 @@ import Icon from 'modules/common/components/Icon';
 import LoadMore from 'modules/common/components/LoadMore';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import Tip from 'modules/common/components/Tip';
-import { TopHeader } from 'modules/common/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from 'modules/common/utils';
@@ -12,7 +11,7 @@ import Sidebar from 'modules/layout/components/Sidebar';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { FieldStyle, SidebarList } from 'modules/layout/styles';
 import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
-import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { ActionButtons, Header } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
@@ -130,7 +129,11 @@ class GroupList extends React.Component<IProps> {
   renderContent() {
     const { objects } = this.props;
 
-    return <SidebarList>{this.renderObjects(objects)}</SidebarList>;
+    return (
+      <SidebarList noBackground noTextColor>
+        {this.renderObjects(objects)}
+      </SidebarList>
+    );
   }
 
   renderSidebarHeader() {
@@ -147,8 +150,8 @@ class GroupList extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
-        <Section.Title>
+        <Header>{this.renderFormTrigger(trigger)}</Header>
+        <Section.Title noBackground noSpacing>
           {__('User groups')}
           <Section.QuickButtons>
             {router.getParam(this.props.history, 'groupId') && (
@@ -168,7 +171,12 @@ class GroupList extends React.Component<IProps> {
     const { totalCount, loading } = this.props;
 
     return (
-      <Sidebar full={true} wide={true} header={this.renderSidebarHeader()}>
+      <Sidebar
+        hasBorder={true}
+        wide={true}
+        header={this.renderSidebarHeader()}
+        noMargin
+      >
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}

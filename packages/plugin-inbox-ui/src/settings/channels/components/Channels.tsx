@@ -4,7 +4,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
@@ -38,15 +38,15 @@ class Channels extends React.Component<Props, {}> {
     if (!currentChannel._id) {
       return (
         <EmptyState
-          image='/images/actions/8.svg'
-          text='No Channels'
-          size='small'
+          image="/images/actions/8.svg"
+          text="No Channels"
+          size="small"
         />
       );
     }
 
     const trigger = (
-      <Button btnStyle='simple' icon='web-grid-alt'>
+      <Button btnStyle="simple" icon="web-grid-alt">
         {__('Manage integration')}
       </Button>
     );
@@ -61,10 +61,10 @@ class Channels extends React.Component<Props, {}> {
 
     const rightActionBar = currentChannel._id && (
       <ModalTrigger
-        title='Manage Integration'
+        title="Manage Integration"
         trigger={trigger}
-        size='lg'
-        autoOpenKey='showManageIntegrationModal'
+        size="lg"
+        autoOpenKey="showManageIntegrationModal"
         content={content}
       />
     );
@@ -81,7 +81,7 @@ class Channels extends React.Component<Props, {}> {
         }
         mainHead={
           <HeaderDescription
-            icon='/images/actions/31.svg'
+            icon="/images/actions/31.svg"
             title={'Channels'}
             description={`${__(
               `Channels are important to know how and where your team members are spread out`
@@ -98,7 +98,9 @@ class Channels extends React.Component<Props, {}> {
           <Wrapper.ActionBar
             left={leftActionBar}
             right={rightActionBar}
-            background='colorWhite'
+            background="colorWhite"
+            withMargin
+            wide
           />
         }
         content={
@@ -116,12 +118,13 @@ class Channels extends React.Component<Props, {}> {
             emptyText={__(
               'Choose from our many integrations and add to your channel'
             )}
-            emptyImage='/images/actions/2.svg'
+            emptyImage="/images/actions/2.svg"
           />
         }
         footer={currentChannel._id && <Pagination count={integrationsCount} />}
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui/src/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';

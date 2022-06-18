@@ -57,6 +57,7 @@ const PlaceForm = (props: Props) => {
 
   const onChangeProvince = option => {
     const selected = PROVINCES.find(p => p.value === option.value);
+
     setZoom(10);
     setCenter(selected.center);
     setProvince(option.value);

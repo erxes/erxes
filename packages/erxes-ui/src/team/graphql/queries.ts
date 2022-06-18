@@ -157,15 +157,135 @@ const branches = `
   }
 `;
 
-export {
+const userDetail = `
+  query userDetail($_id: String) {
+    userDetail(_id: $_id) {
+      _id
+      username
+      email
+      isActive
+      status
+      groupIds
+
+      details {
+        ${detailFields}
+      }
+      links
+      emailSignatures
+      getNotificationByEmail
+      customFieldsData
+      score
+    }
+  }
+`;
+
+const userConversations = `
+  query userConversations($_id: String!, $perPage: Int) {
+    userConversations(_id: $_id, perPage: $perPage) {
+    list {
+      _id
+      createdAt
+      customer {
+        _id
+        firstName
+        lastName
+        middleName
+        primaryEmail
+        primaryPhone
+        }
+      }
+      totalCount
+    }
+  }
+`;
+
+const usersTotalCount = `
+  query usersTotalCount(${listParamsDef}) {
+    usersTotalCount(${listParamsValue})
+  }
+`;
+
+const userSkills = `
+  query skills($memberIds: [String], $typeId: String, $list: Boolean) {
+    skills(memberIds: $memberIds, typeId: $typeId, list: $list) {
+      _id
+      name
+    }
+  }
+`;
+
+const structureDetail = `
+  query structureDetail {
+    structureDetail {
+      _id
+      title
+      description
+      code
+      supervisorId
+      supervisor {
+        _id
+        email
+        details {
+          ${detailFields}
+        }
+      }
+
+      ${contactInfoFields}
+    }
+  }
+`;
+
+const departmentDetail = `
+  query departmentDetail($_id: String) {
+    departmentDetail(_id: $_id) {
+      ${departmentField}
+    }
+  }
+`;
+
+const unitDetail = `
+  query unitDetail($_id: String) {
+    unitDetail(_id: $_id) {
+      ${unitField}
+    }
+  }
+`;
+
+const noDepartmentUsers = `
+  query noDepartmentUsers($excludeId: String) {
+    noDepartmentUsers(excludeId: $excludeId) {
+      _id
+      email
+
+      details {
+        ${detailFields}
+      }
+    }
+  }
+`;
+
+const branchDetail = `
+  query branchDetail($_id: String) {
+    branchDetail(_id: $_id) {
+      ${branchField}
+    }
+  }
+`;
+
+export default {
+  userSkills,
+  userDetail,
+  userConversations,
   users,
+  usersTotalCount,
   allUsers,
-  detailFields,
-  branches,
+  structureDetail,
   departments,
+  departmentDetail,
   units,
-  departmentField,
-  contactInfoFields,
-  unitField,
-  branchField
+  unitDetail,
+  noDepartmentUsers,
+  branches,
+  branchDetail,
+  detailFields
 };

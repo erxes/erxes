@@ -223,7 +223,8 @@ export const generateFields = async ({ subdomain, data }) => {
   if (usageType === 'export') {
     const extendExport = [
       { _id: Math.random(), name: 'boardId', label: 'Board' },
-      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' }
+      { _id: Math.random(), name: 'pipelineId', label: 'Pipeline' },
+      { _id: Math.random(), name: 'labelIds', label: 'Label' }
     ];
 
     fields = [...fields, ...extendExport];

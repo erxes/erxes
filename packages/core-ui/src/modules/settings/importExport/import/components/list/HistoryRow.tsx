@@ -142,8 +142,6 @@ class HistoryRow extends React.Component<Props> {
       return history.contentTypes.map(value => {
         const { removed = [] } = history;
 
-        console.log(value);
-
         const isRemoved = removed.find(
           removedItem => removedItem === value.contentType
         );

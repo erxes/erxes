@@ -50,6 +50,8 @@ const Row = (props: Props) => {
   const placeA = (direction.places[0] && direction.places[0].name) || '-';
   const placeB = (direction.places[1] && direction.places[1].name) || '-';
 
+  const duration = direction.duration || 0;
+
   return (
     <tr>
       <td key={Math.random()}>
@@ -71,7 +73,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{direction.duration || '0'}</RowTitle>
+        <RowTitle>{`${Math.floor(duration / 60)}H:${duration % 60}m`}</RowTitle>
       </td>
 
       <td key={Math.random()}>

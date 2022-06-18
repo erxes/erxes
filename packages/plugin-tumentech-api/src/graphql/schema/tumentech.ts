@@ -242,6 +242,8 @@ export const queries = `
   participants(page: Int, perPage: Int, customerId: String, dealId: String, status: String): [Participant]
   participantDetail(_id: String!): Participant
   participantsTotalCount(customerId: String, dealId: String, status: String): Int
+
+  gererateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 `;
 
 const tumentechCommonFields = `

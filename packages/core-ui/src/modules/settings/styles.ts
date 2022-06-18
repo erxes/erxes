@@ -1,8 +1,10 @@
 import { colors, dimensions } from 'modules/common/styles';
+import { rgba } from 'modules/common/styles/color';
 import { DateContainer } from 'modules/common/styles/main';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 const unitSpace = `${dimensions.unitSpacing}px`;
@@ -81,26 +83,29 @@ const BackgroundSelector = styled.div`
 
 const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
-  border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${props => props.isActive && colors.bgActive};
+  background: ${props => props.isActive && rgba(colors.colorPrimary, 0.2)};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 20px;
 
   a {
     white-space: normal;
     flex: 1;
-    padding: 10px 0 10px 20px;
-    font-weight: 500;
+    color: ${props => props.isActive && colors.colorPrimary};
+    font-weight: ${props => (props.isActive ? 600 : 500)};
+
+    border-bottom: 1px solid ${colors.borderPrimary};
+
+    margin: 0 20px;
+    padding: 10px 0;
 
     &:hover {
       background: none;
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
     }
 
     &:focus {
-      color: inherit;
       text-decoration: none;
     }
 
@@ -134,11 +139,16 @@ const FlexItem = styled(DateContainer)`
   }
 `;
 
+const MenuFooter = styled.footer`
+  padding: 10px 20px;
+`;
+
 export {
   FlexItem,
   ModuleBox,
   InlineItems,
   WidgetApperance,
   BackgroundSelector,
-  SidebarListItem
+  SidebarListItem,
+  MenuFooter
 };

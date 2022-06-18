@@ -1,10 +1,10 @@
-import { TopHeader } from '@erxes/ui/src/styles/main';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList as List } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BoardItem } from '@erxes/ui-settings/src/boards/styles';
 import { ICalendar } from '../../types';
+import { Header } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   accountId?: string;
@@ -24,11 +24,7 @@ class Calendars extends React.Component<Props, {}> {
 
   render() {
     return (
-      <Sidebar
-        wide={true}
-        header={<TopHeader>Calendars</TopHeader>}
-        full={true}
-      >
+      <Sidebar wide={true} header={<Header>Calendars</Header>} full={true}>
         <List>{this.renderItems()}</List>
       </Sidebar>
     );

@@ -296,7 +296,13 @@ class List extends React.Component<IProps, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+          <Wrapper.ActionBar
+            left={actionBarLeft}
+            right={actionBarRight}
+            withMargin
+            wide
+            background="colorWhite"
+          />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
@@ -313,6 +319,7 @@ class List extends React.Component<IProps, State> {
         }
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

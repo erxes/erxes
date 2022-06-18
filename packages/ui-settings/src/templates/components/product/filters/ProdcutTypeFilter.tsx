@@ -37,8 +37,9 @@ class ProductTypeFilter extends React.Component<IProps> {
         extraButtons={extraButtons}
         title={__('Status')}
         name="showFilterByStatus"
+        noShadow={true}
       >
-        <SidebarList>
+        <SidebarList noTextColor noBackground>
           {templateStatusChoises(__).map(
             ({ value, label }: { value: string; label: string }) => {
               return (

@@ -17,7 +17,9 @@ export default {
 
     const { Customers, Companies } = models;
 
-    const { docs, user, contentType, useElkSyncer } = data;
+    const { docs, user, contentType } = data;
+
+    const useElkSyncer = false;
 
     try {
       let objects;
@@ -430,7 +432,7 @@ export default {
           doc.state = 'lead';
         }
 
-        switch (property.type) {
+        switch (property.name) {
           case 'customProperty':
             {
               doc.customFieldsData.push({
@@ -466,7 +468,7 @@ export default {
                 isRPC: true
               });
 
-              doc[property.name] = owner ? owner._id : '';
+              doc.ownerId = owner ? owner._id : '';
             }
             break;
 
@@ -498,25 +500,27 @@ export default {
 
           case 'tag':
             {
+              const type = contentType === 'lead' ? 'customer' : contentType;
+
               const tagName = value;
 
               let tag = await sendTagsMessage({
                 subdomain,
                 action: 'findOne',
-                data: { name: tagName, type: contentType }
+                data: { name: tagName, type: `contacts:${type}` },
+                isRPC: true
               });
 
               if (!tag) {
-                const type = contentType === 'lead' ? 'customer' : contentType;
-
                 tag = await sendTagsMessage({
                   subdomain,
                   action: 'createTag',
-                  data: { name: tagName, type: `contacts:${type}` }
+                  data: { name: tagName, type: `contacts:${type}` },
+                  isRPC: true
                 });
               }
 
-              doc[property.name] = tag ? [tag._id] : [];
+              doc.tagIds = tag ? [tag._id] : [];
             }
 
             break;
@@ -532,14 +536,22 @@ export default {
                 isRPC: true
               });
 
-              doc[property.name] = assignedUser ? [assignedUser._id] : [];
+              doc.assignedUserIds = assignedUser ? [assignedUser._id] : [];
             }
 
             break;
 
-          case 'basic':
+          default:
             {
               doc[property.name] = value;
+
+              if (property.name === 'createdAt' && value) {
+                doc.createdAt = new Date(value);
+              }
+
+              if (property.name === 'modifiedAt' && value) {
+                doc.modifiedAt = new Date(value);
+              }
 
               if (property.name === 'primaryName' && value) {
                 doc.names = [value];

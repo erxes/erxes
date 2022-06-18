@@ -12,7 +12,7 @@ const ProductList = asyncComponent(() =>
   )
 );
 
-const ProductDeatils = asyncComponent(() =>
+const ProductDetails = asyncComponent(() =>
   import(
     /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
   )
@@ -21,7 +21,7 @@ const ProductDeatils = asyncComponent(() =>
 const details = ({ match }) => {
   const id = match.params.id;
 
-  return <ProductDeatils id={id} />;
+  return <ProductDetails id={id} />;
 };
 
 const productService = ({ location, history }) => {

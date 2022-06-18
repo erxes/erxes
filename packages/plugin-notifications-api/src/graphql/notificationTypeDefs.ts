@@ -31,6 +31,8 @@ const params = `
   requireRead: Boolean,
   notifType: String
   title: String
+  startDate: String
+  endDate: String
 `;
 
 export const queries = `
