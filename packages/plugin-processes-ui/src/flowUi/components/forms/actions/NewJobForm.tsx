@@ -12,6 +12,7 @@ import { IJob } from '../../../../flow/types';
 import { IJobRefer } from '../../../../job/types';
 import { DrawerDetail } from '../../../styles';
 import Common from './Common';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
   closeModal: () => void;
@@ -19,7 +20,8 @@ type Props = {
   activeAction?: IJob;
   jobRefers: IJobRefer[];
   actions: IJob[];
-  lastActionId: string;
+  lastAction: IJob;
+  flowProduct: IProduct;
   addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
 };
 
@@ -38,11 +40,6 @@ class Delay extends React.Component<Props, State> {
       jobReferId: jobReferId ? jobReferId : '',
       description: description ? description : ''
     };
-
-    console.log(
-      'this.props.activeAction on constructor:',
-      this.props.activeAction
-    );
   }
 
   componentWillReceiveProps(nextProps) {
@@ -55,15 +52,24 @@ class Delay extends React.Component<Props, State> {
     return <Label lblStyle={style}>{text}</Label>;
   };
 
-  renderProducts = (products, type, matchProducts = undefined) => {
+  renderProducts = (
+    products,
+    type,
+    matchProducts = undefined,
+    flowProduct = undefined
+  ) => {
     const style = type === 'need' ? 'simple' : 'default';
     const space = '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0';
 
     return products.map(product => {
       const name = product.product.name;
-      const matchResult = matchProducts
+      let matchResult = matchProducts
         ? matchProducts.includes(name)
         : matchProducts;
+
+      if (flowProduct) {
+        matchResult = flowProduct && flowProduct.name === name ? true : false;
+      }
 
       return (
         <>
@@ -98,10 +104,10 @@ class Delay extends React.Component<Props, State> {
     }
 
     if (type === 'cur') {
-      console.log('current last product:', this.props.lastActionId);
+      console.log('current last product:', this.props.lastAction);
     }
 
-    console.log('beforeResultProducts', beforeResultProducts);
+    // console.log('beforeResultProducts', beforeResultProducts);
 
     return chosenActions.map(action => {
       if (!action.jobReferId) {
@@ -124,10 +130,15 @@ class Delay extends React.Component<Props, State> {
               this.renderProducts(needProducts, 'need', beforeResultProducts)}
           </Info>
 
-          {type === 'cur' && action.label === this.props.lastActionId && (
-            <Info type="primary" title="Result Products">
+          {type === 'cur' && action === this.props.lastAction && (
+            <Info type="primary" title="Last check">
               {type === 'cur' &&
-                this.renderProducts(resultProducts, 'result', [])}
+                this.renderProducts(
+                  resultProducts,
+                  'result',
+                  undefined,
+                  this.props.flowProduct
+                )}
             </Info>
           )}
         </>
@@ -138,7 +149,7 @@ class Delay extends React.Component<Props, State> {
   renderContent() {
     const { jobRefers, actions, activeAction } = this.props;
 
-    console.log('beforeActions before before: ', actions);
+    // console.log('beforeActions before before: ', actions);
 
     const activeActionId =
       activeAction && activeAction.id ? activeAction.id : '';
