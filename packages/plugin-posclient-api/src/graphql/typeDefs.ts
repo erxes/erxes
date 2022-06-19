@@ -1,9 +1,4 @@
 import { gql } from 'apollo-server-express';
-import {
-  mutations as UserMutations,
-  queries as UserQueries,
-  types as UserTypes
-} from './schema/user';
 import { queries as LogQueries, types as LogTypes } from './schema/logs';
 import {
   queries as ErxesQueries,
@@ -16,11 +11,7 @@ import {
   queries as PosUserQueries,
   types as PosUserTypes
 } from './schema/posUser';
-import {
-  mutations as CustomerMutations,
-  queries as CustomerQueries,
-  types as CustomerTypes
-} from './schema/customer';
+
 import {
   mutations as OrderMutations,
   queries as OrderQueries,
@@ -44,7 +35,6 @@ import {
   queries as ReportQueries,
   types as ReportTypes
 } from './schema/report';
-import { types as CompanyTypes } from './schema/company';
 
 const typeDefs = async () => {
   return gql`
@@ -55,13 +45,12 @@ const typeDefs = async () => {
       _id: String! @external
     }
 
-    ${UserTypes}
     ${LogTypes}
     ${ErxesTypes}
     ${ProductTypes}
     ${PosUserTypes}
-    ${CompanyTypes}
-    ${CustomerTypes}
+
+
     ${OrderTypes}
     ${ConfigTypes}
     ${PaymentTypes}
@@ -69,7 +58,7 @@ const typeDefs = async () => {
 
   
    extend type Query {
-    ${UserQueries}
+
     ${LogQueries}
     ${ErxesQueries}
 
@@ -77,7 +66,7 @@ const typeDefs = async () => {
     ${ProductQueries}
     ${OrderQueries}
     ${ConfigQueries}
-    ${CustomerQueries}
+  
     ${PaymentQueries}
     ${ReportQueries}
    }
@@ -85,12 +74,12 @@ const typeDefs = async () => {
 
   
    extend type Mutation {
-    ${UserMutations}
+
     ${PosUserMutations}
     ${OrderMutations}
     ${ConfigMutations}
     ${PaymentMutations}
-    ${CustomerMutations}
+  
     ${ErxesMutations}
    }
 

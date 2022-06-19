@@ -98,7 +98,7 @@ export const types = `
     origin: String
 
     items: [OrderItem]
-    customer: Customer
+    
     user: PosUser
     putResponses: [PutResponse]
     qpayInvoice: QPayInvoice

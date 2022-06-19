@@ -28,7 +28,7 @@ export const types = `
     vendorId: String
     attachmentMore: JSON
     category: ProductCategory
-    vendor: Company
+   
   }
 `;
 
