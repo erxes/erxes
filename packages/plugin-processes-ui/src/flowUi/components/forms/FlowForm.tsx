@@ -127,20 +127,36 @@ class AutomationForm extends React.Component<Props, State> {
   findLastAction = () => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
+    const lastActions = [];
+
     console.log('start finding lastaction ...');
-    let lastAction;
+
     for (const action of actions) {
       if (!action.nextJobIds.length || action.nextJobIds.length === 0) {
-        lastAction = action;
+        lastActions.push(action);
         console.log('founded lastAction label: ', action.label);
       }
     }
 
-    const jobRefer = jobRefers.find(job => job._id === lastAction.jobReferId);
-    console.log('end finding lastaction ...', jobRefer);
-    const resultProducts = jobRefer.resultProducts
-      ? jobRefer.resultProducts
-      : [];
+    console.log('end finding lastActions ...', lastActions);
+
+    console.log('end finding jobRefers ...', jobRefers);
+
+    const lastActionIds = lastActions.map(last => last.jobReferId);
+    const lastJobRefers = jobRefers.filter(job =>
+      lastActionIds.includes(job._id)
+    );
+
+    console.log('end finding lastJobRefers ...', lastJobRefers);
+
+    let resultProducts = [];
+    for (const lastJobRefer of lastJobRefers) {
+      const resultProduct = lastJobRefer.resultProducts;
+      resultProducts = resultProducts.length
+        ? [...resultProducts, ...lastJobRefer.resultProducts]
+        : (resultProducts = resultProduct);
+    }
+
     console.log('end finding resultProducts ...', resultProducts);
 
     const checkResult = resultProducts.find(
@@ -149,10 +165,20 @@ class AutomationForm extends React.Component<Props, State> {
 
     console.log('end finding checkResult ...', checkResult);
 
+    const doubleCheckResult = Object.keys(checkResult ? checkResult : {})
+      .length;
+    const justLastJobRefer = doubleCheckResult
+      ? lastJobRefers.find(last => last.resultProducts.includes(checkResult))
+      : ({} as IJobRefer);
+    const justLastAction = Object.keys(justLastJobRefer).length
+      ? lastActions.find(last => last.jobReferId === justLastJobRefer._id)
+      : ({} as IJob);
+
+    console.log('end finding justLastAction ...', justLastAction);
+
     this.setState({
-      lastAction,
-      flowStatus:
-        Object.keys(checkResult ? checkResult : {}).length > 0 ? true : false
+      lastAction: justLastAction,
+      flowStatus: doubleCheckResult ? true : false
     });
   };
 
