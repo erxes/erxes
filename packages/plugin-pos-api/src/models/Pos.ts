@@ -4,17 +4,17 @@ import {
   IPosDocument,
   IProductGroupDocument,
   IPosOrderDocument,
-  posOrderSchema
+  posOrderSchema,
+  IPos
 } from './definitions/pos';
-import { IPOS } from '../types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface IPosModel extends Model<IPosDocument> {
   getPosList(query: any): IPosDocument;
   getPos(query: any): IPosDocument;
-  posAdd(user, doc: IPOS): IPosDocument;
-  posEdit(_id: string, doc: IPOS): IPosDocument;
+  posAdd(user, doc: IPos): IPosDocument;
+  posEdit(_id: string, doc: IPos): IPosDocument;
   posRemove(_id: string): IPosDocument;
 }
 
@@ -48,7 +48,7 @@ export const loadPosClass = (models: IModels, _subdomain) => {
       return b.join('');
     }
 
-    public static async posAdd(user, doc: IPOS) {
+    public static async posAdd(user, doc: IPos) {
       try {
         return models.Pos.create({
           ...doc,
@@ -63,7 +63,7 @@ export const loadPosClass = (models: IModels, _subdomain) => {
       }
     }
 
-    public static async posEdit(_id: string, doc: IPOS) {
+    public static async posEdit(_id: string, doc: IPos) {
       await models.Pos.getPos({ _id });
 
       await models.Pos.updateOne(

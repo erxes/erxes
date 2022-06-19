@@ -1,11 +1,11 @@
 module.exports = {
   name: "inventories",
-  port: 3012,
+  port: 3028,
   exposes: {
     "./routes": "./src/routes.tsx",
   },
   routes: {
-    url: "http://localhost:3012/remoteEntry.js",
+    url: "http://localhost:3028/remoteEntry.js",
     scope: "inventories",
     module: "./routes",
   },

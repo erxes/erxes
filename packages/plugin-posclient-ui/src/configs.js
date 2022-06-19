@@ -1,12 +1,12 @@
 module.exports = {
   name: 'posclient',
-  port: 3012,
+  port: 3030,
   scope: 'posclient',
   exposes: {
     './routes': './src/routes.tsx'
   },
   routes: {
-    url: 'http://localhost:3012/remoteEntry.js',
+    url: 'http://localhost:3030/remoteEntry.js',
     scope: 'posclient',
     module: './routes'
   },
