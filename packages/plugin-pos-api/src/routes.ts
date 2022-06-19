@@ -1,20 +1,30 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { format } from 'path';
 import { generateModels, IContext, IModels } from './connectionResolver';
-import { sendContactsMessage, sendCoreMessage } from './messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendEbarimtMessage,
+  sendProductsMessage
+} from './messageBroker';
 import { IPos, IPosDocument } from './models/definitions/pos';
 import { getConfig } from './utils';
 
-const getChildCategories = async (models: IModels, categories) => {
+const getChildCategories = async (subdomain: string, categoryIds) => {
   let catIds: string[] = [];
-  for (const category of categories) {
-    const childs = await models.ProductCategories.find({
-      order: { $regex: `^${category.order}.*`, $options: 'i' }
-    }).sort({ order: 1 });
+  for (const categoryId of categoryIds) {
+    const childs = await sendProductsMessage({
+      subdomain,
+      action: 'categories.withChilds',
+      data: { _id: categoryId },
+      isRPC: true,
+      defaultValue: []
+    });
 
     catIds = catIds.concat((childs || []).map(ch => ch._id) || []);
   }
 
-  return models.ProductCategories.find({ _id: { $in: catIds } });
+  return Array.from(new Set(catIds));
 };
 
 const getConfigData = async (subdomain, pos: IPosDocument) => {
@@ -83,49 +93,53 @@ const getConfigData = async (subdomain, pos: IPosDocument) => {
   return data;
 };
 
-const getProductsData = async (models: IModels, pos: IPosDocument) => {
+const getProductsData = async (
+  subdomain: string,
+  models: IModels,
+  pos: IPosDocument
+) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
   const productGroups: any = [];
 
-  const commonFilter = [
-    { status: { $ne: 'disabled' } },
-    { status: { $ne: 'archived' } }
-  ];
-
   for (const group of groups) {
-    const chosenCategories = await models.ProductCategories.find({
-      $and: [{ _id: { $in: group.categoryIds || [] } }, ...commonFilter]
-    })
-      .sort({ order: 1 })
-      .lean();
-
-    const chosenExcludeCategories = await models.ProductCategories.find({
-      $and: [{ _id: { $in: group.excludedCategoryIds } }, ...commonFilter]
-    }).lean();
-
-    const includeCategories = await getChildCategories(
-      models,
-      chosenCategories
+    const includeCatIds = await getChildCategories(
+      subdomain,
+      group.categoryIds
     );
-    const excludeCategories = await getChildCategories(
-      models,
-      chosenExcludeCategories
+    const excludeCatIds = await getChildCategories(
+      subdomain,
+      group.excludedCategoryIds
     );
-    const excludeCatIds = excludeCategories.map(c => c._id);
 
-    const productCategories = includeCategories.filter(
-      c => !excludeCatIds.includes(c._id)
+    const productCategoryIds = includeCatIds.filter(
+      c => !excludeCatIds.includes(c)
     );
+
+    const productCategories = await sendProductsMessage({
+      subdomain,
+      action: 'categories.find',
+      data: { query: { _id: { $in: productCategoryIds } }, sort: { order: 1 } },
+      isRPC: true,
+      defaultValue: []
+    });
 
     const categories: any[] = [];
 
     for (const category of productCategories) {
-      const products = await models.Products.find({
-        status: { $ne: 'deleted' },
-        categoryId: category._id,
-        _id: { $nin: group.excludedProductIds }
-      }).lean();
+      const products = await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          query: {
+            status: { $ne: 'deleted' },
+            categoryId: category._id,
+            _id: { $nin: group.excludedProductIds }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
 
       categories.push({
         _id: category._id,
@@ -192,7 +206,7 @@ export const posInit = async (req, res) => {
     ...pos,
     syncInfo: { id: syncId, date: syncInfo[syncId] }
   });
-  data.productGroups = await getProductsData(models, pos);
+  data.productGroups = await getProductsData(subdomain, models, pos);
   console.log(data.productGroups);
   // data.customers = await getCustomersData(subdomain);
 
@@ -220,7 +234,9 @@ export const posSyncConfig = async (req, res) => {
     case 'config':
       return res.send(await getConfigData(models, pos));
     case 'products':
-      return res.send({ productGroups: await getProductsData(models, pos) });
+      return res.send({
+        productGroups: await getProductsData(subdomain, models, pos)
+      });
     case 'customers':
       return res.send({ customers: await getCustomersData(subdomain) });
   }
@@ -295,7 +311,13 @@ export const posSyncOrders = async (req, res) => {
     }
 
     if (bulkOps.length) {
-      await models.PutResponses.bulkWrite(bulkOps);
+      await sendEbarimtMessage({
+        subdomain,
+        action: 'putresponses.bulkWrite',
+        data: {
+          bulkOps
+        }
+      });
     }
 
     return res.send({ resOrderIds, putResponseIds });
