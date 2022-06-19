@@ -4,6 +4,7 @@ import React from 'react';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IJobRefer, IFlowDocument } from '../../types';
+import Label from '@erxes/ui/src/components/Label';
 
 type Props = {
   flow: IFlowDocument;
@@ -26,6 +27,10 @@ class Row extends React.Component<Props> {
       e.stopPropagation();
     };
 
+    const renderLabelInfo = (style, text) => {
+      return <Label lblStyle={style}>{text}</Label>;
+    };
+
     const renderProducts = products => {
       if (products.length) {
         return products.map(e => (
@@ -46,7 +51,7 @@ class Row extends React.Component<Props> {
       history.push(`/processes/flows/details/${flow._id}`);
     };
 
-    const { name, status, jobs } = flow;
+    const { name, status, jobs, flowJobStatus, departmentId, branchId } = flow;
 
     return (
       <tr onClick={onTrClick}>
@@ -59,6 +64,12 @@ class Row extends React.Component<Props> {
         </td>
         <td>{name}</td>
         <td>{status}</td>
+        <td>
+          {flowJobStatus === true && renderLabelInfo('success', 'True')}
+          {flowJobStatus === false && renderLabelInfo('danger', 'False')}
+        </td>
+        <td>{departmentId}</td>
+        <td>{branchId}</td>
         <td>{jobs.length}</td>
       </tr>
     );

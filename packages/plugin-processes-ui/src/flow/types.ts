@@ -18,26 +18,15 @@ export interface IJobDocument extends IJob {
   jobRefer: IJobRefer;
 }
 
-export interface IFlowCategory {
-  _id: string;
-  name: string;
-  code: string;
-  description?: string;
-  parentId?: string;
-  attachment?: any;
-  status?: string;
-  order: string;
-  createdAt: Date;
-  isRoot: boolean;
-  flowCount: number;
-}
-
 export interface IFlow {
   name: string;
   categoryId?: string;
   productId?: string;
   product?: IProduct;
   status: string;
+  flowJobStatus: boolean;
+  branchId: string;
+  departmentId: string;
   jobs?: IJob[];
 }
 

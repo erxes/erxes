@@ -9,6 +9,9 @@ updatedBy
 name
 categoryId
 status
+flowJobStatus
+branchId
+departmentId
 jobs
 `;
 
@@ -33,6 +36,9 @@ query flowDetail($_id: String!) {
     productId
     product
     status
+    flowJobStatus
+    branchId
+    departmentId
     jobs
   }
 }
