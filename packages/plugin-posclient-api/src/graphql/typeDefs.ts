@@ -82,12 +82,6 @@ const typeDefs = async () => {
   
     ${ErxesMutations}
    }
-
-
-
-   extend type Subscription {
-    ordersOrdered(statuses: [String]): Order
-   }
   `;
 };
 

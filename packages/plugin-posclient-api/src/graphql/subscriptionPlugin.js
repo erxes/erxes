@@ -1,8 +1,16 @@
-import { withFilter } from 'graphql-subscriptions';
-import { graphqlPubsub } from '../../pubsub';
+var { withFilter } = require("graphql-subscriptions");
 
-export default {
-  /*
+module.exports = {
+  name: "posclient",
+  typeDefs: `
+			
+   extend type Subscription {
+    ordersOrdered(statuses: [String]): Order
+   }
+		`,
+  generateResolvers: (graphqlPubsub) => {
+    return {
+      /*
    * Listen for orders ordered
    */
   ordersOrdered: {
@@ -14,4 +22,6 @@ export default {
       }
     )
   }
+    }
+  },
 };

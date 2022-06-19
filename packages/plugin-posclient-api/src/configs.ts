@@ -14,7 +14,6 @@ export let serviceDiscovery;
 export default {
   name: 'posclient',
   graphql: async sd => {
-    console.log('sd================================>', sd);
     serviceDiscovery = sd;
 
     return {

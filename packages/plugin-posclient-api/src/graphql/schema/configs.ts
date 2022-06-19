@@ -39,7 +39,7 @@ export const types = `
     productId: String
   }
 
-  type Config {
+  type PosConfig {
     _id: String
     name: String
     description: String
@@ -69,13 +69,13 @@ export const types = `
 `;
 
 export const mutations = `
-  posConfigsFetch(token: String!): Config
+  posConfigsFetch(token: String!): PosConfig
   syncConfig(type: String!): JSON
   syncOrders: JSON
   deleteOrders: JSON
 `;
 
 export const queries = `
-  currentConfig: Config
+  currentConfig: PosConfig
   getBranches: JSON
 `;
