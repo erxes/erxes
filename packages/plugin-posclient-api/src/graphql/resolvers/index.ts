@@ -9,10 +9,11 @@ import OrderItem from './orderItem';
 const resolvers: any = async () => ({
   ...customScalars,
 
-  Mutation,
-  Query,
   Order,
-  OrderItem
+  OrderItem,
+
+  Mutation,
+  Query
 });
 
 export default resolvers;
