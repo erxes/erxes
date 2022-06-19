@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import Customers from '../../../models/Customers';
+
 import { Configs } from '../../../models/Configs';
 import { debugError, debugInit } from '../../../debugger';
 import { initBroker } from '../../messageBroker';

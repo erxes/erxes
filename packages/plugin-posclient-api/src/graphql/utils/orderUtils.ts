@@ -6,7 +6,6 @@ import { Products } from '../../models/Products';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import Customers from '../../models/Customers';
 import { sendRequest } from './commonUtils';
 import {
   DISTRICTS,
@@ -194,14 +193,6 @@ export const prepareEbarimtData = async (
       billType = '3';
       customerCode = registerNumber;
       customerName = response.name;
-    }
-  }
-
-  if (billType === BILL_TYPES.CITIZEN) {
-    const customer = await Customers.findOne({ _id: order.customerId });
-
-    if (customer && customer.code && /^\d{8}$/.test(customer.code)) {
-      customerCode = customer.code;
     }
   }
 

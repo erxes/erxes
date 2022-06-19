@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { IUserModel } from './Users';
 import { ILogModel } from './Logs';
 import { USER_LOGIN_TYPES } from '../util';
 

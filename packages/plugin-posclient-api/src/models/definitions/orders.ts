@@ -1,4 +1,3 @@
-import { ICustomerDocument } from './customers';
 import { Document, Schema } from 'mongoose';
 
 import { getDateFieldDefinition, getNumberFieldDefinition } from './utils';
@@ -63,7 +62,6 @@ const cardPaymentSchema = schemaHooksWrapper(
 export interface IOrderDocument extends Document, IOrder {
   _id: string;
   items: IOrderItemDocument[];
-  customer?: ICustomerDocument;
   userId?: string;
   qpayInvoices?: IQpayInvoiceDocument[];
 }

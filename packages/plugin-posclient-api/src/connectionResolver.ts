@@ -5,7 +5,6 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 import { IConfigModel, loadConfigClass } from './models/Configs';
-import { ICustomerModel, loadCustomerClass } from './models/Customers';
 import { ILogModel, loadLogClass } from './models/Logs';
 import { IOrderItemModel, loadOrderItemClass } from './models/OrderItems';
 import { IOrderModel, loadOrderClass } from './models/Orders';
@@ -19,7 +18,6 @@ import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
 import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
 
 import { IConfigDocument } from './models/definitions/configs';
-import { ICustomerDocument } from './models/definitions/customers';
 import { IOrderItemDocument } from './models/definitions/orderItems';
 import { IOrderDocument } from './models/definitions/orders';
 import {
@@ -31,7 +29,6 @@ import { IPutResponseDocument } from './models/definitions/putResponses';
 
 export interface IModels {
   Configs: IConfigModel;
-  Customers: ICustomerModel;
   Logs: ILogModel;
   OrderItems: IOrderItemModel;
   Orders: IOrderModel;
@@ -63,10 +60,6 @@ export const loadClasses = (
     loadConfigClass(models)
   );
 
-  models.Customers = db.model<ICustomerDocument, ICustomerModel>(
-    'pos_customers',
-    loadCustomerClass(models)
-  );
   models.OrderItems = db.model<IOrderItemDocument, IOrderItemModel>(
     'pos_orderItems',
     loadOrderItemClass(models)
