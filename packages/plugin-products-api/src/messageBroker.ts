@@ -267,6 +267,15 @@ export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendProcessesMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
+  });
+};
+
 export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
