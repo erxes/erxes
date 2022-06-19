@@ -47,6 +47,7 @@ module.exports.devCmd = async program => {
     RABBITMQ_HOST: "amqp://localhost",
     ELASTICSEARCH_URL: "http://localhost:9200",
     ENABLED_SERVICES_PATH: filePath("enabled-services.js"),
+    ALLOWED_ORIGINS: configs.allowed_origins
   };
 
   let port = 3300;

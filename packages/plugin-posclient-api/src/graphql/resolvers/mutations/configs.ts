@@ -1,12 +1,9 @@
 import * as dotenv from 'dotenv';
 
-import { Configs } from '../../../models/Configs';
 import { debugError, debugInit } from '../../../debugger';
 import { initBroker } from '../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import { OrderItems } from '../../../models/OrderItems';
-import { Orders } from '../../../models/Orders';
-import { PutResponses } from '../../../models/PutResponses';
 import { sendRequest } from '../../utils/commonUtils';
 
 import {
@@ -19,15 +16,16 @@ import {
   preImportCustomers
 } from '../../utils/syncUtils';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
+import { IContext } from '../../../connectionResolver';
 
 dotenv.config();
 
 const configMutations = {
-  async posConfigsFetch(_root, { token }, models) {
+  async posConfigsFetch(_root, { token }, { models }: IContext) {
+    console.log('ddddddddddddddddddddddddd');
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
     const config = await models.Configs.createConfig(token);
-
     const response = await sendRequest({
       url: `${REACT_APP_MAIN_API_DOMAIN}/pos-init`,
       method: 'get',
@@ -40,7 +38,6 @@ const configMutations = {
         adminUsers = [],
         cashiers = [],
         productGroups = [],
-        customers = [],
         qpayConfig
       } = response;
 
@@ -55,7 +52,6 @@ const configMutations = {
       await importUsers(cashiers);
       await importUsers(adminUsers);
       await importProducts(productGroups);
-      await models.Customers.insertMany(customers);
     }
 
     initBroker()

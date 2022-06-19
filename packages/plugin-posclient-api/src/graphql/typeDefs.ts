@@ -1,10 +1,5 @@
 import { gql } from 'apollo-server-express';
 import { queries as LogQueries, types as LogTypes } from './schema/logs';
-import {
-  queries as ErxesQueries,
-  types as ErxesTypes,
-  mutations as ErxesMutations
-} from './schema/erxes';
 
 import {
   mutations as PosUserMutations,
@@ -46,7 +41,6 @@ const typeDefs = async () => {
     }
 
     ${LogTypes}
-    ${ErxesTypes}
     ${ProductTypes}
     ${PosUserTypes}
 
@@ -56,31 +50,24 @@ const typeDefs = async () => {
     ${PaymentTypes}
     ${ReportTypes}
 
-  
    extend type Query {
-
     ${LogQueries}
-    ${ErxesQueries}
 
     ${PosUserQueries}
     ${ProductQueries}
     ${OrderQueries}
     ${ConfigQueries}
-  
     ${PaymentQueries}
     ${ReportQueries}
    }
 
 
-  
-   extend type Mutation {
 
+   extend type Mutation {
     ${PosUserMutations}
     ${OrderMutations}
     ${ConfigMutations}
     ${PaymentMutations}
-  
-    ${ErxesMutations}
    }
   `;
 };

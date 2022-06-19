@@ -22,7 +22,6 @@ export default {
     };
   },
   getHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
-  postHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
 
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

@@ -24,6 +24,7 @@ import {
 import { initBroker } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { handleUnsubscription } from './util/handleUnsubscription';
+import * as cors from 'cors';
 
 const {
   NODE_ENV,
@@ -63,6 +64,19 @@ const {
   );
 
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
+  const corsOptions = {
+    credentials: true,
+    origin: [
+      DOMAIN ? DOMAIN : 'http://localhost:3000',
+      WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+      ...(CLIENT_PORTAL_DOMAINS || '').split(','),
+      'https://studio.apollographql.com',
+      ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
+    ]
+  };
+
+  app.use(cors(corsOptions));
+
   app.use(
     /\/((?!graphql).)*/,
     createProxyMiddleware({
@@ -97,7 +111,7 @@ const {
         const services = await getServices();
 
         for (const service of services) {
-          newPath = newPath.replace(`/pl:${service}`, '');
+          newPath = newPath.replace(`/pl:${service}/`, '/');
         }
 
         return newPath;
@@ -172,18 +186,7 @@ const {
   apolloServer.applyMiddleware({
     app,
     path: '/graphql',
-    cors: {
-      credentials: true,
-      origin: [
-        DOMAIN ? DOMAIN : 'http://localhost:3000',
-        WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
-        ...(CLIENT_PORTAL_DOMAINS || '').split(','),
-        'https://studio.apollographql.com',
-        ...(process.env.ALLOWED_ORIGINS || '')
-          .split(',')
-          .map(c => c && RegExp(c))
-      ]
-    }
+    cors: corsOptions
   });
 
   const port = PORT || 4000;

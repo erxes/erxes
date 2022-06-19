@@ -5,7 +5,7 @@ import {
   createInvoice,
   getDataFromConfigById,
   deleteInvoice,
-  deleteQpayPayment,
+  deleteQpayPayment
 } from '../../../utils';
 
 import {
@@ -13,7 +13,7 @@ import {
   socialPayInvoicePhone,
   socialPayInvoiceQR,
   socialPayInvoiceCancel,
-  socialPayPaymentCancel,
+  socialPayPaymentCancel
 } from '../../../utilsGolomtSP';
 
 const Mutations = {
@@ -30,13 +30,16 @@ const Mutations = {
       invoiceNo
     );
     const amount = invoice.amount;
-    const checksum = await hmac256(inStoreSPKey, amount + invoiceNo + inStoreSPTerminal);
+    const checksum = await hmac256(
+      inStoreSPKey,
+      amount + invoiceNo + inStoreSPTerminal
+    );
 
     const requestBody = {
       amount,
       checksum,
       invoice: invoiceNo,
-      terminal: inStoreSPTerminal,
+      terminal: inStoreSPTerminal
     };
     const invoiceQrData = await socialPayPaymentCancel(requestBody, config);
     const response =
@@ -68,13 +71,16 @@ const Mutations = {
       invoiceNo
     );
     const amount = invoice.amount;
-    const checksum = await hmac256(inStoreSPKey, inStoreSPTerminal + invoiceNo + amount);
+    const checksum = await hmac256(
+      inStoreSPKey,
+      inStoreSPTerminal + invoiceNo + amount
+    );
 
     const requestBody = {
       amount,
       checksum,
       invoice: invoiceNo,
-      terminal: inStoreSPTerminal,
+      terminal: inStoreSPTerminal
     };
     const invoiceQrData = await socialPayInvoiceCancel(requestBody, config);
     const response =
@@ -83,8 +89,8 @@ const Mutations = {
         : 0;
     const responseDesc =
       invoiceQrData.body &&
-        invoiceQrData.body.response &&
-        invoiceQrData.body.response.status
+      invoiceQrData.body.response &&
+      invoiceQrData.body.response.status
         ? invoiceQrData.body.response.status
         : 'UNSUCCESS';
 
@@ -106,14 +112,17 @@ const Mutations = {
   createSPInvoiceQr: async (_root, params, { subdomain, models }) => {
     const { amount } = params;
     const config = await getConfig(subdomain, 'SocialPAY', {});
-    console.log(config, 'cccccccccccccc')
+    console.log(config, 'cccccccccccccc');
 
     const invoiceNo = params.invoiceNoAuto
       ? await makeInvoiceNo(32)
       : params.invoice;
 
     const { inStoreSPTerminal, inStoreSPKey } = config;
-    const checksum = await hmac256(inStoreSPKey, inStoreSPTerminal + invoiceNo + amount);
+    const checksum = await hmac256(
+      inStoreSPKey,
+      inStoreSPTerminal + invoiceNo + amount
+    );
     const doc = { amount, invoiceNo };
     const invoiceLog = await models.SocialPayInvoice.socialPayInvoiceCreate(
       models,
@@ -124,14 +133,14 @@ const Mutations = {
       amount,
       checksum,
       invoice: invoiceNo,
-      terminal: inStoreSPTerminal,
+      terminal: inStoreSPTerminal
     };
-    console.log(requestBody)
+    console.log(requestBody);
     const invoiceQrData = await socialPayInvoiceQR(requestBody, config);
     const qrText =
       invoiceQrData.body &&
-        invoiceQrData.body.response &&
-        invoiceQrData.body.response.desc
+      invoiceQrData.body.response &&
+      invoiceQrData.body.response.desc
         ? invoiceQrData.body.response.desc
         : '';
 
@@ -170,7 +179,7 @@ const Mutations = {
       checksum,
       invoice: invoiceNo,
       phone,
-      terminal: inStoreSPTerminal,
+      terminal: inStoreSPTerminal
     };
 
     return await socialPayInvoicePhone(requestBody, config);
@@ -202,28 +211,28 @@ const Mutations = {
       sender_staff_dataId: 'qpaySenderStaffDataCode',
       invoice_receiver_dataId: 'qpayInvoiceReceiverDataCode',
       lines: 'qpayLinesCode',
-      transactions: 'qpayTransactionCode',
+      transactions: 'qpayTransactionCode'
     };
 
     const sender_branch_code = doc.sender_branch_code || '';
     const sender_branch_dataId = doc.sender_branch_dataId
       ? (
-        await getDataFromConfigById(
-          codeMap['sender_branch_dataId'],
-          [doc.sender_branch_dataId],
-          config
-        )
-      )[0].data
+          await getDataFromConfigById(
+            codeMap['sender_branch_dataId'],
+            [doc.sender_branch_dataId],
+            config
+          )
+        )[0].data
       : '';
     const sender_staff_code = doc.sender_staff_code || '';
     const sender_staff_dataId = doc.sender_staff_dataId
       ? (
-        await getDataFromConfigById(
-          codeMap['sender_staff_dataId'],
-          [doc.sender_branch_dataId],
-          config
-        )
-      )[0].data
+          await getDataFromConfigById(
+            codeMap['sender_staff_dataId'],
+            [doc.sender_branch_dataId],
+            config
+          )
+        )[0].data
       : '';
     const sender_terminal_code = doc.sender_terminal_code || '';
     const sender_terminal_data = doc.sender_terminal_data
@@ -232,12 +241,12 @@ const Mutations = {
     const invoice_receiver_code = doc.invoice_receiver_code || '';
     const invoice_receiver_dataId = doc.invoice_receiver_dataId
       ? (
-        await getDataFromConfigById(
-          codeMap['invoice_receiver_dataId'],
-          [doc.sender_branch_dataId],
-          config
-        )
-      )[0].data
+          await getDataFromConfigById(
+            codeMap['invoice_receiver_dataId'],
+            [doc.sender_branch_dataId],
+            config
+          )
+        )[0].data
       : '';
     const invoice_description = doc.invoice_description || '';
     const invoice_due_date = doc.invoice_due_date || '';
@@ -255,30 +264,28 @@ const Mutations = {
     let lines = doc.lines
       ? await getDataFromConfigById(codeMap['lines'], doc.lines, config)
       : '';
-    lines = lines ? lines.map((e) => e.data) : '';
+    lines = lines ? lines.map(e => e.data) : '';
     let transactions = doc.transactions
       ? await getDataFromConfigById(
-        codeMap['transactions'],
-        doc.transactions,
-        config
-      )
+          codeMap['transactions'],
+          doc.transactions,
+          config
+        )
       : '';
-    transactions = transactions ? transactions.map((e) => e.data) : '';
+    transactions = transactions ? transactions.map(e => e.data) : '';
 
     const invoiceDoc = {
       senderInvoiceNo: sender_invoice_no,
-      amount,
+      amount
     };
 
-    const invoice = await models.QpayInvoice.qpayInvoiceCreate(
-      invoiceDoc
-    );
+    const invoice = await models.QpayInvoice.qpayInvoiceCreate(invoiceDoc);
     let varData;
     const fillVarData = (obj, key, data) => {
       if (data) {
         return {
           ...obj,
-          ...{ [key]: data },
+          ...{ [key]: data }
         };
       } else {
         return obj;
@@ -342,18 +349,16 @@ const Mutations = {
    */
 
   createQpaySimpleInvoice: async (_root, doc, { subdomain, models }) => {
-    console.log(doc, 'dddddddddddddddddd')
     const config = await getConfig(subdomain, 'QPAY', {});
-    console.log(config, 'cccccccccccccccc')
+
     const { qpayInvoiceCode, callbackUrl } = config;
     const token = await qpayToken(config);
-    console.log(token, 'tttttttttttttt')
 
     const {
       sender_invoice_no_auto,
       invoice_receiver_code,
       invoice_description,
-      amount,
+      amount
     } = doc;
     const sender_invoice_no = !sender_invoice_no_auto
       ? doc.sender_invoice_no
@@ -361,12 +366,10 @@ const Mutations = {
 
     const invoiceDoc = {
       senderInvoiceNo: sender_invoice_no,
-      amount,
+      amount
     };
 
-    const invoice = await models.QpayInvoice.qpayInvoiceCreate(
-      invoiceDoc
-    );
+    const invoice = await models.QpayInvoice.qpayInvoiceCreate(invoiceDoc);
 
     const varData = {
       invoice_code: qpayInvoiceCode,
@@ -374,7 +377,7 @@ const Mutations = {
       invoice_receiver_code,
       invoice_description,
       amount,
-      callback_url: `${callbackUrl}?payment_id=${sender_invoice_no}`,
+      callback_url: `${callbackUrl}?payment_id=${sender_invoice_no}`
     };
 
     const invoiceData = await createInvoice(varData, token, config);
@@ -401,7 +404,7 @@ const Mutations = {
       token,
       config
     );
-  },
+  }
 };
 
 export default Mutations;

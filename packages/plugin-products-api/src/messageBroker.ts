@@ -26,9 +26,12 @@ export const initBroker = async cl => {
       return {
         data: regData
           ? await models.ProductCategories.find({
+              ...query,
               order: { $regex: new RegExp(regData) }
             }).sort(sort)
-          : await models.ProductCategories.find(query).lean(),
+          : await models.ProductCategories.find(query)
+              .sort(sort)
+              .lean(),
         status: 'success'
       };
     }
@@ -42,7 +45,8 @@ export const initBroker = async cl => {
 
       return {
         data: await models.ProductCategories.find({
-          order: { $regex: new RegExp(category.order) }
+          order: { $regex: new RegExp(category.order) },
+          status: { $nin: ['disabled', 'archived'] }
         })
           .sort({ order: 1 })
           .lean(),

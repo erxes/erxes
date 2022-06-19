@@ -1,16 +1,16 @@
-import { generateModels } from "./connectionResolver";
-import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
-import { serviceDiscovery } from "./configs";
-import { afterMutationHandlers } from "./afterMutations";
+import { generateModels } from './connectionResolver';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
+import { afterMutationHandlers } from './afterMutations';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue("ebarimt:afterMutation", async ({ subdomain, data }) => {
+  consumeQueue('ebarimt:afterMutation', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     await afterMutationHandlers(models, subdomain, data);
@@ -18,69 +18,126 @@ export const initBroker = async (cl) => {
     return;
   });
 
-  consumeRPCQueue("ebarimt:putresponses.find", async ({ subdomain, data: { query, sort } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'ebarimt:putresponses.find',
+    async ({ subdomain, data: { query, sort } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.PutResponses.find(query).sort(sort || {}).lean()
-    };
-  });
+      return {
+        status: 'success',
+        data: await models.PutResponses.find(query)
+          .sort(sort || {})
+          .lean()
+      };
+    }
+  );
 
-  consumeRPCQueue("ebarimt:putresponses.returnBill", async ({ subdomain, data: { contentType, contentId, config } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'ebarimt:putresponses.returnBill',
+    async ({ subdomain, data: { contentType, contentId, config } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.PutResponses.returnBill(
-        { contentType, contentId },
-        config
-      )
-    };
-  });
+      return {
+        status: 'success',
+        data: await models.PutResponses.returnBill(
+          { contentType, contentId },
+          config
+        )
+      };
+    }
+  );
 
-  consumeRPCQueue("ebarimt:putresponses.createOrUpdate", async ({ subdomain, data: { _id, doc } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'ebarimt:putresponses.createOrUpdate',
+    async ({ subdomain, data: { _id, doc } }) => {
+      const models = await generateModels(subdomain);
 
-    return await models.PutResponses.updateOne(
-      { _id },
-      { $set: { ...doc } },
-      { upsert: true }
-    );
-  });
+      return await models.PutResponses.updateOne(
+        { _id },
+        { $set: { ...doc } },
+        { upsert: true }
+      );
+    }
+  );
 
-  consumeRPCQueue("ebarimt:putresponses.putHistories", async ({ subdomain, data: { contentType, contentId } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'ebarimt:putresponses.putHistories',
+    async ({ subdomain, data: { contentType, contentId } }) => {
+      const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.PutResponses.putHistories(
-        { contentType, contentId }
-      )
-    };
+      return {
+        status: 'success',
+        data: await models.PutResponses.putHistories({ contentType, contentId })
+      };
+    }
+  );
+
+  consumeQueue(
+    'ebarimt:putresponses.bulkWrite',
+    async ({ subdomain, data: { bulkOps } }) => {
+      const models = await generateModels(subdomain);
+
+      await models.PutResponses.bulkWrite(bulkOps);
+
+      return {
+        status: 'success'
+      };
+    }
+  );
+};
+
+export const sendProductsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'products',
+    ...args
   });
 };
 
-export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'products', ...args });
-};
-
-export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'contacts', ...args });
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'core', ...args });
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
 };
 
-export const sendCardsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'cards', ...args })
-}
-
-export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({ client, serviceDiscovery, serviceName: 'notifications', ...args });
+export const sendCardsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
+  });
 };
 
+export const sendNotificationsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'notifications',
+    ...args
+  });
+};
 
 export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
@@ -88,10 +145,10 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
-export default function () {
+export default function() {
   return client;
 }
