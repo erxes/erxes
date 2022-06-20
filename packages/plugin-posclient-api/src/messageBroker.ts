@@ -23,7 +23,7 @@ export const initBroker = async cl => {
   const { consumeQueue, consumeRPCQueue } = client;
 
   try {
-    consumeQueue(`pos:crudData_${''}`, async data => {
+    consumeQueue(`posclient:crudData_${''}`, async data => {
       if (data) {
         switch (data.type) {
           case 'product':
@@ -47,17 +47,20 @@ export const initBroker = async cl => {
       }
     });
 
-    consumeQueue(`vrpc_queue:erxes-pos-from-api_${''}`, async data => {
-      const { responseId, orderId } = data;
+    consumeQueue(
+      `vrpc_queue:erxes-posclient-from-pos-api_${''}`,
+      async data => {
+        const { responseId, orderId } = data;
 
-      await Orders.updateOne({ _id: orderId }, { $set: { synced: true } });
-      await PutResponses.updateOne(
-        { _id: responseId },
-        { $set: { synced: true } }
-      );
-    });
+        await Orders.updateOne({ _id: orderId }, { $set: { synced: true } });
+        await PutResponses.updateOne(
+          { _id: responseId },
+          { $set: { synced: true } }
+        );
+      }
+    );
 
-    consumeQueue(`vrpc_queue:erxes-pos-to-pos_${''}`, async data => {
+    consumeQueue(`vrpc_queue:erxes-posclient-to-pos-api_${''}`, async data => {
       const { order } = data;
 
       await Orders.updateOne(

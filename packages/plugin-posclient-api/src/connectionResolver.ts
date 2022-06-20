@@ -61,7 +61,7 @@ export const loadClasses = (
   );
 
   models.OrderItems = db.model<IOrderItemDocument, IOrderItemModel>(
-    'pos_orderItems',
+    'pos_order_items',
     loadOrderItemClass(models)
   );
   models.Orders = db.model<IOrderDocument, IOrderModel>(
@@ -75,13 +75,13 @@ export const loadClasses = (
   models.ProductCategories = db.model<
     IProductCategoryDocument,
     IProductCategoryModel
-  >('pos_productCategories', loadProductCategoryClass(models));
+  >('pos_product_categories', loadProductCategoryClass(models));
   models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
-    'pos_putResponses',
+    'pos_put_responses',
     loadPutResponseClass(models)
   );
   models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'pos_qpayInvoices',
+    'pos_qpay_invoices',
     loadQPayInvoiceClass(models)
   );
   return models;
