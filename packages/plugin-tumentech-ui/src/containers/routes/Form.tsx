@@ -48,8 +48,8 @@ const RouteFormContainer = (props: Props) => {
 
   const updatedProps = {
     ...props,
-    directions: data.directions,
-    routes: routesQueryResponse.data.routes || [],
+    directions: data.directions.list,
+    routes: routesQueryResponse.data.routes.list || [],
     renderButton
   };
 

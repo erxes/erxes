@@ -9,7 +9,7 @@ import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { withProps } from '@erxes/ui/src/utils';
+import { readFile, withProps } from '@erxes/ui/src/utils';
 import { ResponseTemplatesQueryResponse } from '../../../settings/responseTemplates/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import {
@@ -118,7 +118,8 @@ const RespondBoxContainer = (props: FinalProps) => {
       _id: user._id,
       name: user.username,
       title: user.details && user.details.position,
-      avatar: user.details && user.details.avatar
+      avatar:
+        user.details && user.details.avatar && readFile(user.details.avatar)
     });
   }
 

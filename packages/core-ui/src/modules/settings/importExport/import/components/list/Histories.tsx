@@ -13,7 +13,7 @@ import React from 'react';
 import { IImportHistory } from '../../../types';
 import HistoryRow from './HistoryRow';
 import Sidebar from '../../containers/list/SideBar';
-import { Title } from 'modules/common/styles/main';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { Link } from 'react-router-dom';
 import { EMPTY_IMPORT_CONTENT } from '@erxes/ui-settings/src/constants';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -150,7 +150,9 @@ class Histories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
-            background="bgActive"
+            background="colorWhite"
+            withMargin
+            wide
           />
         }
         leftSidebar={<Sidebar history={history} currentType={currentType} />}
@@ -166,7 +168,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         }
         hasBorder={true}
         transparent={true}
-        leftSpacing={true}
+        noPadding={true}
       />
     );
   }

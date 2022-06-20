@@ -23,6 +23,8 @@ import { IParticipantDocument } from './models/definitions/participants';
 import { IParticipantModel, loadParticipantClass } from './models/Participants';
 import { IPlaceModel, loadPlaceClass } from './models/Places';
 import { IPlaceDocument } from './models/definitions/places';
+import { ITripModel, loadTripClass } from './models/Trips';
+import { ITripDocument } from './models/definitions/trips';
 
 export interface IModels {
   Cars: ICarModel;
@@ -32,6 +34,7 @@ export interface IModels {
   Places: IPlaceModel;
   Directions: IDirectionModel;
   Routes: IRouteModel;
+  Trips: ITripModel;
 }
 
 export interface IContext extends IMainContext {
@@ -89,6 +92,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Routes = db.model<IRouteDocument, IRouteModel>(
     'routes',
     loadRouteClass(models)
+  );
+
+  models.Trips = db.model<ITripDocument, ITripModel>(
+    'trips',
+    loadTripClass(models)
   );
 
   return models;

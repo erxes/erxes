@@ -19,7 +19,6 @@ export const loadComponent = (scope, module) => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__('default');
 
-    console.log(window, scope, window[scope]);
     const container = window[scope]; // or get the container somewhere else
 
     // Initialize the container, it may provide shared modules
@@ -572,4 +571,16 @@ export const removeTypename = (obj?: any[] | any) => {
   delete obj.__typename;
 
   return obj;
+};
+
+export const publicUrl = path => {
+  const { REACT_APP_PUBLIC_PATH } = window.env || {};
+
+  let prefix = '';
+
+  if (REACT_APP_PUBLIC_PATH) {
+    prefix = `${REACT_APP_PUBLIC_PATH}/`;
+  }
+
+  return `${prefix}${path}`;
 };

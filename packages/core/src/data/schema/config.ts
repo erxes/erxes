@@ -20,6 +20,7 @@ export const queries = `
   configsCheckActivateInstallation(hostname: String!): JSON
   configsCheckPremiumService(type: String!): Boolean
   configsGetEmailTemplate(name: String): String
+  configsGetValue(code:String!):JSON
   enabledServices: JSON
 `;
 

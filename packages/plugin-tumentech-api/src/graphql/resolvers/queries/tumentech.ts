@@ -4,6 +4,7 @@ import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { Builder, IListArgs } from './carQueryBuilder';
 import { IContext } from '../../../connectionResolver';
 import { countBySegment } from '../../../carUtils';
+import { generateRandomString } from '../../../utils';
 
 interface ICountArgs extends IListArgs {
   only?: string;
@@ -271,6 +272,14 @@ const carQueries = {
 
   cpCarCategoryDetail: async (_root, { _id }, { models }) => {
     return models.CarCategories.findOne({ _id });
+  },
+
+  gererateRandomName: async (
+    _root,
+    { modelName, prefix, numberOfDigits },
+    { subdomain }
+  ) => {
+    return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
   }
 };
 

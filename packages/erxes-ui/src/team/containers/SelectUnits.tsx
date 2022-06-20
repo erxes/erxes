@@ -2,7 +2,7 @@ import SelectWithSearch from '../../components/SelectWithSearch';
 import { IOption, IQueryParams } from '../../types';
 import React from 'react';
 import { units } from '../graphql';
-import { IUnit } from '@erxes/ui-team/src/types';
+import { IUnit } from '@erxes/ui/src/team/types';
 
 // get user options for react-select-plus
 export function generateUserOptions(array: IUnit[] = []): IOption[] {

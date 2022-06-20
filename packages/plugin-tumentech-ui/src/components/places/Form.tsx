@@ -57,29 +57,34 @@ const PlaceForm = (props: Props) => {
 
   const onChangeProvince = option => {
     const selected = PROVINCES.find(p => p.value === option.value);
+
     setZoom(10);
     setCenter(selected.center);
     setProvince(option.value);
   };
 
+  const onChangeMarker = option => {
+    setCenter(option);
+  };
+
+  const onChangeLocationOption = option => {
+    setCenter(option);
+  };
+
+  const onChangeInput = e => {
+    const { id, value } = e.target;
+    switch (id) {
+      case 'name':
+        setName(value);
+        break;
+      case 'code':
+        setCode(value);
+    }
+  };
+
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
     const { isSubmitted } = formProps;
-
-    const onChangeLocation = option => {
-      setCenter(option);
-    };
-
-    const onChangeInput = e => {
-      const { id, value } = e.target;
-      switch (id) {
-        case 'name':
-          setName(value);
-          break;
-        case 'code':
-          setCode(value);
-      }
-    };
 
     return (
       <>
@@ -141,14 +146,14 @@ const PlaceForm = (props: Props) => {
               }}
               isPreview={false}
               drawPolyLines={false}
-              onChangeMarker={onChangeLocation}
+              onChangeMarker={onChangeMarker}
             />
           </MapContainer>
 
           <LocationOption
             key={'location'}
             option={center}
-            onChangeOption={onChangeLocation}
+            onChangeOption={onChangeLocationOption}
             index={0}
           />
         </FormGroup>
@@ -169,6 +174,7 @@ const PlaceForm = (props: Props) => {
       </>
     );
   };
+
   return <Form renderContent={renderContent} />;
 };
 

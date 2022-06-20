@@ -19,6 +19,11 @@ import {
   queries as routeQueries,
   mutations as routeMutations
 } from './schema/routes';
+import {
+  types as tripTypes,
+  queries as tripQueries,
+  mutations as tripMutations
+} from './schema/trips';
 
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
@@ -48,12 +53,14 @@ const typeDefs = async serviceDiscovery => {
     ${placeTypes}
     ${routeTypes}
     ${directionTypes}
+    ${tripTypes(isEnabled)}
     
     extend type Query {
       ${placeQueries}
       ${tumentechQueries}
       ${directionQueries}
       ${routeQueries}
+      ${tripQueries}
     }
     
     extend type Mutation {
@@ -61,6 +68,7 @@ const typeDefs = async serviceDiscovery => {
       ${tumentechMutations}
       ${directionMutations}
       ${routeMutations}
+      ${tripMutations}
     }
   `;
 };

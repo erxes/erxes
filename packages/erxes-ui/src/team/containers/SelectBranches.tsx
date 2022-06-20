@@ -1,8 +1,8 @@
 import SelectWithSearch from '../../components/SelectWithSearch';
 import { IOption, IQueryParams } from '../../types';
 import React from 'react';
-import { branches } from '../graphql';
-import { IBranch } from '@erxes/ui-team/src/types';
+import { queries } from '../graphql';
+import { IBranch } from '@erxes/ui/src/team/types';
 
 // get user options for react-select-plus
 export function generateUserOptions(array: IBranch[] = []): IOption[] {
@@ -47,7 +47,7 @@ export default (props: {
       initialValue={defaultValue}
       generateOptions={generateUserOptions}
       onSelect={onSelect}
-      customQuery={branches}
+      customQuery={queries.branches}
       customOption={customOption}
       multi={multi}
     />

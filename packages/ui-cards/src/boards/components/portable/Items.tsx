@@ -12,6 +12,7 @@ import { IItem, IOptions } from '../../types';
 type IData = {
   options: IOptions;
 };
+
 type Props = {
   data: IData;
   items: IItem[];

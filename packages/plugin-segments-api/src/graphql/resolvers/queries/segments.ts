@@ -5,8 +5,15 @@ import {
 } from '@erxes/api-utils/src/permissions';
 import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
-import { sendMessage } from '../../../messageBroker';
 import { fetchSegment } from './queryBuilder';
+
+interface IPreviewParams {
+  contentType: string;
+  conditions;
+  subOf?: string;
+  config: any;
+  conditionsConjunction?: 'and' | 'or';
+}
 
 const segmentQueries = {
   async segmentsGetTypes() {
@@ -160,13 +167,7 @@ const segmentQueries = {
       subOf,
       config,
       conditionsConjunction
-    }: {
-      contentType: string;
-      conditions;
-      subOf?: string;
-      config: any;
-      conditionsConjunction?: 'and' | 'or';
-    },
+    }: IPreviewParams,
     { models, subdomain }: IContext
   ) {
     return fetchSegment(

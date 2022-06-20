@@ -1,5 +1,7 @@
 import { generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
+import { sendFormsMessage } from './messageBroker';
+import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
 
 export default {
   importTypes: IMPORT_TYPES,
@@ -51,12 +53,19 @@ export default {
       for (const property of properties) {
         const value = (fieldValue[colIndex] || '').toString();
 
-        switch (property.type) {
+        switch (property.name) {
           case 'customProperty':
             {
               doc.customFieldsData.push({
                 field: property.id,
                 value: fieldValue[colIndex]
+              });
+
+              doc.customFieldsData = await sendFormsMessage({
+                subdomain,
+                action: 'fields.prepareCustomFieldsData',
+                data: doc.customFieldsData,
+                isRPC: true
               });
             }
             break;
@@ -73,9 +82,26 @@ export default {
             stageName = value;
             break;
 
-          case 'basic':
+          case 'labels':
+            const label = await models.PipelineLabels.findOne({
+              name: value
+            });
+
+            doc.labelIds = label ? [label._id] : '';
+
+            break;
+
+          default:
             {
               doc[property.name] = value;
+
+              if (property.name === 'createdAt' && value) {
+                doc.createdAt = new Date(value);
+              }
+
+              if (property.name === 'modifiedAt' && value) {
+                doc.modifiedAt = new Date(value);
+              }
 
               if (property.name === 'isComplete') {
                 doc.isComplete = Boolean(value);
@@ -105,7 +131,7 @@ export default {
           name: stageName
         });
 
-        doc.stageId = stage ? stage._id : '123';
+        doc.stageId = stage ? stage._id : '';
       }
 
       bulkDoc.push(doc);

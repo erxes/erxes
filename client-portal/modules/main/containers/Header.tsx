@@ -7,6 +7,7 @@ import { Config, IUser } from "../../types";
 type Props = {
   config: Config;
   currentUser: IUser;
+  headerHtml?: string;
   headingSpacing?: boolean;
   headerBottomComponent?: React.ReactNode;
 };

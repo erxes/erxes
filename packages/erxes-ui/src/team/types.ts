@@ -1,5 +1,10 @@
 import { QueryResponse, IAttachment } from '@erxes/ui/src/types';
-import { IUser, IUserDetails, IUserDoc, IUserLinks } from '@erxes/ui/src/auth/types';
+import {
+  IUser,
+  IUserDetails,
+  IUserDoc,
+  IUserLinks
+} from '@erxes/ui/src/auth/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
 export type IInvitationEntry = {

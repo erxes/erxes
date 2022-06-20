@@ -37,27 +37,27 @@ const Row = (props: Props) => {
 
   return (
     <tr>
-      <td key={`${place._id}_${place.province}`}>
+      <td key={Math.random()}>
         <RowTitle>{place.province || '-'}</RowTitle>
       </td>
 
-      <td key={`${place._id}_${place.name}`}>
+      <td key={Math.random()}>
         <RowTitle>{place.name || '-'}</RowTitle>
       </td>
 
-      <td key={`${place._id}_${place.code}`}>
+      <td key={Math.random()}>
         <RowTitle>{place.code || '-'} </RowTitle>
       </td>
 
-      <td key={`${place._id}_${place.center.lat}`}>
+      <td key={Math.random()}>
         <RowTitle>{place.center.lat || 'NA'}</RowTitle>
       </td>
 
-      <td key={`${place._id}_${place.center.lng}`}>
+      <td key={Math.random()}>
         <RowTitle>{place.center.lng || 'NA'}</RowTitle>
       </td>
 
-      <td key={`${place._id}_${place.center.description}`}>
+      <td key={Math.random()}>
         <RowTitle>{place.center.description || '-'}</RowTitle>
       </td>
 
