@@ -19,7 +19,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 
 import { IFlowDocument, IJob } from '../../../flow/types';
-import { IJobRefer } from '../../../job/types';
+import { IJobRefer, IProductsData } from '../../../job/types';
 import ActionsForm from '../../containers/forms/actions/ActionsForm';
 import Confirmation from '../../containers/forms/Confirmation';
 import {
@@ -89,8 +89,8 @@ type State = {
   percentage: number;
   actionEdited: boolean;
   categoryId: string;
-  productId: string;
-  product: IProduct;
+  productId?: string;
+  product?: IProduct;
   lastAction: IJob;
   flowStatus: boolean;
   branchId: string;
@@ -139,7 +139,7 @@ class AutomationForm extends React.Component<Props, State> {
   findLastAction = () => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
-    const lastActions = [];
+    const lastActions: IJob[] = [];
 
     console.log('start finding lastaction ...');
 
@@ -161,12 +161,12 @@ class AutomationForm extends React.Component<Props, State> {
 
     console.log('end finding lastJobRefers ...', lastJobRefers);
 
-    let resultProducts = [];
+    let resultProducts: IProductsData[] = [];
     for (const lastJobRefer of lastJobRefers) {
       const resultProduct = lastJobRefer.resultProducts;
       resultProducts = resultProducts.length
-        ? [...resultProducts, ...lastJobRefer.resultProducts]
-        : (resultProducts = resultProduct);
+        ? [...resultProducts, ...(lastJobRefer.resultProducts || [])]
+        : [resultProduct];
     }
 
     console.log('end finding resultProducts ...', resultProducts);
@@ -443,7 +443,7 @@ class AutomationForm extends React.Component<Props, State> {
       a => a.id.toString() === info.sourceId.replace('action-', '')
     );
 
-    const idElm = 'action-' + sourceAction.id;
+    const idElm = 'action-' + (sourceAction || {}).id;
     instance.addEndpoint(idElm, sourceEndpoint, {
       anchor: ['Right']
     });
@@ -511,7 +511,7 @@ class AutomationForm extends React.Component<Props, State> {
     return (
       <ModalTrigger
         title="Choose product & service"
-        trigger={this.renderProductServiceTrigger(currentProduct || null)}
+        trigger={this.renderProductServiceTrigger(currentProduct)}
         size="lg"
         content={content}
       />
@@ -520,7 +520,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   onSelect = (name, value) => {
     console.log('On select: ', name, value);
-    this.setState({ [name]: value });
+    this.setState({ [name]: value } as any);
   };
 
   handleClickOutside = event => {
@@ -575,7 +575,8 @@ class AutomationForm extends React.Component<Props, State> {
 
     action.jobReferId = jobReferId;
 
-    const jobRefer = jobRefers.find(j => j._id === jobReferId);
+    const jobRefer: IJobRefer =
+      jobRefers.find(j => j._id === jobReferId) || ({} as IJobRefer);
 
     action.label = jobRefer.name;
     action.description = description || jobRefer.name;
@@ -709,9 +710,7 @@ class AutomationForm extends React.Component<Props, State> {
       <BarItems>
         <ToggleWrapper>
           <span>{__('Product: ')}</span>
-          {this.renderProductModal(
-            this.state.product ? this.state.product : null
-          )}
+          {this.renderProductModal(this.state.product)}
         </ToggleWrapper>
 
         <ToggleWrapper>
@@ -789,7 +788,7 @@ class AutomationForm extends React.Component<Props, State> {
           <Icon icon="edit-alt" size={16} />
         </Title>
         {/* <CenterBar>
-          
+
         </CenterBar> */}
       </FlexContent>
     );
