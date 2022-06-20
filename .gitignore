@@ -8,6 +8,8 @@ out
 *.un~
 *.swp
 *.swo
+*.iml
+/.idea
 *.log
 build
 .env.local

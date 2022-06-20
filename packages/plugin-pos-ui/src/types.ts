@@ -1,6 +1,6 @@
 import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
-import { IUser } from '@erxes/ui/src/auth/types'
-import { IBrand } from '@erxes/ui/src/brands/types'
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 
 export type IConfigsMap = { [key: string]: any };
@@ -9,7 +9,7 @@ export type CatProd = {
   _id: string;
   categoryId: string;
   productId: string;
-}
+};
 
 export type IProductGroup = {
   _id: string;
@@ -50,6 +50,7 @@ export type IPos = {
   uiOptions?: any;
   ebarimtConfig: any;
   erkhetConfig: any;
+  cardsConfig: any;
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
@@ -171,4 +172,4 @@ export interface IOrdersSummary {
   totalAmount: number;
   finalAmount: number;
   count: number;
-};
+}
