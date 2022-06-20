@@ -17,7 +17,11 @@ const login = async (
 ) => {
   const response = await PosUsers.posLogin(args);
 
+  console.log(response, '<====================================');
+
   const { token } = response;
+
+  console.log('token::::::::::::::::::::::::', token);
 
   res.cookie('pos-auth-token', token, authCookieOptions(secure));
 
@@ -60,6 +64,13 @@ const posUserMutations = {
    * Login
    */
   async posLogin(_root, args: IPosLogin, { res, requestInfo }: IContext) {
+    console.log(res, '+++++++++++++++++++++++++++++++');
+    console.log(
+      'args============>',
+      args,
+      '==============================',
+      requestInfo
+    );
     return login(args, res, requestInfo.secure);
   },
 

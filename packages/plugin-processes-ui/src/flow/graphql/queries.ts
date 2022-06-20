@@ -10,8 +10,6 @@ name
 categoryId
 status
 flowJobStatus
-branchId
-departmentId
 jobs
 `;
 
@@ -37,8 +35,6 @@ query flowDetail($_id: String!) {
     product
     status
     flowJobStatus
-    branchId
-    departmentId
     jobs
   }
 }

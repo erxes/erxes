@@ -6,7 +6,6 @@ import { Products } from '../../models/Products';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import { sendRequest } from './commonUtils';
 import {
   DISTRICTS,
   ORDER_STATUSES,
@@ -181,20 +180,6 @@ export const prepareEbarimtData = async (
   let billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
   let customerCode = '';
   let customerName = '';
-
-  if (registerNumber) {
-    const response = await sendRequest({
-      url: config.checkCompanyUrl,
-      method: 'GET',
-      params: { regno: registerNumber }
-    });
-
-    if (response.found) {
-      billType = '3';
-      customerCode = registerNumber;
-      customerName = response.name;
-    }
-  }
 
   const productIds = items.map(item => item.productId);
   const products = await Products.find({ _id: { $in: productIds } });

@@ -19,7 +19,7 @@ import {
   checkUnpaidInvoices
 } from '../../utils/orderUtils';
 import { IContext } from '../../types';
-import messageBroker from '../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../pubsub';
 import { debugError } from '../../../debugger';

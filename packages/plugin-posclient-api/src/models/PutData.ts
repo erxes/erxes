@@ -1,5 +1,4 @@
 import { DISTRICTS } from './definitions/constants';
-import { sendRequest } from '../graphql/utils/commonUtils';
 import { PutResponses } from './PutResponses';
 
 const formatNumber = (num: number): string => {
@@ -165,35 +164,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
       contentType
     });
 
-    const responseStr = await sendRequest({
-      url: `${url}/put?lib=${rd}`,
-      method: 'POST',
-      body: { data: this.transactionInfo },
-      params: { data: this.transactionInfo }
-    });
-
-    const response = JSON.parse(responseStr);
-
-    if (
-      response.billType == '1' &&
-      response.lottery == '' &&
-      response.success
-    ) {
-      if (prePutResponse) {
-        response.lottery = prePutResponse.lottery;
-      } else {
-        response.getInformation = await sendRequest({
-          url: `${url}/getInformation?lib=${rd}`,
-          method: 'GET'
-        });
-      }
-    }
-
-    await PutResponses.updatePutResponse(resObj._id, {
-      ...response,
-      customerName: this.params.customerName
-    });
-
     return PutResponses.findOne({ _id: resObj._id }).lean();
   }
 }
@@ -224,17 +194,6 @@ export const returnBill = async (doc, config) => {
     contentId,
     contentType
   });
-
-  const responseStr = await sendRequest({
-    url: `${url}/returnBill?lib=${rd}`,
-    method: 'POST',
-    body: { data },
-    params: { ...data }
-  });
-
-  const response = JSON.parse(responseStr);
-
-  await PutResponses.updatePutResponse(resObj._id, { ...response });
 
   return PutResponses.findOne({ _id: resObj._id }).lean();
 };
