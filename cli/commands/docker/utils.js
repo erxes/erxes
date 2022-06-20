@@ -250,6 +250,10 @@ const up = async ({ uis, fromInstaller }) => {
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
   const { RABBITMQ_HOST } = commonEnvs(configs);
 
+  if (!(await fse.exists(filePath('core-api-private')))) {
+    await execCommand('mkdir core-api-private');
+  }
+
   const dockerComposeConfig = {
     version: '3.7',
     networks: {
