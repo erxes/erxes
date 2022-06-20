@@ -37,37 +37,36 @@ export const sourceEndpoint = {
   }
 };
 
-export const morePoint = {
-  endpoint: 'Dot',
-  paintStyle: {
-    fill: rgba(colors.colorCoreGray, 1),
-    radius: 10
-  },
-  isSource: true,
-  connector: [
-    'Bezier',
-    { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
-  ],
-  connectorStyle: connectorPaintStyle,
-  hoverPaintStyle,
-  connectorHoverStyle,
-  anchor: [1, 0.7],
-  overlays: [
-    [
-      'Label',
-      {
-        location: [1.9, 0.6],
-        label: '+1',
-        visible: true,
-        labelStyle: {
-          color: colors.colorCoreGray
-        }
-      }
-    ]
-  ]
-};
+// export const morePoint = {
+//   endpoint: 'Dot',
+//   paintStyle: {
+//     fill: rgba(colors.colorCoreGray, 1),
+//     radius: 10
+//   },
+//   isSource: true,
+//   connector: [
+//     'Bezier',
+//     { stub: [40, 60], gap: 10, cornerRadius: 5, alwaysRespectStubs: true }
+//   ],
+//   connectorStyle: connectorPaintStyle,
+//   hoverPaintStyle,
+//   connectorHoverStyle,
+//   anchor: [1, 0.7],
+//   overlays: [
+//     [
+//       'Label',
+//       {
+//         location: [1.9, 0.6],
+//         label: '+1',
+//         visible: true,
+//         labelStyle: {
+//           color: colors.colorCoreGray
+//         }
+//       }
+//     ]
+//   ]
+// };
 
-// the definition of target endpoints (will appear when the user drags a connection)
 export const targetEndpoint = {
   endpoint: 'Dot',
   paintStyle: { fill: rgba(colors.colorCoreYellow, 1), radius: 10 },
@@ -82,16 +81,6 @@ export const targetEndpoint = {
 export const createInitialConnections = (actions: IJob[], instance: any) => {
   for (const action of actions) {
     const jobIds = action.nextJobIds;
-
-    // for (const job of jobIds) {
-    //   if (job) {
-    //     instance.connect({
-    //       source: `action-${action.id}`,
-    //       target: `action-${job}`,
-    //       anchors: ['Right', 'Left']
-    //     });
-    //   }
-    // }
 
     jobIds.map(job =>
       instance.connect({
@@ -112,14 +101,10 @@ export const connection = (
 ) => {
   const sourceId = info.sourceId;
 
-  // console.log('info:', sourceId, actionId, type);
-
   if (sourceId.includes('action')) {
-    let innerActions = [];
+    let innerActions: IJob[] = [];
 
     const replacedSourceId = sourceId.replace('action-', '');
-
-    // console.log('replacedSourceId:', replacedSourceId);
 
     const sourceAction = actions.find(
       a => a.id.toString() === replacedSourceId
@@ -127,20 +112,11 @@ export const connection = (
 
     innerActions = actions.filter(a => a.id.toString() !== replacedSourceId);
 
-    // console.log(
-    //   'replacedSourceId:',
-    //   replacedSourceId,
-    //   sourceAction,
-    //   innerActions
-    // );
-
     if (
       Object.keys(sourceAction).length > 0 &&
       sourceAction.id === replacedSourceId
     ) {
       let jobIds = sourceAction.nextJobIds;
-
-      // console.log('object keys sourceAction step1:', jobIds);
 
       if (type === 'connect') {
         if (!jobIds.includes(actionId)) {
@@ -153,8 +129,6 @@ export const connection = (
 
       sourceAction.nextJobIds = jobIds;
       findLastAction();
-
-      // console.log('object keys sourceAction step2:', jobIds);
     }
     innerActions.push(sourceAction);
     return innerActions;
