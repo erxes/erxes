@@ -1,20 +1,12 @@
 import { debugError, debugInit } from '../../../debugger';
-import { initBroker } from '../../messageBroker';
+import { initBroker } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import { OrderItems } from '../../../models/OrderItems';
-import { sendRequest } from '../../utils/commonUtils';
 
-import {
-  importUsers,
-  importProducts,
-  validateConfig,
-  extractConfig,
-  importCustomers,
-  preImportProducts,
-  preImportCustomers
-} from '../../utils/syncUtils';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { IContext } from '../../../connectionResolver';
+
+let cl;
 
 const configMutations = {
   posConfigsFetch: async (_root, { token }, { models }: IContext) => {
@@ -22,35 +14,8 @@ const configMutations = {
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
     const config = await models.Configs.createConfig(token);
-    const response = await sendRequest({
-      url: `${REACT_APP_MAIN_API_DOMAIN}/pos-init`,
-      method: 'get',
-      headers: { 'POS-TOKEN': token }
-    });
 
-    if (response) {
-      const {
-        pos = {},
-        adminUsers = [],
-        cashiers = [],
-        productGroups = [],
-        qpayConfig
-      } = response;
-
-      validateConfig();
-
-      await models.Configs.updateConfig(config._id, {
-        ...extractConfig(pos),
-        syncInfo: pos.syncInfo,
-        qpayConfig
-      });
-
-      await importUsers(cashiers);
-      await importUsers(adminUsers);
-      await importProducts(productGroups);
-    }
-
-    initBroker()
+    initBroker(cl)
       .then(() => {
         debugInit('Message broker has started.');
       })
@@ -65,47 +30,6 @@ const configMutations = {
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
     const config = await models.Configs.findOne({}).lean();
-
-    const response = await sendRequest({
-      url: `${REACT_APP_MAIN_API_DOMAIN}/pos-sync-config`,
-      method: 'get',
-      headers: { 'POS-TOKEN': config.token || '' },
-      body: { syncId: config.syncInfo.id, type }
-    });
-
-    if (!response) {
-      return;
-    }
-
-    switch (type) {
-      case 'config':
-        const {
-          pos = {},
-          adminUsers = [],
-          cashiers = [],
-          qpayConfig
-        } = response;
-        await models.Configs.updateConfig(config._id, {
-          ...extractConfig(pos),
-          syncInfo: pos.syncInfo,
-          qpayConfig
-        });
-
-        await importUsers(cashiers);
-        await importUsers(adminUsers);
-
-        break;
-      case 'products':
-        const { productGroups = [] } = response;
-        await preImportProducts(productGroups);
-        await importProducts(productGroups);
-        break;
-      case 'customers':
-        const { customers = [] } = response;
-        await preImportCustomers(customers);
-        await importCustomers(customers);
-        break;
-    }
 
     await models.Configs.updateOne(
       { _id: config._id },
@@ -158,32 +82,6 @@ const configMutations = {
     }
 
     const config = await models.Configs.getConfig({});
-
-    try {
-      const response = await sendRequest({
-        url: `${REACT_APP_MAIN_API_DOMAIN}/pos-sync-orders`,
-        method: 'post',
-        headers: { 'POS-TOKEN': config.token || '' },
-        body: { syncId: config.syncInfo.id, orders, putResponses }
-      });
-
-      const { error, resOrderIds, putResponseIds } = response;
-
-      if (error) {
-        throw new Error(error);
-      }
-
-      await models.Orders.updateMany(
-        { _id: { $in: resOrderIds } },
-        { $set: { synced: true } }
-      );
-      await models.PutResponses.updateMany(
-        { _id: { $in: putResponseIds } },
-        { $set: { synced: true } }
-      );
-    } catch (e) {
-      throw new Error(e.message);
-    }
 
     return {
       kind,

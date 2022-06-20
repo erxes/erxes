@@ -1,6 +1,6 @@
 import { sendGraphQLRequest } from './utils';
 import { IContext } from '../../types';
-import { escapeRegExp, paginate, sendRequest } from '../../utils/commonUtils';
+import { escapeRegExp, paginate } from '../../utils/commonUtils';
 
 interface ISearchParams {
   searchValue?: string;
@@ -81,15 +81,6 @@ const orderQueries = {
   async ordersCheckCompany(_root, { registerNumber }, {}: IContext) {
     if (!registerNumber) {
       throw new Error('Company register number required for checking');
-    }
-
-    if ('') {
-      const response = await sendRequest({
-        method: 'GET',
-        params: { regno: registerNumber }
-      });
-
-      return response;
     }
 
     return {
