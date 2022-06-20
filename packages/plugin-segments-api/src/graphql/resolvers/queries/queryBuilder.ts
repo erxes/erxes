@@ -104,7 +104,7 @@ export const fetchSegment = async (
       subdomain,
       action: 'conformities.filterConformity',
       data: {
-        mainType: returnAssociated.contentType.split(':')[1],
+        mainType: returnAssociated.contentType,
         mainTypeIds: itemIds,
         relType: returnAssociated.relType
       },
