@@ -98,6 +98,7 @@ export interface IField {
   canHide?: boolean;
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
+  isVisibleToCreate?: boolean;
   isDefinedByErxes?: boolean;
   groupId?: string;
   lastUpdatedUser?: IUser;

@@ -30,6 +30,10 @@ type Props = {
     _id: string;
     isVisibleInDetail: boolean;
   }) => void;
+  updatePropertyVisibleToCreate: (data: {
+    _id: string;
+    isVisibleToCreate: boolean;
+  }) => void;
   updatePropertyGroupVisible: (data: {
     _id: string;
     isVisible: boolean;
@@ -76,6 +80,7 @@ class Properties extends React.Component<
       removeProperty,
       updatePropertyVisible,
       updatePropertyDetailVisible,
+      updatePropertyVisibleToCreate,
       updateFieldOrder
     } = this.props;
 
@@ -89,6 +94,7 @@ class Properties extends React.Component<
         updatePropertyVisible={updatePropertyVisible}
         updateFieldOrder={updateFieldOrder}
         updatePropertyDetailVisible={updatePropertyDetailVisible}
+        updatePropertyVisibleToCreate={updatePropertyVisibleToCreate}
       />
     );
   };

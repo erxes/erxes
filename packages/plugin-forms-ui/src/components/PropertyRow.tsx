@@ -32,6 +32,10 @@ type Props = {
     _id: string;
     isVisibleInDetail: boolean;
   }) => void;
+  updatePropertyVisibleToCreate: (data: {
+    _id: string;
+    isVisibleToCreate: boolean;
+  }) => void;
   updateFieldOrder: (fields: IField[]) => any;
 };
 
@@ -89,6 +93,19 @@ class PropertyRow extends React.Component<Props, State> {
     const isVisible = e.target.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
+  };
+
+  visibleToCreateHandler = (e, property) => {
+    const isVisibleToCreate = e.target.checked;
+
+    if (property.type === 'name') {
+      return Alert.error('You cannot update this property');
+    }
+
+    return this.props.updatePropertyVisibleToCreate({
+      _id: property._id,
+      isVisibleToCreate
+    });
   };
 
   renderActionButtons = (data, remove, content, isGroup) => {
@@ -174,6 +191,20 @@ class PropertyRow extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+        {contentType.startsWith('cards:') && (
+          <RowField>
+            <Toggle
+              id="isVisibleToCreate"
+              disabled={field.type === 'name'}
+              defaultChecked={field.isVisibleToCreate}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+              onChange={e => this.visibleToCreateHandler(e, field)}
+            />
+          </RowField>
+        )}
         <RowField>
           {this.renderActionButtons(
             field,
@@ -230,6 +261,9 @@ class PropertyRow extends React.Component<Props, State> {
             <ControlLabel>{__('Visible in Team Inbox')}</ControlLabel>
           ) : (
             <ControlLabel>{__('Visible')}</ControlLabel>
+          )}
+          {contentType.startsWith('cards:') && (
+            <ControlLabel>{__('Visible to create')}</ControlLabel>
           )}
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>

@@ -15,6 +15,7 @@ const fieldCommonFields = `
   code: String
   searchable: Boolean
   showInCard: Boolean
+  isVisibleToCreate: Boolean
   productCategoryId: String
 `;
 
@@ -143,6 +144,7 @@ const fieldsCommonFields = `
   searchable: Boolean
   showInCard: Boolean
   objectListConfigs: [objectListConfigInput]
+  isVisibleToCreate: Boolean
 `;
 
 export const fieldsMutations = `
@@ -152,6 +154,7 @@ export const fieldsMutations = `
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]
   fieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : Field
+  fieldsUpdateVisibleToCreate(_id: String!, isVisibleToCreate: Boolean) : Field
 `;
 
 export const fieldsGroupsTypes = `

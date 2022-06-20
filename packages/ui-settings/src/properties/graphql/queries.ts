@@ -16,6 +16,7 @@ const commonFields = `
   canHide
   validation
   options
+  isVisibleToCreate
   locationOptions{
     lat
     lng

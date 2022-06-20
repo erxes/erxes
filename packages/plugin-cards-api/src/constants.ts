@@ -255,3 +255,26 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [boardStageSchema]
   }
 ];
+
+export const CARD_PROPERTIES_INFO = {
+  name: 'Name',
+  priority: 'Priority',
+
+  ALL: [
+    {
+      field: 'name',
+      label: 'Name',
+      canHide: false,
+      validation: null,
+      isVisibleToCreate: true
+    },
+    {
+      field: 'priority',
+      label: 'Priority',
+      canHide: false,
+      validation: null,
+      isVisibleToCreate: false,
+      options: ['Critical', 'High', 'Normal', 'Low']
+    }
+  ]
+};

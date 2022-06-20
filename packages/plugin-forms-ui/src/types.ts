@@ -46,6 +46,7 @@ export type FieldsUpdateVisibleMutationResponse = {
       _id: string;
       isVisible?: boolean;
       isVisibleInDetail?: boolean;
+      isVisibleToCreate?: boolean;
     };
   }) => Promise<any>;
 };

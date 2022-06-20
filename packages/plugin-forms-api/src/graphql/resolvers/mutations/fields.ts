@@ -204,6 +204,28 @@ const fieldMutations = {
       isVisible,
       isVisibleInDetail
     );
+  },
+
+  /**
+   * Update field's visible to create
+   */
+  async fieldsUpdateVisibleToCreate(
+    _root,
+    { _id, isVisibleToCreate }: { _id: string; isVisibleToCreate: boolean },
+    { user, models, docModifier }: IContext
+  ) {
+    await models.Fields.updateOne(
+      {
+        _id
+      },
+      {
+        $set: docModifier({ isVisibleToCreate, lastUpdatedUserId: user._id })
+      }
+    );
+
+    return models.Fields.findOne({
+      _id
+    });
   }
 };
 
