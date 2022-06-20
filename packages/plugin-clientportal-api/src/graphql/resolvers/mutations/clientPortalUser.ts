@@ -29,17 +29,6 @@ const clientPortalUserMutations = {
       modifiedDoc
     );
 
-    const clientPortal = await models.ClientPortals.getConfig(
-      doc.clientPortalId
-    );
-
-    await models.ClientPortalUsers.sendVerification(
-      subdomain,
-      clientPortal.otpConfig,
-      doc.phone,
-      doc.email
-    );
-
     return clientPortalUser;
   },
 
@@ -217,6 +206,16 @@ const clientPortalUserMutations = {
     }
 
     return 'sent';
+  },
+
+  clientPortalUsersInvite: async (_root, args: IUser, context: IContext) => {
+    const { models, subdomain } = context;
+
+    const user = await models.ClientPortalUsers.invite(subdomain, {
+      ...args
+    });
+
+    return user;
   }
 };
 

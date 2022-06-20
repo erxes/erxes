@@ -31,6 +31,7 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string;
     code?: string;
   }): never;
+  invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
@@ -301,6 +302,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
     public static async sendVerification(
       subdomain: string,
       config: IOTPConfig,
+      password?: string,
       phone?: string,
       email?: string
     ) {
@@ -716,6 +718,111 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       return createJwtToken({ userId: user._id });
+    }
+
+    public static async invite(
+      subdomain: string,
+      { password, email, phone, clientPortalId, ...doc }: IUser
+    ) {
+      if (!password) {
+        password = generateRandomString();
+      }
+
+      if (password) {
+        this.checkPassword(password);
+      }
+
+      const plainPassword = password;
+
+      const document: any = doc;
+
+      const tEmail = (email || '').toLowerCase().trim();
+
+      let qry: any;
+
+      if (tEmail) {
+        document.email = tEmail;
+        qry = { email: tEmail };
+      }
+
+      if (phone) {
+        document.phone = phone;
+        qry = { phone };
+      }
+
+      const customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          customerPrimaryEmail: tEmail,
+          customerPrimaryPhone: phone
+        },
+        isRPC: true
+      });
+
+      let user = await models.ClientPortalUsers.findOne(qry);
+
+      if (user && (user.isEmailVerified || user.isPhoneVerified)) {
+        throw new Error('user is already exists');
+      }
+
+      if (user) {
+        return user;
+      }
+
+      const { token, expires } = await models.ClientPortalUsers.generateToken();
+
+      user = await models.ClientPortalUsers.create({
+        ...document,
+        clientPortalId,
+        registrationToken: token,
+        registrationTokenExpires: expires,
+        // hash password
+        password: password && (await this.generatePassword(password))
+      });
+
+      if (!customer) {
+        await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            firstName: doc.firstName,
+            lastName: doc.lastName,
+            primaryEmail: email,
+            primaryPhone: phone,
+            state: 'customer'
+          },
+          isRPC: true
+        });
+      }
+
+      if (customer && customer._id) {
+        await models.ClientPortalUsers.updateOne(
+          { _id: user._id },
+          { $set: { erxesCustomerId: customer._id } }
+        );
+      }
+
+      const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+      const content = `Here is your verification link: ${clientPortal.url}/register?token=${token} . Please click on the link to verify your account. Your password is: ${plainPassword}. Please change your password after you login.`;
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          toEmails: [email],
+          title: `${clientPortal.name} invitation`,
+          template: {
+            name: 'base',
+            data: {
+              content
+            }
+          }
+        }
+      });
+
+      return user;
     }
   }
 
