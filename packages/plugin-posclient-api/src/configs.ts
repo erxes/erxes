@@ -18,7 +18,7 @@ export default {
 
     return {
       typeDefs: await typeDefs(),
-      resolvers
+      resolvers: await resolvers(sd)
     };
   },
   getHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],

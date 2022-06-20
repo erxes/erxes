@@ -1,5 +1,3 @@
-import * as dotenv from 'dotenv';
-
 import { debugError, debugInit } from '../../../debugger';
 import { initBroker } from '../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
@@ -17,8 +15,6 @@ import {
 } from '../../utils/syncUtils';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { IContext } from '../../../connectionResolver';
-
-dotenv.config();
 
 const configMutations = {
   posConfigsFetch: async (_root, { token }, { models }: IContext) => {
