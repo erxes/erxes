@@ -12,6 +12,8 @@ export interface IJob {
   label: string;
   description: string;
   quantity: number;
+  branchId: string;
+  departmentId: string;
 }
 
 export interface IJobDocument extends IJob {
@@ -25,8 +27,6 @@ export interface IFlow {
   product?: IProduct;
   status: string;
   flowJobStatus: boolean;
-  branchId: string;
-  departmentId: string;
   jobs?: IJob[];
 }
 
