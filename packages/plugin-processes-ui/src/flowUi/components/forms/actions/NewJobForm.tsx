@@ -1,4 +1,5 @@
-import { __ } from 'coreui/utils';
+// import { __ } from '@erxes/ui/src/utils';
+
 import React from 'react';
 
 import { IProduct } from '@erxes/ui-products/src/types';
@@ -13,6 +14,8 @@ import { IJob } from '../../../../flow/types';
 import { IJobRefer } from '../../../../job/types';
 import { DrawerDetail } from '../../../styles';
 import Common from './Common';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 
 type Props = {
   closeModal: () => void;
@@ -22,23 +25,38 @@ type Props = {
   actions: IJob[];
   lastAction: IJob;
   flowProduct: IProduct;
-  addAction: (action: IJob, actionId?: string, jobReferId?: string) => void;
+  addAction: (
+    action: IJob,
+    actionId?: string,
+    jobReferId?: string,
+    branchId?: string,
+    departmentId?: string
+  ) => void;
 };
 
 type State = {
   jobReferId: string;
   description: string;
+  branchId: string;
+  departmentId: string;
 };
 
 class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { jobReferId, description } = this.props.activeAction;
+    const {
+      jobReferId,
+      description,
+      branchId,
+      departmentId
+    } = this.props.activeAction;
 
     this.state = {
       jobReferId: jobReferId ? jobReferId : '',
-      description: description ? description : ''
+      description: description ? description : '',
+      branchId: branchId ? branchId : '',
+      departmentId: departmentId ? departmentId : ''
     };
   }
 
@@ -47,6 +65,11 @@ class Delay extends React.Component<Props, State> {
       this.setState({ jobReferId: nextProps.activeAction.jobReferId });
     }
   }
+
+  onSelect = (name, value) => {
+    console.log('On select: ', name, value);
+    this.setState({ [name]: value } as any);
+  };
 
   renderLabelInfo = (style, text) => {
     return <Label lblStyle={style}>{text}</Label>;
@@ -162,7 +185,7 @@ class Delay extends React.Component<Props, State> {
     // );
 
     const onChangeValue = (type, e) => {
-      this.setState({ [type]: e.target.value });
+      this.setState({ [type]: e.target.value } as any);
     };
 
     return (
@@ -193,6 +216,31 @@ class Delay extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <FormGroup>
+          <ControlLabel>Branch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="selectedBranchIds"
+            initialValue={this.state.branchId}
+            onSelect={branchId => this.onSelect('branchId', branchId)}
+            multi={false}
+            customOption={{ value: 'all', label: 'All branches' }}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Department</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="selectedDepartmentIds"
+            initialValue={this.state.departmentId}
+            onSelect={departmentId =>
+              this.onSelect('departmentId', departmentId)
+            }
+            multi={false}
+            customOption={{ value: 'all', label: 'All departments' }}
+          />
+        </FormGroup>
+
         <FormWrapper>
           <FormColumn>
             <Info type="primary" title="Result products">
@@ -212,8 +260,8 @@ class Delay extends React.Component<Props, State> {
           </FormColumn>
 
           {/*
-          If you want to show next Job report on jobForm 
-          when double click job instance , 
+          If you want to show next Job report on jobForm
+          when double click job instance ,
           please uncomment below.
           */}
 
@@ -230,10 +278,16 @@ class Delay extends React.Component<Props, State> {
   }
 
   render() {
-    const { jobReferId, description } = this.state;
+    const { jobReferId, description, branchId, departmentId } = this.state;
 
     return (
-      <Common jobReferId={jobReferId} description={description} {...this.props}>
+      <Common
+        jobReferId={jobReferId}
+        description={description}
+        branchId={branchId}
+        departmentId={departmentId}
+        {...this.props}
+      >
         {this.renderContent()}
       </Common>
     );

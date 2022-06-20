@@ -1,4 +1,4 @@
-import { __, Alert } from 'coreui/utils';
+import { __, Alert } from '@erxes/ui/src/utils';
 import jquery from 'jquery';
 import { jsPlumb } from 'jsplumb';
 import React from 'react';
@@ -26,7 +26,6 @@ import {
   ActionBarButtonsWrapper,
   AutomationFormContainer,
   BackButton,
-  CenterBar,
   Container,
   RightDrawerContainer,
   Title,
@@ -50,10 +49,6 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Label from '@erxes/ui/src/components/Label';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-
-import { router } from '@erxes/ui/src/utils/core';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -93,8 +88,6 @@ type State = {
   product?: IProduct;
   lastAction: IJob;
   flowStatus: boolean;
-  branchId: string;
-  departmentId: string;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -130,9 +123,7 @@ class AutomationForm extends React.Component<Props, State> {
       productId: flow.productId || '',
       product: flow.product,
       lastAction: {} as IJob,
-      flowStatus: false,
-      branchId: lenFlow.length ? flow.branchId : '',
-      departmentId: lenFlow.length ? flow.departmentId : ''
+      flowStatus: false
     };
   }
 
@@ -308,15 +299,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const {
-      name,
-      isActive,
-      actions,
-      productId,
-      flowStatus,
-      branchId,
-      departmentId
-    } = this.state;
+    const { name, isActive, actions, productId, flowStatus } = this.state;
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -330,14 +313,14 @@ class AutomationForm extends React.Component<Props, State> {
         status: isActive ? 'active' : 'draft',
         productId,
         flowJobStatus: flowStatus,
-        branchId,
-        departmentId,
         jobs: actions.map(a => ({
           id: a.id,
           nextJobIds: a.nextJobIds,
           jobReferId: a.jobReferId,
           label: a.label,
           description: a.description,
+          branchId: a.branchId,
+          departmentId: a.departmentId,
           style: jquery(`#action-${a.id}`).attr('style')
         }))
       };
@@ -518,11 +501,6 @@ class AutomationForm extends React.Component<Props, State> {
     );
   };
 
-  onSelect = (name, value) => {
-    console.log('On select: ', name, value);
-    this.setState({ [name]: value } as any);
-  };
-
   handleClickOutside = event => {
     if (
       this.wrapperRef &&
@@ -557,12 +535,14 @@ class AutomationForm extends React.Component<Props, State> {
     data?: IJob,
     actionId?: string,
     jobReferId?: string,
-    description?: string
+    description?: string,
+    branchId?: string,
+    departmentId?: string
   ) => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
 
-    let action: any = { ...data, id: this.getNewId(actions.map(a => a.id)) };
+    let action: IJob = { ...data, id: this.getNewId(actions.map(a => a.id)) };
     let actionIndex = -1;
 
     if (actionId) {
@@ -574,6 +554,8 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     action.jobReferId = jobReferId;
+    action.branchId = branchId;
+    action.departmentId = departmentId;
 
     const jobRefer: IJobRefer =
       jobRefers.find(j => j._id === jobReferId) || ({} as IJobRefer);
@@ -590,40 +572,6 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({ actions, activeAction: action, actionEdited: true }, () => {
       if (!actionId) {
         this.renderControl('action', action, this.onClickAction);
-
-        // hover action control ===================
-        // jquery('#canvas .control').hover(event => {
-        //   event.preventDefault();
-
-        //   console.log("event.currentTarget.id step1:", event.currentTarget.id);
-
-        //   jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
-
-        //   console.log("event.currentTarget.id step2:", event.currentTarget.id);
-
-        //   this.setState({ activeId: event.currentTarget.id });
-        // });
-
-        // delete control ===================
-        // jquery('#canvas').on('click', '.delete-control', event => {
-        //   event.preventDefault();
-
-        //   const item = event.currentTarget.id;
-        //   console.log("delete item:", item);
-
-        //   const splitItem = item.split('-');
-        //   const type = splitItem[0];
-
-        //   instance.remove(item);
-
-        //   console.log("left actions: ", actions);
-
-        //   if (type === 'action') {
-        //     return this.setState({
-        //       actions: actions.filter(actioon => actioon.id !== splitItem[1])
-        //     });
-        //   }
-        // });
       }
     });
   };
@@ -720,32 +668,6 @@ class AutomationForm extends React.Component<Props, State> {
           {this.state.flowStatus === false &&
             this.renderLabelInfo('danger', 'False')}
         </ToggleWrapper>
-
-        <FormGroup>
-          <ControlLabel>Branch</ControlLabel>
-          <SelectBranches
-            label="Choose branch"
-            name="selectedBranchIds"
-            initialValue={this.state.branchId}
-            onSelect={branchId => this.onSelect('branchId', branchId)}
-            multi={false}
-            customOption={{ value: 'all', label: 'All branches' }}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Department</ControlLabel>
-          <SelectDepartments
-            label="Choose department"
-            name="selectedDepartmentIds"
-            initialValue={this.state.departmentId}
-            onSelect={departmentId =>
-              this.onSelect('departmentId', departmentId)
-            }
-            multi={false}
-            customOption={{ value: 'all', label: 'All departments' }}
-          />
-        </FormGroup>
-
         <ToggleWrapper>
           <span className={isActive ? 'active' : ''}>{__('Inactive')}</span>
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
