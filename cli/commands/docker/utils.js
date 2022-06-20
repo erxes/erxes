@@ -250,6 +250,8 @@ const up = async ({ uis, fromInstaller }) => {
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
   const { RABBITMQ_HOST } = commonEnvs(configs);
 
+  // update the directory on the Docker system to have 0777 or drwxrwxrwx permssion, so that all users have read/write/execute permission.
+  // chmod 0777 core-api-private
   if (!(await fse.exists(filePath('core-api-private')))) {
     await execCommand('mkdir core-api-private');
   }
