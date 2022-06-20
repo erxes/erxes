@@ -156,6 +156,9 @@ class List extends React.Component<IProps, State> {
               </th>
               <th>{__('Name')}</th>
               <th>{__('Status')}</th>
+              <th>{__('Is match')}</th>
+              <th>{__('branch')}</th>
+              <th>{__('department')}</th>
               <th>{__('Jobs count')}</th>
             </tr>
           </thead>

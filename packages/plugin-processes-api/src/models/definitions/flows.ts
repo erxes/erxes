@@ -21,6 +21,9 @@ export interface IFlow {
   categoryId?: string;
   productId?: string;
   status: string;
+  flowJobStatus: boolean;
+  branchId: string;
+  departmentId: string;
   jobs?: IJob[];
 }
 
@@ -68,6 +71,9 @@ export const flowSchema = schemaHooksWrapper(
       index: true
     }),
     status: field({ type: String, label: 'Status' }),
+    flowJobStatus: field({ type: Boolean, label: 'FlowJob status' }),
+    branchId: field({ type: String, label: 'Branch Id' }),
+    departmentId: field({ type: String, label: 'department Id' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String },
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },

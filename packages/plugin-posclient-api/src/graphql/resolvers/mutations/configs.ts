@@ -21,7 +21,7 @@ import { IContext } from '../../../connectionResolver';
 dotenv.config();
 
 const configMutations = {
-  async posConfigsFetch(_root, { token }, { models }: IContext) {
+  posConfigsFetch: async (_root, { token }, { models }: IContext) => {
     console.log('ddddddddddddddddddddddddd');
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 

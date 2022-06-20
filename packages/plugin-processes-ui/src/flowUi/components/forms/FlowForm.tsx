@@ -7,7 +7,11 @@ import RTG from 'react-transition-group';
 
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components/form';
 import Icon from '@erxes/ui/src/components/Icon';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
@@ -46,6 +50,10 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Label from '@erxes/ui/src/components/Label';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+
+import { router } from '@erxes/ui/src/utils/core';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -85,6 +93,8 @@ type State = {
   product: IProduct;
   lastAction: IJob;
   flowStatus: boolean;
+  branchId: string;
+  departmentId: string;
 };
 
 class AutomationForm extends React.Component<Props, State> {
@@ -120,7 +130,9 @@ class AutomationForm extends React.Component<Props, State> {
       productId: flow.productId || '',
       product: flow.product,
       lastAction: {} as IJob,
-      flowStatus: false
+      flowStatus: false,
+      branchId: lenFlow.length ? flow.branchId : '',
+      departmentId: lenFlow.length ? flow.departmentId : ''
     };
   }
 
@@ -296,7 +308,15 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { name, isActive, actions, productId } = this.state;
+    const {
+      name,
+      isActive,
+      actions,
+      productId,
+      flowStatus,
+      branchId,
+      departmentId
+    } = this.state;
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -309,6 +329,9 @@ class AutomationForm extends React.Component<Props, State> {
         name,
         status: isActive ? 'active' : 'draft',
         productId,
+        flowJobStatus: flowStatus,
+        branchId,
+        departmentId,
         jobs: actions.map(a => ({
           id: a.id,
           nextJobIds: a.nextJobIds,
@@ -495,6 +518,11 @@ class AutomationForm extends React.Component<Props, State> {
     );
   };
 
+  onSelect = (name, value) => {
+    console.log('On select: ', name, value);
+    this.setState({ [name]: value });
+  };
+
   handleClickOutside = event => {
     if (
       this.wrapperRef &&
@@ -675,9 +703,17 @@ class AutomationForm extends React.Component<Props, State> {
 
   rendeRightActionBar() {
     const { isActive } = this.state;
+    const { queryParams } = this.props;
 
     return (
       <BarItems>
+        <ToggleWrapper>
+          <span>{__('Product: ')}</span>
+          {this.renderProductModal(
+            this.state.product ? this.state.product : null
+          )}
+        </ToggleWrapper>
+
         <ToggleWrapper>
           <span>{__('Flow status: ')}</span>
           {this.state.flowStatus === true &&
@@ -685,6 +721,32 @@ class AutomationForm extends React.Component<Props, State> {
           {this.state.flowStatus === false &&
             this.renderLabelInfo('danger', 'False')}
         </ToggleWrapper>
+
+        <FormGroup>
+          <ControlLabel>Branch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="selectedBranchIds"
+            initialValue={this.state.branchId}
+            onSelect={branchId => this.onSelect('branchId', branchId)}
+            multi={false}
+            customOption={{ value: 'all', label: 'All branches' }}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Department</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="selectedDepartmentIds"
+            initialValue={this.state.departmentId}
+            onSelect={departmentId =>
+              this.onSelect('departmentId', departmentId)
+            }
+            multi={false}
+            customOption={{ value: 'all', label: 'All departments' }}
+          />
+        </FormGroup>
+
         <ToggleWrapper>
           <span className={isActive ? 'active' : ''}>{__('Inactive')}</span>
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
@@ -726,14 +788,9 @@ class AutomationForm extends React.Component<Props, State> {
           />
           <Icon icon="edit-alt" size={16} />
         </Title>
-        <CenterBar>
-          <ToggleWrapper>
-            <span>{__('Product: ')}</span>
-            {this.renderProductModal(
-              this.state.product ? this.state.product : null
-            )}
-          </ToggleWrapper>
-        </CenterBar>
+        {/* <CenterBar>
+          
+        </CenterBar> */}
       </FlexContent>
     );
   }
@@ -749,7 +806,15 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   renderTabContent() {
-    const { currentTab, showAction, activeAction } = this.state;
+    const {
+      currentTab,
+      showAction,
+      activeAction,
+      product,
+      lastAction
+    } = this.state;
+
+    const { jobRefers, history, queryParams } = this.props;
 
     if (currentTab === 'actions') {
       const { actions } = this.state;
@@ -770,11 +835,11 @@ class AutomationForm extends React.Component<Props, State> {
               activeAction={checkedActiveAction}
               addAction={this.addAction}
               closeModal={this.onBackAction}
-              jobRefers={this.props.jobRefers}
+              jobRefers={jobRefers}
               actions={actions}
               onSave={this.onSave}
-              lastAction={this.state.lastAction}
-              flowProduct={this.state.product}
+              lastAction={lastAction}
+              flowProduct={product}
             />
           </>
         );

@@ -1,6 +1,7 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
 
+import { IProduct } from '@erxes/ui-products/src/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -12,7 +13,6 @@ import { IJob } from '../../../../flow/types';
 import { IJobRefer } from '../../../../job/types';
 import { DrawerDetail } from '../../../styles';
 import Common from './Common';
-import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
   closeModal: () => void;
