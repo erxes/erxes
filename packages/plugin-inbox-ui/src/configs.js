@@ -4,7 +4,8 @@ module.exports = {
   scope: 'inbox',
   exposes: {
     './routes': './src/routes.tsx',
-    './activityLog': './src/activityLogs/activityLog.tsx'
+    './activityLog': './src/activityLogs/activityLog.tsx',
+    "./unreadCount": "./src/inbox/containers/UnreadCount.tsx",
   },
   routes: {
     url: 'http://localhost:3009/remoteEntry.js',
@@ -105,5 +106,12 @@ module.exports = {
       action: 'scriptsAll',
       permissions: ['manageScripts', 'showScripts']
     }
-  ]
+  ],
+  customNavigationLabel: [
+    {
+      text: "unreadCount",
+      component: "./unreadCount",
+      scope: "inbox",
+    }
+  ],
 };

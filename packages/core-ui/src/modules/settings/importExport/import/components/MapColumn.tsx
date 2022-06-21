@@ -17,6 +17,7 @@ type Props = {
 };
 
 class MapColumn extends React.Component<Props, {}> {
+  //check this function after
   renderText = value => {
     switch (value) {
       case 'customer':

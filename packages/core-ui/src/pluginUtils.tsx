@@ -2,14 +2,14 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { IUser } from 'modules/auth/types';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { __ } from 'modules/common/utils';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import React from 'react';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
+import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
+import React from 'react';
+import { __ } from 'modules/common/utils';
 
 const PLUGIN_LABEL_COLORS: string[] = [
   '',
@@ -93,6 +93,7 @@ const useDynamicScript = args => {
 };
 
 export const loadComponent = (scope, module) => {
+  console.log('loadComponent:', scope, window[scope]);
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__('default');
@@ -407,6 +408,33 @@ export const pluginsOfProductCategoryActions = (category: any) => {
           );
 
           return <Component key={Math.random()} productCategory={category} />;
+        });
+      }}
+    />
+  );
+};
+
+export const customNavigationLabel = () => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  return (
+    <PluginsWrapper
+      itemName="customNavigationLabel"
+      plugins={plugins}
+      callBack={(_plugin, sections) => {
+        console.log('secc', sections);
+        return (sections || []).map(section => {
+          setInterval(() => {
+            if (!window[section.scope]) {
+              return null;
+            }
+
+            const Component = React.lazy(
+              loadComponent(section.scope, section.component)
+            );
+            console.log('heree');
+            return <Component key={Math.random()} />;
+          }, 500);
         });
       }}
     />

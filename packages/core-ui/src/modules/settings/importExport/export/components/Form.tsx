@@ -1,5 +1,7 @@
-import Button from 'modules/common/components/Button';
-import { Step, Steps } from 'modules/common/components/step';
+import {
+  Content,
+  LeftContent
+} from '@erxes/ui-settings/src/integrations/styles';
 import {
   ControlWrapper,
   FlexItem,
@@ -8,24 +10,30 @@ import {
   Preview,
   StepWrapper
 } from 'modules/common/components/step/styles';
-import { getEnv, __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
+import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
+import { ImageWrapper, TextWrapper } from '@erxes/ui/src/styles/main';
+import { Step, Steps } from 'modules/common/components/step';
+import { __, getEnv } from 'modules/common/utils';
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import Button from 'modules/common/components/Button';
 import ConfigsForm from './ConfigsForm';
+import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
+import { Link } from 'react-router-dom';
+import { MessengerPreview } from '../../styles';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import Wrapper from 'modules/layout/components/Wrapper';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 
-import Spinner from 'modules/common/components/Spinner';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
-import { MessengerPreview } from '../../styles';
-import { ImageWrapper, TextWrapper } from '@erxes/ui/src/styles/main';
+const SegmentsForm = asyncComponent(
+  () =>
+    isEnabled('segments') &&
+    import(
+      /* webpackChunkName: "SegmentsForm" */ '@erxes/ui-segments/src/containers/form/SegmentsForm'
+    )
+);
 
 type Props = {
   contentType: string;
