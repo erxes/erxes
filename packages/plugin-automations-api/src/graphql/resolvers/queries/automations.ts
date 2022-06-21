@@ -211,7 +211,7 @@ const automationQueries = {
     } = {
       triggersConst: [],
       triggerTypesConst: [],
-      actionsConst: UI_ACTIONS,
+      actionsConst: [...UI_ACTIONS],
       propertyTypesConst: []
     };
 
