@@ -17,19 +17,29 @@ interface IClientPortalUserEdit extends IUser {
 }
 
 const clientPortalUserMutations = {
-  async clientPortalUsersAdd(
+  async clientPortalConfirmInvitation(
     _root,
-    doc: IUser,
-    { docModifier, models, subdomain }: IContext
+    {
+      token,
+      password,
+      passwordConfirmation,
+      username
+    }: {
+      token: string;
+      password?: string;
+      passwordConfirmation?: string;
+      username?: string;
+    },
+    { models }: IContext
   ) {
-    const modifiedDoc = docModifier(doc);
+    const user = await models.ClientPortalUsers.confirmInvitation({
+      token,
+      password,
+      passwordConfirmation,
+      username
+    });
 
-    const clientPortalUser = await models.ClientPortalUsers.createUser(
-      subdomain,
-      modifiedDoc
-    );
-
-    return clientPortalUser;
+    return user;
   },
 
   async clientPortalUsersEdit(

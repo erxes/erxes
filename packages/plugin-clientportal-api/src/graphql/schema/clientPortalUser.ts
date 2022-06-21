@@ -71,7 +71,6 @@ const userParams = `
 `;
 
 export const mutations = () => `
-  clientPortalUsersAdd(${userParams}): ClientPortalUser
   clientPortalUsersInvite(${userParams}): ClientPortalUser
   clientPortalUsersEdit(_id: String!, ${userParams}): ClientPortalUser
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
@@ -80,7 +79,7 @@ export const mutations = () => `
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
   clientPortalLogout: String
 
-  clientPortalConfirmInvitation(token: String, password: String, passwordConfirmation: String, fullName: String, username: String): ClientPortalUser
+  clientPortalConfirmInvitation(token: String, password: String, passwordConfirmation: String, username: String): ClientPortalUser
   clientPortalForgotPassword(clientPortalId: String!, email: String, phone: String): String!
   clientPortalResetPasswordWithCode(phone: String!, code: String!, password: String!): String
   clientPortalResetPassword(token: String!, newPassword: String!): JSON

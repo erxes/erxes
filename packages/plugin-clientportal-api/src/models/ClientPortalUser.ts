@@ -25,6 +25,13 @@ export interface ILoginParams {
   deviceToken?: string;
 }
 
+interface IConfirmParams {
+  token: string;
+  password?: string;
+  passwordConfirmation?: string;
+  username?: string;
+}
+
 export interface IUserModel extends Model<IUserDocument> {
   checkDuplication(clientPortalUserFields: {
     email?: string;
@@ -94,6 +101,7 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string,
     email?: string
   ): string;
+  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -695,6 +703,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('Invalid login');
       }
 
+      if (!user.isPhoneVerified && !user.isEmailVerified) {
+        throw new Error('User is not verified');
+      }
+
       const valid = await this.comparePassword(password, user.password);
 
       if (!valid) {
@@ -821,6 +833,53 @@ export const loadClientPortalUserClass = (models: IModels) => {
           }
         }
       });
+
+      return user;
+    }
+
+    public static async confirmInvitation({
+      token,
+      password,
+      passwordConfirmation,
+      username
+    }: {
+      token: string;
+      password: string;
+      passwordConfirmation: string;
+      username?: string;
+    }) {
+      const user = await models.ClientPortalUsers.findOne({
+        registrationToken: token,
+        registrationTokenExpires: {
+          $gt: Date.now()
+        }
+      });
+
+      if (!user || !token) {
+        throw new Error('Token is invalid or has expired');
+      }
+
+      let doc: any = { isEmailVerified: true, registrationToken: undefined };
+
+      if (password) {
+        if (password !== passwordConfirmation) {
+          throw new Error('Password does not match');
+        }
+
+        this.checkPassword(password);
+        doc.password = await this.generatePassword(password);
+      }
+
+      if (username) {
+        doc.username = username;
+      }
+
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        {
+          $set: doc
+        }
+      );
 
       return user;
     }
