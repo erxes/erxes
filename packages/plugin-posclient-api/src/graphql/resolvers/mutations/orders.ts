@@ -5,7 +5,7 @@ import { OrderItems } from '../../../models/OrderItems';
 import { PutResponses } from '../../../models/PutResponses';
 import { IOrderInput } from '../../types';
 import {
-  // generateOrderNumber,
+  generateOrderNumber,
   validateOrderPayment,
   validateOrder,
   updateOrderItems,
@@ -62,10 +62,12 @@ const orderMutations = {
     await validateOrder(doc);
 
     const orderDoc = {
+      number: await generateOrderNumber(config),
       totalAmount,
       type,
       branchId,
-      customerId
+      customerId,
+      userId: posUser ? posUser._id : ''
     };
 
     try {
