@@ -817,7 +817,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
-      const content = `Here is your verification link: ${clientPortal.url}/register?token=${token} . Please click on the link to verify your account. Your password is: ${plainPassword}. Please change your password after you login.`;
+      const content = `Here is your verification link: ${clientPortal.url}/verify?token=${token} . Please click on the link to verify your account. Your password is: ${plainPassword}. Please change your password after you login.`;
 
       await sendCoreMessage({
         subdomain,
