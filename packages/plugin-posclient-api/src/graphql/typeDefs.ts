@@ -44,7 +44,6 @@ const typeDefs = async () => {
     ${ProductTypes}
     ${PosUserTypes}
 
-
     ${OrderTypes}
     ${ConfigTypes}
     ${PaymentTypes}

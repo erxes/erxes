@@ -1,4 +1,3 @@
-// import dayjs from 'dayjs';
 import { IOrder, IOrderDocument } from '../../models/definitions/orders';
 import { OrderItems } from '../../models/OrderItems';
 import { Orders } from '../../models/Orders';
@@ -6,6 +5,7 @@ import { Products } from '../../models/Products';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
+import { sendRequest } from './commonUtils';
 import {
   DISTRICTS,
   ORDER_STATUSES,
@@ -17,6 +17,7 @@ import {
   IConfig,
   IEbarimtConfig
 } from '../../models/definitions/configs';
+const dayjs = require('dayjs');
 
 interface IDetailItem {
   count: number;
@@ -31,48 +32,48 @@ export const getPureDate = (date?: Date) => {
   return new Date(ndate.getTime() - diffTimeZone);
 };
 
-// export const generateOrderNumber = async (
-//   config?: IConfig
-// ): Promise<string> => {
-//   const todayStr = dayjs()
-//     .format('YYYYMMDD')
-//     .toString();
+export const generateOrderNumber = async (
+  config?: IConfig
+): Promise<string> => {
+  const todayStr = dayjs()
+    .format('YYYYMMDD')
+    .toString();
 
-//   const beginNumber =
-//     (config && config.beginNumber && `${config.beginNumber}.`) || '';
+  const beginNumber =
+    (config && config.beginNumber && `${config.beginNumber}.`) || '';
 
-//   let suffix = '0001';
-//   let number = `${todayStr}_${beginNumber}${suffix}`;
+  let suffix = '0001';
+  let number = `${todayStr}_${beginNumber}${suffix}`;
 
-//   const latestOrder = ((await Orders.find({
-//     number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
-//     posToken: { $in: ['', null] }
-//   })
-//     .sort({ number: -1 })
-//     .limit(1)
-//     .lean()) || [])[0];
+  const latestOrder = ((await Orders.find({
+    number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
+    posToken: { $in: ['', null] }
+  })
+    .sort({ number: -1 })
+    .limit(1)
+    .lean()) || [])[0];
 
-//   if (latestOrder && latestOrder._id) {
-//     const parts = latestOrder.number.split('_');
+  if (latestOrder && latestOrder._id) {
+    const parts = latestOrder.number.split('_');
 
-//     const suffixParts = parts[1].split('.');
-//     const latestSuffix =
-//       (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
+    const suffixParts = parts[1].split('.');
+    const latestSuffix =
+      (suffixParts.length === 2 && suffixParts[1]) || suffixParts[0];
 
-//     const latestNum = parseInt(latestSuffix, 10);
-//     const addend =
-//       (config &&
-//         config.maxSkipNumber &&
-//         config.maxSkipNumber > 1 &&
-//         Math.round(Math.random() * (config.maxSkipNumber - 1) + 1)) ||
-//       1;
+    const latestNum = parseInt(latestSuffix, 10);
+    const addend =
+      (config &&
+        config.maxSkipNumber &&
+        config.maxSkipNumber > 1 &&
+        Math.round(Math.random() * (config.maxSkipNumber - 1) + 1)) ||
+      1;
 
-//     suffix = String(latestNum + addend).padStart(4, '0');
-//     number = `${todayStr}_${beginNumber}${suffix}`;
-//   }
+    suffix = String(latestNum + addend).padStart(4, '0');
+    number = `${todayStr}_${beginNumber}${suffix}`;
+  }
 
-//   return number;
-// };
+  return number;
+};
 
 export const validateOrder = async (doc: IOrderInput) => {
   const { items = [] } = doc;
@@ -180,6 +181,20 @@ export const prepareEbarimtData = async (
   let billType = orderBillType || order.billType || BILL_TYPES.CITIZEN;
   let customerCode = '';
   let customerName = '';
+
+  if (registerNumber) {
+    const response = await sendRequest({
+      url: config.checkCompanyUrl,
+      method: 'GET',
+      params: { regno: registerNumber }
+    });
+
+    if (response.found) {
+      billType = '3';
+      customerCode = registerNumber;
+      customerName = response.name;
+    }
+  }
 
   const productIds = items.map(item => item.productId);
   const products = await Products.find({ _id: { $in: productIds } });

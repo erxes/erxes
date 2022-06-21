@@ -200,7 +200,7 @@ export const validateConfig = () => {};
 
 // receive product data through message broker
 export const receiveProduct = async data => {
-  const { action, object, updatedDocument } = data;
+  const { action = '', object = {}, updatedDocument = {} } = data;
 
   if (action === 'create') {
     return Products.createProduct(object);
