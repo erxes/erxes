@@ -11,7 +11,7 @@ import {
   IUserDocument
 } from './definitions/clientPortalUser';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
-import { generateRandomString, sendSms } from '../utils';
+import { generateRandomPassword, sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
 import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
@@ -168,7 +168,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       { password, email, phone, clientPortalId, ...doc }: IUser
     ) {
       if (!password) {
-        password = generateRandomString();
+        password = generateRandomPassword();
       }
 
       if (password) {
@@ -737,7 +737,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
       { password, email, phone, clientPortalId, ...doc }: IUser
     ) {
       if (!password) {
-        password = generateRandomString();
+        password = generateRandomPassword();
       }
 
       if (password) {
