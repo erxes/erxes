@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { posInitialSetup } from './routes';
+import { posUserMiddleware } from './userMiddleware';
 
 export let debug;
 export let graphqlPubsub;
@@ -31,6 +32,7 @@ export default {
 
     return context;
   },
+  middlewares: [posUserMiddleware],
 
   onServerInit: async options => {
     mainDb = options.db;

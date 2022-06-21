@@ -6,19 +6,14 @@ import {
 import { IContext } from '../../../connectionResolver';
 
 interface IParam {
-  categoryId: string;
   searchValue?: string;
   ids: string[];
   excludeIds: boolean;
 }
 
 const generateFilter = (params: IParam, commonQuerySelector) => {
-  const { categoryId, searchValue, ids, excludeIds } = params;
+  const { searchValue, ids, excludeIds } = params;
   const selector: any = { ...commonQuerySelector };
-
-  if (categoryId) {
-    selector.categoryId = categoryId;
-  }
 
   if (searchValue) {
     selector.name = new RegExp(`.*${searchValue}.*`, 'i');
@@ -31,8 +26,8 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
   return selector;
 };
 
-const flowQueries = {
-  flows(
+const overallWorkQueries = {
+  overallWorks(
     _root,
     params: IParam & {
       page: number;
@@ -41,36 +36,20 @@ const flowQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
-
-    return paginate(
-      models.Flows.find(selector)
-        .sort({
-          code: 1
-        })
-        .lean(),
-      { ...params }
-    );
+    return paginate(models.OverallWorks.find(selector).lean(), { ...params });
   },
 
-  flowTotalCount(
+  overallWorkTotalCount(
     _root,
     params: IParam,
     { commonQuerySelector, models }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
 
-    return models.Flows.find(selector).count();
-  },
-
-  /**
-   * Get one flow
-   */
-  flowDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Flows.findOne({ _id });
+    return models.OverallWorks.find(selector).count();
   }
 };
 
-checkPermission(flowQueries, 'flowDetail', 'showJobRefers');
-checkPermission(flowQueries, 'flows', 'showJobRefers');
+checkPermission(overallWorkQueries, 'overalWorks', 'showOverallWorks');
 
-export default flowQueries;
+export default overallWorkQueries;

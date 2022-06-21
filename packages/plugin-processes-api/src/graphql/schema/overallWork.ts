@@ -1,22 +1,21 @@
 export const types = `
-
-  type Work @key(fields: "_id") @cacheControl(maxAge: 3) {
+  type OverallWork @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String,
     createdAt: Date,
     createdBy: String,
     updatedAt: Date,
     updatedBy: String,
-    name: String,
     status: String,
     dueDate: Date,
     startAt: Date,
     endAt: Date,
+    assignUserIds: JSON
     jobId: String,
     flowId: String,
-    productId: String,
-    count: String,
-    branchId: String,
-    departmentId: String,
+    outBranchId: String,
+    outDepartmentId: String,
+    inBranchId: String,
+    inDepartmentId: String,
     needProducts: JSON,
     resultProducts: JSON
   }
@@ -27,26 +26,26 @@ const qryParams = `
 `;
 
 export const queries = `
-  works(page: Int, perPage: Int, ${qryParams}): [Work]
-  workTotalCount(${qryParams}): Int
+  overallWorks(page: Int, perPage: Int, ${qryParams}): [OverallWork]
+  overallWorkTotalCount(${qryParams}): Int
 `;
 
 const workParams = `
-  name: String,
   status: String,
   dueDate: Date,
   startAt: Date,
   endAt: Date,
+  assignUserIds: [String]
   jobId: String,
   flowId: String,
-  productId: String,
-  count: String,
-  branchId: String,
-  departmentId: String,
+  outBranchId: String,
+  outDepartmentId: String,
+  inBranchId: String,
+  inDepartmentId: String,
   needProducts: [JobProductsInput],
   resultProducts: [JobProductsInput]
 `;
 
 export const mutations = `
-  worksAdd(${workParams}): Work
+  overallWorksAdd(${workParams}): OverallWork
 `;

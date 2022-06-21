@@ -31,7 +31,7 @@ export const loadWorkClass = (models: IModels) => {
     public static async createWork(doc: IWork) {
       const work = await models.Works.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return work;
@@ -41,11 +41,11 @@ export const loadWorkClass = (models: IModels) => {
      * Update Work
      */
     public static async updateWork(_id: string, doc: IWork) {
-      const work = await models.Works.getWork(_id,);
+      const work = await models.Works.getWork(_id);
 
       await models.Works.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.Works.getWork( _id );
+      const updated = await models.Works.getWork(_id);
 
       return updated;
     }

@@ -8,14 +8,18 @@ import {
   JobRefers as JobRefersMutations,
   JobCategories as JobCategoryMutations,
   Flows as FlowsMutations,
-  FlowCategories as FlowCategoryMutations
+  FlowCategories as FlowCategoryMutations,
+  Works as WorkMutation,
+  OverallWorks as OverallWorkMutations
 } from './mutations';
 
 import {
   JobRefers as JobReferQueries,
   JobCategories as JobCategoryQueries,
   Flows as FlowQueries,
-  FlowCategories as FlowCategoryQueries
+  FlowCategories as FlowCategoryQueries,
+  Works as WorkQueries,
+  OverallWorks as OverallWorkQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
@@ -27,13 +31,17 @@ const resolvers: any = async serviceDiscovery => ({
     ...JobRefersMutations,
     ...JobCategoryMutations,
     ...FlowsMutations,
-    ...FlowCategoryMutations
+    ...FlowCategoryMutations,
+    ...WorkMutation,
+    ...OverallWorkMutations
   },
   Query: {
     ...JobReferQueries,
     ...JobCategoryQueries,
     ...FlowQueries,
-    ...FlowCategoryQueries
+    ...FlowCategoryQueries,
+    ...WorkQueries,
+    ...OverallWorkQueries
   }
 });
 

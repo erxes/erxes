@@ -75,7 +75,6 @@ const jobReferQueries = {
 };
 
 requireLogin(jobReferQueries, 'jobReferDetail');
-// checkPermission(jobReferQueries, 'jobRefers', 'showJobRefers');
 checkPermission(jobReferQueries, 'jobReferDetail', 'showJobRefers');
 
 export default jobReferQueries;
