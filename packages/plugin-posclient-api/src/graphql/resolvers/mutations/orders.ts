@@ -24,7 +24,7 @@ import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../pubsub';
 import { debugError } from '../../../debugger';
 import { IOrderDocument } from '../../../models/definitions/orders';
-// import { QPayInvoices } from '../../../models/QPayInvoices';
+import { QPayInvoices } from '../../../models/QPayInvoices';
 
 interface IPaymentBase {
   billType: string;
@@ -270,14 +270,14 @@ const orderMutations = {
     checkOrderStatus(order);
     await checkUnpaidInvoices(_id);
 
-    // const paidInvoices = await QPayInvoices.countDocuments({
-    //   senderInvoiceNo: _id,
-    //   status: 'PAID',
-    // });
+    const paidInvoices = await QPayInvoices.countDocuments({
+      senderInvoiceNo: _id,
+      status: 'PAID'
+    });
 
-    // if (paidInvoices > 0) {
-    //   throw new Error('There are paid QPay invoices for this order');
-    // }
+    if (paidInvoices > 0) {
+      throw new Error('There are paid QPay invoices for this order');
+    }
 
     if ((order.cardPayments || []).length > 0) {
       throw new Error('Card payment exists for this order');
