@@ -5,7 +5,6 @@ declare var window;
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
 import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
 import React from 'react';
@@ -376,7 +375,7 @@ export const pluginsOfCompanySidebar = (company: ICompany) => {
   return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 
-export const pluginsOfItemSidebar = (item: IItem, type: string) => {
+export const pluginsOfItemSidebar = (item: any, type: string) => {
   return renderPluginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
