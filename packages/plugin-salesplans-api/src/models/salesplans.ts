@@ -5,12 +5,6 @@ import {
   ISalesLog,
   ISalesLogDocument,
   salesLogSchema,
-  labelSchema,
-  ILabel,
-  ILabelDocument,
-  ITimeframe,
-  ITimeframeDocument,
-  timeframeSchema,
   IDayPlanConfig,
   IDayPlanConfigDocument,
   dayPlanConfigSchema,
@@ -24,7 +18,10 @@ import {
 
 export interface ISalesLogModel extends Model<ISalesLogDocument> {
   createSalesLog(doc: ISalesLog, id: string): Promise<ISalesLogDocument>;
-  updateSalesLog(doc: ISalesLogDocument): Promise<ISalesLogDocument>;
+  updateSalesLog(
+    doc: ISalesLogDocument,
+    id: string
+  ): Promise<ISalesLogDocument>;
   removeSalesLog(_id: string): Promise<JSON>;
 }
 
@@ -33,24 +30,23 @@ export const loadSalesLogClass = (models: IModels) => {
     /*
      create SalesLog 
     */
-    public static async createSalesLog(doc: ISalesLog, id) {
+    public static async createSalesLog(doc: ISalesLog, userId: String) {
       return await models.SalesLogs.create({
         ...doc,
-        createdBy: id,
+        createdBy: userId,
         createdAt: new Date()
       });
     }
 
     /* 
-      upDate SalesLog
+      update SalesLog
     */
-    public static async updateSalesLog(doc: ISalesLog) {
-      const { branchId } = doc;
+    public static async updateSalesLog(doc: ISalesLogDocument, _id: String) {
+      const result = await models.SalesLogs.updateOne({ _id }, { $set: doc });
 
-      return await models.SalesLogs.update(
-        { branchId: branchId },
-        { $set: doc }
-      );
+      console.log(result, doc);
+
+      return models.SalesLogs.findOne({ _id });
     }
 
     /* 
@@ -70,94 +66,6 @@ export const loadSalesLogClass = (models: IModels) => {
   salesLogSchema.loadClass(SalesLog);
 
   return salesLogSchema;
-};
-
-export interface ILabelModel extends Model<ILabelDocument> {
-  saveLabels(doc: any): Promise<ILabelDocument[]>;
-  removeLabel(_id: string): Promise<JSON>;
-  updateLabel(_id: string): Promise<ILabelDocument>;
-}
-
-export const loadLabelClass = (models: IModels) => {
-  class Label {
-    /*
-      Create and update Labels 
-    */
-    public static async saveLabels(doc: {
-      update: ILabelDocument[];
-      add: ILabel[];
-    }) {
-      const add = doc.add;
-      // await models.DayConfigs.deleteMany();
-      const update = doc.update;
-
-      for (const item of update) {
-        await models.Labels.updateOne({ _id: item._id }, { $set: { ...item } });
-      }
-
-      const label = await models.Labels.insertMany(add);
-
-      return await label;
-    }
-
-    /*  
-      remove Label
-    */
-    public static async removeLabel(_id: String) {
-      return await models.Labels.remove({ _id: _id });
-    }
-
-    /* 
-      update Label
-    */
-    public static async updateLabel(models, doc) {
-      const { _id } = doc;
-
-      delete doc._id;
-
-      return await models.Labels.update({ _id: _id }, { $set: doc });
-    }
-  }
-
-  labelSchema.loadClass(Label);
-
-  return labelSchema;
-};
-
-export interface ITimeframeModel extends Model<ITimeframeDocument> {
-  saveTimeframes(doc: {
-    update: ITimeframeDocument[];
-    add: ITimeframe[];
-  }): Promise<ITimeframeDocument[]>;
-  removeTimeframe(_id: string): Promise<JSON>;
-}
-
-export const loadTimeframeClass = (models: IModels) => {
-  class Timeframe {
-    public static async saveTimeframes(doc) {
-      const add = doc.add;
-
-      const update = doc.update;
-
-      for (const item of update) {
-        await models.Timeframes.updateOne(
-          { _id: item._id },
-          { $set: { ...item } }
-        );
-      }
-
-      const label = await models.Timeframes.insertMany(add);
-
-      return await label;
-    }
-
-    public static async removeTimeframe(_id) {
-      return await models.Timeframes.remove({ _id: _id });
-    }
-  }
-  timeframeSchema.loadClass(Timeframe);
-
-  return timeframeSchema;
 };
 
 export interface IDayPlanConfigModel extends Model<IDayPlanConfigDocument> {

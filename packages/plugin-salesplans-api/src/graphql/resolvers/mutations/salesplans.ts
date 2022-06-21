@@ -1,35 +1,32 @@
-import { IContext, IModels } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 import {
-  ILabel,
-  ILabelDocument,
   ISalesLog,
-  ITimeframe,
-  ITimeframeDocument
+  ISalesLogDocument
 } from '../../../models/definitions/salesplans';
 
 const salesLogMutations = {
-  createSalesLog: async (_root, doc: ISalesLog, { user, models }: IContext) => {
+  createSalesLog: async (
+    _root: any,
+    doc: ISalesLog,
+    { user, models }: IContext
+  ) => {
     return await models.SalesLogs.createSalesLog(doc, user._id);
   },
 
-  saveLabels: async (
-    _root,
-    doc: { update: ILabelDocument[]; add: ILabel[] },
+  updateSalesLog: async (
+    _root: any,
+    doc: ISalesLogDocument,
     { models }: IContext
   ) => {
-    return await models.Labels.saveLabels(doc);
+    return await models.SalesLogs.updateSalesLog(doc, doc._id);
   },
 
-  saveTimeframes: async (
-    _root,
-    doc: { update: ITimeframeDocument[]; add: ITimeframe[] },
-    { models }: IContext
-  ) => {
-    return await models.Timeframes.saveTimeframes(doc);
+  removeSalesLog: async (_root: any, _id: string, { models }: IContext) => {
+    return await models.SalesLogs.removeSalesLog(_id);
   },
 
   saveDayPlanConfig: async (
-    _root,
+    _root: any,
     doc: { salesLogId: string; data: JSON },
     { models }: IContext
   ) => {
@@ -37,7 +34,7 @@ const salesLogMutations = {
   },
 
   saveMonthPlanConfig: async (
-    _root,
+    _root: any,
     doc: { salesLogId: string; date: Date; data: JSON },
     { models }: IContext
   ) => {
@@ -45,27 +42,11 @@ const salesLogMutations = {
   },
 
   saveYearPlanConfig: async (
-    _root,
+    _root: any,
     doc: { salesLogId: string; data: JSON },
     { models }: IContext
   ) => {
     return await models.YearPlanConfigs.saveYearPlanConfig({ doc });
-  },
-
-  removeLabel: async (
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext
-  ) => {
-    return await models.Labels.removeLabel(_id);
-  },
-
-  removeTimeframe: async (_root, _id: string, { models }: IContext) => {
-    return await models.Timeframes.removeTimeframe(_id);
-  },
-
-  removeSalesLog: async (_root, _id: string, { models }: IContext) => {
-    return await models.SalesLogs.removeSalesLog(_id);
   }
 };
 

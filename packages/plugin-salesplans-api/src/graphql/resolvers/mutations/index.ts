@@ -1,3 +1,9 @@
-import mutation from './salesplans';
+import salesLogMutation from './salesplans';
+import labelsMutation from './labels';
+import timeframeMutations from './timeframes';
 
-export default { ...mutation };
+export default {
+  ...salesLogMutation,
+  ...labelsMutation,
+  ...timeframeMutations
+};

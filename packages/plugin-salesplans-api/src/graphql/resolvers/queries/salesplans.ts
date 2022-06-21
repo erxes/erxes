@@ -2,31 +2,31 @@ import { IContext } from '../../../connectionResolver';
 
 const salesLogQueries = {
   getLabels: async (
-    _root,
+    _root: any,
     { type }: { type: string },
     { models }: IContext
   ) => {
     return await models.Labels.find({ type });
   },
 
-  getSalesLogs: async (_root, _args, { models }: IContext) => {
+  getSalesLogs: async (_root: any, _args: any, { models }: IContext) => {
     return await models.SalesLogs.find({}).lean();
   },
 
   getSalesLogDetail: async (
-    _root,
+    _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
     return await models.SalesLogs.findOne({ _id: salesLogId });
   },
 
-  getTimeframes: async (_root, _args, { models }: IContext) => {
+  getTimeframes: async (_root: any, _args: any, { models }: IContext) => {
     return await models.Timeframes.find({});
   },
 
   getDayPlanConfig: async (
-    _root,
+    _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
@@ -34,7 +34,7 @@ const salesLogQueries = {
   },
 
   getMonthPlanConfig: async (
-    _root,
+    _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
@@ -42,7 +42,7 @@ const salesLogQueries = {
   },
 
   getYearPlanConfig: async (
-    _root,
+    _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
