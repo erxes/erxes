@@ -18,6 +18,8 @@ export interface IUser {
   modifiedAt?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  registrationToken?: string;
+  registrationTokenExpires?: Date;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -82,7 +84,10 @@ export const clientPortalUserSchema = new Schema({
   modifiedAt: field({ type: Date, label: 'Modified at' }),
 
   resetPasswordToken: field({ type: String, optional: true }),
-  resetPasswordExpires: field({ type: Date, optional: true })
+  resetPasswordExpires: field({ type: Date, optional: true }),
+
+  registrationToken: field({ type: String }),
+  registrationTokenExpires: field({ type: Date })
 });
 
 clientPortalUserSchema.index(
