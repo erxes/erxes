@@ -1,17 +1,21 @@
 import { Document, Schema } from 'mongoose';
-// import { DURATION_TYPES } from './constants';
+import { IProductsData, productsDataSchema } from './jobs';
 import { field, schemaHooksWrapper } from './utils';
-// import { IJobRefer, jobReferSchema, productsDataSchema } from './jobs';
 
 export interface IWork {
   name: string;
   status: string;
+  dueDate: Date;
+  startAt: Date;
+  endAt: Date;
   jobId: string;
   flowId: string;
   productId: string;
   count: string;
   branchId: string;
   departmentId: string;
+  needProducts: IProductsData;
+  resultProducts: IProductsData;
 }
 
 export interface IWorkDocument extends IWork, Document {
@@ -33,18 +37,21 @@ export const workSchema = schemaHooksWrapper(
     count: field({ type: String, label: 'count' }),
     branchId: field({ type: String, label: 'branchId' }),
     departmentId: field({ type: String, label: 'departmentId' }),
-
-    // processId: field({ type: String }),
-    // performId: field({ type: String }),
-
-    createdAt: { type: Date, default: new Date(), label: 'Created date' }
-
-    // dueDate: field({ type: Date, label: 'Due Date' }),
-    // startAt: field({ type: Date, optional: true, label: 'Start at' }),
-    // endAt: field({ type: Date, optional: true, label: 'End at' }),
-    // quantity: field({ type: Number, label: 'Quantity' }),
+    needProducts: field({ type: productsDataSchema, label: 'Need products' }),
+    resultProducts: field({
+      type: productsDataSchema,
+      label: 'Result products'
+    }),
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created date'
+    }),
+    dueDate: field({ type: Date, label: 'Due Date' }),
+    startAt: field({ type: Date, optional: true, label: 'Start at' }),
+    endAt: field({ type: Date, optional: true, label: 'End at' })
   }),
-  'works'
+  'erxes_works'
 );
 
 // for workSchema query. increases search speed, avoids in-memory sorting

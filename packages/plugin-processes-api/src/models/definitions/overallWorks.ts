@@ -8,6 +8,8 @@ export interface IOverallWork {
   startAt: Date;
   endAt: Date;
   assignUserIds: string[];
+  jobId: string;
+  flowId: string;
   outBranchId: string;
   outDepartmentId: string;
   inBranchId: string;
@@ -40,12 +42,13 @@ export const overallWorkSchema = schemaHooksWrapper(
     inDepartmentId: { type: String },
 
     needProducts: field({ type: productsDataSchema, label: 'Need products' }),
-    resultProducts: field({ type: productsDataSchema, label: 'Result products' }),
+    resultProducts: field({
+      type: productsDataSchema,
+      label: 'Result products'
+    })
   }),
   'erxes_overallWorks'
 );
 
 // for overallWorkSchema query. increases search speed, avoids in-memory sorting
 overallWorkSchema.index({ status: 1 });
-
-

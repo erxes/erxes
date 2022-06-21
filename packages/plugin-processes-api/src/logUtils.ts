@@ -23,7 +23,9 @@ export const LOG_ACTIONS = {
 
 export const MODULE_NAMES = {
   PRODUCT: 'product',
-  PRODUCT_CATEGORY: 'productCategory'
+  PRODUCT_CATEGORY: 'productCategory',
+  WORK: 'work',
+  OVERALWORK: 'overalWork'
 };
 
 const gatherDescriptions = async (
