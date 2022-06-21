@@ -34,6 +34,9 @@ interface ICheckCustomerParams {
   brandIds?: string[];
 }
 
+export const getName = type =>
+  type.replace('contacts:', '').replace('cards:', '');
+
 export const generateCustomerSelector = async (
   subdomain,
   {
@@ -76,22 +79,31 @@ export const generateCustomerSelector = async (
 
     let customerIdsBySegments: string[] = [];
 
-    const segmentOptions: any = {
-      associatedCustomers: true,
-      perPage: 5000,
-      scroll: true
-    };
-
     for (const segment of segments) {
       const cIds = await sendSegmentsMessage({
         ...commonParams,
         action: 'fetchSegment',
-        data: { segmentId: segment._id, options: segmentOptions }
+        data: {
+          segmentId: segment._id,
+          options: {
+            perPage: 5000,
+            scroll: true,
+            returnAssociated: {
+              contentType: getName(segment.contentType),
+              relType: 'customer'
+            }
+          }
+        }
       });
 
       if (
         engageId &&
-        ['company', 'deal', 'task', 'ticket'].includes(segment.contentType)
+        [
+          'contacts:company',
+          'cards:deal',
+          'cards:task',
+          'cards:ticket'
+        ].includes(segment.contentType)
       ) {
         const returnFields = [
           'name',
@@ -102,7 +114,7 @@ export const generateCustomerSelector = async (
           'customFieldsData'
         ];
 
-        if (segment.contentType === 'deal') {
+        if (segment.contentType === 'cards:deal') {
           returnFields.push('productsData');
         }
       }

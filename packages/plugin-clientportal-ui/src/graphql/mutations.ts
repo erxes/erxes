@@ -98,9 +98,9 @@ const commonUserVariables = `
   customFieldsData: $customFieldsData
 `;
 
-const clientPortalUsersAdd = `
-  mutation clientPortalUsersAdd(${commonUserFields}) {
-    clientPortalUsersAdd(${commonUserVariables}) {
+const clientPortalUsersInvite = `
+  mutation clientPortalUsersInvite(${commonUserFields}) {
+    clientPortalUsersInvite(${commonUserVariables}) {
       ${clientPortalUserFields}
     }
   }
@@ -133,7 +133,7 @@ const remove = `
 export default {
   createOrUpdateConfig,
   remove,
-  clientPortalUsersAdd,
+  clientPortalUsersInvite,
   clientPortalUsersEdit,
   clientPortalUsersRemove
 };

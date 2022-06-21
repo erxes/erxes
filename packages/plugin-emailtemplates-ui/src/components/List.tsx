@@ -140,20 +140,9 @@ class EmailTemplateList extends React.Component<Props, State> {
   };
 
   searchHandler = event => {
-    const searchValue = event.target.value.toLowerCase();
-    const { history, objects } = this.props;
+    const { history } = this.props;
 
     router.setParams(history, { searchValue: event.target.value });
-
-    let updatedObjects = objects;
-
-    if (searchValue) {
-      updatedObjects = objects.filter(p =>
-        p.name.toLowerCase().includes(searchValue)
-      );
-    }
-
-    this.setState({ items: updatedObjects });
   };
 
   renderContent = () => {

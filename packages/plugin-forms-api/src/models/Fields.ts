@@ -295,7 +295,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         if (type === 'objectList') {
           const { objectListConfigs = [] } = field;
 
-          if (!objectListConfigs.length) {
+          if (!objectListConfigs || !objectListConfigs.length) {
             throwError("Object List don't have any keys");
           }
 
