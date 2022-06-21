@@ -11,7 +11,7 @@ type Props = {
 };
 
 const DirectionFormContainer = (props: Props) => {
-  const { data, loading } = useQuery(gql(queries.placesQuery), {
+  const { data } = useQuery(gql(queries.placesQuery), {
     fetchPolicy: 'network-only',
     variables: { perPage: 9999 }
   });
