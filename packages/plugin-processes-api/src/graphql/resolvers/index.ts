@@ -9,7 +9,8 @@ import {
   JobCategories as JobCategoryMutations,
   Flows as FlowsMutations,
   FlowCategories as FlowCategoryMutations,
-  Works as WorkMutation
+  Works as WorkMutation,
+  OverallWorks as OverallWorkMutations
 } from './mutations';
 
 import {
@@ -17,7 +18,8 @@ import {
   JobCategories as JobCategoryQueries,
   Flows as FlowQueries,
   FlowCategories as FlowCategoryQueries,
-  Works as WorkQueries
+  Works as WorkQueries,
+  OverallWorks as OverallWorkQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
@@ -30,14 +32,16 @@ const resolvers: any = async serviceDiscovery => ({
     ...JobCategoryMutations,
     ...FlowsMutations,
     ...FlowCategoryMutations,
-    ...WorkMutation
+    ...WorkMutation,
+    ...OverallWorkMutations
   },
   Query: {
     ...JobReferQueries,
     ...JobCategoryQueries,
     ...FlowQueries,
     ...FlowCategoryQueries,
-    ...WorkQueries
+    ...WorkQueries,
+    ...OverallWorkQueries
   }
 });
 

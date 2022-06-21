@@ -30,6 +30,12 @@ import {
   mutations as workMutations
 } from './schema/work';
 
+import {
+  types as overallWorkTypes,
+  queries as overallWorkQueries,
+  mutations as overallWorkMutations
+} from './schema/overallWork';
+
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
@@ -51,6 +57,7 @@ const typeDefs = async _serviceDiscovery => {
     ${flowTypes}
     ${flowCategoryTypes}
     ${workTypes}
+    ${overallWorkTypes}
 
     extend type Query {
       ${jobReferQueries}
@@ -58,6 +65,7 @@ const typeDefs = async _serviceDiscovery => {
       ${flowQueries}
       ${flowCategoryQueries}
       ${workQueries}
+      ${overallWorkQueries}
     }
 
     extend type Mutation {
@@ -66,6 +74,7 @@ const typeDefs = async _serviceDiscovery => {
       ${flowMutations}
       ${flowCategoryMutations}
       ${workMutations}
+      ${overallWorkMutations}
     }
   `;
 };
