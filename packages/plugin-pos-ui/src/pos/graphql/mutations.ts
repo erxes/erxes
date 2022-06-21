@@ -15,6 +15,7 @@ const commonFields = `
   $uiOptions: JSON
   $ebarimtConfig: JSON
   $erkhetConfig: JSON
+  $cardsConfig: JSON
   $catProdMappings: [CatProdInput]
   $initialCategoryIds: [String]
   $kioskExcludeProductIds: [String]
@@ -38,6 +39,7 @@ const commonVariables = `
   uiOptions: $uiOptions
   ebarimtConfig: $ebarimtConfig
   erkhetConfig: $erkhetConfig
+  cardsConfig: $cardsConfig
   catProdMappings: $catProdMappings
   initialCategoryIds: $initialCategoryIds
   kioskExcludeProductIds: $kioskExcludeProductIds

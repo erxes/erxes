@@ -80,7 +80,8 @@ class Pos extends React.Component<Props, State> {
       isSkip: false,
       ebarimtConfig: pos.ebarimtConfig,
       erkhetConfig: pos.erkhetConfig,
-      deliveryConfig: pos.deliveryConfig
+      deliveryConfig: pos.deliveryConfig,
+      cardsConfig: pos.cardsConfig
     };
   }
 
@@ -93,8 +94,11 @@ class Pos extends React.Component<Props, State> {
       uiOptions,
       ebarimtConfig,
       erkhetConfig,
-      deliveryConfig
+      deliveryConfig,
+      cardsConfig
     } = this.state;
+
+    console.log('cards', cardsConfig);
 
     if (!pos.name) {
       return Alert.error('Enter POS name');
@@ -126,6 +130,7 @@ class Pos extends React.Component<Props, State> {
       ebarimtConfig,
       erkhetConfig,
       cardsConfig,
+      deliveryConfig,
       catProdMappings: cleanMappings,
       isOnline: pos.isOnline,
       waitingScreen: pos.waitingScreen,
@@ -135,8 +140,7 @@ class Pos extends React.Component<Props, State> {
       beginNumber: pos.beginNumber,
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
       initialCategoryIds: pos.initialCategoryIds || [],
-      kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
-      deliveryConfig
+      kioskExcludeProductIds: pos.kioskExcludeProductIds || []
     };
 
     if (pos.isOnline) {
@@ -308,7 +312,7 @@ class Pos extends React.Component<Props, State> {
                 <DeliveryConfig onChange={this.onChange} pos={pos} />
               </Step>
               <Step
-                img="/images/icons/erxes-09.svg"
+                img="/images/icons/erxes-07.svg"
                 title={'Sync Cards'}
                 onClick={this.onStepClick}
                 noButton={true}

@@ -50,7 +50,7 @@ export type IPos = {
   uiOptions?: any;
   ebarimtConfig: any;
   erkhetConfig: any;
-  cardsConfig: any;
+  cardsConfig?: any;
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];

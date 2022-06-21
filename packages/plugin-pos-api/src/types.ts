@@ -18,6 +18,7 @@ export interface IPOS {
   uiOptions: any;
   ebarimtConfig?: any;
   erkhetConfig?: any;
+  cardsConfig?: any;
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;

@@ -26,7 +26,8 @@ const posCommonFields = `
   uiOptions
   ebarimtConfig
   erkhetConfig
-
+  deliveryConfig
+  cardsConfig
   catProdMappings {
     _id
     categoryId
@@ -34,7 +35,6 @@ const posCommonFields = `
   }
   initialCategoryIds
   kioskExcludeProductIds
-  deliveryConfig
 `;
 
 const commonParamDefs = `
@@ -120,12 +120,11 @@ const getDbSchemaLabels = `
   }
 `;
 
-
 export default {
   posList,
   configs,
   productGroups,
   posDetail,
   getDbSchemaLabels,
-  branches,
+  branches
 };

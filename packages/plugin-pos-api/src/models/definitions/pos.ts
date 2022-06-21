@@ -60,6 +60,7 @@ export interface IPos {
   token: String;
   ebarimtConfig: Object;
   erkhetConfig: Object;
+  cardsConfig: Object;
   syncInfos: Object;
   catProdMappings: Object;
   initialCategoryIds: String;
@@ -177,6 +178,7 @@ export const posSchema = schemaHooksWrapper(
     token: field({ type: String, label: 'Pos token' }),
     ebarimtConfig: field({ type: Object, label: 'Ebarimt Config' }),
     erkhetConfig: field({ type: Object, label: 'Erkhet Config' }),
+    cardsConfig: field({ type: Object, label: 'Cards Config' }),
     syncInfos: field({ type: Object, label: 'sync info' }),
     catProdMappings: field({
       type: [Object],

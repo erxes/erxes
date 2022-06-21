@@ -31,6 +31,33 @@ export const initBroker = async cl => {
       const deliveryInfo = doneOrder.deliveryInfo || {};
       const { marker = {} } = deliveryInfo;
 
+      const { cardsConfig = {} } = pos;
+      const cardsInfo = doneOrder.cardsInfo || {};
+
+      const cardDeal = await sendCardsMessage({
+        subdomain,
+        action: '',
+        data: {
+          name: `Cards: ${doneOrder.number}`,
+          startDate: doneOrder.createdAt,
+          description: deliveryInfo.address,
+          stageId: cardsConfig.stageId,
+          assignedUserIds: cardsConfig.assignedUserIds,
+          watchedUserIds: cardsConfig.watchedUserIds,
+          productsData: doneOrder.items.map(i => ({
+            productId: i.productId,
+            uom: 'PC',
+            currency: 'MNT',
+            quantity: i.count,
+            unitPrice: i.unitPrice,
+            amount: i.count * i.unitPrice,
+            tickUsed: true
+          }))
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
       const deal = await sendCardsMessage({
         subdomain,
         action: '',
