@@ -1,22 +1,23 @@
-import { __, Alert } from '@erxes/ui/src/utils';
 import jquery from 'jquery';
 import { jsPlumb } from 'jsplumb';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import RTG from 'react-transition-group';
 
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import { IProduct } from '@erxes/ui-products/src/types';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import Button from '@erxes/ui/src/components/Button';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
+import { FormControl } from '@erxes/ui/src/components/form';
 import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+import { __, Alert } from '@erxes/ui/src/utils';
 
 import { IFlowDocument, IJob } from '../../../flow/types';
 import { IJobRefer, IProductsData } from '../../../job/types';
@@ -44,11 +45,6 @@ import {
   targetEndpoint
 } from '../../utils';
 import NewJobForm from './actions/NewJobForm';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Label from '@erxes/ui/src/components/Label';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -127,62 +123,64 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
-  findLastAction = () => {
+  findLastAction = (leftAction = []) => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
     const lastActions: IJob[] = [];
 
-    console.log('start finding lastaction ...');
+    const realActions = leftAction.length > 0 ? leftAction : actions;
 
-    for (const action of actions) {
+    for (const action of realActions) {
       if (!action.nextJobIds.length || action.nextJobIds.length === 0) {
         lastActions.push(action);
-        console.log('founded lastAction label: ', action.label);
       }
     }
-
-    console.log('end finding lastActions ...', lastActions);
-
-    console.log('end finding jobRefers ...', jobRefers);
 
     const lastActionIds = lastActions.map(last => last.jobReferId);
     const lastJobRefers = jobRefers.filter(job =>
       lastActionIds.includes(job._id)
     );
 
-    console.log('end finding lastJobRefers ...', lastJobRefers);
-
     let resultProducts: IProductsData[] = [];
     for (const lastJobRefer of lastJobRefers) {
-      const resultProduct = lastJobRefer.resultProducts;
+      const resultProduct = lastJobRefer.resultProducts || [];
       resultProducts = resultProducts.length
         ? [...resultProducts, ...(lastJobRefer.resultProducts || [])]
-        : [resultProduct];
+        : resultProduct;
     }
-
-    console.log('end finding resultProducts ...', resultProducts);
 
     const checkResult = resultProducts.find(
       pro => pro.productId === this.state.productId
     );
 
-    console.log('end finding checkResult ...', checkResult);
-
     const doubleCheckResult = Object.keys(checkResult ? checkResult : {})
       .length;
-    const justLastJobRefer = doubleCheckResult
-      ? lastJobRefers.find(last => last.resultProducts.includes(checkResult))
-      : ({} as IJobRefer);
-    const justLastAction = Object.keys(justLastJobRefer).length
-      ? lastActions.find(last => last.jobReferId === justLastJobRefer._id)
-      : ({} as IJob);
 
-    console.log('end finding justLastAction ...', justLastAction);
+    if (doubleCheckResult) {
+      let justLastJobRefer = {} as IJobRefer;
+      for (const lastJobRefer of lastJobRefers) {
+        const lastJobRefersIds = lastJobRefer.resultProducts.map(
+          last => last.productId
+        );
+        justLastJobRefer = lastJobRefersIds.includes(checkResult.productId)
+          ? lastJobRefer
+          : ({} as IJobRefer);
+      }
 
-    this.setState({
-      lastAction: justLastAction,
-      flowStatus: doubleCheckResult ? true : false
-    });
+      const justLastAction = Object.keys(justLastJobRefer).length
+        ? lastActions.find(last => last.jobReferId === justLastJobRefer._id)
+        : ({} as IJob);
+
+      this.setState({
+        lastAction: justLastAction,
+        flowStatus: doubleCheckResult ? true : false
+      });
+    } else {
+      this.setState({
+        lastAction: {} as IJob,
+        flowStatus: doubleCheckResult ? true : false
+      });
+    }
   };
 
   setWrapperRef = node => {
@@ -200,7 +198,6 @@ class AutomationForm extends React.Component<Props, State> {
 
     if (isActionTab && isActionTab !== prevState.isActionTab) {
       this.connectInstance();
-      // this.setState({ actionEdited: false });
     }
 
     this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
@@ -276,10 +273,7 @@ class AutomationForm extends React.Component<Props, State> {
       event.preventDefault();
 
       const innerActions = this.state.actions;
-
       const item = event.currentTarget.id;
-      // console.log('delete item:', item);
-
       const splitItem = item.split('-');
       const type = splitItem[0];
 
@@ -288,7 +282,8 @@ class AutomationForm extends React.Component<Props, State> {
       const leftActions = innerActions.filter(
         action => action.id !== splitItem[1]
       );
-      // console.log('leftActions', leftActions);
+
+      this.findLastAction(leftActions);
 
       if (type === 'action') {
         return this.setState({
@@ -360,7 +355,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   onChange = e => {
     const value = e.target.value;
-    // console.log('onchange category: ', value);
+
     this.setState({ categoryId: value });
   };
 
@@ -450,7 +445,6 @@ class AutomationForm extends React.Component<Props, State> {
   onChangeCategory = (categoryId: string) => {
     this.setState({ categoryId });
   };
-
   renderProductServiceTrigger(product?: IProduct) {
     let content = (
       <div>
@@ -574,6 +568,8 @@ class AutomationForm extends React.Component<Props, State> {
         this.renderControl('action', action, this.onClickAction);
       }
     });
+
+    this.findLastAction();
   };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
@@ -618,10 +614,6 @@ class AutomationForm extends React.Component<Props, State> {
       instance.addEndpoint(idElm, sourceEndpoint, {
         anchor: ['Right']
       });
-
-      // instance.addEndpoint(idElm, morePoint, {
-      //   anchor: ['Right']
-      // });
 
       instance.draggable(instance.getSelector(`#${idElm}`));
     }
@@ -735,7 +727,7 @@ class AutomationForm extends React.Component<Props, State> {
       lastAction
     } = this.state;
 
-    const { jobRefers, history, queryParams } = this.props;
+    const { jobRefers } = this.props;
 
     if (currentTab === 'actions') {
       const { actions } = this.state;
@@ -747,7 +739,6 @@ class AutomationForm extends React.Component<Props, State> {
         let checkedActiveAction = activeAction;
         if (!checkArray.includes('nextJobIds')) {
           checkedActiveAction = { ...activeAction, nextJobIds: [] };
-          // console.log('checkedActiveAction:', checkedActiveAction);
         }
 
         return (

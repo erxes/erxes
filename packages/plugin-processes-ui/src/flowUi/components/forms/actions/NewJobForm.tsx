@@ -67,7 +67,6 @@ class Delay extends React.Component<Props, State> {
   }
 
   onSelect = (name, value) => {
-    console.log('On select: ', name, value);
     this.setState({ [name]: value } as any);
   };
 
@@ -130,8 +129,6 @@ class Delay extends React.Component<Props, State> {
       console.log('current last product:', this.props.lastAction);
     }
 
-    // console.log('beforeResultProducts', beforeResultProducts);
-
     return chosenActions.map(action => {
       if (!action.jobReferId) {
         return [];
@@ -171,19 +168,11 @@ class Delay extends React.Component<Props, State> {
 
   renderContent() {
     const { jobRefers, actions, activeAction } = this.props;
-
-    // console.log('beforeActions before before: ', actions);
-
     const activeActionId =
       activeAction && activeAction.id ? activeAction.id : '';
     const beforeActions = actions.filter(e =>
       e.nextJobIds.includes(activeActionId)
     );
-
-    // const afterActions = actions.filter(
-    //   e => e.id === activeAction.nextJobIds[0]
-    // );
-
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value } as any);
     };
