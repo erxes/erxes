@@ -1,18 +1,38 @@
 const salesLogVariables = `
+  $name: String,
+  $description: String,
+  $date: Date,
+  $type: String,
   $branchId: String,
-  $description:String,
-  $date:Date,
-  $name:String,
-  $type:String,
-  $departmentId:String
+  $departmentId: String
 `;
 
 const salesLogValues = `
-  branchId: $branchId,
-  date: $date,
-  description: $description,
   name: $name,
+  description: $description,
+  date: $date,
   type: $type,
+  branchId: $branchId,
+  departmentId: $departmentId
+`;
+
+const salesLogDocumentVariables = `
+  $_id: String,
+  $name: String,
+  $description: String,
+  $date: Date,
+  $type: String,
+  $branchId: String,
+  $departmentId: String
+`;
+
+const salesLogDocumentValues = `
+  _id: $_id,
+  name: $name,
+  description: $description,
+  date: $date,
+  type: $type,
+  branchId: $branchId,
   departmentId: $departmentId
 `;
 
@@ -45,6 +65,29 @@ const createSalesLog = `
         _id
         username
       }
+      date
+      description
+      name
+      status
+      type
+      departmentDetail {
+        _id
+        title
+      }
+      departmentId
+    }
+  }
+`;
+
+const updateSalesLog = `
+  mutation updateSalesLog(${salesLogDocumentVariables}) {
+    updateSalesLog(${salesLogDocumentValues}) {
+      _id
+      branchDetail {
+        _id
+        title
+      }
+      branchId
       date
       description
       name
@@ -108,6 +151,7 @@ export default {
   removeLabel,
   saveLabels,
   createSalesLog,
+  updateSalesLog,
   saveTimeframes,
   removeTimeframe,
   saveDayPlanConfig,

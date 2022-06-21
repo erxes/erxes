@@ -4,7 +4,7 @@ import { Title } from '@erxes/ui/src/styles/main';
 import FormContainer from '../containers/Form';
 
 type Props = {
-  save: (data: any) => void;
+  update: (data: any) => void;
 };
 
 const EditPlan = (props: Props) => {
@@ -22,7 +22,7 @@ const EditPlan = (props: Props) => {
         />
       }
       actionBar={<Wrapper.ActionBar left={actionBarLeft} />}
-      content={<FormContainer submit={props.save} edit={true} />}
+      content={<FormContainer submit={props.update} edit={true} />}
     />
   );
 };

@@ -4,11 +4,11 @@ import {
   MiddleContent,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import dayjs from 'dayjs';
 import Select from 'react-select-plus';
 import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import { __, ControlLabel, FormControl, Button, Icon } from '@erxes/ui/src';
 import { MONTH, DAYS } from '../../constants';
+
 type Props = {
   labelData: any;
   data: any;

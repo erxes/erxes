@@ -16,12 +16,8 @@ function ListContainer(props: Props) {
 
   const removeData = (_id: string) => {
     remove({ variables: { _id } })
-      .then(() => {
-        Alert.success('Successfully removed');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
+      .then(() => Alert.success('Successfully removed'))
+      .catch((error: any) => Alert.error(error.message));
   };
 
   return <List removeData={removeData} data={data} />;

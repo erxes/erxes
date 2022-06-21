@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import Datetime from '@nateradebaugh/react-datetime';
 import { FlexItem } from '@erxes/ui-settings/src/styles';
@@ -50,18 +51,27 @@ const Form = (props: Props) => {
   const [_categories, setCategories] = useState<any[]>(categories);
   const [categoryId, setCategoryId] = useState<string>('');
   const [salesPlan, setSalesPlan] = useState<any>({
-    name: data.name ? data.name : '',
-    description: data.description ? data.description : '',
-    type: data.type ? data.type : type,
-    date: data.createdAt ? data.createdAt : '',
-    departmentId: data.departmentId ? data.departmentId : '',
-    branchId: data.branchId ? data.branchId : '',
-    labels: data.labels ? data.labels : ''
+    name: '',
+    description: '',
+    type: '',
+    date: '',
+    departmentId: '',
+    branchId: ''
   });
 
   useEffect(() => setProducts(products), [products]);
   useEffect(() => setCategories(categories), [categories]);
   useEffect(() => handleState(type, 'type'), [type]);
+  useEffect(() => {
+    setSalesPlan({
+      name: data.name ? data.name : '',
+      description: data.description ? data.description : '',
+      type: data.type ? data.type : '',
+      date: data.date ? data.date : '',
+      departmentId: data.departmentId ? data.departmentId : '',
+      branchId: data.branchId ? data.branchId : ''
+    });
+  }, [data]);
 
   const handleSubmit = () => {
     submit(salesPlan);
@@ -253,7 +263,7 @@ const Form = (props: Props) => {
             <FormControl
               type="text"
               name="name"
-              value={data.name ? data.name : ''}
+              value={salesPlan.name}
               required={true}
               onChange={(event: any) =>
                 handleState((event.target as HTMLInputElement).value, 'name')
@@ -267,7 +277,7 @@ const Form = (props: Props) => {
             <Select
               name="type"
               required={true}
-              value={type}
+              value={salesPlan.type}
               onChange={(event: any) => setType(event.value)}
               options={TYPES}
             />

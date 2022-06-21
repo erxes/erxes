@@ -13,7 +13,6 @@ type Props = {
 
 const FormContainer = (props: Props) => {
   const [type, setType] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(true);
 
   const location = useLocation();
   const query = queryString.parse(location.search);

@@ -16,10 +16,6 @@ function CreateLabelContainer({ closeModal }: Props) {
     variables: { type }
   });
 
-  // if (labelsQuery.error) {
-  //   return <div>{labelsQuery.error.message}</div>;
-  // }
-
   const [remove] = useMutation(gql(mutations.removeLabel));
 
   const [save] = useMutation(gql(mutations.saveLabels));

@@ -1,5 +1,5 @@
 import React from 'react';
-import SalesPlansRoutes from './settings/routes';
+import SalesPlansRoutes from './main/routes';
 
 const routes = () => {
   return (
