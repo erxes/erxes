@@ -1,21 +1,21 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import EmptyContent from "@erxes/ui/src/components/empty/EmptyContent";
-import EmptyState from "@erxes/ui/src/components/EmptyState";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { IRouterProps } from "@erxes/ui/src/types";
-import { withProps } from "@erxes/ui/src/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_TASK } from "../constants";
-import { queries } from "../graphql";
-import { RootBack, ScrolledContent, ChartBack } from "../styles/common";
-import { IOptions, PipelineDetailQueryResponse } from "../types";
-import Pipeline from "./Pipeline";
-import PipelineActivity from "./PipelineActivity";
-import ViewGroupBy from "./ViewGroupBy";
-import ChartStack from "./chart/ChartRenderer";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_TASK } from '../constants';
+import { queries } from '../graphql';
+import { RootBack, ScrolledContent, ChartBack } from '../styles/common';
+import { IOptions, PipelineDetailQueryResponse } from '../types';
+import Pipeline from './Pipeline';
+import PipelineActivity from './PipelineActivity';
+import ViewGroupBy from './ViewGroupBy';
+import ChartStack from './chart/ChartRenderer';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -33,10 +33,10 @@ class Board extends React.Component<Props> {
     if (!pipelineDetailQuery || !pipelineDetailQuery.pipelineDetail) {
       const type = options.type;
 
-      if (type === "deal" || type === "task") {
+      if (type === 'deal' || type === 'task') {
         return (
           <EmptyContent
-            content={type === "deal" ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_TASK}
+            content={type === 'deal' ? EMPTY_CONTENT_DEAL : EMPTY_CONTENT_TASK}
             maxItemWidth="400px"
           />
         );
@@ -54,7 +54,7 @@ class Board extends React.Component<Props> {
 
     const pipeline = pipelineDetailQuery.pipelineDetail;
 
-    if (viewType === "activity") {
+    if (viewType === 'activity') {
       return (
         <PipelineActivity
           key={pipeline._id}
@@ -65,7 +65,7 @@ class Board extends React.Component<Props> {
       );
     }
 
-    if (viewType === "list") {
+    if (viewType === 'list') {
       return (
         <ViewGroupBy
           key={pipeline._id}
@@ -77,7 +77,7 @@ class Board extends React.Component<Props> {
       );
     }
 
-    if (viewType === "gantt") {
+    if (viewType === 'gantt') {
       return (
         <ViewGroupBy
           key={pipeline._id}
@@ -89,7 +89,7 @@ class Board extends React.Component<Props> {
       );
     }
 
-    if (viewType === "chart") {
+    if (viewType === 'chart') {
       return (
         <ChartBack>
           <ChartStack
@@ -99,6 +99,19 @@ class Board extends React.Component<Props> {
             chartType={queryParams.chartType}
           />
         </ChartBack>
+      );
+    }
+
+    if (viewType === 'time') {
+      return (
+        <ScrolledContent>
+          <Pipeline
+            key={pipeline._id}
+            options={options}
+            pipeline={pipeline}
+            queryParams={queryParams}
+          />
+        </ScrolledContent>
       );
     }
 
@@ -128,11 +141,11 @@ export default withProps<WrapperProps>(
     graphql<WrapperProps, PipelineDetailQueryResponse, { _id?: string }>(
       gql(queries.pipelineDetail),
       {
-        name: "pipelineDetailQuery",
+        name: 'pipelineDetailQuery',
         skip: ({ queryParams }) => !queryParams.pipelineId,
         options: ({ queryParams }) => ({
-          variables: { _id: queryParams && queryParams.pipelineId },
-        }),
+          variables: { _id: queryParams && queryParams.pipelineId }
+        })
       }
     )
   )(withRouter(Board))
