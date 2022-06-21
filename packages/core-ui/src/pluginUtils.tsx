@@ -29,6 +29,51 @@ const PLUGIN_LABEL_COLORS: string[] = [
   '#FF5722' // DEEP ORANGE
 ];
 
+class CustomComponent extends React.Component<
+  { scope: string; component: any; isTopNav?: boolean },
+  { showComponent: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  componentDidMount() {
+    const interval = setInterval(() => {
+      if (window[this.props.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { scope, component } = this.props;
+
+    const Component = React.lazy(loadComponent(scope, component));
+
+    return (
+      <React.Suspense fallback="">
+        <Component />
+      </React.Suspense>
+    );
+  };
+
+  render() {
+    if (this.props.isTopNav) {
+      return <NavItem>{this.renderComponent()}</NavItem>;
+    }
+
+    return this.renderComponent();
+  }
+}
+
 const PluginsWrapper = ({
   itemName,
   callBack,
@@ -93,13 +138,12 @@ const useDynamicScript = args => {
 };
 
 export const loadComponent = (scope, module) => {
-  console.log('loadComponent:', scope, window[scope]);
   return async () => {
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__('default');
 
     const container = window[scope]; // or get the container somewhere else
-
+    console.log('loadComponent:', window[scope]);
     // Initialize the container, it may provide shared modules
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
@@ -256,44 +300,6 @@ export const pluginsSettingsNavigations = (
   return navigationMenus;
 };
 
-class TopNavigation extends React.Component<any, any> {
-  constructor(props) {
-    super(props);
-
-    this.state = { showComponent: false };
-  }
-
-  componentDidMount() {
-    const interval = setInterval(() => {
-      if (window[this.props.topNav.scope]) {
-        window.clearInterval(interval);
-
-        this.setState({ showComponent: true });
-      }
-    }, 500);
-  }
-
-  renderComponent = () => {
-    if (!this.state.showComponent) {
-      return null;
-    }
-
-    const { topNav } = this.props;
-
-    const Component = React.lazy(loadComponent(topNav.scope, topNav.component));
-
-    return (
-      <React.Suspense fallback="">
-        <Component />
-      </React.Suspense>
-    );
-  };
-
-  render() {
-    return <NavItem>{this.renderComponent()}</NavItem>;
-  }
-}
-
 export const pluginsOfTopNavigations = () => {
   const plugins: any[] = (window as any).plugins || [];
   const topNavigationMenus: any[] = [];
@@ -303,7 +309,11 @@ export const pluginsOfTopNavigations = () => {
       if (menu.location === 'topNavigation') {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
-            <TopNavigation topNav={menu} />
+            <CustomComponent
+              scope={menu.scope}
+              component={menu.component}
+              isTopNav
+            />
           </React.Fragment>
         );
       }
@@ -416,27 +426,17 @@ export const pluginsOfProductCategoryActions = (category: any) => {
 
 export const customNavigationLabel = () => {
   const plugins: any[] = (window as any).plugins || [];
+  const customLabels: any[] = [];
 
-  return (
-    <PluginsWrapper
-      itemName="customNavigationLabel"
-      plugins={plugins}
-      callBack={(_plugin, sections) => {
-        console.log('secc', sections);
-        return (sections || []).map(section => {
-          setInterval(() => {
-            if (!window[section.scope]) {
-              return null;
-            }
+  for (const plugin of plugins) {
+    for (const lbl of plugin.customNavigationLabel || []) {
+      customLabels.push(
+        <React.Fragment key={lbl.text}>
+          <CustomComponent scope={lbl.scope} component={lbl.component} />
+        </React.Fragment>
+      );
+    }
+  }
 
-            const Component = React.lazy(
-              loadComponent(section.scope, section.component)
-            );
-            console.log('heree');
-            return <Component key={Math.random()} />;
-          }, 500);
-        });
-      }}
-    />
-  );
+  return customLabels;
 };
