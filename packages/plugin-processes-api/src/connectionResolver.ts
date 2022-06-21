@@ -1,4 +1,3 @@
-import { IProduct } from '@erxes/ui-products/src/types';
 import * as mongoose from 'mongoose';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -24,11 +23,6 @@ import { IProcessDocument } from './models/definitions/processes';
 import { IProcessModel, loadProcessClass } from './models/Processes';
 import { IWorkDocument } from './models/definitions/works';
 import { IWorkModel, loadWorkClass } from './models/Works';
-import {
-  IProductModel,
-  loadProductClass
-} from '@packages/plugin-products-api/src/models/Products';
-import { IProductDocument } from '@packages/plugin-products-api/src/models/definitions/products';
 
 export interface IModels {
   JobCategories: IJobCategoryModel;

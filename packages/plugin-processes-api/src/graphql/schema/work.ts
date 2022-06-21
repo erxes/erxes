@@ -8,12 +8,17 @@ export const types = `
     updatedBy: String,
     name: String,
     status: String,
+    dueDate: Date,
+    startAt: Date,
+    endAt: Date,
     jobId: String,
     flowId: String,
     productId: String,
     count: String,
     branchId: String,
-    departmentId: String
+    departmentId: String,
+    needProducts: JSON,
+    resultProducts: JSON
   }
 `;
 
@@ -24,22 +29,24 @@ const qryParams = `
 export const queries = `
   works(page: Int, perPage: Int, ${qryParams}): [Work]
   workTotalCount(${qryParams}): Int
-  workDetail(_id: String!): Work
 `;
 
 const workParams = `
-name: String,
-status: String,
-jobId: String,
-flowId: String,
-productId: String,
-count: String,
-branchId: String,
-departmentId: String
+  name: String,
+  status: String,
+  dueDate: Date,
+  startAt: Date,
+  endAt: Date,
+  jobId: String,
+  flowId: String,
+  productId: String,
+  count: String,
+  branchId: String,
+  departmentId: String,
+  needProducts: JobProductsInput,
+  resultProducts: JobProductsInput
 `;
 
 export const mutations = `
-  flowsAdd(${workParams}): Work
-  flowsEdit(_id: String!, ${workParams}): Work
-  flowsRemove(workIds: [String!]): JSON
+  worksAdd(${workParams}): Work
 `;
