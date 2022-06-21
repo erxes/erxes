@@ -1,19 +1,14 @@
-import * as dotenv from 'dotenv';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { serviceDiscovery } from './configs';
+import { generateModels, models } from './connectionResolver';
+import { graphqlPubsub } from './graphql/pubsub';
 import {
   receiveCustomer,
+  receivePosConfig,
   receiveProduct,
   receiveProductCategory,
-  receiveUser,
-  receivePosConfig
+  receiveUser
 } from './graphql/utils/syncUtils';
-import { Orders } from './models/Orders';
-import { debugError } from './debugger';
-import { PutResponses } from './models/PutResponses';
-import { graphqlPubsub } from './graphql/pubsub';
-import { OrderItems } from './models/OrderItems';
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-
-dotenv.config();
 
 let client;
 
@@ -22,45 +17,66 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  try {
-    consumeQueue(`posclient:crudData_${''}`, async data => {
-      if (data) {
-        switch (data.type) {
-          case 'product':
-            await receiveProduct(data);
-            break;
-          case 'productCategory':
-            await receiveProductCategory(data);
-            break;
-          case 'customer':
-            await receiveCustomer(data);
-            break;
-          case 'user':
-            await receiveUser(data);
-            break;
-          case 'pos':
-            await receivePosConfig(data);
-            break;
-          default:
-            break;
-        }
-      }
-    });
+  // if (!models) {
+  //   throw new Error('not yet message broker, cause: cant connect models');
+  // }
+  // console.log('qqqqqqqqqqqqqqqqqqqqqqq')
+  // const config = await models.Configs.findOne().lean();
+  // if (!config) {
+  //   throw new Error('not yet message broker');
+  // }
+  // const syncId = config && config.syncInfo && config.syncInfo.id ? config.syncInfo.id : '';
+  const syncId = '';
 
-    consumeQueue(`posclient:erxes-posclient-from-pos-api_${''}`, async data => {
+  consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    if (data) {
+      switch (data.type) {
+        case 'product':
+          await receiveProduct(models, data);
+          break;
+        case 'productCategory':
+          await receiveProductCategory(models, data);
+          break;
+        case 'customer':
+          await receiveCustomer(data);
+          break;
+        case 'user':
+          await receiveUser(data);
+          break;
+        case 'pos':
+          await receivePosConfig(data);
+          break;
+        default:
+          break;
+      }
+    }
+  });
+
+  consumeQueue(
+    `posclient:erxes-posclient-from-pos-api_${syncId}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
       const { responseId, orderId } = data;
 
-      await Orders.updateOne({ _id: orderId }, { $set: { synced: true } });
-      await PutResponses.updateOne(
+      await models.Orders.updateOne(
+        { _id: orderId },
+        { $set: { synced: true } }
+      );
+      await models.PutResponses.updateOne(
         { _id: responseId },
         { $set: { synced: true } }
       );
-    });
+    }
+  );
 
-    consumeQueue(`posclient:erxes-posclient-to-pos-api_${''}`, async data => {
+  consumeQueue(
+    `posclient:erxes-posclient-to-pos-api_${syncId}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
       const { order } = data;
 
-      await Orders.updateOne(
+      await models.Orders.updateOne(
         { _id: order._id },
         { $set: { ...order } },
         { upsert: true }
@@ -83,7 +99,7 @@ export const initBroker = async cl => {
         });
       }
       if (bulkOps.length) {
-        await OrderItems.bulkWrite(bulkOps);
+        await models.OrderItems.bulkWrite(bulkOps);
       }
 
       await graphqlPubsub.publish('ordersOrdered', {
@@ -92,21 +108,33 @@ export const initBroker = async cl => {
           status: order.status
         }
       });
-    });
+    }
+  );
 
-    consumeRPCQueue(`posclient:health_check_${''}`, async data => {
-      return {
-        status: 'success',
-        data: { healthy: 'ok' }
-      };
-    });
-  } catch (e) {
-    debugError(`Error occurred while receiving message: ${e.message}`);
-  }
+  consumeRPCQueue(`posclient:health_check_${syncId}`, async data => {
+    return {
+      status: 'success',
+      data: { healthy: 'ok' }
+    };
+  });
 };
 
-export const sendToWebhook = ({ subdomain, data }) => {
-  return sendWebhook(client, { subdomain, data });
+export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'pos',
+    ...args
+  });
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
 };
 
 export default function() {

@@ -1,4 +1,3 @@
-import { escapeRegExp } from '@erxes/api-utils/src/core';
 import {
   checkPermission,
   requireLogin
@@ -16,7 +15,7 @@ const remainderQueries = {
     params: IRemaindersParams,
     { models, subdomain }: IContext
   ) {
-    models.Remainders.getRemainders(subdomain, params);
+    return models.Remainders.getRemainders(subdomain, params);
   },
 
   /**

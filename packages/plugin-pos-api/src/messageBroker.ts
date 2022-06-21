@@ -11,7 +11,7 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue('vrpc_queue:erxes-pos-to-api', async ({ subdomain, data }) => {
+  consumeQueue('pos:vrpc_queue', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { action, posToken, syncId, response, order, items } = data;

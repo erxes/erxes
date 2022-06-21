@@ -1,5 +1,5 @@
 import * as express from 'express';
-import PosUsers from '../../../models/PosUsers';
+import { IModels } from '../../../connectionResolver';
 import { IPosUser } from '../../../models/definitions/posUsers';
 import { IContext } from '../../types';
 import { authCookieOptions } from '../../utils/commonUtils';
@@ -11,11 +11,12 @@ interface IPosLogin {
 }
 
 const login = async (
+  models: IModels,
   args: IPosLogin,
   res: express.Response,
   secure: boolean
 ) => {
-  const response = await PosUsers.posLogin(args);
+  const response = await models.PosUsers.posLogin(args);
 
   const { token } = response;
 
@@ -59,8 +60,12 @@ const posUserMutations = {
   /*
    * Login
    */
-  async posLogin(_root, args: IPosLogin, { res, requestInfo }: IContext) {
-    return login(args, res, requestInfo.secure);
+  async posLogin(
+    _root,
+    args: IPosLogin,
+    { res, requestInfo, models }: IContext
+  ) {
+    return login(models, args, res, requestInfo.secure);
   },
 
   async posLogout(_root, _args, { res }) {

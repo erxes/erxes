@@ -1,8 +1,8 @@
-import { Configs } from '../../../models/Configs';
+import { IContext } from '../../../connectionResolver';
 
 const configQueries = {
-  currentConfig() {
-    return Configs.findOne();
+  currentConfig(_root, _args, { models }: IContext) {
+    return models.Configs.findOne();
   }
 };
 

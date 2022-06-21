@@ -2,8 +2,6 @@ import { debugError, debugInit } from '../../../debugger';
 import { initBroker } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import { OrderItems } from '../../../models/OrderItems';
-import { sendRequest } from '../../utils/commonUtils';
-
 import {
   importUsers,
   importProducts,
@@ -16,20 +14,22 @@ import {
 
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { IContext } from '../../../connectionResolver';
+import { sendRequest } from '@erxes/api-utils/src/requests';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 
 let cl;
 
 const configMutations = {
   posConfigsFetch: async (_root, { token }, { models }: IContext) => {
-    const { REACT_APP_MAIN_API_DOMAIN } = process.env;
+    const posService = await getService('pos');
 
-    const config = await models.Configs.createConfig(token);
     const response = await sendRequest({
-      url: `${REACT_APP_MAIN_API_DOMAIN}/pos-init`,
+      url: `${posService.address}/pos-init`,
       method: 'get',
       headers: { 'POS-TOKEN': token }
     });
 
+    const config = await models.Configs.createConfig(token);
     if (response) {
       const {
         pos = {},
@@ -47,8 +47,8 @@ const configMutations = {
         qpayConfig
       });
 
-      await importUsers(cashiers);
-      await importUsers(adminUsers);
+      await importUsers(models, cashiers);
+      await importUsers(models, adminUsers, true);
       await importProducts(productGroups);
     }
 
@@ -63,7 +63,7 @@ const configMutations = {
     return config;
   },
 
-  async syncConfig(_root, { type }, models) {
+  async syncConfig(_root, { type }, { models }: IContext) {
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
     const config = await models.Configs.findOne({}).lean();
@@ -93,14 +93,14 @@ const configMutations = {
           qpayConfig
         });
 
-        await importUsers(cashiers);
-        await importUsers(adminUsers);
+        await importUsers(models, cashiers);
+        await importUsers(models, adminUsers);
 
         break;
       case 'products':
         const { productGroups = [] } = response;
-        await preImportProducts(productGroups);
-        await importProducts(productGroups);
+        await preImportProducts(models, productGroups);
+        await importProducts(models, productGroups);
         break;
       case 'customers':
         const { customers = [] } = response;
@@ -117,7 +117,7 @@ const configMutations = {
     return 'success';
   },
 
-  async syncOrders(_root, _param, models) {
+  async syncOrders(_root, _param, { models }: IContext) {
     const { REACT_APP_MAIN_API_DOMAIN } = process.env;
 
     const orderFilter = {
@@ -194,7 +194,7 @@ const configMutations = {
     };
   },
 
-  async deleteOrders(_root, _param, models) {
+  async deleteOrders(_root, _param, { models }: IContext) {
     const orderFilter = {
       synced: false,
       status: ORDER_STATUSES.NEW

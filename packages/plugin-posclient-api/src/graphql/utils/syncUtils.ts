@@ -1,13 +1,33 @@
-import { Products, ProductCategories } from '../../models/Products';
+import { IModels } from '../../connectionResolver';
+import { IPosUserDocument } from '../../models/definitions/posUsers';
 
-export const importUsers = async (isAdmin: boolean = false) => {};
+export const importUsers = async (
+  models: IModels,
+  users: IPosUserDocument[],
+  isAdmin: boolean = false
+) => {
+  for (const user of users) {
+    await models.PosUsers.createOrUpdateUser({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      password: user.password,
+      isOwner: user.isOwner || isAdmin,
+      isActive: user.isActive,
+      details: user.details
+    });
+  }
+};
 
-export const preImportProducts = async (groups: any = []) => {
+export const preImportProducts = async (models: IModels, groups: any = []) => {
   let importProductIds: string[] = [];
   const importProductCatIds: string[] = [];
-  const oldAllProducts = await Products.find({}, { _id: 1 }).lean();
+  const oldAllProducts = await models.Products.find({}, { _id: 1 }).lean();
   const oldProductIds = oldAllProducts.map(p => p._id);
-  const oldAllProductCats = await ProductCategories.find({}, { _id: 1 }).lean();
+  const oldAllProductCats = await models.ProductCategories.find(
+    {},
+    { _id: 1 }
+  ).lean();
   const oldCategoryIds = oldAllProductCats.map(p => p._id);
 
   for (const group of groups) {
@@ -24,17 +44,17 @@ export const preImportProducts = async (groups: any = []) => {
   const removeProductIds = oldProductIds.filter(
     id => !importProductIds.includes(id)
   );
-  await Products.removeProducts(removeProductIds);
+  await models.Products.removeProducts(removeProductIds);
 
   const removeCategoryIds = oldCategoryIds.filter(
     id => !importProductCatIds.includes(id)
   );
   for (const catId of removeCategoryIds) {
-    await ProductCategories.removeProductCategory(catId);
+    await models.ProductCategories.removeProductCategory(catId);
   }
 };
 
-export const importProducts = async (groups: any = []) => {
+export const importProducts = async (models: IModels, groups: any = []) => {
   const { REACT_APP_MAIN_API_DOMAIN } = process.env;
   const FILE_PATH = `${REACT_APP_MAIN_API_DOMAIN}/read-file`;
   const attachmentUrlChanger = attachment => {
@@ -47,7 +67,7 @@ export const importProducts = async (groups: any = []) => {
     const categories = group.categories || [];
 
     for (const category of categories) {
-      await ProductCategories.updateOne(
+      await models.ProductCategories.updateOne(
         { _id: category._id },
         { $set: { ...category, products: undefined } },
         { upsert: true }
@@ -81,7 +101,7 @@ export const importProducts = async (groups: any = []) => {
       }
 
       if (bulkOps.length) {
-        await Products.bulkWrite(bulkOps);
+        await models.Products.bulkWrite(bulkOps);
       }
     }
   } // end group loop
@@ -136,42 +156,43 @@ export const extractConfig = doc => {
       qrCodeImage: ''
     }
   } = doc;
+  console.log(uiOptions);
 
   const FILE_PATH = `${REACT_APP_MAIN_API_DOMAIN}/read-file`;
 
   try {
     uiOptions.favIcon =
-      uiOptions.favIcon.indexOf('http') === -1
+      (uiOptions.favIcon || '').indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.favIcon}`
         : uiOptions.favIcon;
 
     uiOptions.logo =
-      uiOptions.logo.indexOf('http') === -1
+      (uiOptions.logo || '').indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.logo}`
         : uiOptions.logo;
 
     uiOptions.bgImage =
-      uiOptions.bgImage.indexOf('http') === -1
+      (uiOptions.bgImage || '').indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.bgImage}`
         : uiOptions.bgImage;
 
     uiOptions.receiptIcon =
-      uiOptions.receiptIcon.indexOf('http') === -1
+      (uiOptions.receiptIcon || '').indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.receiptIcon}`
         : uiOptions.receiptIcon;
 
     uiOptions.kioskHeaderImage =
-      uiOptions.kioskHeaderImage.indexOf('http') === -1
+      (uiOptions.kioskHeaderImage || '').indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
         : uiOptions.kioskHeaderImage;
 
     uiOptions.mobileAppImage =
-      uiOptions.mobileAppImage.indexOf('http') === -1
+      (uiOptions.mobileAppImage || '').indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
         : uiOptions.mobileAppImage;
 
     uiOptions.qrCodeImage =
-      uiOptions.qrCodeImage.indexOf('http') === -1
+      (uiOptions.qrCodeImage || '').indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
         : uiOptions.qrCodeImage;
   } catch (e) {
@@ -199,43 +220,45 @@ export const extractConfig = doc => {
 export const validateConfig = () => {};
 
 // receive product data through message broker
-export const receiveProduct = async data => {
+export const receiveProduct = async (models, data) => {
   const { action = '', object = {}, updatedDocument = {} } = data;
 
   if (action === 'create') {
-    return Products.createProduct(object);
+    return models.Products.createProduct(object);
   }
 
-  const product = await Products.findOne({ _id: object._id });
+  const product = await models.Products.findOne({ _id: object._id });
 
   if (action === 'update' && product) {
-    return Products.updateProduct(product._id, updatedDocument);
+    return models.Products.updateProduct(product._id, updatedDocument);
   }
 
   if (action === 'delete') {
     // check usage
-    return Products.removeProducts([object._id]);
+    return models.Products.removeProducts([object._id]);
   }
 };
 
-export const receiveProductCategory = async data => {
+export const receiveProductCategory = async (models, data) => {
   const { action = '', object = {}, updatedDocument = {} } = data;
 
   if (action === 'create') {
-    return ProductCategories.createProductCategory(object);
+    return models.ProductCategories.createProductCategory(object);
   }
 
-  const category: any = await ProductCategories.findOne({ _id: object._id });
+  const category: any = await models.ProductCategories.findOne({
+    _id: object._id
+  });
 
   if (action === 'update' && category) {
-    return ProductCategories.updateProductCategory(
+    return models.ProductCategories.updateProductCategory(
       category._id,
       updatedDocument
     );
   }
 
   if (action === 'delete') {
-    await ProductCategories.removeProductCategory(category._id);
+    await models.ProductCategories.removeProductCategory(category._id);
   }
 };
 

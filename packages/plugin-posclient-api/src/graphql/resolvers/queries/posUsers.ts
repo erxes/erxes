@@ -1,11 +1,10 @@
-import PosUsers from '../../../models/PosUsers';
 import { IContext } from '../../types';
 
 const userQueries = {
   /**
    * Current user
    */
-  posCurrentUser(_root, models, _args, { posUser }: IContext) {
+  posCurrentUser(_root, _args, { models, posUser }: IContext) {
     return posUser
       ? models.PosUsers.findOne({ _id: posUser._id, isActive: { $ne: false } })
       : null;

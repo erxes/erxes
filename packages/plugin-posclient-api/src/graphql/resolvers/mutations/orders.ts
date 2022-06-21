@@ -1,8 +1,4 @@
 import * as Random from 'meteor-random';
-
-import { Orders } from '../../../models/Orders';
-import { OrderItems } from '../../../models/OrderItems';
-import { PutResponses } from '../../../models/PutResponses';
 import { IOrderInput } from '../../types';
 import {
   generateOrderNumber,
@@ -19,7 +15,7 @@ import {
   checkUnpaidInvoices
 } from '../../utils/orderUtils';
 import { IContext } from '../../types';
-import messageBroker from '../../../messageBroker';
+import { sendPosMessage } from '../../../messageBroker';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../pubsub';
 import { debugError } from '../../../debugger';
@@ -125,13 +121,12 @@ const orderMutations = {
 
   async orderChangeStatus(
     _root,
-    models,
     { _id, status }: { _id: string; status: string },
-    {}: IContext
+    { models, subdomain }: IContext
   ) {
-    await models.Orders.getOrder(_id);
+    const oldOrder = await models.Orders.getOrder(_id);
 
-    const order = await models.Orders.updateOrder(_id, { status });
+    const order = await models.Orders.updateOrder(_id, { ...oldOrder, status });
 
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
@@ -142,10 +137,10 @@ const orderMutations = {
 
     if (order.type === 'delivery' && order.status === 'done') {
       try {
-        messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
-          action: 'statusToDone',
-
-          order
+        sendPosMessage({
+          subdomain,
+          action: 'vrpc_queue',
+          data: { action: 'statusToDone', order }
         });
       } catch (e) {}
     }
@@ -156,9 +151,8 @@ const orderMutations = {
    */
   async ordersMakePayment(
     _root,
-    models,
     { _id, doc }: IPaymentParams,
-    { config }: IContext
+    { config, models, subdomain }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
@@ -166,7 +160,7 @@ const orderMutations = {
 
     await checkUnpaidInvoices(_id);
 
-    const items = await OrderItems.find({
+    const items = await models.OrderItems.find({
       orderId: order._id
     }).lean();
 
@@ -215,11 +209,15 @@ const orderMutations = {
       });
 
       try {
-        messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
-          action: 'makePayment',
-          response,
-          order,
-          items
+        sendPosMessage({
+          subdomain,
+          action: 'vrpc_queue',
+          data: {
+            action: 'makePayment',
+            response,
+            order,
+            items
+          }
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
@@ -291,7 +289,7 @@ const orderMutations = {
 
     await models.OrderItems.deleteMany({ orderId: _id });
 
-    return Orders.deleteOne({ _id });
+    return models.Orders.deleteOne({ _id });
   },
 
   /**
@@ -301,9 +299,8 @@ const orderMutations = {
    */
   async ordersSettlePayment(
     _root,
-    models,
     { _id, billType, registerNumber }: ISettlePaymentParams,
-    { config }: IContext
+    { config, models, subdomain }: IContext
   ) {
     let order = await models.Orders.getOrder(_id);
 
@@ -311,7 +308,7 @@ const orderMutations = {
 
     await checkUnpaidInvoices(_id);
 
-    const items = await OrderItems.find({
+    const items = await models.OrderItems.find({
       orderId: order._id
     }).lean();
 
@@ -362,12 +359,15 @@ const orderMutations = {
       });
 
       try {
-        messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
-          action: 'makePayment',
-
-          response,
-          order,
-          items
+        sendPosMessage({
+          subdomain,
+          action: 'vrpc_queue',
+          data: {
+            action: 'makePayment',
+            response,
+            order,
+            items
+          }
         });
       } catch (e) {
         debugError(`Error occurred while sending data to erxes: ${e.message}`);
