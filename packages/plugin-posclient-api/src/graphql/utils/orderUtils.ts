@@ -17,7 +17,7 @@ import {
   IConfig,
   IEbarimtConfig
 } from '../../models/definitions/configs';
-const dayjs = require('dayjs');
+import * as moment from 'moment';
 
 interface IDetailItem {
   count: number;
@@ -35,7 +35,7 @@ export const getPureDate = (date?: Date) => {
 export const generateOrderNumber = async (
   config?: IConfig
 ): Promise<string> => {
-  const todayStr = dayjs()
+  const todayStr = moment()
     .format('YYYYMMDD')
     .toString();
 

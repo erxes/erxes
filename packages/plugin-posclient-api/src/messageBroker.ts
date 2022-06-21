@@ -47,20 +47,17 @@ export const initBroker = async cl => {
       }
     });
 
-    consumeQueue(
-      `vrpc_queue:erxes-posclient-from-pos-api_${''}`,
-      async data => {
-        const { responseId, orderId } = data;
+    consumeQueue(`posclient:erxes-posclient-from-pos-api_${''}`, async data => {
+      const { responseId, orderId } = data;
 
-        await Orders.updateOne({ _id: orderId }, { $set: { synced: true } });
-        await PutResponses.updateOne(
-          { _id: responseId },
-          { $set: { synced: true } }
-        );
-      }
-    );
+      await Orders.updateOne({ _id: orderId }, { $set: { synced: true } });
+      await PutResponses.updateOne(
+        { _id: responseId },
+        { $set: { synced: true } }
+      );
+    });
 
-    consumeQueue(`vrpc_queue:erxes-posclient-to-pos-api_${''}`, async data => {
+    consumeQueue(`posclient:erxes-posclient-to-pos-api_${''}`, async data => {
       const { order } = data;
 
       await Orders.updateOne(
@@ -97,7 +94,7 @@ export const initBroker = async cl => {
       });
     });
 
-    consumeRPCQueue(`rpc_queue:health_check_${''}`, async data => {
+    consumeRPCQueue(`posclient:health_check_${''}`, async data => {
       return {
         status: 'success',
         data: { healthy: 'ok' }

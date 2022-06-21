@@ -7,16 +7,16 @@ const commonFieldDefs = `
 `;
 
 export const types = `
-  type ProductCategory {
+  type PosProductCategory {
     ${commonFieldDefs}
     parentId: String
     order: String!
 
     isRoot: Boolean
     productCount: Int
-  }
+  } 
 
-  type Product {
+  type PoscProduct {
     ${commonFieldDefs}
     type: String
     sku: String
@@ -27,26 +27,26 @@ export const types = `
     tagIds: [String]
     vendorId: String
     attachmentMore: JSON
-    category: ProductCategory
+    category: PosProductCategory
   }
 `;
 
 export const queries = `
-  productCategories(parentId: String, searchValue: String, excludeEmpty: Boolean): [ProductCategory]
-  productCategoriesTotalCount(parentId: String, searchValue: String): Int
-  productCategoryDetail(_id: String): ProductCategory
+  poscProductCategories(parentId: String, searchValue: String, excludeEmpty: Boolean): [PosProductCategory]
+  poscProductCategoriesTotalCount(parentId: String, searchValue: String): Int
+  poscProductCategoryDetail(_id: String): PosProductCategory
 
-  products(
+  poscProducts(
     type: String,
     categoryId: String,
     searchValue: String,
     page: Int,
     perPage: Int,
-  ): [Product]
-  productsTotalCount(
+  ): [PoscProduct]
+  poscProductsTotalCount(
     type: String,
     categoryId: String,
     searchValue: String,
   ): Int
-  productDetail(_id: String): Product
+  poscProductDetail(_id: String): PoscProduct
 `;

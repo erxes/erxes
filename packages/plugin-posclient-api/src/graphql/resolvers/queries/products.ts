@@ -66,7 +66,7 @@ const generateFilterCat = ({ parentId, searchValue }) => {
 };
 
 const productQueries = {
-  async products(
+  async poscProducts(
     _root,
     models,
     { type, categoryId, searchValue, ...paginationArgs }: IProductParams
@@ -84,7 +84,7 @@ const productQueries = {
   /**
    * Get all products count. We will use it in pager
    */
-  async productsTotalCount(
+  async poscProductsTotalCount(
     _root,
     models,
     { type, categoryId, searchValue }: IProductParams
@@ -94,7 +94,7 @@ const productQueries = {
     return models.Products.find(filter).countDocuments();
   },
 
-  async productCategories(
+  async poscProductCategories(
     _root,
     models,
     { parentId, searchValue, excludeEmpty }: ICategoryParams,
@@ -122,7 +122,7 @@ const productQueries = {
     return categories;
   },
 
-  async productCategoriesTotalCount(
+  async poscProductCategoriesTotalCount(
     _root,
     models,
     { parentId, searchValue }: { parentId: string; searchValue: string }
@@ -131,11 +131,11 @@ const productQueries = {
     return models.ProductCategories.find(filter).countDocuments();
   },
 
-  productDetail(_root, models, { _id }: { _id: string }) {
+  poscProductDetail(_root, models, { _id }: { _id: string }) {
     return models.Products.findOne({ _id }).lean();
   },
 
-  productCategoryDetail(_root, models, { _id }: { _id: string }) {
+  poscProductCategoryDetail(_root, models, { _id }: { _id: string }) {
     return models.ProductCategories.findOne({ _id }).lean();
   }
 };

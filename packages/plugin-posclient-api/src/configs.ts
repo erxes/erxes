@@ -11,8 +11,6 @@ export let graphqlPubsub;
 export let mainDb;
 export let serviceDiscovery;
 
-let cl;
-
 export default {
   name: 'posclient',
   graphql: async sd => {

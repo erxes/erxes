@@ -44,14 +44,13 @@ const typeDefs = async () => {
     ${ProductTypes}
     ${PosUserTypes}
 
-    ${OrderTypes}
+    ${OrderTypes} 
     ${ConfigTypes}
     ${PaymentTypes}
     ${ReportTypes}
 
    extend type Query {
     ${LogQueries}
-
     ${PosUserQueries}
     ${ProductQueries}
     ${OrderQueries}
