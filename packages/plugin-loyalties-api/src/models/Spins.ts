@@ -1,10 +1,9 @@
-import * as _ from 'underscore';
-import { randomBetween } from './utils';
-import { spinSchema, ISpin, ISpinDocument } from './definitions/spins';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { SPIN_STATUS } from './definitions/constants';
 import { IBuyParams } from './definitions/common';
+import { SPIN_STATUS } from './definitions/constants';
+import { ISpin, ISpinDocument, spinSchema } from './definitions/spins';
+import { randomBetween } from './utils';
 
 export interface ISpinModel extends Model<ISpinDocument> {
   getSpin(_id: string): Promise<ISpinDocument>;
@@ -45,7 +44,7 @@ export const loadSpinClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      if (spinCampaign.startDate > now || spinCampaign.endDate < now) {
+      if (spinCampaign.startDate > now || spinCampaign.endDate <= now) {
         throw new Error('Not create spin, expired');
       }
 

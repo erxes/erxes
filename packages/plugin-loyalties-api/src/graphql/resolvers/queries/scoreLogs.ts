@@ -1,8 +1,6 @@
-import { ICommonParams } from '../../../models/definitions/common';
-import { IContext } from '../../../connectionResolver';
-import { checkVouchersSale } from '../../../utils';
-import { getOwner } from '../../../models/utils';
 import { paginate } from '@erxes/api-utils/src';
+import { IContext } from '../../../connectionResolver';
+import { ICommonParams } from '../../../models/definitions/common';
 
 const scoreLogQueries = {
   async scoreLogs(_root, params: ICommonParams, { models }: IContext) {
@@ -20,8 +18,16 @@ const scoreLogQueries = {
     if (searchValue) {
       filter.description = searchValue;
     }
-    return paginate(models.ScoreLogs.find(filter).sort({ createdAt: -1 }), params)
+    return paginate(
+      models.ScoreLogs.find(filter).sort({ createdAt: -1 }),
+      params
+    );
   },
+  async scoreLogList(_root, params: ICommonParams, { models }: IContext) {
+    const list = await models.ScoreLogs.find().sort({ createdAt: -1 });
+    const total = await models.ScoreLogs.find().count();
+    return { list, total };
+  }
 };
 
 export default scoreLogQueries;

@@ -1,8 +1,8 @@
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import queryString from 'query-string';
 import React from 'react';
-import Settings from './configs/general/containers/Settings';
 import { Route } from 'react-router-dom';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import Settings from './configs/general/containers/Settings';
 
 const VoucherCampaigns = asyncComponent(() =>
   import(
@@ -51,6 +51,13 @@ const Donates = asyncComponent(() =>
     /* webpackChunkName: "KnowledgeBase" */ './loyalties/donates/containers/List'
   )
 );
+
+const ScoreLogs = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './loyalties/scorelogs/containers/List'
+  )
+);
+
 const Award = asyncComponent(() =>
   import(
     /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/Award'
@@ -131,6 +138,15 @@ const award = ({ location, history }) => {
   );
 };
 
+const scorelogs = ({ history, location }) => {
+  return (
+    <ScoreLogs
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -168,6 +184,7 @@ const routes = () => {
       <Route path="/spins" component={spins} />
 
       <Route path="/donates" component={donates} />
+      <Route path="/score" component={scorelogs} />
     </>
   );
 };

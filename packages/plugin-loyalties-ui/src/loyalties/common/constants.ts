@@ -3,4 +3,5 @@ export const menuLoyalties = [
   { title: 'Lotteries', link: '/lotteries' },
   { title: 'Spins', link: '/spins' },
   { title: 'Donates', link: '/donates' },
+  { title: 'Score', link: '/score' }
 ];

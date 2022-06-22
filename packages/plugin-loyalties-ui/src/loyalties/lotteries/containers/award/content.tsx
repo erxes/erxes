@@ -62,7 +62,10 @@ class AwardContent extends React.Component<FinalProps, Props> {
       console.log(afterChars.length);
       if (afterChars.length === 6 && nextChar.length === 1) {
         if (fitLotteriesCount === 0) {
-          Alert.error('No customers won');
+          Alert.error('No customer won');
+        }
+        if (fitLotteriesCount === 1) {
+          Alert.success('Winner awarded');
         }
       }
     });
