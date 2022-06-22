@@ -1,12 +1,20 @@
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
+
 const commonFieldDefs = `
   _id: String!
   name: String
   description: String
-  attachment: JSON
+  attachment: Attachment
   code: String
 `;
 
 export const types = `
+  ${attachmentType}
+  ${attachmentInput}
+
   type PosProductCategory {
     ${commonFieldDefs}
     parentId: String
@@ -14,7 +22,7 @@ export const types = `
 
     isRoot: Boolean
     productCount: Int
-  } 
+  }
 
   type PoscProduct {
     ${commonFieldDefs}
@@ -26,7 +34,7 @@ export const types = `
     createdAt: Date
     tagIds: [String]
     vendorId: String
-    attachmentMore: JSON
+    attachmentMore: Attachment
     category: PosProductCategory
   }
 `;

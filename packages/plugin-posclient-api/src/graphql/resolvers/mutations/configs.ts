@@ -49,7 +49,7 @@ const configMutations = {
 
       await importUsers(models, cashiers);
       await importUsers(models, adminUsers, true);
-      await importProducts(productGroups);
+      await importProducts(models, productGroups);
     }
 
     initBroker(cl)

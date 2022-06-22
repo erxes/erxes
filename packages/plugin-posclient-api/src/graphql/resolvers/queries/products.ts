@@ -1,8 +1,8 @@
-import { ProductCategories, Products } from '../../../models/Products';
 import { IProductCategoryDocument } from '../../../models/definitions/products';
 import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
 import { escapeRegExp, paginate } from '../../utils/commonUtils';
 import { IContext } from '../../types';
+import { IModels } from '../../../connectionResolver';
 
 interface IProductParams {
   type?: string;
@@ -18,11 +18,10 @@ interface ICategoryParams {
   excludeEmpty?: boolean;
 }
 
-const generateFilter = async ({
-  type,
-  categoryId,
-  searchValue
-}: IProductParams) => {
+const generateFilter = async (
+  models: IModels,
+  { type, categoryId, searchValue }: IProductParams
+) => {
   const filter: any = { status: { $ne: PRODUCT_STATUSES.DELETED } };
 
   if (type) {
@@ -30,11 +29,11 @@ const generateFilter = async ({
   }
 
   if (categoryId) {
-    const category = await ProductCategories.getProductCategory({
+    const category = await models.ProductCategories.getProductCategory({
       _id: categoryId
     });
 
-    const relatedCategoryIds = await ProductCategories.find(
+    const relatedCategoryIds = await models.ProductCategories.find(
       { order: { $regex: new RegExp(category.order) } },
       { _id: 1 }
     );
@@ -68,10 +67,14 @@ const generateFilterCat = ({ parentId, searchValue }) => {
 const productQueries = {
   async poscProducts(
     _root,
-    models,
-    { type, categoryId, searchValue, ...paginationArgs }: IProductParams
+    { type, categoryId, searchValue, ...paginationArgs }: IProductParams,
+    { models }: IContext
   ) {
-    const filter = await generateFilter({ type, categoryId, searchValue });
+    const filter = await generateFilter(models, {
+      type,
+      categoryId,
+      searchValue
+    });
 
     return paginate(
       models.Products.find(filter)
@@ -86,19 +89,22 @@ const productQueries = {
    */
   async poscProductsTotalCount(
     _root,
-    models,
-    { type, categoryId, searchValue }: IProductParams
+    { type, categoryId, searchValue }: IProductParams,
+    { models }: IContext
   ) {
-    const filter = await generateFilter({ type, categoryId, searchValue });
+    const filter = await generateFilter(models, {
+      type,
+      categoryId,
+      searchValue
+    });
 
     return models.Products.find(filter).countDocuments();
   },
 
   async poscProductCategories(
     _root,
-    models,
     { parentId, searchValue, excludeEmpty }: ICategoryParams,
-    {}: IContext
+    { models }: IContext
   ) {
     const filter = generateFilterCat({ parentId, searchValue });
     const categories = await models.ProductCategories.find(filter).sort({
@@ -126,18 +132,22 @@ const productQueries = {
 
   async poscProductCategoriesTotalCount(
     _root,
-    models,
-    { parentId, searchValue }: { parentId: string; searchValue: string }
+    { parentId, searchValue }: { parentId: string; searchValue: string },
+    { models }: IContext
   ) {
     const filter = await generateFilterCat({ parentId, searchValue });
     return models.ProductCategories.find(filter).countDocuments();
   },
 
-  poscProductDetail(_root, models, { _id }: { _id: string }) {
+  poscProductDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Products.findOne({ _id }).lean();
   },
 
-  poscProductCategoryDetail(_root, models, { _id }: { _id: string }) {
+  poscProductCategoryDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
     return models.ProductCategories.findOne({ _id }).lean();
   }
 };

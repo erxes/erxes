@@ -1,13 +1,5 @@
-import {
-  attachmentType,
-  attachmentInput
-} from '@erxes/api-utils/src/commonTypeDefs';
-
 export const types = `
 
-  ${attachmentType}
-  ${attachmentInput}
-  
   type PosUserDetailsType {
     avatar: String
     fullName: String
@@ -18,7 +10,7 @@ export const types = `
     location: String
     description: String
     operatorPhone: String
-  } 
+  }
 
   type PosUser {
     _id: String!
