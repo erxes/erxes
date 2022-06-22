@@ -227,7 +227,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
      * Retreives customer
      */
     public static async getCustomer(_id: string) {
-      const customer = await models.Customers.findOne({ _id });
+      const customer = await models.Customers.findOne({ _id }).lean();
 
       if (!customer) {
         throw new Error('Customer not found');
@@ -372,7 +372,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       }
 
       const pssDoc = await models.Customers.calcPSS({
-        ...oldCustomer.toObject(),
+        ...oldCustomer,
         ...doc
       });
 
@@ -381,7 +381,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
       );
 
-      return models.Customers.findOne({ _id });
+      return models.Customers.findOne({ _id }).lean();
     }
 
     /**
@@ -393,7 +393,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { $set: { isOnline: true } }
       );
 
-      return models.Customers.findOne({ _id: customerId });
+      return models.Customers.findOne({ _id: customerId }).lean();
     }
 
     /**
@@ -411,7 +411,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { new: true }
       );
 
-      return models.Customers.findOne({ _id });
+      return models.Customers.findOne({ _id }).lean();
     }
 
     /**

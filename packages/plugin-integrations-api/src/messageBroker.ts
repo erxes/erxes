@@ -1,11 +1,25 @@
 import * as dotenv from 'dotenv';
-import { removeAccount, removeCustomers, removeIntegration, repairIntegrations } from './helpers';
+import {
+  removeAccount,
+  removeCustomers,
+  removeIntegration,
+  repairIntegrations
+} from './helpers';
 import { handleFacebookMessage } from './facebook/handleFacebookMessage';
 import { userIds } from './userMiddleware';
 import { getConfig } from './utils';
-import { facebookCreateIntegration, facebookGetCustomerPosts } from './facebook/controller';
-import { callproCreateIntegration, callproGetAudio } from './callpro/controller';
-import { ISendMessageArgs, sendMessage as sendCommonMessage } from '@erxes/api-utils/src/core'
+import {
+  facebookCreateIntegration,
+  facebookGetCustomerPosts
+} from './facebook/controller';
+import {
+  callproCreateIntegration,
+  callproGetAudio
+} from './callpro/controller';
+import {
+  ISendMessageArgs,
+  sendMessage as sendCommonMessage
+} from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
 
@@ -13,66 +27,72 @@ dotenv.config();
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue, consumeQueue } = client;
 
-  consumeRPCQueue('integrations:getAccounts', async ({ subdomain, data: { kind } }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'integrations:getAccounts',
+    async ({ subdomain, data: { kind } }) => {
+      const models = await generateModels(subdomain);
 
-    const selector = { kind };
+      const selector = { kind };
 
-    return {
-      data: await models.Accounts.find(selector),
-      status: 'success'
-    };
-  });
+      return {
+        data: await models.Accounts.find(selector).lean(),
+        status: 'success'
+      };
+    }
+  );
 
   // listen for rpc queue =========
-  consumeRPCQueue('integrations:api_to_integrations', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'integrations:api_to_integrations',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
 
-    const { action, type } = data;
+      const { action, type } = data;
 
-    let response: any = null;
+      let response: any = null;
 
-    try {
-      if (action === 'remove-account') {
-        response = { data: await removeAccount(models, data._id) };
-      }
+      try {
+        if (action === 'remove-account') {
+          response = { data: await removeAccount(models, data._id) };
+        }
 
-      if (action === 'getTelnyxInfo') {
+        if (action === 'getTelnyxInfo') {
+          response = {
+            data: {
+              telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
+              integrations: await models.Integrations.find({ kind: 'telnyx' })
+            }
+          };
+        }
+
+        if (action === 'repair-integrations') {
+          response = { data: await repairIntegrations(models, data._id) };
+        }
+
+        if (type === 'facebook') {
+          response = { data: await handleFacebookMessage(models, data) };
+        }
+
+        if (action === 'getConfigs') {
+          response = { data: await models.Configs.find({}) };
+        }
+
+        response.status = 'success';
+      } catch (e) {
         response = {
-          data: {
-            telnyxApiKey: await getConfig(models, 'TELNYX_API_KEY'),
-            integrations: await models.Integrations.find({ kind: 'telnyx' })
-          }
+          status: 'error',
+          errorMessage: e.message
         };
       }
 
-      if (action === 'repair-integrations') {
-        response = { data: await repairIntegrations(models, data._id) };
-      }
-
-      if (type === 'facebook') {
-        response = { data: await handleFacebookMessage(models, data) };
-      }
-
-      if (action === 'getConfigs') {
-        response = { data: await models.Configs.find({}) };
-      }
-
-      response.status = 'success';
-    } catch (e) {
-      response = {
-        status: 'error',
-        errorMessage: e.message
-      };
+      return response;
     }
-
-    return response;
-  });
+  );
 
   // /facebook/get-status'
   consumeRPCQueue(
@@ -146,9 +166,7 @@ export const initBroker = async (cl) => {
   consumeRPCQueue(
     'integrations:createIntegration',
     async ({ subdomain, data: { doc, kind } }) => {
-
       const models = await generateModels(subdomain);
-
 
       switch (kind) {
         case 'facebook':
@@ -160,15 +178,18 @@ export const initBroker = async (cl) => {
   );
 
   // '/integrations/remove',
-  consumeRPCQueue('integrations:removeIntegrations', async ({ subdomain, data: { integrationId }}) => {
-    const models = await generateModels(subdomain);
+  consumeRPCQueue(
+    'integrations:removeIntegrations',
+    async ({ subdomain, data: { integrationId } }) => {
+      const models = await generateModels(subdomain);
 
-    await removeIntegration(models, integrationId);
+      await removeIntegration(models, integrationId);
 
-    return { status: 'success' };
-  });
+      return { status: 'success' };
+    }
+  );
 
-  consumeQueue('integrations:notification', async ({ subdomain, data })  => {
+  consumeQueue('integrations:notification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { action, payload, type } = data;
@@ -191,10 +212,10 @@ export default function() {
 }
 
 export const sendInboxMessage = (args: ISendMessageArgs) => {
- return sendCommonMessage({
-   client,
-   serviceDiscovery,
-   serviceName: "inbox",
-   ...args
- }) 
-}
+  return sendCommonMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inbox',
+    ...args
+  });
+};

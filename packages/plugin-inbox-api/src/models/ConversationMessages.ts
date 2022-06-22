@@ -149,7 +149,9 @@ export const loadClass = (models: IModels) => {
       return models.ConversationMessages.findOne({
         conversationId,
         customerId: { $exists: true }
-      }).sort({ createdAt: -1 });
+      })
+        .sort({ createdAt: -1 })
+        .lean();
     }
 
     /**
@@ -163,7 +165,9 @@ export const loadClass = (models: IModels) => {
 
         // exclude internal notes
         internal: false
-      }).sort({ createdAt: 1 });
+      })
+        .sort({ createdAt: 1 })
+        .lean();
     }
 
     public static widgetsGetUnreadMessagesCount(conversationId: string) {
