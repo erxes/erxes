@@ -24,6 +24,8 @@ export const LOG_ACTIONS = {
 export const MODULE_NAMES = {
   PRODUCT: 'product',
   PRODUCT_CATEGORY: 'productCategory',
+  JOBREFER: 'jobRefer',
+  FLOW: 'flow',
   WORK: 'work',
   OVERALWORK: 'overalWork'
 };
