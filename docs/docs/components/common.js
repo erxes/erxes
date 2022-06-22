@@ -1,5 +1,5 @@
 import React from "react";
-import Table from "../../../ui/src/modules/common/components/table";
+import Table from "../../../packages/core-ui/src/modules/common/components/table";
 import CodeBlock from "@theme/CodeBlock";
 
 export function renderApiTable(Name, table) {
