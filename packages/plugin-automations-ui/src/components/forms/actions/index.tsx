@@ -10,7 +10,7 @@ import CustomCode from './subForms/CustomCode';
 import Delay from './subForms/Delay';
 import LoyaltyForm from '../../../containers/forms/actions/subForms/LoyaltyForm';
 import ChangeScore from './subForms/ChangeScore';
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import { renderDynamicComponent } from '../../../utils';
 
 type Props = {
   onSave: () => void;
@@ -22,7 +22,6 @@ type Props = {
 };
 
 const renderExtraContent = props => {
-  const plugins: any[] = (window as any).plugins || [];
   const {
     activeAction: { type }
   } = props;
@@ -37,21 +36,16 @@ const renderExtraContent = props => {
     changeScore: <ChangeScore {...props} />
   };
 
-  for (const plugin of plugins) {
-    if (type.includes(`${plugin.name}:`) && plugin.automation) {
-      const Component = (
-        <RenderDynamicComponent
-          scope={plugin.scope}
-          component={plugin.automation}
-          injectedProps={{
-            ...props,
-            componentType: 'actionForm'
-          }}
-        />
-      );
+  const Component = renderDynamicComponent(
+    {
+      ...props,
+      componentType: 'actionForm'
+    },
+    type
+  );
 
-      response[type] = Component;
-    }
+  if (Component) {
+    response[type] = Component;
   }
 
   return response;

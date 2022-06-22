@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 import { IAutomationHistory, IAutomationHistoryAction } from '../../types';
-import { __, renderFullName } from 'coreui/utils';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Label from '@erxes/ui/src/components/Label';
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import { renderDynamicComponent } from '../../utils';
 
 type Props = {
   history: IAutomationHistory;
@@ -29,45 +29,20 @@ class HistoryRow extends React.Component<Props, State> {
   generateName = () => {
     const { triggerType, target } = this.props.history;
 
-    switch (triggerType) {
-      case 'visitor':
-      case 'lead':
-      case 'customer': {
-        return (
-          <Link target="_blank" to={`/contacts/details/${target._id}`}>
-            {renderFullName(target)}
-          </Link>
-        );
-      }
+    const Component = renderDynamicComponent(
+      {
+        target,
+        triggerType,
+        componentType: 'historyName'
+      },
+      triggerType
+    );
 
-      case 'company': {
-        return (
-          <Link target="_blank" to={`/companies/details/${target._id}`}>
-            {target.name}
-          </Link>
-        );
-      }
-
-      case 'deal':
-      case 'task':
-      case 'ticket': {
-        return target.name;
-      }
-
-      case 'conversation': {
-        let title: string = target.content || 'Conversation';
-        title = title.length > 100 ? `${title.substring(0, 200)}...` : title;
-        return (
-          <Link target="_blank" to={`/inbox/index?_id=${target._id}`}>
-            {title}
-          </Link>
-        );
-      }
-
-      default: {
-        return '';
-      }
+    if (Component) {
+      return Component;
     }
+
+    return '';
   };
 
   generateActionResult = (action: IAutomationHistoryAction) => {
@@ -93,22 +68,17 @@ class HistoryRow extends React.Component<Props, State> {
       return `Condition: ${result.condition}`;
     }
 
-    const plugins: any[] = (window as any).plugins || [];
+    const Component = renderDynamicComponent(
+      {
+        action,
+        result: action.result,
+        componentType: 'historyActionResult'
+      },
+      action.actionType
+    );
 
-    for (const plugin of plugins) {
-      if (action.actionType.includes(`${plugin.name}:`) && plugin.automation) {
-        return (
-          <RenderDynamicComponent
-            scope={plugin.scope}
-            component={plugin.automation}
-            injectedProps={{
-              action,
-              result: action.result,
-              componentType: 'actionResult'
-            }}
-          />
-        );
-      }
+    if (Component) {
+      return Component;
     }
 
     return JSON.stringify(result);
