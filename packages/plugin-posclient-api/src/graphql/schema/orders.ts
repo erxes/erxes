@@ -38,16 +38,13 @@ export const types = `
     firstName: String
     lastName: String
     middleName: String
-
     birthDate: Date
     sex: Int
-
     email: String
     primaryEmail: String
     emails: [String]
     primaryPhone: String
     phones: [String]
-
     phone: String
     tagIds: [String]
     remoteAddress: String
@@ -66,7 +63,6 @@ export const types = `
     code: String
     emailValidationStatus: String
     phoneValidationStatus: String
-
     isOnline: Boolean
     lastSeenAt: Date
     sessionCount: Int
@@ -85,7 +81,6 @@ export const types = `
     unitPrice: Float
     discountAmount: Float
     discountPercent: Float
-
     productName: String
     isPackage: Boolean
     isTake: Boolean

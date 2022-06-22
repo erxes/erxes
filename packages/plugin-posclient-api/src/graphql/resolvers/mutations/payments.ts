@@ -1,5 +1,3 @@
-import { QPayInvoices } from '../../../models/QPayInvoices';
-import { Orders } from '../../../models/Orders';
 import { IContext } from '../../types';
 import {
   fetchQPayToken,

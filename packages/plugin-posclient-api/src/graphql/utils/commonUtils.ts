@@ -30,7 +30,6 @@ export const getEnv = ({
 };
 
 export const routeErrorHandling = (fn, callback?: any) => {
-  console.log('xxxxxxxxxxxxxxx', fn, callback);
   return async (req, res, next) => {
     try {
       console.log(req, res);

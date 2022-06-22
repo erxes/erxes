@@ -1,7 +1,7 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels, models } from './connectionResolver';
-import { graphqlPubsub } from './graphql/pubsub';
+import { graphqlPubsub } from './pubsub';
 import {
   receiveCustomer,
   receivePosConfig,
