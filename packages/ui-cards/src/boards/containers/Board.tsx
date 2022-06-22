@@ -3,7 +3,7 @@ import * as compose from 'lodash.flowright';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IDateColumn, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -16,9 +16,11 @@ import Pipeline from './Pipeline';
 import PipelineActivity from './PipelineActivity';
 import ViewGroupBy from './ViewGroupBy';
 import ChartStack from './chart/ChartRenderer';
+import TimeView from '../components/Time';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
+  date: IDateColumn;
 } & WrapperProps &
   IRouterProps;
 
@@ -104,14 +106,11 @@ class Board extends React.Component<Props> {
 
     if (viewType === 'time') {
       return (
-        <ScrolledContent>
-          <Pipeline
-            key={pipeline._id}
-            options={options}
-            pipeline={pipeline}
-            queryParams={queryParams}
-          />
-        </ScrolledContent>
+        <RootBack style={{ backgroundColor: pipeline.bgColor }}>
+          <ScrolledContent>
+            <TimeView date={this.props.date} />
+          </ScrolledContent>
+        </RootBack>
       );
     }
 
