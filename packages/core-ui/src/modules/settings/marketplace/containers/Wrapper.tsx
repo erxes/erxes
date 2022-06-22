@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+
 import { dimensions } from 'modules/common/styles';
 
 const Contents = styled.div`

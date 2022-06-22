@@ -1,82 +1,26 @@
+import React from 'react';
+
 import Icon from 'modules/common/components/Icon';
 import Button from 'modules/common/components/Button';
-import { colors, dimensions } from 'modules/common/styles';
+import { colors } from 'modules/common/styles';
 import { __ } from 'modules/common/utils';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+
+import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+
 import CollapseFilter from './CollapseFilter';
 import FormControl from './FormControl';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import Sidebar from 'modules/layout/components/Sidebar';
 
-const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
-const SearchContainer = styledTS<{ active?: boolean }>(styled.div)`
-  position: relative;
-  transition: .3s all;
-  margin-bottom: ${dimensions.coreSpacing}px;
-`;
-
-const Search = styled.div`
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 8px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  position: relative;
-  padding: 6px;
-
-  input {
-    background: 0 0;
-    border: none;
-    flex: 1;
-    outline: 0;
-  }
-`;
-
-const FilterContainer = styledTS<{ active?: boolean }>(styled.div)`
-  transition: .s all;
-  flex: 1;
-`;
-
-const Filter = styled.div`
-  border-radius: 8px;
-  height: 100%;
-  border: 1px solid ${colors.borderPrimary};
-`;
-
-const FilterHeader = styled.div`
-  display: flex;
-  height: 40px;
-  justify-content: space-between;
-  padding: 9px;
-  align-items: center;
-`;
-
-const Box = styled.div`
-  border-radius: 8px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  border: 1px solid ${colors.borderPrimary};
-`;
-
-const PaddingLeft = styled.div`
-  padding-left: ${dimensions.unitSpacing}px;
-  font-weight: 700;
-`;
-
-const PaddingBottom = styled.div`
-  padding-bottom: 5px;
-`;
+import {
+  MainContainer,
+  SearchContainer,
+  Search,
+  FilterContainer,
+  Filter,
+  FilterHeader,
+  Box,
+  PaddingLeft,
+  PaddingBottom
+} from '../styles';
 
 type Props = {
   onSearch?: (e) => void;

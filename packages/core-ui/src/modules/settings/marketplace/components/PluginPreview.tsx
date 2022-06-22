@@ -1,38 +1,25 @@
+import React from 'react';
+
 import Icon from 'modules/common/components/Icon';
 import Button from 'modules/common/components/Button';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
 import { __ } from 'modules/common/utils';
-import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { Alert } from 'modules/common/utils';
+
+import { Flex } from '@erxes/ui/src/styles/main';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
 import {
   ListContainer,
   ListHeader,
   ListTitle,
   ColorText,
   Card,
-  GrayText
+  GrayText,
+  PluginContainer,
+  PluginPic,
+  PluginInformation,
+  Description
 } from '../styles';
-
-const PluginContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`;
-
-const PluginPic = styled.img`
-  width: 60px;
-  height: 60px;
-`;
-
-const PluginInformation = styled.div`
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
-
-  b {
-    text-transform: capitalize;
-  }
-`;
 
 // const Footer = styled.div`
 //   display: flex;
@@ -45,13 +32,6 @@ const PluginInformation = styled.div`
 //   width: 90px;
 //   background: ${colors.bgGray};
 // `;
-
-const Description = styled.p`
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden !important;
-`;
 
 type Props = {
   onSearch?: (e) => void;
@@ -74,7 +54,6 @@ class PluginPreview extends React.Component<
   }
 
   renderList = () => {
-    // const space = "\u00a0";
     const { enabledServicesQuery } = this.props;
     const { loading } = this.state;
 

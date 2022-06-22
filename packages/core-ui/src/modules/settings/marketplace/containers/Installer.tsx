@@ -4,6 +4,7 @@ import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 
 import { withProps } from 'modules/common/utils';
+
 import { mutations } from '@erxes/ui-settings/src/general/graphql';
 
 import Installer from '../components/Installer';

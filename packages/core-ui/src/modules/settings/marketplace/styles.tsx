@@ -28,6 +28,151 @@ const ImageWrapper = styled.div`
 
 // Leftbar
 
+const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const SearchContainer = styledTS<{ active?: boolean }>(styled.div)`
+  position: relative;
+  transition: .3s all;
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
+const Search = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 6px;
+
+  input {
+    background: 0 0;
+    border: none;
+    flex: 1;
+    outline: 0;
+  }
+`;
+
+const FilterContainer = styledTS<{ active?: boolean }>(styled.div)`
+  transition: .s all;
+  flex: 1;
+`;
+
+const Filter = styled.div`
+  border-radius: 8px;
+  height: 100%;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
+const FilterHeader = styled.div`
+  display: flex;
+  height: 40px;
+  justify-content: space-between;
+  padding: 9px;
+  align-items: center;
+`;
+
+const Box = styled.div`
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
+const PaddingLeft = styled.div`
+  padding-left: ${dimensions.unitSpacing}px;
+  font-weight: 700;
+`;
+
+const PaddingBottom = styled.div`
+  padding-bottom: 5px;
+`;
+
+// Plugin Preview
+
+const ListContainer = styled.div`
+  padding-bottom: ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const ListHeader = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px 0px;
+`;
+
+const ListTitle = styled.b`
+  height: ${typography.lineHeightHeading5};
+`;
+
+const ColorText = styled.b`
+  color: ${colors.colorPrimary};
+`;
+
+const PluginContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const Card = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  width: 250px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  padding: ${dimensions.unitSpacing}px;
+
+  button {
+    float: left;
+    margin-right: 5px;
+    background: rgb(103, 63, 189);
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    border: none;
+    font-weight: 500;
+    outline: 0px;
+    padding: 5px 15px;
+    cursor: pointer;
+  }
+
+  .uninstall {
+    background: #eb5a5a;
+  }
+
+  .install {
+    background: #13ce66;
+  }
+`;
+
+const PluginPic = styled.img`
+  width: 60px;
+  height: 60px;
+`;
+
+const PluginInformation = styled.div`
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
+
+  b {
+    text-transform: capitalize;
+  }
+`;
+
+const Description = styled.p`
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden !important;
+`;
+
 //************** */
 
 const inputPadding = '0px';
@@ -175,62 +320,21 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
-const ListContainer = styled.div`
-  padding-bottom: ${dimensions.coreSpacing}px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
-const ListHeader = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: ${dimensions.coreSpacing}px 0px;
-`;
-
-const ListTitle = styled.b`
-  height: ${typography.lineHeightHeading5};
-`;
-
-const ColorText = styled.b`
-  color: ${colors.colorPrimary};
-`;
-
-const Card = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
-  width: 250px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 8px;
-  padding: ${dimensions.unitSpacing}px;
-
-  button {
-    float: left;
-    margin-right: 5px;
-    background: rgb(103, 63, 189);
-    border-radius: 5px;
-    color: rgb(255, 255, 255);
-    border: none;
-    font-weight: 500;
-    outline: 0px;
-    padding: 5px 15px;
-    cursor: pointer;
-  }
-
-  .uninstall {
-    background: #eb5a5a;
-  }
-
-  .install {
-    background: #13ce66;
-  }
-`;
-
 const GrayText = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
 export {
   ImageWrapper,
+  MainContainer,
+  SearchContainer,
+  Search,
+  FilterContainer,
+  Filter,
+  FilterHeader,
+  Box,
+  PaddingLeft,
+  PaddingBottom,
   WidgetApperance,
   FormLabel,
   Checkbox,
@@ -239,5 +343,9 @@ export {
   ListTitle,
   ColorText,
   Card,
-  GrayText
+  GrayText,
+  PluginContainer,
+  PluginPic,
+  PluginInformation,
+  Description
 };
