@@ -1,12 +1,7 @@
 import React from 'react';
 
-import Icon from 'modules/common/components/Icon';
-import Button from 'modules/common/components/Button';
 import { __ } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
-
-import { Flex } from '@erxes/ui/src/styles/main';
-import { colors, dimensions } from '@erxes/ui/src/styles';
 
 import {
   ListContainer,
@@ -14,24 +9,11 @@ import {
   ListTitle,
   ColorText,
   Card,
-  GrayText,
   PluginContainer,
   PluginPic,
   PluginInformation,
   Description
 } from '../styles';
-
-// const Footer = styled.div`
-//   display: flex;
-//   align-items: center;
-//   justify-content: space-between;
-// `;
-
-// const Rating = styled.div`
-//   height: ${dimensions.coreSpacing}px;
-//   width: 90px;
-//   background: ${colors.bgGray};
-// `;
 
 type Props = {
   onSearch?: (e) => void;
@@ -45,8 +27,6 @@ class PluginPreview extends React.Component<
   Props,
   { showInput: boolean; searchValue: string; loading: any }
 > {
-  // private wrapperRef;
-
   constructor(props) {
     super(props);
 
@@ -528,43 +508,8 @@ class PluginPreview extends React.Component<
                   : 'Install'}
               </button>
             )}
-            {/* <Flex>
-              <Button size="small">
-                <Icon
-                  icon="shopping-cart-alt"
-                  size={15}
-                  color={colors.colorPrimary}
-                />
-              </Button>
-              <Button size="small">
-                <b>Install</b>
-              </Button>
-            </Flex> */}
           </Card>
         ))}
-        {/* {plugins.map((plugin) => {
-          enabledServices[plugin.title] && (
-            <Card key={plugin.title}>
-              <PluginPic src={plugin.image} />
-              <PluginInformation>
-                <b>{plugin.title}</b>
-                <Description>{plugin.shortDescription}</Description>
-              </PluginInformation>
-              <Flex>
-                <Button size="small">
-                  <Icon
-                    icon="shopping-cart-alt"
-                    size={15}
-                    color={colors.colorPrimary}
-                  />
-                </Button>
-                <Button size="small">
-                  <b>Install</b>
-                </Button>
-              </Flex>
-            </Card>
-          );
-        })} */}
       </PluginContainer>
     );
   };
