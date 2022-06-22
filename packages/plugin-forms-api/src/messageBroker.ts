@@ -27,7 +27,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Forms.find(query)
+      data: await models.Forms.find(query).lean()
     };
   });
 
@@ -36,7 +36,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Forms.findOne(data)
+      data: await models.Forms.findOne(data).lean()
     };
   });
 
@@ -156,7 +156,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Fields.findOne(query)
+        data: await models.Fields.findOne(query).lean()
       };
     }
   );
@@ -168,7 +168,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FieldsGroups.find(query)
+        data: await models.FieldsGroups.find(query).lean()
       };
     }
   );
@@ -180,7 +180,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FieldsGroups.findOne(query)
+        data: await models.FieldsGroups.findOne(query).lean()
       };
     }
   );
@@ -204,7 +204,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FormSubmissions.find(query)
+        data: await models.FormSubmissions.find(query).lean()
       };
     }
   );

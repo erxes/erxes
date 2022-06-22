@@ -89,6 +89,10 @@ module.exports = {
               label: "Developers Guide",
               to: "/developer/developer",
             },
+            {
+              label: "Graphql API reference",
+              to: "pathname:///developers/docs/references"
+            }
           ],
         },
         {
