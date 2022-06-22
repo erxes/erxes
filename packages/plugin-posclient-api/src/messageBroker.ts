@@ -137,6 +137,17 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendContactsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

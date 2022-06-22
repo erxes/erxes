@@ -67,7 +67,7 @@ const orderMutations = {
     };
 
     try {
-      const preparedDoc = await prepareOrderDoc(doc, config);
+      const preparedDoc = await prepareOrderDoc(doc, config, models);
 
       const order = await models.Orders.createOrder({
         ...doc,
@@ -104,7 +104,7 @@ const orderMutations = {
 
     await cleanOrderItems(doc._id, doc.items);
 
-    const preparedDoc = await prepareOrderDoc({ ...doc }, config);
+    const preparedDoc = await prepareOrderDoc({ ...doc }, config, models);
 
     await updateOrderItems(doc._id, preparedDoc.items);
 

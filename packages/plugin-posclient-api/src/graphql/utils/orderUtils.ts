@@ -249,7 +249,8 @@ export const prepareEbarimtData = async (
 
 export const prepareOrderDoc = async (
   doc: IOrderInput,
-  config: IConfigDocument
+  config: IConfigDocument,
+  models
 ) => {
   const { catProdMappings = [] } = config;
 
@@ -264,7 +265,7 @@ export const prepareOrderDoc = async (
       packOfCategoryId[rel.categoryId] = rel.productId;
     }
 
-    const products = await Products.find({
+    const products = await models.Products.find({
       _id: { $in: items.map(i => i.productId) }
     }).lean();
 

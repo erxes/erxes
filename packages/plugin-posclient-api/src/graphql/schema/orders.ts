@@ -27,6 +27,56 @@ const addEditParams = `
 `;
 
 export const types = `
+
+  type Customer {
+    _id: String!
+    state: String
+    createdAt: Date
+    modifiedAt: Date
+    avatar: String
+    integrationId: String
+    firstName: String
+    lastName: String
+    middleName: String
+
+    birthDate: Date
+    sex: Int
+
+    email: String
+    primaryEmail: String
+    emails: [String]
+    primaryPhone: String
+    phones: [String]
+
+    phone: String
+    tagIds: [String]
+    remoteAddress: String
+    internalNotes: JSON
+    location: JSON
+    visitorContactInfo: JSON
+    customFieldsData: JSON
+    trackedData: JSON
+    ownerId: String
+    position: String
+    department: String
+    leadStatus: String
+    hasAuthority: String
+    description: String
+    isSubscribed: String
+    code: String
+    emailValidationStatus: String
+    phoneValidationStatus: String
+
+    isOnline: Boolean
+    lastSeenAt: Date
+    sessionCount: Int
+    urlVisits: [JSON]
+    details: PosUserDetailsType
+    links: JSON
+    owner: User
+    score: Float
+  } 
+
   type OrderItem {
     ${commonFields}
     productId: String!
@@ -78,6 +128,7 @@ export const types = `
     cardInfo: JSON
   }
 
+
   type Order {
     ${commonFields}
     ${orderFields}
@@ -96,9 +147,8 @@ export const types = `
     deliveryInfo: JSON
     cardPayments: [CardPayment]
     origin: String
-
+    customer: Customer
     items: [OrderItem]
-    
     user: PosUser
     putResponses: [PutResponse]
     qpayInvoice: QPayInvoice

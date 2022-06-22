@@ -18,12 +18,16 @@ export const types = `
     location: String
     description: String
     operatorPhone: String
-  }
+  } 
 
   type PosUser {
     _id: String!
     createdAt: Date
     username: String
+    firstName: String
+    lastName: String
+    primaryPhone: String
+    primaryEmail: String
     email: String
     isActive: Boolean
     isOwner: Boolean
