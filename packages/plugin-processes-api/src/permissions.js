@@ -15,23 +15,24 @@ module.exports = {
       {
         name: 'manageJobRefers',
         description: 'manage Job Refers'
-      },
-      {
-        name: 'showFlows',
-        description: 'show Flows'
-      },
-      {
-        name: 'manageFlows',
-        description: 'manage Flows'
-      },
-      {
-        name: 'showWorks',
-        description: 'show Works'
-      },
-      {
-        name: 'manageWorks',
-        description: 'manage Works'
       }
+      // ,
+      // {
+      //   name: 'showFlows',
+      //   description: 'show Flows'
+      // },
+      // {
+      //   name: 'manageFlows',
+      //   description: 'manage Flows'
+      // },
+      // {
+      //   name: 'showWorks',
+      //   description: 'show Works'
+      // },
+      // {
+      //   name: 'manageWorks',
+      //   description: 'manage Works'
+      // }
     ]
   }
 };

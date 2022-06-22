@@ -32,7 +32,7 @@ const jobReferMutations = {
       models,
       subdomain,
       {
-        type: MODULE_NAMES.PRODUCT,
+        type: MODULE_NAMES.JOBREFER,
         newData: {
           ...doc,
           categoryId: jobRefer.categoryId,
