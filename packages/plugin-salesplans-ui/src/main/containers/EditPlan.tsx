@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { useMutation } from 'react-apollo';
-import { mutations } from '../graphql';
+import { useQuery, useMutation } from 'react-apollo';
+import { queries, mutations } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
 import queryString from 'query-string';
@@ -21,7 +21,21 @@ const EditPlanContainer = () => {
       .catch((error: any) => Alert.error(error.message));
   };
 
-  return <EditPlan update={update} />;
+  const getSalesLogDetailQuery = useQuery(gql(queries.getSalesLogDetail), {
+    variables: { salesLogId }
+  });
+
+  const salesLogDetail = getSalesLogDetailQuery.data
+    ? getSalesLogDetailQuery.data.getSalesLogDetail
+    : {};
+
+  return (
+    <EditPlan
+      loading={getSalesLogDetailQuery.loading}
+      data={salesLogDetail}
+      update={update}
+    />
+  );
 };
 
 export default EditPlanContainer;

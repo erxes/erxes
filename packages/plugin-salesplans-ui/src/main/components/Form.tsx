@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';
 import Datetime from '@nateradebaugh/react-datetime';
 import { FlexItem } from '@erxes/ui-settings/src/styles';
@@ -8,13 +7,13 @@ import {
   Button,
   Box,
   ControlLabel,
-  SidebarList,
   FormControl,
   FormGroup,
   FlexItem as CommonFlexItem,
   FlexRightItem,
   Form as CommonForm,
   FlexContent,
+  SidebarList,
   Table
 } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
@@ -24,12 +23,11 @@ import { TYPES } from '../../constants';
 
 type Props = {
   labels: any[];
-  type: string;
   products: any[];
   categories: any[];
   timeframes: any[];
-  edit?: boolean;
-  data?: any;
+  type: string;
+  initialData?: any;
   setType: (type: string) => void;
   submit: (data: any) => void;
 };
@@ -37,41 +35,28 @@ type Props = {
 const Form = (props: Props) => {
   const {
     labels,
-    type,
     products = [],
     categories = [],
     timeframes = [],
-    edit = false,
-    data = {},
+    type,
+    initialData = {},
     setType,
     submit
   } = props;
 
-  const [_products, setProducts] = useState<any[]>(products);
-  const [_categories, setCategories] = useState<any[]>(categories);
   const [categoryId, setCategoryId] = useState<string>('');
   const [salesPlan, setSalesPlan] = useState<any>({
-    name: '',
-    description: '',
-    type: '',
-    date: '',
-    departmentId: '',
-    branchId: ''
+    name: initialData.name ? initialData.name : '',
+    description: initialData.description ? initialData.description : '',
+    type: initialData.type ? initialData.type : '',
+    date: initialData.date ? initialData.date : '',
+    departmentId: initialData.departmentId ? initialData.departmentId : '',
+    branchId: initialData.branchId ? initialData.branchId : ''
   });
 
-  useEffect(() => setProducts(products), [products]);
-  useEffect(() => setCategories(categories), [categories]);
   useEffect(() => handleState(type, 'type'), [type]);
-  useEffect(() => {
-    setSalesPlan({
-      name: data.name ? data.name : '',
-      description: data.description ? data.description : '',
-      type: data.type ? data.type : '',
-      date: data.date ? data.date : '',
-      departmentId: data.departmentId ? data.departmentId : '',
-      branchId: data.branchId ? data.branchId : ''
-    });
-  }, [data]);
+
+  console.log(initialData);
 
   const handleSubmit = () => {
     submit(salesPlan);
@@ -137,9 +122,9 @@ const Form = (props: Props) => {
   };
 
   const renderCategories = () => {
-    if (!_categories) return null;
+    if (!categories) return null;
 
-    return _categories.map((item: any, index: number) => {
+    return categories.map((item: any, index: number) => {
       return (
         <li key={index}>
           <a onClick={() => setCategoryId(item._id)}>{item.name}</a>
@@ -149,12 +134,12 @@ const Form = (props: Props) => {
   };
 
   const renderProducts = () => {
-    if (!_products) return null;
+    if (!products) return null;
 
-    let filteredProducts = _products;
+    let filteredProducts = products;
 
     if (categoryId.length !== 0)
-      filteredProducts = _products.filter(
+      filteredProducts = products.filter(
         (item: any) => item.categoryId === categoryId
       );
 
@@ -163,7 +148,7 @@ const Form = (props: Props) => {
     };
 
     const renderSubmitButton = () => {
-      if (!edit) return null;
+      if (!initialData) return null;
 
       return (
         <td>
@@ -213,7 +198,7 @@ const Form = (props: Props) => {
 
   const renderProductsList = () => {
     const renderSubmitHeader = () => {
-      if (!edit) return null;
+      if (!initialData) return null;
 
       return <th>Actions</th>;
     };
@@ -270,23 +255,6 @@ const Form = (props: Props) => {
               }
             />
           </FormGroup>
-        </FlexItem>
-        <FlexItem>
-          <FormGroup>
-            <ControlLabel required={true}>Type</ControlLabel>
-            <Select
-              name="type"
-              required={true}
-              value={salesPlan.type}
-              onChange={(event: any) => setType(event.value)}
-              options={TYPES}
-            />
-          </FormGroup>
-          {renderSelectTime()}
-        </FlexItem>
-      </FlexContent>
-      <FlexContent>
-        <FlexItem>
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <FormControl
@@ -302,9 +270,18 @@ const Form = (props: Props) => {
               }
             />
           </FormGroup>
+          <FormGroup>
+            <ControlLabel required={true}>Type</ControlLabel>
+            <Select
+              name="type"
+              required={true}
+              value={salesPlan.type}
+              onChange={(event: any) => setType(event.value)}
+              options={TYPES}
+            />
+          </FormGroup>
+          {renderSelectTime()}
         </FlexItem>
-      </FlexContent>
-      <FlexContent>
         <FlexItem>
           <FormGroup>
             <ControlLabel required={true}>Department</ControlLabel>
@@ -319,8 +296,6 @@ const Form = (props: Props) => {
               customOption={{ value: '', label: 'All Departments' }}
             />
           </FormGroup>
-        </FlexItem>
-        <FlexItem>
           <FormGroup>
             <ControlLabel required={true}>Branch</ControlLabel>
             <SelectBranches
@@ -332,10 +307,6 @@ const Form = (props: Props) => {
               customOption={{ value: '', label: 'All branches' }}
             />
           </FormGroup>
-        </FlexItem>
-      </FlexContent>
-      <FlexContent>
-        <FlexItem>
           <FormGroup>
             <ControlLabel>Label</ControlLabel>
             <Select

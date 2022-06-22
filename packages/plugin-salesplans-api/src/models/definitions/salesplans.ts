@@ -11,6 +11,17 @@ export interface ISalesLog {
   branchId: string;
   departmentId: string;
   createdBy: string;
+  products: [
+    {
+      _id: string;
+      quantities: [
+        {
+          label: string;
+          value: string;
+        }
+      ];
+    }
+  ];
 }
 
 export interface ISalesLogDocument extends ISalesLog, Document {
@@ -33,7 +44,23 @@ export const salesLogSchema = schemaWrapper(
     branchId: field({ type: String, label: 'Branch' }),
     departmentId: field({ type: String, label: 'Department' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-    createdBy: field({ type: String, label: 'Created by' })
+    createdBy: field({ type: String, label: 'Created by' }),
+    products: field({
+      type: [
+        {
+          _id: String,
+          quantities: [
+            {
+              label: String,
+              value: String
+            }
+          ]
+        }
+      ],
+      default: [],
+      label: 'Products'
+    }),
+    labelIds: field({ type: [String], default: [], label: 'Labels' })
   })
 );
 
