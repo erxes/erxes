@@ -1,0 +1,66 @@
+spectaql:
+  logoFile: ./static/img/logo_dark.svg
+  faviconFile: ./packages/core-ui/public/favicon.png
+  displayAllServers: true
+
+introspection:
+  removeTrailingPeriodFromDescriptions: false
+  url: http://localhost:4000/graphql
+  dynamicExamplesProcessingModule: ./examples/customizations/examples
+  queryNameStrategy: capitalizeFirst
+  fieldExpansionDepth: 2
+
+extensions:
+  graphqlScalarExamples: true
+
+info:
+  title: GraphQL API Reference
+  description: |
+    How to get erxes-app-token
+    <br />
+
+    <div style="position: relative; padding-bottom: 56.25%; height: 0;">
+      <iframe src="https://www.loom.com/embed/c222921cc87441dfabe765244e85c569" 
+        frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      </iframe>
+    </div>
+
+  termsOfService: https://erxes.io/terms
+
+  license:
+    name: Free and open fair-code licensed under GNU General Public License v3.0 with Commons Clause.
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  x-introItems:
+    - title: Contact us
+      description: |
+        If you need any further information join our server on discord
+        <br />
+        <a href="https://discord.com/invite/aaGzy3gQK5" target="_blank">
+          <img src="https://erxes.io/static/images/discord-logo-purple.svg" alt="Join our server on discord">
+        </a>
+    - title: Graphql clients
+      description: |
+        <a href="https://www.apollographql.com/docs/react" target="_blank"> • GraphQL client for React</a>
+          <br />
+        <a href="https://www.apollographql.com/docs/ios" target="_blank"> • GraphQL client for Swift</a>
+          <br />
+        <a href="https://www.apollographql.com/docs/kotlin" target="_blank"> • GraphQL client for Kotlin</a>
+          <br />
+        <a href="https://github.com/zino-hofmann/graphql-flutter" target="_blank"> • GraphQL client for Flutter</a>
+          <br />
+        <a href="https://github.com/arthurkhlghatyan/gql-client-rs" target="_blank"> • GraphQL client for Rust</a>
+          <br />
+        <a href="https://github.com/graphql-python/gql" target="_blank"> • GraphQL client for Python</a>
+          <br />
+        <a href=" https://chillicream.com/docs/strawberryshake" target="_blank"> • GraphQL client for C# / .NET</a>
+          
+
+         
+servers:
+  - url: https://example.com/gateway/graphql
+    description: 
+    production: true
+    headers:
+      - name: erxes-app-token
+        example: <YOUR_TOKEN_HERE>
+        comment: Create app on erxes

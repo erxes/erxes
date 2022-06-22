@@ -8,6 +8,7 @@ import PermissionRoutes from './permissions/routes';
 import ProfileRoutes from './profile/routes';
 import TeamRoutes from './team/routes';
 import AppRoutes from './apps/routes';
+import StoreRoutes from './marketplace/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -19,6 +20,7 @@ const routes = () => (
     <ImportHistory key="ImportHistory" />
     <PermissionRoutes key="PermissionRoutes" />
     <AppRoutes key="AppRoutes" />
+    <StoreRoutes key="Store" />
   </React.Fragment>
 );
 

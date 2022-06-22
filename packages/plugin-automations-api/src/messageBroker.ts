@@ -28,6 +28,17 @@ export const initBroker = async cl => {
       await receiveTrigger({ models, subdomain, type, targets });
     }, 10000);
   });
+
+  consumeQueue('automations:find.count', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    const { query = {} } = data || {};
+
+    return {
+      status: 'success',
+      data: await models.Automations.countDocuments(query)
+    };
+  });
 };
 
 export const sendCommonMessage = async (
