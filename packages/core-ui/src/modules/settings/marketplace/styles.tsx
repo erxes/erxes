@@ -320,10 +320,6 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
-const GrayText = styled.div`
-  color: ${colors.colorCoreGray};
-`;
-
 export {
   ImageWrapper,
   MainContainer,
@@ -335,17 +331,16 @@ export {
   Box,
   PaddingLeft,
   PaddingBottom,
-  WidgetApperance,
-  FormLabel,
-  Checkbox,
   ListContainer,
   ListHeader,
   ListTitle,
   ColorText,
-  Card,
-  GrayText,
   PluginContainer,
+  Card,
   PluginPic,
   PluginInformation,
-  Description
+  Description,
+  WidgetApperance,
+  FormLabel,
+  Checkbox
 };
