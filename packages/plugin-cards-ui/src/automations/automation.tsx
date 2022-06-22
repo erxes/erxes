@@ -4,7 +4,7 @@ import SelectBoard from './components/SelectBoard';
 import ActionResult from './components/ActionResult';
 
 const Automations = props => {
-  const { componentType } = props;
+  const { componentType, target } = props;
 
   switch (componentType) {
     case 'actionForm':
@@ -13,8 +13,11 @@ const Automations = props => {
     case 'selectBoard':
       return <SelectBoard {...props} />;
 
-    case 'actionResult':
+    case 'historyActionResult':
       return <ActionResult {...props} />;
+
+    case 'historyName':
+      return target.name;
 
     default:
       return null;

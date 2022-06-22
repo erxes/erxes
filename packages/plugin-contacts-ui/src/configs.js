@@ -4,7 +4,8 @@ module.exports = {
   scope: 'contacts',
   exposes: {
     './routes': './src/routes.tsx',
-    './activityLog': './src/activityLogs/activityLog.tsx'
+    './activityLog': './src/activityLogs/activityLog.tsx',
+    './automation': './src/automations/automation.tsx'
   },
   routes: {
     url: 'http://localhost:3011/remoteEntry.js',
@@ -12,6 +13,7 @@ module.exports = {
     module: './routes'
   },
   activityLog: './activityLog',
+  automation: './automation',
   menus: [
     {
       text: 'Contacts',
