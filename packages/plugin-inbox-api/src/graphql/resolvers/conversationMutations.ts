@@ -379,8 +379,6 @@ const conversationMutations = {
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);
 
-    console.log('mmmmmmmmmmmmm', user, user._id, message);
-
     /**
      * Send SMS only when:
      * - integration is of kind telnyx
@@ -455,8 +453,6 @@ const conversationMutations = {
     );
 
     const dbMessage = await models.ConversationMessages.getMessage(message._id);
-
-    console.log('nnnnnnnnnnnnnnnnnnnn', message);
 
     await sendToWebhook({
       subdomain,

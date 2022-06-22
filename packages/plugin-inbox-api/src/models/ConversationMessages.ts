@@ -28,7 +28,7 @@ export const loadClass = (models: IModels) => {
      * Retreives message
      */
     public static async getMessage(_id: string) {
-      const message = await models.ConversationMessages.findOne({ _id });
+      const message = await models.ConversationMessages.findOne({ _id }).lean();
 
       if (!message) {
         throw new Error('Conversation message not found');
@@ -134,7 +134,10 @@ export const loadClass = (models: IModels) => {
         modifier.firstRespondedDate = new Date();
       }
 
-      await models.Conversations.updateConversation(doc.conversationId, modifier);
+      await models.Conversations.updateConversation(
+        doc.conversationId,
+        modifier
+      );
 
       return this.createMessage({ ...doc, userId });
     }
