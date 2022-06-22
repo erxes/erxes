@@ -101,7 +101,9 @@ const productQueries = {
     {}: IContext
   ) {
     const filter = generateFilterCat({ parentId, searchValue });
-    const categories = await ProductCategories.find(filter).sort({ order: 1 });
+    const categories = await models.ProductCategories.find(filter).sort({
+      order: 1
+    });
     const list: IProductCategoryDocument[] = [];
 
     if (excludeEmpty) {

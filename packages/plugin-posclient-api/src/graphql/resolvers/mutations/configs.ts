@@ -23,13 +23,13 @@ const configMutations = {
   posConfigsFetch: async (_root, { token }, { models }: IContext) => {
     const posService = await getService('pos');
 
+    const config = await models.Configs.createConfig(token);
     const response = await sendRequest({
       url: `${posService.address}/pos-init`,
       method: 'get',
       headers: { 'POS-TOKEN': token }
     });
 
-    const config = await models.Configs.createConfig(token);
     if (response) {
       const {
         pos = {},
@@ -39,7 +39,7 @@ const configMutations = {
         qpayConfig
       } = response;
 
-      validateConfig();
+      validateConfig(pos);
 
       await models.Configs.updateConfig(config._id, {
         ...extractConfig(pos),

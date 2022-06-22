@@ -1,5 +1,6 @@
 import { IModels } from '../../connectionResolver';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
+import { IConfig } from '../../models/definitions/configs';
 
 export const importUsers = async (
   models: IModels,
@@ -217,7 +218,17 @@ export const extractConfig = doc => {
   };
 };
 
-export const validateConfig = () => {};
+export const validateConfig = (config: IConfig) => {
+  const { adminIds = [], cashierIds = [], name } = config;
+
+  if (!name) {
+    throw new Error('POS name missing');
+  }
+
+  if (adminIds.length + cashierIds.length === 0) {
+    throw new Error('Admin & cashier user list empty');
+  }
+};
 
 // receive product data through message broker
 export const receiveProduct = async (models, data) => {
