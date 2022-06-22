@@ -35,6 +35,8 @@ const workQueries = {
     },
     { models, commonQuerySelector }: IContext
   ) {
+    console.log('works step 1');
+
     const selector = generateFilter(params, commonQuerySelector);
     return paginate(models.Works.find(selector).lean(), { ...params });
   },
@@ -50,6 +52,6 @@ const workQueries = {
   }
 };
 
-checkPermission(workQueries, 'flows', 'showWorks');
+// checkPermission(workQueries, 'flows', 'showWorks');
 
 export default workQueries;

@@ -40,6 +40,7 @@ const flowQueries = {
     },
     { models, commonQuerySelector }: IContext
   ) {
+    console.log('flows step 1');
     const selector = generateFilter(params, commonQuerySelector);
 
     return paginate(
@@ -70,7 +71,7 @@ const flowQueries = {
   }
 };
 
-checkPermission(flowQueries, 'flowDetail', 'showJobRefers');
-checkPermission(flowQueries, 'flows', 'showJobRefers');
+// checkPermission(flowQueries, 'flowDetail', 'showFlows');
+// checkPermission(flowQueries, 'flows', 'showFlows');
 
 export default flowQueries;
