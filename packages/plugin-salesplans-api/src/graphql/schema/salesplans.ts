@@ -14,6 +14,10 @@ export const types = () => `
     _id: String! @external
   }
 
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
+  }
+
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -32,7 +36,18 @@ export const types = () => `
     createdUser: User
     createdAt: Date
     status: String
+    products: [Product]
   },
+
+  type Product {
+    productId: String
+    quantities: [Quantity]
+  }
+
+  type Quantity {
+    label: String
+    value: String
+  }
 
   type Label {
     _id: String
@@ -70,6 +85,16 @@ export const types = () => `
     labelIds: [String]
     month: Int
   },
+
+  input ProductInput {
+    _id: String
+    quantities: [QuantityInput]
+  }
+
+  input QuantityInput {
+    label: String
+    value: String
+  }
 
   input TimeframeInput {
     _id: String
@@ -119,6 +144,7 @@ const salesLogDocumentParams = `
   date: Date,
   branchId: String,
   departmentId: String,
+  products: [ProductInput]
 `;
 
 export const queries = `

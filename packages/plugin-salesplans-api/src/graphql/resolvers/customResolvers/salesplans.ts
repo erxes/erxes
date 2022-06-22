@@ -20,6 +20,15 @@ const SalesLog = {
     );
   },
 
+  productDetail(salesLog: ISalesLog) {
+    return (
+      salesLog.products && {
+        __typename: 'Product',
+        _id: salesLog.products[0]._id
+      }
+    );
+  },
+
   createdUser(salesLog: ISalesLogDocument) {
     if (!salesLog.createdBy) {
       return;
