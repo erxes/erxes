@@ -6,7 +6,6 @@ import { IContext } from '../../connectionResolver';
 
 export default {
   user(message: IMessageDocument) {
-    console.log('mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', message.userId);
     return message.userId && { __typename: 'User', _id: message.userId };
   },
 
