@@ -43,7 +43,6 @@ function List(props: Props) {
       if (!salesLog || salesLog.length === 0) return null;
 
       return salesLog.map((item: any, index: number) => {
-        console.log(item);
         return (
           <tbody key={index}>
             <tr>
