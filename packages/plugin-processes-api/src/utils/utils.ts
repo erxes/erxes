@@ -214,7 +214,10 @@ export const recursiveCatchBeforeJobs = async (
       let checkTempIds = beforeJobsRecursive.map(beforeJob => beforeJob.id);
       checkTempIds = checkTempIds.sort();
 
-      if (checkJobFrequentlyIds.length === 0) {
+      if (
+        checkJobFrequentlyIds.length === 0 ||
+        JSON.stringify(checkTempIds) !== JSON.stringify(checkJobFrequentlyIds)
+      ) {
         console.log(
           'Compare1 ... checkTempIds: ',
           checkTempIds,
@@ -223,27 +226,6 @@ export const recursiveCatchBeforeJobs = async (
         );
 
         checkJobFrequentlyIds = checkTempIds;
-        recursiveJobs = beforeJobsRecursive;
-        recursiveCatchBeforeJobs(
-          recursiveJobs,
-          leftJobs,
-          level + levelCounter++,
-          params
-        );
-      }
-
-      if (
-        JSON.stringify(checkTempIds) !== JSON.stringify(checkJobFrequentlyIds)
-      ) {
-        console.log(
-          'Compare2 ... checkTempIds: ',
-          checkTempIds,
-          'checkJobFrequentlyIds: ',
-          checkJobFrequentlyIds
-        );
-
-        checkJobFrequentlyIds = checkTempIds;
-
         recursiveJobs = beforeJobsRecursive;
         recursiveCatchBeforeJobs(
           recursiveJobs,
