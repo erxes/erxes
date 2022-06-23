@@ -47,8 +47,8 @@ const Row = (props: Props) => {
     <DirectionForm {...props} direction={direction} />
   );
 
-  const placeA = (direction.places[0] && direction.places[0].name) || '-';
-  const placeB = (direction.places[1] && direction.places[1].name) || '-';
+  const placeA = direction.places.find(p => p._id === direction.placeIds[0]);
+  const placeB = direction.places.find(p => p._id === direction.placeIds[1]);
 
   const duration = direction.duration || 0;
 
@@ -61,11 +61,11 @@ const Row = (props: Props) => {
         <RowTitle>{direction.roadCode || '-'}</RowTitle>
       </td>
       <td key={Math.random()}>
-        <RowTitle>{placeA}</RowTitle>
+        <RowTitle>{(placeA && placeA.name) || '-'}</RowTitle>
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{placeB}</RowTitle>
+        <RowTitle>{(placeB && placeB.name) || '-'}</RowTitle>
       </td>
 
       <td key={direction._id}>
