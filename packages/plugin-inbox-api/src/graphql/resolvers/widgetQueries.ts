@@ -5,10 +5,17 @@ import { IIntegrationDocument } from '../../models/definitions/integrations';
 import { getOrCreateEngageMessage } from '../../widgetUtils';
 
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { sendCoreMessage, sendFormsMessage, sendKnowledgeBaseMessage } from '../../messageBroker';
+import {
+  sendCoreMessage,
+  sendFormsMessage,
+  sendKnowledgeBaseMessage
+} from '../../messageBroker';
 import { IContext, IModels } from '../../connectionResolver';
 
-export const isMessengerOnline = async (models: IModels, integration: IIntegrationDocument) => {
+export const isMessengerOnline = async (
+  models: IModels,
+  integration: IIntegrationDocument
+) => {
   if (!integration.messengerData) {
     return false;
   }
@@ -33,23 +40,26 @@ export const isMessengerOnline = async (models: IModels, integration: IIntegrati
   return models.Integrations.isOnline(modifiedIntegration);
 };
 
-const messengerSupporters = async (subdomain: string, integration: IIntegrationDocument) => {
+const messengerSupporters = async (
+  subdomain: string,
+  integration: IIntegrationDocument
+) => {
   const messengerData = integration.messengerData || { supporterIds: [] };
 
   return sendCoreMessage({
     subdomain,
-    action: "users.find",
+    action: 'users.find',
     data: {
       query: {
-         _id: { $in: messengerData.supporterIds } 
+        _id: { $in: messengerData.supporterIds }
       }
     },
     isRPC: true,
     defaultValue: []
-  })
+  });
 };
 
-const getWidgetMessages = (models: IModels,conversationId: string) => {
+const getWidgetMessages = (models: IModels, conversationId: string) => {
   return models.ConversationMessages.find({
     conversationId,
     internal: false,
@@ -60,8 +70,15 @@ const getWidgetMessages = (models: IModels,conversationId: string) => {
 };
 
 export default {
-  widgetsGetMessengerIntegration(_root, args: { brandCode: string }, { models }: IContext) {
-    return models.Integrations.getWidgetIntegration(args.brandCode, 'messenger');
+  widgetsGetMessengerIntegration(
+    _root,
+    args: { brandCode: string },
+    { models }: IContext
+  ) {
+    return models.Integrations.getWidgetIntegration(
+      args.brandCode,
+      'messenger'
+    );
   },
 
   widgetsConversations(
@@ -85,7 +102,10 @@ export default {
   ) {
     const { _id, integrationId } = args;
 
-    const conversation = await models.Conversations.findOne({ _id, integrationId });
+    const conversation = await models.Conversations.findOne({
+      _id,
+      integrationId
+    });
     const integration = await models.Integrations.findOne({
       _id: integrationId
     });
@@ -122,16 +142,26 @@ export default {
     };
   },
 
-  widgetsMessages(_root, args: { conversationId: string }, { models }: IContext) {
+  widgetsMessages(
+    _root,
+    args: { conversationId: string },
+    { models }: IContext
+  ) {
     const { conversationId } = args;
 
     return getWidgetMessages(models, conversationId);
   },
 
-  widgetsUnreadCount(_root, args: { conversationId: string }, { models }: IContext) {
+  widgetsUnreadCount(
+    _root,
+    args: { conversationId: string },
+    { models }: IContext
+  ) {
     const { conversationId } = args;
 
-    return models.ConversationMessages.widgetsGetUnreadMessagesCount(conversationId);
+    return models.ConversationMessages.widgetsGetUnreadMessagesCount(
+      conversationId
+    );
   },
 
   async widgetsTotalUnreadCount(
@@ -145,7 +175,10 @@ export default {
       return 0;
     }
     // find conversations
-    const convs = await models.Conversations.find({ integrationId, customerId });
+    const convs = await models.Conversations.find({
+      integrationId,
+      customerId
+    });
 
     // find read messages count
     return models.ConversationMessages.countDocuments(
@@ -227,7 +260,11 @@ export default {
     };
   },
 
-  async widgetsBookingProductWithFields(_root, { _id }: { _id: string }, { subdomain }: IContext) {
+  async widgetsBookingProductWithFields(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
     const fields = await sendFormsMessage({
       subdomain,
       action: 'fields.find',
@@ -255,7 +292,7 @@ export default {
       }
     };
   },
-  
+
   /*
    * Search published articles that contain searchString (case insensitive)
    * in a topic found by topicId
@@ -280,47 +317,48 @@ export default {
       },
       isRPC: true
     });
-
   },
 
-    /*  
-     * Topic detail
-     */
-     async widgetsKnowledgeBaseTopicDetail(_root, { _id }: { _id: string }, { subdomain }: IContext) {
-      const topic = await sendKnowledgeBaseMessage({
+  /*
+   * Topic detail
+   */
+  async widgetsKnowledgeBaseTopicDetail(
+    _root,
+    { _id }: { _id: string },
+    { subdomain }: IContext
+  ) {
+    const topic = await sendKnowledgeBaseMessage({
+      subdomain,
+      action: 'topics.findOne',
+      data: {
+        query: {
+          _id
+        }
+      },
+      isRPC: true
+    });
+
+    if (topic && topic.createdBy) {
+      const user = await sendCoreMessage({
         subdomain,
-        action: "topics.findOne",
+        action: 'users.findOne',
         data: {
-          query:{
-            _id
-          }
+          _id: topic.createdBy
         },
-        isRPC: true
-      })
-  
-      if (topic && topic.createdBy) {
-        const user = await sendCoreMessage({
-          subdomain,
-          action: 'users.findOne',
-          data: {
-            _id: topic.createdBy
-          },
-          isRPC: true,
-          defaultValue: {}
-        });
+        isRPC: true,
+        defaultValue: {}
+      });
 
-        sendCoreMessage({
-          subdomain,
-          action: 'registerOnboardHistory',
-          data: {
-            type: 'knowledgeBaseInstalled',
-            user
-          }
-        });
-      }
-  
-      return topic;
-    },
-  
+      sendCoreMessage({
+        subdomain,
+        action: 'registerOnboardHistory',
+        data: {
+          type: 'knowledgeBaseInstalled',
+          user
+        }
+      });
+    }
 
+    return topic;
+  }
 };
