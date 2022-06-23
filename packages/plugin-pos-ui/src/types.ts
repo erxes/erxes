@@ -11,6 +11,14 @@ export type CatProd = {
   productId: string;
 };
 
+export type ISyncCard = {
+  branchIds: string[];
+  boardId: string;
+  pipelineId: string;
+  stageId: string;
+  assignedUserIds: string[];
+};
+
 export type IProductGroup = {
   _id: string;
   name: string;
@@ -50,7 +58,7 @@ export type IPos = {
   uiOptions?: any;
   ebarimtConfig: any;
   erkhetConfig: any;
-  cardsConfig?: any;
+  cardsConfig?: ISyncCard[];
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];

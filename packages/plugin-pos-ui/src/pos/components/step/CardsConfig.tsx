@@ -7,24 +7,25 @@ import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 import {
   __,
   ControlLabel,
-  Label,
-  FormControl,
   FormGroup,
   Toggle,
-  SelectTeamMembers
+  SelectTeamMembers,
+  Button,
+  ModalTrigger
 } from '@erxes/ui/src';
 import {
   DomainRow,
   FlexColumn,
+  FlexRow,
   FlexItem,
-  Row,
   Block,
-  BlockRow,
-  BlockRowUp
+  BlockRow
 } from '../../../styles';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import { BlockList } from 'net';
 type Props = {
   onChange: (name: 'cardsConfig', value: any) => void;
   pos?: IPos;
@@ -105,31 +106,46 @@ class CardsConfig extends React.Component<
     if (!this.state.config.isSyncCards) {
       return <></>;
     }
+    const renderBoardContainer = () => {
+      return (
+        <BoardSelectContainer
+          type="deal"
+          autoSelectStage={false}
+          boardId={config.boardId}
+          pipelineId={config.pipelineId}
+          stageId={config.stageId}
+          onChangeBoard={onChangeBoard}
+          onChangePipeline={onChangePipeline}
+          onChangeStage={onChangeStage}
+        />
+      );
+    };
     return (
       <FlexItem>
-        <FlexColumn>
+        <FlexRow>
           <LeftItem>
-            {(isEnabled('cards') && (
-              <Block>
-                <h4>{__('Stage')}</h4>
-                <BlockRow>
-                  <BoardSelectContainer
-                    type="deal"
-                    autoSelectStage={false}
-                    boardId={config.boardId}
-                    pipelineId={config.pipelineId}
-                    stageId={config.stageId}
-                    onChangeBoard={onChangeBoard}
-                    onChangePipeline={onChangePipeline}
-                    onChangeStage={onChangeStage}
-                  />
-                </BlockRow>
-              </Block>
-            )) ||
-              'Please, enabled cards plugin'}
             <Block>
-              <h4>{__('Deal users')}</h4>
               <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Branch</ControlLabel>
+                  <SelectBranches
+                    label={__('Choose branch')}
+                    name="branchIds"
+                    onSelect={() => {}}
+                  />
+                </FormGroup>
+                {(isEnabled('cards') && (
+                  <FormGroup>
+                    <ControlLabel>Stage</ControlLabel>
+                    <br />
+                    <ModalTrigger
+                      title="Add stage"
+                      trigger={<Button>Add stage</Button>}
+                      content={renderBoardContainer}
+                    ></ModalTrigger>
+                  </FormGroup>
+                )) ||
+                  'Please, enabled cards plugin'}
                 <FormGroup>
                   <ControlLabel>{__('Assigned Users')}</ControlLabel>
                   <SelectTeamMembers
@@ -142,7 +158,7 @@ class CardsConfig extends React.Component<
               </BlockRow>
             </Block>
           </LeftItem>
-        </FlexColumn>
+        </FlexRow>
       </FlexItem>
     );
   }
