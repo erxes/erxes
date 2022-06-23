@@ -19,7 +19,6 @@ export const types = `
     ${commonFieldDefs}
     parentId: String
     order: String!
-
     isRoot: Boolean
     productCount: Int
   }

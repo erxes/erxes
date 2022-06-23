@@ -41,6 +41,8 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  posUser: IPosUserDocument;
+  config: IConfigDocument;
 }
 
 export let models: IModels | null = null;
@@ -65,7 +67,7 @@ export const loadClasses = (
     loadOrderItemClass(models)
   );
   models.Orders = db.model<IOrderDocument, IOrderModel>(
-    'pos_orders',
+    'pos_client_orders',
     loadOrderClass(models)
   );
   models.Products = db.model<IProductDocument, IProductModel>(

@@ -1,5 +1,3 @@
-import { QPayInvoices } from '../../../models/QPayInvoices';
-import { Orders } from '../../../models/Orders';
 import { IContext } from '../../types';
 import {
   fetchQPayToken,
@@ -24,9 +22,8 @@ const INVOICE_STATUSES = {
 const paymentMutations = {
   async createQpaySimpleInvoice(
     _root,
-    models,
     params: IInvoiceParams,
-    { config }: IContext
+    { models, config }: IContext
   ) {
     if (!config.qpayConfig) {
       throw new Error('QPay config missing');
@@ -71,9 +68,8 @@ const paymentMutations = {
 
   async qpayCancelInvoice(
     _root,
-    models,
     { _id }: IInvoiceParams,
-    { config }: IContext
+    { models, config }: IContext
   ) {
     try {
       const tokenInfo = await fetchQPayToken(config.qpayConfig!);
@@ -104,9 +100,8 @@ const paymentMutations = {
 
   async qpayCheckPayment(
     _root,
-    models,
     { _id }: IInvoiceParams,
-    { config }: IContext
+    { models, config }: IContext
   ) {
     const invoice = await models.QPayInvoices.getInvoice(_id);
 

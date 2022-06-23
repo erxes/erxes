@@ -50,20 +50,20 @@ const mutations = {
       defaultValue: []
     });
 
-    await sendPosMessage(
-      models,
-      messageBroker,
-      'pos:crudData',
-      {
-        type: 'pos',
-        action: 'update',
-        object,
-        updatedDocument,
-        adminUsers,
-        cashierUsers
-      },
-      object
-    );
+    // await sendPosMessage(
+    //   models,
+    //   messageBroker,
+    //   'pos:crudData',
+    //   {
+    //     type: 'pos',
+    //     action: 'update',
+    //     object,
+    //     updatedDocument,
+    //     adminUsers,
+    //     cashierUsers
+    //   },
+    //   object
+    // );
 
     return updatedDocument;
   },

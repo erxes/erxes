@@ -8,7 +8,6 @@ import {
   productCategorySchema,
   productSchema
 } from './definitions/products';
-import { OrderItems } from './OrderItems';
 
 const checkSKU = (doc: IProduct) => {
   if (!doc.sku) {

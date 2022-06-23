@@ -334,7 +334,7 @@ export const sendPosMessage = async (
 ) => {
   const channels = await getChannels(models, channel, pos, excludeTokens);
   for (const ch of channels) {
-    messageBroker().sendMessage(ch, params);
+    messageBroker().sendMessage(channel, params);
   }
 };
 

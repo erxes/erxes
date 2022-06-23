@@ -1,5 +1,3 @@
-import { Orders } from '../../../models/Orders';
-import { QPayInvoices } from '../../../models/QPayInvoices';
 import { IContext } from '../../types';
 import { fetchQPayInvoice, fetchQPayToken } from '../../utils/qpayUtils';
 import { escapeRegExp, paginate } from '../../utils/commonUtils';
@@ -17,9 +15,8 @@ interface IListParams {
 const paymentQueries = {
   async fetchRemoteInvoice(
     _root,
-    models,
     { orderId }: IInvoiceParams,
-    { config }: IContext
+    { models, config }: IContext
   ) {
     const order = await models.Orders.getOrder(orderId);
     const invoice = await models.QPayInvoices.findOne({
@@ -59,7 +56,11 @@ const paymentQueries = {
 
     return models.QPayInvoices.findOne({ _id: invoice._id });
   },
-  async qpayInvoices(_root, models, { page, perPage, number }: IListParams) {
+  async qpayInvoices(
+    _root,
+    { page, perPage, number }: IListParams,
+    { models }: IContext
+  ) {
     const filter: any = {};
 
     if (number) {

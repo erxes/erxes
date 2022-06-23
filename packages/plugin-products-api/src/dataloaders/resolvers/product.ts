@@ -27,7 +27,7 @@ export default {
 
   async uom(product: IProductDocument, _, { dataLoaders, models }: IContext) {
     if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
-      return {};
+      return null;
     }
 
     let uomId = product.uomId;
@@ -36,7 +36,7 @@ export default {
     }
 
     if (!uomId) {
-      return {};
+      return null;
     }
 
     return models.Uoms.getUom({ _id: uomId });

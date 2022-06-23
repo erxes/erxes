@@ -28,7 +28,6 @@ const login = async (
 const posUserMutations = {
   async posUsersCreateOwner(
     _root,
-    models,
     {
       email,
       password
@@ -39,7 +38,8 @@ const posUserMutations = {
       purpose: string;
       lastName?: string;
       subscribeEmail?: boolean;
-    }
+    },
+    { models }: IContext
   ) {
     const userCount = await models.PosUsers.countDocuments();
 

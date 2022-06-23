@@ -1,7 +1,7 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { generateModels, models } from './connectionResolver';
-import { graphqlPubsub } from './graphql/pubsub';
+import { graphqlPubsub } from './pubsub';
 import {
   receiveCustomer,
   receivePosConfig,
@@ -29,6 +29,8 @@ export const initBroker = async cl => {
   const syncId = '';
 
   consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
+    console.log('subdomain & data ::::::::::::::::', subdomain, data);
+
     const models = await generateModels(subdomain);
     if (data) {
       switch (data.type) {
