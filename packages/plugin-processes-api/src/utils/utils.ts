@@ -1,16 +1,20 @@
+import { IFlow, IFlowDocument } from './../models/definitions/flows';
+import { IWork, IWorkDocument } from './../models/definitions/works';
+import { IContext, IModels } from './../connectionResolver';
 import {
   IJobRefer,
   IJobReferDocument,
   IProductsData
 } from './../models/definitions/jobs';
-import { IJob } from '../models/definitions/flows';
+import { IJob, IJobDocument } from '../models/definitions/flows';
+import { MODULE_NAMES, putCreateLog } from '../logUtils';
 
 export const findLastJob = (
-  jobs: IJob[],
+  jobs: IJobDocument[],
   jobRefers: IJobReferDocument[],
   productId: string
 ) => {
-  const lastJobs: IJob[] = [];
+  const lastJobs: IJobDocument[] = [];
 
   for (const job of jobs) {
     if (!job.nextJobIds.length || job.nextJobIds.length === 0) {
@@ -48,7 +52,7 @@ export const findLastJob = (
 
     const justLastJob = Object.keys(justLastJobRefer).length
       ? lastJobs.find(last => last.jobReferId === justLastJobRefer._id)
-      : ({} as IJob);
+      : ({} as IJobDocument);
 
     return {
       lastJob: justLastJob,
@@ -57,7 +61,7 @@ export const findLastJob = (
     };
   } else {
     return {
-      lastJob: {} as IJob,
+      lastJob: {} as IJobDocument,
       lastJobs,
       flowStatus: doubleCheckResult ? true : false
     };
@@ -73,22 +77,68 @@ export const getJobRefers = (
   return chosenJobRefers;
 };
 
-export const getLeftJobs = (jobs: IJob[], jobIds: string[]) => {
+export const getLeftJobs = (jobs: IJobDocument[], jobIds: string[]) => {
   const leftJobs = jobs.filter(job => !jobIds.includes(job.id));
 
   return leftJobs;
 };
 
-export const getBeforeJobs = (leftJobs: IJob[], jobId: string) => {
+export const getBeforeJobs = (leftJobs: IJobDocument[], jobId: string) => {
   const beforeJobs = leftJobs.filter(left => left.nextJobIds.includes(jobId));
 
   return beforeJobs;
 };
 
-export const recursiveCatchBeforeJobs = (
-  recursiveJobs: IJob[],
+export const initDoc = (
+  flow: IFlowDocument,
+  jobRefer: IJobReferDocument,
+  productId: string,
+  count: string,
+  branchId: string,
+  departmentId: string,
+  job?: IJobDocument
+) => {
+  const doc: IWork = {
+    name: flow.name,
+    status: 'active',
+    dueDate: new Date(),
+    startAt: new Date(),
+    endAt: new Date(),
+    jobId: job?.id || '',
+    flowId: flow._id,
+    productId,
+    count,
+    branchId,
+    departmentId
+  };
+
+  return doc;
+};
+
+export const worksAdd = async (doc: IWork, models: IModels) => {
+  const work = await models.Works.createWork(doc);
+
+  // await putCreateLog(
+  //   models,
+  //   subdomain,
+  //   {
+  //     type: MODULE_NAMES.WORK,
+  //     newData: {
+  //       ...doc
+  //     },
+  //     object: work
+  //   },
+  //   user
+  // );
+
+  return work;
+};
+
+export const recursiveCatchBeforeJobs = async (
+  recursiveJobs: IJobDocument[],
   leftJobs,
-  level
+  level,
+  params
 ) => {
   console.log('Starting recursive ...');
 
@@ -109,6 +159,34 @@ export const recursiveCatchBeforeJobs = (
   const totalBeforeJobsRecursive: any[] = [];
 
   for (const recursiveJob of recursiveJobs) {
+    const {
+      flow,
+      productId,
+      count,
+      branchId,
+      departmentId,
+      jobRefers,
+      models
+    } = params;
+
+    const lastJobRefer = getJobRefers(
+      [recursiveJob?.jobReferId || ''],
+      jobRefers
+    );
+
+    const doc: IWork = initDoc(
+      flow,
+      lastJobRefer[0],
+      productId,
+      count,
+      branchId,
+      departmentId,
+      recursiveJob
+    );
+
+    const work = await worksAdd(doc, models);
+    console.log('work:', work);
+
     const beforeJobsRecursive = getBeforeJobs(leftJobs, recursiveJob.id);
 
     console.log(
@@ -129,10 +207,51 @@ export const recursiveCatchBeforeJobs = (
     console.log('Finished before jobs ...');
   } else {
     let levelCounter = 1;
-    const checkJobFrequently = '';
+
+    let checkJobFrequentlyIds: string[] = [];
+
     for (const beforeJobsRecursive of totalBeforeJobsRecursive) {
-      recursiveJobs = beforeJobsRecursive;
-      recursiveCatchBeforeJobs(recursiveJobs, leftJobs, level + levelCounter++);
+      let checkTempIds = beforeJobsRecursive.map(beforeJob => beforeJob.id);
+      checkTempIds = checkTempIds.sort();
+
+      if (checkJobFrequentlyIds.length === 0) {
+        console.log(
+          'Compare1 ... checkTempIds: ',
+          checkTempIds,
+          'checkJobFrequentlyIds: ',
+          checkJobFrequentlyIds
+        );
+
+        checkJobFrequentlyIds = checkTempIds;
+        recursiveJobs = beforeJobsRecursive;
+        recursiveCatchBeforeJobs(
+          recursiveJobs,
+          leftJobs,
+          level + levelCounter++,
+          params
+        );
+      }
+
+      if (
+        JSON.stringify(checkTempIds) !== JSON.stringify(checkJobFrequentlyIds)
+      ) {
+        console.log(
+          'Compare2 ... checkTempIds: ',
+          checkTempIds,
+          'checkJobFrequentlyIds: ',
+          checkJobFrequentlyIds
+        );
+
+        checkJobFrequentlyIds = checkTempIds;
+
+        recursiveJobs = beforeJobsRecursive;
+        recursiveCatchBeforeJobs(
+          recursiveJobs,
+          leftJobs,
+          level + levelCounter++,
+          params
+        );
+      }
     }
   }
 };

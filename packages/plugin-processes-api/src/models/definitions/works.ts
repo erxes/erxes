@@ -14,8 +14,8 @@ export interface IWork {
   count: string;
   branchId: string;
   departmentId: string;
-  needProducts: IProductsData;
-  resultProducts: IProductsData;
+  needProducts?: IProductsData;
+  resultProducts?: IProductsData;
 }
 
 export interface IWorkDocument extends IWork, Document {
@@ -37,9 +37,14 @@ export const workSchema = schemaHooksWrapper(
     count: field({ type: String, label: 'count' }),
     branchId: field({ type: String, label: 'branchId' }),
     departmentId: field({ type: String, label: 'departmentId' }),
-    needProducts: field({ type: productsDataSchema, label: 'Need products' }),
+    needProducts: field({
+      type: productsDataSchema,
+      optional: true,
+      label: 'Need products'
+    }),
     resultProducts: field({
       type: productsDataSchema,
+      optional: true,
       label: 'Result products'
     }),
     createdAt: field({

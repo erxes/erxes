@@ -1,11 +1,14 @@
-import { IModels } from './../connectionResolver';
-import { IFlow } from '../models/definitions/flows';
+import { IWork, IWorkDocument } from './../models/definitions/works';
+import { IModels } from '../connectionResolver';
+import { IFlowDocument } from '../models/definitions/flows';
 import {
   findLastJob,
   getBeforeJobs,
   getJobRefers,
   getLeftJobs,
-  recursiveCatchBeforeJobs
+  initDoc,
+  recursiveCatchBeforeJobs,
+  worksAdd
 } from './utils';
 
 // export const rf = (data, list) => {
@@ -20,7 +23,7 @@ export const rf = async (models: IModels, params) => {
     const flowJobStatus = true;
     const status = 'active';
     const filter = { productId, flowJobStatus, status };
-    const flow = (await models.Flows.findOne(filter)) || ({} as IFlow);
+    const flow = (await models.Flows.findOne(filter)) || ({} as IFlowDocument);
     const jobRefers = await models.JobRefers.find({
       status: { $in: ['active', null] }
     });
@@ -59,6 +62,19 @@ export const rf = async (models: IModels, params) => {
 
         console.log('lastJobRefer: ', lastJobRefer[0].name);
 
+        const doc: IWork = initDoc(
+          flow,
+          lastJobRefer[0],
+          productId,
+          count,
+          branchId,
+          departmentId,
+          lastJob
+        );
+
+        const work = await worksAdd(doc, models);
+        console.log('work:', work);
+
         // filtering beforeJobs of lastJob on flow
         const beforeJobs = getBeforeJobs(leftJobs, lastJob?.id || '');
         const beforeJobRefers = getJobRefers(
@@ -74,7 +90,15 @@ export const rf = async (models: IModels, params) => {
         const level = 2;
         const recursiveJobs = beforeJobs;
 
-        recursiveCatchBeforeJobs(recursiveJobs, leftJobs, level);
+        recursiveCatchBeforeJobs(recursiveJobs, leftJobs, level, {
+          flow,
+          productId,
+          count,
+          branchId,
+          departmentId,
+          jobRefers,
+          models
+        });
       } else {
         descriptionForWork = `last job not defined on flow / ${flow.name} / `;
       }

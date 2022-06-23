@@ -24,7 +24,7 @@ export interface IFlow {
   productId?: string;
   status: string;
   flowJobStatus: boolean;
-  jobs?: IJob[];
+  jobs?: IJobDocument[];
 }
 
 export interface IFlowDocument extends IFlow, Document {
