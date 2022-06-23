@@ -39,10 +39,6 @@ export const types = () => `
     products: [Product]
   },
 
-  type Product {
-    productId: String
-    quantities: [Quantity]
-  }
 
   type Quantity {
     label: String
@@ -123,7 +119,7 @@ export const types = () => `
     title: String
     color: String
     type: String
-    status:String 
+    status:String
   },
 `;
 
@@ -159,7 +155,7 @@ export const queries = `
 
 export const mutations = `
   createSalesLog(${salesLogParams}): SalesLog
-  updateSalesLog(${salesLogDocumentParams}): SalesLog 
+  updateSalesLog(${salesLogDocumentParams}): SalesLog
   removeSalesLog(_id: String): JSON
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
   removeLabel(_id:String): JSON

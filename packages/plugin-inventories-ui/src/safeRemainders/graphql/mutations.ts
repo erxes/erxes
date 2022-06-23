@@ -46,9 +46,20 @@ const updateSafeRemItem = `
   }
 `;
 
+const removeSafeRemItem = `
+  mutation removeSafeRemItem(
+    $_id: String
+  ) {
+    removeSafeRemItem(
+      _id: $_id
+    )
+  }
+`;
+
 export default {
   createSafeRemainder,
   removeSafeRemainder,
 
-  updateSafeRemItem
+  updateSafeRemItem,
+  removeSafeRemItem
 };
