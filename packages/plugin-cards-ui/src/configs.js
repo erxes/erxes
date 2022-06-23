@@ -31,7 +31,7 @@ module.exports = {
       url: '/task',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
-      permission: 'showConversations'
+      permission: 'showTasks'
     },
     {
       text: 'Ticket',
