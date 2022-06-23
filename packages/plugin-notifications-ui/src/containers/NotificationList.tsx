@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IQueryParams } from '@erxes/ui/src/types';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import NotificationList from '../components/NotificationList';
-import { mutations, queries } from '@erxes/ui-notifications/src/graphql';
 import {
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
   NotificationsQueryResponse
 } from '@erxes/ui-notifications/src/types';
+import { mutations, queries } from '@erxes/ui-notifications/src/graphql';
+
+import { IQueryParams } from '@erxes/ui/src/types';
+import NotificationList from '../components/NotificationList';
+import React from 'react';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
   queryParams: IQueryParams;
