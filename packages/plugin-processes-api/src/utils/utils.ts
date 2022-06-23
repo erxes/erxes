@@ -1,7 +1,11 @@
-import { IJobReferDocument, IProductsData } from './../models/definitions/jobs';
+import {
+  IJobRefer,
+  IJobReferDocument,
+  IProductsData
+} from './../models/definitions/jobs';
 import { IJob } from '../models/definitions/flows';
 
-export const findLastAction = (
+export const findLastJob = (
   jobs: IJob[],
   jobRefers: IJobReferDocument[],
   productId: string
@@ -58,4 +62,19 @@ export const findLastAction = (
       flowStatus: doubleCheckResult ? true : false
     };
   }
+};
+
+export const getJobRefers = (
+  jobIds: string[],
+  jobRefers: IJobReferDocument[]
+) => {
+  const chosenJobRefers = jobRefers.filter(job => jobIds.includes(job._id));
+
+  return chosenJobRefers;
+};
+
+export const getLeftJobs = (jobs: IJob[], jobIds: string[]) => {
+  const leftJobs = jobs.filter(job => !jobIds.includes(job.id));
+
+  return leftJobs;
 };
