@@ -62,6 +62,8 @@ const TaggerContainer = (props: FinalProps) => {
     tag
   };
 
+  console.log(props);
+
   return <Tagger {...updatedProps} />;
 };
 
