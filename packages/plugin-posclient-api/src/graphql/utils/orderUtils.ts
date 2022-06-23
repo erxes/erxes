@@ -2,6 +2,7 @@ import { IOrder, IOrderDocument } from '../../models/definitions/orders';
 import { OrderItems } from '../../models/OrderItems';
 import { Orders } from '../../models/Orders';
 import { Products } from '../../models/Products';
+import { IContext, IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
@@ -33,6 +34,7 @@ export const getPureDate = (date?: Date) => {
 };
 
 export const generateOrderNumber = async (
+  models: IModels,
   config?: IConfig
 ): Promise<string> => {
   const todayStr = moment()
@@ -44,8 +46,8 @@ export const generateOrderNumber = async (
 
   let suffix = '0001';
   let number = `${todayStr}_${beginNumber}${suffix}`;
-
-  const latestOrder = ((await Orders.find({
+  Products;
+  const latestOrder = ((await models.Orders.find({
     number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
     posToken: { $in: ['', null] }
   })
@@ -75,8 +77,11 @@ export const generateOrderNumber = async (
   return number;
 };
 
-export const validateOrder = async (doc: IOrderInput) => {
+export const validateOrder = async (models: IModels, doc: IOrderInput) => {
   const { items = [] } = doc;
+
+  console.log('1', items);
+  console.log('2', items.filter(i => !i.isPackage).length < 1);
 
   if (items.filter(i => !i.isPackage).length < 1) {
     throw new Error('Products missing in order. Please add products');
@@ -84,7 +89,7 @@ export const validateOrder = async (doc: IOrderInput) => {
 
   for (const item of items) {
     // will throw error if product is not found
-    await Products.getProduct({ _id: item.productId });
+    await models.Products.getProduct({ _id: item.productId });
   }
 };
 
@@ -111,19 +116,21 @@ export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
 
 export const cleanOrderItems = async (
   orderId: string,
-  items: IOrderItemInput[]
+  items: IOrderItemInput[],
+  models: IModels
 ) => {
   const itemIds = items.map(item => item._id);
 
-  await OrderItems.deleteMany({ orderId, isPackage: true });
-  await OrderItems.deleteMany({ orderId, _id: { $nin: itemIds } });
+  await models.OrderItems.deleteMany({ orderId, isPackage: true });
+  await models.OrderItems.deleteMany({ orderId, _id: { $nin: itemIds } });
 };
 
 export const updateOrderItems = async (
   orderId: string,
-  items: IOrderItemInput[]
+  items: IOrderItemInput[],
+  models
 ) => {
-  const oldItems = await OrderItems.find({
+  const oldItems = await models.OrderItems.find({
     _id: { $in: items.map(item => item._id) }
   }).lean();
 
@@ -139,9 +146,9 @@ export const updateOrderItems = async (
     };
 
     if (itemIds.includes(item._id)) {
-      await OrderItems.updateOrderItem(item._id, doc);
+      await models.OrderItems.updateOrderItem(item._id, doc);
     } else {
-      await OrderItems.createOrderItem({
+      await models.OrderItems.createOrderItem({
         ...doc,
         orderId
       });

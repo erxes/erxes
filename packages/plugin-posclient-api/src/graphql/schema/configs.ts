@@ -77,4 +77,5 @@ export const mutations = `
 
 export const queries = `
   currentConfig: PosConfig
+  getBranches: JSON
 `;

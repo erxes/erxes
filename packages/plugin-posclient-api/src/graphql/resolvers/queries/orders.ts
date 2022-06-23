@@ -75,7 +75,7 @@ const orderQueries = {
     );
   },
 
-  orderDetail(_root, models, { _id }) {
+  orderDetail(_root, { _id }, { models }: IContext) {
     return models.Orders.findOne({ _id });
   },
 

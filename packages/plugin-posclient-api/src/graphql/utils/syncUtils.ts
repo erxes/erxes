@@ -232,6 +232,8 @@ export const validateConfig = (config: IConfig) => {
 
 // receive product data through message broker
 export const receiveProduct = async (models, data) => {
+  console.log('models & data :::::::::::::::::::::::::::::', models, data);
+
   const { action = '', object = {}, updatedDocument = {} } = data;
 
   if (action === 'create') {

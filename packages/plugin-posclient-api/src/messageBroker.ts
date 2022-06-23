@@ -29,6 +29,8 @@ export const initBroker = async cl => {
   const syncId = '';
 
   consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
+    console.log('subdomain & data ::::::::::::::::', subdomain, data);
+
     const models = await generateModels(subdomain);
     if (data) {
       switch (data.type) {

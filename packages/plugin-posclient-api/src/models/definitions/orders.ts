@@ -79,7 +79,7 @@ export const orderSchema = schemaHooksWrapper(
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),
     number: field({ type: String, label: 'Order number', unique: true }),
-    customerId: field({ type: String, label: 'Customer' }),
+    customerId: field({ type: String, optional: true, label: 'Customer' }),
     cardAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Card amount'

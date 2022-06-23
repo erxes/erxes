@@ -19,8 +19,6 @@ import { sendPosMessage } from '../../../messageBroker';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
 import { debugError } from '../../../debugger';
-import { IOrderDocument } from '../../../models/definitions/orders';
-import { QPayInvoices } from '../../../models/QPayInvoices';
 
 interface IPaymentBase {
   billType: string;
@@ -49,16 +47,15 @@ interface IOrderEditParams extends IOrderInput {
 const orderMutations = {
   async ordersAdd(
     _root,
-    models,
     doc: IOrderInput,
-    { posUser, config }: IContext
+    { posUser, config, models }: IContext
   ) {
     const { totalAmount, type, customerId, branchId } = doc;
 
-    await validateOrder(doc);
+    await validateOrder(models, doc);
 
     const orderDoc = {
-      number: await generateOrderNumber(config),
+      number: await generateOrderNumber(models, config),
       totalAmount,
       type,
       branchId,
@@ -95,18 +92,18 @@ const orderMutations = {
       return e;
     }
   },
-  async ordersEdit(_root, models, doc: IOrderEditParams, { config }: IContext) {
+  async ordersEdit(_root, doc: IOrderEditParams, { config, models }: IContext) {
     const order = await models.Orders.getOrder(doc._id);
 
     checkOrderStatus(order);
 
-    await validateOrder({ ...doc });
+    await validateOrder(models, doc);
 
-    await cleanOrderItems(doc._id, doc.items);
+    await cleanOrderItems(doc._id, doc.items, models);
 
-    const preparedDoc = await prepareOrderDoc({ ...doc }, config, models);
+    const preparedDoc = await prepareOrderDoc(doc, config, models);
 
-    await updateOrderItems(doc._id, preparedDoc.items);
+    await updateOrderItems(doc._id, preparedDoc.items, models);
 
     const updatedOrder = await models.Orders.updateOrder(doc._id, {
       deliveryInfo: doc.deliveryInfo,
@@ -233,8 +230,8 @@ const orderMutations = {
 
   async ordersAddPayment(
     _root,
-    models,
-    { _id, cashAmount = 0, cardAmount = 0, cardInfo }
+    { _id, cashAmount = 0, cardAmount = 0, cardInfo },
+    { models }: IContext
   ) {
     const order = await models.Orders.getOrder(_id);
 
