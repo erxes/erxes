@@ -16,7 +16,6 @@ import Tags from '@erxes/ui/src/components/Tags';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import gql from 'graphql-tag';
 
 type Props = {
   item: IItem;
@@ -54,8 +53,6 @@ class Actions extends React.Component<Props> {
     } = this.props;
 
     const onLabelChange = labels => saveItem({ labels });
-    console.log(options, '------options-------------');
-    // const { refetchQueries } = refetchSidebarConversationsOptions();
 
     const tags = item.tags || [];
 
