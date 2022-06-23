@@ -78,3 +78,61 @@ export const getLeftJobs = (jobs: IJob[], jobIds: string[]) => {
 
   return leftJobs;
 };
+
+export const getBeforeJobs = (leftJobs: IJob[], jobId: string) => {
+  const beforeJobs = leftJobs.filter(left => left.nextJobIds.includes(jobId));
+
+  return beforeJobs;
+};
+
+export const recursiveCatchBeforeJobs = (
+  recursiveJobs: IJob[],
+  leftJobs,
+  level
+) => {
+  console.log('Starting recursive ...');
+
+  console.log('level:', level);
+  leftJobs =
+    getLeftJobs(
+      leftJobs,
+      recursiveJobs.map(before => before.id)
+    ) || [];
+
+  console.log(
+    'left jobs: ',
+    level,
+    leftJobs.map(e => e.label),
+    leftJobs.length
+  );
+
+  const totalBeforeJobsRecursive: any[] = [];
+
+  for (const recursiveJob of recursiveJobs) {
+    const beforeJobsRecursive = getBeforeJobs(leftJobs, recursiveJob.id);
+
+    console.log(
+      'beforeJobsRecursive: ',
+      level,
+      beforeJobsRecursive.map(e => e.label),
+      beforeJobsRecursive.length
+    );
+
+    if (beforeJobsRecursive.length > 0) {
+      totalBeforeJobsRecursive.push(beforeJobsRecursive);
+    }
+  }
+
+  if (totalBeforeJobsRecursive.length === 0) {
+    console.log('Finished before jobs .');
+    console.log('Finished before jobs ..');
+    console.log('Finished before jobs ...');
+  } else {
+    let levelCounter = 1;
+    const checkJobFrequently = '';
+    for (const beforeJobsRecursive of totalBeforeJobsRecursive) {
+      recursiveJobs = beforeJobsRecursive;
+      recursiveCatchBeforeJobs(recursiveJobs, leftJobs, level + levelCounter++);
+    }
+  }
+};

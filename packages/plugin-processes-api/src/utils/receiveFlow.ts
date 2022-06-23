@@ -1,6 +1,12 @@
 import { IModels } from './../connectionResolver';
 import { IFlow } from '../models/definitions/flows';
-import { findLastJob, getJobRefers, getLeftJobs } from './utils';
+import {
+  findLastJob,
+  getBeforeJobs,
+  getJobRefers,
+  getLeftJobs,
+  recursiveCatchBeforeJobs
+} from './utils';
 
 // export const rf = (data, list) => {
 export const rf = async (models: IModels, params) => {
@@ -35,7 +41,7 @@ export const rf = async (models: IModels, params) => {
         'Last jobs: ',
         flowStatus,
         lastJobs.map(e => e.label),
-        lastJob?.label + `/${lastJob?.id}/`,
+        lastJob?.label,
         lastJobs.length
       );
 
@@ -45,7 +51,7 @@ export const rf = async (models: IModels, params) => {
         leftJobs.length
       );
 
-      if (Object.keys(lastJob || {}).length > 0) {
+      if (Object.keys(lastJob || {}).length > 0 && flowStatus) {
         const lastJobRefer = getJobRefers(
           [lastJob?.jobReferId || ''],
           jobRefers
@@ -54,16 +60,21 @@ export const rf = async (models: IModels, params) => {
         console.log('lastJobRefer: ', lastJobRefer[0].name);
 
         // filtering beforeJobs of lastJob on flow
-        const beforeJobs = leftJobs.filter(left =>
-          left.nextJobIds.includes(lastJob?.id || '')
+        const beforeJobs = getBeforeJobs(leftJobs, lastJob?.id || '');
+        const beforeJobRefers = getJobRefers(
+          beforeJobs.map(before => before.jobReferId),
+          jobRefers
         );
-        const beforeJobIds = beforeJobs.map(before => before.jobReferId);
-        const beforeJobRefers = getJobRefers(beforeJobIds, jobRefers);
 
         console.log(
           'beforeJobRefers: ',
           beforeJobRefers.map(bef => bef.name)
         );
+
+        const level = 2;
+        const recursiveJobs = beforeJobs;
+
+        recursiveCatchBeforeJobs(recursiveJobs, leftJobs, level);
       } else {
         descriptionForWork = `last job not defined on flow / ${flow.name} / `;
       }
