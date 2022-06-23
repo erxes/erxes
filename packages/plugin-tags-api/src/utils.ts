@@ -3,7 +3,7 @@ import { sendCommonMessage } from './messageBroker';
 export const countDocuments = async (
   subdomain: string,
   type: string,
-  _ids: string[],
+  _ids: string[]
 ) => {
   const [serviceName, contentType] = type.split(':');
 
@@ -24,7 +24,7 @@ export const tagObject = async (
   subdomain: string,
   type: string,
   tagIds: string[],
-  targetIds: string[],
+  targetIds: string[]
 ) => {
   const [serviceName, contentType] = type.split(':');
 
@@ -36,7 +36,7 @@ export const tagObject = async (
       tagIds,
       targetIds,
       type: contentType,
-      action: "tagObject"
+      action: 'tagObject'
     },
     isRPC: true
   });
@@ -48,12 +48,12 @@ export const fixRelatedItems = async ({
   sourceId,
   destId,
   action
-}:{
-  subdomain: string,
-  type: string,
-  sourceId: string,
-  destId?: string,
-  action: string
+}: {
+  subdomain: string;
+  type: string;
+  sourceId: string;
+  destId?: string;
+  action: string;
 }) => {
   const [serviceName, contentType] = type.split(':');
 

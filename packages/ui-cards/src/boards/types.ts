@@ -8,6 +8,7 @@ import {
 } from '@erxes/ui/src/types';
 import { ISavedConformity } from '../conformity/types';
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 export interface IOptions {
   EditForm: any;
@@ -205,6 +206,7 @@ export interface IItem {
   score?: number;
   number?: string;
   relations: any[];
+  tags: ITag[];
 }
 
 export interface IDraggableLocation {

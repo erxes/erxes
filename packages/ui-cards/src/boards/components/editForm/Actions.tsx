@@ -11,6 +11,12 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { ArchiveBtn } from './ArchiveBtn';
 import PriorityIndicator from './PriorityIndicator';
+import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
+import Tags from '@erxes/ui/src/components/Tags';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import gql from 'graphql-tag';
 
 type Props = {
   item: IItem;
@@ -49,6 +55,10 @@ class Actions extends React.Component<Props> {
 
     const onLabelChange = labels => saveItem({ labels });
 
+    // const { refetchQueries } = refetchSidebarConversationsOptions();
+
+    const tags = item.tags || [];
+
     const priorityTrigger = (
       <ColorButton>
         {item.priority ? (
@@ -58,6 +68,20 @@ class Actions extends React.Component<Props> {
         )}
         {item.priority ? item.priority : __('Priority')}
       </ColorButton>
+    );
+
+    const tagTrigger = (
+      <PopoverButton id="conversationTags">
+        {tags.length ? (
+          <>
+            <Tags tags={tags} limit={1} /> <Icon icon="angle-down" />
+          </>
+        ) : (
+          <ColorButton>
+            <Icon icon="tag-alt" /> No tags
+          </ColorButton>
+        )}
+      </PopoverButton>
     );
 
     return (
@@ -91,6 +115,15 @@ class Actions extends React.Component<Props> {
           sendToBoard={sendToBoard}
           onChangeStage={onChangeStage}
         />
+
+        {isEnabled('tags') && (
+          <TaggerPopover
+            type={TAG_TYPES.DEAL}
+            trigger={tagTrigger}
+            refetchQueries={['dealDetail']}
+            targets={[item]}
+          />
+        )}
       </ActionContainer>
     );
   }
