@@ -230,8 +230,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       source === 'engages'
         ? {
             returnAssociated: {
-              contentType: getName(segment.contentType),
-              relType: this.getRelType()
+              mainType: segment.contentType,
+              relType: `contacts:${this.getRelType()}`
             },
             returnSelector: true
           }

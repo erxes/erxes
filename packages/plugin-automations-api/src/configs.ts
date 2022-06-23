@@ -33,6 +33,8 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
+    console.log('on server init .....');
+
     initBroker(options.messageBrokerClient);
 
     graphqlPubsub = options.pubsubClient;

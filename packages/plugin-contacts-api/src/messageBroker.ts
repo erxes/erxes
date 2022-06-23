@@ -54,7 +54,7 @@ export const initBroker = cl => {
 
     return {
       status: 'success',
-      data: await models.Customers.find(data)
+      data: await models.Customers.find(data).lean()
     };
   });
 

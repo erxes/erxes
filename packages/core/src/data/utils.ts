@@ -790,7 +790,7 @@ export const getConfigs = async models => {
   }
 
   const configsMap = {};
-  const configs = await models.Configs.find({});
+  const configs = await models.Configs.find({}).lean();
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
