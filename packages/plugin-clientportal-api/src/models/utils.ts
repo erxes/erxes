@@ -1,0 +1,132 @@
+import { IModels } from '../connectionResolver';
+import { sendContactsMessage } from '../messageBroker';
+
+export interface IContactsParams {
+  subdomain: string;
+  models: IModels;
+  clientPortalId: string;
+  document: any;
+  password: string;
+}
+
+export const handleContacts = async (args: IContactsParams) => {
+  const { subdomain, models, clientPortalId, document, password } = args;
+  const { type = 'customer', email, phone } = document;
+
+  let qry: any;
+  let user: any;
+
+  if (email) {
+    qry = { email: email };
+  }
+
+  if (phone) {
+    qry = { phone };
+  }
+
+  qry.type = type;
+
+  if (type === 'customer') {
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        customerPrimaryEmail: email,
+        customerPrimaryPhone: phone
+      },
+      isRPC: true
+    });
+
+    user = await models.ClientPortalUsers.findOne(qry);
+
+    if (user && (user.isEmailVerified || user.isPhoneVerified)) {
+      throw new Error('user is already exists');
+    }
+
+    if (user) {
+      return user;
+    }
+
+    user = await models.ClientPortalUsers.create({
+      ...document,
+      clientPortalId,
+      // hash password
+      password:
+        password && (await models.ClientPortalUsers.generatePassword(password))
+    });
+
+    if (!customer) {
+      await sendContactsMessage({
+        subdomain,
+        action: 'customers.createCustomer',
+        data: {
+          firstName: document.firstName,
+          lastName: document.lastName,
+          primaryEmail: email,
+          primaryPhone: phone,
+          state: 'customer'
+        },
+        isRPC: true
+      });
+    }
+
+    if (customer && customer._id) {
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        { $set: { erxesCustomerId: customer._id } }
+      );
+    }
+  }
+
+  if (type === 'company') {
+    const company = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findOne',
+      data: {
+        companyPrimaryEmail: email,
+        companyPrimaryPhone: phone
+      },
+      isRPC: true
+    });
+
+    user = await models.ClientPortalUsers.findOne(qry);
+
+    if (user && (user.isEmailVerified || user.isPhoneVerified)) {
+      throw new Error('user is already exists');
+    }
+
+    if (user) {
+      return user;
+    }
+
+    user = await models.ClientPortalUsers.create({
+      ...document,
+      clientPortalId,
+      // hash password
+      password:
+        password && (await models.ClientPortalUsers.generatePassword(password))
+    });
+
+    if (!company) {
+      await sendContactsMessage({
+        subdomain,
+        action: 'companies.createCompany',
+        data: {
+          primaryName: document.companyName,
+          primaryEmail: email,
+          primaryPhone: phone
+        },
+        isRPC: true
+      });
+    }
+
+    if (company && company._id) {
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        { $set: { erxesCompanyId: company._id } }
+      );
+    }
+  }
+
+  return user;
+};

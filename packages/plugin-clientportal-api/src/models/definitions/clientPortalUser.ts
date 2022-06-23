@@ -8,6 +8,7 @@ export interface IUser {
   username?: string;
   firstName?: string;
   lastName?: string;
+  companyName?: string;
   code?: string;
   password?: string;
   type?: string;
@@ -55,6 +56,7 @@ export const clientPortalUserSchema = new Schema({
   password: field({ type: String }),
   firstName: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true }),
+  companyName: field({ type: String, optional: true }),
   clientPortalId: field({ type: String, required: true }),
 
   erxesCustomerId: field({ type: String, optional: true }),
