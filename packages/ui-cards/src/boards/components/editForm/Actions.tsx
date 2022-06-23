@@ -54,7 +54,7 @@ class Actions extends React.Component<Props> {
     } = this.props;
 
     const onLabelChange = labels => saveItem({ labels });
-
+    console.log(options, '------options-------------');
     // const { refetchQueries } = refetchSidebarConversationsOptions();
 
     const tags = item.tags || [];
@@ -116,7 +116,7 @@ class Actions extends React.Component<Props> {
           onChangeStage={onChangeStage}
         />
 
-        {isEnabled('tags') && (
+        {options.type === 'deal' && isEnabled('tags') && (
           <TaggerPopover
             type={TAG_TYPES.DEAL}
             trigger={tagTrigger}
