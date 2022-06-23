@@ -16,7 +16,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseTopics.findOne(query)
+        data: await models.KnowledgeBaseTopics.findOne(query).lean()
       };
     }
   );
@@ -28,7 +28,9 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.KnowledgeBaseArticles.find(query).sort(sort)
+        data: await models.KnowledgeBaseArticles.find(query)
+          .sort(sort)
+          .lean()
       };
     }
   );

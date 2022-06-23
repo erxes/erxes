@@ -30,7 +30,7 @@ export type ISafeRemainder = {
   modifiedUser: IUser;
 };
 
-export type ISafeRemaItem = {
+export type ISafeRemItem = {
   _id: string;
   modifiedAt: Date;
   lastTrDate: Date;
@@ -56,7 +56,7 @@ export type SafeRemainderDetailQueryResponse = {
 } & QueryResponse;
 
 export type SafeRemItemsQueryResponse = {
-  safeRemItems: ISafeRemaItem[];
+  safeRemItems: ISafeRemItem[];
 } & QueryResponse;
 
 export type SafeRemItemsCountQueryResponse = {
@@ -77,4 +77,8 @@ export type UpdateSafeRemItemMutationResponse = {
   updateSafeRemItem: (params: {
     variables: UpdateSafeRemItemsMutationVariables;
   }) => Promise<any>;
+};
+
+export type RemoveSafeRemItemMutationResponse = {
+  removeSafeRemItem: (params: { variables: { _id: string } }) => Promise<any>;
 };

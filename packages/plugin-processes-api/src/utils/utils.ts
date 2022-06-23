@@ -1,7 +1,11 @@
-import { IJobReferDocument, IProductsData } from './../models/definitions/jobs';
+import {
+  IJobRefer,
+  IJobReferDocument,
+  IProductsData
+} from './../models/definitions/jobs';
 import { IJob } from '../models/definitions/flows';
 
-export const findLastAction = (
+export const findLastJob = (
   jobs: IJob[],
   jobRefers: IJobReferDocument[],
   productId: string
@@ -57,5 +61,78 @@ export const findLastAction = (
       lastJobs,
       flowStatus: doubleCheckResult ? true : false
     };
+  }
+};
+
+export const getJobRefers = (
+  jobIds: string[],
+  jobRefers: IJobReferDocument[]
+) => {
+  const chosenJobRefers = jobRefers.filter(job => jobIds.includes(job._id));
+
+  return chosenJobRefers;
+};
+
+export const getLeftJobs = (jobs: IJob[], jobIds: string[]) => {
+  const leftJobs = jobs.filter(job => !jobIds.includes(job.id));
+
+  return leftJobs;
+};
+
+export const getBeforeJobs = (leftJobs: IJob[], jobId: string) => {
+  const beforeJobs = leftJobs.filter(left => left.nextJobIds.includes(jobId));
+
+  return beforeJobs;
+};
+
+export const recursiveCatchBeforeJobs = (
+  recursiveJobs: IJob[],
+  leftJobs,
+  level
+) => {
+  console.log('Starting recursive ...');
+
+  console.log('level:', level);
+  leftJobs =
+    getLeftJobs(
+      leftJobs,
+      recursiveJobs.map(before => before.id)
+    ) || [];
+
+  console.log(
+    'left jobs: ',
+    level,
+    leftJobs.map(e => e.label),
+    leftJobs.length
+  );
+
+  const totalBeforeJobsRecursive: any[] = [];
+
+  for (const recursiveJob of recursiveJobs) {
+    const beforeJobsRecursive = getBeforeJobs(leftJobs, recursiveJob.id);
+
+    console.log(
+      'beforeJobsRecursive: ',
+      level,
+      beforeJobsRecursive.map(e => e.label),
+      beforeJobsRecursive.length
+    );
+
+    if (beforeJobsRecursive.length > 0) {
+      totalBeforeJobsRecursive.push(beforeJobsRecursive);
+    }
+  }
+
+  if (totalBeforeJobsRecursive.length === 0) {
+    console.log('Finished before jobs .');
+    console.log('Finished before jobs ..');
+    console.log('Finished before jobs ...');
+  } else {
+    let levelCounter = 1;
+    const checkJobFrequently = '';
+    for (const beforeJobsRecursive of totalBeforeJobsRecursive) {
+      recursiveJobs = beforeJobsRecursive;
+      recursiveCatchBeforeJobs(recursiveJobs, leftJobs, level + levelCounter++);
+    }
   }
 };

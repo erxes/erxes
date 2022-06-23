@@ -8,7 +8,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { IQueryParams } from '@erxes/ui/src/types';
 import {
   ISafeRemainder,
-  ISafeRemaItem,
+  ISafeRemItem,
   SafeRemItemsQueryResponse
 } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -22,14 +22,20 @@ type Props = {
   safeRemainder: ISafeRemainder;
   currentUser: IUser;
   updateRemItem: (_id: string, remainder: number, status: string) => void;
+  removeRemItem: (item: ISafeRemItem) => void;
 };
 
 class CompanyDetails extends React.Component<Props> {
-  renderRow = (remItems: ISafeRemaItem[]) => {
-    const { updateRemItem } = this.props;
+  renderRow = (remItems: ISafeRemItem[]) => {
+    const { updateRemItem, removeRemItem } = this.props;
 
     return (remItems || []).map(rem => (
-      <Row key={rem._id} item={rem} updateItem={updateRemItem} />
+      <Row
+        key={rem._id}
+        item={rem}
+        updateItem={updateRemItem}
+        removeItem={removeRemItem}
+      />
     ));
   };
 

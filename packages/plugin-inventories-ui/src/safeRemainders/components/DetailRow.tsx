@@ -5,13 +5,13 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
-import { ISafeRemaItem } from '../types';
+import { ISafeRemItem } from '../types';
 import { FinanceAmount } from '../../styles';
 
 type Props = {
-  item: ISafeRemaItem;
+  item: ISafeRemItem;
   updateItem: (_id: string, remainder: number, status: string) => void;
-  // remove: (_id: string) => void;
+  removeItem: (item: ISafeRemItem) => void;
 };
 
 type State = {
@@ -43,6 +43,12 @@ class Row extends React.Component<Props, State> {
     const { updateItem, item } = this.props;
 
     updateItem(item._id, remainder, status);
+  };
+
+  remove = () => {
+    const { removeItem, item } = this.props;
+
+    removeItem(item);
   };
 
   onChangeCheck() {}
@@ -125,9 +131,11 @@ class Row extends React.Component<Props, State> {
         <td>
           <ActionButtons>
             <Tip text="Delete" placement="top">
-              <Button btnStyle="link">
-                <Icon icon="times-circle" />
-              </Button>
+              <Button
+                btnStyle="link"
+                onClick={this.remove}
+                icon="times-circle"
+              />
             </Tip>
           </ActionButtons>
         </td>

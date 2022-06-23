@@ -34,9 +34,6 @@ interface ICheckCustomerParams {
   brandIds?: string[];
 }
 
-export const getName = type =>
-  type.replace('contacts:', '').replace('cards:', '');
-
 export const generateCustomerSelector = async (
   subdomain,
   {
@@ -89,8 +86,8 @@ export const generateCustomerSelector = async (
             perPage: 5000,
             scroll: true,
             returnAssociated: {
-              contentType: getName(segment.contentType),
-              relType: 'customer'
+              mainType: segment.contentType,
+              relType: 'contacts:customer'
             }
           }
         }
