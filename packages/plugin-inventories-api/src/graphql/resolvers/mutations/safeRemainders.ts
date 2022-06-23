@@ -81,7 +81,7 @@ const remainderMutations = {
     const bulkOps: any[] = [];
 
     for (const product of products) {
-      const live = liveRemainders.find(l => l.productId === product._id) || 0;
+      const live = liveRemainders.find(l => l.productId === product._id) || {};
 
       bulkOps.push({
         modifiedAt: now,
@@ -89,8 +89,8 @@ const remainderMutations = {
         remainderId: safeRemainder._id,
         productId: product._id,
         uomId: product.uomId || defaultUomId,
-        preCount: live,
-        count: live,
+        preCount: live.count || 0,
+        count: live.count || 0,
         branchId: safeRemainder.branchId,
         departmentId: safeRemainder.departmentId
       });
@@ -125,6 +125,16 @@ const remainderMutations = {
       { $set: { count: remainder, status } }
     );
     return models.SafeRemItems.getRemItemObject(_id);
+  },
+
+  async removeSafeRemItem(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    await models.SafeRemItems.getRemItemObject(_id);
+
+    return models.SafeRemItems.deleteOne({ _id });
   }
 };
 

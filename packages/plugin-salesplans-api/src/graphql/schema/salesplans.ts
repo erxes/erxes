@@ -14,6 +14,10 @@ export const types = () => `
     _id: String! @external
   }
 
+  extend type Product @key(fields: "_id") {
+    _id: String! @external
+  }
+
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -32,7 +36,14 @@ export const types = () => `
     createdUser: User
     createdAt: Date
     status: String
+    products: [Product]
   },
+
+
+  type Quantity {
+    label: String
+    value: String
+  }
 
   type Label {
     _id: String
@@ -71,6 +82,16 @@ export const types = () => `
     month: Int
   },
 
+  input ProductInput {
+    _id: String
+    quantities: [QuantityInput]
+  }
+
+  input QuantityInput {
+    label: String
+    value: String
+  }
+
   input TimeframeInput {
     _id: String
     name: String
@@ -98,7 +119,7 @@ export const types = () => `
     title: String
     color: String
     type: String
-    status:String 
+    status:String
   },
 `;
 
@@ -119,6 +140,7 @@ const salesLogDocumentParams = `
   date: Date,
   branchId: String,
   departmentId: String,
+  products: [ProductInput]
 `;
 
 export const queries = `
@@ -133,7 +155,7 @@ export const queries = `
 
 export const mutations = `
   createSalesLog(${salesLogParams}): SalesLog
-  updateSalesLog(${salesLogDocumentParams}): SalesLog 
+  updateSalesLog(${salesLogDocumentParams}): SalesLog
   removeSalesLog(_id: String): JSON
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
   removeLabel(_id:String): JSON

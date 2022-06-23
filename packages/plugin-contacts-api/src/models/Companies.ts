@@ -204,7 +204,7 @@ export const loadCompanyClass = (models: IModels, subdomain) => {
       return models.Companies.find(
         { ...selector, status: { $ne: 'deleted' } },
         fields
-      );
+      ).lean();
     }
 
     /**

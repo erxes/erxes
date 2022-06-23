@@ -18,7 +18,7 @@ export const loadBrandClass = (models: IModels) => {
      * Get a Brand
      */
     public static async getBrand(doc: any) {
-      const brand = await models.Brands.findOne(doc);
+      const brand = await models.Brands.findOne(doc).lean();
 
       if (!brand) {
         throw new Error('Brand not found');

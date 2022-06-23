@@ -7,6 +7,8 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
 import {
   ISafeRemainder,
+  ISafeRemItem,
+  RemoveSafeRemItemMutationResponse,
   SafeRemainderDetailQueryResponse,
   SafeRemItemsQueryResponse,
   UpdateSafeRemItemMutationResponse
@@ -28,7 +30,8 @@ type FinalProps = {
   safeRemItemsCountQuery: SafeRemItemsCountQueryResponse;
   currentUser: IUser;
 } & Props &
-  UpdateSafeRemItemMutationResponse;
+  UpdateSafeRemItemMutationResponse &
+  RemoveSafeRemItemMutationResponse;
 
 class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
   render() {
@@ -37,7 +40,8 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
       safeRemItemsQuery,
       currentUser,
       safeRemItemsCountQuery,
-      updateSafeRemItem
+      updateSafeRemItem,
+      removeSafeRemItem
     } = this.props;
 
     if (safeRemainderQuery.loading || safeRemItemsCountQuery.loading) {
@@ -46,6 +50,17 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
 
     const updateRemItem = (_id: string, remainder: number, status: string) => {
       updateSafeRemItem({ variables: { _id, remainder, status } })
+        .then(() => {
+          Alert.success('You successfully updated a census');
+          safeRemItemsQuery.refetch();
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
+    const removeRemItem = (item: ISafeRemItem) => {
+      removeSafeRemItem({ variables: { _id: item._id } })
         .then(() => {
           Alert.success('You successfully deleted a census');
           safeRemItemsQuery.refetch();
@@ -65,6 +80,7 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
       loading: safeRemItemsQuery.loading,
       safeRemItemsQuery,
       updateRemItem,
+      removeRemItem,
       totalCount,
       safeRemainder,
       currentUser
@@ -124,6 +140,15 @@ export default withProps<Props>(
       gql(mutations.updateSafeRemItem),
       {
         name: 'updateSafeRemItem',
+        options: () => ({
+          refetchQueries: ['safeRemItemsQuery']
+        })
+      }
+    ),
+    graphql<Props, RemoveSafeRemItemMutationResponse, { _id: string }>(
+      gql(mutations.removeSafeRemItem),
+      {
+        name: 'removeSafeRemItem',
         options: () => ({
           refetchQueries: ['safeRemItemsQuery']
         })

@@ -129,22 +129,6 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue(
-    'products:find',
-    async ({ subdomain, data: { query, sort, skip, limit } }) => {
-      const models = await generateModels(subdomain);
-
-      return {
-        data: await models.Products.find(query)
-          .sort(sort)
-          .skip(skip || 0)
-          .limit(limit || 100)
-          .lean(),
-        status: 'success'
-      };
-    }
-  );
-
   consumeRPCQueue('products:count', async ({ subdomain, data: { query } }) => {
     const models = await generateModels(subdomain);
 

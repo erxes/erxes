@@ -1,22 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useQuery } from 'react-apollo';
 import { queries } from '../graphql';
 import gql from 'graphql-tag';
-import queryString from 'query-string';
-import Form from '../components/Form';
+import FormComponent from '../components/Form';
 
 type Props = {
-  edit?: boolean;
+  initialData: any;
   submit: (data: any) => void;
 };
 
 const FormContainer = (props: Props) => {
-  const [type, setType] = useState<string>('');
-
-  const location = useLocation();
-  const query = queryString.parse(location.search);
-  const salesLogId = query.salesLogId ? query.salesLogId : '';
+  const { initialData } = props;
+  const [type, setType] = useState<string>(
+    initialData && initialData.type ? initialData.type : ''
+  );
 
   const productsQuery = useQuery(gql(queries.products));
   const productCategoriesQuery = useQuery(gql(queries.productCategories));
@@ -25,45 +22,13 @@ const FormContainer = (props: Props) => {
     variables: { type }
   });
 
-  let getSalesLogDetailQuery: any;
-  let data: any = {};
-
-  if (props.edit) {
-    getSalesLogDetailQuery = useQuery(gql(queries.getSalesLogDetail), {
-      variables: { salesLogId }
-    });
-
-    const salesLogDetail = getSalesLogDetailQuery.data
-      ? getSalesLogDetailQuery.data.getSalesLogDetail
-      : {};
-
-    if (salesLogDetail.type && salesLogDetail.type !== type)
-      setType(salesLogDetail.type);
-
-    data = {
-      name: salesLogDetail.name ? salesLogDetail.name : '',
-      description: salesLogDetail.description ? salesLogDetail.description : '',
-      type: salesLogDetail.type ? salesLogDetail.type : type,
-      date: salesLogDetail.createdAt ? salesLogDetail.createdAt : '',
-      departmentId: salesLogDetail.departmentDetail
-        ? salesLogDetail.departmentDetail._id
-        : '',
-      branchId: salesLogDetail.branchDetail
-        ? salesLogDetail.branchDetail._id
-        : '',
-      labels: salesLogDetail.labels ? salesLogDetail.labels : ''
-    };
-  }
-
   useEffect(() => {
     labelsQuery.refetch({ type });
   }, [type]);
 
   return (
-    <Form
+    <FormComponent
       {...props}
-      type={type}
-      setType={setType}
       labels={labelsQuery.data ? labelsQuery.data.getLabels : []}
       products={productsQuery.data ? productsQuery.data.products : []}
       categories={
@@ -74,7 +39,8 @@ const FormContainer = (props: Props) => {
       timeframes={
         getTimeframesQuery.data ? getTimeframesQuery.data.getTimeframes : []
       }
-      data={data}
+      type={type}
+      setType={setType}
     />
   );
 };

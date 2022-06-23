@@ -43,10 +43,11 @@ const getSalesLogs = `
   query getSalesLogs {
     getSalesLogs {
       _id,
-      description,
-      date,
       name,
+      description,
       type,
+      date,
+      status,
       departmentDetail {
         _id,
         title
@@ -54,6 +55,10 @@ const getSalesLogs = `
       branchDetail {
         _id,
         title
+      },
+      createdUser {
+        _id,
+        username
       }
     }
   }
@@ -66,19 +71,14 @@ const getSalesLogDetail = `
       name,
       description,
       type,
-      departmentDetail {
-        _id,
-        title
-      },
+      date,
+      departmentId,
+      branchId,
       createdUser {
         _id,
         username
       },
-      createdAt,
-      branchDetail {
-        _id,
-        title
-      }
+      createdAt
     }
   }
 `;

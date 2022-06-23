@@ -85,12 +85,6 @@ const list = ({ location }) => {
   return <TaskBoard viewType="list" queryParams={queryParams} />;
 };
 
-const time = ({ location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <TaskBoard viewType="time" queryParams={queryParams} />;
-};
-
 const routes = () => {
   return (
     <>
@@ -130,8 +124,6 @@ const routes = () => {
         path="/task/activity"
         component={activity}
       />
-
-      <Route key="task/time" exact={true} path="/task/time" component={time} />
 
       <Route key="task/list" exact={true} path="/task/list" component={list} />
     </>
