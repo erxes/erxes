@@ -270,7 +270,7 @@ const orderMutations = {
     checkOrderStatus(order);
     await checkUnpaidInvoices(_id);
 
-    const paidInvoices = await QPayInvoices.countDocuments({
+    const paidInvoices = await models.QPayInvoices.countDocuments({
       senderInvoiceNo: _id,
       status: 'PAID'
     });

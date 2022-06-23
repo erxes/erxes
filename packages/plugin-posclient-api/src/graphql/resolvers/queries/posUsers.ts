@@ -10,7 +10,7 @@ const userQueries = {
       : null;
   },
 
-  posUsers(_root, models, param, { posUser }: IContext) {
+  posUsers(_root, param, { models, posUser }: IContext) {
     const query: any = { isActive: true };
     if (param.searchValue) {
       query.email = param.searchValue;

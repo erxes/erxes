@@ -36,7 +36,7 @@ const orderQueries = {
 
   fullOrders(
     _root,
-    models,
+
     {
       searchValue,
       statuses,
@@ -45,7 +45,8 @@ const orderQueries = {
       sortField,
       sortDirection,
       customerId
-    }: IFullOrderParams
+    }: IFullOrderParams,
+    { models }: IContext
   ) {
     const filter: any = {};
 
@@ -78,13 +79,16 @@ const orderQueries = {
     return models.Orders.findOne({ _id });
   },
 
-  async ordersCheckCompany(_root, { registerNumber }, {}: IContext) {
+  async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
     if (!registerNumber) {
       throw new Error('Company register number required for checking');
     }
+    const url =
+      config && config.ebarimtConfig && config.ebarimtConfig.checkCompanyUrl;
 
-    if ('') {
+    if (url) {
       const response = await sendRequest({
+        url,
         method: 'GET',
         params: { regno: registerNumber }
       });

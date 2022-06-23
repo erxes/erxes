@@ -24,12 +24,12 @@ const configMutations = {
     const posService = await getService('pos');
 
     const config = await models.Configs.createConfig(token);
+
     const response = await sendRequest({
       url: `${posService.address}/pos-init`,
       method: 'get',
       headers: { 'POS-TOKEN': token }
     });
-
     if (response) {
       const {
         pos = {},
