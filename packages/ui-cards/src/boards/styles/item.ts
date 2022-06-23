@@ -1,10 +1,11 @@
-import Button from '@erxes/ui/src/components/Button';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+
+import Button from '@erxes/ui/src/components/Button';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { borderRadius } from './common';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styledTS from 'styled-components-ts';
 
 const buttonColor = '#0a1e3c';
 
@@ -101,6 +102,7 @@ export const HeaderRow = styled(Flex)`
 
 export const HeaderContent = styled.div`
   flex: 1;
+
   textarea {
     border-bottom: none;
     min-height: auto;

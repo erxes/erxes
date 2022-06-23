@@ -1,10 +1,9 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
+
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import { SidebarListItem } from '../styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SidebarListItem } from '../styles';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
 
 const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;
@@ -22,6 +21,19 @@ const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
     // padding-bottom: 10px;
     // margin-left: 0;
     // border-left: 0;
+  }
+`;
+
+const HeaderContent = styled.div`
+  flex: 1;
+
+  textarea {
+    border-bottom: none;
+    min-height: auto;
+    padding: 5px 0;
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
   }
 `;
 
@@ -130,5 +142,6 @@ export {
   SelectMemberStyled,
   PipelineCount,
   Attributes,
-  BoardHeader
+  BoardHeader,
+  HeaderContent
 };
