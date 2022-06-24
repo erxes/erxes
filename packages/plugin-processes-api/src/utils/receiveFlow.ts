@@ -35,10 +35,7 @@ export const rf = async (models: IModels, params) => {
 
       const response = findLastJob(jobs, jobRefers, productId);
       const { flowStatus, lastJobs, lastJob } = response;
-      const leftJobs = getLeftJobs(
-        jobs,
-        lastJobs.map(e => e.id)
-      );
+      const leftJobs = getLeftJobs(jobs, [lastJob?.id || '']);
 
       console.log(
         'Last jobs: ',
@@ -73,7 +70,7 @@ export const rf = async (models: IModels, params) => {
         );
 
         const work = await worksAdd(doc, models);
-        console.log('work:', work);
+        // console.log('work:', work);
 
         // filtering beforeJobs of lastJob on flow
         const beforeJobs = getBeforeJobs(leftJobs, lastJob?.id || '');
@@ -90,15 +87,41 @@ export const rf = async (models: IModels, params) => {
         const level = 2;
         const recursiveJobs = beforeJobs;
 
-        recursiveCatchBeforeJobs(recursiveJobs, leftJobs, level, {
-          flow,
-          productId,
-          count,
-          branchId,
-          departmentId,
-          jobRefers,
-          models
-        });
+        const responseleftjobs = await recursiveCatchBeforeJobs(
+          recursiveJobs,
+          leftJobs,
+          level,
+          {
+            flow,
+            productId,
+            count,
+            branchId,
+            departmentId,
+            jobRefers,
+            models
+          }
+        );
+
+        for await (const responseleftjob of responseleftjobs) {
+          const leftJobRefer = getJobRefers(
+            [responseleftjob.jobReferId || ''],
+            jobRefers
+          );
+
+          const docLeft: IWork = initDoc(
+            flow,
+            leftJobRefer[0],
+            productId,
+            count,
+            branchId,
+            departmentId,
+            responseleftjob
+          );
+
+          await worksAdd(docLeft, models);
+        }
+
+        console.log('responseleftjobs: ', responseleftjobs);
       } else {
         descriptionForWork = `last job not defined on flow / ${flow.name} / `;
       }
