@@ -163,22 +163,25 @@ const orderMutations = {
 
     await validateOrderPayment(order, doc);
 
+    const ebarimtConfig: any = config.ebarimtConfig;
+
     const data = await prepareEbarimtData(
       order,
-      config.ebarimtConfig,
+      ebarimtConfig,
       items,
       doc.billType,
       doc.registerNumber
     );
 
-    const ebarimtConfig = {
-      districtName: getDistrictName('')
-    };
+    ebarimtConfig.districtName = getDistrictName(
+      config.ebarimtConfig.districtCode
+    );
 
     try {
       const response = await models.PutResponses.putData({
         ...data,
-        config: ebarimtConfig
+        config: ebarimtConfig,
+        models
       });
 
       if (response && response.success === 'true') {
@@ -311,22 +314,25 @@ const orderMutations = {
 
     await validateOrderPayment(order, { billType });
 
+    const ebarimtConfig: any = config.ebarimtConfig;
+
     const data = await prepareEbarimtData(
       order,
-      config.ebarimtConfig,
+      ebarimtConfig,
       items,
       billType,
       registerNumber
     );
 
-    const ebarimtConfig = {
-      districtName: getDistrictName('')
-    };
+    ebarimtConfig.districtName = getDistrictName(
+      config.ebarimtConfig.districtCode
+    );
 
     try {
       const response = await models.PutResponses.putData({
         ...data,
-        config: ebarimtConfig
+        config: ebarimtConfig,
+        models
       });
 
       if (response && response.success === 'true') {

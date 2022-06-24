@@ -80,9 +80,6 @@ export const generateOrderNumber = async (
 export const validateOrder = async (models: IModels, doc: IOrderInput) => {
   const { items = [] } = doc;
 
-  console.log('1', items);
-  console.log('2', items.filter(i => !i.isPackage).length < 1);
-
   if (items.filter(i => !i.isPackage).length < 1) {
     throw new Error('Products missing in order. Please add products');
   }
@@ -97,7 +94,6 @@ export const validateOrderPayment = (order: IOrder, doc: IPayment) => {
   if (order.paidDate) {
     throw new Error('Order has already been paid');
   }
-
   const {
     cardAmount: paidCard = 0,
     cashAmount: paidCash = 0,
@@ -181,6 +177,9 @@ export const prepareEbarimtData = async (
   orderBillType: string,
   registerNumber?: string
 ) => {
+  if (!config) {
+    throw new Error('has not ebarimt config');
+  }
   if (!order) {
     throw new Error('Order must be specified');
   }

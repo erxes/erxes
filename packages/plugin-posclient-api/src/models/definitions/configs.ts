@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { IConfigModel } from '../Configs';
 import { field, getDateFieldDefinition } from './utils';
 
 export interface IEbarimtConfig {

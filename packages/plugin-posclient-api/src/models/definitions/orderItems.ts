@@ -1,6 +1,5 @@
 import { Document, Schema } from 'mongoose';
 import { getDateFieldDefinition, getNumberFieldDefinition } from './utils';
-import { IOrderItemModel } from '../OrderItems';
 import { field, schemaHooksWrapper } from './util';
 
 export interface IOrderItem {

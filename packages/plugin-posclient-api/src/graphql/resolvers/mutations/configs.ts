@@ -64,15 +64,17 @@ const configMutations = {
   },
 
   async syncConfig(_root, { type }, { models }: IContext) {
-    const { REACT_APP_MAIN_API_DOMAIN } = process.env;
+    const posService = await getService('pos');
 
     const config = await models.Configs.findOne({}).lean();
 
+    console.log('config::::::::::::::::::::::::::::', config);
+
     const response = await sendRequest({
-      url: `${REACT_APP_MAIN_API_DOMAIN}/pos-sync-config`,
+      url: `${posService.address}/pos-sync-config`,
       method: 'get',
       headers: { 'POS-TOKEN': config.token || '' },
-      body: { syncId: config.syncInfo.id, type }
+      body: { syncId: (config.syncInfo || {}).id, type }
     });
 
     if (!response) {
@@ -89,7 +91,7 @@ const configMutations = {
         } = response;
         await models.Configs.updateConfig(config._id, {
           ...extractConfig(pos),
-          syncInfo: pos.syncInfo,
+          syncInfo: pos.syncInfo || {},
           qpayConfig
         });
 
@@ -118,8 +120,6 @@ const configMutations = {
   },
 
   async syncOrders(_root, _param, { models }: IContext) {
-    const { REACT_APP_MAIN_API_DOMAIN } = process.env;
-
     const orderFilter = {
       synced: false,
       status: { $in: ORDER_STATUSES.FULL },
@@ -160,10 +160,11 @@ const configMutations = {
     }
 
     const config = await models.Configs.getConfig({});
+    const posService = await getService('pos');
 
     try {
       const response = await sendRequest({
-        url: `${REACT_APP_MAIN_API_DOMAIN}/pos-sync-orders`,
+        url: `${posService.address}/pos-sync-orders`,
         method: 'post',
         headers: { 'POS-TOKEN': config.token || '' },
         body: { syncId: config.syncInfo.id, orders, putResponses }

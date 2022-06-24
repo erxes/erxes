@@ -1,12 +1,13 @@
 import { DISTRICTS } from './definitions/constants';
 import { sendRequest } from '../graphql/utils/commonUtils';
-import { PutResponses } from './PutResponses';
+import { IModels } from '../connectionResolver';
 
 const formatNumber = (num: number): string => {
   return num && num.toFixed ? num.toFixed(2) : '0.00';
 };
 
 export interface IPutDataArgs {
+  models: IModels;
   date?: string;
   orderId?: string;
   hasVat?: boolean;
@@ -48,10 +49,12 @@ export class PutData<IListArgs extends IPutDataArgs> {
   public vatPercent: number = 10;
   public cityTaxPercent: number = 0;
   public config: any;
+  public models: IModels;
 
   constructor(params: IListArgs) {
     this.params = params;
     this.config = params.config;
+    this.models = params.models;
 
     this.vatPercent = params.config.vatPercent || 0;
     this.cityTaxPercent = params.config.cityTaxPercent || 0;
@@ -71,7 +74,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     return {
       code: detail.inventoryCode,
       name: product.name,
-      measureUnit: product.sku,
+      measureUnit: product.sku || 'ш',
       qty: formatNumber(detail.count),
       unitPrice: formatNumber(detail.amount / (detail.count || 1)),
       totalAmount: formatNumber(detail.amount),
@@ -144,13 +147,15 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     const { contentType, contentId } = this.params;
 
+    console.log('---------------------------', this.config);
+
     if (!Object.keys(DISTRICTS).includes(this.config.districtCode)) {
       throw new Error(`Invalid district code: ${this.config.districtCode}`);
     }
 
     this.transactionInfo = await this.generateTransactionInfo();
 
-    const prePutResponse = await PutResponses.putHistories({
+    const prePutResponse = await this.models.PutResponses.putHistories({
       contentType,
       contentId
     });
@@ -159,7 +164,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       this.transactionInfo.returnBillId = prePutResponse.billId;
     }
 
-    const resObj = await PutResponses.createPutResponse({
+    const resObj = await this.models.PutResponses.createPutResponse({
       sendInfo: { ...this.transactionInfo },
       contentId,
       contentType
@@ -189,20 +194,20 @@ export class PutData<IListArgs extends IPutDataArgs> {
       }
     }
 
-    await PutResponses.updatePutResponse(resObj._id, {
+    await this.models.PutResponses.updatePutResponse(resObj._id, {
       ...response,
       customerName: this.params.customerName
     });
 
-    return PutResponses.findOne({ _id: resObj._id }).lean();
+    return this.models.PutResponses.findOne({ _id: resObj._id }).lean();
   }
 }
 
-export const returnBill = async (doc, config) => {
+export const returnBill = async (models, doc, config) => {
   const url = config.ebarimtUrl || '';
   const { contentType, contentId } = doc;
 
-  const prePutResponse = await PutResponses.putHistories({
+  const prePutResponse = await models.PutResponses.putHistories({
     contentType,
     contentId
   });
@@ -219,7 +224,7 @@ export const returnBill = async (doc, config) => {
     date: (prePutResponse.date || '').toString()
   };
 
-  const resObj = await PutResponses.createPutResponse({
+  const resObj = await models.PutResponses.createPutResponse({
     sendInfo: { ...data },
     contentId,
     contentType
@@ -234,7 +239,7 @@ export const returnBill = async (doc, config) => {
 
   const response = JSON.parse(responseStr);
 
-  await PutResponses.updatePutResponse(resObj._id, { ...response });
+  await models.PutResponses.updatePutResponse(resObj._id, { ...response });
 
-  return PutResponses.findOne({ _id: resObj._id }).lean();
+  return models.PutResponses.findOne({ _id: resObj._id }).lean();
 };

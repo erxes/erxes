@@ -4,7 +4,7 @@ import {
   IPutResponseDocument,
   IPutResponse
 } from './definitions/putResponses';
-import { PutData, IPutDataArgs } from './PutData';
+import { PutData, IPutDataArgs, returnBill } from './PutData';
 
 export interface IPutResponseModel extends Model<IPutResponseDocument> {
   putData(doc: IPutDataArgs): Promise<IPutResponseDocument>;
@@ -24,13 +24,13 @@ export interface IPutResponseModel extends Model<IPutResponseDocument> {
 export const loadPutResponseClass = models => {
   class PutResponse {
     public static async putData(doc: IPutDataArgs) {
-      const putData = new PutData({ ...doc });
+      const putData = new PutData({ ...doc, models });
       return putData.run();
     }
 
-    // public static async returnBill(models, deal, config) {
-    //   return returnBill(models, deal, config)
-    // }
+    public static async returnBill(models, deal, config) {
+      return returnBill(models, deal, config);
+    }
 
     public static async putHistories({ contentType, contentId }) {
       const putResponse = await models.PutResponses.findOne({

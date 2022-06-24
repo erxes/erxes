@@ -1,14 +1,10 @@
-import { IContext } from './../../../../plugin-ads-api/src/connectionResolver';
 import { IOrderDocument } from '../../models/definitions/orders';
-import { OrderItems } from '../../models/OrderItems';
-import { PutResponses } from '../../models/PutResponses';
-import { QPayInvoices } from '../../models/QPayInvoices';
-import PosUsers from '../../models/PosUsers';
 import { sendContactsMessage } from '../../messageBroker';
+import { IContext } from '../../connectionResolver';
 
 export default {
-  async items(order: IOrderDocument) {
-    return await OrderItems.find({ orderId: order._id }).lean();
+  async items(order: IOrderDocument, {}, { models }: IContext) {
+    return await models.OrderItems.find({ orderId: order._id }).lean();
   },
 
   async customer(order: IOrderDocument, _params, { subdomain }: IContext) {
@@ -20,19 +16,22 @@ export default {
     });
   },
 
-  user(order: IOrderDocument) {
-    return PosUsers.findOne({ _id: order.userId });
+  user(order: IOrderDocument, {}, { models }: IContext) {
+    return models.PosUsers.findOne({ _id: order.userId });
   },
-  putResponses(order: IOrderDocument) {
-    return PutResponses.find({ contentType: 'pos', contentId: order._id })
+  putResponses(order: IOrderDocument, {}, { models }: IContext) {
+    return models.PutResponses.find({
+      contentType: 'pos',
+      contentId: order._id
+    })
       .sort({ createdAt: -1 })
       .lean();
   },
-  qpayInvoice(order: IOrderDocument) {
-    return QPayInvoices.findOne({ senderInvoiceNo: order._id }).lean();
+  qpayInvoice(order: IOrderDocument, {}, { models }: IContext) {
+    return models.QPayInvoices.findOne({ senderInvoiceNo: order._id }).lean();
   },
-  qpayInvoices(order: IOrderDocument) {
-    return QPayInvoices.find({ senderInvoiceNo: order._id })
+  qpayInvoices(order: IOrderDocument, {}, { models }: IContext) {
+    return models.QPayInvoices.find({ senderInvoiceNo: order._id })
       .sort({ createdAt: -1 })
       .lean();
   }
