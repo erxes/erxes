@@ -1,8 +1,8 @@
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import * as express from 'express';
 import { IModels } from '../../../connectionResolver';
 import { IPosUser } from '../../../models/definitions/posUsers';
 import { IContext } from '../../types';
-import { authCookieOptions } from '../../utils/commonUtils';
 
 interface IPosLogin {
   email: string;

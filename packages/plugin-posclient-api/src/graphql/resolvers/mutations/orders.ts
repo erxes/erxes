@@ -18,7 +18,7 @@ import { IContext } from '../../types';
 import { sendPosMessage } from '../../../messageBroker';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { graphqlPubsub } from '../../../pubsub';
-import { debugError } from '../../../debugger';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IPaymentBase {
   billType: string;

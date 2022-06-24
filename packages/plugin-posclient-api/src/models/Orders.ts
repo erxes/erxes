@@ -12,7 +12,7 @@ export interface IOrderModel extends Model<IOrderDocument> {
 export const loadOrderClass = models => {
   class Order {
     public static async getOrder(_id: string) {
-      const order = await models.Orders.findOne({ _id });
+      const order = await models.Orders.findOne({ _id }).lean();
 
       if (!order) {
         throw new Error(`Order not found with id: ${_id}`);

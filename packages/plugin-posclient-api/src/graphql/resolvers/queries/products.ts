@@ -1,8 +1,8 @@
 import { IProductCategoryDocument } from '../../../models/definitions/products';
 import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
-import { escapeRegExp, paginate } from '../../utils/commonUtils';
 import { IContext } from '../../types';
 import { IModels } from '../../../connectionResolver';
+import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 
 interface IProductParams {
   type?: string;

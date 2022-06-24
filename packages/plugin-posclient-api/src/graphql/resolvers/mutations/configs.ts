@@ -1,4 +1,3 @@
-import { debugError, debugInit } from '../../../debugger';
 import { initBroker } from '../../../messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import { OrderItems } from '../../../models/OrderItems';
@@ -16,6 +15,7 @@ import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { IContext } from '../../../connectionResolver';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 
 let cl;
 
@@ -54,7 +54,7 @@ const configMutations = {
 
     initBroker(cl)
       .then(() => {
-        debugInit('Message broker has started.');
+        debugInfo('Message broker has started.');
       })
       .catch(e => {
         debugError(`Error occurred when starting message broker: ${e.message}`);

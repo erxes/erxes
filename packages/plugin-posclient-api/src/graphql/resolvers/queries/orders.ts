@@ -1,6 +1,7 @@
 import { sendGraphQLRequest } from './utils';
 import { IContext } from '../../types';
-import { escapeRegExp, paginate, sendRequest } from '../../utils/commonUtils';
+import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 
 interface ISearchParams {
   searchValue?: string;
@@ -16,7 +17,11 @@ interface IFullOrderParams extends ISearchParams {
 }
 
 const orderQueries = {
-  orders(_root, models, { searchValue, page, perPage }: ISearchParams) {
+  orders(
+    _root,
+    { searchValue, page, perPage }: ISearchParams,
+    { models }: IContext
+  ) {
     const filter: any = {};
 
     if (searchValue) {
@@ -36,7 +41,6 @@ const orderQueries = {
 
   fullOrders(
     _root,
-
     {
       searchValue,
       statuses,

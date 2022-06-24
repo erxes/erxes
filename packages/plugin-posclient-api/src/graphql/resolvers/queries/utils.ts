@@ -1,7 +1,6 @@
+import { debugError } from '@erxes/api-utils/src/debuggers';
 import * as request from 'request';
 // import Cors from 'cors';
-import { getEnv } from '../../utils/commonUtils';
-import { debugError } from '../../../debugger';
 
 type Params = {
   name: string;
@@ -52,8 +51,8 @@ export const sendGraphQLRequest = ({ query, variables, name }: Params) => {
 };
 
 export function corsMiddleware(req, res) {
-  const POS_UI_DOMAIN = getEnv({ name: 'POS_UI_DOMAIN' });
-  const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
+  // const POS_UI_DOMAIN = getEnv({ name: 'POS_UI_DOMAIN' });
+  // const MAIN_APP_DOMAIN = getEnv({ name: 'MAIN_APP_DOMAIN' });
 
   // const cors = Cors({
   //   credentials: true,

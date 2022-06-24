@@ -1,5 +1,5 @@
+import { sendRequest } from '@erxes/api-utils/src/requests';
 import { IQPayConfig } from '../../models/definitions/configs';
-import { sendRequest } from './commonUtils';
 
 export const fetchQPayToken = async (qpayConfig: IQPayConfig) => {
   const response = await sendRequest({

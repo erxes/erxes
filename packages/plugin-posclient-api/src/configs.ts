@@ -25,6 +25,7 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
+  hasSubscriptions: true,
   getHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
 
   apolloServerContext: async (context, req, res) => {
@@ -40,9 +41,7 @@ export default {
 
     context.subdomain = subdomain;
     context.models = models;
-    context.config = await models.Configs.findOne({
-      token: 'MPXA0yQBfdAZThyvAG9BvsafCCPNAbmN'
-    });
+    context.config = await models.Configs.findOne({}).lean();
     context.requestInfo = requestInfo;
     context.res = res;
 

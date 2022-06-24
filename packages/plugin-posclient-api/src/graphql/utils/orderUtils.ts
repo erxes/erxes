@@ -6,7 +6,7 @@ import { IContext, IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import { sendRequest } from './commonUtils';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 import {
   DISTRICTS,
   ORDER_STATUSES,

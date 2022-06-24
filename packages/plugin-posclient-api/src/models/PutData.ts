@@ -1,6 +1,6 @@
 import { DISTRICTS } from './definitions/constants';
-import { sendRequest } from '../graphql/utils/commonUtils';
 import { IModels } from '../connectionResolver';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 
 const formatNumber = (num: number): string => {
   return num && num.toFixed ? num.toFixed(2) : '0.00';

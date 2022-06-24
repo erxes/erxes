@@ -1,6 +1,6 @@
+import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../types';
 import { fetchQPayInvoice, fetchQPayToken } from '../../utils/qpayUtils';
-import { escapeRegExp, paginate } from '../../utils/commonUtils';
 
 interface IInvoiceParams {
   orderId: string;
