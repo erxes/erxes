@@ -226,7 +226,7 @@ export const posSyncConfig = async (req, res) => {
     return res.send({ error: 'not found pos' });
   }
 
-  pos.syncInfos[syncId] = new Date();
+  // pos.syncInfos[syncId] = new Date();
 
   await models.Pos.updateOne({ _id: pos._id }, { $set: { ...pos } });
 
