@@ -99,7 +99,7 @@ export const initDoc = (
   job?: IJobDocument
 ) => {
   const doc: IWork = {
-    name: flow.name,
+    name: job?.label,
     status: 'active',
     dueDate: new Date(),
     startAt: new Date(),
@@ -108,11 +108,24 @@ export const initDoc = (
     flowId: flow._id,
     productId,
     count,
-    branchId,
-    departmentId
+    branchId: job?.branchId,
+    departmentId: job?.departmentId,
+    needProducts: initProducts(parseInt(count, 10), jobRefer.needProducts),
+    resultProducts: initProducts(parseInt(count, 10), jobRefer.resultProducts)
   };
 
   return doc;
+};
+
+export const initProducts = (count: number, products: IProductsData[]) => {
+  const response: IProductsData[] = [];
+  for (const product of products) {
+    const changedProduct = product;
+    changedProduct.quantity = (changedProduct.quantity || 1) * count;
+    response.push(changedProduct);
+  }
+
+  return response;
 };
 
 export const worksAdd = async (doc: IWork, models: IModels) => {
@@ -156,6 +169,7 @@ export const recursiveCatchBeforeJobs = async (
     leftJobs.length
   );
 
+  const responseLeftJobs: any[] = [];
   const totalBeforeJobsRecursive: any[] = [];
 
   for (const recursiveJob of recursiveJobs) {
@@ -185,7 +199,7 @@ export const recursiveCatchBeforeJobs = async (
     );
 
     const work = await worksAdd(doc, models);
-    console.log('work:', work);
+    // console.log('work:', work);
 
     const beforeJobsRecursive = getBeforeJobs(leftJobs, recursiveJob.id);
 
@@ -227,7 +241,7 @@ export const recursiveCatchBeforeJobs = async (
 
         checkJobFrequentlyIds = checkTempIds;
         recursiveJobs = beforeJobsRecursive;
-        recursiveCatchBeforeJobs(
+        leftJobs = recursiveCatchBeforeJobs(
           recursiveJobs,
           leftJobs,
           level + levelCounter++,
@@ -236,4 +250,6 @@ export const recursiveCatchBeforeJobs = async (
       }
     }
   }
+
+  return leftJobs;
 };
