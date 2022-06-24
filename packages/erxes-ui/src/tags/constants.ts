@@ -8,6 +8,7 @@ export const TAG_TYPES = {
   INTEGRATION: __('inbox:integration'),
   PRODUCT: __('products:product'),
   PRODUCT_TEMPLATE: __('productTemplate'),
+  DEAL: __('cards:deal'),
   ALL_LIST: [
     'conversation',
     'customer',
@@ -15,6 +16,7 @@ export const TAG_TYPES = {
     'company',
     'integration',
     'product',
-    'productTemplate'
+    'productTemplate',
+    'deal'
   ]
 };

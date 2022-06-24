@@ -18,6 +18,9 @@ import Row from './Row';
 import Sidebar from './Sidebar';
 import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import { Flex } from '@erxes/ui/src/styles/main';
+import { MarginRight } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   integrations: ILeadIntegration[];
@@ -36,6 +39,7 @@ type Props = {
   refetch?: () => void;
   copy: (integrationId: string) => void;
   counts: IntegrationsCount;
+  history: any;
 };
 
 class List extends React.Component<Props, {}> {
@@ -68,6 +72,12 @@ class List extends React.Component<Props, {}> {
       />
     ));
   }
+
+  searchHandler = event => {
+    const { history } = this.props;
+
+    routerUtils.setParams(history.history, { searchValue: event.target.value });
+  };
 
   render() {
     const {
@@ -106,11 +116,25 @@ class List extends React.Component<Props, {}> {
     }
 
     const actionBarRight = (
-      <Link to="/forms/create">
-        <Button btnStyle="success" size="small" icon="plus-circle">
-          Create Form
-        </Button>
-      </Link>
+      <Flex>
+        <MarginRight>
+          <FormControl
+            type="text"
+            placeholder={__('Type to search')}
+            onChange={this.searchHandler}
+            value={routerUtils.getParam(
+              this.props.history.history,
+              'searchValue'
+            )}
+            autoFocus={true}
+          />
+        </MarginRight>
+        <Link to="/forms/create">
+          <Button btnStyle="success" size="small" icon="plus-circle">
+            Create Form
+          </Button>
+        </Link>
+      </Flex>
     );
 
     const actionBar = (

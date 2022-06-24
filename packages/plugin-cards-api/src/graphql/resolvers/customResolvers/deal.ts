@@ -248,6 +248,10 @@ export default {
     }).lean();
   },
 
+  async tags(deal: IDealDocument) {
+    return (deal.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+  },
+
   createdUser(deal: IDealDocument) {
     if (!deal.userId) {
       return;
