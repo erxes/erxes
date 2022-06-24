@@ -26,27 +26,7 @@ type Props = {
   duplicate: (id: string) => void;
 } & ICommonListProps;
 
-type State = {
-  items: any;
-  searchValue: string;
-};
-
-class EmailTemplateList extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      items: props.objects,
-      searchValue: ''
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.objects !== this.props.objects) {
-      this.setState({ items: nextProps.objects });
-    }
-  }
-
+class EmailTemplateList extends React.Component<Props> {
   renderForm = props => {
     return <Form {...props} renderButton={this.props.renderButton} />;
   };
@@ -101,7 +81,7 @@ class EmailTemplateList extends React.Component<Props, State> {
   }
 
   renderRow = () => {
-    return this.state.items.map((object, index) => {
+    return this.props.objects.map((object, index) => {
       const { name, content, createdAt, modifiedAt, createdUser } =
         object || {};
 

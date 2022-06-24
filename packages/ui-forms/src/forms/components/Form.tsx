@@ -9,7 +9,6 @@ import FieldsPreview from './FieldsPreview';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IField } from '@erxes/ui/src/types';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import React from 'react';
