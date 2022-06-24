@@ -15,23 +15,42 @@ export default {
   },
 
   customer(conversation: IConversationDocument) {
-    return conversation.customerId && { __typename: 'Customer', _id: conversation.customerId }
+    return (
+      conversation.customerId && {
+        __typename: 'Customer',
+        _id: conversation.customerId
+      }
+    );
   },
 
-  integration(conversation: IConversationDocument, _args, { models }: IContext) {
+  integration(
+    conversation: IConversationDocument,
+    _args,
+    { models }: IContext
+  ) {
     return models.Integrations.findOne({ _id: conversation.integrationId });
   },
 
   user(conversation: IConversationDocument) {
-    return conversation.userId && { __typename: 'User', _id: conversation.userId }
+    return (
+      conversation.userId && { __typename: 'User', _id: conversation.userId }
+    );
   },
 
   assignedUser(conversation: IConversationDocument) {
-    return conversation.assignedUserId && { __typename: 'User', _id: conversation.assignedUserId }
+    return (
+      conversation.assignedUserId && {
+        __typename: 'User',
+        _id: conversation.assignedUserId
+      }
+    );
   },
 
   participatedUsers(conv: IConversationDocument) {
-    return (conv.participatedUserIds || []).map((_id) => ({ __typename: 'User', _id }))
+    return (conv.participatedUserIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
   },
 
   participatorCount(conv: IConversationDocument) {
@@ -48,9 +67,11 @@ export default {
   async facebookPost(
     conv: IConversationDocument,
     _args,
-    {  models, subdomain }: IContext
+    { models, subdomain }: IContext
   ) {
-    const integration = (await models.Integrations.findOne({ _id: conv.integrationId })) || {} as any;
+    const integration =
+      (await models.Integrations.findOne({ _id: conv.integrationId })) ||
+      ({} as any);
 
     if (integration && integration.kind !== 'facebook-post') {
       return null;
@@ -81,7 +102,7 @@ export default {
     const integration =
       (await models.Integrations.findOne({
         _id: conv.integrationId
-      })) || {} as any;
+      })) || ({} as any);
 
     if (integration && integration.kind !== 'callpro') {
       return null;
@@ -91,13 +112,13 @@ export default {
       try {
         const response = await sendIntegrationsMessage({
           subdomain,
-          action: "getCallproAudio",
+          action: 'getCallproAudio',
           data: {
             erxesApiId: conv._id,
             integrationId: integration._id
           },
           isRPC: true
-        })
+        });
 
         return response ? response.audioSrc : '';
       } catch (e) {
@@ -110,7 +131,7 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return (conv.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
+    return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
   async videoCallData(
@@ -130,12 +151,12 @@ export default {
     try {
       const response = await sendIntegrationsMessage({
         subdomain,
-        action: "getDailyActiveRoom",
+        action: 'getDailyActiveRoom',
         data: {
           erxesApiConversationId: conversation._id
         },
         isRPC: true
-      })
+      });
 
       return response;
     } catch (e) {
@@ -144,11 +165,15 @@ export default {
     }
   },
 
-  async isFacebookTaggedMessage(conversation: IConversationDocument, _args, { models }: IContext) {
+  async isFacebookTaggedMessage(
+    conversation: IConversationDocument,
+    _args,
+    { models }: IContext
+  ) {
     const integration =
       (await models.Integrations.findOne({
         _id: conversation.integrationId
-      })) || {} as any;
+      })) || ({} as any);
 
     if (integration && integration.kind !== 'facebook-messenger') {
       return false;
