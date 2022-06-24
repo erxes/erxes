@@ -1,9 +1,13 @@
 import { Document, Schema } from 'mongoose';
-import { IProductsData, productsDataSchema } from './jobs';
+import {
+  IProductsData,
+  IProductsDataDocument,
+  productsDataSchema
+} from './jobs';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IWork {
-  name: string;
+  name?: string;
   status: string;
   dueDate: Date;
   startAt: Date;
@@ -12,10 +16,10 @@ export interface IWork {
   flowId: string;
   productId: string;
   count: string;
-  branchId: string;
-  departmentId: string;
-  needProducts?: IProductsData;
-  resultProducts?: IProductsData;
+  branchId?: string;
+  departmentId?: string;
+  needProducts?: any[];
+  resultProducts?: any[];
 }
 
 export interface IWorkDocument extends IWork, Document {
@@ -29,21 +33,25 @@ export interface IWorkDocument extends IWork, Document {
 export const workSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
+    name: field({ type: String, optional: true, label: 'Name' }),
     status: field({ type: String, label: 'Status' }),
     jobId: field({ type: String, label: 'jobId' }),
     flowId: field({ type: String, label: 'flowId' }),
     productId: field({ type: String, label: 'productId' }),
     count: field({ type: String, label: 'count' }),
-    branchId: field({ type: String, label: 'branchId' }),
-    departmentId: field({ type: String, label: 'departmentId' }),
+    branchId: field({ type: String, optional: true, label: 'branchId' }),
+    departmentId: field({
+      type: String,
+      optional: true,
+      label: 'departmentId'
+    }),
     needProducts: field({
-      type: productsDataSchema,
+      type: [productsDataSchema],
       optional: true,
       label: 'Need products'
     }),
     resultProducts: field({
-      type: productsDataSchema,
+      type: [productsDataSchema],
       optional: true,
       label: 'Result products'
     }),
