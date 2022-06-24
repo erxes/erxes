@@ -112,3 +112,12 @@ export const CardBorder = styled.div`
   padding: 12px;
   margin: 12px;
 `;
+
+export const ClearBtnContainer = styled.a`
+  padding: 0 0 0 15px;
+`;
+export const FilterRowContainer = styled.div`
+display:grid;
+grid-template-columns: 90% 10%
+align-items:center
+`;

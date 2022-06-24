@@ -17,7 +17,7 @@ export const types = `
 
 export const queries = `
   scoreLogs(ownerType: String, ownerId: String, searchValue: String): [ScoreLog]
-  scoreLogList:List
+  scoreLogList(ownerType:String,order:String,fromDate:String,toDate:String):List
 `;
 export const mutation = `
 changeScore(  ownerType: String,

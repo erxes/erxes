@@ -7,9 +7,11 @@ import {
   IScoreLog
 } from './definitions/scoreLog';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import { IScoreParams } from './definitions/common';
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
+  getScoreLogs(doc: IScoreParams): Promise<IScoreLogDocument>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument>;
 }
 
@@ -23,6 +25,29 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       }
 
       return scoreLog;
+    }
+
+    public static async getScoreLogs(doc: IScoreParams) {
+      const { ownerType, order, fromDate, toDate } = doc;
+
+      console.log(doc);
+
+      let filter = {};
+
+      if (ownerType) {
+        filter = { ...filter, ownerType };
+      }
+      if (fromDate && toDate) {
+        filter = { ...filter, createdAt: { $gte: fromDate, $lt: toDate } };
+      }
+      const orderByDate =
+        order === 'Descending' ? 1 : order === 'Ascending' && -1;
+
+      const list = await models.ScoreLogs.find(filter).sort({
+        createdAt: orderByDate
+      });
+      const total = await models.ScoreLogs.find(filter).count();
+      return { list, total };
     }
 
     public static async changeScore(doc: IScoreLog) {

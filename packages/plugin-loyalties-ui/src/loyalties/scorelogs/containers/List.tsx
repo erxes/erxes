@@ -29,12 +29,17 @@ class ScoreLogsListContainer extends React.Component<FinalProps, State> {
   render() {
     const { scoreLogs } = this.props;
 
+    const refetch = variables => {
+      this.props.scoreLogs.refetch(variables);
+    };
+
     const updatedProps = {
       ...this.props,
       scoreLogs: scoreLogs.scoreLogList?.list,
       total: scoreLogs.scoreLogList?.total,
       loading: scoreLogs.loading,
-      error: scoreLogs.error
+      error: scoreLogs.error,
+      refetch
     };
     const content = props => (
       <ScoreLogsListComponent {...props} {...updatedProps} />
@@ -46,8 +51,11 @@ class ScoreLogsListContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.getScoreLogs), {
-      name: 'scoreLogs'
+    graphql<Props>(gql(queries.getScoreLogs), {
+      name: 'scoreLogs',
+      options: ({ queryParams }) => ({
+        variables: queryParams
+      })
     })
   )(withRouter<IRouterProps>(ScoreLogsListContainer))
 );

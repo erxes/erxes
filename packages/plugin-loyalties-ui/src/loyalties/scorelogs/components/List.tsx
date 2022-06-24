@@ -9,11 +9,13 @@ import {
 import { Wrapper } from '@erxes/ui/src/layout';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 import { menuLoyalties } from '../../common/constants';
 import Sidebar from '../components/Sidebar';
 import { IScoreLogParams } from '../types';
 import * as dayjs from 'dayjs';
+import ScoreFormContainer from '../containers/Form';
+import { Title } from '@erxes/ui/src/styles/main';
 
 interface IProps extends IRouterProps {
   loading: boolean;
@@ -22,31 +24,12 @@ interface IProps extends IRouterProps {
   history: any;
   scoreLogs: [IScoreLogParams];
   total: number;
+  refetch: (variables: any) => void;
 }
 
-type State = {
-  checked: {
-    all: boolean;
-    single: number[];
-  };
-};
-
-class ScoreLogsListComponent extends React.Component<IProps, State> {
+class ScoreLogsListComponent extends React.Component<IProps> {
   constructor(props) {
     super(props);
-
-    this.state = {
-      checked: {
-        all: false,
-        single: []
-      }
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.checked.all) {
-      // this.setState(prev=>({checked:{...prev.checked,single:Array.from(Array(this.props.total).keys())}}))
-    }
   }
 
   render() {
@@ -56,12 +39,13 @@ class ScoreLogsListComponent extends React.Component<IProps, State> {
       history,
       scoreLogs,
       total,
-      error
+      error,
+      refetch
     } = this.props;
-    const { checked } = this.state;
 
     const tablehead = [
       'Email',
+      'Owner Name',
       'Owner Type',
       'Changed Score',
       'Total Score',
@@ -72,30 +56,14 @@ class ScoreLogsListComponent extends React.Component<IProps, State> {
       return <Spinner />;
     }
 
-    const handleSelect = (key, i) => {
-      if (key === 'all') {
-        this.setState(
-          prev =>
-            ({
-              checked: { ...prev.checked, [key]: !prev.checked[key] }
-            } as Pick<State, keyof State>)
-        );
-      }
-      if (key === 'single') {
-        if (checked.single.includes(i)) {
-          return this.setState(
-            prev =>
-              ({
-                checked: {
-                  ...prev.checked,
-                  [key]: prev.checked[key].filter(p => p !== i)
-                }
-              } as Pick<State, keyof State>)
-          );
-        }
-        this.setState(prev => ({
-          checked: { ...prev.checked, [key]: [...prev.checked[key], i] }
-        }));
+    const route = type => {
+      switch (type) {
+        case 'customer':
+          return 'contacts';
+        case 'user':
+          return 'settings/team';
+        case 'company':
+          return 'companies';
       }
     };
 
@@ -105,13 +73,6 @@ class ScoreLogsListComponent extends React.Component<IProps, State> {
       <Table>
         <thead>
           <tr>
-            <th>
-              <FormControl
-                componentClass="checkbox"
-                checked={checked.all}
-                onChange={() => handleSelect('all', null)}
-              />
-            </th>
             {tablehead.map(p => (
               <th key={p}>{p}</th>
             ))}
@@ -121,13 +82,11 @@ class ScoreLogsListComponent extends React.Component<IProps, State> {
           {scoreLogs?.map((p, i) => (
             <tr key={i}>
               <td>
-                <FormControl
-                  componentClass="checkbox"
-                  checked={checked.single.includes(i)}
-                  onChange={() => handleSelect('single', i)}
-                />
+                <Link to={`/${route(p.ownerType)}/details/${p.ownerId}`}>
+                  {p.owner.email}
+                </Link>
               </td>
-              <td>{p.owner.email}</td>
+              <td>{p.owner.details.fullName}</td>
               <td>{p.ownerType}</td>
               <td>{p.changeScore}</td>
               <td>{p.owner.score}</td>
@@ -147,11 +106,16 @@ class ScoreLogsListComponent extends React.Component<IProps, State> {
         loadingMainQuery={loading}
         queryParams={queryParams}
         history={history}
+        refetch={refetch}
       />
     );
 
     const content = (
       <>
+        <Wrapper.ActionBar
+          left={<Title>All Score List</Title>}
+          right={<ScoreFormContainer />}
+        />
         <DataWithLoader
           data={Content}
           loading={loading}

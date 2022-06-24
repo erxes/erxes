@@ -1,6 +1,9 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
-import { ICommonParams } from '../../../models/definitions/common';
+import {
+  ICommonParams,
+  IScoreParams
+} from '../../../models/definitions/common';
 
 const scoreLogQueries = {
   async scoreLogs(_root, params: ICommonParams, { models }: IContext) {
@@ -23,10 +26,9 @@ const scoreLogQueries = {
       params
     );
   },
-  async scoreLogList(_root, params: ICommonParams, { models }: IContext) {
-    const list = await models.ScoreLogs.find().sort({ createdAt: -1 });
-    const total = await models.ScoreLogs.find().count();
-    return { list, total };
+  async scoreLogList(_root, params: IScoreParams, { models }: IContext) {
+    const result = models.ScoreLogs.getScoreLogs(params);
+    return result;
   }
 };
 
