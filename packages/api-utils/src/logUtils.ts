@@ -117,6 +117,7 @@ export const putCreateLog = async (
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
+      subdomain,
       data: {
         type: `${params.type}`,
         targets: [params.object]
@@ -131,6 +132,7 @@ export const putCreateLog = async (
 
   if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
+      subdomain,
       data: {
         action: LOG_ACTIONS.CREATE,
         type: params.type,
@@ -165,6 +167,7 @@ export const putUpdateLog = async (
 
   if (isAutomationsAvailable) {
     messageBroker.sendMessage('automations:trigger', {
+      subdomain,
       data: {
         type: `${params.type}`,
         targets: [params.updatedDocument]
@@ -179,6 +182,7 @@ export const putUpdateLog = async (
 
   if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
+      subdomain,
       data: {
         action: LOG_ACTIONS.UPDATE,
         type: params.type,
@@ -213,6 +217,7 @@ export const putDeleteLog = async (
 
   if (isWebhooksAvailable) {
     messageBroker.sendMessage('webhooks:send', {
+      subdomain,
       data: {
         action: LOG_ACTIONS.DELETE,
         type: params.type,
@@ -298,6 +303,7 @@ export const putActivityLog = async (
   try {
     if (isAutomationsAvailable && data.target) {
       messageBroker.sendMessage('automations:trigger', {
+        subdomain,
         data: {
           type: `${data.contentType}`,
           targets: [data.target]
