@@ -38,13 +38,6 @@ export default {
 
     const models = await generateModels(subdomain);
 
-    const { POS_ID } = process.env;
-    console.log(POS_ID);
-    const sda = await models.Configs.find({
-      token: 'MPXA0yQBfdAZThyvAG9BvsafCCPNAbmN'
-    });
-    console.log('213213', sda);
-
     context.subdomain = subdomain;
     context.models = models;
     context.config = await models.Configs.findOne({
