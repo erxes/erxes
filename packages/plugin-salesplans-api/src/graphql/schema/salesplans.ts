@@ -24,21 +24,27 @@ export const types = () => `
 
   type SalesLog @key(fields: "_id"){
     _id: String!
-    branchId: String
-    date: Date
-    branchDetail: Branch
-    description: String
     name: String
+    description: String
     type: String
-    departmentId:String
+    date: Date
+    status: String
+    branchId: String
+    branchDetail: Branch
+    departmentId: String
     departmentDetail: Department
     createdBy:String
     createdUser: User
     createdAt: Date
-    status: String
-    products: [Product]
+    products: [SalesLogProduct]
+    labels: [String]
   },
 
+  type SalesLogProduct {
+    _id: String
+    detailed: Product
+    quantities: [Quantity]
+  }
 
   type Quantity {
     label: String
@@ -127,9 +133,10 @@ const salesLogParams = `
   name: String,
   description: String,
   date: Date,
-  type:String,
+  type: String,
   branchId: String,
-  departmentId:String,
+  departmentId: String,
+  labels: [String],
 `;
 
 const salesLogDocumentParams = `
@@ -140,7 +147,7 @@ const salesLogDocumentParams = `
   date: Date,
   branchId: String,
   departmentId: String,
-  products: [ProductInput]
+  labels: [String],
 `;
 
 export const queries = `
@@ -154,9 +161,11 @@ export const queries = `
 `;
 
 export const mutations = `
-  createSalesLog(${salesLogParams}): SalesLog
-  updateSalesLog(${salesLogDocumentParams}): SalesLog
-  removeSalesLog(_id: String): JSON
+  salesLogAdd(${salesLogParams}): SalesLog
+  salesLogEdit(${salesLogDocumentParams}): SalesLog
+  salesLogRemove(_id: String): JSON
+  salesLogProductUpdate(_id: String, productData: ProductInput): JSON
+  salesLogProductRemove(_id: String, productId: String): JSON
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
   removeLabel(_id:String): JSON
   saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]

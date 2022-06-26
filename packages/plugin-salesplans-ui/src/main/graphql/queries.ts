@@ -48,10 +48,13 @@ const getSalesLogs = `
       type,
       date,
       status,
+      labels,
+      departmentId,
       departmentDetail {
         _id,
         title
       },
+      branchId,
       branchDetail {
         _id,
         title
@@ -113,25 +116,6 @@ const getYearPlanConfig = `
   }
 `;
 
-const products = `
-  query products {
-    products {
-      _id,
-      name,
-      categoryId
-    }
-  } 
-`;
-
-const productCategories = `
-  query productCategories {
-    productCategories {
-      _id,
-      name
-    }
-  }
-`;
-
 export default {
   getLabels,
   getTimeframes,
@@ -141,7 +125,5 @@ export default {
   getSalesLogDetail,
   getMonthPlanConfig,
   getDayPlanConfig,
-  getYearPlanConfig,
-  products,
-  productCategories
+  getYearPlanConfig
 };

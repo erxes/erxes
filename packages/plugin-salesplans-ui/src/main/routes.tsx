@@ -6,16 +6,6 @@ const SalesPlans = asyncComponent(() =>
   import(/* webpackChunkName: 'Sales Plans' */ './containers/SalesPlans')
 );
 
-const CreatePlan = asyncComponent(() =>
-  import(
-    /* webpackChunkName: 'Sales Plans - Create' */ './containers/CreatePlan'
-  )
-);
-
-const EditPlan = asyncComponent(() =>
-  import(/* webpackChunkName: 'Sales Plans - Edit' */ './containers/EditPlan')
-);
-
 const routes = () => (
   <>
     <Route
@@ -23,17 +13,6 @@ const routes = () => (
       key="/sales-plans"
       exact={true}
       component={SalesPlans}
-    />
-    <Route
-      path="/sales-plans/create"
-      key="/sales-plans/create"
-      exact={true}
-      component={CreatePlan}
-    />
-    <Route
-      path="/sales-plans/edit"
-      key="/sales-plans/edit"
-      component={EditPlan}
     />
   </>
 );

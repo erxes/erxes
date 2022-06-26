@@ -3,6 +3,7 @@ const salesLogVariables = `
   $description: String,
   $date: Date,
   $type: String,
+  $labels: [String],
   $branchId: String,
   $departmentId: String
 `;
@@ -12,6 +13,7 @@ const salesLogValues = `
   description: $description,
   date: $date,
   type: $type,
+  labels: $labels,
   branchId: $branchId,
   departmentId: $departmentId
 `;
@@ -22,6 +24,7 @@ const salesLogDocumentVariables = `
   $description: String,
   $date: Date,
   $type: String,
+  $labels: [String],
   $branchId: String,
   $departmentId: String
 `;
@@ -32,6 +35,7 @@ const salesLogDocumentValues = `
   description: $description,
   date: $date,
   type: $type,
+  labels: $labels,
   branchId: $branchId,
   departmentId: $departmentId
 `;
@@ -50,55 +54,47 @@ const saveLabels = `
   }
 `;
 
-const createSalesLog = `
-  mutation createSalesLog(${salesLogVariables}) {
-    createSalesLog(${salesLogValues}) {
+const salesLogAdd = `
+  mutation salesLogAdd(${salesLogVariables}) {
+    salesLogAdd(${salesLogValues}) {
       _id
-      branchDetail {
-        _id
-        title
-      }
+      name
+      description
+      status
+      type
+      date
+      labels
       branchId
+      departmentId
       createdAt
       createdBy
       createdUser {
         _id
         username
       }
-      date
-      description
+    }
+  }
+`;
+
+const salesLogEdit = `
+  mutation salesLogEdit(${salesLogDocumentVariables}) {
+    salesLogEdit(${salesLogDocumentValues}) {
+      _id
       name
+      description
       status
       type
-      departmentDetail {
-        _id
-        title
-      }
+      date
+      labels
+      branchId
       departmentId
     }
   }
 `;
 
-const updateSalesLog = `
-  mutation updateSalesLog(${salesLogDocumentVariables}) {
-    updateSalesLog(${salesLogDocumentValues}) {
-      _id
-      branchDetail {
-        _id
-        title
-      }
-      branchId
-      date
-      description
-      name
-      status
-      type
-      departmentDetail {
-        _id
-        title
-      }
-      departmentId
-    }
+const salesLogRemove = `
+  mutation salesLogRemove($_id: String) {
+    salesLogRemove(_id: $_id)
   }
 `;
 
@@ -125,12 +121,6 @@ const saveDayPlanConfig = `
   }
 `;
 
-const removeSalesLog = `
-  mutation removeSalesLog($_id: String) {
-    removeSalesLog(_id: $_id)
-  }
-`;
-
 const saveMonthPlanConfig = `
   mutation saveMonthPlanConfig ($salesLogId: String, $day: Date, $data: JSON){
     saveMonthPlanConfig(salesLogId: $salesLogId, day: $day, data: $data){
@@ -148,14 +138,14 @@ const saveYearPlanConfig = `
 `;
 
 export default {
-  removeLabel,
   saveLabels,
-  createSalesLog,
-  updateSalesLog,
+  removeLabel,
+  salesLogAdd,
+  salesLogEdit,
+  salesLogRemove,
   saveTimeframes,
   removeTimeframe,
   saveDayPlanConfig,
-  removeSalesLog,
   saveMonthPlanConfig,
   saveYearPlanConfig
 };

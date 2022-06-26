@@ -5,16 +5,12 @@ import { FlexItem } from '@erxes/ui-settings/src/styles';
 import {
   __,
   Button,
-  Box,
   ControlLabel,
   FormControl,
   FormGroup,
-  FlexItem as CommonFlexItem,
   FlexRightItem,
   Form as CommonForm,
-  FlexContent,
-  SidebarList,
-  Table
+  FlexContent
 } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
@@ -23,9 +19,6 @@ import { TYPES } from '../../constants';
 
 type Props = {
   labels: any[];
-  products: any[];
-  categories: any[];
-  timeframes: any[];
   type: string;
   initialData?: any;
   setType: (type: string) => void;
@@ -33,30 +26,19 @@ type Props = {
 };
 
 const Form = (props: Props) => {
-  const {
-    labels,
-    products = [],
-    categories = [],
-    timeframes = [],
-    type,
-    initialData = {},
-    setType,
-    submit
-  } = props;
+  const { labels, type, initialData = {}, setType, submit } = props;
 
-  const [categoryId, setCategoryId] = useState<string>('');
   const [salesPlan, setSalesPlan] = useState<any>({
     name: initialData.name ? initialData.name : '',
     description: initialData.description ? initialData.description : '',
     type: initialData.type ? initialData.type : '',
     date: initialData.date ? initialData.date : '',
+    labels: initialData.labels ? initialData.labels : [],
     departmentId: initialData.departmentId ? initialData.departmentId : '',
     branchId: initialData.branchId ? initialData.branchId : ''
   });
 
   useEffect(() => handleState(type, 'type'), [type]);
-
-  console.log(initialData);
 
   const handleSubmit = () => {
     submit(salesPlan);
@@ -121,122 +103,27 @@ const Form = (props: Props) => {
     }
   };
 
-  const renderCategories = () => {
-    if (!categories) return null;
+  const renderSelectLabel = () => {
+    const labelOnChange = (values: any[]) => {
+      handleState(values.map((item: any) => item.value) || [], 'labels');
+    };
 
-    return categories.map((item: any, index: number) => {
+    if (labels && labels.length !== 0)
       return (
-        <li key={index}>
-          <a onClick={() => setCategoryId(item._id)}>{item.name}</a>
-        </li>
-      );
-    });
-  };
-
-  const renderProducts = () => {
-    if (!products) return null;
-
-    let filteredProducts = products;
-
-    if (categoryId.length !== 0)
-      filteredProducts = products.filter(
-        (item: any) => item.categoryId === categoryId
+        <FormGroup>
+          <ControlLabel>Label</ControlLabel>
+          <Select
+            value={salesPlan.labels}
+            onChange={labelOnChange}
+            options={labels.map((item: any) => {
+              return { value: item._id, label: item.title };
+            })}
+            multi={true}
+          />
+        </FormGroup>
       );
 
-    const handleSubmit = () => {
-      console.log('Pog');
-    };
-
-    const renderSubmitButton = () => {
-      if (!initialData) return null;
-
-      return (
-        <td>
-          <Button
-            type="button"
-            btnStyle="success"
-            icon="check-circle"
-            onClick={handleSubmit}
-            uppercase={false}
-            size="small"
-          >
-            {__('Submit')}
-          </Button>
-        </td>
-      );
-    };
-
-    const renderTimeframeInputs = () => {
-      if (timeframes.length === 0) return null;
-
-      switch (type) {
-        case 'Day':
-          return timeframes.map((item: any, index: number) => {
-            return (
-              <td key={`timeframeInput-${index}`}>
-                <FormGroup>
-                  <FormControl type="number" name={`timeframeForm-${index}`} />
-                </FormGroup>
-              </td>
-            );
-          });
-        default:
-          return null;
-      }
-    };
-
-    return filteredProducts.map((item: any, index: number) => {
-      return (
-        <tr key={`products-${index}`}>
-          <td>{item.name}</td>
-          {renderTimeframeInputs()}
-          {renderSubmitButton()}
-        </tr>
-      );
-    });
-  };
-
-  const renderProductsList = () => {
-    const renderSubmitHeader = () => {
-      if (!initialData) return null;
-
-      return <th>Actions</th>;
-    };
-
-    const renderTimeframes = () => {
-      if (!timeframes) return null;
-
-      switch (type) {
-        case 'Day':
-          return timeframes.map((item: any, index: number) => {
-            return <th key={`timeframe-${index}`}>{item.name}</th>;
-          });
-        default:
-          return null;
-      }
-    };
-
-    return (
-      <FlexContent>
-        <CommonFlexItem count={2}>
-          <Box title={__('Filter by Category')} isOpen={true}>
-            <SidebarList>{renderCategories()}</SidebarList>
-          </Box>
-        </CommonFlexItem>
-        <CommonFlexItem count={8} hasSpace={true}>
-          <Table condensed={true}>
-            <thead>
-              <tr>
-                <th>Name</th>
-                {renderTimeframes()}
-                {renderSubmitHeader()}
-              </tr>
-            </thead>
-            <tbody>{renderProducts()}</tbody>
-          </Table>
-        </CommonFlexItem>
-      </FlexContent>
-    );
+    return null;
   };
 
   const renderContent = () => (
@@ -248,25 +135,11 @@ const Form = (props: Props) => {
             <FormControl
               type="text"
               name="name"
+              placeholder={__('Name')}
               value={salesPlan.name}
               required={true}
               onChange={(event: any) =>
                 handleState((event.target as HTMLInputElement).value, 'name')
-              }
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Description</ControlLabel>
-            <FormControl
-              type="text"
-              componentClass="textarea"
-              name="description"
-              value={salesPlan.description}
-              onChange={(event: any) =>
-                handleState(
-                  (event.target as HTMLInputElement).value,
-                  'description'
-                )
               }
             />
           </FormGroup>
@@ -281,6 +154,7 @@ const Form = (props: Props) => {
             />
           </FormGroup>
           {renderSelectTime()}
+          {renderSelectLabel()}
         </FlexItem>
         <FlexItem>
           <FormGroup>
@@ -293,7 +167,6 @@ const Form = (props: Props) => {
                 handleState(departmentId, 'departmentId')
               }
               multi={false}
-              customOption={{ value: '', label: 'All Departments' }}
             />
           </FormGroup>
           <FormGroup>
@@ -304,22 +177,26 @@ const Form = (props: Props) => {
               initialValue={salesPlan.branchId}
               onSelect={branchId => handleState(branchId, 'branchId')}
               multi={false}
-              customOption={{ value: '', label: 'All branches' }}
             />
           </FormGroup>
           <FormGroup>
-            <ControlLabel>Label</ControlLabel>
-            <Select
-              value={salesPlan.labels}
-              onChange={(event: any) => handleState(event.value, 'labels')}
-              options={labels.map((item: any) => {
-                return { value: item._id, label: item.title };
-              })}
+            <ControlLabel>Description</ControlLabel>
+            <FormControl
+              type="text"
+              componentClass="textarea"
+              name="description"
+              placeholder={__('Description')}
+              value={salesPlan.description}
+              onChange={(event: any) =>
+                handleState(
+                  (event.target as HTMLInputElement).value,
+                  'description'
+                )
+              }
             />
           </FormGroup>
         </FlexItem>
       </FlexContent>
-      {renderProductsList()}
       <FlexContent>
         <FlexRightItem>
           <FormGroup>

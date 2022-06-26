@@ -12,14 +12,24 @@ type Props = {
 
 function ListContainer(props: Props) {
   const { data, refetch } = props;
-  const [remove] = useMutation(gql(mutations.removeSalesLog));
+  const [edit] = useMutation(gql(mutations.salesLogEdit));
+  const [remove] = useMutation(gql(mutations.salesLogRemove));
 
-  const removeData = (_id: string) => {
+  const salesLogEdit = (id: string, doc: any) => {
+    doc._id = id;
+    edit({ variables: doc })
+      .then(() => Alert.success('Successfully saved!'))
+      .catch((error: any) => Alert.error(error.message));
+  };
+
+  const salesLogRemove = (_id: string) => {
     remove({ variables: { _id } })
       .then(() => Alert.success('Successfully removed'))
       .catch((error: any) => Alert.error(error.message));
   };
 
-  return <List removeData={removeData} data={data} />;
+  return (
+    <List data={data} editData={salesLogEdit} removeData={salesLogRemove} />
+  );
 }
 export default ListContainer;
