@@ -80,6 +80,12 @@ module.exports = {
           ],
         },
         "developer/troubleshooting",
+        "developer/webhook",
+        {
+          type: 'link',
+          label: 'GraphQL API references',
+          href: "pathname:///developers/docs/references"
+        }
       ],
     },
     {
