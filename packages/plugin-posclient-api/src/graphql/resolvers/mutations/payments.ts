@@ -34,7 +34,7 @@ const paymentMutations = {
 
       const order = await models.Orders.getOrder(orderId);
 
-      await checkInvoiceAmount({ order, amount });
+      await checkInvoiceAmount({ order, amount, models });
 
       const tokenInfo = await fetchQPayToken(config.qpayConfig);
 

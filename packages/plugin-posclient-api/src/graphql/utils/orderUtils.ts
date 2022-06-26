@@ -356,12 +356,14 @@ export const checkUnpaidInvoices = async (orderId: string) => {
 // qpay нэхэмжлэх үүсгэхийн өмнө дуудна
 export const checkInvoiceAmount = async ({
   order,
-  amount
+  amount,
+  models
 }: {
   order: IOrderDocument;
   amount: number;
+  models: IModels;
 }) => {
-  const invoices = await QPayInvoices.find({
+  const invoices = await models.QPayInvoices.find({
     senderInvoiceNo: order._id
   }).lean();
 
@@ -375,7 +377,7 @@ export const checkInvoiceAmount = async ({
     throw new Error('Invoice amount exceeds order amount');
   }
 
-  const paidAmount = Orders.getPaidAmount(order);
+  const paidAmount = models.Orders.getPaidAmount(order);
 
   // үүсгэх гэж буй нэхэмжлэхийн дүн төлөх үлдэгдлээс ихгүй байх ёстой
   if (paidAmount + amount > order.totalAmount) {
