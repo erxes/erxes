@@ -16,7 +16,7 @@ import {
   SidebarList
 } from '@erxes/ui/src/layout/styles';
 import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-import { IProduct, IConfigsMap } from '../../../types';
+import { IProduct } from '../../../types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';

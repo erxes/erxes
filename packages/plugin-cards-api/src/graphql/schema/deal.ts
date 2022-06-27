@@ -7,7 +7,7 @@ import {
   copyParams
 } from './common';
 
-export const types = contactsAvailable => `
+export const types = ({ contacts, tags }) => `
   type DealListItem @key(fields: "_id") {
     products: JSON
     amount: JSON
@@ -20,7 +20,7 @@ export const types = contactsAvailable => `
     amount: JSON
 
     ${
-      contactsAvailable
+      contacts
         ? `
       companies: [Company]
       customers: [Customer]
@@ -28,6 +28,8 @@ export const types = contactsAvailable => `
         : ''
     }
 
+    ${tags ? `tags: [Tag]` : ''}
+    
     products: JSON
     productsData: JSON
     paymentsData: JSON

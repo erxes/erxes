@@ -1,8 +1,8 @@
 import React from 'react';
 
-import Wrapper from '../containers/Wrapper';
-import PluginPreview from './PluginPreview';
 import Leftbar from './Leftbar';
+import PluginPreview from './PluginPreview';
+import Wrapper from '../containers/Wrapper';
 
 import { ImageWrapper } from '../styles';
 

@@ -28,7 +28,290 @@ const ImageWrapper = styled.div`
 
 // Leftbar
 
-//************** */
+const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const SearchContainer = styledTS<{ active?: boolean }>(styled.div)`
+  position: relative;
+  transition: .3s all;
+  margin-bottom: ${dimensions.coreSpacing}px;
+`;
+
+const Search = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 6px;
+
+  input {
+    background: 0 0;
+    border: none;
+    flex: 1;
+    outline: 0;
+  }
+`;
+
+const FilterContainer = styledTS<{ active?: boolean }>(styled.div)`
+  transition: .s all;
+  flex: 1;
+`;
+
+const Filter = styled.div`
+  border-radius: 8px;
+  height: 100%;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
+const FilterHeader = styled.div`
+  display: flex;
+  height: 40px;
+  justify-content: space-between;
+  padding: 9px;
+  align-items: center;
+`;
+
+const Box = styled.div`
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid ${colors.borderPrimary};
+`;
+
+const PaddingLeft = styled.div`
+  padding-left: ${dimensions.unitSpacing}px;
+  font-weight: 700;
+`;
+
+const PaddingBottom = styled.div`
+  padding-bottom: 5px;
+`;
+
+// Plugin Preview
+
+const ListContainer = styled.div`
+  padding-bottom: ${dimensions.coreSpacing}px;
+  border-bottom: 1px solid ${colors.borderPrimary};
+`;
+
+const ListHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: ${dimensions.coreSpacing}px 0px;
+`;
+
+const ListTitle = styled.b`
+  height: ${typography.lineHeightHeading5};
+`;
+
+const ColorText = styled.b`
+  color: ${colors.colorPrimary};
+`;
+
+const PluginContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const Card = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  width: 23%;
+  min-width: 250px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  padding: ${dimensions.unitSpacing}px;
+
+  button {
+    float: left;
+    margin-right: 5px;
+    background: rgb(103, 63, 189);
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    border: none;
+    font-weight: 500;
+    outline: 0px;
+    padding: 5px 15px;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  &:hover {
+    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
+    cursor: pointer;
+  }
+
+  .uninstall {
+    background: #eb5a5a;
+  }
+
+  .install {
+    background: #13ce66;
+  }
+`;
+
+const PluginPic = styled.img`
+  width: 60px;
+  height: 60px;
+`;
+
+const PluginInformation = styled.div`
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
+
+  b {
+    text-transform: capitalize;
+  }
+`;
+
+const Description = styled.p`
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden !important;
+`;
+
+// Detail main content
+
+const DetailMainContainer = styled.div`
+  height: 100%;
+  border-radius: 8px;
+  border: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px;
+  overflow-x: hidden;
+`;
+
+const PluginTitle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  img {
+    width: 80px;
+    height: 80px;
+    margin: ${dimensions.coreSpacing}px;
+  }
+
+  b {
+    font-size: 20px;
+  }
+`;
+
+const Center = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Carousel = styled.div`
+  height: 250px;
+  width: 100%;
+  background-color: ${colors.bgGray};
+  border-radius: 8px;
+  margin: ${dimensions.unitSpacing}px 0;
+`;
+
+const DetailInformation = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Hashtag = styled.div`
+  border-radius: 4px;
+  color: ${colors.colorWhite};
+  background: ${colors.colorBlack};
+  padding: 2px 6px;
+  margin-right: 5px;
+  font-size: 11px;
+
+  $:nth-last-child(1) {
+    margin-right: 0;
+  }
+`;
+
+const Detail = styled.div`
+  padding-bottom: ${dimensions.unitSpacing}px;
+`;
+
+// Detail right sidebar
+
+const SidebarWrapper = styled.div`
+  width: 25%;
+  max-width: 350px;
+
+  a {
+    padding: 12px;
+    font-weight: bold;
+  }
+`;
+
+const SidebarBox = styled.div`
+  width: 100%;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+
+  a {
+    border-radius: 4px;
+    border: 1px solid ${colors.borderPrimary};
+    margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0 0;
+    padding: 2px 8px;
+    color: ${colors.textSecondary} !important;
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 5px;
+    }
+  }
+`;
+
+const ColorHeader = styled.p`
+  color: ${colors.colorPrimary};
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+`;
+
+const DetailCard = styled.div`
+  display: flex;
+  margin-top: ${dimensions.unitSpacing}px;
+`;
+
+const MemberPic = styled.div`
+  width: 39px;
+  height: 39px;
+  border: 2px solid ${rgba(colors.colorPrimary, 0.4)};
+  border-radius: 50%;
+
+  img {
+    height: 35px;
+  }
+`;
+
+const CardInformation = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+`;
+
+const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
+  font-size: 11px;
+  margin-top: ${props => props.withMargin && dimensions.unitSpacing}px;
+`;
+
+//**************
 
 const inputPadding = '0px';
 const inputHeight = '15px';
@@ -175,69 +458,41 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
-const ListContainer = styled.div`
-  padding-bottom: ${dimensions.coreSpacing}px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
-const ListHeader = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: ${dimensions.coreSpacing}px 0px;
-`;
-
-const ListTitle = styled.b`
-  height: ${typography.lineHeightHeading5};
-`;
-
-const ColorText = styled.b`
-  color: ${colors.colorPrimary};
-`;
-
-const Card = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
-  width: 250px;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: 8px;
-  padding: ${dimensions.unitSpacing}px;
-
-  button {
-    float: left;
-    margin-right: 5px;
-    background: rgb(103, 63, 189);
-    border-radius: 5px;
-    color: rgb(255, 255, 255);
-    border: none;
-    font-weight: 500;
-    outline: 0px;
-    padding: 5px 15px;
-    cursor: pointer;
-  }
-
-  .uninstall {
-    background: #eb5a5a;
-  }
-
-  .install {
-    background: #13ce66;
-  }
-`;
-
-const GrayText = styled.div`
-  color: ${colors.colorCoreGray};
-`;
-
 export {
   ImageWrapper,
-  WidgetApperance,
-  FormLabel,
-  Checkbox,
+  MainContainer,
+  SearchContainer,
+  Search,
+  FilterContainer,
+  Filter,
+  FilterHeader,
+  Box,
+  PaddingLeft,
+  PaddingBottom,
   ListContainer,
   ListHeader,
   ListTitle,
   ColorText,
+  PluginContainer,
   Card,
-  GrayText
+  PluginPic,
+  PluginInformation,
+  Description,
+  DetailMainContainer,
+  PluginTitle,
+  Center,
+  Carousel,
+  DetailInformation,
+  Hashtag,
+  Detail,
+  SidebarWrapper,
+  SidebarBox,
+  ColorHeader,
+  DetailCard,
+  MemberPic,
+  CardInformation,
+  SmallText,
+  WidgetApperance,
+  FormLabel,
+  Checkbox
 };

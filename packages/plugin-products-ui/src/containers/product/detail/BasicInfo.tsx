@@ -8,7 +8,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import BasicInfo from '../../../components/product/detail/BasicInfo';
 import { IProduct, ProductRemoveMutationResponse } from '../../../types';
-import { mutations, queries } from '../../../graphql';
+import { mutations } from '../../../graphql';
 
 type Props = {
   product: IProduct;

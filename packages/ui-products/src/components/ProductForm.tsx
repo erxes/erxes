@@ -274,11 +274,10 @@ class Form extends React.Component<Props, State> {
       description,
       productCount,
       disabled,
-      minimiumCount,
-      subUoms
+      minimiumCount
     } = this.state;
 
-    const isUom = configsMap.isReqiureUOM || false;
+    const isUom = (configsMap || {}).isReqiureUOM || false;
 
     return (
       <>
@@ -486,7 +485,10 @@ class Form extends React.Component<Props, State> {
                     <Select
                       value={this.state.uomId}
                       onChange={this.onComboEvent.bind(this, 'uomId')}
-                      options={uoms.map(e => ({ value: e._id, label: e.name }))}
+                      options={(uoms || []).map(e => ({
+                        value: e._id,
+                        label: e.name
+                      }))}
                     />
                     <Button
                       btnStyle="primary"
