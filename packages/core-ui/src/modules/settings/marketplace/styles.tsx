@@ -247,62 +247,65 @@ const Detail = styled.div`
 
 // Detail right sidebar
 
-const VerticalContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  max-height: 100%;
-  // overflow: auto;
-  width: 30%;
-`;
-
-const RightSidebarWrapper = styled.div`
-  position: relative;
-  border-radius: 8px;
-  border: 1px solid ${colors.borderDarker};
-  // width: 350px;
-  // width: 100%;
-  margin-bottom: ${dimensions.coreSpacing}px;
-  padding: ${dimensions.unitSpacing}px;
+const SidebarWrapper = styled.div`
+  width: 25%;
+  max-width: 350px;
 
   a {
-    border-radius: 4px;
-    border: 1px solid ${colors.borderDarker};
+    padding: 12px;
+    font-weight: bold;
   }
 `;
 
-const ColorHeader = styledTS<{ size?: number }>(styled.p)`
-  color: ${colors.colorPrimary};
-  font-size: ${props => props.size && props.size}px;
-  font-weight: bold;
+const SidebarBox = styled.div`
+  width: 100%;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+
+  a {
+    border-radius: 4px;
+    border: 1px solid ${colors.borderPrimary};
+    margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0 0;
+    padding: 2px ${dimensions.unitSpacing}px;
+    color: ${colors.textSecondary} !important;
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 5px;
+    }
+  }
 `;
 
-const DetailCard = styledTS<{ center?: boolean }>(styled.div)`
+const ColorHeader = styled.p`
+  color: ${colors.colorPrimary};
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+`;
+
+const DetailCard = styled.div`
   display: flex;
-  align-items: ${props => props.center && 'center'};
   margin-top: ${dimensions.unitSpacing}px;
 `;
 
 const MemberPic = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 39px;
+  height: 39px;
   border: 2px solid ${rgba(colors.colorPrimary, 0.4)};
-  background: ${colors.colorWhite};
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   img {
     height: 35px;
   }
 `;
 
-const Information = styled.div`
+const CardInformation = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  margin: 0px 12px;
+  margin-left: 12px;
 `;
 
 const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
@@ -485,12 +488,12 @@ export {
   DetailInformation,
   Hashtag,
   Detail,
-  VerticalContent,
-  RightSidebarWrapper,
+  SidebarWrapper,
+  SidebarBox,
   ColorHeader,
   DetailCard,
   MemberPic,
-  Information,
+  CardInformation,
   SmallText,
   WidgetApperance,
   FormLabel,
