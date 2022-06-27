@@ -64,6 +64,7 @@ export const commonTypes = `
   status: String
   attachments: [Attachment]
   userId: String
+  tagIds: [String]
 
   assignedUsers: [User]
   stage: Stage
