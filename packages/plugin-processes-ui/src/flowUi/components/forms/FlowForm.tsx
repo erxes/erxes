@@ -128,7 +128,8 @@ class AutomationForm extends React.Component<Props, State> {
     const { jobRefers } = this.props;
     const lastActions: IJob[] = [];
 
-    const realActions = leftAction || actions;
+    // const realActions = leftAction || actions;
+    const realActions = leftAction.length > 0 ? leftAction : actions;
 
     for (const action of realActions) {
       if (
