@@ -82,7 +82,7 @@ type State = {
   categoryId: string;
   productId?: string;
   product?: IProduct;
-  lastAction: IJob;
+  lastAction?: IJob;
   flowStatus: boolean;
 };
 
@@ -118,7 +118,7 @@ class AutomationForm extends React.Component<Props, State> {
       categoryId: '',
       productId: flow.productId || '',
       product: flow.product,
-      lastAction: {} as IJob,
+      lastAction: undefined,
       flowStatus: false
     };
   }
@@ -173,10 +173,10 @@ class AutomationForm extends React.Component<Props, State> {
           : ({} as IJobRefer);
       }
 
-      const justLastAction: IJob = Object.keys(justLastJobRefer).length
-        ? lastActions.find(last => last.jobReferId === justLastJobRefer._id) ||
-          ({} as IJob)
-        : ({} as IJob);
+      const justLastAction: IJob | undefined = Object.keys(justLastJobRefer)
+        .length
+        ? lastActions.find(last => last.jobReferId === justLastJobRefer._id)
+        : undefined;
 
       this.setState({
         lastAction: justLastAction,
@@ -184,7 +184,7 @@ class AutomationForm extends React.Component<Props, State> {
       });
     } else {
       this.setState({
-        lastAction: {} as IJob,
+        lastAction: undefined,
         flowStatus: doubleCheckResult ? true : false
       });
     }

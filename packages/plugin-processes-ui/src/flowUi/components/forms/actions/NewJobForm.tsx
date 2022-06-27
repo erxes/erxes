@@ -23,7 +23,7 @@ type Props = {
   activeAction?: IJob;
   jobRefers: IJobRefer[];
   actions: IJob[];
-  lastAction: IJob;
+  lastAction?: IJob;
   flowProduct?: IProduct;
   addAction: (
     action: IJob,
