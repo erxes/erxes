@@ -6,9 +6,9 @@ import { IBrand } from '@erxes/ui/src/brands/types';
 import { queries as responseTemplateQuery } from '../../../../settings/responseTemplates/graphql';
 import {
   IResponseTemplate,
-  ResponseTemplatesQueryResponse,
-  ResponseTemplatesTotalCountQueryResponse
+  ResponseTemplatesQueryResponse
 } from '../../../../settings/responseTemplates/types';
+import { ResponseTemplatesTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 

@@ -12,8 +12,15 @@ const companyMutations = {
   /**
    * Creates a new company
    */
-  async companiesAdd(_root, doc: ICompany, { user, docModifier, models, subdomain }: IContext) {
-    const company = await models.Companies.createCompany(docModifier(doc), user);
+  async companiesAdd(
+    _root,
+    doc: ICompany,
+    { user, docModifier, models, subdomain }: IContext
+  ) {
+    const company = await models.Companies.createCompany(
+      docModifier(doc),
+      user
+    );
 
     await putCreateLog(
       models,
@@ -56,6 +63,74 @@ const companyMutations = {
   },
 
   /**
+   * Finding customer to update by searching primaryEmail,primarPhone etc ...
+   */
+  async companiesEditByField(
+    _root,
+    {
+      selector,
+      doc
+    }: {
+      selector: {
+        primaryName?: string;
+        primaryEmail?: string;
+        primaryPhone?: string;
+        code?: string;
+      };
+      doc: ICompaniesEdit;
+    },
+    { models }: IContext
+  ) {
+    let company;
+
+    if (selector.primaryEmail) {
+      company = await models.Companies.findOne({
+        primaryEmail: selector.primaryEmail
+      }).lean();
+    }
+
+    if (!company && selector.primaryPhone) {
+      company = await models.Companies.findOne({
+        primarPhone: selector.primaryPhone
+      }).lean();
+    }
+
+    if (!company && selector.code) {
+      company = await models.Companies.findOne({ code: selector.code }).lean();
+    }
+
+    if (!company && selector.primaryName) {
+      company = await models.Companies.findOne({
+        primaryName: selector.primaryName
+      }).lean();
+    }
+
+    if (!company) {
+      throw new Error('Company not found');
+    }
+
+    if (doc.customFieldsData) {
+      const prevCustomFieldsData = company.customFieldsData || [];
+
+      for (const data of doc.customFieldsData) {
+        const prevEntry = prevCustomFieldsData.find(
+          d => d.field === data.field
+        );
+
+        if (prevEntry) {
+          prevEntry.value = data.value;
+        } else {
+          prevCustomFieldsData.push(data);
+        }
+      }
+
+      doc.customFieldsData = prevCustomFieldsData;
+    }
+
+    return models.Companies.updateCompany(company._id, doc);
+  },
+
+  /**
    * Removes companies
    */
   async companiesRemove(
@@ -63,12 +138,19 @@ const companyMutations = {
     { companyIds }: { companyIds: string[] },
     { user, models, subdomain }: IContext
   ) {
-    const companies = await models.Companies.find({ _id: { $in: companyIds } }).lean();
+    const companies = await models.Companies.find({
+      _id: { $in: companyIds }
+    }).lean();
 
     await models.Companies.removeCompanies(companyIds);
 
     for (const company of companies) {
-      await putDeleteLog(models, subdomain, { type: MODULE_NAMES.COMPANY, object: company }, user);
+      await putDeleteLog(
+        models,
+        subdomain,
+        { type: MODULE_NAMES.COMPANY, object: company },
+        user
+      );
     }
 
     return companyIds;
@@ -91,6 +173,7 @@ const companyMutations = {
 
 checkPermission(companyMutations, 'companiesAdd', 'companiesAdd');
 checkPermission(companyMutations, 'companiesEdit', 'companiesEdit');
+checkPermission(companyMutations, 'companiesEditByField', 'companiesEdit');
 checkPermission(companyMutations, 'companiesRemove', 'companiesRemove');
 checkPermission(companyMutations, 'companiesMerge', 'companiesMerge');
 

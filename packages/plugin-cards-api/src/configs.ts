@@ -17,6 +17,7 @@ import automations from './automations';
 import search from './search';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import tags from './tags';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -45,7 +46,8 @@ export default {
     imports,
     internalNotes,
     search,
-    webhooks
+    webhooks,
+    tags
   },
 
   apolloServerContext: async (context, req, res) => {

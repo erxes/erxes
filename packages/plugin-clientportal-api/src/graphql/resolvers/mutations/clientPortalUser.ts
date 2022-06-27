@@ -132,10 +132,11 @@ const clientPortalUserMutations = {
   clientPortalUserChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
-    { user, models }: IContext
+    { cpUser, models }: IContext
   ) {
+    cpUser;
     return models.ClientPortalUsers.changePassword({
-      _id: user._id,
+      _id: (cpUser && cpUser._id) || '',
       ...args
     });
   },

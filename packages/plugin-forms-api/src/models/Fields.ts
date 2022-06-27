@@ -466,7 +466,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         const customField = await models.Fields.findOne({
           contentType,
           code: key
-        });
+        }).lean();
 
         let value = data[key];
 

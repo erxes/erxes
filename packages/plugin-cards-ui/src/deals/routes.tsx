@@ -97,6 +97,12 @@ const conversion = ({ location }) => {
   return <Conversation queryParams={queryParams} />;
 };
 
+const time = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <DealBoard viewType="time" queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -145,6 +151,8 @@ const routes = () => {
         path="/deal/gantt"
         component={gantt}
       />
+
+      <Route key="deals/time" exact={true} path="/deal/time" component={time} />
     </React.Fragment>
   );
 };

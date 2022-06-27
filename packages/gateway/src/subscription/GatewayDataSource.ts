@@ -1,10 +1,9 @@
-const { GatewayDataSource } = require("esm")(module)(
-  "federation-subscription-tools"
+const { GatewayDataSource } = require('esm')(module)(
+  'federation-subscription-tools'
 );
 
-import { gql } from "apollo-server-express";
-import { DocumentNode, GraphQLResolveInfo } from "graphql";
-import { merge } from "lodash";
+import { DocumentNode, GraphQLResolveInfo } from 'graphql';
+import { merge } from 'lodash';
 
 export default class ErxesGatewayDataSource extends GatewayDataSource {
   constructor(gatewayUrl: string) {
@@ -16,8 +15,8 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
       request.headers = {};
     }
 
-    request.headers["apollographql-client-name"] = "Subscriptions Service";
-    request.headers["apollographql-client-version"] = "0.1.0";
+    request.headers['apollographql-client-name'] = 'Subscriptions Service';
+    request.headers['apollographql-client-version'] = '0.1.0';
 
     if (this.context.extra.request.headers.cookie) {
       request.headers.cookie = this.context.extra.request.headers.cookie;
@@ -28,7 +27,7 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
     payload,
     queryVariables,
     info,
-    buildQueryUsingSelections,
+    buildQueryUsingSelections
   }: {
     payload: any;
     queryVariables: object;
@@ -46,7 +45,7 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
 
     try {
       const response = await this.query(query, {
-        variables: queryVariables,
+        variables: queryVariables
       });
       if (response.data) {
         return merge(payloadData, Object.values(response.data)[0]);
@@ -54,28 +53,5 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
     } catch (error) {
       console.error(error);
     }
-  }
-
-  public async queryAndMergeMissingConversationMessageData({
-    payload,
-    info,
-  }: {
-    payload: any;
-    info: GraphQLResolveInfo;
-  }): Promise<any> {
-    const conversationMessage: any = Object.values(payload)[0];
-
-    return this.queryAndMergeMissingData({
-      payload,
-      info,
-      queryVariables: { _id: conversationMessage._id },
-      buildQueryUsingSelections: (selections: any) => gql`
-            query Subscription_GetMessage($_id: String!) {
-              conversationMessage(_id: $_id) {
-                ${selections}
-              }
-            }
-        `,
-    });
   }
 }

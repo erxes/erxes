@@ -6,7 +6,8 @@
     "start": "docusaurus start --port 4300",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
-    "deploy": "docusaurus deploy"
+    "deploy": "docusaurus deploy",
+    "generateDocs": "npx spectaql --embeddable --target-dir static/developers/docs/references spectaql.yml"
   },
   "dependencies": {
     "@docusaurus/core": "2.0.0-alpha.75",
@@ -40,6 +41,7 @@
     "react-select-plus": "^1.0.0-rc.3.patch12",
     "react-toggle": "^4.1.2",
     "react-transition-group": "^4.4.2",
+    "spectaql": "^1.2.4",
     "styled-components": "^5.3.1",
     "styled-components-ts": "0.0.15",
     "subscriptions-transport-ws": "^0.9.19",

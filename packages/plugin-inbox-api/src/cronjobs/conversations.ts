@@ -3,7 +3,11 @@ import * as schedule from 'node-schedule';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 // import { debugCrons } from '../debuggers';
-import { sendAutomationsMessage, sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import {
+  sendAutomationsMessage,
+  sendContactsMessage,
+  sendCoreMessage
+} from '../messageBroker';
 import { IMessageDocument } from '../models/definitions/conversationMessages';
 
 /**
@@ -70,7 +74,7 @@ export const sendMessageEmail = async (models: IModels, subdomain: string) => {
 
     for (const message of adminMessages) {
       const answer = {
-        ...message.toJSON(),
+        ...message,
         createdAt: new Date(
           moment(message.createdAt).format('DD MMM YY, HH:mm')
         )
@@ -105,10 +109,10 @@ export const sendMessageEmail = async (models: IModels, subdomain: string) => {
 
     customer.name = await sendContactsMessage({
       subdomain,
-      action: "customers.getCustomerName",
+      action: 'customers.getCustomerName',
       data: customer,
       isRPC: true
-    })
+    });
 
     const data = {
       customer,
@@ -119,7 +123,7 @@ export const sendMessageEmail = async (models: IModels, subdomain: string) => {
 
     if (question) {
       const questionData = {
-        ...question.toJSON(),
+        ...question,
         createdAt: new Date(
           moment(question.createdAt).format('DD MMM YY, HH:mm')
         )
@@ -127,7 +131,7 @@ export const sendMessageEmail = async (models: IModels, subdomain: string) => {
 
       if (question.attachments.length !== 0) {
         for (const attachment of question.attachments) {
-          questionData.content = questionData.content.concat(
+          questionData.content = (questionData.content || '').concat(
             `<p><img src="${attachment.url}" alt="${attachment.name}"></p>`
           );
         }
@@ -158,15 +162,13 @@ export const sendMessageEmail = async (models: IModels, subdomain: string) => {
     // send email
     await sendCoreMessage({
       subdomain,
-      action: "sendEmail",
-      data: emailOptions,
-    })
-
+      action: 'sendEmail',
+      data: emailOptions
+    });
 
     // mark sent messages as read
     await models.ConversationMessages.markSentAsReadMessages(conversation._id);
   }
-
 
   await sendAutomationsMessage({
     subdomain,
@@ -176,7 +178,6 @@ export const sendMessageEmail = async (models: IModels, subdomain: string) => {
       targets: [conversations]
     }
   });
-
 };
 
 export default {

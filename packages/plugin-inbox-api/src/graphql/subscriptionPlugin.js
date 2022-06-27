@@ -1,4 +1,22 @@
 var { withFilter } = require("graphql-subscriptions");
+var { gql } = require("apollo-server-express");
+
+function queryAndMergeMissingConversationMessageData({ gatewayDataSource, payload, info }) {
+  const conversationMessage = Object.values(payload)[0];
+
+  return gatewayDataSource.queryAndMergeMissingData({
+    payload,
+    info,
+    queryVariables: { _id: conversationMessage._id },
+    buildQueryUsingSelections: (selections) => gql`
+          query Subscription_GetMessage($_id: String!) {
+            conversationMessage(_id: $_id) {
+              ${selections}
+            }
+          }
+      `,
+  });
+}
 
 module.exports = {
   name: "inbox",
@@ -37,7 +55,8 @@ module.exports = {
           { dataSources: { gatewayDataSource } },
           info
         ) {
-          return gatewayDataSource.queryAndMergeMissingConversationMessageData({
+          return queryAndMergeMissingConversationMessageData({
+            gatewayDataSource,
             payload,
             info,
           });
@@ -97,7 +116,8 @@ module.exports = {
           { dataSources: { gatewayDataSource } },
           info
         ) {
-          return gatewayDataSource.queryAndMergeMissingConversationMessageData({
+          return queryAndMergeMissingConversationMessageData({
+            gatewayDataSource,
             payload,
             info,
           });
