@@ -1,18 +1,20 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
+
+import {
+  AddMutationResponse,
+  HeadSegmentsQueryResponse,
+  SegmentsQueryResponse
+} from '@erxes/ui-segments/src/types';
+
+import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
 import SegmentStep from '../components/step/SegmentStep';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui-engage/src/graphql';
 import { sumCounts } from '@erxes/ui-engage/src/utils';
-import {
-  HeadSegmentsQueryResponse,
-  SegmentsQueryResponse,
-  AddMutationResponse
-} from '@erxes/ui-segments/src/types';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   segmentIds: string[];

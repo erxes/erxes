@@ -1,30 +1,31 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import WithPermission from 'coreui/withPermission';
 import { Alert, getEnv } from '@erxes/ui/src/utils';
-import { __ } from '@erxes/ui/src/utils';
-import InstallCode from '../InstallCode';
+import {
+  IIntegration,
+  IntegrationMutationVariables
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import {
   INTEGRATION_KINDS,
   WEBHOOK_DOC_URL
 } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { cleanIntegrationKind } from '@erxes/ui/src/utils';
-import { queries } from '../../graphql/index';
-import { INTEGRATIONS_COLORS } from '../../integrationColors';
-import {
-  IIntegration,
-  IntegrationMutationVariables
-} from '@erxes/ui-settings/src/integrations/types';
-import RefreshPermissionForm from '../facebook/RefreshPermission';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
 import CommonFieldForm from './CommonFieldForm';
+import { INTEGRATIONS_COLORS } from '../../integrationColors';
+import Icon from '@erxes/ui/src/components/Icon';
+import InstallCode from '../InstallCode';
+import Label from '@erxes/ui/src/components/Label';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import RefreshPermissionForm from '../facebook/RefreshPermission';
+import Tip from '@erxes/ui/src/components/Tip';
+import WithPermission from 'coreui/withPermission';
+import { __ } from '@erxes/ui/src/utils';
+import { cleanIntegrationKind } from '@erxes/ui/src/utils';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { queries } from '../../graphql/index';
 
 type Props = {
   _id?: string;

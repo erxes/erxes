@@ -1,15 +1,16 @@
-import { IUser } from '@erxes/ui/src/auth/types';
+import { Alert, __ } from '@erxes/ui/src/utils';
+import {
+  ISkillDocument,
+  ISkillTypesDocument
+} from '@erxes/ui-inbox/src/settings/skills/types';
+import React, { useState } from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, Alert } from '@erxes/ui/src/utils';
-import {
-  ISkillDocument,
-  ISkillTypesDocument
-} from '@erxes/ui-settings/src/skills/types';
-import React, { useState } from 'react';
 import Select from 'react-select-plus';
 import mutations from '../../graphql/mutations';
 

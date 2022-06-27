@@ -1,16 +1,18 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React, { useEffect, useRef, useState } from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as integrationQuery } from '@erxes/ui-settings/src/integrations/graphql';
+
 import {
   IntegrationsCountQueryResponse,
   IntegrationsQueryResponse
-} from '@erxes/ui-settings/src/integrations/types';
-import LeadFilter from '../../components/list/LeadFilter';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import React, { useEffect, useRef, useState } from 'react';
+
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import LeadFilter from '../../components/list/LeadFilter';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationQuery } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   integrationsQuery?: IntegrationsQueryResponse;

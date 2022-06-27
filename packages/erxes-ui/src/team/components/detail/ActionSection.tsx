@@ -1,17 +1,18 @@
+import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
+
+import { Actions } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
 import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
-import { Actions } from '@erxes/ui/src/styles/main';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
+import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
+import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
+import Tip from '@erxes/ui/src/components/Tip';
 import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   user: IUser;

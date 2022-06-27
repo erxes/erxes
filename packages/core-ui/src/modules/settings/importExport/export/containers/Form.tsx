@@ -1,18 +1,19 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
 
-import { withProps } from 'modules/common/utils';
-import Form from '../components/Form';
-import React from 'react';
-import { queries } from '../../graphql';
-import { graphql } from 'react-apollo';
 import {
   FieldsCombinedByTypeQueryResponse,
   IConfigColumn
-} from '@erxes/ui-settings/src/properties/types';
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/properties/constants';
+} from '@erxes/ui-forms/src/settings/properties/types';
+
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-forms/src/settings/properties/constants';
+import Form from '../components/Form';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import client from 'apolloClient';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '../../graphql';
+import { withProps } from 'modules/common/utils';
 
 type Props = {
   contentType: string;

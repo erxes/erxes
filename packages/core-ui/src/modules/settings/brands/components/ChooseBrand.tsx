@@ -1,16 +1,16 @@
+import { IBrand, IChooseBrand } from '../types';
+
 import Button from 'modules/common/components/Button';
+import ControlLabel from 'modules/common/components/form/Label';
 import FormControl from 'modules/common/components/form/Control';
 import FormGroup from 'modules/common/components/form/Group';
-import ControlLabel from 'modules/common/components/form/Label';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
 import { ModalFooter } from '../../../common/styles/main';
+import React from 'react';
 import { __ } from '../../../common/utils';
-import { IBrand, IChooseBrand } from '../types';
 
 type Props = {
   brands: IBrand[];
-  integration: IIntegration;
+  integration: any; //check
   save: (variables: IChooseBrand) => void;
   closeModal?: () => void;
 };

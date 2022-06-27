@@ -1,19 +1,21 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries as segmentQueries } from '@erxes/ui-segments/src/graphql';
-import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
+
 import {
   FieldsCombinedByType,
   FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../utils';
-import { queries as teamQueries } from '../team/graphql';
+} from '@erxes/ui-forms/src/settings/properties/types';
+import { IEditorProps, IMentionUser } from '../types';
+
 import { AllUsersQueryResponse } from '../auth/types';
 import EditorCK from '../components/EditorCK';
-import { IEditorProps, IMentionUser } from '../types';
+import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { isValidURL } from '../utils/urlParser';
+import { queries as segmentQueries } from '@erxes/ui-segments/src/graphql';
+import { queries as teamQueries } from '../team/graphql';
+import { withProps } from '../utils';
 
 const generateAttributes = (combinedFields?: FieldsCombinedByType[]) => {
   let items: Array<{ name: string; value?: string }> = [

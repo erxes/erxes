@@ -1,7 +1,7 @@
-import { IUser } from '@erxes/ui/src/auth/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IVideoCallData {

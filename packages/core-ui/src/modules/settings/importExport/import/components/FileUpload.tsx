@@ -1,15 +1,15 @@
-import React from 'react';
-
+import { FileUploadBox, ImportHeader } from '../../styles';
 import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
-import { IAttachment } from 'modules/common/types';
 import { FullContent, UploadText } from '../../styles';
 import { renderIcon, renderText } from '../../utils';
+
+import { IAttachment } from 'modules/common/types';
 import { IImportHistoryContentType } from '../../types';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
+import React from 'react';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from 'modules/common/utils';
-import { ImportHeader, FileUploadBox } from '../../styles';
 
 type Props = {
   onChangeAttachment: (files: IAttachment[], contentType: string) => void;

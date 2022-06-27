@@ -1,13 +1,14 @@
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import { IMessages } from '@erxes/ui-inbox/src/settings/integrations/types';
+import React from 'react';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from 'coreui/utils';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
-import { IMessages } from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
 
 type Props = {
   onChange: (name: any, value: any) => void;

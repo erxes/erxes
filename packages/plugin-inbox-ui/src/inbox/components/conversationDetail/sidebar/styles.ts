@@ -1,4 +1,4 @@
-import { SectionContainer, SidebarCollapse } from '@erxes/ui/src/layout/styles';
+import { ActivityContent, DateContainer } from '@erxes/ui/src/styles/main';
 import {
   ActivityDate,
   ActivityIcon,
@@ -19,22 +19,6 @@ import {
   Timeline,
   Title
 } from '@erxes/ui/src/activityLogs/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { ActivityContent, DateContainer } from '@erxes/ui/src/styles/main';
-import {
-  SpaceBetweenRow,
-  Subject
-} from '@erxes/ui-settings/src/integrations/components/mail/styles';
-import styled from 'styled-components';
-import { CardItem } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles';
-import {
-  FormTable,
-  MessageBody,
-  MessageContent,
-  MessageItem,
-  UserInfo
-} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
 import {
   AttachmentItem,
   AttachmentsContainer,
@@ -44,6 +28,23 @@ import {
   Reply,
   RightSide
 } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/style';
+import {
+  FormTable,
+  MessageBody,
+  MessageContent,
+  MessageItem,
+  UserInfo
+} from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/styles';
+import { SectionContainer, SidebarCollapse } from '@erxes/ui/src/layout/styles';
+import {
+  SpaceBetweenRow,
+  Subject
+} from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
+import { CardItem } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles';
+import { Flex } from '@erxes/ui/src/styles/main';
+import styled from 'styled-components';
 
 const FlexRow = styled(DateContainer)`
   display: flex;

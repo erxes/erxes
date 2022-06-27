@@ -8,7 +8,7 @@ import {
   IVisitorContact as IVisitorContactC
 } from '@erxes/ui/src/customers/types';
 
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 export type IVisitorContact = IVisitorContactC;
 

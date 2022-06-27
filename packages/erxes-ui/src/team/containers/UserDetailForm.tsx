@@ -1,29 +1,31 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import {
-  SkillsExcludeUserMutationResponse,
-  SkillsQueryResponse,
-  SkillTypesQueryResponse
-} from '@erxes/ui-settings/src/skills/types';
-import React from 'react';
-import { graphql, useLazyQuery } from 'react-apollo';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
-import skillQueries from '@erxes/ui-settings/src/skills/graphql/queries';
-import UserDetailForm from '../components/detail/UserDetailForm';
-import UserSkillForm from '../components/detail/UserSkillForm';
-import { mutations, queries } from '../graphql';
+import {
+  SkillTypesQueryResponse,
+  SkillsExcludeUserMutationResponse,
+  SkillsQueryResponse
+} from '@erxes/ui-inbox/src/settings/skills/types';
 import {
   UserConverationsQueryResponse,
   UserDetailQueryResponse
 } from '../types';
+import { graphql, useLazyQuery } from 'react-apollo';
+import { mutations, queries } from '../graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { ChannelsQueryResponse } from '@erxes/ui-inbox/src/settings/channels/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import UserDetailForm from '../components/detail/UserDetailForm';
 import UserForm from './UserForm';
+import UserSkillForm from '../components/detail/UserSkillForm';
+import { queries as channelQueries } from '@erxes/ui-inbox/src/settings/channels/graphql';
+import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import skillQueries from '@erxes/ui-inbox/src/settings/skills/graphql/queries';
 
 type Props = {
   _id: string;

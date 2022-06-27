@@ -1,7 +1,7 @@
 import {
   Content,
   LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ControlWrapper,
   FlexItem,
@@ -17,7 +17,7 @@ import { __, getEnv } from 'modules/common/utils';
 
 import Button from 'modules/common/components/Button';
 import ConfigsForm from './ConfigsForm';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
 import { Link } from 'react-router-dom';
 import { MessengerPreview } from '../../styles';
 import React from 'react';

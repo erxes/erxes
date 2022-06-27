@@ -1,18 +1,20 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries as calendarQueries } from '../../calendar/graphql';
-import Info from '@erxes/ui/src/components/Info';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { __, Alert, withProps } from 'coreui/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
-import CalendarAccounts from '../components/AccountCalendars';
-import { mutations } from '../graphql';
+
+import { Alert, __, withProps } from 'coreui/utils';
 import {
   EditAccountCalendarMutationResponse,
   EditAccountCalendarMutationVariables
 } from '../types';
+
+import CalendarAccounts from '../components/AccountCalendars';
+import Info from '@erxes/ui/src/components/Info';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as calendarQueries } from '../../calendar/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
+import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   accountId: string;

@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   ActivityIcon,
@@ -12,26 +11,28 @@ import {
   FlexCenterContent,
   Header
 } from '@erxes/ui/src/activityLogs/styles';
-import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __, renderFullName } from '@erxes/ui/src/utils';
-import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
 import {
   Comment,
   PostContainer
 } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
-import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
-import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
 import {
   IConversation,
   IFacebookComment,
   IMessage
 } from '@erxes/ui-inbox/src/inbox/types';
-import React from 'react';
+import { __, renderFullName } from '@erxes/ui/src/utils';
+import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
+
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
+import MailConversation from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/mail/MailConversation';
+import Message from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/Message';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
+import dayjs from 'dayjs';
 import xss from 'xss';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   activity: any;

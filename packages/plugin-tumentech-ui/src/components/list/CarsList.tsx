@@ -1,30 +1,30 @@
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import {
-  __,
   Alert,
+  BarItems,
   Button,
-  confirm,
   DataWithLoader,
   FormControl,
   ModalTrigger,
   Pagination,
-  router,
   SortHandler,
   Table,
   Wrapper,
-  BarItems
+  __,
+  confirm,
+  router
 } from '@erxes/ui/src';
-import { IRouterProps, IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { ICar, IProduct, IProductCategory } from '../../types';
 
 import CarForm from '../../containers/CarForm';
-import { CarsTableWrapper } from '../../styles';
-import { ICar, IProduct, IProductCategory } from '../../types';
-import CarsMerge from '../detail/CarsMerge';
 import CarRow from './CarRow';
+import CarsMerge from '../detail/CarsMerge';
+import { CarsTableWrapper } from '../../styles';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import React from 'react';
 import Sidebar from './Sidebar';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   cars: ICar[];

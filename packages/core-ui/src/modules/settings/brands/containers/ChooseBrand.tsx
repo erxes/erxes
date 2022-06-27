@@ -1,18 +1,20 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { Alert, withProps } from 'modules/common/utils';
+
 import {
   AddIntegrationMutationResponse,
   EditIntegrationMutationResponse,
   IIntegration
-} from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ChooseBrand from '../components/ChooseBrand';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import { Alert, withProps } from 'modules/common/utils';
 import { mutations, queries } from '../graphql';
-import { IChooseBrand } from '../types';
+
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import ChooseBrand from '../components/ChooseBrand';
+import { IChooseBrand } from '../types';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Variables = {
   name: string;
