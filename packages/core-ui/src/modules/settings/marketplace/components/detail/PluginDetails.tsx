@@ -4,14 +4,13 @@ import styled from 'styled-components';
 import Wrapper from './Wrapper';
 import RightSidebar from './RightSidebar';
 import Button from '@erxes/ui/src/components/Button';
-import { Tabs } from '@erxes/ui/src/components/tabs/index';
-import { TabTitle } from '@erxes/ui/src/components/tabs/index';
+import { Tabs } from './tabs/index';
+import { TabTitle } from './tabs/index';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { Card, ListHeader } from '../../styles';
 import {
   DetailMainContainer,
   PluginTitle,
-  DetailProfile,
   Center,
   Carousel,
   DetailInformation,
@@ -61,6 +60,7 @@ class PluginDetails extends React.Component<Props, State> {
 
     const tabContent = this.state.tabType === 'Description' && (
       <>
+        <span>{plugin.shortDescription}</span>
         <Detail>
           <ListHeader>
             <ColorHeader>
@@ -98,10 +98,9 @@ class PluginDetails extends React.Component<Props, State> {
       <DetailMainContainer>
         <PluginTitle>
           <Center>
-            <DetailProfile src={plugin.image} />
+            <img src={plugin.image} />
             <DetailInformation>
               <b>{plugin.title}</b>
-              <span>{plugin.shortDescription}</span>
               <Flex>
                 {[].map(category => (
                   <Hashtag>
