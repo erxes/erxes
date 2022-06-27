@@ -1,3 +1,61 @@
+# [0.23.0](https://github.com/erxes/erxes/compare/0.22.3...0.23.0) (2021-11-03)
+
+
+### Bug Fixes
+
+* **ArticleForm:** prevent XSS attack in CKEditor. ([#3061](https://github.com/erxes/erxes/issues/3061)) ([3bbda06](https://github.com/erxes/erxes/commit/3bbda0660e68d6a629268c22e46060bb68774c00))
+* **customerQueries.test, companyQueries.test:** Now works when .env.ELK_SYNCER is true ([e311b7a](https://github.com/erxes/erxes/commit/e311b7aec1f49db1c1ba19a563475e08157d7844))
+* **cusutomer,company:** allowed duplicated emails, phones in emails, phones combobox ([c910a68](https://github.com/erxes/erxes/commit/c910a68086d81733b4ef22a2048bd5e70edc81d6))
+* **dataloaders:** corrected type signatures ([efed7ef](https://github.com/erxes/erxes/commit/efed7efce5a1d478955f920eff0ae4c6ce8b0a86))
+* **forms:** added multiple language choices ([56941ad](https://github.com/erxes/erxes/commit/56941ad704827a666898d4679b0c09fbb829edc9))
+* **forms:** not saving callout featured image as binary ([d6b68bd](https://github.com/erxes/erxes/commit/d6b68bd808e1e39029dd7e6a447e0ac11b1a25c1))
+* **kb:** added language choices in language select box ([366031a](https://github.com/erxes/erxes/commit/366031a8c68499036c208573f12f904e9434f234))
+* **KnowledgeBase:** fix clear bug, change icon ([4f8c4e7](https://github.com/erxes/erxes/commit/4f8c4e7ba07fc0cfcc96e8d9d7d454f07a7a14d4))
+* **pagination:** saved per page choice in lists ([2fe1c38](https://github.com/erxes/erxes/commit/2fe1c384f2912416dfa8c478c19155fb41edcf46))
+* **permissions:** cleared cache after fix permisions ([ce8d0af](https://github.com/erxes/erxes/commit/ce8d0af9b989d6d71bbaebc2e40c319194fa9445))
+* **regex exploit:** Fixed a catastrophic backtracking exploit ([91a90ca](https://github.com/erxes/erxes/commit/91a90ca1d9ad2d5a6c2d7b8a4754cdcdd2a7ab44))
+* **resolvers:** fixed cases where item with the corresponding _id was deleted ([51f5789](https://github.com/erxes/erxes/commit/51f5789c29a5e8947dc0e164013118e6bd659dd0))
+* **resolvers:** Some resolvers were returning empty string instead of null in cases where id was empty string. ([8d00bae](https://github.com/erxes/erxes/commit/8d00bae00f08a36b102df98ca9051fad794789fe))
+* **stageDetail,dealDetail:** parameter _id missing error on graphql fixed. ([#3041](https://github.com/erxes/erxes/issues/3041)) ([bd052ea](https://github.com/erxes/erxes/commit/bd052ea7b1f5b98ff6bf9fa0d6dff63d9dac8738))
+* **tsc:** remove unused import ([9745545](https://github.com/erxes/erxes/commit/97455455abc2a36485c885c059947f1ad5b888e0))
+* **user dataloader:** fixed type mismatch ([7c66740](https://github.com/erxes/erxes/commit/7c6674054a0ec7a3b29fb7348946085c71616d2a))
+* **users:** fixed token & cookies invalidate function when user logs out. ([#3071](https://github.com/erxes/erxes/issues/3071)) ([4dad5ff](https://github.com/erxes/erxes/commit/4dad5ff2831c72b30a370d34db8a72e2429f5180))
+
+
+### Features
+
+* **automations:** added feature automations ([984a418](https://github.com/erxes/erxes/commit/984a418f72f3b0ae7683171bb62b3a9f8b48470c))
+* **client-portal:** added client portal feature ([0a3718c](https://github.com/erxes/erxes/commit/0a3718c3aca7011e3ff557fa4453834a08c0ed47))
+* **deal/task/ticket:** added pipeline duplicate, archive actions ([95b2393](https://github.com/erxes/erxes/commit/95b239322883203b7c1596f4b736ce88a4a163e1))
+* **engage:** added card attributes ([6ffee64](https://github.com/erxes/erxes/commit/6ffee6475696f0f6664520220ac43bbc8ce4a24f))
+* **navbar:** refactored navigation bar ([6a84155](https://github.com/erxes/erxes/commit/6a8415523067819b2026855b256fbf83e253f9e2)), closes [#2872](https://github.com/erxes/erxes/issues/2872)
+* **products:** added new fields in product ([a27178d](https://github.com/erxes/erxes/commit/a27178d47fc5e911d9de02b04e6a2d3391186b18))
+* **properties:** added customer type ([b6c58c4](https://github.com/erxes/erxes/commit/b6c58c42fee7986b234ad1bc903ad191628ffe36))
+
+
+### Performance Improvements
+
+* **board:** add list view and filter in board items ([#3036](https://github.com/erxes/erxes/issues/3036)) ([5657b20](https://github.com/erxes/erxes/commit/5657b20763f94cc39dd3e924fd031b9700177236))
+* **Company resolvers:** implemented dataloaders in Company field resolvers ([e4f3fdb](https://github.com/erxes/erxes/commit/e4f3fdb166aadefceb936ba738f219d2a250b274))
+* **Conformity:** added compound indexes that are optimized for most common queries. ([9e65a27](https://github.com/erxes/erxes/commit/9e65a278de962dc29d8bab513294cf652e549eb7))
+* **copyPipelineLabels:** uses DB batch functions instead of looped DB calls ([50d3ac1](https://github.com/erxes/erxes/commit/50d3ac13a5af1aa5d9afa3d1508c6138caafd1fa))
+* **dataloaders:** use mongoose query options "lean: true" where possible ([99b2214](https://github.com/erxes/erxes/commit/99b221405e10f0b2c64a8013b43bf1b309e841b9))
+* **deals:** Use mongoose query options `lean: true` where possible ([f050f69](https://github.com/erxes/erxes/commit/f050f696c1a916425b784903d276d8f0423f2509))
+* **integrations:** encrypted nylas token ([77b556c](https://github.com/erxes/erxes/commit/77b556cfb7389c5af9db20cc14abb88bdd18942f))
+* **itemsEdit:** No longer waits for log functions to finish ([9f145cc](https://github.com/erxes/erxes/commit/9f145cc644385cdd3ba5cc9691728d2dbce4b924))
+* **mongoose:** Use mongoose query options "lean: true" where possible ([#3043](https://github.com/erxes/erxes/issues/3043)) ([95c28f0](https://github.com/erxes/erxes/commit/95c28f0ac99eeb3704553fde3dfb5c67e05a6a1c))
+* **PipelineLabel unique identifier:** created unique compound index using (pipelineId, name, colorCode) ([15142a5](https://github.com/erxes/erxes/commit/15142a5138d90c88cb5850beb7071fdc0a39d5dd))
+* **products:** added dataloader in product's resolvers ([d27cce7](https://github.com/erxes/erxes/commit/d27cce79385a24147b51f66ee9f82b5c92eab6dc))
+* **products:** use mongoose query option "lean: true" where possible ([9f437e4](https://github.com/erxes/erxes/commit/9f437e47f7b388751f9e37c3285514f25dc1b74b))
+* **translation:** improved translation percentage ([fcf53d4](https://github.com/erxes/erxes/commit/fcf53d4bcbbbdc980475f15b07d46cb3f617dae6))
+* **widgets:** not using rpc messages in log messages ([6844c5a](https://github.com/erxes/erxes/commit/6844c5a6772fa216963630985ca133423d337e3a))
+
+
+### BREAKING CHANGES
+
+* **forms:** have to reupload the image
+* **integrations:** migration is required
+
 ## [0.22.3](https://github.com/erxes/erxes/compare/0.22.2...0.22.3) (2021-05-19)
 
 ## [0.22.2](https://github.com/erxes/erxes/compare/0.22.1...0.22.2) (2021-05-19)
