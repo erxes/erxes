@@ -45,7 +45,6 @@ class ProductListContainer extends React.Component<FinalProps> {
       history,
       flowsQuery,
       flowTotalCountQuery,
-      productCategoryDetailQuery,
       flowsRemove,
       flowsAdd
     } = this.props;

@@ -2,8 +2,7 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { IJobRefer, IFlowDocument } from '../../types';
+import { IFlowDocument } from '../../types';
 import Label from '@erxes/ui/src/components/Label';
 
 type Props = {

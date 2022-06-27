@@ -13,11 +13,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import CategoryForm from '../../containers/productCategory/CategoryForm';
 import { IJobCategory } from '../../types';
-// import TagFilter from '../../containers/TagFilter';
-// import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
-// import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
 import { pluginsOfJobCategoryActions } from 'coreui/pluginUtils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const { Section } = Wrapper.Sidebar;
 

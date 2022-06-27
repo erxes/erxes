@@ -6,10 +6,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { mutations, queries } from '../../graphql';
 import {
-  ProductsConfigsQueryResponse,
   IConfigsMap,
+  ProductsConfigsQueryResponse,
   UomsQueryResponse
-} from '../../types';
+} from '@erxes/ui-products/src/types';
 
 type Props = {
   component: any;

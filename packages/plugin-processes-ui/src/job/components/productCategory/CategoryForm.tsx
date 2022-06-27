@@ -16,10 +16,7 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import {
-  extractAttachment,
-  generateCategoryOptions
-} from '@erxes/ui/src/utils';
+import { extractAttachment } from '@erxes/ui/src/utils';
 import { IJobCategory } from '../../types';
 import { PRODUCT_CATEGORY_STATUSES } from '../../../constants';
 import { ICategory } from '@erxes/ui/src/utils/categories';

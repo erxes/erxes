@@ -14,18 +14,13 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { JOB_TYPE_CHOISES, DURATION_TYPES } from '../../../constants';
 import CategoryForm from '../../containers/flowCategory/CategoryForm';
 import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import {
-  IJobRefer,
-  IJobCategory,
-  IUom,
-  IConfigsMap,
-  IProductsDataDocument,
-  IProduct
-} from '../../types';
+import { IJobRefer, IJobCategory } from '../../types';
+import { IProductsDataDocument } from '../../../job/types';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import { __ } from '@erxes/ui/src/utils';
 import Icon from '@erxes/ui/src/components/Icon';
+import { IConfigsMap, IProduct, IUom } from '@erxes/ui-products/src/types';
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -129,7 +124,7 @@ class Form extends React.Component<Props, State> {
 
         currentProducts.push(inputData);
 
-        this.setState({ [type]: currentProducts });
+        this.setState({ [type]: currentProducts } as any);
       }
     };
 

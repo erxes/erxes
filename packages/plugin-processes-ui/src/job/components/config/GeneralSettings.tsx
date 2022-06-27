@@ -10,7 +10,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
 import Select from 'react-select-plus';
-import { ContentBox } from '../../styles';
+import { ContentBox } from '../../../styles';
 import { IConfigsMap, IUom } from '../../types';
 import Header from './Header';
 import Sidebar from './Sidebar';

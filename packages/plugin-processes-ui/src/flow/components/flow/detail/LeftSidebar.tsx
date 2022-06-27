@@ -1,12 +1,12 @@
 import gql from 'graphql-tag';
 import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import BasicInfo from '../../../containers/product/detail/BasicInfo';
-import CustomFieldsSection from '../../../containers/product/detail/CustomFieldsSection';
-import { IProduct } from '../../../types';
+import BasicInfo from '../../../containers/flow/detail/BasicInfo';
+import CustomFieldsSection from '../../../containers/flow/detail/CustomFieldsSection';
 import React from 'react';
 import { queries } from '../../../graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
   product: IProduct;
@@ -18,7 +18,7 @@ class LeftSidebar extends React.Component<Props> {
 
     const refetchQueries = [
       {
-        query: gql(queries.productDetail),
+        query: gql(queries.flowDetail),
         variables: { _id: product._id }
       }
     ];

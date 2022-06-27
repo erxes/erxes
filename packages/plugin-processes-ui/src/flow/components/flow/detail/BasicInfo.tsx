@@ -1,13 +1,16 @@
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link } from 'react-router-dom';
+import xss from 'xss';
+
+import { Action, Name } from '@erxes/ui-contacts/src/customers/styles';
+import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
+import { IProduct } from '@erxes/ui-products/src/types';
 import Attachment from '@erxes/ui/src/components/Attachment';
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { InfoWrapper } from '@erxes/ui/src/styles/main';
-import { IAttachment } from '@erxes/ui/src/types';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
-
-import { Action, Name } from '@erxes/ui-contacts/src/customers/styles';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {
   FieldStyle,
@@ -15,13 +18,11 @@ import {
   SidebarFlexRow,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
-import { IProduct, IConfigsMap } from '../../../types';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
-import xss from 'xss';
-import { ProductContent } from '../../../styles';
+import { InfoWrapper } from '@erxes/ui/src/styles/main';
+import { IAttachment } from '@erxes/ui/src/types';
+import { __, Alert, confirm } from '@erxes/ui/src/utils';
+
+import { ProductContent } from '../../../../styles';
 
 type Props = {
   product: IProduct;

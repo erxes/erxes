@@ -24,14 +24,7 @@ const productCategoriesCount = `
   }
 `;
 
-const productDetail = `
-  query productDetail($_id: String) {
-    productDetail(_id: $_id) {
-      ${productFields}
-      customFieldsData
-    }
-  }
-`;
+const productDetail = productQueries.productDetail;
 
 const productCategoryDetail = `
   query productCategoryDetail($_id: String) {
@@ -47,11 +40,7 @@ const productCategoryDetail = `
 
 const uoms = productQueries.uoms;
 
-const uomsTotalCount = `
-query uomsTotalCount {
-  uomsTotalCount
-}
-`;
+const uomsTotalCount = productQueries.uomsTotalCount;
 
 // Settings
 

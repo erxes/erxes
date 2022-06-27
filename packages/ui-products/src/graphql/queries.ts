@@ -80,6 +80,15 @@ const products = `
   }
 `;
 
+const productDetail = `
+  query productDetail($_id: String) {
+    productDetail(_id: $_id) {
+      ${productFields}
+      customFieldsData
+    }
+  }
+`;
+
 const productCategories = `
   query productCategories($status: String) {
     productCategories(status: $status) {
@@ -116,6 +125,12 @@ query uoms {
 }
 `;
 
+const uomsTotalCount = `
+query uomsTotalCount {
+  uomsTotalCount
+}
+`;
+
 // Settings
 
 const productsConfigs = `
@@ -131,7 +146,9 @@ const productsConfigs = `
 export default {
   productFields,
   products,
+  productDetail,
   productCategories,
   productsConfigs,
-  uoms
+  uoms,
+  uomsTotalCount
 };

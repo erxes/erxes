@@ -59,6 +59,28 @@ export interface IProductCategory {
   isRoot: boolean;
 }
 
+export type MutationVariables = {
+  _id?: string;
+  type: string;
+  name?: string;
+  description?: string;
+  sku?: string;
+  createdAt?: Date;
+};
+
+export type DetailQueryResponse = {
+  productDetail: IProduct;
+  loading: boolean;
+};
+
+// mutation types
+
+export type ProductRemoveMutationResponse = {
+  productsRemove: (mutation: {
+    variables: { productIds: string[] };
+  }) => Promise<any>;
+};
+
 export type ProductsQueryResponse = {
   loading: boolean;
   refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
@@ -77,11 +99,23 @@ export type ProductsQueryResponses = {
   products: IProduct[];
 } & QueryResponse;
 
+export type EditMutationResponse = {
+  editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
+};
+
 // UOM
 
 export type UomsQueryResponse = {
   uoms: IUom[];
 } & QueryResponse;
+
+export type UomsCountQueryResponse = {
+  uomsTotalCount: number;
+} & QueryResponse;
+
+export type UomRemoveMutationResponse = {
+  uomsRemove: (mutation: { variables: { uomIds: string[] } }) => Promise<any>;
+};
 
 // SETTINGS
 

@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import { IconWrapper, ModalFooter, ModalBody } from './styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import Button from '@erxes/ui/src/components/Button';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   isOpen: boolean;

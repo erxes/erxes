@@ -3,11 +3,11 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import CategoryForm from '../../components/flowCategory/CategoryForm';
 import { mutations } from '../../graphql';
-import { IFlowCategory } from '../../types';
+import { IProductCategory } from '../../types';
 
 type Props = {
-  categories: IFlowCategory[];
-  category?: IFlowCategory;
+  categories: IProductCategory[];
+  category?: IProductCategory;
   closeModal: () => void;
 };
 

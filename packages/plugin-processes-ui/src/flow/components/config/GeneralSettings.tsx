@@ -10,10 +10,10 @@ import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
 import Select from 'react-select-plus';
-import { ContentBox } from '../../styles';
-import { IConfigsMap, IUom } from '../../types';
+import { ContentBox } from '../../../styles';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import { IConfigsMap, IUom } from '@erxes/ui-products/src/types';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;
