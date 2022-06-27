@@ -52,7 +52,7 @@ class ProductListContainer extends React.Component<FinalProps> {
     const addFlow = () => {
       flowsAdd({
         variables: {
-          name: 'Your automation title',
+          name: 'Your flow title',
           status: 'draft'
         }
       })

@@ -132,10 +132,7 @@ class AutomationForm extends React.Component<Props, State> {
     const realActions = leftAction.length > 0 ? leftAction : actions;
 
     for (const action of realActions) {
-      if (
-        !(action.nextJobIds || []).length ||
-        (action.nextJobIds || []).length === 0
-      ) {
+      if (!(action.nextJobIds || []).length) {
         lastActions.push(action);
       }
     }
@@ -747,8 +744,6 @@ class AutomationForm extends React.Component<Props, State> {
 
     if (currentTab === 'actions') {
       const { actions } = this.state;
-
-      console.log('actions: ', actions);
 
       if (showAction && activeAction) {
         const checkArray = Object.keys(activeAction);

@@ -17,10 +17,10 @@ class ConfirmationPopup extends React.Component<Props> {
     const { isOpen, onConfirm, onCancel, queryParams } = this.props;
 
     const description = queryParams.isCreate
-      ? `Please save or delete this automation`
+      ? `Please save or delete this flow`
       : `Please save or discard these changes`;
-    const confirmText = queryParams.isCreate ? 'Save automation' : 'Save';
-    const cancelText = queryParams.isCreate ? 'Delete automation' : 'Discard';
+    const confirmText = queryParams.isCreate ? 'Save flow' : 'Save';
+    const cancelText = queryParams.isCreate ? 'Delete flow' : 'Discard';
 
     return (
       <Modal
