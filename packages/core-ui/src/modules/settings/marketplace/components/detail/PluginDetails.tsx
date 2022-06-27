@@ -16,18 +16,9 @@ import {
   Carousel,
   DetailInformation,
   Hashtag,
-  AddOnPic,
-  AddOnInformation,
   Detail,
-  AddOn,
-  CardInformation,
   ColorHeader
 } from '../../styles';
-
-const AddOns = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`;
 
 type Props = {
   plugin?: {};
@@ -45,45 +36,6 @@ class PluginDetails extends React.Component<Props, State> {
       tabType: 'Description'
     };
   }
-
-  renderList = () => {
-    const titles = [
-      'Company Branding',
-      'Integrations',
-      'Team members',
-      'Email sending'
-    ];
-
-    return (
-      <AddOns>
-        {titles.map(title => (
-          <Card>
-            <AddOnPic />
-            <AddOnInformation>
-              <CardInformation>
-                <div>
-                  <b>{title}</b>
-                  <AddOn>
-                    <b>Add-On</b>
-                  </AddOn>
-                </div>
-                <Button
-                  btnStyle="link"
-                  style={{ color: '#000', padding: '8px 10px' }}
-                >
-                  <b>$5</b>
-                </Button>
-              </CardInformation>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod.
-              </p>
-            </AddOnInformation>
-          </Card>
-        ))}
-      </AddOns>
-    );
-  };
 
   render() {
     const breadcrumb = [
@@ -161,12 +113,6 @@ class PluginDetails extends React.Component<Props, State> {
             </>
           ))}
         </Detail>
-        <ListHeader>
-          <ColorHeader>
-            <b>Support add-ons</b>
-          </ColorHeader>
-        </ListHeader>
-        {this.renderList()}
       </>
     );
 

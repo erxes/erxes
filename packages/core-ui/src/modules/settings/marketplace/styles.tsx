@@ -253,34 +253,8 @@ const Hashtag = styled.div`
   }
 `;
 
-const AddOnPic = styled.div`
-  width: 100%;
-  background: ${colors.bgMain};
-  height: 110px;
-  border-radius: 4px;
-`;
-
-const AddOnInformation = styled.div`
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
-`;
-
 const Detail = styled.div`
   padding-bottom: ${dimensions.unitSpacing}px;
-`;
-
-const AddOn = styled.div`
-  border-radius: 10px;
-  color: ${colors.colorWhite};
-  background: ${colors.colorCoreYellow};
-  padding: 2px 8px;
-  font-size: 11px;
-  width: 60px;
-`;
-
-const CardInformation = styled.div`
-  margin-bottom: ${dimensions.unitSpacing}px;
-  display: flex;
-  justify-content: space-between;
 `;
 
 // Detail right sidebar
@@ -522,11 +496,7 @@ export {
   Carousel,
   DetailInformation,
   Hashtag,
-  AddOnPic,
-  AddOnInformation,
   Detail,
-  AddOn,
-  CardInformation,
   VerticalContent,
   RightSidebarWrapper,
   ColorHeader,
