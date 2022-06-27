@@ -1,3 +1,4 @@
+import { IUom } from '@erxes/ui-products/src/types';
 import {
   Button,
   FormControl,
@@ -8,7 +9,6 @@ import {
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { IUom } from '../../types';
 
 type Props = {
   uom?: IUom;

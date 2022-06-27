@@ -1,3 +1,5 @@
+import { mutations as productMutations } from '@erxes/ui-products/src/graphql';
+
 // FLOW
 
 const flowParamsDef = `$name: String, $categoryId: String, $productId: String, $status: String, $jobs: [JobInput], $flowJobStatus: Boolean`;
@@ -50,6 +52,13 @@ mutation flowCategoriesRemove($_id: String!) {
 }
 `;
 
+const productsRemove = productMutations.productsRemove;
+const productsConfigsUpdate = productMutations.productsConfigsUpdate;
+const uomsEdit = productMutations.uomsEdit;
+const uomsAdd = productMutations.uomsAdd;
+const uomsRemove = productMutations.uomsRemove;
+const productEdit = productMutations.productEdit;
+
 export default {
   flowCategoriesAdd,
   flowCategoriesEdit,
@@ -57,5 +66,13 @@ export default {
 
   flowsEdit,
   flowsAdd,
-  flowsRemove
+  flowsRemove,
+
+  productsConfigsUpdate,
+  productsRemove,
+  productEdit,
+
+  uomsEdit,
+  uomsAdd,
+  uomsRemove
 };

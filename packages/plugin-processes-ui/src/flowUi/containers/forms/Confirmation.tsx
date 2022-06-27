@@ -21,10 +21,10 @@ type FinalProps = {} & Props & flowsRemoveMutationResponse;
 
 class ConfirmationContainer extends React.Component<FinalProps> {
   render() {
-    const { flowsRemoveMutation, queryParams, when } = this.props;
+    const { flowsRemove, queryParams, when } = this.props;
 
     const removeFlows = ({ flowIds }, navigateToNextLocation) => {
-      flowsRemoveMutation({
+      flowsRemove({
         variables: { flowIds }
       })
         .then(() => {
@@ -74,7 +74,7 @@ export default withProps<Props>(
     graphql<Props, flowsRemoveMutationResponse, { flowsIds: string[] }>(
       gql(flowMutations.flowsRemove),
       {
-        name: 'flowsRemoveMutation',
+        name: 'flowsRemove',
         options
       }
     )

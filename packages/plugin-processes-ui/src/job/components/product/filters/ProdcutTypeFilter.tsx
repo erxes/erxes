@@ -6,7 +6,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import { productTypeChoises } from '../../../utils';
+import { productTypeChoises } from '../../../../utils';
 
 interface IProps extends IRouterProps {
   searchable?: boolean;

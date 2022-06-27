@@ -21,7 +21,7 @@ import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
 import xss from 'xss';
-import { ProductContent } from '../../../styles';
+import { ProductContent } from '../../../../styles';
 
 type Props = {
   product: IProduct;

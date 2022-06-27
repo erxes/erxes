@@ -6,9 +6,12 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import BasicInfo from '../../../components/product/detail/BasicInfo';
-import { IProduct, ProductRemoveMutationResponse } from '../../../types';
-import { mutations, queries } from '../../../graphql';
+import BasicInfo from '../../../components/flow/detail/BasicInfo';
+import { mutations } from '../../../graphql';
+import {
+  IProduct,
+  ProductRemoveMutationResponse
+} from '@erxes/ui-products/src/types';
 
 type Props = {
   product: IProduct;

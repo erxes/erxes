@@ -4,11 +4,7 @@ const productAdd = productMutations.productAdd;
 
 const productEdit = productMutations.productEdit;
 
-const productsRemove = `
-  mutation productsRemove($productIds: [String!]) {
-    productsRemove(productIds: $productIds)
-  }
-`;
+const productsRemove = productMutations.productsRemove;
 
 const productCategoryAdd = productMutations.productCategoryAdd;
 const productCategoryEdit = productMutations.productCategoryEdit;
@@ -59,11 +55,7 @@ const uomsRemove = `
 
 // Settings
 
-const productsConfigsUpdate = `
-  mutation productsConfigsUpdate($configsMap: JSON!) {
-    productsConfigsUpdate(configsMap: $configsMap)
-  }
-`;
+const productsConfigsUpdate = productMutations.productsConfigsUpdate;
 
 export default {
   productAdd,

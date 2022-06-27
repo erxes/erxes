@@ -4,15 +4,12 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
-import {
-  DetailQueryResponse,
-  ProductsConfigsQueryResponse,
-  IProduct
-} from '../../../types';
+import { ProductsConfigsQueryResponse, IProduct } from '../../../types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import ProductDetails from '../../../components/product/detail/ProductDetails';
 import { queries } from '../../../graphql';
+import { DetailQueryResponse } from '@erxes/ui-products/src/types';
 
 type Props = {
   id: string;
