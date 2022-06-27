@@ -19,74 +19,12 @@ click to see sample data
 
 ```json
 {
-  "data": {
-    "action": "create",
-    "type": "customer",
-    "newData": {
-      "state": "customer",
-      "firstName": "sarah",
-      "lastName": "connor",
-      "primaryEmail": "sarahconner@mail.com",
-      "emails": ["sarahconner@mail.com"],
-      "primaryPhone": "017664888-44",
-      "phones": ["017664888-44"],
-      "ownerId": "qLsLeYeW2nnWjiMMy",
-      "position": "",
-      "department": "",
-      "hasAuthority": "No",
-      "description": "",
-      "doNotDisturb": "No",
-      "links": {
-        "facebook": "",
-        "twitter": "",
-        "youtube": "",
-        "website": ""
-      },
-      "code": "",
-      "sex": 0,
-      "emailValidationStatus": "unknown",
-      "phoneValidationStatus": "unknown",
-      "customFieldsData": []
-    },
-    "object": {
-      "state": "customer",
-      "sex": 0,
-      "emails": ["sarahconner@mail.com"],
-      "emailValidationStatus": "unknown",
-      "phones": ["017664888-44"],
-      "phoneValidationStatus": "unknown",
-      "status": "Active",
-      "hasAuthority": "No",
-      "doNotDisturb": "No",
-      "relatedIntegrationIds": [],
-      "tagIds": [],
-      "mergedIds": [],
-      "deviceTokens": [],
-      "scopeBrandIds": [],
-      "_id": "nMZ7qvzfaAK4rsvF2",
-      "createdAt": "2020-10-16T00:20:17.248Z",
-      "modifiedAt": "2020-10-16T00:20:17.248Z",
-      "firstName": "sarah",
-      "lastName": "connor",
-      "primaryEmail": "sarahconner@mail.com",
-      "primaryPhone": "017664888-44",
-      "ownerId": "qLsLeYeW2nnWjiMMy",
-      "position": "",
-      "department": "",
-      "description": "",
-      "links": {
-        "facebook": "",
-        "twitter": "",
-        "youtube": "",
-        "website": ""
-      },
-      "code": "",
-      "customFieldsData": [],
-      "profileScore": 40,
-      "searchText": "sarahconner@mail.com 017664888-44 sarah connor",
-      "trackedData": []
-    }
-  }
+  "data": "{\"type\":\"contacts:customer\",\"newData\":{\"state\":\"customer\",\"firstName\":\"firstname\",\"lastName\":\"lastname\",\"middleName\":\"\",\"hasAuthority\":\"No\",\"isSubscribed\":\"Yes\",\"links\":{},\"sex\":null,\"emailValidationStatus\":\"unknown\",\"phoneValidationStatus\":\"unknown\",\"ownerId\":\"n2ZhBqXBtDEXfmhuv\"},\"object\":{\"_id\":\"oj3d8MqAMgFY56wj2\",\"state\":\"customer\",\"sex\":null,\"emails\":[],\"emailValidationStatus\":\"unknown\",\"phones\":[],\"phoneValidationStatus\":\"unknown\",\"status\":\"Active\",\"hasAuthority\":\"No\",\"doNotDisturb\":\"No\",\"isSubscribed\":\"Yes\",\"relatedIntegrationIds\":[],\"tagIds\":[],\"mergedIds\":[],\"deviceTokens\":[],\"scopeBrandIds\":[],\"createdAt\":\"2022-06-27T05:29:47.499Z\",\"modifiedAt\":\"2022-06-27T05:29:47.499Z\",\"firstName\":\"firstname\",\"lastName\":\"lastname\",\"middleName\":\"\",\"ownerId\":\"n2ZhBqXBtDEXfmhuv\",\"customFieldsData\":[],\"profileScore\":15,\"searchText\":\"  firstname lastname\",\"trackedData\":[],\"__v\":0},\"description\":\"\\\"firstname\\\" has been created\",\"extraDesc\":[{\"ownerId\":\"n2ZhBqXBtDEXfmhuv\",\"name\":\"admin@erxes.io\"}]}",
+  "text": "</customer/details/oj3d8MqAMgFY56wj2|Customer has been created>",
+  "content": "Customer has been created",
+  "url": "/customer/details/oj3d8MqAMgFY56wj2",
+  "action": "create",
+  "type": "contacts:customer"
 }
 ```
 
