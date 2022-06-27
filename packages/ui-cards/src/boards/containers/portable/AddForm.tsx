@@ -11,6 +11,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
 import { mutations as boardMutations, queries } from '../../graphql';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import {
   ConvertToMutationResponse,
   ConvertToMutationVariables,
@@ -45,6 +46,7 @@ type FinalProps = {
   addMutation: SaveMutation;
   conversationConvertToCard: ConvertToMutationResponse;
   editConformity: EditConformityMutation;
+  fieldsQuery: any;
 } & IProps &
   ConvertToMutationResponse;
 
@@ -61,8 +63,10 @@ class AddFormContainer extends React.Component<FinalProps> {
       relType,
       relTypeIds,
       editConformity,
-      bookingProductId
+      bookingProductId,
+      fieldsQuery
     } = this.props;
+    console.log('fieldsQuery: ', fieldsQuery);
 
     doc.assignedUserIds = assignedUserIds;
 
@@ -225,6 +229,15 @@ export default (props: IProps) =>
         {
           name: 'editConformity'
         }
-      )
+      ),
+      graphql<FinalProps>(gql(formQueries.fields), {
+        name: 'fieldsQuery',
+        options: ({ options }) => ({
+          variables: {
+            contentType: `cards:${options.type}`,
+            isVisibleToCreate: true
+          }
+        })
+      })
     )(AddFormContainer)
   );

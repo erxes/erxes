@@ -358,24 +358,24 @@ export const getBoardsAndPipelines = doc => {
   return doc;
 };
 
-export const generateSystemFields = ({ data: { groupId } }) => {
+export const generateSystemFields = ({ data: { groupId, type } }) => {
   const fields: any = [];
 
-  for (const type of ['ticket', 'deal', 'task']) {
-    CARD_PROPERTIES_INFO.ALL.map(e => {
-      fields.push({
-        text: e.label,
-        type: e.field,
-        canHide: e.canHide,
-        validation: e.validation,
-        groupId,
-        isVisibleToCreate: e.isVisibleToCreate,
-        options: e.options,
-        contentType: `cards:${type}`,
-        isDefinedByErxes: true
-      });
+  CARD_PROPERTIES_INFO.ALL.map(e => {
+    fields.push({
+      text: e.label,
+      type: e.field,
+      canHide: e.canHide,
+      validation: e.validation,
+      groupId,
+      isVisibleToCreate: e.isVisibleToCreate,
+      options: e.options,
+      contentType: `cards:${type}`,
+      isDefinedByErxes: true
     });
-  }
+  });
+
+  console.log('fields: ', fields);
 
   return fields;
 };

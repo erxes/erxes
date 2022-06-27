@@ -16,6 +16,7 @@ export interface IFieldsQuery {
   isVisible?: boolean;
   isDefinedByErxes?: boolean;
   searchable?: boolean;
+  isVisibleToCreate?: boolean;
 }
 
 const fieldQueries = {
@@ -51,11 +52,13 @@ const fieldQueries = {
       contentType,
       contentTypeId,
       isVisible,
+      isVisibleToCreate,
       searchable
     }: {
       contentType: string;
       contentTypeId: string;
       isVisible: boolean;
+      isVisibleToCreate: boolean;
       searchable: boolean;
     },
     { models }: IContext
@@ -72,6 +75,10 @@ const fieldQueries = {
 
     if (searchable !== undefined) {
       query.searchable = searchable;
+    }
+
+    if (isVisibleToCreate !== undefined) {
+      query.isVisibleToCreate = isVisibleToCreate;
     }
 
     return models.Fields.find(query).sort({ order: 1 });
