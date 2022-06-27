@@ -58,7 +58,6 @@ class ScoreForm extends React.Component<Props, State> {
 
     const handleScore = e => {
       const value = parseInt(e.target.value);
-      console.log(value);
       // this.setState(prev=>({...prev,changeScore:value}))
       changeScore = value;
     };
@@ -147,6 +146,7 @@ class ScoreForm extends React.Component<Props, State> {
                 min={0}
                 max={100}
                 placeholder="0"
+                required={true}
                 defaultValue={changeScore}
                 onChange={handleScore}
               />

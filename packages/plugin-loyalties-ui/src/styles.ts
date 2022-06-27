@@ -121,3 +121,27 @@ display:grid;
 grid-template-columns: 90% 10%
 align-items:center
 `;
+export const Divider = styled.div`
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: ${colors.colorCoreLightGray};
+  margin: 20px 0;
+
+  > span {
+    margin: 0 20px;
+    >footer {
+      color ${colors.colorCoreBlack}
+    }
+  }
+
+  &:before,
+  &:after {
+    content: '';
+    flex: 1;
+    height: 0;
+    align-self: center;
+    border-bottom: 1px solid ${colors.borderPrimary};
+  }
+`;

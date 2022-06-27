@@ -20,10 +20,11 @@ class AwardDetail extends React.Component<FinalProps, Props> {
   }
 
   render() {
-    const { voucherDetail } = this.props;
+    const { voucherDetail, lotteryCampaign } = this.props;
     const updatedProps = {
       loading: voucherDetail.loading,
-      data: voucherDetail.voucherCampaignDetails
+      data: voucherDetail.voucherCampaignDetails,
+      lotteryCampaign: lotteryCampaign
     };
 
     const content = props => {

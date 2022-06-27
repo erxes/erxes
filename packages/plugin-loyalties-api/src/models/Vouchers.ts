@@ -52,7 +52,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      if (voucherCampaign.startDate < now || voucherCampaign.endDate <= now) {
+      if (voucherCampaign.startDate < now || voucherCampaign.endDate < now) {
         throw new Error('Not create spin, expired');
       }
 

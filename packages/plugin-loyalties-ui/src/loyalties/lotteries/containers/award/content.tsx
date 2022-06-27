@@ -42,7 +42,7 @@ class AwardContent extends React.Component<FinalProps, Props> {
         this.props.lotteriesCampaignCustomerList.refetch();
       })
       .catch(error => {
-        Alert.error(error);
+        Alert.error(error.message);
       });
   }
 
@@ -51,7 +51,7 @@ class AwardContent extends React.Component<FinalProps, Props> {
       .multipledoLottery({ variables })
       .then(() => {})
       .catch(error => {
-        Alert.error(error);
+        Alert.error(error.message);
       });
   }
 
@@ -59,7 +59,6 @@ class AwardContent extends React.Component<FinalProps, Props> {
     this.props.getNextChar({ variables }).then(res => {
       const { afterChars, nextChar, fitLotteriesCount } = res.data.getNextChar;
       this.setState({ nextChar: nextChar === '' ? nextChar : afterChars });
-      console.log(afterChars.length);
       if (afterChars.length === 6 && nextChar.length === 1) {
         if (fitLotteriesCount === 0) {
           Alert.error('No customer won');

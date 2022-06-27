@@ -10,6 +10,32 @@ export const lotteryFields = `
   number
 `;
 
+export const voucherDetailField = `
+  _id
+  buyScore
+  createdAt
+  createdBy
+  description
+  discountPercent
+  endDate
+  finishDateOfUse
+  lotteryCampaignId
+  lotteryCount
+  modifiedAt
+  modifiedBy
+  score
+  scoreAction
+  spinCampaignId
+  spinCount
+  startDate
+  status
+  title
+  voucherType
+  vouchersCount
+  productIds
+  productCategoryIds
+`;
+
 const listParamsDef = `
   ${commonParamsDef}
   $voucherCampaignId: String
@@ -72,7 +98,7 @@ const lotteryDetail = `
 const lotteryDetails = `
 query VoucherCampaignDetails($id: [String!]) {
   voucherCampaignDetails(_id: $id) {
-      ${lotteryFields}
+      ${voucherDetailField}
     }
   }
 `;

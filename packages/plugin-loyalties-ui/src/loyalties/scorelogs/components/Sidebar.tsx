@@ -29,6 +29,7 @@ interface LayoutProps {
 interface VObject {
   fromDate: string;
   toDate: string;
+  orderType: string;
   order: string;
   ownerType: string;
 }
@@ -55,7 +56,6 @@ class SideBar extends React.Component<Props, State> {
   render() {
     const { refetch, history } = this.props;
     const { variables } = this.state;
-    const btnModal = <Button>Score</Button>;
 
     const handleClear = (e: any, type: string) => {
       router.removeParams(history, type);
@@ -71,7 +71,7 @@ class SideBar extends React.Component<Props, State> {
       const result = { ...variables, [name]: value };
       this.setState({ variables: result });
       router.setParams(history, { [name]: value });
-      refetch(result);
+      name !== 'orderType' && refetch(result);
     };
 
     const handleDate = (e: any, type: string) => {
@@ -109,6 +109,9 @@ class SideBar extends React.Component<Props, State> {
     const SideBarFilter = () => {
       return (
         <ScrollWrapper>
+          <Wrapper.Sidebar.Section.Title>
+            Addition filters
+          </Wrapper.Sidebar.Section.Title>
           <Form
             label="Owner Type"
             clearable={checkParams('ownerType')}
@@ -117,7 +120,7 @@ class SideBar extends React.Component<Props, State> {
             <FormControl
               name="ownerType"
               componentClass="select"
-              defaultValue={variables?.ownerType}
+              value={variables?.ownerType}
               required={true}
               onChange={handleValue}
             >
@@ -135,13 +138,40 @@ class SideBar extends React.Component<Props, State> {
               </option>
             </FormControl>
           </Form>
+          <Form
+            label="Order Type"
+            clearable={checkParams('orderType')}
+            type="orderType"
+          >
+            <FormControl
+              name="orderType"
+              componentClass="select"
+              value={variables?.orderType}
+              placeholder={'Select Order Type'}
+              required={true}
+              onChange={handleValue}
+            >
+              <option key={'Date'} value={'Date'}>
+                {''}
+                {'Date'}
+                {''}
+              </option>
+              <option key={'Changed Score'} value={'Changed Score'}>
+                {''}
+                {'Changed Score'}
+                {''}
+              </option>
+            </FormControl>
+          </Form>
           <Form label="Order" clearable={checkParams('order')} type="order">
             <FormControl
               name="order"
               componentClass="select"
-              defaultValue={variables?.order}
+              value={variables?.order}
+              placeholder={'Select Order'}
               required={true}
               onChange={handleValue}
+              disabled={!variables?.orderType}
             >
               <option key={'Ascending'} value={'Ascending'}>
                 {''}
@@ -164,7 +194,7 @@ class SideBar extends React.Component<Props, State> {
               <DateControl
                 required={true}
                 name="startDate"
-                placeholder={'date'}
+                placeholder={'Choose start date'}
                 value={variables?.fromDate}
                 onChange={e => handleDate(e, 'fromDate')}
               />
@@ -175,7 +205,7 @@ class SideBar extends React.Component<Props, State> {
               <DateControl
                 required={true}
                 name="fromDate"
-                placeholder={'From'}
+                placeholder={'Choose from date'}
                 value={variables?.toDate}
                 onChange={e => handleDate(e, 'toDate')}
               />

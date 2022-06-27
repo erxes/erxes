@@ -53,6 +53,7 @@ export interface ICommonParams {
 
 export interface IScoreParams {
   ownerType: String;
+  orderType: String;
   order: String;
   fromDate: String;
   toDate: String;

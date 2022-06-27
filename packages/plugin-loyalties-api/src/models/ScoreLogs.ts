@@ -28,24 +28,39 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreParams) {
-      const { ownerType, order, fromDate, toDate } = doc;
-
-      console.log(doc);
+      const { ownerType, order, fromDate, toDate, orderType } = doc;
+      const orderTypeFields = {
+        changeScore: 'Changed Score',
+        createdAt: 'Date'
+      };
 
       let filter = {};
+      let sort: { [k: string]: any } = {};
 
       if (ownerType) {
         filter = { ...filter, ownerType };
       }
+      if (fromDate) {
+        filter = { ...filter, createdAt: { $gte: fromDate } };
+      }
+      if (toDate) {
+        filter = { ...filter, createdAt: { $lt: toDate } };
+      }
       if (fromDate && toDate) {
         filter = { ...filter, createdAt: { $gte: fromDate, $lt: toDate } };
       }
-      const orderByDate =
-        order === 'Descending' ? 1 : order === 'Ascending' && -1;
+      if (orderType && order) {
+        const orderTypeField = Object.keys(orderTypeFields).find(
+          key => orderTypeFields[key] === orderType
+        );
+        const orderAscDesc =
+          order === 'Descending'
+            ? 1
+            : (order === 'Ascending' || order === undefined) && -1;
+        sort = { [orderTypeField || '']: orderAscDesc };
+      }
 
-      const list = await models.ScoreLogs.find(filter).sort({
-        createdAt: orderByDate
-      });
+      const list = await models.ScoreLogs.find(filter).sort(sort);
       const total = await models.ScoreLogs.find(filter).count();
       return { list, total };
     }

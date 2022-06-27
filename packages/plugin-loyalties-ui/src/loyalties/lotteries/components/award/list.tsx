@@ -65,14 +65,14 @@ class AwardList extends React.Component<IProps> {
                       lottery.ownerId
                     }`}
                   >
-                    {lottery.owner.email}
+                    {lottery.owner?.email}
                   </Link>
                 </td>
 
-                <td>{lottery.ownerType}</td>
+                <td>{lottery?.ownerType}</td>
 
-                <td>{lottery.number}</td>
-                <td>{status(lottery.status)}</td>
+                <td>{lottery?.number}</td>
+                <td>{status(lottery?.status)}</td>
               </tr>
             ))}
           </tbody>

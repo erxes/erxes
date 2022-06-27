@@ -9,8 +9,8 @@ ownerType
 `;
 
 const getScoreLogs = `
-query scoreLogList($fromDate: String, $order: String, $ownerType: String, $toDate: String){
-  scoreLogList(fromDate: $fromDate, order: $order, ownerType: $ownerType, toDate: $toDate){
+query scoreLogList($fromDate: String,$orderType:String, $order: String, $ownerType: String, $toDate: String){
+  scoreLogList(fromDate: $fromDate,orderType:$orderType, order: $order, ownerType: $ownerType, toDate: $toDate){
     list{
       ${commonFields}
     }
