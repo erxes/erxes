@@ -4,6 +4,7 @@ import { IModels } from '../connectionResolver';
 import {
   ISalesLog,
   ISalesLogDocument,
+  ISalesLogProduct,
   salesLogSchema,
   IDayPlanConfig,
   IDayPlanConfigDocument,
@@ -17,12 +18,11 @@ import {
 } from './definitions/salesplans';
 
 export interface ISalesLogModel extends Model<ISalesLogDocument> {
-  createSalesLog(doc: ISalesLog, id: string): Promise<ISalesLogDocument>;
-  updateSalesLog(
-    doc: ISalesLogDocument,
-    id: string
-  ): Promise<ISalesLogDocument>;
-  removeSalesLog(_id: string): Promise<JSON>;
+  salesLogAdd(doc: ISalesLog, userId: string): Promise<ISalesLogDocument>;
+  salesLogEdit(_id: string, doc: ISalesLogDocument): Promise<ISalesLogDocument>;
+  salesLogRemove(_id: string): Promise<JSON>;
+  salesLogProductUpdate(_id: string, productData: ISalesLogProduct): JSON;
+  salesLogProductRemove(_id: string, productId: string): JSON;
 }
 
 export const loadSalesLogClass = (models: IModels) => {
@@ -30,7 +30,7 @@ export const loadSalesLogClass = (models: IModels) => {
     /*
      create SalesLog 
     */
-    public static async createSalesLog(doc: ISalesLog, userId: String) {
+    public static async salesLogAdd(doc: ISalesLog, userId: String) {
       return await models.SalesLogs.create({
         ...doc,
         createdBy: userId,
@@ -41,10 +41,8 @@ export const loadSalesLogClass = (models: IModels) => {
     /* 
       update SalesLog
     */
-    public static async updateSalesLog(doc: ISalesLogDocument, _id: String) {
-      const result = await models.SalesLogs.updateOne({ _id }, { $set: doc });
-
-      console.log(result, doc);
+    public static async salesLogEdit(_id: String, doc: ISalesLogDocument) {
+      await models.SalesLogs.updateOne({ _id }, { $set: doc });
 
       return models.SalesLogs.findOne({ _id });
     }
@@ -52,7 +50,7 @@ export const loadSalesLogClass = (models: IModels) => {
     /* 
       remove SalesLog and DayPlanConfigs with SaleslogId
     */
-    public static async removeSalesLog(_id: string) {
+    public static async salesLogRemove(_id: string) {
       await models.DayPlanConfigs.deleteMany({ salesLogId: _id });
 
       await models.MonthPlanConfigs.deleteMany({ salesLogId: _id });
@@ -60,6 +58,34 @@ export const loadSalesLogClass = (models: IModels) => {
       await models.YearPlanConfigs.deleteMany({ salesLogId: _id });
 
       return await models.SalesLogs.remove({ _id });
+    }
+
+    public static async salesLogProductUpdate(
+      _id: string,
+      productData: ISalesLogProduct
+    ) {
+      const result = await models.SalesLogs.findOne({
+        _id,
+        'products._id': productData._id
+      });
+
+      if (!result)
+        return await models.SalesLogs.updateOne(
+          { _id },
+          { $push: { products: productData } }
+        );
+      else
+        return await models.SalesLogs.updateOne(
+          { _id, 'products._id': productData._id },
+          { $set: { 'products.$.quantities': productData.quantities } }
+        );
+    }
+
+    public static async salesLogProductRemove(_id: string, productId: string) {
+      return await models.SalesLogs.updateOne(
+        { _id },
+        { $pull: { products: { _id: productId } } }
+      );
     }
   }
 

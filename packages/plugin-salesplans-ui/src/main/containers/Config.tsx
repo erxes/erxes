@@ -24,9 +24,7 @@ function ConfigContainer({
   save,
   remove
 }: FinalProps) {
-  useEffect(() => {
-    refetch();
-  }, []);
+  useEffect(() => refetch(), []);
 
   const saveData = (update, add) => {
     save({ variables: { update, add } })

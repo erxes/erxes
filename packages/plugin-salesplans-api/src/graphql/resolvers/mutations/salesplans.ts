@@ -1,28 +1,48 @@
 import { IContext } from '../../../connectionResolver';
 import {
   ISalesLog,
-  ISalesLogDocument
+  ISalesLogDocument,
+  ISalesLogProduct
 } from '../../../models/definitions/salesplans';
 
 const salesLogMutations = {
-  createSalesLog: async (
+  salesLogAdd: async (
     _root: any,
     doc: ISalesLog,
     { user, models }: IContext
   ) => {
-    return await models.SalesLogs.createSalesLog(doc, user._id);
+    return await models.SalesLogs.salesLogAdd(doc, user._id);
   },
 
-  updateSalesLog: async (
+  salesLogEdit: async (
     _root: any,
     doc: ISalesLogDocument,
     { models }: IContext
   ) => {
-    return await models.SalesLogs.updateSalesLog(doc, doc._id);
+    return await models.SalesLogs.salesLogEdit(doc._id, doc);
   },
 
-  removeSalesLog: async (_root: any, _id: string, { models }: IContext) => {
-    return await models.SalesLogs.removeSalesLog(_id);
+  salesLogRemove: async (_root: any, _id: string, { models }: IContext) => {
+    return await models.SalesLogs.salesLogRemove(_id);
+  },
+
+  salesLogProductUpdate: async (
+    _root: any,
+    doc: { _id: string; productData: ISalesLogProduct },
+    { models }: IContext
+  ) => {
+    return await models.SalesLogs.salesLogProductUpdate(
+      doc._id,
+      doc.productData
+    );
+  },
+
+  salesLogProductRemove: async (
+    _root: any,
+    doc: { _id: string; productId: string },
+    { models }: IContext
+  ) => {
+    return await models.SalesLogs.salesLogProductRemove(doc._id, doc.productId);
   },
 
   saveDayPlanConfig: async (

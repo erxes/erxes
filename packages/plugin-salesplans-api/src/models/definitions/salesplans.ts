@@ -11,15 +11,16 @@ export interface ISalesLog {
   branchId: string;
   departmentId: string;
   createdBy: string;
-  products: [
+  products: [ISalesLogProduct];
+  labels: [string];
+}
+
+export interface ISalesLogProduct {
+  _id: string;
+  quantities: [
     {
-      _id: string;
-      quantities: [
-        {
-          label: string;
-          value: string;
-        }
-      ];
+      label: string;
+      value: string;
     }
   ];
 }
@@ -43,8 +44,6 @@ export const salesLogSchema = schemaWrapper(
     date: field({ type: String, label: 'Date' }),
     branchId: field({ type: String, label: 'Branch' }),
     departmentId: field({ type: String, label: 'Department' }),
-    createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
-    createdBy: field({ type: String, label: 'Created by' }),
     products: field({
       type: [
         {
@@ -60,7 +59,9 @@ export const salesLogSchema = schemaWrapper(
       default: [],
       label: 'Products'
     }),
-    labelIds: field({ type: [String], default: [], label: 'Labels' })
+    labels: field({ type: [String], default: [], label: 'Labels' }),
+    createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
+    createdBy: field({ type: String, label: 'Created by' })
   })
 );
 

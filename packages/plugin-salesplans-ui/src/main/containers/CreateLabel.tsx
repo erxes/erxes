@@ -12,13 +12,12 @@ type Props = {
 function CreateLabelContainer({ closeModal }: Props) {
   const [type, setType] = useState('');
 
+  const [save] = useMutation(gql(mutations.saveLabels));
+  const [remove] = useMutation(gql(mutations.removeLabel));
+
   const labelsQuery = useQuery(gql(queries.getLabels), {
     variables: { type }
   });
-
-  const [remove] = useMutation(gql(mutations.removeLabel));
-
-  const [save] = useMutation(gql(mutations.saveLabels));
 
   const saveData = (update, add) => {
     save({ variables: { update, add } })
