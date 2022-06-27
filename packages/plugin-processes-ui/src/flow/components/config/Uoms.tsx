@@ -1,3 +1,6 @@
+import React from 'react';
+
+import { IUom } from '@erxes/ui-products/src/types';
 import {
   Button,
   DataWithLoader,
@@ -7,14 +10,14 @@ import {
   Pagination,
   Table
 } from '@erxes/ui/src/components';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import Form from './UomsForm';
 import { Wrapper } from '@erxes/ui/src/layout';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Sidebar from './Sidebar';
-import { IUom } from '../../types';
+
+// import { IUom } from '../../types';
 import Row from './Row';
+import Sidebar from './Sidebar';
+import Form from './UomsForm';
 
 type Props = {
   uomsTotalCount: number;
