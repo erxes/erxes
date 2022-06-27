@@ -21,8 +21,8 @@ class CategoryStatusFilter extends React.Component<IProps> {
     };
 
     const extraButtons = router.getParam(history, 'status') && (
-      <a href='#cancel' tabIndex={0} onClick={onClear}>
-        <Icon icon='cancel-1' />
+      <a href="#cancel" tabIndex={0} onClick={onClear}>
+        <Icon icon="cancel-1" />
       </a>
     );
 
@@ -37,7 +37,11 @@ class CategoryStatusFilter extends React.Component<IProps> {
       <Box
         extraButtons={extraButtons}
         title={__('Filter category by status')}
-        name='showFilterByType'
+        name="showFilterByType"
+        noShadow
+        noMarginBottom
+        noBackground
+        noSpacing
       >
         <SidebarList>
           {categoryStatusChoises(__).map(
@@ -45,7 +49,7 @@ class CategoryStatusFilter extends React.Component<IProps> {
               return (
                 <li key={Math.random()}>
                   <a
-                    href='#filter'
+                    href="#filter"
                     tabIndex={0}
                     className={
                       router.getParam(history, [paramKey]) === value

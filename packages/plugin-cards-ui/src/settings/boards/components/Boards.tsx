@@ -2,7 +2,6 @@ import { IBoard } from '@erxes/ui-cards/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { TopHeader } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
@@ -11,6 +10,7 @@ import React from 'react';
 import { IOption } from '../types';
 import BoardForm from './BoardForm';
 import BoardRow from './BoardRow';
+import { Header } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   currentBoardId?: string;
@@ -58,14 +58,14 @@ class Boards extends React.Component<Props, {}> {
     };
 
     return (
-      <TopHeader>
+      <Header>
         <ModalTrigger
           title={`New ${boardName}`}
           trigger={addBoard}
           autoOpenKey="showBoardModal"
           content={content}
         />
-      </TopHeader>
+      </Header>
     );
   }
 
@@ -76,9 +76,13 @@ class Boards extends React.Component<Props, {}> {
       options && options.boardName ? options.boardName.toLowerCase() : 'board';
 
     return (
-      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder={true}>
+      <Sidebar noMargin wide header={this.renderSidebarHeader()} hasBorder>
         <DataWithLoader
-          data={<List>{this.renderItems()}</List>}
+          data={
+            <List noTextColor noBackground>
+              {this.renderItems()}
+            </List>
+          }
           loading={loading}
           count={boards.length}
           emptyText={`${__(`There is no `)}${' '}${boardName}`}

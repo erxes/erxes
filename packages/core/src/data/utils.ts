@@ -790,7 +790,7 @@ export const getConfigs = async models => {
   }
 
   const configsMap = {};
-  const configs = await models.Configs.find({});
+  const configs = await models.Configs.find({}).lean();
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
@@ -950,7 +950,7 @@ export const sendMobileNotification = async (
           data: data || {}
         });
       } catch (e) {
-        throw new Error(e);
+        debugError(`Error occurred during firebase send: ${e.message}`);
       }
     }
   }

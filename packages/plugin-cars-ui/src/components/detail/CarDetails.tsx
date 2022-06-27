@@ -1,4 +1,9 @@
-import { __, ActivityInputs, ActivityLogsContainer as ActivityLogs, Wrapper } from '@erxes/ui/src';
+import {
+  __,
+  ActivityInputs,
+  ActivityLogsContainer as ActivityLogs,
+  Wrapper
+} from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 
@@ -6,7 +11,6 @@ import { ICar } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
 
-;
 type Props = {
   car: ICar;
   currentUser: IUser;
@@ -18,7 +22,7 @@ class CarDetails extends React.Component<Props> {
 
     const title = car.plateNumber || 'Unknown';
 
-    const breadcrumb = [{ title: __('Cars'), link: '/erxes-plugin-car/list' }, { title }];
+    const breadcrumb = [{ title: __('Cars'), link: '/cars' }, { title }];
 
     const content = (
       <>
@@ -39,11 +43,7 @@ class CarDetails extends React.Component<Props> {
     return (
       <Wrapper
         header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
-        leftSidebar={
-          <LeftSidebar
-            {...this.props}
-          />
-        }
+        leftSidebar={<LeftSidebar {...this.props} />}
         rightSidebar={<RightSidebar car={car} />}
         content={content}
         transparent={true}

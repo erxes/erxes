@@ -250,7 +250,25 @@ export const carDetail = `
         type
         size
       }
-      fourAttachments {
+      frontAttachments {
+        name
+        url
+        type
+        size
+      }
+      leftAttachments {
+        name
+        url
+        type
+        size
+      }
+      rightAttachments {
+        name
+        url
+        type
+        size
+      }
+      backAttachments {
         name
         url
         type
@@ -331,6 +349,101 @@ const carsListConfig = `
   }
 `;
 
+const directions = `
+query directions($searchValue: String, $page: Int, $perPage: Int) {
+  directions(searchValue: $searchValue, page: $page, perPage: $perPage) {
+    list {
+      _id
+      placeIds
+      places {
+        _id
+        province
+        name
+        code
+        center
+      }
+      totalDistance
+      roadConditions
+      duration
+      routeCode
+      roadCode
+    }
+    totalCount
+  }
+}
+`;
+
+const directionDetail = `
+query directionDetail($id: String!) {
+  directionDetail(_id: $id) {
+    _id
+    duration
+    placeIds
+    places {
+      _id
+      center
+      code
+      name
+      province
+    }
+    roadCode
+    roadConditions
+    routeCode
+    totalDistance
+  }
+}
+`;
+
+const routesQuery = `
+query routes($searchValue: String, $page: Int, $perPage: Int) {
+  routes(searchValue: $searchValue, page: $page, perPage: $perPage) {
+    list {
+      _id
+      code
+      directionIds
+      directions {
+        _id
+        duration
+        placeIds
+        places {
+          _id
+          center
+          code
+          name
+          province
+        }
+        roadCode
+        roadConditions
+        routeCode
+        totalDistance
+      }
+      name
+      summary {
+        placeNames
+        totalDistance
+        totalDuration
+      }
+    }
+    totalCount
+  }
+}
+`;
+
+const placesQuery = `
+query places($searchValue: String, $page: Int, $perPage: Int) {
+  places(searchValue: $searchValue, page: $page, perPage: $perPage) {
+    list {
+      _id
+      province
+      name
+      code
+      center
+    }
+    totalCount
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -350,5 +463,11 @@ export default {
   carCategoryMatchProducts,
   productCategoryMatchCarCategories,
   participants,
-  carsListConfig
+  carsListConfig,
+
+  placesQuery,
+  directions,
+  directionDetail,
+
+  routesQuery
 };

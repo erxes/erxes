@@ -23,7 +23,7 @@ export const getEnv = ({
 };
 
 /**
- * Returns user's name or email
+ * Returns user's name  or email
  */
 export const getUserDetail = (user: IUserDocument) => {
   return (user.details && user.details.fullName) || user.email;

@@ -1,14 +1,14 @@
-import gql from "graphql-tag";
-import React from "react";
-import { useQuery } from "react-apollo";
+import gql from 'graphql-tag';
+import React from 'react';
+import { useQuery } from 'react-apollo';
 
-import Spinner from "@erxes/ui/src/components/Spinner";
-import List from "../../components/department/List";
-import { queries } from "@erxes/ui-team/src/graphql";
-import { __ } from "modules/common/utils";
-import Box from "@erxes/ui/src/components/Box";
-import ErrorMsg from "@erxes/ui/src/components/ErrorMsg";
-import { MenuFooter } from "@erxes/ui-cards/src/boards/styles/rightMenu";
+import Spinner from '@erxes/ui/src/components/Spinner';
+import List from '../../components/department/List';
+import { queries } from '@erxes/ui/src/team/graphql';
+import { __ } from 'modules/common/utils';
+import Box from '@erxes/ui/src/components/Box';
+import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
+import { MenuFooter } from 'modules/settings/styles';
 
 export default function ListContainer() {
   const listQuery = useQuery(gql(queries.departments));
@@ -19,7 +19,15 @@ export default function ListContainer() {
 
   if (listQuery.error) {
     return (
-      <Box isOpen={true} title={__("Department")} name="showDepartment">
+      <Box
+        isOpen={true}
+        title={__('Department')}
+        name="showDepartment"
+        noShadow
+        noMarginBottom
+        noBackground
+        noSpacing
+      >
         <MenuFooter>
           <ErrorMsg>{listQuery.error.message}</ErrorMsg>
         </MenuFooter>

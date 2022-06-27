@@ -56,8 +56,6 @@ const tagQueries = {
       selector._id = { $in: tagIds };
     }
 
-    console.log(selector);
-
     return models.Tags.find(selector).sort({
       order: 1,
       name: 1

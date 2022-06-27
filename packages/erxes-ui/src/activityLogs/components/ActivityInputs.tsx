@@ -36,7 +36,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
   };
 
   renderTabContent() {
-    const { contentTypeId, contentType, showEmail } = this.props;
+    const { contentTypeId, contentType } = this.props;
     const { currentTab } = this.state;
 
     if (currentTab === 'newNote' && isEnabled('internalnotes')) {

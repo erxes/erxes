@@ -245,11 +245,16 @@ const up = async ({ uis, fromInstaller }) => {
   const dashboard_domain = `${domain}/dashboard/front`;
   const dashboard_api_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
-  const allowed_origins = configs.allowed_origins || '';
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
   const { RABBITMQ_HOST } = commonEnvs(configs);
+
+  // update the directory on the Docker system to have 0777 or drwxrwxrwx permssion, so that all users have read/write/execute permission.
+  // chmod 0777 core-api-private
+  if (!(await fse.exists(filePath('core-api-private')))) {
+    await execCommand('mkdir core-api-private');
+  }
 
   const dockerComposeConfig = {
     version: '3.7',
@@ -262,13 +267,15 @@ const up = async ({ uis, fromInstaller }) => {
       coreui: {
         image: 'erxes/erxes:federation',
         environment: {
+          REACT_APP_PUBLIC_PATH: '',
           REACT_APP_CDN_HOST: widgets_domain,
           REACT_APP_API_URL: gateway_url,
           REACT_APP_DASHBOARD_URL: dashboard_domain,
           REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
           NGINX_HOST,
           NODE_ENV: 'production',
-          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000
+          REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
+          ...((configs.coreui || {}).extra_env || {})
         },
         ports: ['3000:80'],
         volumes: [
@@ -296,7 +303,8 @@ const up = async ({ uis, fromInstaller }) => {
         extra_hosts,
         volumes: [
           './enabled-services.js:/data/enabled-services.js',
-          './permissions.json:/core-api/permissions.json'
+          './permissions.json:/core-api/permissions.json',
+          './core-api-private:/core-api/dist/core/src/private'
         ],
         networks: ['erxes']
       },

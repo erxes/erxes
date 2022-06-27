@@ -38,7 +38,6 @@ const StepItem = styledTS<{
   transition: all .3s ease;
   width: ${props => (props.show ? '100%' : '60px')};
   width: ${props => props.direction === 'vertical' && '100%'};
-  margin-bottom: ${dimensions.unitSpacing}px;
   box-shadow: ${props =>
     !props.direction && `0 0 4px ${colors.colorShadowGray}`};
   position: relative;
@@ -103,6 +102,7 @@ const Indicator = styled.div`
   color: ${colors.colorCoreGray};
   font-size: 15px;
   font-style: italic;
+  max-width: 70%;
   strong {
     color: ${colors.textPrimary};
   }
@@ -110,10 +110,11 @@ const Indicator = styled.div`
 
 const FullStep = styledTS<{ show: boolean; direction?: string }>(styled.div)`
   justify-content: ${props => props.direction && 'flex-start'};
-  background: ${colors.colorWhite};
+  background: ${props =>
+    props.direction === 'horizontal' ? 'transparent' : colors.colorWhite};
   height: 100%;
   width: ${props => !props.direction && '100%'};
-  transition: ${props => !props.direction && 'all 0.3s ease'};
+  transition: all 0.3s ease;
   display: ${props => (props.show ? 'flex' : 'none')};
   flex-direction: column;
   flex: ${props => props.direction && '1'};
@@ -137,7 +138,6 @@ const StepHeaderHorizontalContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: 1px solid ${colors.borderPrimary};
 `;
 
 const StepHeader = styled.div`
@@ -273,6 +273,7 @@ const StepCount = styledTS<{ active?: boolean; direction?: string }>(
             : colors.colorCoreGreen
         }`
       : colors.bgActive};
+  margin-bottom: 10px;
 `;
 
 const InlineForm = styled.div`
@@ -289,10 +290,12 @@ const FlexItem = styledTS<{
   v?: string;
   h?: string;
   direction?: string;
+  slimmer?: boolean;
 }>(styled.div)`
   display: flex;
   height: 100%;
-  border-right: 1px solid ${colors.borderPrimary};
+  border-right: ${props =>
+    !props.slimmer && `1px solid ${colors.borderPrimary}`};
   flex: ${props => (props.count ? props.count : 1)};
   ${props => {
     if (props.overflow) {
@@ -322,6 +325,15 @@ const FlexItem = styledTS<{
     if (props.direction) {
       return `
         flex-direction: ${props.direction};
+      `;
+    }
+    return null;
+  }};
+  ${props => {
+    if (props.slimmer) {
+      return `
+        width: 50%;
+        margin: 0 auto;
       `;
     }
     return null;
@@ -379,17 +391,17 @@ const ButtonContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 0 ${dimensions.coreSpacing}px;
 `;
 
-const ButtonBack = styledTS<{ next?: boolean }>(styled.button)`
-  border: none;
+const StepButton = styledTS<{ next?: boolean }>(styled.button)`
   border-radius: 8px;
   height: 36px;
   width: 110px;
   font-weight: 500;
-  margin-left: 10px;
+  margin-right: 10px;
+  border: 1px solid ${colors.colorPrimary};
   color: ${props =>
     props.next === true ? colors.colorWhite : colors.colorPrimary};
   background: ${props =>
@@ -413,6 +425,7 @@ export {
   ShortStep,
   StepCount,
   StepWrapper,
+  StepButton,
   TitleContainer,
   Indicator,
   ControlWrapper,
@@ -422,6 +435,5 @@ export {
   LeftItem,
   Preview,
   StyledButton,
-  ButtonContainer,
-  ButtonBack
+  ButtonContainer
 };

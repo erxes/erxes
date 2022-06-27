@@ -2,6 +2,7 @@ import BoardSelect from '../../containers/BoardSelect';
 import {
   MoveContainer,
   MoveFormContainer,
+  MoveContainerWidth,
   PipelineName,
   PipelinePopoverContent,
   StageItem,
@@ -150,8 +151,10 @@ class Move extends React.Component<Props, State> {
   render() {
     return (
       <MoveContainer>
-        {this.renderMoveOut()}
-        {this.renderStages()}
+        <MoveContainerWidth>
+          {this.renderMoveOut()}
+          {this.renderStages()}
+        </MoveContainerWidth>
       </MoveContainer>
     );
   }

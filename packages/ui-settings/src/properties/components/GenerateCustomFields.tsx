@@ -131,14 +131,11 @@ class GenerateGroup extends React.Component<Props, State> {
 
     const isVisibleKey = isDetail ? 'isVisibleInDetail' : 'isVisible';
 
-    if (fields.length === 0) {
+    if (!fields || fields.length === 0) {
       return null;
     }
 
-    if (
-      fields.length !== 0 &&
-      fields.filter(e => e[isVisibleKey]).length === 0
-    ) {
+    if (fields.filter(e => e[isVisibleKey]).length === 0) {
       return (
         <EmptyState
           icon="folder-2"
@@ -221,7 +218,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
   render() {
     const { loading, fieldsGroups, customFieldsData, isDetail } = this.props;
 
-    if (fieldsGroups.length === 0) {
+    if (!fieldsGroups || fieldsGroups.length === 0) {
       return null;
     }
 

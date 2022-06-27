@@ -265,7 +265,7 @@ const engageMutations = {
       isRPC: true
     });
 
-    const attributeUtil = await getEditorAttributeUtil();
+    const attributeUtil = await getEditorAttributeUtil(subdomain);
 
     replacedContent = await attributeUtil.replaceAttributes({
       content,

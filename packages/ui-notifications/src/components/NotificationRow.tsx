@@ -1,12 +1,3 @@
-import classNames from 'classnames';
-import dayjs from 'dayjs';
-import { IUser } from '@erxes/ui/src/auth/types';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import xss from 'xss';
-import { INotification } from '../types';
 import {
   AvatarSection,
   Content,
@@ -14,7 +5,17 @@ import {
   CreatedUser,
   InfoSection
 } from './styles';
+
+import { INotification } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
 import RoundedBackgroundIcon from '@erxes/ui-cards/src/boards/components/RoundedBackgroundIcon';
+import classNames from 'classnames';
+import dayjs from 'dayjs';
+import { withRouter } from 'react-router-dom';
+import xss from 'xss';
 
 interface IProps extends IRouterProps {
   notification: INotification;

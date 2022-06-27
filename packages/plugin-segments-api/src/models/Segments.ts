@@ -6,7 +6,10 @@ import {
   segmentSchema
 } from './definitions/segments';
 
-const createOrUpdateSubSegments = async (models: IModels, segments: ISegment[]) => {
+const createOrUpdateSubSegments = async (
+  models: IModels,
+  segments: ISegment[]
+) => {
   const updatedSubSugments: Array<{
     subSegmentId: string;
     type: 'subSegment';
@@ -57,7 +60,7 @@ export const loadClass = (models: IModels) => {
      * Get a segment
      */
     public static async getSegment(_id: string) {
-      const segment = await models.Segments.findOne({ _id });
+      const segment = await models.Segments.findOne({ _id }).lean();
 
       if (!segment) {
         throw new Error('Segment not found');

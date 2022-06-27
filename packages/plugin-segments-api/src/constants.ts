@@ -14,5 +14,7 @@ export const SEGMENT_DATE_OPERATORS = [
   'wobd',
   'woad',
   'drlt',
-  'drgt'
+  'drgt',
+  'dateis',
+  'dateins'
 ];

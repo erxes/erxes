@@ -1,10 +1,11 @@
-import { redis, join, leave, getServices, getService, isEnabled } from '@erxes/api-utils/src/serviceDiscovery'
-
-export {
+import {
   redis,
+  join,
+  leave,
   getServices,
   getService,
-  join,
   isEnabled,
-  leave
-}
+  isAvailable
+} from '@erxes/api-utils/src/serviceDiscovery';
+
+export { redis, getServices, getService, join, isEnabled, leave, isAvailable };

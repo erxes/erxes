@@ -86,14 +86,13 @@ const getConfigData = async (subdomain, pos: IPosDocument) => {
 const getProductsData = async (models: IModels, pos: IPosDocument) => {
   const groups = await models.ProductGroups.groups(pos._id);
 
-  const productGroups = [];
+  const productGroups: any = [];
 
   const commonFilter = [
     { status: { $ne: 'disabled' } },
     { status: { $ne: 'archived' } }
   ];
 
-  const resultGroups: any[] = [];
   for (const group of groups) {
     const chosenCategories = await models.ProductCategories.find({
       $and: [{ _id: { $in: group.categoryIds || [] } }, ...commonFilter]
@@ -140,10 +139,10 @@ const getProductsData = async (models: IModels, pos: IPosDocument) => {
       });
     }
 
-    resultGroups.push({ ...group, categories });
+    productGroups.push({ ...group, categories });
   } // end product group for loop
 
-  return resultGroups;
+  return productGroups;
 };
 
 const getCustomersData = async (subdomain: string) => {
@@ -152,8 +151,21 @@ const getCustomersData = async (subdomain: string) => {
     subdomain,
     action: 'customers.findActiveCustomers',
     data: {
-      selector: {
-        status: { $ne: 'deleted' }
+      selector: {},
+      fields: {
+        state: 1,
+        firstName: 1,
+        lastName: 1,
+        middleName: 1,
+        birthDate: 1,
+        sex: 1,
+        primaryEmail: 1,
+        emails: 1,
+        primaryPhone: 1,
+        phones: 1,
+        profileScore: 1,
+        score: 1,
+        code: 1
       }
     },
     isRPC: true,
@@ -162,7 +174,6 @@ const getCustomersData = async (subdomain: string) => {
 };
 
 export const posInit = async (req, res) => {
-  console.log('qqqqqqqqqqq');
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const token = req.headers['pos-token'];
@@ -182,7 +193,8 @@ export const posInit = async (req, res) => {
     syncInfo: { id: syncId, date: syncInfo[syncId] }
   });
   data.productGroups = await getProductsData(models, pos);
-  data.customers = await getCustomersData(subdomain);
+  console.log(data.productGroups);
+  // data.customers = await getCustomersData(subdomain);
 
   return res.send(data);
 };

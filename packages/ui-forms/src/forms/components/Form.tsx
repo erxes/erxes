@@ -1,18 +1,18 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from '@erxes/ui/src/utils';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
-import { IField } from '@erxes/ui/src/types';
-import { Description } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FormTop, Title } from '../styles';
 import { IForm, IFormData } from '../types';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-settings/src/styles';
 import FieldChoices from './FieldChoices';
 import FieldForm from '../containers/FieldForm';
 import FieldsPreview from './FieldsPreview';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IField } from '@erxes/ui/src/types';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   fields: IField[];
@@ -50,7 +50,7 @@ class Form extends React.Component<Props, State> {
     this.state = {
       fields: (props.formData ? props.formData.fields : props.fields) || [],
       title: form.title || 'Form Title',
-      desc: form.description || 'Form Description',
+      desc: form.description || '',
       buttonText: form.buttonText || 'Send',
       currentMode: undefined,
       currentField: undefined,

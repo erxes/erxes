@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
 
 const ButtonContainer = styled.div`
   margin: 0 0 14px 0;
@@ -82,14 +83,25 @@ const SideList = styledTS<{
   > span {
     width: 90%;
     display: flex;
+    color: ${props => props.isActive && colors.colorPrimary};
+
+    &:hover {
+      color: ${props => !props.isActive && lighten(colors.textPrimary, 40)};
+    }
 
     > i {
       margin-right: 5px;
       color: ${props =>
-        !props.level || props.level === 0
+        props.isActive
+          ? colors.colorPrimary
+          : !props.level || props.level === 0
           ? colors.colorCoreBlue
           : colors.colorCoreGreen};
     }
+  }
+
+  &:hover {
+    background: ${props => !props.isActive && colors.bgLight};
   }
 `;
 

@@ -3,6 +3,7 @@ import { colors } from '../styles';
 import React from 'react';
 import { IEditorProps } from '../types';
 import { getEnv } from '../utils';
+import { publicUrl } from '../utils/core';
 
 const { REACT_APP_API_URL } = getEnv();
 
@@ -26,7 +27,7 @@ class EditorCK extends React.Component<IEditorProps, { content: string }> {
   constructor(props: IEditorProps) {
     super(props);
 
-    CKEditor.editorUrl = '/ckeditor/ckeditor.js';
+    CKEditor.editorUrl = publicUrl('/ckeditor/ckeditor.js');
     this.onEnter = this.onEnter.bind(this);
   }
 

@@ -1,4 +1,3 @@
-import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -28,7 +27,7 @@ type Props = {
 
 class Sidebar extends React.Component<Props> {
   render() {
-    const { item, saveItem, sidebar, options } = this.props;
+    const { item, saveItem, sidebar } = this.props;
 
     const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
     const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
@@ -48,7 +47,6 @@ class Sidebar extends React.Component<Props> {
         {isEnabled('products') && sidebar && sidebar(saveItem)}
 
         <SidebarConformity {...this.props} />
-        <CustomFieldsSection item={item} options={options} />
       </RightContent>
     );
   }

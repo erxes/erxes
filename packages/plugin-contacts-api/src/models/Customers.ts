@@ -220,14 +220,14 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       return models.Customers.find(
         { ...selector, status: { $ne: 'deleted' } },
         fields
-      );
+      ).lean();
     }
 
     /**
      * Retreives customer
      */
     public static async getCustomer(_id: string) {
-      const customer = await models.Customers.findOne({ _id });
+      const customer = await models.Customers.findOne({ _id }).lean();
 
       if (!customer) {
         throw new Error('Customer not found');
@@ -372,7 +372,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       }
 
       const pssDoc = await models.Customers.calcPSS({
-        ...oldCustomer.toObject(),
+        ...oldCustomer,
         ...doc
       });
 
@@ -381,7 +381,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { $set: { ...doc, ...pssDoc, modifiedAt: new Date() } }
       );
 
-      return models.Customers.findOne({ _id });
+      return models.Customers.findOne({ _id }).lean();
     }
 
     /**
@@ -393,7 +393,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { $set: { isOnline: true } }
       );
 
-      return models.Customers.findOne({ _id: customerId });
+      return models.Customers.findOne({ _id: customerId }).lean();
     }
 
     /**
@@ -411,7 +411,7 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
         { new: true }
       );
 
-      return models.Customers.findOne({ _id });
+      return models.Customers.findOne({ _id }).lean();
     }
 
     /**
@@ -651,21 +651,23 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
       if (email) {
         customer = await models.Customers.findOne({
           $or: [{ emails: { $in: [email] } }, { primaryEmail: email }]
-        });
+        }).lean();
       }
 
       if (!customer && phone) {
         customer = await models.Customers.findOne({
           $or: [{ phones: { $in: [phone] } }, { primaryPhone: phone }]
-        });
+        }).lean();
       }
 
       if (!customer && code) {
-        customer = await models.Customers.findOne({ code });
+        customer = await models.Customers.findOne({ code }).lean();
       }
 
       if (!customer && cachedCustomerId) {
-        customer = await models.Customers.findOne({ _id: cachedCustomerId });
+        customer = await models.Customers.findOne({
+          _id: cachedCustomerId
+        }).lean();
       }
 
       if (customer) {
@@ -677,7 +679,9 @@ export const loadCustomerClass = (models: IModels, subdomain: string) => {
             { _id: customer._id },
             { $set: { relatedIntegrationIds: ids } }
           );
-          customer = await models.Customers.findOne({ _id: customer._id });
+          customer = await models.Customers.findOne({
+            _id: customer._id
+          }).lean();
         }
       }
 

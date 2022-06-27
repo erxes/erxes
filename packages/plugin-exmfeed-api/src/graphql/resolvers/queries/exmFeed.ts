@@ -41,10 +41,28 @@ const exmFeedQueries = {
 
   exmFeed: async (
     _root,
-    { isPinned, title, contentTypes, limit, skip, recipientType, type },
+    {
+      isPinned,
+      title,
+      contentTypes,
+      limit,
+      skip,
+      recipientType,
+      type,
+      startDate,
+      endDate,
+      bravoType
+    },
     { models, user }
   ) => {
     const doc: any = {};
+
+    if (startDate && endDate) {
+      doc.createdAt = {
+        $gte: startDate,
+        $lt: endDate
+      };
+    }
 
     if (
       contentTypes &&
@@ -105,6 +123,10 @@ const exmFeedQueries = {
       }
     }
 
+    if (bravoType) {
+      doc.customFieldsData = { $elemMatch: { value: bravoType } };
+    }
+
     return {
       list: await models.ExmFeed.find(doc)
         .sort({ createdAt: -1 })
@@ -115,8 +137,8 @@ const exmFeedQueries = {
   }
 };
 
-checkPermission(exmFeedQueries, 'exmFeedDetail', 'showExmActivityFeed');
-checkPermission(exmFeedQueries, 'exmFeedCeremonies', 'showExmActivityFeed');
-checkPermission(exmFeedQueries, 'exmFeed', 'showExmActivityFeed');
+// checkPermission(exmFeedQueries, "exmFeedDetail", "showExmActivityFeed");
+// checkPermission(exmFeedQueries, "exmFeedCeremonies", "showExmActivityFeed");
+// checkPermission(exmFeedQueries, "exmFeed", "showExmActivityFeed");
 
 export default exmFeedQueries;

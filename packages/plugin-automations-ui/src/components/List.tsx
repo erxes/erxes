@@ -32,6 +32,7 @@ interface IProps extends IRouterProps {
   ) => void;
   queryParams: any;
   exportAutomations: (bulk: string[]) => void;
+  duplicate: (_id: string) => void;
   refetch?: () => void;
   renderExpandButton?: any;
   isExpand?: boolean;
@@ -104,6 +105,7 @@ class AutomationsList extends React.Component<IProps, State> {
       history,
       loading,
       toggleBulk,
+      duplicate,
       bulk,
       isAllSelected,
       totalCount,
@@ -147,6 +149,7 @@ class AutomationsList extends React.Component<IProps, State> {
                 history={history}
                 removeAutomations={this.removeAutomations}
                 toggleBulk={toggleBulk}
+                duplicate={duplicate}
               />
             ))}
           </tbody>
@@ -207,7 +210,7 @@ class AutomationsList extends React.Component<IProps, State> {
           />
         }
         actionBar={actionBar}
-        leftSidebar={<Sidebar counts={counts || {} as any} />}
+        leftSidebar={<Sidebar counts={counts || ({} as any)} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader

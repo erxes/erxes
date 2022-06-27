@@ -31,18 +31,23 @@ const StyledTable = styledTS<{
       & ${FormLabel}, & ${Input} {
         margin: 0px;
       }
+
+      &:first-child {
+        padding-left: 0;
+      }
+
     }
 
     thead {
       th,
       td {
         text-transform: uppercase;
-        color: ${colors.colorCoreGray};
         font-size: ${typography.fontSizeUppercase}px;
       }
 
       th {
-        background-color: ${colors.bgLight};
+        background-color: ${colors.colorWhite};
+        margin-left: 20px;
         position: sticky;
         z-index: 1;
         top: 0;
@@ -93,12 +98,10 @@ const StyledTable = styledTS<{
     @media (min-width: 1170px) {
       th,
       td {
-        padding: ${props => props.wideHeader ? `${dimensions.unitSpacing + 2}px` : `${dimensions.unitSpacing - 2}`} ${dimensions.coreSpacing -
-    2}px;
-
-        &:first-child {
-          padding-left: ${dimensions.coreSpacing}px;
-        }
+        padding: ${props =>
+          props.wideHeader
+            ? `${dimensions.unitSpacing + 2}px`
+            : `${dimensions.unitSpacing - 2}`} ${dimensions.coreSpacing - 2}px;
 
         &:last-child {
           padding-right: ${dimensions.coreSpacing}px;
@@ -108,4 +111,8 @@ const StyledTable = styledTS<{
   `};
 `;
 
-export default StyledTable;
+const TableWrapper = styled.div`
+  padding: 0 ${dimensions.coreSpacing}px;
+`;
+
+export { StyledTable, TableWrapper };

@@ -62,6 +62,8 @@ const EditMessenger = (props: FinalProps) => {
     messengerAppsQuery
   } = props;
 
+  const [isLoading, setIsLoading] = React.useState(false);
+
   if (
     integrationDetailQuery.loading ||
     usersQuery.loading ||
@@ -91,6 +93,8 @@ const EditMessenger = (props: FinalProps) => {
       uiOptions,
       messengerApps
     } = doc;
+
+    setIsLoading(true);
 
     editMessengerMutation({
       variables: {
@@ -155,7 +159,8 @@ const EditMessenger = (props: FinalProps) => {
     save,
     topics,
     integration: integration || ({} as any),
-    messengerApps: apps
+    messengerApps: apps,
+    isLoading
   };
 
   return <Form {...updatedProps} />;

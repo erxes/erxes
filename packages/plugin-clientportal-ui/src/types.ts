@@ -1,8 +1,50 @@
+import { QueryResponse } from '@erxes/ui/src/types';
+
 export type OTPConfig = {
   content: string;
   smsTransporterType?: '' | 'messagePro';
   emailTransporterType?: '' | 'ses';
   codeLength: number;
+};
+
+export interface IClientPortalUserDoc {
+  firstName: string;
+  lastName: string;
+  code: string;
+  phone: string;
+  email: string;
+  username: string;
+  type: string;
+  ownerId?: string;
+  erxesCustomerId: string;
+  clientPortalId: string;
+}
+
+export interface IClientPortalUser extends IClientPortalUserDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
+export type ClientPortalUsersQueryResponse = {
+  clientPortalUsers: IClientPortalUser[];
+} & QueryResponse;
+
+export type ClientPortalUserTotalCountQueryResponse = {
+  clientPortalUserCounts: number;
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type ClientPoratlUserDetailQueryResponse = {
+  clientPortalUserDetail: IClientPortalUser;
+  loading: boolean;
+};
+
+export type ClientPortalUserRemoveMutationResponse = {
+  clientPortalUsersRemove: (mutation: {
+    variables: { clientPortalUserIds: string[] };
+  }) => Promise<any>;
 };
 
 export type ClientPortalConfig = {
@@ -57,7 +99,7 @@ export type Styles = {
 };
 
 export type ClientPortalConfigsQueryResponse = {
-  clientPortalGetConfigs?: [ClientPortalConfig];
+  clientPortalGetConfigs?: ClientPortalConfig[];
   loading?: boolean;
   refetch: () => Promise<any>;
   error?: string;

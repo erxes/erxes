@@ -111,6 +111,11 @@ export const HeaderContent = styled.div`
   }
 `;
 
+export const AddFormWidth = styled.div`
+  max-width: 700px;
+  overflow: hidden;
+`;
+
 export const TitleRow = styled.div`
   display: flex;
   align-items: center;
@@ -260,6 +265,10 @@ export const MoveContainer = styled(Flex)`
   will-change: contents;
 `;
 
+export const MoveContainerWidth = styled(Flex)`
+  width: 600px;
+`;
+
 export const ActionContainer = styled(MoveContainer)`
   flex-wrap: wrap;
   > div {
@@ -303,13 +312,14 @@ export const Stages = styled.ul`
   justify-content: space-between;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: auto;
 `;
 
 export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
   flex: 1;
   text-align: right;
   position: relative;
+  margin-left: 10px;
   &:first-child {
     flex: unset;
     &:before {
@@ -332,6 +342,7 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     margin-top: 0;
     left: 0;
     position: absolute;
+    margin-left: -10px;
   }
   span {
     position: relative;

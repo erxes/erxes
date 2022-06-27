@@ -4,6 +4,7 @@ const appFields = `
   name
   userGroupId
   accessToken
+  expireDate
 
   userGroupName
 `;
@@ -30,4 +31,4 @@ const appDetail = `
   }
 `;
 
-export default { apps, appsTotalCount, appDetail }
+export default { apps, appsTotalCount, appDetail };

@@ -1,7 +1,7 @@
 import { COLORS } from '@erxes/ui/src/constants/colors';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
-import { IDepartment } from '@erxes/ui-team/src/types';
+import { IDepartment } from '@erxes/ui/src/team/types';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';

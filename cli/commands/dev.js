@@ -82,6 +82,7 @@ module.exports.devCmd = async program => {
     `
       PORT=3000
       NODE_ENV="development"
+      REACT_APP_PUBLIC_PATH=""
       REACT_APP_CDN_HOST="http://localhost:3200"
       REACT_APP_API_URL="http://localhost:4000"
       REACT_APP_DASHBOARD_URL="http://localhost:4200"
@@ -177,8 +178,8 @@ module.exports.devCmd = async program => {
       ignore_watch: ["node_modules"],
       env: {
         PORT: port,
-        ...(plugin.extra_env || {}),
         ...commonEnv,
+        ...(plugin.extra_env || {}),
       },
     });
   }
@@ -234,6 +235,12 @@ module.exports.devCmd = async program => {
 
   if (!program.ignoreRun) {
     log("starting core ....");
+
+    if (program.deps) {
+      log(`Installing dependencies in core-ui .........`);
+      await execCommand(`cd ${filePath(`../packages/core-ui`)} && yarn install`);
+    }
+
     await execCommand("pm2 start ecosystem.config.js --only core");
     await sleep(30000);
 

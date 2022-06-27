@@ -79,19 +79,31 @@ const automationMutations = _serviceDiscovery => ({
    */
   async automationsSaveAsTemplate(
     _root,
-    { _id, name }: { _id: string; name: string },
+    {
+      _id,
+      name,
+      duplicate
+    }: { _id: string; name?: string; duplicate?: boolean },
     { user, models, subdomain }: IContext
   ) {
     const automation = await models.Automations.getAutomation(_id);
 
     const automationDoc: IAutomationDoc = {
       ...automation,
-      status: 'template',
-      name,
       createdAt: new Date(),
       createdBy: user._id,
       updatedBy: user._id
     };
+
+    if (name) {
+      automationDoc.name = name;
+    }
+
+    if (duplicate) {
+      automationDoc.name = `${automationDoc.name} duplicated`;
+    } else {
+      automationDoc.status = 'template';
+    }
 
     delete automationDoc._id;
 

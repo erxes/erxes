@@ -85,7 +85,7 @@ const ManageColumnsContainer = (props: FinalProps) => {
           type === 'export'
             ? JSON.stringify(checkedConfigsForExport)
             : checkedConfigsForImport,
-        type: contentType,
+        type: contentType.split(':')[0],
         importType,
         unlimited: true
       });

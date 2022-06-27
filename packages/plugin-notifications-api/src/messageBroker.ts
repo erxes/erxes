@@ -2,7 +2,11 @@ import { getUserDetail } from '@erxes/api-utils/src';
 import { graphqlPubsub } from './configs';
 import { IModels } from './connectionResolver';
 import { generateModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import {
+  ISendMessageArgs,
+  sendMessage,
+  getEnv
+} from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -35,7 +39,7 @@ const sendNotification = async (
     contentTypeId
   } = doc;
 
-  const link = doc.link;
+  let link = doc.link;
 
   // remove duplicated ids
   const receiverIds = [...Array.from(new Set(receivers))];
@@ -115,6 +119,10 @@ const sendNotification = async (
       }
     }
   } // end receiverIds loop
+
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  link = `${DOMAIN}${link}`;
 
   // for controlling email template data filling
   const modifier = (data: any, email: string) => {

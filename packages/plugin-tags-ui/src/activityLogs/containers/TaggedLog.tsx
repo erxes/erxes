@@ -27,8 +27,6 @@ const TaggedLogContainer = (props: FinalProps) => {
 
   const tags = tagsQuery.tags;
 
-  console.log(tags);
-
   return <TaggedLog tags={tags} {...props} />;
 };
 

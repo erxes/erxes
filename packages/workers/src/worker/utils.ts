@@ -6,14 +6,12 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import { createAWS, getS3FileInfo, uploadsFolderPath } from '../data/utils';
-import { default as ImportHistory } from '../db/models/ImportHistory';
 
 import CustomWorker from './workerUtil';
-import * as streamify from 'stream-array';
-import * as os from 'os';
 import { debugWorkers } from './debugger';
 import { getFileUploadConfigs, initBroker } from '../messageBroker';
 import { redis } from '../serviceDiscovery';
+import { IModels } from '../connectionResolvers';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
@@ -24,8 +22,6 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
     if (!fieldName) {
       continue;
     }
-
-    fieldName = fieldName.trim();
 
     const property: { [key: string]: any } = {};
 
@@ -38,68 +34,12 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
     }
 
     property.name = fieldName;
-    property.type = 'basic';
 
     if (fieldName.includes('customFieldsData')) {
       const fieldId = fieldName.split('.')[1];
 
-      property.type = 'customProperty';
+      property.name = 'customProperty';
       property.id = fieldId;
-    }
-
-    if (fieldName === 'companiesPrimaryNames') {
-      property.name = 'companyIds';
-      property.type = 'companiesPrimaryNames';
-    }
-
-    if (fieldName === 'customersPrimaryEmails') {
-      property.name = 'customerIds';
-      property.type = 'customersPrimaryEmails';
-    }
-
-    if (fieldName === 'ownerEmail') {
-      property.name = 'ownerId';
-      property.type = 'ownerEmail';
-    }
-
-    if (fieldName === 'tag') {
-      property.name = 'tagIds';
-      property.type = 'tag';
-    }
-
-    if (fieldName === 'assignedUserEmail') {
-      property.name = 'assignedUserIds';
-      property.type = 'assignedUserEmail';
-    }
-
-    if (fieldName === 'boardName') {
-      property.name = 'boardId';
-      property.type = 'boardName';
-    }
-
-    if (fieldName === 'pipelineName') {
-      property.name = 'pipelineId';
-      property.type = 'pipelineName';
-    }
-
-    if (fieldName === 'stageName') {
-      property.name = 'stageId';
-      property.type = 'stageName';
-    }
-
-    if (fieldName === 'pronoun') {
-      property.name = 'pronoun';
-      property.type = 'pronoun';
-    }
-
-    if (fieldName === 'categoryCode') {
-      property.name = 'categoryCode';
-      property.type = 'categoryCode';
-    }
-
-    if (fieldName === 'vendorCode') {
-      property.name = 'vendorCode';
-      property.type = 'vendorCode';
     }
 
     properties.push(property);
@@ -313,7 +253,11 @@ export const updateDuplicatedValue = async (
 };
 
 // csv file import, cancel, removal
-export const receiveImportRemove = async (content: any) => {
+export const receiveImportRemove = async (
+  content: any,
+  models: IModels,
+  subdomain: string
+) => {
   try {
     debugWorkers(`Remove import called`);
 
@@ -325,7 +269,9 @@ export const receiveImportRemove = async (content: any) => {
 
     myWorker.setHandleEnd(handleOnEndWorker);
 
-    const importHistory = await ImportHistory.getImportHistory(importHistoryId);
+    const importHistory = await models.ImportHistory.getImportHistory(
+      importHistoryId
+    );
 
     const ids = importHistory.ids || [];
 
@@ -347,7 +293,7 @@ export const receiveImportRemove = async (content: any) => {
     }
 
     for (const result of results) {
-      await myWorker.createWorker(workerPath, {
+      await myWorker.createWorker(subdomain, workerPath, {
         contentType,
         importHistoryId,
         result
@@ -357,7 +303,10 @@ export const receiveImportRemove = async (content: any) => {
     return { status: 'ok' };
   } catch (e) {
     debugWorkers(`Failed to remove import: ${e.message}`);
-    throw e;
+    return models.ImportHistory.updateOne(
+      { _id: 'importHistoryId' },
+      { error: e.message }
+    );
   }
 };
 
@@ -367,7 +316,11 @@ export const receiveImportCancel = () => {
   return { status: 'ok' };
 };
 
-export const receiveImportCreate = async (content: any) => {
+export const receiveImportCreate = async (
+  content: any,
+  models: IModels,
+  subdomain: string
+) => {
   const {
     contentTypes,
     files,
@@ -407,14 +360,23 @@ export const receiveImportCreate = async (content: any) => {
 
     const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
 
-    const properties = await checkFieldNames(updatedColumns, columnConfig);
+    let properties;
+
+    try {
+      properties = await checkFieldNames(updatedColumns, columnConfig);
+    } catch (e) {
+      return models.ImportHistory.updateOne(
+        { _id: 'importHistoryId' },
+        { error: e.message }
+      );
+    }
 
     config[contentType.contentType] = { total: rows, properties, fileName };
   }
 
   debugWorkers(config);
 
-  await ImportHistory.updateOne(
+  await models.ImportHistory.updateOne(
     { _id: importHistoryId },
     {
       contentTypes,
@@ -425,11 +387,11 @@ export const receiveImportCreate = async (content: any) => {
   );
 
   const updateImportHistory = async doc => {
-    return ImportHistory.updateOne({ _id: importHistoryId }, doc);
+    return models.ImportHistory.updateOne({ _id: importHistoryId }, doc);
   };
 
   const handleOnEndBulkOperation = async () => {
-    const updatedImportHistory = await ImportHistory.findOne({
+    const updatedImportHistory = await models.ImportHistory.findOne({
       _id: importHistoryId
     });
 
@@ -447,20 +409,6 @@ export const receiveImportCreate = async (content: any) => {
       await updateImportHistory({
         $set: { status, percentage: 100 }
       });
-
-      // const notifDoc: ISendNotification = {
-      //   title: `your ${updatedImportHistory.name} is done`,
-      //   action: ``,
-      //   createdUser: ``,
-      //   receivers: [user._id],
-      //   content: `your ${updatedImportHistory.name} import is done`,
-      //   link: `/settings/importHistories?${mainType}`,
-      //   notifType: NOTIFICATION_TYPES.IMPORT_DONE,
-      //   contentType: 'import',
-      //   contentTypeId: importHistoryId
-      // };
-
-      // await utils.sendNotification(notifDoc);
     }
 
     debugWorkers(`Import create ended`);
@@ -483,110 +431,43 @@ export const receiveImportCreate = async (content: any) => {
 
     const workerPath = path.resolve(getWorkerFile('bulkInsert'));
 
-    await myWorker.createWorker(workerPath, {
-      rowIndex,
-      scopeBrandIds,
-      user,
-      contentType,
-      serviceType,
-      properties: config[contentType].properties,
-      importHistoryId,
-      result,
-      useElkSyncer,
-      percentage: Number(((result.length / total) * 100).toFixed(3))
-    });
+    try {
+      await myWorker.createWorker(subdomain, workerPath, {
+        rowIndex,
+        scopeBrandIds,
+        user,
+        contentType,
+        serviceType,
+        properties: config[contentType].properties,
+        importHistoryId,
+        result,
+        useElkSyncer,
+        percentage: Number(((result.length / total) * 100).toFixed(3))
+      });
+    } catch (e) {
+      return models.ImportHistory.updateOne(
+        { _id: 'importHistoryId' },
+        { error: e.message }
+      );
+    }
   };
 
   myWorker.setHandleEnd(handleOnEndBulkOperation);
 
-  importBulkStream({
-    contentType: mainType,
-    fileName: config[mainType].fileName,
-    uploadType,
-    bulkLimit: WORKER_BULK_LIMIT,
-    handleBulkOperation
-  });
-
-  return { id: importHistoryId };
-};
-
-const importWebhookStream = ({
-  data,
-  bulkLimit,
-  handleBulkOperation
-}: {
-  data: any[];
-  bulkLimit: number;
-  handleBulkOperation: (rows: any) => Promise<void>;
-}) => {
-  return new Promise(async (resolve, reject) => {
-    let rows: any = [];
-
-    const write = (row, _, next) => {
-      rows.push(row);
-
-      if (rows.length === bulkLimit) {
-        return handleBulkOperation(rows)
-          .then(() => {
-            rows = [];
-            next();
-          })
-          .catch(e => {
-            debugWorkers(`Error during bulk insert from webhook: ${e.message}`);
-            reject(e);
-          });
-      }
-
-      return next();
-    };
-
-    streamify(data, os.EOL)
-      .pipe(new Writable({ write, objectMode: true }))
-      .on('finish', () => {
-        handleBulkOperation(rows).then(() => {
-          resolve('success');
-        });
-      })
-      .on('error', e => reject(e));
-  });
-};
-
-export const importFromWebhook = async (content: any) => {
-  const { data, type } = content;
-
-  const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
-
-  if (data.length === 0) {
-    throw new Error('Please import at least one row of data');
+  try {
+    importBulkStream({
+      contentType: mainType,
+      fileName: config[mainType].fileName,
+      uploadType,
+      bulkLimit: WORKER_BULK_LIMIT,
+      handleBulkOperation
+    });
+  } catch (e) {
+    return models.ImportHistory.updateOne(
+      { _id: 'importHistoryId' },
+      { error: e.message }
+    );
   }
 
-  const properties = await checkFieldNames(type, Object.keys(data[0]));
-
-  const handleBulkOperation = async (rows: any) => {
-    if (rows.length === 0) {
-      return debugWorkers('Please import at least one row of data');
-    }
-
-    const result: any[] = [];
-
-    for (const row of rows) {
-      result.push(Object.values(row));
-    }
-
-    const workerPath = path.resolve(getWorkerFile('bulkInsert'));
-
-    await myWorker.createWorker(workerPath, {
-      contentType: type,
-      properties,
-      result,
-      useElkSyncer,
-      percentage: 0
-    });
-  };
-
-  importWebhookStream({
-    data,
-    bulkLimit: WORKER_BULK_LIMIT,
-    handleBulkOperation
-  });
+  return { id: importHistoryId };
 };

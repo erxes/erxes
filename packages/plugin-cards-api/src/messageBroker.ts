@@ -36,6 +36,18 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue(
+    'cards:tasks.remove',
+    async ({ subdomain, data: { _ids } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Tasks.removeTasks(_ids)
+      };
+    }
+  );
+
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -45,12 +57,24 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue(
+    'cards:deals.remove',
+    async ({ subdomain, data: { _ids } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Deals.removeDeals(_ids)
+      };
+    }
+  );
+
   consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Tickets.find(data)
+      data: await models.Tickets.find(data).lean()
     };
   });
 
@@ -59,16 +83,28 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tickets.findOne(data)
+      data: await models.Tickets.findOne(data).lean()
     };
   });
+
+  consumeRPCQueue(
+    'cards:tickets.remove',
+    async ({ subdomain, data: { _ids } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Tickets.removeTickets(_ids)
+      };
+    }
+  );
 
   consumeRPCQueue('cards:stages.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Stages.find(data)
+      data: await models.Stages.find(data).lean()
     };
   });
 
@@ -86,7 +122,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tasks.find(data)
+      data: await models.Tasks.find(data).lean()
     };
   });
 
@@ -95,7 +131,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tasks.findOne(data)
+      data: await models.Tasks.findOne(data).lean()
     };
   });
 
@@ -104,7 +140,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Pipelines.find(data)
+      data: await models.Pipelines.find(data).lean()
     };
   });
 
@@ -113,7 +149,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Boards.find(data)
+      data: await models.Boards.find(data).lean()
     };
   });
 
@@ -141,7 +177,14 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:deals.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { skip, limit, query, sort = {} } = data;
+    if (!data.query) {
+      return {
+        status: 'success',
+        data: await models.Deals.find(data).lean()
+      };
+    }
+
+    const { query, skip, limit, sort = {} } = data;
 
     return {
       status: 'success',
@@ -167,7 +210,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Deals.findOne(data)
+      data: await models.Deals.findOne(data).lean()
     };
   });
 

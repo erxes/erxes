@@ -12,9 +12,13 @@ const Columns = styled.div`
   height: 100%;
 `;
 
-const Column = styled.div`
-  flex: 4;
+const Column = styledTS<{ lastChild?: boolean }>(styled.div)`
+  flex: ${props => (props.lastChild ? 3 : 4)};
   position: relative;
+  margin-left: ${props => props.lastChild && columnSizing};
+  padding-left: ${props => props.lastChild && columnSizing};
+  border-left: ${props =>
+    props.lastChild && `1px solid ${colors.borderDarker}`};
 
   > input {
     margin-bottom: ${columnSizing};

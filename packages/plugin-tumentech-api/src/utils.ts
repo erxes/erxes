@@ -1,6 +1,7 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import * as _ from 'underscore';
 import { generateModels } from './connectionResolver';
+import { sendCardsMessage } from './messageBroker';
 
 const gatherNames = async params => {
   const {
@@ -141,4 +142,29 @@ export const generateFields = async ({ subdomain }) => {
   }
 
   return fields;
+};
+
+export const generateRandomString = async (
+  subdomain,
+  modelName,
+  prefix,
+  numberOfDigits = 6
+) => {
+  const randomNumber = Math.floor(Math.random() * Math.pow(10, numberOfDigits));
+  const randomName = `${prefix}${randomNumber}`;
+
+  const item = await sendCardsMessage({
+    subdomain,
+    action: `${modelName}s.findOne`,
+    data: {
+      name: randomName
+    },
+    isRPC: true
+  });
+
+  if (item) {
+    return generateRandomString(subdomain, modelName, prefix, numberOfDigits);
+  }
+
+  return randomName;
 };

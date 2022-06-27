@@ -9,6 +9,8 @@ import { IBreadCrumbItem } from '@erxes/ui/src/types';
 import { ICommonListProps } from '../types';
 import ActionBarDropDown from '../../templates/containers/actionBar/ActionBar';
 import { BarItems } from '@erxes/ui/src/layout/styles';
+import { Flex } from '@erxes/ui/src/styles/main';
+import { MarginRight } from '../../styles';
 
 type Props = {
   title: string;
@@ -77,8 +79,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
         <ActionBarDropDown queryParams={queryParams} history={history} />
       </BarItems>
     ) : (
-      <>
-        {additionalButton}
+      <Flex>
+        <MarginRight>{additionalButton}</MarginRight>
         <ModalTrigger
           title={formTitle || ''}
           size={size}
@@ -88,7 +90,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
           content={content}
           dialogClassName="transform"
         />
-      </>
+      </Flex>
     );
 
     return (

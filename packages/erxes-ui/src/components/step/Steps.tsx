@@ -8,8 +8,6 @@ import {
   StepHeaderTitle,
   StepItem
 } from './styles';
-import { Link } from 'react-router-dom';
-import Button from '../Button';
 import { __ } from '../../utils/core';
 
 type Props = {
@@ -37,23 +35,17 @@ class Steps extends React.Component<Props, State> {
   next = (stepNumber: number) => {
     const { activeStep, maxStep } = this.state;
 
-    console.log(stepNumber);
-
     if (stepNumber === 0) {
       if (activeStep <= maxStep) this.setState({ activeStep: activeStep + 1 });
     } else this.setState({ activeStep: stepNumber });
   };
 
   back = (stepNumber: number) => {
-    const { activeStep } = this.state;
+    const { activeStep, maxStep } = this.state;
 
-    if (stepNumber === 1) {
-      <Link to="settings/importHistories">
-        <Button btnStyle="simple" icon="times-circle">
-          Cancel
-        </Button>
-      </Link>;
-    } else this.setState({ activeStep: activeStep - 1 });
+    if (stepNumber !== 0) {
+      if (activeStep <= maxStep) this.setState({ activeStep: activeStep - 1 });
+    } else this.setState({ activeStep: stepNumber });
   };
 
   renderContent = () => {
@@ -89,13 +81,14 @@ class Steps extends React.Component<Props, State> {
           stepNumber: index,
           active: activeStep,
           next: this.next,
+          back: this.back,
           direction,
           maxStep
         });
       });
 
       return (
-        <StepItem show={true}>
+        <StepItem direction={direction} show={true}>
           <StepHeaderHorizontalContainer>
             {headerElements}
           </StepHeaderHorizontalContainer>
@@ -112,6 +105,7 @@ class Steps extends React.Component<Props, State> {
       return React.cloneElement(child, {
         stepNumber: index,
         active: activeStep,
+        progress: this.props.active,
         next: this.next,
         back: this.back,
         direction,

@@ -9,7 +9,7 @@ import {
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withProps } from '../utils';
-import { allUsers } from '../team/graphql';
+import { queries as teamQueries } from '../team/graphql';
 import { AllUsersQueryResponse } from '../auth/types';
 import EditorCK from '../components/EditorCK';
 import { IEditorProps, IMentionUser } from '../types';
@@ -90,7 +90,7 @@ const EditorContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, AllUsersQueryResponse>(gql(allUsers), {
+    graphql<Props, AllUsersQueryResponse>(gql(teamQueries.allUsers), {
       name: 'usersQuery',
       options: () => ({
         variables: { isActive: true }

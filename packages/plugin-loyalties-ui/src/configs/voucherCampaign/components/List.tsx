@@ -168,29 +168,27 @@ class VoucherCampaigns extends React.Component<Props, State> {
     ];
 
     const content = (
-      <>
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th style={{ width: 60 }}>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>{__('Title')}</th>
-              <th>{__('Start Date')}</th>
-              <th>{__('End Date')}</th>
-              <th>{__('Finish Date of Use')}</th>
-              <th>{__('Type')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRow()}</tbody>
-        </Table>
-      </>
+      <Table hover={true}>
+        <thead>
+          <tr>
+            <th style={{ width: 60 }}>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={this.onChange}
+              />
+            </th>
+            <th>{__('Title')}</th>
+            <th>{__('Start Date')}</th>
+            <th>{__('End Date')}</th>
+            <th>{__('Finish Date of Use')}</th>
+            <th>{__('Type')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderRow()}</tbody>
+      </Table>
     );
 
     return (

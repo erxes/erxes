@@ -5,6 +5,7 @@ export interface IApp {
   isEnabled?: boolean;
   name: string;
   userGroupId: string;
+  expireDate?: Date;
 }
 
 export interface IAppDocument extends IApp, Document {
@@ -19,7 +20,11 @@ export const appSchema = new Schema({
   name: field({ type: String, label: 'App name' }),
   createdAt: field({ type: Date, label: 'Created at', default: new Date() }),
   accessToken: field({ type: String, label: 'Access token' }),
-  refreshToken: field({ type: String, label: 'Refresh token used to gain access token' }),
+  refreshToken: field({
+    type: String,
+    label: 'Refresh token used to gain access token'
+  }),
   isEnabled: field({ type: Boolean, label: 'Status of the app' }),
-  userGroupId: field({ type: String, label: 'User group id' })
+  userGroupId: field({ type: String, label: 'User group id' }),
+  expireDate: field({ type: Date, label: 'Token expire date' })
 });

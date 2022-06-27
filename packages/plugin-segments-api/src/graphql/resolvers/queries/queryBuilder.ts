@@ -14,7 +14,7 @@ import { IModels } from '../../../connectionResolver';
 import { sendCoreMessage, sendMessage } from '../../../messageBroker';
 
 type IOptions = {
-  returnAssociated?: { contentType: string; relType: string };
+  returnAssociated?: { mainType: string; relType: string };
   returnFields?: string[];
   returnFullDoc?: boolean;
   returnSelector?: boolean;
@@ -82,13 +82,19 @@ export const fetchSegment = async (
 
   const { returnAssociated } = options;
 
-  if (returnAssociated && contentType !== returnAssociated.contentType) {
-    index = returnAssociated.contentType;
+  if (returnAssociated && contentType !== returnAssociated.relType) {
+    index = await getIndexByContentType(
+      serviceConfigs,
+      returnAssociated.relType
+    );
 
     const itemsResponse = await fetchEs({
       subdomain,
       action: 'search',
-      index: await getIndexByContentType(serviceConfigs, contentType),
+      index: await getIndexByContentType(
+        serviceConfigs,
+        returnAssociated.mainType
+      ),
       body: {
         query: selector,
         _source: '_id'
@@ -99,14 +105,17 @@ export const fetchSegment = async (
     const items = itemsResponse.hits.hits;
     const itemIds = items.map(i => i._id);
 
+    const getType = type => type.replace('contacts:', '').replace('cards:', '');
+
     const associationIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.filterConformity',
       data: {
-        mainType: segment.contentType,
+        mainType: getType(returnAssociated.mainType),
         mainTypeIds: itemIds,
-        relType: returnAssociated.relType
-      }
+        relType: getType(returnAssociated.relType)
+      },
+      isRPC: true
     });
 
     selector = {
@@ -114,7 +123,7 @@ export const fetchSegment = async (
         must: [
           {
             terms: {
-              _id: associationIds
+              _id: _.uniq(associationIds)
             }
           }
         ]
@@ -455,13 +464,11 @@ export const generateQueryBySegment = async (
           negativeQuery
         });
 
-        if (ids && ids.length > 0) {
-          propertiesPositive.push({
-            terms: {
-              _id: ids.map(id => id)
-            }
-          });
-        }
+        propertiesPositive.push({
+          terms: {
+            _id: ids.map(id => id)
+          }
+        });
       }
     }
   }
@@ -695,7 +702,7 @@ export function elkConvertConditionToQuery(args: {
   }
 
   // is set
-  if (operator === 'is') {
+  if (['is', 'dateis'].includes(operator)) {
     positiveQuery = {
       exists: {
         field
@@ -704,7 +711,7 @@ export function elkConvertConditionToQuery(args: {
   }
 
   // is not set
-  if (operator === 'ins') {
+  if (['ins', 'dateins'].includes(operator)) {
     negativeQuery = {
       exists: {
         field

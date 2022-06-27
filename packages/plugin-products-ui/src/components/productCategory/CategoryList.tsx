@@ -18,6 +18,7 @@ import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
 import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { Header } from '@erxes/ui-settings/src/styles';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -134,8 +135,8 @@ class List extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
-        <Section.Title>
+        <Header>{this.renderFormTrigger(trigger)}</Header>
+        <Section.Title noBackground noSpacing>
           {__('Categories')}
 
           <Section.QuickButtons>
@@ -171,10 +172,12 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true} hasBorder={true}>
+      <Sidebar wide={true} hasBorder={true} noMargin>
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}
+          noShadow
+          noMargin
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}

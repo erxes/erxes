@@ -1,6 +1,6 @@
 import Icon from 'modules/common/components/Icon';
 import { __ } from 'modules/common/utils';
-import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
+import { FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
 import { Box, TypeContent, ImportHeader } from '../../styles';
 import { IImportHistoryContentType } from '../../types';
@@ -58,13 +58,11 @@ class TypeForm extends React.Component<Props> {
 
   render() {
     return (
-      <FlexItem>
-        <FlexPad type="stepper" direction="column">
-          <ImportHeader>{__(this.renderText())}</ImportHeader>
+      <FlexPad type="stepper" direction="column">
+        <ImportHeader>{__(this.renderText())}</ImportHeader>
 
-          <TypeContent center={true}>{this.renderOptions()}</TypeContent>
-        </FlexPad>
-      </FlexItem>
+        <TypeContent center={true}>{this.renderOptions()}</TypeContent>
+      </FlexPad>
     );
   }
 }

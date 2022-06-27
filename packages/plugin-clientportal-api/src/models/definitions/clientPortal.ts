@@ -113,6 +113,9 @@ export const clientPortalSchema = new Schema({
   url: field({ type: String }),
   logo: field({ type: String, optional: true }),
   icon: field({ type: String, optional: true }),
+  headerHtml: field({ type: String, optional: true }),
+  footerHtml: field({ type: String, optional: true }),
+
   domain: field({ type: String, optional: true }),
   dnsStatus: field({ type: String, optional: true }),
   styles: field({ type: stylesSchema, optional: true }),

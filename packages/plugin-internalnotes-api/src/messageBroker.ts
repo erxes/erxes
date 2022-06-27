@@ -17,7 +17,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
 
-  const { consumeQueue, consumeRPCQueue } = cl;
+  const { consumeQueue } = cl;
 
   consumeQueue(
     'internalnotes:batchUpdate',

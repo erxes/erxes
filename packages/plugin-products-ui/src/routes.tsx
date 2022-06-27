@@ -1,24 +1,24 @@
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
-import queryString from "query-string";
-import React from "react";
-import { Route } from "react-router-dom";
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
+import React from 'react';
+import { Route } from 'react-router-dom';
 
 const ProductList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/ProductList"
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
   )
 );
 
-const ProductDeatils = asyncComponent(() =>
+const ProductDetails = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings List - ProductService" */ "./containers/product/detail/ProductDetails"
+    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/detail/ProductDetails'
   )
 );
 
 const details = ({ match }) => {
   const id = match.params.id;
 
-  return <ProductDeatils id={id} />;
+  return <ProductDetails id={id} />;
 };
 
 const productService = ({ location, history }) => {

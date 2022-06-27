@@ -1,9 +1,9 @@
 import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { mutations } from '@erxes/ui-team/src/graphql';
+import { mutations } from '@erxes/ui/src/team/graphql';
 import Form from '../../components/structure/Form';
-import { IStructure } from '@erxes/ui-team/src/types';
+import { IStructure } from '@erxes/ui/src/team/types';
 
 type Props = {
   showView: () => void;

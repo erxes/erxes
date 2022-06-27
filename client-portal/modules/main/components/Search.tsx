@@ -1,9 +1,10 @@
-import React from 'react';
-import { SearchContainer } from '../../styles/main';
-import Icon from '../../common/Icon';
+import React from "react";
+import Router from "next/router";
+import { SearchContainer } from "../../styles/main";
+import Icon from "../../common/Icon";
 
 type Props = {
-  setQueryParam: any;
+  searchValue?: any;
 };
 
 type State = {
@@ -19,7 +20,7 @@ export default class Search extends React.Component<Props, State> {
 
     this.state = {
       searchValue: searchValue || "",
-      focused: false
+      focused: false,
     };
   }
 
@@ -40,17 +41,20 @@ export default class Search extends React.Component<Props, State> {
   };
 
   onSearch = () => {
-    const { setQueryParam } = this.props;
     const { searchValue } = this.state;
 
-    setQueryParam('searchValue', searchValue);
+    Router.push({
+      query: { searchValue },
+    });
   };
 
   onKeyDown = (e) => {
     const { searchValue } = this.state;
 
     if (e.key === "Enter") {
-      this.onSearch();
+      Router.push({
+        query: { searchValue },
+      });
     }
   };
 
@@ -59,7 +63,9 @@ export default class Search extends React.Component<Props, State> {
       searchValue: "",
     });
 
-    this.onSearch();
+    Router.push({
+      query: { searchValue: "" },
+    });
   };
 
   onFocus = () => {
@@ -75,10 +81,7 @@ export default class Search extends React.Component<Props, State> {
 
     return (
       <SearchContainer focused={focused}>
-        <Icon icon="search-1" onClick={this.onSearch} />
-
-        {searchValue && <Icon icon="times-circle" onClick={this.clearSearch} />}
-
+        <Icon icon="search" onClick={this.onSearch} color="black" />
         <input
           onChange={this.onChange}
           placeholder="Search for articles..."
@@ -87,6 +90,13 @@ export default class Search extends React.Component<Props, State> {
           onBlur={this.onBlur}
           onFocus={this.onFocus}
         />
+        {searchValue && (
+          <Icon
+            icon="times-circle"
+            className="clear-icon"
+            onClick={this.clearSearch}
+          />
+        )}
       </SearchContainer>
     );
   }

@@ -1,8 +1,8 @@
-import * as fse from "fs-extra";
-import * as fs from "fs";
-import { exec } from "child_process";
+import * as fse from 'fs-extra';
+import * as fs from 'fs';
+import { exec } from 'child_process';
 
-const execute = async (func) => {
+const execute = async func => {
   try {
     await func();
   } catch (e) {
@@ -10,10 +10,10 @@ const execute = async (func) => {
   }
 };
 
-const execCommand = (command) => {
+const execCommand = command => {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
-      console.log(stdout)
+      console.log(stdout);
 
       if (error !== null) {
         return reject(error);
@@ -21,7 +21,7 @@ const execCommand = (command) => {
 
       console.log(stderr);
 
-      return resolve("done");
+      return resolve('done');
     });
   });
 };
@@ -29,7 +29,7 @@ const execCommand = (command) => {
 const main = async () => {
   if (process.argv.length <= 2) {
     throw new Error(
-      "Please pass the one of the following values gateway,core,plugin !!!"
+      'Please pass the one of the following values gateway,core,plugin !!!'
     );
   }
 
@@ -37,49 +37,53 @@ const main = async () => {
 
   let folderName = type;
 
-  if (type === "plugin") {
+  if (type === 'plugin') {
     if (process.argv.length <= 3) {
-      throw new Error("Please pass plugin name !!!");
+      throw new Error('Please pass plugin name !!!');
     }
 
     folderName = `plugin-${process.argv[3]}-api`;
   }
 
-  await execute(() => fs.promises.rmdir("../../dist", { recursive: true }));
-  await execute(() => fs.promises.mkdir("../../dist"));
+  await execute(() => fs.promises.rmdir('../../dist', { recursive: true }));
+  await execute(() => fs.promises.mkdir('../../dist'));
 
   await execute(() =>
-    fse.copy("../api-utils", "../../dist/api-utils", { overwrite: true })
+    fse.copy('../api-utils', '../../dist/api-utils', { overwrite: true })
   );
 
-  if (type !== "gateway") {
+  if (type !== 'gateway') {
     await execute(() =>
-      fse.copy("../api-plugin-template", "../../dist/api-plugin-template", {
-        overwrite: true,
+      fse.copy('../api-plugin-template', '../../dist/api-plugin-template', {
+        overwrite: true
       })
     );
   }
 
   await execute(() =>
     fse.copy(`../${folderName}`, `../../dist/${folderName}`, {
-      overwrite: true,
+      overwrite: true
     })
   );
 
-  if (type === "plugin") {
+  if (type === 'plugin') {
     console.log('replacing .erxes ...........');
 
     await execute(() =>
-      fse.copy("../api-plugin-template.erxes", `../../dist/${folderName}/.erxes`, {
-        overwrite: true,
-      })
+      fse.copy(
+        '../api-plugin-template.erxes',
+        `../../dist/${folderName}/.erxes`,
+        {
+          overwrite: true
+        }
+      )
     );
   }
 
-  console.log("Generating package.json ....");
+  console.log('Generating package.json ....');
   await execute(() =>
     fs.promises.writeFile(
-      "../../dist/package.json",
+      '../../dist/package.json',
       `
     {
       "name": "erxes",
@@ -90,33 +94,37 @@ const main = async () => {
     )
   );
 
-  process.chdir("../../dist");
+  process.chdir('../../dist');
 
-  console.log("Yarn install ....");
-  await execCommand("yarn install --production");
+  console.log('Yarn install ....');
+  await execCommand('yarn install --production');
 
   process.chdir(folderName);
 
-  console.log("Yarn build ....");
+  console.log('Yarn build ....');
 
   if (type === 'gateway') {
-    await execCommand("yarn tsc -p tsconfig.prod.json");
+    await execCommand('yarn tsc -p tsconfig.prod.json');
   } else {
-    await execCommand("yarn build");
+    await execCommand('yarn build');
   }
 
-  console.log("Moving node_modules ....");
+  console.log('Moving node_modules ....');
 
-  if (type === "plugin") {
-    await execute(() => fse.move("../node_modules", "./.erxes/dist/node_modules"));
+  if (type === 'plugin') {
+    await execute(() =>
+      fse.move('../node_modules', './.erxes/dist/node_modules')
+    );
   } else {
-    await execute(() => fse.move("../node_modules", "./dist/node_modules"));
+    await execute(() => fse.move('../node_modules', './dist/node_modules'));
   }
 
-  if (type === "core") {
-    console.log("Moving private folders ....");
-    await execute(() => fse.move("./src/private", "./dist/core/src/private"));
+  if (type === 'core') {
+    console.log('Moving private folders ....');
+    await execute(() => fse.move('./src/private', './dist/core/src/private'));
   }
 };
 
-main().then(() => { process.exit(); })
+main()
+  .then(() => process.exit())
+  .catch(() => process.exit(1));

@@ -31,6 +31,7 @@ import AddOns from '../../containers/messenger/AddOns';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
 import Connection from './steps/Connection';
 import CommonPreview from './widgetPreview/CommonPreview';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
 
 type Props = {
   teamMembers: IUser[];
@@ -46,6 +47,7 @@ type Props = {
     uiOptions: IUiOptions;
     messengerApps: IMessengerApps;
   }) => void;
+  isLoading: boolean;
 };
 
 type State = {
@@ -284,6 +286,8 @@ class CreateMessenger extends React.Component<Props, State> {
   };
 
   renderButtons() {
+    const { isLoading } = this.props;
+
     const cancelButton = (
       <Link to="/settings/add-ons">
         <Button btnStyle="simple" icon="times-circle">
@@ -295,7 +299,13 @@ class CreateMessenger extends React.Component<Props, State> {
     return (
       <Button.Group>
         {cancelButton}
-        <Button btnStyle="success" icon="check-circle" onClick={this.save}>
+        <Button
+          disabled={isLoading}
+          btnStyle="success"
+          icon={isLoading ? undefined : 'check-circle'}
+          onClick={this.save}
+        >
+          {isLoading && <SmallLoader />}
           Save
         </Button>
       </Button.Group>

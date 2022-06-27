@@ -142,7 +142,9 @@ module.exports = (env, args) => {
         filename: "remoteEntry.js",
         remotes: {
           coreui: `promise new Promise(resolve => {
-          const remoteUrl = window.location.origin + '/remoteEntry.js';
+          const { REACT_APP_PUBLIC_PATH } = window.env || {};
+          const remoteUrl = (REACT_APP_PUBLIC_PATH ? REACT_APP_PUBLIC_PATH : window.location.origin) + '/remoteEntry.js';
+
           const script = document.createElement('script')
           script.src = remoteUrl
           script.onload = () => {

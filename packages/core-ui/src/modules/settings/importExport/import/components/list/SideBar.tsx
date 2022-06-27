@@ -20,31 +20,45 @@ class Sidebar extends React.Component<Props> {
     );
   };
 
-  renderListItem(service) {
+  renderListItem(service: any) {
+    const { contentType, text } = service;
+    const { currentType } = this.props;
+
     const className =
-      this.props.currentType && this.props.currentType === service.contentType
-        ? 'active'
-        : '';
+      currentType && currentType === contentType ? 'active' : '';
 
     return (
       <li key={Math.random()}>
-        <Link to={`?type=${service.contentType}`} className={className}>
-          {__(service.text)}
+        <Link to={`?type=${contentType}`} className={className}>
+          {__(text)}
         </Link>
       </li>
+    );
+  }
+
+  renderList() {
+    const { services } = this.props;
+
+    if (services && services.length !== 0)
+      return (
+        <List id={'ImportExportSidebar'}>
+          {services.map(service => this.renderListItem(service))}
+        </List>
+      );
+
+    return (
+      <List id={'ImportExportSidebar'}>
+        <li>
+          <Link to="#">{__('No content type found!')}</Link>
+        </li>
+      </List>
     );
   }
 
   render() {
     return (
       <LeftSidebar header={this.renderSidebarHeader()} hasBorder={true}>
-        <LeftSidebar.Section>
-          {this.props.services.length === 0 ? null : (
-            <List id={'ImportExportSidebar'}>
-              {this.props.services.map(service => this.renderListItem(service))}
-            </List>
-          )}
-        </LeftSidebar.Section>
+        <LeftSidebar.Section>{this.renderList()}</LeftSidebar.Section>
       </LeftSidebar>
     );
   }

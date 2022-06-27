@@ -8,7 +8,7 @@ import { IImportHistoryContentType } from '../../types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils/core';
+import { __ } from 'modules/common/utils';
 import { ImportHeader, FileUploadBox } from '../../styles';
 
 type Props = {

@@ -1,7 +1,11 @@
 import { client, getIndexPrefix } from '@erxes/api-utils/src/elasticsearch';
 import * as getUuid from 'uuid-by-string';
 import { debug } from './configs';
-import { sendContactsMessage, sendFormsMessage } from './messageBroker';
+import {
+  sendAutomationsMessage,
+  sendContactsMessage,
+  sendFormsMessage
+} from './messageBroker';
 
 interface ISaveEventArgs {
   type?: string;
@@ -188,6 +192,7 @@ export const updateCustomerProperties = async (
   if (!customerId) {
     throw new Error('Customer id is required');
   }
+
   const customer = await sendContactsMessage({
     subdomain,
     action: 'customers.findOne',
@@ -263,6 +268,27 @@ export const updateCustomerProperties = async (
     },
     isRPC: true
   });
+
+  const updatedCustomer = await sendContactsMessage({
+    subdomain,
+    action: 'customers.findOne',
+    data: {
+      _id: customerId
+    },
+    isRPC: true
+  });
+
+  // customer automation trigger =========
+  if (updatedCustomer) {
+    sendAutomationsMessage({
+      subdomain,
+      action: 'trigger',
+      data: {
+        type: `contacts:${updatedCustomer.state}`,
+        targets: [updatedCustomer]
+      }
+    });
+  }
 
   return { status: 'ok' };
 };

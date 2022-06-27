@@ -21,6 +21,7 @@ import {
   WhiteBox,
   WhiteBoxRoot
 } from '@erxes/ui/src/layout/styles';
+import { Modal } from 'react-bootstrap';
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -198,7 +199,8 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
 
   > a {  
     display: flex;
-    color: ${colors.bgLight}
+    color: ${colors.bgLight};
+    background: ${colors.colorWhite};
     height: ${props =>
       props.isMoreItem || props.navCollapse === 2
         ? dimensions.headerSpacingWide
@@ -269,7 +271,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     }
 
     &.active {
-      background: rgba(79, 51, 175, 0.08);
+      background: #f0eef9;
 
       &:before {
         content: "";
@@ -684,11 +686,16 @@ const GotoFormWrapper = styled.div`
 `;
 
 const GotoContentWrapper = styled.div`
-  max-height: 400px;
+  max-height: 423px;
   overflow-y: scroll;
+  scroll-behaviour: smooth;
 
-  a {
-    text-decoration: none;
+  & a:focus {
+    outline: none;
+  }
+
+  & .active {
+    background: ${rgba(colors.colorBlack, 0.06)};
   }
 `;
 
@@ -727,6 +734,19 @@ const GotoItem = styled.div`
 
   &:hover {
     background: ${rgba(colors.colorBlack, 0.06)};
+  }
+`;
+
+const GotoModal = styled(Modal)`
+  & > div {
+    border-radius: 10px;
+    overflow: hidden;
+  }
+`;
+
+const GotoMenuItem = styled(NavMenuItem)`
+  > a {
+    height: 50px;
   }
 `;
 
@@ -784,5 +804,7 @@ export {
   GotoFormWrapper,
   GotoContentWrapper,
   GotoCategory,
-  GotoItem
+  GotoItem,
+  GotoModal,
+  GotoMenuItem
 };

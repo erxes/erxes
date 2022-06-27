@@ -4,6 +4,8 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { ICommonFormProps } from '../types';
+import dayjs from 'dayjs';
+import { CreatedDate } from '../../styles';
 
 type Props = {
   confirmationUpdate?: boolean;
@@ -12,6 +14,7 @@ type Props = {
   object?: any;
   name?: string;
   renderContent(formProps: IFormProps): any;
+  createdAt?: string;
 } & ICommonFormProps;
 
 class Form extends React.Component<Props, { isCanceled: boolean }> {
@@ -30,7 +33,8 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
       closeModal,
       confirmationUpdate,
       object,
-      name
+      name,
+      createdAt
     } = this.props;
     const { values, isSubmitted } = formProps;
     const { isCanceled } = this.state;
@@ -46,11 +50,16 @@ class Form extends React.Component<Props, { isCanceled: boolean }> {
         {renderContent({ ...formProps, isSaved: isSubmitted || isCanceled })}
 
         <ModalFooter>
+          {createdAt && (
+            <CreatedDate>
+              <p>Created at</p> {dayjs(createdAt).format('lll')}
+            </CreatedDate>
+          )}
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={cancel}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

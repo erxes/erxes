@@ -2,9 +2,11 @@ import { colors } from '../styles';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const SortItem = styledTS<{ isDragging: boolean; isModal: boolean; column?: number }>(
-  styled.div
-)`
+const SortItem = styledTS<{
+  isDragging: boolean;
+  isModal: boolean;
+  column?: number;
+}>(styled.div)`
   background: ${colors.colorWhite};
   display: block;
   padding: 5px;
@@ -13,6 +15,8 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean; column?: numb
   display: flex;
   justify-content: space-between;
   border-left: 2px solid transparent; 
+  border-top: ${props =>
+    !props.isDragging ? `1px solid ${colors.borderPrimary}` : 'none'};
   border-radius: 4px;
   box-shadow: ${props =>
     props.isDragging ? `0 2px 8px ${colors.shadowPrimary}` : 'none'};
@@ -21,14 +25,18 @@ const SortItem = styledTS<{ isDragging: boolean; isModal: boolean; column?: numb
   &:last-child {
     margin-bottom: 0;
   }
+  
   &:hover {
     box-shadow: 0 2px 8px ${colors.shadowPrimary};
     border-color: ${colors.colorSecondary};
+    border-top: none;
   }
-  ${props => props.column && css `
-    width: ${100/props.column}%;
-    display: inline-block;
-  `}
+  ${props =>
+    props.column &&
+    css`
+      width: ${100 / props.column}%;
+      display: inline-block;
+    `}
 `;
 
 const SortableWrapper = styled.div`

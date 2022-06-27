@@ -27,7 +27,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Forms.find(query)
+      data: await models.Forms.find(query).lean()
     };
   });
 
@@ -36,7 +36,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Forms.findOne(data)
+      data: await models.Forms.findOne(data).lean()
     };
   });
 
@@ -156,7 +156,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Fields.findOne(query)
+        data: await models.Fields.findOne(query).lean()
       };
     }
   );
@@ -168,7 +168,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FieldsGroups.find(query)
+        data: await models.FieldsGroups.find(query).lean()
       };
     }
   );
@@ -180,7 +180,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FieldsGroups.findOne(query)
+        data: await models.FieldsGroups.findOne(query).lean()
       };
     }
   );
@@ -204,45 +204,15 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.FormSubmissions.find(query)
+        data: await models.FormSubmissions.find(query).lean()
       };
     }
   );
 
   consumeQueue(
     'forms:submissions.createFormSubmission',
-    async ({
-      subdomain,
-      data: { submissions, customer, conversationId, userId }
-    }) => {
+    async ({ subdomain, data: { submissions } }) => {
       const models = await generateModels(subdomain);
-
-      const isAutomationsAvailable = await client.sendRPCMessage(
-        'gateway:isServiceAvailable',
-        'automations'
-      );
-
-      if (isAutomationsAvailable && customer) {
-        const submissionValues = {};
-        for (const submit of submissions) {
-          submissionValues[submit.formFieldId] = submit.value;
-        }
-
-        client.sendMessage('automations:trigger', {
-          data: {
-            type: `contacts:${customer.state}`,
-            targets: [
-              {
-                ...customer,
-                ...submissionValues,
-                isFormSubmission: true,
-                conversationId,
-                userId
-              }
-            ]
-          }
-        });
-      }
 
       return {
         status: 'success',
@@ -317,6 +287,17 @@ export const sendProductsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'products',
+    ...args
+  });
+};
+
+export const sendAutomationsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'automations',
     ...args
   });
 };

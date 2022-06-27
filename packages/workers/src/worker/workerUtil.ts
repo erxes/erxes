@@ -13,7 +13,11 @@ export default class CustomWorker {
     });
   }
 
-  async createWorker(workerPath: string, workerData: object) {
+  async createWorker(
+    subdomain: string,
+    workerPath: string,
+    workerData: object
+  ) {
     try {
       this.pendingWorkers++;
 
@@ -27,6 +31,7 @@ export default class CustomWorker {
       worker.id = workerInstance.threadId;
       worker.instance = workerInstance;
       worker.status = 'busy';
+      worker.subdomain = subdomain;
 
       this.workers[workerIndex] = worker;
 

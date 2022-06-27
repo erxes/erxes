@@ -6,7 +6,7 @@ import { __, generateTree } from 'coreui/utils';
 import React from 'react';
 import { PROBABILITY } from '../constants';
 import { StageItemContainer } from '@erxes/ui-settings/src/boards/styles';
-import { IDepartment } from '@erxes/ui-team/src/types';
+import { IDepartment } from '@erxes/ui/src/team/types';
 import Select from 'react-select-plus';
 
 type Props = {

@@ -314,7 +314,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
         // if given visitor is matched with given condition then create
         // conversations
         if (hasPassedAllRules) {
-          const editorAttributeUtil = await getEditorAttributeUtil();
+          const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
 
           // replace keys in content
           const replacedContent = await editorAttributeUtil.replaceAttributes({

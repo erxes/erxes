@@ -4,15 +4,18 @@ import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { NotWrappable } from '@erxes/ui-settings/src/permissions/styles';
 import React from 'react';
 import SkillTypes from '../containers/SkillTypes';
-import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
+import {
+  ISkillDocument,
+  ISkillTypesDocument
+} from '@erxes/ui-settings/src/skills/types';
 import SkillForm from './SkillForm';
 import SkillRow from './SkillRow';
+import { Title } from '@erxes/ui-settings/src/styles';
 
 const breadcrumb = [
   { title: 'Settings', link: '/settings' },
@@ -55,7 +58,7 @@ function Skills(props: Props) {
 
   function renderActionBar() {
     const trigger = (
-      <Button id='skill-new-skill' btnStyle='success' icon='plus-circle'>
+      <Button id="skill-new-skill" btnStyle="success" icon="plus-circle">
         {__('New skill')}
       </Button>
     );
@@ -65,7 +68,7 @@ function Skills(props: Props) {
     const actionBarRight = (
       <NotWrappable>
         <ModalTrigger
-          title='New Skill'
+          title="New Skill"
           trigger={trigger}
           content={renderForm}
         />
@@ -76,7 +79,9 @@ function Skills(props: Props) {
       <Wrapper.ActionBar
         left={title}
         right={actionBarRight}
-        background='colorWhite'
+        background="colorWhite"
+        withMargin
+        wide
       />
     );
   }
@@ -97,7 +102,7 @@ function Skills(props: Props) {
 
   function renderData() {
     return (
-      <Table whiteSpace='nowrap' hover={true} bordered={true}>
+      <Table whiteSpace="nowrap" hover={true} bordered={true}>
         <thead>
           <tr>
             <th>{__('Name')}</th>
@@ -117,7 +122,7 @@ function Skills(props: Props) {
         loading={isLoading}
         count={totalCount}
         emptyText={__('Add individual skills into your Skill Types')}
-        emptyImage='/images/actions/11.svg'
+        emptyImage="/images/actions/11.svg"
       />
     );
   }
@@ -129,7 +134,7 @@ function Skills(props: Props) {
       }
       mainHead={
         <HeaderDescription
-          icon='/images/actions/32.svg'
+          icon="/images/actions/32.svg"
           title={'All Skills'}
           description={`${__(
             'The skills feature works with the erxes Messenger and the Team Inbox'
@@ -146,6 +151,7 @@ function Skills(props: Props) {
       footer={<Pagination count={totalCount} />}
       hasBorder={true}
       transparent={true}
+      noPadding
     />
   );
 }

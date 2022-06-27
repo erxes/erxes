@@ -146,7 +146,10 @@ type Car {
   forceValue: Float
 
   attachments: [Attachment]
-  fourAttachments: [Attachment]
+  frontAttachments: [Attachment]
+  leftAttachments: [Attachment]
+  rightAttachments: [Attachment]
+  backAttachments: [Attachment]
   floorAttachments: [Attachment]
   transformationAttachments: [Attachment]
 }
@@ -239,6 +242,8 @@ export const queries = `
   participants(page: Int, perPage: Int, customerId: String, dealId: String, status: String): [Participant]
   participantDetail(_id: String!): Participant
   participantsTotalCount(customerId: String, dealId: String, status: String): Int
+
+  gererateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 `;
 
 const tumentechCommonFields = `
@@ -316,7 +321,10 @@ const tumentechCommonFields = `
   forceValue: Float
 
   attachments: [AttachmentInput]
-  fourAttachments: [AttachmentInput]
+  frontAttachments: [AttachmentInput]
+  leftAttachments: [AttachmentInput]
+  rightAttachments: [AttachmentInput]
+  backAttachments: [AttachmentInput]
   floorAttachments: [AttachmentInput]
   transformationAttachments: [AttachmentInput]
 `;

@@ -11,7 +11,7 @@ import {
   IUserDocument
 } from './definitions/clientPortalUser';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
-import { sendSms } from '../utils';
+import { generateRandomPassword, sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
 import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
@@ -25,9 +25,24 @@ export interface ILoginParams {
   deviceToken?: string;
 }
 
+interface IConfirmParams {
+  token: string;
+  password?: string;
+  passwordConfirmation?: string;
+  username?: string;
+}
+
 export interface IUserModel extends Model<IUserDocument> {
+  checkDuplication(clientPortalUserFields: {
+    email?: string;
+    phone?: string;
+    code?: string;
+  }): never;
+  invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
   createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
+  updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
+  removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
   getSecret(): string;
   generateToken(): { token: string; expires: Date };
@@ -86,15 +101,79 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string,
     email?: string
   ): string;
+  confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
   class ClientPortalUser {
+    public static async checkDuplication(
+      clientPortalUserFields: {
+        email?: string;
+        phone?: string;
+        code?: string;
+      },
+      idsToExclude?: string[] | string
+    ) {
+      const query: { status: {}; [key: string]: any } = {
+        status: { $ne: 'deleted' }
+      };
+      let previousEntry;
+
+      if (idsToExclude) {
+        query._id = { $nin: idsToExclude };
+      }
+
+      if (!clientPortalUserFields) {
+        return;
+      }
+
+      if (clientPortalUserFields.email) {
+        // check duplication from primaryName
+        previousEntry = await models.ClientPortalUsers.find({
+          email: clientPortalUserFields.email
+        });
+
+        if (previousEntry.length > 0) {
+          throw new Error('Duplicated email');
+        }
+      }
+
+      if (clientPortalUserFields.phone) {
+        // check duplication from primaryName
+        previousEntry = await models.ClientPortalUsers.find({
+          ...query,
+          phone: clientPortalUserFields.phone
+        });
+
+        if (previousEntry.length > 0) {
+          throw new Error('Duplicated phone');
+        }
+      }
+
+      if (clientPortalUserFields.code) {
+        // check duplication from code
+        previousEntry = await models.ClientPortalUsers.find({
+          ...query,
+          code: clientPortalUserFields.code
+        });
+
+        if (previousEntry.length > 0) {
+          throw new Error('Duplicated code');
+        }
+      }
+    }
+
     public static async createUser(
       subdomain: string,
       { password, email, phone, clientPortalId, ...doc }: IUser
     ) {
-      if (password) this.checkPassword(password);
+      if (!password) {
+        password = generateRandomPassword();
+      }
+
+      if (password) {
+        this.checkPassword(password);
+      }
 
       const document: any = doc;
 
@@ -115,7 +194,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
       const customer = await sendContactsMessage({
         subdomain,
         action: 'customers.findOne',
-        data: { customerPrimaryEmail: tEmail, customerPrimaryPhone: phone },
+        data: {
+          customerPrimaryEmail: tEmail,
+          customerPrimaryPhone: phone
+        },
         isRPC: true
       });
 
@@ -159,6 +241,26 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       return user;
+    }
+
+    public static async updateUser(_id, doc: IUser) {
+      await models.ClientPortalUsers.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedAt: new Date() } }
+      );
+
+      return models.ClientPortalUsers.findOne({ _id });
+    }
+
+    /**
+     * Remove remove Client Portal Users
+     */
+    public static async removeUser(clientPortalUserIds: string[]) {
+      // Removing every modules that associated with customer
+
+      return models.ClientPortalUsers.deleteMany({
+        _id: { $in: clientPortalUserIds }
+      });
     }
 
     public static async getUser(doc: any) {
@@ -208,6 +310,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
     public static async sendVerification(
       subdomain: string,
       config: IOTPConfig,
+      password?: string,
       phone?: string,
       email?: string
     ) {
@@ -306,7 +409,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       this.checkPassword(newPassword);
 
-      const user = await models.ClientPortalUsers.findOne({ _id }).lean();
+      const user = await models.ClientPortalUsers.findOne({
+        _id
+      }).lean();
 
       if (!user) {
         throw new Error('User not found');
@@ -423,7 +528,9 @@ export const loadClientPortalUserClass = (models: IModels) => {
         lastName: _user.lastName
       };
 
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
+      const createToken = await jwt.sign({ user }, secret, {
+        expiresIn: '1d'
+      });
 
       const createRefreshToken = await jwt.sign({ user }, secret, {
         expiresIn: '7d'
@@ -596,6 +703,10 @@ export const loadClientPortalUserClass = (models: IModels) => {
         throw new Error('Invalid login');
       }
 
+      if (!user.isPhoneVerified && !user.isEmailVerified) {
+        throw new Error('User is not verified');
+      }
+
       const valid = await this.comparePassword(password, user.password);
 
       if (!valid) {
@@ -619,6 +730,158 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       return createJwtToken({ userId: user._id });
+    }
+
+    public static async invite(
+      subdomain: string,
+      { password, email, phone, clientPortalId, ...doc }: IUser
+    ) {
+      if (!password) {
+        password = generateRandomPassword();
+      }
+
+      if (password) {
+        this.checkPassword(password);
+      }
+
+      const plainPassword = password;
+
+      const document: any = doc;
+
+      const tEmail = (email || '').toLowerCase().trim();
+
+      let qry: any;
+
+      if (tEmail) {
+        document.email = tEmail;
+        qry = { email: tEmail };
+      }
+
+      if (phone) {
+        document.phone = phone;
+        qry = { phone };
+      }
+
+      const customer = await sendContactsMessage({
+        subdomain,
+        action: 'customers.findOne',
+        data: {
+          customerPrimaryEmail: tEmail,
+          customerPrimaryPhone: phone
+        },
+        isRPC: true
+      });
+
+      let user = await models.ClientPortalUsers.findOne(qry);
+
+      if (user && (user.isEmailVerified || user.isPhoneVerified)) {
+        throw new Error('user is already exists');
+      }
+
+      if (user) {
+        return user;
+      }
+
+      const { token, expires } = await models.ClientPortalUsers.generateToken();
+
+      user = await models.ClientPortalUsers.create({
+        ...document,
+        clientPortalId,
+        registrationToken: token,
+        registrationTokenExpires: expires,
+        // hash password
+        password: password && (await this.generatePassword(password))
+      });
+
+      if (!customer) {
+        await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            firstName: doc.firstName,
+            lastName: doc.lastName,
+            primaryEmail: email,
+            primaryPhone: phone,
+            state: 'customer'
+          },
+          isRPC: true
+        });
+      }
+
+      if (customer && customer._id) {
+        await models.ClientPortalUsers.updateOne(
+          { _id: user._id },
+          { $set: { erxesCustomerId: customer._id } }
+        );
+      }
+
+      const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+      const content = `Here is your verification link: ${clientPortal.url}/verify?token=${token}  Please click on the link to verify your account. Your password is: ${plainPassword}. Please change your password after you login.`;
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'sendEmail',
+        data: {
+          toEmails: [email],
+          title: `${clientPortal.name} invitation`,
+          template: {
+            name: 'base',
+            data: {
+              content
+            }
+          }
+        }
+      });
+
+      return user;
+    }
+
+    public static async confirmInvitation({
+      token,
+      password,
+      passwordConfirmation,
+      username
+    }: {
+      token: string;
+      password: string;
+      passwordConfirmation: string;
+      username?: string;
+    }) {
+      const user = await models.ClientPortalUsers.findOne({
+        registrationToken: token,
+        registrationTokenExpires: {
+          $gt: Date.now()
+        }
+      });
+
+      if (!user || !token) {
+        throw new Error('Token is invalid or has expired');
+      }
+
+      let doc: any = { isEmailVerified: true, registrationToken: undefined };
+
+      if (password) {
+        if (password !== passwordConfirmation) {
+          throw new Error('Password does not match');
+        }
+
+        this.checkPassword(password);
+        doc.password = await this.generatePassword(password);
+      }
+
+      if (username) {
+        doc.username = username;
+      }
+
+      await models.ClientPortalUsers.updateOne(
+        { _id: user._id },
+        {
+          $set: doc
+        }
+      );
+
+      return user;
     }
   }
 

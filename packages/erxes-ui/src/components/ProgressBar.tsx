@@ -65,16 +65,16 @@ const Circle = styled.circle`
   stroke-linecap: round;
 `;
 
-const FilledCircle = styled(Circle)`
-  stroke: ${colors.colorPrimary};
+const FilledCircle: any = styledTS<{ color?: string }>(styled(Circle))`
+  stroke: ${props => props.color};
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
   transition: stroke-dashoffset 0.5s ease-out;
 `;
 
-const Text = styled.div`
+const Text = styledTS<{ color?: string }>(styled.div)`
   align-items: center;
-  color: ${colors.colorPrimary};
+  color: ${props => props.color};
   display: flex;
   font-weight: bold;
   height: 100%;
@@ -127,6 +127,7 @@ function ProgressBar({
           <Circle cx="50" cy="50" r={radius} strokeWidth={strokeWidth} />
 
           <FilledCircle
+            color={color}
             cx="50"
             cy="50"
             data-testid="progress-bar-bar"
@@ -137,7 +138,9 @@ function ProgressBar({
           />
         </svg>
 
-        <Text data-testid="progress-bar-text">{percentage}%</Text>
+        <Text color={color} data-testid="progress-bar-text">
+          {percentage}%
+        </Text>
       </Container>
     );
   }

@@ -118,7 +118,7 @@ export const initBroker = cl => {
 
       return {
         status: 'success',
-        data: await models.Conversations.findOne({ _id: conversationId })
+        data: await models.Conversations.findOne({ _id: conversationId }).lean()
       };
     }
   );
@@ -130,7 +130,7 @@ export const initBroker = cl => {
 
       return {
         status: 'success',
-        data: await models.ConversationMessages.findOne(data)
+        data: await models.ConversationMessages.findOne(data).lean()
       };
     }
   );
@@ -152,7 +152,7 @@ export const initBroker = cl => {
 
     return {
       status: 'success',
-      data: await models.Integrations.findOne(data)
+      data: await models.Integrations.findOne(data).lean()
     };
   });
 

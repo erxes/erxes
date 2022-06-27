@@ -9,8 +9,10 @@ const List = asyncComponent(() =>
   )
 );
 
-const emailTemplates = ({ location }) => {
-  return <List queryParams={queryString.parse(location.search)} />;
+const emailTemplates = ({ location, history }) => {
+  return (
+    <List queryParams={queryString.parse(location.search)} history={history} />
+  );
 };
 
 const routes = () => (

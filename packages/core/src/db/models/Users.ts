@@ -789,14 +789,15 @@ export const loadUserClass = (models: IModels) => {
         code: await this.generateUserCode(),
         groupIds: [app.userGroupId],
         appId: app._id,
-        isActive: true
+        isActive: true,
+        email: `${app._id}@domain.com`
       });
     }
 
     public static findUsers(query: any, options?: any) {
       const filter = { ...query, role: { $ne: USER_ROLES.SYSTEM } };
 
-      return models.Users.find(filter, options);
+      return models.Users.find(filter, options).lean();
     }
   }
 

@@ -30,8 +30,10 @@ class Sidebar extends React.Component<Props> {
     const { kindCounts, history } = this.props;
 
     return (
-      <Section>
-        <Section.Title>{__('Kind')}</Section.Title>
+      <Section noShadow noMargin>
+        <Section.Title noBackground noSpacing>
+          {__('Kind')}
+        </Section.Title>
 
         <SidebarList>
           <li>
@@ -64,8 +66,10 @@ class Sidebar extends React.Component<Props> {
     const { statusCounts, history } = this.props;
 
     return (
-      <Section>
-        <Section.Title>{__('Status')}</Section.Title>
+      <Section noShadow noMargin>
+        <Section.Title noBackground noSpacing>
+          {__('Status')}
+        </Section.Title>
 
         <SidebarList>
           {statusFilters.map((status, index) => (
@@ -93,7 +97,7 @@ class Sidebar extends React.Component<Props> {
     const { tags, tagCounts } = this.props;
 
     return (
-      <Wrapper.Sidebar>
+      <Wrapper.Sidebar noMargin={true} hasBorder={true}>
         {this.renderKindFilter()}
         {this.renderStatusFilter()}
 
@@ -103,6 +107,9 @@ class Sidebar extends React.Component<Props> {
             manageUrl="/tags?type=engages:engageMessage"
             counts={tagCounts}
             loading={false}
+            noBackground
+            noSpacing
+            noShadow
           />
         )}
       </Wrapper.Sidebar>

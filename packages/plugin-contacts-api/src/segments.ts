@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { sendCoreMessage } from './messageBroker';
 
@@ -11,7 +12,8 @@ const indexesTypeContentType = {
   'inbox:conversation': 'conversations'
 };
 
-const getName = type => type.replace('contacts:', '').replace('cards:', '');
+export const getName = type =>
+  type.replace('contacts:', '').replace('cards:', '');
 
 export default {
   indexesTypeContentType,
@@ -95,6 +97,8 @@ export default {
         positiveQuery,
         negativeQuery
       });
+
+      ids = _.uniq(ids);
     }
 
     return { data: ids, status: 'success' };

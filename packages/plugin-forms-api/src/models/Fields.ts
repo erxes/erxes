@@ -11,7 +11,7 @@ import {
   IFieldGroup,
   IFieldGroupDocument
 } from './definitions/fields';
-import { serviceDiscovery } from '../configs';
+import configs, { serviceDiscovery } from '../configs';
 
 export interface ITypedListItem {
   field: string;
@@ -293,9 +293,9 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
         // objectList
         if (type === 'objectList') {
-          const { keys = [] } = field;
+          const { objectListConfigs = [] } = field;
 
-          if (!keys.length) {
+          if (!objectListConfigs || !objectListConfigs.length) {
             throwError("Object List don't have any keys");
           }
 
@@ -305,6 +305,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
           for (const object of objects) {
             const entries = Object.entries(object);
+            const keys = objectListConfigs.map(configs => configs.key);
 
             entries.map(e => {
               const key = e[0];
@@ -465,7 +466,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         const customField = await models.Fields.findOne({
           contentType,
           code: key
-        });
+        }).lean();
 
         let value = data[key];
 

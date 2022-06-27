@@ -1,6 +1,9 @@
 import {
-  Button, FormControl,
-  DataWithLoader, Table, ModalTrigger,
+  Button,
+  FormControl,
+  DataWithLoader,
+  Table,
+  ModalTrigger
 } from '@erxes/ui/src/components';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
@@ -8,7 +11,7 @@ import React from 'react';
 import Sidebar from '../../general/components/Sidebar';
 import { ISpinCampaign } from '../types';
 import Row from './Row';
-import Form from '../containers/Form'
+import Form from '../containers/Form';
 import { __, Alert, router, confirm } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -29,8 +32,8 @@ type Props = {
 
 type State = {
   // configsMap: IConfigsMap;
-  searchValue: string,
-  filterStatus: string
+  searchValue: string;
+  filterStatus: string;
 };
 
 class SpinCampaigns extends React.Component<Props, State> {
@@ -88,9 +91,7 @@ class SpinCampaigns extends React.Component<Props, State> {
   };
 
   modalContent = props => {
-    return (
-      <Form {...props} />
-    )
+    return <Form {...props} />;
   };
 
   removeSpinCampaigns = spinCampaigns => {
@@ -125,7 +126,7 @@ class SpinCampaigns extends React.Component<Props, State> {
         >
           Remove
         </Button>
-      )
+      );
     }
 
     const trigger = (
@@ -152,7 +153,7 @@ class SpinCampaigns extends React.Component<Props, State> {
           content={this.modalContent}
         />
       </BarItems>
-    )
+    );
   }
 
   render() {
@@ -163,37 +164,32 @@ class SpinCampaigns extends React.Component<Props, State> {
     ];
 
     const content = (
-      <>
-        <Table hover={true}>
-          <thead>
-            <tr>
-              <th style={{ width: 60 }}>
-                <FormControl
-                  checked={isAllSelected}
-                  componentClass="checkbox"
-                  onChange={this.onChange}
-                />
-              </th>
-              <th>{__('Title')}</th>
-              <th>{__('Start Date')}</th>
-              <th>{__('End Date')}</th>
-              <th>{__('Finish Date of Use')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Actions')}</th>
-            </tr>
-          </thead>
-          <tbody>{this.renderRow()}</tbody>
-        </Table>
-      </>
+      <Table hover={true}>
+        <thead>
+          <tr>
+            <th style={{ width: 60 }}>
+              <FormControl
+                checked={isAllSelected}
+                componentClass="checkbox"
+                onChange={this.onChange}
+              />
+            </th>
+            <th>{__('Title')}</th>
+            <th>{__('Start Date')}</th>
+            <th>{__('End Date')}</th>
+            <th>{__('Finish Date of Use')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Actions')}</th>
+          </tr>
+        </thead>
+        <tbody>{this.renderRow()}</tbody>
+      </Table>
     );
 
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('Spin Campaign')}
-            breadcrumb={breadcrumb}
-          />
+          <Wrapper.Header title={__('Spin Campaign')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar

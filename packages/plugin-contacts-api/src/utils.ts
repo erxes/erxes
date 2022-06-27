@@ -18,7 +18,7 @@ import messageBroker, {
   sendInboxMessage,
   sendTagsMessage
 } from './messageBroker';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { generateModels, IModels } from './connectionResolver';
 import {
   COMPANY_INFO,
@@ -30,6 +30,17 @@ import { companySchema } from './models/definitions/companies';
 import { ICustomField, ILink } from '@erxes/api-utils/src/types';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
+const EXTEND_FIELDS = {
+  CUSTOMER: [
+    { name: 'companiesPrimaryNames', label: 'Company Primary Names' },
+    { name: 'companiesPrimaryEmails', label: 'Company Primary Emails' }
+  ],
+  ALL: [
+    { name: 'tag', label: 'Tag' },
+    { name: 'ownerEmail', label: 'Owner email' }
+  ]
+};
+
 export const findCustomer = async ({ Customers }: IModels, doc) => {
   let customer;
 
@@ -39,7 +50,7 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
         { emails: { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
       ]
-    });
+    }).lean();
   }
 
   if (!customer && doc.customerPrimaryPhone) {
@@ -48,19 +59,19 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
         { phones: { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
       ]
-    });
+    }).lean();
   }
 
   if (!customer && doc.customerCode) {
-    customer = await Customers.findOne({ code: doc.customerCode });
+    customer = await Customers.findOne({ code: doc.customerCode }).lean();
   }
 
   if (!customer && doc._id) {
-    customer = await Customers.findOne({ _id: doc._id });
+    customer = await Customers.findOne({ _id: doc._id }).lean();
   }
 
   if (!customer) {
-    customer = await Customers.findOne(doc);
+    customer = await Customers.findOne(doc).lean();
   }
 
   return customer;
@@ -75,25 +86,25 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
         { names: { $in: [doc.companyPrimaryName] } },
         { primaryName: doc.companyPrimaryName }
       ]
-    });
+    }).lean();
   }
 
   if (!company && doc.name) {
     company = await Companies.findOne({
       $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
-    });
+    }).lean();
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
       $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
-    });
+    }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
       $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
-    });
+    }).lean();
   }
 
   if (!company && doc.companyPrimaryEmail) {
@@ -102,7 +113,7 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
         { emails: { $in: [doc.companyPrimaryEmail] } },
         { primaryEmail: doc.companyPrimaryEmail }
       ]
-    });
+    }).lean();
   }
 
   if (!company && doc.companyPrimaryPhone) {
@@ -111,19 +122,19 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
         { phones: { $in: [doc.companyPrimaryPhone] } },
         { primaryPhone: doc.companyPrimaryPhone }
       ]
-    });
+    }).lean();
   }
 
   if (!company && doc.companyCode) {
-    company = await Companies.findOne({ code: doc.companyCode });
+    company = await Companies.findOne({ code: doc.companyCode }).lean();
   }
 
   if (!company && doc._id) {
-    company = await Companies.findOne({ _id: doc._id });
+    company = await Companies.findOne({ _id: doc._id }).lean();
   }
 
   if (!company) {
-    company = await Companies.findOne(doc);
+    company = await Companies.findOne(doc).lean();
   }
 
   return company;
@@ -191,7 +202,7 @@ const getIntegrations = async (subdomain: string) => {
   const integrations = await sendInboxMessage({
     subdomain,
     action: 'integrations.find',
-    data: {},
+    data: { query: {} },
     isRPC: true,
     defaultValue: []
   });
@@ -313,11 +324,10 @@ export const generateFields = async ({ subdomain, data }) => {
 
   fields = [...fields, tags];
 
-  if (type === 'customer') {
+  if (type === 'customer' || type === 'lead') {
     const integrations = await getIntegrations(subdomain);
 
     fields = [...fields, integrations];
-
     if (usageType === 'import') {
       fields.push({
         _id: Math.random(),
@@ -334,6 +344,15 @@ export const generateFields = async ({ subdomain, data }) => {
   }
 
   fields = [...fields, ownerOptions];
+
+  if (usageType === 'import') {
+    for (const extendField of EXTEND_FIELDS.ALL) {
+      fields.push({
+        _id: Math.random(),
+        ...extendField
+      });
+    }
+  }
 
   return fields;
 };
@@ -384,12 +403,13 @@ export const getContentItem = async (
   return null;
 };
 
-export const getEditorAttributeUtil = async () => {
+export const getEditorAttributeUtil = async (subdomain: string) => {
   const services = await getServices();
   const editor = await new EditorAttributeUtil(
     messageBroker(),
     `${process.env.DOMAIN}/gateway/pl:core`,
-    services
+    services,
+    subdomain
   );
 
   return editor;
@@ -412,7 +432,7 @@ export const prepareEngageCustomers = async (
   const emailConf = engageMessage.email ? engageMessage.email : { content: '' };
   const emailContent = emailConf.content || '';
 
-  const editorAttributeUtil = await getEditorAttributeUtil();
+  const editorAttributeUtil = await getEditorAttributeUtil(subdomain);
   const customerFields = await editorAttributeUtil.getCustomerFields(
     emailContent
   );
@@ -898,7 +918,7 @@ export const updateContactsField = async (
     }
   }
 
-  return cachedCustomer;
+  return models.Customers.findOne({ _id: cachedCustomerId });
 };
 
 export const updateCustomerFromForm = async (
@@ -962,7 +982,7 @@ const prepareCustomFieldsData = (
   customerData: ICustomField[],
   submissionData: ICustomField[]
 ) => {
-  const customFieldsData: ICustomField[] = [];
+  const customFieldsData: ICustomField[] = customerData;
 
   if (customerData.length === 0) {
     return submissionData;
@@ -971,11 +991,15 @@ const prepareCustomFieldsData = (
   for (const data of submissionData) {
     const existingData = customerData.find(e => e.field === data.field);
 
-    if (existingData && Array.isArray(existingData.value)) {
-      data.value = existingData.value.concat(data.value);
+    if (existingData) {
+      if (Array.isArray(existingData.value)) {
+        existingData.value = existingData.value.concat(data.value);
+      } else {
+        existingData.value = data.value;
+      }
+    } else {
+      customFieldsData.push(data);
     }
-
-    customFieldsData.push(data);
   }
 
   return customFieldsData;

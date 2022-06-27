@@ -4,7 +4,7 @@ import { serviceDiscovery } from './configs';
 
 let client;
 
-export const initBroker = async (cl) => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;
@@ -14,7 +14,7 @@ export const initBroker = async (cl) => {
 
     return {
       data: await models.Tags.find(data).lean(),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -23,7 +23,7 @@ export const initBroker = async (cl) => {
 
     return {
       data: await models.Tags.findOne(data).lean(),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -32,7 +32,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tags.createTag(data),
+      data: await models.Tags.createTag(data)
     };
   });
 };
@@ -43,7 +43,7 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 

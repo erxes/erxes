@@ -1,5 +1,8 @@
 import { __ } from '@erxes/ui/src/utils';
-import { Sidebar as LeftSidebar, SidebarList as List } from '@erxes/ui/src/layout';
+import {
+  Sidebar as LeftSidebar,
+  SidebarList as List
+} from '@erxes/ui/src/layout';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeader';
@@ -20,7 +23,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <LeftSidebar hasBorder={true} header={<SidebarHeader/>}>
+      <LeftSidebar hasBorder={true} header={<SidebarHeader />} noMargin>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-loyalty/settings/general',
@@ -34,10 +37,7 @@ class Sidebar extends React.Component {
             '/erxes-plugin-loyalty/settings/lottery',
             'Lottery'
           )}
-          {this.renderListItem(
-            '/erxes-plugin-loyalty/settings/spin',
-            'Spin'
-          )}
+          {this.renderListItem('/erxes-plugin-loyalty/settings/spin', 'Spin')}
           {this.renderListItem(
             '/erxes-plugin-loyalty/settings/donate',
             'Donate'

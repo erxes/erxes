@@ -1,13 +1,13 @@
-import { colors, dimensions } from "@erxes/ui/src/styles";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
-import { SidebarListItem } from "../styles";
-import { LinkButton } from "@erxes/ui/src/styles/main";
-import { HeaderContent } from "@erxes/ui-cards/src/boards/styles/item";
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
+import { SidebarListItem } from '../styles';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
 
 const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   overflow: hidden;
-  background: ${props => props.isActive && colors.bgActive};
   
   > button {
     padding: 10px 15px 10px 20px;
@@ -18,9 +18,10 @@ const BoardItem = styledTS<{ isActive: boolean }>(styled(SidebarListItem))`
   }
 
   a {
-    padding: 10px 20px;
-    margin-left: 0;
-    border-left: 0;
+    // margin: 10px 20px 0 20px;
+    // padding-bottom: 10px;
+    // margin-left: 0;
+    // border-left: 0;
   }
 `;
 
@@ -65,7 +66,7 @@ const StageItemContainer = styled.div`
 
 const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
   position: relative;
-  z-index: ${props => (props.zIndex ? props.zIndex : "2001")};
+  z-index: ${props => (props.zIndex ? props.zIndex : '2001')};
 `;
 
 const PipelineCount = styled.div`
@@ -129,5 +130,5 @@ export {
   SelectMemberStyled,
   PipelineCount,
   Attributes,
-  BoardHeader,
+  BoardHeader
 };

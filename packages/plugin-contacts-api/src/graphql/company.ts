@@ -43,7 +43,7 @@ export const types = tagsEnabled => `
     trackedData: JSON
 
     customers: [Customer]
-    ${tagsEnabled ? "getTags: [Tag]" : ""}
+    ${tagsEnabled ? 'getTags: [Tag]' : ''}
     code: String
     location: String
     score: Float
@@ -111,6 +111,7 @@ const commonFields = `
 export const mutations = `
   companiesAdd(${commonFields}): Company
   companiesEdit(_id: String!, ${commonFields}): Company
+  companiesEditByField(selector: JSON, doc: JSON): Company
   companiesRemove(companyIds: [String]): [String]
   companiesMerge(companyIds: [String], companyFields: JSON) : Company
 `;

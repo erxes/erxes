@@ -7,7 +7,6 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
 import SettingsRoutes from './modules/settings/routes';
-import TutorialRoutes from './modules/tutorial/routes';
 import WelcomeRoutes from './modules/welcome/routes';
 
 const MainLayout = asyncComponent(() =>
@@ -24,7 +23,7 @@ const Unsubscribe = asyncComponent(() =>
 
 const UserConfirmation = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui-team/src/containers/UserConfirmation'
+    /* webpackChunkName: "Settings - UserConfirmation" */ '@erxes/ui/src/team/containers/UserConfirmation'
   )
 );
 
@@ -70,7 +69,6 @@ const renderRoutes = currentUser => {
       <>
         <MainLayout currentUser={currentUser}>
           <SettingsRoutes />
-          <TutorialRoutes />
           <WelcomeRoutes />
           {pluginLayouts(currentUser)}
           {pluginRouters()}

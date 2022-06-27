@@ -30,9 +30,31 @@ export const loadAppClass = (models: IModels) => {
 
     public static async createApp(doc: IApp) {
       const app = await models.Apps.create(doc);
+      const tokenOptions: any = {};
+      const refreshOptions: any = {};
 
-      const accessToken = await jwt.sign({ app }, JWT_TOKEN_SECRET, { expiresIn: '14d' });
-      const refreshToken = await jwt.sign({ app }, JWT_TOKEN_SECRET, { expiresIn: '30d' });
+      if (doc.expireDate) {
+        const date = new Date(doc.expireDate);
+        const oneDay = 30 * 24 * 3600 * 1000; // 1 day
+
+        // accepts time in seconds
+        tokenOptions.expiresIn = Math.round(date.getTime() / 1000);
+
+        refreshOptions.expiresIn = Math.round(
+          new Date(date.getTime() + 30 * oneDay).getTime() / 1000
+        );
+      }
+
+      const accessToken = await jwt.sign(
+        { app },
+        JWT_TOKEN_SECRET,
+        tokenOptions
+      );
+      const refreshToken = await jwt.sign(
+        { app },
+        JWT_TOKEN_SECRET,
+        refreshOptions
+      );
 
       await models.Apps.updateOne(
         { _id: app._id },
@@ -64,4 +86,4 @@ export const loadAppClass = (models: IModels) => {
   appSchema.loadClass(App);
 
   return appSchema;
-}
+};

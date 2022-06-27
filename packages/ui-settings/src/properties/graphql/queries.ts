@@ -21,10 +21,14 @@ const commonFields = `
     lng
     description
   }
+  objectListConfigs{
+    key
+    label
+    type
+  }
   groupId
   searchable
   showInCard
-  keys
 
   ${genericFields}
 
@@ -97,6 +101,11 @@ const fields = `
         logicValue
       }
       groupName
+      objectListConfigs{
+        key
+        label
+        type
+      }
     }
   }
 `;

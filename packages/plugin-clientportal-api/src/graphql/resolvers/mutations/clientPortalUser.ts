@@ -12,7 +12,62 @@ export interface IVerificationParams {
   password?: string;
 }
 
+interface IClientPortalUserEdit extends IUser {
+  _id: string;
+}
+
 const clientPortalUserMutations = {
+  async clientPortalConfirmInvitation(
+    _root,
+    {
+      token,
+      password,
+      passwordConfirmation,
+      username
+    }: {
+      token: string;
+      password?: string;
+      passwordConfirmation?: string;
+      username?: string;
+    },
+    { models }: IContext
+  ) {
+    const user = await models.ClientPortalUsers.confirmInvitation({
+      token,
+      password,
+      passwordConfirmation,
+      username
+    });
+
+    return user;
+  },
+
+  async clientPortalUsersEdit(
+    _root,
+    { _id, ...doc }: IClientPortalUserEdit,
+    { models, subdomain }: IContext
+  ) {
+    const updated = await models.ClientPortalUsers.updateUser(_id, doc);
+
+    return updated;
+  },
+
+  /**
+   * Removes a clientPortal User
+   * @param {string} param1._id clientPortal User id
+   */
+  async clientPortalUsersRemove(
+    _root,
+    { clientPortalUserIds }: { clientPortalUserIds: string[] },
+    { models }: IContext
+  ) {
+    const response = await models.ClientPortalUsers.removeUser(
+      clientPortalUserIds
+    );
+
+    return response;
+  },
+
   clientPortalRegister: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
     const clientPortal = await models.ClientPortals.getConfig(
@@ -77,10 +132,11 @@ const clientPortalUserMutations = {
   clientPortalUserChangePassword(
     _root,
     args: { currentPassword: string; newPassword: string },
-    { user, models }: IContext
+    { cpUser, models }: IContext
   ) {
+    cpUser;
     return models.ClientPortalUsers.changePassword({
-      _id: user._id,
+      _id: (cpUser && cpUser._id) || '',
       ...args
     });
   },
@@ -161,6 +217,16 @@ const clientPortalUserMutations = {
     }
 
     return 'sent';
+  },
+
+  clientPortalUsersInvite: async (_root, args: IUser, context: IContext) => {
+    const { models, subdomain } = context;
+
+    const user = await models.ClientPortalUsers.invite(subdomain, {
+      ...args
+    });
+
+    return user;
   }
 };
 

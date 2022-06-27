@@ -165,6 +165,19 @@ export const fillCellValue = async (
 
       break;
 
+    case 'relatedIntegrationIds':
+      const integration = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.findOne',
+        data: { _id: item.integrationId },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      cellValue = integration ? integration.name : '';
+
+      break;
+
     case 'ownerEmail':
       const owner: IUserDocument | null = await sendCoreMessage({
         subdomain,
@@ -190,10 +203,11 @@ export const fillCellValue = async (
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
-  user: IUserDocument
+  query: any
 ): Promise<any[]> => {
   const { type, unlimited = false, segment } = query;
+
+  const contentType = type.split(':')[0];
 
   let data: any[] = [];
 
@@ -205,7 +219,7 @@ const prepareData = async (
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  switch (type) {
+  switch (contentType) {
     case MODULE_NAMES.COMPANY:
       const companyParams: ICompanyListArgs = query;
 
@@ -483,13 +497,12 @@ const filterHeaders = headers => {
 export const buildFile = async (
   models: IModels,
   subdomain: string,
-  query: any,
-  user: IUserDocument
+  query: any
 ): Promise<{ name: string; response: string }> => {
   const { configs } = query;
   let type = query.type;
 
-  const data = await prepareData(models, subdomain, query, user);
+  const data = await prepareData(models, subdomain, query);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();

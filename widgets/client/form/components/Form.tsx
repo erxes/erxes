@@ -117,12 +117,10 @@ class Form extends React.Component<Props, State> {
   onFieldValueChange = ({
     fieldId,
     value,
-    associatedFieldId,
     groupId,
   }: {
     fieldId: string;
     value: FieldValue;
-    associatedFieldId?: string;
     groupId?: string;
   }) => {
     const doc = this.state.doc;
@@ -132,10 +130,6 @@ class Form extends React.Component<Props, State> {
     }
 
     doc[fieldId].value = value;
-
-    if (associatedFieldId) {
-      doc[fieldId].associatedFieldId = associatedFieldId;
-    }
 
     if (groupId) {
       doc[fieldId].groupId = groupId;
@@ -235,6 +229,7 @@ class Form extends React.Component<Props, State> {
         value,
         isHidden,
         column: field.column,
+        associatedFieldId: field.associatedFieldId || ""
       };
     });
 
@@ -514,7 +509,7 @@ class Form extends React.Component<Props, State> {
           width={width}
           height={height}
           scrolling="yes"
-        ></iframe>
+        />
       );
 
       return <GolomtFrame src={response} width="100%" height="600px" />;

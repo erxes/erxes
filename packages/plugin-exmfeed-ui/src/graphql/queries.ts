@@ -1,4 +1,4 @@
-import * as teamQueries from '@erxes/ui/src/team/graphql';
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 
 const detailFields = teamQueries.detailFields;
 const allUsers = teamQueries.allUsers;

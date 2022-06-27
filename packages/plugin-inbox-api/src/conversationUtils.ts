@@ -120,7 +120,7 @@ export const countBySegment = async (
     subdomain,
     action: 'find',
     data: {
-      contentType: 'conversation'
+      contentType: 'inbox:conversation'
     },
     isRPC: true
   });
@@ -209,21 +209,14 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    const segment = await sendSegmentsMessage({
-      subdomain: this.subdomain,
-      action: 'findOne',
-      data: {
-        _id: segmentId
-      },
-      isRPC: true
-    });
-
     const selector = await sendSegmentsMessage({
       subdomain: this.subdomain,
       action: 'fetchSegment',
       data: {
-        segment,
-        returnSelector: true
+        segmentId,
+        options: {
+          returnSelector: true
+        }
       },
       isRPC: true
     });
@@ -523,6 +516,12 @@ export class CommonBuilder<IArgs extends IListArgs> {
       body: queryOptions,
       defaultValue: 0
     });
+
+    console.log(
+      JSON.stringify(queryOptions),
+      '--------------------------',
+      response.count
+    );
 
     return response.count;
   }

@@ -1,12 +1,13 @@
 import * as mongoose from 'mongoose';
-import { ImportHistory } from '../db/models';
 
-import { connect } from './utils';
 import * as _ from 'underscore';
 import messageBroker from '../messageBroker';
+import { generateModels } from '../connectionResolvers';
+import { connect } from './utils';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
+const { subdomain } = workerData;
 
 let cancel = false;
 
@@ -18,13 +19,11 @@ parentPort.once('message', message => {
 });
 
 const create = async ({
-  subdomain,
   docs,
   user,
   contentType,
   useElkSyncer
 }: {
-  subdomain: string;
   docs: any;
   user: any;
   contentType: any;
@@ -64,7 +63,6 @@ connect().then(async () => {
   console.log(`Worker message recieved`);
 
   const {
-    subdomain,
     user,
     scopeBrandIds,
     result,
@@ -75,7 +73,6 @@ connect().then(async () => {
     useElkSyncer,
     rowIndex
   }: {
-    subdomain: string;
     user: any;
     scopeBrandIds: string[];
     result: any;
@@ -88,6 +85,7 @@ connect().then(async () => {
   } = workerData;
 
   const [serviceName, type] = contentType.split(':');
+  const models = await generateModels(subdomain);
 
   // tslint:disable-next-line:no-eval
 
@@ -112,7 +110,6 @@ connect().then(async () => {
 
   try {
     const { updated, objects } = await create({
-      subdomain,
       docs: bulkDoc,
       user,
       contentType,
@@ -151,7 +148,7 @@ connect().then(async () => {
     };
   }
 
-  await ImportHistory.updateOne({ _id: importHistoryId }, modifier);
+  await models.ImportHistory.updateOne({ _id: importHistoryId }, modifier);
 
   mongoose.connection.close();
 

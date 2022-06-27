@@ -71,7 +71,12 @@ export default class Builder {
   public unassignedQuery?: IUnassignedFilter;
   public activeIntegrationIds: string[] = [];
 
-  constructor(models: IModels, subdomain: string, params: IListArgs, user: IUserArgs) {
+  constructor(
+    models: IModels,
+    subdomain: string,
+    params: IListArgs,
+    user: IUserArgs
+  ) {
     this.models = models;
     this.subdomain = subdomain;
     this.params = params;
@@ -80,28 +85,21 @@ export default class Builder {
 
   // filter by segment
   public async segmentFilter(segmentId: string): Promise<{ _id: IIn }> {
-    const segment = await sendSegmentsMessage({
-      subdomain: this.subdomain,
-      action: "findOne",
-      data: {
-        _id: segmentId
-      },
-      isRPC: true
-    })
-
     const selector = await sendSegmentsMessage({
       subdomain: this.subdomain,
-      action: "fetchSegment",
+      action: 'fetchSegment',
       data: {
-        segment,
-        returnFields: ['_id'],
-        page: 1,
-        perPage: this.params.limit ? this.params.limit + 1 : 11,
-        sortField: 'updatedAt',
-        sortDirection: -1
+        segmentId,
+        options: {
+          returnFields: ['_id'],
+          page: 1,
+          perPage: this.params.limit ? this.params.limit + 1 : 11,
+          sortField: 'updatedAt',
+          sortDirection: -1
+        }
       },
       isRPC: true
-    })
+    });
 
     const Ids = _.pluck(selector, '_id');
 
@@ -235,7 +233,9 @@ export default class Builder {
   public async brandFilter(
     brandId: string
   ): Promise<{ integrationId: IIn } | undefined> {
-    const integrations = await this.models.Integrations.findIntegrations({ brandId });
+    const integrations = await this.models.Integrations.findIntegrations({
+      brandId
+    });
 
     if (integrations.length === 0) {
       return;

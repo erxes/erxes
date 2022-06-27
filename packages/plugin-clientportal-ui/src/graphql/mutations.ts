@@ -1,4 +1,4 @@
-import { commonFields } from './queries';
+import { commonFields, clientPortalUserFields } from './queries';
 
 const createOrUpdateConfig = `
   mutation clientPortalConfigUpdate(
@@ -7,6 +7,8 @@ const createOrUpdateConfig = `
     $description: String
     $logo: String
     $icon: String
+    $headerHtml: String
+    $footerHtml: String
     $url: String
     $domain: String
     $messengerBrandCode: String
@@ -39,6 +41,8 @@ const createOrUpdateConfig = `
       url: $url,
       logo: $logo,
       icon: $icon,
+      headerHtml: $headerHtml,
+      footerHtml: $footerHtml,
       domain: $domain,
       messengerBrandCode: $messengerBrandCode,
       knowledgeBaseLabel: $knowledgeBaseLabel,
@@ -68,6 +72,54 @@ const createOrUpdateConfig = `
   }
 `;
 
+const commonUserFields = `
+  $firstName: String,
+  $lastName: String,
+  $username: String,
+  $code: String,
+  $email: String,
+  $phone: String,
+  $clientPortalId: String
+  $ownerId: String,
+  $links: JSON,
+  $customFieldsData: JSON,
+`;
+
+const commonUserVariables = `
+  firstName: $firstName,
+  lastName: $lastName,
+  username: $username,
+  code: $code,
+  email: $email,
+  phone: $phone,
+  clientPortalId: $clientPortalId,
+  ownerId: $ownerId,
+  links: $links,
+  customFieldsData: $customFieldsData
+`;
+
+const clientPortalUsersInvite = `
+  mutation clientPortalUsersInvite(${commonUserFields}) {
+    clientPortalUsersInvite(${commonUserVariables}) {
+      ${clientPortalUserFields}
+    }
+  }
+`;
+
+const clientPortalUsersEdit = `
+  mutation clientPortalUsersEdit($_id: String!, ${commonUserFields}) {
+    clientPortalUsersEdit(_id: $_id, ${commonUserVariables}) {
+      ${clientPortalUserFields}
+    }
+  }
+`;
+
+const clientPortalUsersRemove = `
+  mutation clientPortalUsersRemove($clientPortalUserIds: [String!]) {
+    clientPortalUsersRemove(clientPortalUserIds: $clientPortalUserIds)
+  }
+`;
+
 const remove = `
   mutation clientPortalRemove(
     $_id: String!
@@ -78,4 +130,10 @@ const remove = `
   }
 `;
 
-export default { createOrUpdateConfig, remove };
+export default {
+  createOrUpdateConfig,
+  remove,
+  clientPortalUsersInvite,
+  clientPortalUsersEdit,
+  clientPortalUsersRemove
+};

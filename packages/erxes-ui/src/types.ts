@@ -73,6 +73,12 @@ export interface ILocationOption {
   description?: string;
 }
 
+export interface IObjectListConfig {
+  key: string;
+  label: string;
+  type: string;
+}
+
 export interface IField {
   _id: string;
   key?: string;
@@ -86,6 +92,7 @@ export interface IField {
   description?: string;
   options?: string[];
   locationOptions?: ILocationOption[];
+  objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
   order?: React.ReactNode;
   canHide?: boolean;

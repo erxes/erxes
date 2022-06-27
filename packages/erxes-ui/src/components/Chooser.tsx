@@ -191,7 +191,7 @@ class CommonChooser extends React.Component<Props, State> {
             </ActionTop>
             {this.content()}
           </Column>
-          <Column>
+          <Column lastChild={true}>
             <Title>
               {data.name}
               &apos;s {title}

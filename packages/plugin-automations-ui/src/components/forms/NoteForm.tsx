@@ -7,7 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { __, renderUserFullName } from 'coreui/utils';
 import { IAutomationNote } from '../../types';
 import { CustomerName, EllipsisContent } from '@erxes/ui/src/styles/main';
-import {MainInfo} from '../../styles';
+import { MainInfo } from '../../styles';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import dayjs from 'dayjs';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
@@ -88,8 +88,12 @@ class NoteForm extends React.Component<Props, State> {
               user={note.createdUser || {}}
             />
             <CustomerName>
-              <EllipsisContent>{renderUserFullName(note.createdUser)}</EllipsisContent>
-              <time>{(dayjs(note.createdAt) || {} as any).fromNow(true)}</time>
+              <EllipsisContent>
+                {renderUserFullName(note.createdUser || {})}
+              </EllipsisContent>
+              <time>
+                {(dayjs(note.createdAt) || ({} as any)).fromNow(true)}
+              </time>
             </CustomerName>
           </div>
           <ActionButtons>

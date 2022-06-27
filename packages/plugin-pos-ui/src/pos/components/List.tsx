@@ -49,11 +49,7 @@ class List extends React.Component<Props, {}> {
   }
 
   render() {
-    const {
-      queryParams,
-      loading,
-      posList,
-    } = this.props;
+    const { queryParams, loading, posList } = this.props;
 
     queryParams.loadingMainQuery = loading;
     let actionBarLeft: React.ReactNode;
@@ -67,7 +63,13 @@ class List extends React.Component<Props, {}> {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+      <Wrapper.ActionBar
+        right={actionBarRight}
+        left={actionBarLeft}
+        withMargin
+        wide
+        background="colorWhite"
+      />
     );
 
     const content = (
@@ -131,6 +133,7 @@ class List extends React.Component<Props, {}> {
         }
         hasBorder={true}
         transparent={true}
+        noPadding
       />
     );
   }

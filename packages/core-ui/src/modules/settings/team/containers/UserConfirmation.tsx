@@ -7,11 +7,11 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import UserConfirmation from '../components/UserConfirmation';
-import { mutations } from '@erxes/ui-team/src/graphql';
+import { mutations } from '@erxes/ui/src/team/graphql';
 import {
   ConfirmMutationResponse,
   ConfirmMutationVariables
-} from '@erxes/ui-team/src/types';
+} from '@erxes/ui/src/team/types';
 
 type Props = {
   queryParams: any;

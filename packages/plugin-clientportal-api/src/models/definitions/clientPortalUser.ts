@@ -8,14 +8,18 @@ export interface IUser {
   username?: string;
   firstName?: string;
   lastName?: string;
+  code?: string;
   password?: string;
   type?: string;
   deviceTokens?: string[];
   clientPortalId: string;
   erxesCustomerId: string;
   createdAt?: Date;
+  modifiedAt?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  registrationToken?: string;
+  registrationTokenExpires?: Date;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -47,6 +51,7 @@ export const clientPortalUserSchema = new Schema({
   }),
   phone: field({ type: String, unique: true, optional: true }),
   username: field({ type: String, optional: true, unique: true }),
+  code: field({ type: String, optional: true }),
   password: field({ type: String }),
   firstName: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true }),
@@ -57,8 +62,16 @@ export const clientPortalUserSchema = new Schema({
   phoneVerificationCodeExpires: field({ type: Date, optional: true }),
   emailVerificationCode: field({ type: String, optional: true }),
   emailVerificationCodeExpires: field({ type: Date, optional: true }),
-  isPhoneVerified: field({ type: Boolean, optional: true, default: false }),
-  isEmailVerified: field({ type: Boolean, optional: true, default: false }),
+  isPhoneVerified: field({
+    type: Boolean,
+    optional: true,
+    default: false
+  }),
+  isEmailVerified: field({
+    type: Boolean,
+    optional: true,
+    default: false
+  }),
   deviceTokens: field({
     type: [String],
     default: [],
@@ -68,9 +81,13 @@ export const clientPortalUserSchema = new Schema({
     type: Date,
     default: Date.now
   }),
+  modifiedAt: field({ type: Date, label: 'Modified at' }),
 
   resetPasswordToken: field({ type: String, optional: true }),
-  resetPasswordExpires: field({ type: Date, optional: true })
+  resetPasswordExpires: field({ type: Date, optional: true }),
+
+  registrationToken: field({ type: String }),
+  registrationTokenExpires: field({ type: Date })
 });
 
 clientPortalUserSchema.index(

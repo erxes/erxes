@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Form from '../../containers/unit/Form';
-import { IUnit } from '@erxes/ui-team/src/types';
+import { IUnit } from '@erxes/ui/src/team/types';
 import BlockItem from '../common/Item';
 
 type Props = {

@@ -20,6 +20,7 @@ export interface IImportHistoryDocument extends IImportHistory, Document {
   date: Date;
   errorMsgs: object[];
   ids: string[];
+  error: string;
 }
 
 export const importHistorySchema = new Schema({
@@ -38,5 +39,6 @@ export const importHistorySchema = new Schema({
   removed: field({ type: [String] }),
   ids: field({ type: [String] }),
 
-  attachments: field({ type: Object, label: 'Attachments' })
+  attachments: field({ type: Object, label: 'Attachments' }),
+  error: field({ type: String })
 });

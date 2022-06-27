@@ -34,18 +34,17 @@ class ProductListContainer extends React.Component<FinalProps> {
     };
   }
 
-
   onSearch = (search: string) => {
     if (!search) {
       return router.removeParams(this.props.history, 'search');
     }
-
+    router.removeParams(this.props.history, 'page');
     router.setParams(this.props.history, { search });
   };
 
   onSelect = (values: string[] | string, key: string) => {
     const params = generateQueryParams(this.props.history);
-
+    router.removeParams(this.props.history, 'page');
     if (params[key] === values) {
       return router.removeParams(this.props.history, key);
     }
@@ -54,6 +53,8 @@ class ProductListContainer extends React.Component<FinalProps> {
   };
 
   onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(this.props.history, 'page');
+
     for (const key of Object.keys(filterParams)) {
       if (filterParams[key]) {
         router.setParams(this.props.history, { [key]: filterParams[key] });
@@ -62,8 +63,8 @@ class ProductListContainer extends React.Component<FinalProps> {
       }
     }
 
-    return router
-  }
+    return router;
+  };
 
   isFiltered = (): boolean => {
     const params = generateQueryParams(this.props.history);
@@ -82,18 +83,19 @@ class ProductListContainer extends React.Component<FinalProps> {
     router.removeParams(this.props.history, ...Object.keys(params));
   };
 
-
   render() {
-    const {
-      posProductsQuery,
-      queryParams,
-    } = this.props;
+    const { posProductsQuery, queryParams } = this.props;
 
     if (posProductsQuery.loading) {
-      return <Spinner />
+      return <Spinner />;
     }
-    const products = posProductsQuery.posProducts && posProductsQuery.posProducts.products || [];
-    const totalCount = posProductsQuery.posProducts && posProductsQuery.posProducts.totalCount || 0;
+    const products =
+      (posProductsQuery.posProducts && posProductsQuery.posProducts.products) ||
+      [];
+    const totalCount =
+      (posProductsQuery.posProducts &&
+        posProductsQuery.posProducts.totalCount) ||
+      0;
 
     const searchValue = this.props.queryParams.searchValue || '';
 
@@ -109,7 +111,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       onSelect: this.onSelect,
       onSearch: this.onSearch,
       isFiltered: this.isFiltered(),
-      clearFilter: this.clearFilter,
+      clearFilter: this.clearFilter
     };
 
     const productList = props => {
@@ -142,11 +144,11 @@ export default withProps<Props>(
             createdEndDate: queryParams.createdEndDate,
             paidDate: queryParams.paidDate,
             userId: queryParams.userId,
-            customerId: queryParams.customerId,
+            customerId: queryParams.customerId
           },
           fetchPolicy: 'network-only'
         })
       }
-    ),
+    )
   )(ProductListContainer)
 );

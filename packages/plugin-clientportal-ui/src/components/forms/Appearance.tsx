@@ -1,3 +1,4 @@
+import EditorCK from '@erxes/ui/src/components/EditorCK';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
@@ -23,6 +24,8 @@ type Props = {
   styles?: Styles;
   icon?: string;
   logo?: string;
+  headerHtml?: string;
+  footerHtml?: string;
   handleFormChange: (name: string, value: string | object) => void;
 };
 
@@ -39,7 +42,9 @@ function Appearance({
   styles = {},
   handleFormChange,
   icon = '',
-  logo = ''
+  logo = '',
+  headerHtml = '',
+  footerHtml = ''
 }: Props) {
   const {
     bodyColor,
@@ -296,12 +301,50 @@ function Appearance({
     );
   };
 
+  const onHeaderChange = e => {
+    handleFormChange('headerHtml', e.editor.getData());
+  };
+
+  const onFooterChange = e => {
+    handleFormChange('footerHtml', e.editor.getData());
+  };
+
   return (
     <>
       {renderLogos()}
       {renderColors()}
       {renderFonts()}
       {renderFormElements()}
+
+      <Block>
+        <h4>{__('Advanced')}</h4>
+
+        <FlexContent>
+          <FormGroup>
+            <ControlLabel>Header html</ControlLabel>
+
+            <EditorCK
+              content={headerHtml}
+              onChange={onHeaderChange}
+              height={200}
+              name="clientportal-header"
+            />
+          </FormGroup>
+        </FlexContent>
+
+        <FlexContent>
+          <FormGroup>
+            <ControlLabel>Footer html</ControlLabel>
+
+            <EditorCK
+              content={footerHtml}
+              onChange={onFooterChange}
+              height={200}
+              name="clientportal-footer"
+            />
+          </FormGroup>
+        </FlexContent>
+      </Block>
     </>
   );
 }

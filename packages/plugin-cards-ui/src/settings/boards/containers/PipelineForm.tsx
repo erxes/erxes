@@ -1,20 +1,20 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import {
   BoardsQueryResponse,
-  StagesQueryResponse,
-} from "@erxes/ui-cards/src/boards/types";
-import { IPipeline } from "@erxes/ui-cards/src/boards/types";
-import { DepartmentsQueryResponse } from "@erxes/ui-team/src/types";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { IButtonMutateProps } from "@erxes/ui/src/types";
-import { withProps } from "@erxes/ui/src/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import PipelineForm from "../components/PipelineForm";
-import { queries } from "@erxes/ui-settings/src/boards/graphql";
-import { queries as teamQueries } from "@erxes/ui-team/src/graphql";
-import { IOption } from "../types";
+  StagesQueryResponse
+} from '@erxes/ui-cards/src/boards/types';
+import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+import { DepartmentsQueryResponse } from '@erxes/ui/src/team/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import PipelineForm from '../components/PipelineForm';
+import { queries } from '@erxes/ui-settings/src/boards/graphql';
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
+import { IOption } from '../types';
 
 type Props = {
   pipeline?: IPipeline;
@@ -40,7 +40,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       departmentsQuery,
       boardId,
       renderButton,
-      options,
+      options
     } = this.props;
 
     if (
@@ -61,7 +61,7 @@ class PipelineFormContainer extends React.Component<FinalProps> {
       boards,
       departments,
       boardId,
-      renderButton,
+      renderButton
     };
 
     const Form = options ? options.PipelineForm : PipelineForm;
@@ -75,22 +75,22 @@ export default withProps<Props>(
     graphql<Props, StagesQueryResponse, { pipelineId: string }>(
       gql(queries.stages),
       {
-        name: "stagesQuery",
+        name: 'stagesQuery',
         skip: props => !props.pipeline,
         options: ({ pipeline }: { pipeline?: IPipeline }) => ({
-          variables: { pipelineId: pipeline ? pipeline._id : "", isAll: true },
-          fetchPolicy: "network-only",
-        }),
+          variables: { pipelineId: pipeline ? pipeline._id : '', isAll: true },
+          fetchPolicy: 'network-only'
+        })
       }
     ),
     graphql<{}, DepartmentsQueryResponse>(gql(teamQueries.departments), {
-      name: "departmentsQuery",
+      name: 'departmentsQuery'
     }),
     graphql<Props, BoardsQueryResponse, {}>(gql(queries.boards), {
-      name: "boardsQuery",
+      name: 'boardsQuery',
       options: ({ type }) => ({
-        variables: { type },
-      }),
+        variables: { type }
+      })
     })
   )(PipelineFormContainer)
 );

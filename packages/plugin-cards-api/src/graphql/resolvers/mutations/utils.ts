@@ -42,6 +42,7 @@ import {
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { generateModels, IModels } from '../../../connectionResolver';
 import {
+  sendCoreMessage,
   sendFormsMessage,
   sendNotificationsMessage
 } from '../../../messageBroker';
@@ -337,6 +338,19 @@ export const itemsEdit = async (
 
   await sendNotifications(models, subdomain, notificationDoc);
 
+  if (!notificationDoc.invitedUsers && !notificationDoc.removedUsers) {
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: notificationDoc?.item?.name,
+        body: `${user?.details?.fullName ||
+          user?.details?.shortName} has updated`,
+        receivers: notificationDoc?.item?.assignedUserIds
+      }
+    });
+  }
+
   putUpdateLog(
     models,
     subdomain,
@@ -537,6 +551,19 @@ export const itemsChange = async (
     contentType: type
   });
 
+  if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `${item.name}`,
+        body: `${user?.details?.fullName || user?.details?.shortName} ${action +
+          content}`,
+        receivers: item?.assignedUserIds
+      }
+    });
+  }
+
   await putUpdateLog(
     models,
     subdomain,
@@ -586,6 +613,19 @@ export const itemsRemove = async (
     content: `'${item.name}'`,
     contentType: type
   });
+
+  if (item?.assignedUserIds && item?.assignedUserIds?.length > 0) {
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `${item.name}`,
+        body: `${user?.details?.fullName ||
+          user?.details?.shortName} deleted the ${type}`,
+        receivers: item?.assignedUserIds
+      }
+    });
+  }
 
   await destroyBoardItemRelations(models, subdomain, item._id, type);
 

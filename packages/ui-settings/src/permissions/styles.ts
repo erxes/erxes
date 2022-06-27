@@ -3,7 +3,8 @@ import { colors } from '@erxes/ui/src/styles';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 
 const FilterWrapper = styled.div`
-  padding: 10px 20px;
+  margin: 10px 20px 0 20px;
+  padding-bottom: 10px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

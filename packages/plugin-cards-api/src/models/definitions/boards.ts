@@ -52,6 +52,7 @@ export interface IItemCommonFields {
   score?: number;
   number?: string;
   data?: any;
+  tagIds?: string[];
 }
 
 export interface IItemCommonFieldsDocument extends IItemCommonFields, Document {
@@ -245,6 +246,12 @@ export const commonItemFieldsSchema = {
     type: [relationSchema],
     optional: true,
     label: 'Related items used for gantt chart'
+  }),
+  tagIds: field({
+    type: [String],
+    optional: true,
+    index: true,
+    label: 'Tags'
   })
 };
 

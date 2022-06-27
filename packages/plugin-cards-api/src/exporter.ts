@@ -40,6 +40,8 @@ const filterHeaders = headers => {
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
 
+  console.log(itemType);
+
   switch (itemType) {
     case MODULE_NAMES.DEAL:
     case MODULE_NAMES.TASK:
@@ -167,6 +169,44 @@ const fillCellValue = async (
 
       break;
 
+    case 'boardId':
+      const stageForBoard = await models.Stages.findOne({
+        _id: item.stageId
+      });
+
+      cellValue = emptyMsg;
+
+      if (stageForBoard) {
+        const pipeline = await models.Pipelines.findOne({
+          _id: stageForBoard.pipelineId
+        });
+
+        if (pipeline) {
+          const board = await models.Boards.findOne({ _id: pipeline.boardId });
+
+          cellValue = board ? board.name : emptyMsg;
+        }
+      }
+
+      break;
+
+    case 'pipelineId':
+      const stageForPipeline = await models.Stages.findOne({
+        _id: item.stageId
+      });
+
+      cellValue = emptyMsg;
+
+      if (stageForPipeline) {
+        const pipeline = await models.Pipelines.findOne({
+          _id: stageForPipeline.pipelineId
+        });
+
+        cellValue = pipeline ? pipeline.name : emptyMsg;
+      }
+
+      break;
+
     case 'initialStageId':
       const initialStage: IStageDocument | null = await models.Stages.findOne({
         _id: item.initialStageId
@@ -200,8 +240,7 @@ const fillCellValue = async (
 const prepareData = async (
   models: IModels,
   subdomain: string,
-  query: any,
-  user: IUserDocument
+  query: any
 ): Promise<any[]> => {
   const { type, segment } = query;
 
@@ -215,9 +254,7 @@ const prepareData = async (
     boardItemsFilter._id = { $in: itemIds };
   }
 
-  const contentType = type.split(':')[1];
-
-  switch (contentType) {
+  switch (type) {
     case MODULE_NAMES.DEAL:
       data = await models.Deals.find(boardItemsFilter);
 
@@ -352,15 +389,11 @@ const fillDealProductValue = async (
 export const buildFile = async (
   models: IModels,
   subdomain: string,
-  query: any,
-  user: IUserDocument
+  query: any
 ): Promise<{ name: string; response: string }> => {
-  const { configs } = query;
-  const type = query.type;
+  const { configs, type } = query;
 
-  const contentType = type.split(':')[1];
-
-  const data = await prepareData(models, subdomain, query, user);
+  const data = await prepareData(models, subdomain, query);
 
   // Reads default template
   const { workbook, sheet } = await createXlsFile();
@@ -370,7 +403,7 @@ export const buildFile = async (
   const dealIds: string[] = [];
   let dealRowIndex: number = 0;
 
-  let headers: IColumnLabel[] = fillHeaders(contentType);
+  let headers: IColumnLabel[] = fillHeaders(type);
 
   if (configs) {
     headers = JSON.parse(configs).map(config => {
@@ -400,7 +433,7 @@ export const buildFile = async (
             }),
           item,
           column,
-          contentType
+          type
         );
 
         if (field && value) {
@@ -447,7 +480,7 @@ export const buildFile = async (
   } // end items for loop
 
   return {
-    name: `${contentType} - ${moment().format('YYYY-MM-DD HH:mm')}`,
+    name: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,
     response: await generateXlsx(workbook)
   };
 };

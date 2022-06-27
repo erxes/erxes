@@ -102,15 +102,15 @@ export const loadClasses = (
   models.ProductCategories = db.model<
     IProductCategoryDocument,
     IProductCategoryModel
-  >('productCategories', loadProductCategoryClass(models));
+  >('product_categories', loadProductCategoryClass(models));
 
   models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
-    'putResponses',
+    'put_responses',
     loadPutResponseClass(models)
   );
 
   models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'qpayInvoices',
+    'qpay_invoices',
     loadQPayInvoiceClass(models)
   );
 

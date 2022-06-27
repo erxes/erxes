@@ -14,9 +14,9 @@ const ImportColumnRow = styled.tr`
 
 const Box = styled(BoxRoot)`
   height: 180px;
-  width: 200px;
+  width: 165px;
   padding: 40px;
-  background: ${colors.bgLight};
+  background: transparent;
   border-radius: ${dimensions.unitSpacing}px;
   i {
     font-size: 38px;

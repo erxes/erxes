@@ -230,7 +230,8 @@ async function startServer() {
         automations,
         search,
         webhooks,
-        initialSetup
+        initialSetup,
+        cronjobs
       } = configs.meta;
       const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
@@ -418,7 +419,34 @@ async function startServer() {
           data: await search(args)
         }));
       }
-    }
+
+      if (cronjobs) {
+        if (cronjobs.handleMinutelyJob) {
+          cronjobs.handleMinutelyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleMinutelyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleMinutelyJob(args)
+          }));
+        }
+        if (cronjobs.handleHourlyJob) {
+          cronjobs.handleHourlyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleHourlyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleHourlyJob(args)
+          }));
+        }
+        if (cronjobs.handleDailyJob) {
+          cronjobs.handleDailyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handleDailyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handleDailyJob(args)
+          }));
+        }
+      }
+    } // end configs.meta if
 
     await join({
       name: configs.name,
@@ -441,7 +469,7 @@ async function startServer() {
       }
     });
 
-    debugInfo(`${configs.name} server is running on port ${PORT}`);
+    debugInfo(`${configs.name} server is running on port: ${PORT}`);
   } catch (e) {
     debugError(`Error during startup ${e.message}`);
   }

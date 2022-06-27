@@ -29,44 +29,22 @@ type Props = {
 
 function Welcome({ currentUser }: Props) {
   const history = useHistory();
-  const completedSteps =
-    currentUser.onboardingHistory &&
-    currentUser.onboardingHistory.completedSteps;
+  const { onboardingHistory, username } = currentUser;
+  const completedSteps = onboardingHistory && onboardingHistory.completedSteps;
+  let active = 0;
 
-  let active = 1;
+  if (username) active = 1;
 
-  if (currentUser.username && currentUser.email) active = 2;
+  if (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1)
+    active = 2;
 
-  if (
-    (completedSteps && completedSteps.indexOf('generalSettingsCreate') > -1) ||
-    (currentUser.configs.dealCurrency &&
-      currentUser.configs.dealCurrency.length !== 0) ||
-    (currentUser.configs.dealUOM && currentUser.configs.dealUOM.length !== 0)
-  )
+  if (completedSteps && completedSteps.indexOf('brandCreate') !== -1)
     active = 3;
 
-  if (currentUser.brands!.length !== 0) active = 4;
-
   if (completedSteps && completedSteps.indexOf('userGroupCreate') > -1)
-    active = 5;
+    active = 4;
 
-  if (completedSteps && completedSteps.indexOf('userCreate') > -1) active = 6;
-
-  Object.keys(currentUser.configs).map((value: string) => {
-    if (
-      value.includes('AWS') ||
-      value.includes('GOOGLE') ||
-      value.includes('COMPANY') ||
-      value.includes('FILE') ||
-      value.includes('MAIL') ||
-      value.includes('EMAIL') ||
-      value.includes('WIDGETS') ||
-      value.includes('UPLOAD')
-    ) {
-      active = 7;
-      return;
-    }
-  });
+  if (completedSteps && completedSteps.indexOf('userCreate') > 1) active = 5;
 
   const renderUserName = () => {
     if (!currentUser) {
@@ -113,6 +91,7 @@ function Welcome({ currentUser }: Props) {
     image?: string,
     description?: string
   ) => {
+    const percentage = Math.floor((active / 5) * 100);
     return (
       <BoxHeader>
         <Left>
@@ -124,8 +103,8 @@ function Welcome({ currentUser }: Props) {
         </Left>
         {title === 'Setup Process' && (
           <ProgressBar
-            percentage={Math.floor((active / 7) * 100)}
-            color="success"
+            percentage={percentage}
+            color={percentage === 100 ? '#3CCC38' : '#673FBD'}
             type="circle"
             height="70px"
           />
@@ -166,65 +145,48 @@ function Welcome({ currentUser }: Props) {
     );
   };
 
+  const renderSetupStep = (title: string, text: string, url: string) => {
+    return (
+      <Step title={title} active={active}>
+        <Button
+          size="small"
+          icon="arrow-right"
+          onClick={() => history.push(url)}
+        >
+          {text}
+        </Button>
+      </Step>
+    );
+  };
+
   const renderSetup = () => {
     return (
       <Steps direction="vertical" active={active}>
-        <Step title="General Information">
-          <Button
-            size="small"
-            onClick={() => history.push('/profile')}
-            icon="arrow-right"
-          >
-            Go to your profile
-          </Button>
-        </Step>
-        <Step title="General system configuration">
-          <Button
-            size="small"
-            onClick={() => history.push('/settings/general')}
-            icon="arrow-right"
-          >
-            Go to the general setting
-          </Button>
-        </Step>
-        <Step title="Create a brand">
-          <Button
-            size="small"
-            onClick={() =>
-              history.push('/settings/brands#showBrandAddModal=true')
-            }
-            icon="arrow-right"
-          >
-            Go to the brand settings
-          </Button>
-        </Step>
-        <Step title="Create a user group">
-          <Button
-            size="small"
-            onClick={() => history.push('/settings/permissions')}
-            icon="arrow-right"
-          >
-            Go to permissions
-          </Button>
-        </Step>
-        <Step title="Invite team members">
-          <Button
-            size="small"
-            onClick={() => history.push('/settings/team')}
-            icon="arrow-right"
-          >
-            Go to team members
-          </Button>
-        </Step>
-        <Step title="Connecting service">
-          <Button
-            size="small"
-            onClick={() => history.push('/settings/general')}
-            icon="arrow-right"
-          >
-            Go to the general settings
-          </Button>
-        </Step>
+        {renderSetupStep(
+          'General Information',
+          'Go to your profile',
+          '/profile'
+        )}
+        {renderSetupStep(
+          'General system configuration',
+          'Go to the general setting',
+          '/settings/general'
+        )}
+        {renderSetupStep(
+          'Create a brand',
+          'Go to the brand settings',
+          '/settings/brands#showBrandAddModal=true'
+        )}
+        {renderSetupStep(
+          'Create a user group',
+          'Go to permissions',
+          '/settings/permissions'
+        )}
+        {renderSetupStep(
+          'Invite team members',
+          'Go to team members',
+          '/settings/team'
+        )}
       </Steps>
     );
   };
@@ -257,8 +219,20 @@ function Welcome({ currentUser }: Props) {
             'System configuration',
             'https://www.youtube-nocookie.com/embed/PDP9Jd7BCZs'
           )}
+          {renderVideo(
+            'Notification',
+            'https://www.youtube-nocookie.com/embed/PDP9Jd7BCZs'
+          )}
+          {renderVideo(
+            'Logs',
+            'https://www.youtube-nocookie.com/embed/AHOtbefxwaw'
+          )}
         </Boxes>
         <Boxes>
+          {renderVideo(
+            'Organization settings',
+            'https://www.youtube-nocookie.com/embed/wzOyqmoxhmo'
+          )}
           {renderVideo(
             'Signature',
             'https://www.youtube-nocookie.com/embed/Eg9D4r38aso'
@@ -266,6 +240,10 @@ function Welcome({ currentUser }: Props) {
           {renderVideo(
             'Brands',
             'https://www.youtube-nocookie.com/embed/ri17N4J478E'
+          )}
+          {renderVideo(
+            'Use cases',
+            'https://www.youtube.com/embed/videoseries?list=PLwRYODuwm31um-syg-C2j6QhCDByopXNQ'
           )}
         </Boxes>
       </WidgetBackgrounds>
@@ -291,7 +269,6 @@ function Welcome({ currentUser }: Props) {
                 img={com.image}
                 iconColor="black"
                 target="_blank"
-                rel="noopener"
               >
                 {com.name}
               </Button>
@@ -312,13 +289,7 @@ function Welcome({ currentUser }: Props) {
             <h4>{title}</h4>
             <p>{desc}</p>
             <br />
-            <Button
-              size="large"
-              btnStyle="white"
-              href={href}
-              target="_blank"
-              rel="noopener"
-            >
+            <Button size="large" btnStyle="white" href={href} target="_blank">
               {button}
             </Button>
           </div>

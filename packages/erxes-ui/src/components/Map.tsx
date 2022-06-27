@@ -16,10 +16,11 @@ interface IMapControlOptions {
 
 type Props = {
   googleMapApiKey: string;
-  center: { lat: number; lng: number };
+  center: { lat: number; lng: number; description?: string };
   locationOptions: ILocationOption[];
   defaultZoom: number;
   mapControlOptions: IMapControlOptions;
+  drawPolyLines?: boolean;
   isPreview?: boolean;
   onChangeMarker?: (location: ILocationOption) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
@@ -28,9 +29,12 @@ type Props = {
 type State = {
   isMapDraggable: boolean;
   locationOptions: ILocationOption[];
-  center: { lat: number; lng: number };
+  center: { lat: number; lng: number; description?: string };
   mapSize: { width: number; height: number };
   mapStyle?: any;
+  geodesicPolyline?: any;
+  map?: any;
+  maps?: any;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
@@ -41,13 +45,34 @@ export default class GenerateField extends React.Component<Props, State> {
       isMapDraggable: true,
       center: props.center,
       locationOptions: props.locationOptions || [],
-      mapSize: { width: 0, height: 0 }
+      mapSize: { width: 0, height: 0 },
+      geodesicPolyline: null
     };
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.locationOptions !== this.props.locationOptions) {
-      this.setState({ locationOptions: nextProps.locationOptions });
+      let { geodesicPolyline } = this.state;
+      if (!geodesicPolyline) {
+        return;
+      }
+
+      geodesicPolyline.setMap(null);
+
+      geodesicPolyline = new this.state.maps.Polyline({
+        path: nextProps.locationOptions,
+        geodesic: true,
+        strokeColor: '#e10031',
+        strokeOpacity: 0.7,
+        strokeWeight: 2
+      });
+
+      geodesicPolyline.setMap(this.state.map);
+
+      this.setState({
+        locationOptions: nextProps.locationOptions,
+        geodesicPolyline
+      });
     }
 
     if (nextProps.center !== this.props.center) {
@@ -57,6 +82,42 @@ export default class GenerateField extends React.Component<Props, State> {
 
       this.setState({ center: nextProps.center });
     }
+  }
+
+  fitBounds(map, maps) {
+    var bounds = new maps.LatLngBounds();
+    for (let marker of this.props.locationOptions) {
+      bounds.extend(new maps.LatLng(marker.lat, marker.lng));
+    }
+    map.fitBounds(bounds);
+  }
+
+  onLoadMaps(map, maps) {
+    const geodesicPolyline = new maps.Polyline({
+      path: this.props.locationOptions,
+      geodesic: true,
+      strokeColor: '#e10031',
+      strokeOpacity: 0.7,
+      strokeWeight: 2
+    });
+
+    geodesicPolyline.setMap(map);
+
+    this.setState({ map, maps, geodesicPolyline });
+  }
+
+  renderPolylines() {
+    if (!this.props.drawPolyLines) {
+      return;
+    }
+
+    const { map, maps, geodesicPolyline } = this.state;
+
+    if (!map || !maps || !geodesicPolyline) {
+      return;
+    }
+
+    this.fitBounds(map, maps);
   }
 
   render() {
@@ -151,45 +212,49 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     return (
-      <GoogleMapReact
-        style={mapStyle}
-        bootstrapURLKeys={{ key: this.props.googleMapApiKey }}
-        draggable={isMapDraggable}
-        center={center}
-        defaultZoom={center.lat === 0 ? 0 : defaultZoom}
-        options={mapControlOptions}
-        onChildMouseDown={onMarkerInteraction}
-        onChildMouseUp={onMarkerInteractionMouseUp}
-        onChildMouseMove={onMarkerInteraction}
-        onClick={onClick}
-        onChange={onChangeMap}
-      >
-        {locationOptions.length > 0 ? (
-          locationOptions.map((option, index) => (
+      <>
+        <GoogleMapReact
+          style={mapStyle}
+          bootstrapURLKeys={{ key: this.props.googleMapApiKey }}
+          draggable={isMapDraggable}
+          center={center}
+          defaultZoom={center.lat === 0 ? 0 : defaultZoom}
+          options={mapControlOptions}
+          onChildMouseDown={onMarkerInteraction}
+          onChildMouseUp={onMarkerInteractionMouseUp}
+          onChildMouseMove={onMarkerInteraction}
+          onClick={onClick}
+          onChange={onChangeMap}
+          onGoogleApiLoaded={({ map, maps }) => this.onLoadMaps(map, maps)}
+        >
+          {locationOptions.length > 0 ? (
+            locationOptions.map((option, index) => (
+              <Marker
+                key={index}
+                onChange={onChangeMarker}
+                lat={option.lat}
+                lng={option.lng}
+                description={option.description}
+                color={
+                  option.lat === center.lat && option.lng === center.lng
+                    ? colors.colorCoreRed
+                    : colors.colorSecondary
+                }
+              />
+            ))
+          ) : (
             <Marker
-              key={index}
+              key={'current'}
               onChange={onChangeMarker}
-              lat={option.lat}
-              lng={option.lng}
-              description={option.description}
-              color={
-                option.lat === center.lat && option.lng === center.lng
-                  ? colors.colorCoreRed
-                  : colors.colorSecondary
-              }
+              lat={center.lat}
+              lng={center.lng}
+              description={center.description || 'Your location'}
+              color={colors.colorSecondary}
             />
-          ))
-        ) : (
-          <Marker
-            key={'current'}
-            onChange={onChangeMarker}
-            lat={center.lat}
-            lng={center.lng}
-            description={'Your location'}
-            color={colors.colorSecondary}
-          />
-        )}
-      </GoogleMapReact>
+          )}
+        </GoogleMapReact>
+        {this.renderPolylines()}
+      </>
     );
   }
 }

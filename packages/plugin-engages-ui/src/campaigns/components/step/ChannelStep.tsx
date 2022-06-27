@@ -6,7 +6,7 @@ import { colors } from '@erxes/ui/src/styles';
 import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { METHODS } from '@erxes/ui-engage/src/constants';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+// import { isEnabled } from "@erxes/ui/src/utils/core";
 
 const Box = styled(BoxRoot)`
   width: 320px;
@@ -66,11 +66,11 @@ class ChannelStep extends React.Component<Props> {
           'comment-edit',
           'Interact personally with direct in-app-messaging'
         )}
-        {isEnabled('integrations') && this.renderBox(
+        {/* {isEnabled('integrations') && this.renderBox(
           METHODS.SMS,
           'comment-alt-message',
           `Send bulk SMS online with simple and direct texts`
-        )}
+        )} */}
       </FullContent>
     );
   }

@@ -1,3 +1,5 @@
+import * as serverTiming from 'server-timing';
+
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
@@ -15,6 +17,7 @@ import automations from './automations';
 import search from './search';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
+import tags from './tags';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -43,7 +46,8 @@ export default {
     imports,
     internalNotes,
     search,
-    webhooks
+    webhooks,
+    tags
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -60,6 +64,7 @@ export default {
 
     return context;
   },
+  middlewares: [(serverTiming as any)()],
   onServerInit: async options => {
     mainDb = options.db;
 
@@ -68,13 +73,13 @@ export default {
     app.get(
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
-        const { query, user } = req;
+        const { query } = req;
         const { segment } = query;
 
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        const result = await buildFile(models, subdomain, query, user);
+        const result = await buildFile(models, subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
 

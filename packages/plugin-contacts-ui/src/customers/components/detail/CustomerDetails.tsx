@@ -121,8 +121,8 @@ class CustomerDetails extends React.Component<Props> {
               { name: 'inbox:conversation', label: 'Conversation' },
               { name: 'email', label: 'Email' },
               { name: 'cards:task', label: 'Task' },
-              { name: 'sms', label: 'SMS' },
-              { name: 'campaign', label: 'Campaign' }
+              // { name: 'sms', label: 'SMS' },
+              { name: 'engages:campaign', label: 'Campaign' }
             ]}
           />
         )}

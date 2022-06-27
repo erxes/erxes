@@ -411,7 +411,13 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   toggleDrawer = (type: string) => {
-    this.setState({ showDrawer: !this.state.showDrawer, currentTab: type });
+    const { showDrawer, triggers } = this.state;
+
+    if (type === 'actions' && triggers.length === 0) {
+      return Alert.warning('Please add a Trigger first!');
+    }
+
+    this.setState({ showDrawer: !showDrawer, currentTab: type });
   };
 
   getNewId = (checkIds: string[]) => {
@@ -579,7 +585,12 @@ class AutomationForm extends React.Component<Props, State> {
       });
 
       if (instance.getSelector(`#${idElm}`).length > 0) {
-        instance.draggable(instance.getSelector(`#${idElm}`));
+        instance.draggable(instance.getSelector(`#${idElm}`), {
+          cursor: 'move',
+          stop: function(params) {
+            item.style = jquery(`#${idElm}`).attr('style');
+          }
+        });
       }
     }
 
@@ -601,7 +612,12 @@ class AutomationForm extends React.Component<Props, State> {
         });
       }
 
-      instance.draggable(instance.getSelector(`#${idElm}`));
+      instance.draggable(instance.getSelector(`#${idElm}`), {
+        cursor: 'move',
+        stop: function(params) {
+          item.style = jquery(`#${idElm}`).attr('style');
+        }
+      });
     }
   };
 
