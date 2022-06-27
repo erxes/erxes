@@ -1,4 +1,4 @@
-import { IContext } from '../../../connectionResolver';
+import { IContext, models } from '../../../connectionResolver';
 import {
   ISalesLog,
   ISalesLogDocument,
@@ -28,13 +28,10 @@ const salesLogMutations = {
 
   salesLogProductUpdate: async (
     _root: any,
-    doc: { _id: string; productData: ISalesLogProduct },
+    doc: { _id: string; data: ISalesLogProduct },
     { models }: IContext
   ) => {
-    return await models.SalesLogs.salesLogProductUpdate(
-      doc._id,
-      doc.productData
-    );
+    return await models.SalesLogs.salesLogProductUpdate(doc._id, doc.data);
   },
 
   salesLogProductRemove: async (
@@ -43,6 +40,14 @@ const salesLogMutations = {
     { models }: IContext
   ) => {
     return await models.SalesLogs.salesLogProductRemove(doc._id, doc.productId);
+  },
+
+  salesLogStatusUpdate: async (
+    _root: any,
+    doc: { _id: string; status: string },
+    { models }: IContext
+  ) => {
+    return await models.SalesLogs.salesLogStatusUpdate(doc._id, doc.status);
   },
 
   saveDayPlanConfig: async (

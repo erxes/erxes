@@ -6,9 +6,9 @@ import { Alert } from '@erxes/ui/src/utils';
 import { DataWithLoader } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import queryString from 'query-string';
-import FormComponent from '../components/Form';
+import FormListComponent from '../components/FormList';
 
-const FormContainer = () => {
+const FormListContainer = () => {
   const location = useLocation();
   const query = queryString.parse(location.search);
   const salesLogId = query.salesLogId ? query.salesLogId : '';
@@ -16,7 +16,7 @@ const FormContainer = () => {
 
   const productsQuery = useQuery(gql(queries.products));
   const timeframesQuery = useQuery(gql(queries.timeframes));
-  const salesLogQuery = useQuery(gql(queries.getSalesLogDetail), {
+  const salesLogQuery = useQuery(gql(queries.salesLogDetail), {
     variables: { salesLogId }
   });
 
@@ -48,13 +48,13 @@ const FormContainer = () => {
   return (
     <DataWithLoader
       data={
-        <FormComponent
-          products={productsQuery.data && productsQuery.data.products}
+        <FormListComponent
+          products={productsQuery.data ? productsQuery.data.products : []}
           timeframes={
-            timeframesQuery.data && timeframesQuery.data.getTimeframes
+            timeframesQuery.data ? timeframesQuery.data.timeframes : []
           }
           categoryId={categoryId}
-          data={salesLogQuery.data && salesLogQuery.data.getSalesLogDetail}
+          data={salesLogQuery.data ? salesLogQuery.data.salesLogDetail : {}}
           update={productUpdate}
           remove={productRemove}
         />
@@ -64,4 +64,4 @@ const FormContainer = () => {
   );
 };
 
-export default FormContainer;
+export default FormListContainer;

@@ -1,5 +1,5 @@
 import React from 'react';
-import SalesPlansRoutes from './main/routes';
+import SalesPlansRoutes from './salesplans/routes';
 import ProductsRoutes from './products/routes';
 
 const routes = () => {

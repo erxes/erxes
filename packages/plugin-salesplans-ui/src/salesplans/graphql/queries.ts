@@ -1,6 +1,6 @@
-const getLabels = `
-  query getLabels($type:String) {
-    getLabels(type:$type) {
+const labels = `
+  query labels($type: String) {
+    labels(type: $type) {
       _id,
       type,
       color,
@@ -10,9 +10,9 @@ const getLabels = `
   }
 `;
 
-const getTimeframes = `
-  query getTimeframes {
-    getTimeframes {
+const timeframes = `
+  query timeframes {
+    timeframes {
       _id,
       name,
       description,
@@ -39,9 +39,9 @@ const branches = `
   }
 `;
 
-const getSalesLogs = `
-  query getSalesLogs {
-    getSalesLogs {
+const salesLogs = `
+  query salesLogs {
+    salesLogs {
       _id,
       name,
       description,
@@ -67,9 +67,9 @@ const getSalesLogs = `
   }
 `;
 
-const getSalesLogDetail = `
-  query getSalesLogDetail($salesLogId: String) {
-    getSalesLogDetail(salesLogId: $salesLogId) {
+const salesLogDetail = `
+  query salesLogDetail($salesLogId: String) {
+    salesLogDetail(salesLogId: $salesLogId) {
       _id,
       name,
       description,
@@ -86,9 +86,9 @@ const getSalesLogDetail = `
   }
 `;
 
-const getDayPlanConfig = `
-  query getDayPlanConfig($salesLogId: String) {
-    getDayPlanConfig(salesLogId: $salesLogId) {
+const dayPlanConfig = `
+  query dayPlanConfig($salesLogId: String) {
+    dayPlanConfig(salesLogId: $salesLogId) {
       _id,
       labelIds,
       timeframeId
@@ -96,8 +96,8 @@ const getDayPlanConfig = `
   }
 `;
 
-const getMonthPlanConfig = `
-  query getMonthPlanConfig($salesLogId: String) {
+const monthPlanConfig = `
+  query monthPlanConfig($salesLogId: String) {
     getMonthPlanConfig(salesLogId: $salesLogId) {
       _id,
       labelIds,
@@ -106,9 +106,9 @@ const getMonthPlanConfig = `
   }
 `;
 
-const getYearPlanConfig = `
-  query getYearPlanConfig($salesLogId: String) {
-    getYearPlanConfig(salesLogId: $salesLogId) {
+const yearPlanConfig = `
+  query yearPlanConfig($salesLogId: String) {
+    yearPlanConfig(salesLogId: $salesLogId) {
       _id,
       labelIds,
       month
@@ -117,13 +117,13 @@ const getYearPlanConfig = `
 `;
 
 export default {
-  getLabels,
-  getTimeframes,
+  labels,
+  timeframes,
   departments,
   branches,
-  getSalesLogs,
-  getSalesLogDetail,
-  getMonthPlanConfig,
-  getDayPlanConfig,
-  getYearPlanConfig
+  salesLogs,
+  salesLogDetail,
+  monthPlanConfig,
+  dayPlanConfig,
+  yearPlanConfig
 };

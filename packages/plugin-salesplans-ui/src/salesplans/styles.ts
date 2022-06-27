@@ -28,25 +28,10 @@ const ColorPicker = styled.div`
   border-radius: 2px;,
 `;
 
-const Capitalize = styled.span`
-  text-transform: capitalize;
-  font-weight: 500;
-`;
-
-const RowTitle = styled.div`
-  > a {
-    color: ${colors.textPrimary};
-  }
-
-  &:hover {
-    text-decoration: underline;
-    color: ${colors.colorBlack};
-    cursor: pointer;
-  }
-`;
-
-const SalesPlansWrapper = styled.div`
-  padding: ${dimensions.unitSpacing}px;
+const LabelsTableWrapper = styled.div`
+  border: 1px solid ${colors.borderDarker};
+  border-radius: 5px;
+  padding: 10px 0px !important;
 `;
 
 export {
@@ -54,7 +39,5 @@ export {
   ColorPickerWrapper,
   ColorPick,
   ColorPicker,
-  Capitalize,
-  RowTitle,
-  SalesPlansWrapper
+  LabelsTableWrapper
 };

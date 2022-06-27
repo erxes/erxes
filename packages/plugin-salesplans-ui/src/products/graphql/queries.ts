@@ -1,6 +1,6 @@
 const timeframes = `
   query timeframes {
-    getTimeframes {
+    timeframes {
       _id,
       name,
       description,
@@ -10,15 +10,16 @@ const timeframes = `
   }
 `;
 
-const getSalesLogDetail = `
-  query getSalesLogDetail($salesLogId: String) {
-    getSalesLogDetail(salesLogId: $salesLogId) {
+const salesLogDetail = `
+  query salesLogDetail($salesLogId: String) {
+    salesLogDetail(salesLogId: $salesLogId) {
       _id,
       name,
       description,
       type,
       date,
       labels,
+      status,
       products {
         _id
         quantities {
@@ -58,7 +59,7 @@ const productCategories = `
 
 export default {
   timeframes,
-  getSalesLogDetail,
+  salesLogDetail,
   products,
   productCategories
 };

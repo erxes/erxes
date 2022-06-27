@@ -7,6 +7,7 @@ import FormComponent from '../components/Form';
 type Props = {
   initialData?: any;
   submit: (data: any) => void;
+  closeModal?: () => void;
 };
 
 const FormContainer = (props: Props) => {
@@ -16,7 +17,7 @@ const FormContainer = (props: Props) => {
     initialData && initialData.type ? initialData.type : ''
   );
 
-  const labelsQuery = useQuery(gql(queries.getLabels), {
+  const labelsQuery = useQuery(gql(queries.labels), {
     variables: { type }
   });
 
@@ -27,7 +28,7 @@ const FormContainer = (props: Props) => {
   return (
     <FormComponent
       {...props}
-      labels={labelsQuery.data ? labelsQuery.data.getLabels : []}
+      labels={labelsQuery.data ? labelsQuery.data.labels : []}
       type={type}
       setType={setType}
     />

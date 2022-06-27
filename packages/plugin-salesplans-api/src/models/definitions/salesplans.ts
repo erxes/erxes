@@ -38,7 +38,7 @@ export const salesLogSchema = schemaWrapper(
     status: field({
       type: String,
       enum: STATUS.ALL,
-      default: 'active',
+      default: STATUS.ACTIVE,
       label: 'Status'
     }),
     date: field({ type: String, label: 'Date' }),
