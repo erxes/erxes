@@ -24,21 +24,6 @@ import {
   ColorHeader
 } from '../../styles';
 
-// const Rating = styled.div`
-//   height: ${dimensions.coreSpacing}px;
-//   width: 90px;
-//   background: ${colors.bgGray};
-// `;
-
-// const MemberPic = styled.div`
-//   width: 80px;
-//   height: 80px;
-//   padding: ${dimensions.unitSpacing}px;
-//   border: 2px solid ${colors.borderDarker};
-//   background: ${colors.bgMain};
-//   border-radius: 50%;
-// `;
-
 const AddOns = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -105,7 +90,6 @@ class PluginDetails extends React.Component<Props, State> {
       { title: __('Store'), link: '/store' },
       { title: 'WeeCommere Cart all in One' }
     ];
-    // const plugin = this.props;
     const plugin = {
       image: '/images/integrations/planning.png',
       title: 'Logs',
@@ -194,9 +178,7 @@ class PluginDetails extends React.Component<Props, State> {
       <DetailMainContainer>
         <PluginTitle>
           <Center>
-            {/* <MemberPic style={{width: '80px', height: '80px'}}> */}
             <DetailProfile src={plugin.image} />
-            {/* </MemberPic> */}
             <DetailInformation>
               <b>{plugin.title}</b>
               <span>{plugin.shortDescription}</span>
@@ -207,15 +189,9 @@ class PluginDetails extends React.Component<Props, State> {
                     {category}
                   </Hashtag>
                 ))}
-                {/* <Hashtag>#Free</Hashtag>
-                <Hashtag>#Marketing</Hashtag>
-                <Hashtag>#Ecommerce</Hashtag> */}
               </Flex>
             </DetailInformation>
           </Center>
-          {/* <Button style={{padding: "12px"}}>
-            <b>Follow</b> +11k
-          </Button> */}
         </PluginTitle>
 
         <Carousel />

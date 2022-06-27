@@ -11,19 +11,6 @@ import {
   ColorHeader
 } from '../../styles';
 
-// const TextwithBorder = styled.div`
-//   color: ${colors.colorPrimary};
-//   border: 1px solid ${colors.colorPrimary};
-//   border-radius: 30px;
-//   padding: 0px 8px;
-//   height: 23px;
-// `;
-
-// const ContainerBox = styled.div`
-//   width: 25px;
-//   height: 40px;
-// `;
-
 type Props = {
   plugin?: {};
 };
@@ -48,25 +35,6 @@ export default class RightSidebar extends React.Component<Props> {
       </RightSidebarWrapper>
     );
   }
-
-  // renderRelease() {
-  //   return (
-  //     <RightSidebarWrapper>
-  //       <ColorHeader>
-  //         <b>Releases 78</b>
-  //       </ColorHeader>
-  //       <DetailCard center={false}>
-  //         <Icon icon="flag" size={16} />
-  //         <Information>
-  //           Release 0.23.0
-  //           <SmallText>On Nov 3, 2020</SmallText>
-  //         </Information>
-  //         <TextwithBorder>Latest</TextwithBorder>
-  //       </DetailCard>
-  //       <ColorHeader size={11}>+77 release</ColorHeader>
-  //     </RightSidebarWrapper>
-  //   );
-  // }
 
   renderShare() {
     return (
@@ -100,62 +68,11 @@ export default class RightSidebar extends React.Component<Props> {
     );
   }
 
-  // renderInstalledOrganizations() {
-  //   const space = "\u00a0";
-  //   return (
-  //     <RightSidebarWrapper>
-  //       <ColorHeader>
-  //         <b>Installed organizations</b>
-  //       </ColorHeader>
-  //       <DetailCard>
-  //         <Flex>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //           <ContainerBox>
-  //             <MemberPic />
-  //           </ContainerBox>
-  //         </Flex>
-  //         <Information>{space}+11k</Information>
-  //       </DetailCard>
-  //     </RightSidebarWrapper>
-  //   );
-  // }
-
   render() {
     return (
       <VerticalContent>
         {this.renderMembers()}
-        {/* {this.renderRelease()} */}
         {this.renderShare()}
-        {/* {this.renderInstalledOrganizations()} */}
-        {/* <Button block style={{padding: "16px"}}>
-          <b>Add to cart</b> $24
-        </Button> */}
         <Button
           href="https://github.com/erxes/erxes/issues"
           target="_blank"
