@@ -1,57 +1,19 @@
-import Icon from 'modules/common/components/Icon';
-import Button from 'modules/common/components/Button';
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
-import { __ } from 'modules/common/utils';
 import React from 'react';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
+
+import { __ } from 'modules/common/utils';
 import { Alert } from 'modules/common/utils';
+
 import {
   ListContainer,
   ListHeader,
   ListTitle,
   ColorText,
   Card,
-  GrayText
+  PluginContainer,
+  PluginPic,
+  PluginInformation,
+  Description
 } from '../styles';
-
-const PluginContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-`;
-
-const PluginPic = styled.img`
-  width: 60px;
-  height: 60px;
-`;
-
-const PluginInformation = styled.div`
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
-
-  b {
-    text-transform: capitalize;
-  }
-`;
-
-// const Footer = styled.div`
-//   display: flex;
-//   align-items: center;
-//   justify-content: space-between;
-// `;
-
-// const Rating = styled.div`
-//   height: ${dimensions.coreSpacing}px;
-//   width: 90px;
-//   background: ${colors.bgGray};
-// `;
-
-const Description = styled.p`
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden !important;
-`;
 
 type Props = {
   onSearch?: (e) => void;
@@ -65,8 +27,6 @@ class PluginPreview extends React.Component<
   Props,
   { showInput: boolean; searchValue: string; loading: any }
 > {
-  // private wrapperRef;
-
   constructor(props) {
     super(props);
 
@@ -74,7 +34,6 @@ class PluginPreview extends React.Component<
   }
 
   renderList = () => {
-    // const space = "\u00a0";
     const { enabledServicesQuery } = this.props;
     const { loading } = this.state;
 
@@ -549,43 +508,8 @@ class PluginPreview extends React.Component<
                   : 'Install'}
               </button>
             )}
-            {/* <Flex>
-              <Button size="small">
-                <Icon
-                  icon="shopping-cart-alt"
-                  size={15}
-                  color={colors.colorPrimary}
-                />
-              </Button>
-              <Button size="small">
-                <b>Install</b>
-              </Button>
-            </Flex> */}
           </Card>
         ))}
-        {/* {plugins.map((plugin) => {
-          enabledServices[plugin.title] && (
-            <Card key={plugin.title}>
-              <PluginPic src={plugin.image} />
-              <PluginInformation>
-                <b>{plugin.title}</b>
-                <Description>{plugin.shortDescription}</Description>
-              </PluginInformation>
-              <Flex>
-                <Button size="small">
-                  <Icon
-                    icon="shopping-cart-alt"
-                    size={15}
-                    color={colors.colorPrimary}
-                  />
-                </Button>
-                <Button size="small">
-                  <b>Install</b>
-                </Button>
-              </Flex>
-            </Card>
-          );
-        })} */}
       </PluginContainer>
     );
   };
@@ -595,7 +519,6 @@ class PluginPreview extends React.Component<
       <ListContainer>
         <ListHeader>
           <ListTitle>Plugins</ListTitle>
-          <ColorText>View all</ColorText>
         </ListHeader>
         {this.renderList()}
       </ListContainer>
