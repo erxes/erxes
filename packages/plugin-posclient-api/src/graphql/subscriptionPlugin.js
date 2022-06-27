@@ -4,9 +4,8 @@ module.exports = {
   name: "posclient",
   typeDefs: `
 			
-   extend type Subscription {
     ordersOrdered(statuses: [String]): Order
-   }
+
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {

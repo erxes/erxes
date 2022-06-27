@@ -21,12 +21,12 @@ export const types = `
 `;
 
 export const mutations = `
-  createQpaySimpleInvoice(orderId: String!, amount: Float): QPayInvoice
+  poscCreateQpaySimpleInvoice(orderId: String!, amount: Float): QPayInvoice
   qpayCheckPayment(orderId: String!, _id: String): QPayInvoice
   qpayCancelInvoice(_id: String!): JSON
 `;
 
 export const queries = `
   fetchRemoteInvoice(orderId: String!): JSON
-  qpayInvoices(page: Int, perPage: Int, number: String): [QPayInvoice]
+  poscQpayInvoices(page: Int, perPage: Int, number: String): [QPayInvoice]
 `;
