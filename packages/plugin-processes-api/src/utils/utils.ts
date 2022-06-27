@@ -129,8 +129,10 @@ export const initDocWork = (
     flowId: flow._id,
     productId,
     count,
-    branchId: job?.branchId,
-    departmentId: job?.departmentId,
+    inBranchId: job?.inBranchId,
+    inDepartmentId: job?.inDepartmentId,
+    outBranchId: job?.outBranchId,
+    outDepartmentId: job?.outDepartmentId,
     needProducts: initProducts(parseInt(count, 10), jobRefer.needProducts),
     resultProducts: initProducts(parseInt(count, 10), jobRefer.resultProducts)
   };

@@ -12,8 +12,10 @@ export interface IJob {
   label?: string;
   description?: string;
   quantity?: number;
-  branchId?: string;
-  departmentId?: string;
+  inBranchId?: string;
+  inDepartmentId?: string;
+  outBranchId?: string;
+  outDepartmentId?: string;
 }
 
 export interface IJobDocument extends IJob {

@@ -29,30 +29,42 @@ type Props = {
     action: IJob,
     actionId?: string,
     jobReferId?: string,
-    branchId?: string,
-    departmentId?: string
+    inBranchId?: string,
+    inDepartmentId?: string,
+    outBranchId?: string,
+    outDepartmentId?: string
   ) => void;
 };
 
 type State = {
   jobReferId: string;
   description: string;
-  branchId: string;
-  departmentId: string;
+  inBranchId: string;
+  inDepartmentId: string;
+  outBranchId: string;
+  outDepartmentId: string;
 };
 
 class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { jobReferId, description, branchId, departmentId } =
-      this.props.activeAction || {};
+    const {
+      jobReferId,
+      description,
+      inBranchId,
+      inDepartmentId,
+      outBranchId,
+      outDepartmentId
+    } = this.props.activeAction || {};
 
     this.state = {
       jobReferId: jobReferId || '',
       description: description || '',
-      branchId: branchId || '',
-      departmentId: departmentId || ''
+      inBranchId: inBranchId || '',
+      inDepartmentId: inDepartmentId || '',
+      outBranchId: outBranchId || '',
+      outDepartmentId: outDepartmentId || ''
     };
   }
 
@@ -172,7 +184,7 @@ class Delay extends React.Component<Props, State> {
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Job</ControlLabel>
+          <ControlLabel>Jobs</ControlLabel>
           <FormControl
             name="type"
             componentClass="select"
@@ -198,24 +210,49 @@ class Delay extends React.Component<Props, State> {
         </FormGroup>
 
         <FormGroup>
-          <ControlLabel>Branch</ControlLabel>
+          <ControlLabel>inBranch</ControlLabel>
           <SelectBranches
             label="Choose branch"
             name="selectedBranchIds"
-            initialValue={this.state.branchId}
-            onSelect={branchId => this.onSelect('branchId', branchId)}
+            initialValue={this.state.inBranchId}
+            onSelect={branchId => this.onSelect('inBranchId', branchId)}
             multi={false}
             customOption={{ value: 'all', label: 'All branches' }}
           />
         </FormGroup>
         <FormGroup>
-          <ControlLabel>Department</ControlLabel>
+          <ControlLabel>inDepartment</ControlLabel>
           <SelectDepartments
             label="Choose department"
             name="selectedDepartmentIds"
-            initialValue={this.state.departmentId}
+            initialValue={this.state.inDepartmentId}
             onSelect={departmentId =>
-              this.onSelect('departmentId', departmentId)
+              this.onSelect('inDepartmentId', departmentId)
+            }
+            multi={false}
+            customOption={{ value: 'all', label: 'All departments' }}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>outBranch</ControlLabel>
+          <SelectBranches
+            label="Choose branch"
+            name="selectedBranchIds"
+            initialValue={this.state.outBranchId}
+            onSelect={branchId => this.onSelect('outBranchId', branchId)}
+            multi={false}
+            customOption={{ value: 'all', label: 'All branches' }}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>outDepartment</ControlLabel>
+          <SelectDepartments
+            label="Choose department"
+            name="selectedDepartmentIds"
+            initialValue={this.state.outDepartmentId}
+            onSelect={departmentId =>
+              this.onSelect('outDepartmentId', departmentId)
             }
             multi={false}
             customOption={{ value: 'all', label: 'All departments' }}
@@ -260,14 +297,23 @@ class Delay extends React.Component<Props, State> {
   }
 
   render() {
-    const { jobReferId, description, branchId, departmentId } = this.state;
+    const {
+      jobReferId,
+      description,
+      inBranchId,
+      inDepartmentId,
+      outBranchId,
+      outDepartmentId
+    } = this.state;
 
     return (
       <Common
         jobReferId={jobReferId}
         description={description}
-        branchId={branchId}
-        departmentId={departmentId}
+        inBranchId={inBranchId}
+        inDepartmentId={inDepartmentId}
+        outBranchId={outBranchId}
+        outDepartmentId={outDepartmentId}
         {...this.props}
       >
         {this.renderContent()}

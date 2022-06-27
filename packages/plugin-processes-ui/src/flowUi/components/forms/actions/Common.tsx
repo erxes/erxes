@@ -16,13 +16,17 @@ type Props = {
     actionId?: string,
     jobReferId?: string,
     description?: string,
-    branchId?: string,
-    departmentId?: string
+    inBranchId?: string,
+    inDepartmentId?: string,
+    outBranchId?: string,
+    outDepartmentId?: string
   ) => void;
   jobReferId: string;
   description: string;
-  branchId: string;
-  departmentId: string;
+  inBranchId: string;
+  inDepartmentId: string;
+  outBranchId: string;
+  outDepartmentId: string;
   children: React.ReactNode;
 };
 
@@ -34,8 +38,10 @@ function Common(props: Props) {
     jobReferId,
     children,
     description,
-    branchId,
-    departmentId
+    inBranchId,
+    inDepartmentId,
+    outBranchId,
+    outDepartmentId
   } = props;
 
   const onSave = () => {
@@ -44,8 +50,10 @@ function Common(props: Props) {
       activeAction.id,
       jobReferId,
       description,
-      branchId,
-      departmentId
+      inBranchId,
+      inDepartmentId,
+      outBranchId,
+      outDepartmentId
     );
 
     closeModal();

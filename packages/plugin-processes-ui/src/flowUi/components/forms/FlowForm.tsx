@@ -321,8 +321,10 @@ class AutomationForm extends React.Component<Props, State> {
           jobReferId: a.jobReferId,
           label: a.label,
           description: a.description,
-          branchId: a.branchId,
-          departmentId: a.departmentId,
+          inBranchId: a.inBranchId,
+          inDepartmentId: a.inDepartmentId,
+          outBranchId: a.outBranchId,
+          outDepartmentId: a.outDepartmentId,
           style: jquery(`#action-${a.id}`).attr('style')
         }))
       };
@@ -537,8 +539,10 @@ class AutomationForm extends React.Component<Props, State> {
     actionId?: string,
     jobReferId?: string,
     description?: string,
-    branchId?: string,
-    departmentId?: string
+    inBranchId?: string,
+    inDepartmentId?: string,
+    outBranchId?: string,
+    outDepartmentId?: string
   ) => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
@@ -558,8 +562,10 @@ class AutomationForm extends React.Component<Props, State> {
     }
 
     action.jobReferId = jobReferId || '';
-    action.branchId = branchId || '';
-    action.departmentId = departmentId || '';
+    action.inBranchId = inBranchId || '';
+    action.inDepartmentId = inDepartmentId || '';
+    action.outBranchId = outBranchId || '';
+    action.outDepartmentId = outDepartmentId || '';
 
     const jobRefer: IJobRefer =
       jobRefers.find(j => j._id === jobReferId) || ({} as IJobRefer);
