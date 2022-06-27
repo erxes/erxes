@@ -425,7 +425,7 @@ export const Notes = styled.div`
   }
 `;
 
-export const TriggerTabs = styled.div`
+export const ActionTabs = styled.div`
   .hxZkUW {
     border: 1px solid ${colors.borderPrimary};
     border-radius: 5px;
