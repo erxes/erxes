@@ -6,14 +6,14 @@ import {
 export type IProductCategory = IProductCategoryC & {};
 export interface IJob {
   id: string;
-  nextJobIds: string[];
-  jobReferId: string;
-  style: object;
-  label: string;
-  description: string;
-  quantity: number;
-  branchId: string;
-  departmentId: string;
+  nextJobIds?: string[];
+  jobReferId?: string;
+  style?: object;
+  label?: string;
+  description?: string;
+  quantity?: number;
+  branchId?: string;
+  departmentId?: string;
 }
 
 export interface IJobDocument extends IJob {

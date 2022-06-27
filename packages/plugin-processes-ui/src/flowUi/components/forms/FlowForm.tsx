@@ -123,23 +123,28 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
-  findLastAction = (leftAction = []) => {
+  findLastAction = (leftAction: IJob[] = []) => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
     const lastActions: IJob[] = [];
 
-    const realActions = leftAction.length > 0 ? leftAction : actions;
+    const realActions = leftAction || actions;
 
     for (const action of realActions) {
-      if (!action.nextJobIds.length || action.nextJobIds.length === 0) {
+      if (
+        !(action.nextJobIds || []).length ||
+        (action.nextJobIds || []).length === 0
+      ) {
         lastActions.push(action);
       }
     }
 
-    const lastActionIds = lastActions.map(last => last.jobReferId);
-    const lastJobRefers = jobRefers.filter(job =>
-      lastActionIds.includes(job._id)
-    );
+    const lastActionIds: string[] =
+      lastActions
+        .filter(last => last.jobReferId)
+        .map(last => last.jobReferId || '') || [];
+    const lastJobRefers: IJobRefer[] =
+      jobRefers.filter(job => lastActionIds.includes(job._id)) || [];
 
     let resultProducts: IProductsData[] = [];
     for (const lastJobRefer of lastJobRefers) {
@@ -149,9 +154,9 @@ class AutomationForm extends React.Component<Props, State> {
         : resultProduct;
     }
 
-    const checkResult = resultProducts.find(
-      pro => pro.productId === this.state.productId
-    );
+    const checkResult: IProductsData =
+      resultProducts.find(pro => pro.productId === this.state.productId) ||
+      ({} as IProductsData);
 
     const doubleCheckResult = Object.keys(checkResult ? checkResult : {})
       .length;
@@ -159,16 +164,18 @@ class AutomationForm extends React.Component<Props, State> {
     if (doubleCheckResult) {
       let justLastJobRefer = {} as IJobRefer;
       for (const lastJobRefer of lastJobRefers) {
-        const lastJobRefersIds = lastJobRefer.resultProducts.map(
+        const lastJobRefersIds = (lastJobRefer.resultProducts || []).map(
           last => last.productId
         );
+
         justLastJobRefer = lastJobRefersIds.includes(checkResult.productId)
           ? lastJobRefer
           : ({} as IJobRefer);
       }
 
-      const justLastAction = Object.keys(justLastJobRefer).length
-        ? lastActions.find(last => last.jobReferId === justLastJobRefer._id)
+      const justLastAction: IJob = Object.keys(justLastJobRefer).length
+        ? lastActions.find(last => last.jobReferId === justLastJobRefer._id) ||
+          ({} as IJob)
         : ({} as IJob);
 
       this.setState({
@@ -536,7 +543,10 @@ class AutomationForm extends React.Component<Props, State> {
     const { actions } = this.state;
     const { jobRefers } = this.props;
 
-    let action: IJob = { ...data, id: this.getNewId(actions.map(a => a.id)) };
+    let action: IJob = {
+      ...(data || {}),
+      id: this.getNewId(actions.map(a => a.id))
+    };
     let actionIndex = -1;
 
     if (actionId) {
@@ -547,9 +557,9 @@ class AutomationForm extends React.Component<Props, State> {
       }
     }
 
-    action.jobReferId = jobReferId;
-    action.branchId = branchId;
-    action.departmentId = departmentId;
+    action.jobReferId = jobReferId || '';
+    action.branchId = branchId || '';
+    action.departmentId = departmentId || '';
 
     const jobRefer: IJobRefer =
       jobRefers.find(j => j._id === jobReferId) || ({} as IJobRefer);

@@ -85,7 +85,7 @@ class Form extends React.Component<Props, State> {
     const filteredUoms = products.filter(product => product._id !== id);
     console.log('remove product', id, type, products, filteredUoms);
 
-    this.setState({ [type]: filteredUoms });
+    this.setState({ [type]: filteredUoms } as any);
   };
 
   onChangeCategory = (categoryId: string) => {
@@ -96,7 +96,7 @@ class Form extends React.Component<Props, State> {
     const value = e.target.value;
     const products = this.state[type];
 
-    const productEdited = [];
+    const productEdited: any = [];
     for (const product of products) {
       if (product._id === id) {
         if (formType !== 'uom') {
@@ -109,7 +109,7 @@ class Form extends React.Component<Props, State> {
       productEdited.push(product);
     }
 
-    this.setState({ [type]: productEdited });
+    this.setState({ [type]: productEdited } as any);
   };
 
   renderFormTrigger(trigger: React.ReactNode) {
@@ -144,13 +144,13 @@ class Form extends React.Component<Props, State> {
   renderProductModal = (currentProduct?: IProduct, type = '') => {
     const productOnChange = (products: IProduct[]) => {
       const { uoms, configsMap } = this.props;
-      const defaultUom = configsMap.default_uom || '';
+      const defaultUom = (configsMap || {}).default_uom || '';
       // const selectedProducts = products && products.length === 1 ? products[0] : products;
 
       for (const product of products) {
         const productId = product ? product._id : '';
         const uomId = product.uomId ? product.uomId : defaultUom;
-        const uom = uoms.find(e => e._id === uomId);
+        const uom = (uoms || []).find(e => e._id === uomId);
 
         const inputData = {
           _id: Math.random().toString(),
@@ -167,7 +167,7 @@ class Form extends React.Component<Props, State> {
 
         currentProducts.push(inputData);
 
-        this.setState({ [type]: currentProducts });
+        this.setState({ [type]: currentProducts } as any);
       }
     };
 
@@ -209,17 +209,18 @@ class Form extends React.Component<Props, State> {
       const subUoms = product.product.subUoms ? product.product.subUoms : [];
       const defaultUomId = product.product.uomId
         ? product.product.uomId
-        : configsMap.default_uom;
+        : (configsMap || {}).default_uom;
 
       const productUoms = subUoms.map(e => e.uomId);
       const mergedUoms = [...productUoms, defaultUomId];
 
       // const filtered = uoms.filter(u => (mergedUoms.includes(u._id)));
 
-      const filtered = mergedUoms.map(e => {
-        const uomOne = uoms.find(u => u._id === e);
-        return uomOne;
-      });
+      const filtered: any[] =
+        mergedUoms.map(e => {
+          const uomOne = (uoms || []).find(u => u._id === e);
+          return uomOne;
+        }) || [];
 
       console.log('filtered uoms: ', filtered);
       console.log('product: ', product);
@@ -267,7 +268,7 @@ class Form extends React.Component<Props, State> {
                 onChange={this.onChange.bind(this, product._id, type, 'uom')}
               >
                 <option value="" />
-                {filtered.map(u => (
+                {(filtered || []).map(u => (
                   <option key={u._id} value={u._id}>
                     {u.name}
                   </option>
@@ -398,14 +399,14 @@ class Form extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Need products</ControlLabel>
-          {this.renderProductModal(null, 'needProducts')}
+          {this.renderProductModal(undefined, 'needProducts')}
         </FormGroup>
 
         {this.renderProducts('needProducts')}
 
         <FormGroup>
           <ControlLabel required={true}>Result products</ControlLabel>
-          {this.renderProductModal(null, 'resultProducts')}
+          {this.renderProductModal(undefined, 'resultProducts')}
         </FormGroup>
 
         {this.renderProducts('resultProducts')}

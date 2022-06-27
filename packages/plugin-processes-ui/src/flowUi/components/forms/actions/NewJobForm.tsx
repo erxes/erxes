@@ -24,7 +24,7 @@ type Props = {
   jobRefers: IJobRefer[];
   actions: IJob[];
   lastAction: IJob;
-  flowProduct: IProduct;
+  flowProduct?: IProduct;
   addAction: (
     action: IJob,
     actionId?: string,
@@ -45,18 +45,14 @@ class Delay extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const {
-      jobReferId,
-      description,
-      branchId,
-      departmentId
-    } = this.props.activeAction;
+    const { jobReferId, description, branchId, departmentId } =
+      this.props.activeAction || {};
 
     this.state = {
-      jobReferId: jobReferId ? jobReferId : '',
-      description: description ? description : '',
-      branchId: branchId ? branchId : '',
-      departmentId: departmentId ? departmentId : ''
+      jobReferId: jobReferId || '',
+      description: description || '',
+      branchId: branchId || '',
+      departmentId: departmentId || ''
     };
   }
 
@@ -74,20 +70,16 @@ class Delay extends React.Component<Props, State> {
     return <Label lblStyle={style}>{text}</Label>;
   };
 
-  renderProducts = (
-    products,
-    type,
-    matchProducts = undefined,
-    flowProduct = undefined
-  ) => {
+  renderProducts = (products, type, matchProducts?: any[], flowProduct?) => {
     const style = type === 'need' ? 'simple' : 'default';
     const space = '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0';
 
     return products.map(product => {
       const name = product.product.name;
-      let matchResult = matchProducts
-        ? matchProducts.includes(name)
-        : matchProducts;
+      let matchResult =
+        matchProducts && matchProducts.length
+          ? matchProducts.includes(name)
+          : matchProducts;
 
       if (flowProduct) {
         matchResult = flowProduct && flowProduct.name === name ? true : false;
@@ -171,7 +163,7 @@ class Delay extends React.Component<Props, State> {
     const activeActionId =
       activeAction && activeAction.id ? activeAction.id : '';
     const beforeActions = actions.filter(e =>
-      e.nextJobIds.includes(activeActionId)
+      (e.nextJobIds || []).includes(activeActionId)
     );
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value } as any);
@@ -239,12 +231,13 @@ class Delay extends React.Component<Props, State> {
 
           <FormColumn>
             <Info type="success" title="Need products">
-              {this.renderActions(
-                [activeAction],
-                jobRefers,
-                'cur',
-                beforeActions
-              )}
+              {activeAction &&
+                this.renderActions(
+                  [activeAction],
+                  jobRefers,
+                  'cur',
+                  beforeActions
+                )}
             </Info>
           </FormColumn>
 
