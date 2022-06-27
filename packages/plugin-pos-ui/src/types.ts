@@ -12,6 +12,7 @@ export type CatProd = {
 };
 
 export type ISyncCard = {
+  _id: string;
   branchIds: string[];
   boardId: string;
   pipelineId: string;
@@ -58,7 +59,7 @@ export type IPos = {
   uiOptions?: any;
   ebarimtConfig: any;
   erkhetConfig: any;
-  cardsConfig?: ISyncCard[];
+  cardsConfig?: any;
   catProdMappings?: CatProd[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];

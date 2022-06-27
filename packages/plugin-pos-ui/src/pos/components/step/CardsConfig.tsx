@@ -4,6 +4,7 @@ import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import gql from 'graphql-tag';
 import client from '@erxes/ui/src/apolloClient';
 import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import Modal from 'react-bootstrap/Modal';
 import {
   __,
   ControlLabel,
@@ -26,13 +27,14 @@ import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import { BlockList } from 'net';
+import { ISyncCard } from '../../../types';
 type Props = {
   onChange: (name: 'cardsConfig', value: any) => void;
   pos?: IPos;
 };
 class CardsConfig extends React.Component<
   Props,
-  { config: any; fieldsCombined: FieldsCombinedByType[] }
+  { config: any; fieldsCombined: FieldsCombinedByType[]; mapIndex: number }
 > {
   constructor(props: Props) {
     super(props);
@@ -42,14 +44,19 @@ class CardsConfig extends React.Component<
         ? props.pos.cardsConfig
         : {
             isSyncCards: false,
-            boardId: '',
-            pipelineId: '',
-            stageId: '',
-            name: '',
-            assignedUserIds: []
+            mappings: [
+              {
+                _id: Math.floor(100000 + Math.random() * 900000).toString(),
+                branchIds: [],
+                boardId: '',
+                pipelineId: '',
+                stageId: '',
+                assignedUserIds: []
+              }
+            ]
           };
-
     let fieldsCombined = [];
+    let mapIndex = 0;
 
     if (isEnabled('forms')) {
       client
@@ -70,9 +77,11 @@ class CardsConfig extends React.Component<
 
     this.state = {
       config,
+      mapIndex: 0,
       fieldsCombined: []
     };
   }
+
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
     config[code] = value;
@@ -81,85 +90,169 @@ class CardsConfig extends React.Component<
       this.props.onChange('cardsConfig', config);
     });
   };
+  onChangeMap = (code: string, value, _id) => {
+    const { config, mapIndex } = this.state;
+    config['mappings'].map(item => {
+      if (item?._id == _id) {
+        item[code] = value;
+      }
+    });
+    //config['mappings'][mapIndex][code] = value;
+
+    // const temp = config.mappings.map(item => {
+    //   if (item._id == _id) {
+    //    item[code] = value
+    //   }
+    // })
+    // config['mappings'] = temp
+    this.setState({ config }, () => {
+      this.props.onChange('cardsConfig', config);
+    });
+  };
   onChangeSwitch = e => {
     this.onChangeConfig('isSyncCards', e.target.checked);
   };
-  renderOther() {
-    const { config, fieldsCombined } = this.state;
+  renderOther(_id: string) {
+    const { config, mapIndex } = this.state;
 
     const onChangeBoard = (boardId: string) => {
-      this.onChangeConfig('boardId', boardId);
+      this.onChangeMap('boardId', boardId, _id);
     };
 
     const onChangePipeline = (pipelineId: string) => {
-      this.onChangeConfig('pipelineId', pipelineId);
+      this.onChangeMap('pipelineId', pipelineId, _id);
     };
 
     const onChangeStage = (stageId: string) => {
-      this.onChangeConfig('stageId', stageId);
+      this.onChangeMap('stageId', stageId, _id);
     };
 
     const onAssignedUsersSelect = users => {
-      this.onChangeConfig('assignedUserIds', users);
+      this.onChangeMap('assignedUserIds', users, _id);
     };
 
     if (!this.state.config.isSyncCards) {
       return <></>;
     }
-    const renderBoardContainer = () => {
+    const renderBoardContainer = props => {
+      const onClickSave = () => {
+        props.closeModal();
+      };
+      const onClickCancel = () => {
+        props.closeModal();
+      };
+      const getMapping = (code: string) => {
+        return config.mappings.find(item => item._id == _id)[code];
+      };
       return (
-        <BoardSelectContainer
-          type="deal"
-          autoSelectStage={false}
-          boardId={config.boardId}
-          pipelineId={config.pipelineId}
-          stageId={config.stageId}
-          onChangeBoard={onChangeBoard}
-          onChangePipeline={onChangePipeline}
-          onChangeStage={onChangeStage}
-        />
+        <>
+          <BoardSelectContainer
+            type="deal"
+            autoSelectStage={false}
+            boardId={getMapping('boardId')}
+            pipelineId={getMapping('boardId')}
+            stageId={getMapping('boardId')}
+            onChangeBoard={onChangeBoard}
+            onChangePipeline={onChangePipeline}
+            onChangeStage={onChangeStage}
+          />
+          <Modal.Footer>
+            <Button
+              onClick={onClickSave}
+              btnStyle="success"
+              icon={'check-circle'}
+            >
+              Save
+            </Button>
+            <Button
+              btnStyle="simple"
+              type="button"
+              icon="times-circle"
+              onClick={onClickCancel}
+            >
+              Cancel
+            </Button>
+          </Modal.Footer>
+        </>
       );
     };
     return (
-      <FlexItem>
-        <FlexRow>
-          <LeftItem>
-            <Block>
-              <BlockRow>
+      <FlexRow>
+        <LeftItem>
+          <Block>
+            <BlockRow>
+              <FormGroup>
+                <ControlLabel>Branch</ControlLabel>
+                <SelectBranches
+                  label={__('Choose branch')}
+                  name="branchIds"
+                  onSelect={() => {}}
+                />
+              </FormGroup>
+              {(isEnabled('cards') && (
                 <FormGroup>
-                  <ControlLabel>Branch</ControlLabel>
-                  <SelectBranches
-                    label={__('Choose branch')}
-                    name="branchIds"
-                    onSelect={() => {}}
-                  />
+                  <ControlLabel>Stage</ControlLabel>
+                  <br />
+                  <ModalTrigger
+                    title="Add stage"
+                    trigger={
+                      <Button btnStyle="primary" icon="plus-circle">
+                        Add stage
+                      </Button>
+                    }
+                    content={renderBoardContainer}
+                  ></ModalTrigger>
                 </FormGroup>
-                {(isEnabled('cards') && (
-                  <FormGroup>
-                    <ControlLabel>Stage</ControlLabel>
-                    <br />
-                    <ModalTrigger
-                      title="Add stage"
-                      trigger={<Button>Add stage</Button>}
-                      content={renderBoardContainer}
-                    ></ModalTrigger>
-                  </FormGroup>
-                )) ||
-                  'Please, enabled cards plugin'}
-                <FormGroup>
-                  <ControlLabel>{__('Assigned Users')}</ControlLabel>
-                  <SelectTeamMembers
-                    label={__('Choose team member')}
-                    name="assignedUserIds"
-                    initialValue={config.assignedUserIds}
-                    onSelect={onAssignedUsersSelect}
-                  />
-                </FormGroup>
-              </BlockRow>
-            </Block>
-          </LeftItem>
-        </FlexRow>
-      </FlexItem>
+              )) ||
+                'Please, enabled cards plugin'}
+              <FormGroup>
+                <ControlLabel>{__('Assigned Users')}</ControlLabel>
+                <SelectTeamMembers
+                  label={__('Choose team member')}
+                  name="assignedUserIds"
+                  initialValue={config.assignedUserIds}
+                  onSelect={onAssignedUsersSelect}
+                />
+              </FormGroup>
+              <Button btnStyle="danger" icon="trash" onClick={() => {}} />
+            </BlockRow>
+          </Block>
+        </LeftItem>
+      </FlexRow>
+    );
+  }
+  renderEach(item: any) {
+    return this.renderOther(item?._id);
+  }
+  renderMaps() {
+    const { config, mapIndex } = this.state;
+    if (!this.state.config.isSyncCards) {
+      return <></>;
+    }
+    const addIndex = () => {
+      const temp = config;
+      temp.mappings?.push({
+        _id: Math.floor(100000 + Math.random() * 900000).toString(),
+        branchIds: [],
+        boardId: '',
+        pipelineId: '',
+        stageId: '',
+        assignedUserIds: []
+      });
+      this.setState({
+        config: temp,
+        mapIndex: mapIndex + 1
+      });
+      console.log(mapIndex);
+      console.log(config);
+    };
+    return (
+      <>
+        {config.mappings?.map(item => this.renderEach(item))}
+        <Button btnStyle="primary" icon="plus-circle" onClick={addIndex}>
+          Add mapping
+        </Button>
+      </>
     );
   }
   render() {
@@ -184,7 +277,7 @@ class CardsConfig extends React.Component<
                 </FormGroup>
               </BlockRow>
             </Block>
-            {this.renderOther()}
+            {this.renderMaps()}
             <Block />
           </LeftItem>
         </FlexColumn>
