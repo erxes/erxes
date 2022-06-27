@@ -199,8 +199,9 @@ class Delay extends React.Component<Props, State> {
     const findJobRefer = jobRefers.find(
       job => job._id === activeAction.jobReferId
     );
-    const needProducts = findJobRefer.needProducts || [];
-    const resultProducts = findJobRefer.resultProducts || [];
+
+    const needProducts = findJobRefer ? findJobRefer.needProducts : [];
+    const resultProducts = findJobRefer ? findJobRefer.resultProducts : [];
 
     const {
       currentTab,
