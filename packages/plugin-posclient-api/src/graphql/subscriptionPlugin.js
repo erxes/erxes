@@ -3,10 +3,7 @@ var { withFilter } = require("graphql-subscriptions");
 module.exports = {
   name: "posclient",
   typeDefs: `
-			
-   extend type Subscription {
-    ordersOrdered(statuses: [String]): Order
-   }
+    ordersOrdered(statuses: [String], customerId: String): Order
 		`,
   generateResolvers: (graphqlPubsub) => {
     return {

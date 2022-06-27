@@ -98,7 +98,7 @@ const ebarimtConfigSchema = new Schema(
       optional: true,
       label: 'UB city tax percent'
     },
-    footerText: field({ type: String, label: 'Footer text' })
+    footerText: field({ type: String, optional: true, label: 'Footer text' })
   },
   { _id: false }
 );
