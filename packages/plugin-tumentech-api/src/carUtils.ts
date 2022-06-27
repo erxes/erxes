@@ -27,7 +27,6 @@ interface IListArgs {
 
 export const countBySegment = async (
   subdomain: string,
-  contentType: string,
   qb: any
 ): Promise<ICountBy> => {
   // Count cocs by segments
@@ -48,6 +47,7 @@ export const countBySegment = async (
     try {
       await qb.buildAllQueries();
       await qb.segmentFilter(s._id);
+
       counts[s._id] = await qb.runQueries();
     } catch (e) {
       debug.error(`Error during segment count ${e.message}`);
@@ -63,16 +63,16 @@ export const countByCars = async (
   subdomain: string,
   params: IListArgs,
   categoryId: string,
-  user: IUserArgs,
+  context,
   only: string
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  const qb = new CommonBuilder(models, subdomain, params, categoryId, user);
+  const qb = new CommonBuilder(models, subdomain, params, categoryId, context);
 
   switch (only) {
     case 'bySegment':
-      await countBySegment(subdomain, 'tumentech:car', qb);
+      await countBySegment(subdomain, qb);
       break;
   }
 
@@ -83,7 +83,7 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public models: IModels;
   public subdomain: string;
   public params: IArgs;
-  public user: IUserArgs;
+  public context;
   public categoryId: string;
   public positiveList: any[];
   public filterList: any[];
@@ -94,13 +94,13 @@ export class CommonBuilder<IArgs extends IListArgs> {
     subdomain: string,
     params: IArgs,
     categoryId: string,
-    user: IUserArgs
+    context
   ) {
     this.models = models;
     this.subdomain = subdomain;
     this.params = params;
-    this.user = user;
     this.categoryId = categoryId;
+    this.context = context;
 
     this.positiveList = [];
     this.filterList = [];
@@ -134,26 +134,11 @@ export class CommonBuilder<IArgs extends IListArgs> {
   }
 
   public resetPositiveList() {
-    const userRelevanceQuery = [
-      {
-        regexp: {
-          userRelevance: `${this.user.code}..`
-        }
-      },
-      {
-        bool: {
-          must_not: [
-            {
-              exists: {
-                field: 'userRelevance'
-              }
-            }
-          ]
-        }
-      }
-    ];
+    this.positiveList = [];
 
-    this.positiveList = [{ bool: { should: userRelevanceQuery } }];
+    if (this.context.commonQuerySelectorElk) {
+      this.positiveList.push(this.context.commonQuerySelectorElk);
+    }
   }
 
   public async defaultFilters(): Promise<any> {

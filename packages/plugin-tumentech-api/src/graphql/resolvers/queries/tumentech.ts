@@ -151,7 +151,7 @@ const carQueries = {
 
     switch (only) {
       case 'bySegment':
-        counts.bySegment = await countBySegment(subdomain, 'tumentech:car', qb);
+        counts.bySegment = await countBySegment(subdomain, qb);
 
         break;
     }
