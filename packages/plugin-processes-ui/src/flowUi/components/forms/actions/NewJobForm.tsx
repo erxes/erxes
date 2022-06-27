@@ -149,19 +149,21 @@ class Delay extends React.Component<Props, State> {
 
       return (
         <>
-          <Info type="primary" title="">
-            <FormGroup>
-              <ControlLabel key={action.id}>{action.label}</ControlLabel>
-            </FormGroup>
-            {type === 'next' && this.renderProducts(needProducts, 'need')}
-            {type === 'prev' && this.renderProducts(resultProducts, 'result')}
-            {type === 'cur' &&
-              this.renderProducts(needProducts, 'need', beforeResultProducts)}
-          </Info>
-
-          {type === 'cur' && action === this.props.lastAction && (
-            <Info type="primary" title="Last check">
+          {type !== 'last' && (
+            <Info type="primary" title="">
+              <FormGroup>
+                <ControlLabel key={action.id}>{action.label}</ControlLabel>
+              </FormGroup>
+              {type === 'next' && this.renderProducts(needProducts, 'need')}
+              {type === 'prev' && this.renderProducts(resultProducts, 'result')}
               {type === 'cur' &&
+                this.renderProducts(needProducts, 'need', beforeResultProducts)}
+            </Info>
+          )}
+
+          {type === 'last' && action === this.props.lastAction && (
+            <Info type="primary" title="Статус">
+              {type === 'last' &&
                 this.renderProducts(
                   resultProducts,
                   'result',
@@ -224,6 +226,16 @@ class Delay extends React.Component<Props, State> {
           />
         </FormGroup>
 
+        <Info type="success" title="">
+          {activeAction &&
+            this.renderActions(
+              [activeAction],
+              jobRefers,
+              'last',
+              beforeActions
+            )}
+        </Info>
+
         <ActionTabs>
           <Tabs full={true}>
             <TabTitle
@@ -244,13 +256,13 @@ class Delay extends React.Component<Props, State> {
         {currentTab === 'status' && (
           <FormWrapper>
             <FormColumn>
-              <Info type="primary" title="Result products">
+              <Info type="primary" title="Өмнөх жоб бүтээгдэхүүнүүд">
                 {this.renderActions(beforeActions, jobRefers, 'prev', [])}
               </Info>
             </FormColumn>
 
             <FormColumn>
-              <Info type="success" title="Need products">
+              <Info type="success" title="Шаардлагатай бүтээгдэхүүнүүд">
                 {activeAction &&
                   this.renderActions(
                     [activeAction],
@@ -279,55 +291,68 @@ class Delay extends React.Component<Props, State> {
 
         {currentTab === 'inputs' && (
           <>
-            <FormGroup>
-              <ControlLabel>inBranch</ControlLabel>
-              <SelectBranches
-                label="Choose branch"
-                name="selectedBranchIds"
-                initialValue={inBranchId}
-                onSelect={branchId => this.onSelect('inBranchId', branchId)}
-                multi={false}
-                customOption={{ value: 'all', label: 'All branches' }}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>inDepartment</ControlLabel>
-              <SelectDepartments
-                label="Choose department"
-                name="selectedDepartmentIds"
-                initialValue={inDepartmentId}
-                onSelect={departmentId =>
-                  this.onSelect('inDepartmentId', departmentId)
-                }
-                multi={false}
-                customOption={{ value: 'all', label: 'All departments' }}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>outBranch</ControlLabel>
-              <SelectBranches
-                label="Choose branch"
-                name="selectedBranchIds"
-                initialValue={outBranchId}
-                onSelect={branchId => this.onSelect('outBranchId', branchId)}
-                multi={false}
-                customOption={{ value: 'all', label: 'All branches' }}
-              />
-            </FormGroup>
-            <FormGroup>
-              <ControlLabel>outDepartment</ControlLabel>
-              <SelectDepartments
-                label="Choose department"
-                name="selectedDepartmentIds"
-                initialValue={outDepartmentId}
-                onSelect={departmentId =>
-                  this.onSelect('outDepartmentId', departmentId)
-                }
-                multi={false}
-                customOption={{ value: 'all', label: 'All departments' }}
-              />
-            </FormGroup>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>inBranch</ControlLabel>
+                  <SelectBranches
+                    label="Choose branch"
+                    name="selectedBranchIds"
+                    initialValue={inBranchId}
+                    onSelect={branchId => this.onSelect('inBranchId', branchId)}
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All branches' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>inDepartment</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="selectedDepartmentIds"
+                    initialValue={inDepartmentId}
+                    onSelect={departmentId =>
+                      this.onSelect('inDepartmentId', departmentId)
+                    }
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All departments' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>outBranch</ControlLabel>
+                  <SelectBranches
+                    label="Choose branch"
+                    name="selectedBranchIds"
+                    initialValue={outBranchId}
+                    onSelect={branchId =>
+                      this.onSelect('outBranchId', branchId)
+                    }
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All branches' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>outDepartment</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="selectedDepartmentIds"
+                    initialValue={outDepartmentId}
+                    onSelect={departmentId =>
+                      this.onSelect('outDepartmentId', departmentId)
+                    }
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All departments' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
           </>
         )}
       </DrawerDetail>
