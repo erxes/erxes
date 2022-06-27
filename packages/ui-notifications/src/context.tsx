@@ -1,17 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { Alert, sendDesktopNotification } from "@erxes/ui/src/utils";
+import * as compose from 'lodash.flowright';
+
+import { Alert, sendDesktopNotification } from '@erxes/ui/src/utils';
 import {
   INotification,
   MarkAsReadMutationResponse,
   NotificationsCountQueryResponse,
-  NotificationsQueryResponse,
-} from "./types";
-import React from "react";
-import { graphql } from "react-apollo";
-import strip from "strip";
-import { mutations, queries, subscriptions } from "./graphql";
+  NotificationsQueryResponse
+} from './types';
+import { mutations, queries, subscriptions } from './graphql';
+
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import strip from 'strip';
 
 interface IStore {
   notifications: INotification[];
@@ -44,7 +46,7 @@ class Provider extends React.Component<FinalProps> {
     const {
       notificationsQuery,
       notificationCountQuery,
-      currentUser,
+      currentUser
     } = this.props;
 
     this.unsubscribe = notificationsQuery.subscribeToMore({
@@ -54,11 +56,11 @@ class Provider extends React.Component<FinalProps> {
         const { notificationInserted } = data;
         const { title, content } = notificationInserted;
 
-        sendDesktopNotification({ title, content: strip(content || "") });
+        sendDesktopNotification({ title, content: strip(content || '') });
 
         notificationsQuery.refetch();
         notificationCountQuery.refetch();
-      },
+      }
     });
 
     this.notificationRead = notificationsQuery.subscribeToMore({
@@ -67,7 +69,7 @@ class Provider extends React.Component<FinalProps> {
       updateQuery: () => {
         notificationsQuery.refetch();
         notificationCountQuery.refetch();
-      },
+      }
     });
   }
 
@@ -77,22 +79,15 @@ class Provider extends React.Component<FinalProps> {
   }
 
   markAsRead = (notificationIds?: string[]) => {
-    const {
-      notificationsMarkAsReadMutation,
-      notificationsQuery,
-      notificationCountQuery,
-    } = this.props;
+    const { notificationsMarkAsReadMutation } = this.props;
 
     notificationsMarkAsReadMutation({
-      variables: { _ids: notificationIds },
+      variables: { _ids: notificationIds }
     })
       .then(() => {
-        notificationsQuery.refetch();
-        notificationCountQuery.refetch();
-
-        Alert.success("Notifications have been seen");
+        Alert.success('Notifications have been seen');
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -107,7 +102,7 @@ class Provider extends React.Component<FinalProps> {
     const {
       notificationsQuery,
       notificationCountQuery,
-      currentUser,
+      currentUser
     } = this.props;
 
     const notifications = notificationsQuery.notifications || [];
@@ -121,7 +116,7 @@ class Provider extends React.Component<FinalProps> {
           showNotifications: this.showNotifications,
           markAsRead: this.markAsRead,
           isLoading,
-          currentUser,
+          currentUser
         }}
       >
         {this.props.children}
@@ -136,32 +131,32 @@ export const NotifProvider = compose(
     NotificationsQueryResponse,
     { limit: number; requireRead: boolean }
   >(gql(queries.notifications), {
-    name: "notificationsQuery",
+    name: 'notificationsQuery',
     options: () => ({
       variables: {
         limit: 10,
-        requireRead: false,
-      },
-    }),
+        requireRead: false
+      }
+    })
   }),
   graphql<{}, NotificationsCountQueryResponse>(
     gql(queries.notificationCounts),
     {
-      name: "notificationCountQuery",
+      name: 'notificationCountQuery',
       options: () => ({
         variables: {
-          requireRead: true,
-        },
-      }),
+          requireRead: true
+        }
+      })
     }
   ),
   graphql<Props, MarkAsReadMutationResponse, { _ids?: string[] }>(
     gql(mutations.markAsRead),
     {
-      name: "notificationsMarkAsReadMutation",
+      name: 'notificationsMarkAsReadMutation',
       options: {
-        refetchQueries: () => ["notificationCounts"],
-      },
+        refetchQueries: () => ['notificationCounts']
+      }
     }
   )
 )(Provider);
