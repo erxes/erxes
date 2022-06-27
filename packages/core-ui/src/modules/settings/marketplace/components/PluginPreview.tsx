@@ -519,7 +519,6 @@ class PluginPreview extends React.Component<
       <ListContainer>
         <ListHeader>
           <ListTitle>Plugins</ListTitle>
-          <ColorText>View all</ColorText>
         </ListHeader>
         {this.renderList()}
       </ListContainer>

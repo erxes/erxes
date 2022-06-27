@@ -104,7 +104,7 @@ const ListContainer = styled.div`
 `;
 
 const ListHeader = styled.div`
-  width: 100%;
+  // width: 100%;
   display: flex;
   justify-content: space-between;
   padding: ${dimensions.coreSpacing}px 0px;
@@ -121,12 +121,14 @@ const ColorText = styled.b`
 const PluginContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+  // justify-content: space-between;
 `;
 
 const Card = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
-  width: 250px;
+  width: 23%;
+  min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 8px;
   padding: ${dimensions.unitSpacing}px;
@@ -171,6 +173,167 @@ const Description = styled.p`
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden !important;
+`;
+
+// Detail main content
+
+const DetailMainContainer = styled.div`
+  height: 100%;
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid ${colors.borderDarker};
+  padding: ${dimensions.unitSpacing}px;
+  overflow-x: hidden;
+`;
+
+const PluginTitle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: ${dimensions.coreSpacing}px 0;
+`;
+
+const DetailProfile = styled.img`
+  width: 80px;
+  height: 80px;
+  margin: ${dimensions.coreSpacing}px;
+`;
+
+const Center = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Carousel = styled.div`
+  height: 250px;
+  width: 100%;
+  background-color: ${colors.bgGray};
+  border-radius: 8px;
+  margin: ${dimensions.unitSpacing}px 0;
+`;
+
+const DetailInformation = styled.div`
+  display: flex;
+  height: 80px;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0px 12px;
+
+  b {
+    font-size: 20px;
+  }
+
+  span {
+    margin-bottom: 10px;
+  }
+`;
+
+const Hashtag = styled.div`
+  border-radius: 4px;
+  color: ${colors.colorWhite};
+  background: ${colors.colorBlack};
+  padding: 2px 6px;
+  margin-right: 5px;
+  font-size: 11px;
+
+  $:nth-last-child(1) {
+    margin-right: 0;
+  }
+`;
+
+const AddOnPic = styled.div`
+  width: 100%;
+  background: ${colors.bgMain};
+  height: 110px;
+  border-radius: 4px;
+`;
+
+const AddOnInformation = styled.div`
+  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
+`;
+
+const Detail = styled.div`
+  padding-bottom: ${dimensions.unitSpacing}px;
+`;
+
+const AddOn = styled.div`
+  border-radius: 10px;
+  color: ${colors.colorWhite};
+  background: ${colors.colorCoreYellow};
+  padding: 2px 8px;
+  font-size: 11px;
+  width: 60px;
+`;
+
+const CardInformation = styled.div`
+  margin-bottom: ${dimensions.unitSpacing}px;
+  display: flex;
+  justify-content: space-between;
+`;
+
+// Detail right sidebar
+
+const VerticalContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  max-height: 100%;
+  // overflow: auto;
+  width: 30%;
+`;
+
+const RightSidebarWrapper = styled.div`
+  position: relative;
+  border-radius: 8px;
+  border: 1px solid ${colors.borderDarker};
+  // width: 350px;
+  // width: 100%;
+  margin-bottom: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px;
+
+  a {
+    border-radius: 4px;
+    border: 1px solid ${colors.borderDarker};
+  }
+`;
+
+const ColorHeader = styledTS<{ size?: number }>(styled.p)`
+  color: ${colors.colorPrimary};
+  font-size: ${props => props.size && props.size}px;
+  font-weight: bold;
+`;
+
+const DetailCard = styledTS<{ center?: boolean }>(styled.div)`
+  display: flex;
+  align-items: ${props => props.center && 'center'};
+  margin-top: ${dimensions.unitSpacing}px;
+`;
+
+const MemberPic = styled.div`
+  width: 40px;
+  height: 40px;
+  border: 2px solid ${rgba(colors.colorPrimary, 0.4)};
+  background: ${colors.colorWhite};
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    height: 35px;
+  }
+`;
+
+const Information = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0px 12px;
+`;
+
+const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
+  font-size: 11px;
+  margin-top: ${props => props.withMargin && dimensions.unitSpacing}px;
 `;
 
 //************** */
@@ -340,6 +503,25 @@ export {
   PluginPic,
   PluginInformation,
   Description,
+  DetailMainContainer,
+  PluginTitle,
+  DetailProfile,
+  Center,
+  Carousel,
+  DetailInformation,
+  Hashtag,
+  AddOnPic,
+  AddOnInformation,
+  Detail,
+  AddOn,
+  CardInformation,
+  VerticalContent,
+  RightSidebarWrapper,
+  ColorHeader,
+  DetailCard,
+  MemberPic,
+  Information,
+  SmallText,
   WidgetApperance,
   FormLabel,
   Checkbox
