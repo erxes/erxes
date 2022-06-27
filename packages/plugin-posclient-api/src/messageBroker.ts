@@ -104,7 +104,8 @@ export const initBroker = async cl => {
       await graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
           _id: order._id,
-          status: order.status
+          status: order.status,
+          customerId: order.customerId
         }
       });
     }

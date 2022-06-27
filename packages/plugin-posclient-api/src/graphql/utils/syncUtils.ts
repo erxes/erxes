@@ -56,8 +56,8 @@ export const preImportProducts = async (models: IModels, groups: any = []) => {
 };
 
 export const importProducts = async (models: IModels, groups: any = []) => {
-  const { REACT_APP_MAIN_API_DOMAIN } = process.env;
-  const FILE_PATH = `${REACT_APP_MAIN_API_DOMAIN}/read-file`;
+  const { NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN } = process.env;
+  const FILE_PATH = `${NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN}/read-file`;
   const attachmentUrlChanger = attachment => {
     return attachment && attachment.url && !attachment.url.includes('http')
       ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
@@ -145,7 +145,7 @@ export const importCustomers = async customers => {
 
 // Pos config created in main erxes differs from here
 export const extractConfig = doc => {
-  const { REACT_APP_MAIN_API_DOMAIN } = process.env;
+  const { NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN } = process.env;
   const {
     uiOptions = {
       favIcon: '',
@@ -159,7 +159,7 @@ export const extractConfig = doc => {
   } = doc;
   console.log(uiOptions);
 
-  const FILE_PATH = `${REACT_APP_MAIN_API_DOMAIN}/read-file`;
+  const FILE_PATH = `${NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN}/read-file`;
 
   try {
     uiOptions.favIcon =
