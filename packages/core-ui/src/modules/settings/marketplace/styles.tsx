@@ -146,6 +146,18 @@ const Card = styled.div`
     cursor: pointer;
   }
 
+  a {
+    color: inherit;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  &:hover {
+    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
+  }
+
   .uninstall {
     background: #eb5a5a;
   }

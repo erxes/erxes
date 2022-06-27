@@ -7,7 +7,7 @@ const Installer = asyncComponent(() =>
 );
 
 const PluginDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "Store" */ './containers/PluginDetails')
+  import(/* webpackChunkName: "Store" */ './components/detail/PluginDetails')
 );
 
 const detail = ({ match }) => {
@@ -20,9 +20,9 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/settings/installer/details"
+        key="/settings/installer/details/:id"
         exact={true}
-        path="/settings/installer/details"
+        path="/settings/installer/details/:id"
         component={detail}
       />
 
