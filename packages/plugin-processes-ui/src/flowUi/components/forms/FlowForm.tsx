@@ -661,7 +661,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   rendeRightActionBar() {
     const { isActive } = this.state;
-    const { queryParams } = this.props;
 
     return (
       <BarItems>

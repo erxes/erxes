@@ -115,7 +115,6 @@ class List extends React.Component<IProps, State> {
       isAllSelected,
       history,
       bulk,
-      emptyBulk,
       currentCategory,
       addFlow
     } = this.props;

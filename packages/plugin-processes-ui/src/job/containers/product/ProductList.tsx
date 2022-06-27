@@ -9,8 +9,6 @@ import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
   CategoryDetailQueryResponse,
-  MergeMutationResponse,
-  MergeMutationVariables,
   jobRefersRemoveMutationResponse,
   jobReferTotalCountQueryResponse,
   JobRefersQueryResponse
@@ -44,8 +42,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       jobRefersCountQuery,
       jobRefersRemove,
       queryParams,
-      productCategoryDetailQuery,
-      history
+      productCategoryDetailQuery
     } = this.props;
 
     if (jobRefersQuery.loading) {

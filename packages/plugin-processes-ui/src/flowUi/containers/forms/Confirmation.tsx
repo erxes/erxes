@@ -21,7 +21,7 @@ type FinalProps = {} & Props & flowsRemoveMutationResponse;
 
 class ConfirmationContainer extends React.Component<FinalProps> {
   render() {
-    const { flowsRemove, queryParams, when } = this.props;
+    const { flowsRemove, queryParams } = this.props;
 
     const removeFlows = ({ flowIds }, navigateToNextLocation) => {
       flowsRemove({
@@ -41,7 +41,7 @@ class ConfirmationContainer extends React.Component<FinalProps> {
     };
 
     return (
-      <Confirmation when={when} {...updatedProps}>
+      <Confirmation {...updatedProps}>
         {(isOpen, onConfirm, onCancel) => (
           <ConfirmationPopup
             isOpen={isOpen}

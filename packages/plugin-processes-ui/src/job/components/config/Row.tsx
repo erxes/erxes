@@ -2,7 +2,6 @@ import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
@@ -32,12 +31,6 @@ class Row extends React.Component<Props, State> {
 
     this.state = { showMerge: false };
   }
-
-  // removeTag = () => {
-  //   const { remove, tag } = this.props;
-
-  //   remove(tag);
-  // };
 
   onChangeDestination = option => {
     this.setState({ mergeDestination: option });
@@ -76,14 +69,6 @@ class Row extends React.Component<Props, State> {
 
   render() {
     const { uom } = this.props;
-
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
 
     return (
       <tr>

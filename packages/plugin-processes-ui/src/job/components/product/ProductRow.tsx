@@ -20,7 +20,7 @@ type Props = {
 
 class Row extends React.Component<Props> {
   render() {
-    const { jobRefer, history, toggleBulk, isChecked } = this.props;
+    const { jobRefer, toggleBulk, isChecked } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {

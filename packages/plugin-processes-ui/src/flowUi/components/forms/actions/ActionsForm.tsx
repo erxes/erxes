@@ -118,8 +118,6 @@ class ActionsForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { currentTab } = this.state;
-
     return (
       <>
         <ScrolledContent>{this.renderContent()}</ScrolledContent>

@@ -76,14 +76,6 @@ class Row extends React.Component<Props, State> {
   render() {
     const { uom } = this.props;
 
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
-
     return (
       <tr>
         <td>{uom.name || ''}</td>

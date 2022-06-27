@@ -2,7 +2,6 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
@@ -11,15 +10,12 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import React from 'react';
 import Form from '../../containers/product/ProductForm';
 import CategoryList from '../../containers/productCategory/CategoryList';
 import { IJobRefer, IProductCategory } from '../../types';
 import Row from './ProductRow';
 import { menuContacts } from '../../../constants';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -120,14 +116,8 @@ class List extends React.Component<IProps, State> {
       isAllSelected,
       history,
       bulk,
-      emptyBulk,
       currentCategory
     } = this.props;
-
-    const breadcrumb = [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Product & Service') }
-    ];
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">

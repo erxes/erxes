@@ -2,7 +2,7 @@ import React from 'react';
 
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 
 import { IJob } from '../../../../flow/types';
 import { ScrolledContent } from '../../../styles';
@@ -45,6 +45,10 @@ function Common(props: Props) {
   } = props;
 
   const onSave = () => {
+    if (!activeAction) {
+      return Alert.error('has not active Action');
+    }
+
     addAction(
       activeAction,
       activeAction.id,

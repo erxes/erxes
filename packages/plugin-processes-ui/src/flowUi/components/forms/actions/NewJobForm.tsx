@@ -88,7 +88,6 @@ class Delay extends React.Component<Props, State> {
   };
 
   renderProducts = (products, type, matchProducts?: any[], flowProduct?) => {
-    const style = type === 'need' ? 'simple' : 'default';
     const space = '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0';
 
     return products.map(product => {
@@ -197,10 +196,10 @@ class Delay extends React.Component<Props, State> {
     };
 
     const findJobRefer = jobRefers.find(
-      job => job._id === activeAction.jobReferId
+      job => job._id === (activeAction || {}).jobReferId
     );
-    const needProducts = findJobRefer.needProducts || [];
-    const resultProducts = findJobRefer.resultProducts || [];
+    const needProducts = (findJobRefer || {}).needProducts || [];
+    const resultProducts = (findJobRefer || {}).resultProducts || [];
 
     const {
       currentTab,

@@ -101,13 +101,13 @@ class Form extends React.Component<Props, State> {
   renderProductModal = (currentProduct?: IProduct, type = '') => {
     const productOnChange = (products: IProduct[]) => {
       const { uoms, configsMap } = this.props;
-      const defaultUom = configsMap.default_uom || '';
+      const defaultUom = (configsMap || {}).default_uom || '';
       // const selectedProducts = products && products.length === 1 ? products[0] : products;
 
       for (const product of products) {
         const productId = product ? product._id : '';
         const uomId = product.uomId ? product.uomId : defaultUom;
-        const uom = uoms.find(e => e._id === uomId);
+        const uom = (uoms || []).find(e => e._id === uomId);
 
         const inputData = {
           _id: Math.random().toString(),
@@ -169,7 +169,7 @@ class Form extends React.Component<Props, State> {
           <FormColumn>
             <FormGroup>
               <FormControl
-                defaultValue={product.uom.name + ' /Uom/'}
+                defaultValue={(product.uom || {}).name + ' /Uom/'}
                 disabled={true}
               />
             </FormGroup>
@@ -188,13 +188,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      renderButton,
-      closeModal,
-      jobRefer,
-      jobCategories,
-      configsMap
-    } = this.props;
+    const { renderButton, closeModal, jobRefer, jobCategories } = this.props;
     const { values, isSubmitted } = formProps;
     const object = jobRefer || ({} as IJobRefer);
 
@@ -296,14 +290,14 @@ class Form extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Need products</ControlLabel>
-          {this.renderProductModal(null, 'needProducts')}
+          {this.renderProductModal(undefined, 'needProducts')}
         </FormGroup>
 
         {this.renderProducts('need')}
 
         <FormGroup>
           <ControlLabel required={true}>Result products</ControlLabel>
-          {this.renderProductModal(null, 'resultProducts')}
+          {this.renderProductModal(undefined, 'resultProducts')}
         </FormGroup>
 
         {this.renderProducts('result')}
