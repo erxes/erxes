@@ -1,7 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
 import { IAttachment } from 'modules/common/types';
 import MapColumn from '../components/MapColumn';
 import React from 'react';
@@ -22,7 +21,7 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  fieldsQuery: FieldsCombinedByTypeQueryResponse;
+  fieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
   importHistoryGetColumns: any;
 } & Props;
 

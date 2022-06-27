@@ -1,11 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import {
-  FieldsCombinedByTypeQueryResponse,
-  IConfigColumn
-} from '@erxes/ui-forms/src/settings/properties/types';
-
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-forms/src/settings/properties/constants';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
 import Form from '../components/Form';
 import React from 'react';
 import Spinner from 'modules/common/components/Spinner';
@@ -20,7 +15,7 @@ type Props = {
 };
 
 type FinalProps = {
-  fieldsQuery: FieldsCombinedByTypeQueryResponse;
+  fieldsQuery: any; //check
 } & Props;
 
 class FormContainer extends React.Component<
@@ -79,7 +74,7 @@ class FormContainer extends React.Component<
           order: field.order || 0
         };
       }
-    ) as IConfigColumn[];
+    ) as any[]; //check type - IConfigColumn
 
     return (
       <Form
@@ -96,6 +91,7 @@ class FormContainer extends React.Component<
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.fieldsCombinedByContentType), {
+      // check this query duplication
       name: 'fieldsQuery',
       options: ({ contentType }) => {
         return {

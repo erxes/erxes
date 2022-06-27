@@ -1,7 +1,4 @@
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { Content, LeftContent, MessengerPreview } from '../../styles';
 import {
   ControlWrapper,
   FlexItem,
@@ -17,9 +14,7 @@ import { __, getEnv } from 'modules/common/utils';
 
 import Button from 'modules/common/components/Button';
 import ConfigsForm from './ConfigsForm';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
 import { Link } from 'react-router-dom';
-import { MessengerPreview } from '../../styles';
 import React from 'react';
 import Spinner from 'modules/common/components/Spinner';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -37,7 +32,7 @@ const SegmentsForm = asyncComponent(
 
 type Props = {
   contentType: string;
-  columns: IConfigColumn[];
+  columns: any[]; //check
   count: string;
   loading: boolean;
   previewCount: (segmentId?: string) => void;
@@ -47,9 +42,9 @@ type State = {
   segmentId: string;
   configs: string[];
   searchValue: string;
-  columns: IConfigColumn[];
+  columns: any[]; //check
   importType: string;
-  columnsConfig: IConfigColumn[];
+  columnsConfig: any[]; //check
 };
 
 const { REACT_APP_API_URL } = getEnv();

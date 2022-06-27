@@ -1,7 +1,4 @@
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { Content, LeftContent } from '../../styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 
 import AccociateForm from '../containers/AccociateForm';

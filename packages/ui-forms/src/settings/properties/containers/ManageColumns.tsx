@@ -1,15 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
+import { DefaultColumnsConfigQueryResponse, IConfigColumn } from '../types';
+
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
+import { FieldsCombinedByTypeQueryResponse } from '../types';
+import ManageColumns from '../components/ManageColumns';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui-forms/src/forms/graphql';
 import queryString from 'query-string';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import ManageColumns from '../components/ManageColumns';
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '../constants';
-import { FieldsCombinedByTypeQueryResponse } from '../types';
-import { DefaultColumnsConfigQueryResponse, IConfigColumn } from '../types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   contentType: string;

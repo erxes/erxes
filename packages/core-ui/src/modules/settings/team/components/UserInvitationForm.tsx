@@ -15,7 +15,6 @@ import { Description } from '@erxes/ui-settings/src/styles';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -26,7 +25,7 @@ import Select from 'react-select-plus';
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
-  channels: IChannel[];
+  channels: any[]; //check - IChannel
   units: IUnit[];
   departments: IDepartment[];
   branches: IBranch[];
