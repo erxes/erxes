@@ -177,6 +177,14 @@ class Delay extends React.Component<Props, State> {
     });
   };
 
+  renderList(title, products, type) {
+    return (
+      <Info type="success" title={title}>
+        {this.renderProducts(products, type)}
+      </Info>
+    );
+  }
+
   renderContent() {
     const { jobRefers, actions, activeAction } = this.props;
     const activeActionId =
@@ -187,6 +195,12 @@ class Delay extends React.Component<Props, State> {
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value } as any);
     };
+
+    const findJobRefer = jobRefers.find(
+      job => job._id === activeAction.jobReferId
+    );
+    const needProducts = findJobRefer.needProducts || [];
+    const resultProducts = findJobRefer.resultProducts || [];
 
     const {
       currentTab,
@@ -321,6 +335,9 @@ class Delay extends React.Component<Props, State> {
                 </FormGroup>
               </FormColumn>
             </FormWrapper>
+
+            {this.renderList('In products', needProducts, 'need')}
+
             <FormWrapper>
               <FormColumn>
                 <FormGroup>
@@ -353,6 +370,7 @@ class Delay extends React.Component<Props, State> {
                 </FormGroup>
               </FormColumn>
             </FormWrapper>
+            {this.renderList('Out products', resultProducts, 'result')}
           </>
         )}
       </DrawerDetail>
