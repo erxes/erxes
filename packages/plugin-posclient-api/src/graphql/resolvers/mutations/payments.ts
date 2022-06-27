@@ -20,7 +20,7 @@ const INVOICE_STATUSES = {
 };
 
 const paymentMutations = {
-  async createQpaySimpleInvoice(
+  async poscCreateQpaySimpleInvoice(
     _root,
     params: IInvoiceParams,
     { models, config }: IContext

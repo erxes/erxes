@@ -56,7 +56,7 @@ const paymentQueries = {
 
     return models.QPayInvoices.findOne({ _id: invoice._id });
   },
-  async qpayInvoices(
+  async poscQpayInvoices(
     _root,
     { page, perPage, number }: IListParams,
     { models }: IContext
