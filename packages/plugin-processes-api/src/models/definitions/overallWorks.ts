@@ -14,8 +14,8 @@ export interface IOverallWork {
   outDepartmentId: string;
   inBranchId: string;
   inDepartmentId: string;
-  needProducts: IProductsData;
-  resultProducts: IProductsData;
+  needProducts: IProductsData[];
+  resultProducts: IProductsData[];
 }
 
 export interface IOverallWorkDocument extends IOverallWork, Document {
@@ -41,9 +41,9 @@ export const overallWorkSchema = schemaHooksWrapper(
     inBranchId: { type: String },
     inDepartmentId: { type: String },
 
-    needProducts: field({ type: productsDataSchema, label: 'Need products' }),
+    needProducts: field({ type: [productsDataSchema], label: 'Need products' }),
     resultProducts: field({
-      type: productsDataSchema,
+      type: [productsDataSchema],
       label: 'Result products'
     })
   }),

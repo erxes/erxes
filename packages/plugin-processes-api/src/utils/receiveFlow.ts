@@ -6,7 +6,7 @@ import {
   getBeforeJobs,
   getJobRefers,
   getLeftJobs,
-  initDoc,
+  initDocWork,
   recursiveCatchBeforeJobs,
   worksAdd
 } from './utils';
@@ -59,13 +59,11 @@ export const rf = async (models: IModels, params) => {
 
         console.log('lastJobRefer: ', lastJobRefer[0].name);
 
-        const doc: IWork = initDoc(
+        const doc: IWork = initDocWork(
           flow,
           lastJobRefer[0],
           productId,
           count,
-          branchId,
-          departmentId,
           lastJob
         );
 
@@ -108,13 +106,11 @@ export const rf = async (models: IModels, params) => {
             jobRefers
           );
 
-          const docLeft: IWork = initDoc(
+          const docLeft: IWork = initDocWork(
             flow,
             leftJobRefer[0],
             productId,
             count,
-            branchId,
-            departmentId,
             responseleftjob
           );
 
