@@ -8,7 +8,10 @@ import {
   Wrapper,
   router,
   Tip,
-  Icon
+  Icon,
+  SelectCustomers,
+  SelectTeamMembers,
+  SelectCompanies
 } from '@erxes/ui/src';
 import { DateContainer, ScrollWrapper } from '@erxes/ui/src/styles/main';
 import React from 'react';
@@ -32,6 +35,7 @@ interface VObject {
   orderType: string;
   order: string;
   ownerType: string;
+  ownerId: string;
 }
 
 type State = {
@@ -87,6 +91,47 @@ class SideBar extends React.Component<Props, State> {
     const checkParams = type => {
       return router.getParam(history, type) ? true : false;
     };
+
+    const handleOwnerId = e => {
+      const result = { ...variables, ownerId: String(e) };
+      this.setState({ variables: result });
+      router.setParams(history, { ownerId: String(e) });
+      refetch(result);
+    };
+    const renderOwner = () => {
+      if (variables.ownerType === 'customer') {
+        return (
+          <SelectCustomers
+            label="Team Members"
+            name="ownerId"
+            multi={false}
+            initialValue={variables?.ownerId}
+            onSelect={handleOwnerId}
+          />
+        );
+      }
+      if (variables.ownerType === 'user') {
+        return (
+          <SelectTeamMembers
+            label="Team Members"
+            name="ownerId"
+            multi={false}
+            initialValue={variables?.ownerId}
+            onSelect={handleOwnerId}
+          />
+        );
+      }
+      return (
+        <SelectCompanies
+          label="Compnay"
+          name="ownerId"
+          multi={false}
+          initialValue={variables?.ownerId}
+          onSelect={handleOwnerId}
+        />
+      );
+    };
+
     const Form = (props: LayoutProps) => (
       <FormGroup>
         <ControlLabel>{props.label}</ControlLabel>
@@ -137,6 +182,9 @@ class SideBar extends React.Component<Props, State> {
                 {'company'}{' '}
               </option>
             </FormControl>
+          </Form>
+          <Form label="Owner" clearable={checkParams('ownerId')} type="ownerId">
+            {renderOwner()}
           </Form>
           <Form
             label="Order Type"

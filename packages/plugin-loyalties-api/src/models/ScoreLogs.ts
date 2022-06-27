@@ -28,17 +28,19 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreParams) {
-      const { ownerType, order, fromDate, toDate, orderType } = doc;
+      const { ownerType, order, fromDate, toDate, orderType, ownerId } = doc;
       const orderTypeFields = {
         changeScore: 'Changed Score',
         createdAt: 'Date'
       };
-
       let filter = {};
       let sort: { [k: string]: any } = {};
 
       if (ownerType) {
         filter = { ...filter, ownerType };
+      }
+      if (ownerId) {
+        filter = { ...filter, ownerId };
       }
       if (fromDate) {
         filter = { ...filter, createdAt: { $gte: fromDate } };
