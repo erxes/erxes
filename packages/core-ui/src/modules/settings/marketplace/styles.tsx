@@ -104,7 +104,6 @@ const ListContainer = styled.div`
 `;
 
 const ListHeader = styled.div`
-  // width: 100%;
   display: flex;
   justify-content: space-between;
   padding: ${dimensions.coreSpacing}px 0px;
@@ -121,7 +120,6 @@ const ColorText = styled.b`
 const PluginContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  // justify-content: space-between;
 `;
 
 const Card = styled.div`
@@ -148,14 +146,11 @@ const Card = styled.div`
 
   a {
     color: inherit;
-
-    &:hover {
-      cursor: pointer;
-    }
   }
 
   &:hover {
     box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
+    cursor: pointer;
   }
 
   .uninstall {
@@ -191,10 +186,9 @@ const Description = styled.p`
 
 const DetailMainContainer = styled.div`
   height: 100%;
-  position: relative;
   border-radius: 8px;
-  border: 1px solid ${colors.borderDarker};
-  padding: ${dimensions.unitSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px;
   overflow-x: hidden;
 `;
 
@@ -202,13 +196,16 @@ const PluginTitle = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: ${dimensions.coreSpacing}px 0;
-`;
 
-const DetailProfile = styled.img`
-  width: 80px;
-  height: 80px;
-  margin: ${dimensions.coreSpacing}px;
+  img {
+    width: 80px;
+    height: 80px;
+    margin: ${dimensions.coreSpacing}px;
+  }
+
+  b {
+    font-size: 20px;
+  }
 `;
 
 const Center = styled.div`
@@ -226,18 +223,7 @@ const Carousel = styled.div`
 
 const DetailInformation = styled.div`
   display: flex;
-  height: 80px;
   flex-direction: column;
-  justify-content: center;
-  margin: 0px 12px;
-
-  b {
-    font-size: 20px;
-  }
-
-  span {
-    margin-bottom: 10px;
-  }
 `;
 
 const Hashtag = styled.div`
@@ -280,7 +266,7 @@ const SidebarBox = styled.div`
     border-radius: 4px;
     border: 1px solid ${colors.borderPrimary};
     margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0 0;
-    padding: 2px ${dimensions.unitSpacing}px;
+    padding: 2px 8px;
     color: ${colors.textSecondary} !important;
     display: flex;
     align-items: center;
@@ -325,7 +311,7 @@ const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
   margin-top: ${props => props.withMargin && dimensions.unitSpacing}px;
 `;
 
-//************** */
+//**************
 
 const inputPadding = '0px';
 const inputHeight = '15px';
@@ -494,7 +480,6 @@ export {
   Description,
   DetailMainContainer,
   PluginTitle,
-  DetailProfile,
   Center,
   Carousel,
   DetailInformation,
