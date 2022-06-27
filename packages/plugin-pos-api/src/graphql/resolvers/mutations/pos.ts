@@ -1,7 +1,7 @@
 import messageBroker, {
   sendCoreMessage,
   sendEbarimtMessage,
-  sendPosMessage
+  sendPosclientMessage
 } from '../../../messageBroker';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { getConfig } from '../../../utils';
@@ -50,21 +50,19 @@ const mutations = {
       defaultValue: []
     });
 
-    // await sendPosMessage(
-    //   models,
-    //   messageBroker,
-    //   'pos:crudData',
-    //   {
-    //     type: 'pos',
-    //     action: 'update',
-    //     object,
-    //     updatedDocument,
-    //     adminUsers,
-    //     cashierUsers
-    //   },
-    //   object
-    // );
-
+    await sendPosclientMessage({
+      subdomain,
+      action: 'crudData',
+      data: {
+        type: 'pos',
+        action: 'update',
+        object,
+        updatedDocument,
+        adminUsers,
+        cashierUsers
+      },
+      pos: object
+    });
     return updatedDocument;
   },
 

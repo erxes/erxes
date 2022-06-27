@@ -2,7 +2,6 @@ import { generateModels } from './connectionResolver';
 import { graphqlPubsub, serviceDiscovery } from './configs';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import {
-  receiveCustomer,
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
@@ -15,17 +14,17 @@ export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
+  const models = await generateModels('OS');
+  if (!models) {
+    throw new Error('not yet message broker, cause: cant connect models');
+  }
 
-  // if (!models) {
-  //   throw new Error('not yet message broker, cause: cant connect models');
-  // }
-  // console.log('qqqqqqqqqqqqqqqqqqqqqqq')
-  // const config = await models.Configs.findOne().lean();
-  // if (!config) {
-  //   throw new Error('not yet message broker');
-  // }
-  // const syncId = config && config.syncInfo && config.syncInfo.id ? config.syncInfo.id : '';
-  const syncId = '';
+  const config = await models.Configs.findOne().lean();
+  if (!config) {
+    throw new Error('not yet message broker');
+  }
+  const syncId =
+    config && config.syncInfo && config.syncInfo.id ? config.syncInfo.id : '';
 
   consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -37,14 +36,11 @@ export const initBroker = async cl => {
         case 'productCategory':
           await receiveProductCategory(models, data);
           break;
-        case 'customer':
-          await receiveCustomer(data);
-          break;
         case 'user':
-          await receiveUser(data);
+          await receiveUser(models, data);
           break;
         case 'pos':
-          await receivePosConfig(data);
+          await receivePosConfig(models, data);
           break;
         default:
           break;
@@ -110,12 +106,15 @@ export const initBroker = async cl => {
     }
   );
 
-  consumeRPCQueue(`posclient:health_check_${syncId}`, async data => {
-    return {
-      status: 'success',
-      data: { healthy: 'ok' }
-    };
-  });
+  consumeRPCQueue(
+    `posclient:health_check_${syncId}`,
+    async ({ subdomain, data }) => {
+      return {
+        status: 'success',
+        data: { healthy: 'ok' }
+      };
+    }
+  );
 };
 
 export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {

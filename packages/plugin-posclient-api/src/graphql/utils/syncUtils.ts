@@ -232,8 +232,6 @@ export const validateConfig = (config: IConfig) => {
 
 // receive product data through message broker
 export const receiveProduct = async (models, data) => {
-  console.log('models & data :::::::::::::::::::::::::::::', models, data);
-
   const { action = '', object = {}, updatedDocument = {} } = data;
 
   if (action === 'create') {
@@ -275,23 +273,66 @@ export const receiveProductCategory = async (models, data) => {
   }
 };
 
-export const receiveCustomer = async data => {
-  const { action = '', object = {}, updatedDocument = {} } = data;
-};
-
-export const receiveUser = async data => {
+export const receiveUser = async (models: IModels, data) => {
   const { action = '', object = {}, updatedDocument = {} } = data;
   const userId =
     updatedDocument && updatedDocument._id ? updatedDocument._id : '';
 
   // user create logic will be implemented in pos config changes
+  const user = await models.PosUsers.findOne({ _id: userId });
+
+  if (action === 'update' && user) {
+    return models.PosUsers.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          username: updatedDocument.username,
+          password: updatedDocument.password,
+          isOwner: updatedDocument.isOwner,
+          email: updatedDocument.email,
+          isActive: updatedDocument.isActive,
+          details: updatedDocument.details
+        }
+      }
+    );
+  }
+
+  if (action === 'delete' && object._id) {
+    return models.PosUsers.updateOne(
+      { _id: object._id },
+      { $set: { isActive: false } }
+    );
+  }
 };
 
-export const receivePosConfig = async data => {
+export const receivePosConfig = async (models: IModels, data) => {
   const {
     updatedDocument = {},
     action = '',
     adminUsers = [],
     cashierUsers = []
   } = data;
+
+  const config = await models.Configs.getConfig({
+    token: updatedDocument.token
+  });
+
+  if (action === 'update' && config) {
+    const adminIds = updatedDocument.adminIds || [];
+    const cashierIds = updatedDocument.cashierIds || [];
+
+    await models.Configs.updateConfig(config._id, {
+      ...config,
+      ...extractConfig(updatedDocument)
+    });
+
+    // set not found users inactive
+    await models.PosUsers.updateMany(
+      { _id: { $nin: [...adminIds, ...cashierIds] } },
+      { $set: { isActive: false } }
+    );
+
+    await importUsers(models, adminUsers, true);
+    await importUsers(models, cashierUsers, false);
+  }
 };

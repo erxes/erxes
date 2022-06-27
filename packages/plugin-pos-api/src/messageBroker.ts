@@ -1,8 +1,9 @@
+import { afterMutationHandlers } from './afterMutations';
 import { generateModels, IModels } from './connectionResolver';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { serviceDiscovery } from './configs';
 import { IPosDocument } from './models/definitions/pos';
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { orderToErkhet } from './utils';
+import { serviceDiscovery } from './configs';
 
 let client;
 
@@ -10,6 +11,11 @@ export const initBroker = async cl => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
+
+  consumeQueue('pos:afterMutation', async ({ subdomain, data }) => {
+    await afterMutationHandlers(subdomain, data);
+    return;
+  });
 
   consumeQueue('pos:vrpc_queue', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -157,13 +163,18 @@ export const initBroker = async cl => {
     const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
 
     // return info saved
-    sendCommonMessage(`vrpc_queue:erxes-pos-from-api_${syncId}`, {
-      status: 'ok',
-      posToken,
-      syncId,
-      responseId: response._id,
-      orderId: order._id,
-      thirdService: true
+    sendPosclientMessage({
+      subdomain,
+      action: `vrpc_queue:erxes-pos-from-api_${syncId}`,
+      data: {
+        status: 'ok',
+        posToken,
+        syncId,
+        responseId: response._id,
+        orderId: order._id,
+        thirdService: true
+      },
+      pos
     });
 
     if (newOrder.type === 'delivery' && newOrder.branchId) {
@@ -172,13 +183,14 @@ export const initBroker = async cl => {
       // paid order info to offline pos
       // TODO: this message RPC, offline pos has seen by this message check
       if (toPos) {
-        await sendPosMessage(
-          models,
-          client,
-          'vrpc_queue:erxes-pos-to-pos',
-          { order: { ...newOrder, posToken } },
-          toPos
-        );
+        await sendPosclientMessage({
+          subdomain,
+          action: 'vrpc_queue:erxes-pos-to-pos',
+          data: {
+            order: { ...newOrder, posToken }
+          },
+          pos: toPos
+        });
       }
     }
 
@@ -194,35 +206,6 @@ export const initBroker = async cl => {
     return {
       status: 'success'
     };
-  });
-
-  consumeRPCQueue('erxes-pos-to-api', async msg => {
-    const { action, data, posToken } = msg;
-    const models = await generateModels('subdomain');
-
-    try {
-      if (action === 'newCustomer') {
-        const customer = await sendContactsMessage({
-          subdomain: 'subdomain',
-          action: 'customers.createCustomer',
-          data,
-          isRPC: true
-        });
-
-        await sendPosMessage(
-          models,
-          client,
-          'pos:crudData',
-          { action: 'create', type: 'customer', object: customer || {} },
-          undefined,
-          [posToken]
-        );
-
-        return { status: 'success', data: customer };
-      }
-    } catch (e) {
-      return { status: 'error', errorMessage: e.message };
-    }
   });
 };
 
@@ -279,14 +262,6 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-export const sendCommonMessage = async (channel, message): Promise<any> => {
-  return client.sendMessage(channel, message);
-};
-
-export const sendRPCMessage = async (channel, message): Promise<any> => {
-  return client.sendRPCMessage(channel, message);
-};
-
 export const getChannels = async (
   models: IModels,
   channel: string,
@@ -324,35 +299,25 @@ export const getChannels = async (
   return channels;
 };
 
-export const sendPosMessage = async (
-  models: IModels,
-  messageBroker: any,
-  channel: string,
-  params: any,
-  pos?: IPosDocument | undefined,
-  excludeTokens?: string[]
+export const sendPosclientMessage = async (
+  args: ISendMessageArgs & {
+    pos?: IPosDocument | undefined;
+    excludeTokens?: string[];
+  }
 ) => {
-  const channels = await getChannels(models, channel, pos, excludeTokens);
+  const { subdomain, action, pos, excludeTokens } = args;
+  const models = await generateModels(subdomain);
+  const channels = await getChannels(models, action, pos, excludeTokens);
   for (const ch of channels) {
-    messageBroker().sendMessage(channel, params);
+    console.log(ch);
+    await sendMessage({
+      client,
+      serviceDiscovery,
+      serviceName: 'posclient',
+      ...args,
+      action: `${ch}`
+    });
   }
-};
-
-export const sendRPCPosMessage = async (
-  models: IModels,
-  messageBroker: any,
-  channel: string,
-  params: any,
-  pos?: IPosDocument,
-  excludeTokens?: string[]
-) => {
-  const channels = await getChannels(models, channel, pos, excludeTokens);
-  let ch = (channels && channels.length && channels[0]) || '';
-  if (!ch) {
-    return {};
-  }
-
-  return await messageBroker().sendRPCMessage(ch, params);
 };
 
 export default function() {
