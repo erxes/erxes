@@ -111,11 +111,13 @@ export const orderSchema = schemaHooksWrapper(
     }),
     billType: field({
       type: String,
+      optional: true,
       label: 'Ebarimt receiver entity type'
     }),
     billId: field({ type: String, label: 'Bill id' }),
     registerNumber: field({
       type: String,
+      optional: true,
       label: 'Register number of the entity'
     }),
     oldBillId: field({

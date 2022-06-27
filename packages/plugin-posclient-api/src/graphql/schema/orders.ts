@@ -23,7 +23,9 @@ const addEditParams = `
   type: String!,
   branchId: String,
   customerId: String,
-  deliveryInfo: JSON
+  deliveryInfo: JSON,
+  billType: String,
+  registerNumber: String
 `;
 
 export const types = `
@@ -140,6 +142,7 @@ export const types = `
     type: String
     branchId: String
     deliveryInfo: JSON
+    cardPaymentInfo: String
     cardPayments: [CardPayment]
     origin: String
     customer: Customer
@@ -176,7 +179,7 @@ export const mutations = `
 
 export const queries = `
   orders(searchValue: String, page: Int, perPage: Int): [Order]
-  fullOrders(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int, customerId: String): [Order]
+  fullOrders(searchValue: String, statuses: [String], customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
   orderDetail(_id: String): Order
   ordersCheckCompany(registerNumber: String!): JSON
   ordersDeliveryInfo(orderId: String!): JSON

@@ -56,6 +56,6 @@ export const qpayInvoiceSchema = new Schema({
     type: Date,
     label: 'Updated Date for Qpay payment'
   }),
-  urls: field({ type: qpayUrlSchema, label: 'QPay urls' }),
+  urls: field({ type: [qpayUrlSchema], label: 'QPay urls' }),
   createdAt: getDateFieldDefinition('Created at')
 });

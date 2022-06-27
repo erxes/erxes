@@ -39,7 +39,7 @@ const orderQueries = {
     );
   },
 
-  fullOrders(
+  async fullOrders(
     _root,
     {
       searchValue,
@@ -79,8 +79,16 @@ const orderQueries = {
     );
   },
 
-  orderDetail(_root, { _id }, { models }: IContext) {
-    return models.Orders.findOne({ _id });
+  orderDetail(_root, { _id }, { posUser, user, models }: IContext) {
+    if (posUser) {
+      return models.Orders.findOne({ _id });
+    }
+
+    if (!user.erxesCustomerId) {
+      throw new Error('Not found');
+    }
+
+    return models.Orders.findOne({ _id, customerId: user.erxesCustomerId });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {

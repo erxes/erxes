@@ -6,7 +6,7 @@ import {
   requestInvoiceDeletion
 } from '../../utils/qpayUtils';
 
-import { checkInvoiceAmount } from '../../utils/orderUtils';
+import { checkInvoiceAmount, commonCheckPayment } from '../../utils/orderUtils';
 
 interface IInvoiceParams {
   orderId: string;
@@ -110,7 +110,7 @@ const paymentMutations = {
       invoice.qpayPaymentId &&
       invoice.paymentDate
     ) {
-      throw new Error('QPay payment already made');
+      return invoice;
     }
 
     const tokenInfo = await fetchQPayToken(config.qpayConfig);
@@ -144,23 +144,19 @@ const paymentMutations = {
             }
           }
         );
-
-        const order = await models.Orders.getOrder(invoice.senderInvoiceNo!);
+        const orderId: any = invoice.senderInvoiceNo;
 
         const paidMobileAmount = await models.QPayInvoices.getPaidAmount(
-          order._id
+          orderId
         );
-
-        await models.Orders.updateOne(
-          { _id: invoice.senderInvoiceNo },
-          {
-            $set: { mobileAmount: paidMobileAmount }
-          }
+        return await commonCheckPayment(
+          orderId,
+          config,
+          paidMobileAmount,
+          models
         );
       }
     }
-
-    return models.QPayInvoices.findOne({ _id: invoice._id });
   }
 };
 

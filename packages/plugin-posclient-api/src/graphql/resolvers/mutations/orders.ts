@@ -17,7 +17,10 @@ import { debugError } from '@erxes/api-utils/src/debuggers';
 import { graphqlPubsub } from '../../../configs';
 import { IContext } from '../../types';
 import { IOrderInput } from '../../types';
-import { ORDER_STATUSES } from '../../../models/definitions/constants';
+import {
+  BILL_TYPES,
+  ORDER_STATUSES
+} from '../../../models/definitions/constants';
 import { sendPosMessage } from '../../../messageBroker';
 
 interface IPaymentBase {
@@ -42,6 +45,8 @@ interface IPaymentParams {
 
 interface IOrderEditParams extends IOrderInput {
   _id: string;
+  billType: string;
+  registerNumber: string;
 }
 
 const orderMutations = {
@@ -110,7 +115,9 @@ const orderMutations = {
       branchId: doc.branchId,
       customerId: doc.customerId,
       type: doc.type,
-      totalAmount: getTotalAmount(preparedDoc.items)
+      totalAmount: getTotalAmount(preparedDoc.items),
+      billType: doc.billType || BILL_TYPES.CITIZEN,
+      registerNumber: doc.registerNumber || ''
     });
 
     return updatedOrder;
@@ -128,7 +135,8 @@ const orderMutations = {
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
         _id,
-        status: order.status
+        status: order.status,
+        customerId: order.customerId
       }
     });
 
@@ -155,7 +163,7 @@ const orderMutations = {
 
     checkOrderStatus(order);
 
-    await checkUnpaidInvoices(_id);
+    await checkUnpaidInvoices(_id, models);
 
     const items = await models.OrderItems.find({
       orderId: order._id
@@ -170,7 +178,7 @@ const orderMutations = {
       ebarimtConfig,
       items,
       doc.billType,
-      doc.registerNumber
+      doc.registerNumber || order.registerNumber
     );
 
     ebarimtConfig.districtName = getDistrictName(
@@ -204,7 +212,8 @@ const orderMutations = {
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
           _id,
-          status: order.status
+          status: order.status,
+          customerId: order.customerId
         }
       });
 
@@ -268,7 +277,7 @@ const orderMutations = {
     const order = await models.Orders.getOrder(_id);
 
     checkOrderStatus(order);
-    await checkUnpaidInvoices(_id);
+    await checkUnpaidInvoices(_id, models);
 
     const paidInvoices = await models.QPayInvoices.countDocuments({
       senderInvoiceNo: _id,
@@ -306,7 +315,7 @@ const orderMutations = {
 
     checkOrderStatus(order);
 
-    await checkUnpaidInvoices(_id);
+    await checkUnpaidInvoices(_id, models);
 
     const items = await models.OrderItems.find({
       orderId: order._id
@@ -357,7 +366,8 @@ const orderMutations = {
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
           _id,
-          status: order.status
+          status: order.status,
+          customerId: order.customerId
         }
       });
 

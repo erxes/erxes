@@ -2,7 +2,8 @@ import { IOrder, IOrderDocument } from '../../models/definitions/orders';
 import { OrderItems } from '../../models/OrderItems';
 import { Orders } from '../../models/Orders';
 import { Products } from '../../models/Products';
-import { IContext, IModels } from '../../connectionResolver';
+import { IContext } from '../types';
+import { IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
@@ -19,6 +20,9 @@ import {
   IEbarimtConfig
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
+import { graphqlPubsub } from '../../configs';
+import messageBroker from '../../messageBroker';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IDetailItem {
   count: number;
@@ -196,7 +200,7 @@ export const prepareEbarimtData = async (
     });
 
     if (response.found) {
-      billType = '3';
+      billType = BILL_TYPES.ENTITY;
       customerCode = registerNumber;
       customerName = response.name;
     }
@@ -256,7 +260,7 @@ export const prepareEbarimtData = async (
 export const prepareOrderDoc = async (
   doc: IOrderInput,
   config: IConfigDocument,
-  models
+  models: IModels
 ) => {
   const { catProdMappings = [] } = config;
 
@@ -300,7 +304,7 @@ export const prepareOrderDoc = async (
     const addProductIds = Object.keys(toAddProducts);
 
     if (addProductIds.length) {
-      const takingProducts = await Products.find({
+      const takingProducts = await models.Products.find({
         _id: { $in: addProductIds }
       });
 
@@ -342,8 +346,8 @@ export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
   }
 };
 
-export const checkUnpaidInvoices = async (orderId: string) => {
-  const invoices = await QPayInvoices.countDocuments({
+export const checkUnpaidInvoices = async (orderId: string, models: IModels) => {
+  const invoices = await models.QPayInvoices.countDocuments({
     senderInvoiceNo: orderId,
     status: { $ne: 'PAID' }
   });
@@ -382,5 +386,106 @@ export const checkInvoiceAmount = async ({
   // үүсгэх гэж буй нэхэмжлэхийн дүн төлөх үлдэгдлээс ихгүй байх ёстой
   if (paidAmount + amount > order.totalAmount) {
     throw new Error('Invoice amount exceeds remainder amount');
+  }
+};
+
+export const commonCheckPayment = async (
+  orderId,
+  config,
+  paidAmount,
+  models
+) => {
+  let order = await models.Orders.getOrder(orderId);
+
+  await models.Orders.updateOne(
+    { _id: orderId },
+    {
+      $set: { mobileAmount: paidAmount }
+    }
+  );
+
+  order = await models.Orders.getOrder(orderId);
+
+  const doc = {
+    billType: order.billType || BILL_TYPES.CITIZEN,
+    registerNumber: order.registerNumber || '',
+    cashAmount: order.cashAmount || 0,
+    mobileAmount: order.mobileAmount,
+    cardAmount: order.cardAmount || 0
+  };
+
+  checkOrderStatus(order);
+
+  await checkUnpaidInvoices(orderId, models);
+
+  const items = await models.OrderItems.find({
+    orderId: order._id
+  }).lean();
+
+  await validateOrderPayment(order, doc);
+
+  const data = await prepareEbarimtData(
+    order,
+    config.ebarimtConfig,
+    items,
+    doc.billType,
+    doc.registerNumber || order.registerNumber
+  );
+
+  const ebarimtConfig = {
+    ...config.ebarimtConfig,
+    districtName: getDistrictName(config.ebarimtConfig.districtCode)
+  };
+
+  try {
+    const response = await models.PutResponses.putData({
+      ...data,
+      config: ebarimtConfig,
+      models
+    });
+
+    if (response && response.success === 'true') {
+      const now = new Date();
+
+      await models.Orders.updateOne(
+        { _id: orderId },
+        {
+          $set: {
+            ...doc,
+            paidDate: now,
+            status: ORDER_STATUSES.PAID,
+            modifiedAt: now
+          }
+        }
+      );
+    }
+
+    order = await models.Orders.getOrder(orderId);
+    graphqlPubsub.publish('ordersOrdered', {
+      ordersOrdered: {
+        _id: orderId,
+        status: order.status,
+        customerId: order.customerId
+      }
+    });
+
+    try {
+      messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
+        action: 'makePayment',
+        posToken: config.token,
+        syncId: config.syncInfo.id,
+        response,
+        order,
+        items
+      });
+    } catch (e) {
+      debugError(`Error occurred while sending data to erxes: ${e.message}`);
+    }
+
+    return response;
+  } catch (e) {
+    debugError(e);
+
+    return e;
   }
 };
