@@ -36,7 +36,9 @@ import {
   Vouchers as VoucherQueries
 } from './queries';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async serviceDiscovery => (
+  
+  {
   ...customScalars,
   Donate,
   DonateCampaign,
