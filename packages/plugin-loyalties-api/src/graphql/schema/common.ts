@@ -35,7 +35,7 @@ export const paginateTypes = `
 export const commonFilterTypes = `
   searchValue: String,
   filterStatus: String,
-`;
+`
 
 export const commonTypes = `
   _id: String,
@@ -49,7 +49,7 @@ export const commonTypes = `
 
   campaign: JSON,
   owner: JSON
-`;
+`
 
 export const commonInputs = `
   campaignId: String,
