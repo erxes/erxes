@@ -1,17 +1,28 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '../../utils';
-import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { mutations, queries } from '../graphql';
+
 import {
   AddMutationResponse,
   CompaniesQueryResponse,
   ICompany,
   ICompanyDoc
 } from '../types';
+import { mutations, queries } from '../graphql';
+
 import CompanyForm from './CompanyForm';
+import React from 'react';
+import asyncComponent from '../../components/AsyncComponent';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '../../utils/core';
+import { withProps } from '../../utils';
+
+const ConformityChooser = asyncComponent(
+  () =>
+    isEnabled('cards') &&
+    import(
+      /* webpackChunkName: "ConformityChooser" */ '@erxes/ui-cards/src/conformity/containers/ConformityChooser'
+    )
+);
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;
@@ -41,6 +52,10 @@ class CompanyChooser extends React.Component<
   };
 
   render() {
+    if (!isEnabled('cards')) {
+      return null;
+    }
+
     const { data, companiesQuery, search } = this.props;
 
     const renderName = company => {

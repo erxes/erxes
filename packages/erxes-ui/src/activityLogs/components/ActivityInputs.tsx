@@ -1,13 +1,22 @@
-import React from 'react';
-import Icon from '../../components/Icon';
-import { Tabs, TabTitle } from '../../components/tabs';
-import NoteForm from '../../internalNotes/containers/Form';
-import TicketCommentForm from '@erxes/ui-cards/src/boards/containers/TicketCommentForm';
-import { WhiteBoxRoot } from '../../layout/styles';
-import { __ } from '../../utils';
-import { isEnabled } from '../../utils/core';
+import { TabTitle, Tabs } from '../../components/tabs';
+
 import { EmptyContent } from '../styles';
 import ErrorBoundary from '../../components/ErrorBoundary';
+import Icon from '../../components/Icon';
+import NoteForm from '../../internalNotes/containers/Form';
+import React from 'react';
+import { WhiteBoxRoot } from '../../layout/styles';
+import { __ } from '../../utils';
+import asyncComponent from '../../components/AsyncComponent';
+import { isEnabled } from '../../utils/core';
+
+const TicketCommentForm = asyncComponent(
+  () =>
+    isEnabled('cards') &&
+    import(
+      /* webpackChunkName: "TicketCommentForm" */ '@erxes/ui-cards/src/boards/containers/TicketCommentForm'
+    )
+);
 
 type Props = {
   contentType: string;
@@ -45,7 +54,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       );
     }
 
-    if (currentTab === 'ticket') {
+    if (currentTab === 'ticket' && isEnabled('cards')) {
       return (
         <TicketCommentForm
           contentType={`${contentType}_comment`}

@@ -1,16 +1,26 @@
-import Box from '../../components/Box';
-import EmptyState from '../../components/EmptyState';
-import Icon from '../../components/Icon';
-import ModalTrigger from '../../components/ModalTrigger';
-import { ButtonRelated } from '../../styles/main';
 import { __, urlParser } from '../../utils';
-import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
-import { SectionBodyItem } from '../../layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
+
+import Box from '../../components/Box';
+import { ButtonRelated } from '../../styles/main';
 import CompanyChooser from '../containers/CompanyChooser';
-import { queries } from '../graphql';
+import EmptyState from '../../components/EmptyState';
 import { ICompany } from '../types';
+import Icon from '../../components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '../../components/ModalTrigger';
+import React from 'react';
+import { SectionBodyItem } from '../../layout/styles';
+import asyncComponent from '../../components/AsyncComponent';
+import { isEnabled } from '../../utils/core';
+import { queries } from '../graphql';
+
+const GetConformity = asyncComponent(
+  () =>
+    isEnabled('cards') &&
+    import(
+      /* webpackChunkName: "GetConformity" */ '@erxes/ui-cards/src/conformity/containers/GetConformity'
+    )
+);
 
 type Props = {
   name: string;
@@ -136,6 +146,10 @@ type IProps = {
 };
 
 export default (props: IProps) => {
+  if (!isEnabled('cards')) {
+    return null;
+  }
+
   return (
     <GetConformity
       {...props}

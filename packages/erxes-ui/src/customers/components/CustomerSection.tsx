@@ -1,17 +1,27 @@
-import Box from "../../components/Box";
-import EmptyState from "../../components/EmptyState";
-import Icon from "../../components/Icon";
-import ModalTrigger from "../../components/ModalTrigger";
-import Spinner from "../../components/Spinner";
-import { ButtonRelated } from "../../styles/main";
-import { __, renderFullName } from "../../utils";
-import GetConformity from "@erxes/ui-cards/src/conformity/containers/GetConformity";
-import { SectionBodyItem } from "../../layout/styles";
-import React from "react";
-import { Link } from "react-router-dom";
-import CustomerChooser from "../containers/CustomerChooser";
-import { queries } from "../graphql";
-import { ICustomer } from "../types";
+import { __, renderFullName } from '../../utils';
+
+import Box from '../../components/Box';
+import { ButtonRelated } from '../../styles/main';
+import CustomerChooser from '../containers/CustomerChooser';
+import EmptyState from '../../components/EmptyState';
+import { ICustomer } from '../types';
+import Icon from '../../components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '../../components/ModalTrigger';
+import React from 'react';
+import { SectionBodyItem } from '../../layout/styles';
+import Spinner from '../../components/Spinner';
+import asyncComponent from '../../components/AsyncComponent';
+import { isEnabled } from '../../utils/core';
+import { queries } from '../graphql';
+
+const GetConformity = asyncComponent(
+  () =>
+    isEnabled('cards') &&
+    import(
+      /* webpackChunkName: "GetConformity" */ '@erxes/ui-cards/src/conformity/containers/GetConformity'
+    )
+);
 
 export type Props = {
   name: string;
@@ -28,11 +38,11 @@ function Component({
   relType,
   name,
   items = [],
-  mainType = "",
-  mainTypeId = "",
+  mainType = '',
+  mainTypeId = '',
   onSelect,
   actionSection,
-  title = "",
+  title = ''
 }: Props) {
   const renderRelatedCustomerChooser = props => {
     return (
@@ -46,7 +56,7 @@ function Component({
 
   const relCustomerTrigger = (
     <ButtonRelated>
-      <span>{__("See related customers..")}</span>
+      <span>{__('See related customers..')}</span>
     </ButtonRelated>
   );
 
@@ -115,7 +125,7 @@ function Component({
 
   return (
     <Box
-      title={__(`${title || "Customers"}`)}
+      title={__(`${title || 'Customers'}`)}
       extraButtons={extraButtons}
       isOpen={true}
       name="showCustomers"
@@ -137,10 +147,14 @@ export type ICustomerSectionProps = {
 };
 
 export default (props: ICustomerSectionProps) => {
+  if (!isEnabled('cards')) {
+    return null;
+  }
+
   return (
     <GetConformity
       {...props}
-      relType={props.relType || "customer"}
+      relType={props.relType || 'customer'}
       component={Component}
       queryName="customers"
       itemsQuery={queries.customers}

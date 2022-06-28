@@ -1,13 +1,4 @@
-import { IUser, IUserLinks } from '../../auth/types';
-import AutoCompletionSelect from '../../components/AutoCompletionSelect';
-import AvatarUpload from '../../components/AvatarUpload';
-import Button from '../../components/Button';
-import CollapseContent from '../../components/CollapseContent';
-import FormControl from '../../components/form/Control';
-import DateControl from '../../components/form/DateControl';
-import Form from '../../components/form/Form';
-import FormGroup from '../../components/form/Group';
-import ControlLabel from '../../components/form/Label';
+import { Alert, __, getConstantFromStore } from '../../utils';
 import {
   DateContainer,
   FormColumn,
@@ -15,18 +6,27 @@ import {
   ModalFooter,
   ScrollWrapper
 } from '../../styles/main';
-import { IButtonMutateProps, IFormProps, IQueryParams } from '../../types';
-import { Alert, getConstantFromStore, __ } from '../../utils';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
 } from '../constants';
-import SelectTeamMembers from '../../team/containers/SelectTeamMembers';
-import React from 'react';
-import validator from 'validator';
+import { IButtonMutateProps, IFormProps, IQueryParams } from '../../types';
 import { ICustomer, ICustomerDoc } from '../types';
+import { IUser, IUserLinks } from '../../auth/types';
 import { genderChoices, isValidPhone } from '../utils';
-import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
+
+import AutoCompletionSelect from '../../components/AutoCompletionSelect';
+import AvatarUpload from '../../components/AvatarUpload';
+import Button from '../../components/Button';
+import CollapseContent from '../../components/CollapseContent';
+import ControlLabel from '../../components/form/Label';
+import DateControl from '../../components/form/DateControl';
+import Form from '../../components/form/Form';
+import FormControl from '../../components/form/Control';
+import FormGroup from '../../components/form/Group';
+import React from 'react';
+import SelectTeamMembers from '../../team/containers/SelectTeamMembers';
+import validator from 'validator';
 
 type Props = {
   currentUser: IUser;
@@ -37,7 +37,7 @@ type Props = {
   queryParams: IQueryParams;
   changeRedirectType?: (type: string) => void;
   changeVerificationStatus?: (isEmail: boolean) => void;
-  fieldsVisibility: (key: string) => IFieldsVisibility;
+  fieldsVisibility: (key: string) => any; //check - IFieldsVisibility
 };
 
 type State = {

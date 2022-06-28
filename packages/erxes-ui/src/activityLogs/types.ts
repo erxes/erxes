@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IEmailDelivery } from '@erxes/ui-engage/src/types';
+
 import { QueryResponse } from '../types';
 
 export interface IActivityLogYearMonthDoc {
@@ -53,7 +53,7 @@ export type ActivityLogQueryResponse = {
 } & QueryResponse;
 
 export type EmailDeliveryDetailQueryResponse = {
-  emailDeliveryDetail: IEmailDelivery;
+  emailDeliveryDetail: any; //check - IEmailDelivery
   loading: boolean;
 };
 

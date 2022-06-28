@@ -1,14 +1,9 @@
 import * as compose from 'lodash.flowright';
 
-import {
-  FieldsCombinedByType,
-  FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui-forms/src/settings/properties/types';
 import { IEditorProps, IMentionUser } from '../types';
 
 import { AllUsersQueryResponse } from '../auth/types';
 import EditorCK from '../components/EditorCK';
-import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
@@ -17,7 +12,8 @@ import { queries as segmentQueries } from '@erxes/ui-segments/src/graphql';
 import { queries as teamQueries } from '../team/graphql';
 import { withProps } from '../utils';
 
-const generateAttributes = (combinedFields?: FieldsCombinedByType[]) => {
+const generateAttributes = (combinedFields?: any[]) => {
+  //check - FieldsCombinedByType
   let items: Array<{ name: string; value?: string }> = [
     { name: 'Customer' },
     { value: 'customer.name', name: 'Name' }
@@ -52,8 +48,8 @@ type Props = {
 
 type FinalProps = {
   usersQuery: AllUsersQueryResponse;
-  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
-  leadsQuery: LeadIntegrationsQueryResponse;
+  combinedFieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
+  leadsQuery: any; //check - LeadIntegrationsQueryResponse
 } & Props;
 
 const EditorContainer = (props: FinalProps) => {

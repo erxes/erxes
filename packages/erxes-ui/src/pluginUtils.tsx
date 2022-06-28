@@ -1,12 +1,12 @@
+import { Divider, Row, RowTitle } from '@erxes/ui-settings/src/main/styles';
+
 import { AppConsumer } from './appContext';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { __ } from '@erxes/ui/src/utils';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
-import { Divider, Row, RowTitle } from '@erxes/ui-settings/src/main/styles';
+import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import { __ } from '@erxes/ui/src/utils';
 import pluginModules from './plugins';
 
 interface ISubNav {
@@ -214,7 +214,7 @@ export const pluginsOfCompanySidebar = (company: ICompany) => {
   );
 };
 
-export const pluginsOfItemSidebar = (item: IItem, type: string) => {
+export const pluginsOfItemSidebar = (item: any, type: string) => {
   return (
     <PluginsWrapper
       itemName={`${type}RightSidebarSection`}

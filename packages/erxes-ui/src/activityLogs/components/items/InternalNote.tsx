@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   ActivityContent,
   ActivityDate,
@@ -7,14 +6,16 @@ import {
   FlexCenterContent,
   LogWrapper
 } from '../../styles';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Tip from '@erxes/ui/src/components/Tip';
-import { renderUserFullName } from '@erxes/ui/src/utils';
+
 import Form from '@erxes/ui/src/internalNotes/components/Form';
 import { IInternalNote } from '@erxes/ui/src/internalNotes/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { renderUserFullName } from '@erxes/ui/src/utils';
+import { urlify } from '@erxes/ui/src/utils/urlParser';
 import xss from 'xss';
-import { urlify } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   activity: any;
