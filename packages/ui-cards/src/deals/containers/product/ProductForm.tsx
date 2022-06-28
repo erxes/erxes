@@ -2,7 +2,7 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import ProductForm from '../../components/product/ProductForm';
 import { IPaymentsData, IProductData } from '../../types';
-import { AppConsumer } from '@erxes/ui/src/appContext';
+import { AppConsumer } from 'coreui/appContext';
 
 type Props = {
   onChangeProductsData: (productsData: IProductData[]) => void;

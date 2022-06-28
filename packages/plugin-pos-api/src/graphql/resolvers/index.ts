@@ -16,7 +16,7 @@ const resolvers: any = async () => ({
   PosProduct,
   PosOrderDetail,
   Mutation,
-  Query,
+  Query
 });
 
 export default resolvers;
