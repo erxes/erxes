@@ -116,11 +116,22 @@ class PluginDetails extends React.Component<Props, State> {
         <Carousel />
 
         <Tabs>
-          <TabTitle onClick={() => handleSelect('Description')}>
+          <TabTitle
+            onClick={() => handleSelect('Description')}
+            active={this.state.tabType === 'Description'}
+          >
             Description
           </TabTitle>
-          <TabTitle onClick={() => handleSelect('Guide')}>Guide</TabTitle>
-          <TabTitle onClick={() => handleSelect('Changelog')}>
+          <TabTitle
+            onClick={() => handleSelect('Guide')}
+            active={this.state.tabType === 'Guide'}
+          >
+            Guide
+          </TabTitle>
+          <TabTitle
+            onClick={() => handleSelect('Changelog')}
+            active={this.state.tabType === 'Changelog'}
+          >
             Changelog
           </TabTitle>
         </Tabs>
