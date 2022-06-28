@@ -1,7 +1,7 @@
-import { IContext } from '../../../connectionResolver';
 import { ICommonParams } from '../../../models/definitions/common';
-import { getOwner } from '../../../models/utils';
+import { IContext } from '../../../connectionResolver';
 import { checkVouchersSale } from '../../../utils';
+import { getOwner } from '../../../models/utils';
 
 interface IParams extends ICommonParams {
   voucherCampaignId: string;
