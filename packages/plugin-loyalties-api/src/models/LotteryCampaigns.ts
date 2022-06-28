@@ -3,7 +3,7 @@ import { CAMPAIGN_STATUS, LOTTERY_STATUS } from './definitions/constants';
 import { Model, model } from 'mongoose';
 import { getRandomNumber, randomBetween, validCampaign } from './utils';
 import { IModels } from '../connectionResolver';
-import { ILotteryCampaign, ILotteryCampaignDocument, lotteryCampaignSchema } from './definitions/lotteryCampaigns';
+import { ILotteryAward, ILotteryCampaign, ILotteryCampaignDocument, lotteryCampaignSchema } from './definitions/lotteryCampaigns';
 import { ILottery } from './definitions/lotteries';
 
 export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
@@ -120,7 +120,7 @@ export const loadLotteryCampaignClass = (
     }
 
     public static async doLottery({ campaignId, awardId }) {
-      const { campaign, award } = await this.validDoLottery( campaignId, awardId);
+      const { campaign, award } = await this.validDoLottery(campaignId, awardId);
 
       const filter = { campaignId, status: LOTTERY_STATUS.NEW };
       const lotteriesCount = await models.Lotteries.find(filter).countDocuments();
@@ -139,10 +139,7 @@ export const loadLotteryCampaignClass = (
     }
 
     public static async getNextChar({ campaignId, awardId, prevChars }) {
-      const { campaign, award } = await this.validDoLottery(
-        campaignId,
-        awardId
-      );
+      const { campaign, award } = await this.validDoLottery(campaignId, awardId);
 
       const randomNumber = getRandomNumber(campaign.numberFormat);
 
@@ -178,7 +175,7 @@ export const loadLotteryCampaignClass = (
         fitLotteries
       }
     }
-  }
+  };
 
   lotteryCampaignSchema.loadClass(LotteryCampaign);
 
