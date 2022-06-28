@@ -230,7 +230,7 @@ export const initBroker = async options => {
 
       return {
         status: 'success',
-        data: await models.Configs.findOne(query)
+        data: await models.Configs.findOne(query).lean()
       };
     }
   );
@@ -250,7 +250,7 @@ export const initBroker = async options => {
 
     return {
       status: 'success',
-      data: await models.Users.findOne(data)
+      data: await models.Users.findOne(data).lean()
     };
   });
 
@@ -373,6 +373,15 @@ export const initBroker = async options => {
     return {
       status: 'success',
       data: await models.Branches.find(query).lean()
+    };
+  });
+
+  consumeRPCQueue('core:branches.findOne', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.Branches.findOne(data).lean()
     };
   });
 

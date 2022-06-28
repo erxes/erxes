@@ -27,10 +27,7 @@ const count = async (models: IModels, query: any): Promise<number> => {
   return Number(result);
 };
 
-const conversationQueries = {
-  conversationMessage(_, { _id }, { models }: IContext) {
-    return models.ConversationMessages.findOne({ _id });
-  },
+const conversationQueries: any = {
   /**
    * Conversations list
    */
@@ -374,5 +371,13 @@ const conversationQueries = {
 moduleRequireLogin(conversationQueries);
 
 checkPermission(conversationQueries, 'conversations', 'showConversations', []);
+
+conversationQueries.conversationMessage = (
+  _,
+  { _id },
+  { models }: IContext
+) => {
+  return models.ConversationMessages.findOne({ _id });
+};
 
 export default conversationQueries;

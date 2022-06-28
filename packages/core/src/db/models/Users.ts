@@ -797,7 +797,7 @@ export const loadUserClass = (models: IModels) => {
     public static findUsers(query: any, options?: any) {
       const filter = { ...query, role: { $ne: USER_ROLES.SYSTEM } };
 
-      return models.Users.find(filter, options);
+      return models.Users.find(filter, options).lean();
     }
   }
 

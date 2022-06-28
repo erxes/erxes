@@ -71,10 +71,16 @@ const RouteForm = (props: Props) => {
   };
 
   const generateUserOptions = () => {
-    return props.directions.map(e => ({
-      label: `${e.places[0].name} - ${e.places[1].name} : ${e.roadCode}`,
-      value: `${e._id}`
-    }));
+    return props.directions.map(e => {
+      if (!e.places.length) {
+        return null;
+      }
+
+      return {
+        label: `${e.places[0].name} - ${e.places[1].name} : ${e.roadCode}`,
+        value: `${e._id}`
+      };
+    });
   };
 
   const renderContent = (formProps: IFormProps) => {

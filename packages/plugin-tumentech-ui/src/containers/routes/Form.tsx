@@ -13,11 +13,13 @@ type Props = {
 
 const RouteFormContainer = (props: Props) => {
   const { data, loading } = useQuery(gql(queries.directions), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
+    variables: { perPage: 9999 }
   });
 
   const routesQueryResponse = useQuery(gql(queries.routesQuery), {
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
+    variables: { perPage: 9999 }
   });
 
   if (loading || routesQueryResponse.loading) {

@@ -94,10 +94,10 @@ const DirectionForm = (props: Props) => {
 
   const renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton } = props;
-    const { values, isSubmitted } = formProps;
+    const { isSubmitted } = formProps;
 
     const onChangeRoadCondition = values => {
-      setRoadCondition(values);
+      setRoadCondition(values.map(e => e.value));
     };
 
     const onChangeInput = e => {

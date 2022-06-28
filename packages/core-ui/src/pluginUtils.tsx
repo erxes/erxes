@@ -230,9 +230,11 @@ export const pluginsSettingsNavigations = (
   const navigationMenus: any[] = [];
 
   for (let i = 0; i < plugins.length; i++) {
-    if (i >= PLUGIN_LABEL_COLORS.length)
+    if (i >= PLUGIN_LABEL_COLORS.length) {
       plugins[i].color = PLUGIN_LABEL_COLORS[i - PLUGIN_LABEL_COLORS.length];
-    else plugins[i].color = PLUGIN_LABEL_COLORS[i];
+    } else {
+      plugins[i].color = PLUGIN_LABEL_COLORS[i];
+    }
 
     const hasComponent = Object.keys(plugins[i].exposes).includes('./settings');
 
@@ -407,6 +409,31 @@ export const pluginsOfProductCategoryActions = (category: any) => {
           );
 
           return <Component key={Math.random()} productCategory={category} />;
+        });
+      }}
+    />
+  );
+};
+
+export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  return (
+    <PluginsWrapper
+      plugins={plugins}
+      itemName={'jobCategoryActions'}
+      callBack={(_plugin, actions) => {
+        return actions.map(action => {
+          const Component = React.lazy(
+            loadComponent(action.scope, action.component)
+          );
+
+          return (
+            <Component
+              key={Math.random()}
+              productCategoryId={productCategoryId}
+            />
+          );
         });
       }}
     />

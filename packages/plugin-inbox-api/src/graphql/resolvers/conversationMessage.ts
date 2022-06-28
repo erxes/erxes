@@ -6,14 +6,20 @@ import { IContext } from '../../connectionResolver';
 
 export default {
   user(message: IMessageDocument) {
-    return message.userId && { __typename: 'User', _id: message.userId }
+    return message.userId && { __typename: 'User', _id: message.userId };
   },
 
   customer(message: IMessageDocument) {
-    return message.customerId && { __typename: 'Customer', _id: message.customerId }
+    return (
+      message.customerId && { __typename: 'Customer', _id: message.customerId }
+    );
   },
 
-  async mailData(message: IMessageDocument, _args, { models, subdomain }: IContext ) {
+  async mailData(
+    message: IMessageDocument,
+    _args,
+    { models, subdomain }: IContext
+  ) {
     const conversation = await models.Conversations.findOne({
       _id: message.conversationId
     }).lean();
@@ -74,12 +80,12 @@ export default {
     try {
       const response = await sendIntegrationsMessage({
         subdomain,
-        action: "getDailyRoom",
+        action: 'getDailyRoom',
         data: {
           erxesApiMessageId: message._id
         },
         isRPC: true
-      })
+      });
 
       return response;
     } catch (e) {

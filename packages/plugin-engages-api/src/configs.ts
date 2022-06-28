@@ -10,7 +10,6 @@ import cronjobs from './cronjobs/engages';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
-import segments from './segments';
 
 export let graphqlPubsub;
 export let serviceDiscovery;
@@ -30,7 +29,7 @@ export default {
   },
   segment: { schemas: [] },
   hasSubscriptions: false,
-  meta: { tags, logs: { consumers: logs }, webhooks, cronjobs, segments },
+  meta: { tags, logs: { consumers: logs }, webhooks, cronjobs },
   postHandlers: [{ path: `/service/engage/tracker`, method: engageTracker }],
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

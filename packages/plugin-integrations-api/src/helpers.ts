@@ -10,6 +10,7 @@ import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
   models: IModels,
+  subdomain: string,
   integrationErxesApiId: string,
   removeAll: boolean = false
 ): Promise<string> => {
@@ -118,6 +119,7 @@ export const removeIntegration = async (
 
 export const removeAccount = async (
   models: IModels,
+  subdomain: string,
   _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await models.Accounts.findOne({ _id });
@@ -137,6 +139,7 @@ export const removeAccount = async (
       try {
         const response = await removeIntegration(
           models,
+          subdomain,
           integration.erxesApiId,
           true
         );

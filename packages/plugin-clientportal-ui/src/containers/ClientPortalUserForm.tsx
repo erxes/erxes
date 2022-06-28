@@ -52,7 +52,7 @@ class ClientPortalUserFromContainer extends React.Component<FinalProps> {
           mutation={
             object
               ? mutations.clientPortalUsersEdit
-              : mutations.clientPortalUsersAdd
+              : mutations.clientPortalUsersInvite
           }
           variables={values}
           callback={afterSave}

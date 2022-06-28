@@ -1,12 +1,12 @@
-import gql from "graphql-tag";
-import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from "./constants";
-import { Amount } from "./styles/stage";
-import { IDateColumn } from "@erxes/ui/src/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import { ColumnProps, getCommonParams } from "./components/Calendar";
-import PriorityIndicator from "./components/editForm/PriorityIndicator";
-import { IDraggableLocation, IItem, IItemMap } from "./types";
+import gql from 'graphql-tag';
+import { STORAGE_BOARD_KEY, STORAGE_PIPELINE_KEY } from './constants';
+import { Amount } from './styles/stage';
+import { IDateColumn } from '@erxes/ui/src/types';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { ColumnProps, getCommonParams } from './components/Calendar';
+import PriorityIndicator from './components/editForm/PriorityIndicator';
+import { IDraggableLocation, IItem, IItemMap } from './types';
 
 type Options = {
   _id: string;
@@ -18,13 +18,13 @@ type Options = {
 
 // get options for react-select-plus
 export function selectOptions(array: Options[] = []) {
-  return array.map((item) => ({ value: item._id, label: item.name }));
+  return array.map(item => ({ value: item._id, label: item.name }));
 }
 
 export function collectOrders(array: Options[] = []) {
   return array.map((item: Options, index: number) => ({
     _id: item._id,
-    order: index,
+    order: index
   }));
 }
 
@@ -51,7 +51,7 @@ type ReorderItemMap = {
 export const updateItemInfo = (state, item) => {
   const { itemMap } = state;
   const items = [...itemMap[item.stageId]];
-  const index = items.findIndex((d) => d._id === item._id);
+  const index = items.findIndex(d => d._id === item._id);
 
   items[index] = item;
 
@@ -61,7 +61,7 @@ export const updateItemInfo = (state, item) => {
 export const reorderItemMap = ({
   itemMap,
   source,
-  destination,
+  destination
 }: ReorderItemMap) => {
   const current = [...itemMap[source.droppableId]];
   const next = [...itemMap[destination.droppableId]];
@@ -91,13 +91,13 @@ export const reorderItemMap = ({
 
     const updateditemMap = {
       ...itemMap,
-      [source.droppableId]: current,
+      [source.droppableId]: current
     };
 
     return {
       itemMap: updateditemMap,
       aboveItem,
-      target,
+      target
     };
   }
 
@@ -116,23 +116,23 @@ export const reorderItemMap = ({
   const result = {
     ...itemMap,
     [source.droppableId]: current,
-    [destination.droppableId]: next,
+    [destination.droppableId]: next
   };
 
   return {
     itemMap: result,
     aboveItem: next[destination.index - 1],
-    target,
+    target
   };
 };
 
 export const getDefaultBoardAndPipelines = () => {
-  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || "{}";
-  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || "{}";
+  const defaultBoards = localStorage.getItem(STORAGE_BOARD_KEY) || '{}';
+  const defaultPipelines = localStorage.getItem(STORAGE_PIPELINE_KEY) || '{}';
 
   return {
     defaultBoards: JSON.parse(defaultBoards),
-    defaultPipelines: JSON.parse(defaultPipelines),
+    defaultPipelines: JSON.parse(defaultPipelines)
   };
 };
 
@@ -143,7 +143,7 @@ export const renderAmount = (amount = {}) => {
 
   return (
     <Amount>
-      {Object.keys(amount).map((key) => (
+      {Object.keys(amount).map(key => (
         <li key={key}>
           {amount[key].toLocaleString()} <span>{key}</span>
         </li>
@@ -153,7 +153,7 @@ export const renderAmount = (amount = {}) => {
 };
 
 export const invalidateCache = () => {
-  localStorage.setItem("cacheInvalidated", "true");
+  localStorage.setItem('cacheInvalidated', 'true');
 };
 
 export const toArray = (item: string | string[] = []) => {
@@ -173,20 +173,20 @@ export const renderPriority = (priority?: string) => {
 };
 
 export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
-  let colorName = "";
+  let colorName = '';
 
   if (isComplete) {
-    colorName = "green";
+    colorName = 'green';
   } else if (closeDate) {
     const now = new Date();
     const oneDay = 24 * 60 * 60 * 1000;
 
     if (new Date(closeDate).getTime() - now.getTime() < oneDay) {
-      colorName = "yellow";
+      colorName = 'yellow';
     }
 
     if (now > closeDate) {
-      colorName = "red";
+      colorName = 'red';
     }
   }
 
@@ -194,18 +194,18 @@ export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
 };
 
 export const generateButtonStart = (startDate: Date) => {
-  let colorName = "teal";
+  let colorName = 'teal';
 
   if (startDate) {
     const now = new Date();
     const oneDay = 24 * 60 * 60 * 1000;
 
     if (new Date(startDate).getTime() - now.getTime() < oneDay) {
-      colorName = "blue";
+      colorName = 'blue';
     }
 
     if (now > startDate) {
-      colorName = "red";
+      colorName = 'red';
     }
   }
 
@@ -221,9 +221,9 @@ export const onCalendarLoadMore = (fetchMore, queryName, skip: number) => {
       }
 
       return {
-        [queryName]: prevResult[queryName].concat(fetchMoreResult[queryName]),
+        [queryName]: prevResult[queryName].concat(fetchMoreResult[queryName])
       };
-    },
+    }
   });
 };
 
@@ -237,23 +237,23 @@ export const calendarColumnQuery = (query, name) =>
           skip: 0,
           date,
           pipelineId,
-          ...getCommonParams(queryParams),
-        },
+          ...getCommonParams(queryParams)
+        }
       };
-    },
+    }
   });
 
 export const getColors = (index: number) => {
   const COLORS = [
-    "#EA475D",
-    "#3CCC38",
-    "#FDA50D",
-    "#63D2D6",
-    "#3B85F4",
-    "#0A1E41",
-    "#5629B6",
-    "#6569DF",
-    "#888888",
+    '#EA475D',
+    '#3CCC38',
+    '#FDA50D',
+    '#63D2D6',
+    '#3B85F4',
+    '#0A1E41',
+    '#5629B6',
+    '#6569DF',
+    '#888888'
   ];
 
   if (index > 9) {
@@ -266,36 +266,40 @@ export const getColors = (index: number) => {
 export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
   const keys = Object.keys(queryParams || {});
 
-  if (!(keys.length === 2 || (keys.includes("key") && keys.length === 3))) {
+  if (!(keys.length === 2 || (keys.includes('key') && keys.length === 3))) {
     routerUtils.setParams(history, { key: Math.random() });
   }
 };
 
 export const getBoardViewType = () => {
-  let viewType = "board";
+  let viewType = 'board';
 
-  if (window.location.href.includes("calendar")) {
-    viewType = "calendar";
+  if (window.location.href.includes('calendar')) {
+    viewType = 'calendar';
   }
 
-  if (window.location.href.includes("activity")) {
-    viewType = "activity";
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
   }
 
-  if (window.location.href.includes("conversion")) {
-    viewType = "conversion";
+  if (window.location.href.includes('conversion')) {
+    viewType = 'conversion';
   }
 
-  if (window.location.href.includes("list")) {
-    viewType = "list";
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
   }
 
-  if (window.location.href.includes("chart")) {
-    viewType = "chart";
+  if (window.location.href.includes('chart')) {
+    viewType = 'chart';
   }
 
-  if (window.location.href.includes("gantt")) {
-    viewType = "gantt";
+  if (window.location.href.includes('gantt')) {
+    viewType = 'gantt';
+  }
+
+  if (window.location.href.includes('time')) {
+    viewType = 'time';
   }
 
   return viewType;

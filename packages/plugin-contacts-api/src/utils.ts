@@ -50,7 +50,7 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
         { emails: { $in: [doc.customerPrimaryEmail] } },
         { primaryEmail: doc.customerPrimaryEmail }
       ]
-    });
+    }).lean();
   }
 
   if (!customer && doc.customerPrimaryPhone) {
@@ -59,19 +59,19 @@ export const findCustomer = async ({ Customers }: IModels, doc) => {
         { phones: { $in: [doc.customerPrimaryPhone] } },
         { primaryPhone: doc.customerPrimaryPhone }
       ]
-    });
+    }).lean();
   }
 
   if (!customer && doc.customerCode) {
-    customer = await Customers.findOne({ code: doc.customerCode });
+    customer = await Customers.findOne({ code: doc.customerCode }).lean();
   }
 
   if (!customer && doc._id) {
-    customer = await Customers.findOne({ _id: doc._id });
+    customer = await Customers.findOne({ _id: doc._id }).lean();
   }
 
   if (!customer) {
-    customer = await Customers.findOne(doc);
+    customer = await Customers.findOne(doc).lean();
   }
 
   return customer;
@@ -86,25 +86,25 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
         { names: { $in: [doc.companyPrimaryName] } },
         { primaryName: doc.companyPrimaryName }
       ]
-    });
+    }).lean();
   }
 
   if (!company && doc.name) {
     company = await Companies.findOne({
       $or: [{ names: { $in: [doc.name] } }, { primaryName: doc.name }]
-    });
+    }).lean();
   }
 
   if (!company && doc.email) {
     company = await Companies.findOne({
       $or: [{ emails: { $in: [doc.email] } }, { primaryEmail: doc.email }]
-    });
+    }).lean();
   }
 
   if (!company && doc.phone) {
     company = await Companies.findOne({
       $or: [{ phones: { $in: [doc.phone] } }, { primaryPhone: doc.phone }]
-    });
+    }).lean();
   }
 
   if (!company && doc.companyPrimaryEmail) {
@@ -113,7 +113,7 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
         { emails: { $in: [doc.companyPrimaryEmail] } },
         { primaryEmail: doc.companyPrimaryEmail }
       ]
-    });
+    }).lean();
   }
 
   if (!company && doc.companyPrimaryPhone) {
@@ -122,19 +122,19 @@ export const findCompany = async ({ Companies }: IModels, doc) => {
         { phones: { $in: [doc.companyPrimaryPhone] } },
         { primaryPhone: doc.companyPrimaryPhone }
       ]
-    });
+    }).lean();
   }
 
   if (!company && doc.companyCode) {
-    company = await Companies.findOne({ code: doc.companyCode });
+    company = await Companies.findOne({ code: doc.companyCode }).lean();
   }
 
   if (!company && doc._id) {
-    company = await Companies.findOne({ _id: doc._id });
+    company = await Companies.findOne({ _id: doc._id }).lean();
   }
 
   if (!company) {
-    company = await Companies.findOne(doc);
+    company = await Companies.findOne(doc).lean();
   }
 
   return company;

@@ -14,7 +14,7 @@ import { IModels } from '../../../connectionResolver';
 import { sendCoreMessage, sendMessage } from '../../../messageBroker';
 
 type IOptions = {
-  returnAssociated?: { contentType: string; relType: string };
+  returnAssociated?: { mainType: string; relType: string };
   returnFields?: string[];
   returnFullDoc?: boolean;
   returnSelector?: boolean;
@@ -82,14 +82,19 @@ export const fetchSegment = async (
 
   const { returnAssociated } = options;
 
-  if (
-    returnAssociated &&
-    !contentType.includes(`:${returnAssociated.relType}`)
-  ) {
+  if (returnAssociated && contentType !== returnAssociated.relType) {
+    index = await getIndexByContentType(
+      serviceConfigs,
+      returnAssociated.relType
+    );
+
     const itemsResponse = await fetchEs({
       subdomain,
       action: 'search',
-      index,
+      index: await getIndexByContentType(
+        serviceConfigs,
+        returnAssociated.mainType
+      ),
       body: {
         query: selector,
         _source: '_id'
@@ -100,13 +105,15 @@ export const fetchSegment = async (
     const items = itemsResponse.hits.hits;
     const itemIds = items.map(i => i._id);
 
+    const getType = type => type.replace('contacts:', '').replace('cards:', '');
+
     const associationIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.filterConformity',
       data: {
-        mainType: returnAssociated.contentType,
+        mainType: getType(returnAssociated.mainType),
         mainTypeIds: itemIds,
-        relType: returnAssociated.relType
+        relType: getType(returnAssociated.relType)
       },
       isRPC: true
     });
@@ -126,12 +133,6 @@ export const fetchSegment = async (
 
   if (options.returnSelector) {
     return selector;
-  }
-
-  if (returnAssociated && returnAssociated.relType) {
-    // relType comes as "customer", but
-    // index names are constructed as "customers"
-    index = `${returnAssociated.relType}s`;
   }
 
   // count entries

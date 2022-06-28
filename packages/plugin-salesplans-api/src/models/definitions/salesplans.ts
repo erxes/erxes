@@ -1,28 +1,45 @@
 import { field, schemaWrapper } from './utils';
 import { Schema, Document } from 'mongoose';
-
-export const STATUSES = {
-  ACTIVE: 'active',
-  DISABLED: 'disabled',
-  ARCHIVED: 'archived',
-  ALL: ['active', 'disabled', 'archived']
-};
+import { STATUS } from '../../constants';
 
 export interface ISalesLog {
-  type: string;
   name: string;
   description: string;
   status: string;
+  type: string;
   date: Date;
   branchId: string;
-  unitId: string;
+  departmentId: string;
   createdBy: string;
+  products: [ISalesLogProduct];
+  labels: [string];
+}
+
+export interface ISalesLogProduct {
+  productId: string;
+  intervals: [
+    {
+      label: string;
+      value: number;
+    }
+  ];
 }
 
 export interface ISalesLogDocument extends ISalesLog, Document {
   _id: string;
-  createdAt: Date;
 }
+
+export const SalesLogProduct = {
+  productId: field({ type: String }),
+  intervals: field({
+    type: [
+      {
+        label: String,
+        value: Number
+      }
+    ]
+  })
+};
 
 export const salesLogSchema = schemaWrapper(
   new Schema({
@@ -32,62 +49,21 @@ export const salesLogSchema = schemaWrapper(
     description: field({ type: String, label: 'Description' }),
     status: field({
       type: String,
-      enum: STATUSES.ALL,
-      default: 'active',
+      enum: STATUS.ALL,
+      default: STATUS.ACTIVE,
       label: 'Status'
     }),
     date: field({ type: String, label: 'Date' }),
     branchId: field({ type: String, label: 'Branch' }),
-    unitId: field({ type: String, label: 'Unit' }),
+    departmentId: field({ type: String, label: 'Department' }),
+    products: field({
+      type: [SalesLogProduct],
+      default: [],
+      label: 'Products'
+    }),
+    labels: field({ type: [String], default: [], label: 'Labels' }),
     createdAt: field({ type: Date, default: new Date(), label: 'Created at' }),
     createdBy: field({ type: String, label: 'Created by' })
-  })
-);
-
-export interface ILabel {
-  title: string;
-  color: string;
-  type: string;
-  status: string;
-}
-
-export interface ILabelDocument extends ILabel, Document {
-  _id: string;
-}
-
-export const labelSchema = schemaWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    title: field({ type: String, label: 'Title' }),
-    color: field({ type: String, label: 'Color' }),
-    type: field({ type: String, label: 'Type' }),
-    status: field({
-      type: String,
-      enum: STATUSES.ALL,
-      default: 'active',
-      label: 'Status'
-    })
-  })
-);
-
-export interface ITimeframe {
-  name: string;
-  description: string;
-  startTime: number;
-  endTime: number;
-}
-
-export interface ITimeframeDocument extends ITimeframe, Document {
-  _id: string;
-}
-
-export const timeframeSchema = schemaWrapper(
-  new Schema({
-    _id: field({ pkey: true }),
-    name: field({ type: String, label: 'Name' }),
-    description: field({ type: String, label: 'Description' }),
-    startTime: field({ type: Number, label: 'Start time' }),
-    endTime: field({ type: Number, label: 'End time' })
   })
 );
 
