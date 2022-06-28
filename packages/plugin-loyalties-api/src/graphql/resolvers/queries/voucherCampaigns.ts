@@ -1,7 +1,7 @@
-import { paginate } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
 import { ICommonCampaignParams } from '../../../models/definitions/common';
+import { IContext } from '../../../connectionResolver';
+import { paginate } from '@erxes/api-utils/src/core';
 import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
 const generateFilter = async (models, params) => {
