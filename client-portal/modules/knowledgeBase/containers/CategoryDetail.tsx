@@ -8,6 +8,7 @@ type Props = {
   queryParams: any;
   topic: Topic;
   config: Config;
+  type?: string;
 };
 
 function CategoryDetailContainer({ queryParams: { id }, ...props }: Props) {

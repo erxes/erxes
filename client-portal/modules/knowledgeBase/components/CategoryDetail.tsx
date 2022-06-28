@@ -12,9 +12,13 @@ type Props = {
   loading: boolean;
   topic: Topic;
   config: Config;
+  type?: string;
 };
 
-function CategoryDetail({ topic, category, config }: Props) {
+function CategoryDetail({ topic, category, config, type }: Props) {
+  if(type === "layout") {
+    return <ArticleListContainer categoryId={category._id} />
+  }
   return (
     <Container className="knowledge-base">
       <SectionHeader

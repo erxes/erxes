@@ -135,6 +135,15 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
           onChange={onChangeConfiguration}
         />
       </FormGroup>
+      <FormGroup>
+        <ControlLabel>Type</ControlLabel>
+        <FormControl
+          defaultChecked={true}
+          children="layout"
+          componentClass="checkbox"
+        />
+      </FormGroup>
+
       {renderContent()}
 
       {renderControl({

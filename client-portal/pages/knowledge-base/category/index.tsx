@@ -15,7 +15,7 @@ export default function Category() {
       return <ArticleListContainer searchValue={searchValue} />;
     }
 
-    return <CategoryDetail {...props} queryParams={router.query} />;
+    return <CategoryDetail {...props} queryParams={router.query} type="layout"/>;
   };
 
   return (
