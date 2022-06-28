@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { getRandomNumber } from './utils';
 import { lotterySchema, ILottery, ILotteryDocument } from './definitions/lotteries';
-import { Model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { IBuyParams } from './definitions/common';
 import { LOTTERY_STATUS } from './definitions/constants';
@@ -45,7 +45,7 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       return await models.Lotteries.create({ campaignId, ownerType, ownerId, createdAt: now, number, status: LOTTERY_STATUS.NEW, voucherCampaignId, userId })
     }
 
-  
+
     public static async updateLottery(_id: string, doc: ILottery) {
       const { ownerType, ownerId, status, userId = '' } = doc;
       if (!ownerId || !ownerType) {
