@@ -1,6 +1,6 @@
 const salesLogProductUpdate = `
-  mutation salesLogProductUpdate($id: String, $productData: ProductInput) {
-    salesLogProductUpdate(_id: $id, productData: $productData)
+  mutation salesLogProductUpdate($id: String, $data: ProductInput) {
+    salesLogProductUpdate(_id: $id, data: $data)
   }
 `;
 

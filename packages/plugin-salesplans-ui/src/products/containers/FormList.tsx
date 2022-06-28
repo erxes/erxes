@@ -24,7 +24,7 @@ const FormListContainer = () => {
   const [remove] = useMutation(gql(mutations.salesLogProductRemove));
 
   const productUpdate = (doc: any) => {
-    update({ variables: { id: salesLogId, productData: doc } })
+    update({ variables: { id: salesLogId, data: doc } })
       .then(() => {
         Alert.success('Request successful!');
         salesLogQuery.refetch();
