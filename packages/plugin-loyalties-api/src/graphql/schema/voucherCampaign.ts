@@ -1,4 +1,4 @@
-import { commonCampaignInputs, commonCampaignTypes, commonFilterTypes, paginateTypes} from './common';
+import { commonCampaignInputs, commonCampaignTypes, commonFilterTypes, paginateTypes } from './common';
 
 export const types = `
   type VoucherCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
