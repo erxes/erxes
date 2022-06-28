@@ -49,7 +49,7 @@ export const commonTypes = `
 
   campaign: JSON,
   owner: JSON
-`
+`;
 
 export const commonInputs = `
   campaignId: String,
@@ -67,4 +67,4 @@ export const commonFilters = `
   ownerType: String,
   ownerId: String,
   status: String,
-`;
+`
