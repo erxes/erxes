@@ -1,47 +1,17 @@
-import {
-  attachmentInput,
-  attachmentType
-} from '@erxes/api-utils/src/commonTypeDefs';
+import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
 import { gql } from 'apollo-server-express';
-import {
-  mutations as configMutations,
-  queries as configQueries,
-  types as configTypes
-} from './schema/config';
-import {
-  mutations as donateMutations,
-  queries as donateQueries,
-  types as donateTypes
-} from './schema/donate';
-import {
-  mutations as donateCampaignMutations,
-  queries as donateCampaignQueries,
-  types as donateCampaignTypes
-} from './schema/donateCampaign';
-import {
-  mutations as lotteryMutations,
-  queries as lotteryQueries,
-  types as lotteryTypes
-} from './schema/lottery';
-import {
-  mutations as lotteryCampaignMutations,
-  queries as lotteryCampaignQueries,
-  types as lotteryCampaignTypes
-} from './schema/lotteryCampaign';
-import {
-  mutations as loyaltyMutations,
-  queries as loyaltyQueries,
-  types as loyaltyTypes
-} from './schema/loyalty';
+import {mutations as configMutations,queries as configQueries,types as configTypes} from './schema/config';
+import {mutations as donateMutations,queries as donateQueries,types as donateTypes} from './schema/donate';
+import {mutations as donateCampaignMutations,queries as donateCampaignQueries,types as donateCampaignTypes} from './schema/donateCampaign';
+import {mutations as lotteryMutations,queries as lotteryQueries,types as lotteryTypes} from './schema/lottery';
+import {mutations as lotteryCampaignMutations,queries as lotteryCampaignQueries,types as lotteryCampaignTypes} from './schema/lotteryCampaign';
+import {mutations as loyaltyMutations,queries as loyaltyQueries,types as loyaltyTypes} from './schema/loyalty';
 import {
   mutation as ScoreLogMutations,
   queries as scoreLogQueries,
   types as scoreLogTypes
 } from './schema/scoreLog';
-import {
-  mutations as spinMutations,
-  queries as spinQueries,
-  types as spinTypes
+import {mutations as spinMutations,queries as spinQueries,types as spinTypes
 } from './schema/spin';
 import {
   mutations as spinCampaignMutations,
