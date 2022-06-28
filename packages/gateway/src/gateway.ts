@@ -5,13 +5,13 @@ import {
   GraphQLDataSourceProcessOptions
 } from '@apollo/gateway';
 import { ServiceEndpointDefinition } from '@apollo/gateway/src/config';
+import * as express from 'express';
+import * as dotenv from 'dotenv';
+dotenv.config();
 import { GraphQLRequestContext, GraphQLResponse } from 'apollo-server-core';
 import { ValueOrPromise } from 'apollo-server-types';
-import * as dotenv from 'dotenv';
-import * as express from 'express';
-import { getService, getServices } from './redis';
 import splitCookiesString from './util/splitCookiesString';
-dotenv.config();
+import { getService, getServices } from './redis';
 
 export interface IGatewayContext {
   req?: express.Request & { user?: any };
