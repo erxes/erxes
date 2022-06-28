@@ -1,13 +1,9 @@
+import { voucherSchema, IVoucher, IVoucherDocument } from './definitions/vouchers';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { checkVouchersSale, confirmVoucherSale } from '../utils';
 import { IBuyParams } from './definitions/common';
 import { VOUCHER_STATUS } from './definitions/constants';
-import {
-  IVoucher,
-  IVoucherDocument,
-  voucherSchema
-} from './definitions/vouchers';
+import { checkVouchersSale, confirmVoucherSale } from '../utils';
 
 export interface IVoucherModel extends Model<IVoucherDocument> {
   getVoucher(_id: string): Promise<IVoucherDocument>;

@@ -1,11 +1,7 @@
 import * as _ from 'underscore';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import {
-  IScoreLogDocument,
-  scoreLogSchema,
-  IScoreLog
-} from './definitions/scoreLog';
+import { IScoreLogDocument,scoreLogSchema,IScoreLog } from './definitions/scoreLog';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { IScoreParams } from './definitions/common';
 
@@ -21,7 +17,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const scoreLog = await models.ScoreLogs.findOne({ _id }).lean();
 
       if (!scoreLog) {
-        throw new Error('not found scoreLog rule');
+        throw new Error('not found scoreLog rule')
       }
 
       return scoreLog;
@@ -68,13 +64,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async changeScore(doc: IScoreLog) {
-      const {
-        ownerType,
-        ownerId,
-        changeScore,
-        description,
-        createdBy = ''
-      } = doc;
+      const { ownerType, ownerId, changeScore, description, createdBy = ''} = doc;
 
       const score = Number(changeScore);
       let owner;
@@ -89,7 +79,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
         sendMessage = sendContactsMessage;
-        action = 'customers.updateOne';
+        action = 'customers.updateOne'
       }
 
       if (ownerType === 'user') {
@@ -128,10 +118,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const response = await sendMessage({
         subdomain,
         action,
-        data: {
-          selector: { _id: ownerId },
-          modifier: { $set: { score: newScore } }
-        },
+        data: { selector: { _id: ownerId }, modifier: { $set: { score: newScore } } },
         isRPC: true
       });
 
@@ -139,12 +126,8 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return;
       }
       return await models.ScoreLogs.create({
-        ownerId,
-        ownerType,
-        changeScore: score,
-        createdAt: new Date(),
-        description,
-        createdBy
+        ownerId, ownerType, changeScore: score,
+        createdAt: new Date(),description,createdBy
       });
     }
   }

@@ -1,12 +1,12 @@
+import { CAMPAIGN_STATUS } from './definitions/constants';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { CAMPAIGN_STATUS } from './definitions/constants';
+import { validCampaign } from './utils';
 import {
   IVoucherCampaign,
   IVoucherCampaignDocument,
   voucherCampaignSchema
 } from './definitions/voucherCampaigns';
-import { validCampaign } from './utils';
 
 export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   getVoucherCampaign(_id: string): Promise<IVoucherCampaignDocument>;
