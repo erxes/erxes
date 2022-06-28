@@ -13,13 +13,11 @@ const Header = () => {
   return (
     <div className={styles.header}>
       <h1 className={styles.headingOne}>
-        Combine all your business tools into one streamlined and integrated
-        open-source framework
+        Single experience operating system (XOS) to align your entire business
       </h1>
       <p className={styles.description}>
-        erxes replaces random and incompatible <b>marketing</b>,{" "}
-        <b>customer service</b> and <b>sales</b> products with one framework
-        focused on the entire customer experience.
+        Combine all your business tools into one streamlined and integrated
+        open-source framework
       </p>
       <Buttons />
       <p className={styles.suggestion}>

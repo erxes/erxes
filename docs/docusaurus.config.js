@@ -32,7 +32,7 @@ module.exports = {
           position: "left",
         },
         {
-          to: "/user/subscription-getting-started",
+          to: "/user/import",
           label: "User's guide",
           position: "left",
         },

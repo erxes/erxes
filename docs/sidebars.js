@@ -100,7 +100,6 @@ module.exports = {
       type: "category",
       label: "User's Guide",
       items: [
-        "user/subscription-getting-started",
         "user/initial-setup",
         "user/general-settings",
         "user/engage-phone-settings",
