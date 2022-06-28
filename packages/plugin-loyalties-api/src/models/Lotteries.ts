@@ -1,4 +1,4 @@
-import * as _ from 'underscore'
+import * as _ from 'underscore';
 import { getRandomNumber } from './utils';
 import { lotterySchema, ILottery, ILotteryDocument } from './definitions/lotteries';
 import { Model } from 'mongoose';
@@ -45,6 +45,7 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       return await models.Lotteries.create({ campaignId, ownerType, ownerId, createdAt: now, number, status: LOTTERY_STATUS.NEW, voucherCampaignId, userId })
     }
 
+    
     public static async updateLottery(_id: string, doc: ILottery) {
       const { ownerType, ownerId, status, userId = '' } = doc;
       if (!ownerId || !ownerType) {
@@ -58,11 +59,11 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      return await models.Lotteries.updateOne({ _id }, {
+      return await models.Lotteries.updateOne({ _id, }, {
         $set: {
           campaignId, ownerType, ownerId, modifiedAt: now, status, userId
         }
-        })
+      })
     }
 
     public static async buyLottery(params: IBuyParams) {
@@ -75,10 +76,13 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       const lotteryCampaign = await models.LotteryCampaigns.getLotteryCampaign(campaignId);
 
       if (!lotteryCampaign.buyScore) {
-        throw new Error('can not buy this lottery');
+        throw new Error('can not buy this lottery')
       }
 
-      await models.ScoreLogs.changeScore({ ownerType, ownerId, changeScore: -1 * lotteryCampaign.buyScore * count, description: 'buy lottery'});
+      await models.ScoreLogs.changeScore({ 
+        ownerType, ownerId, changeScore: -1 * lotteryCampaign.buyScore * count, 
+        description: 'buy lottery'
+      });
 
       return models.Lotteries.createLottery({ campaignId, ownerType, ownerId });
     }
