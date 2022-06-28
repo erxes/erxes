@@ -3,8 +3,8 @@ declare var __webpack_share_scopes__;
 declare var window;
 
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
 import React from 'react';

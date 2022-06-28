@@ -27,7 +27,7 @@ import { CallLabel } from '@erxes/ui-inbox/src/inbox/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import IntegrationIcon from '@erxes/ui-inbox/src/settings/integrations/components/IntegrationIcon';
@@ -37,6 +37,7 @@ import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import strip from 'strip';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+
 type Props = {
   conversation: IConversation;
   channelId?: string;

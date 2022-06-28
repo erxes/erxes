@@ -5,12 +5,21 @@ import { IEditorProps, IMentionUser } from '../types';
 import { AllUsersQueryResponse } from '../auth/types';
 import EditorCK from '../components/EditorCK';
 import React from 'react';
+import asyncComponent from '../components/AsyncComponent';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { isEnabled } from '../utils/core';
 import { isValidURL } from '../utils/urlParser';
-import { queries as segmentQueries } from '@erxes/ui-segments/src/graphql';
 import { queries as teamQueries } from '../team/graphql';
 import { withProps } from '../utils';
+
+const segmentQueries = asyncComponent(
+  () =>
+    isEnabled('segments') &&
+    import(
+      /* webpackChunkName: "segmentQueries" */ '@erxes/ui-segments/src/graphql/queries'
+    )
+);
 
 const generateAttributes = (combinedFields?: any[]) => {
   //check - FieldsCombinedByType
@@ -55,11 +64,16 @@ type FinalProps = {
 const EditorContainer = (props: FinalProps) => {
   const { usersQuery, combinedFieldsQuery } = props;
 
-  if (usersQuery.loading || combinedFieldsQuery.loading) {
+  if (
+    usersQuery.loading ||
+    (combinedFieldsQuery && combinedFieldsQuery.loading)
+  ) {
     return null;
   }
 
-  const combinedFields = combinedFieldsQuery.fieldsCombinedByContentType || [];
+  const combinedFields = combinedFieldsQuery
+    ? combinedFieldsQuery.fieldsCombinedByContentType || []
+    : [];
   const users = usersQuery.allUsers || [];
   const mentionUsers: IMentionUser[] = [];
 
@@ -101,7 +115,8 @@ export default withProps<Props>(
         variables: {
           contentType: 'customer'
         }
-      })
+      }),
+      skip: !isEnabled('segments')
     })
   )(EditorContainer)
 );

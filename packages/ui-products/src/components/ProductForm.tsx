@@ -26,7 +26,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Select from 'react-select-plus';
-import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {

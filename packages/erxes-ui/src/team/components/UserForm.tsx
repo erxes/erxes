@@ -6,27 +6,25 @@ import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
 import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
 
 type Props = {
-  channels: IChannel[];
-  groups: IUserGroup[];
-  selectedChannels: IChannel[];
-  selectedGroups: IUserGroup[];
+  channels: any[]; //check - IChannel
+  groups: any[]; //check - IUserGroup
+  selectedChannels: any[]; //check - IChannel
+  selectedGroups: any[]; //check - IUserGroup
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
 } & ICommonFormProps;
 
 type State = {
   avatar: string;
-  selectedChannels: IChannel[];
-  selectedGroups: IUserGroup[];
+  selectedChannels: any[]; //check - IChannel
+  selectedGroups: any[]; //check - IUserGroup
   selectedBrands: string[];
 };
 

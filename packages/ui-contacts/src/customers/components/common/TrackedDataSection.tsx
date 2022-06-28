@@ -1,12 +1,17 @@
-import dayjs from 'dayjs';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import { __, isValidDate } from '@erxes/ui/src/utils';
+
 import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import Label from '@erxes/ui/src/components/Label';
-import { __, isValidDate } from '@erxes/ui/src/utils';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import dayjs from 'dayjs';
 
 type Props = {
   customer?: ICustomer;

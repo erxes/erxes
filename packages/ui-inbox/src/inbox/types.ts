@@ -1,4 +1,4 @@
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ITag } from '@erxes/ui/src/tags/types';
 import { IUser } from '@erxes/ui/src/auth/types';

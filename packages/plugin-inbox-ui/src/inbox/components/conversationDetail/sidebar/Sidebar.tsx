@@ -1,19 +1,19 @@
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import React from 'react';
 import { BasicInfo, TabContent } from './styles';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
-import { IUser } from '@erxes/ui/src/auth/types';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Box from '@erxes/ui/src/components/Box';
-import { __ } from 'coreui/utils';
-import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
-import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IField } from '@erxes/ui/src/types';
+import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IField } from '@erxes/ui/src/types';
 import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const ActionSection = asyncComponent(() =>
   import(

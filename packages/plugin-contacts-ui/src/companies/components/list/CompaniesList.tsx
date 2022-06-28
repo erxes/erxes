@@ -3,7 +3,7 @@ import { Alert, __, confirm, router } from 'coreui/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
-import CompanyForm from '@erxes/ui/src/companies/containers/CompanyForm';
+import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
 import CompanyRow from './CompanyRow';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Dropdown from 'react-bootstrap/Dropdown';

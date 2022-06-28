@@ -4,11 +4,11 @@ import { Alert, __, confirm, router } from 'coreui/utils';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
-} from '@erxes/ui/src/customers/constants';
+} from '@erxes/ui-contacts/src/customers/constants';
 
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
-import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
+import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
 import CustomerRow from './CustomerRow';
 import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';

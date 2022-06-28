@@ -1,31 +1,35 @@
-import { Alert, __, getConstantFromStore } from '../../utils';
+import { Alert, __, getConstantFromStore } from '@erxes/ui/src/utils';
 import {
   DateContainer,
   FormColumn,
   FormWrapper,
   ModalFooter,
   ScrollWrapper
-} from '../../styles/main';
+} from '@erxes/ui/src/styles/main';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
 } from '../constants';
-import { IButtonMutateProps, IFormProps, IQueryParams } from '../../types';
+import {
+  IButtonMutateProps,
+  IFormProps,
+  IQueryParams
+} from '@erxes/ui/src/types';
 import { ICustomer, ICustomerDoc } from '../types';
-import { IUser, IUserLinks } from '../../auth/types';
+import { IUser, IUserLinks } from '@erxes/ui/src/auth/types';
 import { genderChoices, isValidPhone } from '../utils';
 
-import AutoCompletionSelect from '../../components/AutoCompletionSelect';
-import AvatarUpload from '../../components/AvatarUpload';
-import Button from '../../components/Button';
-import CollapseContent from '../../components/CollapseContent';
-import ControlLabel from '../../components/form/Label';
-import DateControl from '../../components/form/DateControl';
-import Form from '../../components/form/Form';
-import FormControl from '../../components/form/Control';
-import FormGroup from '../../components/form/Group';
+import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
+import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
-import SelectTeamMembers from '../../team/containers/SelectTeamMembers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import validator from 'validator';
 
 type Props = {

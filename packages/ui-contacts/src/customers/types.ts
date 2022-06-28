@@ -6,7 +6,7 @@ import {
   ICustomerLinks as ICustomerLinksC,
   IUrlVisits as IUrlVisitsC,
   IVisitorContact as IVisitorContactC
-} from '@erxes/ui/src/customers/types';
+} from '@erxes/ui-contacts/src/customers/types';
 import { Counts, QueryResponse } from '@erxes/ui/src/types';
 
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';

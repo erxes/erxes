@@ -1,4 +1,4 @@
-import { companyFields } from "./queries";
+import { companyFields } from './queries';
 
 const commonFields = `
   $names: [String],
@@ -57,7 +57,6 @@ const companiesEdit = `
     }
   }
 `;
-
 
 export default {
   companiesAdd,

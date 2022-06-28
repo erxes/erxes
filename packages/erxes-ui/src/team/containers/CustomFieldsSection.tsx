@@ -1,18 +1,25 @@
 import * as compose from 'lodash.flowright';
 
 import { EditMutationResponse } from '../types';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import GenerateCustomFields from '@erxes/ui-settings/src//properties/components/GenerateCustomFields';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import asyncComponent from '../../components/AsyncComponent';
 import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { isEnabled } from '../../utils/core';
 import { mutations } from '../graphql';
 import { withProps } from '@erxes/ui/src/utils';
+
+const GenerateCustomFields = asyncComponent(
+  () =>
+    isEnabled('forms') &&
+    import(
+      /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
+    )
+);
 
 type Props = {
   user: IUser;
@@ -21,7 +28,7 @@ type Props = {
 };
 
 type FinalProps = {
-  fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  fieldsGroupsQuery: any; //check - FieldsGroupsQueryResponse
 } & Props &
   EditMutationResponse;
 
@@ -63,13 +70,13 @@ const CustomFieldsSection = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
+    graphql<Props, any, { contentType: string }>( //check - FieldsGroupsQueryResponse
       gql(fieldQueries.fieldsGroups),
       {
         name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.USER,
+            contentType: 'core:user',
             isDefinedByErxes: false
           }
         })

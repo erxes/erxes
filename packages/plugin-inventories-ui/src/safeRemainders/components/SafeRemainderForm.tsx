@@ -1,18 +1,7 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
-import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Uploader from '@erxes/ui/src/components/Uploader';
 import {
-  ModalFooter,
   FormColumn,
-  FormWrapper
+  FormWrapper,
+  ModalFooter
 } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
@@ -20,15 +9,27 @@ import {
   IFormProps
 } from '@erxes/ui/src/types';
 import {
+  __,
   extractAttachment,
-  generateCategoryOptions,
-  __
+  generateCategoryOptions
 } from '@erxes/ui/src/utils';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+
+import Button from '@erxes/ui/src/components/Button';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { Row } from '@erxes/ui-settings/src/integrations/styles';
+import Select from 'react-select-plus';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

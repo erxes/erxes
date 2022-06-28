@@ -4,8 +4,9 @@ import {
   ICompany as ICompanyC,
   ICompanyDoc as ICompanyDocC,
   ICompanyLinks as ICompanyLinksC
-} from '@erxes/ui/src/companies/types';
-import { QueryResponse, Counts } from '@erxes/ui/src/types';
+} from '@erxes/ui-contacts/src/companies/types';
+import { Counts, QueryResponse } from '@erxes/ui/src/types';
+
 import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 
 export type ICompanyLinks = ICompanyLinksC;

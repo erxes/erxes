@@ -1,4 +1,4 @@
-import { COMPANY_INFO } from '@erxes/ui/src/companies/constants';
+import { COMPANY_INFO } from '@erxes/ui-contacts/src/companies/constants';
 import { CUSTOMER_BASIC_INFO } from '@erxes/ui-contacts/src/customers/constants';
 import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
 import { IField } from '@erxes/ui/src/types';

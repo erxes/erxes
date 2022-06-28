@@ -1,8 +1,6 @@
 import { Divider, Row, RowTitle } from '@erxes/ui-settings/src/main/styles';
 
 import { AppConsumer } from './appContext';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
@@ -176,7 +174,8 @@ export const pluginsOfSettings = (
   );
 };
 
-export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
+export const pluginsOfCustomerSidebar = (customer: any) => {
+  //check - ICustomer
   return (
     <PluginsWrapper
       itemName={'customerRightSidebarSection'}
@@ -195,7 +194,8 @@ export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   );
 };
 
-export const pluginsOfCompanySidebar = (company: ICompany) => {
+export const pluginsOfCompanySidebar = (company: any) => {
+  //check - ICompany
   return (
     <PluginsWrapper
       itemName={'companyRightSidebarSection'}

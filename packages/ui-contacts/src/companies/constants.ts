@@ -1,4 +1,4 @@
-import { getConstantFromStore } from '../utils';
+import { getConstantFromStore } from '@erxes/ui/src/utils';
 
 export const COMPANY_INDUSTRY_TYPES = () => {
   return getConstantFromStore('company_industry_types', false, true);

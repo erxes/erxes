@@ -1,32 +1,33 @@
-import AutoCompletionSelect from '../../components/AutoCompletionSelect';
-import AvatarUpload from '../../components/AvatarUpload';
-import Button from '../../components/Button';
-import CollapseContent from '../../components/CollapseContent';
-import FormControl from '../../components/form/Control';
-import Form from '../../components/form/Form';
-import FormGroup from '../../components/form/Group';
-import ControlLabel from '../../components/form/Label';
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter,
-  ScrollWrapper
-} from '../../styles/main';
-import { IButtonMutateProps, IFormProps } from '../../types';
-import { __, getConstantFromStore } from '../../utils';
-import SelectCompanies from '../containers/SelectCompanies';
-import { isValidPhone } from '../../customers/utils';
-import SelectTeamMembers from '../../team/containers/SelectTeamMembers';
-import React from 'react';
-import Select from 'react-select-plus';
-import validator from 'validator';
-import { IUser } from '../../auth/types';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from '../constants';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter,
+  ScrollWrapper
+} from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ICompany, ICompanyDoc, ICompanyLinks } from '../types';
+import { __, getConstantFromStore } from '@erxes/ui/src/utils';
+
+import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
+import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Select from 'react-select-plus';
+import SelectCompanies from '../containers/SelectCompanies';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { isValidPhone } from '@erxes/ui-contacts/src/customers/utils';
+import validator from 'validator';
 
 type Props = {
   currentUser: IUser;

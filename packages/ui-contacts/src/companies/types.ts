@@ -1,7 +1,7 @@
-import { QueryResponse } from '../types';
-import { ITag } from '../tags/types';
-import { IUser } from '../auth/types';
-import { ICustomer } from '../customers/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { ITag } from '@erxes/ui/src/tags/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface ICompanyLinks {
   linkedIn?: string;

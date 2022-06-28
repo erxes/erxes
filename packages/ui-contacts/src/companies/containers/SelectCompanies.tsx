@@ -1,8 +1,9 @@
-import SelectWithSearch from '../../components/SelectWithSearch';
-import { IOption, IQueryParams } from '../../types';
-import React from 'react';
-import { queries } from '../graphql';
+import { IOption, IQueryParams } from '@erxes/ui/src/types';
+
 import { ICompany } from '../types';
+import React from 'react';
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import { queries } from '../graphql';
 
 // get company options for react-select-plus
 export function generateCompanyOptions(array: ICompany[] = []): IOption[] {

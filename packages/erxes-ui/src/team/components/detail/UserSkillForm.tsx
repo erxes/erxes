@@ -1,8 +1,4 @@
 import { Alert, __ } from '@erxes/ui/src/utils';
-import {
-  ISkillDocument,
-  ISkillTypesDocument
-} from '@erxes/ui-inbox/src/settings/skills/types';
 import React, { useState } from 'react';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -20,8 +16,8 @@ type Props = {
   handleSkillTypeSelect: (typeId: string, userId: string) => void;
   user: IUser;
   loading: boolean;
-  skillTypes: ISkillTypesDocument[];
-  skills: ISkillDocument[];
+  skillTypes: any[]; //check - ISkillTypesDocument
+  skills: any[]; //check - ISkillDocument
 };
 
 function UserSkillForm({

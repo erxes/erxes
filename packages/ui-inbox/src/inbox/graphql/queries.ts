@@ -1,5 +1,5 @@
 import conversationFields from './conversationFields';
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import messageFields from './messageFields';
 

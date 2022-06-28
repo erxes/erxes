@@ -1,17 +1,17 @@
-import { __, urlParser } from '../../utils';
+import { __, urlParser } from '@erxes/ui/src/utils';
 
-import Box from '../../components/Box';
-import { ButtonRelated } from '../../styles/main';
+import Box from '@erxes/ui/src/components/Box';
+import { ButtonRelated } from '@erxes/ui/src/styles/main';
 import CompanyChooser from '../containers/CompanyChooser';
-import EmptyState from '../../components/EmptyState';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { ICompany } from '../types';
-import Icon from '../../components/Icon';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
-import ModalTrigger from '../../components/ModalTrigger';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { SectionBodyItem } from '../../layout/styles';
-import asyncComponent from '../../components/AsyncComponent';
-import { isEnabled } from '../../utils/core';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
 
 const GetConformity = asyncComponent(

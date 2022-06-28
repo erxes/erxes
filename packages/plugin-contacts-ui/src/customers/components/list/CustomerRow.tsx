@@ -5,7 +5,7 @@ import {
 import {
   GENDER_TYPES,
   LEAD_STATUS_TYPES
-} from '@erxes/ui/src/customers/constants';
+} from '@erxes/ui-contacts/src/customers/constants';
 import { ICustomer, IVisitorContact } from '../../types';
 
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';

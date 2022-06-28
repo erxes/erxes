@@ -6,7 +6,7 @@ import {
 
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IField } from '@erxes/ui/src/types';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import IntegrationIcon from '@erxes/ui-inbox/src/settings/integrations/components/IntegrationIcon';

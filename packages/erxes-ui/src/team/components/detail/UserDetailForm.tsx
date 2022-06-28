@@ -2,24 +2,29 @@ import ActionSection from '../../containers/ActionSection';
 import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { ISkillDocument } from '@erxes/ui-inbox/src/settings/skills/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import InfoSection from './InfoSection';
-import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import LeftSidebar from './LeftSidebar';
 import React from 'react';
 import RightSidebar from './RightSidebar';
-import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
+import { UserHeader } from './styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const LeadState = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "LeadState" */ '@erxes/ui-contacts/src/customers/containers/LeadState'
+    )
+);
 
 type Props = {
   user: IUser;
-  channels: IChannel[];
-  skills: ISkillDocument[];
-  participatedConversations: IConversation[];
+  channels: any[]; //check - IChannel
+  skills: any[]; //check - ISkillDocument
+  participatedConversations: any[]; //check - IConversation
   totalConversationCount: number;
   excludeUserSkill: (skillId: string, userId: string) => void;
   renderSkillForm: ({
@@ -93,7 +98,7 @@ function UserDetails({
           >
             <ActionSection user={user} renderEditForm={renderEditForm} />
           </InfoSection>
-          <LeadState customer={user} />
+          {isEnabled('contacts') && <LeadState customer={user} />}
         </UserHeader>
       }
       leftSidebar={
