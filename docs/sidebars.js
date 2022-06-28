@@ -64,7 +64,7 @@ module.exports = {
            "developer/android-sdk",
            "developer/ios-sdk",
            "developer/push-notifications",
-           "user/script-install",
+           "developer/script-install",
           ]
         },
         {

@@ -32,11 +32,6 @@ module.exports = {
           position: "left",
         },
         {
-          to: "/user/import",
-          label: "User's guide",
-          position: "left",
-        },
-        {
           to: "/invest",
           label: "Invest",
           position: "left",
