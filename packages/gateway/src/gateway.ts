@@ -1,8 +1,8 @@
 import {
   ApolloGateway,
   GatewayConfig,
-  GraphQLDataSourceProcessOptions,
-  RemoteGraphQLDataSource
+  RemoteGraphQLDataSource,
+  GraphQLDataSourceProcessOptions
 } from '@apollo/gateway';
 import { ServiceEndpointDefinition } from '@apollo/gateway/src/config';
 import { GraphQLRequestContext, GraphQLResponse } from 'apollo-server-core';
