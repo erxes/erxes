@@ -147,8 +147,6 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     const { contentType, contentId } = this.params;
 
-    console.log('---------------------------', this.config);
-
     if (!Object.keys(DISTRICTS).includes(this.config.districtCode)) {
       throw new Error(`Invalid district code: ${this.config.districtCode}`);
     }
