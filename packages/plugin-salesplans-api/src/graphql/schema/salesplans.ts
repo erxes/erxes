@@ -14,10 +14,6 @@ export const types = () => `
     _id: String! @external
   }
 
-  extend type Product @key(fields: "_id") {
-    _id: String! @external
-  }
-
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -41,12 +37,11 @@ export const types = () => `
   },
 
   type SalesLogProduct {
-    _id: String
-    detailed: Product
-    quantities: [Quantity]
+    productId: String
+    intervals: [Interval]
   }
 
-  type Quantity {
+  type Interval {
     label: String
     value: String
   }
@@ -89,11 +84,11 @@ export const types = () => `
   },
 
   input ProductInput {
-    _id: String
-    quantities: [QuantityInput]
+    productId: String
+    intervals: [IntervalInput]
   }
 
-  input QuantityInput {
+  input IntervalInput {
     label: String
     value: String
   }

@@ -1,4 +1,6 @@
 import { IContext, models } from '../../../connectionResolver';
+import { sendProcessesMessage } from '../../../messageBroker';
+import { STATUS } from '../../../constants';
 import {
   ISalesLog,
   ISalesLogDocument,
@@ -45,9 +47,39 @@ const salesLogMutations = {
   salesLogStatusUpdate: async (
     _root: any,
     doc: { _id: string; status: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) => {
-    return await models.SalesLogs.salesLogStatusUpdate(doc._id, doc.status);
+    const result = await models.SalesLogs.salesLogStatusUpdate(
+      doc._id,
+      doc.status
+    );
+
+    if (result && ![STATUS.PUBLISHED, STATUS.PENDING].includes(result.status)) {
+      let intervals: any = [];
+
+      result.products.map((item: any) => {
+        intervals.push({
+          productId: item.productId,
+          label: item.label,
+          count: item.label
+        });
+      });
+
+      await sendProcessesMessage({
+        subdomain,
+        action: 'createWorks',
+        data: {
+          salesLogId: result._id,
+          data: result.date,
+          branchId: result.branchId,
+          departmentId: result.departmentId,
+          interval: intervals
+        },
+        isRPC: false
+      });
+    }
+
+    return result;
   },
 
   saveDayPlanConfig: async (

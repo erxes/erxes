@@ -28,10 +28,12 @@ const Row = (props: Props) => {
     switch (data && data.status) {
       case 'active':
         return <Label lblStyle="success">{__('Active')}</Label>;
-      case 'archived':
-        return <Label lblStyle="warning">{__('Archived')}</Label>;
       case 'disabled':
         return <Label lblStyle="danger">{__('Disabled')}</Label>;
+      case 'archived':
+        return <Label lblStyle="warning">{__('Archived')}</Label>;
+      case 'pending':
+        return <Label lblStyle="warning">{__('Pending')}</Label>;
       case 'published':
         return <Label lblStyle="default">{__('Published')}</Label>;
       default:
@@ -40,14 +42,14 @@ const Row = (props: Props) => {
   };
 
   const renderPublish = () => {
-    if (data.status === 'published') return null;
+    if (data && ['pending', 'published'].includes(data.status)) return null;
 
     return (
       <Tip text={__('Publish')} placement="bottom">
         <Button
           id="publish-box-line"
           btnStyle="link"
-          onClick={() => statusUpdate(data && data._id, 'published')}
+          onClick={() => statusUpdate(data && data._id, 'pending')}
         >
           <Icon icon="check-circle" />
         </Button>
@@ -56,7 +58,7 @@ const Row = (props: Props) => {
   };
 
   const renderArchive = () => {
-    if (data && data.status === 'published') return null;
+    if (data && ['pending', 'published'].includes(data.status)) return null;
 
     if (data && data.status === 'archived')
       return (
@@ -85,7 +87,7 @@ const Row = (props: Props) => {
   };
 
   const renderManage = () => {
-    if (data && data.status === 'published') return null;
+    if (data && ['pending', 'published'].includes(data.status)) return null;
 
     const renderTrigger = () => (
       <Button btnStyle="link">
@@ -118,7 +120,7 @@ const Row = (props: Props) => {
   };
 
   const renderRemove = () => {
-    if (data && data.status === 'published') return null;
+    if (data && ['pending', 'published'].includes(data.status)) return null;
 
     return (
       <Tip text={__('Remove')} placement="bottom">

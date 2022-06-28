@@ -17,8 +17,8 @@ type Props = {
   products: any[];
   categoryId: string;
   data: any;
-  update: (doc: any) => void;
-  remove: (doc: any) => void;
+  update: (data: any) => void;
+  remove: (data: any) => void;
 };
 
 const FormList = (props: Props) => {
@@ -31,35 +31,31 @@ const FormList = (props: Props) => {
     remove
   } = props;
 
-  const [productValues, setProductValues] = useState<any>(
+  const [productsList, setProductList] = useState<any>(
     data.products ? data.products : []
   );
 
-  useEffect(() => setProductValues(data.products ? data.products : []), [data]);
+  useEffect(() => setProductList(data.products ? data.products : []), [data]);
 
-  const handleQuantities = (
-    productId: string,
-    label: string,
-    value: string
-  ) => {
-    const tempProductValues = [...productValues];
-
-    const index = _.findIndex(tempProductValues, { _id: productId });
+  const handleIntervals = (productId: string, label: string, value: string) => {
+    const tempProductValues = [...productsList];
+    const index = _.findIndex(tempProductValues, { productId: productId });
 
     if (index === -1)
       tempProductValues.push({
-        _id: productId,
-        quantities: [{ label, value }]
+        productId: productId,
+        intervals: [{ label, value }]
       });
     else {
       const product = tempProductValues[index];
-      const quantities = product.quantities;
-      const _index = _.findIndex(quantities, { label });
-      if (_index === -1) quantities.push({ label, value });
-      else quantities[_index] = { label, value };
+      const intervals = product.intervals ? product.intervals : [];
+      const intervalIndex = _.findIndex(intervals, { label });
+
+      if (intervalIndex === -1) intervals.push({ label, value });
+      else intervals[intervalIndex] = { label, value };
     }
 
-    setProductValues(tempProductValues);
+    setProductList(tempProductValues);
   };
 
   const renderTimeframesHeader = () => {
@@ -84,7 +80,7 @@ const FormList = (props: Props) => {
   };
 
   const renderActionsHeader = () => {
-    if (data && data.status === 'published') return null;
+    if (data && ['pending', 'published'].includes(data.status)) return null;
 
     return <th>Actions</th>;
   };
@@ -92,24 +88,26 @@ const FormList = (props: Props) => {
   const renderTimeframeInputs = (productId: string) => {
     if (timeframes.length === 0) return null;
 
-    const index = _.findIndex(productValues, { _id: productId });
-    const quantities = index > -1 ? productValues[index].quantities : [];
+    const index = _.findIndex(productsList, { productId: productId });
+    const intervals = index > -1 ? productsList[index].intervals : [];
 
     switch (data && data.type) {
       case 'Year':
         return MONTH.map((item: any, index: number) => {
-          const itemIndex = _.findIndex(quantities, { label: item.label });
+          const itemIndex = _.findIndex(intervals, { label: item.label });
           return (
             <td key={`timeframeYearInput-${index}`}>
               <FormGroup>
                 <FormControl
                   type="number"
                   defaultValue={
-                    itemIndex > -1 ? quantities[itemIndex].value : ''
+                    itemIndex > -1 ? intervals[itemIndex].value : ''
                   }
-                  disabled={data && data.status === 'published'}
+                  disabled={
+                    data && ['pending', 'published'].includes(data.status)
+                  }
                   onChange={(event: any) =>
-                    handleQuantities(productId, item.label, event.target.value)
+                    handleIntervals(productId, item.label, event.target.value)
                   }
                 />
               </FormGroup>
@@ -118,18 +116,20 @@ const FormList = (props: Props) => {
         });
       case 'Month':
         return DAYS.map((item: any, index: number) => {
-          const itemIndex = _.findIndex(quantities, { label: item.label });
+          const itemIndex = _.findIndex(intervals, { label: item.label });
           return (
             <td key={`timeframeMonthInput-${index}`}>
               <FormGroup>
                 <FormControl
                   type="number"
                   defaultValue={
-                    itemIndex > -1 ? quantities[itemIndex].value : ''
+                    itemIndex > -1 ? intervals[itemIndex].value : ''
                   }
-                  disabled={data && data.status === 'published'}
+                  disabled={
+                    data && ['pending', 'published'].includes(data.status)
+                  }
                   onChange={(event: any) =>
-                    handleQuantities(productId, item.label, event.target.value)
+                    handleIntervals(productId, item.label, event.target.value)
                   }
                 />
               </FormGroup>
@@ -138,18 +138,20 @@ const FormList = (props: Props) => {
         });
       case 'Day':
         return timeframes.map((item: any, index: number) => {
-          const itemIndex = _.findIndex(quantities, { label: item.label });
+          const itemIndex = _.findIndex(intervals, { label: item.name });
           return (
             <td key={`timeframeDayInput-${index}`}>
               <FormGroup>
                 <FormControl
                   type="number"
                   defaultValue={
-                    itemIndex > -1 ? quantities[itemIndex].value : ''
+                    itemIndex > -1 ? intervals[itemIndex].value : ''
                   }
-                  disabled={data && data.status === 'published'}
+                  disabled={
+                    data && ['pending', 'published'].includes(data.status)
+                  }
                   onChange={(event: any) =>
-                    handleQuantities(productId, item.label, event.target.value)
+                    handleIntervals(productId, item.name, event.target.value)
                   }
                 />
               </FormGroup>
@@ -172,15 +174,26 @@ const FormList = (props: Props) => {
       );
 
     const handleSubmit = (productId: string) => {
-      const index = _.findIndex(productValues, { _id: productId });
-      const productItem = productValues[index];
-      delete productItem.__typename;
-      productItem.quantities.map((item: any) => delete item.__typename);
-      update(productItem);
+      const index = _.findIndex(productsList, { productId: productId });
+
+      if (index > -1) {
+        const productItem = productsList[index];
+
+        if (productItem.__typename) delete productItem.__typename;
+
+        if (productItem.intervals)
+          productItem.intervals.map((item: any) => {
+            if (item.__typename) delete item.__typename;
+          });
+
+        console.log(productItem);
+
+        update(productItem);
+      }
     };
 
     const renderSubmitButton = (productId: string) => {
-      if (data && data.status === 'published') return null;
+      if (data && ['pending', 'published'].includes(data.status)) return null;
 
       return (
         <td>
