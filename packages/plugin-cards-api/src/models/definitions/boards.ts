@@ -267,6 +267,10 @@ export const pipelineSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   boardId: field({ type: String, label: 'Board' }),
+  tagIds: field({
+    type: [String],
+    label: 'Tags'
+  }),
   status: field({
     type: String,
     enum: BOARD_STATUSES.ALL,

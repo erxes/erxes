@@ -52,18 +52,6 @@ export const dealFields = `
   productsData
   paymentsData
   amount
-  ${
-    isEnabled('tags')
-      ? `
-  tags {
-    _id
-    name
-    colorCode
-  }
-  `
-      : ``
-  }
-  tagIds
 `;
 
 const dealsTotalAmounts = `

@@ -9,6 +9,8 @@ export const TAG_TYPES = {
   PRODUCT: __('products:product'),
   PRODUCT_TEMPLATE: __('productTemplate'),
   DEAL: __('cards:deal'),
+  TICKET: __('cards:ticket'),
+  TASK: __('cards:task'),
   ALL_LIST: [
     'conversation',
     'customer',

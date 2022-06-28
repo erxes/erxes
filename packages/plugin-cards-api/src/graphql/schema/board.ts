@@ -18,6 +18,7 @@ export const types = ({}) => `
     name: String!
     status: String
     boardId: String!
+    tagIds: [String]
     visibility: String!
     memberIds: [String]
     departmentIds: [String]
@@ -138,6 +139,7 @@ const pipelineParams = `
   stages: JSON,
   visibility: String!,
   memberIds: [String],
+  tagIds: [String],
   bgColor: String,
   startDate: Date,
   endDate: Date,

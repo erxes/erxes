@@ -63,6 +63,7 @@ export interface IPipeline {
   _id: string;
   name: string;
   boardId: string;
+  tagIds: string[];
   visibility: string;
   status: string;
   createdAt: Date;

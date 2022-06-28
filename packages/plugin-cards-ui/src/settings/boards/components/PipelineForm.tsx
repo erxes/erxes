@@ -24,6 +24,7 @@ import { IOption } from '../types';
 import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
 import Stages from './Stages';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ITag } from '@erxes/ui/src/tags/types';
 
 type Props = {
   type: string;
@@ -32,6 +33,7 @@ type Props = {
   pipeline?: IPipeline;
   stages?: IStage[];
   boards: IBoard[];
+  tags?: ITag[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   options?: IOption;
@@ -49,6 +51,7 @@ type State = {
   isCheckDepartment: boolean;
   excludeCheckUserIds: string[];
   boardId: string;
+  tagIds?: string[];
   numberConfig?: string;
   numberSize?: string;
   departmentIds?: string[];
@@ -70,6 +73,7 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckDepartment: pipeline ? pipeline.isCheckDepartment || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
       boardId: props.boardId || '',
+      tagIds: pipeline ? pipeline.tagIds || [] : [],
       numberConfig: (pipeline && pipeline.numberConfig) || '',
       numberSize: (pipeline && pipeline.numberSize) || '',
       departmentIds: pipeline ? pipeline.departmentIds || [] : []
@@ -92,6 +96,10 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeDepartments = options => {
     this.setState({ departmentIds: (options || []).map(o => o.value) });
+  };
+
+  onChangeTags = options => {
+    this.setState({ tagIds: (options || []).map(o => o.value) });
   };
 
   onChangeDominantUsers = items => {
@@ -126,7 +134,8 @@ class PipelineForm extends React.Component<Props, State> {
       boardId,
       numberConfig,
       numberSize,
-      departmentIds
+      departmentIds,
+      tagIds
     } = this.state;
 
     const finalValues = values;
@@ -148,7 +157,8 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds,
       numberConfig,
       numberSize,
-      departmentIds
+      departmentIds,
+      tagIds
     };
   };
 
@@ -269,6 +279,33 @@ class PipelineForm extends React.Component<Props, State> {
     );
   }
 
+  renderTags() {
+    const { tags } = this.props;
+
+    const tagOptions =
+      tags &&
+      tags.map(tag => {
+        return {
+          value: tag._id,
+          label: tag.name
+        };
+      });
+
+    return (
+      <FormGroup>
+        <ControlLabel>Tags</ControlLabel>
+        <Select
+          placeholder={__('Choose tags')}
+          value={this.state.tagIds}
+          options={tagOptions}
+          clearable={false}
+          onChange={this.onChangeTags.bind(this)}
+          multi={true}
+        />
+      </FormGroup>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const {
       pipeline,
@@ -358,6 +395,8 @@ class PipelineForm extends React.Component<Props, State> {
           </Flex>
 
           {this.renderBoards()}
+
+          {this.renderTags()}
 
           {this.renderSelectMembers()}
 

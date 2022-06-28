@@ -123,6 +123,18 @@ export const commonFields = `
   `
       : ``
   }
+  ${
+    isEnabled('tags')
+      ? `
+  tags {
+    _id
+    name
+    colorCode
+  }
+  `
+      : ``
+  }
+  tagIds
   startDate
   closeDate
   description
