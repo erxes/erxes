@@ -4,6 +4,7 @@ import { attachmentSchema } from '@erxes/api-utils/src/types';
 
 import { DURATION_TYPES, JOB_TYPES } from './constants';
 import { field, schemaHooksWrapper } from './utils';
+import { ICustomField, ISubUom } from './common';
 
 export interface IProduct {
   name: string;
