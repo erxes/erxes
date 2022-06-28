@@ -30,7 +30,7 @@ const generateFilter = (params: IParams) => {
   }
 
   return filter;
-};
+}
 
 const spinQueries = {
   lotteries(_root, params: IParams, { models }: IContext) {
@@ -48,7 +48,7 @@ const spinQueries = {
     return {
       list,
       totalCount
-    };
+    }
   }
 };
 
