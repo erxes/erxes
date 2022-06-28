@@ -118,11 +118,6 @@ const main = async () => {
   } else {
     await execute(() => fse.move('../node_modules', './dist/node_modules'));
   }
-
-  if (type === 'core') {
-    console.log('Moving private folders ....');
-    await execute(() => fse.move('./src/private', './dist/core/src/private'));
-  }
 };
 
 main()
