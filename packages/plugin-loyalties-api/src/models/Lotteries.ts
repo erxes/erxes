@@ -45,7 +45,7 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       return await models.Lotteries.create({ campaignId, ownerType, ownerId, createdAt: now, number, status: LOTTERY_STATUS.NEW, voucherCampaignId, userId })
     }
 
-    
+  
     public static async updateLottery(_id: string, doc: ILottery) {
       const { ownerType, ownerId, status, userId = '' } = doc;
       if (!ownerId || !ownerType) {
@@ -79,8 +79,8 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy this lottery')
       }
 
-      await models.ScoreLogs.changeScore({ 
-        ownerType, ownerId, changeScore: -1 * lotteryCampaign.buyScore * count, 
+      await models.ScoreLogs.changeScore({
+        ownerType, ownerId, changeScore: -1 * lotteryCampaign.buyScore * count,
         description: 'buy lottery'
       });
 
