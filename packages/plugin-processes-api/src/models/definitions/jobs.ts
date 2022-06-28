@@ -4,6 +4,7 @@ import { attachmentSchema } from '@erxes/api-utils/src/types';
 
 import { DURATION_TYPES, JOB_TYPES } from './constants';
 import { field, schemaHooksWrapper } from './utils';
+import { ICustomField, ISubUom } from './common';
 
 export interface IProduct {
   name: string;
@@ -49,7 +50,7 @@ export interface IProductsDataDocument extends IProductsData {
   product: IProduct;
   branch?: IBranch;
   department?: IDepartment;
-  uom?: IUom;
+  uom: IUom;
 }
 
 export interface IUom {
@@ -109,6 +110,7 @@ export const productsDataSchema = new Schema({
   product: field({ type: Object }),
   quantity: field({ type: Number, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
+  uom: field({ type: Object }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
   departmentId: field({ type: String, optional: true, label: 'Department' })
 });

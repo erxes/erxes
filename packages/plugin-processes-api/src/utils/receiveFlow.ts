@@ -10,13 +10,14 @@ import {
   recursiveCatchBeforeJobs,
   worksAdd
 } from './utils';
+import { sendSalesplansMessage } from '../messageBroker';
 
 // export const rf = (data, list) => {
-export const rf = async (models: IModels, params) => {
+export const rf = async (models: IModels, subdomain: string, params) => {
   let descriptionForWork = '';
   const inputData = params.data;
-  const { branchId, departmentId, time } = inputData;
-  const { timeId } = time;
+  const { branchId, departmentId, time, salesLogId } = inputData;
+  const { timeId } = time[0];
 
   for (const timeIdData of timeId) {
     const { productId, count } = timeIdData;
@@ -129,6 +130,15 @@ export const rf = async (models: IModels, params) => {
       ? console.log('Description for work: ', descriptionForWork)
       : console.log('Done!');
   }
+
+  sendSalesplansMessage({
+    subdomain,
+    action: 'saleslog.statusUpdate',
+    data: {
+      _id: salesLogId,
+      status: 'published'
+    }
+  });
 
   return inputData;
 };

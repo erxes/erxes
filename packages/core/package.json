@@ -16,7 +16,7 @@
     "dev": "ERXES_TELEMETRY_DISABLED=1 DEBUG=erxes* NODE_ENV=development nodemon src/index.ts",
     "dev-crons": "PROCESS_NAME=crons DEBUG=erxes-crons:* NODE_ENV=development nodemon src/cronJobs",
     "loadTestData": "ts-node ./src/commands/loadTestData.ts",
-    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json",
+    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json && node fix-build.js",
     "test": "node --expose-gc --max_old_space_size=8000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=1",
     "customCommand": "node_modules/.bin/ts-node src/commands/customCommand.ts",
     "migrateBoardItems": "node_modules/.bin/ts-node src/commands/migrateBoardItems.ts",

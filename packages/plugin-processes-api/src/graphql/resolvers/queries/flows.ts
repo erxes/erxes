@@ -74,19 +74,20 @@ const flowQueries = {
   /**
    * Get receive data
    */
-  async testGetReceiveDatas(_root, _args, { models }: IContext) {
+  async testGetReceiveDatas(_root, _args, { models, subdomain }: IContext) {
     const data = {
+      lasesLogId: 'lfkajsdlfjalskdj',
       date: new Date(),
       branchId: 'X5BcGHpzxofkTq8TL',
       departmentId: 'ELea5cmuCwuQZy7qH',
-      time: {
-        timeId: [
+      interval: {
+        intervals: [
           { productId: 'Q7r2s3fJM3F88YkTD', count: 3 },
           { productId: 'HPSTWpeP5pcS4vTzj', count: 2 }
         ]
       }
     };
-    const response = await rf(models, { data });
+    const response = await rf(models, subdomain, { data });
 
     return response;
   }

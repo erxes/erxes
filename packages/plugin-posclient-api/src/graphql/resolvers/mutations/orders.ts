@@ -144,7 +144,7 @@ const orderMutations = {
       try {
         sendPosMessage({
           subdomain,
-          action: 'vrpc_queue',
+          action: 'createOrUpdateOrders',
           data: { action: 'statusToDone', order }
         });
       } catch (e) {}
@@ -374,8 +374,10 @@ const orderMutations = {
       try {
         sendPosMessage({
           subdomain,
-          action: 'vrpc_queue',
+          action: 'createOrUpdateOrders',
           data: {
+            posToken: config.token,
+            syncId: (config.syncInfo || {}).id,
             action: 'makePayment',
             response,
             order,

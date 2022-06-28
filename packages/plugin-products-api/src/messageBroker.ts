@@ -9,6 +9,14 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
+  consumeRPCQueue('products:findOneUom', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      data: await models.Uoms.findOne(data).lean(),
+      status: 'success'
+    };
+  });
+
   consumeRPCQueue('products:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

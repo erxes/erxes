@@ -251,9 +251,9 @@ const up = async ({ uis, fromInstaller }) => {
   const { RABBITMQ_HOST } = commonEnvs(configs);
 
   // update the directory on the Docker system to have 0777 or drwxrwxrwx permssion, so that all users have read/write/execute permission.
-  // chmod 0777 core-api-private
-  if (!(await fse.exists(filePath('core-api-private')))) {
-    await execCommand('mkdir core-api-private');
+  // chmod 0777 core-api-uploads
+  if (!(await fse.exists(filePath('core-api-uploads')))) {
+    await execCommand('mkdir core-api-uploads');
   }
 
   const dockerComposeConfig = {
@@ -304,7 +304,7 @@ const up = async ({ uis, fromInstaller }) => {
         volumes: [
           './enabled-services.js:/data/enabled-services.js',
           './permissions.json:/core-api/permissions.json',
-          './core-api-private:/core-api/dist/core/src/private'
+          './core-api-uploads:/core-api/dist/core/src/private/uploads'
         ],
         networks: ['erxes']
       },
