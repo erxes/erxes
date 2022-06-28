@@ -12,6 +12,7 @@ import {
   posSyncOrders,
   unfetchOrderInfo
 } from './routes';
+import afterMutations from './afterMutations';
 
 export let debug;
 export let graphqlPubsub;
@@ -55,5 +56,7 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: {}
+  meta: {
+    afterMutations
+  }
 };

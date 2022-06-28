@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field, schemaHooksWrapper } from './util';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IPosOrderItem {
   createdAt: Date;

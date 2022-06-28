@@ -3,7 +3,7 @@ import { debug } from './configs';
 
 const { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } = process.env;
 
-let client;
+let client: any;
 
 export const initMemoryStorage = () => {
   client = memoryStorage({

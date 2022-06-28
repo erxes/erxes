@@ -14,7 +14,6 @@ const typeDefs = async () => {
     ${await salesLogTypes()}
     
     extend type Query {
-
       ${salesLogQueries}
     }
     
