@@ -1,13 +1,9 @@
 import React from 'react';
-
 import { __ } from 'modules/common/utils';
-import { Alert } from 'modules/common/utils';
-
 import {
   ListContainer,
   ListHeader,
   ListTitle,
-  ColorText,
   Card,
   PluginContainer,
   PluginPic,
@@ -20,13 +16,11 @@ type Props = {
   onSearch?: (e) => void;
   clearSearch?: () => void;
   results?;
-  enabledServicesQuery;
-  manageInstall;
 };
 
 class PluginPreview extends React.Component<
   Props,
-  { showInput: boolean; searchValue: string; loading: any; plugins: any[] }
+  { showInput: boolean; searchValue: string; plugins: any[] }
 > {
   constructor(props) {
     super(props);
@@ -34,7 +28,6 @@ class PluginPreview extends React.Component<
     this.state = {
       showInput: false,
       searchValue: '',
-      loading: {},
       plugins: []
     };
   }
@@ -52,26 +45,7 @@ class PluginPreview extends React.Component<
   }
 
   renderList = () => {
-    const { enabledServicesQuery } = this.props;
-    const { loading, plugins } = this.state;
-
-    const enabledServices = enabledServicesQuery.enabledServices || {};
-
-    const manageInstall = (type: string, name: string) => {
-      this.setState({ loading: { [name]: true } });
-
-      this.props
-        .manageInstall({
-          variables: { type, name }
-        })
-        .then(() => {
-          Alert.success('You successfully installed');
-          window.location.reload();
-        })
-        .catch(error => {
-          Alert.error(error.message);
-        });
-    };
+    const { plugins } = this.state;
 
     return (
       <PluginContainer>
@@ -84,51 +58,6 @@ class PluginPreview extends React.Component<
                 <Description>{plugin.shortDescription}</Description>
               </PluginInformation>
             </Link>
-            {enabledServices[plugin.title.toLowerCase()] ? (
-              <>
-                <span>
-                  {loading[plugin.title.toLowerCase()] ? 'Loading ...' : ''}
-                </span>
-                <div>
-                  <button
-                    onClick={manageInstall.bind(
-                      this,
-                      'uninstall',
-                      plugin.title.toLowerCase()
-                    )}
-                    className="uninstall"
-                  >
-                    Uninstall
-                  </button>
-
-                  <button
-                    onClick={manageInstall.bind(
-                      this,
-                      'update',
-                      plugin.title.toLowerCase()
-                    )}
-                    className="update"
-                  >
-                    Update
-                  </button>
-
-                  <div style={{ clear: 'both' }} />
-                </div>
-              </>
-            ) : (
-              <button
-                onClick={manageInstall.bind(
-                  this,
-                  'install',
-                  plugin.title.toLowerCase()
-                )}
-                className="install"
-              >
-                {loading[plugin.title.toLowerCase()]
-                  ? 'Loading ...'
-                  : 'Install'}
-              </button>
-            )}
           </Card>
         ))}
       </PluginContainer>
