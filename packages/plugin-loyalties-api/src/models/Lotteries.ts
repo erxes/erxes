@@ -1,9 +1,11 @@
+import * as _ from 'underscore'
 import { getRandomNumber } from './utils';
-import { ILottery, ILotteryDocument, lotterySchema } from './definitions/lotteries';
+import { lotterySchema, ILottery, ILotteryDocument } from './definitions/lotteries';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { IBuyParams } from './definitions/common';
 import { LOTTERY_STATUS } from './definitions/constants';
+
 
 export interface ILotteryModel extends Model<ILotteryDocument> {
   getLottery(_id: string): Promise<ILotteryDocument>;
