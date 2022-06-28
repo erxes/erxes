@@ -364,7 +364,7 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
   CARD_PROPERTIES_INFO.ALL.map(e => {
     fields.push({
       text: e.label,
-      type: e.field,
+      type: e.type,
       canHide: e.canHide,
       validation: e.validation,
       groupId,
@@ -374,8 +374,6 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
       isDefinedByErxes: true
     });
   });
-
-  console.log('fields: ', fields);
 
   return fields;
 };

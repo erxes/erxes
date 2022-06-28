@@ -23,7 +23,7 @@ import ObjectList from './ObjectList';
 
 type Props = {
   field: IField;
-  currentLocation: ILocationOption;
+  currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
   isEditing: boolean;
@@ -36,7 +36,7 @@ type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
-  currentLocation: ILocationOption;
+  currentLocation?: ILocationOption;
 };
 
 export default class GenerateField extends React.Component<Props, State> {

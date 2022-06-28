@@ -63,10 +63,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       relType,
       relTypeIds,
       editConformity,
-      bookingProductId,
-      fieldsQuery
+      bookingProductId
     } = this.props;
-    console.log('fieldsQuery: ', fieldsQuery);
 
     doc.assignedUserIds = assignedUserIds;
 
@@ -186,6 +184,7 @@ class AddFormContainer extends React.Component<FinalProps> {
   render() {
     const extendedProps = {
       ...this.props,
+      fields: this.props.fieldsQuery?.fields || [],
       saveItem: this.saveItem,
       fetchCards: this.fetchCards
     };

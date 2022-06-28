@@ -14,6 +14,8 @@ import {
 import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
 import CardSelect from './CardSelect';
+import { IField } from '@erxes/ui/src/types';
+import GenerateAddFormFields from './GenerateAddFormFields';
 
 type Props = {
   options: IOptions;
@@ -27,6 +29,7 @@ type Props = {
   fetchCards: (stageId: string, callback: (cards: any) => void) => void;
   closeModal: () => void;
   callback?: (item?: IItem) => void;
+  fields: IField[];
 };
 
 type State = {
@@ -37,6 +40,7 @@ type State = {
   pipelineId: string;
   cards: any;
   cardId: string;
+  customFieldsData: any[];
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -53,7 +57,8 @@ class AddForm extends React.Component<Props, State> {
       name:
         localStorage.getItem(`${props.options.type}Name`) ||
         props.mailSubject ||
-        ''
+        '',
+      customFieldsData: []
     };
   }
 
@@ -69,12 +74,14 @@ class AddForm extends React.Component<Props, State> {
       });
     }
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
+
+    console.log('customFieldsData: ', this.state.customFieldsData);
   };
 
   save = e => {
     e.preventDefault();
 
-    const { stageId, name, cardId } = this.state;
+    const { stageId, name, cardId, customFieldsData } = this.state;
     const { saveItem, closeModal, callback } = this.props;
 
     if (!stageId) {
@@ -88,6 +95,7 @@ class AddForm extends React.Component<Props, State> {
     const doc = {
       name,
       stageId,
+      customFieldsData,
       _id: cardId
     };
 
@@ -188,6 +196,11 @@ class AddForm extends React.Component<Props, State> {
               </AddFormWidth>
             </HeaderContent>
           </HeaderRow>
+          <GenerateAddFormFields
+            onChangeField={this.onChangeField}
+            customFieldsData={this.state.customFieldsData}
+            fields={this.props.fields}
+          />
         </SelectContainer>
         <FormFooter>
           <Button

@@ -37,6 +37,7 @@ const fields = `
       }
       pageNumber
       productCategoryId
+      isDefinedByErxes
     }
   }
 `;
