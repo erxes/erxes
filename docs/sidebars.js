@@ -95,28 +95,6 @@ module.exports = {
       ],
     }
   ],
-  tutorials: [
-    {
-      type: "category",
-      label: "User's Guide",
-      items: [
-        "user/general-settings",
-        "user/engage-phone-settings",
-        "user/team-inbox",
-        "user/knowledge-base",
-        "user/popups",
-        "user/script-install",
-        "user/contacts",
-        "user/segments",
-        "user/sales-pipeline",
-        "user/engage",
-        "user/profile-settings",
-        "user/notification",
-        "user/mobile-apps",
-        "user/import",
-      ],
-    },
-  ],
   components: [
     {
       type: "category",
