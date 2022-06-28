@@ -7,18 +7,23 @@ import { withProps } from 'modules/common/utils';
 
 import { mutations } from '@erxes/ui-settings/src/general/graphql';
 
-import Installer from '../components/Installer';
+import PluginDetails from '../components/detail/PluginDetails';
+
+type Props = {
+  id: string;
+};
 
 type FinalProps = {
   manageInstall;
   enabledServicesQuery;
-};
+} & Props;
 
-class InstallerContainer extends React.Component<FinalProps> {
+class PluginDetailsContainer extends React.Component<FinalProps> {
   render() {
-    const { enabledServicesQuery, manageInstall } = this.props;
+    const { id, enabledServicesQuery, manageInstall } = this.props;
     return (
-      <Installer
+      <PluginDetails
+        id={id}
         enabledServicesQuery={enabledServicesQuery}
         manageInstall={manageInstall}
       />
@@ -39,5 +44,5 @@ export default withProps<{}>(
     graphql<{}>(gql(mutations.managePluginInstall), {
       name: 'manageInstall'
     })
-  )(InstallerContainer)
+  )(PluginDetailsContainer)
 );
