@@ -52,10 +52,6 @@ const lotteriesMutations = {
 
 checkPermission(lotteriesMutations, 'lotteryCampaignsAdd', 'manageLoyalties');
 checkPermission(lotteriesMutations, 'lotteryCampaignsEdit', 'manageLoyalties');
-checkPermission(
-  lotteriesMutations,
-  'lotteryCampaignsRemove',
-  'manageLoyalties'
-);
+checkPermission(lotteriesMutations,'lotteryCampaignsRemove','manageLoyalties');
 
 export default lotteriesMutations;
