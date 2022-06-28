@@ -3,12 +3,8 @@ import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { Builder, IListArgs } from './carQueryBuilder';
 import { IContext } from '../../../connectionResolver';
-import { countBySegment } from '../../../carUtils';
+import { countByCars } from '../../../carUtils';
 import { generateRandomString } from '../../../utils';
-
-interface ICountArgs extends IListArgs {
-  only?: string;
-}
 
 const generateFilter = async (params, commonQuerySelector, subdomain) => {
   const filter: any = commonQuerySelector;
@@ -106,7 +102,7 @@ const carQueries = {
   ) => {
     const filter = await generateFilter(params, commonQuerySelector, subdomain);
 
-    const qb = new Builder(models, subdomain, params, '');
+    const qb = new Builder(models, subdomain, params);
 
     await qb.buildAllQueries();
 
@@ -130,31 +126,12 @@ const carQueries = {
   /**
    * Group car counts by segments
    */
-  async carCounts(
-    _root,
-    args: ICountArgs,
-    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
-  ) {
+  async carCounts(_root, params: IListArgs, { models, subdomain }: IContext) {
     const counts = {
-      bySegment: {},
-      byTag: {},
-      byBrand: {},
-      byLeadStatus: {}
+      bySegment: {}
     };
 
-    const { only } = args;
-
-    const qb = new Builder(models, subdomain, args, {
-      commonQuerySelector,
-      commonQuerySelectorElk
-    });
-
-    switch (only) {
-      case 'bySegment':
-        counts.bySegment = await countBySegment(subdomain, qb);
-
-        break;
-    }
+    counts.bySegment = await countByCars(models, subdomain, params);
 
     return counts;
   },

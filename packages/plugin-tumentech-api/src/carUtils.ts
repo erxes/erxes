@@ -1,6 +1,4 @@
 import * as _ from 'underscore';
-import { fixDate } from '@erxes/api-utils/src';
-
 import { debug } from './configs';
 import { sendSegmentsMessage } from './messageBroker';
 import { IModels } from './connectionResolver';
@@ -8,12 +6,6 @@ import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export interface ICountBy {
   [index: string]: number;
-}
-
-interface IUserArgs {
-  _id: string;
-  code?: string;
-  starredConversationIds?: string[];
 }
 
 interface IListArgs {
@@ -61,71 +53,41 @@ export const countBySegment = async (
 export const countByCars = async (
   models: IModels,
   subdomain: string,
-  params: IListArgs,
-  categoryId: string,
-  context,
-  only: string
+  params: IListArgs
 ): Promise<ICountBy> => {
-  const counts: ICountBy = {};
+  const qb = new CommonBuilder(models, subdomain, params);
 
-  const qb = new CommonBuilder(models, subdomain, params, categoryId, context);
-
-  switch (only) {
-    case 'bySegment':
-      await countBySegment(subdomain, qb);
-      break;
-  }
-
-  return counts;
+  return countBySegment(subdomain, qb);
 };
 
 export class CommonBuilder<IArgs extends IListArgs> {
   public models: IModels;
   public subdomain: string;
   public params: IArgs;
-  public context;
-  public categoryId: string;
+
   public positiveList: any[];
   public filterList: any[];
   public activeIntegrationIds: string[] = [];
 
-  constructor(
-    models: IModels,
-    subdomain: string,
-    params: IArgs,
-    categoryId: string,
-    context
-  ) {
+  constructor(models: IModels, subdomain: string, params: IArgs) {
     this.models = models;
     this.subdomain = subdomain;
     this.params = params;
-    this.categoryId = categoryId;
-    this.context = context;
 
     this.positiveList = [];
     this.filterList = [];
-
-    this.resetPositiveList();
-    this.defaultFilters();
   }
 
   // filter by segment
   public async segmentFilter(segmentId: string) {
-    const segment = await sendSegmentsMessage({
-      subdomain: this.subdomain,
-      action: 'findOne',
-      data: {
-        _id: segmentId
-      },
-      isRPC: true
-    });
-
     const selector = await sendSegmentsMessage({
       subdomain: this.subdomain,
       action: 'fetchSegment',
       data: {
-        segment,
-        returnSelector: true
+        segmentId,
+        options: {
+          returnSelector: true
+        }
       },
       isRPC: true
     });
@@ -135,49 +97,6 @@ export class CommonBuilder<IArgs extends IListArgs> {
 
   public resetPositiveList() {
     this.positiveList = [];
-
-    if (this.context.commonQuerySelectorElk) {
-      this.positiveList.push(this.context.commonQuerySelectorElk);
-    }
-  }
-
-  public async defaultFilters(): Promise<any> {
-    this.filterList = [
-      {
-        terms: {
-          'categoryId.keyword': this.categoryId
-        }
-      }
-    ];
-  }
-
-  public categoryNotFound() {
-    this.filterList.push({
-      match: {
-        categoryId: 'categoryNotFound'
-      }
-    });
-  }
-
-  public async dateFilter(startDate: string, endDate: string) {
-    this.positiveList.push(
-      {
-        range: {
-          createdAt: {
-            gte: fixDate(startDate),
-            lte: fixDate(endDate)
-          }
-        }
-      },
-      {
-        range: {
-          updatedAt: {
-            gte: fixDate(startDate),
-            lte: fixDate(endDate)
-          }
-        }
-      }
-    );
   }
 
   /*
@@ -186,15 +105,9 @@ export class CommonBuilder<IArgs extends IListArgs> {
   public async buildAllQueries(): Promise<void> {
     this.resetPositiveList();
 
-    await this.defaultFilters();
-
     // filter by segment
     if (this.params.segment) {
       await this.segmentFilter(this.params.segment);
-    }
-
-    if (this.params.startDate && this.params.endDate) {
-      await this.dateFilter(this.params.startDate, this.params.endDate);
     }
   }
 
