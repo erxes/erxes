@@ -1,18 +1,41 @@
 import { Document, Schema } from 'mongoose';
 
 import { attachmentSchema } from '@erxes/api-utils/src/types';
-import {
-  IProduct,
-  productSchema
-} from '@packages/plugin-products-api/src/models/definitions/products';
-import {
-  IBranch,
-  IDepartment
-} from '@packages/core/src/db/models/definitions/structures';
-import { IUom } from '@packages/plugin-products-api/src/models/definitions/uoms';
 
 import { DURATION_TYPES, JOB_TYPES } from './constants';
-import { field, schemaHooksWrapper, schemaWrapper } from './utils';
+import { field, schemaHooksWrapper } from './utils';
+
+export interface IProduct {
+  name: string;
+  categoryId?: string;
+  categoryCode?: string;
+  type?: string;
+  description?: string;
+  sku?: string;
+  unitPrice?: number;
+  code: string;
+  customFieldsData?: ICustomField[];
+  productId?: string;
+  tagIds?: string[];
+  attachment?: any;
+  attachmentMore?: any[];
+  status?: string;
+  supply?: string;
+  productCount?: number;
+  minimiumCount?: number;
+  vendorId?: string;
+  vendorCode?: string;
+
+  mergedIds?: string[];
+
+  uomId?: string;
+  subUoms?: ISubUom[];
+}
+
+export interface IProductDocument extends IProduct, Document {
+  _id: string;
+  createdAt: Date;
+}
 
 export interface IProductsData {
   _id: string;
@@ -30,6 +53,39 @@ export interface IProductsDataDocument extends IProductsData {
   uom?: IUom;
 }
 
+export interface IUom {
+  code: string;
+  name: string;
+}
+
+export interface IUomDocument extends IUom, Document {
+  _id: string;
+  createdAt: Date;
+}
+
+export interface IBranch {
+  title: string;
+  address?: string;
+  supervisorId?: string;
+  parentId?: string;
+  userIds?: string[];
+}
+
+export interface IBranchDocument extends IBranch, Document {
+  _id: string;
+}
+
+export interface IDepartment {
+  title: string;
+  description?: string;
+  supervisorId?: string;
+  parentId?: string;
+  userIds?: string[];
+}
+
+export interface IDepartmentDocument extends IDepartment, Document {
+  _id: string;
+}
 export interface IJobRefer {
   categoryId: string;
   code: string;
