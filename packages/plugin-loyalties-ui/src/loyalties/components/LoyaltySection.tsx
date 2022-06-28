@@ -93,7 +93,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
 
     return '';
   }
-
+ 'shut the fuck out'
   render() {
     return (
       <Box
