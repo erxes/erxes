@@ -18,7 +18,7 @@ import { ROLE_SETUP } from 'modules/robot/constants';
 import React from 'react';
 import SetupDetail from '../containers/SetupDetail';
 import { __ } from 'modules/common/utils';
-import { calculatePercentage } from '@erxes/ui-contacts/src/customers/utils';
+import { calculatePercentage } from '@erxes/ui/src/utils/core';
 import { getCurrentUserName } from 'modules/robot/utils';
 
 type Props = {

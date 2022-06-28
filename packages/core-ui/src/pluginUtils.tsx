@@ -3,8 +3,6 @@ declare var __webpack_share_scopes__;
 declare var window;
 
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
 import React from 'react';
@@ -365,7 +363,8 @@ export const pluginRouters = () => {
   return pluginRoutes;
 };
 
-export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
+export const pluginsOfCustomerSidebar = (customer: any) => {
+  //check - ICustomer
   return renderPluginSidebar(
     'customerRightSidebarSection',
     'customer',
@@ -373,7 +372,8 @@ export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   );
 };
 
-export const pluginsOfCompanySidebar = (company: ICompany) => {
+export const pluginsOfCompanySidebar = (company: any) => {
+  //check - ICompany
   return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 

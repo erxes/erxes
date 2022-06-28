@@ -9,7 +9,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IUrlVisits } from '../../types';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
-import { calculatePercentage } from '@erxes/ui-contacts/src/customers/utils';
+import { calculatePercentage } from '@erxes/ui/src/utils/core';
 import styled from 'styled-components';
 
 type Props = {
