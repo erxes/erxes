@@ -1,10 +1,7 @@
-import { paginate } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { ICommonCampaignParams, ICommonParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
-import {
-  ICommonCampaignParams,
-  ICommonParams
-} from '../../../models/definitions/common';
+import { paginate } from '@erxes/api-utils/src/core';
 import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
 interface IParams extends ICommonParams {
