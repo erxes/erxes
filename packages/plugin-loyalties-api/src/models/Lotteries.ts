@@ -1,9 +1,9 @@
+import { getRandomNumber } from './utils';
+import { ILottery, ILotteryDocument, lotterySchema } from './definitions/lotteries';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { IBuyParams } from './definitions/common';
 import { LOTTERY_STATUS } from './definitions/constants';
-import { ILottery, ILotteryDocument, lotterySchema } from './definitions/lotteries';
-import { getRandomNumber } from './utils';
 
 export interface ILotteryModel extends Model<ILotteryDocument> {
   getLottery(_id: string): Promise<ILotteryDocument>;
@@ -40,7 +40,7 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       }
 
       const number = getRandomNumber(lotteryCampaign.numberFormat);
-      return await models.Lotteries.create({ campaignId, ownerType, ownerId, createdAt: now, number, status: LOTTERY_STATUS.NEW, voucherCampaignId, userId });
+      return await models.Lotteries.create({ campaignId, ownerType, ownerId, createdAt: now, number, status: LOTTERY_STATUS.NEW, voucherCampaignId, userId })
     }
 
     public static async updateLottery(_id: string, doc: ILottery) {
@@ -57,11 +57,10 @@ export const loadLotteryClass = (models: IModels, subdomain: string) => {
       const now = new Date();
 
       return await models.Lotteries.updateOne({ _id }, {
-          $set: {
-            campaignId, ownerType, ownerId, modifiedAt: now, status, userId
-          }
+        $set: {
+          campaignId, ownerType, ownerId, modifiedAt: now, status, userId
         }
-      );
+        })
     }
 
     public static async buyLottery(params: IBuyParams) {
