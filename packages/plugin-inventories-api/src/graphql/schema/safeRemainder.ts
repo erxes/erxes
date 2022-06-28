@@ -42,6 +42,7 @@ export const types = `
   type SafeRemItem {
     _id: String,
     modifiedAt: Date,
+    status: String,
     lastTrDate: Date,
     remainderId: String,
     productId: String,

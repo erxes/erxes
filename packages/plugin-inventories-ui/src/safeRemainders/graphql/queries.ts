@@ -68,6 +68,7 @@ export const safeRemainderFields = `
 export const safeRemItemFields = `
   _id
   modifiedAt
+  status
   lastTrDate
   remainderId
   productId

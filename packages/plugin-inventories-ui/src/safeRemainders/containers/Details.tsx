@@ -48,7 +48,7 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
       return <Spinner />;
     }
 
-    const updateRemItem = (_id: string, remainder: number, status: string) => {
+    const updateRemItem = (_id: string, remainder: number, status?: string) => {
       updateSafeRemItem({ variables: { _id, remainder, status } })
         .then(() => {
           Alert.success('You successfully updated a census');
