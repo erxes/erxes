@@ -162,6 +162,7 @@ class List extends React.Component<IProps, State> {
           trigger={trigger}
           autoOpenKey="showProductModal"
           content={modalContent}
+          size="lg"
         />
       </BarItems>
     );

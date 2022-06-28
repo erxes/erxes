@@ -1,5 +1,5 @@
 import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
+import resolvers from './dataloaders/resolvers';
 
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';

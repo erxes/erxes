@@ -1,16 +1,12 @@
 import { ICustomField, IUser, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { STATUS } from '../constants';
 import {
   ISalesLog,
   ISalesLogDocument,
+  ISalesLogProduct,
   salesLogSchema,
-  labelSchema,
-  ILabel,
-  ILabelDocument,
-  ITimeframe,
-  ITimeframeDocument,
-  timeframeSchema,
   IDayPlanConfig,
   IDayPlanConfigDocument,
   dayPlanConfigSchema,
@@ -23,9 +19,12 @@ import {
 } from './definitions/salesplans';
 
 export interface ISalesLogModel extends Model<ISalesLogDocument> {
-  createSalesLog(doc: ISalesLog, id: string): Promise<ISalesLogDocument>;
-  updateSalesLog(doc: ISalesLogDocument): Promise<ISalesLogDocument>;
-  removeSalesLog(_id: string): Promise<JSON>;
+  salesLogAdd(doc: ISalesLog, userId: string): Promise<ISalesLogDocument>;
+  salesLogEdit(_id: string, doc: ISalesLogDocument): Promise<ISalesLogDocument>;
+  salesLogRemove(_id: string): Promise<JSON>;
+  salesLogProductUpdate(_id: string, data: ISalesLogProduct): Promise<JSON>;
+  salesLogProductRemove(_id: string, productId: string): Promise<JSON>;
+  salesLogStatusUpdate(_id: string, status: string): Promise<JSON>;
 }
 
 export const loadSalesLogClass = (models: IModels) => {
@@ -33,131 +32,96 @@ export const loadSalesLogClass = (models: IModels) => {
     /*
      create SalesLog 
     */
-    public static async createSalesLog(doc: ISalesLog, id) {
+    public static async salesLogAdd(data: ISalesLog, userId: String) {
       return await models.SalesLogs.create({
-        ...doc,
-        createdBy: id,
+        ...data,
+        createdBy: userId,
         createdAt: new Date()
       });
     }
 
     /* 
-      upDate SalesLog
+      update SalesLog
     */
-    public static async updateSalesLog(doc: ISalesLog) {
-      const { branchId } = doc;
+    public static async salesLogEdit(_id: String, data: ISalesLogDocument) {
+      const result = await models.SalesLogs.findOne({ _id });
 
-      return await models.SalesLogs.update(
-        { branchId: branchId },
-        { $set: doc }
-      );
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
+      await models.SalesLogs.updateOne({ _id }, { $set: data });
+
+      return await models.SalesLogs.findOne({ _id });
     }
 
     /* 
       remove SalesLog and DayPlanConfigs with SaleslogId
     */
-    public static async removeSalesLog(_id: string) {
+    public static async salesLogRemove(_id: string) {
+      const result = await models.SalesLogs.findOne({ _id });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
       await models.DayPlanConfigs.deleteMany({ salesLogId: _id });
-
       await models.MonthPlanConfigs.deleteMany({ salesLogId: _id });
-
       await models.YearPlanConfigs.deleteMany({ salesLogId: _id });
 
-      return await models.SalesLogs.remove({ _id });
+      return await models.SalesLogs.deleteOne({ _id });
+    }
+
+    public static async salesLogProductUpdate(
+      _id: string,
+      productData: ISalesLogProduct
+    ) {
+      const result = await models.SalesLogs.findOne({
+        _id,
+        'products._id': productData._id
+      });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
+      if (!result)
+        return await models.SalesLogs.updateOne(
+          { _id },
+          { $push: { products: productData } }
+        );
+      else
+        return await models.SalesLogs.updateOne(
+          { _id, 'products._id': productData._id },
+          { $set: { 'products.$.quantities': productData.quantities } }
+        );
+    }
+
+    public static async salesLogProductRemove(_id: string, productId: string) {
+      const result = await models.SalesLogs.findOne({ _id });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
+      return await models.SalesLogs.updateOne(
+        { _id },
+        { $pull: { products: { _id: productId } } }
+      );
+    }
+
+    public static async salesLogStatusUpdate(_id: string, status: string) {
+      const result = await models.SalesLogs.findOne({ _id });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
+      return await models.SalesLogs.updateOne(
+        { _id },
+        { $set: { status: status } }
+      );
     }
   }
 
   salesLogSchema.loadClass(SalesLog);
 
   return salesLogSchema;
-};
-
-export interface ILabelModel extends Model<ILabelDocument> {
-  saveLabels(doc: any): Promise<ILabelDocument[]>;
-  removeLabel(_id: string): Promise<JSON>;
-  updateLabel(_id: string): Promise<ILabelDocument>;
-}
-
-export const loadLabelClass = (models: IModels) => {
-  class Label {
-    /*
-      Create and update Labels 
-    */
-    public static async saveLabels(doc: {
-      update: ILabelDocument[];
-      add: ILabel[];
-    }) {
-      const add = doc.add;
-      // await models.DayConfigs.deleteMany();
-      const update = doc.update;
-
-      for (const item of update) {
-        await models.Labels.updateOne({ _id: item._id }, { $set: { ...item } });
-      }
-
-      const label = await models.Labels.insertMany(add);
-
-      return await label;
-    }
-
-    /*  
-      remove Label
-    */
-    public static async removeLabel(_id: String) {
-      return await models.Labels.remove({ _id: _id });
-    }
-
-    /* 
-      update Label
-    */
-    public static async updateLabel(models, doc) {
-      const { _id } = doc;
-
-      delete doc._id;
-
-      return await models.Labels.update({ _id: _id }, { $set: doc });
-    }
-  }
-
-  labelSchema.loadClass(Label);
-
-  return labelSchema;
-};
-
-export interface ITimeframeModel extends Model<ITimeframeDocument> {
-  saveTimeframes(doc: {
-    update: ITimeframeDocument[];
-    add: ITimeframe[];
-  }): Promise<ITimeframeDocument[]>;
-  removeTimeframe(_id: string): Promise<JSON>;
-}
-
-export const loadTimeframeClass = (models: IModels) => {
-  class Timeframe {
-    public static async saveTimeframes(doc) {
-      const add = doc.add;
-
-      const update = doc.update;
-
-      for (const item of update) {
-        await models.Timeframes.updateOne(
-          { _id: item._id },
-          { $set: { ...item } }
-        );
-      }
-
-      const label = await models.Timeframes.insertMany(add);
-
-      return await label;
-    }
-
-    public static async removeTimeframe(_id) {
-      return await models.Timeframes.remove({ _id: _id });
-    }
-  }
-  timeframeSchema.loadClass(Timeframe);
-
-  return timeframeSchema;
 };
 
 export interface IDayPlanConfigModel extends Model<IDayPlanConfigDocument> {
