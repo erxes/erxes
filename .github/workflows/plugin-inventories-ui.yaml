@@ -7,7 +7,7 @@ on:
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
-      - "packages/ui-inventories/**"
+      - "packages/ui-cards/**"
       - "packages/ui-forms/**"
       - "packages/ui-inbox/**"
       - "packages/ui-knowledgebase/**"
