@@ -1,7 +1,7 @@
-import { paginate } from '@erxes/api-utils/src/core';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
 import { ICommonParams } from '../../../models/definitions/common';
+import { IContext } from '../../../connectionResolver';
+import { paginate } from '@erxes/api-utils/src/core';
 
 interface IParams extends ICommonParams {
   voucherCampaignId: string;
@@ -10,23 +10,23 @@ const generateFilter = (params: IParams) => {
   const filter: any = {};
 
   if (params.campaignId) {
-    filter.campaignId = params.campaignId;
+    filter.campaignId = params.campaignId
   }
 
   if (params.status) {
-    filter.status = params.status;
+    filter.status = params.status
   }
 
   if (params.ownerType) {
-    filter.ownerType = params.ownerType;
+    filter.ownerType = params.ownerType
   }
 
   if (params.ownerId) {
-    filter.ownerId = params.ownerId;
+    filter.ownerId = params.ownerId
   }
 
   if (params.voucherCampaignId) {
-    filter.voucherCampaignId = params.voucherCampaignId;
+    filter.voucherCampaignId = params.voucherCampaignId
   }
 
   return filter;
