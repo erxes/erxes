@@ -51,6 +51,7 @@ export interface IProductsData {
   product: any;
   quantity: number;
   uomId: string;
+  uom: any;
   branchId?: string;
   departmentId?: string;
 }
@@ -58,7 +59,6 @@ export interface IProductsData {
 export interface IProductsDataDocument extends IProductsData {
   branch?: IBranch;
   department?: IDepartment;
-  uom?: IUom;
 }
 
 // query types

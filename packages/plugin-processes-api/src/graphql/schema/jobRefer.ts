@@ -27,6 +27,7 @@ export const types = `
     product: JSON,
     quantity: Float,
     uomId: String,
+    uom: JSON,
     branchId: String,
     departmentId: String,
   }
