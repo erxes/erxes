@@ -19,5 +19,14 @@ module.exports = {
       action: "productsAll",
       permissions: ["showProducts", "manageProducts"],
     },
+    {
+      text: "Configs of Products",
+      to: "/settings/products-config/",
+      image: "/images/icons/erxes-24.svg",
+      location: "settings",
+      scope: "products",
+      action: "productsAll",
+      permissions: ["showProducts", "manageProducts"],
+    },
   ],
 };

@@ -29,6 +29,10 @@ export const PRODUCT_SUPPLY = {
   ALL: ['unique', 'limited', 'unlimited']
 };
 
+export interface ISubUom {
+  uomId: string;
+  ratio: number;
+}
 export interface IProduct {
   name: string;
   categoryId?: string;
@@ -51,6 +55,10 @@ export interface IProduct {
   vendorCode?: string;
 
   mergedIds?: string[];
+
+  uomId?: string;
+  subUoms?: ISubUom[];
+
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -72,6 +80,12 @@ export interface IProductCategoryDocument extends IProductCategory, Document {
   _id: string;
   createdAt: Date;
 }
+
+const subUomSchema = new Schema({
+  _id: field({ pkey: true }),
+  uomId: field({ type: String, label: 'Sub unit of measurement' }),
+  ratio: field({ type: Number, label: 'ratio of sub uom to main uom' })
+})
 
 export const productSchema = schemaWrapper(
   new Schema({
@@ -135,7 +149,10 @@ export const productSchema = schemaWrapper(
       default: '0'
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
-    mergedIds: field({ type: [String], optional: true })
+    mergedIds: field({ type: [String], optional: true }),
+
+    uomId: field({ type: String, optional: true, label: 'Main unit of measurement' }),
+    subUoms: field({ type: [subUomSchema], optional: true, label: 'Sum unit of measurements' })
   })
 );
 

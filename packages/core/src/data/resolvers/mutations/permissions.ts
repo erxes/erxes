@@ -56,7 +56,9 @@ const writeUserLog = async (
     // user has been added to the group
     if (!exists) {
       // already updated user row
-      const addedUser = await getDocument(models, 'users', { _id: memberId });
+      const addedUser = await getDocument(models, subdomain, 'users', {
+        _id: memberId
+      });
 
       if (addedUser) {
         // previous data was like this
@@ -155,7 +157,7 @@ const usersGroupMutations = {
     { user, models, subdomain }: IContext
   ) {
     // users before updating
-    const oldUsers = await getDocumentList(models, 'users', {
+    const oldUsers = await getDocumentList(models, subdomain, 'users', {
       _id: { $in: memberIds || [] }
     });
 
@@ -213,9 +215,11 @@ const usersGroupMutations = {
     { user, models, subdomain }: IContext
   ) {
     const group = await models.UsersGroups.getGroup(_id);
-    const oldUsers = await getDocumentList(models, 'users', {
+
+    const oldUsers = await getDocumentList(models, subdomain, 'users', {
       groupIds: { $in: [_id] }
     });
+
     const result = await models.UsersGroups.updateGroup(_id, doc, memberIds);
 
     // don't write unnecessary log when nothing is changed
@@ -256,9 +260,11 @@ const usersGroupMutations = {
     { user, models, subdomain }: IContext
   ) {
     const group = await models.UsersGroups.getGroup(_id);
-    const members = await getDocumentList(models, 'users', {
+
+    const members = await getDocumentList(models, subdomain, 'users', {
       groupIds: { $in: [group._id] }
     });
+
     const result = await models.UsersGroups.removeGroup(_id);
 
     await putDeleteLog(
