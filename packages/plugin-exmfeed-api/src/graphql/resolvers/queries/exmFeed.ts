@@ -50,7 +50,8 @@ const exmFeedQueries = {
       recipientType,
       type,
       startDate,
-      endDate
+      endDate,
+      bravoType
     },
     { models, user }
   ) => {
@@ -120,6 +121,10 @@ const exmFeedQueries = {
       } else {
         doc.isPinned = { $ne: true };
       }
+    }
+
+    if (bravoType) {
+      doc.customFieldsData = { $elemMatch: { value: bravoType } };
     }
 
     return {

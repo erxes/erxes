@@ -1,9 +1,8 @@
 import { FormControl } from '@erxes/ui/src/components/form';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
+// import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
-import { IJobRefer, IFlowDocument } from '../../types';
+// import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IFlowDocument } from '../../types';
 import Label from '@erxes/ui/src/components/Label';
 
 type Props = {
@@ -31,21 +30,21 @@ class Row extends React.Component<Props> {
       return <Label lblStyle={style}>{text}</Label>;
     };
 
-    const renderProducts = products => {
-      if (products.length) {
-        return products.map(e => (
-          <>
-            <FormGroup>
-              <TextInfo>
-                {e.product.name + ' - ' + e.quantity + ' /Qty/'}
-              </TextInfo>
-            </FormGroup>
-          </>
-        ));
-      } else {
-        return '';
-      }
-    };
+    // const renderProducts = products => {
+    //   if (products.length) {
+    //     return products.map(e => (
+    //       <>
+    //         <FormGroup>
+    //           <TextInfo>
+    //             {e.product.name + ' - ' + e.quantity + ' /Qty/'}
+    //           </TextInfo>
+    //         </FormGroup>
+    //       </>
+    //     ));
+    //   } else {
+    //     return '';
+    //   }
+    // };
 
     const onTrClick = () => {
       history.push(`/processes/flows/details/${flow._id}`);
@@ -68,7 +67,7 @@ class Row extends React.Component<Props> {
           {flowJobStatus === true && renderLabelInfo('success', 'True')}
           {flowJobStatus === false && renderLabelInfo('danger', 'False')}
         </td>
-        <td>{jobs.length}</td>
+        <td>{(jobs && jobs.length) || 0}</td>
       </tr>
     );
   }

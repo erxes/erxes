@@ -1,5 +1,3 @@
-import { __ } from 'coreui/utils';
-
 export const ACTIONS = [
   {
     type: 'job',

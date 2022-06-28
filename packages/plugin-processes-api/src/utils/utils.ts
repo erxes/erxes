@@ -1,3 +1,4 @@
+import { IOverallWork } from './../models/definitions/overallWorks';
 import { IFlow, IFlowDocument } from './../models/definitions/flows';
 import { IWork, IWorkDocument } from './../models/definitions/works';
 import { IContext, IModels } from './../connectionResolver';
@@ -89,18 +90,38 @@ export const getBeforeJobs = (leftJobs: IJobDocument[], jobId: string) => {
   return beforeJobs;
 };
 
-export const initDoc = (
+export const initDocOverallWork = () => {
+  console.log('test');
+
+  const doc: IOverallWork = {
+    status: 'active',
+    dueDate: new Date(),
+    startAt: new Date(),
+    endAt: new Date(),
+    assignUserIds: [],
+    jobId: 'null',
+    flowId: 'null',
+    outBranchId: 'null',
+    outDepartmentId: 'null',
+    inBranchId: 'null',
+    inDepartmentId: 'null',
+    needProducts: [],
+    resultProducts: []
+  };
+
+  return doc;
+};
+
+export const initDocWork = (
   flow: IFlowDocument,
   jobRefer: IJobReferDocument,
   productId: string,
   count: string,
-  branchId: string,
-  departmentId: string,
   job?: IJobDocument
 ) => {
   const doc: IWork = {
     name: job?.label,
-    status: 'active',
+    status: 'noOverall',
     dueDate: new Date(),
     startAt: new Date(),
     endAt: new Date(),
@@ -108,8 +129,10 @@ export const initDoc = (
     flowId: flow._id,
     productId,
     count,
-    branchId: job?.branchId,
-    departmentId: job?.departmentId,
+    inBranchId: job?.inBranchId,
+    inDepartmentId: job?.inDepartmentId,
+    outBranchId: job?.outBranchId,
+    outDepartmentId: job?.outDepartmentId,
     needProducts: initProducts(parseInt(count, 10), jobRefer.needProducts),
     resultProducts: initProducts(parseInt(count, 10), jobRefer.resultProducts)
   };
@@ -188,13 +211,11 @@ export const recursiveCatchBeforeJobs = async (
       jobRefers
     );
 
-    const doc: IWork = initDoc(
+    const doc: IWork = initDocWork(
       flow,
       lastJobRefer[0],
       productId,
       count,
-      branchId,
-      departmentId,
       recursiveJob
     );
 

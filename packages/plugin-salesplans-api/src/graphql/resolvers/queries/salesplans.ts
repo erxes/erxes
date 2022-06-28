@@ -1,7 +1,7 @@
 import { IContext } from '../../../connectionResolver';
 
 const salesLogQueries = {
-  getLabels: async (
+  labels: async (
     _root: any,
     { type }: { type: string },
     { models }: IContext
@@ -9,11 +9,11 @@ const salesLogQueries = {
     return await models.Labels.find({ type });
   },
 
-  getSalesLogs: async (_root: any, _args: any, { models }: IContext) => {
+  salesLogs: async (_root: any, _args: any, { models }: IContext) => {
     return await models.SalesLogs.find({}).lean();
   },
 
-  getSalesLogDetail: async (
+  salesLogDetail: async (
     _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
@@ -21,11 +21,11 @@ const salesLogQueries = {
     return await models.SalesLogs.findOne({ _id: salesLogId });
   },
 
-  getTimeframes: async (_root: any, _args: any, { models }: IContext) => {
+  timeframes: async (_root: any, _args: any, { models }: IContext) => {
     return await models.Timeframes.find({});
   },
 
-  getDayPlanConfig: async (
+  dayPlanConfig: async (
     _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
@@ -33,7 +33,7 @@ const salesLogQueries = {
     return await models.DayPlanConfigs.find({ salesLogId });
   },
 
-  getMonthPlanConfig: async (
+  monthPlanConfig: async (
     _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
@@ -41,7 +41,7 @@ const salesLogQueries = {
     return await models.MonthPlanConfigs.find({ salesLogId });
   },
 
-  getYearPlanConfig: async (
+  yearPlanConfig: async (
     _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext

@@ -21,9 +21,10 @@ type Props = {
   // refetch: () => void;
   removedata: (_id: string) => void;
 };
-type State = { currentTab: string };
 
-function Config({ save, data, closeModal, removedata }: Props) {
+const ManageConfigs = (props: Props) => {
+  const { save, data, closeModal, removedata } = props;
+
   const [configs, setConfigs] = useState<any[]>([]);
   const [configsData, setConfigsData] = useState<any[]>(data ? data : []);
 
@@ -310,5 +311,5 @@ function Config({ save, data, closeModal, removedata }: Props) {
       <ModalFooter></ModalFooter>
     </FullContent>
   );
-}
-export default Config;
+};
+export default ManageConfigs;

@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils/core';
 import { graphql } from 'react-apollo';
-import Config from '../components/Config';
+import gql from 'graphql-tag';
 import { queries, mutations } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils/core';
 import { Alert } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src/components';
+import ManageConfigsComponent from '../components/ManageConfigs';
 
 type Props = {
   closeModal: () => void;
@@ -57,9 +57,9 @@ function ConfigContainer({
   }
 
   return (
-    <Config
+    <ManageConfigsComponent
       save={saveData}
-      data={dayConfigQuery ? dayConfigQuery.getTimeframes : []}
+      data={dayConfigQuery ? dayConfigQuery.timeframes : []}
       closeModal={closeModal}
       // refetch={refetch}
       removedata={removedata}
@@ -68,7 +68,7 @@ function ConfigContainer({
 }
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.getTimeframes), {
+    graphql<Props>(gql(queries.timeframes), {
       name: 'dayConfigQuery'
     }),
     graphql<Props>(gql(mutations.saveTimeframes), {

@@ -10,8 +10,10 @@ export interface IJob {
   label: string;
   description: string;
   quantity: number;
-  branchId: string;
-  departmentId: string;
+  inBranchId: string;
+  inDepartmentId: string;
+  outBranchId: string;
+  outDepartmentId: string;
 }
 
 export interface IJobDocument extends IJob {
@@ -45,8 +47,10 @@ export const jobSchema = new Schema(
     jobReferId: { type: String },
     quantity: { type: Number },
     assignUserIds: { type: [String] },
-    branchId: { type: String },
-    departmentId: { type: String }
+    inBranchId: { type: String },
+    inDepartmentId: { type: String },
+    outBranchId: { type: String },
+    outDepartmentId: { type: String }
   },
   { _id: false }
 );

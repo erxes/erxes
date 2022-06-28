@@ -1,19 +1,15 @@
+import { IUom } from '@erxes/ui-products/src/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import Info from '@erxes/ui/src/components/Info';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import Form from './UomsForm';
-import { IUom } from '../../types';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
   padding-left: ${props => props.space * 20}px;
@@ -79,14 +75,6 @@ class Row extends React.Component<Props, State> {
 
   render() {
     const { uom } = this.props;
-
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
 
     return (
       <tr>

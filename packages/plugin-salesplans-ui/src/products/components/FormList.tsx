@@ -21,7 +21,7 @@ type Props = {
   remove: (doc: any) => void;
 };
 
-const Form = (props: Props) => {
+const FormList = (props: Props) => {
   const {
     timeframes = [],
     products = [],
@@ -62,7 +62,7 @@ const Form = (props: Props) => {
     setProductValues(tempProductValues);
   };
 
-  const renderTimeframes = () => {
+  const renderTimeframesHeader = () => {
     if (!timeframes) return null;
 
     switch (data && data.type) {
@@ -83,6 +83,12 @@ const Form = (props: Props) => {
     }
   };
 
+  const renderActionsHeader = () => {
+    if (data && data.status === 'published') return null;
+
+    return <th>Actions</th>;
+  };
+
   const renderTimeframeInputs = (productId: string) => {
     if (timeframes.length === 0) return null;
 
@@ -101,6 +107,7 @@ const Form = (props: Props) => {
                   defaultValue={
                     itemIndex > -1 ? quantities[itemIndex].value : ''
                   }
+                  disabled={data && data.status === 'published'}
                   onChange={(event: any) =>
                     handleQuantities(productId, item.label, event.target.value)
                   }
@@ -120,6 +127,7 @@ const Form = (props: Props) => {
                   defaultValue={
                     itemIndex > -1 ? quantities[itemIndex].value : ''
                   }
+                  disabled={data && data.status === 'published'}
                   onChange={(event: any) =>
                     handleQuantities(productId, item.label, event.target.value)
                   }
@@ -139,6 +147,7 @@ const Form = (props: Props) => {
                   defaultValue={
                     itemIndex > -1 ? quantities[itemIndex].value : ''
                   }
+                  disabled={data && data.status === 'published'}
                   onChange={(event: any) =>
                     handleQuantities(productId, item.label, event.target.value)
                   }
@@ -170,11 +179,9 @@ const Form = (props: Props) => {
       update(productItem);
     };
 
-    const handleDelete = (productId: string) => {
-      remove(productId);
-    };
-
     const renderSubmitButton = (productId: string) => {
+      if (data && data.status === 'published') return null;
+
       return (
         <td>
           <ActionButtons>
@@ -185,17 +192,17 @@ const Form = (props: Props) => {
                 onClick={() => handleSubmit(productId)}
                 size="small"
               >
-                <Icon color="green" icon="check-circle" />
+                <Icon icon="check-circle" />
               </Button>
             </Tip>
             <Tip text={__('Delete')} placement="bottom">
               <Button
                 type="button"
                 btnStyle="link"
-                onClick={() => handleDelete(productId)}
+                onClick={() => remove(productId)}
                 size="small"
               >
-                <Icon color="red" icon="times" />
+                <Icon icon="times" />
               </Button>
             </Tip>
           </ActionButtons>
@@ -219,8 +226,8 @@ const Form = (props: Props) => {
       <thead>
         <tr>
           <th>Name</th>
-          {renderTimeframes()}
-          <th>Actions</th>
+          {renderTimeframesHeader()}
+          {renderActionsHeader()}
         </tr>
       </thead>
       <tbody>{renderProducts()}</tbody>
@@ -228,4 +235,4 @@ const Form = (props: Props) => {
   );
 };
 
-export default Form;
+export default FormList;

@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from 'react-apollo';
-import CreateLabel from '../components/CreateLabel';
 import { queries, mutations } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
+import ManageLabelsComponent from '../components/ManageLabels';
 
 type Props = {
   closeModal: () => void;
 };
 
-function CreateLabelContainer({ closeModal }: Props) {
+function ManageLabelsContainer({ closeModal }: Props) {
   const [type, setType] = useState('');
 
   const [save] = useMutation(gql(mutations.saveLabels));
   const [remove] = useMutation(gql(mutations.removeLabel));
 
-  const labelsQuery = useQuery(gql(queries.getLabels), {
+  const labelsQuery = useQuery(gql(queries.labels), {
     variables: { type }
   });
 
@@ -50,15 +50,15 @@ function CreateLabelContainer({ closeModal }: Props) {
   };
 
   return (
-    <CreateLabel
-      getLabels={labelsQuery.data ? labelsQuery.data.getLabels : []}
+    <ManageLabelsComponent
+      getLabels={labelsQuery.data ? labelsQuery.data.labels : []}
       type={type}
       remove={removedata}
       save={saveData}
       refetch={refetch}
       onChangeType={onChangeType}
       closeModal={closeModal}
-    ></CreateLabel>
+    />
   );
 }
-export default CreateLabelContainer;
+export default ManageLabelsContainer;

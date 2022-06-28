@@ -1,7 +1,4 @@
-// import { __ } from '@erxes/ui/src/utils';
-
 import React from 'react';
-
 import { IProduct } from '@erxes/ui-products/src/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -12,10 +9,12 @@ import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 import { IJob } from '../../../../flow/types';
 import { IJobRefer } from '../../../../job/types';
-import { DrawerDetail } from '../../../styles';
+import { DrawerDetail, ActionTabs } from '../../../styles';
 import Common from './Common';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   closeModal: () => void;
@@ -23,22 +22,27 @@ type Props = {
   activeAction?: IJob;
   jobRefers: IJobRefer[];
   actions: IJob[];
-  lastAction: IJob;
-  flowProduct: IProduct;
+  lastAction?: IJob;
+  flowProduct?: IProduct;
   addAction: (
     action: IJob,
     actionId?: string,
     jobReferId?: string,
-    branchId?: string,
-    departmentId?: string
+    inBranchId?: string,
+    inDepartmentId?: string,
+    outBranchId?: string,
+    outDepartmentId?: string
   ) => void;
 };
 
 type State = {
   jobReferId: string;
   description: string;
-  branchId: string;
-  departmentId: string;
+  inBranchId: string;
+  inDepartmentId: string;
+  outBranchId: string;
+  outDepartmentId: string;
+  currentTab: string;
 };
 
 class Delay extends React.Component<Props, State> {
@@ -48,15 +52,20 @@ class Delay extends React.Component<Props, State> {
     const {
       jobReferId,
       description,
-      branchId,
-      departmentId
-    } = this.props.activeAction;
+      inBranchId,
+      inDepartmentId,
+      outBranchId,
+      outDepartmentId
+    } = this.props.activeAction || {};
 
     this.state = {
-      jobReferId: jobReferId ? jobReferId : '',
-      description: description ? description : '',
-      branchId: branchId ? branchId : '',
-      departmentId: departmentId ? departmentId : ''
+      jobReferId: jobReferId || '',
+      description: description || '',
+      inBranchId: inBranchId || '',
+      inDepartmentId: inDepartmentId || '',
+      outBranchId: outBranchId || '',
+      outDepartmentId: outDepartmentId || '',
+      currentTab: 'inputs'
     };
   }
 
@@ -66,6 +75,10 @@ class Delay extends React.Component<Props, State> {
     }
   }
 
+  tabOnClick = (currentTab: string) => {
+    this.setState({ currentTab });
+  };
+
   onSelect = (name, value) => {
     this.setState({ [name]: value } as any);
   };
@@ -74,20 +87,15 @@ class Delay extends React.Component<Props, State> {
     return <Label lblStyle={style}>{text}</Label>;
   };
 
-  renderProducts = (
-    products,
-    type,
-    matchProducts = undefined,
-    flowProduct = undefined
-  ) => {
-    const style = type === 'need' ? 'simple' : 'default';
+  renderProducts = (products, type, matchProducts?: any[], flowProduct?) => {
     const space = '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0';
 
     return products.map(product => {
       const name = product.product.name;
-      let matchResult = matchProducts
-        ? matchProducts.includes(name)
-        : matchProducts;
+      let matchResult =
+        matchProducts && matchProducts.length
+          ? matchProducts.includes(name)
+          : matchProducts;
 
       if (flowProduct) {
         matchResult = flowProduct && flowProduct.name === name ? true : false;
@@ -140,19 +148,21 @@ class Delay extends React.Component<Props, State> {
 
       return (
         <>
-          <Info type="primary" title="">
-            <FormGroup>
-              <ControlLabel key={action.id}>{action.label}</ControlLabel>
-            </FormGroup>
-            {type === 'next' && this.renderProducts(needProducts, 'need')}
-            {type === 'prev' && this.renderProducts(resultProducts, 'result')}
-            {type === 'cur' &&
-              this.renderProducts(needProducts, 'need', beforeResultProducts)}
-          </Info>
-
-          {type === 'cur' && action === this.props.lastAction && (
-            <Info type="primary" title="Last check">
+          {type !== 'last' && (
+            <Info type="primary" title="">
+              <FormGroup>
+                <ControlLabel key={action.id}>{action.label}</ControlLabel>
+              </FormGroup>
+              {type === 'next' && this.renderProducts(needProducts, 'need')}
+              {type === 'prev' && this.renderProducts(resultProducts, 'result')}
               {type === 'cur' &&
+                this.renderProducts(needProducts, 'need', beforeResultProducts)}
+            </Info>
+          )}
+
+          {type === 'last' && action === this.props.lastAction && (
+            <Info type="primary" title="Статус">
+              {type === 'last' &&
                 this.renderProducts(
                   resultProducts,
                   'result',
@@ -166,27 +176,51 @@ class Delay extends React.Component<Props, State> {
     });
   };
 
+  renderList(title, products, type) {
+    return (
+      <Info type="success" title={title}>
+        {this.renderProducts(products, type)}
+      </Info>
+    );
+  }
+
   renderContent() {
     const { jobRefers, actions, activeAction } = this.props;
     const activeActionId =
       activeAction && activeAction.id ? activeAction.id : '';
     const beforeActions = actions.filter(e =>
-      e.nextJobIds.includes(activeActionId)
+      (e.nextJobIds || []).includes(activeActionId)
     );
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value } as any);
     };
 
+    const findJobRefer = jobRefers.find(
+      job => job._id === (activeAction || {}).jobReferId
+    );
+    const needProducts = (findJobRefer || {}).needProducts || [];
+    const resultProducts = (findJobRefer || {}).resultProducts || [];
+
+    const {
+      currentTab,
+      jobReferId,
+      description,
+      inBranchId,
+      inDepartmentId,
+      outBranchId,
+      outDepartmentId
+    } = this.state;
+
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Job</ControlLabel>
+          <ControlLabel>Jobs</ControlLabel>
           <FormControl
             name="type"
             componentClass="select"
             onChange={onChangeValue.bind(this, 'jobReferId')}
             required={true}
-            value={this.state.jobReferId}
+            value={jobReferId}
           >
             <option value="" />
             {jobRefers.map(jobRefer => (
@@ -200,81 +234,166 @@ class Delay extends React.Component<Props, State> {
           <ControlLabel>Description</ControlLabel>
           <FormControl
             name="description"
-            value={this.state.description}
+            value={description}
             onChange={onChangeValue.bind(this, 'description')}
           />
         </FormGroup>
 
-        <FormGroup>
-          <ControlLabel>Branch</ControlLabel>
-          <SelectBranches
-            label="Choose branch"
-            name="selectedBranchIds"
-            initialValue={this.state.branchId}
-            onSelect={branchId => this.onSelect('branchId', branchId)}
-            multi={false}
-            customOption={{ value: 'all', label: 'All branches' }}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>Department</ControlLabel>
-          <SelectDepartments
-            label="Choose department"
-            name="selectedDepartmentIds"
-            initialValue={this.state.departmentId}
-            onSelect={departmentId =>
-              this.onSelect('departmentId', departmentId)
-            }
-            multi={false}
-            customOption={{ value: 'all', label: 'All departments' }}
-          />
-        </FormGroup>
+        <Info type="success" title="">
+          {activeAction &&
+            this.renderActions(
+              [activeAction],
+              jobRefers,
+              'last',
+              beforeActions
+            )}
+        </Info>
 
-        <FormWrapper>
-          <FormColumn>
-            <Info type="primary" title="Result products">
-              {this.renderActions(beforeActions, jobRefers, 'prev', [])}
-            </Info>
-          </FormColumn>
+        <ActionTabs>
+          <Tabs full={true}>
+            <TabTitle
+              className={currentTab === 'inputs' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'inputs')}
+            >
+              {__('Inputs')}
+            </TabTitle>
+            <TabTitle
+              className={currentTab === 'status' ? 'active' : ''}
+              onClick={this.tabOnClick.bind(this, 'status')}
+            >
+              {__('Statuses')}
+            </TabTitle>
+          </Tabs>
+        </ActionTabs>
 
-          <FormColumn>
-            <Info type="success" title="Need products">
-              {this.renderActions(
-                [activeAction],
-                jobRefers,
-                'cur',
-                beforeActions
-              )}
-            </Info>
-          </FormColumn>
+        {currentTab === 'status' && (
+          <FormWrapper>
+            <FormColumn>
+              <Info type="primary" title="Өмнөх жоб бүтээгдэхүүнүүд">
+                {this.renderActions(beforeActions, jobRefers, 'prev', [])}
+              </Info>
+            </FormColumn>
 
-          {/*
+            <FormColumn>
+              <Info type="success" title="Шаардлагатай бүтээгдэхүүнүүд">
+                {activeAction &&
+                  this.renderActions(
+                    [activeAction],
+                    jobRefers,
+                    'cur',
+                    beforeActions
+                  )}
+              </Info>
+            </FormColumn>
+
+            {/*
           If you want to show next Job report on jobForm
           when double click job instance ,
           please uncomment below.
           */}
 
-          {/* {activeAction.label === this.props.lastActionId &&
+            {/* {activeAction.label === this.props.lastActionId &&
             <FormColumn>
               <Info type="info" title={this.props.lastActionId}>
                 {this.renderActions(afterActions, jobRefers, 'next', [])}
               </Info>
             </FormColumn>
           } */}
-        </FormWrapper>
+          </FormWrapper>
+        )}
+
+        {currentTab === 'inputs' && (
+          <>
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>inBranch</ControlLabel>
+                  <SelectBranches
+                    label="Choose branch"
+                    name="selectedBranchIds"
+                    initialValue={inBranchId}
+                    onSelect={branchId => this.onSelect('inBranchId', branchId)}
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All branches' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>inDepartment</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="selectedDepartmentIds"
+                    initialValue={inDepartmentId}
+                    onSelect={departmentId =>
+                      this.onSelect('inDepartmentId', departmentId)
+                    }
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All departments' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+
+            {this.renderList('In products', needProducts, 'need')}
+
+            <FormWrapper>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>outBranch</ControlLabel>
+                  <SelectBranches
+                    label="Choose branch"
+                    name="selectedBranchIds"
+                    initialValue={outBranchId}
+                    onSelect={branchId =>
+                      this.onSelect('outBranchId', branchId)
+                    }
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All branches' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+              <FormColumn>
+                <FormGroup>
+                  <ControlLabel>outDepartment</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="selectedDepartmentIds"
+                    initialValue={outDepartmentId}
+                    onSelect={departmentId =>
+                      this.onSelect('outDepartmentId', departmentId)
+                    }
+                    multi={false}
+                    customOption={{ value: 'all', label: 'All departments' }}
+                  />
+                </FormGroup>
+              </FormColumn>
+            </FormWrapper>
+            {this.renderList('Out products', resultProducts, 'result')}
+          </>
+        )}
       </DrawerDetail>
     );
   }
 
   render() {
-    const { jobReferId, description, branchId, departmentId } = this.state;
+    const {
+      jobReferId,
+      description,
+      inBranchId,
+      inDepartmentId,
+      outBranchId,
+      outDepartmentId
+    } = this.state;
 
     return (
       <Common
         jobReferId={jobReferId}
         description={description}
-        branchId={branchId}
-        departmentId={departmentId}
+        inBranchId={inBranchId}
+        inDepartmentId={inDepartmentId}
+        outBranchId={outBranchId}
+        outDepartmentId={outDepartmentId}
         {...this.props}
       >
         {this.renderContent()}

@@ -16,7 +16,7 @@ import {
   CopyMutationResponse,
   CountQueryResponse,
   LeadIntegrationsQueryResponse,
-  RemoveMutationResponse,
+  RemoveMutationResponse
 } from '@erxes/ui-leads/src/types';
 
 type Props = {
@@ -177,6 +177,7 @@ export default withProps<Props>(
             kind: INTEGRATION_KINDS.FORMS,
             status: queryParams.status,
             sortField: queryParams.sortField,
+            searchValue: queryParams.searchValue,
             sortDirection: queryParams.sortDirection
               ? parseInt(queryParams.sortDirection, 10)
               : undefined

@@ -14,7 +14,6 @@ import {
 } from '@erxes/ui/src';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartment from '@erxes/ui/src/team/containers/SelectDepartments';
-import { SalesPlansWrapper } from '../styles';
 import { TYPES } from '../../constants';
 
 type Props = {
@@ -23,10 +22,11 @@ type Props = {
   initialData?: any;
   setType: (type: string) => void;
   submit: (data: any) => void;
+  closeModal?: () => void;
 };
 
 const Form = (props: Props) => {
-  const { labels, type, initialData = {}, setType, submit } = props;
+  const { labels, type, initialData = {}, setType, submit, closeModal } = props;
 
   const [salesPlan, setSalesPlan] = useState<any>({
     name: initialData.name ? initialData.name : '',
@@ -42,6 +42,7 @@ const Form = (props: Props) => {
 
   const handleSubmit = () => {
     submit(salesPlan);
+    if (closeModal) closeModal();
   };
 
   const handleState = (value: any, key: string) => {
@@ -205,6 +206,7 @@ const Form = (props: Props) => {
               type="button"
               icon="times-circle"
               uppercase={false}
+              onClick={() => closeModal && closeModal()}
             >
               {__('Cancel')}
             </Button>
@@ -223,11 +225,7 @@ const Form = (props: Props) => {
     </>
   );
 
-  return (
-    <SalesPlansWrapper>
-      <CommonForm renderContent={renderContent} />
-    </SalesPlansWrapper>
-  );
+  return <CommonForm renderContent={renderContent} />;
 };
 
 export default Form;

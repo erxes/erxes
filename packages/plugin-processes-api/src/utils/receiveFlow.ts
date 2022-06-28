@@ -6,17 +6,18 @@ import {
   getBeforeJobs,
   getJobRefers,
   getLeftJobs,
-  initDoc,
+  initDocWork,
   recursiveCatchBeforeJobs,
   worksAdd
 } from './utils';
+import { sendSalesplansMessage } from '../messageBroker';
 
 // export const rf = (data, list) => {
-export const rf = async (models: IModels, params) => {
+export const rf = async (models: IModels, subdomain: string, params) => {
   let descriptionForWork = '';
   const inputData = params.data;
-  const { branchId, departmentId, time } = inputData;
-  const { timeId } = time;
+  const { branchId, departmentId, time, salesLogId } = inputData;
+  const { timeId } = time[0];
 
   for (const timeIdData of timeId) {
     const { productId, count } = timeIdData;
@@ -59,13 +60,11 @@ export const rf = async (models: IModels, params) => {
 
         console.log('lastJobRefer: ', lastJobRefer[0].name);
 
-        const doc: IWork = initDoc(
+        const doc: IWork = initDocWork(
           flow,
           lastJobRefer[0],
           productId,
           count,
-          branchId,
-          departmentId,
           lastJob
         );
 
@@ -108,13 +107,11 @@ export const rf = async (models: IModels, params) => {
             jobRefers
           );
 
-          const docLeft: IWork = initDoc(
+          const docLeft: IWork = initDocWork(
             flow,
             leftJobRefer[0],
             productId,
             count,
-            branchId,
-            departmentId,
             responseleftjob
           );
 
@@ -133,6 +130,15 @@ export const rf = async (models: IModels, params) => {
       ? console.log('Description for work: ', descriptionForWork)
       : console.log('Done!');
   }
+
+  sendSalesplansMessage({
+    subdomain,
+    action: 'saleslog.statusUpdate',
+    data: {
+      _id: salesLogId,
+      status: 'published'
+    }
+  });
 
   return inputData;
 };

@@ -151,21 +151,22 @@ const salesLogDocumentParams = `
 `;
 
 export const queries = `
-  getDayPlanConfig(salesLogId: String): [DayPlanConfig]
-  getMonthPlanConfig(salesLogId: String): [MonthPlanConfig]
-  getYearPlanConfig(salesLogId: String): [YearPlanConfig]
-  getLabels(type: String): [Label]
-  getSalesLogs: [SalesLog]
-  getSalesLogDetail(salesLogId: String): SalesLog
-  getTimeframes:[Timeframe]
+  dayPlanConfig(salesLogId: String): [DayPlanConfig]
+  monthPlanConfig(salesLogId: String): [MonthPlanConfig]
+  yearPlanConfig(salesLogId: String): [YearPlanConfig]
+  labels(type: String): [Label]
+  salesLogs: [SalesLog]
+  salesLogDetail(salesLogId: String): SalesLog
+  timeframes: [Timeframe]
 `;
 
 export const mutations = `
   salesLogAdd(${salesLogParams}): SalesLog
   salesLogEdit(${salesLogDocumentParams}): SalesLog
   salesLogRemove(_id: String): JSON
-  salesLogProductUpdate(_id: String, productData: ProductInput): JSON
+  salesLogProductUpdate(_id: String, data: ProductInput): JSON
   salesLogProductRemove(_id: String, productId: String): JSON
+  salesLogStatusUpdate(_id: String, status: String): JSON
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
   removeLabel(_id:String): JSON
   saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]

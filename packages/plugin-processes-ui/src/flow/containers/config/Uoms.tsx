@@ -7,12 +7,12 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../../components/config/Uoms';
 import { mutations, queries } from '../../graphql';
-import {
-  UomsQueryResponse,
-  UomsCountQueryResponse,
-  UomRemoveMutationResponse
-} from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import {
+  UomRemoveMutationResponse,
+  UomsCountQueryResponse,
+  UomsQueryResponse
+} from '@erxes/ui-products/src/types';
 
 type Props = {
   history: any;

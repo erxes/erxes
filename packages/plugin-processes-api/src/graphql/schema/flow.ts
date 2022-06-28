@@ -23,8 +23,10 @@ export const types = `
     label: String,
     description: String,
     quantity: Int,
-    branchId: String,
-    departmentId: String
+    inBranchId: String,
+    inDepartmentId: String,
+    outBranchId: String,
+    outDepartmentId: String
   }
 `;
 

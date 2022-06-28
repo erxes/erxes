@@ -1,11 +1,9 @@
 import React from 'react';
 import { __, Wrapper } from '@erxes/ui/src';
-import FormContainer from '../containers/Form';
+import FormListContainer from '../containers/FormList';
 import SidebarContainer from '../containers/Sidebar';
 
 const Products = () => {
-  const renderContent = () => <FormContainer />;
-
   return (
     <Wrapper
       header={
@@ -14,7 +12,7 @@ const Products = () => {
           breadcrumb={[{ title: __('Sales Plans - Products') }]}
         />
       }
-      content={renderContent()}
+      content={<FormListContainer />}
       leftSidebar={<SidebarContainer />}
     />
   );

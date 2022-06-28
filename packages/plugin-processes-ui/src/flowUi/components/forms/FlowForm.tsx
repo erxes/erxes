@@ -82,7 +82,7 @@ type State = {
   categoryId: string;
   productId?: string;
   product?: IProduct;
-  lastAction: IJob;
+  lastAction?: IJob;
   flowStatus: boolean;
 };
 
@@ -118,28 +118,31 @@ class AutomationForm extends React.Component<Props, State> {
       categoryId: '',
       productId: flow.productId || '',
       product: flow.product,
-      lastAction: {} as IJob,
+      lastAction: undefined,
       flowStatus: false
     };
   }
 
-  findLastAction = (leftAction = []) => {
+  findLastAction = (leftAction: IJob[] = []) => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
     const lastActions: IJob[] = [];
 
+    // const realActions = leftAction || actions;
     const realActions = leftAction.length > 0 ? leftAction : actions;
 
     for (const action of realActions) {
-      if (!action.nextJobIds.length || action.nextJobIds.length === 0) {
+      if (!(action.nextJobIds || []).length) {
         lastActions.push(action);
       }
     }
 
-    const lastActionIds = lastActions.map(last => last.jobReferId);
-    const lastJobRefers = jobRefers.filter(job =>
-      lastActionIds.includes(job._id)
-    );
+    const lastActionIds: string[] =
+      lastActions
+        .filter(last => last.jobReferId)
+        .map(last => last.jobReferId || '') || [];
+    const lastJobRefers: IJobRefer[] =
+      jobRefers.filter(job => lastActionIds.includes(job._id)) || [];
 
     let resultProducts: IProductsData[] = [];
     for (const lastJobRefer of lastJobRefers) {
@@ -149,9 +152,9 @@ class AutomationForm extends React.Component<Props, State> {
         : resultProduct;
     }
 
-    const checkResult = resultProducts.find(
-      pro => pro.productId === this.state.productId
-    );
+    const checkResult: IProductsData =
+      resultProducts.find(pro => pro.productId === this.state.productId) ||
+      ({} as IProductsData);
 
     const doubleCheckResult = Object.keys(checkResult ? checkResult : {})
       .length;
@@ -159,17 +162,19 @@ class AutomationForm extends React.Component<Props, State> {
     if (doubleCheckResult) {
       let justLastJobRefer = {} as IJobRefer;
       for (const lastJobRefer of lastJobRefers) {
-        const lastJobRefersIds = lastJobRefer.resultProducts.map(
+        const lastJobRefersIds = (lastJobRefer.resultProducts || []).map(
           last => last.productId
         );
+
         justLastJobRefer = lastJobRefersIds.includes(checkResult.productId)
           ? lastJobRefer
           : ({} as IJobRefer);
       }
 
-      const justLastAction = Object.keys(justLastJobRefer).length
+      const justLastAction: IJob | undefined = Object.keys(justLastJobRefer)
+        .length
         ? lastActions.find(last => last.jobReferId === justLastJobRefer._id)
-        : ({} as IJob);
+        : undefined;
 
       this.setState({
         lastAction: justLastAction,
@@ -177,7 +182,7 @@ class AutomationForm extends React.Component<Props, State> {
       });
     } else {
       this.setState({
-        lastAction: {} as IJob,
+        lastAction: undefined,
         flowStatus: doubleCheckResult ? true : false
       });
     }
@@ -314,8 +319,10 @@ class AutomationForm extends React.Component<Props, State> {
           jobReferId: a.jobReferId,
           label: a.label,
           description: a.description,
-          branchId: a.branchId,
-          departmentId: a.departmentId,
+          inBranchId: a.inBranchId,
+          inDepartmentId: a.inDepartmentId,
+          outBranchId: a.outBranchId,
+          outDepartmentId: a.outDepartmentId,
           style: jquery(`#action-${a.id}`).attr('style')
         }))
       };
@@ -530,13 +537,18 @@ class AutomationForm extends React.Component<Props, State> {
     actionId?: string,
     jobReferId?: string,
     description?: string,
-    branchId?: string,
-    departmentId?: string
+    inBranchId?: string,
+    inDepartmentId?: string,
+    outBranchId?: string,
+    outDepartmentId?: string
   ) => {
     const { actions } = this.state;
     const { jobRefers } = this.props;
 
-    let action: IJob = { ...data, id: this.getNewId(actions.map(a => a.id)) };
+    let action: IJob = {
+      ...(data || {}),
+      id: this.getNewId(actions.map(a => a.id))
+    };
     let actionIndex = -1;
 
     if (actionId) {
@@ -547,9 +559,11 @@ class AutomationForm extends React.Component<Props, State> {
       }
     }
 
-    action.jobReferId = jobReferId;
-    action.branchId = branchId;
-    action.departmentId = departmentId;
+    action.jobReferId = jobReferId || '';
+    action.inBranchId = inBranchId || '';
+    action.inDepartmentId = inDepartmentId || '';
+    action.outBranchId = outBranchId || '';
+    action.outDepartmentId = outDepartmentId || '';
 
     const jobRefer: IJobRefer =
       jobRefers.find(j => j._id === jobReferId) || ({} as IJobRefer);
@@ -644,7 +658,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   rendeRightActionBar() {
     const { isActive } = this.state;
-    const { queryParams } = this.props;
 
     return (
       <BarItems>
@@ -731,8 +744,6 @@ class AutomationForm extends React.Component<Props, State> {
 
     if (currentTab === 'actions') {
       const { actions } = this.state;
-
-      console.log('actions: ', actions);
 
       if (showAction && activeAction) {
         const checkArray = Object.keys(activeAction);

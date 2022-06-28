@@ -1,6 +1,7 @@
 import { ICustomField, IUser, IUserDocument } from '@erxes/api-utils/src/types';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { STATUS } from '../constants';
 import {
   ISalesLog,
   ISalesLogDocument,
@@ -21,8 +22,9 @@ export interface ISalesLogModel extends Model<ISalesLogDocument> {
   salesLogAdd(doc: ISalesLog, userId: string): Promise<ISalesLogDocument>;
   salesLogEdit(_id: string, doc: ISalesLogDocument): Promise<ISalesLogDocument>;
   salesLogRemove(_id: string): Promise<JSON>;
-  salesLogProductUpdate(_id: string, productData: ISalesLogProduct): JSON;
-  salesLogProductRemove(_id: string, productId: string): JSON;
+  salesLogProductUpdate(_id: string, data: ISalesLogProduct): Promise<JSON>;
+  salesLogProductRemove(_id: string, productId: string): Promise<JSON>;
+  salesLogStatusUpdate(_id: string, status: string): Promise<JSON>;
 }
 
 export const loadSalesLogClass = (models: IModels) => {
@@ -30,9 +32,9 @@ export const loadSalesLogClass = (models: IModels) => {
     /*
      create SalesLog 
     */
-    public static async salesLogAdd(doc: ISalesLog, userId: String) {
+    public static async salesLogAdd(data: ISalesLog, userId: String) {
       return await models.SalesLogs.create({
-        ...doc,
+        ...data,
         createdBy: userId,
         createdAt: new Date()
       });
@@ -41,23 +43,31 @@ export const loadSalesLogClass = (models: IModels) => {
     /* 
       update SalesLog
     */
-    public static async salesLogEdit(_id: String, doc: ISalesLogDocument) {
-      await models.SalesLogs.updateOne({ _id }, { $set: doc });
+    public static async salesLogEdit(_id: String, data: ISalesLogDocument) {
+      const result = await models.SalesLogs.findOne({ _id });
 
-      return models.SalesLogs.findOne({ _id });
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
+      await models.SalesLogs.updateOne({ _id }, { $set: data });
+
+      return await models.SalesLogs.findOne({ _id });
     }
 
     /* 
       remove SalesLog and DayPlanConfigs with SaleslogId
     */
     public static async salesLogRemove(_id: string) {
+      const result = await models.SalesLogs.findOne({ _id });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
       await models.DayPlanConfigs.deleteMany({ salesLogId: _id });
-
       await models.MonthPlanConfigs.deleteMany({ salesLogId: _id });
-
       await models.YearPlanConfigs.deleteMany({ salesLogId: _id });
 
-      return await models.SalesLogs.remove({ _id });
+      return await models.SalesLogs.deleteOne({ _id });
     }
 
     public static async salesLogProductUpdate(
@@ -68,6 +78,9 @@ export const loadSalesLogClass = (models: IModels) => {
         _id,
         'products._id': productData._id
       });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
 
       if (!result)
         return await models.SalesLogs.updateOne(
@@ -82,9 +95,26 @@ export const loadSalesLogClass = (models: IModels) => {
     }
 
     public static async salesLogProductRemove(_id: string, productId: string) {
+      const result = await models.SalesLogs.findOne({ _id });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
       return await models.SalesLogs.updateOne(
         { _id },
         { $pull: { products: { _id: productId } } }
+      );
+    }
+
+    public static async salesLogStatusUpdate(_id: string, status: string) {
+      const result = await models.SalesLogs.findOne({ _id });
+
+      if (result && result.status === STATUS.PUBLISHED)
+        return new Error(`Published Log can't be altered`);
+
+      return await models.SalesLogs.updateOne(
+        { _id },
+        { $set: { status: status } }
       );
     }
   }

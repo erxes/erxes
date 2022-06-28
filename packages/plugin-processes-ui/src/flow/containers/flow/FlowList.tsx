@@ -45,7 +45,6 @@ class ProductListContainer extends React.Component<FinalProps> {
       history,
       flowsQuery,
       flowTotalCountQuery,
-      productCategoryDetailQuery,
       flowsRemove,
       flowsAdd
     } = this.props;
@@ -53,7 +52,7 @@ class ProductListContainer extends React.Component<FinalProps> {
     const addFlow = () => {
       flowsAdd({
         variables: {
-          name: 'Your automation title',
+          name: 'Your flow title',
           status: 'draft'
         }
       })

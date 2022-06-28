@@ -14,18 +14,13 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { JOB_TYPE_CHOISES, DURATION_TYPES } from '../../../constants';
 import CategoryForm from '../../containers/flowCategory/CategoryForm';
 import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import {
-  IJobRefer,
-  IJobCategory,
-  IUom,
-  IConfigsMap,
-  IProductsDataDocument,
-  IProduct
-} from '../../types';
+import { IJobRefer, IJobCategory } from '../../types';
+import { IProductsDataDocument } from '../../../job/types';
 import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import { __ } from '@erxes/ui/src/utils';
 import Icon from '@erxes/ui/src/components/Icon';
+import { IConfigsMap, IProduct, IUom } from '@erxes/ui-products/src/types';
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -106,13 +101,13 @@ class Form extends React.Component<Props, State> {
   renderProductModal = (currentProduct?: IProduct, type = '') => {
     const productOnChange = (products: IProduct[]) => {
       const { uoms, configsMap } = this.props;
-      const defaultUom = configsMap.default_uom || '';
+      const defaultUom = (configsMap || {}).default_uom || '';
       // const selectedProducts = products && products.length === 1 ? products[0] : products;
 
       for (const product of products) {
         const productId = product ? product._id : '';
         const uomId = product.uomId ? product.uomId : defaultUom;
-        const uom = uoms.find(e => e._id === uomId);
+        const uom = (uoms || []).find(e => e._id === uomId);
 
         const inputData = {
           _id: Math.random().toString(),
@@ -129,7 +124,7 @@ class Form extends React.Component<Props, State> {
 
         currentProducts.push(inputData);
 
-        this.setState({ [type]: currentProducts });
+        this.setState({ [type]: currentProducts } as any);
       }
     };
 
@@ -174,7 +169,7 @@ class Form extends React.Component<Props, State> {
           <FormColumn>
             <FormGroup>
               <FormControl
-                defaultValue={product.uom.name + ' /Uom/'}
+                defaultValue={(product.uom || {}).name + ' /Uom/'}
                 disabled={true}
               />
             </FormGroup>
@@ -193,13 +188,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderContent = (formProps: IFormProps) => {
-    const {
-      renderButton,
-      closeModal,
-      jobRefer,
-      jobCategories,
-      configsMap
-    } = this.props;
+    const { renderButton, closeModal, jobRefer, jobCategories } = this.props;
     const { values, isSubmitted } = formProps;
     const object = jobRefer || ({} as IJobRefer);
 
@@ -301,14 +290,14 @@ class Form extends React.Component<Props, State> {
 
         <FormGroup>
           <ControlLabel required={true}>Need products</ControlLabel>
-          {this.renderProductModal(null, 'needProducts')}
+          {this.renderProductModal(undefined, 'needProducts')}
         </FormGroup>
 
         {this.renderProducts('need')}
 
         <FormGroup>
           <ControlLabel required={true}>Result products</ControlLabel>
-          {this.renderProductModal(null, 'resultProducts')}
+          {this.renderProductModal(undefined, 'resultProducts')}
         </FormGroup>
 
         {this.renderProducts('result')}

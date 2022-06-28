@@ -80,7 +80,7 @@ export const targetEndpoint = {
 
 export const createInitialConnections = (actions: IJob[], instance: any) => {
   for (const action of actions) {
-    const jobIds = action.nextJobIds;
+    const jobIds = action.nextJobIds || [];
 
     jobIds.map(job =>
       instance.connect({
@@ -104,7 +104,7 @@ export const connection = (
   if (sourceId.includes('action')) {
     let innerActions: IJob[] = [];
 
-    const replacedSourceId = sourceId.replace('action-', '');
+    const replacedSourceId: string = sourceId.replace('action-', '');
 
     const sourceAction = actions.find(
       a => a.id.toString() === replacedSourceId
@@ -112,11 +112,8 @@ export const connection = (
 
     innerActions = actions.filter(a => a.id.toString() !== replacedSourceId);
 
-    if (
-      Object.keys(sourceAction).length > 0 &&
-      sourceAction.id === replacedSourceId
-    ) {
-      let jobIds = sourceAction.nextJobIds;
+    if (sourceAction && sourceAction.id) {
+      let jobIds = [...(sourceAction.nextJobIds || [])];
 
       if (type === 'connect') {
         if (!jobIds.includes(actionId)) {
@@ -128,9 +125,12 @@ export const connection = (
       }
 
       sourceAction.nextJobIds = jobIds;
+
       findLastAction();
+
+      innerActions.push(sourceAction);
     }
-    innerActions.push(sourceAction);
+
     return innerActions;
   } else {
     return actions;

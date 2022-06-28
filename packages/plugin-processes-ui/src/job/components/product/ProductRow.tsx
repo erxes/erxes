@@ -20,7 +20,7 @@ type Props = {
 
 class Row extends React.Component<Props> {
   render() {
-    const { jobRefer, history, toggleBulk, isChecked } = this.props;
+    const { jobRefer, toggleBulk, isChecked } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -37,7 +37,8 @@ class Row extends React.Component<Props> {
 
       return (
         <ModalTrigger
-          title="Add category"
+          size="lg"
+          title="Add JOB"
           trigger={trigger}
           content={content}
         />
@@ -72,8 +73,8 @@ class Row extends React.Component<Props> {
         <td>
           <TextInfo>{type}</TextInfo>
         </td>
-        <td>{needProducts.length}</td>
-        <td>{resultProducts.length}</td>
+        <td>{(needProducts || []).length}</td>
+        <td>{(resultProducts || []).length}</td>
         <td>{renderEditAction(jobRefer)}</td>
       </tr>
     );

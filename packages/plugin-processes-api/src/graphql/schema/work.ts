@@ -15,8 +15,10 @@ export const types = `
     flowId: String,
     productId: String,
     count: String,
-    branchId: String,
-    departmentId: String,
+    inBranchId: String,
+    inDepartmentId: String,
+    outBranchId: String,
+    outDepartmentId: String,
     needProducts: JSON,
     resultProducts: JSON
   }
@@ -41,8 +43,10 @@ const workParams = `
   flowId: String,
   productId: String,
   count: String,
-  branchId: String,
-  departmentId: String,
+  inBranchId: String,
+  inDepartmentId: String,
+  outBranchId: String,
+  outDepartmentId: String,
   needProducts: [JobProductsInput],
   resultProducts: [JobProductsInput]
 `;

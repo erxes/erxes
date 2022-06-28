@@ -16,8 +16,10 @@ export interface IWork {
   flowId: string;
   productId: string;
   count: string;
-  branchId?: string;
-  departmentId?: string;
+  inBranchId?: string;
+  inDepartmentId?: string;
+  outBranchId?: string;
+  outDepartmentId?: string;
   needProducts?: any[];
   resultProducts?: any[];
 }
@@ -39,8 +41,14 @@ export const workSchema = schemaHooksWrapper(
     flowId: field({ type: String, label: 'flowId' }),
     productId: field({ type: String, label: 'productId' }),
     count: field({ type: String, label: 'count' }),
-    branchId: field({ type: String, optional: true, label: 'branchId' }),
-    departmentId: field({
+    inBranchId: field({ type: String, optional: true, label: 'branchId' }),
+    inDepartmentId: field({
+      type: String,
+      optional: true,
+      label: 'departmentId'
+    }),
+    outBranchId: field({ type: String, optional: true, label: 'branchId' }),
+    outDepartmentId: field({
       type: String,
       optional: true,
       label: 'departmentId'

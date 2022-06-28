@@ -15,7 +15,6 @@ import {
 } from '../../../flow/graphql';
 import {
   FlowDetailQueryResponse,
-  FlowsAddMutationResponse,
   FlowsEditMutationResponse,
   IFlowDocument
 } from '../../../flow/types';
@@ -35,7 +34,6 @@ type FinalProps = {
   saveAsTemplateMutation: any;
 } & Props &
   FlowsEditMutationResponse &
-  FlowsAddMutationResponse &
   IRouterProps;
 
 const AutomationDetailsContainer = (props: FinalProps) => {
@@ -76,12 +74,11 @@ const AutomationDetailsContainer = (props: FinalProps) => {
     return <Spinner objective={true} />;
   }
 
-  const flowDetail = flowDetailQuery.flowDetail || ({} as IFlowDocument);
+  const flowDetail = flowDetailQuery.flowDetail;
   const jobRefers = jobRefersAllQuery.jobRefersAll || [];
 
   const updatedProps = {
     ...props,
-    loading: flowDetailQuery.loading,
     flow: flowDetail,
     currentUser,
     save,
@@ -119,15 +116,6 @@ export default withProps<Props>(
       gql(flowMutations.flowsEdit),
       {
         name: 'flowsEdit',
-        options: () => ({
-          refetchQueries
-        })
-      }
-    ),
-    graphql<{}, FlowsAddMutationResponse, IFlowDocument>(
-      gql(flowMutations.flowsAdd),
-      {
-        name: 'flowsAdd',
         options: () => ({
           refetchQueries
         })

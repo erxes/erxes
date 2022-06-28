@@ -88,7 +88,6 @@ class GeneralSettings extends React.Component<Props, State> {
   };
 
   renderCombobox = (key: string, title?: string, description?: string) => {
-    const { currentMap } = this.state;
     const { uoms } = this.props;
 
     return (

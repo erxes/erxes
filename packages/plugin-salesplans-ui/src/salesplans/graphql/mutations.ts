@@ -98,6 +98,12 @@ const salesLogRemove = `
   }
 `;
 
+const salesLogStatusUpdate = `
+  mutation salesLogStatusUpdate($_id: String, $status: String) {
+    salesLogStatusUpdate(_id: $_id, status: $status)
+  }
+`;
+
 const saveTimeframes = `
   mutation saveTimeframes($update: [TimeframeInput], $add: [AddTimeframeInput]) {
     saveTimeframes(update: $update, add: $add){
@@ -143,6 +149,7 @@ export default {
   salesLogAdd,
   salesLogEdit,
   salesLogRemove,
+  salesLogStatusUpdate,
   saveTimeframes,
   removeTimeframe,
   saveDayPlanConfig,

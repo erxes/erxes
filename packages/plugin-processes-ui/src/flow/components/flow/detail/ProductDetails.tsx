@@ -3,10 +3,10 @@ import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { __ } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IProduct } from '../../../types';
 import React from 'react';
 import LeftSidebar from './LeftSidebar';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
   product: IProduct;

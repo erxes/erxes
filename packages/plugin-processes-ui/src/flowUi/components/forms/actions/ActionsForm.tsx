@@ -1,4 +1,3 @@
-import { __ } from 'coreui/utils';
 import React from 'react';
 
 import EmptyState from '@erxes/ui/src/components/EmptyState';
@@ -9,6 +8,7 @@ import { IJob } from '../../../../flow/types';
 import { ACTIONS } from '../../../constants';
 import { ScrolledContent } from '../../../styles';
 import { ActionBox } from './styles';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   onClickAction: (action: IJob) => void;
@@ -118,8 +118,6 @@ class ActionsForm extends React.Component<Props, State> {
   }
 
   render() {
-    const { currentTab } = this.state;
-
     return (
       <>
         <ScrolledContent>{this.renderContent()}</ScrolledContent>

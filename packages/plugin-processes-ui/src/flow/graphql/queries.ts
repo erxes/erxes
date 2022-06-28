@@ -47,6 +47,11 @@ query flowTotalCount($categoryId: String, $searchValue: String) {
 `;
 
 const flowCategories = productQueries.productCategories;
+const uoms = productQueries.uoms;
+const uomsTotalCount = productQueries.uomsTotalCount;
+
+const productsConfigs = productQueries.productsConfigs;
+const productDetail = productQueries.productDetail;
 
 const flowCategoriesTotalCount = `
   query flowCategoriesTotalCount {
@@ -60,5 +65,10 @@ export default {
 
   flows,
   flowDetail,
-  flowTotalCount
+  flowTotalCount,
+
+  uoms,
+  productsConfigs,
+  productDetail,
+  uomsTotalCount
 };
