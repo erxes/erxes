@@ -34,7 +34,9 @@ import {
   Loyalties as LoyaltyQueries
 } from './queries';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async serviceDiscovery => (
+  
+  {
   ...customScalars,
   Donate,
   DonateCampaign,
