@@ -21,8 +21,8 @@ const salesLogDetail = `
       labels,
       status,
       products {
-        _id
-        quantities {
+        productId
+        intervals {
           label
           value
         }

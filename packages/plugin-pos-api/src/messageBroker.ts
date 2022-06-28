@@ -17,7 +17,7 @@ export const initBroker = async cl => {
     return;
   });
 
-  consumeQueue('pos:vrpc_queue', async ({ subdomain, data }) => {
+  consumeQueue('pos:createOrUpdateOrders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     const { action, posToken, syncId, response, order, items } = data;
@@ -161,11 +161,10 @@ export const initBroker = async cl => {
     );
 
     const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
-
     // return info saved
     sendPosclientMessage({
       subdomain,
-      action: `vrpc_queue:erxes-pos-from-api_${syncId}`,
+      action: `updateSynced`,
       data: {
         status: 'ok',
         posToken,

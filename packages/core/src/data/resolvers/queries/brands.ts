@@ -24,8 +24,8 @@ const brandQueries = {
   /**
    * All brands
    */
-  allBrands(_root, {}, { brandIdSelector, models }: IContext) {
-    return getDocumentList(models, 'brands', brandIdSelector);
+  allBrands(_root, {}, { brandIdSelector, models, subdomain }: IContext) {
+    return getDocumentList(models, subdomain, 'brands', brandIdSelector);
   },
 
   /**

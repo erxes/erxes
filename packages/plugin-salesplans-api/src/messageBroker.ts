@@ -6,6 +6,19 @@ let client: any;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeQueue } = cl;
+  consumeQueue(
+    'salesplans:saleslogs.statusUpdate',
+    async ({ subdomain, data: { _id, status } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.SalesLogs.salesLogStatusUpdate(_id, status),
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
@@ -24,6 +37,17 @@ export const sendInternalNotesMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'internalnotes',
+    ...args
+  });
+};
+
+export const sendProcessesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'processes',
     ...args
   });
 };

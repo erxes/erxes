@@ -24,7 +24,7 @@ export interface ISalesLogModel extends Model<ISalesLogDocument> {
   salesLogRemove(_id: string): Promise<JSON>;
   salesLogProductUpdate(_id: string, data: ISalesLogProduct): Promise<JSON>;
   salesLogProductRemove(_id: string, productId: string): Promise<JSON>;
-  salesLogStatusUpdate(_id: string, status: string): Promise<JSON>;
+  salesLogStatusUpdate(_id: string, status: string): Promise<ISalesLogDocument>;
 }
 
 export const loadSalesLogClass = (models: IModels) => {
@@ -46,8 +46,8 @@ export const loadSalesLogClass = (models: IModels) => {
     public static async salesLogEdit(_id: String, data: ISalesLogDocument) {
       const result = await models.SalesLogs.findOne({ _id });
 
-      if (result && result.status === STATUS.PUBLISHED)
-        return new Error(`Published Log can't be altered`);
+      if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status))
+        return new Error(`Published log can't be altered`);
 
       await models.SalesLogs.updateOne({ _id }, { $set: data });
 
@@ -60,8 +60,8 @@ export const loadSalesLogClass = (models: IModels) => {
     public static async salesLogRemove(_id: string) {
       const result = await models.SalesLogs.findOne({ _id });
 
-      if (result && result.status === STATUS.PUBLISHED)
-        return new Error(`Published Log can't be altered`);
+      if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status))
+        return new Error(`Published log can't be altered`);
 
       await models.DayPlanConfigs.deleteMany({ salesLogId: _id });
       await models.MonthPlanConfigs.deleteMany({ salesLogId: _id });
@@ -72,33 +72,33 @@ export const loadSalesLogClass = (models: IModels) => {
 
     public static async salesLogProductUpdate(
       _id: string,
-      productData: ISalesLogProduct
+      data: ISalesLogProduct
     ) {
       const result = await models.SalesLogs.findOne({
         _id,
-        'products._id': productData._id
+        'products.productId': data.productId
       });
 
-      if (result && result.status === STATUS.PUBLISHED)
-        return new Error(`Published Log can't be altered`);
+      if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status))
+        return new Error(`Published log can't be altered`);
 
       if (!result)
         return await models.SalesLogs.updateOne(
           { _id },
-          { $push: { products: productData } }
+          { $push: { products: data } }
         );
       else
         return await models.SalesLogs.updateOne(
-          { _id, 'products._id': productData._id },
-          { $set: { 'products.$.quantities': productData.quantities } }
+          { _id, 'products.productId': data.productId },
+          { $set: { 'products.$.intervals': data.intervals } }
         );
     }
 
     public static async salesLogProductRemove(_id: string, productId: string) {
       const result = await models.SalesLogs.findOne({ _id });
 
-      if (result && result.status === STATUS.PUBLISHED)
-        return new Error(`Published Log can't be altered`);
+      if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status))
+        return new Error(`Published log can't be altered`);
 
       return await models.SalesLogs.updateOne(
         { _id },
@@ -109,13 +109,12 @@ export const loadSalesLogClass = (models: IModels) => {
     public static async salesLogStatusUpdate(_id: string, status: string) {
       const result = await models.SalesLogs.findOne({ _id });
 
-      if (result && result.status === STATUS.PUBLISHED)
-        return new Error(`Published Log can't be altered`);
+      if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status))
+        return new Error(`Published log can't be altered`);
 
-      return await models.SalesLogs.updateOne(
-        { _id },
-        { $set: { status: status } }
-      );
+      await models.SalesLogs.updateOne({ _id }, { $set: { status: status } });
+
+      return await models.SalesLogs.findOne({ _id }).lean();
     }
   }
 

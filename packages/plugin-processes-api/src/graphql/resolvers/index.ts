@@ -3,7 +3,7 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 import JobCategory from './customResolver/jobCategory';
 import FlowCategory from './customResolver/flowCategory';
 import FlowProduct from './customResolver/flowProduct';
-
+import JobReferNeedResultProduct from './customResolver/needResultProducts';
 import {
   JobRefers as JobRefersMutations,
   JobCategories as JobCategoryMutations,
@@ -27,6 +27,7 @@ const resolvers: any = async serviceDiscovery => ({
   JobCategory,
   FlowCategory,
   Flow: FlowProduct,
+  JobRefer: JobReferNeedResultProduct,
   Mutation: {
     ...JobRefersMutations,
     ...JobCategoryMutations,

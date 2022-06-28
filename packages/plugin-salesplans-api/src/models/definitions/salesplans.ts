@@ -16,11 +16,11 @@ export interface ISalesLog {
 }
 
 export interface ISalesLogProduct {
-  _id: string;
-  quantities: [
+  productId: string;
+  intervals: [
     {
       label: string;
-      value: string;
+      value: number;
     }
   ];
 }
@@ -28,6 +28,18 @@ export interface ISalesLogProduct {
 export interface ISalesLogDocument extends ISalesLog, Document {
   _id: string;
 }
+
+export const SalesLogProduct = {
+  productId: field({ type: String }),
+  intervals: field({
+    type: [
+      {
+        label: String,
+        value: Number
+      }
+    ]
+  })
+};
 
 export const salesLogSchema = schemaWrapper(
   new Schema({
@@ -45,17 +57,7 @@ export const salesLogSchema = schemaWrapper(
     branchId: field({ type: String, label: 'Branch' }),
     departmentId: field({ type: String, label: 'Department' }),
     products: field({
-      type: [
-        {
-          _id: String,
-          quantities: [
-            {
-              label: String,
-              value: String
-            }
-          ]
-        }
-      ],
+      type: [SalesLogProduct],
       default: [],
       label: 'Products'
     }),

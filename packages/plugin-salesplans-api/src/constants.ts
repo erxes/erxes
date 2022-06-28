@@ -3,5 +3,6 @@ export const STATUS = {
   DISABLED: 'disabled',
   ARCHIVED: 'archived',
   PUBLISHED: 'published',
-  ALL: ['active', 'disabled', 'archived', 'published']
+  PENDING: 'pending',
+  ALL: ['active', 'disabled', 'archived', 'pending', 'published']
 };
