@@ -20,9 +20,8 @@ import {
   Lotteries as LotteryMutations,
   LotteryCampaigns as LotteryCampaignMutations,
   Loyalties as LoyaltyMutations,
-  ScoreLogs as ScoreLogMutations,
+  ScoreLogs as ScoreLogMutations
 } from './mutations';
-
 import {
   Donates as DonateQueries,
   DonateCampaigns as DonateCampaignQueries,
@@ -30,10 +29,10 @@ import {
   SpinCampaigns as SpinCampaignQueries,
   Lotteries as LotteryQueries,
   LotteryCampaigns as LotteryCampaignQueries,
-  Loyalties as LoyaltyQueries,
   Vouchers as VoucherQueries,
   VoucherCampaigns as VoucherCampaignQueries,
   ScoreLogs as ScoreLogQueries,
+  Loyalties as LoyaltyQueries,
 } from './queries';
 
 const resolvers: any = async (serviceDiscovery) => (
