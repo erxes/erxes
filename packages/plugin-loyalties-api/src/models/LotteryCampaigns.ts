@@ -16,10 +16,7 @@ export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   multipleDoLottery({ campaignId, awardId, multiple }): Promise<any>;
 }
 
-export const loadLotteryCampaignClass = (
-  models: IModels,
-  _subdomain: string
-) => {
+export const loadLotteryCampaignClass = (models: IModels,_subdomain: string) => {
   class LotteryCampaign {
     public static async getLotteryCampaign(_id: string) {
       const lotteryCampaign = await models.LotteryCampaigns.findOne({ _id });
