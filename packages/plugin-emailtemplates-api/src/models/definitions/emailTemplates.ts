@@ -8,6 +8,7 @@ export interface IEmailTemplate {
   createdAt?: Date;
   modifiedAt?: Date;
   createdBy?: string;
+  scopeBrandIds?: string[];
 }
 
 export interface IEmailTemplateDocument extends IEmailTemplate, Document {
