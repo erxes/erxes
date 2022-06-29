@@ -1,5 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { commonItemFieldsSchema, IItemCommonFields } from './boards';
+import { field, schemaWrapper } from './utils';
 
 export interface ITicket extends IItemCommonFields {
   source?: string;
@@ -10,8 +11,10 @@ export interface ITicketDocument extends ITicket, Document {
 }
 
 // Mongoose schemas =======================
-export const ticketSchema = new Schema({
-  ...commonItemFieldsSchema,
+export const ticketSchema = schemaWrapper(
+  new Schema({
+    ...commonItemFieldsSchema,
 
-  source: { type: String, label: 'Source' }
-});
+    source: field({ type: String, label: 'Source' })
+  })
+);
