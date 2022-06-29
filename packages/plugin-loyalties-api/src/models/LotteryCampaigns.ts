@@ -48,7 +48,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       return models.LotteryCampaigns.create(modifier);
     }
 
-    public static async updateLotteryCampaign( _id: string, doc: ILotteryCampaign) {
+    public static async updateLotteryCampaign(_id: string, doc: ILotteryCampaign) {
       try {
         await this.validLotteryCampaign(doc);
       } catch (e) {
@@ -101,12 +101,11 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
     }
 
     static async setLuckyLottery(campaign, award, luckyLottery) {
-      campaign.awards = campaign.awards.map(a =>(a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
+      campaign.awards = campaign.awards.map(a => (a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
       await models.LotteryCampaigns.updateOne( { _id: campaign._id }, { $set: { campaign } });
 
       const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId });
-      await models.Lotteries.updateOne({ _id: luckyLottery._id },{ $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id }}
-      );
+      await models.Lotteries.updateOne({ _id: luckyLottery._id },{ $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id }});
     }
 
     public static async multipleDoLottery({ campaignId, awardId, multiple }) {
