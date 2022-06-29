@@ -86,10 +86,12 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       const now = new Date();
 
       return models.Vouchers.updateOne({ _id }, {
+        
           $set: { 
             campaignId, ownerType, ownerId, modifiedAt: now, status, userId
           }
         });
+
     }
 
     public static async buyVoucher(doc: IBuyParams) {
