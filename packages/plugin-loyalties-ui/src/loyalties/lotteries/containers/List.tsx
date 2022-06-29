@@ -1,15 +1,15 @@
-import { Bulk, Spinner } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
+import { Bulk, Spinner } from '@erxes/ui/src/components';
+import { Alert, router, withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { queries as campaignQueries } from '../../../configs/lotteryCampaign/graphql';
-import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
+import { queries as campaignQueries } from '../../../configs/lotteryCampaign/graphql';
+import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import {
   MainQueryResponse,
   RemoveMutationResponse,

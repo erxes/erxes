@@ -31,9 +31,7 @@ export type RemoveMutationVariables = {
 };
 
 export type RemoveMutationResponse = {
-  lotteriesRemove: (params: {
-    variables: RemoveMutationVariables;
-  }) => Promise<any>;
+  lotteriesRemove: (params: { variables: RemoveMutationVariables }) => Promise<any>;
 };
 
 // query types
@@ -42,6 +40,7 @@ export type MainQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
 export type lotteriesCampaignCustomerList = {
   lotteriesCampaignCustomerList: { list: ILottery[]; totalCount: number };
   loading: boolean;

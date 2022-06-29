@@ -1,5 +1,5 @@
 import {
-  Button, DataWithLoader, FormControl, ModalTrigger, Pagination,
+    Button, DataWithLoader, FormControl, ModalTrigger, Pagination,
   SortHandler, Table
 } from '@erxes/ui/src/components';
 import { MainStyleTitle as Title, MainStyleCount as Count } from '@erxes/ui/src/styles/eindex';
@@ -242,8 +242,7 @@ class LotteriesList extends React.Component<IProps, State> {
               emptyText="Add in your first lottery!"
               emptyImage="/images/actions/1.svg"
             />
-          </>
-          
+          </>          
         }
       />
     );
