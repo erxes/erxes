@@ -119,13 +119,3 @@ export const loadIntegrationClass = (models: IModels) => {
 
   return integrationSchema;
 };
-
-// loadClass();
-
-// // tslint:disable-next-line
-// const Integrations = model<IIntegrationDocument, IIntegrationModel>(
-//   'integrations',
-//   integrationSchema
-// );
-
-// export default Integrations;
