@@ -100,18 +100,14 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
         throw new Error('can not buy voucher, owner is undefined');
       }
 
-      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(
-        campaignId
-      );
+      const voucherCampaign = await models.VoucherCampaigns.getVoucherCampaign(campaignId);
 
       if (!voucherCampaign.buyScore) {
         throw new Error('can not buy this voucher');
       }
 
       await models.ScoreLogs.changeScore({
-        ownerType,
-        ownerId,
-        changeScore: -1 * voucherCampaign.buyScore * count,
+        ownerType, ownerId, changeScore: -1 * voucherCampaign.buyScore * count,
         description: 'buy voucher'
       });
 
@@ -119,7 +115,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
     }
 
     public static async removeVouchers(_ids: string[]) {
-      return models.Vouchers.deleteMany({ _id: { $in: _ids } });
+      return models.Vouchers.deleteMany({ _id: { $in: _ids } })
     }
 
     public static async checkVouchersSale({ ownerType, ownerId, products }) {
