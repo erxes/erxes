@@ -102,10 +102,12 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
     static async setLuckyLottery(campaign, award, luckyLottery) {
       campaign.awards = campaign.awards.map(a => (a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
+
       await models.LotteryCampaigns.updateOne({ _id: campaign._id }, { $set: { campaign } });
 
-      const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId });
-      await models.Lotteries.updateOne({ _id: luckyLottery._id },{ $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id }});
+      const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId })
+      await models.Lotteries.updateOne({ _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id } });
+      
     }
 
     public static async multipleDoLottery({ campaignId, awardId, multiple }) {
@@ -160,7 +162,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           fitLotteriesCount,
           luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id}).lean()
         }
-        
+
       }
 
       const fitLotteries = await models.Lotteries.find(filter).limit(10).lean();

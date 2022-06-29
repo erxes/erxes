@@ -1,4 +1,4 @@
-import { ICommonParams, IScoreParams} from '../../../models/definitions/common';
+import { ICommonParams, IScoreParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 
