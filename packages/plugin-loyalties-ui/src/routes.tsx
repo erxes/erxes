@@ -5,63 +5,43 @@ import { Route } from 'react-router-dom';
 import Settings from './configs/general/containers/Settings';
 
 const VoucherCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/voucherCampaign/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './configs/voucherCampaign/containers/List')
 );
 
 const LotteryCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/lotteryCampaign/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './configs/lotteryCampaign/containers/List')
 );
 
 const SpinCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/spinCampaign/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './configs/spinCampaign/containers/List')
 );
 
 const DonateCampaigns = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './configs/donateCampaign/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './configs/donateCampaign/containers/List')
 );
 
 const Vouchers = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/vouchers/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './loyalties/vouchers/containers/List')
 );
 
 const Lotteries = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/List')
 );
 
 const Spins = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/spins/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './loyalties/spins/containers/List')
 );
 
 const Donates = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/donates/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './loyalties/donates/containers/List')
 );
 
 const ScoreLogs = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/scorelogs/containers/List'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './loyalties/scorelogs/containers/List')
 );
 
 const Award = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/Award'
-  )
+  import( /* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/Award')
 );
 const voucherCampaignList = ({ location, history }) => {
   return (
