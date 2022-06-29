@@ -9,15 +9,14 @@ import {
   ModalTrigger,
   Pagination,
   SortHandler,
-  Table
+  Table,
 } from '@erxes/ui/src/components';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
+import { __,
+  Alert,
+  confirm, router } from '@erxes/ui/src/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import {
-  MainStyleCount as Count,
-  MainStyleTitle as Title
-} from '@erxes/ui/src/styles/eindex';
+import { MainStyleCount as Count,MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
 import { IVoucher } from '../types';
 import { IVoucherCampaign } from '../../../configs/voucherCampaign/types';
@@ -37,10 +36,7 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  removeVouchers: (
-    doc: { voucherIds: string[] },
-    emptyBulk: () => void
-  ) => void;
+  removeVouchers: (doc: { voucherIds: string[] }, emptyBulk: () => void) => void;
   history: any;
   queryParams: IQueryParams;
 }
@@ -110,10 +106,7 @@ class VouchersList extends React.Component<IProps, State> {
     } = this.props;
 
     const renderCheckbox = () => {
-      if (
-        !currentCampaign ||
-        ['spin', 'lottery'].includes(currentCampaign.voucherType)
-      ) {
+      if (!currentCampaign || ['spin', 'lottery'].includes(currentCampaign.voucherType)) {
         return;
       }
       return (
@@ -124,10 +117,11 @@ class VouchersList extends React.Component<IProps, State> {
             onChange={this.onChange}
           />
         </th>
-      );
-    };
+      )
+    }
 
     const mainContent = (
+
       <LoyaltiesTableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -145,7 +139,9 @@ class VouchersList extends React.Component<IProps, State> {
               <th>
                 <SortHandler sortField={'status'} label={__('Status')} />
               </th>
-              <th>Actions</th>
+              <th>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody id="vouchers">
@@ -218,15 +214,11 @@ class VouchersList extends React.Component<IProps, State> {
             backDrop="static"
           />
         </BarItems>
-      );
+      )
     };
 
     const actionBarLeft = (
-      <Title>
-        {(currentCampaign &&
-          `${currentCampaign.voucherType}: ${currentCampaign.title}`) ||
-          'All voucher campaigns'}{' '}
-      </Title>
+      <Title>{currentCampaign && `${currentCampaign.voucherType}: ${currentCampaign.title}` || 'All voucher campaigns'} </Title>
     );
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />
@@ -262,6 +254,7 @@ class VouchersList extends React.Component<IProps, State> {
               emptyImage="/images/actions/1.svg"
             />
           </>
+          
         }
       />
     );
