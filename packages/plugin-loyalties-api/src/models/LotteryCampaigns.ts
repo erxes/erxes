@@ -11,12 +11,12 @@ export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   createLotteryCampaign(doc: ILotteryCampaign): Promise<ILotteryCampaignDocument>;
   updateLotteryCampaign(_id: string, doc: ILotteryCampaign): Promise<ILotteryCampaignDocument>;
   removeLotteryCampaigns(_ids: string[]): void;
-  doLottery({ campaignId, awardId}: { campaignId: string; awardId: string;}): Promise<ILottery>;
-  getNextChar({ campaignId, awardId, prevChars}: { campaignId: string; awardId: string; prevChars: string;}): Promise<any>;
+  doLottery({ campaignId, awardId }: { campaignId: string, awardId: string}): Promise<ILottery>;
+  getNextChar({ campaignId, awardId, prevChars }: { campaignId: string, awardId: string, prevChars: string}): Promise<any>;
   multipleDoLottery({ campaignId, awardId, multiple }): Promise<any>;
 }
 
-export const loadLotteryCampaignClass = (models: IModels,_subdomain: string) => {
+export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) => {
   class LotteryCampaign {
     public static async getLotteryCampaign(_id: string) {
       const lotteryCampaign = await models.LotteryCampaigns.findOne({ _id });
