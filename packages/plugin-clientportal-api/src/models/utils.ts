@@ -15,7 +15,7 @@ export const handleContacts = async (args: IContactsParams) => {
 
   const tEmail = (email || '').toLowerCase().trim();
 
-  let qry: any;
+  let qry: any = { type };
   let user: any;
 
   if (email) {
@@ -28,10 +28,8 @@ export const handleContacts = async (args: IContactsParams) => {
     document.phone = phone;
   }
 
-  qry.type = type;
-
   if (type === 'customer') {
-    const customer = await sendContactsMessage({
+    let customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
@@ -60,7 +58,7 @@ export const handleContacts = async (args: IContactsParams) => {
     });
 
     if (!customer) {
-      await sendContactsMessage({
+      customer = await sendContactsMessage({
         subdomain,
         action: 'customers.createCustomer',
         data: {
@@ -83,7 +81,7 @@ export const handleContacts = async (args: IContactsParams) => {
   }
 
   if (type === 'company') {
-    const company = await sendContactsMessage({
+    let company = await sendContactsMessage({
       subdomain,
       action: 'companies.findOne',
       data: {
@@ -113,7 +111,7 @@ export const handleContacts = async (args: IContactsParams) => {
     });
 
     if (!company) {
-      await sendContactsMessage({
+      company = await sendContactsMessage({
         subdomain,
         action: 'companies.createCompany',
         data: {

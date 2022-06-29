@@ -166,7 +166,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async createUser(
       subdomain: string,
-      { password, email, phone, clientPortalId, ...doc }: IUser
+      { password, clientPortalId, ...doc }: IUser
     ) {
       if (password) {
         this.checkPassword(password);
