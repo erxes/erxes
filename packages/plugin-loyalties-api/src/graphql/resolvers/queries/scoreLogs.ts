@@ -1,5 +1,7 @@
 import { ICommonParams, IScoreParams } from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
+import { checkVouchersSale } from '../../../utils';
+import { getOwner } from '../../../models/utils';
 import { paginate } from '@erxes/api-utils/src';
 
 const scoreLogQueries = {

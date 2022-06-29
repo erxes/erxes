@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { colors, dimensions } from '@erxes/ui/src/styles/';
 
 export const LoyaltyAmount = styled.div`
