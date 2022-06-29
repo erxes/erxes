@@ -90,8 +90,17 @@ export const getBeforeJobs = (leftJobs: IJobDocument[], jobId: string) => {
   return beforeJobs;
 };
 
-export const initDocOverallWork = () => {
-  console.log('test');
+export const initDocOverallWork = (work: IWork) => {
+  const {
+    jobId,
+    flowId,
+    outBranchId,
+    outDepartmentId,
+    inBranchId,
+    inDepartmentId,
+    needProducts,
+    resultProducts
+  } = work;
 
   const doc: IOverallWork = {
     status: 'active',
@@ -99,14 +108,14 @@ export const initDocOverallWork = () => {
     startAt: new Date(),
     endAt: new Date(),
     assignUserIds: [],
-    jobId: 'null',
-    flowId: 'null',
-    outBranchId: 'null',
-    outDepartmentId: 'null',
-    inBranchId: 'null',
-    inDepartmentId: 'null',
-    needProducts: [],
-    resultProducts: []
+    jobId,
+    flowId,
+    outBranchId,
+    outDepartmentId,
+    inBranchId,
+    inDepartmentId,
+    needProducts,
+    resultProducts
   };
 
   return doc;
@@ -149,6 +158,25 @@ export const initProducts = (count: number, products: IProductsData[]) => {
   }
 
   return response;
+};
+
+export const overallWorksAdd = async (doc: IOverallWork, models: IModels) => {
+  const overallWork = await models.OverallWorks.createOverallWork(doc);
+
+  // await putCreateLog(
+  //   models,
+  //   subdomain,
+  //   {
+  //     type: MODULE_NAMES.OVERALWORK,
+  //     newData: {
+  //       ...doc
+  //     },
+  //     object: overallWork
+  //   },
+  //   user
+  // );
+
+  return overallWork;
 };
 
 export const worksAdd = async (doc: IWork, models: IModels) => {

@@ -6,7 +6,9 @@ import {
   getBeforeJobs,
   getJobRefers,
   getLeftJobs,
+  initDocOverallWork,
   initDocWork,
+  overallWorksAdd,
   recursiveCatchBeforeJobs,
   worksAdd
 } from './utils';
@@ -16,11 +18,11 @@ import { sendSalesplansMessage } from '../messageBroker';
 export const rf = async (models: IModels, subdomain: string, params) => {
   let descriptionForWork = '';
   const inputData = params.data;
-  const { branchId, departmentId, time, salesLogId } = inputData;
-  const { timeId } = time[0];
+  const { branchId, departmentId, interval, salesLogId } = inputData;
+  const { intervals } = interval;
 
-  for (const timeIdData of timeId) {
-    const { productId, count } = timeIdData;
+  for (const intervalData of intervals) {
+    const { productId, count } = intervalData;
     const flowJobStatus = true;
     const status = 'active';
     const filter = { productId, flowJobStatus, status };
@@ -129,6 +131,15 @@ export const rf = async (models: IModels, subdomain: string, params) => {
     descriptionForWork
       ? console.log('Description for work: ', descriptionForWork)
       : console.log('Done!');
+
+    // OverallWorks Add
+    const works = await models.Works.find({ status: 'noOverall' });
+    if (works.length > 0) {
+      for (const work of works) {
+        const doc = initDocOverallWork(work);
+        await overallWorksAdd(doc, models);
+      }
+    }
   }
 
   sendSalesplansMessage({
