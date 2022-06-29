@@ -45,6 +45,7 @@ export const doesQueueExist = async (
 
 export const consumeQueue = async (queueName, callback) => {
   queueName = queueName.concat(queuePrefix);
+  debugInfo(`consumeQueue ${queueName}`);
 
   await checkQueueName(queueName);
 

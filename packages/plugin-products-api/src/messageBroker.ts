@@ -9,6 +9,14 @@ export const initBroker = async cl => {
 
   const { consumeRPCQueue, consumeQueue } = client;
 
+  consumeRPCQueue('products:findOneUom', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      data: await models.Uoms.findOne(data).lean(),
+      status: 'success'
+    };
+  });
+
   consumeRPCQueue('products:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -26,9 +34,30 @@ export const initBroker = async cl => {
       return {
         data: regData
           ? await models.ProductCategories.find({
+              ...query,
               order: { $regex: new RegExp(regData) }
             }).sort(sort)
-          : await models.ProductCategories.find(query).lean(),
+          : await models.ProductCategories.find(query)
+              .sort(sort)
+              .lean(),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'products:categories.withChilds',
+    async ({ subdomain, data: { _id } }) => {
+      const models = await generateModels(subdomain);
+      const category = await models.ProductCategories.findOne({ _id }).lean();
+
+      return {
+        data: await models.ProductCategories.find({
+          order: { $regex: new RegExp(category.order) },
+          status: { $nin: ['disabled', 'archived'] }
+        })
+          .sort({ order: 1 })
+          .lean(),
         status: 'success'
       };
     }
@@ -83,8 +112,19 @@ export const initBroker = async cl => {
 
   consumeRPCQueue(
     'products:find',
-    async ({ subdomain, data: { query, sort, skip, limit } }) => {
+    async ({ subdomain, data: { query, sort, skip, limit, categoryId } }) => {
       const models = await generateModels(subdomain);
+
+      if (categoryId) {
+        const category = await models.ProductCategories.findOne({
+          _id: categoryId
+        }).lean();
+        const categories = await models.ProductCategories.find({
+          order: { $regex: new RegExp(category.order) }
+        }).lean();
+
+        query.categoryId = { $in: categories.map(c => c._id) };
+      }
 
       return {
         data: await models.Products.find(query)
@@ -215,6 +255,15 @@ export const sendFormsMessage = (args: ISendMessageArgs): Promise<any> => {
 };
 
 export const sendCardsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
+  });
+};
+
+export const sendProcessesMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,

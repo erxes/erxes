@@ -414,4 +414,4 @@ export const INTEGRATION_FILTERS = [
 ];
 
 export const WEBHOOK_DOC_URL =
-  'https://documenter.getpostman.com/view/7654214/TVRoXRnM';
+  'https://www.erxes.org/developer/webhook#samples';

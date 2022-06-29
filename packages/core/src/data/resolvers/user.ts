@@ -21,12 +21,14 @@ export default {
     return 'Verified';
   },
 
-  brands(user: IUserDocument, _args, { models }: IContext) {
+  brands(user: IUserDocument, _args, { models, subdomain }: IContext) {
     if (user.isOwner) {
-      return getDocumentList(models, 'brands', {});
+      return getDocumentList(models, subdomain, 'brands', {});
     }
 
-    return getDocumentList(models, 'brands', { _id: { $in: user.brandIds } });
+    return getDocumentList(models, subdomain, 'brands', {
+      _id: { $in: user.brandIds }
+    });
   },
 
   async permissionActions(user: IUserDocument, _args, { models }: IContext) {

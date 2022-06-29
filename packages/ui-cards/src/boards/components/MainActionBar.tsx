@@ -301,14 +301,16 @@ class MainActionBar extends React.Component<Props> {
                 {__('Gantt')}
               </Link>
             </li>
-            <li key="time">
-              <Link
-                to={onFilterClick('time')}
-                className={viewType === 'time' ? 'active' : ''}
-              >
-                {__('Time')}
-              </Link>
-            </li>
+            {options.type === 'deal' && (
+              <li key="time">
+                <Link
+                  to={onFilterClick('time')}
+                  className={viewType === 'time' ? 'active' : ''}
+                >
+                  {__('Time')}
+                </Link>
+              </li>
+            )}
           </Dropdown.Menu>
         </Dropdown>
       </ButtonGroup>
