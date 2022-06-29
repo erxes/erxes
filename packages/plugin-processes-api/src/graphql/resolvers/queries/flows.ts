@@ -76,7 +76,7 @@ const flowQueries = {
    */
   async testGetReceiveDatas(_root, _args, { models, subdomain }: IContext) {
     const data = {
-      lasesLogId: 'lfkajsdlfjalskdj',
+      salesLogId: 'lfkajsdlfjalskdj',
       date: new Date(),
       branchId: 'X5BcGHpzxofkTq8TL',
       departmentId: 'ELea5cmuCwuQZy7qH',
