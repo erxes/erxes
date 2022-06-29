@@ -32,11 +32,6 @@ module.exports = {
           position: "left",
         },
         {
-          to: "/user/subscription-getting-started",
-          label: "User's guide",
-          position: "left",
-        },
-        {
           to: "/invest",
           label: "Invest",
           position: "left",
@@ -44,6 +39,11 @@ module.exports = {
         {
           to: "/components/GettingStarted/Introduction",
           label: "Components",
+          position: "left",
+        },
+        {
+          to: "pathname:///developers/docs/references",
+          label: "API reference",
           position: "left",
         },
         {
@@ -58,11 +58,6 @@ module.exports = {
         {
           href: "https://github.com/erxes/erxes",
           label: "GitHub",
-          position: "right",
-        },
-        {
-          to: "/blog",
-          label: "Blog",
           position: "right",
         },
       ],
@@ -128,8 +123,12 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Community Chat",
+              label: "Discussions",
               href: "https://github.com/erxes/erxes/discussions ",
+            },
+            {
+              label: "Discord",
+              href: "https://discord.gg/CEPj6vPh",
             },
           ],
         },
