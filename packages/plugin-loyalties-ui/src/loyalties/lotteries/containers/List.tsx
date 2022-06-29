@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { Alert, router, withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';

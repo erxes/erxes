@@ -107,7 +107,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId })
       await models.Lotteries.updateOne({ _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id } });
-      
+
     }
 
     public static async multipleDoLottery({ campaignId, awardId, multiple }) {
@@ -160,7 +160,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           nextChar,
           afterChars,
           fitLotteriesCount,
-          luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id}).lean()
+          luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id }).lean()
         }
 
       }

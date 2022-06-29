@@ -49,7 +49,7 @@ class Row extends React.Component<Props> {
       finishDateOfUse,
       status
     } = lotteryCampaign;
-    
+
     const trigger = (
       <tr key={_id}>
         <td onClick={onClick}>

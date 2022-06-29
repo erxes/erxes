@@ -1,10 +1,9 @@
 import * as _ from 'underscore';
 import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { IScoreLogDocument,scoreLogSchema,IScoreLog } from './definitions/scoreLog';
+import { IScoreLogDocument, scoreLogSchema, IScoreLog } from './definitions/scoreLog';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { IScoreParams } from './definitions/common';
-
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreParams): Promise<IScoreLogDocument>;
@@ -64,7 +63,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async changeScore(doc: IScoreLog) {
-      const { ownerType, ownerId, changeScore, description, createdBy = ''} = doc;
+      const { ownerType, ownerId, changeScore, description, createdBy = '' } = doc;
 
       const score = Number(changeScore);
       let owner;
@@ -127,9 +126,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       }
       return await models.ScoreLogs.create({
         ownerId, ownerType, changeScore: score,
-        createdAt: new Date(),description,createdBy
+        createdAt: new Date(), description, createdBy
       });
     }
+    
   }
 
   scoreLogSchema.loadClass(ScoreLog);
