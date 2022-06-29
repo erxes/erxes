@@ -81,7 +81,6 @@ class VoucherCampaigns extends React.Component<Props, State> {
 
   renderRow = () => {
     const { voucherCampaigns, history, toggleBulk, bulk } = this.props;
-    console.log(voucherCampaigns);
 
     return voucherCampaigns.map(voucherCampaign => (
       <Row
