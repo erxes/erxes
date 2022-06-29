@@ -60,11 +60,6 @@ module.exports = {
           label: "GitHub",
           position: "right",
         },
-        {
-          to: "/blog",
-          label: "Blog",
-          position: "right",
-        },
       ],
     },
     footer: {
@@ -128,8 +123,12 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Community Chat",
+              label: "Discussions",
               href: "https://github.com/erxes/erxes/discussions ",
+            },
+            {
+              label: "Discord",
+              href: "https://discord.gg/CEPj6vPh",
             },
           ],
         },

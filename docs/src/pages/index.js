@@ -13,11 +13,10 @@ const Header = () => {
   return (
     <div className={styles.header}>
       <h1 className={styles.headingOne}>
-        Single experience operating system (XOS) to align your entire business
+        Single experience operating system (XOS) <br/> to align your entire business
       </h1>
       <p className={styles.description}>
-        Combine all your business tools into one streamlined and integrated
-        open-source framework
+        Combine all your business tools into one <b>streamlined</b> and integrated &nbsp;<b>open-source</b> framework
       </p>
       <Buttons />
       <p className={styles.suggestion}>
