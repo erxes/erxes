@@ -18,7 +18,13 @@ import { sendSalesplansMessage } from '../messageBroker';
 export const rf = async (models: IModels, subdomain: string, params) => {
   let descriptionForWork = '';
   const inputData = params.data;
-  const { branchId, departmentId, interval, salesLogId } = inputData;
+  const {
+    branchId,
+    departmentId,
+    interval,
+    salesLogId,
+    intervalId
+  } = inputData;
   const { intervals } = interval;
 
   for (const intervalData of intervals) {
@@ -36,7 +42,13 @@ export const rf = async (models: IModels, subdomain: string, params) => {
 
       console.log('Flow jobs: ', jobs.length);
 
-      const response = findLastJob(jobs, jobRefers, productId);
+      const response = findLastJob(
+        jobs,
+        jobRefers,
+        productId,
+        branchId,
+        departmentId
+      );
       const { flowStatus, lastJobs, lastJob } = response;
       const leftJobs = getLeftJobs(jobs, [lastJob?.id || '']);
 

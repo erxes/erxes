@@ -1,24 +1,25 @@
 import { IOverallWork } from './../models/definitions/overallWorks';
-import { IFlow, IFlowDocument } from './../models/definitions/flows';
-import { IWork, IWorkDocument } from './../models/definitions/works';
-import { IContext, IModels } from './../connectionResolver';
-import {
-  IJobRefer,
-  IJobReferDocument,
-  IProductsData
-} from './../models/definitions/jobs';
-import { IJob, IJobDocument } from '../models/definitions/flows';
-import { MODULE_NAMES, putCreateLog } from '../logUtils';
+import { IFlowDocument } from './../models/definitions/flows';
+import { IWork } from './../models/definitions/works';
+import { IModels } from './../connectionResolver';
+import { IJobReferDocument, IProductsData } from './../models/definitions/jobs';
+import { IJobDocument } from '../models/definitions/flows';
 
 export const findLastJob = (
   jobs: IJobDocument[],
   jobRefers: IJobReferDocument[],
-  productId: string
+  productId: string,
+  branchId: string,
+  departmentId: string
 ) => {
   const lastJobs: IJobDocument[] = [];
 
   for (const job of jobs) {
-    if (!job.nextJobIds.length || job.nextJobIds.length === 0) {
+    if (
+      (!job.nextJobIds.length || job.nextJobIds.length === 0) &&
+      job.outBranchId === branchId &&
+      job.outDepartmentId === departmentId
+    ) {
       lastJobs.push(job);
     }
   }
