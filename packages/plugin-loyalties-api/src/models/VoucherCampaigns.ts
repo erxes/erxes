@@ -1,7 +1,8 @@
+import * as _ from 'underscore';
 import { CAMPAIGN_STATUS } from './definitions/constants';
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
 import { validCampaign } from './utils';
+import { IModels } from '../connectionResolver';
 import {
   IVoucherCampaign,
   IVoucherCampaignDocument,

@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 import { voucherSchema, IVoucher, IVoucherDocument } from './definitions/vouchers';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
