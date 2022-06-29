@@ -1,14 +1,10 @@
 {
   "name": "erxes",
-<<<<<<< HEAD
   "private": true,
-  "version": "0.22.3",
+  "version": "0.23.0",
   "workspaces": [
     "packages/*"
   ],
-=======
-  "version": "0.23.0",
->>>>>>> master
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
