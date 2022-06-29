@@ -90,14 +90,13 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
   }
 }
 
-const getStatuses = queryParams => {
-  const result: string[] = [];
-
-  if (queryParams.isTemp) {
-    result.push('temp');
-  }
-
-  return result;
+const getVariables = (id, queryParams) => {
+  return {
+    remainderId: id,
+    status: queryParams.status,
+    diffType: queryParams.diffType,
+    productCategoryId: queryParams.productCategoryId
+  };
 };
 
 export default withProps<Props>(
@@ -116,10 +115,7 @@ export default withProps<Props>(
     graphql<Props, SafeRemItemsQueryResponse, {}>(gql(queries.safeRemItems), {
       name: 'safeRemItemsQuery',
       options: ({ id, queryParams }) => ({
-        variables: {
-          remainderId: id,
-          statuses: getStatuses(queryParams)
-        },
+        variables: getVariables(id, queryParams),
         fetchPolicy: 'network-only'
       })
     }),
@@ -128,10 +124,7 @@ export default withProps<Props>(
       {
         name: 'safeRemItemsCountQuery',
         options: ({ id, queryParams }) => ({
-          variables: {
-            remainderId: id,
-            statuses: getStatuses(queryParams)
-          },
+          variables: getVariables(id, queryParams),
           fetchPolicy: 'network-only'
         })
       }
