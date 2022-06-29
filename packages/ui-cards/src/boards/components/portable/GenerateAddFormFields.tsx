@@ -9,42 +9,67 @@ type Props = {
   onChangeField: (name: any, value: any) => void;
 };
 
-class GenerateAddFormFields extends React.Component<Props> {
-  render() {
-    const customFields = this.props.fields.filter(f => !f.isDefinedByErxes);
+function GenerateAddFormFields(props: Props) {
+  const customFields = props.fields.filter(f => !f.isDefinedByErxes);
+  const fields = props.fields.filter(f => f.isDefinedByErxes);
 
-    const { customFieldsData } = this.props;
+  const { customFieldsData } = props;
 
-    const onValueChange = ({ _id, value }) => {
-      const found = customFieldsData.find(c => c.field === _id);
+  const onCustomFieldsDataChange = ({ _id, value }) => {
+    const field = customFieldsData.find(c => c.field === _id);
 
-      if (found) {
-        found.value = value;
+    if (field) {
+      field.value = value;
 
-        this.props.onChangeField('customFieldsData', customFieldsData);
-      } else {
-        this.props.onChangeField('customFieldsData', [
-          ...customFieldsData,
-          { field: _id, value }
-        ]);
-      }
-    };
+      props.onChangeField('customFieldsData', customFieldsData);
+    } else {
+      props.onChangeField('customFieldsData', [
+        ...customFieldsData,
+        { field: _id, value }
+      ]);
+    }
+  };
 
-    return customFields.map((field, index) => {
-      return (
-        <HeaderRow>
-          <HeaderContent>
-            <GenerateField
-              field={field}
-              key={index}
-              onValueChange={onValueChange}
-              isEditing={true}
-            />
-          </HeaderContent>
-        </HeaderRow>
-      );
-    });
-  }
+  const onFieldsDataChange = ({ _id, value }) => {
+    const field = fields.find(c => c._id === _id);
+
+    if (field && field.field) {
+      props.onChangeField(field.field, value);
+    }
+  };
+
+  return (
+    <>
+      {fields.map((field, index) => {
+        return (
+          <HeaderRow>
+            <HeaderContent>
+              <GenerateField
+                field={field}
+                key={index}
+                onValueChange={onFieldsDataChange}
+                isEditing={true}
+              />
+            </HeaderContent>
+          </HeaderRow>
+        );
+      })}
+      {customFields.map((field, index) => {
+        return (
+          <HeaderRow>
+            <HeaderContent>
+              <GenerateField
+                field={field}
+                key={index}
+                onValueChange={onCustomFieldsDataChange}
+                isEditing={true}
+              />
+            </HeaderContent>
+          </HeaderRow>
+        );
+      })}
+    </>
+  );
 }
 
 export default GenerateAddFormFields;

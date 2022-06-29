@@ -262,6 +262,7 @@ export const CARD_PROPERTIES_INFO = {
   ALL: [
     {
       label: 'Priority',
+      field: 'priority',
       canHide: false,
       validation: null,
       isVisibleToCreate: false,

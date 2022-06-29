@@ -41,6 +41,7 @@ type State = {
   cards: any;
   cardId: string;
   customFieldsData: any[];
+  priority?: string;
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -74,14 +75,12 @@ class AddForm extends React.Component<Props, State> {
       });
     }
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
-
-    console.log('customFieldsData: ', this.state.customFieldsData);
   };
 
   save = e => {
     e.preventDefault();
 
-    const { stageId, name, cardId, customFieldsData } = this.state;
+    const { stageId, name, cardId, customFieldsData, priority } = this.state;
     const { saveItem, closeModal, callback } = this.props;
 
     if (!stageId) {
@@ -92,12 +91,16 @@ class AddForm extends React.Component<Props, State> {
       return Alert.error('Please enter name or select card');
     }
 
-    const doc = {
+    const doc: any = {
       name,
       stageId,
       customFieldsData,
       _id: cardId
     };
+
+    if (priority) {
+      doc.priority = priority;
+    }
 
     // before save, disable save button
     this.setState({ disabled: true });

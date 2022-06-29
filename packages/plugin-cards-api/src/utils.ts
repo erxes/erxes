@@ -365,6 +365,7 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
     fields.push({
       text: e.label,
       type: e.type,
+      field: e.field,
       canHide: e.canHide,
       validation: e.validation,
       groupId,

@@ -69,6 +69,7 @@ export const fieldsTypes = ({ products }) => `
     contentType: String!
     contentTypeId: String
     name: String
+    field: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
