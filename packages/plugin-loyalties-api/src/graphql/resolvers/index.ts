@@ -32,7 +32,7 @@ import {
   Vouchers as VoucherQueries,
   VoucherCampaigns as VoucherCampaignQueries,
   ScoreLogs as ScoreLogQueries,
-  Loyalties as LoyaltyQueries,
+  Loyalties as LoyaltyQueries
 } from './queries';
 
 const resolvers: any = async (serviceDiscovery) => (
