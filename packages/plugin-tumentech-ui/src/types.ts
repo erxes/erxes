@@ -466,3 +466,11 @@ export type IRoute = {
   directions: IDirection[];
   summary: IRouteSummary;
 };
+
+export type IDealPlace = {
+  dealId: string;
+  startPlaceId: string;
+  endPlaceId: string;
+  startPlace: IPlace;
+  endPlace: IPlace;
+};

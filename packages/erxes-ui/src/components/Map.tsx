@@ -37,7 +37,7 @@ type State = {
   maps?: any;
 };
 
-export default class GenerateField extends React.Component<Props, State> {
+export default class Map extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -93,6 +93,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   onLoadMaps(map, maps) {
+    console.log('MAP LOADED');
     const geodesicPolyline = new maps.Polyline({
       path: this.props.locationOptions,
       geodesic: true,

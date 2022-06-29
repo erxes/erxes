@@ -444,6 +444,30 @@ query places($searchValue: String, $page: Int, $perPage: Int) {
 }
 `;
 
+const dealPlaces = `
+query getDealPlace($dealId: String!) {
+  getDealPlace(dealId: $dealId) {
+    dealId
+    endPlace {
+      _id
+      center
+      code
+      name
+      province
+    }
+    endPlaceId
+    startPlace {
+      _id
+      center
+      code
+      name
+      province
+    }
+    startPlaceId
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -466,6 +490,7 @@ export default {
   carsListConfig,
 
   placesQuery,
+  dealPlaces,
   directions,
   directionDetail,
 

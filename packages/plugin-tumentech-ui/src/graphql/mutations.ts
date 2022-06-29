@@ -359,6 +359,24 @@ mutation placesRemove($_id: String!) {
 }
 `;
 
+const setDealPlace = `
+mutation setDealPlace(
+  $dealId: String!
+  $endPlaceId: String
+  $startPlaceId: String
+) {
+  setDealPlace(
+    dealId: $dealId
+    endPlaceId: $endPlaceId
+    startPlaceId: $startPlaceId
+  ) {
+    dealId
+    endPlaceId
+    startPlaceId
+  }
+}
+`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -381,6 +399,7 @@ export default {
   addPlace,
   editPlace,
   removePlace,
+  setDealPlace,
 
   addDirection,
   editDirection,
