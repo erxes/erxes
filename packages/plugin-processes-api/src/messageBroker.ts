@@ -2,18 +2,19 @@ import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
+import { rf } from './utils/receiveFlow';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = cl;
-  consumeQueue('automations:trigger', async ({ subdomain, data }) => {
+  consumeQueue('processess:createWorks', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
-    const { date, list } = data;
-    // await receiveFlow({ models, subdomain, type, targets });
+    await rf(models, subdomain, { data });
+    return { status: 'success' };
   });
 
   consumeRPCQueue(
@@ -50,6 +51,17 @@ export const sendProductsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'products',
+    ...args
+  });
+};
+
+export const sendSalesplansMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'salesplans',
     ...args
   });
 };

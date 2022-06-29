@@ -23,8 +23,8 @@ const FormListContainer = () => {
   const [update] = useMutation(gql(mutations.salesLogProductUpdate));
   const [remove] = useMutation(gql(mutations.salesLogProductRemove));
 
-  const productUpdate = (doc: any) => {
-    update({ variables: { id: salesLogId, productData: doc } })
+  const productUpdate = (data: any) => {
+    update({ variables: { id: salesLogId, data: data } })
       .then(() => {
         Alert.success('Request successful!');
         salesLogQuery.refetch();
@@ -34,8 +34,8 @@ const FormListContainer = () => {
       });
   };
 
-  const productRemove = (doc: any) => {
-    remove({ variables: { id: salesLogId, productId: doc } })
+  const productRemove = (data: any) => {
+    remove({ variables: { id: salesLogId, productId: data } })
       .then(() => {
         Alert.success('Request successful!');
         salesLogQuery.refetch();

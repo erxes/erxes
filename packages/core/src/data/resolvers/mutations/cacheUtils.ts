@@ -5,10 +5,11 @@ import { get, set } from '../../../inmemoryStorage';
 
 export const getDocument = async (
   models: IModels,
+  subdomain: string,
   type: 'users' | 'brands',
   selector: { [key: string]: any }
 ) => {
-  const list = await getDocumentList(models, type, selector);
+  const list = await getDocumentList(models, subdomain, type, selector);
 
   if (list.length > 0) {
     return list[0];
@@ -19,10 +20,11 @@ export const getDocument = async (
 
 export const getDocumentList = async (
   models: IModels,
+  subdomain: string,
   type: 'users' | 'brands',
   selector: { [key: string]: any }
 ) => {
-  const listCache = await get(`erxes_${type}`);
+  const listCache = await get(`erxes_${subdomain}_${type}`);
 
   let list;
 
@@ -41,7 +43,7 @@ export const getDocumentList = async (
       }
     }
 
-    set(`erxes_${type}`, JSON.stringify(list));
+    set(`erxes_${subdomain}_${type}`, JSON.stringify(list));
   }
 
   return list.filter(sift(selector));

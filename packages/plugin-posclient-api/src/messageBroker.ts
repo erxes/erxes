@@ -49,11 +49,14 @@ export const initBroker = async cl => {
   });
 
   consumeQueue(
-    `posclient:erxes-posclient-from-pos-api_${syncId}`,
+    `posclient:updateSynced_${syncId}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const { responseId, orderId } = data;
-
+      await models.Configs.updateOne(
+        {},
+        { $set: { 'syncInfo.date': new Date() } }
+      );
       await models.Orders.updateOne(
         { _id: orderId },
         { $set: { synced: true } }

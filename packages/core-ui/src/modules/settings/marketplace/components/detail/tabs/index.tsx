@@ -13,6 +13,7 @@ type TabTitleProps = {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
+  active?: boolean;
 };
 
 function TabTitle(props: TabTitleProps) {
