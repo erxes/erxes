@@ -15,6 +15,7 @@ import { generateRandomPassword, sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
 import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
+import { handleContacts } from './utils';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -165,82 +166,19 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async createUser(
       subdomain: string,
-      { password, email, phone, clientPortalId, ...doc }: IUser
+      { password, clientPortalId, ...doc }: IUser
     ) {
-      if (!password) {
-        password = generateRandomPassword();
-      }
-
       if (password) {
         this.checkPassword(password);
       }
 
-      const document: any = doc;
-
-      const tEmail = (email || '').toLowerCase().trim();
-
-      let qry: any;
-
-      if (tEmail) {
-        document.email = tEmail;
-        qry = { email: tEmail };
-      }
-
-      if (phone) {
-        document.phone = phone;
-        qry = { phone };
-      }
-
-      const customer = await sendContactsMessage({
+      return handleContacts({
         subdomain,
-        action: 'customers.findOne',
-        data: {
-          customerPrimaryEmail: tEmail,
-          customerPrimaryPhone: phone
-        },
-        isRPC: true
-      });
-
-      let user = await models.ClientPortalUsers.findOne(qry);
-
-      if (user && (user.isEmailVerified || user.isPhoneVerified)) {
-        throw new Error('user is already exists');
-      }
-
-      if (user) {
-        return user;
-      }
-
-      user = await models.ClientPortalUsers.create({
-        ...document,
+        models,
         clientPortalId,
-        // hash password
-        password: password && (await this.generatePassword(password))
+        document: doc,
+        password
       });
-
-      if (!customer) {
-        await sendContactsMessage({
-          subdomain,
-          action: 'customers.createCustomer',
-          data: {
-            firstName: doc.firstName,
-            lastName: doc.lastName,
-            primaryEmail: email,
-            primaryPhone: phone,
-            state: 'customer'
-          },
-          isRPC: true
-        });
-      }
-
-      if (customer && customer._id) {
-        await models.ClientPortalUsers.updateOne(
-          { _id: user._id },
-          { $set: { erxesCustomerId: customer._id } }
-        );
-      }
-
-      return user;
     }
 
     public static async updateUser(_id, doc: IUser) {
@@ -746,74 +684,20 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       const plainPassword = password;
 
-      const document: any = doc;
-
-      const tEmail = (email || '').toLowerCase().trim();
-
-      let qry: any;
-
-      if (tEmail) {
-        document.email = tEmail;
-        qry = { email: tEmail };
-      }
-
-      if (phone) {
-        document.phone = phone;
-        qry = { phone };
-      }
-
-      const customer = await sendContactsMessage({
+      const user = await handleContacts({
         subdomain,
-        action: 'customers.findOne',
-        data: {
-          customerPrimaryEmail: tEmail,
-          customerPrimaryPhone: phone
-        },
-        isRPC: true
+        models,
+        clientPortalId,
+        document: doc,
+        password
       });
-
-      let user = await models.ClientPortalUsers.findOne(qry);
-
-      if (user && (user.isEmailVerified || user.isPhoneVerified)) {
-        throw new Error('user is already exists');
-      }
-
-      if (user) {
-        return user;
-      }
 
       const { token, expires } = await models.ClientPortalUsers.generateToken();
 
-      user = await models.ClientPortalUsers.create({
-        ...document,
-        clientPortalId,
-        registrationToken: token,
-        registrationTokenExpires: expires,
-        // hash password
-        password: password && (await this.generatePassword(password))
-      });
+      user.registrationToken = token;
+      user.registrationTokenExpires = expires;
 
-      if (!customer) {
-        await sendContactsMessage({
-          subdomain,
-          action: 'customers.createCustomer',
-          data: {
-            firstName: doc.firstName,
-            lastName: doc.lastName,
-            primaryEmail: email,
-            primaryPhone: phone,
-            state: 'customer'
-          },
-          isRPC: true
-        });
-      }
-
-      if (customer && customer._id) {
-        await models.ClientPortalUsers.updateOne(
-          { _id: user._id },
-          { $set: { erxesCustomerId: customer._id } }
-        );
-      }
+      await user.save();
 
       const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 

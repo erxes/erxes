@@ -75,6 +75,7 @@ class CustomerForm extends React.Component<Props, State> {
       email: finalValues.email,
       phone: finalValues.phone,
       erxesCustomerId: finalValues.erxesCustomerId,
+      erxesCompanyId: finalValues.erxesCompanyId,
       clientPortalId: finalValues.clientPortalId
     };
   };
