@@ -1,5 +1,7 @@
 import * as _ from 'underscore';
 import { Model, model } from 'mongoose';
+import { checkVouchersSale } from '../utils';
+import { getOwner } from './utils';
 import { IModels } from '../connectionResolver';
 import { IScoreLogDocument, scoreLogSchema, IScoreLog } from './definitions/scoreLog';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
@@ -129,7 +131,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(), description, createdBy
       });
     }
-    
+
   }
 
   scoreLogSchema.loadClass(ScoreLog);

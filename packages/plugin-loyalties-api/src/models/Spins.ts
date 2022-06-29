@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import { randomBetween } from './utils';
 import { spinSchema, ISpin, ISpinDocument } from './definitions/spins';
-import { Model } from 'mongoose';
+import { Model, model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { SPIN_STATUS } from './definitions/constants';
 import { IBuyParams } from './definitions/common';
