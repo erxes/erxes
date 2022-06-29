@@ -15,8 +15,8 @@ import { MONTH, DAYS } from '../../constants';
 type Props = {
   timeframes: any[];
   products: any[];
-  categoryId: string;
   data: any;
+  categoryId: string;
   update: (data: any) => void;
   remove: (data: any) => void;
 };
@@ -25,8 +25,8 @@ const FormList = (props: Props) => {
   const {
     timeframes = [],
     products = [],
-    categoryId = '',
     data = {},
+    categoryId = '',
     update,
     remove
   } = props;
