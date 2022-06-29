@@ -1,6 +1,7 @@
 import * as Random from 'meteor-random';
+import { removeKey } from '../../inmemoryStorage';
 
-/**
+/*
  * Mongoose field options wrapper
  */
 export const field = options => {
@@ -10,6 +11,7 @@ export const field = options => {
     options.validate = /\S+/;
   }
 
+  // TODO: remove
   if (pkey) {
     options.type = String;
     options.default = () => Random.id();
@@ -18,29 +20,29 @@ export const field = options => {
   return options;
 };
 
-export const getDateFieldDefinition = (label: string) =>
-  field({
-    type: Date,
-    default: new Date(),
-    label
-  });
+export const schemaWrapper = schema => {
+  schema.add({ scopeBrandIds: [String] });
 
-/**
- * Prepares mongoose number field definition with common number attributes
- * @param options
- * @returns mongoose schema definition
- */
-export const getNumberFieldDefinition = (options: any) => {
-  const { positive, label, discount } = options;
-  const definition: any = { type: Number, label };
+  return schema;
+};
 
-  if (positive === true) {
-    definition.min = 0;
+const hookList = [
+  'save',
+  'remove',
+  'update',
+  'updateOne',
+  'updateMany',
+  'deleteOne',
+  'deleteMany',
+  'findOneAndUpdate'
+];
+
+export const schemaHooksWrapper = (schema, cacheKey: string) => {
+  for (const hook of hookList) {
+    schema.post(hook, () => {
+      removeKey(cacheKey);
+    });
   }
-  if (discount === true) {
-    definition.min = 0;
-    definition.max = 100;
-  }
 
-  return definition;
+  return schemaWrapper(schema);
 };

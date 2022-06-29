@@ -3,11 +3,11 @@ import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const Installer = asyncComponent(() =>
-  import(/* webpackChunkName: "Installer" */ './containers/Installer')
+  import(/* webpackChunkName: "Installer" */ './components/Installer')
 );
 
 const PluginDetails = asyncComponent(() =>
-  import(/* webpackChunkName: "Store" */ './components/detail/PluginDetails')
+  import(/* webpackChunkName: "Store" */ './containers/PluginDetails')
 );
 
 const detail = ({ match }) => {

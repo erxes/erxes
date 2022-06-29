@@ -28,21 +28,28 @@ const productFields = `
     code
     name
   }
-  attachment {    
+  attachment {
     url
-    name    
+    name
     size
     type
   }
   attachmentMore {
     url
-    name    
+    name
     size
     type
   }
   supply
   productCount
   minimiumCount
+  uomId
+  uom {
+    _id
+    code
+    name
+  }
+  subUoms
 `;
 
 const products = `
@@ -73,6 +80,15 @@ const products = `
   }
 `;
 
+const productDetail = `
+  query productDetail($_id: String) {
+    productDetail(_id: $_id) {
+      ${productFields}
+      customFieldsData
+    }
+  }
+`;
+
 const productCategories = `
   query productCategories($status: String) {
     productCategories(status: $status) {
@@ -96,8 +112,43 @@ const productCategories = `
   }
 `;
 
+// UOM
+
+const uoms = `
+query uoms {
+  uoms {
+    _id
+    name
+    code
+    createdAt
+  }
+}
+`;
+
+const uomsTotalCount = `
+query uomsTotalCount {
+  uomsTotalCount
+}
+`;
+
+// Settings
+
+const productsConfigs = `
+  query productsConfigs {
+    productsConfigs {
+      _id
+      code
+      value
+    }
+  }
+`;
+
 export default {
   productFields,
   products,
-  productCategories
+  productDetail,
+  productCategories,
+  productsConfigs,
+  uoms,
+  uomsTotalCount
 };

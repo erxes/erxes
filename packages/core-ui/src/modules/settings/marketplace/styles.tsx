@@ -104,7 +104,6 @@ const ListContainer = styled.div`
 `;
 
 const ListHeader = styled.div`
-  // width: 100%;
   display: flex;
   justify-content: space-between;
   padding: ${dimensions.coreSpacing}px 0px;
@@ -121,49 +120,22 @@ const ColorText = styled.b`
 const PluginContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  // justify-content: space-between;
 `;
 
 const Card = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
   width: 23%;
   min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 8px;
   padding: ${dimensions.unitSpacing}px;
 
-  button {
-    float: left;
-    margin-right: 5px;
-    background: rgb(103, 63, 189);
-    border-radius: 5px;
-    color: rgb(255, 255, 255);
-    border: none;
-    font-weight: 500;
-    outline: 0px;
-    padding: 5px 15px;
-    cursor: pointer;
-  }
-
   a {
     color: inherit;
-
-    &:hover {
-      cursor: pointer;
-    }
   }
 
   &:hover {
     box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
-  }
-
-  .uninstall {
-    background: #eb5a5a;
-  }
-
-  .install {
-    background: #13ce66;
+    cursor: pointer;
   }
 `;
 
@@ -173,10 +145,14 @@ const PluginPic = styled.img`
 `;
 
 const PluginInformation = styled.div`
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
+  margin-top: ${dimensions.unitSpacing}px;
 
   b {
     text-transform: capitalize;
+  }
+
+  p {
+    margin: 0;
   }
 `;
 
@@ -191,10 +167,9 @@ const Description = styled.p`
 
 const DetailMainContainer = styled.div`
   height: 100%;
-  position: relative;
   border-radius: 8px;
-  border: 1px solid ${colors.borderDarker};
-  padding: ${dimensions.unitSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  padding: ${dimensions.coreSpacing}px;
   overflow-x: hidden;
 `;
 
@@ -202,13 +177,37 @@ const PluginTitle = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: ${dimensions.coreSpacing}px 0;
-`;
 
-const DetailProfile = styled.img`
-  width: 80px;
-  height: 80px;
-  margin: ${dimensions.coreSpacing}px;
+  img {
+    width: 80px;
+    height: 80px;
+    margin: ${dimensions.coreSpacing}px;
+  }
+
+  b {
+    font-size: 20px;
+  }
+
+  button {
+    float: left;
+    margin-right: 5px;
+    background: rgb(103, 63, 189);
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    border: none;
+    font-weight: 500;
+    outline: 0px;
+    padding: 5px 15px;
+    cursor: pointer;
+  }
+
+  .uninstall {
+    background: #eb5a5a;
+  }
+
+  .install {
+    background: #13ce66;
+  }
 `;
 
 const Center = styled.div`
@@ -226,18 +225,7 @@ const Carousel = styled.div`
 
 const DetailInformation = styled.div`
   display: flex;
-  height: 80px;
   flex-direction: column;
-  justify-content: center;
-  margin: 0px 12px;
-
-  b {
-    font-size: 20px;
-  }
-
-  span {
-    margin-bottom: 10px;
-  }
 `;
 
 const Hashtag = styled.div`
@@ -280,7 +268,7 @@ const SidebarBox = styled.div`
     border-radius: 4px;
     border: 1px solid ${colors.borderPrimary};
     margin: ${dimensions.unitSpacing}px ${dimensions.unitSpacing}px 0 0;
-    padding: 2px ${dimensions.unitSpacing}px;
+    padding: 2px 8px;
     color: ${colors.textSecondary} !important;
     display: flex;
     align-items: center;
@@ -325,7 +313,7 @@ const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
   margin-top: ${props => props.withMargin && dimensions.unitSpacing}px;
 `;
 
-//************** */
+//**************
 
 const inputPadding = '0px';
 const inputHeight = '15px';
@@ -494,7 +482,6 @@ export {
   Description,
   DetailMainContainer,
   PluginTitle,
-  DetailProfile,
   Center,
   Carousel,
   DetailInformation,
