@@ -9,6 +9,7 @@ import {
   initDocOverallWork,
   initDocWork,
   overallWorksAdd,
+  overallWorksUpdate,
   recursiveCatchBeforeJobs,
   worksAdd
 } from './utils';
@@ -79,7 +80,8 @@ export const rf = async (models: IModels, subdomain: string, params) => {
           lastJobRefer[0],
           productId,
           count,
-          lastJob
+          lastJob,
+          intervalId
         );
 
         const work = await worksAdd(doc, models);
@@ -112,7 +114,8 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             departmentId,
             jobRefers,
             models
-          }
+          },
+          intervalId
         );
 
         for await (const responseleftjob of responseleftjobs) {
@@ -150,12 +153,42 @@ export const rf = async (models: IModels, subdomain: string, params) => {
   // OverallWorks
   // OverallWorks
 
-  const works = await models.Works.find({ status: 'noOverall', intervalId });
+  const works = await models.Works.find({ status: 'new', intervalId });
   if (works.length > 0) {
     for (const work of works) {
-      const doc = initDocOverallWork(work);
-      await overallWorksAdd(doc, models);
+      const {
+        jobId,
+        outBranchId,
+        outDepartmentId,
+        inBranchId,
+        inDepartmentId
+      } = work;
+
+      const filter = {
+        jobId,
+        outBranchId,
+        outDepartmentId,
+        inBranchId,
+        inDepartmentId,
+        intervalId
+      };
+
+      const overallWork = await models.OverallWorks.findOne(filter);
+
+      if (overallWork) {
+        await overallWorksUpdate(overallWork, work, models);
+        console.log('updated overall ...');
+      } else {
+        const doc = initDocOverallWork(work);
+        await overallWorksAdd(doc, models);
+        console.log('created overall ...');
+      }
     }
+
+    await models.Works.updateMany(
+      { status: 'new', intervalId },
+      { $set: { status: 'done' } }
+    );
   }
 
   sendSalesplansMessage({

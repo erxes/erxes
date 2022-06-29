@@ -1,4 +1,7 @@
-import { IOverallWork } from './../models/definitions/overallWorks';
+import {
+  IOverallWork,
+  IOverallWorkDocument
+} from './../models/definitions/overallWorks';
 import { IFlowDocument } from './../models/definitions/flows';
 import { IWork } from './../models/definitions/works';
 import { IModels } from './../connectionResolver';
@@ -134,7 +137,7 @@ export const initDocWork = (
 ) => {
   const doc: IWork = {
     name: job?.label,
-    status: 'noOverall',
+    status: 'new',
     dueDate: new Date(),
     startAt: new Date(),
     endAt: new Date(),
@@ -184,6 +187,51 @@ export const overallWorksAdd = async (doc: IOverallWork, models: IModels) => {
   return overallWork;
 };
 
+export const overallWorksUpdate = async (
+  overalWork: IOverallWorkDocument,
+  work: IWork,
+  models: IModels
+) => {
+  const needProducts: IProductsData[] = overalWork.needProducts || [];
+  const resultProducts: IProductsData[] = overalWork.resultProducts || [];
+
+  const wNeedProducts: IProductsData[] = work.needProducts || [];
+  const wResultProducts: IProductsData[] = work.resultProducts || [];
+
+  const updatedNeedProducts: IProductsData[] = [];
+  const updatedResultProducts: IProductsData[] = [];
+
+  for await (const need of needProducts) {
+    const wNeedProduct =
+      wNeedProducts.find(wNeed => wNeed._id === need._id) ||
+      ({} as IProductsData);
+    need.quantity = need.quantity + wNeedProduct.quantity || 0;
+    updatedNeedProducts.push(need);
+  }
+
+  for await (const result of resultProducts) {
+    const wResultProduct =
+      wResultProducts.find(wNeed => wNeed._id === result._id) ||
+      ({} as IProductsData);
+    result.quantity = result.quantity + wResultProduct.quantity || 0;
+    updatedResultProducts.push(result);
+  }
+
+  await models.OverallWorks.updateOne(
+    { _id: overalWork._id },
+    {
+      $set: {
+        needProducts: updatedNeedProducts,
+        resultProducts: updatedResultProducts
+      }
+    }
+  );
+
+  const updated = await models.OverallWorks.findOne({ _id: overalWork._id });
+
+  return updated;
+};
+
 export const worksAdd = async (doc: IWork, models: IModels) => {
   const work = await models.Works.createWork(doc);
 
@@ -207,7 +255,8 @@ export const recursiveCatchBeforeJobs = async (
   recursiveJobs: IJobDocument[],
   leftJobs,
   level,
-  params
+  params,
+  intervalId
 ) => {
   console.log('Starting recursive ...');
 
@@ -249,7 +298,8 @@ export const recursiveCatchBeforeJobs = async (
       lastJobRefer[0],
       productId,
       count,
-      recursiveJob
+      recursiveJob,
+      intervalId
     );
 
     const work = await worksAdd(doc, models);
@@ -299,7 +349,8 @@ export const recursiveCatchBeforeJobs = async (
           recursiveJobs,
           leftJobs,
           level + levelCounter++,
-          params
+          params,
+          intervalId
         );
       }
     }

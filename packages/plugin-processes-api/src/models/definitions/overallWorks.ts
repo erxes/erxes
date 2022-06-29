@@ -41,6 +41,8 @@ export const overallWorkSchema = schemaHooksWrapper(
     endAt: field({ type: Date, optional: true, label: 'End at' }),
 
     assignUserIds: field({ type: [String] }),
+    jobId: field({ type: String }),
+    flowId: field({ type: String }),
     intervalId: field({ type: String }),
     outBranchId: field({ type: String, optional: true }),
     outDepartmentId: field({ type: String, optional: true }),
