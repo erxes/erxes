@@ -26,15 +26,13 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import { BlockList } from 'net';
-import { ISyncCard } from '../../../types';
 type Props = {
   onChange: (name: 'cardsConfig', value: any) => void;
   pos?: IPos;
 };
 class CardsConfig extends React.Component<
   Props,
-  { config: any; fieldsCombined: FieldsCombinedByType[]; mapIndex: number }
+  { config: any; fieldsCombined: FieldsCombinedByType[] }
 > {
   constructor(props: Props) {
     super(props);
@@ -56,7 +54,6 @@ class CardsConfig extends React.Component<
             ]
           };
     let fieldsCombined = [];
-    let mapIndex = 0;
 
     if (isEnabled('forms')) {
       client
@@ -77,7 +74,6 @@ class CardsConfig extends React.Component<
 
     this.state = {
       config,
-      mapIndex: 0,
       fieldsCombined: []
     };
   }
@@ -91,20 +87,12 @@ class CardsConfig extends React.Component<
     });
   };
   onChangeMap = (code: string, value, _id) => {
-    const { config, mapIndex } = this.state;
+    const { config } = this.state;
     config['mappings'].map(item => {
       if (item?._id == _id) {
         item[code] = value;
       }
     });
-    //config['mappings'][mapIndex][code] = value;
-
-    // const temp = config.mappings.map(item => {
-    //   if (item._id == _id) {
-    //    item[code] = value
-    //   }
-    // })
-    // config['mappings'] = temp
     this.setState({ config }, () => {
       this.props.onChange('cardsConfig', config);
     });
@@ -113,7 +101,7 @@ class CardsConfig extends React.Component<
     this.onChangeConfig('isSyncCards', e.target.checked);
   };
   renderOther(_id: string) {
-    const { config, mapIndex } = this.state;
+    const { config } = this.state;
 
     const onChangeBoard = (boardId: string) => {
       this.onChangeMap('boardId', boardId, _id);
@@ -140,6 +128,13 @@ class CardsConfig extends React.Component<
     }
     const getMapping = (code: string) => {
       return config.mappings.find(item => item._id == _id)[code];
+    };
+    const removeMapping = () => {
+      const curr_map = config.mappings.find(item => (item._id = _id));
+      const index = config.mappings.indexOf(curr_map);
+      if (index > -1) {
+        config.mappings.splice(index, 1);
+      }
     };
     const renderBoardContainer = props => {
       const onClickSave = () => {
@@ -219,7 +214,7 @@ class CardsConfig extends React.Component<
                   onSelect={onAssignedUsersSelect}
                 />
               </FormGroup>
-              <Button btnStyle="danger" icon="trash" onClick={() => {}} />
+              <Button btnStyle="danger" icon="trash" onClick={removeMapping} />
             </BlockRow>
           </Block>
         </LeftItem>
@@ -230,7 +225,7 @@ class CardsConfig extends React.Component<
     return this.renderOther(item?._id);
   }
   renderMaps() {
-    const { config, mapIndex } = this.state;
+    const { config } = this.state;
     if (!this.state.config.isSyncCards) {
       return <></>;
     }
@@ -245,10 +240,8 @@ class CardsConfig extends React.Component<
         assignedUserIds: []
       });
       this.setState({
-        config: temp,
-        mapIndex: mapIndex + 1
+        config: temp
       });
-      console.log(mapIndex);
       console.log(config);
     };
     return (
