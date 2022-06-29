@@ -100,7 +100,8 @@ export const initDocOverallWork = (work: IWork) => {
     inBranchId,
     inDepartmentId,
     needProducts,
-    resultProducts
+    resultProducts,
+    intervalId
   } = work;
 
   const doc: IOverallWork = {
@@ -109,6 +110,7 @@ export const initDocOverallWork = (work: IWork) => {
     startAt: new Date(),
     endAt: new Date(),
     assignUserIds: [],
+    intervalId,
     jobId,
     flowId,
     outBranchId,
@@ -127,7 +129,8 @@ export const initDocWork = (
   jobRefer: IJobReferDocument,
   productId: string,
   count: string,
-  job?: IJobDocument
+  job?: IJobDocument,
+  intervalId?: string
 ) => {
   const doc: IWork = {
     name: job?.label,
@@ -139,6 +142,7 @@ export const initDocWork = (
     flowId: flow._id,
     productId,
     count,
+    intervalId,
     inBranchId: job?.inBranchId,
     inDepartmentId: job?.inDepartmentId,
     outBranchId: job?.outBranchId,

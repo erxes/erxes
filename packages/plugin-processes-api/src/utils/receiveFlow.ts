@@ -126,7 +126,8 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             leftJobRefer[0],
             productId,
             count,
-            responseleftjob
+            responseleftjob,
+            intervalId
           );
 
           await worksAdd(docLeft, models);
@@ -143,14 +144,17 @@ export const rf = async (models: IModels, subdomain: string, params) => {
     descriptionForWork
       ? console.log('Description for work: ', descriptionForWork)
       : console.log('Done!');
+  }
 
-    // OverallWorks Add
-    const works = await models.Works.find({ status: 'noOverall' });
-    if (works.length > 0) {
-      for (const work of works) {
-        const doc = initDocOverallWork(work);
-        await overallWorksAdd(doc, models);
-      }
+  // OverallWorks
+  // OverallWorks
+  // OverallWorks
+
+  const works = await models.Works.find({ status: 'noOverall', intervalId });
+  if (works.length > 0) {
+    for (const work of works) {
+      const doc = initDocOverallWork(work);
+      await overallWorksAdd(doc, models);
     }
   }
 
