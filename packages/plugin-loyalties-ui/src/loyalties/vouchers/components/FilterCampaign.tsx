@@ -40,13 +40,13 @@ class FilterCampaign extends React.Component<IProps> {
                 router.getParam(this.props.history, 'status') ||
                 router.getParam(this.props.history, 'ownerType') ||
                 router.getParam(this.props.history, 'ownerID')
-                ) && (
+              ) && (
                   <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
                     <Tip text={__('Clear filter')} placement="bottom">
                       <Icon icon="cancel-1" />
                     </Tip>
                   </a>
-              )}
+            )}
             </Section.QuickButtons>
           </Section.Title>
           <SidebarFilters>

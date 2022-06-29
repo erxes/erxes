@@ -93,6 +93,7 @@ class VoucherForm extends React.Component<Props, State> {
     const target = e.currentTarget as HTMLInputElement;
     const value = target.value;
     const name = target.name;
+
     this.setState({ voucher: { ...voucher, [name]: value } });
   };
 
@@ -142,6 +143,7 @@ class VoucherForm extends React.Component<Props, State> {
     const { voucher } = this.state;
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
+    
     return (
       <>
         <ScrollWrapper>
