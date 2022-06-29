@@ -88,7 +88,8 @@ export const handleContacts = async (args: IContactsParams) => {
       action: 'companies.findOne',
       data: {
         companyPrimaryEmail: email,
-        companyPrimaryPhone: phone
+        companyPrimaryPhone: phone,
+        companyCode: document.companyRegistrationNumber
       },
       isRPC: true
     });
@@ -118,7 +119,8 @@ export const handleContacts = async (args: IContactsParams) => {
         data: {
           primaryName: document.companyName,
           primaryEmail: email,
-          primaryPhone: phone
+          primaryPhone: phone,
+          code: document.companyRegistrationNumber
         },
         isRPC: true
       });

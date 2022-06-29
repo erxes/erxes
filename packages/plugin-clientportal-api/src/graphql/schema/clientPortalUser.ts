@@ -60,6 +60,9 @@ const userParams = `
   email: String,
   username: String,
   password: String,
+
+  companyName: String
+  companyRegistrationNumber: String
   
   firstName: String,
   lastName: String,
