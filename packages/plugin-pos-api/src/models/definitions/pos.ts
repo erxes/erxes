@@ -3,37 +3,37 @@ import { field, schemaHooksWrapper } from './utils';
 
 export interface IPosOrderItem {
   createdAt: Date;
-  productId: String;
-  count: Number;
-  unitPrice: Number;
-  discountAmount: Number;
-  discountPercent: Number;
+  productId: string;
+  count: number;
+  unitPrice: number;
+  discountAmount: number;
+  discountPercent: number;
 }
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
 }
 export interface IPosOrder {
   createdAt: Date;
-  status: String;
+  status: string;
   paidDate: Date;
-  number: String;
-  customerId: String;
-  cardAmount: Number;
-  cashAmount: Number;
-  mobileAmount: Number;
-  totalAmount: Number;
-  finalAmount: Number;
+  number: string;
+  customerId: string;
+  cardAmount: number;
+  cashAmount: number;
+  mobileAmount: number;
+  totalAmount: number;
+  finalAmount: number;
   shouldPrintEbarimt: Boolean;
   printedEbarimt: Boolean;
-  billType: String;
-  billId: String;
-  oldBillId: String;
-  type: String;
-  userId: String;
+  billType: string;
+  billId: string;
+  oldBillId: string;
+  type: string;
+  userId: string;
   items: IPosOrderItem[];
-  branchId: String;
-  posToken: String;
-  syncId: String;
+  branchId: string;
+  posToken: string;
+  syncId: string;
   syncedErkhet: Boolean;
   deliveryInfo: Object;
 }
@@ -41,41 +41,41 @@ export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
 }
 export interface IPos {
-  name: String;
-  description: String;
-  userId: String;
+  name: string;
+  description: string;
+  userId: string;
   createdAt: Date;
-  productDetails: String;
-  adminIds: String;
-  cashierIds: String;
+  productDetails: string;
+  adminIds: string[];
+  cashierIds: string[];
   isOnline: Boolean;
-  branchId: String;
-  allowBranchIds: String;
-  beginNumber: String;
-  maxSkipNumber: Number;
+  branchId: string;
+  allowBranchIds: string;
+  beginNumber: string;
+  maxSkipNumber: number;
   waitingScreen: Object;
   kioskMachine: Object;
   kitchenScreen: Object;
   uiOptions: Object;
-  token: String;
+  token: string;
   ebarimtConfig: Object;
   erkhetConfig: Object;
   syncInfos: Object;
   catProdMappings: Object;
-  initialCategoryIds: String;
-  kioskExcludeProductIds: String;
+  initialCategoryIds: string;
+  kioskExcludeProductIds: string;
   deliveryConfig: Object;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
 }
 export interface IProductGroup {
-  name: String;
-  description: String;
-  posId: String;
-  categoryIds: String;
-  excludedCategoryIds: String;
-  excludedProductIds: String;
+  name: string;
+  description: string;
+  posId: string;
+  categoryIds: string;
+  excludedCategoryIds: string;
+  excludedProductIds: string;
 }
 export interface IProductGroupDocument extends IProductGroup, Document {
   _id: string;

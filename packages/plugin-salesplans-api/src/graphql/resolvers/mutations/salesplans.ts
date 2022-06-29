@@ -54,17 +54,26 @@ const salesLogMutations = {
       doc.status
     );
 
-    if (result && ![STATUS.PUBLISHED, STATUS.PENDING].includes(result.status)) {
-      let intervals: any = [];
+    if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status)) {
+      let worksIntervals: any = [];
 
-      result.products.map((item: any) => {
-        intervals.push({
-          productId: item.productId,
-          label: item.label,
-          count: item.label
+      /**
+       * Converts all the intervals into a format that allows process plugin to read
+       */
+      result.products.map((product: any) => {
+        const { intervals = [] } = product;
+        intervals.map((interval: any) => {
+          worksIntervals.push({
+            productId: product.productId,
+            label: interval.label,
+            count: interval.value
+          });
         });
       });
 
+      /**
+       * Sends the data to plugin-processes-api
+       */
       await sendProcessesMessage({
         subdomain,
         action: 'createWorks',
@@ -73,7 +82,7 @@ const salesLogMutations = {
           data: result.date,
           branchId: result.branchId,
           departmentId: result.departmentId,
-          interval: intervals
+          interval: { intervals: worksIntervals }
         },
         isRPC: false
       });

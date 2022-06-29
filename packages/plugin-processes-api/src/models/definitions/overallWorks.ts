@@ -10,6 +10,7 @@ export interface IOverallWork {
   assignUserIds: string[];
   jobId: string;
   flowId: string;
+  intervalId?: string;
   outBranchId?: string;
   outDepartmentId?: string;
   inBranchId?: string;
@@ -28,18 +29,25 @@ export const overallWorkSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     status: field({ type: String, label: 'Status' }),
-    createdAt: { type: Date, default: new Date(), label: 'Created date' },
-    createdBy: { type: String, label: 'Created User' },
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created date'
+    }),
+    createdBy: field({ type: String, label: 'Created User' }),
 
     dueDate: field({ type: Date, label: 'Due Date' }),
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
     endAt: field({ type: Date, optional: true, label: 'End at' }),
 
-    assignUserIds: { type: [String] },
-    outBranchId: { type: String, optional: true },
-    outDepartmentId: { type: String, optional: true },
-    inBranchId: { type: String, optional: true },
-    inDepartmentId: { type: String, optional: true },
+    assignUserIds: field({ type: [String] }),
+    jobId: field({ type: String }),
+    flowId: field({ type: String }),
+    intervalId: field({ type: String }),
+    outBranchId: field({ type: String, optional: true }),
+    outDepartmentId: field({ type: String, optional: true }),
+    inBranchId: field({ type: String, optional: true }),
+    inDepartmentId: field({ type: String, optional: true }),
 
     needProducts: field({
       type: [productsDataSchema],

@@ -12,6 +12,7 @@ export const types = `
     assignUserIds: JSON
     jobId: String,
     flowId: String,
+    intervalId: String,
     outBranchId: String,
     outDepartmentId: String,
     inBranchId: String,
@@ -38,6 +39,7 @@ const workParams = `
   assignUserIds: [String]
   jobId: String,
   flowId: String,
+  intervalId: String,
   outBranchId: String,
   outDepartmentId: String,
   inBranchId: String,
