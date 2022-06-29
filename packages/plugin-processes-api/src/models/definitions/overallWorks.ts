@@ -10,12 +10,12 @@ export interface IOverallWork {
   assignUserIds: string[];
   jobId: string;
   flowId: string;
-  outBranchId: string;
-  outDepartmentId: string;
-  inBranchId: string;
-  inDepartmentId: string;
-  needProducts: IProductsData[];
-  resultProducts: IProductsData[];
+  outBranchId?: string;
+  outDepartmentId?: string;
+  inBranchId?: string;
+  inDepartmentId?: string;
+  needProducts?: IProductsData[];
+  resultProducts?: IProductsData[];
 }
 
 export interface IOverallWorkDocument extends IOverallWork, Document {
@@ -36,14 +36,19 @@ export const overallWorkSchema = schemaHooksWrapper(
     endAt: field({ type: Date, optional: true, label: 'End at' }),
 
     assignUserIds: { type: [String] },
-    outBranchId: { type: String },
-    outDepartmentId: { type: String },
-    inBranchId: { type: String },
-    inDepartmentId: { type: String },
+    outBranchId: { type: String, optional: true },
+    outDepartmentId: { type: String, optional: true },
+    inBranchId: { type: String, optional: true },
+    inDepartmentId: { type: String, optional: true },
 
-    needProducts: field({ type: [productsDataSchema], label: 'Need products' }),
+    needProducts: field({
+      type: [productsDataSchema],
+      optional: true,
+      label: 'Need products'
+    }),
     resultProducts: field({
       type: [productsDataSchema],
+      optional: true,
       label: 'Result products'
     })
   }),

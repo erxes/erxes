@@ -18,6 +18,14 @@ module.exports = {
       scope: 'processes',
       action: 'processesAll',
       permissions: []
+    },
+    {
+      text: 'Performs',
+      url: '/processes/jobs',
+      icon: 'icon-file-check-alt',
+      location: 'mainNavigation',
+      scope: 'processes',
+      permissions: []
     }
   ]
 };
