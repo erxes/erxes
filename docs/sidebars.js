@@ -63,7 +63,7 @@ module.exports = {
             "developer/android-sdk",
             "developer/ios-sdk",
             "developer/push-notifications",
-            "user/script-install",
+            "developer/script-install",
           ],
         },
         {
@@ -97,30 +97,6 @@ module.exports = {
           label: "Release Notes", // The link label
           href: "https://github.com/erxes/erxes/releases", // The external URL
         },
-      ],
-    },
-  ],
-  tutorials: [
-    {
-      type: "category",
-      label: "User's Guide",
-      items: [
-        "user/subscription-getting-started",
-        "user/initial-setup",
-        "user/general-settings",
-        "user/engage-phone-settings",
-        "user/team-inbox",
-        "user/knowledge-base",
-        "user/popups",
-        "user/script-install",
-        "user/contacts",
-        "user/segments",
-        "user/sales-pipeline",
-        "user/engage",
-        "user/profile-settings",
-        "user/notification",
-        "user/mobile-apps",
-        "user/import",
       ],
     },
   ],
