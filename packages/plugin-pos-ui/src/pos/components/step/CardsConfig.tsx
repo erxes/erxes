@@ -131,9 +131,16 @@ class CardsConfig extends React.Component<
       this.onChangeMap('assignedUserIds', users, _id);
     };
 
+    const onBranchesSelect = users => {
+      this.onChangeMap('branchIds', users, _id);
+    };
+
     if (!this.state.config.isSyncCards) {
       return <></>;
     }
+    const getMapping = (code: string) => {
+      return config.mappings.find(item => item._id == _id)[code];
+    };
     const renderBoardContainer = props => {
       const onClickSave = () => {
         props.closeModal();
@@ -141,17 +148,14 @@ class CardsConfig extends React.Component<
       const onClickCancel = () => {
         props.closeModal();
       };
-      const getMapping = (code: string) => {
-        return config.mappings.find(item => item._id == _id)[code];
-      };
       return (
         <>
           <BoardSelectContainer
             type="deal"
             autoSelectStage={false}
             boardId={getMapping('boardId')}
-            pipelineId={getMapping('boardId')}
-            stageId={getMapping('boardId')}
+            pipelineId={getMapping('pipelineId')}
+            stageId={getMapping('stageId')}
             onChangeBoard={onChangeBoard}
             onChangePipeline={onChangePipeline}
             onChangeStage={onChangeStage}
@@ -186,7 +190,8 @@ class CardsConfig extends React.Component<
                 <SelectBranches
                   label={__('Choose branch')}
                   name="branchIds"
-                  onSelect={() => {}}
+                  initialValue={getMapping('')}
+                  onSelect={onBranchesSelect}
                 />
               </FormGroup>
               {(isEnabled('cards') && (
@@ -210,7 +215,7 @@ class CardsConfig extends React.Component<
                 <SelectTeamMembers
                   label={__('Choose team member')}
                   name="assignedUserIds"
-                  initialValue={config.assignedUserIds}
+                  initialValue={getMapping('assignedUserIds')}
                   onSelect={onAssignedUsersSelect}
                 />
               </FormGroup>
