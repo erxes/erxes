@@ -143,7 +143,7 @@ class VoucherForm extends React.Component<Props, State> {
     const { voucher } = this.state;
     const { closeModal, renderButton } = this.props;
     const { values, isSubmitted } = formProps;
-    
+
     return (
       <>
         <ScrollWrapper>

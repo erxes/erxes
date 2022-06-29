@@ -46,7 +46,7 @@ class FilterCampaign extends React.Component<IProps> {
                       <Icon icon="cancel-1" />
                     </Tip>
                   </a>
-            )}
+                )}
             </Section.QuickButtons>
           </Section.Title>
           <SidebarFilters>
