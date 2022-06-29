@@ -1,5 +1,5 @@
-import { colors, dimensions } from '@erxes/ui/src/styles/';
 import styled from 'styled-components';
+import { colors, dimensions } from '@erxes/ui/src/styles/';
 
 export const LoyaltyAmount = styled.div`
   font-weight: 500;
@@ -25,6 +25,7 @@ export const ContentBox = styled.div`
 export const PaddingTop = styled.div`
   padding-top: ${dimensions.unitSpacing}px;
 `;
+
 export const TriggerTabs = styled.div`
   .hxZkUW {
     border: 1px solid ${colors.borderPrimary};

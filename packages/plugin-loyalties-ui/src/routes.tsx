@@ -2,7 +2,7 @@ import queryString from "query-string";
 import React from "react";
 import Settings from "./configs/general/containers/Settings";
 import { Route } from "react-router-dom";
-import asyncComponent from "@erxes/ui/src/components/AsyncComponent";
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const VoucherCampaigns = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './configs/voucherCampaign/containers/List')
