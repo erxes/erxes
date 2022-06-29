@@ -1,20 +1,20 @@
-import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { orderDeleteToErkhet, orderToErkhet } from '../../../utils';
-import { IPOS } from '../../../types';
 import messageBroker, {
   sendCoreMessage,
-  sendPosMessage,
-  sendEbarimtMessage
+  sendEbarimtMessage,
+  sendPosclientMessage
 } from '../../../messageBroker';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { getConfig } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
+import { IPos } from '../../../models/definitions/pos';
+import { orderDeleteToErkhet, orderToErkhet } from '../../../utils';
 
-interface IPOSEdit extends IPOS {
+interface IPOSEdit extends IPos {
   _id: string;
 }
 
 const mutations = {
-  posAdd: async (_root, params: IPOS, { models, user }: IContext) => {
+  posAdd: async (_root, params: IPos, { models, user }: IContext) => {
     return await models.Pos.posAdd(user, params);
   },
 
@@ -50,11 +50,10 @@ const mutations = {
       defaultValue: []
     });
 
-    await sendPosMessage(
-      models,
-      messageBroker,
-      'pos:crudData',
-      {
+    await sendPosclientMessage({
+      subdomain,
+      action: 'crudData',
+      data: {
         type: 'pos',
         action: 'update',
         object,
@@ -62,9 +61,8 @@ const mutations = {
         adminUsers,
         cashierUsers
       },
-      object
-    );
-
+      pos: object
+    });
     return updatedDocument;
   },
 

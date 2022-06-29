@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field, schemaHooksWrapper } from './util';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IPosOrderItem {
   createdAt: Date;
@@ -30,7 +30,7 @@ export interface IPosOrder {
   oldBillId: String;
   type: String;
   userId: String;
-  items: String;
+  items: IPosOrderItem[];
   branchId: String;
   posToken: String;
   syncId: String;
@@ -133,7 +133,7 @@ export const posOrderSchema = schemaHooksWrapper(
     type: field({ type: String }),
     userId: field({ type: String, label: 'Created user id' }),
 
-    items: field({ type: posOrderItemSchema, label: 'items' }),
+    items: field({ type: [posOrderItemSchema], label: 'items' }),
     branchId: field({ type: String, label: 'Branch' }),
     posToken: field({ type: String, optional: true }),
     syncId: field({ type: String, optional: true }),

@@ -212,6 +212,7 @@ const replaceServiceTypes = value => {
 };
 
 const getRelatedTargets = async (
+  subdomain,
   triggerType,
   action,
   execution,
@@ -231,6 +232,7 @@ const getRelatedTargets = async (
     ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)
   ) {
     return sendCommonMessage({
+      subdomain,
       serviceName: 'cards',
       action: `${module.replace('cards:', '')}s.find`,
       data: {
@@ -246,6 +248,7 @@ const getRelatedTargets = async (
     ['cards:task', 'cards:ticket', 'cards:deal'].includes(module)
   ) {
     return sendCommonMessage({
+      subdomain,
       serviceName: 'cards',
       action: `${module.replace('cards:', '')}s.find`,
       data: {
@@ -260,6 +263,7 @@ const getRelatedTargets = async (
     ['contacts:customer', 'contacts:company'].includes(module)
   ) {
     return sendCommonMessage({
+      subdomain,
       serviceName: 'contacts',
       action: `${module.includes('customer') ? 'customers' : 'companies'}.find`,
       data: {
@@ -288,6 +292,7 @@ const getRelatedTargets = async (
     const relType = replaceServiceTypes(module);
 
     const relTypeIds = await sendCommonMessage({
+      subdomain,
       serviceName: 'core',
       action: 'conformities.savedConformity',
       data: {
@@ -301,6 +306,7 @@ const getRelatedTargets = async (
     const [serviceName, collectionType] = module.split(':');
 
     return sendCommonMessage({
+      subdomain,
       serviceName,
       action: `${collectionType}s.find`,
       data: { _id: { $in: relTypeIds } },
@@ -327,6 +333,7 @@ export const setProperty = async ({
   const result: any[] = [];
 
   const conformities = await getRelatedTargets(
+    subdomain,
     triggerType,
     action,
     execution,
@@ -348,6 +355,7 @@ export const setProperty = async ({
     }
 
     const response = await sendCommonMessage({
+      subdomain,
       serviceName,
       action: `${collectionType}s.updateMany`,
       data: { selector: { _id: conformity._id }, modifier: setDoc },
