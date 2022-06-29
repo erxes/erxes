@@ -93,6 +93,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
 
     return '';
   }
+  
   render() {
     return (
       <Box

@@ -1,16 +1,8 @@
 import {
-  Button,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  SortHandler,
-  Table
+  Button, DataWithLoader, FormControl, ModalTrigger, Pagination,
+  SortHandler, Table
 } from '@erxes/ui/src/components';
-import {
-  MainStyleTitle as Title,
-  MainStyleCount as Count
-} from '@erxes/ui/src/styles/eindex';
+import { MainStyleTitle as Title, MainStyleCount as Count } from '@erxes/ui/src/styles/eindex';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { Wrapper } from '@erxes/ui/src/layout';
@@ -38,10 +30,7 @@ interface IProps extends IRouterProps {
   bulk: any[];
   isAllSelected: boolean;
   emptyBulk: () => void;
-  removeLotteries: (
-    doc: { lotteryIds: string[] },
-    emptyBulk: () => void
-  ) => void;
+  removeLotteries: (doc: { lotteryIds: string[] }, emptyBulk: () => void) => void;
   history: any;
   queryParams: any;
 }
@@ -111,6 +100,7 @@ class LotteriesList extends React.Component<IProps, State> {
     } = this.props;
 
     const mainContent = (
+
       <LoyaltiesTableWrapper>
         <Table whiteSpace="nowrap" bordered={true} hover={true}>
           <thead>
@@ -137,7 +127,9 @@ class LotteriesList extends React.Component<IProps, State> {
               <th>
                 <SortHandler sortField={'status'} label={__('Status')} />
               </th>
-              <th>Actions</th>
+              <th>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody id="lotteries">
@@ -210,14 +202,11 @@ class LotteriesList extends React.Component<IProps, State> {
             backDrop="static"
           />
         </BarItems>
-      );
+      )
     };
 
     const actionBarLeft = (
-      <Title>
-        {(currentCampaign && `${currentCampaign.title}`) ||
-          'All lottery campaigns'}{' '}
-      </Title>
+      <Title>{currentCampaign && `${currentCampaign.title}` || 'All lottery campaigns'} </Title>
     );
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight()} left={actionBarLeft} />
@@ -254,6 +243,7 @@ class LotteriesList extends React.Component<IProps, State> {
               emptyImage="/images/actions/1.svg"
             />
           </>
+          
         }
       />
     );

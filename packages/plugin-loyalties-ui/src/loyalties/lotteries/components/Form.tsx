@@ -20,6 +20,7 @@ import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies'
 import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { isEnabled } from '../../../../../api-utils/src/serviceDiscovery';
+
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   lottery: ILottery;
