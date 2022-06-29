@@ -10,7 +10,7 @@ export const types = () => `
     _id: String! @external
   }
 
-  extend type Unit @key(fields: "_id") {
+  extend type Department @key(fields: "_id") {
     _id: String! @external
   }
 
@@ -20,19 +20,31 @@ export const types = () => `
 
   type SalesLog @key(fields: "_id"){
     _id: String!
-    branchId: String
-    date: Date
-    branchDetail: Branch
-    description: String
     name: String
+    description: String
     type: String
-    unitId:String
-    unitDetail: Unit
+    date: Date
+    status: String
+    branchId: String
+    branchDetail: Branch
+    departmentId: String
+    departmentDetail: Department
     createdBy:String
     createdUser: User
     createdAt: Date
-    status: String
+    products: [SalesLogProduct]
+    labels: [String]
   },
+
+  type SalesLogProduct {
+    productId: String
+    intervals: [Interval]
+  }
+
+  type Interval {
+    label: String
+    value: String
+  }
 
   type Label {
     _id: String
@@ -71,6 +83,16 @@ export const types = () => `
     month: Int
   },
 
+  input ProductInput {
+    productId: String
+    intervals: [IntervalInput]
+  }
+
+  input IntervalInput {
+    label: String
+    value: String
+  }
+
   input TimeframeInput {
     _id: String
     name: String
@@ -98,35 +120,53 @@ export const types = () => `
     title: String
     color: String
     type: String
-    status:String 
+    status:String
   },
 `;
 
-const salesLogPrams = `
-  branchId: String,
+const salesLogParams = `
+  name: String,
+  description: String,
   date: Date,
-  description:String,
-  name:String,
-  type:String,
-  unitId:String,
+  type: String,
+  branchId: String,
+  departmentId: String,
+  labels: [String],
 `;
+
+const salesLogDocumentParams = `
+  _id: String,
+  description: String,
+  name: String,
+  type: String,
+  date: Date,
+  branchId: String,
+  departmentId: String,
+  labels: [String],
+`;
+
 export const queries = `
-  getDayPlanConfig(salesLogId: String): [DayPlanConfig]
-  getMonthPlanConfig(salesLogId: String): [MonthPlanConfig]
-  getYearPlanConfig(salesLogId: String): [YearPlanConfig]
-  getLabels(type: String): [Label]
-  getSalesLogs: [SalesLog]
-  getTimeframes:[Timeframe]
+  dayPlanConfig(salesLogId: String): [DayPlanConfig]
+  monthPlanConfig(salesLogId: String): [MonthPlanConfig]
+  yearPlanConfig(salesLogId: String): [YearPlanConfig]
+  labels(type: String): [Label]
+  salesLogs: [SalesLog]
+  salesLogDetail(salesLogId: String): SalesLog
+  timeframes: [Timeframe]
 `;
 
 export const mutations = `
-  createSalesLog(${salesLogPrams}): SalesLog
+  salesLogAdd(${salesLogParams}): SalesLog
+  salesLogEdit(${salesLogDocumentParams}): SalesLog
+  salesLogRemove(_id: String): JSON
+  salesLogProductUpdate(_id: String, data: ProductInput): JSON
+  salesLogProductRemove(_id: String, productId: String): JSON
+  salesLogStatusUpdate(_id: String, status: String): JSON
   saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
+  removeLabel(_id:String): JSON
   saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]
+  removeTimeframe(_id: String): JSON
   saveDayPlanConfig(salesLogId: String, data:JSON):[DayPlanConfig]
   saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):[MonthPlanConfig]
   saveYearPlanConfig(salesLogId: String, data:JSON):[YearPlanConfig]
-  removeLabel(_id:String): JSON
-  removeTimeframe(_id: String): JSON
-  removeSalesLog(_id: String): JSON
 `;

@@ -13,6 +13,8 @@ const productParamsDef = `
   $productCount: Int,
   $minimiumCount: Int,
   $vendorId: String,
+  $uomId: String,
+  $subUoms: JSON,
 `;
 
 const productCategoryParamsDef = `
@@ -38,7 +40,9 @@ const productParams = `
   supply: $supply,
   productCount: $productCount,
   minimiumCount: $minimiumCount,
-  vendorId: $vendorId
+  vendorId: $vendorId,
+  uomId: $uomId,
+  subUoms: $subUoms
 `;
 
 const productCategoryParams = `
@@ -82,9 +86,56 @@ const productCategoryEdit = `
   }
 `;
 
+const productsRemove = `
+  mutation productsRemove($productIds: [String!]) {
+    productsRemove(productIds: $productIds)
+  }
+`;
+
+const productsConfigsUpdate = `
+  mutation productsConfigsUpdate($configsMap: JSON!) {
+    productsConfigsUpdate(configsMap: $configsMap)
+  }
+`;
+
+// UOM
+
+const uomsAdd = `
+  mutation uomsAdd($name: String, $code: String) {
+    uomsAdd(name: $name, code: $code) {
+      _id
+      name
+      code
+      createdAt
+    }
+  }
+`;
+
+const uomsEdit = `
+  mutation uomsEdit($id: String!, $name: String, $code: String) {
+    uomsEdit(_id: $id, name: $name, code: $code) {
+      _id
+      name
+      code
+      createdAt
+    }
+  }
+`;
+
+const uomsRemove = `
+  mutation uomsRemove($uomIds: [String!]) {
+    uomsRemove(uomIds: $uomIds)
+  }
+`;
+
 export default {
   productAdd,
   productEdit,
+  productsRemove,
   productCategoryAdd,
-  productCategoryEdit
+  productCategoryEdit,
+  productsConfigsUpdate,
+  uomsAdd,
+  uomsEdit,
+  uomsRemove
 };

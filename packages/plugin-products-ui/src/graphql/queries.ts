@@ -24,14 +24,7 @@ const productCategoriesCount = `
   }
 `;
 
-const productDetail = `
-  query productDetail($_id: String) {
-    productDetail(_id: $_id) {
-      ${productFields}
-      customFieldsData
-    }
-  }
-`;
+const productDetail = productQueries.productDetail;
 
 const productCategoryDetail = `
   query productCategoryDetail($_id: String) {
@@ -43,6 +36,16 @@ const productCategoryDetail = `
   }
 `;
 
+// UOM
+
+const uoms = productQueries.uoms;
+
+const uomsTotalCount = productQueries.uomsTotalCount;
+
+// Settings
+
+const productsConfigs = productQueries.productsConfigs;
+
 export default {
   products,
   productDetail,
@@ -50,5 +53,10 @@ export default {
   productsCount,
   productCategories,
   productCategoriesCount,
-  productCategoryDetail
+  productCategoryDetail,
+
+  uoms,
+  uomsTotalCount,
+
+  productsConfigs
 };
