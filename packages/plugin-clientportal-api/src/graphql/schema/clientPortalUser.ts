@@ -10,6 +10,7 @@ export const types = () => `
     username: String
     type: String
     erxesCustomerId: String
+    erxesCompanyId: String
     clientPortalId: String
     code: String,
     ownerId: String,

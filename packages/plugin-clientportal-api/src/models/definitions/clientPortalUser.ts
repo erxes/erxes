@@ -14,7 +14,8 @@ export interface IUser {
   type?: string;
   deviceTokens?: string[];
   clientPortalId: string;
-  erxesCustomerId: string;
+  erxesCustomerId?: string;
+  erxesCompanyId?: string;
   createdAt?: Date;
   modifiedAt?: Date;
   resetPasswordToken?: string;
@@ -59,6 +60,7 @@ export const clientPortalUserSchema = new Schema({
   companyName: field({ type: String, optional: true }),
   clientPortalId: field({ type: String, required: true }),
 
+  erxesCompanyId: field({ type: String, optional: true }),
   erxesCustomerId: field({ type: String, optional: true }),
   phoneVerificationCode: field({ type: String, optional: true }),
   phoneVerificationCodeExpires: field({ type: Date, optional: true }),

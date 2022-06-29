@@ -6,22 +6,26 @@ export interface IContactsParams {
   models: IModels;
   clientPortalId: string;
   document: any;
-  password: string;
+  password?: string;
 }
 
 export const handleContacts = async (args: IContactsParams) => {
   const { subdomain, models, clientPortalId, document, password } = args;
   const { type = 'customer', email, phone } = document;
 
+  const tEmail = (email || '').toLowerCase().trim();
+
   let qry: any;
   let user: any;
 
   if (email) {
-    qry = { email: email };
+    qry = { email: tEmail };
+    document.email = tEmail;
   }
 
   if (phone) {
     qry = { phone };
+    document.phone = phone;
   }
 
   qry.type = type;
