@@ -191,14 +191,18 @@ export const rf = async (models: IModels, subdomain: string, params) => {
     );
   }
 
-  sendSalesplansMessage({
-    subdomain,
-    action: 'saleslog.statusUpdate',
-    data: {
-      _id: salesLogId,
-      status: 'published'
-    }
-  });
+  try {
+    sendSalesplansMessage({
+      subdomain,
+      action: 'saleslogs.statusUpdate',
+      data: {
+        _id: salesLogId,
+        status: 'published'
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
 
   return inputData;
 };
