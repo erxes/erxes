@@ -387,13 +387,12 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     return (
-      <MapContainer>
-        <Map
-          center={currentLocation || { lat: 0, lng: 0 }}
-          googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-          locationOptions={locationOptions}
-        />
-      </MapContainer>
+      <Map
+        id={field._id}
+        center={currentLocation || { lat: 0, lng: 0 }}
+        googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+        locationOptions={locationOptions}
+      />
     );
   }
 

@@ -5,12 +5,20 @@ import { ILocationOption } from '../../types';
 import Marker from './Marker';
 import { __ } from '@erxes/ui/src/utils/core';
 
-type Props = {
+// type Props = {
+//   googleMapApiKey: string;
+//   center?: ILocationOption;
+//   locationOptions: ILocationOption[];
+//   locale?: string;
+// };
+
+interface IMapProps extends google.maps.MapOptions {
+  id: string;
   googleMapApiKey: string;
   center?: ILocationOption;
   locationOptions: ILocationOption[];
   locale?: string;
-};
+}
 
 const loadMapScript = (apiKey: string, locale?: string) => {
   if (!apiKey) {
@@ -31,18 +39,19 @@ const loadMapScript = (apiKey: string, locale?: string) => {
   googleMapScript.src = mapsURL;
   googleMapScript.async = true;
   googleMapScript.defer = true;
+
   window.document.body.appendChild(googleMapScript);
 
   return googleMapScript;
 };
 
-const Map = (props: Props) => {
-  const { locationOptions } = props;
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
-  const [selectedOption, setSelectedOption] = useState<
-    ILocationOption | undefined
-  >(undefined);
+const Map = (props: IMapProps) => {
+  const { locationOptions, ...options } = props;
+  // const [mapLoaded, setMapLoaded] = useState(false);
+  // const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
+  // const [selectedOption, setSelectedOption] = useState<
+  //   ILocationOption | undefined
+  // >(undefined);
 
   const mapScript = loadMapScript(
     props.googleMapApiKey || 'demo',
@@ -50,75 +59,59 @@ const Map = (props: Props) => {
   );
 
   mapScript.addEventListener('load', () => {
-    setMapLoaded(true);
-
-    if (locationOptions && locationOptions.length) {
-      const bounds = new google.maps.LatLngBounds();
-      for (let marker of locationOptions) {
-        bounds.extend(new google.maps.LatLng(marker.lat, marker.lng));
-      }
-
-      const map = new google.maps.Map(document.getElementById('map'));
-      console.log('MAP = ', map);
-
-      // map.fitBounds(bounds);
-    }
+    renderMap();
   });
 
   const onLocationChange = (option: ILocationOption) => {
     if (locationOptions.length > 0) {
-      return setSelectedOption(option);
+      // return setSelectedOption(option);
     }
 
-    setCenter(option);
+    console.log(option);
+
+    // setCenter(option);
   };
 
-  const renderContent = () => {
-    if (!mapLoaded) {
-      return null;
+  const renderMap = () => {
+    console.log('MAP rendering');
+    const map = new google.maps.Map(document.getElementById(props.id), {
+      zoom: 7,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      ...options
+    });
+    // setMapLoaded(true);
+
+    const bounds = new google.maps.LatLngBounds();
+
+    if (locationOptions.length > 0) {
+      locationOptions.forEach(option => {
+        new google.maps.Marker({
+          position: {
+            lat: option.lat,
+            lng: option.lng
+          },
+          map,
+          title: option.description
+        });
+
+        bounds.extend(new google.maps.LatLng(option.lat, option.lng));
+      });
+      return map.fitBounds(bounds);
     }
 
-    return (
-      <MapContainer>
-        <GoogleMap
-          center={new google.maps.LatLng(center.lat, center.lng)}
-          controlSize={25}
-          streetViewControl={false}
-          zoom={4}
-          style={{ width: '100%', height: '250px' }}
-        >
-          {locationOptions.length > 0 ? (
-            locationOptions.map((option, index) => (
-              <Marker
-                color={
-                  selectedOption &&
-                  option.lat === selectedOption.lat &&
-                  option.lng === selectedOption.lng
-                    ? 'red'
-                    : ''
-                }
-                key={index}
-                position={new google.maps.LatLng(option.lat, option.lng)}
-                content={option.description}
-                draggable={false}
-                onChange={onLocationChange}
-              />
-            ))
-          ) : (
-            <Marker
-              color={''}
-              position={new google.maps.LatLng(center.lat, center.lng)}
-              content={__('Select your location')}
-              draggable={true}
-              onChange={onLocationChange}
-            />
-          )}
-        </GoogleMap>
-      </MapContainer>
-    );
+    if (props.center && locationOptions.length === 0) {
+      new google.maps.Marker({
+        position: {
+          lat: props.center.lat,
+          lng: props.center.lng
+        },
+        map,
+        title: 'your location'
+      });
+    }
   };
 
-  return renderContent();
+  return <MapContainer id={props.id} />;
 };
 
 export default Map;

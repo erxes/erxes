@@ -95,7 +95,7 @@ const Marker: React.FC<IMarkerProps> = ({
       anchor: new google.maps.Point(9, 26),
       strokeWeight: 0.5,
       strokeColor: '#ffffff',
-      scale: 2
+      scale: 1.5
     };
   };
 
