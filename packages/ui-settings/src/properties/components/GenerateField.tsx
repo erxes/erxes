@@ -16,7 +16,7 @@ import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
-import Map from '@erxes/ui/src/components/Map';
+import Map from '@erxes/ui/src/components/map/Map';
 import { Button, Icon } from '@erxes/ui/src/components';
 import { MapContainer } from '@erxes/ui/src/styles/main';
 import ObjectList from './ObjectList';
@@ -391,20 +391,7 @@ export default class GenerateField extends React.Component<Props, State> {
         <Map
           center={currentLocation || { lat: 0, lng: 0 }}
           googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-          defaultZoom={7}
           locationOptions={locationOptions}
-          mapControlOptions={{
-            controlSize: 30,
-            zoomControl: true,
-            mapTypeControl: true,
-            scaleControl: false,
-            streetViewControl: false,
-            rotateControl: false,
-            fullscreenControl: isPreview ? false : true
-          }}
-          isPreview={isPreview}
-          onChangeMarker={onChangeMarker}
-          onChangeLocationOptions={onChangeLocationOptions}
         />
       </MapContainer>
     );

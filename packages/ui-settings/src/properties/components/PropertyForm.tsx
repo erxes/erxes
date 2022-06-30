@@ -20,7 +20,7 @@ import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { IField } from '@erxes/ui/src/types';
 import { IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
-import Map from '@erxes/ui/src/components/Map';
+import Map from '@erxes/ui/src/components/map/Map';
 import ObjectListConfigs from './ObjectListConfigs';
 
 type Props = {
@@ -242,19 +242,7 @@ class PropertyForm extends React.Component<Props, State> {
             <Map
               center={currentLocation}
               googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-              defaultZoom={7}
               locationOptions={locationOptions}
-              mapControlOptions={{
-                controlSize: 30,
-                zoomControl: true,
-                mapTypeControl: true,
-                scaleControl: false,
-                streetViewControl: false,
-                rotateControl: false,
-                fullscreenControl: true
-              }}
-              isPreview={true}
-              onChangeLocationOptions={this.onChangeLocationOption}
             />
           </MapContainer>
         )}

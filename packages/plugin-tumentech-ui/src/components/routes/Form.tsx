@@ -13,7 +13,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { IDirection, IRoute } from '../../types';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/components/Map';
+import Map from '@erxes/ui/src/components/map/Map';
 import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {

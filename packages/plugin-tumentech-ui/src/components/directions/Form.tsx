@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import { IDirection, IPlace } from '../../types';
 import { ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/components/Map';
+import Map from '@erxes/ui/src/components/map/Map';
 
 type Props = {
   direction?: IDirection;
