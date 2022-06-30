@@ -9,7 +9,7 @@ type Props = {
   searchValue?: any;
   categoryId?: string;
   type?: string;
-  topic: Topic;
+  topic?: Topic;
 };
 
 function ArticleListContainer(props: Props) {

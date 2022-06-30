@@ -1,4 +1,4 @@
-import { colors, dimensions, typography } from "../../styles";
+import { colors, typography } from "../../styles";
 import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 
@@ -62,7 +62,7 @@ const CategoryItem = styledTS<{type?: string}>(styled.div)`
   min-width: 200px;
   flex-grow: 1;
   height: 300px;
-  margin-right: ${dimensions.coreSpacing}px;
+  margin-right: 20px;
   padding: 0;
   overflow: hidden;
   
@@ -81,8 +81,6 @@ const CategoryItem = styledTS<{type?: string}>(styled.div)`
   @media (min-width: 1170px) {
     flex-basis: 31%;
   }`}
-
-  
 `;
 
 const CategoryIcon = styled.div`
