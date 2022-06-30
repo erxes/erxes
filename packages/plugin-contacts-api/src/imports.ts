@@ -142,8 +142,6 @@ export default {
           }
         });
 
-        console.log(response);
-
         const collections = (response && response.hits.hits) || [];
 
         for (const collection of collections) {
