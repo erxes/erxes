@@ -9,7 +9,7 @@ const WorkList = asyncComponent(() =>
 
 const OverallWorkList = asyncComponent(() =>
   import(
-    /* webpackChunkName: "OverallWorkList" */ './containers/OverallWorklist'
+    /* webpackChunkName: "OverallWorkList" */ './containers/OverallWorkList'
   )
 );
 
