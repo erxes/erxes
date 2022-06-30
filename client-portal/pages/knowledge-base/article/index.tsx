@@ -9,7 +9,7 @@ import { Store } from "../../../modules/types";
 export default function Category() {
   const router = useRouter();
   const { searchValue } = router.query;
-  const type = "";
+  const { type } = router.query;
 
   const renderContent = (props) => {
     if (searchValue) {
