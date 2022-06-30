@@ -1,51 +1,38 @@
 import React from 'react';
-
-import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 
-import { IWork } from '../types';
+import { IOverallWork } from '../../types';
 
 type Props = {
-  work: IWork;
+  overallWork: IOverallWork;
   history: any;
 };
 
 class Row extends React.Component<Props> {
   render() {
-    const { work } = this.props;
+    const { overallWork } = this.props;
 
     const {
-      name,
       status,
       job,
       flow,
-      product,
       inBranch,
       inDepartment,
       outBranch,
       outDepartment,
       startAt,
-      count,
       interval,
       needProducts,
       resultProducts
-    } = work;
+    } = overallWork;
 
     const date = startAt.toString().split('T');
 
     return (
       <tr>
-        <td>{name}</td>
-        <td>{status}</td>
         <td>{job ? job.label : ''}</td>
         <td>{flow ? flow.name : ''}</td>
-        <td>{product ? product.name : ''}</td>
-        <td>{count || 0}</td>
+        <td>{status}</td>
         <td>{inBranch}</td>
         <td>{inDepartment}</td>
         <td>{outBranch}</td>

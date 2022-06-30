@@ -39,7 +39,7 @@ const overallWorkQueries = {
     return paginate(models.OverallWorks.find(selector).lean(), { ...params });
   },
 
-  overallWorkTotalCount(
+  overallWorksTotalCount(
     _root,
     params: IParam,
     { commonQuerySelector, models }: IContext

@@ -10,8 +10,8 @@ import { Count } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 
-import { menuContacts1 } from '../../constants';
-import { IWorkDocument } from '../types';
+import { menuContacts1 } from '../../../constants';
+import { IWorkDocument } from '../../types';
 import Row from './WorkRow';
 
 interface IProps extends IRouterProps {

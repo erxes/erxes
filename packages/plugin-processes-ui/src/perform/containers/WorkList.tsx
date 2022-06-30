@@ -5,7 +5,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../components/WorkList';
+import List from '../components/work/WorkList';
 import { queries } from '../graphql';
 import { WorksQueryResponse, WorksTotalCountQueryResponse } from '../types';
 
@@ -50,6 +50,7 @@ class WorkListContainer extends React.Component<FinalProps> {
 
     const refetch = () => {
       this.props.worksQuery.refetch();
+      this.props.worksTotalCountQuery.refetch();
     };
 
     return <Bulk content={workList} refetch={refetch} />;

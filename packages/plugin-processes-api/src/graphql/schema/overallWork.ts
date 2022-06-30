@@ -35,7 +35,7 @@ const qryParams = `
 
 export const queries = `
   overallWorks(page: Int, perPage: Int, ${qryParams}): [OverallWork]
-  overallWorkTotalCount(${qryParams}): Int
+  overallWorksTotalCount(${qryParams}): Int
 `;
 
 const workParams = `

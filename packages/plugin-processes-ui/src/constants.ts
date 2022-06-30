@@ -34,6 +34,6 @@ export const menuContacts = [
 
 export const menuContacts1 = [
   { title: 'Works', link: '/processes/works' },
-  { title: 'OveralWorks', link: '/processes/overalWorks' },
+  { title: 'OveralWorks', link: '/processes/overallWorks' },
   { title: 'Performs', link: '/processes/performs' }
 ];
