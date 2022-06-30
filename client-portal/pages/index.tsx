@@ -3,7 +3,7 @@ import CategoriesContainer from "../modules/knowledgeBase/containers/CategoryLis
 import ArticleList from './knowledge-base/category/index'
 
 export default function Home() {
-  const type = "layout";
+  const type = "";
 
   if (type === "layout") {
     return <ArticleList type={type} />
