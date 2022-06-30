@@ -4,11 +4,7 @@ const productAdd = productMutations.productAdd;
 
 const productEdit = productMutations.productEdit;
 
-const productsRemove = `
-  mutation productsRemove($productIds: [String!]) {
-    productsRemove(productIds: $productIds)
-  }
-`;
+const productsRemove = productMutations.productsRemove;
 
 const productCategoryAdd = productMutations.productCategoryAdd;
 const productCategoryEdit = productMutations.productCategoryEdit;
@@ -27,6 +23,40 @@ const productsMerge = `
   }
 `;
 
+// UOM
+
+const uomsAdd = `
+  mutation uomsAdd($name: String, $code: String) {
+    uomsAdd(name: $name, code: $code) {
+      _id
+      name
+      code
+      createdAt
+    }
+  }
+`;
+
+const uomsEdit = `
+  mutation uomsEdit($id: String!, $name: String, $code: String) {
+    uomsEdit(_id: $id, name: $name, code: $code) {
+      _id
+      name
+      code
+      createdAt
+    }
+  }
+`;
+
+const uomsRemove = `
+  mutation uomsRemove($uomIds: [String!]) {
+    uomsRemove(uomIds: $uomIds)
+  }
+`;
+
+// Settings
+
+const productsConfigsUpdate = productMutations.productsConfigsUpdate;
+
 export default {
   productAdd,
   productEdit,
@@ -34,5 +64,11 @@ export default {
   productCategoryAdd,
   productCategoryEdit,
   productCategoryRemove,
-  productsMerge
+  productsMerge,
+
+  uomsAdd,
+  uomsEdit,
+  uomsRemove,
+
+  productsConfigsUpdate
 };

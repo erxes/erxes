@@ -579,13 +579,35 @@ export const itemsChange = async (
   // order notification
   const stage = await models.Stages.getStage(item.stageId);
 
+  const labels = await models.PipelineLabels.find({
+    _id: {
+      $in: item.labelIds
+    }
+  });
+
+  const assignedUsers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {
+        _id: { $in: item?.assignedUserIds }
+      }
+    },
+    isRPC: true
+  });
+
   graphqlPubsub.publish('pipelinesChanged', {
     pipelinesChanged: {
       _id: stage.pipelineId,
       proccessId,
       action: 'orderUpdated',
       data: {
-        item: { ...item._doc, ...(await itemResolver(type, item)) },
+        item: {
+          ...item._doc,
+          ...(await itemResolver(type, item)),
+          labels,
+          assignedUsers
+        },
         aboveItemId,
         destinationStageId,
         oldStageId: sourceStageId

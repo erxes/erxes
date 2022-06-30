@@ -6,7 +6,7 @@ import {
 export const types = (tagsAvailable, contactsAvailable) => `
   ${attachmentType}
   ${attachmentInput}
-  
+
   ${
     tagsAvailable
       ? `
@@ -27,7 +27,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
       : ''
   }
 
-  type ProductCategory @key(fields: "_id") {
+  type ProductCategory @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
     description: String
@@ -40,7 +40,7 @@ export const types = (tagsAvailable, contactsAvailable) => `
     productCount: Int
   }
 
-  type Product @key(fields: "_id") {
+  type Product @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     name: String
     code: String
@@ -59,7 +59,10 @@ export const types = (tagsAvailable, contactsAvailable) => `
     supply: String
     productCount: Int
     minimiumCount: Int
+    uomId: String
+    subUoms: JSON
 
+    uom: Uom
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
   }
@@ -78,8 +81,11 @@ const productParams = `
   attachmentMore: [AttachmentInput],
   supply: String,
   productCount: Int,
-  minimiumCount: Int
+  minimiumCount: Int,
   vendorId: String,
+
+  uomId: String,
+  subUoms: JSON
 `;
 
 const productCategoryParams = `
@@ -119,5 +125,5 @@ export const mutations = `
   productsMerge(productIds: [String], productFields: JSON): Product
   productCategoriesAdd(${productCategoryParams}): ProductCategory
   productCategoriesEdit(_id: String!, ${productCategoryParams}): ProductCategory
-  productCategoriesRemove(_id: String!): JSON  
+  productCategoriesRemove(_id: String!): JSON
 `;

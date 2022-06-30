@@ -9,7 +9,6 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { fixPermissions, resetPermissionsCache } from '../../permissions/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
-import { getDocument, getDocumentList } from './cacheUtils';
 import { MODULE_NAMES } from '../../constants';
 import { IContext, IModels } from '../../../connectionResolver';
 
@@ -56,7 +55,9 @@ const writeUserLog = async (
     // user has been added to the group
     if (!exists) {
       // already updated user row
-      const addedUser = await getDocument(models, 'users', { _id: memberId });
+      const addedUser = await models.Users.findOne({
+        _id: memberId
+      });
 
       if (addedUser) {
         // previous data was like this
@@ -155,9 +156,9 @@ const usersGroupMutations = {
     { user, models, subdomain }: IContext
   ) {
     // users before updating
-    const oldUsers = await getDocumentList(models, 'users', {
+    const oldUsers = await models.Users.find({
       _id: { $in: memberIds || [] }
-    });
+    }).lean();
 
     const group = await models.UsersGroups.createGroup(doc, memberIds);
 
@@ -213,9 +214,11 @@ const usersGroupMutations = {
     { user, models, subdomain }: IContext
   ) {
     const group = await models.UsersGroups.getGroup(_id);
-    const oldUsers = await getDocumentList(models, 'users', {
+
+    const oldUsers = await models.Users.find({
       groupIds: { $in: [_id] }
-    });
+    }).lean();
+
     const result = await models.UsersGroups.updateGroup(_id, doc, memberIds);
 
     // don't write unnecessary log when nothing is changed
@@ -256,9 +259,11 @@ const usersGroupMutations = {
     { user, models, subdomain }: IContext
   ) {
     const group = await models.UsersGroups.getGroup(_id);
-    const members = await getDocumentList(models, 'users', {
+
+    const members = await models.Users.find({
       groupIds: { $in: [group._id] }
-    });
+    }).lean();
+
     const result = await models.UsersGroups.removeGroup(_id);
 
     await putDeleteLog(

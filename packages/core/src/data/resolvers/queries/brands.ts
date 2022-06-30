@@ -1,6 +1,5 @@
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../../connectionResolver';
-import { getDocumentList } from '../mutations/cacheUtils';
 
 interface IListArgs {
   page?: number;
@@ -25,7 +24,7 @@ const brandQueries = {
    * All brands
    */
   allBrands(_root, {}, { brandIdSelector, models }: IContext) {
-    return getDocumentList(models, 'brands', brandIdSelector);
+    return models.Brands.find(brandIdSelector).lean();
   },
 
   /**

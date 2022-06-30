@@ -43,16 +43,14 @@ class Row extends React.Component<Props> {
     const onClick = () => remove(pos._id);
 
     return (
-      <WithPermission action="managePos">
-        <Tip text={__('Delete')} placement="top">
-          <Button
-            id="integrationDelete"
-            btnStyle="link"
-            onClick={onClick}
-            icon="times-circle"
-          />
-        </Tip>
-      </WithPermission>
+      <Tip text={__('Delete')} placement="top">
+        <Button
+          id="integrationDelete"
+          btnStyle="link"
+          onClick={onClick}
+          icon="times-circle"
+        />
+      </Tip>
     );
   }
 
@@ -74,7 +72,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { pos } = this.props;
-    const isOnline = pos.isOnline ? 'online pos' : 'offline pos'
+    const isOnline = pos.isOnline ? 'online pos' : 'offline pos';
 
     const createdUser = pos.user || {
       _id: '',
@@ -103,7 +101,6 @@ class Row extends React.Component<Props> {
           <Icon icon="calender" />{' '}
           <DateWrapper>{dayjs(pos.createdAt).format('ll')}</DateWrapper>
         </td>
-
 
         <td>
           <ActionButtons>

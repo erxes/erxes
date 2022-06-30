@@ -22,11 +22,11 @@ export const types = `
         description: String
         supervisorId: String
         code: String
-        
+
         ${commonContactInfoTypes}
     }
-    
-    type Department {
+
+    type Department @key(fields: "_id") @cacheControl(maxAge: 3) {
         _id: String!
         title: String
         description: String
@@ -66,7 +66,7 @@ export const types = `
         userIds: [String]
         parent: Branch
         children: [Branch]
-        
+
         address: String
         ${commonContactInfoTypes}
     }
@@ -111,7 +111,7 @@ const commonStructureParams = `
     supervisorId: String
     code: String
     website: String
-    
+
     ${commonContactInfoParams}
 `;
 
@@ -148,7 +148,7 @@ export const mutations = `
     structuresAdd(${commonStructureParams}): Structure
     structuresEdit(_id: String!, ${commonStructureParams}): Structure
     structuresRemove(_id: String!): JSON
-    
+
     departmentsAdd(${commonDepartmentParams}): Department
     departmentsEdit(_id: String!, ${commonDepartmentParams}): Department
     departmentsRemove(_id: String!): JSON

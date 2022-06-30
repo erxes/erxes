@@ -1,4 +1,4 @@
-import { colors } from '@erxes/ui/src/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 
 const InfoDetail = styled.p`
@@ -37,5 +37,12 @@ const ProductContent = styled.div`
     cursor: pointer;
   }
 `;
+
+export const ContentBox = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  max-width: 640px;
+  margin: 0 auto;
+`;
+
 
 export { InfoDetail, ProductContent };

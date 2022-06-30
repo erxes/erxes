@@ -1,21 +1,19 @@
 import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import { ILabelDocument } from './models/definitions/labels';
+import { ITimeframeDocument } from './models/definitions/timeframes';
 import {
   ISalesLogDocument,
-  ILabelDocument,
-  ITimeframeDocument,
   IDayPlanConfigDocument,
   IMonthPlanConfigDocument,
   IYearPlanConfigDocument
 } from './models/definitions/salesplans';
+import { ILabelModel, loadLabelClass } from './models/labels';
+import { ITimeframeModel, loadTimeframeClass } from './models/timeframes';
 import {
   ISalesLogModel,
   loadSalesLogClass,
-  ILabelModel,
-  loadLabelClass,
-  ITimeframeModel,
-  loadTimeframeClass,
   IDayPlanConfigModel,
   loadDayPlanConfigClass,
   IMonthPlanConfigModel,

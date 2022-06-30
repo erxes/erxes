@@ -31,7 +31,7 @@ const isVisible = (fields: IField[]) => {
 
     for (const field of fields || []) {
       if (field[key]) {
-        data[field.type] = field.text;
+        data[field.type] = field.text || '';
       }
     }
     return data;

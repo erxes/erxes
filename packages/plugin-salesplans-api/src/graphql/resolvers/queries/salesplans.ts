@@ -1,40 +1,48 @@
-import { IContext, IModels } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 
 const salesLogQueries = {
-  getLabels: async (
-    _root,
+  labels: async (
+    _root: any,
     { type }: { type: string },
     { models }: IContext
   ) => {
     return await models.Labels.find({ type });
   },
 
-  getSalesLogs: async (_root, _args, { models }: IContext) => {
+  salesLogs: async (_root: any, _args: any, { models }: IContext) => {
     return await models.SalesLogs.find({}).lean();
   },
 
-  getTimeframes: async (_root, _args, { models }: IContext) => {
+  salesLogDetail: async (
+    _root: any,
+    { salesLogId }: { salesLogId: string },
+    { models }: IContext
+  ) => {
+    return await models.SalesLogs.findOne({ _id: salesLogId });
+  },
+
+  timeframes: async (_root: any, _args: any, { models }: IContext) => {
     return await models.Timeframes.find({});
   },
 
-  getDayPlanConfig: async (
-    _root,
+  dayPlanConfig: async (
+    _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
     return await models.DayPlanConfigs.find({ salesLogId });
   },
 
-  getMonthPlanConfig: async (
-    _root,
+  monthPlanConfig: async (
+    _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
     return await models.MonthPlanConfigs.find({ salesLogId });
   },
 
-  getYearPlanConfig: async (
-    _root,
+  yearPlanConfig: async (
+    _root: any,
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {

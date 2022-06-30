@@ -15,7 +15,9 @@ type Props = {
   refetchQueries?: any[];
 };
 
-type FinalProps = { currentUser: IUser } & Props &
+type FinalProps = {
+  currentUser: IUser;
+} & Props &
   IRouterProps &
   ProductRemoveMutationResponse;
 

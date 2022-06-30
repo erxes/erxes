@@ -65,7 +65,8 @@ export const companySchema = schemaWrapper(
     primaryName: field({
       type: String,
       label: 'Name',
-      optional: true
+      optional: true,
+      esType: 'keyword'
     }),
 
     names: field({
