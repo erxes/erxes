@@ -1,5 +1,3 @@
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
-
 const workFields = `
 _id
 name
@@ -15,6 +13,7 @@ name
     startAt
     count
     interval
+    intervalId
     needProducts
     resultProducts
       `;
@@ -39,6 +38,7 @@ startAt
 job
 flow
 interval
+intervalId
 outBranch
 outDepartment
 inBranch
@@ -53,14 +53,26 @@ query overallWorks($page: Int, $perPage: Int, $searchValue: String) {
   }
 }`;
 
+const overallWorksSideBar = `
+query overallWorksSideBar($inBranchId: String, $inDepartmentId: String, $outBranchId: String, $outDepartmentId: String) {
+  overallWorksSideBar(inBranchId: $inBranchId, inDepartmentId: $inDepartmentId, outBranchId: $outBranchId, outDepartmentId: $outDepartmentId) {
+    _id
+    intervalId
+    interval
+    job
+  }
+}`;
+
 const overallWorksTotalCount = `
 query overallWorksTotalCount($searchValue: String) {
   overallWorksTotalCount(searchValue: $searchValue)
-}`;
+}
+`;
 
 export default {
   works,
   worksTotalCount,
   overallWorks,
+  overallWorksSideBar,
   overallWorksTotalCount
 };

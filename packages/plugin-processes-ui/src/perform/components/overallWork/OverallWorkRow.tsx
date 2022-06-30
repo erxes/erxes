@@ -21,7 +21,7 @@ class Row extends React.Component<Props> {
       outBranch,
       outDepartment,
       startAt,
-      interval,
+      intervalId,
       needProducts,
       resultProducts
     } = overallWork;
@@ -37,7 +37,7 @@ class Row extends React.Component<Props> {
         <td>{inDepartment}</td>
         <td>{outBranch}</td>
         <td>{outDepartment}</td>
-        <td>{interval ? interval.name : ''}</td>
+        <td>{intervalId}</td>
         <td>{(needProducts || []).length}</td>
         <td>{(resultProducts || []).length}</td>
         <td>{date[0]}</td>

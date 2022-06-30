@@ -79,6 +79,10 @@ export type OverallWorksQueryResponse = {
   overallWorks: IOverallWork[];
 } & QueryResponse;
 
+export type OverallWorksSideBarQueryResponse = {
+  overallWorksSideBar: IOverallWork[];
+} & QueryResponse;
+
 export type OverallWorksTotalCountQueryResponse = {
   overallWorksTotalCount: number;
 } & QueryResponse;
