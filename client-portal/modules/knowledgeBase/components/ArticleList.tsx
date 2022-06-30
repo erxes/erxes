@@ -4,6 +4,7 @@ import {
   CategoryItem,
   TextWrapper,
   ImageWrapper,
+  Image,
 } from "./styles";
 import Link from "next/link";
 import Avatar from "../../common/Avatar";
@@ -45,7 +46,9 @@ class Lists extends React.Component<Props> {
                   )}
                   {type === "layout" && (
                     <>
-                      <ImageWrapper src={article.image.url} />
+                      <ImageWrapper>
+                        <Image src={article.image.url} />
+                      </ImageWrapper>
                       <TextWrapper>
                         <h5 className="base-color">{article.title}</h5>
                         <p>{article.summary}</p>

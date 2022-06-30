@@ -23,13 +23,18 @@ const Header = styledTS<{ color?: string; backgroundImage?: string }>(
   }
 `;
 
-const ImageWrapper = styled.img`
+const Image = styled.img`
   height: 200px;
   width: 100%;
   object-fit: cover;
+  transition: transform .2s;
+  `;
+  
+  const ImageWrapper = styled.div`
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
-  transition: transform .2s;
+  height: 200px;
+  overflow: hidden;
 `;
 
 const CategoryItem = styledTS<{type?: string}>(styled.div)`
@@ -47,8 +52,7 @@ const CategoryItem = styledTS<{type?: string}>(styled.div)`
     box-shadow: 0px 4px 30px -13px rgba(0, 0, 0, 0.25);
     transition: 0.4s;
     img {
-      transform: scale(1.02);
-      border-radius: 5px;
+      transform: scale3d(1.1, 1.1, 1);
     }
   }
 
@@ -60,7 +64,12 @@ const CategoryItem = styledTS<{type?: string}>(styled.div)`
   height: 300px;
   margin-right: ${dimensions.coreSpacing}px;
   padding: 0;
+  overflow: hidden;
   
+  @media (max-width: 767px) and (min-width: 523px) {
+    flex-basis: 26%;
+  }
+
   @media (max-width: 900px) {
     max-width: unset;
   }
@@ -840,8 +849,12 @@ const TextWrapper = styled.div`
 `;
 
 const CategoryHeader = styled.h3`
-  margin-bottom: 25px;
+  margin: 5rem 0 1.5rem;
   font-size: 25px;
+
+  &:first-child {
+    margin-top: 0;
+  }
 `;
 
 const ArticlesContainer = styled.div`
@@ -851,7 +864,7 @@ const ArticlesContainer = styled.div`
 
 const ArticleImageWrapper = styled.img`
   width: 100%;
-  max-height: 400px;
+  max-height: 600px;
   object-fit: contain;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
@@ -880,6 +893,7 @@ export {
   Modal,
   TextWrapper,
   ImageWrapper,
+  Image,
   CategoryHeader,
   ArticlesContainer,
   ArticleImageWrapper,
