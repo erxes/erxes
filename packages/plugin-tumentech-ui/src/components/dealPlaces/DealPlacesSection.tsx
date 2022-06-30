@@ -41,6 +41,15 @@ export default function Component({
       return <EmptyState icon="location-point" text="No data" />;
     }
 
+    const w: any = window;
+
+    if (typeof w.google === 'object' && typeof w.google.maps === 'object') {
+      console.log('ALREADY LOADED');
+    }
+
+    console.log('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIi ', w);
+    // console.log(w["google"] !== undefined);
+
     const { startPlace, endPlace } = dealPlace;
     // return (<></>)
     return (

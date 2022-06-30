@@ -41,16 +41,28 @@ export default class Map extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const w: any = window;
-
-    if (typeof w.google === 'object' && typeof w.google.maps === 'object') {
-      console.log('ALREADY LOADED');
+    const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${props.googleMapApiKey}&libraries=geometry,places&language=en&v=quarterly`;
+    const scripts: any = document.getElementsByTagName('script');
+    let googleMapScript = document.createElement('script');
+    // Go through existing script tags, and return google maps api tag when found.
+    for (const script of scripts) {
+      if (script.src.indexOf(mapsURL) === 0) {
+        googleMapScript = script;
+      }
     }
 
-    console.log(
-      'IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIi ',
-      w.google ? 'yes' : 'no'
-    );
+    googleMapScript.src = mapsURL;
+    googleMapScript.async = true;
+    googleMapScript.defer = true;
+    window.document.body.appendChild(googleMapScript);
+
+    googleMapScript.addEventListener('load', () => {
+      console.log('MY MAP = ', (window as any).google);
+      this.onLoadMaps(
+        (window as any).google.maps.map,
+        (window as any).google.maps
+      );
+    });
 
     this.state = {
       isMapDraggable: true,
@@ -107,7 +119,7 @@ export default class Map extends React.Component<Props, State> {
     if (!map || !maps) {
       return;
     }
-    console.log('MAP LOADED');
+    console.log('MAP LOAD');
     const geodesicPolyline = new maps.Polyline({
       path: this.props.locationOptions,
       geodesic: true,
@@ -230,7 +242,6 @@ export default class Map extends React.Component<Props, State> {
       <>
         <GoogleMapReact
           style={mapStyle}
-          bootstrapURLKeys={{ key: this.props.googleMapApiKey }}
           draggable={isMapDraggable}
           center={center}
           defaultZoom={center.lat === 0 ? 0 : defaultZoom}
