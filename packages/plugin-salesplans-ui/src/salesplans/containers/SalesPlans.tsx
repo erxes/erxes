@@ -13,7 +13,8 @@ const SalesPlansContainer = () => {
 
   const salesLogs = useQuery(gql(queries.salesLogs), {
     variables: { type, status },
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true
   });
 
   return (

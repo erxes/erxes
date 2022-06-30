@@ -30,6 +30,8 @@ const SalesPlans = (props: Props) => {
           <StatusFilter />
         </Wrapper.Sidebar>
       }
+      hasBorder={true}
+      transparent={true}
     />
   );
 };

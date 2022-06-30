@@ -39,8 +39,8 @@ const salesLogDetail = `
 `;
 
 const products = `
-  query products {
-    products {
+  query products($categoryId: String) {
+    products(categoryId: $categoryId) {
       _id,
       name,
       categoryId
