@@ -11,6 +11,7 @@ import internalNotes from './internalNotes';
 import forms from './forms';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import imports from './imports';
 
 export let debug;
 export let mainDb;
@@ -40,10 +41,10 @@ export default {
 
     return context;
   },
-  meta: { logs: { consumers: logs }, tags, internalNotes, forms },
-  onServerInit: async options => {
-    mainDb = options.db;
 
+  meta: { logs: { consumers: logs }, tags, internalNotes, forms, imports },
+
+  onServerInit: async options => {
     initBroker(options.messageBrokerClient);
 
     initMemoryStorage();

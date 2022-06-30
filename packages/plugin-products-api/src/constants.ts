@@ -19,3 +19,18 @@ export const PRODUCT_INFO = {
     { field: 'productCount', label: 'Product count' }
   ]
 };
+
+export const EXTEND_FIELDS = [
+  {
+    _id: Math.random(),
+    name: 'categoryName',
+    label: 'Category Name',
+    type: 'string'
+  },
+  {
+    _id: Math.random(),
+    name: 'tag',
+    label: 'Tag',
+    type: 'string'
+  }
+];

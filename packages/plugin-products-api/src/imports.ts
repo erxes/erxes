@@ -1,30 +1,33 @@
 import { generateModels } from './connectionResolver';
-import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
-import { sendFormsMessage } from './messageBroker';
+import { sendFormsMessage, sendTagsMessage } from './messageBroker';
+
+export const EXPORT_TYPES = [
+  {
+    text: 'Product & Services',
+    contentType: 'product',
+    icon: 'server-alt'
+  }
+];
+
+export const IMPORT_TYPES = [
+  {
+    text: 'Product & Services',
+    contentType: 'product',
+    icon: 'server-alt'
+  }
+];
 
 export default {
-  importTypes: IMPORT_TYPES,
   exportTypes: EXPORT_TYPES,
+  importTypes: IMPORT_TYPES,
+
   insertImportItems: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { docs, contentType } = data;
+    const { docs } = data;
 
     try {
-      let objects;
-      let model;
-
-      switch (contentType) {
-        case 'deal':
-          model = models.Deals;
-          break;
-        case 'task':
-          model = models.Tasks;
-        case 'ticket':
-          model = models.Tickets;
-      }
-
-      objects = await model.insertMany(docs);
+      const objects = await models.Products.insertMany(docs);
       return { objects, updated: 0 };
     } catch (e) {
       return { error: e.message };
@@ -33,7 +36,7 @@ export default {
 
   prepareImportDocs: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
-    const { result, properties, contentType, user } = data;
+    const { result, properties } = data;
 
     const bulkDoc: any = [];
 
@@ -44,9 +47,6 @@ export default {
       };
 
       let colIndex: number = 0;
-      let boardName: string = '';
-      let pipelineName: string = '';
-      let stageName: string = '';
 
       // Iterating through detailed properties
       for (const property of properties) {
@@ -69,24 +69,39 @@ export default {
             }
             break;
 
-          case 'boardName':
-            boardName = value;
+          case 'categoryName':
+            {
+              const category = await models.ProductCategories.findOne({
+                name: { $regex: new RegExp(`^${value}$`, 'i') }
+              });
+
+              doc.categoryId = category ? category._id : '';
+            }
+
             break;
 
-          case 'pipelineName':
-            pipelineName = value;
-            break;
+          case 'tag':
+            {
+              const tagName = value;
 
-          case 'stageName':
-            stageName = value;
-            break;
+              let tag = await sendTagsMessage({
+                subdomain,
+                action: 'findOne',
+                data: { name: tagName, type: `products:product` },
+                isRPC: true
+              });
 
-          case 'labels':
-            const label = await models.PipelineLabels.findOne({
-              name: value
-            });
+              if (!tag) {
+                tag = await sendTagsMessage({
+                  subdomain,
+                  action: 'createTag',
+                  data: { name: tagName, type: `products:product` },
+                  isRPC: true
+                });
+              }
 
-            doc.labelIds = label ? [label._id] : '';
+              doc.tagIds = tag ? [tag._id] : [];
+            }
 
             break;
 
@@ -110,27 +125,6 @@ export default {
         }
 
         colIndex++;
-      }
-
-      if (boardName && pipelineName && stageName) {
-        doc.userId = user._id;
-
-        const board = await models.Boards.findOne({
-          name: boardName,
-          type: contentType
-        });
-
-        const pipeline = await models.Pipelines.findOne({
-          boardId: board && board._id,
-          name: pipelineName
-        });
-
-        const stage = await models.Stages.findOne({
-          pipelineId: pipeline && pipeline._id,
-          name: stageName
-        });
-
-        doc.stageId = stage ? stage._id : '';
       }
 
       bulkDoc.push(doc);
