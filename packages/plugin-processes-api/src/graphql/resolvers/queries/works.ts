@@ -35,13 +35,12 @@ const workQueries = {
     },
     { models, commonQuerySelector }: IContext
   ) {
-    console.log('works step 1');
-
     const selector = generateFilter(params, commonQuerySelector);
+    console.log('params:', params);
     return paginate(models.Works.find(selector).lean(), { ...params });
   },
 
-  workTotalCount(
+  worksTotalCount(
     _root,
     params: IParam,
     { commonQuerySelector, models }: IContext

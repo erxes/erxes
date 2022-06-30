@@ -3,15 +3,14 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const ProductList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings List - ProductService" */ './containers/product/ProductList'
-  )
+const WorkList = asyncComponent(() =>
+  import(/* webpackChunkName: "WorkList" */ './containers/WorkList')
 );
 
-const productService = ({ location, history }) => {
+const workList = ({ location, history }) => {
+  console.log('calling routes ...');
   return (
-    <ProductList
+    <WorkList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -21,10 +20,10 @@ const productService = ({ location, history }) => {
 const routes = () => {
   return (
     <Route
-      path="/processes/performs"
+      path="/processes/works"
       exact={true}
-      key="/processes/performs"
-      component={productService}
+      key="/processes/works"
+      component={workList}
     />
   );
 };
