@@ -248,7 +248,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
     public static async sendVerification(
       subdomain: string,
       config: IOTPConfig,
-      password?: string,
       phone?: string,
       email?: string
     ) {
