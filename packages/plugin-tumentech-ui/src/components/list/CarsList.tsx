@@ -15,7 +15,11 @@ import {
   Wrapper,
   BarItems
 } from '@erxes/ui/src';
-import { IRouterProps, IButtonMutateProps } from '@erxes/ui/src/types';
+import {
+  IRouterProps,
+  IButtonMutateProps,
+  IQueryParams
+} from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -24,6 +28,7 @@ import { CarsTableWrapper } from '../../styles';
 import { ICar, IProduct, IProductCategory } from '../../types';
 import CarsMerge from '../detail/CarsMerge';
 import CarRow from './CarRow';
+import RightMenu from './RightMenu';
 import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
@@ -45,11 +50,16 @@ interface IProps extends IRouterProps {
   productCategories: IProductCategory[];
   product?: IProductCategory;
   products: IProduct[];
-  onSelect: (prs: IProduct[]) => void;
   saveMatch: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   page: number;
   perPage: number;
+
+  onSearch: (search: string, key?: string) => void;
+  onFilter: (filterParams: IQueryParams) => void;
+  onSelect: (values: string[] | string, key: string) => void;
+  isFiltered: boolean;
+  clearFilter: () => void;
 }
 
 type State = {
@@ -124,12 +134,17 @@ class CarsList extends React.Component<IProps, State> {
       queryParams,
       productCategories,
       products,
-      onSelect,
       saveMatch,
       renderButton,
       columnsConfig,
       page,
-      perPage
+      perPage,
+
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered,
+      clearFilter
     } = this.props;
 
     const mainContent = (
@@ -172,6 +187,15 @@ class CarsList extends React.Component<IProps, State> {
         </Table>
       </CarsTableWrapper>
     );
+
+    const rightMenuProps = {
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered,
+      clearFilter,
+      queryParams
+    };
 
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
@@ -270,6 +294,8 @@ class CarsList extends React.Component<IProps, State> {
           content={carForm}
           backDrop="static"
         />
+
+        <RightMenu {...rightMenuProps} />
       </BarItems>
     );
 
@@ -294,7 +320,6 @@ class CarsList extends React.Component<IProps, State> {
             queryParams={queryParams}
             history={history}
             products={products}
-            onSelect={onSelect}
             saveMatch={saveMatch}
             productCategories={productCategories}
             renderButton={renderButton}
