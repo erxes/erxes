@@ -12,6 +12,7 @@ type Props = {
   currentUser: IUser;
   headerBottomComponent?: React.ReactNode;
   headingSpacing?: boolean;
+  type?: string;
 };
 
 const { REACT_APP_DOMAIN } = getEnv();
@@ -50,6 +51,7 @@ function Layout({
   currentUser,
   headingSpacing,
   headerBottomComponent,
+  type,
 }: Props) {
   return (
     <>
@@ -65,7 +67,7 @@ function Layout({
         baseColor={getConfigColor(config, "baseColor")}
         bodyColor={getConfigColor(config, "bodyColor")}
       >
-        <Container>{children({ config, topic })}</Container>
+        <Container type={type}>{children({ config, topic })}</Container>
       </MainContent>
 
       <div dangerouslySetInnerHTML={{ __html: config.footerHtml || "" }} />

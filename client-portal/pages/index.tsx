@@ -6,7 +6,7 @@ export default function Home() {
   const type = "layout";
 
   if (type === "layout") {
-    return <ArticleList />
+    return <ArticleList type={type} />
   }
   
   return <CategoriesContainer />;

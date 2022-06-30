@@ -1,3 +1,5 @@
+import { IAttachment } from "./common/types";
+
 export type Store = {
   currentUser: IUser;
   topic: Topic;
@@ -168,6 +170,7 @@ export interface IKbArticle extends ICommonFields {
   categoryId?: string;
   reactionChoices?: string[];
   createdUser: IUser;
+  image: IAttachment;
 }
 
 export type Topic = {

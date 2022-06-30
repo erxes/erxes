@@ -7,10 +7,12 @@ import { Store } from "../../types";
 
 type Props = {
   queryParams: any;
+  type?: string;
 };
 
 function ArticleDetailContainer({
   queryParams: { id, catId },
+  type: type,
   ...props
 }: Props) {
   const { loading, data = {} as any } =
@@ -37,6 +39,7 @@ function ArticleDetailContainer({
     loading,
     article,
     category,
+    type,
   };
 
   return (

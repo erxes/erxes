@@ -1,5 +1,10 @@
 import React from "react";
-import { CategoryContent, CategoryItem } from "./styles";
+import {
+  CategoryContent,
+  CategoryItem,
+  TextWrapper,
+  ImageWrapper,
+} from "./styles";
 import Link from "next/link";
 import Avatar from "../../common/Avatar";
 import EmptyContent from "../../common/EmptyContent";
@@ -7,11 +12,12 @@ import { IKbArticle } from "../../types";
 
 type Props = {
   articles: IKbArticle[];
+  type?: string;
 };
 
 class Lists extends React.Component<Props> {
   render() {
-    const { articles } = this.props;
+    const { articles, type } = this.props;
 
     if (!articles || articles.length === 0) {
       return <EmptyContent text="There are no articles!" />;
@@ -24,15 +30,28 @@ class Lists extends React.Component<Props> {
             <Link
               href={`/knowledge-base/article?id=${article._id}&catId=${article.categoryId}`}
             >
-              <CategoryItem>
-                <CategoryContent>
-                  <h5 className="base-color">{article.title}</h5>
-                  <p>{article.summary}</p>
+              <CategoryItem type={type}>
+                <CategoryContent type={type}>
+                  {type !== "layout" && (
+                    <>
+                      <h5 className="base-color">{article.title}</h5>
+                      <p>{article.summary}</p>
 
-                  <Avatar
-                    date={article.modifiedDate}
-                    user={article.createdUser}
-                  />
+                      <Avatar
+                        date={article.modifiedDate}
+                        user={article.createdUser}
+                      />
+                    </>
+                  )}
+                  {type === "layout" && (
+                    <>
+                      <ImageWrapper src={article.image.url} />
+                      <TextWrapper>
+                        <h5 className="base-color">{article.title}</h5>
+                        <p>{article.summary}</p>
+                      </TextWrapper>
+                    </>
+                  )}
                 </CategoryContent>
               </CategoryItem>
             </Link>

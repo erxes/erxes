@@ -120,6 +120,19 @@ export const articlesQuery = `
           avatar
         }
       }
+      attachments {
+        name
+        url
+        type
+        size
+        duration
+      }
+      image {
+        name
+        url
+        type
+        size
+      }
     }
   }
 `;

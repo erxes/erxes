@@ -1,4 +1,4 @@
-import { colors, typography } from "../../styles";
+import { colors, dimensions, typography } from "../../styles";
 import styled, { css } from "styled-components";
 import styledTS from "styled-components-ts";
 
@@ -23,10 +23,19 @@ const Header = styledTS<{ color?: string; backgroundImage?: string }>(
   }
 `;
 
-const CategoryItem = styled.div`
-  display: flex;
+const ImageWrapper = styled.img`
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  transition: transform .2s;
+`;
+
+const CategoryItem = styledTS<{type?: string}>(styled.div)`
+  display: ${props => props.type !== "layout" && 'flex'};
   background-color: ${colors.colorWhite};
-  margin-bottom: 16px;
+  margin-bottom: ${props => props.type === "layout" ? '20px' : '16px'};
   padding: 24px;
   border: 0;
   box-shadow: 0px 0 15px -10px rgba(0, 0, 0, 0.35);
@@ -37,9 +46,34 @@ const CategoryItem = styled.div`
   &:hover {
     box-shadow: 0px 4px 30px -13px rgba(0, 0, 0, 0.25);
     transition: 0.4s;
+    img {
+      transform: scale(1.02);
+      border-radius: 5px;
+    }
   }
 
   align-items: center;
+  ${props => props.type === "layout" && 
+  `max-width: 48.5%;
+  min-width: 200px;
+  flex-grow: 1;
+  height: 300px;
+  margin-right: ${dimensions.coreSpacing}px;
+  padding: 0;
+  
+  @media (max-width: 900px) {
+    max-width: unset;
+  }
+
+  @media (min-width: 768px) {
+    flex-basis: 34%;
+  }
+
+  @media (min-width: 1170px) {
+    flex-basis: 31%;
+  }`}
+
+  
 `;
 
 const CategoryIcon = styled.div`
@@ -50,7 +84,7 @@ const CategoryIcon = styled.div`
   margin-right: 10px;
 `;
 
-const CategoryContent = styledTS<{ color?: string }>(styled.div)`
+const CategoryContent = styledTS<{ color?: string; type?: string }>(styled.div)`
   h5 {
     color: ${(props) => props.color || colors.colorSecondary};
     font-weight: ${typography.fontWeightMedium};
@@ -60,7 +94,7 @@ const CategoryContent = styledTS<{ color?: string }>(styled.div)`
 
   p {
     color: ${colors.colorCoreGray};
-    margin: 5px 0px 11px;
+    margin: 5px 0px ${props => props.type === 'layout' ? '0px' : '11px'};
     text-decoration: none;
     display: block;
     line-height: 1.4;
@@ -790,6 +824,39 @@ const Modal = styled.div`
   }
 `;
 
+const TextWrapper = styled.div`
+  height: 85px;
+  padding: 15px;
+  overflow: hidden;
+  
+  h5 {
+    max-height: 40px;
+    overflow: hidden;
+  }
+
+  p {
+    max-height: 20px;
+  }
+`;
+
+const CategoryHeader = styled.h3`
+  margin-bottom: 25px;
+  font-size: 25px;
+`;
+
+const ArticlesContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+const ArticleImageWrapper = styled.img`
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+`;
+
 export {
   Header,
   CategoryItem,
@@ -811,4 +878,9 @@ export {
   Feedback,
   PageAnchor,
   Modal,
+  TextWrapper,
+  ImageWrapper,
+  CategoryHeader,
+  ArticlesContainer,
+  ArticleImageWrapper,
 };

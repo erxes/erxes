@@ -6,7 +6,11 @@ import Search from "../../../modules/main/components/Search";
 import Layout from "../../../modules/main/containers/Layout";
 import { Store } from "../../../modules/types";
 
-export default function Category() {
+type Props = {
+  type?: string;
+}
+
+export default function Category({ type }: Props) {
   const router = useRouter();
   const { searchValue } = router.query;
 
@@ -15,11 +19,11 @@ export default function Category() {
       return <ArticleListContainer searchValue={searchValue} />;
     }
 
-    return <CategoryDetail {...props} queryParams={router.query} type="layout"/>;
+    return <CategoryDetail {...props} queryParams={router.query} type={type}/>;
   };
 
   return (
-    <Layout headerBottomComponent={<Search searchValue={searchValue} />}>
+    <Layout headerBottomComponent={<Search searchValue={searchValue}/>} type={type} >
       {(props: Store) => renderContent(props)}
     </Layout>
   );

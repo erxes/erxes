@@ -10,6 +10,7 @@ type Props = {
   children: (values: any) => JSX.Element;
   headerBottomComponent?: React.ReactNode;
   headingSpacing?: boolean;
+  type?: string;
 };
 
 const Layout = (props: Props) => {

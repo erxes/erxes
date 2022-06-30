@@ -155,11 +155,14 @@ const MainContent = styledTS<{ baseColor?: string; bodyColor?: string }>(
     `};
 `;
 
-const Container = styledTS<{ transparent?: boolean; shrink?: boolean }>(
+const Container = styledTS<{ transparent?: boolean; shrink?: boolean; type?:string }>(
   styled.div
 )`
-  width: ${dimensions.wrapperWidth}%;
+  width: ${props => props.type === "layout" ? "75%" : `${dimensions.wrapperWidth}%`};
   margin: 0 auto;
+  ${props => props.type === "layout" &&
+  `display: flex;
+  flex-wrap: wrap;`}
 
   ${(props) =>
     !props.shrink &&

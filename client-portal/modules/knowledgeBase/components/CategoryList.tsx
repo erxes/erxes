@@ -68,8 +68,6 @@ class CategoryList extends React.Component<Props> {
     const categories = parentCategories.slice(1);
     const categoryUrl = `/knowledge-base/category`;
 
-    const type = "layout";
-
     const detail = (cat) => {
       return (
         <Link href={`${categoryUrl}?id=${cat._id}`} passHref={true}>
@@ -87,10 +85,10 @@ class CategoryList extends React.Component<Props> {
         </Link>
       );
     };
-console.log("special", specialCategory, "normal", categories)
+
     return (
       <>
-        {type !== "layout" && specialCategory && (
+        {specialCategory && (
           <Container className="knowledge-base promoted mt-30" fluid="sm">
             <div className="category-knowledge-list">
               <h2 className="list-category-title">
@@ -113,7 +111,7 @@ console.log("special", specialCategory, "normal", categories)
           </Container>
         )}
 
-        {type !== "layout" && categories.map((parentCat, i) => (
+        {categories.map((parentCat, i) => (
           <Container className="knowledge-base" fluid="sm" key={`key-${i}`}>
             <div className="category-knowledge-list">
               <h2 className="list-category-title">

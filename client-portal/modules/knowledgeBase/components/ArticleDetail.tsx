@@ -9,6 +9,7 @@ import {
   Feedback,
   PageAnchor,
   Modal,
+  ArticleImageWrapper,
 } from "./styles";
 import { Config, Topic, IKbCategory, IKbArticle } from "../../types";
 import SectionHeader from "../../common/SectionHeader";
@@ -21,9 +22,17 @@ type Props = {
   topic: Topic;
   config: Config;
   loading: boolean;
+  type?: string;
 };
 
-function ArticleDetail({ loading, article, category, topic, config }: Props) {
+function ArticleDetail({
+  loading,
+  article,
+  category,
+  topic,
+  config,
+  type,
+}: Props) {
   const [reaction, setReaction] = useState("");
 
   const createDom = () => {
@@ -157,53 +166,73 @@ function ArticleDetail({ loading, article, category, topic, config }: Props) {
     );
   };
 
-  return (
-    <Container className="knowledge-base">
-      <SectionHeader
-        categories={topic.parentCategories}
-        selectedCat={category}
-      />
+  const renderArticle = () => {
+    return (
+      <>
+        <ArticleWrapper>
+          <h4> {article.title}</h4>
+          <Avatar date={article.modifiedDate} user={article.createdUser} />
 
-      <Row className="category-detail">
-        <Col md={3}>
-          <SidebarList baseColor={getConfigColor(config, "baseColor")}>
-            <SideBar
-              parentCategories={topic.parentCategories}
-              category={category}
-              articleId={article._id}
-            />
-          </SidebarList>
-        </Col>
-        <Col md={9} style={{ display: "flex" }}>
-          <ArticleWrapper>
-            <h4> {article.title}</h4>
-            <Avatar date={article.modifiedDate} user={article.createdUser} />
+          <hr />
 
-            <hr />
+          <div className="content" id="contentText">
+            <p>{article.summary}</p>
+            <p>
+              <div
+                onClick={showImageModal}
+                dangerouslySetInnerHTML={{
+                  __html: article.content,
+                }}
+              />
+            </p>
+            <Modal onClick={handleModal} id="modal">
+              <span id="close">&times;</span>
+              <img id="modal-content" alt="modal" />
+            </Modal>
+          </div>
+          <hr />
+          {renderReactions()}
+        </ArticleWrapper>
+        {renderTags()}
+      </>
+    );
+  };
 
-            <div className="content" id="contentText">
-              <p>{article.summary}</p>
-              <p>
-                <div
-                  onClick={showImageModal}
-                  dangerouslySetInnerHTML={{
-                    __html: article.content,
-                  }}
-                />
-              </p>
-              <Modal onClick={handleModal} id="modal">
-                <span id="close">&times;</span>
-                <img id="modal-content" alt="modal" />
-              </Modal>
-            </div>
-            <hr />
-            {renderReactions()}
-          </ArticleWrapper>
-          {renderTags()}
-        </Col>
-      </Row>
-    </Container>
-  );
+  const renderContent = () => {
+    if (type === "layout") {
+      return (
+        <>
+          <ArticleImageWrapper src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3088&q=80" />
+          {renderArticle()}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <SectionHeader
+          categories={topic.parentCategories}
+          selectedCat={category}
+        />
+        <Row className="category-detail">
+          <Col md={3}>
+            <SidebarList baseColor={getConfigColor(config, "baseColor")}>
+              <SideBar
+                parentCategories={topic.parentCategories}
+                category={category}
+                articleId={article._id}
+              />
+            </SidebarList>
+          </Col>
+          <Col md={9} style={{ display: "flex" }}>
+            {renderArticle()}
+          </Col>
+        </Row>
+      </>
+    );
+  };
+
+  return <Container className="knowledge-base">{renderContent()}</Container>;
 }
 
 export default ArticleDetail;

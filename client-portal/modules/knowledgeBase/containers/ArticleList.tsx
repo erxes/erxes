@@ -3,10 +3,13 @@ import React from "react";
 import Spinner from "../../common/Spinner";
 import ArticleList from "../components/ArticleList";
 import { articlesQuery } from "../graphql/queries";
+import { Topic } from "../../types";
 
 type Props = {
   searchValue?: any;
   categoryId?: string;
+  type?: string;
+  topic: Topic;
 };
 
 function ArticleListContainer(props: Props) {
