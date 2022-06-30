@@ -6,11 +6,9 @@ import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { IOverallWorkDocument } from '../../../types';
 import { OverallWorkSidebar } from '../../../../styles';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import { IRouterProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import BranchDepartmentFilter from './BranchDepartmentFilter';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -22,28 +20,7 @@ interface IProps extends IRouterProps {
   params: any;
 }
 
-type State = {
-  inBranchId?: string;
-  inDepartmentId?: string;
-  outBranchId?: string;
-  outDepartmentId?: string;
-};
-
-class SideBar extends React.Component<IProps, State> {
-  constructor(props) {
-    super(props);
-
-    const { params } = this.props;
-    const { inBranchId, inDepartmentId, outBranchId, outDepartmentId } = params;
-
-    this.state = {
-      inBranchId,
-      inDepartmentId,
-      outBranchId,
-      outDepartmentId
-    };
-  }
-
+class SideBar extends React.Component<IProps> {
   renderContent() {
     const { overallWorks } = this.props;
 
@@ -69,7 +46,7 @@ class SideBar extends React.Component<IProps, State> {
   renderOverallWorkHeader() {
     return (
       <>
-        <Section.Title>{__('OverallWorks')}</Section.Title>
+        <Section.Title>{__('OverallWorks')} </Section.Title>
       </>
     );
   }
@@ -77,11 +54,7 @@ class SideBar extends React.Component<IProps, State> {
   onSelect = (name, value) => {
     const { history } = this.props;
 
-    console.log('name name name:', name, value);
-    router.removeParams(history, 'page');
-    console.log('name1 name1 name1:', name, value);
     router.setParams(history, { [name]: value });
-    console.log('name2 name2 name2:', name, value);
     this.setState({ [name]: value } as any);
   };
 
@@ -103,69 +76,14 @@ class SideBar extends React.Component<IProps, State> {
   }
 
   render() {
-    const {
-      inBranchId,
-      inDepartmentId,
-      outBranchId,
-      outDepartmentId
-    } = this.state;
-
     return (
-      <Sidebar wide={true} hasBorder={true}>
-        {this.renderOverallWorkHeader()}
-        <OverallWorkSidebar>
-          <FormGroup>
-            <ControlLabel>InBranch</ControlLabel>
-            <SelectBranches
-              label="Choose branch"
-              name="selectedBranchIds"
-              initialValue={inBranchId}
-              onSelect={branchId => this.onSelect('inBranchId', branchId)}
-              multi={false}
-              customOption={{ value: 'all', label: 'All branches' }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>InDepartment</ControlLabel>
-            <SelectDepartments
-              label="Choose department"
-              name="selectedDepartmentIds"
-              initialValue={inDepartmentId}
-              onSelect={departmentId =>
-                this.onSelect('inDepartmentId', departmentId)
-              }
-              multi={false}
-              customOption={{ value: 'all', label: 'All departments' }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>OutBranch</ControlLabel>
-            <SelectBranches
-              label="Choose branch"
-              name="selectedBranchIds"
-              initialValue={outBranchId}
-              onSelect={branchId => this.onSelect('outBranchId', branchId)}
-              multi={false}
-              customOption={{ value: 'all', label: 'All branches' }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>OutDepartment</ControlLabel>
-            <SelectDepartments
-              label="Choose department"
-              name="selectedDepartmentIds"
-              initialValue={outDepartmentId}
-              onSelect={departmentId =>
-                this.onSelect('outDepartmentId', departmentId)
-              }
-              multi={false}
-              customOption={{ value: 'all', label: 'All departments' }}
-            />
-          </FormGroup>
-        </OverallWorkSidebar>
-
-        {this.renderOverallWorkList()}
-      </Sidebar>
+      <>
+        <BranchDepartmentFilter {...this.props} />
+        <Sidebar wide={true} hasBorder={true}>
+          {this.renderOverallWorkHeader()}
+          {this.renderOverallWorkList()}
+        </Sidebar>
+      </>
     );
   }
 }
