@@ -230,7 +230,6 @@ export default class RightMenu extends React.Component<Props, State> {
             defaultValue={filterParams.vinNumber}
             placeholder={__('Арлын дугаар ...')}
             onKeyPress={this.onSearch}
-            autoFocus={true}
             onChange={this.onChangeInput}
           />
         </FormGroup>
@@ -243,7 +242,6 @@ export default class RightMenu extends React.Component<Props, State> {
             defaultValue={filterParams.vintageYear}
             placeholder={__('Үйлдвэрлэсэн он ...')}
             onKeyPress={this.onSearch}
-            autoFocus={true}
             onChange={this.onChangeInput}
             min={1950}
           />
@@ -257,7 +255,6 @@ export default class RightMenu extends React.Component<Props, State> {
             defaultValue={filterParams.importYear}
             placeholder={__('Импортолсон он ...')}
             onKeyPress={this.onSearch}
-            autoFocus={true}
             onChange={this.onChangeInput}
             min={1950}
           />

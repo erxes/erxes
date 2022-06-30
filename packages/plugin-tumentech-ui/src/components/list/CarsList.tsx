@@ -188,15 +188,6 @@ class CarsList extends React.Component<IProps, State> {
       </CarsTableWrapper>
     );
 
-    const rightMenuProps = {
-      onFilter,
-      onSelect,
-      onSearch,
-      isFiltered,
-      clearFilter,
-      queryParams
-    };
-
     const addTrigger = (
       <Button btnStyle="success" size="small" icon="plus-circle">
         Add car
@@ -267,6 +258,15 @@ class CarsList extends React.Component<IProps, State> {
 
     const carForm = props => {
       return <CarForm {...props} queryParams={queryParams} />;
+    };
+
+    const rightMenuProps = {
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered,
+      clearFilter,
+      queryParams
     };
 
     const actionBarRight = (

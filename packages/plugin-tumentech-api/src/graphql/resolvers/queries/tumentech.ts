@@ -2,7 +2,7 @@ import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
 import { Builder } from './carQueryBuilder';
-import { generateRandomString } from '../../../utils';
+import { generateRandomString, getFullDate, getTomorrow } from '../../../utils';
 
 const generateFilter = async (params, commonQuerySelector, subdomain) => {
   const filter: any = commonQuerySelector;
@@ -60,11 +60,6 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
     };
   }
 
-  // diagnosisDate;
-  // taxDate;
-  // createdStartDate;
-  // createdEndDate;
-
   if (params.plateNumber) {
     filter.plateNumber = params.plateNumber;
   }
@@ -105,24 +100,32 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
     filter.tireLoadType = params.tireLoadType;
   }
 
-  // const createdQry: any = {};
-  // if (params.createdStartDate) {
-  //   createdQry.$gte = new Date(params.createdStartDate);
-  // }
-  // if (params.createdEndDate) {
-  //   createdQry.$lte = new Date(params.createdEndDate);
-  // }
-  // if (Object.keys(createdQry).length) {
-  //   filter.createdAt = createdQry;
-  // }
+  if (params.diagnosisDate) {
+    filter.diagnosisDate = params.diagnosisDate;
+  }
 
-  // if (params.paidDate === 'today') {
-  //   const now = new Date();
+  if (params.taxDate) {
+    filter.taxDate = params.taxDate;
+  }
 
-  //   const startDate = getFullDate(now);
-  //   const endDate = getTomorrow(now);
-  //   filter.createdAt = { $gte: startDate, $lte: endDate };
-  // }
+  const createdQry: any = {};
+  if (params.createdStartDate) {
+    createdQry.$gte = new Date(params.createdStartDate);
+  }
+  if (params.createdEndDate) {
+    createdQry.$lte = new Date(params.createdEndDate);
+  }
+  if (Object.keys(createdQry).length) {
+    filter.createdAt = createdQry;
+  }
+
+  if (params.paidDate === 'today') {
+    const now = new Date();
+
+    const startDate = getFullDate(now);
+    const endDate = getTomorrow(now);
+    filter.createdAt = { $gte: startDate, $lte: endDate };
+  }
 
   return filter;
 };
