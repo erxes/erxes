@@ -2,9 +2,9 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import Spinner from '../../components/Spinner';
 import { storeConstantToStore, withProps } from '../../utils';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { graphql } from 'react-apollo';
-import { currentUser, userChanged } from '../graphql';
+import * as gq from '../graphql';
 import { CurrentUserQueryResponse } from '../types';
 
 type Props = {
@@ -21,15 +21,15 @@ const withCurrentUser = Component => {
 
     const currentUser = currentUserQuery.currentUser;
 
-    useEffect(() => {
-      currentUserQuery.subscribeToMore({
-        document: gql(userChanged),
-        variables: { userId: currentUser ? currentUser._id : null },
-        updateQuery: () => {
-          currentUserQuery.refetch();
-        }
-      });
-    });
+    // useEffect(() => {
+    //   currentUserQuery.subscribeToMore({
+    //     document: gql(gq.userChanged),
+    //     variables: { userId: currentUser ? currentUser._id : null },
+    //     updateQuery: () => {
+    //       currentUserQuery.refetch();
+    //     }
+    //   });
+    // });
 
     const updatedProps = {
       ...props,
@@ -47,7 +47,7 @@ const withCurrentUser = Component => {
 
   return withProps<{}>(
     compose(
-      graphql<{}, CurrentUserQueryResponse>(gql(currentUser), {
+      graphql<{}, CurrentUserQueryResponse>(gql(gq.currentUser), {
         name: 'currentUserQuery'
       })
     )(Container)
