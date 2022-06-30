@@ -223,7 +223,21 @@ const generateParams = ({ queryParams }) => {
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
+    plateNumber: queryParams.plateNumber,
+    vinNumber: queryParams.vinNumber,
+    vintageYear: queryParams.vintageYear,
+    importYear: queryParams.importYear,
+    diagnosisDate: queryParams.diagnosisDate,
+    taxDate: queryParams.taxDate,
+    drivingClassification: queryParams.drivingClassification,
+    manufacture: queryParams.manufacture,
+    trailerType: queryParams.trailerType,
+    brakeType: queryParams.brakeType,
+    bowType: queryParams.bowType,
+    tireLoadType: queryParams.tireLoadType,
+    createdStartDate: queryParams.createdStartDate,
+    createdEndDat: queryParams.createdEndDat
   };
 };
 

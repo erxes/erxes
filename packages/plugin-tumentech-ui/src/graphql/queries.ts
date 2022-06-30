@@ -160,6 +160,20 @@ const listParamsDef = `
   $brand: String
   $sortField: String
   $sortDirection: Int
+  $plateNumber: String
+  $vinNumber: String
+  $vintageYear: Int
+  $importYear: Int
+  $diagnosisDate: Date
+  $taxDate: Date
+  $drivingClassification: String
+  $manufacture: String
+  $trailerType: String
+  $brakeType: String
+  $bowType: String
+  $tireLoadType: String
+  $createdStartDate: Date
+  $createdEndDate: Date
   ${conformityQueryFields}
 `;
 
@@ -173,6 +187,20 @@ const listParamsValue = `
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection
+  plateNumber: $plateNumber
+  vinNumber: $vinNumber
+  vintageYear: $vintageYear
+  importYear: $importYear
+  diagnosisDate: $diagnosisDate
+  taxDate: $taxDate
+  drivingClassification: $drivingClassification
+  manufacture: $manufacture
+  trailerType: $trailerType
+  brakeType: $brakeType
+  bowType: $bowType
+  tireLoadType: $tireLoadType
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
   ${conformityQueryFieldDefs}
 `;
 

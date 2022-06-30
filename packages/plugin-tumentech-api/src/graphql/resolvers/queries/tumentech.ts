@@ -60,6 +60,70 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
     };
   }
 
+  // diagnosisDate;
+  // taxDate;
+  // createdStartDate;
+  // createdEndDate;
+
+  if (params.plateNumber) {
+    filter.plateNumber = params.plateNumber;
+  }
+
+  if (params.vinNumber) {
+    filter.vinNumber = params.vinNumber;
+  }
+
+  if (params.vintageYear) {
+    filter.vintageYear = params.vintageYear;
+  }
+
+  if (params.importYear) {
+    filter.importYear = params.importYear;
+  }
+
+  if (params.drivingClassification) {
+    filter.drivingClassification = params.drivingClassification;
+  }
+
+  if (params.manufacture) {
+    filter.manufacture = params.manufacture;
+  }
+
+  if (params.trailerType) {
+    filter.trailerType = params.trailerType;
+  }
+
+  if (params.brakeType) {
+    filter.brakeType = params.brakeType;
+  }
+
+  if (params.bowType) {
+    filter.bowType = params.bowType;
+  }
+
+  if (params.tireLoadType) {
+    filter.tireLoadType = params.tireLoadType;
+  }
+
+  // const createdQry: any = {};
+  // if (params.createdStartDate) {
+  //   createdQry.$gte = new Date(params.createdStartDate);
+  // }
+  // if (params.createdEndDate) {
+  //   createdQry.$lte = new Date(params.createdEndDate);
+  // }
+  // if (Object.keys(createdQry).length) {
+  //   filter.createdAt = createdQry;
+  // }
+
+  // if (params.paidDate === 'today') {
+  //   const now = new Date();
+
+  //   const startDate = getFullDate(now);
+  //   const endDate = getTomorrow(now);
+  //   filter.createdAt = { $gte: startDate, $lte: endDate };
+  // }
+
   return filter;
 };
 

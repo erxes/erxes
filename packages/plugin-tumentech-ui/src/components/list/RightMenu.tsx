@@ -108,7 +108,9 @@ export default class RightMenu extends React.Component<Props, State> {
 
   onSelect = (values: string[] | string, key: string) => {
     const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
+    this.setState({
+      filterParams: { ...filterParams, [key]: String(values) }
+    });
   };
 
   onChangeInput = e => {
@@ -117,7 +119,10 @@ export default class RightMenu extends React.Component<Props, State> {
     const value = target.value;
 
     const { filterParams } = this.state;
-    this.setState({ filterParams: { ...filterParams, [name]: value } });
+
+    this.setState({
+      filterParams: { ...filterParams, [name]: value }
+    });
   };
 
   renderLink(label: string, key: string, value: string) {
@@ -140,7 +145,16 @@ export default class RightMenu extends React.Component<Props, State> {
   onChangeRangeFilter = (kind, date) => {
     const { filterParams } = this.state;
     const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    this.setState({ filterParams: { ...filterParams, [kind]: cDate } });
+    this.setState({
+      filterParams: { ...filterParams, [kind]: cDate }
+    });
+  };
+
+  onDateChangeFilter = (field, date) => {
+    const { filterParams } = this.state;
+    this.setState({
+      filterParams: { ...filterParams, [field]: date }
+    } as any);
   };
 
   renderRange(dateType: string) {
@@ -156,7 +170,9 @@ export default class RightMenu extends React.Component<Props, State> {
         <CustomRangeContainer>
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{
+                placeholder: __('Click to select a date')
+              }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams[lblStart] || null}
@@ -171,7 +187,9 @@ export default class RightMenu extends React.Component<Props, State> {
 
           <div className="input-container">
             <Datetime
-              inputProps={{ placeholder: __('Click to select a date') }}
+              inputProps={{
+                placeholder: __('Click to select a date')
+              }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
               value={filterParams[lblEnd]}
@@ -253,7 +271,7 @@ export default class RightMenu extends React.Component<Props, State> {
               name="diagnosisDate"
               placeholder={__('Оношлогоо огноо')}
               value={filterParams.diagnosisDate}
-              // onChange={this.onDateInputChange.bind(this, 'endDate')}
+              onChange={this.onDateChangeFilter.bind(this, 'diagnosisDate')}
             />
           </DateContainer>
         </FormGroup>
@@ -266,7 +284,7 @@ export default class RightMenu extends React.Component<Props, State> {
               name="taxDate"
               placeholder={__('Татвар огноо')}
               value={filterParams.taxDate}
-              // onChange={this.onDateInputChange.bind(this, 'endDate')}
+              onChange={this.onDateChangeFilter.bind(this, 'taxDate')}
             />
           </DateContainer>
         </FormGroup>
