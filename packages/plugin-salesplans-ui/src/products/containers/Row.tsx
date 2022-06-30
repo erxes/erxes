@@ -29,7 +29,6 @@ const RowContainer = (props: Props) => {
     update({ variables: { id: salesLogId, data: data } })
       .then(() => {
         Alert.success('Request successful!');
-        refetch();
       })
       .catch((error: any) => {
         Alert.error(error.message);
