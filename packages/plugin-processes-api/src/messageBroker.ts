@@ -9,7 +9,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = cl;
-  consumeQueue('processess:createWorks', async ({ subdomain, data }) => {
+  consumeQueue('processes:createWorks', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);

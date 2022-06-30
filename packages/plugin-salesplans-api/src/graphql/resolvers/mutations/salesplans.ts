@@ -54,7 +54,7 @@ const salesLogMutations = {
       doc.status
     );
 
-    if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status)) {
+    if (result && doc.status === STATUS.PENDING) {
       let worksIntervals: any = [];
 
       /**
@@ -62,6 +62,7 @@ const salesLogMutations = {
        */
       result.products.map((product: any) => {
         const { intervals = [] } = product;
+
         intervals.map((interval: any) => {
           worksIntervals.push({
             productId: product.productId,
@@ -74,18 +75,21 @@ const salesLogMutations = {
       /**
        * Sends the data to plugin-processes-api
        */
-      await sendProcessesMessage({
+      const messageResult = await sendProcessesMessage({
         subdomain,
         action: 'createWorks',
         data: {
           salesLogId: result._id,
-          data: result.date,
+          date: result.date,
           branchId: result.branchId,
           departmentId: result.departmentId,
+          intervalId: 'intervalId',
           interval: { intervals: worksIntervals }
         },
         isRPC: false
       });
+
+      console.log(messageResult);
     }
 
     return result;
