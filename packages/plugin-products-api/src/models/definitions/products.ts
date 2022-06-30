@@ -1,4 +1,8 @@
-import { attachmentSchema, customFieldSchema, ICustomField } from '@erxes/api-utils/src/types';
+import {
+  attachmentSchema,
+  customFieldSchema,
+  ICustomField
+} from '@erxes/api-utils/src/types';
 import { Schema, Document } from 'mongoose';
 
 import { field, schemaWrapper } from './utils';
@@ -58,7 +62,6 @@ export interface IProduct {
 
   uomId?: string;
   subUoms?: ISubUom[];
-
 }
 
 export interface IProductDocument extends IProduct, Document {
@@ -85,7 +88,7 @@ const subUomSchema = new Schema({
   _id: field({ pkey: true }),
   uomId: field({ type: String, label: 'Sub unit of measurement' }),
   ratio: field({ type: Number, label: 'ratio of sub uom to main uom' })
-})
+});
 
 export const productSchema = schemaWrapper(
   new Schema({
@@ -140,19 +143,27 @@ export const productSchema = schemaWrapper(
     }),
     productCount: field({
       type: String,
-      label: 'productCount',
+      label: 'Product Count',
       default: '0'
     }),
     minimiumCount: field({
       type: String,
-      label: 'minimiumCount',
+      label: 'Minimium Count',
       default: '0'
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
 
-    uomId: field({ type: String, optional: true, label: 'Main unit of measurement' }),
-    subUoms: field({ type: [subUomSchema], optional: true, label: 'Sum unit of measurements' })
+    uomId: field({
+      type: String,
+      optional: true,
+      label: 'Main unit of measurement'
+    }),
+    subUoms: field({
+      type: [subUomSchema],
+      optional: true,
+      label: 'Sum unit of measurements'
+    })
   })
 );
 
