@@ -33,7 +33,7 @@ const placesQuery = {
   ) => {
     const filter: any = {};
 
-    return models.DealPlaces.getDealPlace({ dealId });
+    return models.DealPlaces.findOne({ dealId }).lean();
   }
 };
 

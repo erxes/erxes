@@ -42,7 +42,7 @@ export default function Component({
     }
 
     const { startPlace, endPlace } = dealPlace;
-
+    // return (<></>)
     return (
       <div style={{ width: '100%', backgroundColor: 'black' }}>
         {startPlace && startPlace._id && endPlace && endPlace._id && (

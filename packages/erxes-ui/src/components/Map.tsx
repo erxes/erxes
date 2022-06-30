@@ -41,6 +41,17 @@ export default class Map extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    const w: any = window;
+
+    if (typeof w.google === 'object' && typeof w.google.maps === 'object') {
+      console.log('ALREADY LOADED');
+    }
+
+    console.log(
+      'IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIi ',
+      w.google ? 'yes' : 'no'
+    );
+
     this.state = {
       isMapDraggable: true,
       center: props.center,
@@ -93,6 +104,9 @@ export default class Map extends React.Component<Props, State> {
   }
 
   onLoadMaps(map, maps) {
+    if (!map || !maps) {
+      return;
+    }
     console.log('MAP LOADED');
     const geodesicPolyline = new maps.Polyline({
       path: this.props.locationOptions,
@@ -226,6 +240,7 @@ export default class Map extends React.Component<Props, State> {
           onChildMouseMove={onMarkerInteraction}
           onClick={onClick}
           onChange={onChangeMap}
+          yesIWantToUseGoogleMapApiInternals={true}
           onGoogleApiLoaded={({ map, maps }) => this.onLoadMaps(map, maps)}
         >
           {locationOptions.length > 0 ? (

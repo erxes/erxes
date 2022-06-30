@@ -15,7 +15,7 @@ type Props = {
 function DealPlaceSectionContainer(props: Props) {
   const { dealId } = props;
 
-  const dealPlacesQuery = useQuery(gql(queries.dealPlaces), {
+  const dealPlaceQuery = useQuery(gql(queries.dealPlaces), {
     variables: { dealId },
     fetchPolicy: 'network-only'
   });
@@ -27,7 +27,7 @@ function DealPlaceSectionContainer(props: Props) {
     callback
   }: IButtonMutateProps) => {
     const callBackResponse = () => {
-      dealPlacesQuery.refetch();
+      dealPlaceQuery.refetch();
 
       if (callback) {
         callback();
@@ -47,14 +47,14 @@ function DealPlaceSectionContainer(props: Props) {
   };
 
   const placesChanged = () => {
-    dealPlacesQuery.refetch();
+    dealPlaceQuery.refetch();
   };
 
-  if (dealPlacesQuery.loading) {
+  if (dealPlaceQuery.loading) {
     return <Spinner />;
   }
 
-  const dealPlace = dealPlacesQuery.data.getDealPlace || {};
+  const dealPlace = dealPlaceQuery.data.getDealPlace || {};
 
   return (
     <DealPlacesSection
