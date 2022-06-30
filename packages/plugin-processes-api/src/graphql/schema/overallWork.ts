@@ -11,12 +11,19 @@ export const types = `
     endAt: Date,
     assignUserIds: JSON
     jobId: String,
+    job: JSON,
     flowId: String,
+    flow: JSON,
     intervalId: String,
+    interval: JSON,
     outBranchId: String,
+    outBranch: String,
     outDepartmentId: String,
+    outDepartment: String,
     inBranchId: String,
+    inBranch: String,
     inDepartmentId: String,
+    inDepartment: String,
     needProducts: JSON,
     resultProducts: JSON
   }

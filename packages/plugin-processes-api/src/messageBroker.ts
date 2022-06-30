@@ -66,6 +66,15 @@ export const sendSalesplansMessage = async (
   });
 };
 
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }
