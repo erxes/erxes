@@ -7,8 +7,8 @@ import React from 'react';
 import { IOverallWorkDocument } from '../../../types';
 import { OverallWorkSidebar } from '../../../../styles';
 import { IRouterProps } from '@erxes/ui/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import BranchDepartmentFilter from './BranchDepartmentFilter';
+import InputFilter from './filterInBranchDepartment';
+import OutputFilter from './filterOutBranchDepartment';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -77,13 +77,14 @@ class SideBar extends React.Component<IProps> {
 
   render() {
     return (
-      <>
-        <BranchDepartmentFilter {...this.props} />
+      <SidebarList>
+        <InputFilter {...this.props} />
+        <OutputFilter {...this.props} />
         <Sidebar wide={true} hasBorder={true}>
           {this.renderOverallWorkHeader()}
           {this.renderOverallWorkList()}
         </Sidebar>
-      </>
+      </SidebarList>
     );
   }
 }

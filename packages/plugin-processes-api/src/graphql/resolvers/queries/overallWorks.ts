@@ -33,11 +33,14 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
     selector.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
 
-  if (inBranchId && inDepartmentId && outBranchId && outDepartmentId) {
-    selector.inBranchId = inBranchId;
-    selector.inDepartmentId = inDepartmentId;
+  if (outBranchId && outDepartmentId) {
     selector.outBranchId = outBranchId;
     selector.outDepartmentId = outDepartmentId;
+  }
+
+  if (inBranchId && inDepartmentId) {
+    selector.inBranchId = inBranchId;
+    selector.inDepartmentId = inDepartmentId;
   }
 
   if (ids && ids.length > 0) {

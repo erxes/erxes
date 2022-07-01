@@ -78,7 +78,7 @@ export default {
 
     return department ? department.title : '';
   },
-  async needProducts(
+  async needProductsDetail(
     overallWork: IOverallWorkDocument,
     {},
     { models, subdomain }: IContext
@@ -113,7 +113,7 @@ export default {
 
     return needProducts;
   },
-  async resultProducts(
+  async resultProductsDetail(
     overallWork: IOverallWorkDocument,
     {},
     { models, subdomain }: IContext
