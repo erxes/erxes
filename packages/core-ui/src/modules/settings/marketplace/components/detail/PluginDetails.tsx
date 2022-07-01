@@ -84,14 +84,14 @@ class PluginDetails extends React.Component<Props, State> {
 
     const tabContent = this.state.tabType === 'Description' && (
       <>
-        <span>{plugin.shortDescription}</span>
+        <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
         <Detail>
           <ListHeader>
             <ColorHeader>
               <b>📝 DESCRIPTION</b>
             </ColorHeader>
           </ListHeader>
-          <p>{plugin.description}</p>
+          <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
         </Detail>
         <Detail>
           <ListHeader>

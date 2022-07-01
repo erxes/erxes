@@ -330,6 +330,16 @@ const Nav = styled.nav`
   }
 `;
 
+const NavImage = styledTS<{ navCollapse?: number }>(styled.img)`
+  max-width: ${props =>
+    props.navCollapse === 1
+      ? dimensions.headerSpacing - 5
+      : props.navCollapse === 2
+      ? dimensions.headerSpacing * 2 - 1
+      : dimensions.headerSpacing * 3 + dimensions.unitSpacing}px !important;
+  margin: 5px;
+`;
+
 const BottomMenu = styled.div`
   position: absolute;
   bottom: 20px;
@@ -785,6 +795,7 @@ export {
   PasswordWithEye,
   LeftNavigation,
   Nav,
+  NavImage,
   NavIcon,
   NavMenuItem,
   SubNav,
