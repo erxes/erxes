@@ -37,7 +37,7 @@ class Histories extends React.Component<Props & IRouterProps> {
         <thead>
           <tr>
             <th>{__('Name')}</th>
-            <th>{__('New records')}</th>
+            <th>{__('Records')}</th>
             <th>{__('Updated records')}</th>
             <th>{__('Error Count')}</th>
             <th>{__('User')}</th>

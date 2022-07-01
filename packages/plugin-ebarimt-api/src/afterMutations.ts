@@ -1,12 +1,17 @@
 import { graphqlPubsub } from './configs';
+import { IModels } from './connectionResolver';
 import { companyCheckCode, getConfig, getPostData } from './utils';
 
 export default {
   'cards:deal': ['update'],
-  'contacts:company': ['create', 'update', 'delete'],
+  'contacts:company': ['create', 'update', 'delete']
 };
 
-export const afterMutationHandlers = async (models, subdomain, params) => {
+export const afterMutationHandlers = async (
+  models: IModels,
+  subdomain,
+  params
+) => {
   const { type, action, user } = params;
 
   if (type === 'cards:deal') {
@@ -29,11 +34,10 @@ export const afterMutationHandlers = async (models, subdomain, params) => {
       if (Object.keys(returnConfigs).includes(destinationStageId)) {
         const returnConfig = {
           ...returnConfigs[destinationStageId],
-          ...(await getConfig(subdomain, 'EBARIMT', {})),
+          ...(await getConfig(subdomain, 'EBARIMT', {}))
         };
 
         const returnResponse = await models.PutResponses.returnBill(
-          models,
           { ...deal, contentType: 'deal', contentId: deal._id },
           returnConfig
         );
@@ -44,8 +48,8 @@ export const afterMutationHandlers = async (models, subdomain, params) => {
               userId: user._id,
               responseId: returnResponse._id,
               sessionCode: user.sessionCode || '',
-              content: returnResponse,
-            },
+              content: returnResponse
+            }
           });
         } catch (e) {
           throw new Error(e.message);
@@ -59,7 +63,7 @@ export const afterMutationHandlers = async (models, subdomain, params) => {
 
       const config = {
         ...configs[destinationStageId],
-        ...(await getConfig(subdomain, 'EBARIMT', {})),
+        ...(await getConfig(subdomain, 'EBARIMT', {}))
       };
 
       const ebarimtData = await getPostData(models, config, deal);
@@ -75,8 +79,8 @@ export const afterMutationHandlers = async (models, subdomain, params) => {
             userId: user._id,
             responseId: ebarimtResponse._id,
             sessionCode: user.sessionCode || '',
-            content: { ...config, ...ebarimtResponse },
-          },
+            content: { ...config, ...ebarimtResponse }
+          }
         });
       } catch (e) {
         throw new Error(e.message);

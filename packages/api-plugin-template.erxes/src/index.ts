@@ -33,7 +33,13 @@ import {
 
 const configs = require('../../src/configs').default;
 
-const { MONGO_URL, RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, PORT } = process.env;
+const {
+  MONGO_URL,
+  RABBITMQ_HOST,
+  MESSAGE_BROKER_PREFIX,
+  PORT,
+  USE_BRAND_RESTRICTIONS
+} = process.env;
 
 export const app = express();
 
@@ -168,11 +174,54 @@ const generateApolloServer = async serviceDiscovery => {
         user = JSON.parse(userJson);
       }
 
-      const context = {
-        user,
-        docModifier: doc => doc,
-        commonQuerySelector: {}
-      };
+      let context;
+
+      if (USE_BRAND_RESTRICTIONS !== 'true') {
+        context = {
+          brandIdSelector: {},
+          singleBrandIdSelector: {},
+          userBrandIdsSelector: {},
+          docModifier: doc => doc,
+          commonQuerySelector: {},
+          user,
+          res
+        };
+      } else {
+        let scopeBrandIds = JSON.parse(req.cookies.scopeBrandIds || '[]');
+        let brandIds = [];
+        let brandIdSelector = {};
+        let commonQuerySelector = {};
+        let commonQuerySelectorElk;
+        let userBrandIdsSelector = {};
+        let singleBrandIdSelector = {};
+
+        if (user) {
+          brandIds = user.brandIds || [];
+
+          if (scopeBrandIds.length === 0) {
+            scopeBrandIds = brandIds;
+          }
+
+          if (!user.isOwner && scopeBrandIds.length > 0) {
+            brandIdSelector = { _id: { $in: scopeBrandIds } };
+            commonQuerySelector = { scopeBrandIds: { $in: scopeBrandIds } };
+            commonQuerySelectorElk = { terms: { scopeBrandIds } };
+            userBrandIdsSelector = { brandIds: { $in: scopeBrandIds } };
+            singleBrandIdSelector = { brandId: { $in: scopeBrandIds } };
+          }
+        }
+
+        context = {
+          brandIdSelector,
+          singleBrandIdSelector,
+          docModifier: doc => ({ ...doc, scopeBrandIds }),
+          commonQuerySelector,
+          commonQuerySelectorElk,
+          userBrandIdsSelector,
+          user,
+          res
+        };
+      }
 
       await configs.apolloServerContext(context, req, res);
 

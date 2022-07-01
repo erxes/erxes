@@ -5,7 +5,7 @@ import {
   ILink
 } from '@erxes/api-utils/src/types';
 import { IPermissionDocument } from './permissions';
-import { field } from './utils';
+import { field, schemaWrapper } from './utils';
 import { USER_ROLES } from '../constants';
 
 export interface IEmailSignature {
@@ -96,95 +96,97 @@ const detailSchema = new Schema(
 );
 
 // User schema
-export const userSchema = new Schema({
-  _id: field({ pkey: true }),
-  createdAt: field({
-    type: Date,
-    default: Date.now,
-    label: 'Created at'
-  }),
-  username: field({ type: String, label: 'Username' }),
-  password: field({ type: String }),
-  resetPasswordToken: field({ type: String }),
-  registrationToken: field({ type: String }),
-  registrationTokenExpires: field({ type: Date }),
-  resetPasswordExpires: field({ type: Date }),
-  isOwner: field({ type: Boolean, label: 'Is owner' }),
-  email: field({
-    type: String,
-    unique: true,
-    match: [
-      /**
-       * RFC 5322 compliant regex. Taken from http://emailregex.com/
-       */
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      'Please fill a valid email address'
-    ],
-    label: 'Email'
-  }),
-  getNotificationByEmail: field({
-    type: Boolean,
-    label: 'Get notification by email'
-  }),
-  emailSignatures: field({
-    type: [emailSignatureSchema],
-    label: 'Email signatures'
-  }),
-  starredConversationIds: field({
-    type: [String],
-    label: 'Starred conversations'
-  }),
-  details: field({ type: detailSchema, default: {}, label: 'Details' }),
-  links: field({ type: Object, default: {}, label: 'Links' }),
-  isActive: field({ type: Boolean, default: true, label: 'Is active' }),
-  brandIds: field({ type: [String], label: 'Brands' }),
-  groupIds: field({ type: [String], label: 'Groups' }),
-  deviceTokens: field({
-    type: [String],
-    default: [],
-    label: 'Device tokens'
-  }),
-  code: field({ type: String }),
-  doNotDisturb: field({
-    type: String,
-    optional: true,
-    default: 'No',
-    label: 'Do not disturb'
-  }),
-  isSubscribed: field({
-    type: String,
-    optional: true,
-    default: 'Yes',
-    label: 'Subscribed'
-  }),
-  isShowNotification: field({
-    type: Boolean,
-    optional: true,
-    default: false,
-    label: 'Check if user shows'
-  }),
-  score: field({
-    type: Number,
-    optional: true,
-    label: 'Score',
-    esType: 'number',
-    default: 0
-  }),
-  customFieldsData: field({
-    type: [customFieldSchema],
-    optional: true,
-    label: 'Custom fields data'
-  }),
-  role: field({
-    type: String,
-    label: 'User role',
-    optional: true,
-    default: USER_ROLES.USER,
-    enum: USER_ROLES.ALL
-  }),
-  appId: field({
-    type: String,
-    label: 'Linked app id',
-    optional: true
+export const userSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    createdAt: field({
+      type: Date,
+      default: Date.now,
+      label: 'Created at'
+    }),
+    username: field({ type: String, label: 'Username' }),
+    password: field({ type: String }),
+    resetPasswordToken: field({ type: String }),
+    registrationToken: field({ type: String }),
+    registrationTokenExpires: field({ type: Date }),
+    resetPasswordExpires: field({ type: Date }),
+    isOwner: field({ type: Boolean, label: 'Is owner' }),
+    email: field({
+      type: String,
+      unique: true,
+      match: [
+        /**
+         * RFC 5322 compliant regex. Taken from http://emailregex.com/
+         */
+        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        'Please fill a valid email address'
+      ],
+      label: 'Email'
+    }),
+    getNotificationByEmail: field({
+      type: Boolean,
+      label: 'Get notification by email'
+    }),
+    emailSignatures: field({
+      type: [emailSignatureSchema],
+      label: 'Email signatures'
+    }),
+    starredConversationIds: field({
+      type: [String],
+      label: 'Starred conversations'
+    }),
+    details: field({ type: detailSchema, default: {}, label: 'Details' }),
+    links: field({ type: Object, default: {}, label: 'Links' }),
+    isActive: field({ type: Boolean, default: true, label: 'Is active' }),
+    brandIds: field({ type: [String], label: 'Brands' }),
+    groupIds: field({ type: [String], label: 'Groups' }),
+    deviceTokens: field({
+      type: [String],
+      default: [],
+      label: 'Device tokens'
+    }),
+    code: field({ type: String }),
+    doNotDisturb: field({
+      type: String,
+      optional: true,
+      default: 'No',
+      label: 'Do not disturb'
+    }),
+    isSubscribed: field({
+      type: String,
+      optional: true,
+      default: 'Yes',
+      label: 'Subscribed'
+    }),
+    isShowNotification: field({
+      type: Boolean,
+      optional: true,
+      default: false,
+      label: 'Check if user shows'
+    }),
+    score: field({
+      type: Number,
+      optional: true,
+      label: 'Score',
+      esType: 'number',
+      default: 0
+    }),
+    customFieldsData: field({
+      type: [customFieldSchema],
+      optional: true,
+      label: 'Custom fields data'
+    }),
+    role: field({
+      type: String,
+      label: 'User role',
+      optional: true,
+      default: USER_ROLES.USER,
+      enum: USER_ROLES.ALL
+    }),
+    appId: field({
+      type: String,
+      label: 'Linked app id',
+      optional: true
+    })
   })
-});
+);
