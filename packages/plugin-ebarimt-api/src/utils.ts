@@ -152,7 +152,9 @@ export const getPostData = async (subdomain, config, deal) => {
         isRPC: true,
         defaultValue: []
       });
-      customerCode = customers.length > 0 ? customers[0].code : '' || '';
+      const customer = customers.find(c => c.code && c.code.match(/^\d{8}$/g));
+
+      customerCode = (customer && customer.code) || '';
     }
   }
 
@@ -200,7 +202,7 @@ export const getPostData = async (subdomain, config, deal) => {
   const nonCashAmount = sumSaleAmount - cashAmount;
 
   const orderInfo = {
-    date: new Date().toISOString().slice(0, 10),
+    date: new Date(),
     orderId: deal._id,
     hasVat: config.hasVat || false,
     hasCitytax: config.hasCitytax || false,
