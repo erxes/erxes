@@ -130,11 +130,9 @@ class CardsConfig extends React.Component<
       return config.mappings.find(item => item._id == _id)[code];
     };
     const removeMapping = () => {
-      const curr_map = config.mappings.find(item => (item._id = _id));
-      const index = config.mappings.indexOf(curr_map);
-      if (index > -1) {
-        config.mappings.splice(index, 1);
-      }
+      const temp = config;
+      temp.mappings = temp.mappings.filter(m => m._id !== _id);
+      this.setState({ config: temp });
     };
     const renderBoardContainer = props => {
       const onClickSave = () => {
@@ -242,7 +240,6 @@ class CardsConfig extends React.Component<
       this.setState({
         config: temp
       });
-      console.log(config);
     };
     return (
       <>

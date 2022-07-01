@@ -37,31 +37,50 @@ export const initBroker = async cl => {
       const deliveryInfo = doneOrder.deliveryInfo || {};
       const { marker = {} } = deliveryInfo;
 
-      // const { cardsConfig = {} } = pos;
-      // const cardsInfo = doneOrder.cardsInfo || {};
-
-      // const cardDeal = await sendCardsMessage({
-      //   subdomain,
-      //   action: '',
-      //   data: {
-      //     name: `Cards: ${doneOrder.number}`,
-      //     startDate: doneOrder.createdAt,
-      //     description: deliveryInfo.address,
-      //     stageId: cardsConfig.stageId,
-      //     assignedUserIds: cardsConfig.assignedUserIds,
-      //     productsData: doneOrder.items.map(i => ({
-      //       productId: i.productId,
-      //       uom: 'PC',
-      //       currency: 'MNT',
-      //       quantity: i.count,
-      //       unitPrice: i.unitPrice,
-      //       amount: i.count * i.unitPrice,
-      //       tickUsed: true
-      //     }))
-      //   },
-      //   isRPC: true,
-      //   defaultValue: {}
-      // });
+      const { cardsConfig = {} } = pos;
+      let cardDeal = {};
+      cardsConfig.mappings.forEach(async item => {
+        cardDeal = await sendCardsMessage({
+          subdomain,
+          action: '',
+          data: {
+            name: `Cards: ${doneOrder.number}`,
+            startDate: doneOrder.createdAt,
+            description: deliveryInfo.address,
+            stageId: item.stageId,
+            assignedUserIds: item.assignedUserIds,
+            customFieldsData: [
+              {
+                field: deliveryConfig.mapCustomField.replace(
+                  'customFieldsData.',
+                  ''
+                ),
+                locationValue: {
+                  type: 'Point',
+                  coordinates: [marker.longitude, marker.latitude]
+                },
+                value: {
+                  lat: marker.latitude,
+                  lng: marker.longitude,
+                  description: 'location'
+                },
+                stringValue: `${marker.longitude},${marker.latitude}`
+              }
+            ],
+            productsData: doneOrder.items.map(i => ({
+              productId: i.productId,
+              uom: 'PC',
+              currency: 'MNT',
+              quantity: i.count,
+              unitPrice: i.unitPrice,
+              amount: i.count * i.unitPrice,
+              tickUsed: true
+            }))
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+      });
 
       const deal = await sendCardsMessage({
         subdomain,
