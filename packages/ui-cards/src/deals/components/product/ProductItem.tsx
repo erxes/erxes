@@ -33,6 +33,7 @@ type Props = {
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
   currentProduct?: string;
+  checkLoyalty: any;
 };
 
 type State = {
@@ -157,6 +158,9 @@ class ProductItem extends React.Component<Props, State> {
       if (product) {
         this.onChangeField('product', product, productData._id);
         this.changeCurrentProduct(product._id);
+        if (productData.assignUserId) {
+          this.changeDiscountPercent(productData);
+        }
       }
     };
 
@@ -225,6 +229,29 @@ class ProductItem extends React.Component<Props, State> {
   changeCurrentProduct = (productId: string) => {
     this.setState({
       currentProduct: this.state.currentProduct === productId ? '' : productId
+    });
+  };
+
+  changeDiscountPercent = (productData: any) => {
+    const variables = {
+      ownerType: 'user',
+      ownerId: productData.assignUserId,
+      products: [
+        {
+          productId: productData.product?._id,
+          quantity: productData.quantity
+        }
+      ]
+    };
+    this.props.checkLoyalty.refetch(variables).then(p => {
+      const discount =
+        p.data?.checkLoyalties[Object.keys(p.data?.checkLoyalties)[0]]
+          .sumDiscount;
+      this.onChangeField(
+        'discountPercent',
+        discount,
+        this.props.productData._id
+      );
     });
   };
 

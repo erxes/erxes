@@ -170,16 +170,13 @@ class SideBar extends React.Component<Props, State> {
               onChange={handleValue}
             >
               <option key={'customer'} value={'customer'}>
-                {' '}
-                {'customer'}{' '}
+                {'customer'}
               </option>
-              <option key={'user'} value={'user'}>
-                {' '}
-                {'user'}{' '}
+              <option key={'user'} value={'user'}>  
+                {'user'}
               </option>
-              <option key={'company'} value={'company'}>
-                {' '}
-                {'company'}{' '}
+              <option key={'company'} value={'company'}>  
+                {'company'}
               </option>
             </FormControl>
           </Form>
@@ -200,14 +197,10 @@ class SideBar extends React.Component<Props, State> {
               onChange={handleValue}
             >
               <option key={'Date'} value={'Date'}>
-                {''}
                 {'Date'}
-                {''}
               </option>
               <option key={'Changed Score'} value={'Changed Score'}>
-                {''}
                 {'Changed Score'}
-                {''}
               </option>
             </FormControl>
           </Form>
@@ -222,14 +215,10 @@ class SideBar extends React.Component<Props, State> {
               disabled={!variables?.orderType}
             >
               <option key={'Ascending'} value={'Ascending'}>
-                {''}
                 {'Ascending'}
-                {''}
               </option>
               <option key={'Descending'} value={'Descending'}>
-                {''}
                 {'Descending'}
-                {''}
               </option>
             </FormControl>
           </Form>

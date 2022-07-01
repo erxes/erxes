@@ -1,14 +1,21 @@
+import { sendProductsMessage } from './messageBroker';
+
 interface IProductD {
   productId: string;
   quantity: number;
 }
 export const checkVouchersSale = async (
   models,
+  subdomain: string,
   ownerType: string,
   ownerId: string,
   products: IProductD[]
 ) => {
   const result = {};
+
+  if (!ownerId && !ownerId && !products) {
+    return 'No Data';
+  }
 
   const now = new Date();
   const productsIds = products.map(p => p.productId);
@@ -37,12 +44,10 @@ export const checkVouchersSale = async (
     campaign: { $arrayElemAt: ['$campaign_doc', 0] }
   };
   const lookup = {
-    $lookup: {
-      from: 'voucher_campaigns',
-      localField: 'campaignId',
-      foreignField: '_id',
-      as: 'campaign_doc'
-    }
+    from: 'voucher_campaigns',
+    localField: 'campaignId',
+    foreignField: '_id',
+    as: 'campaign_doc'
   };
   const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
 
@@ -120,10 +125,18 @@ export const checkVouchersSale = async (
     (catIds, c) => catIds.concat(c.productCategoryIds),
     []
   );
-  const catProducts = await models.Products.find(
-    { categoryId: { $in: [...new Set(productCatIds)] } },
-    { _id: 1, categoryId: 1 }
-  ).lean();
+
+  const catProducts = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      query: { categoryId: { $in: [...new Set(productCatIds)] } },
+      sort: { _id: 1, categoryId: 1 }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
   const productIdByCatId = {};
   for (const pr of catProducts) {
     if (!Object.keys(productCatIds).includes(pr.categoryId)) {
@@ -143,10 +156,12 @@ export const checkVouchersSale = async (
 
     for (const productId of productsIds) {
       if (productIds.includes(productId)) {
-        if (result[productId].discount < discountVoucher.discountPercent) {
+        if (
+          result[productId].discount < discountVoucher.campaign.discountPercent
+        ) {
           result[productId].voucherCampaignId = discountVoucher.campaignId;
           result[productId].voucherId = discountVoucher._id;
-          result[productId].discount = discountVoucher.discountPercent;
+          result[productId].discount = discountVoucher.campaign.discountPercent;
         }
         result[productId].sumDiscount +=
           discountVoucher.campaign.discountPercent;

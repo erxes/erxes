@@ -31,6 +31,7 @@ const options = {
     detailQuery: queries.dealDetail,
     archivedItemsQuery: queries.archivedDeals,
     archivedItemsCountQuery: queries.archivedDealsCount,
+    checkLoyalties: queries.checkLoyalties,
   },
   mutations: {
     addMutation: mutations.dealsAdd,

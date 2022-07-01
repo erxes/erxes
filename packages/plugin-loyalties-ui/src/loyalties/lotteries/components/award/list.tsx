@@ -4,6 +4,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { Badge, TableContainer } from '../../../../styles';
+import { LoyaltiesTableWrapper } from '../../../common/styles';
 import { ILottery } from '../../types';
 
 interface IProps extends IRouterProps {
@@ -45,39 +46,78 @@ class AwardList extends React.Component<IProps> {
       }
     };
 
-    return (
-      <TableContainer>
-        <Table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Owner Type</th>
-              <th>Number</th>
-              <th style={{ textAlign: 'left' }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lotteries?.map((lottery, i) => (
-              <tr key={i}>
-                <td>
-                  <Link
-                    to={`/${route(lottery.ownerType)}/details/${
-                      lottery.ownerId
-                    }`}
-                  >
-                    {lottery.owner?.email}
-                  </Link>
-                </td>
-
-                <td>{lottery?.ownerType}</td>
-
-                <td>{lottery?.number}</td>
-                <td>{status(lottery?.status)}</td>
+    const mainContent = (
+      <LoyaltiesTableWrapper>
+        <TableContainer>
+          <Table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Owner Type</th>
+                <th>Number</th>
+                <th style={{ textAlign: 'left' }}>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </TableContainer>
+            </thead>
+            <tbody>
+              {lotteries?.map((lottery, i) => (
+                <tr key={i}>
+                  <td>
+                    <Link
+                      to={`/${route(lottery.ownerType)}/details/${
+                        lottery.ownerId
+                      }`}
+                    >
+                      {lottery.owner?.email}
+                    </Link>
+                  </td>
+
+                  <td>{lottery?.ownerType}</td>
+
+                  <td>{lottery?.number}</td>
+                  <td>{status(lottery?.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableContainer>
+      </LoyaltiesTableWrapper>
+    );
+
+    return (
+      <>
+        <TableContainer>
+          <Table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Owner Type</th>
+                <th>Number</th>
+                <th style={{ textAlign: 'left' }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lotteries?.map((lottery, i) => (
+                <tr key={i}>
+                  <td>
+                    <Link
+                      to={`/${route(lottery.ownerType)}/details/${
+                        lottery.ownerId
+                      }`}
+                    >
+                      {lottery.owner?.email}
+                    </Link>
+                  </td>
+
+                  <td>{lottery?.ownerType}</td>
+
+                  <td>{lottery?.number}</td>
+                  <td>{status(lottery?.status)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableContainer>
+      </>
     );
   }
 }

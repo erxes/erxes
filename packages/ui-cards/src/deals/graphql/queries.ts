@@ -194,6 +194,12 @@ const productDetail = `
   }
 `;
 
+const checkLoyalties = `
+  query checkLoyalties($ownerId: String, $ownerType: String, $products: JSON) {
+    checkLoyalties(ownerId: $ownerId, ownerType: $ownerType, products: $products)
+  }
+`;
+
 export default {
   deals,
   dealsTotalCount,
@@ -201,5 +207,6 @@ export default {
   productDetail,
   dealsTotalAmounts,
   archivedDeals,
-  archivedDealsCount
+  archivedDealsCount,
+  checkLoyalties
 };

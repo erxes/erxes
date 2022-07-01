@@ -72,3 +72,10 @@ export type DealsTotalCountQueryResponse = {
   refetch: () => void;
   fetchMore: any;
 };
+
+export type checkLoyalties = {
+  data: any;
+  loading: boolean;
+  refetch: () => void;
+  fetchMore: any;
+};

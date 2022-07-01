@@ -15,7 +15,7 @@ import {
 } from '../../styles';
 import { IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
-import ProductItem from './ProductItem';
+import ProductItem from '../../containers/product/ProductItem';
 import ProductTotal from './ProductTotal';
 
 type Props = {
@@ -99,6 +99,16 @@ class ProductForm extends React.Component<Props, State> {
     this.updateTotal(removedProductsData);
   };
 
+  setDiscount = (id, discount) => {
+    const { productsData, onChangeProductsData } = this.props;
+
+    const discountAdded = productsData.map((p) =>
+      p.product?._id === id ? { ...p, discountPercent: discount } : p
+    );
+    onChangeProductsData(discountAdded);
+    this.updateTotal(discountAdded);
+  };
+
   updateTotal = (productsData = this.props.productsData) => {
     const total = {};
     const tax = {};
@@ -180,6 +190,8 @@ class ProductForm extends React.Component<Props, State> {
                 uom={this.props.uom}
                 currencies={this.props.currencies}
                 currentProduct={currentProduct}
+                checkLoyalty={undefined}
+                onChangeDiscount={this.setDiscount}
               />
             ))}
           </tbody>

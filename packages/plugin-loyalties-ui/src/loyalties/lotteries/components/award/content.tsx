@@ -45,6 +45,8 @@ class AwardContentComponent extends React.Component<IProps, State> {
     const {
       currentTab,
       doLotteries,
+      lotteryCampaignWinnerList,
+      lotteriesCampaignCustomerList,
       winners,
       list,
       totalCount,
@@ -73,13 +75,13 @@ class AwardContentComponent extends React.Component<IProps, State> {
         </AwardContainer>
       );
     };
-    const List = (data: any, isWinnerList: boolean) => {
+    const List = (data: any,totalCount:number,loading:boolean, isWinnerList: boolean) => {
       const updatedProps = {
         lotteries: data,
         totalCount: totalCount,
+        loading:loading,
         isWinnerList
       };
-
       return <AwardList {...updatedProps} />;
     };
     const NextChar = () => {
@@ -187,8 +189,8 @@ class AwardContentComponent extends React.Component<IProps, State> {
             justifyContent: 'space-between'
           }}
         >
-          {List(list, true)}
-          {List(winners, true)}
+          {List(list,totalCount,lotteriesCampaignCustomerList.loading, true)}
+          {List(winners,winnersTotalCount,lotteryCampaignWinnerList.loading, true)}
         </div>
       </>
     );

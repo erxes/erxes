@@ -2,6 +2,7 @@ import {
   DataWithLoader,
   FormControl,
   Info,
+  Pagination,
   Spinner,
   Table,
   __
@@ -126,7 +127,7 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       </>
     );
 
-    return <Wrapper header={header} leftSidebar={sidebar} content={content} />;
+    return <Wrapper header={header} leftSidebar={sidebar} content={content} footer={<Pagination count={total}/>}/>;
   }
 }
 

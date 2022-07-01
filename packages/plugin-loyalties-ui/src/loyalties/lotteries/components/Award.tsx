@@ -77,48 +77,6 @@ class VouchersAward extends React.Component<IProps, State> {
         {isdate ? parseDate(value) : value}
       </div>
     );
-    const LotteryDetail = () => {
-      return (
-        <Container>
-          <p>
-            <strong>Title:</strong>
-            {lotteryCampaign?.title}
-          </p>
-          <RowDiv
-            head="Buy Score"
-            isdate={false}
-            value={lotteryCampaign?.buyScore}
-          />
-          <RowDiv
-            head="Start Date"
-            isdate={true}
-            value={lotteryCampaign?.startDate}
-          />
-
-          <RowDiv
-            head="End Date"
-            isdate={true}
-            value={lotteryCampaign?.endDate}
-          />
-          <RowDiv
-            head="Finish Date of Use"
-            isdate={true}
-            value={lotteryCampaign?.finishDateOfUse}
-          />
-          <RowDiv
-            head="Description"
-            isdate={false}
-            value={
-              <Description
-                dangerouslySetInnerHTML={{
-                  __html: lotteryCampaign?.description
-                }}
-              />
-            }
-          />
-        </Container>
-      );
-    };
 
     const Modalcontent = () => {
       const ids = [];
