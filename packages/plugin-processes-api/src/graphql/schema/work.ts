@@ -12,13 +12,22 @@ export const types = `
     startAt: Date,
     endAt: Date,
     jobId: String,
+    job: JSON,
     flowId: String,
+    flow: JSON,
     productId: String,
+    product: JSON,
     count: String,
+    intervalId: String,
+    interval: JSON,
     inBranchId: String,
+    inBranch: String
     inDepartmentId: String,
+    inDepartment: String
     outBranchId: String,
+    outBranch: String,
     outDepartmentId: String,
+    outDepartment: String
     needProducts: JSON,
     resultProducts: JSON
   }
@@ -30,7 +39,7 @@ const qryParams = `
 
 export const queries = `
   works(page: Int, perPage: Int, ${qryParams}): [Work]
-  workTotalCount(${qryParams}): Int
+  worksTotalCount(${qryParams}): Int
 `;
 
 const workParams = `
@@ -43,6 +52,7 @@ const workParams = `
   flowId: String,
   productId: String,
   count: String,
+  intervalId: String,
   inBranchId: String,
   inDepartmentId: String,
   outBranchId: String,

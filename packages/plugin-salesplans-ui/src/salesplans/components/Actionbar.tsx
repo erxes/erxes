@@ -1,14 +1,15 @@
 import React from 'react';
-import { Button, ModalTrigger } from '@erxes/ui/src';
-import ManageLabelsContainer from '../containers/ManageLabels';
-import ManageConfigsContainer from '../containers/ManageConfigs';
+import { __, Wrapper, Button, ModalTrigger } from '@erxes/ui/src';
+import { Title } from '@erxes/ui/src/styles/main';
+import ManageLabelsContainer from '../containers/actions/ManageLabels';
+import ManageConfigsContainer from '../containers/actions/ManageConfigs';
 import FormContainer from '../containers/Form';
 
 type Props = {
   addData: (data: any) => void;
 };
 
-const ActionBar = (props: Props) => {
+const Actionbar = (props: Props) => {
   const { addData } = props;
 
   const createLabelContent = (formProps: any) => {
@@ -47,7 +48,7 @@ const ActionBar = (props: Props) => {
     </Button>
   );
 
-  return (
+  const renderRight = () => (
     <>
       <ModalTrigger
         size="lg"
@@ -66,7 +67,6 @@ const ActionBar = (props: Props) => {
         enforceFocus={false}
       />
       <ModalTrigger
-        size="lg"
         title={'Create Sales Log'}
         autoOpenKey="showSLCreateSalesLogModal"
         trigger={createPlanTrigger}
@@ -75,6 +75,10 @@ const ActionBar = (props: Props) => {
       />
     </>
   );
+
+  const renderLeft = () => <Title>{__('All sales plans')}</Title>;
+
+  return <Wrapper.ActionBar left={renderLeft()} right={renderRight()} />;
 };
 
-export default ActionBar;
+export default Actionbar;

@@ -144,7 +144,6 @@ export default withProps<Props>(
       name: 'flowTotalCountQuery',
       options: ({ queryParams }) => ({
         variables: {
-          categoryId: queryParams.categoryId,
           searchValue: queryParams.searchValue,
           ...generatePaginationParams(queryParams)
         },

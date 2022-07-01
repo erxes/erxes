@@ -7,16 +7,40 @@ import { IContext } from '../../../connectionResolver';
 
 interface IParam {
   searchValue?: string;
+  inBranchId?: string;
+  inDepartmentId?: string;
+  outBranchId?: string;
+  outDepartmentId?: string;
   ids: string[];
   excludeIds: boolean;
 }
 
 const generateFilter = (params: IParam, commonQuerySelector) => {
-  const { searchValue, ids, excludeIds } = params;
+  const {
+    searchValue,
+    ids,
+    excludeIds,
+    inBranchId,
+    inDepartmentId,
+    outBranchId,
+    outDepartmentId
+  } = params;
   const selector: any = { ...commonQuerySelector };
+
+  console.log('params params:', params);
 
   if (searchValue) {
     selector.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (outBranchId && outDepartmentId) {
+    selector.outBranchId = outBranchId;
+    selector.outDepartmentId = outDepartmentId;
+  }
+
+  if (inBranchId && inDepartmentId) {
+    selector.inBranchId = inBranchId;
+    selector.inDepartmentId = inDepartmentId;
   }
 
   if (ids && ids.length > 0) {
@@ -39,7 +63,17 @@ const overallWorkQueries = {
     return paginate(models.OverallWorks.find(selector).lean(), { ...params });
   },
 
-  overallWorkTotalCount(
+  overallWorksSideBar(
+    _root,
+    params: IParam,
+    { models, commonQuerySelector }: IContext
+  ) {
+    const selector = generateFilter(params, commonQuerySelector);
+    console.log(selector);
+    return models.OverallWorks.find(selector).lean();
+  },
+
+  overallWorksTotalCount(
     _root,
     params: IParam,
     { commonQuerySelector, models }: IContext

@@ -15,7 +15,6 @@ export interface IProduct {
   sku?: string;
   unitPrice?: number;
   code: string;
-  customFieldsData?: ICustomField[];
   productId?: string;
   tagIds?: string[];
   attachment?: any;
@@ -30,7 +29,7 @@ export interface IProduct {
   mergedIds?: string[];
 
   uomId?: string;
-  subUoms?: ISubUom[];
+  subUoms?: any[];
 }
 
 export interface IProductDocument extends IProduct, Document {

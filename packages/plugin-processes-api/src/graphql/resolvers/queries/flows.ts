@@ -78,8 +78,9 @@ const flowQueries = {
     const data = {
       salesLogId: 'lfkajsdlfjalskdj',
       date: new Date(),
-      branchId: 'X5BcGHpzxofkTq8TL',
-      departmentId: 'ELea5cmuCwuQZy7qH',
+      branchId: 'bz9ExXQ9Tfa8Qs6Tp',
+      departmentId: 'DWkmyHbxF7u57x8h7',
+      intervalId: 'dfadfadfa',
       interval: {
         intervals: [
           { productId: 'Q7r2s3fJM3F88YkTD', count: 3 },

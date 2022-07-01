@@ -123,26 +123,11 @@ const PluginContainer = styled.div`
 `;
 
 const Card = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
   width: 23%;
   min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 8px;
   padding: ${dimensions.unitSpacing}px;
-
-  button {
-    float: left;
-    margin-right: 5px;
-    background: rgb(103, 63, 189);
-    border-radius: 5px;
-    color: rgb(255, 255, 255);
-    border: none;
-    font-weight: 500;
-    outline: 0px;
-    padding: 5px 15px;
-    cursor: pointer;
-  }
 
   a {
     color: inherit;
@@ -152,14 +137,6 @@ const Card = styled.div`
     box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
     cursor: pointer;
   }
-
-  .uninstall {
-    background: #eb5a5a;
-  }
-
-  .install {
-    background: #13ce66;
-  }
 `;
 
 const PluginPic = styled.img`
@@ -168,10 +145,14 @@ const PluginPic = styled.img`
 `;
 
 const PluginInformation = styled.div`
-  margin: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 0;
+  margin-top: ${dimensions.unitSpacing}px;
 
   b {
     text-transform: capitalize;
+  }
+
+  p {
+    margin: 0;
   }
 `;
 
@@ -205,6 +186,27 @@ const PluginTitle = styled.div`
 
   b {
     font-size: 20px;
+  }
+
+  button {
+    float: left;
+    margin-right: 5px;
+    background: rgb(103, 63, 189);
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    border: none;
+    font-weight: 500;
+    outline: 0px;
+    padding: 5px 15px;
+    cursor: pointer;
+  }
+
+  .uninstall {
+    background: #eb5a5a;
+  }
+
+  .install {
+    background: #13ce66;
   }
 `;
 

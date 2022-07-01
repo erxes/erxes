@@ -102,17 +102,15 @@ export const loadSalesLogClass = (models: IModels) => {
 
       return await models.SalesLogs.updateOne(
         { _id },
-        { $pull: { products: { _id: productId } } }
+        { $pull: { products: { productId } } }
       );
     }
 
     public static async salesLogStatusUpdate(_id: string, status: string) {
       const result = await models.SalesLogs.findOne({ _id });
 
-      if (result && [STATUS.PUBLISHED, STATUS.PENDING].includes(result.status))
-        return new Error(`Published log can't be altered`);
-
-      await models.SalesLogs.updateOne({ _id }, { $set: { status: status } });
+      if (result && result.status !== STATUS.PUBLISHED)
+        await models.SalesLogs.updateOne({ _id }, { $set: { status: status } });
 
       return await models.SalesLogs.findOne({ _id }).lean();
     }

@@ -47,6 +47,10 @@ var plugins = [
   { name: 'syncerkhet', ui: true, api: true },
   { name: 'tags', ui: true, api: true },
   { name: 'tumentech', ui: true, api: true },
+  { name: 'salesplans', ui: true, api: true },
+  { name: 'processes', ui: true, api: true },
+  { name: 'inventories', ui: true, api: true },
+  { name: 'posclient', api: true },
 ];
 
 const pluginsMap = {};

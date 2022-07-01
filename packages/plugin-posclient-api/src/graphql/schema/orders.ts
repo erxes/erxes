@@ -73,9 +73,9 @@ export const types = `
     links: JSON
     owner: User
     score: Float
-  } 
+  }
 
-  type OrderItem {
+  type PosOrderItem {
     ${commonFields}
     productId: String!
     count: Int!
@@ -146,7 +146,7 @@ export const types = `
     cardPayments: [CardPayment]
     origin: String
     customer: Customer
-    items: [OrderItem]
+    items: [PosOrderItem]
     user: PosUser
     putResponses: [PutResponse]
     qpayInvoice: QPayInvoice
