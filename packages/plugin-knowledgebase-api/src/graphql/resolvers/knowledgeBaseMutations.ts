@@ -5,6 +5,7 @@ import { IArticleCreate, ICategoryCreate } from '../../models/KnowledgeBase';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { MODULE_NAMES } from '../../constants';
 import { IContext } from '../../connectionResolver';
+import { sendCoreMessage } from '../../messageBroker';
 
 const knowledgeBaseMutations = {
   /**
@@ -28,9 +29,9 @@ const knowledgeBaseMutations = {
         newData: {
           ...doc,
           createdBy: user._id,
-          createdDate: topic.createdDate,
+          createdDate: topic.createdDate
         },
-        object: topic,
+        object: topic
       },
       user
     );
@@ -47,7 +48,11 @@ const knowledgeBaseMutations = {
     { user, models, subdomain }: IContext
   ) {
     const topic = await models.KnowledgeBaseTopics.getTopic(_id);
-    const updated = await models.KnowledgeBaseTopics.updateDoc(_id, doc, user._id);
+    const updated = await models.KnowledgeBaseTopics.updateDoc(
+      _id,
+      doc,
+      user._id
+    );
 
     await putUpdateLog(
       models,
@@ -58,9 +63,9 @@ const knowledgeBaseMutations = {
         newData: {
           ...doc,
           modifiedBy: user._id,
-          modifiedDate: updated.modifiedDate,
+          modifiedDate: updated.modifiedDate
         },
-        updatedDocument: updated,
+        updatedDocument: updated
       },
       user
     );
@@ -79,7 +84,12 @@ const knowledgeBaseMutations = {
     const topic = await models.KnowledgeBaseTopics.getTopic(_id);
     const removed = await models.KnowledgeBaseTopics.removeDoc(_id);
 
-    await putDeleteLog(models, subdomain, { type: MODULE_NAMES.KB_TOPIC, object: topic }, user);
+    await putDeleteLog(
+      models,
+      subdomain,
+      { type: MODULE_NAMES.KB_TOPIC, object: topic },
+      user
+    );
 
     return removed;
   },
@@ -92,7 +102,10 @@ const knowledgeBaseMutations = {
     { doc }: { doc: ICategoryCreate },
     { user, models, subdomain }: IContext
   ) {
-    const kbCategory = await models.KnowledgeBaseCategories.createDoc(doc, user._id);
+    const kbCategory = await models.KnowledgeBaseCategories.createDoc(
+      doc,
+      user._id
+    );
 
     await putCreateLog(
       models,
@@ -102,9 +115,9 @@ const knowledgeBaseMutations = {
         newData: {
           ...doc,
           createdBy: user._id,
-          createdDate: kbCategory.createdDate,
+          createdDate: kbCategory.createdDate
         },
-        object: kbCategory,
+        object: kbCategory
       },
       user
     );
@@ -121,7 +134,11 @@ const knowledgeBaseMutations = {
     { user, models, subdomain }: IContext
   ) {
     const kbCategory = await models.KnowledgeBaseCategories.getCategory(_id);
-    const updated = await models.KnowledgeBaseCategories.updateDoc(_id, doc, user._id);
+    const updated = await models.KnowledgeBaseCategories.updateDoc(
+      _id,
+      doc,
+      user._id
+    );
 
     await putUpdateLog(
       models,
@@ -132,9 +149,9 @@ const knowledgeBaseMutations = {
         newData: {
           ...doc,
           modifiedBy: user._id,
-          modifiedDate: updated.modifiedDate,
+          modifiedDate: updated.modifiedDate
         },
-        updatedDocument: updated,
+        updatedDocument: updated
       },
       user
     );
@@ -172,7 +189,10 @@ const knowledgeBaseMutations = {
     { doc }: { doc: IArticleCreate },
     { user, models, subdomain }: IContext
   ) {
-    const kbArticle = await models.KnowledgeBaseArticles.createDoc(doc, user._id);
+    const kbArticle = await models.KnowledgeBaseArticles.createDoc(
+      doc,
+      user._id
+    );
 
     await putCreateLog(
       models,
@@ -182,12 +202,48 @@ const knowledgeBaseMutations = {
         newData: {
           ...doc,
           createdBy: user._id,
-          createdDate: kbArticle.createdDate,
+          createdDate: kbArticle.createdDate
         },
-        object: kbArticle,
+        object: kbArticle
       },
       user
     );
+
+    let receivers = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          _id: { $ne: user._id }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    receivers = receivers.map(r => r._id);
+
+    const strip_html = (string: any) => {
+      if (typeof string === 'undefined' || string === null) {
+        return;
+      } else {
+        const regex = /(&nbsp;|<([^>]+)>)/gi;
+        var result = string.replace(regex, '');
+        result = result.replace(/&#[0-9][0-9][0-9][0-9];/gi, ' ');
+        const cut = result.slice(0, 70);
+        return cut;
+      }
+    };
+
+    sendCoreMessage({
+      subdomain: subdomain,
+      action: 'sendMobileNotification',
+      data: {
+        title: doc.title,
+        body: strip_html(doc.content),
+        receivers
+      }
+    });
 
     return kbArticle;
   },
@@ -201,7 +257,11 @@ const knowledgeBaseMutations = {
     { user, models, subdomain }: IContext
   ) {
     const kbArticle = await models.KnowledgeBaseArticles.getArticle(_id);
-    const updated = await models.KnowledgeBaseArticles.updateDoc(_id, doc, user._id);
+    const updated = await models.KnowledgeBaseArticles.updateDoc(
+      _id,
+      doc,
+      user._id
+    );
 
     await putUpdateLog(
       models,
@@ -212,9 +272,9 @@ const knowledgeBaseMutations = {
         newData: {
           ...doc,
           modifiedBy: user._id,
-          modifiedDate: updated.modifiedDate,
+          modifiedDate: updated.modifiedDate
         },
-        updatedDocument: updated,
+        updatedDocument: updated
       },
       user
     );
@@ -241,7 +301,7 @@ const knowledgeBaseMutations = {
     );
 
     return removed;
-  },
+  }
 };
 
 moduleCheckPermission(knowledgeBaseMutations, 'manageKnowledgeBase');

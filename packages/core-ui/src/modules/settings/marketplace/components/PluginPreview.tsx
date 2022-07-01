@@ -1,7 +1,6 @@
 import React from 'react';
 import { __ } from 'modules/common/utils';
 import {
-  ListContainer,
   ListHeader,
   ListTitle,
   Card,
@@ -55,7 +54,9 @@ class PluginPreview extends React.Component<
               <PluginPic src={plugin.image} />
               <PluginInformation>
                 <b>{plugin.title}</b>
-                <Description>{plugin.shortDescription}</Description>
+                <Description
+                  dangerouslySetInnerHTML={{ __html: plugin.shortDescription }}
+                />
               </PluginInformation>
             </Link>
           </Card>
@@ -66,12 +67,12 @@ class PluginPreview extends React.Component<
 
   render() {
     return (
-      <ListContainer>
+      <>
         <ListHeader>
           <ListTitle>Plugins</ListTitle>
         </ListHeader>
         {this.renderList()}
-      </ListContainer>
+      </>
     );
   }
 }
