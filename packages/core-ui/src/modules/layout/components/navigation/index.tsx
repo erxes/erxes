@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import { LeftNavigation, FlexBox, BottomMenu } from '../../styles';
+import { LeftNavigation, FlexBox, BottomMenu, NavImage } from '../../styles';
 
 import { __, readFile, setBadge } from 'modules/common/utils';
 
@@ -45,7 +45,11 @@ export default class Navigation extends React.Component<Props> {
     return (
       <LeftNavigation>
         <NavLink to="/welcome">
-          <img src={generateLogoSource()} alt="erxes" />
+          <NavImage
+            navCollapse={navCollapse}
+            src={generateLogoSource()}
+            alt="erxes"
+          />
         </NavLink>
 
         <FlexBox navCollapse={navCollapse}>
