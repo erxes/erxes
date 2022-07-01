@@ -1,9 +1,11 @@
-import { MapContainer } from '@erxes/ui/src/styles/main';
+import { LinkButton, MapContainer } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
 import { ILocationOption } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
+import LocationOption from '@erxes/ui-settings/src/properties/components/LocationOption';
+import Icon from '../Icon';
 
 interface IMapProps extends google.maps.MapOptions {
   id: string;
@@ -11,8 +13,10 @@ interface IMapProps extends google.maps.MapOptions {
   center?: ILocationOption;
   locationOptions: ILocationOption[];
   locale?: string;
+  mode?: 'default' | 'edit' | 'view';
   connectWithLines?: boolean;
-  onChange?: (location: ILocationOption) => void;
+  onChangeMarker?: (location: ILocationOption) => void;
+  onChangeOptions?: (locations: ILocationOption[]) => void;
 }
 
 const MAP_MARKERS = {
@@ -31,8 +35,6 @@ const loadMapScript = (apiKey: string, locale?: string) => {
   if (!apiKey) {
     return '';
   }
-
-  console.log('load map script');
 
   const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${locale ||
     'en'}&v=quarterly`;
@@ -55,25 +57,18 @@ const loadMapScript = (apiKey: string, locale?: string) => {
 };
 
 const Map = (props: IMapProps) => {
-  const { locationOptions, ...options } = props;
+  const { mode = 'default', onChangeOptions, ...options } = props;
 
+  const [locationOptions, setOptions] = useState<ILocationOption[]>(
+    props.locationOptions
+  );
   const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
-  const [selectedOption, setSelectedOption] = useState<
-    ILocationOption | undefined
-  >(undefined);
-
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
 
-  if ((window as any).google) {
-    console.log('google maps already loaded');
-  }
-
   useEffect(() => {
-    console.log(
-      "Let's say, I do want to do some task here only when id differs"
-    );
     renderMap();
-  }, [props.id]);
+    setCenter(props.center || { lat: 0, lng: 0 });
+  }, [props.id, center, setCenter]);
 
   const mapScript = loadMapScript(
     props.googleMapApiKey || 'demo',
@@ -85,14 +80,15 @@ const Map = (props: IMapProps) => {
   });
 
   const onLocationChange = (option: ILocationOption) => {
-    if (locationOptions.length > 0) {
-      setSelectedOption(option);
-    }
-
-    setCenter(option);
+    console.log('onLocationChange: ', option);
+    // setCenter(option);
+    // if (props.onChangeMarker) {
+    //   props.onChangeMarker(option);
+    // }
   };
 
   const renderMap = () => {
+    console.log('renderMap: ');
     const mapElement = document.getElementById(props.id);
 
     if (!mapElement || !(window as any).google) {
@@ -140,12 +136,11 @@ const Map = (props: IMapProps) => {
         });
       } else {
         marker.addListener('click', () => {
-          console.log('clicked: ', marker.getTitle());
           const location = marker.getPosition();
 
           markers.forEach(m => {
             const iconColor =
-              m.getPosition() === location
+              m.getPosition() === marker.getPosition()
                 ? colors.colorCoreGreen
                 : colors.colorPrimary;
             m.setIcon(getIconAttributes(MAP_MARKERS.default, iconColor));
@@ -178,6 +173,12 @@ const Map = (props: IMapProps) => {
 
     if (locationOptions.length > 0) {
       locationOptions.forEach(option => {
+        let iconColor = colors.colorPrimary;
+
+        if (option.lat === center.lat && option.lng === center.lng) {
+          iconColor = colors.colorCoreGreen;
+        }
+
         const marker = new google.maps.Marker({
           position: {
             lat: option.lat,
@@ -186,7 +187,7 @@ const Map = (props: IMapProps) => {
           map,
           title: option.description,
           draggable: false,
-          icon: getIconAttributes(MAP_MARKERS.default, colors.colorPrimary)
+          icon: getIconAttributes(MAP_MARKERS.default, iconColor)
         });
 
         bounds.extend(new google.maps.LatLng(option.lat, option.lng));
@@ -221,16 +222,91 @@ const Map = (props: IMapProps) => {
           lng: center.lng
         },
         map,
-        title: 'your location',
+        title: center.description || 'your location',
         draggable: true,
         icon: getIconAttributes(MAP_MARKERS.default, colors.colorPrimary)
       });
 
+      marker.setPosition(center);
       addListeners(marker, 'your location', true);
     }
   };
 
-  return <MapContainer id={props.id} />;
+  const renderInput = () => {
+    if (mode === 'default') {
+      return null;
+    }
+
+    const onChangeOption = (option, index) => {
+      // find current editing one
+      const currentOption = locationOptions.find((_option, i) => i === index);
+
+      // set new value
+      if (currentOption) {
+        locationOptions[index] = option;
+      }
+
+      setOptions(locationOptions);
+      onChangeOptions && onChangeOptions(locationOptions);
+    };
+
+    const addOption = () => {
+      const option: any = center || {
+        lat: 0.0,
+        lng: 0.0,
+        description: ''
+      };
+
+      locationOptions.push(option);
+
+      setOptions([...locationOptions]);
+      onChangeOptions && onChangeOptions(locationOptions);
+    };
+
+    const removeOption = (index: number) => {
+      setOptions(locationOptions.filter((_option, i) => i !== index));
+      onChangeOptions && onChangeOptions(locationOptions);
+    };
+
+    return (
+      <>
+        {locationOptions.map((option, index) => (
+          <LocationOption
+            key={index}
+            option={option}
+            onChangeOption={onChangeOption}
+            removeOption={mode === 'edit' ? removeOption : undefined}
+            index={index}
+          />
+        ))}
+
+        {!locationOptions.length && (
+          <LocationOption
+            key={0}
+            option={{ ...center, description: '' }}
+            onChangeOption={option => {
+              onChangeOptions && onChangeOptions([option]);
+            }}
+            removeOption={mode === 'edit' ? removeOption : undefined}
+            index={0}
+          />
+        )}
+
+        {mode === 'edit' && (
+          <LinkButton onClick={addOption}>
+            <Icon icon="plus-1" /> Add option
+          </LinkButton>
+        )}
+      </>
+    );
+  };
+
+  return (
+    <>
+      <MapContainer id={props.id} />
+      {renderInput()}
+    </>
+  );
 };
 
 export default Map;

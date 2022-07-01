@@ -15,7 +15,6 @@ import { IPlace } from '../../types';
 import { PROVINCES } from '../../constants';
 import Select from 'react-select-plus';
 import Map from '@erxes/ui/src/components/map/Map';
-import LocationOption from '@erxes/ui-settings/src/properties/components/LocationOption';
 
 type Props = {
   place?: IPlace;
@@ -72,6 +71,7 @@ const PlaceForm = (props: Props) => {
   };
 
   const onChangeLocationOption = option => {
+    console.log(option);
     setCenter(option);
   };
 
@@ -140,12 +140,9 @@ const PlaceForm = (props: Props) => {
             zoom={zoom}
             locationOptions={[]}
             streetViewControl={false}
-          />
-          <LocationOption
-            key={'location'}
-            option={center}
-            onChangeOption={onChangeLocationOption}
-            index={0}
+            onChangeMarker={onChangeMarker}
+            onChangeOptions={onChangeLocationOption}
+            mode="view"
           />
         </FormGroup>
 

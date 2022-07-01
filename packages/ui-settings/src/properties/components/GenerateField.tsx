@@ -364,12 +364,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMap(attrs) {
-    const {
-      field,
-      isPreview,
-      onChangeLocationOptions,
-      onValueChange
-    } = this.props;
+    const { field, onValueChange } = this.props;
     const { locationOptions = [] } = field;
     const { value } = attrs;
 
@@ -392,6 +387,7 @@ export default class GenerateField extends React.Component<Props, State> {
         googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
         locationOptions={locationOptions}
         streetViewControl={false}
+        onChangeMarker={onChangeMarker}
       />
     );
   }

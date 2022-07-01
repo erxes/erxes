@@ -6,7 +6,7 @@ import {
 } from '@erxes/ui/src/components/form';
 import { ILocationOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   LogicItem,
   LogicRow,
@@ -24,12 +24,17 @@ type Props = {
 function LocationOption(props: Props) {
   const { option, onChangeOption, removeOption, index } = props;
 
+  // useEffect(() => {
+  //   onChangeOption(option, index);
+  // }, [option, onChangeOption]);
+
   const onChangeDescription = e => {
     option.description = e.target.value;
     onChangeOption(option, index);
   };
 
   const onChangeLat = e => {
+    console.log('onChangeLat: ', { ...option, lat: Number(e.target.value) });
     onChangeOption({ ...option, lat: Number(e.target.value) }, index);
   };
 
