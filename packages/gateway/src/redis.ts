@@ -38,6 +38,34 @@ const setAfterMutations = async () => {
   await redis.set('afterMutations', JSON.stringify(result));
 };
 
+const setBeforeResolvers = async () => {
+  const services = await getServices();
+  const result = {};
+
+  for (const service of services) {
+    const info = await getService(service, true);
+    const meta = Object.keys(info.config).includes('meta')
+      ? (info.config as any).meta
+      : {};
+
+    if (!Object.keys(meta).includes('beforeResolvers')) {
+      continue;
+    }
+
+    for (const serviceName of Object.keys(meta.beforeResolvers)) {
+      for (const resolverName of meta.beforeResolvers[serviceName]) {
+        if (!Object.keys(result).includes(resolverName)) {
+          result[resolverName] = [];
+        }
+
+        result[resolverName].push(service);
+      }
+    }
+  }
+
+  await redis.set('beforeResolvers', JSON.stringify(result));
+};
+
 export const clearCache = async () => {
   console.log('Clearing enabled services cache ........');
   await redis.del('enabled_services');
@@ -51,4 +79,11 @@ export const serviceDiscovery = {
   isEnabled
 };
 
-export { isAvailable, getServices, getService, redis, setAfterMutations };
+export {
+  isAvailable,
+  getServices,
+  getService,
+  redis,
+  setAfterMutations,
+  setBeforeResolvers
+};

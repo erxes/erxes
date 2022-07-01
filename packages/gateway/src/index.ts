@@ -19,7 +19,8 @@ import {
   getService,
   getServices,
   redis,
-  setAfterMutations
+  setAfterMutations,
+  setBeforeResolvers
 } from './redis';
 import { initBroker } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
@@ -195,6 +196,7 @@ const {
 
   await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
 
+  await setBeforeResolvers();
   await setAfterMutations();
 
   console.log(
