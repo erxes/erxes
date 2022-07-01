@@ -9,11 +9,13 @@ const pipelineTemplateQueries = {
   async pipelineTemplates(
     _root,
     { type }: { type: string },
-    { user, models: { PipelineTemplates } }: IContext
+    { user, models: { PipelineTemplates }, commonQuerySelector }: IContext
   ) {
     await checkPermission(type, user, 'showTemplates');
 
-    return PipelineTemplates.find({ type });
+    const filter = { ...commonQuerySelector, type };
+
+    return PipelineTemplates.find(filter);
   },
 
   /**
@@ -34,7 +36,11 @@ const pipelineTemplateQueries = {
   /**
    *  Pipeline template total count
    */
-  pipelineTemplatesTotalCount(_root, _args, { models: { PipelineTemplates } }: IContext) {
+  pipelineTemplatesTotalCount(
+    _root,
+    _args,
+    { models: { PipelineTemplates } }: IContext
+  ) {
     return PipelineTemplates.find().count();
   }
 };

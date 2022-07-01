@@ -363,13 +363,11 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         // number
         if (type !== 'check' && validator.isFloat(value.toString())) {
           numberValue = value;
-          stringValue = null;
           value = Number(value);
         }
 
         if (isValidDate(value)) {
           dateValue = value;
-          stringValue = null;
         }
       }
       return { field, value, stringValue, numberValue, dateValue };

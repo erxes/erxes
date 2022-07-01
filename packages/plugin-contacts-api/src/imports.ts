@@ -17,9 +17,7 @@ export default {
 
     const { Customers, Companies } = models;
 
-    const { docs, user, contentType } = data;
-
-    const useElkSyncer = false;
+    const { docs, user, contentType, useElkSyncer } = data;
 
     try {
       let objects;
