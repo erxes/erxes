@@ -42,7 +42,7 @@ export const initBroker = async cl => {
       cardsConfig.mappings.forEach(async item => {
         cardDeal = await sendCardsMessage({
           subdomain,
-          action: '',
+          action: 'deals.create',
           data: {
             name: `Cards: ${doneOrder.number}`,
             startDate: doneOrder.createdAt,
