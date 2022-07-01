@@ -38,17 +38,20 @@ export const initBroker = async cl => {
       const { marker = {} } = deliveryInfo;
 
       const { cardsConfig = {} } = pos;
-      let cardDeal = {};
-      cardsConfig.mappings.forEach(async item => {
-        cardDeal = await sendCardsMessage({
+      const currentCardsConfig = cardsConfig.mappings.find(
+        c => c.branchId && c.branchId === doneOrder.branchId
+      );
+
+      if (currentCardsConfig) {
+        const cardDeal = await sendCardsMessage({
           subdomain,
           action: 'deals.create',
           data: {
             name: `Cards: ${doneOrder.number}`,
             startDate: doneOrder.createdAt,
             description: deliveryInfo.address,
-            stageId: item.stageId,
-            assignedUserIds: item.assignedUserIds,
+            stageId: currentCardsConfig.stageId,
+            assignedUserIds: currentCardsConfig.assignedUserIds,
             customFieldsData: [
               {
                 field: deliveryConfig.mapCustomField.replace(
@@ -80,7 +83,7 @@ export const initBroker = async cl => {
           isRPC: true,
           defaultValue: {}
         });
-      });
+      }
 
       const deal = await sendCardsMessage({
         subdomain,

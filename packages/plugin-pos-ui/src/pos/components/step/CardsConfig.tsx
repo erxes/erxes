@@ -12,7 +12,8 @@ import {
   Toggle,
   SelectTeamMembers,
   Button,
-  ModalTrigger
+  ModalTrigger,
+  Wrapper
 } from '@erxes/ui/src';
 import {
   DomainRow,
@@ -26,228 +27,88 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { IConfigsMap } from '../../../../../plugin-ebarimt-ui/src/types';
 type Props = {
   onChange: (name: 'cardsConfig', value: any) => void;
   pos?: IPos;
+  configsMap: IConfigsMap;
 };
-class CardsConfig extends React.Component<
-  Props,
-  { config: any; fieldsCombined: FieldsCombinedByType[] }
-> {
+type State = {
+  config: any;
+  configsMap: IConfigsMap;
+};
+class CardsConfig extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     const config =
       props.pos && props.pos.cardsConfig
         ? props.pos.cardsConfig
         : {
             isSyncCards: false,
-            mappings: [
-              {
-                _id: Math.floor(100000 + Math.random() * 900000).toString(),
-                branchIds: [],
-                boardId: '',
-                pipelineId: '',
-                stageId: '',
-                assignedUserIds: []
-              }
-            ]
+            configsMap: {}
           };
-    let fieldsCombined = [];
-
-    if (isEnabled('forms')) {
-      client
-        .query({
-          query: gql(formQueries.fieldsCombinedByContentType),
-          variables: {
-            contentType: 'deal'
-          }
-        })
-        .then(({ data }) => {
-          this.setState({
-            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
-          });
-        });
-
-      this.setState({ fieldsCombined });
-    }
-
     this.state = {
       config,
-      fieldsCombined: []
+      configsMap: props.configsMap
     };
   }
-
   onChangeConfig = (code: string, value) => {
-    const { config } = this.state;
-    config[code] = value;
-
+    const { config, configsMap } = this.state;
+    configsMap[code] = value;
     this.setState({ config }, () => {
       this.props.onChange('cardsConfig', config);
     });
   };
-  onChangeMap = (code: string, value, _id) => {
-    const { config } = this.state;
-    config['mappings'].map(item => {
-      if (item?._id == _id) {
-        item[code] = value;
-      }
-    });
-    this.setState({ config }, () => {
-      this.props.onChange('cardsConfig', config);
-    });
+  add = e => {
+    e.preventDefault();
+    const { configsMap } = this.state;
+
+    if (!configsMap.cardsConfig) {
+      configsMap.cardsConfig = {};
+    }
+
+    // must save prev item saved then new item
+    configsMap.cardsConfig.newCardsConfig = {
+      boardId: '',
+      pipelineId: '',
+      stageId: '',
+      branchId: '',
+      assignedUserIds: []
+    };
+
+    this.setState({ configsMap });
   };
   onChangeSwitch = e => {
     this.onChangeConfig('isSyncCards', e.target.checked);
   };
-  renderOther(_id: string) {
+  renderContent() {
+    return <>Content</>;
+  }
+
+  renderCollapse() {
     const { config } = this.state;
-
-    const onChangeBoard = (boardId: string) => {
-      this.onChangeMap('boardId', boardId, _id);
-    };
-
-    const onChangePipeline = (pipelineId: string) => {
-      this.onChangeMap('pipelineId', pipelineId, _id);
-    };
-
-    const onChangeStage = (stageId: string) => {
-      this.onChangeMap('stageId', stageId, _id);
-    };
-
-    const onAssignedUsersSelect = users => {
-      this.onChangeMap('assignedUserIds', users, _id);
-    };
-
-    const onBranchesSelect = users => {
-      this.onChangeMap('branchIds', users, _id);
-    };
-
     if (!this.state.config.isSyncCards) {
       return <></>;
     }
-    const getMapping = (code: string) => {
-      return config.mappings.find(item => item._id == _id)[code];
-    };
-    const removeMapping = () => {
-      const temp = config;
-      temp.mappings = temp.mappings.filter(m => m._id !== _id);
-      this.setState({ config: temp });
-    };
-    const renderBoardContainer = props => {
-      const onClickSave = () => {
-        props.closeModal();
-      };
-      const onClickCancel = () => {
-        props.closeModal();
-      };
-      return (
-        <>
-          <BoardSelectContainer
-            type="deal"
-            autoSelectStage={false}
-            boardId={getMapping('boardId')}
-            pipelineId={getMapping('pipelineId')}
-            stageId={getMapping('stageId')}
-            onChangeBoard={onChangeBoard}
-            onChangePipeline={onChangePipeline}
-            onChangeStage={onChangeStage}
-          />
-          <Modal.Footer>
-            <Button
-              onClick={onClickSave}
-              btnStyle="success"
-              icon={'check-circle'}
-            >
-              Save
-            </Button>
-            <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
-              onClick={onClickCancel}
-            >
-              Cancel
-            </Button>
-          </Modal.Footer>
-        </>
-      );
-    };
+    const actionButtons = (
+      <Button
+        btnStyle="primary"
+        onClick={this.add}
+        icon="plus"
+        uppercase={false}
+      >
+        New config
+      </Button>
+    );
     return (
       <FlexRow>
         <LeftItem>
-          <Block>
-            <BlockRow>
-              <FormGroup>
-                <ControlLabel>Branch</ControlLabel>
-                <SelectBranches
-                  label={__('Choose branch')}
-                  name="branchIds"
-                  initialValue={getMapping('')}
-                  onSelect={onBranchesSelect}
-                />
-              </FormGroup>
-              {(isEnabled('cards') && (
-                <FormGroup>
-                  <ControlLabel>Stage</ControlLabel>
-                  <br />
-                  <ModalTrigger
-                    title="Add stage"
-                    trigger={
-                      <Button btnStyle="primary" icon="plus-circle">
-                        Add stage
-                      </Button>
-                    }
-                    content={renderBoardContainer}
-                  ></ModalTrigger>
-                </FormGroup>
-              )) ||
-                'Please, enabled cards plugin'}
-              <FormGroup>
-                <ControlLabel>{__('Assigned Users')}</ControlLabel>
-                <SelectTeamMembers
-                  label={__('Choose team member')}
-                  name="assignedUserIds"
-                  initialValue={getMapping('assignedUserIds')}
-                  onSelect={onAssignedUsersSelect}
-                />
-              </FormGroup>
-              <Button btnStyle="danger" icon="trash" onClick={removeMapping} />
-            </BlockRow>
-          </Block>
+          {actionButtons}
+          <br />
+          {this.renderContent()}
         </LeftItem>
       </FlexRow>
-    );
-  }
-  renderEach(item: any) {
-    return this.renderOther(item?._id);
-  }
-  renderMaps() {
-    const { config } = this.state;
-    if (!this.state.config.isSyncCards) {
-      return <></>;
-    }
-    const addIndex = () => {
-      const temp = config;
-      temp.mappings?.push({
-        _id: Math.floor(100000 + Math.random() * 900000).toString(),
-        branchIds: [],
-        boardId: '',
-        pipelineId: '',
-        stageId: '',
-        assignedUserIds: []
-      });
-      this.setState({
-        config: temp
-      });
-    };
-    return (
-      <>
-        {config.mappings?.map(item => this.renderEach(item))}
-        <Button btnStyle="primary" icon="plus-circle" onClick={addIndex}>
-          Add mapping
-        </Button>
-      </>
     );
   }
   render() {
@@ -272,7 +133,7 @@ class CardsConfig extends React.Component<
                 </FormGroup>
               </BlockRow>
             </Block>
-            {this.renderMaps()}
+            {this.renderCollapse()}
             <Block />
           </LeftItem>
         </FlexColumn>
