@@ -3,7 +3,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { MapContainer, ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
@@ -57,6 +57,10 @@ const PlaceForm = (props: Props) => {
 
   const onChangeProvince = option => {
     const selected = PROVINCES.find(p => p.value === option.value);
+
+    if (!selected) {
+      return;
+    }
 
     setZoom(10);
     setCenter(selected.center);
@@ -129,27 +133,14 @@ const PlaceForm = (props: Props) => {
 
         <FormGroup>
           <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
-          <MapContainer>
-            <Map
-              center={center}
-              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-              defaultZoom={zoom}
-              locationOptions={[]}
-              mapControlOptions={{
-                controlSize: 30,
-                zoomControl: true,
-                mapTypeControl: true,
-                scaleControl: false,
-                streetViewControl: false,
-                rotateControl: false,
-                fullscreenControl: true
-              }}
-              isPreview={false}
-              drawPolyLines={false}
-              onChangeMarker={onChangeMarker}
-            />
-          </MapContainer>
-
+          <Map
+            id={Math.random().toString(10)}
+            center={center}
+            googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+            zoom={zoom}
+            locationOptions={[]}
+            streetViewControl={false}
+          />
           <LocationOption
             key={'location'}
             option={center}

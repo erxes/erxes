@@ -7,7 +7,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils/core';
-import { ModalFooter, MapContainer } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
@@ -238,13 +238,13 @@ class PropertyForm extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
         {locationOptions.length > 0 && (
-          <MapContainer>
-            <Map
-              center={currentLocation}
-              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-              locationOptions={locationOptions}
-            />
-          </MapContainer>
+          <Map
+            id={this.props.field?._id || Math.random().toString(10)}
+            center={currentLocation}
+            googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+            locationOptions={locationOptions}
+            streetViewControl={false}
+          />
         )}
 
         <LocationOptions

@@ -3,7 +3,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { MapContainer, ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
@@ -179,27 +179,15 @@ const RouteForm = (props: Props) => {
 
         {directions && directions.length > 0 && (
           <FormGroup>
-            <MapContainer>
-              <Map
-                center={directions[0].places[0].center}
-                googleMapApiKey={
-                  localStorage.getItem('GOOGLE_MAP_API_KEY') || ''
-                }
-                defaultZoom={7}
-                locationOptions={[...new Set(locationOptions)]}
-                mapControlOptions={{
-                  controlSize: 30,
-                  zoomControl: true,
-                  mapTypeControl: true,
-                  scaleControl: false,
-                  streetViewControl: false,
-                  rotateControl: false,
-                  fullscreenControl: true
-                }}
-                isPreview={false}
-                drawPolyLines={true}
-              />
-            </MapContainer>
+            <Map
+              id={Math.random().toString(10)}
+              center={directions[0].places[0].center}
+              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+              zoom={7}
+              locationOptions={[...new Set(locationOptions)]}
+              streetViewControl={false}
+              connectWithLines={true}
+            />
           </FormGroup>
         )}
 

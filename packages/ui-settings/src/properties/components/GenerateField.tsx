@@ -18,7 +18,6 @@ import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
 import Map from '@erxes/ui/src/components/map/Map';
 import { Button, Icon } from '@erxes/ui/src/components';
-import { MapContainer } from '@erxes/ui/src/styles/main';
 import ObjectList from './ObjectList';
 
 type Props = {
@@ -392,6 +391,7 @@ export default class GenerateField extends React.Component<Props, State> {
         center={currentLocation || { lat: 0, lng: 0 }}
         googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
         locationOptions={locationOptions}
+        streetViewControl={false}
       />
     );
   }

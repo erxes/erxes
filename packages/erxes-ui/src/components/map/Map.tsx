@@ -1,16 +1,9 @@
 import { MapContainer } from '@erxes/ui/src/styles/main';
-import React, { useState } from 'react';
-import GoogleMap from './GoogleMap';
+import React, { useEffect, useState } from 'react';
 import { ILocationOption } from '../../types';
-import Marker from './Marker';
 import { __ } from '@erxes/ui/src/utils/core';
-
-// type Props = {
-//   googleMapApiKey: string;
-//   center?: ILocationOption;
-//   locationOptions: ILocationOption[];
-//   locale?: string;
-// };
+import colors from '../../styles/colors';
+import {} from './mapTypes';
 
 interface IMapProps extends google.maps.MapOptions {
   id: string;
@@ -18,12 +11,28 @@ interface IMapProps extends google.maps.MapOptions {
   center?: ILocationOption;
   locationOptions: ILocationOption[];
   locale?: string;
+  connectWithLines?: boolean;
+  onChange?: (location: ILocationOption) => void;
 }
+
+const MAP_MARKERS = {
+  default:
+    'M32 62c0-17.1 16.3-25.2 17.8-39.7A18 18 0 1 0 14 20a18.1 18.1 0 0 0 .2 2.2C15.7 36.8 32 44.9 32 62z',
+
+  ALL: [
+    {
+      default:
+        'M32 62c0-17.1 16.3-25.2 17.8-39.7A18 18 0 1 0 14 20a18.1 18.1 0 0 0 .2 2.2C15.7 36.8 32 44.9 32 62z'
+    }
+  ]
+};
 
 const loadMapScript = (apiKey: string, locale?: string) => {
   if (!apiKey) {
     return '';
   }
+
+  console.log('load map script');
 
   const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${locale ||
     'en'}&v=quarterly`;
@@ -47,11 +56,24 @@ const loadMapScript = (apiKey: string, locale?: string) => {
 
 const Map = (props: IMapProps) => {
   const { locationOptions, ...options } = props;
-  // const [mapLoaded, setMapLoaded] = useState(false);
-  // const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
-  // const [selectedOption, setSelectedOption] = useState<
-  //   ILocationOption | undefined
-  // >(undefined);
+
+  const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
+  const [selectedOption, setSelectedOption] = useState<
+    ILocationOption | undefined
+  >(undefined);
+
+  const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+
+  if ((window as any).google) {
+    console.log('google maps already loaded');
+  }
+
+  useEffect(() => {
+    console.log(
+      "Let's say, I do want to do some task here only when id differs"
+    );
+    renderMap();
+  }, [props.id]);
 
   const mapScript = loadMapScript(
     props.googleMapApiKey || 'demo',
@@ -64,50 +86,147 @@ const Map = (props: IMapProps) => {
 
   const onLocationChange = (option: ILocationOption) => {
     if (locationOptions.length > 0) {
-      // return setSelectedOption(option);
+      setSelectedOption(option);
     }
 
-    console.log(option);
-
-    // setCenter(option);
+    setCenter(option);
   };
 
   const renderMap = () => {
-    console.log('MAP rendering');
-    const map = new google.maps.Map(document.getElementById(props.id), {
+    const mapElement = document.getElementById(props.id);
+
+    if (!mapElement || !(window as any).google) {
+      return;
+    }
+
+    const map = new google.maps.Map(mapElement, {
       zoom: 7,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       ...options
     });
-    // setMapLoaded(true);
+
+    const addListeners = (
+      marker: google.maps.Marker,
+      content: string,
+      draggable: boolean
+    ) => {
+      if (content && content.length) {
+        const infoWindow = new google.maps.InfoWindow({
+          content
+        });
+
+        marker.addListener('mouseover', () => {
+          infoWindow.open({
+            anchor: marker,
+            shouldFocus: false
+          });
+        });
+
+        marker.addListener('mouseout', () => {
+          infoWindow.close();
+        });
+      }
+
+      if (draggable) {
+        google.maps.event.addListener(marker, 'dragend', () => {
+          const location = marker.getPosition();
+          if (location) {
+            onLocationChange({
+              lat: location.lat(),
+              lng: location.lng(),
+              description: content
+            });
+          }
+        });
+      } else {
+        marker.addListener('click', () => {
+          console.log('clicked: ', marker.getTitle());
+          const location = marker.getPosition();
+
+          markers.forEach(m => {
+            const iconColor =
+              m.getPosition() === location
+                ? colors.colorCoreGreen
+                : colors.colorPrimary;
+            m.setIcon(getIconAttributes(MAP_MARKERS.default, iconColor));
+          });
+
+          if (location) {
+            onLocationChange({
+              lat: location.lat(),
+              lng: location.lng(),
+              description: content
+            });
+          }
+        });
+      }
+    };
+
+    const getIconAttributes = (marker: string, iconColor: string) => {
+      return {
+        path: marker,
+        fillColor: iconColor,
+        fillOpacity: 0.9,
+        anchor: new google.maps.Point(33, 62),
+        strokeWeight: 0.8,
+        strokeColor: '#ffffff',
+        scale: 0.7
+      };
+    };
 
     const bounds = new google.maps.LatLngBounds();
 
     if (locationOptions.length > 0) {
       locationOptions.forEach(option => {
-        new google.maps.Marker({
+        const marker = new google.maps.Marker({
           position: {
             lat: option.lat,
             lng: option.lng
           },
           map,
-          title: option.description
+          title: option.description,
+          draggable: false,
+          icon: getIconAttributes(MAP_MARKERS.default, colors.colorPrimary)
         });
 
         bounds.extend(new google.maps.LatLng(option.lat, option.lng));
+
+        addListeners(marker, option.description || '', false);
+
+        markers.push(marker);
+        setMarkers([...markers]);
       });
-      return map.fitBounds(bounds);
+      map.fitBounds(bounds);
+
+      if (!props.connectWithLines) {
+        return;
+      }
+
+      new google.maps.Polyline({
+        path: locationOptions,
+        geodesic: true,
+        strokeColor: colors.colorCoreRed,
+        strokeOpacity: 0.7,
+        strokeWeight: 2,
+        map: map
+      });
+
+      return;
     }
 
-    if (props.center && locationOptions.length === 0) {
-      new google.maps.Marker({
+    if (center && locationOptions.length === 0) {
+      const marker = new google.maps.Marker({
         position: {
-          lat: props.center.lat,
-          lng: props.center.lng
+          lat: center.lat,
+          lng: center.lng
         },
         map,
-        title: 'your location'
+        title: 'your location',
+        draggable: true,
+        icon: getIconAttributes(MAP_MARKERS.default, colors.colorPrimary)
       });
+
+      addListeners(marker, 'your location', true);
     }
   };
 
