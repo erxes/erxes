@@ -3,7 +3,6 @@ import { FormGroup, ControlLabel, Button, FormControl } from '@erxes/ui/src';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { FlexRow } from '../../../styles';
 import { CatProd, IPos, ISlotGroup } from '../../../types';
-import { Input } from '@erxes/ui/src/components/form/styles';
 
 type Props = {
   removeMapping: (_id: string) => void;
@@ -11,13 +10,12 @@ type Props = {
   item: CatProd;
   productCategories: IProductCategory[];
   pos: IPos;
-  onChange: (name: 'pos' | 'brand', value: any) => void;
   onSubmit: (group: ISlotGroup) => void;
+  slotGroup?: ISlotGroup;
 };
 
 type State = {
-  categoryId: string;
-  productId: string;
+  slotGroup: ISlotGroup;
 };
 
 export default class PosProdItem extends React.Component<Props, State> {
@@ -27,54 +25,47 @@ export default class PosProdItem extends React.Component<Props, State> {
     const { item } = props;
 
     this.state = {
-      categoryId: item && item.categoryId,
-      productId: item && item.productId
+      slotGroup: props.slotGroup || {
+        _id: `temporaryId${String(Math.random())}`,
+        code: '',
+        name: ''
+      }
     };
   }
-
-  onChangeFunction = (name: any, value: any) => {
-    this.props.onChange(name, value);
+  onChange = (key: string, value: any) => {
+    this.setState({ [key]: value } as any);
   };
-  onChangeInput = e => {
-    const { pos } = this.props;
-    pos[e.target.id] = (e.currentTarget as HTMLInputElement).value;
-    this.onChangeFunction('pos', pos);
+  onChangeFunction = (name: any, value: any) => {
+    const { slotGroup } = this.state;
+    slotGroup[name] = value;
+    this.setState({ slotGroup });
   };
 
   render() {
-    const { productCategories, item, removeMapping } = this.props;
-    const { productId, categoryId } = this.state;
+    const { item, removeMapping } = this.props;
 
-    const onSelectChange = (field: string, option: any) => {
-      const value = option && option.value ? option.value : '' || option;
-
-      this.setState({ [field]: value } as any);
+    const onChangeName = e => {
+      this.onChangeFunction(
+        'name',
+        (e.currentTarget as HTMLInputElement).value
+      );
     };
-
-    const categoryOptions = productCategories.map(e => ({
-      value: e._id,
-      label: e.name
-    }));
+    const onChangeCode = e => {
+      this.onChangeFunction(
+        'code',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
 
     return (
       <FlexRow style={{ alignItems: 'center' }}>
         <FormGroup>
           <ControlLabel>Code </ControlLabel>
-          <FormControl
-            id="name"
-            type="text"
-            value={''}
-            onChange={this.onChangeInput}
-          />
+          <FormControl name="code" autoFocus={true} onChange={onChangeCode} />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Name</ControlLabel>
-          <Input
-            label={''}
-            name="kioskExcludeProductIds"
-            onSelect={option => onSelectChange('productId', option)}
-            value={''}
-          />
+          <FormControl name="name" autoFocus={true} onChange={onChangeName} />
         </FormGroup>
         <Button
           btnStyle="danger"
