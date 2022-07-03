@@ -2,11 +2,11 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { paginate } from '@erxes/api-utils/src';
+import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
-import { sendTagsMessage } from '../../../messageBroker';
+import messageBroker, { sendTagsMessage } from '../../../messageBroker';
 
 const productQueries = {
   /**
@@ -21,6 +21,8 @@ const productQueries = {
       tag,
       ids,
       excludeIds,
+      pipelineId,
+      boardId,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -31,8 +33,10 @@ const productQueries = {
       tag: string;
       page: number;
       perPage: number;
+      pipelineId: string;
+      boardId: string;
     },
-    { commonQuerySelector, models }: IContext
+    { commonQuerySelector, models, subdomain, user }: IContext
   ) {
     const filter: any = commonQuerySelector;
 
@@ -81,11 +85,28 @@ const productQueries = {
       filter.$or = fields;
     }
 
-    return paginate(
-      models.Products.find(filter)
-        .sort('code')
-        .lean(),
-      pagintationArgs
+    return afterQueryWrapper(
+      subdomain,
+      'products',
+      {
+        type,
+        categoryId,
+        searchValue,
+        tag,
+        ids,
+        excludeIds,
+        pipelineId,
+        boardId,
+        ...pagintationArgs
+      },
+      await paginate(
+        models.Products.find(filter)
+          .sort('code')
+          .lean(),
+        pagintationArgs
+      ),
+      messageBroker(),
+      user
     );
   },
 
@@ -175,9 +196,9 @@ const productQueries = {
   }
 };
 
-// requireLogin(productQueries, 'productsTotalCount');
-// checkPermission(productQueries, 'products', 'showProducts', []);
-// checkPermission(productQueries, 'productCategories', 'showProducts', []);
-// checkPermission(productQueries, 'productCountByTags', 'showProducts', []);
+requireLogin(productQueries, 'productsTotalCount');
+checkPermission(productQueries, 'products', 'showProducts', []);
+checkPermission(productQueries, 'productCategories', 'showProducts', []);
+checkPermission(productQueries, 'productCountByTags', 'showProducts', []);
 
 export default productQueries;

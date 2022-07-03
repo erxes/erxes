@@ -38,7 +38,7 @@ const setAfterMutations = async () => {
   await redis.set('afterMutations', JSON.stringify(result));
 };
 
-const setBeforeResolvers = async () => {
+const setCommonResolvers = async name => {
   const services = await getServices();
   const result = {};
 
@@ -48,12 +48,12 @@ const setBeforeResolvers = async () => {
       ? (info.config as any).meta
       : {};
 
-    if (!Object.keys(meta).includes('beforeResolvers')) {
+    if (!Object.keys(meta).includes(name)) {
       continue;
     }
 
-    for (const serviceName of Object.keys(meta.beforeResolvers)) {
-      for (const resolverName of meta.beforeResolvers[serviceName]) {
+    for (const serviceName of Object.keys(meta[name])) {
+      for (const resolverName of meta[name][serviceName]) {
         if (!Object.keys(result).includes(resolverName)) {
           result[resolverName] = [];
         }
@@ -63,7 +63,15 @@ const setBeforeResolvers = async () => {
     }
   }
 
-  await redis.set('beforeResolvers', JSON.stringify(result));
+  await redis.set(name, JSON.stringify(result));
+};
+
+const setAfterQueries = async () => {
+  setCommonResolvers('afterQueries');
+};
+
+const setBeforeResolvers = async () => {
+  setCommonResolvers('beforeResolvers');
 };
 
 export const clearCache = async () => {
@@ -85,5 +93,6 @@ export {
   getService,
   redis,
   setAfterMutations,
+  setAfterQueries,
   setBeforeResolvers
 };

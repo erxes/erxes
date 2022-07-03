@@ -20,7 +20,8 @@ import {
   getServices,
   redis,
   setAfterMutations,
-  setBeforeResolvers
+  setBeforeResolvers,
+  setAfterQueries
 } from './redis';
 import { initBroker } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
@@ -198,6 +199,7 @@ const {
 
   await setBeforeResolvers();
   await setAfterMutations();
+  await setAfterQueries();
 
   console.log(
     `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`
