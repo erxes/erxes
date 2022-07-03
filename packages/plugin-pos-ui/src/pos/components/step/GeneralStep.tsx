@@ -34,7 +34,7 @@ import PosProdItem from '../productGroup/PosSlotItem';
 import Modal from 'react-bootstrap/Modal';
 
 type Props = {
-  onChange: (name: 'pos' | 'brand', value: any) => void;
+  onChange: (name: 'pos' | 'brand' | 'group', value: any) => void;
   pos?: IPos;
   groups: IProductGroup[];
   currentMode: 'create' | 'update' | undefined;
@@ -53,7 +53,7 @@ type State = {
   mappings: CatProd[];
   initialCategoryIds: string[];
   kioskExcludeProductIds: string[];
-  slotGroup: ISlotGroup;
+  slotGroup: ISlotGroup[];
 };
 
 export const generateTree = (
@@ -92,21 +92,9 @@ class GeneralStep extends React.Component<Props, State> {
       mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
       initialCategoryIds: (pos && pos.initialCategoryIds) || [],
       kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
-      slotGroup: props.slotGroup || {
-        _id: `temporaryId${String(Math.random())}`,
-        name: '',
-        code: ''
-      }
+      slotGroup: []
     };
   }
-
-  onClickCancel = () => {
-    this.props.closeModal();
-  };
-  onClicksave = () => {
-    this.props.onSubmit(this.state.slotGroup);
-    this.props.closeModal();
-  };
 
   onSubmitGroup = (group: IProductGroup) => {
     const { groups } = this.state;
@@ -121,6 +109,19 @@ class GeneralStep extends React.Component<Props, State> {
 
     this.props.onChange('pos', groups);
   };
+  onSubmitSlotGroup = (group: ISlotGroup) => {
+    const { slotGroup } = this.state;
+
+    const index = slotGroup.findIndex(e => e._id === group._id);
+
+    if (index !== -1) {
+      slotGroup[index] = group;
+    } else {
+      slotGroup.push(group);
+    }
+
+    this.props.onChange('group', slotGroup);
+  };
 
   onChangeConfig = (code: string, value) => {
     this.setState({}, () => {});
@@ -130,9 +131,8 @@ class GeneralStep extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.checked);
   };
 
-  renderPosFormTrigger(trigger: React.ReactNode, groups?: IProductGroup) {
+  renderPosFormTrigger(trigger: React.ReactNode, group?: ISlotGroup) {
     const { mappings = [] } = this.state;
-    const { mode } = this.props;
 
     const onClick = () => {
       const m = mappings.slice();
@@ -146,36 +146,33 @@ class GeneralStep extends React.Component<Props, State> {
       this.setState({ mappings: m });
     };
 
-    const content = () => (
-      <Block>
-        <FormGroup>
-          <PosSlotAddButton>
-            <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
-              Add
-            </Button>
-          </PosSlotAddButton>
+    const content = props => (
+      <FormGroup>
+        <PosSlotAddButton>
+          <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
+            Add
+          </Button>
+        </PosSlotAddButton>
+        {mappings.map(item => this.renderMapping(item, props))}
+        {/* <Modal.Footer>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="times-circle"
+            onClick={this.onClickCancel}
+          >
+            Cancel
+          </Button>
 
-          {mappings.map(item => this.renderMapping(item))}
-          <Modal.Footer>
-            <Button
-              btnStyle="simple"
-              type="button"
-              icon="times-circle"
-              onClick={this.onClickCancel}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              onClick={this.onClicksave}
-              btnStyle="success"
-              icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
-            >
-              {mode === 'update' ? 'Save' : 'Save'}
-            </Button>
-          </Modal.Footer>
-        </FormGroup>
-      </Block>
+          <Button
+            onClick={this.onClicksave}
+            btnStyle="success"
+            icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
+          >
+            {mode === 'update' ? 'Save' : 'Save'}
+          </Button>
+        </Modal.Footer> */}
+      </FormGroup>
     );
 
     const title = 'Slots';
@@ -186,7 +183,6 @@ class GeneralStep extends React.Component<Props, State> {
         trigger={trigger}
         content={content}
         size={'lg'}
-        {...this.props}
       />
     );
   }
@@ -547,7 +543,7 @@ class GeneralStep extends React.Component<Props, State> {
     );
   };
 
-  renderMapping(mapping: CatProd) {
+  renderMapping(mapping: CatProd, props) {
     const { productCategories, pos, onChange } = this.props;
 
     // for omitting react __typename field
@@ -569,8 +565,10 @@ class GeneralStep extends React.Component<Props, State> {
 
     return (
       <PosProdItem
+        {...props}
         removeMapping={removeMapping}
         item={mapping}
+        onSubmit={this.onSubmitSlotGroup}
         productCategories={productCategories}
         key={mapping._id}
       />
