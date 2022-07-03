@@ -20,7 +20,7 @@ module.exports = {
       permissions: []
     },
     {
-      text: 'Performs',
+      text: 'Processes',
       url: '/processes/performs',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',

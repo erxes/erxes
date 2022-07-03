@@ -7,7 +7,12 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import List from '../components/perform/PerformList';
 import { queries } from '../graphql';
-import { WorksQueryResponse, WorksTotalCountQueryResponse } from '../types';
+import {
+  IOverallWork,
+  OverallWorksSideBarDetailQueryResponse,
+  PerformsQueryResponse,
+  PerformsTotalCountQueryResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -15,8 +20,9 @@ type Props = {
 };
 
 type FinalProps = {
-  worksQuery: WorksQueryResponse;
-  worksTotalCountQuery: WorksTotalCountQueryResponse;
+  performsQuery: PerformsQueryResponse;
+  performsTotalCountQuery: PerformsTotalCountQueryResponse;
+  overallWorksSideBarDetailQuery: OverallWorksSideBarDetailQueryResponse;
 } & Props;
 
 class WorkListContainer extends React.Component<FinalProps> {
@@ -25,22 +31,35 @@ class WorkListContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { worksQuery, worksTotalCountQuery, queryParams } = this.props;
+    const {
+      performsQuery,
+      overallWorksSideBarDetailQuery,
+      performsTotalCountQuery,
+      queryParams
+    } = this.props;
 
-    if (worksQuery.loading || worksTotalCountQuery.loading) {
+    if (
+      performsQuery.loading ||
+      performsTotalCountQuery.loading ||
+      overallWorksSideBarDetailQuery.loading
+    ) {
       return false;
     }
 
-    const works = worksQuery.works || [];
-    const worksCount = worksTotalCountQuery.worksTotalCount || 0;
+    const performs = performsQuery.performs || [];
+    const performsCount = performsTotalCountQuery.performsTotalCount || 0;
+    const overallWorkDetail =
+      overallWorksSideBarDetailQuery.overallWorksSideBarDetail ||
+      ({} as IOverallWork);
     const searchValue = this.props.queryParams.searchValue || '';
 
     const updatedProps = {
       ...this.props,
       queryParams,
-      works,
-      worksCount,
-      loading: worksQuery.loading,
+      performs,
+      performsCount,
+      overallWorkDetail,
+      loading: performsQuery.loading,
       searchValue
     };
 
@@ -49,8 +68,8 @@ class WorkListContainer extends React.Component<FinalProps> {
     };
 
     const refetch = () => {
-      this.props.worksQuery.refetch();
-      this.props.worksTotalCountQuery.refetch();
+      this.props.performsQuery.refetch();
+      this.props.performsTotalCountQuery.refetch();
     };
 
     return <Bulk content={performsList} refetch={refetch} />;
@@ -59,8 +78,8 @@ class WorkListContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, WorksQueryResponse, {}>(gql(queries.works), {
-      name: 'worksQuery',
+    graphql<Props, PerformsQueryResponse, {}>(gql(queries.performs), {
+      name: 'performsQuery',
       options: ({ queryParams }) => ({
         variables: {
           searchValue: queryParams.searchValue,
@@ -69,13 +88,25 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<Props, WorksTotalCountQueryResponse, {}>(
-      gql(queries.worksTotalCount),
+    graphql<Props, PerformsTotalCountQueryResponse, {}>(
+      gql(queries.performsTotalCount),
       {
-        name: 'worksTotalCountQuery',
+        name: 'performsTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: {
             searchValue: queryParams.searchValue
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, OverallWorksSideBarDetailQueryResponse, {}>(
+      gql(queries.overallWorksSideBarDetail),
+      {
+        name: 'overallWorksSideBarDetailQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            id: queryParams.overallWorkId
           },
           fetchPolicy: 'network-only'
         })

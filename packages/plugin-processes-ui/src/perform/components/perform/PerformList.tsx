@@ -5,22 +5,29 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { Count } from '@erxes/ui/src/styles/main';
+import {
+  BarItems,
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import { Count, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 
 import { menuContacts1 } from '../../../constants';
-import { IWorkDocument } from '../../types';
+import { IOverallWorkDocument, IPerformDocument } from '../../types';
 import Row from './PerformRow';
 import OverallWorkSideBar from '../../containers/OverallWorkSideBar';
+import OverallWorkSideBarDetail from '../../containers/OverallWorkSideBarDetail';
 
 interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
-  works: IWorkDocument[];
-  worksCount: number;
+  performs: IPerformDocument[];
+  performsCount: number;
   loading: boolean;
+  overallWorkDetail: IOverallWorkDocument;
   searchValue: string;
 }
 
@@ -39,17 +46,97 @@ class List extends React.Component<IProps, State> {
     };
   }
 
+  renderView = (name: string, variable: string) => {
+    const defaultName = '-';
+
+    return (
+      <li>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{variable || defaultName}</SidebarCounter>
+      </li>
+    );
+  };
+
+  renderProducts = (name: string, products: any[]) => {
+    const result: React.ReactNode[] = [];
+
+    result.push(
+      <li>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{products.length}</SidebarCounter>
+      </li>
+    );
+
+    for (const product of products) {
+      const { quantity, uom } = product;
+      const productName = product.product ? product.product.name : 'not noe';
+      const uomCode = uom ? uom.code : 'not uom';
+
+      result.push(this.renderView(productName, quantity + '/' + uomCode + '/'));
+    }
+
+    return result;
+  };
+
+  renderDetailGeneral() {
+    const { overallWorkDetail } = this.props;
+    const {
+      job,
+      flow,
+      interval,
+      intervalId,
+      outBranch,
+      outDepartment,
+      inBranch,
+      inDepartment
+    } = overallWorkDetail;
+
+    return (
+      <SidebarList className="no-link">
+        {this.renderView('Flow', flow ? flow.name : '')}
+        {this.renderView('Job', job ? job.label : '')}
+        {this.renderView('Interval', interval ? interval.name : intervalId)}
+        {this.renderView('InBranch', inBranch || '')}
+        {this.renderView('inDepartment', inDepartment || '')}
+        {this.renderView('outBranch', outBranch || '')}
+        {this.renderView('outDepartment', outDepartment || '')}
+      </SidebarList>
+    );
+  }
+
+  renderDetailNeed() {
+    const { overallWorkDetail } = this.props;
+    const { needProductsDetail } = overallWorkDetail;
+
+    return (
+      <SidebarList className="no-link">
+        {this.renderProducts('NeedProducts', needProductsDetail)}
+      </SidebarList>
+    );
+  }
+
+  renderDetailResult() {
+    const { overallWorkDetail } = this.props;
+    const { resultProductsDetail } = overallWorkDetail;
+
+    return (
+      <SidebarList className="no-link">
+        {this.renderProducts('ResultProducts', resultProductsDetail)}
+      </SidebarList>
+    );
+  }
+
   renderRow = () => {
-    const { works, history } = this.props;
-    return works.map(work => (
-      <Row history={history} key={work._id} work={work} />
+    const { performs, history } = this.props;
+    return performs.map(perform => (
+      <Row history={history} key={perform._id} perform={perform} />
     ));
   };
 
-  renderCount = worksCount => {
+  renderCount = performsCount => {
     return (
       <Count>
-        {worksCount} work{worksCount > 1 && 's'}
+        {performsCount} work{performsCount > 1 && 's'}
       </Count>
     );
   };
@@ -77,8 +164,31 @@ class List extends React.Component<IProps, State> {
     e.target.value = tmpValue;
   }
 
+  renderLeftDetail() {
+    const { queryParams } = this.props;
+    const overallWorkId = queryParams.overallWorkId || null;
+
+    if (overallWorkId) {
+      return (
+        <OverallWorkSideBarDetail queryParams={queryParams} history={history} />
+      );
+    } else {
+      return null;
+    }
+  }
+
+  renderAboveSide = () => {
+    return (
+      <FormWrapper>
+        <FormColumn>{this.renderDetailGeneral()}</FormColumn>
+        <FormColumn>{this.renderDetailNeed()}</FormColumn>
+        <FormColumn>{this.renderDetailResult()}</FormColumn>
+      </FormWrapper>
+    );
+  };
+
   render() {
-    const { worksCount, loading, queryParams, history } = this.props;
+    const { performsCount, loading, queryParams, history } = this.props;
 
     const actionBarRight = (
       <BarItems>
@@ -95,21 +205,13 @@ class List extends React.Component<IProps, State> {
 
     const content = (
       <>
-        {this.renderCount(worksCount || 0)}
+        {this.renderCount(performsCount || 0)}
         <Table hover={true}>
           <thead>
             <tr>
-              <th>{__('Name')}</th>
+              <th>{__('OverallWork')}</th>
               <th>{__('Status')}</th>
-              <th>{__('Job')}</th>
-              <th>{__('Flow')}</th>
-              <th>{__('Product')}</th>
               <th>{__('Count')}</th>
-              <th>{__('InBranch')}</th>
-              <th>{__('InDepartment')}</th>
-              <th>{__('OutBranch')}</th>
-              <th>{__('OutDepartment')}</th>
-              <th>{__('Interval')}</th>
               <th>{__('Need products')}</th>
               <th>{__('Result products')}</th>
               <th>{__('StartAt')}</th>
@@ -120,19 +222,22 @@ class List extends React.Component<IProps, State> {
       </>
     );
 
+    // <Wrapper.ActionBar right={actionBarRight} />
+
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Work')} submenu={menuContacts1} />}
-        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
+        actionBar={this.renderAboveSide()}
         leftSidebar={
           <OverallWorkSideBar queryParams={queryParams} history={history} />
         }
-        footer={<Pagination count={worksCount || 0} />}
+        // rightSidebar={this.renderLeftDetail()}
+        footer={<Pagination count={performsCount || 0} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={worksCount}
+            count={1}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />
