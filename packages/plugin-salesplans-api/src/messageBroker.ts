@@ -13,8 +13,10 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { _id, status } }) => {
       const models = await generateModels(subdomain);
 
+      const result = await models.SalesLogs.salesLogStatusUpdate(_id, status);
+
       return {
-        data: await models.SalesLogs.salesLogStatusUpdate(_id, status),
+        data: result,
         status: 'success'
       };
     }

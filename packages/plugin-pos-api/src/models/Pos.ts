@@ -5,7 +5,9 @@ import {
   IProductGroupDocument,
   IPosOrderDocument,
   posOrderSchema,
-  IPos
+  IPos,
+  posSlotSchema,
+  IPosSlotDocument
 } from './definitions/pos';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
@@ -145,4 +147,13 @@ export const loadPosOrderClass = (_models, _subdomain) => {
   posOrderSchema.loadClass(PosOrder);
 
   return posOrderSchema;
+};
+
+export interface IPosSlotModel extends Model<IPosSlotDocument> {}
+export const loadPosSlotClass = (_models, _subdomain) => {
+  class PosSlot {}
+
+  posSlotSchema.loadClass(PosSlot);
+
+  return posSlotSchema;
 };

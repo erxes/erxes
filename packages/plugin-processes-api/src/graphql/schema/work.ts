@@ -39,7 +39,7 @@ const qryParams = `
 
 export const queries = `
   works(page: Int, perPage: Int, ${qryParams}): [Work]
-  workTotalCount(${qryParams}): Int
+  worksTotalCount(${qryParams}): Int
 `;
 
 const workParams = `

@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-import { IProductsData, productsDataSchema } from './jobs';
+import { IProductsDataDocument, productsDataSchema } from './jobs';
 
 export interface IOverallWork {
   status: string;
@@ -15,8 +15,8 @@ export interface IOverallWork {
   outDepartmentId?: string;
   inBranchId?: string;
   inDepartmentId?: string;
-  needProducts?: IProductsData[];
-  resultProducts?: IProductsData[];
+  needProducts?: IProductsDataDocument[];
+  resultProducts?: IProductsDataDocument[];
 }
 
 export interface IOverallWorkDocument extends IOverallWork, Document {

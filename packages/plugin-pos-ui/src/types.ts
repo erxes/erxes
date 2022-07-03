@@ -1,7 +1,6 @@
 import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
-import { IUser } from '@erxes/ui/src/auth/types'
-import { IBrand } from '@erxes/ui/src/brands/types'
-import { ITag } from '@erxes/ui/src/tags/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
 
 export type IConfigsMap = { [key: string]: any };
 
@@ -9,7 +8,7 @@ export type CatProd = {
   _id: string;
   categoryId: string;
   productId: string;
-}
+};
 
 export type IProductGroup = {
   _id: string;
@@ -54,6 +53,11 @@ export type IPos = {
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
+};
+export type ISlotGroup = {
+  _id: string;
+  code: string;
+  name: string;
 };
 
 // query types
@@ -171,4 +175,4 @@ export interface IOrdersSummary {
   totalAmount: number;
   finalAmount: number;
   count: number;
-};
+}

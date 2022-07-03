@@ -30,12 +30,17 @@ export const types = `
 `;
 
 const qryParams = `
-  searchValue: String
+  searchValue: String,
+  inBranchId: String,
+  inDepartmentId: String,
+  outBranchId: String,
+  outDepartmentId: String
 `;
 
 export const queries = `
   overallWorks(page: Int, perPage: Int, ${qryParams}): [OverallWork]
-  overallWorkTotalCount(${qryParams}): Int
+  overallWorksSideBar(${qryParams}): [OverallWork]
+  overallWorksTotalCount(${qryParams}): Int
 `;
 
 const workParams = `
