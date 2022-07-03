@@ -65,6 +65,7 @@ export interface IPos {
   initialCategoryIds: string;
   kioskExcludeProductIds: string;
   deliveryConfig: Object;
+  slotId: string;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -78,6 +79,16 @@ export interface IProductGroup {
   excludedProductIds: string;
 }
 export interface IProductGroupDocument extends IProductGroup, Document {
+  _id: string;
+}
+
+export interface IPosSlot {
+  name: string;
+  code: string;
+  posId: string;
+}
+
+export interface IPosSlotDocument extends IPosSlot, Document {
   _id: string;
 }
 
@@ -221,4 +232,14 @@ export const productGroupSchema = schemaHooksWrapper(
     })
   }),
   'erxes_productGroup'
+);
+
+export const posSlotSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String, label: 'Name' }),
+    code: field({ type: String, label: 'Code' }),
+    posId: field({ type: String, label: 'Pos id' })
+  }),
+  'erxes_posSlot'
 );
