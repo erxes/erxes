@@ -19,7 +19,12 @@ class TicketBoard extends React.Component<Props> {
     const { queryParams, viewType } = this.props;
 
     return (
-      <Board viewType={viewType} queryParams={queryParams} options={options} />
+      <Board
+        viewType={viewType}
+        queryParams={queryParams}
+        options={options}
+        cardType="ticket"
+      />
     );
   }
 

@@ -26,7 +26,13 @@ type Props = {
 
 class Board extends React.Component<Props> {
   render() {
-    const { pipelineDetailQuery, queryParams, options, viewType } = this.props;
+    const {
+      pipelineDetailQuery,
+      queryParams,
+      options,
+      viewType,
+      cardType
+    } = this.props;
 
     if (pipelineDetailQuery && pipelineDetailQuery.loading) {
       return <Spinner />;
@@ -57,6 +63,7 @@ class Board extends React.Component<Props> {
     const pipeline = pipelineDetailQuery.pipelineDetail;
 
     if (viewType === 'activity') {
+      localStorage.setItem(`${cardType}View`, 'activity');
       return (
         <PipelineActivity
           key={pipeline._id}
@@ -68,6 +75,7 @@ class Board extends React.Component<Props> {
     }
 
     if (viewType === 'list') {
+      localStorage.setItem(`${cardType}View`, 'list');
       return (
         <ViewGroupBy
           key={pipeline._id}
@@ -80,6 +88,7 @@ class Board extends React.Component<Props> {
     }
 
     if (viewType === 'gantt') {
+      localStorage.setItem(`${cardType}View`, 'gantt');
       return (
         <ViewGroupBy
           key={pipeline._id}
@@ -92,6 +101,7 @@ class Board extends React.Component<Props> {
     }
 
     if (viewType === 'chart') {
+      localStorage.setItem(`${cardType}View`, 'chart');
       return (
         <ChartBack>
           <ChartStack
@@ -105,6 +115,7 @@ class Board extends React.Component<Props> {
     }
 
     if (viewType === 'time') {
+      localStorage.setItem(`${cardType}View`, 'time');
       return (
         <RootBack style={{ backgroundColor: pipeline.bgColor }}>
           <ScrolledContent>
@@ -133,6 +144,7 @@ type WrapperProps = {
   queryParams: any;
   options: IOptions;
   viewType?: string;
+  cardType?: string;
 };
 
 export default withProps<WrapperProps>(
