@@ -171,29 +171,15 @@ const chatMutations = {
 
     const recievers = chat.participantIds.filter(i => i !== user._id);
 
-    if (args.mentionedUserIds) {
-      if (args.mentionedUserIds.includes('everyone')) {
-        sendCoreMessage({
-          subdomain: 'os',
-          action: 'sendMobileNotification',
-          data: {
-            title: `${user?.details?.fullName || user?.fullName} sent you chat`,
-            body: strip_html(args.content),
-            receivers: recievers
-          }
-        });
-      } else {
-        sendCoreMessage({
-          subdomain: 'os',
-          action: 'sendMobileNotification',
-          data: {
-            title: `${user?.details?.fullName || user?.fullName} sent you chat`,
-            body: strip_html(args.content),
-            receivers: args.mentionedUserIds
-          }
-        });
+    sendCoreMessage({
+      subdomain: 'os',
+      action: 'sendMobileNotification',
+      data: {
+        title: `${user?.details?.fullName || user?.fullName} sent you chat`,
+        body: strip_html(args.content),
+        receivers: recievers
       }
-    }
+    });
 
     for (const reciever of recievers) {
       graphqlPubsub.publish('chatUnreadCountChanged', {

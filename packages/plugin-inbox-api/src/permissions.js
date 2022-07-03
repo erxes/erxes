@@ -220,4 +220,23 @@ module.exports = {
       }
     ]
   },
+  scripts: {
+    name: 'scripts',
+    description: 'Scripts',
+    actions: [
+      {
+        name: 'scriptsAll',
+        description: 'All',
+        use: ['showScripts', 'manageScripts']
+      },
+      {
+        name: 'manageScripts',
+        description: 'Manage scripts'
+      },
+      {
+        name: 'showScripts',
+        description: 'Show scripts'
+      }
+    ]
+  },
 }
