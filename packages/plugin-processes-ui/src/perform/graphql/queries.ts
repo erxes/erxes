@@ -108,6 +108,14 @@ query performs {
 }
 `;
 
+const performByOverallWorkId = `
+query performByOverallWorkId($overallWorkId: String) {
+  performByOverallWorkId(overallWorkId: $overallWorkId) {
+    _id
+  }
+}
+`;
+
 const performsTotalCount = `
 query performsTotalCount {
   performsTotalCount
@@ -122,5 +130,6 @@ export default {
   overallWorksSideBarDetail,
   overallWorksTotalCount,
   performs,
+  performByOverallWorkId,
   performsTotalCount
 };

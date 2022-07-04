@@ -9,11 +9,16 @@ interface IParam {
   searchValue?: string;
   ids: string[];
   excludeIds: boolean;
+  overallWorkId: string;
 }
 
 const generateFilter = (params: IParam, commonQuerySelector) => {
-  const { searchValue, ids, excludeIds } = params;
+  const { searchValue, ids, excludeIds, overallWorkId } = params;
   const selector: any = { ...commonQuerySelector };
+
+  if (overallWorkId) {
+    selector.overallWorkId = new RegExp(`.*${overallWorkId}.*`, 'i');
+  }
 
   if (searchValue) {
     selector.name = new RegExp(`.*${searchValue}.*`, 'i');
@@ -38,6 +43,19 @@ const performQueries = {
     const selector = generateFilter(params, commonQuerySelector);
 
     return paginate(models.Performs.find(selector).lean(), { ...params });
+  },
+
+  performByOverallWorkId(
+    _root,
+    params: IParam & {
+      page: number;
+      perPage: number;
+    },
+    { models, commonQuerySelector }: IContext
+  ) {
+    const selector = generateFilter(params, commonQuerySelector);
+
+    return models.Performs.findOne(selector).lean();
   },
 
   performsTotalCount(

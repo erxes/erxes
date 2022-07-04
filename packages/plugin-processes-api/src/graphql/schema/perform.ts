@@ -23,6 +23,7 @@ const qryParams = `
 
 export const queries = `
   performs(page: Int, perPage: Int, ${qryParams}): [Perform]
+  performByOverallWorkId(overallWorkId: String, ${qryParams}):  Perform
   performsTotalCount(${qryParams}): Int
 `;
 
