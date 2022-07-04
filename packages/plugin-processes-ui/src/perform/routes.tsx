@@ -60,9 +60,15 @@ const routes = () => {
         component={overallWorkList}
       />
       <Route
-        path="/processes/performs"
+        path="/processes/performances"
         exact={true}
-        key="/processes/performs"
+        key="/processes/performances"
+        component={performList}
+      />
+      <Route
+        path="/processes/performanceList"
+        exact={true}
+        key="/processes/performanceList"
         component={performList}
       />
     </>

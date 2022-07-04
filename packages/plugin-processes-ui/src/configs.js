@@ -21,7 +21,7 @@ module.exports = {
     },
     {
       text: 'Processes',
-      url: '/processes/performs',
+      url: '/processes/performances',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
       scope: 'processes',
