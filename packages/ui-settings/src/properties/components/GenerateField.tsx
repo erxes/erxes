@@ -371,6 +371,7 @@ export default class GenerateField extends React.Component<Props, State> {
     let { currentLocation } = this.state;
 
     const onChangeMarker = e => {
+      console.log('E: ', e);
       if (onValueChange) {
         onValueChange({ _id: field._id, value: e });
       }

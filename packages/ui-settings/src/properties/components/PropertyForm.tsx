@@ -21,6 +21,7 @@ import { IField } from '@erxes/ui/src/types';
 import { IFieldGroup } from '../types';
 import Map from '@erxes/ui/src/components/map/Map';
 import ObjectListConfigs from './ObjectListConfigs';
+import LocationOptions from './LocationOptions';
 
 type Props = {
   queryParams: any;
@@ -154,7 +155,7 @@ class PropertyForm extends React.Component<Props, State> {
     this.setState({ options });
   };
 
-  onChangeLocationOption = locationOptions => {
+  onChangeLocationOptions = locationOptions => {
     this.setState({ locationOptions });
   };
 
@@ -236,20 +237,22 @@ class PropertyForm extends React.Component<Props, State> {
     return (
       <FormGroup>
         <ControlLabel htmlFor="locationOptions">Options:</ControlLabel>
+        {locationOptions.length > 0 && (
+          <Map
+            id={this.props.field?._id || Math.random().toString(10)}
+            center={currentLocation}
+            googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+            locationOptions={locationOptions}
+            streetViewControl={false}
+            onChangeLocationOptions={this.onChangeLocationOptions}
+            mode="config"
+          />
+        )}
 
-        <Map
-          id={this.props.field?._id || Math.random().toString(10)}
-          center={currentLocation}
-          googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+        <LocationOptions
           locationOptions={locationOptions}
-          streetViewControl={false}
-          mode="edit"
+          onChange={this.onChangeLocationOptions}
         />
-
-        {/* <LocationOptions
-          locationOptions={locationOptions}
-          onChange={this.onChangeLocationOption}
-        /> */}
       </FormGroup>
     );
   };

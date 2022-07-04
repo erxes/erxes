@@ -1,11 +1,9 @@
-import { LinkButton, MapContainer } from '@erxes/ui/src/styles/main';
+import { MapContainer } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
 import { ILocationOption } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
-import LocationOption from '@erxes/ui-settings/src/properties/components/LocationOption';
-import Icon from '../Icon';
 
 interface IMapProps extends google.maps.MapOptions {
   id: string;
@@ -13,16 +11,19 @@ interface IMapProps extends google.maps.MapOptions {
   center?: ILocationOption;
   locationOptions: ILocationOption[];
   locale?: string;
-  mode?: 'default' | 'edit' | 'view';
   connectWithLines?: boolean;
+  mode?: 'view' | 'config';
   onChangeMarker?: (location: ILocationOption) => void;
-  onChangeOptions?: (locations: ILocationOption[]) => void;
+  onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
+}
+
+interface IMarker extends google.maps.Marker {
+  tag: string;
 }
 
 const MAP_MARKERS = {
   default:
     'M32 62c0-17.1 16.3-25.2 17.8-39.7A18 18 0 1 0 14 20a18.1 18.1 0 0 0 .2 2.2C15.7 36.8 32 44.9 32 62z',
-
   ALL: [
     {
       default:
@@ -57,18 +58,20 @@ const loadMapScript = (apiKey: string, locale?: string) => {
 };
 
 const Map = (props: IMapProps) => {
-  const { mode = 'default', onChangeOptions, ...options } = props;
+  const {
+    mode = 'view',
+    locationOptions = [],
+    onChangeLocationOptions,
+    ...mapOptions
+  } = props;
 
-  const [locationOptions, setOptions] = useState<ILocationOption[]>(
-    props.locationOptions
-  );
   const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
 
   useEffect(() => {
-    renderMap();
     setCenter(props.center || { lat: 0, lng: 0 });
-  }, [props.id, center, setCenter]);
+    renderMap();
+  }, [props.locationOptions, props.id, center, setCenter]);
 
   const mapScript = loadMapScript(
     props.googleMapApiKey || 'demo',
@@ -79,16 +82,20 @@ const Map = (props: IMapProps) => {
     renderMap();
   });
 
-  const onLocationChange = (option: ILocationOption) => {
-    console.log('onLocationChange: ', option);
-    // setCenter(option);
-    // if (props.onChangeMarker) {
-    //   props.onChangeMarker(option);
-    // }
+  const onLocationChange = (option: ILocationOption, index: number) => {
+    if (props.onChangeLocationOptions) {
+      locationOptions[index] = option;
+      props.onChangeLocationOptions(locationOptions);
+    }
+  };
+
+  const onChangeCurrentLocation = (option: ILocationOption) => {
+    if (props.onChangeMarker) {
+      props.onChangeMarker(option);
+    }
   };
 
   const renderMap = () => {
-    console.log('renderMap: ');
     const mapElement = document.getElementById(props.id);
 
     if (!mapElement || !(window as any).google) {
@@ -98,14 +105,10 @@ const Map = (props: IMapProps) => {
     const map = new google.maps.Map(mapElement, {
       zoom: 7,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
-      ...options
+      ...mapOptions
     });
 
-    const addListeners = (
-      marker: google.maps.Marker,
-      content: string,
-      draggable: boolean
-    ) => {
+    const addListeners = (marker: google.maps.Marker, content: string) => {
       if (content && content.length) {
         const infoWindow = new google.maps.InfoWindow({
           content
@@ -123,16 +126,31 @@ const Map = (props: IMapProps) => {
         });
       }
 
-      if (draggable) {
+      if (marker.getDraggable()) {
         google.maps.event.addListener(marker, 'dragend', () => {
           const location = marker.getPosition();
-          if (location) {
-            onLocationChange({
+          const markerTag = (marker as IMarker).tag;
+
+          if (!location) {
+            return;
+          }
+
+          if (markerTag === 'current') {
+            return onChangeCurrentLocation({
               lat: location.lat(),
               lng: location.lng(),
               description: content
             });
           }
+
+          onLocationChange(
+            {
+              lat: location.lat(),
+              lng: location.lng(),
+              description: content
+            },
+            Number((marker as IMarker).tag)
+          );
         });
       } else {
         marker.addListener('click', () => {
@@ -147,7 +165,7 @@ const Map = (props: IMapProps) => {
           });
 
           if (location) {
-            onLocationChange({
+            onChangeCurrentLocation({
               lat: location.lat(),
               lng: location.lng(),
               description: content
@@ -172,6 +190,7 @@ const Map = (props: IMapProps) => {
     const bounds = new google.maps.LatLngBounds();
 
     if (locationOptions.length > 0) {
+      let markerId = 0;
       locationOptions.forEach(option => {
         let iconColor = colors.colorPrimary;
 
@@ -186,16 +205,19 @@ const Map = (props: IMapProps) => {
           },
           map,
           title: option.description,
-          draggable: false,
+          draggable: mode === 'config' ? true : false,
           icon: getIconAttributes(MAP_MARKERS.default, iconColor)
         });
 
+        (marker as IMarker).tag = String(markerId);
+
         bounds.extend(new google.maps.LatLng(option.lat, option.lng));
 
-        addListeners(marker, option.description || '', false);
+        addListeners(marker, option.description || '');
 
         markers.push(marker);
         setMarkers([...markers]);
+        markerId++;
       });
       map.fitBounds(bounds);
 
@@ -227,86 +249,14 @@ const Map = (props: IMapProps) => {
         icon: getIconAttributes(MAP_MARKERS.default, colors.colorPrimary)
       });
 
+      (marker as IMarker).tag = 'current';
+
       marker.setPosition(center);
-      addListeners(marker, 'your location', true);
+      addListeners(marker, 'your location');
     }
   };
 
-  const renderInput = () => {
-    if (mode === 'default') {
-      return null;
-    }
-
-    const onChangeOption = (option, index) => {
-      // find current editing one
-      const currentOption = locationOptions.find((_option, i) => i === index);
-
-      // set new value
-      if (currentOption) {
-        locationOptions[index] = option;
-      }
-
-      setOptions(locationOptions);
-      onChangeOptions && onChangeOptions(locationOptions);
-    };
-
-    const addOption = () => {
-      const option: any = center || {
-        lat: 0.0,
-        lng: 0.0,
-        description: ''
-      };
-
-      locationOptions.push(option);
-
-      setOptions([...locationOptions]);
-      onChangeOptions && onChangeOptions(locationOptions);
-    };
-
-    const removeOption = (index: number) => {
-      setOptions(locationOptions.filter((_option, i) => i !== index));
-      onChangeOptions && onChangeOptions(locationOptions);
-    };
-
-    return (
-      <>
-        {locationOptions.map((option, index) => (
-          <LocationOption
-            key={index}
-            option={option}
-            onChangeOption={onChangeOption}
-            removeOption={mode === 'edit' ? removeOption : undefined}
-            index={index}
-          />
-        ))}
-
-        {!locationOptions.length && (
-          <LocationOption
-            key={0}
-            option={{ ...center, description: '' }}
-            onChangeOption={option => {
-              onChangeOptions && onChangeOptions([option]);
-            }}
-            removeOption={mode === 'edit' ? removeOption : undefined}
-            index={0}
-          />
-        )}
-
-        {mode === 'edit' && (
-          <LinkButton onClick={addOption}>
-            <Icon icon="plus-1" /> Add option
-          </LinkButton>
-        )}
-      </>
-    );
-  };
-
-  return (
-    <>
-      <MapContainer id={props.id} />
-      {renderInput()}
-    </>
-  );
+  return <MapContainer id={props.id} />;
 };
 
 export default Map;
