@@ -67,6 +67,10 @@ const productQueries = {
 
     if (ids && ids.length > 0) {
       filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+      if (!pagintationArgs.page && !pagintationArgs.perPage) {
+        pagintationArgs.page = 1;
+        pagintationArgs.perPage = 100;
+      }
     }
 
     if (tag) {
