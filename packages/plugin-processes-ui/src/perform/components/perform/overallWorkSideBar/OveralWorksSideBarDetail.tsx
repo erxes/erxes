@@ -10,7 +10,6 @@ import {
 import React from 'react';
 import { IOverallWorkDocument } from '../../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import Box from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
 
 const { Section } = Wrapper.Sidebar;
@@ -124,12 +123,14 @@ class SideBar extends React.Component<IProps> {
 
   render() {
     return (
-      <SidebarList>
-        <Sidebar wide={true} hasBorder={true}>
-          {this.renderOverallWorkHeader()}
-          {this.renderOverallWorkList()}
-        </Sidebar>
-      </SidebarList>
+      <>
+        <SidebarList>
+          <Sidebar wide={true} hasBorder={true}>
+            {this.renderOverallWorkHeader()}
+            {this.renderOverallWorkList()}
+          </Sidebar>
+        </SidebarList>
+      </>
     );
   }
 }

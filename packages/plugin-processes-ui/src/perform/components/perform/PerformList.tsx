@@ -20,6 +20,8 @@ import { IOverallWorkDocument, IPerformDocument } from '../../types';
 import Row from './PerformRow';
 import OverallWorkSideBar from '../../containers/OverallWorkSideBar';
 import OverallWorkSideBarDetail from '../../containers/OverallWorkSideBarDetail';
+import ProgressBar from '@erxes/ui/src/components/ProgressBar';
+import Button from '@erxes/ui/src/components/Button';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -33,6 +35,7 @@ interface IProps extends IRouterProps {
 
 type State = {
   searchValue?: string;
+  overallWorkPercent: number;
 };
 
 class List extends React.Component<IProps, State> {
@@ -42,7 +45,8 @@ class List extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue
+      searchValue: this.props.searchValue,
+      overallWorkPercent: 0
     };
   }
 
@@ -178,12 +182,18 @@ class List extends React.Component<IProps, State> {
   }
 
   renderAboveSide = () => {
+    const { overallWorkPercent } = this.state;
     return (
-      <FormWrapper>
-        <FormColumn>{this.renderDetailGeneral()}</FormColumn>
-        <FormColumn>{this.renderDetailNeed()}</FormColumn>
-        <FormColumn>{this.renderDetailResult()}</FormColumn>
-      </FormWrapper>
+      <>
+        <FormWrapper>
+          <FormColumn>{this.renderDetailGeneral()}</FormColumn>
+          <FormColumn>{this.renderDetailNeed()}</FormColumn>
+          <FormColumn>{this.renderDetailResult()}</FormColumn>
+        </FormWrapper>
+        <ProgressBar percentage={overallWorkPercent} height="20px">
+          {overallWorkPercent}%
+        </ProgressBar>
+      </>
     );
   };
 
@@ -219,6 +229,8 @@ class List extends React.Component<IProps, State> {
           </thead>
           <tbody>{this.renderRow()}</tbody>
         </Table>
+
+        <Button> Add overallWork </Button>
       </>
     );
 
