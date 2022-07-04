@@ -13,12 +13,14 @@ interface IParam {
   outDepartmentId?: string;
   ids: string[];
   excludeIds: boolean;
+  id: string;
 }
 
 const generateFilter = (params: IParam, commonQuerySelector) => {
   const {
     searchValue,
     ids,
+    id,
     excludeIds,
     inBranchId,
     inDepartmentId,
@@ -27,7 +29,9 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
   } = params;
   const selector: any = { ...commonQuerySelector };
 
-  console.log('params params:', params);
+  if (id) {
+    selector._id = id;
+  }
 
   if (searchValue) {
     selector.name = new RegExp(`.*${searchValue}.*`, 'i');
@@ -69,8 +73,16 @@ const overallWorkQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
-    console.log(selector);
     return models.OverallWorks.find(selector).lean();
+  },
+
+  overallWorksSideBarDetail(
+    _root,
+    params: IParam,
+    { models, commonQuerySelector }: IContext
+  ) {
+    const selector = generateFilter(params, commonQuerySelector);
+    return models.OverallWorks.findOne(selector).lean();
   },
 
   overallWorksTotalCount(

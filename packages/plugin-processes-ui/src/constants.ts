@@ -33,7 +33,8 @@ export const menuContacts = [
 ];
 
 export const menuContacts1 = [
+  { title: 'Assignments', link: '/processes/performances' },
   { title: 'Works', link: '/processes/works' },
-  { title: 'OveralWorks', link: '/processes/overallWorks' },
-  { title: 'Performs', link: '/processes/performs' }
+  { title: 'OverallWorks', link: '/processes/overallWorks' },
+  { title: 'Performances', link: '/processes/performanceList' }
 ];

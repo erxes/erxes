@@ -63,9 +63,54 @@ query overallWorksSideBar($inBranchId: String, $inDepartmentId: String, $outBran
   }
 }`;
 
+const sideBarDetailFields = `
+_id
+    job
+    flow
+    interval
+    intervalId
+    outBranch
+    outDepartment
+    inBranch
+    inDepartment
+    needProductsDetail
+    resultProductsDetail
+`;
+
+const overallWorksSideBarDetail = `
+query OverallWorksSideBarDetail($id: String) {
+  overallWorksSideBarDetail(id: $id) {
+    ${sideBarDetailFields}
+  }
+}
+`;
+
 const overallWorksTotalCount = `
 query overallWorksTotalCount($searchValue: String) {
   overallWorksTotalCount(searchValue: $searchValue)
+}
+`;
+
+const performFields = `
+    _id
+    needProducts
+    resultProducts
+    count
+    status
+    overallWorkId
+    startAt`;
+
+const performs = `
+query performs {
+  performs {
+   ${performFields}
+  }
+}
+`;
+
+const performsTotalCount = `
+query performsTotalCount {
+  performsTotalCount
 }
 `;
 
@@ -74,5 +119,8 @@ export default {
   worksTotalCount,
   overallWorks,
   overallWorksSideBar,
-  overallWorksTotalCount
+  overallWorksSideBarDetail,
+  overallWorksTotalCount,
+  performs,
+  performsTotalCount
 };
