@@ -30,7 +30,7 @@ import {
 } from '../../../types';
 import Select from 'react-select-plus';
 import { IProductCategory } from '@erxes/ui-products/src/types';
-import PosProdItem from '../productGroup/PosSlotItem';
+import PosProdItem, { total } from '../productGroup/PosSlotItem';
 import Modal from 'react-bootstrap/Modal';
 
 type Props = {
@@ -50,10 +50,10 @@ type Props = {
 type State = {
   groups: IProductGroup[];
   currentMode: 'create' | 'update' | undefined;
-  mappings: CatProd[];
+  mappings: ISlotGroup;
   initialCategoryIds: string[];
   kioskExcludeProductIds: string[];
-  slotGroup: ISlotGroup[];
+  slotGroup: ISlotGroup;
 };
 
 export const generateTree = (
@@ -89,12 +89,38 @@ class GeneralStep extends React.Component<Props, State> {
     this.state = {
       groups,
       currentMode: undefined,
-      mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
+      mappings: pos && pos.posSlotMappings ? pos.posSlotMappings : [],
       initialCategoryIds: (pos && pos.initialCategoryIds) || [],
       kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
-      slotGroup: []
+      slotGroup: {
+        _id: `temporaryId${String(Math.random())}`,
+        code: '',
+        name: ''
+      }
     };
   }
+
+  onClickCancel = () => {
+    console.log('CANCEL HIILEE');
+  };
+  onClickSave = () => {
+    console.log('SAVE HIILEE:', this.state);
+
+    this.props.onSubmit(this.state.mappings);
+    this.props.closeModal();
+  };
+  onEdit = (_id: string, type: string, value: string) => {
+    const posUpdate = this.state.mappings.map(mapp => {
+      if (mapp._id === _id) {
+        mapp[type] = value;
+
+        return mapp;
+      }
+      return mapp;
+    });
+
+    // this.setState({ mappings: posUpdate });
+  };
 
   onSubmitGroup = (group: IProductGroup) => {
     const { groups } = this.state;
@@ -107,7 +133,7 @@ class GeneralStep extends React.Component<Props, State> {
       groups.push(group);
     }
 
-    this.props.onChange('pos', groups);
+    this.props.onChange('group', groups);
   };
   onSubmitSlotGroup = (group: ISlotGroup) => {
     const { slotGroup } = this.state;
@@ -139,8 +165,8 @@ class GeneralStep extends React.Component<Props, State> {
 
       m.push({
         _id: Math.random().toString(),
-        categoryId: '',
-        productId: ''
+        code: '',
+        name: ''
       });
 
       this.setState({ mappings: m });
@@ -154,24 +180,24 @@ class GeneralStep extends React.Component<Props, State> {
           </Button>
         </PosSlotAddButton>
         {mappings.map(item => this.renderMapping(item, props))}
-        {/* <Modal.Footer>
+        <Modal.Footer>
           <Button
             btnStyle="simple"
             type="button"
             icon="times-circle"
-            onClick={this.onClickCancel}
+            onClick={props.closeModal}
           >
             Cancel
           </Button>
 
           <Button
-            onClick={this.onClicksave}
+            onClick={(this.onClickSave, props.closeModal)}
             btnStyle="success"
-            icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
+            icon={'plus-circle'}
           >
-            {mode === 'update' ? 'Save' : 'Save'}
+            {'Save'}
           </Button>
-        </Modal.Footer> */}
+        </Modal.Footer>
       </FormGroup>
     );
 
@@ -543,14 +569,14 @@ class GeneralStep extends React.Component<Props, State> {
     );
   };
 
-  renderMapping(mapping: CatProd, props) {
+  renderMapping(mapping: ISlotGroup, props) {
     const { productCategories, pos, onChange } = this.props;
 
     // for omitting react __typename field
     const mappings = this.state.mappings.map(m => ({
       _id: m._id,
-      categoryId: m.categoryId,
-      productId: m.productId
+      code: m.code,
+      name: m.name
     }));
 
     const removeMapping = (_id: string) => {
@@ -558,13 +584,14 @@ class GeneralStep extends React.Component<Props, State> {
 
       this.setState({ mappings: excluded });
 
-      pos.catProdMappings = excluded;
+      pos.posSlotMappings = excluded;
 
       onChange('pos', pos);
     };
 
     return (
       <PosProdItem
+        onEdit={this.onEdit}
         {...props}
         removeMapping={removeMapping}
         item={mapping}
@@ -579,7 +606,11 @@ class GeneralStep extends React.Component<Props, State> {
     const { pos } = this.props;
     const { mappings = [] } = this.state;
 
-    const groupTrigger = <div> Тоо 10</div>;
+    const groupTrigger = (
+      <div>
+        {'Total'} {total}
+      </div>
+    );
 
     const onAdminSelect = users => {
       pos.adminIds = users;
