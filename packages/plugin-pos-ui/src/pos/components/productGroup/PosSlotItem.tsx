@@ -3,7 +3,6 @@ import { FormGroup, ControlLabel, Button, FormControl } from '@erxes/ui/src';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Block, FlexRow } from '../../../styles';
 import { IPos, ISlotGroup } from '../../../types';
-import Modal from 'react-bootstrap/Modal';
 
 type Props = {
   removeMapping: (_id: string) => void;
@@ -14,6 +13,7 @@ type Props = {
   onSubmit: (slotGroup: ISlotGroup) => void;
   slotGroup?: ISlotGroup;
   closeModal: () => void;
+  onEdit: (_id: string, type: string, value: string) => void;
 };
 
 type State = {
@@ -58,12 +58,14 @@ export default class PosProdItem extends React.Component<Props, State> {
         'name',
         (e.currentTarget as HTMLInputElement).value
       );
+      this.props.onEdit(this.props.item._id, 'name', e.currentTarget.value);
     };
     const onChangeCode = e => {
       this.onChangeFunction(
         'code',
         (e.currentTarget as HTMLInputElement).value
       );
+      this.props.onEdit(this.props.item._id, 'code', e.currentTarget.value);
     };
 
     return (
@@ -74,6 +76,7 @@ export default class PosProdItem extends React.Component<Props, State> {
               <ControlLabel>Code </ControlLabel>
               <FormControl
                 name="code"
+                value={item.code}
                 autoFocus={true}
                 onChange={onChangeCode}
               />
@@ -82,6 +85,7 @@ export default class PosProdItem extends React.Component<Props, State> {
               <ControlLabel>Name</ControlLabel>
               <FormControl
                 name="name"
+                value={item.name}
                 autoFocus={true}
                 onChange={onChangeName}
               />
@@ -93,24 +97,6 @@ export default class PosProdItem extends React.Component<Props, State> {
             />
           </FlexRow>
         </Block>
-        <Modal.Footer>
-          <Button
-            btnStyle="simple"
-            type="button"
-            icon="times-circle"
-            onClick={this.onClickCancel}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            onClick={this.onClickSave}
-            btnStyle="success"
-            icon={'plus-circle'}
-          >
-            {'Save'}
-          </Button>
-        </Modal.Footer>
       </>
     );
   }
