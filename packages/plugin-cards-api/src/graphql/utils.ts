@@ -408,11 +408,11 @@ export const copyChecklists = async (
     );
   }
 
-  const originalChecklistItems = await models.Checklists.find({
+  const originalChecklistItems = await models.ChecklistItems.find({
     checklistId: { $in: originalChecklists.map(x => x._id) }
   }).lean();
 
-  await models.Checklists.insertMany(
+  await models.ChecklistItems.insertMany(
     originalChecklistItems.map(({ content, order, checklistId }) => ({
       checklistId: originalChecklistIdToClonedId.get(checklistId),
       isChecked: false,
