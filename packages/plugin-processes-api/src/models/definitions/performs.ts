@@ -5,8 +5,12 @@ import { IProductsData, productsDataSchema } from './jobs';
 export interface IPerform {
   overallWorkId: string;
   status: string;
-  needProducts: IProductsData;
-  resultProducts: IProductsData;
+  count: string;
+  startAt: Date;
+  endAt: Date;
+  dueAt: Date;
+  needProducts: IProductsData[];
+  resultProducts: IProductsData[];
 }
 
 export interface IPerformDocument extends IPerform, Document {
@@ -22,13 +26,13 @@ export const performSchema = schemaHooksWrapper(
     createdBy: { type: String, label: 'Created User' },
     status: field({ type: String, label: 'Status' }),
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
+    dueDate: field({ type: Date, optional: true, label: 'Due at' }),
     endAt: field({ type: Date, optional: true, label: 'End at' }),
-
+    count: { type: String },
     overallWorkId: { type: String },
-
-    needProducts: field({ type: productsDataSchema, label: 'Need products' }),
+    needProducts: field({ type: [productsDataSchema], label: 'Need products' }),
     resultProducts: field({
-      type: productsDataSchema,
+      type: [productsDataSchema],
       label: 'Result products'
     })
   }),

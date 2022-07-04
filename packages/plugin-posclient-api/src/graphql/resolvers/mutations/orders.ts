@@ -174,6 +174,7 @@ const orderMutations = {
     const ebarimtConfig: any = config.ebarimtConfig;
 
     const data = await prepareEbarimtData(
+      models,
       order,
       ebarimtConfig,
       items,
@@ -326,6 +327,7 @@ const orderMutations = {
     const ebarimtConfig: any = config.ebarimtConfig;
 
     const data = await prepareEbarimtData(
+      models,
       order,
       ebarimtConfig,
       items,

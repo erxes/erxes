@@ -260,6 +260,8 @@ class Pos extends React.Component<Props, State> {
                   pos={pos}
                   currentMode={currentMode}
                   branches={branches}
+                  productCategories={productCategories}
+                  groups={groups}
                 />
               </Step>
               <Step

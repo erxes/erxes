@@ -75,8 +75,3 @@ export const loadPutResponseClass = models => {
   putResponseSchema.loadClass(PutResponse);
   return putResponseSchema;
 };
-
-export const PutResponses = model<IPutResponseDocument, IPutResponseModel>(
-  'put_responses',
-  putResponseSchema
-);

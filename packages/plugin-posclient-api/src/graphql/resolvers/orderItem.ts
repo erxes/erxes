@@ -1,14 +1,24 @@
+import { IContext } from '../../connectionResolver';
 import { IOrderItemDocument } from '../../models/definitions/orderItems';
-import { Products } from '../../models/Products';
 
 export default {
-  async productName(orderItem: IOrderItemDocument) {
-    const product = await Products.findOne({ _id: orderItem.productId });
+  async productName(
+    orderItem: IOrderItemDocument,
+    _args,
+    { models }: IContext
+  ) {
+    const product = await models.Products.findOne({ _id: orderItem.productId });
 
     return product ? product.name : 'product not found';
   },
-  async productImgUrl(orderItem: IOrderItemDocument) {
-    const product = (await Products.findOne({ _id: orderItem.productId })) || {
+  async productImgUrl(
+    orderItem: IOrderItemDocument,
+    _args,
+    { models }: IContext
+  ) {
+    const product = (await models.Products.findOne({
+      _id: orderItem.productId
+    })) || {
       attachment: { url: '' }
     };
 
