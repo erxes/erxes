@@ -125,6 +125,7 @@ const remainderMutations = {
       { _id },
       {
         $set: {
+          lastTrDate: new Date(),
           count: remainder,
           status: status || SAFE_REMITEM_STATUSES.CHECKED
         }

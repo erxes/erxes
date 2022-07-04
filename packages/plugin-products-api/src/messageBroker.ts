@@ -267,7 +267,7 @@ export const sendProcessesMessage = (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'cards',
+    serviceName: 'processes',
     ...args
   });
 };

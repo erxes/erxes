@@ -37,6 +37,7 @@ import { field, schemaWrapper } from './definitions/utils';
 
 import { createXlsFile, generateXlsx } from './exporter';
 import { IColumnLabel } from './types';
+import { afterQueryWrapper } from './quiriesWrappers';
 
 export { getEnv }; // ({ name, defaultValue })
 export { getUserDetail }; // (user: IUserDocument)
@@ -55,6 +56,7 @@ export { putCreateLog, putUpdateLog, putDeleteLog };
 export { updateUserScore };
 export { getScoringConfig };
 export { generateFieldsFromSchema };
+export { afterQueryWrapper };
 export {
   can,
   IActionMap,
@@ -96,5 +98,6 @@ export default {
   getScoringConfig,
   generateFieldsFromSchema,
   createXlsFile,
-  generateXlsx
+  generateXlsx,
+  afterQueryWrapper
 };

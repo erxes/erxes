@@ -1,8 +1,20 @@
 import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { sendCardsMessage, sendContactsMessage, sendFormsMessage } from '../messageBroker';
-import { IProduct, IProductCategory, IProductCategoryDocument, IProductDocument, productCategorySchema, productSchema, PRODUCT_STATUSES } from './definitions/products';
+import {
+  sendCardsMessage,
+  sendContactsMessage,
+  sendFormsMessage
+} from '../messageBroker';
+import {
+  IProduct,
+  IProductCategory,
+  IProductCategoryDocument,
+  IProductDocument,
+  productCategorySchema,
+  productSchema,
+  PRODUCT_STATUSES
+} from './definitions/products';
 
 export interface IProductModel extends Model<IProductDocument> {
   updateProductCategory(
@@ -81,10 +93,10 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       doc.customFieldsData = await sendFormsMessage({
         subdomain,
-        action: "fields.prepareCustomFieldsData",
+        action: 'fields.prepareCustomFieldsData',
         data: doc.customFieldsData,
         isRPC: true
-      })
+      });
 
       return models.Products.create(doc);
     }
@@ -120,13 +132,13 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
     public static async removeProducts(_ids: string[]) {
       const dealProductIds = await sendCardsMessage({
         subdomain,
-        action: "findDealProductIds",
+        action: 'findDealProductIds',
         data: {
           _ids
         },
         isRPC: true,
         defaultValue: []
-      })
+      });
 
       const usedIds: string[] = [];
       const unUsedIds: string[] = [];
@@ -224,12 +236,12 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       const dealProductIds = await sendCardsMessage({
         subdomain,
-        action: "findDealProductIds",
+        action: 'findDealProductIds',
         data: {
           _ids: productIds
         },
         isRPC: true
-      })
+      });
 
       for (const deal of dealProductIds) {
         if (productIds.includes(deal)) {
@@ -322,7 +334,9 @@ export const loadProductCategoryClass = (models: IModels) => {
       _id: string,
       doc: IProductCategory
     ) {
-      const category = await models.ProductCategories.getProductCatogery({ _id });
+      const category = await models.ProductCategories.getProductCatogery({
+        _id
+      });
 
       if (category.code !== doc.code) {
         await this.checkCodeDuplication(doc.code);
@@ -339,9 +353,11 @@ export const loadProductCategoryClass = (models: IModels) => {
       // Generatingg  order
       doc.order = await this.generateOrder(parentCategory, doc);
 
-      const productCategory = await models.ProductCategories.getProductCatogery({
-        _id
-      });
+      const productCategory = await models.ProductCategories.getProductCatogery(
+        {
+          _id
+        }
+      );
 
       const childCategories = await models.ProductCategories.find({
         $and: [

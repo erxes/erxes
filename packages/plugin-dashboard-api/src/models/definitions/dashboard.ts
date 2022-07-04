@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field } from './utils';
+import { field, schemaWrapper } from './utils';
 
 export interface IDashboard {
   name: string;
@@ -46,20 +46,22 @@ export interface IDashboardItemDocument extends IDashboardItem, Document {
   createdAt: Date;
 }
 
-export const dashboardSchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String }),
-  description: field({ type: String, optional: true }),
-  visibility: field({ type: String, optional: true }),
-  selectedMemberIds: field({ type: [String] }),
-  parentId: field({ type: String, optional: true }),
-  childsDashboard: field({ type: [String] }),
-  order: field({ type: String }),
-  createdAt: field({ type: Date }),
-  code: field({ type: String }),
-  dashboardCount: field({ type: Number }),
-  relatedIds: field({ type: [String] })
-});
+export const dashboardSchema = schemaWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    name: field({ type: String }),
+    description: field({ type: String, optional: true }),
+    visibility: field({ type: String, optional: true }),
+    selectedMemberIds: field({ type: [String] }),
+    parentId: field({ type: String, optional: true }),
+    childsDashboard: field({ type: [String] }),
+    order: field({ type: String }),
+    createdAt: field({ type: Date }),
+    code: field({ type: String }),
+    dashboardCount: field({ type: Number }),
+    relatedIds: field({ type: [String] })
+  })
+);
 
 export const dashboardItemSchema = new Schema({
   _id: field({ pkey: true }),

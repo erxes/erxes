@@ -67,7 +67,7 @@ class List extends React.Component<IProps, State> {
     result.push(
       <li>
         <FieldStyle>{__(name)}</FieldStyle>
-        <SidebarCounter>{products.length}</SidebarCounter>
+        <SidebarCounter>{(products || []).length}</SidebarCounter>
       </li>
     );
 
@@ -114,7 +114,7 @@ class List extends React.Component<IProps, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('NeedProducts', needProductsDetail)}
+        {this.renderProducts('NeedProducts', needProductsDetail || [])}
       </SidebarList>
     );
   }
@@ -125,14 +125,14 @@ class List extends React.Component<IProps, State> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderProducts('ResultProducts', resultProductsDetail)}
+        {this.renderProducts('ResultProducts', resultProductsDetail || [])}
       </SidebarList>
     );
   }
 
   renderRow = () => {
     const { performs, history } = this.props;
-    return performs.map(perform => (
+    return (performs || []).map(perform => (
       <Row history={history} key={perform._id} perform={perform} />
     ));
   };

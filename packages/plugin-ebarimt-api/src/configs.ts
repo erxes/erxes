@@ -6,6 +6,7 @@ import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
+import beforeResolvers from './beforeResolvers';
 
 export let debug;
 export let graphqlPubsub;
@@ -41,5 +42,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: { afterMutations }
+  meta: { afterMutations, beforeResolvers }
 };

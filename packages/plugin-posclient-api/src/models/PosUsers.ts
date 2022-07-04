@@ -277,13 +277,3 @@ export const loadPosUserClass = models => {
 
   return posUserSchema;
 };
-
-delete mongoose.connection.models['pos_users'];
-
-// tslint:disable-next-line
-const PosUsers = model<IPosUserDocument, IPosUserModel>(
-  'pos_users',
-  posUserSchema
-);
-
-export default PosUsers;

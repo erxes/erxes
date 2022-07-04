@@ -1,7 +1,3 @@
-import { Orders } from '../../../models/Orders';
-import PosUsers from '../../../models/PosUsers';
-import { OrderItems } from '../../../models/OrderItems';
-import { Products, ProductCategories } from '../../../models/Products';
 import { ORDER_STATUSES } from '../../../models/definitions/constants';
 import { generateOrderNumber } from '../../utils/orderUtils';
 import { IContext } from '../../types';
@@ -75,7 +71,7 @@ const reportQueries = {
       ]);
 
       const productIds = groupedItems.map(g => g._id);
-      const products = await Products.find(
+      const products = await models.Products.find(
         { _id: { $in: productIds } },
         { _id: 1, code: 1, name: 1, categoryId: 1 }
       ).lean();

@@ -61,10 +61,3 @@ export const loadQPayInvoiceClass = models => {
   qpayInvoiceSchema.loadClass(QPayInvoice);
   return qpayInvoiceSchema;
 };
-
-delete mongoose.connection.models.qpay_invoices;
-
-export const QPayInvoices = model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-  'qpay_invoices',
-  qpayInvoiceSchema
-);
