@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
-import { queries, mutations } from '../graphql';
+import { queries, mutations } from '../../graphql';
 import { withProps } from '@erxes/ui/src/utils/core';
 import { Alert } from '@erxes/ui/src/utils';
 import { Spinner } from '@erxes/ui/src/components';
-import ManageConfigsComponent from '../components/ManageConfigs';
+import ManageConfigsComponent from '../../components/actions/ManageConfigs';
 
 type Props = {
   closeModal: () => void;
@@ -18,12 +18,8 @@ type FinalProps = {
   remove: any;
 } & Props;
 
-function ConfigContainer({
-  closeModal,
-  dayConfigQuery,
-  save,
-  remove
-}: FinalProps) {
+const ConfigContainer = (props: FinalProps) => {
+  const { closeModal, dayConfigQuery, save, remove } = props;
   useEffect(() => refetch(), []);
 
   const saveData = (update, add) => {
@@ -65,7 +61,7 @@ function ConfigContainer({
       removedata={removedata}
     />
   );
-}
+};
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.timeframes), {

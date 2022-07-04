@@ -150,7 +150,10 @@ export const queries = `
   monthPlanConfig(salesLogId: String): [MonthPlanConfig]
   yearPlanConfig(salesLogId: String): [YearPlanConfig]
   labels(type: String): [Label]
-  salesLogs: [SalesLog]
+  salesLogs(
+    type: String,
+    status: String
+  ): [SalesLog]
   salesLogDetail(salesLogId: String): SalesLog
   timeframes: [Timeframe]
 `;

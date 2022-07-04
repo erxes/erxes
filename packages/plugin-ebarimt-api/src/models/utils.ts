@@ -7,7 +7,7 @@ const format_number = (num: number) => {
 };
 
 export interface IPutDataArgs {
-  data: Date;
+  date: Date;
   orderId: string;
   hasVat: boolean;
   hasCitytax: boolean;
@@ -19,10 +19,10 @@ export interface IPutDataArgs {
   cashAmount: number;
   nonCashAmount: number;
 
-  transaction;
-  records;
-  taxType: string;
-  returnBillId: string;
+  transaction?;
+  records?;
+  taxType?: string;
+  returnBillId?: string;
 
   config: any;
   models: any;
@@ -123,7 +123,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
       code: detail.inventoryCode,
       barCode: this.defaultGScode,
       name: product.name,
-      measureUnit: product.sku,
+      measureUnit: product.sku || 'ш',
       qty: format_number(detail.count),
       unitPrice: format_number(detail.amount / detail.count),
       totalAmount: format_number(detail.amount),
@@ -166,6 +166,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     } = await this.generateStocks();
 
     return {
+      date: this.params.date.toISOString().slice(0, 10),
       cashAmount: format_number(sumAmount),
       nonCashAmount: format_number(0),
 

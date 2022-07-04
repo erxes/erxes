@@ -25,7 +25,7 @@ type Props = {
   removeRemItem: (item: ISafeRemItem) => void;
 };
 
-class CompanyDetails extends React.Component<Props> {
+class Details extends React.Component<Props> {
   renderRow = (remItems: ISafeRemItem[]) => {
     const { updateRemItem, removeRemItem } = this.props;
 
@@ -111,4 +111,4 @@ class CompanyDetails extends React.Component<Props> {
   }
 }
 
-export default CompanyDetails;
+export default Details;
