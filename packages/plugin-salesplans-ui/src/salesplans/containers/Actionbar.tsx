@@ -3,7 +3,7 @@ import { useMutation } from 'react-apollo';
 import { mutations } from '../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
-import ActionBarComponent from '../components/ActionBar';
+import ActionbarComponent from '../components/Actionbar';
 
 type Props = {
   refetch: () => void;
@@ -24,7 +24,7 @@ const ActionBarContainer = (props: Props) => {
       });
   };
 
-  return <ActionBarComponent addData={salesLogAdd} />;
+  return <ActionbarComponent addData={salesLogAdd} />;
 };
 
 export default ActionBarContainer;

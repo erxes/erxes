@@ -1,7 +1,6 @@
 import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { ITag } from '@erxes/ui/src/tags/types';
 
 export type IConfigsMap = { [key: string]: any };
 
@@ -64,6 +63,12 @@ export type IPos = {
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
+  posSlotMappings?: ISlotGroup[];
+};
+export type ISlotGroup = {
+  _id: string;
+  code: string;
+  name: string;
 };
 
 // query types

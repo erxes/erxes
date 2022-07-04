@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from 'react-apollo';
-import { queries, mutations } from '../graphql';
+import { queries, mutations } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
-import ManageLabelsComponent from '../components/ManageLabels';
+import ManageLabelsComponent from '../../components/actions/ManageLabels';
 
 type Props = {
   closeModal: () => void;
 };
 
-function ManageLabelsContainer({ closeModal }: Props) {
+const ManageLabelsContainer = (props: Props) => {
+  const { closeModal } = props;
   const [type, setType] = useState('');
 
   const [save] = useMutation(gql(mutations.saveLabels));
@@ -60,5 +61,5 @@ function ManageLabelsContainer({ closeModal }: Props) {
       closeModal={closeModal}
     />
   );
-}
+};
 export default ManageLabelsContainer;

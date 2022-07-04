@@ -20,8 +20,8 @@ import {
   FlexItem,
   FlexRightItem
 } from '@erxes/ui/src';
-import { COLORS } from '../../constants';
-import { ColorPickerWrapper, ColorPick, ColorPicker } from '../styles';
+import { COLORS } from '../../../constants';
+import { ColorPickerWrapper, ColorPick, ColorPicker } from '../../styles';
 
 type Props = {
   getLabels: any;

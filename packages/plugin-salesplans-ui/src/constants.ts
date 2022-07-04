@@ -21,6 +21,14 @@ export const TYPES = [
   { value: 'Day', label: 'Day' }
 ];
 
+export const STATUS = [
+  { value: 'active', label: 'Active' },
+  { value: 'disabled', label: 'Disabled' },
+  { value: 'archived', label: 'Archived' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'published', label: 'Published' }
+];
+
 export const MONTH = [
   { value: 1, label: 'January' },
   { value: 2, label: 'February' },

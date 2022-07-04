@@ -68,6 +68,7 @@ export const safeRemainderFields = `
 export const safeRemItemFields = `
   _id
   modifiedAt
+  status
   lastTrDate
   remainderId
   productId
@@ -121,11 +122,17 @@ const safeRemainderDetail = `
 const safeRemItems = `
   query safeRemItems (
     $remainderId: String!
-    $statuses: [String]
+    $status: String
+    $productCategoryId: String
+    $diffType: String
+    $searchValue: String
   ) {
     safeRemItems (
       remainderId: $remainderId,
-      statuses: $statuses
+      status: $status,
+      productCategoryId: $productCategoryId,
+      diffType: $diffType,
+      searchValue: $searchValue
     ) {
       ${safeRemItemFields}
     }
@@ -135,11 +142,17 @@ const safeRemItems = `
 const safeRemItemsCount = `
   query safeRemItemsCount (
     $remainderId: String!
-    $statuses: [String]
+    $status: String
+    $productCategoryId: String
+    $diffType: String
+    $searchValue: String
   ) {
     safeRemItemsCount (
       remainderId: $remainderId,
-      statuses: $statuses
+      status: $status,
+      productCategoryId: $productCategoryId,
+      diffType: $diffType,
+      searchValue: $searchValue
     )
   }
 `;
