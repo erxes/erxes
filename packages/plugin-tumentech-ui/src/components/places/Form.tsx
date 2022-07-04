@@ -72,7 +72,6 @@ const PlaceForm = (props: Props) => {
   };
 
   const onChangeLocationOption = option => {
-    console.log(option);
     setCenter(option);
   };
 
