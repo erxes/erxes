@@ -43,7 +43,7 @@ const typeDefs = async () => {
     ${LogTypes}
     ${ProductTypes}
     ${PosUserTypes}
-    ${OrderTypes} 
+    ${OrderTypes}
     ${ConfigTypes}
     ${PaymentTypes}
     ${ReportTypes}
@@ -54,7 +54,7 @@ const typeDefs = async () => {
     ${ProductQueries}
     ${OrderQueries}
     ${ConfigQueries}
-    ${PaymentQueries} 
+    ${PaymentQueries}
     ${ReportQueries}
    }
 

@@ -2,15 +2,18 @@ import customScalars from '@erxes/api-utils/src/customScalars';
 
 import JobCategory from './customResolver/jobCategory';
 import FlowCategory from './customResolver/flowCategory';
-import FlowProduct from './customResolver/flowProduct';
-import JobReferNeedResultProduct from './customResolver/needResultProducts';
+import Flow from './customResolver/flowProduct';
+import JobRefer from './customResolver/jobRefer';
+import Work from './customResolver/work';
+import OverallWork from './customResolver/overallWork';
 import {
   JobRefers as JobRefersMutations,
   JobCategories as JobCategoryMutations,
   Flows as FlowsMutations,
   FlowCategories as FlowCategoryMutations,
   Works as WorkMutation,
-  OverallWorks as OverallWorkMutations
+  OverallWorks as OverallWorkMutations,
+  Performs as PerformMutations
 } from './mutations';
 
 import {
@@ -19,22 +22,26 @@ import {
   Flows as FlowQueries,
   FlowCategories as FlowCategoryQueries,
   Works as WorkQueries,
-  OverallWorks as OverallWorkQueries
+  OverallWorks as OverallWorkQueries,
+  Performs as PerformQueries
 } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
   JobCategory,
   FlowCategory,
-  Flow: FlowProduct,
-  JobRefer: JobReferNeedResultProduct,
+  Flow,
+  JobRefer,
+  Work,
+  OverallWork,
   Mutation: {
     ...JobRefersMutations,
     ...JobCategoryMutations,
     ...FlowsMutations,
     ...FlowCategoryMutations,
     ...WorkMutation,
-    ...OverallWorkMutations
+    ...OverallWorkMutations,
+    ...PerformMutations
   },
   Query: {
     ...JobReferQueries,
@@ -42,7 +49,8 @@ const resolvers: any = async serviceDiscovery => ({
     ...FlowQueries,
     ...FlowCategoryQueries,
     ...WorkQueries,
-    ...OverallWorkQueries
+    ...OverallWorkQueries,
+    ...PerformQueries
   }
 });
 

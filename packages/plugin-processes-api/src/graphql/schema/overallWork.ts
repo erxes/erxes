@@ -11,23 +11,40 @@ export const types = `
     endAt: Date,
     assignUserIds: JSON
     jobId: String,
+    job: JSON,
     flowId: String,
+    flow: JSON,
+    intervalId: String,
+    interval: JSON,
     outBranchId: String,
+    outBranch: String,
     outDepartmentId: String,
+    outDepartment: String,
     inBranchId: String,
+    inBranch: String,
     inDepartmentId: String,
+    inDepartment: String,
     needProducts: JSON,
-    resultProducts: JSON
+    resultProducts: JSON,
+    needProductsDetail: JSON,
+    resultProductsDetail: JSON
   }
 `;
 
 const qryParams = `
-  searchValue: String
+  searchValue: String,
+  inBranchId: String,
+  inDepartmentId: String,
+  outBranchId: String,
+  outDepartmentId: String,
+  id: String
 `;
 
 export const queries = `
   overallWorks(page: Int, perPage: Int, ${qryParams}): [OverallWork]
-  overallWorkTotalCount(${qryParams}): Int
+  overallWorksSideBar(${qryParams}): [OverallWork]
+  overallWorksSideBarDetail(${qryParams}): OverallWork
+  overallWorksTotalCount(${qryParams}): Int
 `;
 
 const workParams = `
@@ -38,6 +55,7 @@ const workParams = `
   assignUserIds: [String]
   jobId: String,
   flowId: String,
+  intervalId: String,
   outBranchId: String,
   outDepartmentId: String,
   inBranchId: String,

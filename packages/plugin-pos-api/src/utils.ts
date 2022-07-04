@@ -1,11 +1,15 @@
-import { sendContactsMessage, sendCoreMessage, sendProductsMessage } from "./messageBroker";
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from './messageBroker';
 
 export const getConfig = async (subdomain, code, defaultValue?) => {
   return await sendCoreMessage({
     subdomain,
-    action: "getConfig",
+    action: 'getConfig',
     data: { code, defaultValue },
-    isRPC: true,
+    isRPC: true
   });
 };
 
@@ -38,7 +42,7 @@ export const orderToErkhet = async (
   orderId,
   putRes
 ) => {
-  let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
+  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||
@@ -56,22 +60,25 @@ export const orderToErkhet = async (
 
   const workerEmail =
     (order.userId &&
-      (await sendCoreMessage({
-        subdomain,
-        action: 'users.findOne',
-        data: { _id: order.userId },
-        isRPC: true,
-        defaultValue: {}
-      })).email) || "";
+      (
+        await sendCoreMessage({
+          subdomain,
+          action: 'users.findOne',
+          data: { _id: order.userId },
+          isRPC: true,
+          defaultValue: {}
+        })
+      ).email) ||
+    '';
 
-  const productsIds = order.items.map((item) => item.productId);
+  const productsIds = order.items.map(item => item.productId);
   const products = await sendProductsMessage({
     subdomain,
     action: 'find',
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
     defaultValue: []
-  })
+  });
 
   const productCodeById = {};
   for (const product of products) {
@@ -93,7 +100,7 @@ export const orderToErkhet = async (
       amount,
       discount: item.discountAmount,
       inventoryCode: productCodeById[item.productId],
-      workerEmail,
+      workerEmail
     });
   }
 
@@ -137,10 +144,10 @@ export const orderToErkhet = async (
         })
       ).code,
       description: `${pos.name}`,
-      number: `${pos.erkhetConfig.beginNumber || ""}${order.number}`,
+      number: `${pos.erkhetConfig.beginNumber || ''}${order.number}`,
       details,
-      ...payments,
-    },
+      ...payments
+    }
   ];
 
   let userEmail = pos.erkhetConfig.userEmail;
@@ -150,13 +157,14 @@ export const orderToErkhet = async (
     token: erkhetConfig.apiToken,
     apiKey: erkhetConfig.apiKey,
     apiSecret: erkhetConfig.apiSecret,
-    orderInfos: JSON.stringify(orderInfos),
+    orderInfos: JSON.stringify(orderInfos)
   };
 
+  // TODO: syncerkhet pluginaar
   const apiResponse = await messageBroker().sendRPCMessage(
-    "rpc_queue:erxes-automation-erkhet",
+    'rpc_queue:erxes-automation-erkhet',
     {
-      action: "get-response-send-order-info",
+      action: 'get-response-send-order-info',
       isJson: true,
       isEbarimt: false,
       payload: JSON.stringify(postData),
@@ -184,7 +192,7 @@ export const orderDeleteToErkhet = async (
   pos,
   orderId
 ) => {
-  let erkhetConfig = await getConfig(subdomain, "ERKHET", {});
+  let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
     !erkhetConfig ||
@@ -201,8 +209,8 @@ export const orderDeleteToErkhet = async (
     {
       date: order.paidDate,
       orderId: order._id,
-      returnKind: "hard",
-    },
+      returnKind: 'hard'
+    }
   ];
 
   let userEmail = pos.erkhetConfig.userEmail;
@@ -212,13 +220,13 @@ export const orderDeleteToErkhet = async (
     token: erkhetConfig.apiToken,
     apiKey: erkhetConfig.apiKey,
     apiSecret: erkhetConfig.apiSecret,
-    orderInfos: JSON.stringify(orderInfos),
+    orderInfos: JSON.stringify(orderInfos)
   };
 
   const apiResponse = await messageBroker().sendRPCMessage(
-    "rpc_queue:erxes-automation-erkhet",
+    'rpc_queue:erxes-automation-erkhet',
     {
-      action: "get-response-return-order",
+      action: 'get-response-return-order',
       isJson: true,
       isEbarimt: false,
       payload: JSON.stringify(postData),
@@ -233,4 +241,21 @@ export const orderDeleteToErkhet = async (
       throw new Error(apiResponse);
     }
   }
+};
+
+export const getChildCategories = async (subdomain: string, categoryIds) => {
+  let catIds: string[] = [];
+  for (const categoryId of categoryIds) {
+    const childs = await sendProductsMessage({
+      subdomain,
+      action: 'categories.withChilds',
+      data: { _id: categoryId },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    catIds = catIds.concat((childs || []).map(ch => ch._id) || []);
+  }
+
+  return Array.from(new Set(catIds));
 };
