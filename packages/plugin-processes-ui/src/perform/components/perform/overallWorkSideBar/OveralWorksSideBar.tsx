@@ -9,9 +9,10 @@ import { OverallWorkSidebar } from '../../../../styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import InputFilter from './filterInBranchDepartment';
 import OutputFilter from './filterOutBranchDepartment';
-import { Link } from 'react-router-dom';
+import JobFilter from './filterJobRefer';
 import Icon from '@erxes/ui/src/components/Icon';
 import Box from '@erxes/ui/src/components/Box';
+import { IJobRefer } from '../../../../job/types';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -21,6 +22,7 @@ interface IProps extends IRouterProps {
   overallWorks: IOverallWorkDocument[];
   loading: boolean;
   params: any;
+  jobRefers: IJobRefer[];
 }
 
 class SideBar extends React.Component<IProps> {
@@ -86,6 +88,8 @@ class SideBar extends React.Component<IProps> {
   }
 
   render() {
+    console.log(' job filter job filter job filter on overallworksSideBar');
+
     const onClear = () => {
       router.setParams(history, { overallWorkId: null });
     };
@@ -100,6 +104,7 @@ class SideBar extends React.Component<IProps> {
       <SidebarList>
         <InputFilter {...this.props} />
         <OutputFilter {...this.props} />
+        <JobFilter {...this.props} />
         <Sidebar wide={true} hasBorder={true}>
           <Box
             extraButtons={extraButtons}
