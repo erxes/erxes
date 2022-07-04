@@ -34,7 +34,7 @@ export const loadDealPlaceClass = (models: IModels) => {
 
       const dealPlace = await models.DealPlaces.findOne({
         dealId
-      }).lean();
+      });
 
       if (!dealPlace) {
         return models.DealPlaces.create({

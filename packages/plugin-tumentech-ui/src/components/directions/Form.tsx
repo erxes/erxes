@@ -16,6 +16,7 @@ type Props = {
   direction?: IDirection;
   places: IPlace[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  onGetDirections: (directions: any[]) => void;
   closeModal: () => void;
 };
 
@@ -153,6 +154,10 @@ const DirectionForm = (props: Props) => {
               locationOptions={[placeA.center, placeB.center]}
               connectWithLines={true}
               streetViewControl={false}
+              overviewPath={direction && direction.overviewPath}
+              onGetDirections={res => {
+                props.onGetDirections(res);
+              }}
             />
           </FormGroup>
         )}

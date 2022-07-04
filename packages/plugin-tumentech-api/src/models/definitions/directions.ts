@@ -10,6 +10,7 @@ export interface IDirection {
   totalDistance: number;
   roadConditions: string[];
   duration: number;
+  overviewPath?: any[];
 }
 
 export interface IDirectionDocument extends IDirection, Document {
@@ -33,6 +34,7 @@ export const directionSchema = schemaHooksWrapper(
     duration: field({ type: Number, label: 'total duration (minuts)' }),
     routeCode: field({ type: String, label: 'route code' }),
     roadCode: field({ type: String, label: 'road code' }),
+    overviewPath: field({ type: [Object], label: 'overview path' }),
     searchText: field({ type: String, optional: true, index: true })
   }),
   'directions'

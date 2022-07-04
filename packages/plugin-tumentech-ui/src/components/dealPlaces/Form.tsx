@@ -9,7 +9,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { IDealPlace, IPlace } from '../../types';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/components/Map';
+import Map from '@erxes/ui/src/components/map/Map';
 
 type Props = {
   dealId: string;
@@ -21,8 +21,6 @@ type Props = {
 
 const DirectionForm = (props: Props) => {
   const { dealPlace, places } = props;
-
-  console.log('********************** ', dealPlace);
 
   const [startPlaceId, setStartPlaceId] = useState<string | undefined>(
     dealPlace && dealPlace.startPlaceId
@@ -100,27 +98,15 @@ const DirectionForm = (props: Props) => {
 
         {startPlace && startPlace._id && endPlace && endPlace._id && (
           <FormGroup>
-            <MapContainer>
-              <Map
-                center={startPlace.center}
-                googleMapApiKey={
-                  localStorage.getItem('GOOGLE_MAP_API_KEY') || ''
-                }
-                defaultZoom={7}
-                locationOptions={[startPlace.center, endPlace.center]}
-                mapControlOptions={{
-                  controlSize: 30,
-                  zoomControl: true,
-                  mapTypeControl: true,
-                  scaleControl: false,
-                  streetViewControl: false,
-                  rotateControl: false,
-                  fullscreenControl: true
-                }}
-                isPreview={false}
-                drawPolyLines={true}
-              />
-            </MapContainer>
+            <Map
+              id={Math.random().toString(10)}
+              center={startPlace.center}
+              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+              zoom={7}
+              locationOptions={[startPlace.center, endPlace.center]}
+              streetViewControl={false}
+              connectWithLines={true}
+            />
           </FormGroup>
         )}
 

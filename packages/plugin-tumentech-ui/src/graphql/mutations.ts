@@ -297,8 +297,8 @@ mutation directionsAdd($placeIds: [String]!, $totalDistance: Int, $roadCondition
 `;
 
 const editDirection = `
-mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String) {
-  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode) {
+mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String, $overviewPath: [JSON]) {
+  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode, overviewPath: $overviewPath) {
     _id
   }
 }`;

@@ -367,6 +367,7 @@ query directions($searchValue: String, $page: Int, $perPage: Int) {
       duration
       routeCode
       roadCode
+      overviewPath
     }
     totalCount
   }
@@ -390,6 +391,7 @@ query directionDetail($id: String!) {
     roadConditions
     routeCode
     totalDistance
+    overviewPath
   }
 }
 `;

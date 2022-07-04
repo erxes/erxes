@@ -4,6 +4,7 @@ import { ILocationOption } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
+import { Alert } from '../../utils';
 
 interface IMapProps extends google.maps.MapOptions {
   id: string;
@@ -12,7 +13,9 @@ interface IMapProps extends google.maps.MapOptions {
   locationOptions: ILocationOption[];
   locale?: string;
   connectWithLines?: boolean;
+  overviewPath?: any[];
   mode?: 'view' | 'config';
+  onGetDirections?: (directions: any[]) => void;
   onChangeMarker?: (location: ILocationOption) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 }
@@ -62,16 +65,20 @@ const Map = (props: IMapProps) => {
     mode = 'view',
     locationOptions = [],
     onChangeLocationOptions,
+    onGetDirections,
     ...mapOptions
   } = props;
 
   const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const [overviewPath, setOverviewPath] = useState<any | undefined>(
+    props.overviewPath
+  );
 
   useEffect(() => {
     setCenter(props.center || { lat: 0, lng: 0 });
     renderMap();
-  }, [props.locationOptions, props.id, center, setCenter]);
+  }, [props.locationOptions, overviewPath, props.id, center, setCenter]);
 
   const mapScript = loadMapScript(
     props.googleMapApiKey || 'demo',
@@ -221,18 +228,54 @@ const Map = (props: IMapProps) => {
       });
       map.fitBounds(bounds);
 
-      if (!props.connectWithLines) {
+      if (props.connectWithLines) {
+        new google.maps.Polyline({
+          path: locationOptions,
+          geodesic: true,
+          strokeColor: colors.colorCoreRed,
+          strokeOpacity: 0.7,
+          strokeWeight: 2,
+          map: map
+        });
+      }
+
+      if (
+        !onGetDirections &&
+        (locationOptions.length === 0 || locationOptions.length !== 2)
+      ) {
         return;
       }
 
-      new google.maps.Polyline({
-        path: locationOptions,
-        geodesic: true,
-        strokeColor: colors.colorCoreRed,
-        strokeOpacity: 0.7,
-        strokeWeight: 2,
-        map: map
+      const directionsService = new google.maps.DirectionsService();
+
+      const request = {
+        origin: locationOptions[0],
+        destination: locationOptions[1],
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+
+      directionsService.route(request, (response, status) => {
+        if (status == google.maps.DirectionsStatus.OK) {
+          if (!response || !response.routes.length) {
+            return;
+          }
+          const overviewPath = response.routes[0].overview_path;
+          onGetDirections && response && onGetDirections(overviewPath);
+          setOverviewPath(overviewPath);
+        } else {
+          Alert.error('Directions request failed due to ' + status);
+        }
       });
+
+      if (overviewPath) {
+        new google.maps.Polyline({
+          path: overviewPath,
+          strokeColor: '#FF0000',
+          strokeOpacity: 0.5,
+          strokeWeight: 4,
+          map
+        });
+      }
 
       return;
     }

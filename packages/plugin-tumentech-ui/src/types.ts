@@ -445,6 +445,7 @@ export type IDirection = {
   roadCode: string;
   routeCode: string;
   duration: number;
+  overviewPath?: any[];
 };
 
 export type IDirectionItem = {

@@ -29,7 +29,7 @@ const DealPlaceFormContainer = (props: Props) => {
         mutation={mutations.setDealPlace}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={getRefetchQueries(props.dealId)}
         isSubmitted={isSubmitted}
         type="submit"
         icon="check-circle"
@@ -47,10 +47,13 @@ const DealPlaceFormContainer = (props: Props) => {
   return <DealPlaceForm {...updatedProps} />;
 };
 
-const getRefetchQueries = () => {
+const getRefetchQueries = (dealId: string) => {
   return [
     {
-      query: gql(queries.dealPlaces)
+      query: gql(queries.dealPlaces),
+      variables: {
+        dealId
+      }
     }
   ];
 };
