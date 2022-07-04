@@ -53,6 +53,7 @@ export type IPos = {
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
+  posSlotMappings?: ISlotGroup[];
 };
 export type ISlotGroup = {
   _id: string;

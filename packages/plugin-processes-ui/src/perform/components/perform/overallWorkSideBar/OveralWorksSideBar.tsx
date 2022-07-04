@@ -9,6 +9,9 @@ import { OverallWorkSidebar } from '../../../../styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import InputFilter from './filterInBranchDepartment';
 import OutputFilter from './filterOutBranchDepartment';
+import { Link } from 'react-router-dom';
+import Icon from '@erxes/ui/src/components/Icon';
+import Box from '@erxes/ui/src/components/Box';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -26,29 +29,36 @@ class SideBar extends React.Component<IProps> {
 
     const result: React.ReactNode[] = [];
 
+    const onClick = (key, value) => {
+      const { history } = this.props;
+
+      router.setParams(history, { [key]: value });
+    };
+
+    const paramKey = 'overallWorkId';
+
     for (const overallWork of overallWorks) {
-      const { job, intervalId } = overallWork;
+      const { job, intervalId, _id } = overallWork;
 
       const name = <span>{job.label || 'not found'}</span>;
 
-      const interval = <span>{intervalId || 'not found'}</span>;
-
       result.push(
         <OverallWorkSidebar>
-          {name} | {interval}
+          <a
+            href="#filter"
+            tabIndex={0}
+            className={
+              router.getParam(history, [paramKey]) === _id ? 'active' : ''
+            }
+            onClick={onClick.bind(this, paramKey, _id)}
+          >
+            {name}
+          </a>
         </OverallWorkSidebar>
       );
     }
 
     return result;
-  }
-
-  renderOverallWorkHeader() {
-    return (
-      <>
-        <Section.Title>{__('OverallWorks')} </Section.Title>
-      </>
-    );
   }
 
   onSelect = (name, value) => {
@@ -76,13 +86,30 @@ class SideBar extends React.Component<IProps> {
   }
 
   render() {
+    const onClear = () => {
+      router.setParams(history, { overallWorkId: null });
+    };
+
+    const extraButtons = router.getParam(history, 'overallWorkId') && (
+      <a href="#cancel" tabIndex={0} onClick={onClear}>
+        <Icon icon="cancel-1" />
+      </a>
+    );
+
     return (
       <SidebarList>
         <InputFilter {...this.props} />
         <OutputFilter {...this.props} />
         <Sidebar wide={true} hasBorder={true}>
-          {this.renderOverallWorkHeader()}
-          {this.renderOverallWorkList()}
+          <Box
+            extraButtons={extraButtons}
+            title={__('OverallWorks')}
+            name="showFilterByType"
+          >
+            <Section collapsible={this.props.overallWorks.length > 9}>
+              {this.renderOverallWorkList()}
+            </Section>
+          </Box>
         </Sidebar>
       </SidebarList>
     );

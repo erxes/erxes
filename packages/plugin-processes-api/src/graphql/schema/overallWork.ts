@@ -25,7 +25,9 @@ export const types = `
     inDepartmentId: String,
     inDepartment: String,
     needProducts: JSON,
-    resultProducts: JSON
+    resultProducts: JSON,
+    needProductsDetail: JSON,
+    resultProductsDetail: JSON
   }
 `;
 
@@ -34,12 +36,14 @@ const qryParams = `
   inBranchId: String,
   inDepartmentId: String,
   outBranchId: String,
-  outDepartmentId: String
+  outDepartmentId: String,
+  id: String
 `;
 
 export const queries = `
   overallWorks(page: Int, perPage: Int, ${qryParams}): [OverallWork]
   overallWorksSideBar(${qryParams}): [OverallWork]
+  overallWorksSideBarDetail(${qryParams}): OverallWork
   overallWorksTotalCount(${qryParams}): Int
 `;
 
