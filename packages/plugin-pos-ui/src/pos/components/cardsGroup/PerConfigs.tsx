@@ -6,17 +6,19 @@ import {
   FormGroup
 } from '@erxes/ui/src/components';
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import Select from 'react-select-plus';
 import React from 'react';
 import { IConfigsMap } from '../../../../../plugin-ebarimt-ui/src/types';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 type Props = {
   configsMap: IConfigsMap;
   config: any;
   currentConfigKey: string;
-  save: (configsMap: IConfigsMap) => void;
+  save: (name: 'cardsConfig', value: any) => void;
   delete: (currentConfigKey: string) => void;
 };
 
@@ -34,6 +36,14 @@ class PerConfigs extends React.Component<Props, State> {
       hasOpen: false
     };
   }
+
+  onChangeBranch = (branchId: string) => {
+    this.setState({ config: { ...this.state.config, branchId } });
+  };
+
+  onChangeAsssignedUserIds = (assignedUserIds: string) => {
+    this.setState({ config: { ...this.state.config, assignedUserIds } });
+  };
 
   onChangeBoard = (boardId: string) => {
     this.setState({ config: { ...this.state.config, boardId } });
@@ -55,21 +65,14 @@ class PerConfigs extends React.Component<Props, State> {
 
     delete configsMap.cardsConfig[currentConfigKey];
     configsMap.cardsConfig[key] = config;
-    this.props.save(configsMap);
+    this.props.save('cardsConfig', configsMap);
+    Alert.success('You successfully updated stage in cards settings.');
   };
 
   onDelete = e => {
     e.preventDefault();
 
     this.props.delete(this.props.currentConfigKey);
-  };
-
-  onChangeCombo = option => {
-    this.onChangeConfig('defaultPay', option.value);
-  };
-
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
   };
 
   onChangeConfig = (code: string, value) => {
@@ -82,38 +85,6 @@ class PerConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderInput = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          defaultValue={config[key]}
-          onChange={this.onChangeInput.bind(this, key)}
-          required={true}
-        />
-      </FormGroup>
-    );
-  };
-
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    const { config } = this.state;
-
-    return (
-      <FormGroup>
-        <ControlLabel>{title || key}</ControlLabel>
-        {description && <p>{__(description)}</p>}
-        <FormControl
-          checked={config[key]}
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
-        />
-      </FormGroup>
-    );
-  };
-
   render() {
     const { config } = this.state;
     return (
@@ -122,7 +93,28 @@ class PerConfigs extends React.Component<Props, State> {
         open={this.props.currentConfigKey === 'newCardsConfig' ? true : false}
       >
         <FormGroup>
-          <ControlLabel>Destination Stage</ControlLabel>
+          <ControlLabel>{'Title'}</ControlLabel>
+          <FormControl
+            defaultValue={config['title']}
+            onChange={this.onChangeInput.bind(this, 'title')}
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Choose Branch</ControlLabel>
+          <SelectBranches
+            label={__('Choose branch')}
+            name="branchIds"
+            multi={false}
+            initialValue={config.branchId}
+            onSelect={this.onChangeBranch}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Choose Stage</ControlLabel>
           <BoardSelectContainer
             type="deal"
             autoSelectStage={false}
@@ -132,6 +124,16 @@ class PerConfigs extends React.Component<Props, State> {
             onChangeBoard={this.onChangeBoard}
             onChangePipeline={this.onChangePipeline}
             onChangeStage={this.onChangeStage}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel>Choose assigned users</ControlLabel>
+          <SelectTeamMembers
+            label={__('Choose team member')}
+            name="assignedUserIds"
+            initialValue={config.assignedUserIds}
+            onSelect={this.onChangeAsssignedUserIds}
           />
         </FormGroup>
 

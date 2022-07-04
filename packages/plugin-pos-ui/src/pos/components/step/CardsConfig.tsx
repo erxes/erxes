@@ -1,19 +1,12 @@
 import React from 'react';
 import { IPos } from '../../../types';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import gql from 'graphql-tag';
-import client from '@erxes/ui/src/apolloClient';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
-import Modal from 'react-bootstrap/Modal';
 import {
   __,
   ControlLabel,
   FormGroup,
   Toggle,
-  SelectTeamMembers,
   Button,
-  ModalTrigger,
-  Wrapper
+  Alert
 } from '@erxes/ui/src';
 import {
   DomainRow,
@@ -25,50 +18,34 @@ import {
 } from '../../../styles';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { IConfigsMap } from '../../../../../plugin-ebarimt-ui/src/types';
+import { IConfigsMap } from '../../../types';
+import PerConfigs from '../cardsGroup/PerConfigs';
 type Props = {
   onChange: (name: 'cardsConfig', value: any) => void;
   pos?: IPos;
   configsMap: IConfigsMap;
 };
 type State = {
-  config: any;
   configsMap: IConfigsMap;
 };
 class CardsConfig extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const config =
-      props.pos && props.pos.cardsConfig
-        ? props.pos.cardsConfig
-        : {
-            isSyncCards: false,
-            configsMap: {}
-          };
+    const configsMap = {
+      cardsConfig: null
+    };
     this.state = {
-      config,
-      configsMap: props.configsMap
+      configsMap: configsMap
     };
   }
-  onChangeConfig = (code: string, value) => {
-    const { config, configsMap } = this.state;
-    configsMap[code] = value;
-    this.setState({ config }, () => {
-      this.props.onChange('cardsConfig', config);
-    });
-  };
   add = e => {
     e.preventDefault();
     const { configsMap } = this.state;
 
-    if (!configsMap.cardsConfig) {
+    if (!configsMap?.cardsConfig) {
       configsMap.cardsConfig = {};
     }
 
-    // must save prev item saved then new item
     configsMap.cardsConfig.newCardsConfig = {
       boardId: '',
       pipelineId: '',
@@ -79,18 +56,35 @@ class CardsConfig extends React.Component<Props, State> {
 
     this.setState({ configsMap });
   };
-  onChangeSwitch = e => {
-    this.onChangeConfig('isSyncCards', e.target.checked);
-  };
-  renderContent() {
-    return <>Content</>;
-  }
+  delete = (currentConfigKey: string) => {
+    const { configsMap } = this.state;
+    delete configsMap.cardsConfig[currentConfigKey];
+    delete configsMap.cardsConfig['newEbarimtConfig'];
 
+    this.setState({ configsMap });
+
+    this.props.onChange('cardsConfig', configsMap);
+    Alert.success('You successfully deleted stage in cards settings.');
+  };
+  renderContent(configs) {
+    return Object.keys(configs).map(key => {
+      console.log(key);
+      return (
+        <PerConfigs
+          key={Math.floor(Math.random() * 10000000) + 1}
+          configsMap={this.state.configsMap}
+          config={configs[key]}
+          currentConfigKey={key}
+          save={this.props.onChange}
+          delete={this.delete}
+        />
+      );
+    });
+  }
   renderCollapse() {
-    const { config } = this.state;
-    if (!this.state.config.isSyncCards) {
-      return <></>;
-    }
+    const { configsMap } = this.state;
+    const mapping = configsMap.cardsConfig || {};
+    console.log(configsMap);
     const actionButtons = (
       <Button
         btnStyle="primary"
@@ -106,7 +100,8 @@ class CardsConfig extends React.Component<Props, State> {
         <LeftItem>
           {actionButtons}
           <br />
-          {this.renderContent()}
+          <br />
+          {this.renderContent(mapping)}
         </LeftItem>
       </FlexRow>
     );
@@ -116,25 +111,7 @@ class CardsConfig extends React.Component<Props, State> {
       <FlexItem>
         <FlexColumn>
           <LeftItem>
-            <Block>
-              <h4>{__('Main')}</h4>
-              <BlockRow>
-                <FormGroup>
-                  <ControlLabel>Is Sync Cards</ControlLabel>
-                  <Toggle
-                    id={'isSyncCards'}
-                    checked={this.state.config.isSyncCards || false}
-                    onChange={this.onChangeSwitch}
-                    icons={{
-                      checked: <span>Yes</span>,
-                      unchecked: <span>No</span>
-                    }}
-                  />
-                </FormGroup>
-              </BlockRow>
-            </Block>
-            {this.renderCollapse()}
-            <Block />
+            <Block>{this.renderCollapse()}</Block>
           </LeftItem>
         </FlexColumn>
       </FlexItem>

@@ -38,7 +38,7 @@ export const initBroker = async cl => {
       const { marker = {} } = deliveryInfo;
 
       const { cardsConfig = {} } = pos;
-      const currentCardsConfig = cardsConfig.mappings.find(
+      const currentCardsConfig = cardsConfig.carsConfig.find(
         c => c.branchId && c.branchId === doneOrder.branchId
       );
 
