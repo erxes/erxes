@@ -2,7 +2,6 @@ import { initBroker } from '../../../messageBroker';
 import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
-import { OrderItems } from '../../../models/OrderItems';
 import {
   importUsers,
   importProducts,
@@ -144,7 +143,7 @@ const configMutations = {
 
     if (orders.length) {
       const orderIds = orders.map(o => o._id);
-      const orderItems: IOrderItemDocument[] = await OrderItems.find({
+      const orderItems: IOrderItemDocument[] = await models.OrderItems.find({
         orderId: { $in: orderIds }
       }).lean();
 

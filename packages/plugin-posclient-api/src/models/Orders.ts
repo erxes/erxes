@@ -53,5 +53,3 @@ export const loadOrderClass = models => {
   orderSchema.loadClass(Order);
   return orderSchema;
 };
-
-export const Orders = model<IOrderDocument, IOrderModel>('orders', orderSchema);
