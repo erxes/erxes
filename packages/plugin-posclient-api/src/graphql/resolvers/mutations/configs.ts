@@ -1,4 +1,6 @@
 import { initBroker } from '../../../messageBroker';
+import { redis } from '@erxes/api-utils/src/serviceDiscovery';
+import { init as initBrokerMain } from '@erxes/api-utils/src/messageBroker';
 import { IOrderItemDocument } from '../../../models/definitions/orderItems';
 import { OrderItems } from '../../../models/OrderItems';
 import {
@@ -16,8 +18,6 @@ import { IContext } from '../../../connectionResolver';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
-
-let cl;
 
 const configMutations = {
   posConfigsFetch: async (_root, { token }, { models }: IContext) => {
@@ -52,7 +52,15 @@ const configMutations = {
       await importProducts(models, productGroups);
     }
 
-    initBroker(cl)
+    const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
+
+    const messageBrokerClient = await initBrokerMain({
+      RABBITMQ_HOST,
+      MESSAGE_BROKER_PREFIX,
+      redis
+    });
+
+    await initBroker(messageBrokerClient)
       .then(() => {
         debugInfo('Message broker has started.');
       })

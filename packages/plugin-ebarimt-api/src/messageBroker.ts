@@ -61,11 +61,14 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { _id, doc } }) => {
       const models = await generateModels(subdomain);
 
-      return await models.PutResponses.updateOne(
-        { _id },
-        { $set: { ...doc } },
-        { upsert: true }
-      );
+      return {
+        status: 'success',
+        data: await models.PutResponses.updateOne(
+          { _id },
+          { $set: { ...doc } },
+          { upsert: true }
+        )
+      };
     }
   );
 
