@@ -6,13 +6,13 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import LotteryDetail from '../../components/award/detail';
-import { queries } from '../../graphql';
+import { queries } from '../../../../configs/voucherCampaign/graphql';
 
 type Props = { queryParams: any };
 
 type FinalProps = {
   lotteryCampaign: any;
-  voucherDetail: any;
+  voucherCampaignDetail: any;
 };
 class AwardDetail extends React.Component<FinalProps, Props> {
   constructor(props) {
@@ -20,10 +20,10 @@ class AwardDetail extends React.Component<FinalProps, Props> {
   }
 
   render() {
-    const { voucherDetail, lotteryCampaign } = this.props;
+    const { voucherCampaignDetail, lotteryCampaign } = this.props;
     const updatedProps = {
-      loading: voucherDetail.loading,
-      data: voucherDetail.voucherCampaignDetails,
+      loading: voucherCampaignDetail.loading,
+      data: voucherCampaignDetail.voucherCampaignDetail,
       lotteryCampaign: lotteryCampaign
     };
 
@@ -51,8 +51,8 @@ const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: [string] }>(gql(queries.lotteryDetails), {
-      name: 'voucherDetail',
+    graphql<{ queryParams: [string] }>(gql(queries.voucherCampaignDetail), {
+      name: 'voucherCampaignDetail',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'

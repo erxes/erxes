@@ -54,10 +54,12 @@ export interface ICommonParams {
 export interface IScoreParams {
   ownerType: String;
   ownerId: String;
-  orderType: String;
+  orderType: string;
   order: String;
   fromDate: String;
   toDate: String;
+  page?: number;
+  perPage?: number;
 }
 
 export const attachmentSchema = new Schema(

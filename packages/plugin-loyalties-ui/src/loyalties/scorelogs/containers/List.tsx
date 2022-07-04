@@ -1,6 +1,6 @@
 import { Bulk } from '@erxes/ui/src/components';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
+import { withProps, router } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -29,7 +29,7 @@ class ScoreLogsListContainer extends React.Component<FinalProps, State> {
   render() {
     const { scoreLogs } = this.props;
 
-    const refetch = variables => {
+    const handlerefetch = variables => {
       this.props.scoreLogs.refetch(variables);
     };
 
@@ -39,22 +39,38 @@ class ScoreLogsListContainer extends React.Component<FinalProps, State> {
       total: scoreLogs.scoreLogList?.total,
       loading: scoreLogs.loading,
       error: scoreLogs.error,
-      refetch
+      refetch: handlerefetch
     };
     const content = props => (
       <ScoreLogsListComponent {...props} {...updatedProps} />
     );
 
-    return <Bulk content={content} />;
+    const refetch = () => {
+      this.props.scoreLogs.refetch();
+    };
+
+    return <Bulk content={content} refetch={refetch} />;
   }
 }
+
+const generateParams = ({ queryParams }) => ({
+  ...router.generatePaginationParams(queryParams || {}),
+  ids: queryParams.ids,
+  campaignId: queryParams.campaignId,
+  status: queryParams.status,
+  ownerId: queryParams.ownerId,
+  ownerType: queryParams.ownerType,
+  searchValue: queryParams.searchValue,
+  sortField: queryParams.sortField,
+  sortDirection: Number(queryParams.sortDirection) || undefined
+});
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.getScoreLogs), {
       name: 'scoreLogs',
       options: ({ queryParams }) => ({
-        variables: queryParams
+        variables: generateParams({ queryParams })
       })
     })
   )(withRouter<IRouterProps>(ScoreLogsListContainer))

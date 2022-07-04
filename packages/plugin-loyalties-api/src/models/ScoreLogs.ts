@@ -10,11 +10,29 @@ import {
 } from './definitions/scoreLog';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 import { IScoreParams } from './definitions/common';
+import { paginate } from '@erxes/api-utils/src';
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreParams): Promise<IScoreLogDocument>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument>;
 }
+
+const generateFilter = (params: IScoreParams) => {
+  let filter: any = {};
+  if (params.ownerType) {
+    filter.ownerType = params.ownerType;
+  }
+  if (params.ownerId) {
+    filter.ownerId = params.ownerId;
+  }
+  if (params.fromDate) {
+    filter.createdAt = { $gte: params.fromDate };
+  }
+  if (params.toDate) {
+    filter.createdAt = { ...filter.createdAt, $lt: params.toDate };
+  }
+  return filter;
+};
 
 export const loadScoreLogClass = (models: IModels, subdomain: string) => {
   class ScoreLog {
@@ -29,41 +47,13 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     }
 
     public static async getScoreLogs(doc: IScoreParams) {
-      const { ownerType, order, fromDate, toDate, orderType, ownerId } = doc;
-      const orderTypeFields = {
-        changeScore: 'Changed Score',
-        createdAt: 'Date'
-      };
-      let filter = {};
-      let sort: { [k: string]: any } = {};
-
-      if (ownerType) {
-        filter = { ...filter, ownerType };
-      }
-      if (ownerId) {
-        filter = { ...filter, ownerId };
-      }
-      if (fromDate) {
-        filter = { ...filter, createdAt: { $gte: fromDate } };
-      }
-      if (toDate) {
-        filter = { ...filter, createdAt: { $lt: toDate } };
-      }
-      if (fromDate && toDate) {
-        filter = { ...filter, createdAt: { $gte: fromDate, $lt: toDate } };
-      }
-      if (orderType && order) {
-        const orderTypeField = Object.keys(orderTypeFields).find(
-          key => orderTypeFields[key] === orderType
-        );
-        const orderAscDesc =
-          order === 'Ascending'
-            ? 1
-            : (order === 'Descending' || order === undefined) && -1;
-        sort = { [orderTypeField || '']: orderAscDesc };
-      }
-
-      const list = await models.ScoreLogs.find(filter).sort(sort);
+      const { order, orderType } = doc;
+      const filter = generateFilter(doc);
+      console.log({ doc });
+      const list = paginate(
+        models.ScoreLogs.find(filter).sort({ [orderType]: order }),
+        doc
+      );
       const total = await models.ScoreLogs.find(filter).count();
       return { list, total };
     }

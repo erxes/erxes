@@ -83,9 +83,7 @@ class SideBar extends React.Component<Props, State> {
       this.setState({ variables: result });
       router.setParams(history, { [type]: String(e) });
 
-      if (variables.fromDate && variables.toDate) {
-        refetch(result);
-      }
+      refetch(result);
     };
 
     const checkParams = type => {
@@ -172,10 +170,10 @@ class SideBar extends React.Component<Props, State> {
               <option key={'customer'} value={'customer'}>
                 {'customer'}
               </option>
-              <option key={'user'} value={'user'}>  
+              <option key={'user'} value={'user'}>
                 {'user'}
               </option>
-              <option key={'company'} value={'company'}>  
+              <option key={'company'} value={'company'}>
                 {'company'}
               </option>
             </FormControl>
@@ -196,10 +194,10 @@ class SideBar extends React.Component<Props, State> {
               required={true}
               onChange={handleValue}
             >
-              <option key={'Date'} value={'Date'}>
+              <option key={'Date'} value={'createdAt'}>
                 {'Date'}
               </option>
-              <option key={'Changed Score'} value={'Changed Score'}>
+              <option key={'Changed Score'} value={'changeScore'}>
                 {'Changed Score'}
               </option>
             </FormControl>
@@ -214,10 +212,10 @@ class SideBar extends React.Component<Props, State> {
               onChange={handleValue}
               disabled={!variables?.orderType}
             >
-              <option key={'Ascending'} value={'Ascending'}>
+              <option key={'Ascending'} value={1}>
                 {'Ascending'}
               </option>
-              <option key={'Descending'} value={'Descending'}>
+              <option key={'Descending'} value={-1}>
                 {'Descending'}
               </option>
             </FormControl>

@@ -91,18 +91,10 @@ const lotteryDetail = `
   }
 `;
 
-const lotteryDetails = `
-query VoucherCampaignDetails($id: [String!]) {
-  voucherCampaignDetails(_id: $id) {
-      ${voucherDetailField}
-    }
-  }
-`;
 export default {
   lotteries,
   lotteriesMain,
   lotteryDetail,
-  lotteryDetails,
   lotteriesCampaignMain,
   lotteryCampaignWinnerList
 };

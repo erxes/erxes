@@ -1,3 +1,4 @@
+import { commonParamsValue, commonParamsDef } from '../../common/graphq';
 const commonFields = `
 changeScore
 createdAt
@@ -9,8 +10,8 @@ ownerType
 `;
 
 const getScoreLogs = `
-query scoreLogList($fromDate: String,$orderType:String, $order: String, $ownerType: String,$ownerId:String, $toDate: String){
-  scoreLogList(fromDate: $fromDate,orderType:$orderType, order: $order, ownerType: $ownerType,ownerId: $ownerId, toDate: $toDate){
+query scoreLogList(${commonParamsDef},$fromDate: String,$orderType:String, $order: String, $toDate: String){
+  scoreLogList(${commonParamsValue},fromDate: $fromDate,orderType:$orderType, order: $order, toDate: $toDate){
     list{
       ${commonFields}
     }

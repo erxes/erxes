@@ -71,16 +71,12 @@ const voucherCampaignQueries = {
     return models.VoucherCampaigns.find(filter).countDocuments();
   },
 
-  voucherCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.VoucherCampaigns.getVoucherCampaign(_id);
-  },
-
-  voucherCampaignDetails(
+  async voucherCampaignDetail(
     _root,
-    { _id }: { _id: [string] },
+    { _id }: { _id: string | [string] },
     { models }: IContext
   ) {
-    return models.VoucherCampaigns.getVoucherCampaigns(_id);
+    return models.VoucherCampaigns.getVoucherCampaign(_id);
   }
 };
 
