@@ -51,8 +51,6 @@ class PluginDetails extends React.Component<Props, State> {
       .catch(e => {
         console.log(e);
       });
-
-    // console.log("hiiiiiii", this.state.plugin);
   }
 
   render() {
@@ -84,14 +82,14 @@ class PluginDetails extends React.Component<Props, State> {
 
     const tabContent = this.state.tabType === 'Description' && (
       <>
-        <span>{plugin.shortDescription}</span>
+        <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
         <Detail>
           <ListHeader>
             <ColorHeader>
               <b>📝 DESCRIPTION</b>
             </ColorHeader>
           </ListHeader>
-          <p>{plugin.description}</p>
+          <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
         </Detail>
         <Detail>
           <ListHeader>
@@ -99,17 +97,7 @@ class PluginDetails extends React.Component<Props, State> {
               <b>✨ FEATURES</b>
             </ColorHeader>
           </ListHeader>
-          {([] as any).map(feature => (
-            <>
-              <b>{feature.name}</b>
-              <p>{feature.text}</p>
-              <ul>
-                {feature.list.map(listItem => (
-                  <li>{listItem}</li>
-                ))}
-              </ul>
-            </>
-          ))}
+          <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
         </Detail>
       </>
     );
@@ -117,8 +105,6 @@ class PluginDetails extends React.Component<Props, State> {
     const handleSelect = tab => {
       this.setState({ tabType: tab });
     };
-
-    console.log(plugin, 'jjjjj');
 
     const content = (
       <DetailMainContainer>

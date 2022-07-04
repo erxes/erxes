@@ -2,6 +2,7 @@ import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { afterMutationHandlers } from './afterMutations';
+import { beforeResolverHandlers } from './beforeResolvers';
 
 let client;
 
@@ -15,6 +16,14 @@ export const initBroker = async cl => {
 
     await afterMutationHandlers(models, subdomain, data);
 
+    return;
+  });
+
+  consumeRPCQueue('ebarimt:beforeResolver', async ({ subdomain, data }) => {
+    return {
+      data: await beforeResolverHandlers(subdomain, data),
+      status: 'success'
+    };
     return;
   });
 
