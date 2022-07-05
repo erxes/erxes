@@ -1,5 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
+import * as permissions from './permissions';
 import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
@@ -13,6 +14,7 @@ export let serviceDiscovery: any;
 
 export default {
   name: 'salesplans',
+  permissions,
   graphql: async (sd: any) => {
     serviceDiscovery = sd;
     return {
