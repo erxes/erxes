@@ -9,7 +9,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { IDealPlace, IPlace } from '../../types';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/components/map/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 
 type Props = {
   dealId: string;
@@ -101,7 +101,6 @@ const DirectionForm = (props: Props) => {
             <Map
               id={Math.random().toString(10)}
               center={startPlace.center}
-              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
               zoom={7}
               locationOptions={[startPlace.center, endPlace.center]}
               streetViewControl={false}

@@ -4,11 +4,10 @@ import { ILocationOption } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
-import { Alert } from '../../utils';
 
-interface IMapProps extends google.maps.MapOptions {
+export interface IMapProps extends google.maps.MapOptions {
   id: string;
-  googleMapApiKey: string;
+  googleMapApiKey?: string;
   center?: ILocationOption;
   locationOptions: ILocationOption[];
   locale?: string;
