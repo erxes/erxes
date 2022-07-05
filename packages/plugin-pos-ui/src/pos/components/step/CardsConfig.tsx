@@ -31,9 +31,12 @@ type State = {
 class CardsConfig extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    const configsMap = {
-      cardsConfig: null
-    };
+    const configsMap =
+      props.pos && props.pos.cardsConfig
+        ? props.pos.cardsConfig
+        : {
+            cardsConfig: null
+          };
     this.state = {
       configsMap: configsMap
     };

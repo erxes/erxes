@@ -61,7 +61,7 @@ class PerConfigs extends React.Component<Props, State> {
     e.preventDefault();
     const { configsMap, currentConfigKey } = this.props;
     const { config } = this.state;
-    const key = config.stageId;
+    const key = Math.floor(Math.random() * 1000000 + 1);
 
     delete configsMap.cardsConfig[currentConfigKey];
     configsMap.cardsConfig[key] = config;
