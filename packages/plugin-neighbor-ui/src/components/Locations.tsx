@@ -6,7 +6,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import { FlexRow, SidebarContent } from '../styles';
 import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
 import { School } from '../types';
-import Map from '@erxes/ui/src/components/map/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 
 const Locations = ({ data, name, onChange }) => {
   const onChangeLocationInput = (e, key) => {
@@ -81,7 +81,6 @@ const Locations = ({ data, name, onChange }) => {
               lat: latitude || 47.9,
               lng: longitude || 106.9
             }}
-            googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
             locationOptions={option}
             streetViewControl={false}
             onChangeMarker={onChange}

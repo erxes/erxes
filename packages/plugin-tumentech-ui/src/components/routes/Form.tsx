@@ -13,7 +13,7 @@ import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { IDirection, IRoute } from '../../types';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/components/map/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 import SortableList from '@erxes/ui/src/components/SortableList';
 
 type Props = {
@@ -182,7 +182,6 @@ const RouteForm = (props: Props) => {
             <Map
               id={Math.random().toString(10)}
               center={directions[0].places[0].center}
-              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
               zoom={7}
               locationOptions={[...new Set(locationOptions)]}
               streetViewControl={false}
