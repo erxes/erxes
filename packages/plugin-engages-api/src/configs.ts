@@ -35,7 +35,6 @@ export default {
     const subdomain = getSubdomain(req);
 
     context.dataloaders = {};
-    context.docModifier = doc => doc;
 
     context.models = await generateModels(subdomain);
     context.subdomain = subdomain;
