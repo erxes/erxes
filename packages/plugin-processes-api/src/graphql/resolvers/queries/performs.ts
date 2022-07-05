@@ -45,7 +45,7 @@ const performQueries = {
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
 
-  performByOverallWorkId(
+  performsByOverallWorkId(
     _root,
     params: IParam & {
       page: number;
@@ -55,7 +55,7 @@ const performQueries = {
   ) {
     const selector = generateFilter(params, commonQuerySelector);
 
-    return models.Performs.findOne(selector).lean();
+    return models.Performs.find(selector).lean();
   },
 
   performsTotalCount(

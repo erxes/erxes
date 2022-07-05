@@ -23,11 +23,12 @@ interface IProps extends IRouterProps {
   loading: boolean;
   params: any;
   jobRefers: IJobRefer[];
+  overallWorkIdgetter: (overallWorkId: string) => void;
 }
 
 class SideBar extends React.Component<IProps> {
   renderContent() {
-    const { overallWorks } = this.props;
+    const { overallWorks, overallWorkIdgetter } = this.props;
 
     const result: React.ReactNode[] = [];
 
@@ -35,6 +36,10 @@ class SideBar extends React.Component<IProps> {
       const { history } = this.props;
 
       router.setParams(history, { [key]: value });
+
+      if (key === 'overallWorkId') {
+        overallWorkIdgetter(value);
+      }
     };
 
     const paramKey = 'overallWorkId';

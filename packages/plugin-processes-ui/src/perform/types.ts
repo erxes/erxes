@@ -114,6 +114,23 @@ export type PerformsQueryResponse = {
   performs: IPerform[];
 } & QueryResponse;
 
+export type PerformsByOverallWorkIdQueryResponse = {
+  performsByOverallWorkId: IPerform[];
+} & QueryResponse;
+
 export type PerformsTotalCountQueryResponse = {
   performsTotalCount: number;
 } & QueryResponse;
+
+export type MutationVariables = {
+  _id?: string;
+  type: string;
+  name?: string;
+  description?: string;
+  sku?: string;
+  createdAt?: Date;
+};
+
+export type AddMutationResponse = {
+  addMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
+};
