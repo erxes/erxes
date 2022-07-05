@@ -112,6 +112,12 @@ class Pos extends React.Component<Props, State> {
       productId: m.productId
     }));
 
+    const cleanGroups = (pos.posSlotMappings || []).map(m => ({
+      _id: m._id,
+      code: m.code,
+      name: m.name
+    }));
+
     let doc: any = {
       name: pos.name,
       description: pos.description,
@@ -124,6 +130,7 @@ class Pos extends React.Component<Props, State> {
       ebarimtConfig,
       erkhetConfig,
       catProdMappings: cleanMappings,
+      posSlotMappings: cleanGroups,
       isOnline: pos.isOnline,
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
@@ -255,6 +262,7 @@ class Pos extends React.Component<Props, State> {
                   branches={branches}
                   productCategories={productCategories}
                   groups={groups}
+                  posSlotMappings={pos.posSlotMappings}
                 />
               </Step>
               <Step

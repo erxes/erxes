@@ -62,6 +62,7 @@ export interface IPos {
   erkhetConfig: Object;
   syncInfos: Object;
   catProdMappings: Object;
+  posSlotMappings: Object;
   initialCategoryIds: string;
   kioskExcludeProductIds: string;
   deliveryConfig: Object;
@@ -192,6 +193,11 @@ export const posSchema = schemaHooksWrapper(
     catProdMappings: field({
       type: [Object],
       label: 'Category product mappings',
+      optional: true
+    }),
+    posSlotMappings: field({
+      type: [Object],
+      label: 'Pos slot mappings',
       optional: true
     }),
     initialCategoryIds: field({

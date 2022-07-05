@@ -40,6 +40,7 @@ type Props = {
   currentMode: 'create' | 'update' | undefined;
   branches: any[];
   catProdMappings: CatProd[];
+  posSlotMappings: ISlotGroup[];
   productCategories: IProductCategory[];
   closeModal: () => void;
   onSubmit: (group: ISlotGroup) => void;
@@ -50,7 +51,7 @@ type Props = {
 type State = {
   groups: IProductGroup[];
   currentMode: 'create' | 'update' | undefined;
-  mappings: ISlotGroup;
+  mappings: ISlotGroup[];
   initialCategoryIds: string[];
   kioskExcludeProductIds: string[];
   slotGroup: ISlotGroup;
@@ -100,11 +101,8 @@ class GeneralStep extends React.Component<Props, State> {
     };
   }
 
-  onClickCancel = () => {
-    console.log('CANCEL HIILEE');
-  };
   onClickSave = () => {
-    console.log('SAVE HIILEE:', this.state);
+    console.log('MAPPINGS:', this.state.mappings);
 
     this.props.onSubmit(this.state.mappings);
     this.props.closeModal();
@@ -119,7 +117,7 @@ class GeneralStep extends React.Component<Props, State> {
       return mapp;
     });
 
-    // this.setState({ mappings: posUpdate });
+    this.setState({ mappings: posUpdate });
   };
 
   onSubmitGroup = (group: IProductGroup) => {
@@ -161,6 +159,8 @@ class GeneralStep extends React.Component<Props, State> {
     const { mappings = [] } = this.state;
 
     const onClick = () => {
+      console.log('NAAAAA', mappings);
+
       const m = mappings.slice();
 
       m.push({
@@ -191,7 +191,7 @@ class GeneralStep extends React.Component<Props, State> {
           </Button>
 
           <Button
-            onClick={(this.onClickSave, props.closeModal)}
+            onClick={(this.onSubmitSlotGroup, props.closeModal)}
             btnStyle="success"
             icon={'plus-circle'}
           >
