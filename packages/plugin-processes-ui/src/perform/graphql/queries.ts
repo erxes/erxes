@@ -99,6 +99,7 @@ const performFields = `
     count
     status
     overallWorkId
+    overallWork
     startAt`;
 
 const performs = `
@@ -123,6 +124,12 @@ query performsTotalCount {
 }
 `;
 
+const performsByOverallWorkIdTotalCount = `
+  query performsByOverallWorkIdTotalCount($overallWorkId: String) {
+    performsByOverallWorkIdTotalCount(overallWorkId: $overallWorkId)
+  }
+`;
+
 export default {
   works,
   worksTotalCount,
@@ -132,5 +139,6 @@ export default {
   overallWorksTotalCount,
   performs,
   performsByOverallWorkId,
-  performsTotalCount
+  performsTotalCount,
+  performsByOverallWorkIdTotalCount
 };

@@ -11,7 +11,7 @@ import {
   IOverallWork,
   OverallWorksSideBarDetailQueryResponse,
   PerformsByOverallWorkIdQueryResponse,
-  PerformsTotalCountQueryResponse
+  PerformsByOverallWorkIdTotalCountQueryResponse
 } from '../types';
 
 type Props = {
@@ -21,7 +21,7 @@ type Props = {
 
 type FinalProps = {
   performsByOverallWorkIdQuery: PerformsByOverallWorkIdQueryResponse;
-  performsTotalCountQuery: PerformsTotalCountQueryResponse;
+  performsByOverallWorkIdTotalCountQuery: PerformsByOverallWorkIdTotalCountQueryResponse;
   overallWorksSideBarDetailQuery: OverallWorksSideBarDetailQueryResponse;
 } & Props;
 
@@ -34,20 +34,22 @@ class WorkListContainer extends React.Component<FinalProps> {
     const {
       performsByOverallWorkIdQuery,
       overallWorksSideBarDetailQuery,
-      performsTotalCountQuery,
+      performsByOverallWorkIdTotalCountQuery,
       queryParams
     } = this.props;
 
     if (
       performsByOverallWorkIdQuery.loading ||
-      performsTotalCountQuery.loading ||
+      performsByOverallWorkIdTotalCountQuery.loading ||
       overallWorksSideBarDetailQuery.loading
     ) {
       return false;
     }
 
     const performs = performsByOverallWorkIdQuery.performsByOverallWorkId || [];
-    const performsCount = performsTotalCountQuery.performsTotalCount || 0;
+    const performsCount =
+      performsByOverallWorkIdTotalCountQuery.performsByOverallWorkIdTotalCount ||
+      0;
     const overallWorkDetail =
       overallWorksSideBarDetailQuery.overallWorksSideBarDetail ||
       ({} as IOverallWork);
@@ -69,7 +71,7 @@ class WorkListContainer extends React.Component<FinalProps> {
 
     const refetch = () => {
       this.props.performsByOverallWorkIdQuery.refetch();
-      this.props.performsTotalCountQuery.refetch();
+      this.props.performsByOverallWorkIdTotalCountQuery.refetch();
     };
 
     return <Bulk content={performsList} refetch={refetch} />;
@@ -91,13 +93,13 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, PerformsTotalCountQueryResponse, {}>(
-      gql(queries.performsTotalCount),
+    graphql<Props, PerformsByOverallWorkIdQueryResponse, {}>(
+      gql(queries.performsByOverallWorkIdTotalCount),
       {
-        name: 'performsTotalCountQuery',
+        name: 'performsByOverallWorkIdTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: {
-            searchValue: queryParams.searchValue
+            overallWorkId: queryParams.overallWorkId
           },
           fetchPolicy: 'network-only'
         })
