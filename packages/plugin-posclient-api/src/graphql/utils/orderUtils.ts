@@ -1,8 +1,4 @@
 import { IOrder, IOrderDocument } from '../../models/definitions/orders';
-import { OrderItems } from '../../models/OrderItems';
-import { Orders } from '../../models/Orders';
-import { Products } from '../../models/Products';
-import { IContext } from '../types';
 import { IModels } from '../../connectionResolver';
 import { IPayment } from '../resolvers/mutations/orders';
 import { IOrderInput, IOrderItemInput } from '../types';
@@ -13,7 +9,6 @@ import {
   ORDER_STATUSES,
   BILL_TYPES
 } from '../../models/definitions/constants';
-import { QPayInvoices } from '../../models/QPayInvoices';
 import {
   IConfigDocument,
   IConfig,
@@ -50,7 +45,7 @@ export const generateOrderNumber = async (
 
   let suffix = '0001';
   let number = `${todayStr}_${beginNumber}${suffix}`;
-  Products;
+
   const latestOrder = ((await models.Orders.find({
     number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
     posToken: { $in: ['', null] }
@@ -175,6 +170,7 @@ export const getDistrictName = (districtCode: string): string => {
 };
 
 export const prepareEbarimtData = async (
+  models: IModels,
   order: IOrderDocument,
   config: IEbarimtConfig,
   items: IOrderItemDocument[] = [],
@@ -207,7 +203,7 @@ export const prepareEbarimtData = async (
   }
 
   const productIds = items.map(item => item.productId);
-  const products = await Products.find({ _id: { $in: productIds } });
+  const products = await models.Products.find({ _id: { $in: productIds } });
   const productsById = {};
 
   for (const product of products) {
@@ -425,6 +421,7 @@ export const commonCheckPayment = async (
   await validateOrderPayment(order, doc);
 
   const data = await prepareEbarimtData(
+    models,
     order,
     config.ebarimtConfig,
     items,

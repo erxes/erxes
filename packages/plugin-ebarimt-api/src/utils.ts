@@ -39,46 +39,19 @@ export const validCompanyCode = async (config, companyCode) => {
 };
 
 export const companyCheckCode = async (user, params, subdomain) => {
-  const config = await getConfig(subdomain, 'EBARIMT', {});
-  const company = params.updatedDocument || params.object;
-  const companyName = await validCompanyCode(config, company.code);
-
-  if (companyName) {
-    if (company.primaryName !== companyName) {
-      company.primaryName = companyName;
-
-      await sendContactsMessage({
-        subdomain,
-        action: 'companies.updateCompany',
-        data: {
-          _id: company._id,
-          doc: {
-            company,
-            primaryName: companyName,
-            names: [companyName]
-          }
-        },
-        isRPC: true
-      });
-    }
-  } else {
-    sendNotificationsMessage({
-      subdomain,
-      action: 'send',
-      data: {
-        createdUser: user,
-        receivers: [user._id],
-        title: 'wrong company code',
-        content: `Байгууллагын код буруу бөглөсөн байна. "${company.code}"`,
-        notifType: 'companyMention',
-        link: `/companies/details/${company._id}`,
-        action: 'update',
-        contentType: 'company',
-        contentTypeId: company._id
-      },
-      defaultValue: true
-    });
+  if (!params.code) {
+    return;
   }
+
+  const config = await getConfig(subdomain, 'EBARIMT', {});
+  const companyName = await validCompanyCode(config, params.code);
+
+  if (!companyName) {
+    throw new Error(`Байгууллагын код буруу бөглөсөн байна. "${params.code}"`);
+  }
+
+  params.primaryName = companyName;
+  return params;
 };
 
 export const validConfigMsg = async config => {

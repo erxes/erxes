@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 
 const Products = asyncComponent(() =>
   import(
-    /* webpackChunkName: 'Sales Plans - Products' */ './components/Products'
+    /* webpackChunkName: 'Sales Plans - Products' */ './containers/Products'
   )
 );
 

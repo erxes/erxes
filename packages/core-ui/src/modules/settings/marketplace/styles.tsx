@@ -97,15 +97,7 @@ const PaddingBottom = styled.div`
 `;
 
 // Plugin Preview
-
-const ListContainer = styled.div`
-  padding-bottom: ${dimensions.coreSpacing}px;
-  border-bottom: 1px solid ${colors.borderPrimary};
-`;
-
 const ListHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
   padding: ${dimensions.coreSpacing}px 0px;
 `;
 
@@ -123,6 +115,8 @@ const PluginContainer = styled.div`
 `;
 
 const Card = styled.div`
+  margin-right: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
   width: 23%;
   min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
@@ -471,7 +465,6 @@ export {
   Box,
   PaddingLeft,
   PaddingBottom,
-  ListContainer,
   ListHeader,
   ListTitle,
   ColorText,
