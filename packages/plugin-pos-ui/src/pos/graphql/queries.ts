@@ -26,7 +26,7 @@ const posCommonFields = `
   uiOptions
   ebarimtConfig
   erkhetConfig
-
+  cardsConfig
   catProdMappings {
     _id
     categoryId
@@ -120,12 +120,11 @@ const getDbSchemaLabels = `
   }
 `;
 
-
 export default {
   posList,
   configs,
   productGroups,
   posDetail,
   getDbSchemaLabels,
-  branches,
+  branches
 };

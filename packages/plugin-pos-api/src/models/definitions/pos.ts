@@ -66,6 +66,7 @@ export interface IPos {
   kioskExcludeProductIds: string;
   deliveryConfig: Object;
   slotId: string;
+  cardsConfig: Object;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -202,7 +203,8 @@ export const posSchema = schemaHooksWrapper(
       type: [String],
       label: 'Kiosk exclude products'
     }),
-    deliveryConfig: field({ type: Object, label: 'Delivery Config' })
+    deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
+    cardsConfig: field({ type: Object, label: 'Cards Config' })
   }),
   'erxes_pos'
 );
