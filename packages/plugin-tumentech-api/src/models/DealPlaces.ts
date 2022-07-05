@@ -18,8 +18,6 @@ export const loadDealPlaceClass = (models: IModels) => {
      * Get a DealPlace
      */
     public static async getDealPlace(doc: any) {
-      console.log('**************************** ', doc);
-
       const dealPlace = await models.DealPlaces.findOne(doc);
 
       if (!dealPlace) {
