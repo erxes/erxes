@@ -61,7 +61,8 @@ export const tumentechMenu = [
   { title: 'Products', link: '/product' },
   { title: 'Places', link: '/tumentech/place/list' },
   { title: 'Directions', link: '/tumentech/direction/list' },
-  { title: 'Routes', link: '/tumentech/route/list' }
+  { title: 'Routes', link: '/tumentech/route/list' },
+  { title: 'Trips', link: '/tumentech/trips/list' }
 ];
 
 class CarsList extends React.Component<IProps, State> {

@@ -20,22 +20,6 @@ const DirectionFormContainer = (props: Props) => {
     variables: { perPage: 9999 }
   });
 
-  const [editMutation] = useMutation(gql(mutations.editDirection));
-
-  const onGetDirections = (overviewPath: any[]) => {
-    if (!direction) {
-      return;
-    }
-
-    editMutation({ variables: { _id: direction._id, overviewPath } })
-      .then(() => {
-        Alert.success('Successfully edited');
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
-
   const renderButton = ({
     values,
     isSubmitted,
@@ -61,7 +45,6 @@ const DirectionFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     places: (data && data.places.list) || [],
-    onGetDirections,
     renderButton
   };
 

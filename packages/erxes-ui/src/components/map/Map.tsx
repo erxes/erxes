@@ -13,9 +13,8 @@ interface IMapProps extends google.maps.MapOptions {
   locationOptions: ILocationOption[];
   locale?: string;
   connectWithLines?: boolean;
-  overviewPath?: any[];
+  googleMapPath?: string | string[];
   mode?: 'view' | 'config';
-  onGetDirections?: (directions: any[]) => void;
   onChangeMarker?: (location: ILocationOption) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
 }
@@ -65,20 +64,19 @@ const Map = (props: IMapProps) => {
     mode = 'view',
     locationOptions = [],
     onChangeLocationOptions,
-    onGetDirections,
+    googleMapPath,
     ...mapOptions
   } = props;
 
+  console.log('googleMapPath: ', googleMapPath);
+
   const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
-  const [overviewPath, setOverviewPath] = useState<any | undefined>(
-    props.overviewPath
-  );
 
   useEffect(() => {
     setCenter(props.center || { lat: 0, lng: 0 });
     renderMap();
-  }, [props.locationOptions, overviewPath, props.id, center, setCenter]);
+  }, [props.locationOptions, props.id, center, setCenter]);
 
   const mapScript = loadMapScript(
     props.googleMapApiKey || 'demo',
@@ -239,40 +237,26 @@ const Map = (props: IMapProps) => {
         });
       }
 
-      if (
-        !onGetDirections &&
-        (locationOptions.length === 0 || locationOptions.length !== 2)
-      ) {
+      if (locationOptions.length < 2) {
         return;
       }
 
-      const directionsService = new google.maps.DirectionsService();
+      if (googleMapPath) {
+        let path: google.maps.LatLng[] = [];
 
-      const request = {
-        origin: locationOptions[0],
-        destination: locationOptions[1],
-        travelMode: google.maps.TravelMode.DRIVING
-      };
-
-      directionsService.route(request, (response, status) => {
-        if (status == google.maps.DirectionsStatus.OK) {
-          if (!response || !response.routes.length) {
-            return;
-          }
-          const overviewPath = response.routes[0].overview_path;
-          onGetDirections && response && onGetDirections(overviewPath);
-          setOverviewPath(overviewPath);
+        if (typeof googleMapPath === 'string') {
+          path = google.maps.geometry.encoding.decodePath(googleMapPath);
         } else {
-          Alert.error('Directions request failed due to ' + status);
+          for (const p of googleMapPath) {
+            path = [...path, ...google.maps.geometry.encoding.decodePath(p)];
+          }
         }
-      });
 
-      if (overviewPath) {
         new google.maps.Polyline({
-          path: overviewPath,
-          strokeColor: '#FF0000',
-          strokeOpacity: 0.5,
-          strokeWeight: 4,
+          path,
+          strokeColor: colors.colorCoreBlue,
+          strokeOpacity: 0.8,
+          strokeWeight: 5,
           map
         });
       }

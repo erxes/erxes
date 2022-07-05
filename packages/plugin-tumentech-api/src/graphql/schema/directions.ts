@@ -8,7 +8,7 @@ export const types = `
     duration: Int
     routeCode: String
     roadCode: String
-    overviewPath: [JSON]
+    googleMapPath: String
   }
 
   type DirectionListResponse {
@@ -29,7 +29,7 @@ const params = `
   duration: Int,
   routeCode: String,
   roadCode: String,
-  overviewPath: [JSON]
+  googleMapPath: String
 `;
 
 export const mutations = `

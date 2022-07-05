@@ -367,7 +367,7 @@ query directions($searchValue: String, $page: Int, $perPage: Int) {
       duration
       routeCode
       roadCode
-      overviewPath
+      googleMapPath
     }
     totalCount
   }
@@ -391,7 +391,7 @@ query directionDetail($id: String!) {
     roadConditions
     routeCode
     totalDistance
-    overviewPath
+    googleMapPath
   }
 }
 `;
@@ -470,6 +470,110 @@ query getDealPlace($dealId: String!) {
 }
 `;
 
+const routeDetail = `
+query routeDetail($_id: String!) {
+  routeDetail(_id: $_id) {
+    _id
+    code
+    name
+    directionIds
+    directions {
+      _id
+      duration
+      googleMapPath
+      placeIds
+      places {
+        _id
+        center
+        code
+        name
+        province
+      }
+      roadCode
+      roadConditions
+      routeCode
+      totalDistance
+    }
+  }
+}
+`;
+
+const trips = `
+query trips($status: String) {
+  trips(status: $status) {
+    list {
+      _id
+      carId
+      closedDate
+      createdAt
+      dealIds
+      driverId
+      estimatedCloseDate
+      route {
+        _id
+        code
+        name
+        summary {
+          placeNames
+          totalDistance
+          totalDuration
+        }
+      }
+      routeId
+      routeReversed
+      startedDate
+      status
+      statusInfo
+      driver {
+        _id
+        avatar
+        firstName
+        primaryPhone
+      }
+      deals {
+        _id
+        customers {
+          _id
+          firstName
+          primaryEmail
+          primaryPhone
+          avatar
+        }
+        name
+        stageId
+        stage {
+          _id
+          name
+        }
+        pipeline {
+          name
+          _id
+        }
+        boardId
+        amount
+        companies {
+          _id
+          avatar
+          primaryName
+          primaryEmail
+          primaryPhone
+        }
+      }
+      car {
+        _id
+        carModel
+        category {
+          _id
+          name
+        }
+        plateNumber
+      }
+    }
+    totalCount
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -496,5 +600,8 @@ export default {
   directions,
   directionDetail,
 
-  routesQuery
+  routesQuery,
+  routeDetail,
+
+  trips
 };

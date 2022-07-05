@@ -27,6 +27,8 @@ type Props = {
 const RouteForm = (props: Props) => {
   const { route, routes } = props;
 
+  console.log(route);
+
   const [directionIds, setDirectionIds] = useState<string[]>(
     (route && route.directionIds) || []
   );
@@ -187,6 +189,9 @@ const RouteForm = (props: Props) => {
               locationOptions={[...new Set(locationOptions)]}
               streetViewControl={false}
               connectWithLines={true}
+              googleMapPath={directions.map(
+                dir => (dir.googleMapPath && dir.googleMapPath) || ''
+              )}
             />
           </FormGroup>
         )}

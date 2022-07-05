@@ -297,8 +297,8 @@ mutation directionsAdd($placeIds: [String]!, $totalDistance: Int, $roadCondition
 `;
 
 const editDirection = `
-mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String, $overviewPath: [JSON]) {
-  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode, overviewPath: $overviewPath) {
+mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String, $googleMapPath: String) {
+  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode, googleMapPath: $googleMapPath) {
     _id
   }
 }`;
@@ -306,6 +306,14 @@ mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int
 const removeDirection = `
 mutation directionsRemove($_id: String!) {
   directionsRemove(_id: $_id)
+}
+`;
+
+const saveDirectionPath = `
+mutation directionsSavePath($_id: String!, $googleMapPath: [JSON]) {
+  directionsSavePath(_id: $_id, googleMapPath: $googleMapPath) {
+    _id
+  }
 }
 `;
 
@@ -403,6 +411,7 @@ export default {
 
   addDirection,
   editDirection,
+  saveDirectionPath,
   removeDirection,
 
   addRoute,
