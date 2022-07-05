@@ -5,7 +5,7 @@ import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import DealPlaceForm from '../../containers/dealPlaces/Form';
 import { IDealPlace } from '../../types';
-import Map from '@erxes/ui/src/components/map/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 import { __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
 
@@ -47,7 +47,6 @@ export default function Component({
           <Map
             id={Math.random().toString(10)}
             center={startPlace.center}
-            googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
             zoom={7}
             locationOptions={[startPlace.center, endPlace.center]}
             streetViewControl={false}
