@@ -1,7 +1,7 @@
 import * as React from "react";
 import { iconSearch } from "../../../icons/Icons";
 import { __ } from "../../../utils";
-import { Article } from "../../containers/faq";
+import Article from "../../containers/faq/Article";
 import { IFaqArticle } from "../../types";
 
 type Props = {

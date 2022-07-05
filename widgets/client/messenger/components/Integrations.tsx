@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { __ } from '../../utils';
-import { ConversationInit, ConversationList, LeadConnect, WebsiteApp } from '../containers';
+import ConversationInit from "../containers/ConversationInit";
+import LeadConnect from "../containers/lead/LeadConnect";
+import WebsiteApp from "../containers/websiteApp/WebsiteApp";
 import { IWebsiteApp } from '../types';
-import { IntegrationItem } from './';
+import IntegrationItem from './IntegrationItem';
 
 type Props = {
   formCodes: string[];

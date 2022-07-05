@@ -1,10 +1,10 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { Categories as DumbCategories } from "../../components/faq";
+import DumbCategories from "../../components/faq/Categories";
 import queries from "../../graphql";
 import { IFaqTopic } from "../../types";
-import { Articles } from "./";
+import Articles from "./Articles";
 
 const Categories = (props: ChildProps<{}, QueryResponse>) => {
   const { data } = props;

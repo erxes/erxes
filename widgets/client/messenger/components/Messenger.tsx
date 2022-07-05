@@ -1,7 +1,11 @@
 import * as React from "react";
 import { IUser } from "../../types";
-import { AccquireInformation, ConversationDetail, Home, ConversationList} from "../containers";
-import { ArticleDetail, CategoryDetail } from "../containers/faq";
+import AccquireInformation from "../containers/AccquireInformation";
+import ConversationDetail from "../containers/ConversationDetail";
+import Home from "../containers/Home";
+import ConversationList from "../containers/ConversationList";
+import ArticleDetail from "../containers/faq/ArticleDetail";
+import CategoryDetail from "../containers/faq/CategoryDetail";
 import WebsiteAppDetail from "../containers/websiteApp/WebsiteAppDetail";
 
 type Props = {

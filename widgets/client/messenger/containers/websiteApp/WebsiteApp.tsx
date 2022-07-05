@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { WebsiteApp } from '../../components';
+import WebsiteApp from '../../components/websiteApp/WebsiteApp';
 import { IWebsiteApp } from '../../types';
 import { AppConsumer } from '../AppContext';
 

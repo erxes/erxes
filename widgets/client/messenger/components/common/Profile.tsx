@@ -11,7 +11,7 @@ import {
 } from "../../../icons/Icons";
 import { IParticipator, IUserDetails, IUserLinks } from "../../../types";
 import { readFile } from "../../../utils";
-import { SocialLink } from "./";
+import SocialLink from "./SocialLink";
 import * as dayjs from "dayjs";
 
 type Props = {

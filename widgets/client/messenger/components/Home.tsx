@@ -10,9 +10,11 @@ import {
   IUser,
 } from "../../types";
 import { __ } from "../../utils";
-import { Integrations, TopBar } from "../containers";
-import { SocialLink, Supporters } from "./common";
-import { FaqCategories } from "./faq";
+import Integrations from "../containers/Integrations";
+import TopBar from "../containers/TopBar";
+import SocialLink from "./common/SocialLink";
+import Supporters from "./common/Supporters";
+import FaqCategories from "./faq/FaqCategories";
 
 type Props = {
   supporters: IUser[];
