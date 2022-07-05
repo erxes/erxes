@@ -32,6 +32,13 @@ const posCommonFields = `
     categoryId
     productId
   }
+
+  posSlotMappings {
+    _id
+    code
+    name
+  }
+  
   initialCategoryIds
   kioskExcludeProductIds
   deliveryConfig
@@ -120,12 +127,11 @@ const getDbSchemaLabels = `
   }
 `;
 
-
 export default {
   posList,
   configs,
   productGroups,
   posDetail,
   getDbSchemaLabels,
-  branches,
+  branches
 };

@@ -41,6 +41,13 @@ const catProd = `
   productId: String
 `;
 
+const posSlot = `
+  _id: String
+  code: String
+  name: String
+
+`;
+
 const posOrderFields = contactsEnabled => `
   _id: String,
   createdAt: Date,
@@ -109,6 +116,10 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     ${catProd}
   }
 
+  type PosSlot {
+    ${posSlot}
+  }
+
   type Pos {
     _id: String
     createdAt: Date
@@ -116,6 +127,8 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
+    posSlotMappings: [PosSlot]
+
   }
 
   type ProductGroups {
@@ -139,6 +152,10 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
 
   input CatProdInput {
     ${catProd}
+  }
+
+  input PosSlotInput {
+    ${posSlot}
   }
 
   type PosOrder {
@@ -206,8 +223,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  posAdd(${posCommonFields}, catProdMappings: [CatProdInput]): Pos
-  posEdit(_id: String, ${posCommonFields}, catProdMappings: [CatProdInput]): Pos
+  posAdd(${posCommonFields}, catProdMappings: [CatProdInput], posSlotMappings: [PosSlotInput] ): Pos
+  posEdit(_id: String, ${posCommonFields}, catProdMappings: [CatProdInput], posSlotMappings: [PosSlotInput]): Pos
   posRemove(_id: String!): JSON
   productGroupsAdd(${groupCommonFields}): ProductGroups
   productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]

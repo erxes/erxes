@@ -39,6 +39,12 @@ export const types = `
     productId: String
   }
 
+  type PosSlot {
+    _id: String
+    code: String
+    name: String
+  }
+
   type PosConfig {
     _id: String
     name: String
@@ -63,6 +69,7 @@ export const types = `
     qpayConfig: QPayConfig
     syncInfo: JSON
     catProdMappings: [CatProd]
+    posSlotMappings: [PosSlot]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
   }

@@ -50,10 +50,10 @@ export type IPos = {
   ebarimtConfig: any;
   erkhetConfig: any;
   catProdMappings?: CatProd[];
+  posSlotMappings?: ISlotGroup[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
-  posSlotMappings?: ISlotGroup[];
 };
 export type ISlotGroup = {
   _id: string;
