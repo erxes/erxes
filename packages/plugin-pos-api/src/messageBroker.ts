@@ -36,6 +36,35 @@ export const initBroker = async cl => {
       const { deliveryConfig = {} } = pos;
       const deliveryInfo = doneOrder.deliveryInfo || {};
       const { marker = {} } = deliveryInfo;
+      const { cardsConfig = {} } = pos;
+      const currentCardsConfig = cardsConfig.carsConfig.find(
+        c => c.branchId && c.branchId === doneOrder.branchId
+      );
+
+      if (currentCardsConfig) {
+        const cardDeal = await sendCardsMessage({
+          subdomain,
+          action: 'deals.create',
+          data: {
+            name: `Cards: ${doneOrder.number}`,
+            startDate: doneOrder.createdAt,
+            description: deliveryInfo?.address || '',
+            stageId: currentCardsConfig.stageId,
+            assignedUserIds: currentCardsConfig.assignedUserIds,
+            productsData: doneOrder.items.map(i => ({
+              productId: i.productId,
+              uom: 'PC',
+              currency: 'MNT',
+              quantity: i.count,
+              unitPrice: i.unitPrice,
+              amount: i.count * i.unitPrice,
+              tickUsed: true
+            }))
+          },
+          isRPC: true,
+          defaultValue: {}
+        });
+      }
 
       const deal = await sendCardsMessage({
         subdomain,
