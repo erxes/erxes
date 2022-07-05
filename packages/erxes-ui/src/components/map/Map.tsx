@@ -68,8 +68,6 @@ const Map = (props: IMapProps) => {
     ...mapOptions
   } = props;
 
-  console.log('googleMapPath: ', googleMapPath);
-
   const [center, setCenter] = useState(props.center || { lat: 0, lng: 0 });
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
 
