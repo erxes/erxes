@@ -95,6 +95,7 @@ const performFields = `
     _id
     needProducts
     resultProducts
+    productId
     count
     status
     overallWorkId

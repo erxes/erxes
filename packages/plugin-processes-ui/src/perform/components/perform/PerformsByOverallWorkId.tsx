@@ -36,6 +36,7 @@ type State = {
   searchValue?: string;
   overallWorkPercent: number;
   overallWorkId: string;
+  max: number;
 };
 
 class List extends React.Component<IProps, State> {
@@ -44,13 +45,32 @@ class List extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
-    const { queryParams } = this.props;
+    const { queryParams, overallWorkDetail, performs } = this.props;
     const { overallWorkId } = queryParams;
+    const { resultProductsDetail } = overallWorkDetail;
+
+    const productId = performs.length > 0 ? performs[0].productId : null;
+    const performsByProductId = productId
+      ? performs.filter(p => p.productId === productId)
+      : [];
+    const totalCountList = performsByProductId.map(e => e.count) || [];
+    let total = 0;
+    for (const count of totalCountList) {
+      total = total + Number(count);
+    }
+    const resultProduct = productId
+      ? resultProductsDetail.find(re => re.product._id === productId)
+      : { quantity: 0 };
+
+    console.log(resultProduct.quantity, total);
 
     this.state = {
       searchValue: this.props.searchValue,
-      overallWorkPercent: 0,
-      overallWorkId: overallWorkId || ''
+      overallWorkPercent: Math.round(
+        total !== 0 ? (total * 100) / Number(resultProduct.quantity) : 0
+      ),
+      overallWorkId: overallWorkId || '',
+      max: Number(resultProduct.quantity) - total
     };
   }
 
@@ -198,7 +218,7 @@ class List extends React.Component<IProps, State> {
 
   render() {
     const { performsCount, loading, queryParams, history } = this.props;
-    const { overallWorkId } = this.state;
+    const { overallWorkId, max } = this.state;
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
@@ -220,7 +240,11 @@ class List extends React.Component<IProps, State> {
     // );
 
     const modalContent = props => (
-      <Form {...props} overallWorkDetail={this.props.overallWorkDetail} />
+      <Form
+        {...props}
+        overallWorkDetail={this.props.overallWorkDetail}
+        max={max}
+      />
     );
 
     const content = (

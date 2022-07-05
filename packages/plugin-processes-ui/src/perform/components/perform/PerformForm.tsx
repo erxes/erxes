@@ -6,57 +6,82 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { router } from '@erxes/ui/src/utils';
+import { IOverallWorkDocument } from '../../types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
+  overallWorkDetail: IOverallWorkDocument;
+  max: number;
 };
 
 type State = {
   count: number;
+  productId: string;
+  results: any[];
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = {
-      count: 0
-    };
+    const { overallWorkDetail } = this.props;
+    const { resultProductsDetail } = overallWorkDetail;
 
-    console.log(' performForm component starting ...');
+    this.state = {
+      count: 0,
+      productId: '',
+      results: (resultProductsDetail || []).map(e => ({
+        product: e.product,
+        quantity: e.quantity,
+        uom: e.uom
+      }))
+    };
   }
 
-  onChange = e => {
-    this.setState({ count: e.target.value });
+  onChange = (name, e) => {
+    this.setState({ [name]: e.target.value } as any);
+  };
+
+  renderLabel = (max: number) => {
+    return max > 0 ? `Count /max: ${max}/` : `Count`;
   };
 
   renderContent = (formProps: IFormProps) => {
-    console.log(' step1 ...');
-
-    const { closeModal, renderButton } = this.props;
+    const { closeModal, renderButton, max } = this.props;
     const { isSubmitted } = formProps;
-
-    console.log(' step2 ...');
-
-    // Object.keys(this.props.queryParams).length &&
-    //   Object.keys(this.props.queryParams).includes("overallWorkId") ?
-    //   this.props.queryParams.overallWorkId : "";
-
-    console.log(' step3 ...', history);
+    const { results, productId } = this.state;
 
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Count</ControlLabel>
+          <ControlLabel required={true}>Result products</ControlLabel>
+          <FormControl
+            name="type"
+            componentClass="select"
+            onChange={this.onChange.bind(this, 'productId')}
+            required={true}
+            value={productId}
+          >
+            <option value="" />
+            {results.map(result => (
+              <option key={result.product._id} value={result.product._id}>
+                {result.product.name} - {result.quantity}/{result.uom.code}/
+              </option>
+            ))}
+          </FormControl>
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>{this.renderLabel(max)}</ControlLabel>
           <FormControl
             name="count"
             defaultValue={this.state.count}
             type="number"
             autoFocus={true}
             required={true}
-            onChange={this.onChange}
+            max={max}
+            onChange={this.onChange.bind(this, 'count')}
           />
         </FormGroup>
 
@@ -72,7 +97,10 @@ class Form extends React.Component<Props, State> {
 
           {renderButton({
             name: 'Performance',
-            values: { count: this.state.count },
+            values: {
+              count: this.state.count,
+              productId: this.state.productId
+            },
             isSubmitted,
             callback: closeModal,
             object: null
