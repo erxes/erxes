@@ -23,7 +23,6 @@ const List = (props: Props) => {
   const { totalCount, queryParams, loading, trips } = props;
 
   const renderRow = () => {
-    console.log('TRIPS ', trips);
     return trips.map(trip => <Row key={trip._id} trip={trip} />);
   };
 

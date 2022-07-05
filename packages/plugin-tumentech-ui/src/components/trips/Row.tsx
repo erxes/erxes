@@ -14,7 +14,6 @@ type Props = {
 
 const Row = (props: Props) => {
   const { trip } = props;
-  console.log('ROW ', trip);
   //   const renderRemoveAction = () => {
 
   //     return (

@@ -5,7 +5,6 @@ import React from 'react';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import DealPlaceForm from '../../containers/dealPlaces/Form';
 import { IDealPlace } from '../../types';
-import { MapContainer } from '@erxes/ui/src/styles/main';
 import Map from '@erxes/ui/src/components/map/Map';
 import { __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -41,17 +40,7 @@ export default function Component({
       return <EmptyState icon="location-point" text="No data" />;
     }
 
-    const w: any = window;
-
-    if (typeof w.google === 'object' && typeof w.google.maps === 'object') {
-      console.log('ALREADY LOADED');
-    }
-
-    console.log('IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIi ', w);
-    // console.log(w["google"] !== undefined);
-
     const { startPlace, endPlace } = dealPlace;
-    // return (<></>)
     return (
       <div style={{ width: '100%', backgroundColor: 'black' }}>
         {startPlace && startPlace._id && endPlace && endPlace._id && (

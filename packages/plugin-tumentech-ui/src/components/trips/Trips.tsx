@@ -14,8 +14,6 @@ const Trips = (props: Props) => {
   const [currentTab, setCurrentTab] = useState('list');
   const { queryParams } = props;
 
-  console.log('Query params: ', queryParams);
-
   const onClickTab = (type: string) => {
     setCurrentTab(type);
   };
