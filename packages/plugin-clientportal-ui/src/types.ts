@@ -17,6 +17,7 @@ export interface IClientPortalUserDoc {
   type: string;
   ownerId?: string;
   erxesCustomerId: string;
+  erxesCompanyId: string;
   clientPortalId: string;
 }
 

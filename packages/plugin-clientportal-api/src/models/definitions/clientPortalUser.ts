@@ -8,12 +8,15 @@ export interface IUser {
   username?: string;
   firstName?: string;
   lastName?: string;
+  companyName?: string;
+  companyRegistrationNumber?: String;
   code?: string;
   password?: string;
   type?: string;
   deviceTokens?: string[];
   clientPortalId: string;
-  erxesCustomerId: string;
+  erxesCustomerId?: string;
+  erxesCompanyId?: string;
   createdAt?: Date;
   modifiedAt?: Date;
   resetPasswordToken?: string;
@@ -55,8 +58,11 @@ export const clientPortalUserSchema = new Schema({
   password: field({ type: String }),
   firstName: field({ type: String, optional: true }),
   lastName: field({ type: String, optional: true }),
+  companyName: field({ type: String, optional: true }),
+  companyRegistrationNumber: field({ type: String, optional: true }),
   clientPortalId: field({ type: String, required: true }),
 
+  erxesCompanyId: field({ type: String, optional: true }),
   erxesCustomerId: field({ type: String, optional: true }),
   phoneVerificationCode: field({ type: String, optional: true }),
   phoneVerificationCodeExpires: field({ type: Date, optional: true }),

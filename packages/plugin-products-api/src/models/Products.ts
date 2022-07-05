@@ -1,5 +1,5 @@
 import { ICustomField, IUserDocument } from '@erxes/api-utils/src/types';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import {
   sendCardsMessage,

@@ -6,12 +6,15 @@ import {
   IPosModel,
   IProductGroupModel,
   IPosOrderModel,
-  loadPosOrderClass
+  loadPosOrderClass,
+  IPosSlotModel,
+  loadPosSlotClass
 } from './models/Pos';
 
 import {
   IPosDocument,
   IPosOrderDocument,
+  IPosSlotDocument,
   IProductGroupDocument
 } from './models/definitions/pos';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
@@ -20,6 +23,7 @@ export interface IModels {
   Pos: IPosModel;
   ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
+  PosSlot: IPosSlotModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -58,6 +62,10 @@ export const loadClasses = (
   models.PosOrders = db.model<IPosOrderDocument, IPosOrderModel>(
     'pos_orders',
     loadPosOrderClass(models, subdomain)
+  );
+  models.PosSlot = db.model<IPosSlotDocument, IPosSlotModel>(
+    'pos_slot',
+    loadPosSlotClass(models, subdomain)
   );
 
   return models;

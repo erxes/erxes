@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
-import { IProductsData, productsDataSchema } from './jobs';
+import { IProductsDataDocument, productsDataSchema } from './jobs';
 
 export interface IOverallWork {
   status: string;
@@ -10,12 +10,13 @@ export interface IOverallWork {
   assignUserIds: string[];
   jobId: string;
   flowId: string;
-  outBranchId: string;
-  outDepartmentId: string;
-  inBranchId: string;
-  inDepartmentId: string;
-  needProducts: IProductsData[];
-  resultProducts: IProductsData[];
+  intervalId?: string;
+  outBranchId?: string;
+  outDepartmentId?: string;
+  inBranchId?: string;
+  inDepartmentId?: string;
+  needProducts?: IProductsDataDocument[];
+  resultProducts?: IProductsDataDocument[];
 }
 
 export interface IOverallWorkDocument extends IOverallWork, Document {
@@ -28,22 +29,34 @@ export const overallWorkSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     status: field({ type: String, label: 'Status' }),
-    createdAt: { type: Date, default: new Date(), label: 'Created date' },
-    createdBy: { type: String, label: 'Created User' },
+    createdAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Created date'
+    }),
+    createdBy: field({ type: String, label: 'Created User' }),
 
     dueDate: field({ type: Date, label: 'Due Date' }),
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
     endAt: field({ type: Date, optional: true, label: 'End at' }),
 
-    assignUserIds: { type: [String] },
-    outBranchId: { type: String },
-    outDepartmentId: { type: String },
-    inBranchId: { type: String },
-    inDepartmentId: { type: String },
+    assignUserIds: field({ type: [String] }),
+    jobId: field({ type: String }),
+    flowId: field({ type: String }),
+    intervalId: field({ type: String }),
+    outBranchId: field({ type: String, optional: true }),
+    outDepartmentId: field({ type: String, optional: true }),
+    inBranchId: field({ type: String, optional: true }),
+    inDepartmentId: field({ type: String, optional: true }),
 
-    needProducts: field({ type: [productsDataSchema], label: 'Need products' }),
+    needProducts: field({
+      type: [productsDataSchema],
+      optional: true,
+      label: 'Need products'
+    }),
     resultProducts: field({
       type: [productsDataSchema],
+      optional: true,
       label: 'Result products'
     })
   }),

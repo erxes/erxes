@@ -259,15 +259,3 @@ export const loadProductCategoryClass = models => {
 
   return productCategorySchema;
 };
-
-// tslint:disable-next-line
-export const Products = model<IProductDocument, IProductModel>(
-  'products',
-  productSchema
-);
-
-// tslint:disable-next-line
-export const ProductCategories = model<
-  IProductCategoryDocument,
-  IProductCategoryModel
->('product_categories', productCategorySchema);

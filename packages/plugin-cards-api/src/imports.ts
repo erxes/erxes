@@ -1,7 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { EXPORT_TYPES, IMPORT_TYPES } from './constants';
 import { sendFormsMessage } from './messageBroker';
-import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
 
 export default {
   importTypes: IMPORT_TYPES,

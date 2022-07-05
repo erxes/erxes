@@ -27,7 +27,8 @@ export const MODULE_NAMES = {
   JOBREFER: 'jobRefer',
   FLOW: 'flow',
   WORK: 'work',
-  OVERALWORK: 'overalWork'
+  OVERALWORK: 'overalWork',
+  PERFORM: 'perform'
 };
 
 const gatherDescriptions = async (

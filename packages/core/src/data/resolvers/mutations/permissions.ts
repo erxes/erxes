@@ -9,7 +9,6 @@ import { IUserDocument } from '../../../db/models/definitions/users';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { fixPermissions, resetPermissionsCache } from '../../permissions/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
-import { getDocument, getDocumentList } from './cacheUtils';
 import { MODULE_NAMES } from '../../constants';
 import { IContext, IModels } from '../../../connectionResolver';
 
@@ -56,7 +55,7 @@ const writeUserLog = async (
     // user has been added to the group
     if (!exists) {
       // already updated user row
-      const addedUser = await getDocument(models, subdomain, 'users', {
+      const addedUser = await models.Users.findOne({
         _id: memberId
       });
 
@@ -157,9 +156,9 @@ const usersGroupMutations = {
     { user, models, subdomain }: IContext
   ) {
     // users before updating
-    const oldUsers = await getDocumentList(models, subdomain, 'users', {
+    const oldUsers = await models.Users.find({
       _id: { $in: memberIds || [] }
-    });
+    }).lean();
 
     const group = await models.UsersGroups.createGroup(doc, memberIds);
 
@@ -216,9 +215,9 @@ const usersGroupMutations = {
   ) {
     const group = await models.UsersGroups.getGroup(_id);
 
-    const oldUsers = await getDocumentList(models, subdomain, 'users', {
+    const oldUsers = await models.Users.find({
       groupIds: { $in: [_id] }
-    });
+    }).lean();
 
     const result = await models.UsersGroups.updateGroup(_id, doc, memberIds);
 
@@ -261,9 +260,9 @@ const usersGroupMutations = {
   ) {
     const group = await models.UsersGroups.getGroup(_id);
 
-    const members = await getDocumentList(models, subdomain, 'users', {
+    const members = await models.Users.find({
       groupIds: { $in: [group._id] }
-    });
+    }).lean();
 
     const result = await models.UsersGroups.removeGroup(_id);
 

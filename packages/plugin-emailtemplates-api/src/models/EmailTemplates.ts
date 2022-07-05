@@ -84,7 +84,8 @@ export const loadEmailTemplateClass = (models: IModels) => {
       return models.EmailTemplates.createEmailTemplate(
         {
           name: `${template.name} copied`,
-          content: template.content
+          content: template.content,
+          scopeBrandIds: template.scopeBrandIds
         },
         user
       );

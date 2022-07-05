@@ -1,13 +1,14 @@
+import Box from '@erxes/ui/src/components/Box';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
+import Select from 'react-select-plus';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 import { __ } from '@erxes/ui/src/utils';
 import { ISafeRemainder } from '../types';
 import { PaddingTop } from '../../styles';
 import { router } from '@erxes/ui/src/utils/core';
 import { Wrapper } from '@erxes/ui/src/layout';
-import Box from '@erxes/ui/src/components/Box';
 
 function DetailSidebar({
   history,
@@ -54,10 +55,40 @@ function DetailSidebar({
             <SelectProductCategory
               label="Choose product category"
               name="selectedProductCategoryId"
-              initialValue={queryParams.productId}
-              onSelect={productId => setFilter('productCategoryId', productId)}
+              initialValue={queryParams.productCategoryId}
+              onSelect={catId => setFilter('productCategoryId', catId)}
               multi={false}
               customOption={{ value: '', label: 'All products' }}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Diff Type')}</ControlLabel>
+            <Select
+              options={[
+                { label: 'Тэнцүү', value: 'eq' },
+                { label: 'Их', value: 'gt' },
+                { label: 'Бага', value: 'lt' }
+              ]}
+              value={(queryParams.diffType || '').split(',')}
+              onChange={options =>
+                setFilter(
+                  'diffType',
+                  (options || []).map(o => o.value).join(',')
+                )
+              }
+              multi={true}
+            />
+          </FormGroup>
+          <FormGroup>
+            <ControlLabel>{__('Status')}</ControlLabel>
+            <Select
+              options={[
+                { label: 'All', value: '' },
+                { label: 'new', value: 'new' },
+                { label: 'checked', value: 'checked' }
+              ]}
+              value={queryParams.status || ''}
+              onChange={option => setFilter('status', option.value)}
             />
           </FormGroup>
         </Box>
