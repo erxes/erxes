@@ -1,7 +1,9 @@
 import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { Builder } from './carQueryBuilder';
+import { Builder, IListArgs } from './carQueryBuilder';
+import { IContext } from '../../../connectionResolver';
+import { countByCars } from '../../../carUtils';
 import { generateRandomString, getFullDate, getTomorrow } from '../../../utils';
 
 const generateFilter = async (params, commonQuerySelector, subdomain) => {
@@ -186,6 +188,19 @@ const carQueries = {
     };
 
     return response;
+  },
+
+  /**
+   * Group car counts by segments
+   */
+  async carCounts(_root, params: IListArgs, { models, subdomain }: IContext) {
+    const counts = {
+      bySegment: {}
+    };
+
+    counts.bySegment = await countByCars(models, subdomain, params);
+
+    return counts;
   },
 
   carCategoryMatchProducts: async (
