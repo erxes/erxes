@@ -357,3 +357,20 @@ export const PROVINCES = [
     center: { lat: 47.3222599, lng: 110.6073042 }
   }
 ];
+
+export const FILTER_PARAMS = [
+  'plateNumber',
+  'vinNumber',
+  'vintageYear',
+  'importYear',
+  'diagnosisDate',
+  'taxDate',
+  'drivingClassification',
+  'manufacture',
+  'trailerType',
+  'brakeType',
+  'bowType',
+  'tireLoadType',
+  'createdStartDate',
+  'createdEndDate'
+];
