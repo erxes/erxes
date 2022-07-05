@@ -33,6 +33,10 @@ const RouteList = asyncComponent(() =>
   import(/* webpackChunkName: "RouteList" */ './containers/routes/List')
 );
 
+const TripList = asyncComponent(() =>
+  import(/* webpackChunkName: "TripList" */ './containers/trips/List')
+);
+
 const placeList = history => {
   const { location } = history;
   const queryParams = queryString.parse(location.search);
@@ -52,6 +56,13 @@ const routeList = history => {
   const queryParams = queryString.parse(location.search);
 
   return <RouteList queryParams={queryParams} history={history} />;
+};
+
+const tripList = history => {
+  const { location } = history;
+  const queryParams = queryString.parse(location.search);
+
+  return <TripList queryParams={queryParams} history={history} />;
 };
 
 const details = ({ match }) => {
@@ -129,6 +140,13 @@ const routes = () => {
         exact={true}
         path="/tumentech/route/list"
         component={routeList}
+      />
+
+      <Route
+        key={'/trip'}
+        exact={true}
+        path="/tumentech/trips/list"
+        component={tripList}
       />
     </React.Fragment>
   );

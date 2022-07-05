@@ -2,19 +2,18 @@ import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
-import DirectionForm from '../../components/directions/Form';
+import DealPlaceForm from '../../components/dealPlaces/Form';
 import { mutations, queries } from '../../graphql';
-import { useQuery, useMutation } from 'react-apollo';
-import Alert from '@erxes/ui/src/utils/Alert';
-import { IDirection } from '../../types';
+import { useQuery } from 'react-apollo';
+import { IDealPlace } from '../../types';
 
 type Props = {
-  direction?: IDirection;
+  dealId: string;
+  dealPlace?: IDealPlace;
   closeModal: () => void;
 };
 
-const DirectionFormContainer = (props: Props) => {
-  const direction = props.direction;
+const DealPlaceFormContainer = (props: Props) => {
   const { data } = useQuery(gql(queries.placesQuery), {
     fetchPolicy: 'network-only',
     variables: { perPage: 9999 }
@@ -23,21 +22,18 @@ const DirectionFormContainer = (props: Props) => {
   const renderButton = ({
     values,
     isSubmitted,
-    callback,
-    object
+    callback
   }: IButtonMutateProps) => {
     return (
       <ButtonMutate
-        mutation={object ? mutations.editDirection : mutations.addDirection}
+        mutation={mutations.setDealPlace}
         variables={values}
         callback={callback}
-        refetchQueries={getRefetchQueries()}
+        refetchQueries={getRefetchQueries(props.dealId)}
         isSubmitted={isSubmitted}
         type="submit"
         icon="check-circle"
-        successMessage={`You successfully ${
-          object ? 'updated' : 'added'
-        } a direction`}
+        successMessage={`You successfully updated a location`}
       />
     );
   };
@@ -48,15 +44,18 @@ const DirectionFormContainer = (props: Props) => {
     renderButton
   };
 
-  return <DirectionForm {...updatedProps} />;
+  return <DealPlaceForm {...updatedProps} />;
 };
 
-const getRefetchQueries = () => {
+const getRefetchQueries = (dealId: string) => {
   return [
     {
-      query: gql(queries.directions)
+      query: gql(queries.dealPlaces),
+      variables: {
+        dealId
+      }
     }
   ];
 };
 
-export default DirectionFormContainer;
+export default DealPlaceFormContainer;

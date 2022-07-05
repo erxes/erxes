@@ -6,12 +6,22 @@ export interface IDirectionEdit extends IDirection {
 }
 
 const directionMutations = {
-  directionsAdd: async (_root, doc: IDirection, { models }: IContext) => {
-    return models.Directions.createDirection(doc);
+  directionsAdd: async (
+    _root,
+    doc: IDirection,
+    { subdomain, models }: IContext
+  ) => {
+    return models.Directions.createDirection(subdomain, doc);
   },
 
-  directionsEdit: async (_root, doc: IDirectionEdit, { models }: IContext) => {
-    return models.Directions.updateDirection(doc);
+  directionsEdit: async (
+    _root,
+    doc: IDirectionEdit,
+    { subdomain, models }: IContext
+  ) => {
+    await models.Directions.updateDirection(subdomain, doc);
+
+    return models.Directions.getDirection({ _id: doc._id });
   },
 
   directionsRemove: (_root, { _id }, { models }: IContext) => {

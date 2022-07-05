@@ -153,6 +153,7 @@ const DirectionForm = (props: Props) => {
               locationOptions={[placeA.center, placeB.center]}
               connectWithLines={true}
               streetViewControl={false}
+              googleMapPath={direction && direction.googleMapPath}
             />
           </FormGroup>
         )}

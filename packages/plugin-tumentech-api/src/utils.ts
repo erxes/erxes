@@ -1,7 +1,9 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
+import { sendRequest } from '@erxes/api-utils/src/requests';
 import * as _ from 'underscore';
 import { generateModels } from './connectionResolver';
 import { sendCardsMessage } from './messageBroker';
+import { IPlaceDocument } from './models/definitions/places';
 
 const gatherNames = async params => {
   const {
@@ -167,4 +169,29 @@ export const generateRandomString = async (
   }
 
   return randomName;
+};
+
+export const getPath = async (apiKey: string, places: IPlaceDocument[]) => {
+  if (places.length === 0 || places.length !== 2) {
+    return null;
+  }
+
+  const [placeA, placeB] = places;
+
+  const url = `https://maps.googleapis.com/maps/api/directions/json?key=${apiKey}&origin=${placeA.center.lat},${placeA.center.lng}&destination=${placeB.center.lat},${placeB.center.lng}&mode=driving`;
+
+  try {
+    const response = await sendRequest({
+      url,
+      method: 'GET'
+    });
+
+    if (response.status !== 'OK' || response.routes.length === 0) {
+      return null;
+    }
+
+    return response.routes[0].overview_polyline.points;
+  } catch {
+    return null;
+  }
 };

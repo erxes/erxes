@@ -187,6 +187,9 @@ const RouteForm = (props: Props) => {
               locationOptions={[...new Set(locationOptions)]}
               streetViewControl={false}
               connectWithLines={true}
+              googleMapPath={directions.map(
+                dir => (dir.googleMapPath && dir.googleMapPath) || ''
+              )}
             />
           </FormGroup>
         )}
