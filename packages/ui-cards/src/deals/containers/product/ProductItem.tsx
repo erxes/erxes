@@ -18,6 +18,7 @@ type Props = {
   currentProduct?: string;
   checkLoyalty: any;
   onChangeDiscount: (id: string, discount: number) => void;
+  dealQuery:any
 };
 
 class ProductItemContainer extends React.Component<Props> {

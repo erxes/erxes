@@ -29,6 +29,7 @@ type Props = {
   uom: string[];
   currencies: string[];
   currentProduct?: string;
+  dealQuery:any
 };
 
 type State = {
@@ -156,7 +157,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData, currentProduct } = this.props;
+    const { productsData, onChangeProductsData, currentProduct ,dealQuery} = this.props;
 
     if (productsData.length === 0) {
       return (
@@ -192,6 +193,7 @@ class ProductForm extends React.Component<Props, State> {
                 currentProduct={currentProduct}
                 checkLoyalty={undefined}
                 onChangeDiscount={this.setDiscount}
+                dealQuery={dealQuery}
               />
             ))}
           </tbody>
