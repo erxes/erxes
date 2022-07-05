@@ -17,15 +17,16 @@ module.exports = {
       location: 'settings',
       scope: 'processes',
       action: 'processesAll',
-      permissions: []
+      permissions: ['manageProcesses']
     },
     {
       text: 'Processes',
       url: '/processes/performances',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
+      action: 'processesAll',
       scope: 'processes',
-      permissions: []
+      permissions: ['manageProcesses']
     }
   ]
 };
