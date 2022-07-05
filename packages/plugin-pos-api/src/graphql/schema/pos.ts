@@ -127,7 +127,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
-    posSlotMappings: [PosSlot]
+    posSlot: [PosSlot]
 
   }
 
@@ -223,8 +223,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  posAdd(${posCommonFields}, catProdMappings: [CatProdInput], posSlotMappings: [PosSlotInput] ): Pos
-  posEdit(_id: String, ${posCommonFields}, catProdMappings: [CatProdInput], posSlotMappings: [PosSlotInput]): Pos
+  posAdd(${posCommonFields}, catProdMappings: [CatProdInput], posSlot: [PosSlotInput] ): Pos
+  posEdit(_id: String, ${posCommonFields}, catProdMappings: [CatProdInput], posSlot: [PosSlotInput]): Pos
   posRemove(_id: String!): JSON
   productGroupsAdd(${groupCommonFields}): ProductGroups
   productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]

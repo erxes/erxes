@@ -33,7 +33,7 @@ const posCommonFields = `
     productId
   }
 
-  posSlotMappings {
+  posSlot {
     _id
     code
     name

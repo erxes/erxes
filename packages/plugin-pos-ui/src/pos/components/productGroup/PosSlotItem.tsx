@@ -2,22 +2,21 @@ import React from 'react';
 import { FormGroup, ControlLabel, Button, FormControl } from '@erxes/ui/src';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Block, FlexRow } from '../../../styles';
-import { IPos, ISlotGroup } from '../../../types';
+import { IPos, ISlot } from '../../../types';
 
 type Props = {
   removeMapping: (_id: string) => void;
   key: string;
-  item: ISlotGroup;
+  item: ISlot;
   productCategories: IProductCategory[];
   pos: IPos;
-  onSubmit: (slotGroup: ISlotGroup) => void;
-  slotGroup?: ISlotGroup;
+  slotGroup?: ISlot;
   closeModal: () => void;
   onEdit: (_id: string, type: string, value: string) => void;
 };
 
 type State = {
-  slotGroup: ISlotGroup;
+  slotGroup: ISlot;
 };
 export const total = 8;
 
@@ -34,13 +33,6 @@ export default class PosProdItem extends React.Component<Props, State> {
     };
   }
 
-  onClickCancel = () => {
-    this.props.closeModal();
-  };
-  onClickSave = () => {
-    this.props.onSubmit(this.state.slotGroup);
-    this.props.closeModal();
-  };
   onChange = (key: string, value: any) => {
     this.setState({ [key]: value } as any);
   };
@@ -73,7 +65,7 @@ export default class PosProdItem extends React.Component<Props, State> {
         <Block>
           <FlexRow key={item._id}>
             <FormGroup>
-              <ControlLabel>Code </ControlLabel>
+              <ControlLabel>Code</ControlLabel>
               <FormControl
                 name="code"
                 value={item.code}

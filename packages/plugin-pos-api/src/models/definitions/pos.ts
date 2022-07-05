@@ -62,7 +62,7 @@ export interface IPos {
   erkhetConfig: Object;
   syncInfos: Object;
   catProdMappings: Object;
-  posSlotMappings: Object;
+  posSlot: Object;
   initialCategoryIds: string;
   kioskExcludeProductIds: string;
   deliveryConfig: Object;
@@ -195,7 +195,7 @@ export const posSchema = schemaHooksWrapper(
       label: 'Category product mappings',
       optional: true
     }),
-    posSlotMappings: field({
+    posSlot: field({
       type: [Object],
       label: 'Pos slot mappings',
       optional: true
@@ -247,5 +247,5 @@ export const posSlotSchema = schemaHooksWrapper(
     code: field({ type: String, label: 'Code' }),
     posId: field({ type: String, label: 'Pos id' })
   }),
-  'erxes_posSlot'
+  'erxes_pos_slot'
 );

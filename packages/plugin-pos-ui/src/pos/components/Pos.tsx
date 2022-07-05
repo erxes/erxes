@@ -38,7 +38,7 @@ type Props = {
 type State = {
   name?: string;
   description?: string;
-  pos?: IPos;
+  pos: IPos;
   groups: IProductGroup[];
   currentMode?: 'create' | 'update' | undefined;
   logoPreviewStyle?: any;
@@ -112,7 +112,7 @@ class Pos extends React.Component<Props, State> {
       productId: m.productId
     }));
 
-    const cleanGroups = (pos.posSlotMappings || []).map(m => ({
+    const cleanGroups = (pos.posSlot || []).map(m => ({
       _id: m._id,
       code: m.code,
       name: m.name
@@ -130,7 +130,7 @@ class Pos extends React.Component<Props, State> {
       ebarimtConfig,
       erkhetConfig,
       catProdMappings: cleanMappings,
-      posSlotMappings: cleanGroups,
+      posSlot: cleanGroups,
       isOnline: pos.isOnline,
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
@@ -258,11 +258,11 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
+                  groups={groups}
                   currentMode={currentMode}
                   branches={branches}
                   productCategories={productCategories}
-                  groups={groups}
-                  posSlotMappings={pos.posSlotMappings}
+                  posSlot={pos.posSlot}
                 />
               </Step>
               <Step

@@ -43,19 +43,19 @@ export type IPos = {
   allowBranchIds?: string[];
   beginNumber?: string;
   maxSkipNumber?: number;
-  waitingScreen?: IScreenConfig;
+  waitingScreen: IScreenConfig;
   kioskMachine?: IScreenConfig;
-  kitchenScreen?: IScreenConfig;
+  kitchenScreen: IScreenConfig;
   uiOptions?: any;
   ebarimtConfig: any;
   erkhetConfig: any;
   catProdMappings?: CatProd[];
-  posSlotMappings?: ISlotGroup[];
+  posSlot?: ISlot[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
 };
-export type ISlotGroup = {
+export type ISlot = {
   _id: string;
   code: string;
   name: string;

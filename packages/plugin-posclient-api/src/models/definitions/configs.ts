@@ -74,7 +74,7 @@ export interface IConfig {
   qpayConfig: IQPayConfig;
   syncInfo: ISyncInfo;
   catProdMappings: ICatProd[];
-  posSlotMappings: IPosSlot[];
+  posSlot: IPosSlot[];
   initialCategoryIds: string[];
   kioskExcludeProductIds: string[];
 }
@@ -148,7 +148,7 @@ export const configSchema = new Schema({
     type: [Object],
     label: 'Product category mappings'
   }),
-  posSlotMappings: field({
+  posSlot: field({
     type: [Object],
     label: 'POS slot mappings'
   }),
