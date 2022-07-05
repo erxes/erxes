@@ -1,12 +1,19 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
-import { IOverallWork, IOverallWorkDocument, overallWorkSchema } from './definitions/overallWorks';
+import {
+  IOverallWork,
+  IOverallWorkDocument,
+  overallWorkSchema
+} from './definitions/overallWorks';
 
 export interface IOverallWorkModel extends Model<IOverallWorkDocument> {
   getOverallWork(_id: string): Promise<IOverallWorkDocument>;
   createOverallWork(doc: IOverallWork): Promise<IOverallWorkDocument>;
-  updateOverallWork(_id: string, doc: IOverallWork): Promise<IOverallWorkDocument>;
+  updateOverallWork(
+    _id: string,
+    doc: IOverallWork
+  ): Promise<IOverallWorkDocument>;
   removeOverallWork(_id: string): void;
 }
 
@@ -31,7 +38,7 @@ export const loadOverallWorkClass = (models: IModels) => {
     public static async createOverallWork(doc: IOverallWork) {
       const overallWork = await models.OverallWorks.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return overallWork;
@@ -41,11 +48,11 @@ export const loadOverallWorkClass = (models: IModels) => {
      * Update OverallWork
      */
     public static async updateOverallWork(_id: string, doc: IOverallWork) {
-      const overallWork = await models.OverallWorks.getOverallWork(_id,);
+      const overallWork = await models.OverallWorks.getOverallWork(_id);
 
       await models.OverallWorks.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.OverallWorks.getOverallWork( _id );
+      const updated = await models.OverallWorks.getOverallWork(_id);
 
       return updated;
     }

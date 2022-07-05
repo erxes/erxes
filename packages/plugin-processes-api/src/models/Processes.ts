@@ -1,7 +1,11 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
-import { IProcess, IProcessDocument, processSchema } from './definitions/processes';
+import {
+  IProcess,
+  IProcessDocument,
+  processSchema
+} from './definitions/processes';
 
 export interface IProcessModel extends Model<IProcessDocument> {
   getProcess(_id: string): Promise<IProcessDocument>;
@@ -31,7 +35,7 @@ export const loadProcessClass = (models: IModels) => {
     public static async createProcess(doc: IProcess) {
       const process = await models.Processes.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return process;
@@ -41,11 +45,11 @@ export const loadProcessClass = (models: IModels) => {
      * Update Process
      */
     public static async updateProcess(_id: string, doc: IProcess) {
-      const process = await models.Processes.getProcess(_id,);
+      const process = await models.Processes.getProcess(_id);
 
       await models.Processes.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.Processes.getProcess( _id );
+      const updated = await models.Processes.getProcess(_id);
 
       return updated;
     }
