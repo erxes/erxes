@@ -19,6 +19,7 @@ type State = {
   count: number;
   productId: string;
   results: any[];
+  isChooseProduct: boolean;
 };
 
 class Form extends React.Component<Props, State> {
@@ -35,12 +36,16 @@ class Form extends React.Component<Props, State> {
         product: e.product,
         quantity: e.quantity,
         uom: e.uom
-      }))
+      })),
+      isChooseProduct: true
     };
   }
 
   onChange = (name, e) => {
     this.setState({ [name]: e.target.value } as any);
+    if (name === 'productId') {
+      this.setState({ isChooseProduct: false });
+    }
   };
 
   renderLabel = (max: number) => {
@@ -50,7 +55,7 @@ class Form extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, max } = this.props;
     const { isSubmitted } = formProps;
-    const { results, productId } = this.state;
+    const { results, productId, isChooseProduct } = this.state;
 
     return (
       <>
@@ -75,6 +80,7 @@ class Form extends React.Component<Props, State> {
         <FormGroup>
           <ControlLabel required={true}>{this.renderLabel(max)}</ControlLabel>
           <FormControl
+            disabled={isChooseProduct}
             name="count"
             defaultValue={this.state.count}
             type="number"

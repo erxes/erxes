@@ -198,7 +198,7 @@ class AutomationForm extends React.Component<Props, State> {
     document.addEventListener('click', this.handleClickOutside, true);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevState) {
     const { isActionTab } = this.state;
 
     if (isActionTab && isActionTab !== prevState.isActionTab) {

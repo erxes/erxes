@@ -45,9 +45,38 @@ class List extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
-    const { queryParams, overallWorkDetail, performs } = this.props;
+    const { queryParams } = this.props;
     const { overallWorkId } = queryParams;
+
+    const percentageObject = this.calculatePercent();
+
+    this.state = {
+      searchValue: this.props.searchValue,
+      overallWorkPercent: percentageObject.percent,
+      overallWorkId: overallWorkId || '',
+      max: percentageObject.max
+    };
+  }
+
+  componentDidUpdate() {
+    const percentageObject = this.calculatePercent();
+    const { overallWorkPercent, max } = this.state;
+    if (
+      percentageObject.percent !== overallWorkPercent &&
+      percentageObject.max !== max
+    ) {
+      this.setState({
+        overallWorkPercent: percentageObject.percent,
+        max: percentageObject.max
+      });
+    }
+  }
+
+  calculatePercent = () => {
+    const { overallWorkDetail, performs } = this.props;
     const { resultProductsDetail } = overallWorkDetail;
+
+    console.log('performs', performs);
 
     const productId = performs.length > 0 ? performs[0].productId : null;
     const performsByProductId = productId
@@ -62,15 +91,13 @@ class List extends React.Component<IProps, State> {
       ? resultProductsDetail.find(re => re.product._id === productId)
       : resultProductsDetail[0];
 
-    this.state = {
-      searchValue: this.props.searchValue,
-      overallWorkPercent: Math.round(
+    return {
+      percent: Math.round(
         total !== 0 ? (total * 100) / Number(resultProduct.quantity) : 0
       ),
-      overallWorkId: overallWorkId || '',
       max: Number(resultProduct.quantity) - total
     };
-  }
+  };
 
   renderView = (name: string, variable: string) => {
     const defaultName = '-';
