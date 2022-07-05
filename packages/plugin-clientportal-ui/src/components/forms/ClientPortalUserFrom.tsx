@@ -12,7 +12,6 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import AutoCompletionSelect from '@erxes/ui/src/components/AutoCompletionSelect';
 import Button from '@erxes/ui/src/components/Button';
 import { Form } from '@erxes/ui/src/components/form';
 import {
@@ -21,6 +20,7 @@ import {
   FormColumn,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
+import { TYPES } from '../../constants';
 
 type Props = {
   currentUser: IUser;
@@ -38,6 +38,10 @@ type State = {
   avatar: string;
   phone?: string;
   email?: string;
+  typeId: string;
+
+  req: boolean;
+  activeSections: any;
 };
 
 class CustomerForm extends React.Component<Props, State> {
@@ -48,12 +52,20 @@ class CustomerForm extends React.Component<Props, State> {
       props.clientPortalUser || ({} as IClientPortalUser);
     const userId = props.currentUser ? props.currentUser._id : '';
 
+    const activeSections = {
+      renderClientPortalUser: false,
+      renderClientPortalCompany: false
+    };
+
     this.state = {
+      typeId: clientPortalUser.typeId || '',
       ownerId: clientPortalUser.ownerId || userId,
       isSubscribed: clientPortalUser.isSubscribed || 'Yes',
       hasAuthority: clientPortalUser.hasAuthority || 'No',
       users: [],
-      avatar: clientPortalUser.avatar
+      avatar: clientPortalUser.avatar,
+      req: true,
+      activeSections
     };
   }
 
@@ -88,8 +100,141 @@ class CustomerForm extends React.Component<Props, State> {
     this.setState(e.target.value);
   };
 
+  renderSelectOptions() {
+    return TYPES.map(e => {
+      return (
+        <option key={e.value} value={e.value}>
+          {e.label}
+        </option>
+      );
+    });
+  }
+
+  updateClientPortalTypeValue(typeId) {
+    if (!typeId) {
+      return;
+    }
+
+    const activeSections = {
+      renderClientPortalUser: false,
+      renderClientPortalCompany: false
+    };
+
+    this.setState({ req: false }, () => {
+      this.setState({ activeSections, req: true });
+    });
+  }
+
+  onChangeContent = e => {
+    this.updateClientPortalTypeValue(e.target.value);
+  };
+
+  renderClientPortalUser = (formProps: IFormProps) => {
+    const { clientPortalGetConfigs } = this.props;
+    const { req } = this.state;
+
+    const isShow = this.state.activeSections.renderClientPortalUser;
+
+    if (!isShow) {
+      return null;
+    }
+
+    const clientPortalUser =
+      this.props.clientPortalUser || ({} as IClientPortalUser);
+
+    return (
+      <CollapseContent
+        title={__('General information')}
+        compact={true}
+        open={true}
+      >
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>First Name</ControlLabel>
+              <FormControl
+                {...formProps}
+                defaultValue={clientPortalUser.firstName || ''}
+                autoFocus={true}
+                required={req}
+                name="firstName"
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Last Name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="lastName"
+                defaultValue={clientPortalUser.lastName || ''}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>User Name</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="username"
+                defaultValue={clientPortalUser.username || ''}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel>Code</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="code"
+                defaultValue={clientPortalUser.code || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Email</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="email"
+                required={true}
+                defaultValue={clientPortalUser.email || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Phone</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="phone"
+                defaultValue={clientPortalUser.phone || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>ClientPortal</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="clientPortalId"
+                componentClass="select"
+                defaultValue={clientPortalUser.clientPortalId}
+                required={true}
+                onChange={this.onChange}
+              >
+                <option />
+                {clientPortalGetConfigs.map((cp, index) => (
+                  <option key={index} value={cp._id}>
+                    {cp.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      </CollapseContent>
+    );
+  };
+
+  renderClientPortalCompany = (formProps: IFormProps) => {
+    return <>hi</>;
+  };
+
   renderContent = (formProps: IFormProps) => {
-    const { closeModal, renderButton, clientPortalGetConfigs } = this.props;
+    const { closeModal, renderButton } = this.props;
     const { values, isSubmitted, resetSubmit } = formProps;
 
     const clientPortalUser =
@@ -98,89 +243,23 @@ class CustomerForm extends React.Component<Props, State> {
     return (
       <>
         <ScrollWrapper>
-          <CollapseContent
-            title={__('General information')}
-            compact={true}
-            open={true}
-          >
-            <FormWrapper>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel required={true}>First Name</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    defaultValue={clientPortalUser.firstName || ''}
-                    autoFocus={true}
-                    required={true}
-                    name="firstName"
-                  />
-                </FormGroup>
+          <FormGroup>
+            <ControlLabel>Client Portal User Type</ControlLabel>
+            <FormControl
+              {...formProps}
+              name="typeId"
+              componentClass="select"
+              defaultValue={clientPortalUser.typeId}
+              required={true}
+              onChange={this.onChangeContent}
+            >
+              {this.renderSelectOptions()}
+            </FormControl>
+          </FormGroup>
 
-                <FormGroup>
-                  <ControlLabel>Last Name</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="lastName"
-                    defaultValue={clientPortalUser.lastName || ''}
-                  />
-                </FormGroup>
+          {this.renderClientPortalUser(formProps)}
+          {this.renderClientPortalCompany(formProps)}
 
-                <FormGroup>
-                  <ControlLabel>User Name</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="username"
-                    defaultValue={clientPortalUser.username || ''}
-                  />
-                </FormGroup>
-              </FormColumn>
-              <FormColumn>
-                <FormGroup>
-                  <ControlLabel>Code</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="code"
-                    defaultValue={clientPortalUser.code || ''}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel required={true}>Email</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="email"
-                    required={true}
-                    defaultValue={clientPortalUser.email || ''}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>Phone</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="phone"
-                    defaultValue={clientPortalUser.phone || ''}
-                  />
-                </FormGroup>
-                <FormGroup>
-                  <ControlLabel>ClientPortal</ControlLabel>
-                  <FormControl
-                    {...formProps}
-                    name="clientPortalId"
-                    componentClass="select"
-                    defaultValue={clientPortalUser.clientPortalId}
-                    required={true}
-                    onChange={this.onChange}
-                  >
-                    <option />
-                    {clientPortalGetConfigs.map((cp, index) => (
-                      <option key={index} value={cp._id}>
-                        {cp.name}
-                      </option>
-                    ))}
-                  </FormControl>
-                </FormGroup>
-              </FormColumn>
-            </FormWrapper>
-          </CollapseContent>
           <CollapseContent title={__('Links')} compact={true} children={''} />
         </ScrollWrapper>
         <ModalFooter>

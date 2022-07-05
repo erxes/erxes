@@ -57,3 +57,14 @@ export const CONFIGURATIONS = [
     value: 'messagePro'
   }
 ];
+
+export const TYPES = [
+  {
+    label: 'User',
+    value: 'user'
+  },
+  {
+    label: 'Company',
+    value: 'company'
+  }
+];
