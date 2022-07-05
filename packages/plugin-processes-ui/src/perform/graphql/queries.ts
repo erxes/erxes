@@ -108,10 +108,10 @@ query performs {
 }
 `;
 
-const performByOverallWorkId = `
-query performByOverallWorkId($overallWorkId: String) {
-  performByOverallWorkId(overallWorkId: $overallWorkId) {
-    _id
+const performsByOverallWorkId = `
+query performsByOverallWorkId($overallWorkId: String) {
+  performsByOverallWorkId(overallWorkId: $overallWorkId) {
+    ${performFields}
   }
 }
 `;
@@ -130,6 +130,6 @@ export default {
   overallWorksSideBarDetail,
   overallWorksTotalCount,
   performs,
-  performByOverallWorkId,
+  performsByOverallWorkId,
   performsTotalCount
 };

@@ -20,7 +20,7 @@ class Row extends React.Component<Props> {
       resultProducts
     } = perform;
 
-    const date = startAt.toString().split('T');
+    const date = (startAt || '').toString().split('T');
 
     return (
       <tr>

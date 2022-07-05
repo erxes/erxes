@@ -8,19 +8,16 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   BarItems,
   FieldStyle,
-  SidebarCounter,
-  SidebarList
+  SidebarCounter
 } from '@erxes/ui/src/layout/styles';
-import { Count, FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
+import { Count } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
 
 import { menuContacts1 } from '../../../constants';
 import { IOverallWorkDocument, IPerformDocument } from '../../types';
 import Row from './PerformRow';
-import OverallWorkSideBar from '../../containers/OverallWorkSideBar';
 import OverallWorkSideBarDetail from '../../containers/OverallWorkSideBarDetail';
-import ProgressBar from '@erxes/ui/src/components/ProgressBar';
 import Button from '@erxes/ui/src/components/Button';
 
 interface IProps extends IRouterProps {
@@ -73,7 +70,7 @@ class List extends React.Component<IProps, State> {
 
     for (const product of products) {
       const { quantity, uom } = product;
-      const productName = product.product ? product.product.name : 'not noe';
+      const productName = product.product ? product.product.name : 'not name';
       const uomCode = uom ? uom.code : 'not uom';
 
       result.push(this.renderView(productName, quantity + '/' + uomCode + '/'));
@@ -81,54 +78,6 @@ class List extends React.Component<IProps, State> {
 
     return result;
   };
-
-  renderDetailGeneral() {
-    const { overallWorkDetail } = this.props;
-    const {
-      job,
-      flow,
-      interval,
-      intervalId,
-      outBranch,
-      outDepartment,
-      inBranch,
-      inDepartment
-    } = overallWorkDetail;
-
-    return (
-      <SidebarList className="no-link">
-        {this.renderView('Flow', flow ? flow.name : '')}
-        {this.renderView('Job', job ? job.label : '')}
-        {this.renderView('Interval', interval ? interval.name : intervalId)}
-        {this.renderView('InBranch', inBranch || '')}
-        {this.renderView('inDepartment', inDepartment || '')}
-        {this.renderView('outBranch', outBranch || '')}
-        {this.renderView('outDepartment', outDepartment || '')}
-      </SidebarList>
-    );
-  }
-
-  renderDetailNeed() {
-    const { overallWorkDetail } = this.props;
-    const { needProductsDetail } = overallWorkDetail;
-
-    return (
-      <SidebarList className="no-link">
-        {this.renderProducts('NeedProducts', needProductsDetail || [])}
-      </SidebarList>
-    );
-  }
-
-  renderDetailResult() {
-    const { overallWorkDetail } = this.props;
-    const { resultProductsDetail } = overallWorkDetail;
-
-    return (
-      <SidebarList className="no-link">
-        {this.renderProducts('ResultProducts', resultProductsDetail || [])}
-      </SidebarList>
-    );
-  }
 
   renderRow = () => {
     const { performs, history } = this.props;
@@ -181,24 +130,8 @@ class List extends React.Component<IProps, State> {
     }
   }
 
-  renderAboveSide = () => {
-    const { overallWorkPercent } = this.state;
-    return (
-      <>
-        <FormWrapper>
-          <FormColumn>{this.renderDetailGeneral()}</FormColumn>
-          <FormColumn>{this.renderDetailNeed()}</FormColumn>
-          <FormColumn>{this.renderDetailResult()}</FormColumn>
-        </FormWrapper>
-        <ProgressBar percentage={overallWorkPercent} height="20px">
-          {overallWorkPercent}%
-        </ProgressBar>
-      </>
-    );
-  };
-
   render() {
-    const { performsCount, loading, queryParams, history } = this.props;
+    const { performsCount, loading } = this.props;
 
     const actionBarRight = (
       <BarItems>
@@ -234,22 +167,18 @@ class List extends React.Component<IProps, State> {
       </>
     );
 
-    // <Wrapper.ActionBar right={actionBarRight} />
+    //
 
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Work')} submenu={menuContacts1} />}
-        actionBar={this.renderAboveSide()}
-        leftSidebar={
-          <OverallWorkSideBar queryParams={queryParams} history={history} />
-        }
-        // rightSidebar={this.renderLeftDetail()}
+        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         footer={<Pagination count={performsCount || 0} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={1}
+            count={performsCount || 0}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />
