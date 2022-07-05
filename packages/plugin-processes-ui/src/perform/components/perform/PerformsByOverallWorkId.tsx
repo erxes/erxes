@@ -60,9 +60,7 @@ class List extends React.Component<IProps, State> {
     }
     const resultProduct = productId
       ? resultProductsDetail.find(re => re.product._id === productId)
-      : { quantity: 0 };
-
-    console.log(resultProduct.quantity, total);
+      : resultProductsDetail[0];
 
     this.state = {
       searchValue: this.props.searchValue,
