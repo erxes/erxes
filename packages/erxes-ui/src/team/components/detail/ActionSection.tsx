@@ -13,11 +13,12 @@ import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
 import { __ } from '@erxes/ui/src/utils';
 import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '../../../utils/core';
+import path from 'path';
 
 const MailForm = asyncComponent(
   () =>
     isEnabled('inbox') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "MailForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm'
     )
 );
@@ -25,7 +26,7 @@ const MailForm = asyncComponent(
 const SmsForm = asyncComponent(
   () =>
     isEnabled('inbox') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "SmsForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm'
     )
 );

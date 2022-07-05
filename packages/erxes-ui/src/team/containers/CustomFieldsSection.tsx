@@ -11,12 +11,13 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { isEnabled } from '../../utils/core';
 import { mutations } from '../graphql';
+import path from 'path';
 import { withProps } from '@erxes/ui/src/utils';
 
 const GenerateCustomFields = asyncComponent(
   () =>
     isEnabled('forms') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
     )
 );

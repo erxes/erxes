@@ -9,11 +9,12 @@ import { WhiteBoxRoot } from '../../layout/styles';
 import { __ } from '../../utils';
 import asyncComponent from '../../components/AsyncComponent';
 import { isEnabled } from '../../utils/core';
+import path from 'path';
 
 const TicketCommentForm = asyncComponent(
   () =>
     isEnabled('cards') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "TicketCommentForm" */ '@erxes/ui-cards/src/boards/containers/TicketCommentForm'
     )
 );

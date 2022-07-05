@@ -11,11 +11,12 @@ import { UserHeader } from './styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import path from 'path';
 
 const LeadState = asyncComponent(
   () =>
     isEnabled('contacts') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "LeadState" */ '@erxes/ui-contacts/src/customers/containers/LeadState'
     )
 );

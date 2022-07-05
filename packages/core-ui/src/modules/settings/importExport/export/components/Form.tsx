@@ -20,12 +20,13 @@ import Spinner from 'modules/common/components/Spinner';
 import Wrapper from 'modules/layout/components/Wrapper';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import path from 'path';
 import queryString from 'query-string';
 
 const SegmentsForm = asyncComponent(
   () =>
     isEnabled('segments') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "SegmentsForm" */ '@erxes/ui-segments/src/containers/form/SegmentsForm'
     )
 );

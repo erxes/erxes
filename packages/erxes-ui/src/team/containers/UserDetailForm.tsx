@@ -19,11 +19,12 @@ import UserSkillForm from '../components/detail/UserSkillForm';
 import asyncComponent from '../../components/AsyncComponent';
 import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import path from 'path';
 
 const channelQueries = asyncComponent(
   () =>
     isEnabled('inbox') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "channelQueries" */ '@erxes/ui-inbox/src/settings/channels/graphql/queries'
     )
 );
@@ -31,7 +32,7 @@ const channelQueries = asyncComponent(
 const skillQueries = asyncComponent(
   () =>
     isEnabled('inbox') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "skillQueries" */ '@erxes/ui-inbox/src/settings/skills/graphql/queries'
     )
 );
@@ -222,7 +223,8 @@ export default withProps<Props>(
       name: 'skillTypesQuery',
       skip: !isEnabled('inbox')
     }),
-    graphql<Props, any>(gql(mutations.userExcludeSkill), { //check - SkillsExcludeUserMutationResponse
+    graphql<Props, any>(gql(mutations.userExcludeSkill), {
+      //check - SkillsExcludeUserMutationResponse
       name: 'userExcludeSkill'
     })
   )(UserDetailFormContainer)

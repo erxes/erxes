@@ -3,6 +3,7 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '../../../utils/core';
+import path from 'path';
 
 type Props = {
   user: IUser;
@@ -11,7 +12,7 @@ type Props = {
 const PortableDeals = asyncComponent(
   () =>
     isEnabled('cards') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "PortableDeals" */ '@erxes/ui-cards/src/deals/components/PortableDeals'
     )
 );
@@ -19,7 +20,7 @@ const PortableDeals = asyncComponent(
 const PortableTasks = asyncComponent(
   () =>
     isEnabled('cards') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "PortableTasks" */ '@erxes/ui-cards/src/tasks/components/PortableTasks'
     )
 );
@@ -27,7 +28,7 @@ const PortableTasks = asyncComponent(
 const PortableTickets = asyncComponent(
   () =>
     isEnabled('cards') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "PortableTickets" */ '@erxes/ui-cards/src/tickets/components/PortableTickets'
     )
 );

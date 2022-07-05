@@ -19,11 +19,12 @@ import SuccessPreview from './preview/SuccessPreview';
 import { __ } from '../../utils';
 import asyncComponent from '../AsyncComponent';
 import { isEnabled } from '../../utils/core';
+import path from 'path';
 
 const FieldForm = asyncComponent(
   () =>
     isEnabled('forms') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "FieldForm" */ '@erxes/ui-forms/src/forms/containers/FieldForm'
     )
 );
@@ -31,7 +32,7 @@ const FieldForm = asyncComponent(
 const FieldsPreview = asyncComponent(
   () =>
     isEnabled('forms') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "FieldsPreview" */ '@erxes/ui-forms/src/forms/components/FieldsPreview'
     )
 );
