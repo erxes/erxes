@@ -23,6 +23,7 @@ import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 import ProductRow from './ProductRow';
 import { Flex } from '@erxes/ui/src/styles/main';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   uom: string[];
@@ -158,7 +159,7 @@ class ProductItem extends React.Component<Props, State> {
       if (product) {
         this.onChangeField('product', product, productData._id);
         this.changeCurrentProduct(product._id);
-        if (productData.assignUserId) {
+        if (productData.assignUserId && isEnabled('loyalties')) {
           this.changeDiscountPercent(productData);
         }
       }

@@ -1,4 +1,4 @@
-import { withProps } from '@erxes/ui/src/utils/core';
+import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -38,7 +38,8 @@ class ProductItemContainer extends React.Component<Props> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.checkLoyalties), {
-      name: 'checkLoyalty'
+      name: 'checkLoyalty',
+      skip:!isEnabled('loyalties')
     })
   )(ProductItemContainer)
 );
