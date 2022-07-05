@@ -7,6 +7,8 @@ import { graphql } from 'react-apollo';
 import SideBar from '../components/perform/overallWorkSideBar/OveralWorksSideBar';
 import { queries } from '../graphql';
 import { OverallWorksSideBarQueryResponse } from '../types';
+import { JobRefersAllQueryResponse } from '../../job/types';
+import { queries as jobQueries } from '../../job/graphql';
 
 type Props = {
   queryParams: any;
@@ -15,6 +17,7 @@ type Props = {
 
 type FinalProps = {
   overallWorksSideBarQuery: OverallWorksSideBarQueryResponse;
+  jobRefersAllQuery: JobRefersAllQueryResponse;
 } & Props;
 
 class OverallWorkSideBarContainer extends React.Component<FinalProps> {
@@ -23,19 +26,20 @@ class OverallWorkSideBarContainer extends React.Component<FinalProps> {
   }
 
   render() {
-    const { overallWorksSideBarQuery, queryParams } = this.props;
+    const {
+      overallWorksSideBarQuery,
+      queryParams,
+      jobRefersAllQuery
+    } = this.props;
 
-    if (overallWorksSideBarQuery.loading) {
+    if (overallWorksSideBarQuery.loading || jobRefersAllQuery.loading) {
       return false;
     }
 
     const overallWorks = overallWorksSideBarQuery.overallWorksSideBar || [];
+    const jobRefers = jobRefersAllQuery.jobRefersAll;
 
-    console.log(
-      'overallWorks overallWorks:',
-      overallWorks,
-      overallWorksSideBarQuery.overallWorksSideBar
-    );
+    console.log('jobRefers:', jobRefers);
     const searchValue = this.props.queryParams.searchValue || '';
     const inBranchId = this.props.queryParams.inBranchId || '';
     const inDepartmentId = this.props.queryParams.inDepartmentId || '';
@@ -54,7 +58,8 @@ class OverallWorkSideBarContainer extends React.Component<FinalProps> {
       queryParams,
       overallWorks,
       loading: overallWorksSideBarQuery.loading,
-      params
+      params,
+      jobRefers
     };
 
     const overallWorkSideBar = props => {
@@ -85,6 +90,12 @@ export default withProps<Props>(
           },
           fetchPolicy: 'network-only'
         })
+      }
+    ),
+    graphql<Props, JobRefersAllQueryResponse, {}>(
+      gql(jobQueries.jobRefersAll),
+      {
+        name: 'jobRefersAllQuery'
       }
     )
   )(OverallWorkSideBarContainer)
