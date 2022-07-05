@@ -179,10 +179,12 @@ const ManageConfigs = (props: Props) => {
           {renderState}
         </>
       );
+
+    return null;
   };
 
   const renderConfigData = () => {
-    const renderState = configsData.map((t, index) => (
+    return configsData.map((t, index) => (
       <>
         <FlexRow>
           <FlexItem>
@@ -239,8 +241,6 @@ const ManageConfigs = (props: Props) => {
         </FlexRow>
       </>
     ));
-
-    return renderState;
   };
 
   const renderTab = () => {
