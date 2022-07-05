@@ -18,7 +18,6 @@ import { menuContacts1 } from '../../../constants';
 import { IOverallWorkDocument, IPerformDocument } from '../../types';
 import Row from './PerformRow';
 import OverallWorkSideBarDetail from '../../containers/OverallWorkSideBarDetail';
-import Button from '@erxes/ui/src/components/Button';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -162,8 +161,6 @@ class List extends React.Component<IProps, State> {
           </thead>
           <tbody>{this.renderRow()}</tbody>
         </Table>
-
-        <Button> Add overallWork </Button>
       </>
     );
 

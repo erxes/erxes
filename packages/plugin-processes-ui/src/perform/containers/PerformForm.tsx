@@ -4,31 +4,37 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Form from '../components/perform/PerformForm';
 import { mutations } from '../graphql';
-import { IProductsData } from '../../types';
 import { IOverallWorkDocument } from '../types';
 
 type Props = {
   closeModal: () => void;
   history: any;
   overallWorkDetail: IOverallWorkDocument;
+  max: number;
 };
 
 class ProductFormContainer extends React.Component<Props> {
   render() {
+    const { overallWorkDetail, max } = this.props;
+
+    console.log('overallWorkDetail overallWorkDetail:', overallWorkDetail);
+
     const renderButton = ({
       name,
       values,
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
-      const { overallWorkDetail } = this.props;
+      console.log(values);
+
       const doc = {
         startAt: new Date(),
         endAt: new Date(),
         dueDate: new Date(),
         overallWorkId: overallWorkDetail._id,
-        status: 'Active',
-        count: values.count,
+        status: 'new',
+        productId: values.productId,
+        count: Number(values.count).toString(),
         needProducts: [],
         resultProducts: []
       };
@@ -52,7 +58,9 @@ class ProductFormContainer extends React.Component<Props> {
       renderButton
     };
 
-    return <Form {...updatedProps} />;
+    return (
+      <Form {...updatedProps} overallWorkDetail={overallWorkDetail} max={max} />
+    );
   }
 }
 

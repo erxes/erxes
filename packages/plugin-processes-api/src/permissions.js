@@ -6,33 +6,16 @@ module.exports = {
       {
         name: 'processesAll',
         description: 'All',
-        use: ['showJobRefers', 'manageJobRefers']
+        use: ['showProcesses', 'manageProcesses']
       },
       {
-        name: 'showJobRefers',
-        description: 'show Job Refers'
+        name: 'showProcesses',
+        description: 'show processes'
       },
       {
-        name: 'manageJobRefers',
-        description: 'manage Job Refers'
+        name: 'manageProcesses',
+        description: 'manage processes'
       }
-      // ,
-      // {
-      //   name: 'showFlows',
-      //   description: 'show Flows'
-      // },
-      // {
-      //   name: 'manageFlows',
-      //   description: 'manage Flows'
-      // },
-      // {
-      //   name: 'showWorks',
-      //   description: 'show Works'
-      // },
-      // {
-      //   name: 'manageWorks',
-      //   description: 'manage Works'
-      // }
     ]
   }
 };

@@ -11,6 +11,7 @@ export const types = `
     endAt: Date,
     overallWorkId: String,
     status: String,
+    productId: String,
     count: String,
     needProducts: JSON,
     resultProducts: JSON
@@ -33,6 +34,7 @@ const performParams = `
   dueDate: Date,
   overallWorkId: String,
   status: String,
+  productId: String,
   count: String,
   needProducts: [JobProductsInput],
   resultProducts: [JobProductsInput]

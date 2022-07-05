@@ -72,6 +72,7 @@ export interface IOverallWorkDocument extends IOverallWork, Document {
 export interface IPerform {
   overallWorkId: string;
   status: string;
+  productId: string;
   count: string;
   startAt: Date;
   endAt: Date;
