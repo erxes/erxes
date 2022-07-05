@@ -13,7 +13,11 @@ import {
   confirm,
   router
 } from '@erxes/ui/src';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import {
+  IButtonMutateProps,
+  IQueryParams,
+  IRouterProps
+} from '@erxes/ui/src/types';
 import { ICar, IProduct, IProductCategory } from '../../types';
 
 import CarForm from '../../containers/CarForm';
@@ -23,6 +27,7 @@ import { CarsTableWrapper } from '../../styles';
 import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
 import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
 import React from 'react';
+import RightMenu from './RightMenu';
 import Sidebar from './Sidebar';
 import { withRouter } from 'react-router-dom';
 
@@ -45,11 +50,16 @@ interface IProps extends IRouterProps {
   productCategories: IProductCategory[];
   product?: IProductCategory;
   products: IProduct[];
-  onSelect: (prs: IProduct[]) => void;
   saveMatch: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   page: number;
   perPage: number;
+
+  onSearch: (search: string, key?: string) => void;
+  onFilter: (filterParams: IQueryParams) => void;
+  onSelect: (values: string[] | string, key: string) => void;
+  isFiltered: boolean;
+  clearFilter: () => void;
 }
 
 type State = {
@@ -61,7 +71,8 @@ export const tumentechMenu = [
   { title: 'Products', link: '/product' },
   { title: 'Places', link: '/tumentech/place/list' },
   { title: 'Directions', link: '/tumentech/direction/list' },
-  { title: 'Routes', link: '/tumentech/route/list' }
+  { title: 'Routes', link: '/tumentech/route/list' },
+  { title: 'Trips', link: '/tumentech/trips/list' }
 ];
 
 class CarsList extends React.Component<IProps, State> {
@@ -124,12 +135,17 @@ class CarsList extends React.Component<IProps, State> {
       queryParams,
       productCategories,
       products,
-      onSelect,
       saveMatch,
       renderButton,
       columnsConfig,
       page,
-      perPage
+      perPage,
+
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered,
+      clearFilter
     } = this.props;
 
     const mainContent = (
@@ -245,6 +261,15 @@ class CarsList extends React.Component<IProps, State> {
       return <CarForm {...props} queryParams={queryParams} />;
     };
 
+    const rightMenuProps = {
+      onFilter,
+      onSelect,
+      onSearch,
+      isFiltered,
+      clearFilter,
+      queryParams
+    };
+
     const actionBarRight = (
       <BarItems>
         <FormControl
@@ -270,6 +295,8 @@ class CarsList extends React.Component<IProps, State> {
           content={carForm}
           backDrop="static"
         />
+
+        <RightMenu {...rightMenuProps} />
       </BarItems>
     );
 
@@ -294,7 +321,6 @@ class CarsList extends React.Component<IProps, State> {
             queryParams={queryParams}
             history={history}
             products={products}
-            onSelect={onSelect}
             saveMatch={saveMatch}
             productCategories={productCategories}
             renderButton={renderButton}

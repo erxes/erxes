@@ -38,7 +38,6 @@ class Row extends React.Component<Props, State> {
   };
 
   update = () => {
-    console.log('qqqqqqqqqqqqqqqqqq');
     const { remainder, status } = this.state;
     const { updateItem, item } = this.props;
 
@@ -51,7 +50,19 @@ class Row extends React.Component<Props, State> {
     removeItem(item);
   };
 
-  onChangeCheck() {}
+  onChangeCheck = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    e.preventDefault();
+
+    const checked = e.target.checked;
+    this.setState({ status: checked ? 'checked' : 'new' });
+
+    this.timer = setTimeout(() => {
+      this.update();
+    }, 100);
+  };
 
   onChangeRemainder = e => {
     if (this.timer) {
@@ -60,7 +71,11 @@ class Row extends React.Component<Props, State> {
 
     e.preventDefault();
     const value = Number(e.target.value);
-    this.setState({ remainder: value, diff: value - this.props.item.preCount });
+    this.setState({
+      remainder: value,
+      diff: value - this.props.item.preCount,
+      status: 'checked'
+    });
 
     this.timer = setTimeout(() => {
       this.update();
@@ -74,7 +89,11 @@ class Row extends React.Component<Props, State> {
 
     e.preventDefault();
     const value = Number(e.target.value);
-    this.setState({ diff: value, remainder: value + this.props.item.preCount });
+    this.setState({
+      diff: value,
+      remainder: value + this.props.item.preCount,
+      status: 'checked'
+    });
 
     this.timer = setTimeout(() => {
       this.update();
@@ -106,7 +125,7 @@ class Row extends React.Component<Props, State> {
 
         <td>
           <FormControl
-            checked={status}
+            checked={status !== 'new'}
             componentClass="checkbox"
             onChange={this.onChangeCheck}
           />

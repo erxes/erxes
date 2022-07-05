@@ -11,9 +11,6 @@ import {
 let client;
 
 export const initBroker = async cl => {
-  client = cl;
-
-  const { consumeQueue, consumeRPCQueue } = client;
   const models = await generateModels('OS');
   if (!models) {
     throw new Error('not yet message broker, cause: cant connect models');
@@ -21,10 +18,13 @@ export const initBroker = async cl => {
 
   const config = await models.Configs.findOne().lean();
   if (!config) {
-    throw new Error('not yet message broker');
+    throw new Error('not yet message broker, cause: dont configure token');
   }
   const syncId =
     config && config.syncInfo && config.syncInfo.id ? config.syncInfo.id : '';
+
+  client = cl;
+  const { consumeQueue, consumeRPCQueue } = client;
 
   consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

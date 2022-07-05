@@ -129,7 +129,11 @@ export default withProps<Props>(
       gql(queries.jobReferTotalCount),
       {
         name: 'jobRefersCountQuery',
-        options: () => ({
+        options: ({ queryParams }) => ({
+          variables: {
+            categoryId: queryParams.categoryId,
+            searchValue: queryParams.searchValue
+          },
           fetchPolicy: 'network-only'
         })
       }

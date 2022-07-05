@@ -13,7 +13,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IPlace } from '../../types';
 import LocationOption from '@erxes/ui-forms/src/settings/properties/components/LocationOption';
-import Map from '@erxes/ui/src/components/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 import { PROVINCES } from '../../constants';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -58,6 +58,10 @@ const PlaceForm = (props: Props) => {
 
   const onChangeProvince = option => {
     const selected = PROVINCES.find(p => p.value === option.value);
+
+    if (!selected) {
+      return;
+    }
 
     setZoom(10);
     setCenter(selected.center);
@@ -130,27 +134,15 @@ const PlaceForm = (props: Props) => {
 
         <FormGroup>
           <ControlLabel htmlFor="locationOptions">Location:</ControlLabel>
-          <MapContainer>
-            <Map
-              center={center}
-              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-              defaultZoom={zoom}
-              locationOptions={[]}
-              mapControlOptions={{
-                controlSize: 30,
-                zoomControl: true,
-                mapTypeControl: true,
-                scaleControl: false,
-                streetViewControl: false,
-                rotateControl: false,
-                fullscreenControl: true
-              }}
-              isPreview={false}
-              drawPolyLines={false}
-              onChangeMarker={onChangeMarker}
-            />
-          </MapContainer>
-
+          <Map
+            id={Math.random().toString(10)}
+            center={center}
+            zoom={zoom}
+            locationOptions={[]}
+            streetViewControl={false}
+            onChangeMarker={onChangeMarker}
+            mode="view"
+          />
           <LocationOption
             key={'location'}
             option={center}

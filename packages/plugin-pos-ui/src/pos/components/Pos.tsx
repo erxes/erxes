@@ -16,11 +16,11 @@ import {
 } from '@erxes/ui/src/components/step/styles';
 import { IPos, IProductGroup } from '../../types';
 
+import CardsConfig from './step/CardsConfig';
 import ConfigStep from './step/ConfigStep';
 import DeliveryConfig from './step/DeliveryConfig';
 import EbarimtConfig from './step/EbarimtConfig';
 import ErkhetConfig from './step/ErkhetConfig';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import GeneralStep from './step/GeneralStep';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
@@ -51,6 +51,7 @@ type State = {
   ebarimtConfig: any;
   erkhetConfig: any;
   deliveryConfig: any;
+  cardsConfig: any;
 };
 
 class Pos extends React.Component<Props, State> {
@@ -79,7 +80,8 @@ class Pos extends React.Component<Props, State> {
       isSkip: false,
       ebarimtConfig: pos.ebarimtConfig,
       erkhetConfig: pos.erkhetConfig,
-      deliveryConfig: pos.deliveryConfig
+      deliveryConfig: pos.deliveryConfig,
+      cardsConfig: pos.cardsConfig
     };
   }
 
@@ -87,12 +89,13 @@ class Pos extends React.Component<Props, State> {
     e.preventDefault();
 
     const {
-      pos,
+      pos = {} as IPos,
       groups,
       uiOptions,
       ebarimtConfig,
       erkhetConfig,
-      deliveryConfig
+      deliveryConfig,
+      cardsConfig
     } = this.state;
 
     if (!pos.name) {
@@ -134,7 +137,8 @@ class Pos extends React.Component<Props, State> {
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
       initialCategoryIds: pos.initialCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
-      deliveryConfig
+      deliveryConfig,
+      cardsConfig
     };
 
     if (pos.isOnline) {
@@ -159,7 +163,7 @@ class Pos extends React.Component<Props, State> {
 
   onChangeAppearance = (key: string, value: any) => {
     let uiOptions = this.state.uiOptions || {};
-    const { pos } = this.state || {};
+    const { pos = {} as IPos } = this.state || {};
     uiOptions[key] = value;
 
     if (uiOptions[key]) {
@@ -254,6 +258,8 @@ class Pos extends React.Component<Props, State> {
                   pos={pos}
                   currentMode={currentMode}
                   branches={branches}
+                  productCategories={productCategories}
+                  groups={groups}
                 />
               </Step>
               <Step
@@ -304,6 +310,18 @@ class Pos extends React.Component<Props, State> {
                 noButton={true}
               >
                 <DeliveryConfig onChange={this.onChange} pos={pos} />
+              </Step>
+              <Step
+                img="/images/icons/erxes-07.svg"
+                title={'Sync Cards'}
+                onClick={this.onStepClick}
+                noButton={true}
+              >
+                <CardsConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  configsMap={{}}
+                />
               </Step>
             </Steps>
             <ControlWrapper>

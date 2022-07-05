@@ -215,6 +215,20 @@ const tumentechParams = `
   sortField: String
   sortDirection: Int
   brand: String
+  plateNumber: String
+  vinNumber: String
+  vintageYear: Int
+  importYear: Int
+  diagnosisDate: Date
+  taxDate: Date
+  drivingClassification: String
+  manufacture: String
+  trailerType: String
+  brakeType: String
+  bowType: String
+  tireLoadType: String
+  createdStartDate: Date
+  createdEndDate: Date
   conformityMainType: String
   conformityMainTypeId: String
   conformityRelType: String

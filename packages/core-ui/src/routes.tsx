@@ -8,6 +8,7 @@ import SettingsRoutes from './modules/settings/routes';
 import WelcomeRoutes from './modules/welcome/routes';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import path from 'path';
 import queryString from 'query-string';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 
@@ -32,7 +33,7 @@ const UserConfirmation = asyncComponent(() =>
 const Schedule = asyncComponent(
   () =>
     isEnabled('calendar') &&
-    import(
+    path.resolve(
       /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
     )
 );
@@ -45,6 +46,10 @@ export const unsubscribe = ({ location }) => {
 
 const schedule = ({ match }) => {
   const slug = match.params.slug;
+
+  if (!isEnabled('calendar')) {
+    return null;
+  }
 
   return <Schedule slug={slug} />;
 };

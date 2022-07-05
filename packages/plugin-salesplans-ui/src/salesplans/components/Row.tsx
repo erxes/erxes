@@ -66,7 +66,7 @@ const Row = (props: Props) => {
           <Button
             id="unarchive-box-line"
             btnStyle="link"
-            onClick={() => statusUpdate(data._id, 'active')}
+            onClick={() => statusUpdate(data && data._id, 'active')}
           >
             <Icon icon="redo" />
           </Button>
@@ -78,7 +78,7 @@ const Row = (props: Props) => {
         <Button
           id="archive-box-line"
           btnStyle="link"
-          onClick={() => statusUpdate(data._id, 'archived')}
+          onClick={() => statusUpdate(data && data._id, 'archived')}
         >
           <Icon icon="archive-alt" />
         </Button>
@@ -89,7 +89,7 @@ const Row = (props: Props) => {
   const renderManage = () => {
     if (data && ['pending', 'published'].includes(data.status)) return null;
 
-    const renderTrigger = () => (
+    const renderManageTrigger = () => (
       <Button btnStyle="link">
         <Tip text={__('Manage')} placement="bottom">
           <Icon icon="edit-3" />
@@ -97,7 +97,7 @@ const Row = (props: Props) => {
       </Button>
     );
 
-    const renderContent = (formProps: any) => {
+    const renderManageContent = (formProps: any) => {
       return (
         <FormContainer
           {...formProps}
@@ -109,11 +109,10 @@ const Row = (props: Props) => {
 
     return (
       <ModalTrigger
-        size="lg"
         title={__('Edit')}
         autoOpenKey="showSLEditSalesLogModal"
-        trigger={renderTrigger()}
-        content={formProps => renderContent(formProps)}
+        trigger={renderManageTrigger()}
+        content={formProps => renderManageContent(formProps)}
         enforceFocus={false}
       />
     );
@@ -136,50 +135,42 @@ const Row = (props: Props) => {
   };
 
   return (
-    <tbody>
-      <tr>
-        <td>{(data && data.name) || ''}</td>
-        <td>
-          <TextInfo>
-            {((data && data.branchDetail) || {}).title || 'Branch'}
-          </TextInfo>
-        </td>
-        <td>
-          <TextInfo>
-            {((data && data.departmentDetail) || {}).title || 'Department'}
-          </TextInfo>
-        </td>
-        <td>{(data && data.type) || 'Type'}</td>
-        <td>{renderStatus()}</td>
-        <td>
-          <Icon icon="calender" />{' '}
-          <DateWrapper>
-            {dayjs(data.createdAt).format('ll') || 'Created at'}
-          </DateWrapper>
-        </td>
-        <td>{data && data.createdUser ? data.createdUser.username : ''}</td>
-        <td>
-          <ActionButtons>
-            {renderPublish()}
-            {renderArchive()}
-            <Tip text={__('Products')} placement="bottom">
-              <Link to={`/sales-plans/products?salesLogId=${data && data._id}`}>
-                <Button id="product-box-line" btnStyle="link">
-                  <Icon icon="box" />
-                </Button>
-              </Link>
-            </Tip>
-            {renderManage()}
-            <Tip text={__('Duplicate')} placement="bottom">
-              <Button id="duplicate-box-line" btnStyle="link">
-                <Icon icon="copy-1" />
+    <tr>
+      <td>{(data && data.name) || ''}</td>
+      <td>{(data && data.type) || 'Type'}</td>
+      <td>{renderStatus()}</td>
+      <td>{((data && data.branchDetail) || {}).title || 'Branch'}</td>
+      <td>{((data && data.departmentDetail) || {}).title || 'Department'}</td>
+      <td>
+        <b>{data && data.createdUser ? data.createdUser.username : ''}</b>
+      </td>
+      <td>
+        <Icon icon="calender" />{' '}
+        <DateWrapper>
+          {dayjs(data.createdAt).format('ll') || 'Created at'}
+        </DateWrapper>
+      </td>
+      <td>
+        <ActionButtons>
+          {renderPublish()}
+          {renderArchive()}
+          <Tip text={__('Products')} placement="bottom">
+            <Link to={`/sales-plans/products?salesLogId=${data && data._id}`}>
+              <Button id="product-box-line" btnStyle="link">
+                <Icon icon="box" />
               </Button>
-            </Tip>
-            {renderRemove()}
-          </ActionButtons>
-        </td>
-      </tr>
-    </tbody>
+            </Link>
+          </Tip>
+          {renderManage()}
+          <Tip text={__('Duplicate')} placement="bottom">
+            <Button id="duplicate-box-line" btnStyle="link">
+              <Icon icon="copy-1" />
+            </Button>
+          </Tip>
+          {renderRemove()}
+        </ActionButtons>
+      </td>
+    </tr>
   );
 };
 

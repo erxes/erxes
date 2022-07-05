@@ -12,8 +12,7 @@ import Datetime from '@nateradebaugh/react-datetime';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IOption } from '@erxes/ui/src/types';
-import Map from '@erxes/ui/src/components/Map';
-import { MapContainer } from '@erxes/ui/src/styles/main';
+import Map from '@erxes/ui/src/containers/map/Map';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import ObjectList from './ObjectList';
 import React from 'react';
@@ -366,12 +365,7 @@ export default class GenerateField extends React.Component<Props, State> {
   }
 
   renderMap(attrs) {
-    const {
-      field,
-      isPreview,
-      onChangeLocationOptions,
-      onValueChange
-    } = this.props;
+    const { field, onValueChange } = this.props;
     const { locationOptions = [] } = field;
     const { value } = attrs;
 
@@ -388,26 +382,13 @@ export default class GenerateField extends React.Component<Props, State> {
     }
 
     return (
-      <MapContainer>
-        <Map
-          center={currentLocation || { lat: 0, lng: 0 }}
-          googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
-          defaultZoom={7}
-          locationOptions={locationOptions}
-          mapControlOptions={{
-            controlSize: 30,
-            zoomControl: true,
-            mapTypeControl: true,
-            scaleControl: false,
-            streetViewControl: false,
-            rotateControl: false,
-            fullscreenControl: isPreview ? false : true
-          }}
-          isPreview={isPreview}
-          onChangeMarker={onChangeMarker}
-          onChangeLocationOptions={onChangeLocationOptions}
-        />
-      </MapContainer>
+      <Map
+        id={field._id}
+        center={currentLocation || { lat: 0, lng: 0 }}
+        locationOptions={locationOptions}
+        streetViewControl={false}
+        onChangeMarker={onChangeMarker}
+      />
     );
   }
 
