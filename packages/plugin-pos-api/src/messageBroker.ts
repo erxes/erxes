@@ -48,27 +48,9 @@ export const initBroker = async cl => {
           data: {
             name: `Cards: ${doneOrder.number}`,
             startDate: doneOrder.createdAt,
-            description: deliveryInfo?.address,
+            description: deliveryInfo?.address || '',
             stageId: currentCardsConfig.stageId,
             assignedUserIds: currentCardsConfig.assignedUserIds,
-            customFieldsData: [
-              {
-                // field: deliveryConfig.mapCustomField.replace(
-                //   'customFieldsData.',
-                //   ''
-                // ),
-                locationValue: {
-                  type: 'Point',
-                  coordinates: [marker.longitude, marker.latitude]
-                },
-                value: {
-                  lat: marker.latitude,
-                  lng: marker.longitude,
-                  description: 'location'
-                },
-                stringValue: `${marker.longitude},${marker.latitude}`
-              }
-            ],
             productsData: doneOrder.items.map(i => ({
               productId: i.productId,
               uom: 'PC',

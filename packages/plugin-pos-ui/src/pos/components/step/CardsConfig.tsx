@@ -1,21 +1,7 @@
 import React from 'react';
 import { IPos } from '../../../types';
-import {
-  __,
-  ControlLabel,
-  FormGroup,
-  Toggle,
-  Button,
-  Alert
-} from '@erxes/ui/src';
-import {
-  DomainRow,
-  FlexColumn,
-  FlexRow,
-  FlexItem,
-  Block,
-  BlockRow
-} from '../../../styles';
+import { __, Button, Alert } from '@erxes/ui/src';
+import { FlexColumn, FlexRow, FlexItem, Block } from '../../../styles';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import { IConfigsMap } from '../../../types';
@@ -71,7 +57,6 @@ class CardsConfig extends React.Component<Props, State> {
   };
   renderContent(configs) {
     return Object.keys(configs).map(key => {
-      console.log(key);
       return (
         <PerConfigs
           key={Math.floor(Math.random() * 10000000) + 1}
@@ -87,7 +72,6 @@ class CardsConfig extends React.Component<Props, State> {
   renderCollapse() {
     const { configsMap } = this.state;
     const mapping = configsMap.cardsConfig || {};
-    console.log(configsMap);
     const actionButtons = (
       <Button
         btnStyle="primary"
