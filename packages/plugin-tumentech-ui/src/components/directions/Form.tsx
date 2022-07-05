@@ -3,14 +3,14 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { MapContainer, ModalFooter } from '@erxes/ui/src/styles/main';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { IDirection, IPlace } from '../../types';
 import { ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/components/Map';
+import Map from '@erxes/ui/src/components/map/Map';
 
 type Props = {
   direction?: IDirection;
@@ -146,27 +146,14 @@ const DirectionForm = (props: Props) => {
 
         {placeA && placeA._id && placeB && placeB._id && (
           <FormGroup>
-            <MapContainer>
-              <Map
-                center={placeA.center}
-                googleMapApiKey={
-                  localStorage.getItem('GOOGLE_MAP_API_KEY') || ''
-                }
-                defaultZoom={7}
-                locationOptions={[placeA.center, placeB.center]}
-                mapControlOptions={{
-                  controlSize: 30,
-                  zoomControl: true,
-                  mapTypeControl: true,
-                  scaleControl: false,
-                  streetViewControl: false,
-                  rotateControl: false,
-                  fullscreenControl: true
-                }}
-                isPreview={false}
-                drawPolyLines={true}
-              />
-            </MapContainer>
+            <Map
+              id={Math.random().toString(10)}
+              center={placeA.center}
+              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
+              locationOptions={[placeA.center, placeB.center]}
+              connectWithLines={true}
+              streetViewControl={false}
+            />
           </FormGroup>
         )}
 
