@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Article } from "../components";
+import Article from "../components/Article";
 import { IKbArticle } from "../types";
 import { AppConsumer } from "./AppContext";
 

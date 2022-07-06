@@ -2,7 +2,7 @@ import * as classNames from "classnames";
 import * as React from "react";
 import { IBrowserInfo, IIntegrationUiOptions } from "../../types";
 import { readFile } from "../../utils";
-import { Notifier } from "../containers";
+import Notifier from "../containers/Notifier";
 import { IMessage } from "../types";
 
 type Props = {

@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { CategoryDetail as DumbCategoryDetail } from "../../components/faq";
+import DumbCategoryDetail from "../../components/faq/CategoryDetail";
 import queries from "../../graphql";
 import { IFaqCategory } from "../../types";
 import { AppConsumer } from "../AppContext";

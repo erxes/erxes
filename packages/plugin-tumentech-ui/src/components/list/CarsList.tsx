@@ -67,12 +67,12 @@ type State = {
 };
 
 export const tumentechMenu = [
-  { title: 'Car', link: '/erxes-plugin-tumentech/list' },
+  { title: 'Car', link: '/erxes-plugin-tumentech/car/list' },
   { title: 'Products', link: '/product' },
-  { title: 'Places', link: '/tumentech/place/list' },
-  { title: 'Directions', link: '/tumentech/direction/list' },
-  { title: 'Routes', link: '/tumentech/route/list' },
-  { title: 'Trips', link: '/tumentech/trips/list' }
+  { title: 'Places', link: '/erxes-plugin-tumentech/place/list' },
+  { title: 'Directions', link: '/erxes-plugin-tumentech/direction/list' },
+  { title: 'Routes', link: '/erxes-plugin-tumentech/route/list' },
+  { title: 'Trips', link: '/erxes-plugin-tumentech/trips/list' }
 ];
 
 class CarsList extends React.Component<IProps, State> {

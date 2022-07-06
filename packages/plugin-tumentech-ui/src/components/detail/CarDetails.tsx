@@ -22,7 +22,7 @@ class CarDetails extends React.Component<Props> {
     const title = car.plateNumber || 'Unknown';
 
     const breadcrumb = [
-      { title: __('Cars'), link: '/erxes-plugin-tumentech/list' },
+      { title: __('Cars'), link: '/erxes-plugin-tumentech/car/list' },
       { title }
     ];
 

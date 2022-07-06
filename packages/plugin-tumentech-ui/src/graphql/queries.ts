@@ -602,6 +602,101 @@ query trips($status: String) {
 }
 `;
 
+const tripDetail = `
+query tripDetail($_id: String!) {
+  tripDetail(_id: $_id) {
+    _id
+    car {
+      _id
+      carModel
+      category {
+        _id
+        name
+      }
+      categoryId
+      description
+    }
+    carId
+    closedDate
+    createdAt
+    dealIds
+    deals {
+      _id
+      name
+      customFieldsData
+    }
+    driver {
+      _id
+      avatar
+      email
+      firstName
+      lastName
+      phone
+      primaryEmail
+      primaryPhone
+      tagIds
+    }
+    driverId
+    estimatedCloseDate
+    route {
+      _id
+      code
+      directionIds
+      directions {
+        _id
+        duration
+        googleMapPath
+        placeIds
+        places {
+          _id
+          center
+          code
+          name
+          province
+        }
+        roadCode
+        roadConditions
+        routeCode
+        totalDistance
+      }
+      name
+      summary {
+        placeNames
+        totalDistance
+        totalDuration
+      }
+    }
+    routeId
+    routeReversed
+    startedDate
+    status
+    statusInfo
+    trackingData {
+      lat
+      lng
+      trackedDate
+    }
+  }
+}
+`;
+
+const fieldsGroups = `
+query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+  fieldsGroups(
+    contentType: $contentType
+    isDefinedByErxes: $isDefinedByErxes
+    config: $config
+  ) {
+    fields {
+      text
+      _id
+      code
+      order
+    }
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -631,5 +726,8 @@ export default {
   routesQuery,
   routeDetail,
 
-  trips
+  trips,
+  tripDetail,
+
+  fieldsGroups
 };
