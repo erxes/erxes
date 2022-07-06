@@ -33,6 +33,19 @@ interface IProps extends IRouterProps {
 }
 
 class GroupList extends React.Component<IProps> {
+  renderFormTrigger(trigger: React.ReactNode, object?: any) {
+    const content = props => this.renderForm({ ...props, object });
+
+    return (
+      <ModalTrigger
+        title="New Group"
+        autoOpenKey={object}
+        trigger={trigger}
+        content={content}
+      />
+    );
+  }
+
   renderForm = props => {
     const { refetch, renderButton } = this.props;
 
@@ -61,11 +74,7 @@ class GroupList extends React.Component<IProps> {
       </Button>
     );
 
-    const content = props => this.renderForm({ ...props, object });
-
-    return (
-      <ModalTrigger title="New Group" trigger={trigger} content={content} />
-    );
+    return this.renderFormTrigger(trigger, object);
   }
 
   renderRemoveAction(object: IUserGroupDocument) {
@@ -138,18 +147,10 @@ class GroupList extends React.Component<IProps> {
       </Button>
     );
 
-    const content = props => this.renderForm({ ...props });
-
+    const autoOpen = 'showUserGroupAddModal';
     return (
       <>
-        <Header>
-          <ModalTrigger
-            title="New Group"
-            autoOpenKey="showUserGroupAddModal"
-            trigger={trigger}
-            content={content}
-          />
-        </Header>
+        <Header>{this.renderFormTrigger(trigger, autoOpen)}</Header>
         <Section.Title noBackground noSpacing>
           {__('User groups')}
           <Section.QuickButtons>
