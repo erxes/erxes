@@ -1,51 +1,154 @@
 import React from 'react';
+
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter
+} from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
+import { IJobRefer } from '../../../job/types';
 import { IOverallWorkDocument } from '../../types';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils';
+import Box from '@erxes/ui/src/components/Box';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   overallWorkDetail: IOverallWorkDocument;
   max: number;
+  jobRefer?: IJobRefer;
 };
 
 type State = {
   count: number;
-  productId: string;
   results: any[];
-  isChooseProduct: boolean;
+  needProducts?: any[];
+  resultProducts?: any[];
+  jobRefer?: IJobRefer;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { overallWorkDetail } = this.props;
+    const { overallWorkDetail, jobRefer } = this.props;
     const { resultProductsDetail } = overallWorkDetail;
 
+    console.log('on constructor:', jobRefer);
+
     this.state = {
-      count: 0,
-      productId: '',
+      count: 1,
       results: (resultProductsDetail || []).map(e => ({
         product: e.product,
         quantity: e.quantity,
         uom: e.uom
       })),
-      isChooseProduct: true
+      needProducts: jobRefer?.needProducts || [],
+      resultProducts: jobRefer?.resultProducts || []
     };
   }
 
-  onChange = (name, e) => {
-    this.setState({ [name]: e.target.value } as any);
-    if (name === 'productId') {
-      this.setState({ isChooseProduct: false });
+  renderView = (name: string, variable: string) => {
+    const defaultName = '-';
+
+    return (
+      <li>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{variable || defaultName}</SidebarCounter>
+      </li>
+    );
+  };
+
+  renderProducts = (name: string, products: any[], realDatas: any[]) => {
+    const result: React.ReactNode[] = [];
+
+    result.push(
+      <li>
+        <FieldStyle>{__(name)}</FieldStyle>
+        <SidebarCounter>{(products || []).length}</SidebarCounter>
+      </li>
+    );
+
+    for (const product of products) {
+      const { uom } = product;
+      const productName = product.product ? product.product.name : 'not noe';
+      const uomCode = uom ? uom.code : 'not uom';
+      const realData = realDatas.find(rd => rd._id === product._id);
+      const quantity = realData ? realData.quantity : 0;
+
+      result.push(this.renderView(productName, quantity + '/' + uomCode + '/'));
     }
+
+    return result;
+  };
+
+  renderDetailNeed() {
+    const { overallWorkDetail } = this.props;
+    const { needProducts } = this.state;
+    const { needProductsDetail } = overallWorkDetail;
+
+    return (
+      <SidebarList className="no-link">
+        {this.renderProducts(
+          'NeedProducts',
+          needProductsDetail || [],
+          needProducts || []
+        )}
+      </SidebarList>
+    );
+  }
+
+  renderDetailResult() {
+    const { overallWorkDetail } = this.props;
+    const { resultProducts } = this.state;
+    const { resultProductsDetail } = overallWorkDetail;
+
+    return (
+      <SidebarList className="no-link">
+        {this.renderProducts(
+          'ResultProducts',
+          resultProductsDetail || [],
+          resultProducts || []
+        )}
+      </SidebarList>
+    );
+  }
+
+  onChange = e => {
+    const count = Number(e.target.value);
+    const { jobRefer } = this.props;
+    const { needProducts, resultProducts } = this.state;
+
+    for (const need of jobRefer?.needProducts || []) {
+      const currentNeed = needProducts?.find(n => n._id === need._id);
+
+      const { quantity } = need;
+      currentNeed.quantity = quantity * count;
+    }
+
+    for (const result of jobRefer?.resultProducts || []) {
+      const currentResult = resultProducts?.find(n => n._id === result._id);
+
+      const { quantity } = result;
+      currentResult.quantity = quantity * count;
+    }
+
+    this.setState({
+      count,
+      needProducts,
+      resultProducts
+    });
   };
 
   renderLabel = (max: number) => {
@@ -55,39 +158,19 @@ class Form extends React.Component<Props, State> {
   renderContent = (formProps: IFormProps) => {
     const { closeModal, renderButton, max } = this.props;
     const { isSubmitted } = formProps;
-    const { results, productId, isChooseProduct } = this.state;
+    const { count, needProducts, resultProducts } = this.state;
 
     return (
       <>
         <FormGroup>
-          <ControlLabel required={true}>Result products</ControlLabel>
-          <FormControl
-            name="type"
-            componentClass="select"
-            onChange={this.onChange.bind(this, 'productId')}
-            required={true}
-            value={productId}
-          >
-            <option value="" />
-            {results.map(result => (
-              <option key={result.product._id} value={result.product._id}>
-                {result.product.name} - {result.quantity}/{result.uom.code}/
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-
-        <FormGroup>
           <ControlLabel required={true}>{this.renderLabel(max)}</ControlLabel>
           <FormControl
-            disabled={isChooseProduct}
             name="count"
             defaultValue={this.state.count}
             type="number"
             autoFocus={true}
             required={true}
-            max={max}
-            onChange={this.onChange.bind(this, 'count')}
+            onChange={this.onChange}
           />
         </FormGroup>
 
@@ -104,14 +187,22 @@ class Form extends React.Component<Props, State> {
           {renderButton({
             name: 'Performance',
             values: {
-              count: this.state.count,
-              productId: this.state.productId
+              count,
+              performNeedProducts: needProducts,
+              performResultProducts: resultProducts
             },
             isSubmitted,
             callback: closeModal,
             object: null
           })}
         </ModalFooter>
+
+        <Box title={'Counting result view:'}>
+          <FormWrapper>
+            <FormColumn>{this.renderDetailNeed()}</FormColumn>
+            <FormColumn>{this.renderDetailResult()}</FormColumn>
+          </FormWrapper>
+        </Box>
       </>
     );
   };

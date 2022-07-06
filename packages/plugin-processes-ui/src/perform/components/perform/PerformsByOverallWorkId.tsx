@@ -21,6 +21,9 @@ import ProgressBar from '@erxes/ui/src/components/ProgressBar';
 import Button from '@erxes/ui/src/components/Button';
 import Form from '../../containers/PerformForm';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { IJobRefer } from '../../../job/types';
+import { IFlowDocument, IJob } from '../../../flow/types';
+import Box from '@erxes/ui/src/components/Box';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -30,12 +33,16 @@ interface IProps extends IRouterProps {
   loading: boolean;
   overallWorkDetail: IOverallWorkDocument;
   searchValue: string;
+  jobRefers?: IJobRefer[];
+  flows?: IFlowDocument[];
 }
 
 type State = {
   searchValue?: string;
   overallWorkPercent: number;
   overallWorkId: string;
+  count: number;
+  jobRefer?: IJobRefer;
   max: number;
 };
 
@@ -49,12 +56,15 @@ class List extends React.Component<IProps, State> {
     const { overallWorkId } = queryParams;
 
     const percentageObject = this.calculatePercent();
+    const calculatedObject = this.calculateCount();
 
     this.state = {
       searchValue: this.props.searchValue,
       overallWorkPercent: percentageObject.percent,
       overallWorkId: overallWorkId || '',
-      max: percentageObject.max
+      count: calculatedObject.count,
+      max: percentageObject.max,
+      jobRefer: calculatedObject.jobRefer
     };
   }
 
@@ -72,30 +82,56 @@ class List extends React.Component<IProps, State> {
     }
   }
 
-  calculatePercent = () => {
-    const { overallWorkDetail, performs } = this.props;
-    const { resultProductsDetail } = overallWorkDetail;
+  calculateCount = () => {
+    const { jobRefers, flows, overallWorkDetail } = this.props;
+    const { flowId, jobId, resultProducts } = overallWorkDetail;
 
-    console.log('performs', performs);
+    const flow = flows
+      ? flows.find(f => f._id === flowId)
+      : ({} as IFlowDocument);
+    const flowJobs: IJob[] = flow ? flow.jobs || [] : [];
+    const flowJob: IJob = flowJobs.find(fj => fj.id === jobId) || ({} as IJob);
+    const jobReferId =
+      Object.keys(flowJob).length > 0 ? flowJob.jobReferId : '';
+    const jobRefer =
+      jobReferId && jobRefers
+        ? jobRefers.find(jr => jr._id === jobReferId)
+        : ({} as IJobRefer);
 
-    const productId = performs.length > 0 ? performs[0].productId : null;
-    const performsByProductId = productId
-      ? performs.filter(p => p.productId === productId)
-      : [];
-    const totalCountList = performsByProductId.map(e => e.count) || [];
-    let total = 0;
-    for (const count of totalCountList) {
-      total = total + Number(count);
+    const jobReferResultProducts = jobRefer ? jobRefer.resultProducts : [];
+    const overallWorkResultProducts = resultProducts ? resultProducts : [];
+
+    let count = 0;
+    if (
+      (jobReferResultProducts || []).length > 0 &&
+      overallWorkResultProducts.length > 0
+    ) {
+      const overallQnty = overallWorkResultProducts[0].quantity || 1;
+      const jobReferQnty = jobReferResultProducts
+        ? jobReferResultProducts[0].quantity
+        : 1;
+      count = overallQnty / jobReferQnty;
+
+      console.log('calculate count: ', overallQnty, jobReferQnty, count);
     }
-    const resultProduct = productId
-      ? resultProductsDetail.find(re => re.product._id === productId)
-      : resultProductsDetail[0];
+
+    return { count, jobRefer };
+  };
+
+  calculatePercent = () => {
+    const { performs } = this.props;
+    const calculatedObject = this.calculateCount();
+    const count = calculatedObject.count;
+    let total = 0;
+    for (const perform of performs) {
+      total = total + Number(perform.count);
+    }
+
+    console.log(count, total);
 
     return {
-      percent: Math.round(
-        total !== 0 ? (total * 100) / Number(resultProduct.quantity) : 0
-      ),
-      max: Number(resultProduct.quantity) - total
+      percent: Math.round(total !== 0 ? (total * 100) / count : 0),
+      max: count - total
     };
   };
 
@@ -218,15 +254,18 @@ class List extends React.Component<IProps, State> {
   }
 
   renderAboveSide = () => {
-    const { overallWorkPercent, overallWorkId } = this.state;
+    const { overallWorkPercent, overallWorkId, count } = this.state;
     if (overallWorkId) {
       return (
         <>
-          <FormWrapper>
-            <FormColumn>{this.renderDetailGeneral()}</FormColumn>
-            <FormColumn>{this.renderDetailNeed()}</FormColumn>
-            <FormColumn>{this.renderDetailResult()}</FormColumn>
-          </FormWrapper>
+          <Box title={'Overall work total - ' + count}>
+            <FormWrapper>
+              <FormColumn>{this.renderDetailGeneral()}</FormColumn>
+              <FormColumn>{this.renderDetailNeed()}</FormColumn>
+              <FormColumn>{this.renderDetailResult()}</FormColumn>
+            </FormWrapper>
+          </Box>
+
           <ProgressBar percentage={overallWorkPercent} height="20px">
             {overallWorkPercent}%
           </ProgressBar>
@@ -242,33 +281,21 @@ class List extends React.Component<IProps, State> {
   };
 
   render() {
-    const { performsCount, loading, queryParams, history } = this.props;
-    const { overallWorkId, max } = this.state;
+    const { performsCount, loading, queryParams, history, flows } = this.props;
+    const { overallWorkId, max, jobRefer } = this.state;
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
         Add performance
       </Button>
     );
-
-    // const actionBarRight = (
-    //   <BarItems>
-    //     <FormControl
-    //       type="text"
-    //       placeholder={__('Type to search')}
-    //       onChange={this.search}
-    //       value={this.state.searchValue}
-    //       autoFocus={true}
-    //       onFocus={this.moveCursorAtTheEnd}
-    //     />
-    //   </BarItems>
-    // );
-
     const modalContent = props => (
       <Form
         {...props}
         overallWorkDetail={this.props.overallWorkDetail}
         max={max}
+        flows={flows}
+        jobRefer={jobRefer}
       />
     );
 
@@ -297,11 +324,8 @@ class List extends React.Component<IProps, State> {
             content={modalContent}
           />
         )}
-        {/* <Button> Add overallWork </Button> */}
       </>
     );
-
-    // <Wrapper.ActionBar right={actionBarRight} />
 
     return (
       <Wrapper
