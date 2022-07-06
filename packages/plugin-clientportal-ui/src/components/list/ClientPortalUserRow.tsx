@@ -25,7 +25,7 @@ class Row extends React.Component<Props> {
     const onClick = e => {
       e.stopPropagation();
     };
-    console.log(clientPortalUser, 'gvdhjscdhdhsjdhvhdjcdhv');
+
     const onTrClick = () => {
       if (clientPortalUser.type === 'customer') {
         return history.push(

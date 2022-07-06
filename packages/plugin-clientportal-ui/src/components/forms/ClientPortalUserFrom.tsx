@@ -58,7 +58,7 @@ class CustomerForm extends React.Component<Props, State> {
     };
 
     this.state = {
-      type: clientPortalUser.type || 'user',
+      type: clientPortalUser.type || 'customer',
       ownerId: clientPortalUser.ownerId || userId,
       isSubscribed: clientPortalUser.isSubscribed || 'Yes',
       hasAuthority: clientPortalUser.hasAuthority || 'No',
@@ -351,7 +351,7 @@ class CustomerForm extends React.Component<Props, State> {
             </FormControl>
           </FormGroup>
 
-          {this.state.type === 'user'
+          {this.state.type === 'customer'
             ? this.renderClientPortalUser(formProps)
             : this.renderClientPortalCompany(formProps)}
 

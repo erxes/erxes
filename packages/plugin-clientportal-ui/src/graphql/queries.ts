@@ -72,6 +72,10 @@ export const basicFields = `
   clientPortalId
   type
 
+  clientPortal {
+    name
+  }
+
   modifiedAt
   ownerId
 `;

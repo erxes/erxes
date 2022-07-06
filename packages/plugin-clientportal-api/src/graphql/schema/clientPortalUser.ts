@@ -19,6 +19,8 @@ export const types = () => `
     links: JSON,
     customFieldsData: JSON,
     password: String
+
+    clientPortal: ClientPortal
   }
 
   type clientPortalUsersListResponse {

@@ -21,6 +21,7 @@ export interface IClientPortalUserDoc {
   erxesCompanyId: string;
   clientPortalId: string;
   type: string;
+  clientPortal: ClientPortalConfig;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {
