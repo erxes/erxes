@@ -4,7 +4,7 @@ import { getLocalStorageItem, initStorage } from "../common";
 import { setLocale } from "../utils";
 import widgetConnect from "../widgetConnect";
 import { connection } from "./connection";
-import { App } from "./containers";
+import App from "./containers/App";
 import { formConnectMutation } from "./graphql";
 import "./sass/style.scss";
 import { IConnectResponse } from "./types";

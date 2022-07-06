@@ -1,6 +1,8 @@
 import * as React from "react";
 import { iconClose } from "../../icons/Icons";
-import { Callout, Form, ShoutboxLauncher } from "../containers";
+import Callout from "../containers/Callout";
+import Form from "../containers/Form";
+import ShoutboxLauncher  from "../containers/ShoutboxLauncher";
 
 type Props = {
   isFormVisible: boolean;
