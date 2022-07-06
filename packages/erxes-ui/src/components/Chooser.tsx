@@ -6,7 +6,8 @@ import ModalTrigger from './ModalTrigger';
 import { __ } from '../utils/core';
 import React from 'react';
 import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
-import { CenterContent, ModalFooter } from '../styles/main';
+import { CenterContent, ModalFooter, Flex } from '../styles/main';
+import { MarginRight } from '@erxes/ui-settings/src/styles';
 
 export type CommonProps = {
   data: any;
@@ -173,8 +174,12 @@ class CommonChooser extends React.Component<Props, State> {
 
     const addTrigger = (
       <p>
-        {__("Don't see the result you're looking for?")}
-        <span>{__(`Create a new ${title}`)}</span>
+        <Flex>
+          <MarginRight>
+            {__("Don't see the result you're looking for?")}
+          </MarginRight>
+          <span>{__(`Create a new ${title}`)}</span>
+        </Flex>
       </p>
     );
 
