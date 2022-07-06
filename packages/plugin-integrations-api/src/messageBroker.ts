@@ -183,7 +183,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
-      await removeIntegration(models, subdomain, integrationId);
+      await removeIntegration(models, integrationId);
 
       return { status: 'success' };
     }
