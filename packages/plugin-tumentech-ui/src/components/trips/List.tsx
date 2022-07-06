@@ -1,12 +1,9 @@
-import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Row from './Row';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PlaceForm from '../../containers/places/Form';
 import { tumentechMenu } from '../list/CarsList';
 import { ITrip } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
@@ -27,37 +24,6 @@ const List = (props: Props) => {
   };
 
   queryParams.loadingMainQuery = loading;
-  let actionBarLeft: React.ReactNode;
-
-  // const actionBarRight = (
-  //   <Link to="/forms/create">
-  //     <Button btnStyle="success" size="small" icon="plus-circle">
-  //       Add direction
-  //     </Button>
-  //   </Link>
-  // );
-
-  const trigger = (
-    <Button btnStyle="success" size="small" icon="plus-circle">
-      Add trip
-    </Button>
-  );
-
-  const formContent = props => <PlaceForm {...props} />;
-
-  const righActionBar = (
-    <ModalTrigger
-      size="lg"
-      title="place"
-      autoOpenKey="showAppAddModal"
-      trigger={trigger}
-      content={formContent}
-    />
-  );
-
-  const actionBar = (
-    <Wrapper.ActionBar right={righActionBar} left={actionBarLeft} />
-  );
 
   const content = (
     <Table whiteSpace="nowrap" hover={true}>
@@ -83,7 +49,6 @@ const List = (props: Props) => {
           submenu={tumentechMenu}
         />
       }
-      actionBar={actionBar}
       footer={<Pagination count={totalCount} />}
       content={
         <DataWithLoader

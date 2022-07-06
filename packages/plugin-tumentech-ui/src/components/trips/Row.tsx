@@ -7,6 +7,7 @@ import { formatValue, renderFullName, __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import PlaceForm from '../../containers/places/Form';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   trip: ITrip;
@@ -14,24 +15,16 @@ type Props = {
 
 const Row = (props: Props) => {
   const { trip } = props;
-  //   const renderRemoveAction = () => {
+  let historyObj = useHistory();
 
-  //     return (
-  //       <Tip text={__('Delete')} placement="top">
-  //         <Button
-  //           id="directionDelete"
-  //           btnStyle="link"
-  //           onClick={onClick}
-  //           icon="times-circle"
-  //         />
-  //       </Tip>
-  //     );
-  //   };
-
-  //   const formContent = props => <PlaceForm {...props} place={place} />;
+  const onClickRow = e => {
+    historyObj.push(
+      `/erxes-plugin-tumentech/trips/detail/${e.currentTarget.id}`
+    );
+  };
 
   return (
-    <tr>
+    <tr id={trip._id} onClick={onClickRow}>
       <td key={Math.random()}>
         <RowTitle>{trip.route.name || '-'}</RowTitle>
       </td>
