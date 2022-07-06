@@ -3,12 +3,14 @@ import client from '../apollo-client';
 import { getLocalStorageItem, initStorage, setLocalStorageItem } from '../common';
 import { setLocale } from '../utils';
 import widgetConnect from '../widgetConnect';
-import { getVisitorId } from '../widgetUtils';
 import { connection } from './connection';
-import App from './containers/App';
 import graphqTypes from './graphql';
-import './sass/style.scss';
 import { IConnectResponse } from './types';
+import asyncComponent from '../AsyncComponent';
+
+const App = asyncComponent(() => 
+  import( /* webpackChunkName: "MessengerApp" */'./containers/App')
+)
 
 widgetConnect({
   connectMutation: async (event: MessageEvent) => {
@@ -18,11 +20,13 @@ widgetConnect({
 
     initStorage(storage);
 
-    const cachedCustomerId = getLocalStorageItem('customerId')
+    const cachedCustomerId = getLocalStorageItem('customerId');
 
     let visitorId;
 
     if (!cachedCustomerId) {
+      const { getVisitorId } = await import('../widgetUtils');
+
       visitorId = await getVisitorId();
     }
 
