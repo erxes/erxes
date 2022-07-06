@@ -20,7 +20,7 @@ import {
   FormColumn,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import { TYPES } from '../../constants';
+import { USER_LOGIN_TYPES } from '../../constants';
 
 type Props = {
   currentUser: IUser;
@@ -38,7 +38,7 @@ type State = {
   avatar: string;
   phone?: string;
   email?: string;
-  typeId: string;
+  type: string;
 
   req: boolean;
   activeSections: any;
@@ -58,7 +58,7 @@ class CustomerForm extends React.Component<Props, State> {
     };
 
     this.state = {
-      typeId: clientPortalUser.typeId || '',
+      type: clientPortalUser.type || 'user',
       ownerId: clientPortalUser.ownerId || userId,
       isSubscribed: clientPortalUser.isSubscribed || 'Yes',
       hasAuthority: clientPortalUser.hasAuthority || 'No',
@@ -86,6 +86,9 @@ class CustomerForm extends React.Component<Props, State> {
       code: finalValues.code,
       email: finalValues.email,
       phone: finalValues.phone,
+      companyName: finalValues.companyName,
+      companyRegistrationNumber: finalValues.companyRegistrationNumber,
+      type: finalValues.type,
       erxesCustomerId: finalValues.erxesCustomerId,
       erxesCompanyId: finalValues.erxesCompanyId,
       clientPortalId: finalValues.clientPortalId
@@ -101,7 +104,7 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   renderSelectOptions() {
-    return TYPES.map(e => {
+    return USER_LOGIN_TYPES.map(e => {
       return (
         <option key={e.value} value={e.value}>
           {e.label}
@@ -110,34 +113,46 @@ class CustomerForm extends React.Component<Props, State> {
     });
   }
 
-  updateClientPortalTypeValue(typeId) {
-    if (!typeId) {
-      return;
-    }
+  // updateClientPortalTypeValue(type) {
+  //   if (!type) {
+  //     return;
+  //   }
 
-    const activeSections = {
-      renderClientPortalUser: false,
-      renderClientPortalCompany: false
-    };
+  //   const type = TYPES.find((carCategories) => carCategories.value === type);
 
-    this.setState({ req: false }, () => {
-      this.setState({ activeSections, req: true });
-    });
-  }
+  //   if (!type) {
+  //     return;
+  //   }
+
+  //   const activeSections = {
+  //     renderClientPortalUser: false,
+  //     renderClientPortalCompany: false
+  //   };
+
+  //   if(type.value === 'user') {
+  //     return this.setState({ activeSections.renderClientPortalUser: true })
+  //   }
+
+  //   this.setState({ req: false }, () => {
+  //     this.setState({ activeSections, req: true });
+  //   });
+  // }
 
   onChangeContent = e => {
-    this.updateClientPortalTypeValue(e.target.value);
+    this.setState({
+      type: e.target.value
+    });
   };
 
   renderClientPortalUser = (formProps: IFormProps) => {
     const { clientPortalGetConfigs } = this.props;
-    const { req } = this.state;
+    // const { req } = this.state;
 
-    const isShow = this.state.activeSections.renderClientPortalUser;
+    // const isShow = this.state.activeSections.renderClientPortalUser;
 
-    if (!isShow) {
-      return null;
-    }
+    // if (!isShow) {
+    //   return null;
+    // }
 
     const clientPortalUser =
       this.props.clientPortalUser || ({} as IClientPortalUser);
@@ -156,7 +171,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {...formProps}
                 defaultValue={clientPortalUser.firstName || ''}
                 autoFocus={true}
-                required={req}
+                // required={true}
                 name="firstName"
               />
             </FormGroup>
@@ -193,7 +208,7 @@ class CustomerForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="email"
-                required={true}
+                // required={true}
                 defaultValue={clientPortalUser.email || ''}
               />
             </FormGroup>
@@ -212,7 +227,7 @@ class CustomerForm extends React.Component<Props, State> {
                 name="clientPortalId"
                 componentClass="select"
                 defaultValue={clientPortalUser.clientPortalId}
-                required={true}
+                // required={true}
                 onChange={this.onChange}
               >
                 <option />
@@ -230,7 +245,86 @@ class CustomerForm extends React.Component<Props, State> {
   };
 
   renderClientPortalCompany = (formProps: IFormProps) => {
-    return <>hi</>;
+    const { clientPortalGetConfigs } = this.props;
+
+    const clientPortalUser =
+      this.props.clientPortalUser || ({} as IClientPortalUser);
+    return (
+      <CollapseContent
+        title={__('General information')}
+        compact={true}
+        open={true}
+      >
+        <FormWrapper>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Company Name</ControlLabel>
+              <FormControl
+                {...formProps}
+                defaultValue={clientPortalUser.companyName || ''}
+                autoFocus={true}
+                // required={true}
+                name="companyName"
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Company Registration Number</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="companyRegistrationNumber"
+                defaultValue={clientPortalUser.companyRegistrationNumber || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Code</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="code"
+                defaultValue={clientPortalUser.code || ''}
+              />
+            </FormGroup>
+          </FormColumn>
+          <FormColumn>
+            <FormGroup>
+              <ControlLabel required={true}>Email</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="email"
+                // required={true}
+                defaultValue={clientPortalUser.email || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Phone</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="phone"
+                defaultValue={clientPortalUser.phone || ''}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>ClientPortal</ControlLabel>
+              <FormControl
+                {...formProps}
+                name="clientPortalId"
+                componentClass="select"
+                defaultValue={clientPortalUser.clientPortalId}
+                // required={true}
+                onChange={this.onChange}
+              >
+                <option />
+                {clientPortalGetConfigs.map((cp, index) => (
+                  <option key={index} value={cp._id}>
+                    {cp.name}
+                  </option>
+                ))}
+              </FormControl>
+            </FormGroup>
+          </FormColumn>
+        </FormWrapper>
+      </CollapseContent>
+    );
   };
 
   renderContent = (formProps: IFormProps) => {
@@ -247,18 +341,19 @@ class CustomerForm extends React.Component<Props, State> {
             <ControlLabel>Client Portal User Type</ControlLabel>
             <FormControl
               {...formProps}
-              name="typeId"
+              name="type"
               componentClass="select"
-              defaultValue={clientPortalUser.typeId}
-              required={true}
+              defaultValue={clientPortalUser.type}
+              // required={true}
               onChange={this.onChangeContent}
             >
               {this.renderSelectOptions()}
             </FormControl>
           </FormGroup>
 
-          {this.renderClientPortalUser(formProps)}
-          {this.renderClientPortalCompany(formProps)}
+          {this.state.type === 'user'
+            ? this.renderClientPortalUser(formProps)
+            : this.renderClientPortalCompany(formProps)}
 
           <CollapseContent title={__('Links')} compact={true} children={''} />
         </ScrollWrapper>

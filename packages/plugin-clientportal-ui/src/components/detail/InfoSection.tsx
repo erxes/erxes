@@ -23,7 +23,7 @@ class InfoSection extends React.Component<Props> {
       <InfoWrapper>
         <NameContainer>
           <Name fontSize={16}>
-            {clientPortalUser.firstName}
+            {clientPortalUser.firstName || clientPortalUser.companyName}
 
             <ModalTrigger
               title="Edit basic info"

@@ -9,17 +9,18 @@ export type OTPConfig = {
 
 export interface IClientPortalUserDoc {
   firstName: string;
+  companyName: string;
+  companyRegistrationNumber: string;
   lastName: string;
   code: string;
   phone: string;
   email: string;
   username: string;
-  type: string;
   ownerId?: string;
   erxesCustomerId: string;
   erxesCompanyId: string;
   clientPortalId: string;
-  typeId: string;
+  type: string;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {

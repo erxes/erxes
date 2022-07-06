@@ -58,10 +58,10 @@ export const CONFIGURATIONS = [
   }
 ];
 
-export const TYPES = [
+export const USER_LOGIN_TYPES = [
   {
-    label: 'User',
-    value: 'user'
+    label: 'Customer',
+    value: 'customer'
   },
   {
     label: 'Company',

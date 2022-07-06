@@ -67,7 +67,10 @@ export const basicFields = `
   code
   email
   phone
+  companyName
+  companyRegistrationNumber
   clientPortalId
+  type
 
   modifiedAt
   ownerId
