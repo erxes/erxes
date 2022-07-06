@@ -66,7 +66,9 @@ query overallWorksSideBar($inBranchId: String, $inDepartmentId: String, $outBran
 const sideBarDetailFields = `
 _id
     job
+    jobId
     flow
+    flowId
     interval
     intervalId
     outBranch
@@ -74,7 +76,10 @@ _id
     inBranch
     inDepartment
     needProductsDetail
+    needProducts
     resultProductsDetail
+    resultProducts
+
 `;
 
 const overallWorksSideBarDetail = `
@@ -99,6 +104,7 @@ const performFields = `
     count
     status
     overallWorkId
+    overallWork
     startAt`;
 
 const performs = `
@@ -123,6 +129,12 @@ query performsTotalCount {
 }
 `;
 
+const performsByOverallWorkIdTotalCount = `
+  query performsByOverallWorkIdTotalCount($overallWorkId: String) {
+    performsByOverallWorkIdTotalCount(overallWorkId: $overallWorkId)
+  }
+`;
+
 export default {
   works,
   worksTotalCount,
@@ -132,5 +144,6 @@ export default {
   overallWorksTotalCount,
   performs,
   performsByOverallWorkId,
-  performsTotalCount
+  performsTotalCount,
+  performsByOverallWorkIdTotalCount
 };

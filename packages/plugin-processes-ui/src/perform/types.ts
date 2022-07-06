@@ -71,6 +71,7 @@ export interface IOverallWorkDocument extends IOverallWork, Document {
 
 export interface IPerform {
   overallWorkId: string;
+  overallWork: any;
   status: string;
   productId: string;
   count: string;
@@ -123,15 +124,6 @@ export type PerformsTotalCountQueryResponse = {
   performsTotalCount: number;
 } & QueryResponse;
 
-export type MutationVariables = {
-  _id?: string;
-  type: string;
-  name?: string;
-  description?: string;
-  sku?: string;
-  createdAt?: Date;
-};
-
-export type AddMutationResponse = {
-  addMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
-};
+export type PerformsByOverallWorkIdTotalCountQueryResponse = {
+  performsByOverallWorkIdTotalCount: number;
+} & QueryResponse;

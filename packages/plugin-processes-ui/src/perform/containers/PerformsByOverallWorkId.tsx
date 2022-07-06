@@ -11,8 +11,12 @@ import {
   IOverallWork,
   OverallWorksSideBarDetailQueryResponse,
   PerformsByOverallWorkIdQueryResponse,
-  PerformsTotalCountQueryResponse
+  PerformsByOverallWorkIdTotalCountQueryResponse
 } from '../types';
+import { JobRefersAllQueryResponse } from '../../job/types';
+import { queries as jobQueries } from '../../job/graphql';
+import { FlowsAllQueryResponse } from '../../flow/types';
+import { queries as flowQueries } from '../../flow/graphql';
 
 type Props = {
   queryParams: any;
@@ -21,8 +25,10 @@ type Props = {
 
 type FinalProps = {
   performsByOverallWorkIdQuery: PerformsByOverallWorkIdQueryResponse;
-  performsTotalCountQuery: PerformsTotalCountQueryResponse;
+  performsByOverallWorkIdTotalCountQuery: PerformsByOverallWorkIdTotalCountQueryResponse;
   overallWorksSideBarDetailQuery: OverallWorksSideBarDetailQueryResponse;
+  jobRefersAllQuery: JobRefersAllQueryResponse;
+  flowsAllQuery: FlowsAllQueryResponse;
 } & Props;
 
 class WorkListContainer extends React.Component<FinalProps> {
@@ -34,24 +40,32 @@ class WorkListContainer extends React.Component<FinalProps> {
     const {
       performsByOverallWorkIdQuery,
       overallWorksSideBarDetailQuery,
-      performsTotalCountQuery,
+      performsByOverallWorkIdTotalCountQuery,
+      jobRefersAllQuery,
+      flowsAllQuery,
       queryParams
     } = this.props;
 
     if (
       performsByOverallWorkIdQuery.loading ||
-      performsTotalCountQuery.loading ||
-      overallWorksSideBarDetailQuery.loading
+      performsByOverallWorkIdTotalCountQuery.loading ||
+      overallWorksSideBarDetailQuery.loading ||
+      jobRefersAllQuery.loading ||
+      flowsAllQuery.loading
     ) {
       return false;
     }
 
     const performs = performsByOverallWorkIdQuery.performsByOverallWorkId || [];
-    const performsCount = performsTotalCountQuery.performsTotalCount || 0;
+    const performsCount =
+      performsByOverallWorkIdTotalCountQuery.performsByOverallWorkIdTotalCount ||
+      0;
     const overallWorkDetail =
       overallWorksSideBarDetailQuery.overallWorksSideBarDetail ||
       ({} as IOverallWork);
     const searchValue = this.props.queryParams.searchValue || '';
+    const jobs = jobRefersAllQuery.jobRefersAll || [];
+    const flows = flowsAllQuery.flowsAll || [];
 
     const updatedProps = {
       ...this.props,
@@ -60,7 +74,9 @@ class WorkListContainer extends React.Component<FinalProps> {
       performsCount,
       overallWorkDetail,
       loading: performsByOverallWorkIdQuery.loading,
-      searchValue
+      searchValue,
+      jobRefers: jobs,
+      flows
     };
 
     const performsList = props => {
@@ -69,7 +85,7 @@ class WorkListContainer extends React.Component<FinalProps> {
 
     const refetch = () => {
       this.props.performsByOverallWorkIdQuery.refetch();
-      this.props.performsTotalCountQuery.refetch();
+      this.props.performsByOverallWorkIdTotalCountQuery.refetch();
     };
 
     return <Bulk content={performsList} refetch={refetch} />;
@@ -91,13 +107,13 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, PerformsTotalCountQueryResponse, {}>(
-      gql(queries.performsTotalCount),
+    graphql<Props, PerformsByOverallWorkIdQueryResponse, {}>(
+      gql(queries.performsByOverallWorkIdTotalCount),
       {
-        name: 'performsTotalCountQuery',
+        name: 'performsByOverallWorkIdTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: {
-            searchValue: queryParams.searchValue
+            overallWorkId: queryParams.overallWorkId
           },
           fetchPolicy: 'network-only'
         })
@@ -114,6 +130,15 @@ export default withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    )
+    ),
+    graphql<Props, JobRefersAllQueryResponse, {}>(
+      gql(jobQueries.jobRefersAll),
+      {
+        name: 'jobRefersAllQuery'
+      }
+    ),
+    graphql<Props, FlowsAllQueryResponse, {}>(gql(flowQueries.flowsAll), {
+      name: 'flowsAllQuery'
+    })
   )(WorkListContainer)
 );

@@ -12,7 +12,7 @@ class Row extends React.Component<Props> {
     const { perform } = this.props;
 
     const {
-      overallWorkId,
+      overallWork,
       status,
       startAt,
       count,
@@ -24,7 +24,7 @@ class Row extends React.Component<Props> {
 
     return (
       <tr>
-        <td>{overallWorkId}</td>
+        <td>{overallWork.label}</td>
         <td>{status}</td>
         <td>{count || 0}</td>
         <td>{(needProducts || []).length}</td>

@@ -66,6 +66,16 @@ const performQueries = {
     const selector = generateFilter(params, commonQuerySelector);
 
     return models.Performs.find(selector).count();
+  },
+
+  performsByOverallWorkIdTotalCount(
+    _root,
+    params: IParam,
+    { commonQuerySelector, models }: IContext
+  ) {
+    const selector = generateFilter(params, commonQuerySelector);
+
+    return models.Performs.find(selector).count();
   }
 };
 

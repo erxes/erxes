@@ -16,7 +16,7 @@ module.exports = {
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
       scope: 'salesplans',
-      permissions: [],
+      permission: 'showSalesPlans',
     },
   ],
 };

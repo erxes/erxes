@@ -10,6 +10,7 @@ export const types = `
     startAt: Date,
     endAt: Date,
     overallWorkId: String,
+    overallWork: JSON,
     status: String,
     productId: String,
     count: String,
@@ -25,6 +26,7 @@ const qryParams = `
 export const queries = `
   performs(page: Int, perPage: Int, ${qryParams}): [Perform]
   performsByOverallWorkId(overallWorkId: String, ${qryParams}):  [Perform]
+  performsByOverallWorkIdTotalCount(overallWorkId: String, ${qryParams}): Int
   performsTotalCount(${qryParams}): Int
 `;
 

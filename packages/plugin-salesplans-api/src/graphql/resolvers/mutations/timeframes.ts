@@ -1,3 +1,7 @@
+import {
+  moduleRequireLogin,
+  moduleCheckPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../../connectionResolver';
 import {
   ITimeframe,
@@ -17,5 +21,8 @@ const timeframeMutations = {
     return await models.Timeframes.removeTimeframe(_id);
   }
 };
+
+moduleRequireLogin(timeframeMutations);
+moduleCheckPermission(timeframeMutations, 'manageSalesPlans');
 
 export default timeframeMutations;
