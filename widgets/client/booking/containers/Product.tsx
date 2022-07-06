@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Product } from "../components";
+import Product from "../components/Product";
 import { AppConsumer } from "./AppContext";
 import { ChildProps, graphql, compose } from "react-apollo";
 import { bookingProductWithFields } from "../graphql";

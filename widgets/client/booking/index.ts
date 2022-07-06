@@ -1,13 +1,15 @@
 import client from "../apollo-client";
 import { connection } from "./connection";
-import "./sass/style.scss";
-import { App } from "./containers";
-
 import gql from "graphql-tag";
-import { getLocalStorageItem, initStorage } from "../common";
+import { initStorage } from "../common";
 import widgetConnect from "../widgetConnect";
 import { widgetsConnectMutation } from "./graphql";
 import { IIntegration } from "../types";
+import asyncComponent from "../AsyncComponent";
+
+const App = asyncComponent(() => 
+  import(/* webpackChunkName: "BookingApp" */ "./containers/App")
+)
 
 widgetConnect({
   postParams: {
