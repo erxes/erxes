@@ -115,7 +115,6 @@ export const removeIntegration = async (
 
 export const removeAccount = async (
   models: IModels,
-  subdomain: string,
   _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await models.Accounts.findOne({ _id });
@@ -135,9 +134,7 @@ export const removeAccount = async (
       try {
         const response = await removeIntegration(
           models,
-          subdomain,
-          integration.erxesApiId,
-          true
+          integration.erxesApiId
         );
         erxesApiIds.push(response);
       } catch (e) {
