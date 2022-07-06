@@ -83,7 +83,7 @@
     "xss": "^1.0.3"
   },
   "devDependencies": {
-    "compression-webpack-plugin": "^10.0.0",
+    "compression-webpack-plugin": "^9.0.0",
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
