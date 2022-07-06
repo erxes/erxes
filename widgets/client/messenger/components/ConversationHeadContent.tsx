@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import { IParticipator, IUser } from "../../types";
-import { BrandInfo } from "../containers/common";
-import { Profile, Supporters } from "./common";
+import BrandInfo from "../containers/common/BrandInfo";
+import Profile from "./common/Profile";
+import Supporters from "./common/Supporters";
 
 type Props = {
   supporters: IUser[];

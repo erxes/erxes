@@ -1,11 +1,23 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { Callout, Form as DumbForm } from "../../../form/components";
+import asyncComponent from "../../../AsyncComponent";
 import { formDetailQuery } from "../../../form/graphql";
 import { ICurrentStatus, IForm, IFormDoc } from "../../../form/types";
 import { IEmailParams, IIntegration } from "../../../types";
 import { LeadConsumer, LeadProvider } from "./LeadContext";
+
+const Callout = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerLeadCallout" */ '../../../form/components/Callout'
+  )
+);
+
+const DumbForm = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerLeadForm" */ '../../../form/components/Form'
+  )
+);
 
 const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;

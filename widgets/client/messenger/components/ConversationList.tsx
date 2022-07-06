@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { iconPlus, iconSearch } from "../../icons/Icons";
 import { __ } from "../../utils";
-import { ConversationItem } from "../containers";
+import ConversationItem from "../containers/ConversationItem";
 import { IConversation } from "../types";
-import { TopBar } from '../containers';
+import TopBar from "../containers/TopBar";
 
 type Props = {
   conversations: IConversation[];

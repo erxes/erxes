@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SearchBar } from "../components";
+import SearchBar from "../components/SearchBar";
 import { AppConsumer } from "./AppContext";
 
 type Props = {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Callout } from "../components";
+import Callout from "../components/Callout";
 import { AppConsumer } from "./AppContext";
 
 const container = () => (

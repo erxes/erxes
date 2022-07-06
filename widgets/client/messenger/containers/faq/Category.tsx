@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Category } from "../../components/faq";
+import Category from "../../components/faq/Category";
 import { IFaqCategory } from "../../types";
 import { AppConsumer } from "../AppContext";
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Booking } from "../components";
+import Booking from "../components/Booking";
 import { AppConsumer } from "./AppContext";
 import { IBookingData } from "../types";
 
