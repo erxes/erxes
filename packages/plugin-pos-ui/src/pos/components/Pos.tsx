@@ -20,7 +20,7 @@ import {
   Indicator,
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
-import { IPos, IProductGroup } from '../../types';
+import { IPos, IProductGroup, ISlot } from '../../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
 import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
@@ -33,12 +33,14 @@ type Props = {
   save: (params: any) => void;
   productCategories: IProductCategory[];
   branches: any[];
+  slots: ISlot[];
 };
 
 type State = {
   name?: string;
   description?: string;
   pos: IPos;
+  slots: ISlot[];
   groups: IProductGroup[];
   currentMode?: 'create' | 'update' | undefined;
   logoPreviewStyle?: any;
@@ -78,7 +80,8 @@ class Pos extends React.Component<Props, State> {
       isSkip: false,
       ebarimtConfig: pos.ebarimtConfig,
       erkhetConfig: pos.erkhetConfig,
-      deliveryConfig: pos.deliveryConfig
+      deliveryConfig: pos.deliveryConfig,
+      slots: props.slots || []
     };
   }
 
@@ -87,6 +90,7 @@ class Pos extends React.Component<Props, State> {
 
     const {
       pos,
+      slots,
       groups,
       uiOptions,
       ebarimtConfig,
@@ -112,10 +116,11 @@ class Pos extends React.Component<Props, State> {
       productId: m.productId
     }));
 
-    const cleanGroups = (pos.posSlot || []).map(m => ({
-      _id: m._id,
+    const cleanSlot = (slots || []).map(m => ({
+      _id: (m._id || '').includes('temp') ? undefined : m._id,
       code: m.code,
-      name: m.name
+      name: m.name,
+      posId: m.posId
     }));
 
     let doc: any = {
@@ -130,7 +135,7 @@ class Pos extends React.Component<Props, State> {
       ebarimtConfig,
       erkhetConfig,
       catProdMappings: cleanMappings,
-      posSlot: cleanGroups,
+      posSlots: cleanSlot,
       isOnline: pos.isOnline,
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
@@ -237,7 +242,7 @@ class Pos extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, groups, currentMode, uiOptions } = this.state;
+    const { pos, slots, groups, currentMode, uiOptions } = this.state;
     const { productCategories, branches } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
@@ -258,11 +263,9 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
-                  groups={groups}
-                  currentMode={currentMode}
+                  currentMode={currentMode || 'create'}
                   branches={branches}
-                  productCategories={productCategories}
-                  posSlot={pos.posSlot}
+                  posSlots={slots}
                 />
               </Step>
               <Step
@@ -274,7 +277,7 @@ class Pos extends React.Component<Props, State> {
                   onChange={this.onChange}
                   pos={pos}
                   groups={groups}
-                  catProdMappings={pos.catProdMappings}
+                  catProdMappings={pos.catProdMappings || []}
                   productCategories={productCategories}
                 />
               </Step>

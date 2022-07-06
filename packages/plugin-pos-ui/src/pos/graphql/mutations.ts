@@ -1,3 +1,5 @@
+import { posCommonFields } from './queries';
+
 const commonFields = `
   $name: String
   $description: String
@@ -16,7 +18,6 @@ const commonFields = `
   $ebarimtConfig: JSON
   $erkhetConfig: JSON
   $catProdMappings: [CatProdInput]
-  $posSlot: [PosSlotInput]
   $initialCategoryIds: [String]
   $kioskExcludeProductIds: [String]
   $deliveryConfig: JSON
@@ -40,24 +41,15 @@ const commonVariables = `
   ebarimtConfig: $ebarimtConfig
   erkhetConfig: $erkhetConfig
   catProdMappings: $catProdMappings
-  posSlot: $posSlot
   initialCategoryIds: $initialCategoryIds
   kioskExcludeProductIds: $kioskExcludeProductIds
   deliveryConfig: $deliveryConfig
 `;
 
-const commonPosFields = `
-  _id
-  name
-  description
-  createdAt
-  productDetails
-`;
-
 const posAdd = `
   mutation posAdd(${commonFields}) {
     posAdd(${commonVariables}){
-      ${commonPosFields}
+      ${posCommonFields}
     }
   }
 `;
@@ -65,7 +57,7 @@ const posAdd = `
 const posEdit = `
   mutation posEdit($_id: String, ${commonFields}) {
     posEdit(_id: $_id, ${commonVariables}){
-      ${commonPosFields}
+      ${posCommonFields}
     }
   }
 `;
@@ -98,11 +90,20 @@ const saveProductGroups = `
   }
 `;
 
+const saveSlots = `
+  mutation posSlotBulkUpdate($posId: String!, $slots: [SlotInput]) {
+    posSlotBulkUpdate(posId: $posId, slots: $slots) {
+      _id
+    }
+  }
+`;
+
 export default {
   posAdd,
   posEdit,
   posRemove,
   updateConfigs,
   brandAdd,
-  saveProductGroups
+  saveProductGroups,
+  saveSlots
 };

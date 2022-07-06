@@ -69,7 +69,6 @@ export const types = `
     qpayConfig: QPayConfig
     syncInfo: JSON
     catProdMappings: [CatProd]
-    posSlot: [PosSlot]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
   }

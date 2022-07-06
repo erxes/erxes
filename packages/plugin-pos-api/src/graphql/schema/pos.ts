@@ -41,13 +41,6 @@ const catProd = `
   productId: String
 `;
 
-const posSlot = `
-  _id: String
-  code: String
-  name: String
-
-`;
-
 const posOrderFields = contactsEnabled => `
   _id: String,
   createdAt: Date,
@@ -116,10 +109,6 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     ${catProd}
   }
 
-  type PosSlot {
-    ${posSlot}
-  }
-
   type Pos {
     _id: String
     createdAt: Date
@@ -127,8 +116,13 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     user: User
     ${posCommonFields}
     catProdMappings: [CatProd]
-    posSlot: [PosSlot]
+  }
 
+  type PosSlot {
+    _id: String
+    posId: String
+    code: String
+    name: String
   }
 
   type ProductGroups {
@@ -150,13 +144,17 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     excludedProductIds: [String]
   }
 
+  input SlotInput {
+    _id: String
+    posId: String!
+    code: String
+    name: String
+  }
+
   input CatProdInput {
     ${catProd}
   }
 
-  input PosSlotInput {
-    ${posSlot}
-  }
 
   type PosOrder {
     ${posOrderFields(contactsEnabled)}
@@ -215,6 +213,7 @@ export const queries = `
     sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
   productGroups(posId: String!): [ProductGroups]
+  posSlots(posId: String!): [PosSlot]
   posOrders(${queryParams}): [PosOrder]
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
@@ -223,11 +222,12 @@ export const queries = `
 `;
 
 export const mutations = `
-  posAdd(${posCommonFields}, catProdMappings: [CatProdInput], posSlot: [PosSlotInput] ): Pos
-  posEdit(_id: String, ${posCommonFields}, catProdMappings: [CatProdInput], posSlot: [PosSlotInput]): Pos
+  posAdd(${posCommonFields}, catProdMappings: [CatProdInput]): Pos
+  posEdit(_id: String, ${posCommonFields}, catProdMappings: [CatProdInput]): Pos
   posRemove(_id: String!): JSON
   productGroupsAdd(${groupCommonFields}): ProductGroups
   productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]
+  posSlotBulkUpdate(posId: String, slots: [SlotInput]): [PosSlot]
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder

@@ -1,4 +1,4 @@
-const posCommonFields = `
+export const posCommonFields = `
   _id
   name
   description
@@ -31,12 +31,6 @@ const posCommonFields = `
     _id
     categoryId
     productId
-  }
-
-  posSlot {
-    _id
-    code
-    name
   }
   
   initialCategoryIds
@@ -109,6 +103,17 @@ const branches = `
   }
 `;
 
+const posSlots = `
+  query posSlots($posId: String!) {
+    posSlots(posId: $posId) {
+      _id
+      posId
+      code
+      name
+    }
+  }
+`;
+
 const posDetail = `
   query posDetail($_id: String!) {
     posDetail(_id: $_id) {
@@ -133,5 +138,6 @@ export default {
   productGroups,
   posDetail,
   getDbSchemaLabels,
-  branches
+  branches,
+  posSlots
 };

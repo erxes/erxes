@@ -74,7 +74,6 @@ export interface IConfig {
   qpayConfig: IQPayConfig;
   syncInfo: ISyncInfo;
   catProdMappings: ICatProd[];
-  posSlot: IPosSlot[];
   initialCategoryIds: string[];
   kioskExcludeProductIds: string[];
 }
