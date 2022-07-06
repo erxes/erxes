@@ -198,7 +198,7 @@ $darker-blue: #3b85f4;
     border-left: 5px solid $border-color;
     font-size: 16px;
     margin: 0;
-    padding: $core-spacing / 2 $core-spacing;
+    padding: calc($core-spacing / 2) $core-spacing;
   }
 
   pre {
