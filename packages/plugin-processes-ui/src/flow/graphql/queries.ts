@@ -21,6 +21,14 @@ query flows($categoryId: String, $searchValue: String) {
 }
 `;
 
+const flowsAll = `
+query flowsAll {
+  flowsAll {
+    ${flowFields}
+  }
+}
+`;
+
 const flowDetail = `
 query flowDetail($_id: String!) {
   flowDetail(_id: $_id) {
@@ -64,6 +72,7 @@ export default {
   flowCategoriesTotalCount,
 
   flows,
+  flowsAll,
   flowDetail,
   flowTotalCount,
 

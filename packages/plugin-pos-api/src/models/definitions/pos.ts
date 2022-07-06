@@ -62,7 +62,6 @@ export interface IPos {
   erkhetConfig: Object;
   syncInfos: Object;
   catProdMappings: Object;
-  posSlot: Object;
   initialCategoryIds: string;
   kioskExcludeProductIds: string;
   deliveryConfig: Object;
@@ -85,9 +84,10 @@ export interface IProductGroupDocument extends IProductGroup, Document {
 }
 
 export interface IPosSlot {
+  _id?: string;
+  posId: string;
   name: string;
   code: string;
-  posId: string;
 }
 
 export interface IPosSlotDocument extends IPosSlot, Document {
@@ -196,11 +196,6 @@ export const posSchema = schemaHooksWrapper(
       label: 'Category product mappings',
       optional: true
     }),
-    posSlot: field({
-      type: [Object],
-      label: 'Pos slot mappings',
-      optional: true
-    }),
     initialCategoryIds: field({
       type: [String],
       label: 'Pos initial categories'
@@ -247,7 +242,7 @@ export const posSlotSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
-    posId: field({ type: String, label: 'Pos id' })
+    posId: field({ type: String, label: 'Pos' })
   }),
   'erxes_pos_slot'
 );

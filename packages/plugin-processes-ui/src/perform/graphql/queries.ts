@@ -66,7 +66,9 @@ query overallWorksSideBar($inBranchId: String, $inDepartmentId: String, $outBran
 const sideBarDetailFields = `
 _id
     job
+    jobId
     flow
+    flowId
     interval
     intervalId
     outBranch
@@ -74,7 +76,10 @@ _id
     inBranch
     inDepartment
     needProductsDetail
+    needProducts
     resultProductsDetail
+    resultProducts
+
 `;
 
 const overallWorksSideBarDetail = `

@@ -74,6 +74,10 @@ export type FlowsQueryResponse = {
   flows: IFlowDocument[];
 } & QueryResponse;
 
+export type FlowsAllQueryResponse = {
+  flowsAll: IFlowDocument[];
+} & QueryResponse;
+
 export type FlowDetailQueryResponse = {
   flowDetail: IFlowDocument;
 } & QueryResponse;

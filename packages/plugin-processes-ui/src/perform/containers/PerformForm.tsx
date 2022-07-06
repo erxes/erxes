@@ -2,6 +2,9 @@ import React from 'react';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+
+import { IFlowDocument, IJob } from '../../flow/types';
+import { IJobRefer } from '../../job/types';
 import Form from '../components/perform/PerformForm';
 import { mutations } from '../graphql';
 import { IOverallWorkDocument } from '../types';
@@ -11,21 +14,19 @@ type Props = {
   history: any;
   overallWorkDetail: IOverallWorkDocument;
   max: number;
+  jobRefer?: IJobRefer;
 };
 
 class ProductFormContainer extends React.Component<Props> {
   render() {
-    const { overallWorkDetail, max } = this.props;
-
-    console.log('overallWorkDetail overallWorkDetail:', overallWorkDetail);
-
+    const { overallWorkDetail, max, jobRefer } = this.props;
     const renderButton = ({
       name,
       values,
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
-      console.log(values);
+      const { count, performNeedProducts, performResultProducts } = values;
 
       const doc = {
         startAt: new Date(),
@@ -33,10 +34,9 @@ class ProductFormContainer extends React.Component<Props> {
         dueDate: new Date(),
         overallWorkId: overallWorkDetail._id,
         status: 'new',
-        productId: values.productId,
-        count: Number(values.count).toString(),
-        needProducts: [],
-        resultProducts: []
+        count: Number(count).toString(),
+        needProducts: performNeedProducts,
+        resultProducts: performResultProducts
       };
 
       return (
@@ -59,14 +59,19 @@ class ProductFormContainer extends React.Component<Props> {
     };
 
     return (
-      <Form {...updatedProps} overallWorkDetail={overallWorkDetail} max={max} />
+      <Form
+        {...updatedProps}
+        overallWorkDetail={overallWorkDetail}
+        max={max}
+        jobRefer={jobRefer}
+      />
     );
   }
 }
 
 const getRefetchQueries = test => {
   console.log(test);
-  return ['performsByOverallWorkId', 'performsTotalCount'];
+  return ['performsByOverallWorkId', 'performsByOverallWorkIdTotalCount'];
 };
 
 export default ProductFormContainer;
