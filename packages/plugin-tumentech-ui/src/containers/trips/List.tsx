@@ -7,12 +7,11 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import { router } from '@erxes/ui/src';
 
 type Props = {
-  // refetch: () => void;
   queryParams: any;
 };
 
 const TripListContainer = (props: Props) => {
-  const { data, loading, refetch } = useQuery(gql(queries.trips), {
+  const { data, loading } = useQuery(gql(queries.trips), {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {})
     },
@@ -28,7 +27,6 @@ const TripListContainer = (props: Props) => {
     loading,
     trips,
     totalCount
-    // refetch,
   };
 
   return <List {...extendedProps} />;

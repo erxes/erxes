@@ -50,7 +50,7 @@ function CarRow({
   };
 
   const onTdClick = () => {
-    history.push(`/erxes-plugin-car/details/${car._id}`);
+    history.push(`/erxes-plugin-tumentech/car/details/${car._id}`);
   };
 
   return (
