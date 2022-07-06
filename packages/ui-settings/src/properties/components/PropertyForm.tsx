@@ -19,7 +19,7 @@ import React from 'react';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { IField } from '@erxes/ui/src/types';
 import { IFieldGroup } from '../types';
-import Map from '@erxes/ui/src/components/map/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 import ObjectListConfigs from './ObjectListConfigs';
 import LocationOptions from './LocationOptions';
 
@@ -241,7 +241,6 @@ class PropertyForm extends React.Component<Props, State> {
           <Map
             id={this.props.field?._id || Math.random().toString(10)}
             center={currentLocation}
-            googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
             locationOptions={locationOptions}
             streetViewControl={false}
             onChangeLocationOptions={this.onChangeLocationOptions}

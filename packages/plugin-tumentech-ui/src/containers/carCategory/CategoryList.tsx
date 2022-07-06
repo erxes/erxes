@@ -23,7 +23,6 @@ type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 
   products: IProduct[];
-  onSelect: (prs: IProduct[]) => void;
   saveMatch: () => void;
 };
 
@@ -73,7 +72,7 @@ class CarListContainer extends React.Component<FinalProps> {
       );
     };
 
-    const remove = (carId) => {
+    const remove = carId => {
       confirm().then(() => {
         carCategoryRemove({
           variables: { _id: carId }
@@ -84,7 +83,7 @@ class CarListContainer extends React.Component<FinalProps> {
 
             Alert.success(`You successfully deleted a car & service category`);
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
       });

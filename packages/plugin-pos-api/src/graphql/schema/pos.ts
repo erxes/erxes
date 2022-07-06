@@ -33,6 +33,7 @@ const posCommonFields = `
   initialCategoryIds: [String]
   kioskExcludeProductIds: [String]
   deliveryConfig: JSON
+  cardsConfig: JSON
 `;
 
 const catProd = `

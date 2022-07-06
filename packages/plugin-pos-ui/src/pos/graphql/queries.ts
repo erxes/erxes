@@ -26,7 +26,7 @@ const posCommonFields = `
   uiOptions
   ebarimtConfig
   erkhetConfig
-
+  cardsConfig
   catProdMappings {
     _id
     categoryId

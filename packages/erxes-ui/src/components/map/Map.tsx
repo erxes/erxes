@@ -5,13 +5,14 @@ import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
 
-interface IMapProps extends google.maps.MapOptions {
+export interface IMapProps extends google.maps.MapOptions {
   id: string;
-  googleMapApiKey: string;
+  googleMapApiKey?: string;
   center?: ILocationOption;
   locationOptions: ILocationOption[];
   locale?: string;
   connectWithLines?: boolean;
+  googleMapPath?: string | string[];
   mode?: 'view' | 'config';
   onChangeMarker?: (location: ILocationOption) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
@@ -62,6 +63,7 @@ const Map = (props: IMapProps) => {
     mode = 'view',
     locationOptions = [],
     onChangeLocationOptions,
+    googleMapPath,
     ...mapOptions
   } = props;
 
@@ -221,18 +223,40 @@ const Map = (props: IMapProps) => {
       });
       map.fitBounds(bounds);
 
-      if (!props.connectWithLines) {
+      if (props.connectWithLines) {
+        new google.maps.Polyline({
+          path: locationOptions,
+          geodesic: true,
+          strokeColor: colors.colorCoreRed,
+          strokeOpacity: 0.7,
+          strokeWeight: 2,
+          map: map
+        });
+      }
+
+      if (locationOptions.length < 2) {
         return;
       }
 
-      new google.maps.Polyline({
-        path: locationOptions,
-        geodesic: true,
-        strokeColor: colors.colorCoreRed,
-        strokeOpacity: 0.7,
-        strokeWeight: 2,
-        map: map
-      });
+      if (googleMapPath) {
+        let path: google.maps.LatLng[] = [];
+
+        if (typeof googleMapPath === 'string') {
+          path = google.maps.geometry.encoding.decodePath(googleMapPath);
+        } else {
+          for (const p of googleMapPath) {
+            path = [...path, ...google.maps.geometry.encoding.decodePath(p)];
+          }
+        }
+
+        new google.maps.Polyline({
+          path,
+          strokeColor: colors.colorCoreBlue,
+          strokeOpacity: 0.8,
+          strokeWeight: 5,
+          map
+        });
+      }
 
       return;
     }

@@ -1,3 +1,4 @@
+import { IDealPlaceModel, loadDealPlaceClass } from './models/DealPlaces';
 import { IRouteDocument } from './models/definitions/routes';
 import { IDirectionDocument } from './models/definitions/directions';
 import { IRouteModel, loadRouteClass } from './models/Routes';
@@ -25,6 +26,7 @@ import { IPlaceModel, loadPlaceClass } from './models/Places';
 import { IPlaceDocument } from './models/definitions/places';
 import { ITripModel, loadTripClass } from './models/Trips';
 import { ITripDocument } from './models/definitions/trips';
+import { IDealPlaceDocument } from './models/definitions/dealPlaces';
 
 export interface IModels {
   Cars: ICarModel;
@@ -35,6 +37,7 @@ export interface IModels {
   Directions: IDirectionModel;
   Routes: IRouteModel;
   Trips: ITripModel;
+  DealPlaces: IDealPlaceModel;
 }
 
 export interface IContext extends IMainContext {
@@ -97,6 +100,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Trips = db.model<ITripDocument, ITripModel>(
     'trips',
     loadTripClass(models)
+  );
+
+  models.DealPlaces = db.model<IDealPlaceDocument, IDealPlaceModel>(
+    'deal_places',
+    loadDealPlaceClass(models)
   );
 
   return models;
