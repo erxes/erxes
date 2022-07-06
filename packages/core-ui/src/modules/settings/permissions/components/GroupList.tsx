@@ -17,6 +17,7 @@ import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { SidebarItem } from '../styles';
 import { IUserGroupDocument } from '../types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
 import GroupForm from './GroupForm';
 
 const { Section } = Wrapper.Sidebar;
@@ -33,13 +34,13 @@ interface IProps extends IRouterProps {
 }
 
 class GroupList extends React.Component<IProps> {
-  renderFormTrigger(trigger: React.ReactNode, object?: any) {
+  renderFormTrigger(trigger: React.ReactNode, object?: IUserGroup) {
     const content = props => this.renderForm({ ...props, object });
 
     return (
       <ModalTrigger
         title="New Group"
-        autoOpenKey={object}
+        autoOpenKey={object ? "don't show" : 'showUserGroupAddModal'}
         trigger={trigger}
         content={content}
       />
@@ -147,10 +148,9 @@ class GroupList extends React.Component<IProps> {
       </Button>
     );
 
-    const autoOpen = 'showUserGroupAddModal';
     return (
       <>
-        <Header>{this.renderFormTrigger(trigger, autoOpen)}</Header>
+        <Header>{this.renderFormTrigger(trigger)}</Header>
         <Section.Title noBackground noSpacing>
           {__('User groups')}
           <Section.QuickButtons>
