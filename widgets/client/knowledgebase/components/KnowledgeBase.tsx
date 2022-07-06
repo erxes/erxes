@@ -1,10 +1,31 @@
 import * as React from "react";
+import asyncComponent from "../../AsyncComponent";
 import { readFile } from "../../utils";
-import ArticleDetail from '../containers/ArticleDetail';
-import Articles from '../containers/Articles';
-import Categories from '../containers/Categories';
-import CategoryDetail from '../containers/CategoryDetail';
 import SearchBar from '../containers/SearchBar';
+
+const Categories = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KbCategories" */ '../containers/Categories'
+  )
+);
+
+const CategoryDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KbCategoryDetail" */ '../containers/CategoryDetail'
+  )
+);
+
+const Articles = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KbArticles" */ '../containers/Articles'
+  )
+);
+
+const ArticleDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KbArticleDetail" */ '../containers/ArticleDetail'
+  )
+);
 
 type Props = {
   activeRoute: string;

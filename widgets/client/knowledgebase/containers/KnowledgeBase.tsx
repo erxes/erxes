@@ -8,6 +8,16 @@ import { IKbTopic } from "../types";
 import { AppConsumer, AppProvider } from "./AppContext";
 import queries from "./graphql";
 
+import * as dayjs from "dayjs";
+import * as localizedFormat from "dayjs/plugin/localizedFormat";
+import * as relativeTime from "dayjs/plugin/relativeTime";
+
+import "../sass/style.scss";
+import "../../sass/components/_faq-icons.scss";
+
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
+
 type QueryResponse = {
   widgetsKnowledgeBaseTopicDetail: IKbTopic;
 };
