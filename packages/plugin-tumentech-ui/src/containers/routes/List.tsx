@@ -41,8 +41,6 @@ export default function RoutesContainer(props: Props) {
 
   const routes = (data && data.routes.list) || [];
 
-  console.log(routes);
-
   const totalCount = (data && data.routes.totalCount) || 0;
 
   const extendedProps = {
