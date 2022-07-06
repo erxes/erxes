@@ -2,11 +2,21 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { setLocale } from "../../utils";
-import { KnowledgeBase } from "../components";
+import KnowledgeBase from "../components/KnowledgeBase";
 import { connection } from "../connection";
 import { IKbTopic } from "../types";
 import { AppConsumer, AppProvider } from "./AppContext";
 import queries from "./graphql";
+
+import * as dayjs from "dayjs";
+import * as localizedFormat from "dayjs/plugin/localizedFormat";
+import * as relativeTime from "dayjs/plugin/relativeTime";
+
+import "../sass/style.scss";
+import "../../sass/components/_faq-icons.scss";
+
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
 
 type QueryResponse = {
   widgetsKnowledgeBaseTopicDetail: IKbTopic;

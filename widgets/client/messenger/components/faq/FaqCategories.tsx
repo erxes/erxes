@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Categories } from "../../containers/faq";
-import { SearchBar } from "./";
+import Categories from "../../containers/faq/Categories";
+import SearchBar from "./SearchBar";
 
 type Props = {
   topicId: string;

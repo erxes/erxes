@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Article } from "../../components/faq";
+import Article from "../../components/faq/Article";
 import { IFaqArticle } from "../../types";
 import { AppConsumer } from "../AppContext";
 

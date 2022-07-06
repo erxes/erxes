@@ -10,7 +10,7 @@ import {
   saveLead,
   sendEmail,
 } from "./utils";
-import QRCode = require("qrcode");
+import * as QRCode from "qrcode";
 interface IState {
   isPopupVisible: boolean;
   isFormVisible: boolean;
@@ -182,8 +182,8 @@ export class AppProvider extends React.Component<{}, IState> {
       formId: this.getForm()._id,
       userId: connection.setting.user_id,
       saveCallback: async (response: ISaveFormResponse) => {
-        const { errors } = response;
-        let { invoiceResponse, invoiceType } = response;
+        const { errors, invoiceType } = response;
+        let { invoiceResponse } = response;
 
         let status = "ERROR";
 
