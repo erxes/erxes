@@ -7,25 +7,14 @@ import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
 const generateFilterItems = async (params, subdomain) => {
-  const { remainderId, productCategoryId, statuses } = params;
+  const { remainderId, productCategoryId, status, diffType } = params;
   const query: any = { remainderId };
+
   if (productCategoryId) {
-    const productCategories = await sendProductsMessage({
-      subdomain,
-      action: 'categories.withChilds',
-      data: {
-        _id: params.categoryId
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const productCategoryIds = productCategories.map(p => p._id);
-
     const products = await sendProductsMessage({
       subdomain,
       action: 'find',
-      data: { query: { categoryId: { $in: productCategoryIds } } },
+      data: { query: {}, categoryId: productCategoryId },
       isRPC: true,
       defaultValue: []
     });
@@ -34,8 +23,34 @@ const generateFilterItems = async (params, subdomain) => {
     query.productId = { $in: productIds };
   }
 
+  if (status) {
+    query.status = status;
+  }
+
+  if (diffType) {
+    const diffTypes = diffType.split(',');
+    let op;
+    if (diffTypes.includes('gt')) {
+      op = '>';
+    }
+    if (diffTypes.includes('lt')) {
+      op = '<';
+    }
+    if (op) {
+      if (diffTypes.includes('eq')) {
+        op = `${op}=`;
+      }
+    } else {
+      if (diffTypes.includes('eq')) {
+        op = `===`;
+      }
+    }
+    query.$where = `this.preCount ${op} this.count`;
+  }
+
   return query;
 };
+
 const safeRemainderQueries = {
   /**
    * Get one tag

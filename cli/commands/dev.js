@@ -69,7 +69,7 @@ module.exports.devCmd = async program => {
       ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
-        PORT: port,
+        PORT: (configs.core || {}).port || port,
         CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
         ...commonEnv,
         ...((configs.core || {}).envs || {}),
@@ -178,7 +178,7 @@ module.exports.devCmd = async program => {
       ...commonOptions,
       ignore_watch: ["node_modules"],
       env: {
-        PORT: port,
+        PORT: plugin.port || port,
         ...commonEnv,
         ...(plugin.extra_env || {}),
       },

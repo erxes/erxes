@@ -71,6 +71,7 @@ export interface ILocationOption {
   lat: number;
   lng: number;
   description?: string;
+  marker?: string;
 }
 
 export interface IObjectListConfig {

@@ -1,6 +1,6 @@
-import { dimensions, colors, ContentHeader } from "@erxes/ui/src";
-import styled from "styled-components";
-import styledTS from "styled-components-ts";
+import { dimensions, colors, ContentHeader } from '@erxes/ui/src';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const LoyaltyAmount = styled.div`
   font-weight: 800;
@@ -91,7 +91,7 @@ export const LeftContent = styled.div`
 `;
 
 const TabletPreview = styled.div`
-  background: url("/images/previews/tablet.png") no-repeat center center;
+  background: url('/images/previews/tablet.png') no-repeat center center;
   width: 768px;
   height: 1024px;
   margin: 0 auto;
@@ -128,7 +128,7 @@ export const PreviewWrapper = styled.div`
 export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${(props) => props.isActive && colors.bgActive};
+  background: ${props => props.isActive && colors.bgActive};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -162,7 +162,7 @@ export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
 
   &:hover {
     cursor: pointer;
-    background: ${(props) => !props.isActive && colors.bgLight};
+    background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: 35px;
@@ -287,7 +287,7 @@ export const FullPreview = styled.div`
 `;
 
 export const DesktopPreview = styled.div`
-  background: url("/images/previews/desktop.png") no-repeat;
+  background: url('/images/previews/desktop.png') no-repeat;
   background-size: cover;
   border: 1px solid ${colors.borderPrimary};
   border-radius: ${dimensions.unitSpacing / 2}px;
@@ -401,7 +401,7 @@ export const CustomRangeContainer = styled.div`
   }
 
   .filterDate {
-    max-width: 50%
+    max-width: 50%;
   }
 `;
 
@@ -423,7 +423,7 @@ export const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
 
   &:hover {
     background: ${props =>
-    props.selected ? colors.colorPrimaryDark : colors.bgGray};
+      props.selected ? colors.colorPrimaryDark : colors.bgGray};
     cursor: pointer;
   }
 `;
@@ -455,4 +455,11 @@ export const MenuFooter = styled.footer`
   display: flex;
   padding: 10px 20px;
   max-width: 95%;
+`;
+
+export const PosSlotAddButton = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
 `;

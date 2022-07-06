@@ -445,6 +445,7 @@ export type IDirection = {
   roadCode: string;
   routeCode: string;
   duration: number;
+  googleMapPath?: string;
 };
 
 export type IDirectionItem = {
@@ -465,4 +466,31 @@ export type IRoute = {
   directionIds: string[];
   directions: IDirection[];
   summary: IRouteSummary;
+};
+
+export type IDealPlace = {
+  dealId: string;
+  startPlaceId: string;
+  endPlaceId: string;
+  startPlace: IPlace;
+  endPlace: IPlace;
+};
+
+export type ITrip = {
+  _id: string;
+  carId: string;
+  closedDate: Date;
+  createdAt: Date;
+  dealIds: string[];
+  driverId: string;
+  estimatedCloseDate: Date;
+  routeId: string;
+  routeReversed: boolean;
+  startedDate: Date;
+  status: string;
+  statusInfo: any;
+  route: IRoute;
+  driver: ICustomer;
+  deals: IDeal[];
+  car: ICar;
 };

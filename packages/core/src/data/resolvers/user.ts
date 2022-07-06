@@ -6,7 +6,6 @@ import { IContext } from '../../connectionResolver';
 import { IUserDocument } from '../../db/models/definitions/users';
 import { getUserActionsMap } from '../permissions/utils';
 import { getConfigs } from '../utils';
-import { getDocumentList } from './mutations/cacheUtils';
 
 export default {
   __resolveReference: ({ _id }, { models }: IContext) => {
@@ -21,14 +20,14 @@ export default {
     return 'Verified';
   },
 
-  brands(user: IUserDocument, _args, { models, subdomain }: IContext) {
+  async brands(user: IUserDocument, _args, { models }: IContext) {
     if (user.isOwner) {
-      return getDocumentList(models, subdomain, 'brands', {});
+      return models.Brands.find().lean();
     }
 
-    return getDocumentList(models, subdomain, 'brands', {
+    return models.Brands.find({
       _id: { $in: user.brandIds }
-    });
+    }).lean();
   },
 
   async permissionActions(user: IUserDocument, _args, { models }: IContext) {

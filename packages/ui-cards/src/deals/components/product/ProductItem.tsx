@@ -64,12 +64,6 @@ class ProductItem extends React.Component<Props, State> {
     if (currencies.length > 0 && !productData.currency) {
       this.onChangeField('currency', currencies[0], productData._id);
     }
-
-    // select previous assignee when add new product
-    const tempAssignee = localStorage.getItem('temporaryAssignee');
-    if (!productData.assignUserId && tempAssignee && !productData.product) {
-      this.onChangeField('assignUserId', tempAssignee, productData._id);
-    }
   };
 
   calculateAmount = (type: string, productData: IProductData) => {
@@ -224,7 +218,6 @@ class ProductItem extends React.Component<Props, State> {
   };
 
   assignUserOnChange = userId => {
-    localStorage.setItem('temporaryAssignee', userId);
     this.onChangeField('assignUserId', userId, this.props.productData._id);
   };
 

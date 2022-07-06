@@ -6,6 +6,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './participantsSection': './src/Participants.tsx',
+    './locationSection': './src/Location.tsx',
     './carSection': './src/components/common/CarSection.tsx'
   },
   routes: {
@@ -37,6 +38,11 @@ module.exports = {
     }
   ],
   dealRightSidebarSection: [
+    {
+      text: 'locationSection',
+      component: './locationSection',
+      scope: 'tumentech'
+    },
     {
       text: 'carSection',
       component: './carSection',
