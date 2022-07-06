@@ -5,21 +5,13 @@ import { IEditorProps, IMentionUser } from '../types';
 import { AllUsersQueryResponse } from '../auth/types';
 import EditorCK from '../components/EditorCK';
 import React from 'react';
-import asyncComponent from '../components/AsyncComponent';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { isEnabled } from '../utils/core';
 import { isValidURL } from '../utils/urlParser';
+import segmentQueries from '@erxes/ui-segments/src/graphql/queries';
 import { queries as teamQueries } from '../team/graphql';
 import { withProps } from '../utils';
-
-const segmentQueries = asyncComponent(
-  () =>
-    isEnabled('segments') &&
-    import(
-      /* webpackChunkName: "segmentQueries" */ '@erxes/ui-segments/src/graphql/queries'
-    )
-);
 
 const generateAttributes = (combinedFields?: any[]) => {
   //check - FieldsCombinedByType

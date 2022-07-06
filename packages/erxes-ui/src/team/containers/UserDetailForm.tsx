@@ -16,26 +16,10 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import UserDetailForm from '../components/detail/UserDetailForm';
 import UserForm from './UserForm';
 import UserSkillForm from '../components/detail/UserSkillForm';
-import asyncComponent from '../../components/AsyncComponent';
+import channelQueries from '@erxes/ui-inbox/src/settings/channels/graphql/queries';
 import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import path from 'path';
-
-const channelQueries = asyncComponent(
-  () =>
-    isEnabled('inbox') &&
-    path.resolve(
-      /* webpackChunkName: "channelQueries" */ '@erxes/ui-inbox/src/settings/channels/graphql/queries'
-    )
-);
-
-const skillQueries = asyncComponent(
-  () =>
-    isEnabled('inbox') &&
-    path.resolve(
-      /* webpackChunkName: "skillQueries" */ '@erxes/ui-inbox/src/settings/skills/graphql/queries'
-    )
-);
+import skillQueries from '@erxes/ui-inbox/src/settings/skills/graphql/queries';
 
 type Props = {
   _id: string;
