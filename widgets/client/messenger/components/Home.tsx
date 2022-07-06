@@ -10,9 +10,18 @@ import {
   IUser,
 } from "../../types";
 import { __ } from "../../utils";
-import { Integrations, TopBar } from "../containers";
-import { SocialLink, Supporters } from "./common";
-import { FaqCategories } from "./faq";
+import TopBar from "../containers/TopBar";
+import SocialLink from "./common/SocialLink";
+import Supporters from "./common/Supporters";
+import asyncComponent from "../../AsyncComponent";
+
+const Integrations = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerIntegrations" */ "../containers/Integrations")
+);
+
+const FaqCategories = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerFaq" */ "./faq/FaqCategories")
+);
 
 type Props = {
   supporters: IUser[];

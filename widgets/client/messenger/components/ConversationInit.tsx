@@ -1,7 +1,7 @@
 import * as React from "react";
 import { iconPlus } from "../../icons/Icons";
 import { __ } from "../../utils";
-import { ConversationItem } from "../containers";
+import ConversationItem from "../containers/ConversationItem";
 import { IConversation } from "../types";
 
 type Props = {

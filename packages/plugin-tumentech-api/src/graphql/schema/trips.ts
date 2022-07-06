@@ -1,13 +1,13 @@
 export const types = ({ contacts, cards }) => `
 type TrackingItem {
-  lat: Int
-  lng: Int
+  lat: Float
+  lng: Float
   trackedDate: Date
 }
 
 input TrackingItemInput {
-  lat: Int
-  lng: Int
+  lat: Float
+  lng: Float
   trackedDate: Date
 }
 
@@ -44,10 +44,15 @@ input TrackingItemInput {
     }
 
   }
+
+  type TripListResponse {
+    list: [Trip],
+    totalCount: Int
+  }
 `;
 
 export const queries = `
-    trips(status: String): [Trip]
+    trips(status: String): TripListResponse
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
 `;

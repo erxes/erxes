@@ -241,7 +241,11 @@ const knowledgeBaseMutations = {
       data: {
         title: doc.title,
         body: strip_html(doc.content),
-        receivers
+        receivers,
+        data: {
+          type: 'knowledge',
+          id: kbArticle._id
+        }
       }
     });
 

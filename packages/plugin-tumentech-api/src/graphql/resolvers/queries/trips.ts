@@ -17,10 +17,13 @@ const tripsQuery = {
       filter.status = status;
     }
 
-    return paginate(models.Trips.find(filter).lean(), {
-      page: page || 1,
-      perPage: perPage || 20
-    });
+    return {
+      list: paginate(models.Trips.find(filter).lean(), {
+        page: page || 1,
+        perPage: perPage || 20
+      }),
+      totalCount: models.Trips.find(filter).count()
+    };
   },
 
   activeTrips: async (_root, {}, { models }: IContext) => {

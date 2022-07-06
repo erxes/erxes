@@ -1,6 +1,20 @@
 import * as React from "react";
+import asyncComponent from "../../AsyncComponent";
 import { iconClose } from "../../icons/Icons";
-import { Callout, Form, ShoutboxLauncher } from "../containers";
+
+const Form = asyncComponent(() =>
+  import(/* webpackChunkName: "Form" */ '../containers/Form')
+);
+
+const Callout = asyncComponent(() =>
+  import(/* webpackChunkName: "FormCallout" */ '../containers/Callout')
+);
+
+const ShoutboxLauncher = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "FormShoutboxLauncher" */ '../containers/ShoutboxLauncher'
+  )
+);
 
 type Props = {
   isFormVisible: boolean;

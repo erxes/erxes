@@ -10,5 +10,5 @@ export const PRODUCT_CATEGORIES_STATUS_FILTER = {
 };
 
 export const CONFIGS_KEY_LABELS = {
-  isReqiureUOM: 'is reqiured UOM',
+  isReqiureUOM: 'is reqiured UOM'
 };

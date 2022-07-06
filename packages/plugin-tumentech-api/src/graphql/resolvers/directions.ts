@@ -8,8 +8,9 @@ const Direction = {
     { models: { Places } }: IContext
   ) {
     const places = await Places.find({
-      _id: { $in: (direction.placeIds || []).filter(id => id) }
-    }).limit(10);
+      _id: { $in: direction.placeIds || [] }
+    }).lean();
+
     return places;
   }
 };

@@ -29,12 +29,15 @@ type WrapperProps = {
 
 export default withProps<WrapperProps>(
   compose(
-    graphql<WrapperProps, any, { only: string }>(gql(queries.carCounts), {
-      name: 'carCountQuery',
-      skip: ({ loadingMainQuery }) => loadingMainQuery,
-      options: () => ({
-        variables: { type: 'car', only: 'bySegment' }
-      })
-    })
+    graphql<WrapperProps, CountQueryResponse, { only: string }>(
+      gql(queries.carCounts),
+      {
+        name: 'carCountQuery',
+        skip: ({ loadingMainQuery }) => loadingMainQuery,
+        options: () => ({
+          variables: { type: 'car', only: 'bySegment' }
+        })
+      }
+    )
   )(SegmentFilterContainer)
 );

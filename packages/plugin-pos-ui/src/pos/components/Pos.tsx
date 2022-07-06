@@ -4,6 +4,7 @@ import EbarimtConfig from './step/EbarimtConfig';
 import ErkhetConfig from './step/ErkhetConfig';
 import DeliveryConfig from './step/DeliveryConfig';
 import GeneralStep from './step/GeneralStep';
+import CardsConfig from './step/CardsConfig';
 import React from 'react';
 import {
   __,
@@ -50,6 +51,7 @@ type State = {
   ebarimtConfig: any;
   erkhetConfig: any;
   deliveryConfig: any;
+  cardsConfig: any;
 };
 
 class Pos extends React.Component<Props, State> {
@@ -78,7 +80,8 @@ class Pos extends React.Component<Props, State> {
       isSkip: false,
       ebarimtConfig: pos.ebarimtConfig,
       erkhetConfig: pos.erkhetConfig,
-      deliveryConfig: pos.deliveryConfig
+      deliveryConfig: pos.deliveryConfig,
+      cardsConfig: pos.cardsConfig
     };
   }
 
@@ -91,7 +94,8 @@ class Pos extends React.Component<Props, State> {
       uiOptions,
       ebarimtConfig,
       erkhetConfig,
-      deliveryConfig
+      deliveryConfig,
+      cardsConfig
     } = this.state;
 
     if (!pos.name) {
@@ -133,7 +137,8 @@ class Pos extends React.Component<Props, State> {
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
       initialCategoryIds: pos.initialCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
-      deliveryConfig
+      deliveryConfig,
+      cardsConfig
     };
 
     if (pos.isOnline) {
@@ -305,6 +310,14 @@ class Pos extends React.Component<Props, State> {
                 noButton={true}
               >
                 <DeliveryConfig onChange={this.onChange} pos={pos} />
+              </Step>
+              <Step
+                img="/images/icons/erxes-07.svg"
+                title={'Sync Cards'}
+                onClick={this.onStepClick}
+                noButton={true}
+              >
+                <CardsConfig onChange={this.onChange} pos={pos} />
               </Step>
             </Steps>
             <ControlWrapper>
