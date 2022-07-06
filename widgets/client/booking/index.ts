@@ -1,4 +1,3 @@
-import "erxes-icon/css/erxes.min.css";
 import client from "../apollo-client";
 import { connection } from "./connection";
 import "./sass/style.scss";

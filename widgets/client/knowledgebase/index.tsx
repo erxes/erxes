@@ -1,7 +1,6 @@
 import * as dayjs from "dayjs";
 import * as localizedFormat from "dayjs/plugin/localizedFormat";
 import * as relativeTime from "dayjs/plugin/relativeTime";
-import "erxes-icon/css/erxes.min.css";
 
 import * as React from "react";
 import { ApolloProvider } from "react-apollo";

@@ -5,7 +5,7 @@ import { IEmailParams, IIntegration, IProduct } from "../../types";
 import { connection } from "../connection";
 import { IBookingData } from "../types";
 import { saveBooking } from "./utils";
-import QRCode = require("qrcode");
+import * as QRCode from "qrcode";
 
 interface IState {
   activeRoute: string;
@@ -166,9 +166,9 @@ export class AppProvider extends React.Component<{}, IState> {
       formId: this.getIntegration().formId,
       productId: this.state.activeProduct,
       saveCallback: async (response: ISaveFormResponse) => {
-        const { errors } = response;
+        const { errors, invoiceType } = response;
 
-        let { invoiceResponse, invoiceType } = response;
+        let { invoiceResponse } = response;
 
         let status = "ERROR";
 
