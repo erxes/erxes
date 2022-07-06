@@ -35,6 +35,7 @@ type Props = {
   updateTotal?: () => void;
   currentProduct?: string;
   checkLoyalty: any;
+  dealQuery:any
 };
 
 type State = {
