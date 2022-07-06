@@ -2,7 +2,9 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { IParticipator, IUser } from '../../types';
 import { __ } from '../../utils';
-import { MessageSender, MessagesList, TopBar } from '../containers';
+import MessageSender from '../containers/MessageSender';
+import MessagesList from '../containers/MessagesList';
+import TopBar from '../containers/TopBar';
 import { IMessage } from '../types';
 import ConversationHeadContent from './ConversationHeadContent';
 

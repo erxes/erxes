@@ -2,7 +2,7 @@ import * as dayjs from "dayjs";
 import * as React from "react";
 import { iconLeft } from "../../../icons/Icons";
 import { __, makeClickableLink } from "../../../utils";
-import { TopBar } from "../../containers";
+import TopBar from "../../containers/TopBar";
 import { IFaqArticle, IFaqCategory } from "../../types";
 
 type Props = {

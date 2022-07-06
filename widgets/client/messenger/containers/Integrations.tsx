@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Integrations } from "../components";
+import Integrations from "../components/Integrations";
 import { connection } from "../connection";
 import { AppConsumer } from "./AppContext";
 

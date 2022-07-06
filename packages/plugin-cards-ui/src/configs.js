@@ -35,7 +35,7 @@ module.exports = {
     },
     {
       text: 'Ticket',
-      url: '/ticket/board',
+      url: '/ticket',
       icon: 'icon-ticket',
       location: 'mainNavigation',
       permission: 'showTickets'

@@ -1,6 +1,15 @@
+import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import * as React from "react";
-import { App as DumbApp } from "../components";
+import DumbApp from "../components/App";
 import { AppConsumer, AppProvider } from "./AppContext";
+import '../sass/style.min.css';
+
+import * as dayjs from 'dayjs';
+import * as localizedFormat from 'dayjs/plugin/localizedFormat';
+import * as relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(localizedFormat);
+dayjs.extend(relativeTime);
 
 type Props = {
   toggle: (isVisible?: boolean) => void;

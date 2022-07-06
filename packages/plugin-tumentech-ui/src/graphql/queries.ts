@@ -623,6 +623,7 @@ query tripDetail($_id: String!) {
     deals {
       _id
       name
+      customFieldsData
     }
     driver {
       _id
@@ -679,6 +680,23 @@ query tripDetail($_id: String!) {
 }
 `;
 
+const fieldsGroups = `
+query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+  fieldsGroups(
+    contentType: $contentType
+    isDefinedByErxes: $isDefinedByErxes
+    config: $config
+  ) {
+    fields {
+      text
+      _id
+      code
+      order
+    }
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -709,5 +727,7 @@ export default {
   routeDetail,
 
   trips,
-  tripDetail
+  tripDetail,
+
+  fieldsGroups
 };

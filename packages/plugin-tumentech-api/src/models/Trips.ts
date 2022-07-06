@@ -60,8 +60,8 @@ export const loadTripClass = (models: IModels) => {
           $push: {
             trackingData: {
               $each: trackingData.map(e => [
-                e.lng,
                 e.lat,
+                e.lng,
                 e.trackedDate.getTime() / 1000
               ])
             }

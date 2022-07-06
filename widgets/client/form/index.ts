@@ -1,14 +1,16 @@
-import "erxes-icon/css/erxes.min.css";
 import gql from "graphql-tag";
 import client from "../apollo-client";
 import { getLocalStorageItem, initStorage } from "../common";
 import { setLocale } from "../utils";
 import widgetConnect from "../widgetConnect";
 import { connection } from "./connection";
-import { App } from "./containers";
 import { formConnectMutation } from "./graphql";
-import "./sass/style.scss";
 import { IConnectResponse } from "./types";
+import asyncComponent from "../AsyncComponent";
+
+const App = asyncComponent(() =>
+  import(/* webpackChunkName: "FormApp" */ './containers/App')
+);
 
 widgetConnect({
   postParams: {
