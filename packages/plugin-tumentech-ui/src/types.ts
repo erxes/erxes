@@ -476,6 +476,12 @@ export type IDealPlace = {
   endPlace: IPlace;
 };
 
+export type ITrackingData = {
+  lat: number;
+  lng: number;
+  trackedDate: Date;
+};
+
 export type ITrip = {
   _id: string;
   carId: string;
@@ -493,4 +499,5 @@ export type ITrip = {
   driver: ICustomer;
   deals: IDeal[];
   car: ICar;
+  trackingData: ITrackingData[];
 };
