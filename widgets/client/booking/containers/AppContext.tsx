@@ -1,7 +1,7 @@
 import * as React from "react";
 import { cancelOrder, sendEmail } from "../../form/containers/utils";
 import { ICurrentStatus, ISaveFormResponse } from "../../form/types";
-import { IEmailParams, IIntegration, IProduct } from "../../types";
+import { IEmailParams, IIntegration } from "../../types";
 import { connection } from "../connection";
 import { IBookingData } from "../types";
 import { saveBooking } from "./utils";
