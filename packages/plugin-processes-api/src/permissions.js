@@ -10,11 +10,11 @@ module.exports = {
       },
       {
         name: 'showProcesses',
-        description: 'show processes'
+        description: 'Show Processes'
       },
       {
         name: 'manageProcesses',
-        description: 'manage processes'
+        description: 'Manage Processes'
       }
     ]
   }

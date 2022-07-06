@@ -16,17 +16,15 @@ module.exports = {
       image: '/images/icons/erxes-31.png',
       location: 'settings',
       scope: 'processes',
-      action: 'processesAll',
-      permissions: ['manageProcesses']
+      action: '',
+      permissions: ['showProcesses', 'manageProcesses']
     },
     {
       text: 'Processes',
       url: '/processes/performances',
       icon: 'icon-file-check-alt',
       location: 'mainNavigation',
-      action: 'processesAll',
-      scope: 'processes',
-      permissions: ['manageProcesses']
+      permission: 'manageProcesses'
     }
   ]
 };
