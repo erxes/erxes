@@ -3,7 +3,7 @@ import DumbApp from "../components/App";
 import { connection } from "../connection";
 import { AppConsumer, AppProvider } from "./AppContext";
 import { postMessage, saveBrowserInfo } from "./utils";
-import "../sass/style.scss";
+import "../sass/style.min.css";
 
 type Props = {
   loadType: string;
