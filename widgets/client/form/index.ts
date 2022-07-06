@@ -4,10 +4,13 @@ import { getLocalStorageItem, initStorage } from "../common";
 import { setLocale } from "../utils";
 import widgetConnect from "../widgetConnect";
 import { connection } from "./connection";
-import App from "./containers/App";
 import { formConnectMutation } from "./graphql";
-import "./sass/style.scss";
 import { IConnectResponse } from "./types";
+import asyncComponent from "../AsyncComponent";
+
+const App = asyncComponent(() =>
+  import(/* webpackChunkName: "FormApp" */ './containers/App')
+);
 
 widgetConnect({
   postParams: {
