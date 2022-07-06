@@ -1,10 +1,11 @@
-import Button from '@erxes/ui/src/components/Button';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+
+import Button from '@erxes/ui/src/components/Button';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { borderRadius } from './common';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styledTS from 'styled-components-ts';
 
 const buttonColor = '#0a1e3c';
 
@@ -308,18 +309,19 @@ export const Stages = styled.ul`
   flex: 1;
   list-style: none;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-wrap: wrap;
   margin: 0;
   padding: 0;
-  overflow: auto;
 `;
 
 export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
-  flex: 1;
   text-align: right;
   position: relative;
   margin-left: 10px;
+  line-height: 35px;
+  height: 35px;
+  flex: 1;
+
   &:first-child {
     flex: unset;
     &:before {
@@ -329,9 +331,11 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
       margin-left: 0;
     }
   }
+
   &:last-child i {
     margin-right: 0;
   }
+
   &:before {
     content: '';
     height: 2px;
@@ -344,6 +348,7 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     position: absolute;
     margin-left: -10px;
   }
+
   span {
     position: relative;
     z-index: 10;
@@ -351,6 +356,7 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     background: ${colors.bgLight};
     display: inline-block;
   }
+  
   i {
     font-size: 30px;
     margin: 0 -3px;

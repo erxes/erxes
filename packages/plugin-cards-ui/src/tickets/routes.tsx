@@ -25,7 +25,8 @@ const MainActionBar = asyncComponent(() =>
 );
 
 const tickets = () => {
-  let link = '/ticket/board';
+  let view = localStorage.getItem('ticketView') || 'board';
+  let link = `/ticket/${view}`;
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
@@ -35,7 +36,7 @@ const tickets = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    link = `/ticket/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    link = `/ticket/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={link} />;
