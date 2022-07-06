@@ -40,8 +40,14 @@ const branches = `
 `;
 
 const salesLogs = `
-  query salesLogs {
-    salesLogs {
+  query salesLogs(
+    $type: String,
+    $status: String
+  ) {
+    salesLogs(
+      type: $type,
+      status: $status
+    ) {
       _id,
       name,
       description,

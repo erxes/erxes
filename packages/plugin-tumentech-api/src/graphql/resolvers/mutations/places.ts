@@ -12,6 +12,10 @@ const placeMutations = {
 
   placesRemove: (_root, { _id }, { models }: IContext) => {
     return models.Places.remove({ _id });
+  },
+
+  setDealPlace: (_root, args, { models }: IContext) => {
+    return models.DealPlaces.createOrUpdateDealPlace(args);
   }
 };
 

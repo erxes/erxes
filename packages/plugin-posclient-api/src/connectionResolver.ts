@@ -5,7 +5,7 @@ import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 import { IConfigModel, loadConfigClass } from './models/Configs';
-import { ILogModel, loadLogClass } from './models/Logs';
+import { ILogModel } from './models/Logs';
 import { IOrderItemModel, loadOrderItemClass } from './models/OrderItems';
 import { IOrderModel, loadOrderClass } from './models/Orders';
 import {
@@ -54,36 +54,36 @@ export const loadClasses = (
   models = {} as IModels;
 
   models.PosUsers = db.model<IPosUserDocument, IPosUserModel>(
-    'pos_user',
+    'posclient_user',
     loadPosUserClass(models)
   );
   models.Configs = db.model<IConfigDocument, IConfigModel>(
-    'pos_configs',
+    'posclient_configs',
     loadConfigClass(models)
   );
 
   models.OrderItems = db.model<IOrderItemDocument, IOrderItemModel>(
-    'pos_order_items',
+    'posclient_order_items',
     loadOrderItemClass(models)
   );
   models.Orders = db.model<IOrderDocument, IOrderModel>(
-    'pos_client_orders',
+    'posclient_orders',
     loadOrderClass(models)
   );
   models.Products = db.model<IProductDocument, IProductModel>(
-    'pos_products',
+    'posclient_products',
     loadProductClass(models)
   );
   models.ProductCategories = db.model<
     IProductCategoryDocument,
     IProductCategoryModel
-  >('pos_product_categories', loadProductCategoryClass(models));
+  >('posclient_product_categories', loadProductCategoryClass(models));
   models.PutResponses = db.model<IPutResponseDocument, IPutResponseModel>(
-    'pos_put_responses',
+    'posclient_put_responses',
     loadPutResponseClass(models)
   );
   models.QPayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'pos_qpay_invoices',
+    'posclient_qpay_invoices',
     loadQPayInvoiceClass(models)
   );
   return models;

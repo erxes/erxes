@@ -22,9 +22,6 @@ export default {
       { order: { $regex: new RegExp(category.order) } },
       { _id: 1 }
     );
-
-    console.log(' resolver for productCount');
-
     return models.Products.countDocuments({
       categoryId: { $in: product_category_ids },
       status: { $ne: PRODUCT_STATUSES.DELETED }

@@ -8,6 +8,7 @@ import { initMemoryStorage } from './inmemoryStorage';
 import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
+import afterQueries from './afterQueries';
 
 export let debug;
 export let graphqlPubsub;
@@ -45,6 +46,7 @@ export default {
     graphqlPubsub = options.pubsubClient;
   },
   meta: {
-    afterMutations
+    afterMutations,
+    afterQueries
   }
 };

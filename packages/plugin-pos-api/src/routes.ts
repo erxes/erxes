@@ -1,31 +1,13 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { format } from 'path';
-import { generateModels, IContext, IModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendProductsMessage
 } from './messageBroker';
-import { IPos, IPosDocument } from './models/definitions/pos';
-import { getConfig } from './utils';
-
-const getChildCategories = async (subdomain: string, categoryIds) => {
-  let catIds: string[] = [];
-  for (const categoryId of categoryIds) {
-    const childs = await sendProductsMessage({
-      subdomain,
-      action: 'categories.withChilds',
-      data: { _id: categoryId },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    catIds = catIds.concat((childs || []).map(ch => ch._id) || []);
-  }
-
-  return Array.from(new Set(catIds));
-};
+import { IPosDocument } from './models/definitions/pos';
+import { getChildCategories, getConfig } from './utils';
 
 const getConfigData = async (subdomain, pos: IPosDocument) => {
   const data: any = { pos };
@@ -191,7 +173,6 @@ export const posInit = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const token = req.headers['pos-token'];
-  console.log(subdomain, token);
   const pos = await models.Pos.findOne({ token }).lean();
 
   const syncId = Math.random().toString();
@@ -207,8 +188,6 @@ export const posInit = async (req, res) => {
     syncInfo: { id: syncId, date: syncInfo[syncId] }
   });
   data.productGroups = await getProductsData(subdomain, models, pos);
-  console.log(data.productGroups);
-  // data.customers = await getCustomersData(subdomain);
 
   return res.send(data);
 };

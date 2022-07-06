@@ -1,10 +1,9 @@
 import { graphqlPubsub } from './configs';
 import { IModels } from './connectionResolver';
-import { companyCheckCode, getConfig, getPostData } from './utils';
+import { getConfig, getPostData } from './utils';
 
 export default {
-  'cards:deal': ['update'],
-  'contacts:company': ['create', 'update', 'delete']
+  'cards:deal': ['update']
 };
 
 export const afterMutationHandlers = async (
@@ -87,16 +86,6 @@ export const afterMutationHandlers = async (
       }
 
       return;
-    }
-  }
-
-  if (type === 'contacts:company') {
-    if (action === 'create') {
-      companyCheckCode(user, params, subdomain);
-    }
-
-    if (action === 'update') {
-      companyCheckCode(user, params, subdomain);
     }
   }
 };

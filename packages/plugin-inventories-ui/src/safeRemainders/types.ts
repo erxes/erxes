@@ -34,6 +34,7 @@ export type ISafeRemItem = {
   _id: string;
   modifiedAt: Date;
   lastTrDate: Date;
+  status: string;
   remainderId: string;
   productId: string;
   quantity: number;
@@ -69,7 +70,7 @@ export type RemoveSafeRemainderMutationResponse = {
 
 export type UpdateSafeRemItemsMutationVariables = {
   _id: string;
-  status: string;
+  status?: string;
   remainder: number;
 };
 

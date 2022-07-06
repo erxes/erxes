@@ -5,6 +5,7 @@ import { Cars as Car, CarCategory, Participant } from './tumentech';
 import { Direction } from './directions';
 import { Route } from './routes';
 import { Trip } from './trips';
+import { DealPlace } from './dealPlace';
 
 const resolvers: any = async () => ({
   ...customScalars,
@@ -15,6 +16,7 @@ const resolvers: any = async () => ({
   Direction,
   Route,
   Trip,
+  DealPlace,
 
   Mutation,
   Query

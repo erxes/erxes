@@ -42,6 +42,7 @@ export const types = `
   type SafeRemItem {
     _id: String,
     modifiedAt: Date,
+    status: String,
     lastTrDate: Date,
     remainderId: String,
     productId: String,
@@ -61,11 +62,19 @@ export const types = `
   }
 `;
 
+const safeRemItemsFilterParams = `
+  remainderId: String!,
+  status: String,
+  productCategoryId: String,
+  searchValue: String,
+  diffType: String
+`;
+
 export const queries = `
   safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
-  safeRemItems(remainderId: String!, statuses: [String], productCategoryId: String, searchValue: String): [SafeRemItem]
-  safeRemItemsCount(remainderId: String!, statuses: [String], productCategoryId: String, searchValue: String): Int
+  safeRemItems(${safeRemItemsFilterParams}): [SafeRemItem]
+  safeRemItemsCount(${safeRemItemsFilterParams}): Int
 `;
 
 export const mutations = `

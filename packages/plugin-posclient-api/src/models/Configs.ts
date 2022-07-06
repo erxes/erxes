@@ -59,12 +59,3 @@ export const loadConfigClass = models => {
   configSchema.loadClass(Config);
   return configSchema;
 };
-
-// tslint:disable-next-line
-delete mongoose.connection.models['configs'];
-
-// tslint:disable-next-line
-export const Configs = model<IConfigDocument, IConfigModel>(
-  'configs',
-  configSchema
-);

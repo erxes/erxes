@@ -6,7 +6,7 @@ import {
 } from '@erxes/ui/src/components/form';
 import { ILocationOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   LogicItem,
   LogicRow,

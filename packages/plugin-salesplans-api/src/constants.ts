@@ -2,7 +2,7 @@ export const STATUS = {
   ACTIVE: 'active',
   DISABLED: 'disabled',
   ARCHIVED: 'archived',
-  PUBLISHED: 'published',
   PENDING: 'pending',
+  PUBLISHED: 'published',
   ALL: ['active', 'disabled', 'archived', 'pending', 'published']
 };
