@@ -80,7 +80,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       </BarItems>
     ) : (
       <Flex>
-        <MarginRight>{additionalButton}</MarginRight>
+        {additionalButton}&nbsp;&nbsp;
         <ModalTrigger
           title={formTitle || ''}
           size={size}

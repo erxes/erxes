@@ -11,8 +11,8 @@ import {
 import { __, makeClickableLink, scrollTo } from '../../utils';
 import { MESSAGE_TYPES } from '../containers/AppContext';
 import { IBotData, IMessage } from '../types';
-import { Message } from './';
-import { MessageBot } from './';
+import Message from './Message';
+import MessageBot from './MessageBot';
 import AccquireInformation from './AccquireInformation';
 import Bot from './bot/Bot';
 import { OPERATOR_STATUS } from './bot/constants';

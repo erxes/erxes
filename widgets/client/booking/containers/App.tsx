@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { App as DumbApp } from '../components';
+import DumbApp from '../components/App';
 import { AppConsumer, AppProvider } from './AppContext';
 import { connection } from '../connection';
 import { saveBrowserInfo } from './utils';
 import { connection as formConnection } from '../../form/connection';
 import { IIntegration } from '../../types';
 import { setLocale } from '../../utils';
+import "../sass/style.min.css";
 
 type Props = {
   isPopupVisible: boolean;

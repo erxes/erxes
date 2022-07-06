@@ -17,7 +17,7 @@ module.exports = {
   menus: [
     {
       text: 'Tumentech',
-      url: '/erxes-plugin-tumentech/list',
+      url: '/erxes-plugin-tumentech/car/list',
       icon: 'icon-car',
       location: 'mainNavigation',
       permission: 'showCars'

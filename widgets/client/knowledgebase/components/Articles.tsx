@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Article } from "../containers";
+import Article from "../containers/Article";
 import { IKbArticle } from "../types";
 
 type Props = {

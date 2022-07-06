@@ -60,7 +60,7 @@
       transition: all .2s ease-in-out
     ), webkit moz ms o);
     background: $white;
-    border-radius: $border-radius / 2;
+    border-radius: calc($border-radius / 2);
     font-size: 12px;
     list-style: none;
     position: absolute;
