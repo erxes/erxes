@@ -1,11 +1,11 @@
 import * as React from "react";
 import { cancelOrder, sendEmail } from "../../form/containers/utils";
 import { ICurrentStatus, ISaveFormResponse } from "../../form/types";
-import { IEmailParams, IIntegration, IProduct } from "../../types";
+import { IEmailParams, IIntegration } from "../../types";
 import { connection } from "../connection";
 import { IBookingData } from "../types";
 import { saveBooking } from "./utils";
-import QRCode = require("qrcode");
+import * as QRCode from "qrcode";
 
 interface IState {
   activeRoute: string;
@@ -166,9 +166,9 @@ export class AppProvider extends React.Component<{}, IState> {
       formId: this.getIntegration().formId,
       productId: this.state.activeProduct,
       saveCallback: async (response: ISaveFormResponse) => {
-        const { errors } = response;
+        const { errors, invoiceType } = response;
 
-        let { invoiceResponse, invoiceType } = response;
+        let { invoiceResponse } = response;
 
         let status = "ERROR";
 

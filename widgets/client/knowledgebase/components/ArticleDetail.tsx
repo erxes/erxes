@@ -4,7 +4,7 @@ import * as React from "react";
 import { defaultAvatar } from "../../icons/Icons";
 import { __, makeClickableLink, readFile } from "../../utils";
 import { IKbArticle } from "../types";
-import { BackButton } from "./";
+import BackButton from "./BackButton";
 
 type Props = {
   article: IKbArticle | null;

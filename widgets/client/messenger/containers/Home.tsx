@@ -1,6 +1,6 @@
 import * as React from "react";
 import { IUser } from "../../types";
-import { Home as WidgetHome } from "../components";
+import WidgetHome from "../components/Home";
 import { AppConsumer } from "./AppContext";
 
 type Props = {
