@@ -48,6 +48,7 @@
     "awesome-typescript-loader": "^5.2.0",
     "body-parser": "^1.15.2",
     "classnames": "^2.2.5",
+    "compression": "^1.7.4",
     "cors": "^2.8.3",
     "css-loader": "^6.7.1",
     "date-fns": "1.29.0",
@@ -82,6 +83,7 @@
     "xss": "^1.0.3"
   },
   "devDependencies": {
+    "compression-webpack-plugin": "^10.0.0",
     "git-repo-info": "^2.1.0",
     "nodemon": "^1.11.0",
     "ts-node": "^8.3.0",
