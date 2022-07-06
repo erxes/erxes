@@ -2,7 +2,7 @@ import * as classNames from "classnames";
 import * as React from "react";
 import { IUser } from "../../types";
 import { striptags } from "../../utils";
-import { User } from "../components/common";
+import User from "../components/common/User";
 import { IEngageData } from "../types";
 
 const Component = React.Component;

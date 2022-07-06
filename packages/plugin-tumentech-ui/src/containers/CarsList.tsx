@@ -2,9 +2,10 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Bulk, Alert, withProps, router } from '@erxes/ui/src';
 import React from 'react';
+import queryString from 'query-string';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
 import CarsList from '../components/list/CarsList';
 import { mutations, queries } from '../graphql';
 import {
@@ -18,6 +19,7 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
+import { FILTER_PARAMS } from '../constants';
 
 type Props = {
   queryParams: any;
@@ -39,6 +41,10 @@ type State = {
   loading: boolean;
 };
 
+const generateQueryParams = ({ location }) => {
+  return queryString.parse(location.search);
+};
+
 class CarListContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
@@ -47,6 +53,58 @@ class CarListContainer extends React.Component<FinalProps, State> {
       loading: false
     };
   }
+
+  onSearch = (search: string, key?: string) => {
+    router.removeParams(this.props.history, 'page');
+
+    if (!search) {
+      return router.removeParams(this.props.history, key || 'search');
+    }
+
+    router.setParams(this.props.history, { [key || 'search']: search });
+  };
+
+  onSelect = (values: string[] | string, key: string) => {
+    const params = generateQueryParams(this.props.history);
+    router.removeParams(this.props.history, 'page');
+
+    if (params[key] === values) {
+      return router.removeParams(this.props.history, key);
+    }
+
+    return router.setParams(this.props.history, { [key]: values });
+  };
+
+  onFilter = (filterParams: IQueryParams) => {
+    router.removeParams(this.props.history, 'page');
+
+    for (const key of Object.keys(filterParams)) {
+      if (filterParams[key]) {
+        router.setParams(this.props.history, { [key]: filterParams[key] });
+      } else {
+        router.removeParams(this.props.history, key);
+      }
+    }
+
+    return router;
+  };
+
+  isFiltered = (): boolean => {
+    const params = generateQueryParams(this.props.history);
+
+    for (const param in params) {
+      if (FILTER_PARAMS.includes(param)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  clearFilter = () => {
+    const params = generateQueryParams(this.props.history);
+    router.removeParams(this.props.history, ...Object.keys(params));
+  };
 
   render() {
     const {
@@ -106,7 +164,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
           Alert.success('You successfully merged cars');
           callback();
           history.push(
-            `/erxes-plugin-car/details/${response.data.carsMerge._id}`
+            `/erxes-plugin-tumentech/car/details/${response.data.carsMerge._id}`
           );
         })
         .catch(e => {
@@ -128,7 +186,13 @@ class CarListContainer extends React.Component<FinalProps, State> {
       removeCars,
       mergeCars,
       productCategories,
-      columnsConfig
+      columnsConfig,
+
+      onFilter: this.onFilter,
+      onSelect: this.onSelect,
+      onSearch: this.onSearch,
+      isFiltered: this.isFiltered(),
+      clearFilter: this.clearFilter
     };
 
     const carsList = props => {
@@ -159,7 +223,21 @@ const generateParams = ({ queryParams }) => {
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
-      : undefined
+      : undefined,
+    plateNumber: queryParams.plateNumber,
+    vinNumber: queryParams.vinNumber,
+    vintageYear: queryParams.vintageYear,
+    importYear: queryParams.importYear,
+    diagnosisDate: queryParams.diagnosisDate,
+    taxDate: queryParams.taxDate,
+    drivingClassification: queryParams.drivingClassification,
+    manufacture: queryParams.manufacture,
+    trailerType: queryParams.trailerType,
+    brakeType: queryParams.brakeType,
+    bowType: queryParams.bowType,
+    tireLoadType: queryParams.tireLoadType,
+    createdStartDate: queryParams.createdStartDate,
+    createdEndDat: queryParams.createdEndDat
   };
 };
 

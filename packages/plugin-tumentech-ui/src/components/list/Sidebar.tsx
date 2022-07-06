@@ -12,7 +12,6 @@ function Sidebar({
   history,
   queryParams,
   products,
-  onSelect,
   saveMatch,
   productCategories,
   renderButton
@@ -21,7 +20,6 @@ function Sidebar({
   history: any;
   queryParams: any;
   products: IProduct[];
-  onSelect: (prs: IProduct[]) => void;
   saveMatch: () => void;
   productCategories: IProductCategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -35,7 +33,6 @@ function Sidebar({
         queryParams={queryParams}
         history={history}
         products={products}
-        onSelect={onSelect}
         saveMatch={saveMatch}
         renderButton={renderButton}
         productCategories={productCategories}

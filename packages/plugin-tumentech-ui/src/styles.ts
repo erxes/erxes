@@ -57,7 +57,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
   padding: ${dimensions.unitSpacing / 2}px;
   margin-right: ${dimensions.unitSpacing / 2}px;
   border: 1px solid
-    ${(props) => (props.selected ? colors.colorShadowGray : 'transparent')};
+    ${props => (props.selected ? colors.colorShadowGray : 'transparent')};
 
   > div {
     height: ${dimensions.headerSpacing - 20}px;
@@ -68,7 +68,7 @@ const BackgroundSelector = styledTS<{ selected?: boolean }>(styled.li)`
     line-height: ${dimensions.headerSpacing - 20}px;
 
     > i {
-      visibility: ${(props) => (props.selected ? 'visible' : 'hidden')};
+      visibility: ${props => (props.selected ? 'visible' : 'hidden')};
       font-size: ${dimensions.unitSpacing}px;
       color: ${colors.colorWhite};
 
@@ -101,7 +101,7 @@ const SidebarListItem = styledTS<{ isActive: boolean; isParent?: boolean }>(
 )`
   position: relative;
   border-bottom: 1px solid ${colors.borderPrimary};
-  background: ${(props) => props.isActive && colors.bgActive};
+  background: ${props => props.isActive && colors.bgActive};
   overflow: hidden;
   display: flex;
   justify-content: space-between;
@@ -126,7 +126,7 @@ const SidebarListItem = styledTS<{ isActive: boolean; isParent?: boolean }>(
     > span {
       color: #666;
       font-weight: normal;
-      font-weight ${(props) => props.isParent && '500'};
+      font-weight ${props => props.isParent && '500'};
     }
   }
 
@@ -136,7 +136,7 @@ const SidebarListItem = styledTS<{ isActive: boolean; isParent?: boolean }>(
 
   &:hover {
     cursor: pointer;
-    background: ${(props) => !props.isActive && colors.bgLight};
+    background: ${props => !props.isActive && colors.bgLight};
 
     ${ActionButtons} {
       width: 55px;
@@ -152,7 +152,7 @@ const Action = styled.div`
 `;
 
 const Name = styledTS<{ fontSize?: number }>(styled.div)`
-  font-size: ${(props) => props.fontSize && `${props.fontSize}px`};
+  font-size: ${props => props.fontSize && `${props.fontSize}px`};
   font-weight: 500;
 
   i {
@@ -276,6 +276,93 @@ const Row = styled.div`
     margin-left: 10px;
     align-self: baseline;
   }
+`;
+
+export const FilterBox = styled.div`
+  text-align: left;
+  .Select {
+    margin-bottom: 15px;
+  }
+
+  input {
+    margin-bottom: 20px;
+  }
+
+  .input-container {
+    width: 50%;
+  }
+`;
+
+export const CustomRangeContainer = styled.div`
+  display: flex;
+
+  > div {
+    flex: 1;
+
+    &:last-child {
+      margin-left: 5px;
+    }
+  }
+
+  input {
+    max-width: 175px;
+  }
+
+  .filterDate {
+    max-width: 50%;
+  }
+`;
+
+export const FilterButton = styledTS<{ selected?: boolean }>(styled.div)`
+  padding: 5px 20px;
+  background: ${props =>
+    props.selected ? colors.colorSecondary : colors.bgActive};
+  color: ${props =>
+    props.selected ? colors.colorWhite : colors.textSecondary};
+  line-height: 20px;
+  width: 100%;
+  margin-bottom: 10px;
+  position: relative;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: ${props =>
+      props.selected ? colors.colorPrimaryDark : colors.bgGray};
+    cursor: pointer;
+  }
+`;
+
+export const RightMenuContainer = styled.div`
+  position: fixed;
+  z-index: 2;
+  top: 100px;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  background: ${colors.bgLight};
+  white-space: normal;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 24px -6px rgba(9, 30, 66, 0.25),
+    0 0 0 1px rgba(9, 30, 66, 0.08);
+`;
+
+export const TabContent = styled.div`
+  padding: 15px 20px 0px 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+`;
+
+export const MenuFooter = styled.footer`
+  display: flex;
+  padding: 10px 20px;
+  max-width: 95%;
 `;
 
 export {

@@ -1,7 +1,11 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
-import { IPerform, IPerformDocument, performSchema } from './definitions/performs';
+import {
+  IPerform,
+  IPerformDocument,
+  performSchema
+} from './definitions/performs';
 
 export interface IPerformModel extends Model<IPerformDocument> {
   getPerform(_id: string): Promise<IPerformDocument>;
@@ -31,7 +35,7 @@ export const loadPerformClass = (models: IModels) => {
     public static async createPerform(doc: IPerform) {
       const perform = await models.Performs.create({
         ...doc,
-        createdAt: new Date(),
+        createdAt: new Date()
       });
 
       return perform;
@@ -41,11 +45,11 @@ export const loadPerformClass = (models: IModels) => {
      * Update Perform
      */
     public static async updatePerform(_id: string, doc: IPerform) {
-      const perform = await models.Performs.getPerform(_id,);
+      const perform = await models.Performs.getPerform(_id);
 
       await models.Performs.updateOne({ _id }, { $set: { ...doc } });
 
-      const updated = await models.Performs.getPerform( _id );
+      const updated = await models.Performs.getPerform(_id);
 
       return updated;
     }

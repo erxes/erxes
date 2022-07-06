@@ -15,6 +15,7 @@ export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
   serverTiming: any;
+  scopeBrandIds: string[];
 }
 
 export let models: IModels | null = null;

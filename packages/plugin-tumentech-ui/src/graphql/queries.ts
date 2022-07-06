@@ -160,6 +160,20 @@ const listParamsDef = `
   $brand: String
   $sortField: String
   $sortDirection: Int
+  $plateNumber: String
+  $vinNumber: String
+  $vintageYear: Int
+  $importYear: Int
+  $diagnosisDate: Date
+  $taxDate: Date
+  $drivingClassification: String
+  $manufacture: String
+  $trailerType: String
+  $brakeType: String
+  $bowType: String
+  $tireLoadType: String
+  $createdStartDate: Date
+  $createdEndDate: Date
   ${conformityQueryFields}
 `;
 
@@ -173,6 +187,20 @@ const listParamsValue = `
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection
+  plateNumber: $plateNumber
+  vinNumber: $vinNumber
+  vintageYear: $vintageYear
+  importYear: $importYear
+  diagnosisDate: $diagnosisDate
+  taxDate: $taxDate
+  drivingClassification: $drivingClassification
+  manufacture: $manufacture
+  trailerType: $trailerType
+  brakeType: $brakeType
+  bowType: $bowType
+  tireLoadType: $tireLoadType
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
   ${conformityQueryFieldDefs}
 `;
 
@@ -574,6 +602,83 @@ query trips($status: String) {
 }
 `;
 
+const tripDetail = `
+query tripDetail($_id: String!) {
+  tripDetail(_id: $_id) {
+    _id
+    car {
+      _id
+      carModel
+      category {
+        _id
+        name
+      }
+      categoryId
+      description
+    }
+    carId
+    closedDate
+    createdAt
+    dealIds
+    deals {
+      _id
+      name
+    }
+    driver {
+      _id
+      avatar
+      email
+      firstName
+      lastName
+      phone
+      primaryEmail
+      primaryPhone
+      tagIds
+    }
+    driverId
+    estimatedCloseDate
+    route {
+      _id
+      code
+      directionIds
+      directions {
+        _id
+        duration
+        googleMapPath
+        placeIds
+        places {
+          _id
+          center
+          code
+          name
+          province
+        }
+        roadCode
+        roadConditions
+        routeCode
+        totalDistance
+      }
+      name
+      summary {
+        placeNames
+        totalDistance
+        totalDuration
+      }
+    }
+    routeId
+    routeReversed
+    startedDate
+    status
+    statusInfo
+    trackingData {
+      lat
+      lng
+      trackedDate
+    }
+  }
+}
+`;
+
 export default {
   cars,
   carsMain,
@@ -603,5 +708,6 @@ export default {
   routesQuery,
   routeDetail,
 
-  trips
+  trips,
+  tripDetail
 };
