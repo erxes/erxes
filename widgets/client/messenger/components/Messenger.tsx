@@ -1,12 +1,40 @@
 import * as React from "react";
 import { IUser } from "../../types";
-import AccquireInformation from "../containers/AccquireInformation";
-import ConversationDetail from "../containers/ConversationDetail";
-import Home from "../containers/Home";
-import ConversationList from "../containers/ConversationList";
-import ArticleDetail from "../containers/faq/ArticleDetail";
-import CategoryDetail from "../containers/faq/CategoryDetail";
-import WebsiteAppDetail from "../containers/websiteApp/WebsiteAppDetail";
+import asyncComponent from "../../AsyncComponent";
+
+const ConversationDetail = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerConversationDetail" */ "../containers/ConversationDetail")
+);
+
+const AccquireInformation = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerAcquireInformation" */ "../containers/AccquireInformation")
+);
+
+const Home = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerHome" */ "../containers/Home")
+);
+
+const ConversationList = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerConversationList" */ "../containers/ConversationList")
+);
+
+const ArticleDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerArticleDetail" */ '../containers/faq/ArticleDetail'
+  )
+);
+
+const CategoryDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerCategoryDetail" */ '../containers/faq/CategoryDetail'
+  )
+);
+
+const WebsiteAppDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerWebsiteDetail" */ '../containers/websiteApp/WebsiteAppDetail'
+  )
+);
 
 type Props = {
   activeRoute: string | "";

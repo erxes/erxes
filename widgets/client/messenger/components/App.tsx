@@ -1,7 +1,14 @@
 import * as React from "react";
 import * as RTG from "react-transition-group";
-import Launcher from "../containers/Launcher";
-import Messenger from "../containers/Messenger";
+import asyncComponent from "../../AsyncComponent";
+
+const Launcher = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerLauncher" */ '../containers/Launcher')
+);
+
+const Messenger = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerMain" */ '../containers/Messenger')
+);
 
 type Props = {
   isMessengerVisible: boolean;
