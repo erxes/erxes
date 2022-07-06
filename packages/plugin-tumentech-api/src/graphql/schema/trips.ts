@@ -1,13 +1,13 @@
 export const types = ({ contacts, cards }) => `
 type TrackingItem {
-  lat: Int
-  lng: Int
+  lat: Float
+  lng: Float
   trackedDate: Date
 }
 
 input TrackingItemInput {
-  lat: Int
-  lng: Int
+  lat: Float
+  lng: Float
   trackedDate: Date
 }
 

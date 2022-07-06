@@ -4,7 +4,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import React from 'react';
 import TripDetail from '../../components/trips/Detail';
 import queries from '../../graphql/queries';
-import { useQuery, useMutation } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 
 type Props = {
   id: string;
@@ -20,7 +20,14 @@ const TripDetailContainer = (props: Props) => {
     fetchPolicy: 'network-only'
   });
 
-  if (loading) {
+  const fieldGroupsQuery = useQuery(gql(queries.fieldsGroups), {
+    variables: {
+      contentType: 'cards:deal'
+    },
+    fetchPolicy: 'network-only'
+  });
+
+  if (loading || fieldGroupsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -28,17 +35,10 @@ const TripDetailContainer = (props: Props) => {
     return <EmptyState text="Trip not found" image="/images/actions/17.svg" />;
   }
 
-  // const taggerRefetchQueries = [
-  //   {
-  //     query: gql(queries.customerDetail),
-  //     variables: { _id: id }
-  //   }
-  // ];
-
   const updatedProps = {
     ...props,
-    trip: data.tripDetail || ({} as any)
-    // taggerRefetchQueries
+    trip: data.tripDetail || ({} as any),
+    fields: []
   };
 
   return <TripDetail {...updatedProps} />;
