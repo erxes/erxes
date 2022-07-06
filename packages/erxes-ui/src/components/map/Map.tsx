@@ -4,6 +4,7 @@ import { ILocationOption } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
 import colors from '../../styles/colors';
 import {} from './mapTypes';
+import { Alert } from '../../utils';
 
 export interface IMapProps extends google.maps.MapOptions {
   id: string;

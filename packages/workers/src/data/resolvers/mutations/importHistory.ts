@@ -15,7 +15,8 @@ const importer = async (
   associatedField,
   user,
   models,
-  subdomain
+  subdomain,
+  scopeBrandIds
 ) => {
   try {
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
@@ -30,7 +31,8 @@ const importer = async (
         user,
         importHistoryId,
         associatedContentType,
-        associatedField
+        associatedField,
+        scopeBrandIds
       },
       models,
       subdomain
@@ -96,7 +98,7 @@ const importHistoryMutations = {
       associatedContentType: string;
       associatedField: string;
     },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, scopeBrandIds }: IContext
   ) {
     const importHistory = await models.ImportHistory.createHistory(
       {
@@ -120,7 +122,8 @@ const importHistoryMutations = {
       associatedField,
       user,
       models,
-      subdomain
+      subdomain,
+      scopeBrandIds
     );
 
     return 'success';

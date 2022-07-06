@@ -164,7 +164,7 @@ class CarListContainer extends React.Component<FinalProps, State> {
           Alert.success('You successfully merged cars');
           callback();
           history.push(
-            `/erxes-plugin-car/details/${response.data.carsMerge._id}`
+            `/erxes-plugin-tumentech/car/details/${response.data.carsMerge._id}`
           );
         })
         .catch(e => {
