@@ -10,9 +10,7 @@ import { getEnv, resetConfigsCache, sendRequest } from './utils';
 
 export const removeIntegration = async (
   models: IModels,
-  subdomain: string,
-  integrationErxesApiId: string,
-  removeAll: boolean = false
+  integrationErxesApiId: string
 ): Promise<string> => {
   const integration = await models.Integrations.findOne({
     erxesApiId: integrationErxesApiId
@@ -47,7 +45,6 @@ export const removeIntegration = async (
         debugError(
           `Error ocurred while trying to get page access token with ${e.message}`
         );
-        throw e;
       }
 
       await models.FbPosts.deleteMany({ recipientId: pageId });
@@ -59,7 +56,6 @@ export const removeIntegration = async (
         debugError(
           `Error occured while trying to unsubscribe page pageId: ${pageId}`
         );
-        throw e;
       }
     }
 
@@ -119,7 +115,6 @@ export const removeIntegration = async (
 
 export const removeAccount = async (
   models: IModels,
-  subdomain: string,
   _id: string
 ): Promise<{ erxesApiIds: string | string[] } | Error> => {
   const account = await models.Accounts.findOne({ _id });
@@ -139,9 +134,7 @@ export const removeAccount = async (
       try {
         const response = await removeIntegration(
           models,
-          subdomain,
-          integration.erxesApiId,
-          true
+          integration.erxesApiId
         );
         erxesApiIds.push(response);
       } catch (e) {
