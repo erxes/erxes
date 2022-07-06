@@ -173,7 +173,7 @@ class CommonChooser extends React.Component<Props, State> {
 
     const addTrigger = (
       <p>
-        {__("Don't see the result you're looking for?")}
+        {__("Don't see the result you're looking for?")}&nbsp;&nbsp;
         <span>{__(`Create a new ${title}`)}</span>
       </p>
     );
