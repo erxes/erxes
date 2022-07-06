@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import { setLocale } from "../../utils";
-import { KnowledgeBase } from "../components";
+import KnowledgeBase from "../components/KnowledgeBase";
 import { connection } from "../connection";
 import { IKbTopic } from "../types";
 import { AppConsumer, AppProvider } from "./AppContext";

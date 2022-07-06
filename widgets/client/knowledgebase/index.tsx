@@ -7,7 +7,7 @@ import { ApolloProvider } from "react-apollo";
 import * as ReactDOM from "react-dom";
 import client from "../apollo-client";
 import { connection } from "./connection";
-import { KnowledgeBase } from "./containers";
+import KnowledgeBase from "./containers/KnowledgeBase";
 import "./sass/style.scss";
 import "../sass/components/_faq-icons.scss";
 

@@ -1,12 +1,10 @@
 import * as React from "react";
 import { readFile } from "../../utils";
-import {
-  ArticleDetail,
-  Articles,
-  Categories,
-  CategoryDetail,
-  SearchBar
-} from "../containers";
+import ArticleDetail from '../containers/ArticleDetail';
+import Articles from '../containers/Articles';
+import Categories from '../containers/Categories';
+import CategoryDetail from '../containers/CategoryDetail';
+import SearchBar from '../containers/SearchBar';
 
 type Props = {
   activeRoute: string;
