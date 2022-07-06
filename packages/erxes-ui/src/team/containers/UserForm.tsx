@@ -6,22 +6,21 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import UserForm from '../components/UserForm';
-import asyncComponent from '../../components/AsyncComponent';
+import channelQueries from '@erxes/ui-inbox/src/settings/channels/graphql/queries';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { isEnabled } from '../../utils/core';
-import path from 'path';
+// import path from 'path';
 import { queries as usersGroupsQueries } from '@erxes/ui-settings/src/permissions/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
-const channelQueries = asyncComponent(
-  () =>
-    isEnabled('inbox') &&
-    path.resolve(
-      /* webpackChunkName: "channelQueries" */ '@erxes/ui-inbox/src/settings/channels/graphql/queries'
-    )
-);
+// const channelQueries = asyncComponent(
+//   () =>
+//   isEnabled('inbox') &&path.resolve(
+//       /* webpackChunkName: "channelQueries" */ '@erxes/ui-inbox/src/settings/channels/graphql/queries'
+//     )
+// );
 
 type Props = {
   channelsQuery: any; //check - ChannelsQueryResponse
@@ -35,12 +34,12 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
 
   const config = getEnvQuery.configsGetEnv || {};
   const object = props.object || ({} as IUser);
-
-  if (channelsQuery.loading || groupsQuery.loading) {
+  console.log(channelQueries, 'efrsrrrrrrrrrrrrr');
+  if ((channelsQuery && channelsQuery.loading) || groupsQuery.loading) {
     return <Spinner />;
   }
 
-  const channels = channelsQuery.channels || [];
+  const channels = channelsQuery ? channelsQuery.channels || [] : [];
   const groups = groupsQuery.usersGroups || [];
 
   let selectedChannels: any[] = []; //check - IChannel
@@ -76,11 +75,12 @@ export default withProps<ICommonFormProps>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<{}, any>(gql(channelQueries.channels), {
-      //check - ChannelsQueryResponse
-      name: 'channelsQuery',
-      options: () => ({ fetchPolicy: 'network-only' })
-    }),
+    // isEnabled('inbox') && graphql<{}, any>(gql(channelQueries.channels), {
+    //   //check - ChannelsQueryResponse
+    //   name: 'channelsQuery',
+    //   options: () => ({ fetchPolicy: 'network-only' }),
+    //   skip: !isEnabled('inbox')
+    // }),
     graphql<{}, any>(gql(usersGroupsQueries.usersGroups), {
       //check - UsersGroupsQueryResponse
       name: 'groupsQuery',
