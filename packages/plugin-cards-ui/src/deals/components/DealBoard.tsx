@@ -21,12 +21,7 @@ class DealBoard extends React.Component<Props> {
     const { queryParams, viewType } = this.props;
 
     return (
-      <Board
-        viewType={viewType}
-        queryParams={queryParams}
-        options={options}
-        cardType="deal"
-      />
+      <Board viewType={viewType} queryParams={queryParams} options={options} />
     );
   }
 

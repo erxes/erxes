@@ -19,12 +19,7 @@ class TaskBoard extends React.Component<Props> {
     const { queryParams, viewType } = this.props;
 
     return (
-      <Board
-        viewType={viewType}
-        queryParams={queryParams}
-        options={options}
-        cardType="task"
-      />
+      <Board viewType={viewType} queryParams={queryParams} options={options} />
     );
   }
 
