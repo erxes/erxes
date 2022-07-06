@@ -39,7 +39,7 @@ export const types = `
     productId: String
   }
 
-  type PosSlot {
+  type PosclientSlot {
     _id: String
     code: String
     name: String

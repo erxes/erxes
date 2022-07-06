@@ -501,7 +501,7 @@ class GeneralStep extends React.Component<Props, State> {
 
   renderCheckbox = (key: string, title?: string, description?: string) => {
     return (
-      <FormGroup>
+      <>
         {description && <p>{__(description)}</p>}
 
         <FormControl
@@ -509,7 +509,7 @@ class GeneralStep extends React.Component<Props, State> {
           componentClass="checkbox"
         />
         <ControlLabel>{title || key}</ControlLabel>
-      </FormGroup>
+      </>
     );
   };
 
@@ -593,6 +593,7 @@ class GeneralStep extends React.Component<Props, State> {
                 <FormGroup>{this.renderPosSlotForm(slotTrigger)}</FormGroup>
               </BlockRow>
             </Block>
+
             <Block>
               <h4>{__('Permission')}</h4>
               <BlockRow>
