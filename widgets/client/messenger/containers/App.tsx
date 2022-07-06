@@ -2,7 +2,7 @@ import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import * as React from "react";
 import DumbApp from "../components/App";
 import { AppConsumer, AppProvider } from "./AppContext";
-import '../sass/style.scss';
+import '../sass/style.min.css';
 
 import * as dayjs from 'dayjs';
 import * as localizedFormat from 'dayjs/plugin/localizedFormat';

@@ -48,6 +48,8 @@
     "awesome-typescript-loader": "^5.2.0",
     "body-parser": "^1.15.2",
     "classnames": "^2.2.5",
+    "compression": "^1.7.4",
+    "compression-webpack-plugin": "9.2.0",
     "cors": "^2.8.3",
     "css-loader": "^6.7.1",
     "date-fns": "1.29.0",

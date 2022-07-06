@@ -12,7 +12,7 @@ import * as dayjs from "dayjs";
 import * as localizedFormat from "dayjs/plugin/localizedFormat";
 import * as relativeTime from "dayjs/plugin/relativeTime";
 
-import "../sass/style.scss";
+import "../sass/style.min.css";
 import "../../sass/components/_faq-icons.scss";
 
 dayjs.extend(localizedFormat);

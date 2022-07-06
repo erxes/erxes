@@ -462,9 +462,9 @@ const Pin = styled.div`
   }
 `;
 
-const MapContainer = styled.div`
+const MapContainer = styled.div<{ fullHeight?: boolean }>`
   width: 100%;
-  height: 250px;
+  height: ${props => (props.fullHeight ? '100%' : '250px')};
 `;
 
 export {

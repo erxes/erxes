@@ -1,59 +1,63 @@
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { TabTitle } from '@erxes/ui/src/components/tabs';
-import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
-import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
-import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
-import { isEnabled, renderFullName, __ } from '@erxes/ui/src/utils/core';
-import {
-  ICustomer,
-  IFieldsVisibility
-} from '@erxes/ui-contacts/src/customers/types';
-import LeftSidebar from '../../../../plugin-contacts-ui/src/customers/components/detail/LeftSidebar';
-import RightSidebar from '../../../../plugin-contacts-ui/src/customers/components/detail/RightSidebar';
+import { __ } from '@erxes/ui/src/utils/core';
 import { ITrip } from '../../types';
+import Map from '@erxes/ui/src/containers/map/Map';
+import { ILocationOption } from '@erxes/ui/src/types';
+import RightSidebar from './RightSideBar';
+import LeftSideBar from './LeftSideBar';
+import { TripTitle } from '../../styles';
+import { IField } from '@erxes/ui-segments/src/types';
 
 type Props = {
   trip: ITrip;
+  fields: IField[];
 };
 
-class CustomerDetails extends React.Component<Props> {
-  render() {
-    const { trip } = this.props;
+const TripDetail = (props: Props) => {
+  const { trip } = props;
 
-    const breadcrumb = [{ title: __('Trip'), link: '/trip' }];
+  const { route } = trip;
 
-    const content = <></>;
-
-    return (
-      <Wrapper
-        header={<Wrapper.Header title={trip._id} breadcrumb={breadcrumb} />}
-        mainHead={<UserHeader></UserHeader>}
-        leftSidebar={
-          //   <LeftSidebar
-          //     wide={true}
-          //     customer={customer}
-          //     fieldsVisibility={fieldsVisibility}
-          //     deviceFields={deviceFields}
-          //     fields={fields}
-          //     taggerRefetchQueries={taggerRefetchQueries}
-          //     deviceFieldsVisibility={deviceFieldsVisibility}
-          //   />
-          <>left side bar</>
-        }
-        rightSidebar={
-          <>right side bar</>
-          // <RightSidebar customer={customer} />
-        }
-        content={content}
-        transparent={true}
-      />
-    );
+  const locationOptions: ILocationOption[] = [];
+  for (const dir of route.directions) {
+    locationOptions.push(dir.places[0].center);
+    locationOptions.push(dir.places[1].center);
   }
-}
 
-export default CustomerDetails;
+  const breadcrumb = [
+    {
+      title: __('Trips'),
+      link: '/erxes-plugin-tumentech/trips/list'
+    }
+  ];
+
+  const content = (
+    <Map
+      id={Math.random().toString(10)}
+      center={route.directions[0].places[0].center}
+      zoom={7}
+      locationOptions={[...new Set(locationOptions)]}
+      streetViewControl={false}
+      connectWithLines={true}
+      fullHeight={true}
+      trackingData={trip.trackingData}
+      googleMapPath={route.directions.map(
+        dir => (dir.googleMapPath && dir.googleMapPath) || ''
+      )}
+    />
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={trip._id} breadcrumb={breadcrumb} />}
+      mainHead={<TripTitle>{trip.route.name}</TripTitle>}
+      leftSidebar={<LeftSideBar trip={trip} />}
+      rightSidebar={<RightSidebar trip={trip} />}
+      content={content}
+      transparent={true}
+    />
+  );
+};
+
+export default TripDetail;

@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const TerserPlugin = require("terser-webpack-plugin");
 const Merge = require('webpack-merge');
 const CommonConfig = require('./webpack.config');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = Merge(CommonConfig, {
   plugins: [
@@ -28,5 +29,8 @@ module.exports = Merge(CommonConfig, {
         },
       },
     }),
+    new CompressionPlugin({
+      algorithm: 'gzip'
+    })
   ]
 });

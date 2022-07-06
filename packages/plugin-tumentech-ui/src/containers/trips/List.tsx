@@ -1,9 +1,8 @@
 import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
+import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
 import List from '../../components/trips/List';
-import { mutations, queries } from '../../graphql';
-import { Alert, confirm } from '@erxes/ui/src/utils';
+import { queries } from '../../graphql';
 import { router } from '@erxes/ui/src';
 
 type Props = {
