@@ -8,7 +8,7 @@ import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ISavedConformity } from '../conformity/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOptions {

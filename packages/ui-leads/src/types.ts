@@ -9,7 +9,7 @@ import {
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface ICallout {

@@ -6,7 +6,7 @@ import { MutationVariables, QueryResponse } from '@erxes/ui/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IBookingIntegration extends IIntegration {
