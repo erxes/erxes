@@ -1,9 +1,6 @@
 import * as jwt from 'jsonwebtoken';
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const createJwtToken = payload => {
-  debugInfo(`JWT_TOKEN_SECRET: ${process.env.JWT_TOKEN_SECRET}`);
-
   const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
     expiresIn: '1d'
   });
@@ -25,17 +22,4 @@ export const verifyJwtToken = token => {
   } catch (err) {
     throw new Error(err.message);
   }
-};
-
-export const authCookieOptions = (secure: boolean) => {
-  const oneDay = 1 * 24 * 3600 * 1000; // 1 day
-
-  const cookieOptions = {
-    httpOnly: true,
-    expires: new Date(Date.now() + oneDay),
-    maxAge: oneDay,
-    secure
-  };
-
-  return cookieOptions;
 };
