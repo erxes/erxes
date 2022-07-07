@@ -7,8 +7,8 @@ import {
   LogWrapper
 } from '../../styles';
 
-import Form from '@erxes/ui/src/internalNotes/components/Form';
-import { IInternalNote } from '@erxes/ui/src/internalNotes/types';
+import Form from '@erxes/ui-internalnotes/src/components/Form';
+import { IInternalNote } from '@erxes/ui-internalnotes/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';

@@ -4,7 +4,7 @@ import ActivityList from '@erxes/ui/src/activityLogs/components/ActivityList';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import NoteForm from '@erxes/ui/src/internalNotes/containers/Form';
+import NoteForm from '@erxes/ui-internalnotes/src/containers/Form';
 import React from 'react';
 import { __ } from 'coreui/utils';
 import { hasAnyActivity } from '@erxes/ui-inbox/src/inbox/utils';
