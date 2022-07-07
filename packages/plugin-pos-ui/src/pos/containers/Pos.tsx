@@ -70,18 +70,18 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
     if (
       (posDetailQuery && posDetailQuery.loading) ||
-      groupsQuery.loading ||
+      (groupsQuery && groupsQuery.loading) ||
       productCategoriesQuery.loading ||
       branchesQuery.loading ||
-      slotsQuery.loading
+      (slotsQuery && slotsQuery.loading)
     ) {
       return <Spinner objective={true} />;
     }
 
     const pos = (posDetailQuery && posDetailQuery.posDetail) || ({} as IPos);
-    const groups = groupsQuery.productGroups || [];
+    const groups = (groupsQuery && groupsQuery.productGroups) || [];
     const branches = branchesQuery.branches || [];
-    const slots = slotsQuery.posSlots || [];
+    const slots = (slotsQuery && slotsQuery.posSlots) || [];
     const productCategories = productCategoriesQuery.productCategories || [];
 
     const save = doc => {
@@ -100,7 +100,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
         .then(data => {
           productGroupsBulkInsertMutation({
             variables: {
-              posId: posId || data.addPos.id,
+              posId: posId || data.data.posAdd._id,
               groups: doc.groups.map(e => ({
                 _id: e._id,
                 name: e.name,
@@ -113,7 +113,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
           });
           slotsBulkUpdateMutation({
             variables: {
-              posId: posId || data.addPos.id,
+              posId: posId || data.data.posAdd._id,
               slots: doc.posSlots
             }
           });
@@ -175,6 +175,7 @@ export default withProps<Props>(
       gql(queries.productGroups),
       {
         name: 'groupsQuery',
+        skip: ({ posId }) => !posId,
         options: ({ posId }) => ({
           fetchPolicy: 'cache-and-network',
           variables: {
@@ -188,6 +189,7 @@ export default withProps<Props>(
       gql(queries.posSlots),
       {
         name: 'slotsQuery',
+        skip: ({ posId }) => !posId,
         options: ({ posId }) => ({
           variables: { posId },
           fetchPolicy: 'network-only'
