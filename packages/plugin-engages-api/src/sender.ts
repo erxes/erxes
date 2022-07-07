@@ -67,7 +67,7 @@ export const start = async (
 
     const DOMAIN = getEnv({ name: 'DOMAIN' });
 
-    const unsubscribeUrl = `${DOMAIN}/unsubscribe/?cid=${customer._id}`;
+    const unsubscribeUrl = `${DOMAIN}/gateway/pl:core/unsubscribe/?cid=${customer._id}`;
 
     // replace customer attributes =====
     let replacedContent = content;
