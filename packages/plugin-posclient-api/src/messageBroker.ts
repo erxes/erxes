@@ -19,7 +19,6 @@ export const initBroker = async cl => {
   const config = await models.Configs.findOne().lean();
   if (!config) {
     return;
-    // throw new Error('not yet message broker, cause: dont configure token');
   }
   const syncId =
     config && config.syncInfo && config.syncInfo.id ? config.syncInfo.id : '';

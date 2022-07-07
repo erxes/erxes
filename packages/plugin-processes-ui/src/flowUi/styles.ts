@@ -375,7 +375,7 @@ export const CenterBar = styled.div`
   }
 `;
 
-export const AutomationFormContainer = styled(Contents)`
+export const FlowFormContainer = styled(Contents)`
   margin: 0;
 
   > section {
