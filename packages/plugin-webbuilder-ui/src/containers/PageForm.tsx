@@ -12,6 +12,7 @@ type Props = {
 
 type FinalProps = Props & {
   pagesAdd: any;
+  pagesEdit: any;
   pageDetailQuery?: any;
 };
 
@@ -29,16 +30,22 @@ const FormContainer = (props: FinalProps) => {
     css: string,
     jsonData
   ) => {
-    props
-      .pagesAdd({
-        variables: {
-          name,
-          description,
-          html,
-          css,
-          jsonData
-        }
-      })
+    let method = props.pagesAdd;
+
+    const variables: any = {
+      name,
+      description,
+      html,
+      css,
+      jsonData
+    };
+
+    if (props._id) {
+      method = props.pagesEdit;
+      variables._id = props._id;
+    }
+
+    method({ variables })
       .then(() => {
         Alert.success(`Success`);
       })
@@ -59,6 +66,10 @@ const FormContainer = (props: FinalProps) => {
 export default compose(
   graphql<Props>(gql(mutations.add), {
     name: 'pagesAdd'
+  }),
+
+  graphql<Props>(gql(mutations.edit), {
+    name: 'pagesEdit'
   }),
 
   graphql(gql(queries.pageDetail), {

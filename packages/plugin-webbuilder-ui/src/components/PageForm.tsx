@@ -47,6 +47,77 @@ class Form extends React.Component<
     if (page && page.jsonData) {
       this.grapes.loadProjectData(page.jsonData);
     }
+
+    const editor = this.grapes;
+
+    const pfx = editor.getConfig().stylePrefix;
+    const modal = editor.Modal;
+    const cmdm = editor.Commands;
+    const codeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
+    const pnm = editor.Panels;
+    const container = document.createElement('div');
+    const btnEdit = document.createElement('button');
+
+    codeViewer.set({
+      codeName: 'htmlmixed',
+      readOnly: 0,
+      theme: 'hopscotch',
+      autoBeautify: true,
+      autoCloseTags: true,
+      autoCloseBrackets: true,
+      lineWrapping: true,
+      styleActiveLine: true,
+      smartIndent: true,
+      indentWithTabs: true
+    });
+
+    btnEdit.innerHTML = 'Edit';
+    btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
+    btnEdit.onclick = () => {
+      const code = codeViewer.editor.getValue();
+      editor.DomComponents.getWrapper().set('content', '');
+      editor.setComponents(code.trim());
+      modal.close();
+    };
+
+    cmdm.add('html-edit', {
+      run: (editr, sender) => {
+        if (sender) {
+          sender.set('active', 0);
+        }
+
+        let viewer = codeViewer.editor;
+
+        modal.setTitle('Edit code');
+
+        if (!viewer) {
+          const txtarea = document.createElement('textarea');
+          container.appendChild(txtarea);
+          container.appendChild(btnEdit);
+          codeViewer.init(txtarea);
+          viewer = codeViewer.editor;
+        }
+
+        const InnerHtml = editr.getHtml();
+        const Css = editr.getCss();
+        modal.setContent('');
+        modal.setContent(container);
+        codeViewer.setContent(InnerHtml + '<style>' + Css + '</style>');
+        modal.open();
+        viewer.refresh();
+      }
+    });
+
+    pnm.addButton('options', [
+      {
+        id: 'edit',
+        className: 'fa fa-edit',
+        command: 'html-edit',
+        attributes: {
+          title: 'Edit'
+        }
+      }
+    ]);
   }
 
   save = () => {

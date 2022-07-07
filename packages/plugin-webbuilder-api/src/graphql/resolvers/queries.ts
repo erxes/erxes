@@ -1,6 +1,6 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 
-import { Pages } from '../../models';
+import { Pages } from '../../models/pages';
 
 const webbuilderQueries = {
   webbuilderPages(_root) {

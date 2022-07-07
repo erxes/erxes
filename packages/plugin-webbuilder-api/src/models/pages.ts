@@ -34,7 +34,9 @@ class Page {
   }
 
   public static async updatePage(_id: string, doc) {
-    return Pages.updateOne({ _id }, { $set: doc });
+    await Pages.updateOne({ _id }, { $set: doc });
+
+    return Pages.findOne({ _id });
   }
 
   public static async remotePage(_id) {

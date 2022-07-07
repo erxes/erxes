@@ -1,5 +1,5 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-import { IPage, Pages } from '../../models';
+import { IPage, Pages } from '../../models/pages';
 
 const webbuilderMutations = {
   async webbuilderPagesAdd(_root, doc: IPage) {

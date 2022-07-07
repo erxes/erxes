@@ -9,6 +9,15 @@ const add = `
   }
 `;
 
+const edit = `
+  mutation webbuilderPagesEdit($_id: String!, ${commonParamDefs}) {
+    webbuilderPagesEdit(_id: $_id, ${commonParams}) {
+      _id
+    }
+  }
+`;
+
 export default {
-  add
+  add,
+  edit
 };
