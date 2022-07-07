@@ -9,7 +9,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { withCurrentUser } from '@erxes/ui/src/auth';
-import { withProps } from '@erxes/ui/src//utils';
+import { withProps } from '@erxes/ui/src/utils';
 
 export type ActivityLogsProps = {
   contentId: string;
