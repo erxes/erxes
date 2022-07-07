@@ -10,10 +10,12 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 import { initApolloServer } from './apolloClient';
 import { templateExport } from './data/modules/fileExporter/templateExport';
+import * as fs from 'fs';
 
 import {
   deleteFile,
   getEnv,
+  handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
   routeErrorHandling
@@ -219,6 +221,25 @@ app.post(
     }
 
     return res.status(500).send(status);
+  })
+);
+
+// unsubscribe
+app.get(
+  '/unsubscribe',
+  routeErrorHandling(async (req: any, res) => {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    await handleUnsubscription(models, subdomain, req.query);
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+
+    const template = fs.readFileSync(
+      __dirname + '/private/emailTemplates/unsubscribe.html'
+    );
+
+    return res.send(template);
   })
 );
 
