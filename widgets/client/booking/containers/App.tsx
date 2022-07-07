@@ -6,7 +6,7 @@ import { saveBrowserInfo } from './utils';
 import { connection as formConnection } from '../../form/connection';
 import { IIntegration } from '../../types';
 import { setLocale } from '../../utils';
-import "../sass/style.scss";
+import "../sass/style.min.css";
 
 type Props = {
   isPopupVisible: boolean;

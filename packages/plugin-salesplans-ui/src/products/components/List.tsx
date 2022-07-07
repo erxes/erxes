@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import _ from 'lodash';
 import { __, Table } from '@erxes/ui/src';
 import Row from '../containers/Row';

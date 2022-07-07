@@ -20,7 +20,6 @@ import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import * as routerUtils from '@erxes/ui/src/utils/router';
 import { Flex } from '@erxes/ui/src/styles/main';
-import { MarginRight } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   integrations: ILeadIntegration[];
@@ -117,18 +116,17 @@ class List extends React.Component<Props, {}> {
 
     const actionBarRight = (
       <Flex>
-        <MarginRight>
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={this.searchHandler}
-            value={routerUtils.getParam(
-              this.props.history.history,
-              'searchValue'
-            )}
-            autoFocus={true}
-          />
-        </MarginRight>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={this.searchHandler}
+          value={routerUtils.getParam(
+            this.props.history.history,
+            'searchValue'
+          )}
+          autoFocus={true}
+        />
+        &nbsp;&nbsp;
         <Link to="/forms/create">
           <Button btnStyle="success" size="small" icon="plus-circle">
             Create Form

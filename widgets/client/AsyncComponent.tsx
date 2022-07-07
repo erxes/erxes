@@ -46,7 +46,7 @@ export default function asyncComponent(
         return <Comp {...this.props} />;
       }
 
-      return <div className="loader" />;
+      return <div/>;
     }
   }
 

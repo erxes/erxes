@@ -34,15 +34,7 @@ type Props = {
 };
 
 const ManageLabels = (props: Props) => {
-  const {
-    getLabels,
-    onChangeType,
-    type,
-    save,
-    remove,
-    closeModal,
-    refetch
-  } = props;
+  const { getLabels, onChangeType, type, save, remove, closeModal } = props;
   const [labels, setLabels] = useState<any[]>([]);
   const [labelsData, setLabelsData] = useState(getLabels);
 
@@ -255,6 +247,8 @@ const ManageLabels = (props: Props) => {
             {render}
           </>
         );
+
+      return null;
     };
 
     return (
