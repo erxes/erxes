@@ -138,5 +138,24 @@ export default {
         `
       );
     });
+
+    app.get('/page/:name', async (req, res) => {
+      const { name } = req.params;
+
+      const page = await Pages.findOne({ name });
+
+      if (!page) {
+        return res.status(404).send('Page not found');
+      }
+
+      return res.send(
+        `
+          <style>
+            ${page.css}
+          </style>
+          ${page.html}
+        `
+      );
+    });
   }
 };
