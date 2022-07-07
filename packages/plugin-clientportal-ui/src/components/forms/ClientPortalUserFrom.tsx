@@ -245,14 +245,6 @@ class CustomerForm extends React.Component<Props, State> {
                 defaultValue={clientPortalUser.companyRegistrationNumber || ''}
               />
             </FormGroup>
-            <FormGroup>
-              <ControlLabel>Code</ControlLabel>
-              <FormControl
-                {...formProps}
-                name="code"
-                defaultValue={clientPortalUser.code || ''}
-              />
-            </FormGroup>
           </FormColumn>
           <FormColumn>
             <FormGroup>

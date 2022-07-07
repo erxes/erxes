@@ -45,8 +45,7 @@ class Row extends React.Component<Props> {
       username,
       email,
       code,
-      companyName,
-      companyRegistrationNumber
+      companyName
     } = clientPortalUser;
 
     return (
@@ -59,7 +58,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{firstName || companyName}</td>
-        <td>{lastName || companyRegistrationNumber}</td>
+        <td>{lastName}</td>
         <td>{username}</td>
         <td>{email}</td>
         <td>{code}</td>

@@ -13,15 +13,8 @@ export const handleContacts = async (args: IContactsParams) => {
   const { subdomain, models, clientPortalId, document, password } = args;
   const { type = 'customer', email, phone } = document;
 
-  const tEmail = (email || '').toLowerCase().trim();
-
-  let qry: any = { type };
+  let qry: any = { email };
   let user: any;
-
-  if (email) {
-    qry = { email: tEmail };
-    document.email = tEmail;
-  }
 
   if (phone) {
     qry = { phone };
