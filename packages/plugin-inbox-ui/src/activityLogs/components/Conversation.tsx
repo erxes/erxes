@@ -10,7 +10,7 @@ import {
   FlexBody,
   FlexCenterContent,
   Header
-} from '@erxes/ui/src/activityLogs/styles';
+} from '@erxes/ui-log/activityLogs/styles';
 import {
   Comment,
   PostContainer
@@ -21,7 +21,7 @@ import {
   IMessage
 } from '@erxes/ui-inbox/src/inbox/types';
 import { __, renderFullName } from '@erxes/ui/src/utils';
-import { formatText, getIconAndColor } from '@erxes/ui/src/activityLogs/utils';
+import { formatText, getIconAndColor } from '@erxes/ui-log/activityLogs/utils';
 
 import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';

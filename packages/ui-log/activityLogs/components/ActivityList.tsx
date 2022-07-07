@@ -1,10 +1,11 @@
-import dayjs from 'dayjs';
-import React from 'react';
-import { IUser } from '../../auth/types';
-import EmptyState from '../../components/EmptyState';
 import { ActivityTitle, Timeline } from '../styles';
-import { IActivityLog } from '../types';
+
 import ActivityItem from './ActivityItem';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IActivityLog } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import dayjs from 'dayjs';
 
 export type IActivityListProps = {
   activities: IActivityLog[];

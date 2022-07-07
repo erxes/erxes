@@ -8,7 +8,7 @@ import {
 } from '@erxes/ui-contacts/src/customers/constants';
 import { ICustomer, IVisitorContact } from '../../types';
 
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
 import Icon from '@erxes/ui/src/components/Icon';

@@ -1,5 +1,3 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   Date,
@@ -14,23 +12,26 @@ import {
   LogWrapper,
   Row,
   Title
-} from '@erxes/ui/src/activityLogs/styles';
-import { REMINDER_MINUTES } from '@erxes/ui-cards/src/boards/constants';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { selectOptions } from '@erxes/ui-cards/src/boards/utils';
+} from '@erxes/ui-log/activityLogs/styles';
+
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Datetime from '@nateradebaugh/react-datetime';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { IItem } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
+import { Link } from 'react-router-dom';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { Link } from 'react-router-dom';
+import { REMINDER_MINUTES } from '@erxes/ui-cards/src/boards/constants';
+import React from 'react';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import { selectOptions } from '@erxes/ui-cards/src/boards/utils';
 
 type Props = {
   task: IItem;

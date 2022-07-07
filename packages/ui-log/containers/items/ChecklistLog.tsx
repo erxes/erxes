@@ -1,13 +1,14 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
+import { ActivityLogQueryResponse } from '@erxes/ui-log/activityLogs/types';
 import ChecklistLog from '../../components/items/checklist/ChecklistLog';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
+import { IActivityLog } from '@erxes/ui-log/activityLogs/types';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { ActivityLogQueryResponse } from '@erxes/ui/src/activityLogs/types';
 import { queries } from '../../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   activity: IActivityLog;

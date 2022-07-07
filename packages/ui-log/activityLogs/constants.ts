@@ -1,4 +1,4 @@
-import colors from '../styles/colors';
+import colors from '@erxes/ui/src/styles/colors';
 
 const dodgerBlue = '#3B85F4';
 const vikingBlue = '#63D2D6';

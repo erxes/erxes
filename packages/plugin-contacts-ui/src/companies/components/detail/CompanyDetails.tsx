@@ -1,5 +1,5 @@
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
 import BasicInfo from '../../containers/detail/BasicInfo';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { IField } from '@erxes/ui/src/types';

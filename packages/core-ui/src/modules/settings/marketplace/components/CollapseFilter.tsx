@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
+import Collapse from 'react-bootstrap/Collapse';
+import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Title = styledTS<{
   hasImage?: boolean;

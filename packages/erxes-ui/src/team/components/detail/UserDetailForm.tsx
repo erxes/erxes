@@ -1,6 +1,6 @@
 import ActionSection from '../../containers/ActionSection';
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IUser } from '@erxes/ui/src/auth/types';
 import InfoSection from './InfoSection';

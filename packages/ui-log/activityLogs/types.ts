@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { QueryResponse } from '../types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IActivityLogYearMonthDoc {
   year: React.ReactNode;

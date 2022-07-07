@@ -1,6 +1,6 @@
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import React from 'react';
 import ChecklistLog from '../../../containers/items/ChecklistLog';
+import { IActivityLogItemProps } from '@erxes/ui-log/activityLogs/types';
+import React from 'react';
 
 class DeletedLog extends React.Component<IActivityLogItemProps> {
   render() {

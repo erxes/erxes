@@ -1,7 +1,7 @@
 import {
   IActivityLog,
   IActivityLogForMonth
-} from '@erxes/ui/src/activityLogs/types';
+} from '@erxes/ui-log/activityLogs/types';
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,

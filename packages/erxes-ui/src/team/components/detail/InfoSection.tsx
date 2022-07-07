@@ -1,7 +1,7 @@
 import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
 import { Name, NameContainer } from './styles';
 
-import { AvatarWrapper } from '@erxes/ui/src/activityLogs/styles';
+import { AvatarWrapper } from '@erxes/ui-log/activityLogs/styles';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';

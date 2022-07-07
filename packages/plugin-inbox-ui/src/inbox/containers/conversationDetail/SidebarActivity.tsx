@@ -7,7 +7,7 @@ import React from 'react';
 import SidebarActivity from '../../components/conversationDetail/sidebar/SidebarActivity';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui/src/activityLogs/graphql';
+import { queries } from '@erxes/ui-log/activityLogs/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {

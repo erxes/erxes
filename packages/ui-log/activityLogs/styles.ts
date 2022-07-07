@@ -1,5 +1,6 @@
-import { colors, dimensions, typography } from '../styles';
-import { WhiteBox } from '../layout/styles';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
+import { WhiteBox } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 

@@ -1,8 +1,8 @@
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import React from 'react';
-import ChecklistLog from '../../../containers/items/ChecklistLog';
 import BoardItemCreate from './BoardItemCreate';
+import ChecklistLog from '../../../containers/items/ChecklistLog';
 import CustomerCreate from './CustomerCreate';
+import { IActivityLogItemProps } from '@erxes/ui-log/activityLogs/types';
+import React from 'react';
 
 class CreatedLog extends React.Component<IActivityLogItemProps> {
   render() {

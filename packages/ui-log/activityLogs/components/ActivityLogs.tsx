@@ -1,12 +1,13 @@
-import React from 'react';
-import { IUser } from '../../auth/types';
-import DataWithLoader from '../../components/DataWithLoader';
-import { Tabs, TabTitle } from '../../components/tabs';
-import { ActivityContent } from '../../styles/main';
-import { __ } from '../../utils';
-import { IActivityLog } from '../types';
-import { hasAnyActivity } from '../utils';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
+
+import { ActivityContent } from '@erxes/ui/src/styles/main';
 import ActivityList from './ActivityList';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { IActivityLog } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import { hasAnyActivity } from '../utils';
 
 type Props = {
   activityLogs: IActivityLog[];

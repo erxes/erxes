@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   ContentShadow,
@@ -6,13 +5,15 @@ import {
   ExpandButton,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui/src/activityLogs/styles';
+} from '@erxes/ui-log/activityLogs/styles';
+import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IEngageEmail, IEngageMessage } from 'modules/engage/types';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
 import xss from 'xss';
 
 type Props = {

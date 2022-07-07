@@ -1,13 +1,14 @@
-import dayjs from 'dayjs';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
+} from '../../styles';
+
+import { IActivityLogItemProps } from '../../types';
+import { Link } from 'react-router-dom';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
 
 export default function CampaignLog({ activity }: IActivityLogItemProps) {
   const { createdAt, content } = activity;

@@ -1,14 +1,14 @@
-import { TabTitle, Tabs } from '../../components/tabs';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
 import { EmptyContent } from '../styles';
-import ErrorBoundary from '../../components/ErrorBoundary';
-import Icon from '../../components/Icon';
-import NoteForm from '../../internalNotes/containers/Form';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import Icon from '@erxes/ui/src/components/Icon';
+import NoteForm from '@erxes/ui-internalnotes/src/containers/Form';
 import React from 'react';
-import { WhiteBoxRoot } from '../../layout/styles';
-import { __ } from '../../utils';
-import asyncComponent from '../../components/AsyncComponent';
-import { isEnabled } from '../../utils/core';
+import { WhiteBoxRoot } from '@erxes/ui/src/layout/styles';
+import { __ } from '@erxes/ui/src/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import path from 'path';
 
 const TicketCommentForm = asyncComponent(

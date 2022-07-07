@@ -1,13 +1,14 @@
-import React from 'react';
-import { IUser } from '../../auth/types';
-import Icon from '../../components/Icon';
-import Tip from '../../components/Tip';
-import { RenderDynamicComponent } from '../../utils/core';
-import InternalNote from '../containers/items/InternalNote';
 import { ActivityIcon, ActivityRow } from '../styles';
-import { IActivityLog } from '../types';
 import { formatText, getIconAndColor } from '../utils';
-import ErrorBoundary from '../../components/ErrorBoundary';
+
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import { IActivityLog } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import InternalNote from '../containers/items/InternalNote';
+import React from 'react';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   activity: IActivityLog;

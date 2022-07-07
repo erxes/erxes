@@ -2,8 +2,8 @@ import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import { __, renderFullName } from 'coreui/utils';
 
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
 import { ICustomer } from '../../types';
 import { IField } from '@erxes/ui/src/types';
 import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';

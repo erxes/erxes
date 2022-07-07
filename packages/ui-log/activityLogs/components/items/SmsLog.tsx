@@ -1,12 +1,13 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import Tip from '@erxes/ui/src/components/Tip';
+} from '../../styles';
+
+import { IActivityLogItemProps } from '../../types';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
 
 export default function SmsLog({ activity }: IActivityLogItemProps) {
   const { createdAt, content } = activity;

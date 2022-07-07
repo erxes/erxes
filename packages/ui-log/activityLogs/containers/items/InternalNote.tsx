@@ -1,16 +1,18 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import InternalNote from '../../components/items/InternalNote';
-import { IUser } from '../../../auth/types';
-import Spinner from '../../../components/Spinner';
-import { Alert, confirm, withProps } from '../../../utils';
-import { mutations, queries } from '../../../internalNotes/graphql';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   InternalNoteDetailQueryResponse,
   InternalNotesEditMutationResponse,
   InternalNotesRemoveMutationResponse
-} from '../../../internalNotes/types';
+} from '@erxes/ui-internalnotes/src/types';
+import { mutations, queries } from '@erxes/ui-internalnotes/src/graphql';
+
+import { IUser } from '@erxes/ui/src/auth/types';
+import InternalNote from '../../components/items/InternalNote';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 
 type Props = {

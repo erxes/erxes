@@ -18,7 +18,7 @@ import {
   Row,
   Timeline,
   Title
-} from '@erxes/ui/src/activityLogs/styles';
+} from '@erxes/ui-log/activityLogs/styles';
 import {
   AttachmentItem,
   AttachmentsContainer,

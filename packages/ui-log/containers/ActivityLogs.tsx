@@ -1,9 +1,9 @@
 import ActivityLogsContainer, {
   ActivityLogsProps
-} from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
-import React from 'react';
+} from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
 
 import ActivityItem from '../components/ActivityItem';
+import React from 'react';
 
 export default class ActivityLogs extends React.Component<ActivityLogsProps> {
   render() {

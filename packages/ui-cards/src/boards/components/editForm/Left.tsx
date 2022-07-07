@@ -13,8 +13,8 @@ import React, { useEffect, useState } from 'react';
 import { __, extractAttachment } from '@erxes/ui/src/utils';
 
 import Actions from './Actions';
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
 import Button from '@erxes/ui/src/components/Button';
 import Checklists from '../../../checklists/containers/Checklists';
 import ControlLabel from '@erxes/ui/src/components/form/Label';

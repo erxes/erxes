@@ -1,22 +1,23 @@
-import Icon from "@erxes/ui/src/components/Icon";
-import Tip from "@erxes/ui/src/components/Tip";
-import React from "react";
-import Task from "../containers/items/boardItems/Task";
-import Conversation from "../containers/items/Conversation";
-import { ActivityIcon, ActivityRow } from "@erxes/ui/src/activityLogs/styles";
-import { IActivityLog } from "@erxes/ui/src/activityLogs/types";
-import { formatText, getIconAndColor } from "@erxes/ui/src/activityLogs/utils";
+import { ActivityIcon, ActivityRow } from "@erxes/ui-log/activityLogs/styles";
+import { formatText, getIconAndColor } from "@erxes/ui-log/activityLogs/utils";
+
 import ArchiveLog from "./items/archive/ArchiveLog";
 import AssigneeLog from "./items/boardItems/AssigneeLog";
-import MovementLog from "./items/boardItems/MovementLog";
 import CampaignLog from "./items/CampaignLog";
+import Conversation from "../containers/items/Conversation";
 import ConvertLog from "./items/ConvertLog";
 import CreatedLog from "./items/create/CreatedLog";
 import DeletedLog from "./items/delete/DeletedLog";
+import { IActivityLog } from "@erxes/ui-log/activityLogs/types";
+import Icon from "@erxes/ui/src/components/Icon";
 import MergedLog from "./items/MergedLog";
+import MovementLog from "./items/boardItems/MovementLog";
+import React from "react";
 import SegmentLog from "./items/SegmentLog";
 import SmsLog from "./items/SmsLog";
 import TaggedLog from "./items/TaggedLog";
+import Task from "../containers/items/boardItems/Task";
+import Tip from "@erxes/ui/src/components/Tip";
 
 const renderDetail = (type: string, children: React.ReactNode) => {
   const iconAndColor = getIconAndColor(type) || {};

@@ -1,9 +1,9 @@
 import ActivityLogsList, {
   IActivityListProps
-} from '@erxes/ui/src/activityLogs/components/ActivityList';
-import React from 'react';
+} from '@erxes/ui-log/activityLogs/components/ActivityList';
 
 import ActivityItem from '../components/ActivityItem';
+import React from 'react';
 
 class ActivityList extends React.Component<IActivityListProps> {
   render() {

@@ -1,4 +1,4 @@
-import * as activityLogsUtils from '@erxes/ui/src/activityLogs/utils';
+import * as activityLogsUtils from '@erxes/ui-log/activityLogs/utils';
 
 import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
 

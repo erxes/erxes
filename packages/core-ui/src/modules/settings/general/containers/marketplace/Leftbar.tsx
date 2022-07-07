@@ -1,14 +1,15 @@
-import Icon from 'modules/common/components/Icon';
-import Button from 'modules/common/components/Button';
 import { colors, dimensions } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
+
+import Button from 'modules/common/components/Button';
+import CollapseFilter from './CollapseFilter';
+import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
+import FormControl from './FormControl';
+import Icon from 'modules/common/components/Icon';
 import React from 'react';
+import Sidebar from 'modules/layout/components/Sidebar';
+import { __ } from 'modules/common/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import CollapseFilter from './CollapseFilter';
-import FormControl from './FormControl';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import Sidebar from 'modules/layout/components/Sidebar';
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
   height: 100%;
