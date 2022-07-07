@@ -1,4 +1,4 @@
-import { authCookieOptions } from '../../../auth/authUtils';
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
