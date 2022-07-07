@@ -16,6 +16,7 @@ import { createJwtToken } from '../auth/authUtils';
 import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 import { handleContacts } from './utils';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -666,7 +667,11 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
       }
 
-      return createJwtToken({ userId: user._id });
+      const token = createJwtToken({ userId: user._id });
+
+      debugInfo(`User ${user._id} logged in`);
+      debugInfo(`token: ${token}`);
+      return token;
     }
 
     public static async invite(
