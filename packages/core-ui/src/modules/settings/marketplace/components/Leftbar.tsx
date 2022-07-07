@@ -12,12 +12,17 @@ import {
 
 import Button from 'modules/common/components/Button';
 import CollapseFilter from './CollapseFilter';
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
 import FormControl from './FormControl';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import { __ } from 'modules/common/utils';
 import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+
+const FlexContent = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 type Props = {
   onSearch?: (e) => void;

@@ -2,11 +2,9 @@ import { colors, dimensions } from 'modules/common/styles';
 
 import Button from 'modules/common/components/Button';
 import CollapseFilter from './CollapseFilter';
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
 import FormControl from './FormControl';
 import Icon from 'modules/common/components/Icon';
 import React from 'react';
-import Sidebar from 'modules/layout/components/Sidebar';
 import { __ } from 'modules/common/utils';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
@@ -15,6 +13,11 @@ const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
   height: 100%;
   display: flex;
   flex-direction: column;
+`;
+
+const FlexContent = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const SearchContainer = styledTS<{ active?: boolean }>(styled.div)`

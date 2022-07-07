@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
 import Collapse from 'react-bootstrap/Collapse';
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
 import { dimensions } from '@erxes/ui/src/styles';
@@ -30,6 +29,11 @@ const Title = styledTS<{
   &:hover {
     cursor: pointer;
   }
+`;
+
+const FlexContent = styled.div`
+  display: flex;
+  align-items: center;
 `;
 
 const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`

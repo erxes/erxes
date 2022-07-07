@@ -1,6 +1,4 @@
 import ActionSection from '../../containers/ActionSection';
-import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IUser } from '@erxes/ui/src/auth/types';
 import InfoSection from './InfoSection';
@@ -18,6 +16,22 @@ const LeadState = asyncComponent(
     isEnabled('contacts') &&
     path.resolve(
       /* webpackChunkName: "LeadState" */ '@erxes/ui-contacts/src/customers/containers/LeadState'
+    )
+);
+
+const ActivityInputs = asyncComponent(
+  () =>
+    isEnabled('logs') &&
+    path.resolve(
+      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/activityLogs/components/ActivityInputs'
+    )
+);
+
+const ActivityLogs = asyncComponent(
+  () =>
+    isEnabled('logs') &&
+    path.resolve(
+      /* webpackChunkName: "ActivityLogs" */ '@@erxes/ui-log/activityLogs/containers/ActivityLogs'
     )
 );
 
