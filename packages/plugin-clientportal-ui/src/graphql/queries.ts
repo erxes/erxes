@@ -76,6 +76,9 @@ export const basicFields = `
     name
   }
 
+  erxesCustomerId
+  erxesCompanyId
+
   modifiedAt
   ownerId
 `;

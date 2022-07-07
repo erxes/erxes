@@ -11,6 +11,7 @@ import InfoSection from './InfoSection';
 type Props = {
   clientPortalUser: IClientPortalUser;
   currentUser: IUser;
+  history: any;
 };
 
 class ClientPortalCompanyDetails extends React.Component<Props> {

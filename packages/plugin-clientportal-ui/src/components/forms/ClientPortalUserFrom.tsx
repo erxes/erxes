@@ -113,31 +113,6 @@ class CustomerForm extends React.Component<Props, State> {
     });
   }
 
-  // updateClientPortalTypeValue(type) {
-  //   if (!type) {
-  //     return;
-  //   }
-
-  //   const type = TYPES.find((carCategories) => carCategories.value === type);
-
-  //   if (!type) {
-  //     return;
-  //   }
-
-  //   const activeSections = {
-  //     renderClientPortalUser: false,
-  //     renderClientPortalCompany: false
-  //   };
-
-  //   if(type.value === 'user') {
-  //     return this.setState({ activeSections.renderClientPortalUser: true })
-  //   }
-
-  //   this.setState({ req: false }, () => {
-  //     this.setState({ activeSections, req: true });
-  //   });
-  // }
-
   onChangeContent = e => {
     this.setState({
       type: e.target.value
@@ -146,13 +121,6 @@ class CustomerForm extends React.Component<Props, State> {
 
   renderClientPortalUser = (formProps: IFormProps) => {
     const { clientPortalGetConfigs } = this.props;
-    // const { req } = this.state;
-
-    // const isShow = this.state.activeSections.renderClientPortalUser;
-
-    // if (!isShow) {
-    //   return null;
-    // }
 
     const clientPortalUser =
       this.props.clientPortalUser || ({} as IClientPortalUser);
@@ -171,7 +139,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {...formProps}
                 defaultValue={clientPortalUser.firstName || ''}
                 autoFocus={true}
-                // required={true}
+                required={true}
                 name="firstName"
               />
             </FormGroup>
@@ -208,7 +176,7 @@ class CustomerForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="email"
-                // required={true}
+                required={true}
                 defaultValue={clientPortalUser.email || ''}
               />
             </FormGroup>
@@ -227,7 +195,7 @@ class CustomerForm extends React.Component<Props, State> {
                 name="clientPortalId"
                 componentClass="select"
                 defaultValue={clientPortalUser.clientPortalId}
-                // required={true}
+                required={true}
                 onChange={this.onChange}
               >
                 <option />
@@ -249,6 +217,7 @@ class CustomerForm extends React.Component<Props, State> {
 
     const clientPortalUser =
       this.props.clientPortalUser || ({} as IClientPortalUser);
+
     return (
       <CollapseContent
         title={__('General information')}
@@ -263,7 +232,7 @@ class CustomerForm extends React.Component<Props, State> {
                 {...formProps}
                 defaultValue={clientPortalUser.companyName || ''}
                 autoFocus={true}
-                // required={true}
+                required={true}
                 name="companyName"
               />
             </FormGroup>
@@ -291,7 +260,7 @@ class CustomerForm extends React.Component<Props, State> {
               <FormControl
                 {...formProps}
                 name="email"
-                // required={true}
+                required={true}
                 defaultValue={clientPortalUser.email || ''}
               />
             </FormGroup>
@@ -310,7 +279,7 @@ class CustomerForm extends React.Component<Props, State> {
                 name="clientPortalId"
                 componentClass="select"
                 defaultValue={clientPortalUser.clientPortalId}
-                // required={true}
+                required={true}
                 onChange={this.onChange}
               >
                 <option />
@@ -344,7 +313,7 @@ class CustomerForm extends React.Component<Props, State> {
               name="type"
               componentClass="select"
               defaultValue={clientPortalUser.type}
-              // required={true}
+              required={true}
               onChange={this.onChangeContent}
             >
               {this.renderSelectOptions()}

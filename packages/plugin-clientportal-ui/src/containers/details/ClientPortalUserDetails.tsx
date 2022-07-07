@@ -12,6 +12,7 @@ import { queries } from '../../graphql';
 
 type Props = {
   id: string;
+  history: any;
 };
 
 type FinalProps = {

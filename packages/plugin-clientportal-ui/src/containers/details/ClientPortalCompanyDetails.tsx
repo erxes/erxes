@@ -12,6 +12,7 @@ import ClientPortalCompanyDetails from '../../components/detail/ClientPortalComp
 
 type Props = {
   id: string;
+  history: any;
 };
 
 type FinalProps = {
