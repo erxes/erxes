@@ -10,13 +10,12 @@ import {
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
-import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
 import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 import { handleContacts } from './utils';
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -667,11 +666,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
       }
 
-      const token = createJwtToken({ userId: user._id });
-
-      debugInfo(`User ${user._id} logged in`);
-      debugInfo(`token: ${token}`);
-      return token;
+      return createJwtToken({ userId: user._id });
     }
 
     public static async invite(
