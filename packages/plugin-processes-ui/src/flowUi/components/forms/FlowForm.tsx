@@ -25,7 +25,7 @@ import ActionsForm from '../../containers/forms/actions/ActionsForm';
 import Confirmation from '../../containers/forms/Confirmation';
 import {
   ActionBarButtonsWrapper,
-  AutomationFormContainer,
+  FlowFormContainer,
   BackButton,
   Container,
   RightDrawerContainer,
@@ -66,7 +66,6 @@ type State = {
   showDrawer: boolean;
   showTrigger: boolean;
   showAction: boolean;
-  isActionTab: boolean;
   isActive: boolean;
   showNoteForm: boolean;
   editNoteForm?: boolean;
@@ -102,7 +101,6 @@ class AutomationForm extends React.Component<Props, State> {
       actions,
       activeId: '',
       currentTab: 'actions',
-      isActionTab: true,
       isActive: lenFlow.length ? flow.status === 'active' : false,
       showNoteForm: false,
       showTemplateForm: false,
@@ -198,13 +196,7 @@ class AutomationForm extends React.Component<Props, State> {
     document.addEventListener('click', this.handleClickOutside, true);
   }
 
-  componentDidUpdate(prevState) {
-    const { isActionTab } = this.state;
-
-    if (isActionTab && isActionTab !== prevState.isActionTab) {
-      this.connectInstance();
-    }
-
+  componentDidUpdate(_prevState) {
     this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
       transformOrigin = transformOrigin || [0.5, 0.5];
       instanceZoom = instanceZoom || jsPlumb;
@@ -342,10 +334,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   handleTemplateModal = () => {
     this.setState({ showTemplateForm: !this.state.showTemplateForm });
-  };
-
-  switchActionbarTab = type => {
-    this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
   onToggle = e => {
@@ -503,11 +491,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleClickOutside = event => {
-    if (
-      this.wrapperRef &&
-      !this.wrapperRef.contains(event.target) &&
-      this.state.isActionTab
-    ) {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.setState({ showDrawer: false });
     }
   };
@@ -634,10 +618,6 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   renderButtons() {
-    if (!this.state.isActionTab) {
-      return null;
-    }
-
     return (
       <>
         <Button
@@ -855,7 +835,7 @@ class AutomationForm extends React.Component<Props, State> {
       <>
         {this.renderConfirmation()}
         <HeightedWrapper>
-          <AutomationFormContainer>
+          <FlowFormContainer>
             <Wrapper.Header
               title={`${(flow && flow.name) || 'Flow detail'}`}
               breadcrumb={[
@@ -874,7 +854,7 @@ class AutomationForm extends React.Component<Props, State> {
             >
               {this.renderContent()}
             </PageContent>
-          </AutomationFormContainer>
+          </FlowFormContainer>
 
           <div ref={this.setWrapperRef}>
             <RTG.CSSTransition
