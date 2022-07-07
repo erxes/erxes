@@ -43,9 +43,9 @@ export type IPos = {
   allowBranchIds?: string[];
   beginNumber?: string;
   maxSkipNumber?: number;
-  waitingScreen?: IScreenConfig;
+  waitingScreen: IScreenConfig;
   kioskMachine?: IScreenConfig;
-  kitchenScreen?: IScreenConfig;
+  kitchenScreen: IScreenConfig;
   uiOptions?: any;
   ebarimtConfig: any;
   erkhetConfig: any;
@@ -53,12 +53,14 @@ export type IPos = {
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
-  posSlotMappings?: ISlotGroup[];
+  cardsConfig?: any;
 };
-export type ISlotGroup = {
-  _id: string;
+
+export type ISlot = {
+  _id?: string;
   code: string;
   name: string;
+  posId: string;
 };
 
 // query types
@@ -73,6 +75,10 @@ export type GroupsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export type SlotsQueryResponse = {
+  posSlots: ISlot[];
+} & QueryResponse;
 
 // mutation types
 export type PosRemoveMutationResponse = {
@@ -103,21 +109,13 @@ export type PosDetailQueryResponse = {
   posDetail: IPos;
 } & QueryResponse;
 
-export type IntegrationMutationVariables = {
-  name: string;
-  description: string;
-  productDetails: string[];
-};
-
 export type AddPosMutationResponse = {
-  addPosMutation: (params: {
-    variables: IntegrationMutationVariables;
-  }) => Promise<any>;
+  addPosMutation: (params: { variables: IPos }) => Promise<any>;
 };
 
 export type EditPosMutationResponse = {
   editPosMutation: (params: {
-    variables: { _id: string } & IntegrationMutationVariables;
+    variables: { _id: string } & IPos;
   }) => Promise<any>;
 };
 
@@ -153,6 +151,15 @@ export type GroupsBulkInsertMutationResponse = {
     variables: {
       posId: string;
       groups: IProductGroup[];
+    };
+  }) => Promise<void>;
+};
+
+export type SlotsBulkUpdateMutationResponse = {
+  slotsBulkUpdateMutation: (params: {
+    variables: {
+      posId: string;
+      slots: ISlot[];
     };
   }) => Promise<void>;
 };

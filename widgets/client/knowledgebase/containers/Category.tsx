@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Category } from "../components";
+import Category from "../components/Category";
 import { IKbCategory } from "../types";
 import { AppConsumer } from "./AppContext";
 

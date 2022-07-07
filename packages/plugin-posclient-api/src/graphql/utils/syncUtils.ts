@@ -213,6 +213,7 @@ export const extractConfig = doc => {
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,
+    posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds
   };

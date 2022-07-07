@@ -6,12 +6,20 @@ import { mutations, queries } from '../../graphql';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
+import { IRoute } from '../../types';
 
 type Props = {
+  route?: IRoute;
   closeModal: () => void;
 };
 
 const RouteFormContainer = (props: Props) => {
+  const routeDetailQueryResponse = useQuery(gql(queries.routeDetail), {
+    fetchPolicy: 'network-only',
+    skip: !props.route,
+    variables: { _id: props.route && props.route?._id }
+  });
+
   const { data, loading } = useQuery(gql(queries.directions), {
     fetchPolicy: 'network-only',
     variables: { perPage: 9999 }
@@ -22,7 +30,9 @@ const RouteFormContainer = (props: Props) => {
     variables: { perPage: 9999 }
   });
 
-  if (loading || routesQueryResponse.loading) {
+  if (
+    (routeDetailQueryResponse.loading, loading || routesQueryResponse.loading)
+  ) {
     return <Spinner />;
   }
 
@@ -51,6 +61,10 @@ const RouteFormContainer = (props: Props) => {
   const updatedProps = {
     ...props,
     directions: data.directions.list,
+    route:
+      (routeDetailQueryResponse.data &&
+        routeDetailQueryResponse.data.routeDetail) ||
+      undefined,
     routes: routesQueryResponse.data.routes.list || [],
     renderButton
   };

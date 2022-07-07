@@ -1,5 +1,4 @@
 import * as dayjs from 'dayjs';
-import e = require('express');
 import T from 'i18n-react';
 import { FieldValue } from './form/types';
 import { ENV, IBrowserInfo, IRule } from './types';
@@ -59,7 +58,7 @@ export const requestBrowserInfo = ({
 };
 
 const setDayjsLocale = (code: string) => {
-  import(`dayjs/locale/${code}`)
+  import('dayjs/locale/' + code + '.js')
     .then(() => dayjs.locale(code))
     .catch(() => dayjs.locale('en'));
 };

@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react';
 
-import FormGroup from "@erxes/ui/src/components/form/Group";
-import ControlLabel from "@erxes/ui/src/components/form/Label";
-import FormControl from "@erxes/ui/src/components/form/Control";
-import { FlexRow, SidebarContent } from "../styles";
-import { ExpandWrapper } from "@erxes/ui-settings/src/styles";
-import { School } from "../types";
-import Map from "./map/Map";
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { FlexRow, SidebarContent } from '../styles';
+import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
+import { School } from '../types';
+import Map from '@erxes/ui/src/containers/map/Map';
 
 const Locations = ({ data, name, onChange }) => {
   const onChangeLocationInput = (e, key) => {
@@ -21,9 +21,9 @@ const Locations = ({ data, name, onChange }) => {
     onChange(name, {
       ...data,
       locationValue: {
-        type: "Point",
-        coordinates,
-      },
+        type: 'Point',
+        coordinates
+      }
     });
   };
 
@@ -44,8 +44,8 @@ const Locations = ({ data, name, onChange }) => {
     {
       lat: latitude,
       lng: longitude,
-      description: "",
-    },
+      description: ''
+    }
   ];
   return (
     <>
@@ -56,7 +56,7 @@ const Locations = ({ data, name, onChange }) => {
             <FormControl
               value={latitude}
               type="Number"
-              onChange={(e) => onChangeLocationInput(e, 0)}
+              onChange={e => onChangeLocationInput(e, 0)}
               required={false}
             ></FormControl>
           </FormGroup>
@@ -67,7 +67,7 @@ const Locations = ({ data, name, onChange }) => {
             <FormControl
               value={longitude}
               type="Number"
-              onChange={(e) => onChangeLocationInput(e, 1)}
+              onChange={e => onChangeLocationInput(e, 1)}
               required={false}
             ></FormControl>
           </FormGroup>
@@ -76,25 +76,15 @@ const Locations = ({ data, name, onChange }) => {
       <FlexRow>
         <SidebarContent>
           <Map
-            googleMapApiKey="AIzaSyAzzsOWiOsttbQ5U46WA9L3Dc2whgbamdk"
+            id={Math.random().toString(10)}
             center={{
               lat: latitude || 47.9,
-              lng: longitude || 106.9,
+              lng: longitude || 106.9
             }}
             locationOptions={option}
-            defaultZoom={10}
-            mapControlOptions={{
-              controlSize: 23,
-              zoomControl: true,
-              mapTypeControl: true,
-              scaleControl: true,
-              streetViewControl: true,
-              rotateControl: true,
-              fullscreenControl: false,
-            }}
+            streetViewControl={false}
             onChangeMarker={onChange}
-            onClick={onChange}
-          ></Map>
+          />
         </SidebarContent>
       </FlexRow>
     </>

@@ -10,7 +10,7 @@ import React, { useState } from 'react';
 import { IDirection, IPlace } from '../../types';
 import { ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/components/map/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 
 type Props = {
   direction?: IDirection;
@@ -149,10 +149,10 @@ const DirectionForm = (props: Props) => {
             <Map
               id={Math.random().toString(10)}
               center={placeA.center}
-              googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
               locationOptions={[placeA.center, placeB.center]}
               connectWithLines={true}
               streetViewControl={false}
+              googleMapPath={direction && direction.googleMapPath}
             />
           </FormGroup>
         )}

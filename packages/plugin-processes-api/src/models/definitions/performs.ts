@@ -5,6 +5,7 @@ import { IProductsData, productsDataSchema } from './jobs';
 export interface IPerform {
   overallWorkId: string;
   status: string;
+  productId: string;
   count: string;
   startAt: Date;
   endAt: Date;
@@ -28,6 +29,7 @@ export const performSchema = schemaHooksWrapper(
     startAt: field({ type: Date, optional: true, label: 'Start at' }),
     dueDate: field({ type: Date, optional: true, label: 'Due at' }),
     endAt: field({ type: Date, optional: true, label: 'End at' }),
+    productId: { type: String },
     count: { type: String },
     overallWorkId: { type: String },
     needProducts: field({ type: [productsDataSchema], label: 'Need products' }),

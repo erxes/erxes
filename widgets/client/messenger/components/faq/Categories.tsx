@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Category } from "../../containers/faq";
+import Category from "../../containers/faq/Category";
 import { IFaqTopic, IFaqCategory } from "../../types";
 import { iconLeft } from "../../../icons/Icons";
 import { __ } from "../../../utils";

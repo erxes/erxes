@@ -33,6 +33,7 @@ const posCommonFields = `
   initialCategoryIds: [String]
   kioskExcludeProductIds: [String]
   deliveryConfig: JSON
+  cardsConfig: JSON
 `;
 
 const catProd = `
@@ -118,6 +119,13 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     catProdMappings: [CatProd]
   }
 
+  type PosSlot {
+    _id: String
+    posId: String
+    code: String
+    name: String
+  }
+
   type ProductGroups {
     _id: String
     name: String
@@ -137,9 +145,17 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     excludedProductIds: [String]
   }
 
+  input SlotInput {
+    _id: String
+    posId: String!
+    code: String
+    name: String
+  }
+
   input CatProdInput {
     ${catProd}
   }
+
 
   type PosOrder {
     ${posOrderFields(contactsEnabled)}
@@ -198,6 +214,7 @@ export const queries = `
     sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
   productGroups(posId: String!): [ProductGroups]
+  posSlots(posId: String!): [PosSlot]
   posOrders(${queryParams}): [PosOrder]
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
@@ -211,6 +228,7 @@ export const mutations = `
   posRemove(_id: String!): JSON
   productGroupsAdd(${groupCommonFields}): ProductGroups
   productGroupsBulkInsert(posId: String, groups:[GroupInput]): [ProductGroups]
+  posSlotBulkUpdate(posId: String, slots: [SlotInput]): [PosSlot]
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder

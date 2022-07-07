@@ -6,6 +6,7 @@ import Flow from './customResolver/flowProduct';
 import JobRefer from './customResolver/jobRefer';
 import Work from './customResolver/work';
 import OverallWork from './customResolver/overallWork';
+import Perform from './customResolver/perform';
 import {
   JobRefers as JobRefersMutations,
   JobCategories as JobCategoryMutations,
@@ -34,6 +35,7 @@ const resolvers: any = async serviceDiscovery => ({
   JobRefer,
   Work,
   OverallWork,
+  Perform,
   Mutation: {
     ...JobRefersMutations,
     ...JobCategoryMutations,

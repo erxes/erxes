@@ -66,6 +66,7 @@ export interface IPos {
   kioskExcludeProductIds: string;
   deliveryConfig: Object;
   slotId: string;
+  cardsConfig: Object;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -83,9 +84,10 @@ export interface IProductGroupDocument extends IProductGroup, Document {
 }
 
 export interface IPosSlot {
+  _id?: string;
+  posId: string;
   name: string;
   code: string;
-  posId: string;
 }
 
 export interface IPosSlotDocument extends IPosSlot, Document {
@@ -202,7 +204,8 @@ export const posSchema = schemaHooksWrapper(
       type: [String],
       label: 'Kiosk exclude products'
     }),
-    deliveryConfig: field({ type: Object, label: 'Delivery Config' })
+    deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
+    cardsConfig: field({ type: Object, label: 'Cards Config' })
   }),
   'erxes_pos'
 );
@@ -239,7 +242,7 @@ export const posSlotSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     name: field({ type: String, label: 'Name' }),
     code: field({ type: String, label: 'Code' }),
-    posId: field({ type: String, label: 'Pos id' })
+    posId: field({ type: String, label: 'Pos' })
   }),
-  'erxes_posSlot'
+  'erxes_pos_slot'
 );

@@ -1,14 +1,6 @@
-import '@nateradebaugh/react-datetime/css/react-datetime.css';
 import * as React from 'react';
-import * as dayjs from 'dayjs';
-import * as localizedFormat from 'dayjs/plugin/localizedFormat';
-import * as relativeTime from 'dayjs/plugin/relativeTime';
 import * as ReactDOM from 'react-dom';
-import { ApolloProvider } from 'react-apollo';
 import client from './apollo-client';
-
-dayjs.extend(localizedFormat);
-dayjs.extend(relativeTime);
 
 // base connect function for all widgets
 const widgetConnect = params => {
@@ -22,7 +14,9 @@ const widgetConnect = params => {
 
     // call connect mutation
     connectMutation(event)
-      .then(response => {
+      .then(async (response) => {
+        const { ApolloProvider } = await import('react-apollo');
+
         if (!response) {
           return;
         }

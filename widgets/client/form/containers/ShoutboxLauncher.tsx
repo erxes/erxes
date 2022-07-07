@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ShoutboxLauncher } from "../components";
+import ShoutboxLauncher from "../components/ShoutboxLauncher";
 import { AppConsumer } from "./AppContext";
 
 const container = () => (

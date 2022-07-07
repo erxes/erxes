@@ -80,6 +80,9 @@ export class Builder {
    * prepare all queries. do not do any action
    */
   public async buildAllQueries(): Promise<void> {
+    this.queries = {
+      segments: {}
+    };
     if (this.params.segment) {
       this.queries.segments = await this.segmentFilter(this.params.segment);
     }
