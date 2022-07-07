@@ -75,7 +75,7 @@ export default {
               subHtml += entryHtml + `<style>${p.css}</style>`;
             }
           } else {
-            subHtml = p.html;
+            subHtml = `${p.html} <style>${p.css}</style>`;
           }
 
           html = html.replace(holder, subHtml);
@@ -114,6 +114,15 @@ export default {
       }
 
       let html = page.html;
+
+      const pages = await Pages.find({ name: { $ne: 'home' } });
+
+      for (const p of pages) {
+        html = html.replace(
+          `{{${p.name}}}`,
+          `${p.html} <style>${p.css}</style>`
+        );
+      }
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
