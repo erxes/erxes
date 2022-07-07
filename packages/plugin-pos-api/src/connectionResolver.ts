@@ -23,7 +23,7 @@ export interface IModels {
   Pos: IPosModel;
   ProductGroups: IProductGroupModel;
   PosOrders: IPosOrderModel;
-  PosSlot: IPosSlotModel;
+  PosSlots: IPosSlotModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -63,7 +63,7 @@ export const loadClasses = (
     'pos_orders',
     loadPosOrderClass(models, subdomain)
   );
-  models.PosSlot = db.model<IPosSlotDocument, IPosSlotModel>(
+  models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
     'pos_slot',
     loadPosSlotClass(models, subdomain)
   );

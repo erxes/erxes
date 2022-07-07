@@ -26,7 +26,7 @@ import {
 
 type Props = {
   onChange: (name: 'pos' | 'description' | 'groups', value: any) => void;
-  pos?: IPos;
+  pos: IPos;
   groups: IProductGroup[];
   catProdMappings: CatProd[];
   productCategories: IProductCategory[];

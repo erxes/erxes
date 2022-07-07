@@ -10,7 +10,7 @@ import {
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
-import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
 import { createJwtToken } from '../auth/authUtils';
 import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';

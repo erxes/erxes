@@ -6,7 +6,7 @@ import messageBroker, {
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { getConfig } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
-import { IPos } from '../../../models/definitions/pos';
+import { IPos, IPosSlot } from '../../../models/definitions/pos';
 import { orderDeleteToErkhet, orderToErkhet } from '../../../utils';
 
 interface IPOSEdit extends IPos {
@@ -63,6 +63,7 @@ const mutations = {
       },
       pos: object
     });
+
     return updatedDocument;
   },
 
@@ -98,6 +99,44 @@ const mutations = {
     }
     await models.ProductGroups.insertMany(groupsToAdd);
     return models.ProductGroups.groups(posId);
+  },
+
+  posSlotBulkUpdate: async (
+    _root,
+    { posId, slots }: { posId: string; slots: IPosSlot[] },
+    { models }: IContext
+  ) => {
+    const oldPosSlots = await models.PosSlots.find({ posId });
+
+    const slotIds = slots.map(s => s._id);
+    const toDeleteSlolts = oldPosSlots.filter(s => !slotIds.includes(s._id));
+    await models.PosSlots.deleteMany({
+      _id: { $in: toDeleteSlolts.map(s => s._id) }
+    });
+
+    const updateSlots = slots.filter(s => s._id);
+    const bulkOps: {
+      updateOne: {
+        filter: { _id: string };
+        update: any;
+        upsert: true;
+      };
+    }[] = [];
+
+    for (const slot of updateSlots) {
+      bulkOps.push({
+        updateOne: {
+          filter: { _id: slot._id || '' },
+          update: { $set: { ...slot } },
+          upsert: true
+        }
+      });
+    }
+
+    await models.PosSlots.bulkWrite(bulkOps);
+
+    await models.PosSlots.insertMany(slots.filter(s => !s._id));
+    return models.PosSlots.find({ posId });
   },
 
   posOrderSyncErkhet: async (

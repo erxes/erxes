@@ -13,6 +13,7 @@ import { queries as jobQueries } from '../../job/graphql';
 type Props = {
   queryParams: any;
   history: any;
+  overallWorkIdgetter: (overallWorkId: string) => void;
 };
 
 type FinalProps = {
@@ -38,8 +39,6 @@ class OverallWorkSideBarContainer extends React.Component<FinalProps> {
 
     const overallWorks = overallWorksSideBarQuery.overallWorksSideBar || [];
     const jobRefers = jobRefersAllQuery.jobRefersAll;
-
-    console.log('jobRefers:', jobRefers);
     const searchValue = this.props.queryParams.searchValue || '';
     const inBranchId = this.props.queryParams.inBranchId || '';
     const inDepartmentId = this.props.queryParams.inDepartmentId || '';
