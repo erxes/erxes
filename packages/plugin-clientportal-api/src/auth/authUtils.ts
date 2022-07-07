@@ -1,6 +1,9 @@
 import * as jwt from 'jsonwebtoken';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export const createJwtToken = payload => {
+  debugInfo(`JWT_TOKEN_SECRET: ${process.env.JWT_TOKEN_SECRET}`);
+
   const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
     expiresIn: '1d'
   });
