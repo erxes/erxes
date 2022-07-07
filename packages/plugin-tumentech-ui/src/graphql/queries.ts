@@ -162,8 +162,8 @@ const listParamsDef = `
   $sortDirection: Int
   $plateNumber: String
   $vinNumber: String
-  $vintageYear: Int
-  $importYear: Int
+  $vintageYear: Float
+  $importYear: Float
   $diagnosisDate: Date
   $taxDate: Date
   $drivingClassification: String
