@@ -55,7 +55,7 @@ class PluginDetails extends React.Component<Props, State> {
 
   render() {
     const { enabledServicesQuery } = this.props;
-    const { loading, plugin } = this.state;
+    const { loading, plugin, tabType } = this.state;
 
     const breadcrumb = [
       { title: __('Store'), link: '/settings/installer' },
@@ -80,27 +80,32 @@ class PluginDetails extends React.Component<Props, State> {
         });
     };
 
-    const tabContent = this.state.tabType === 'Description' && (
-      <>
-        <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
-        <Detail>
-          <ListHeader>
-            <ColorHeader>
-              <b>📝 DESCRIPTION</b>
-            </ColorHeader>
-          </ListHeader>
-          <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
-        </Detail>
-        <Detail>
-          <ListHeader>
-            <ColorHeader>
-              <b>✨ FEATURES</b>
-            </ColorHeader>
-          </ListHeader>
-          <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
-        </Detail>
-      </>
-    );
+    const tabContent =
+      tabType === 'Description' ? (
+        <>
+          <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
+          <Detail>
+            <ListHeader>
+              <ColorHeader>
+                <b>📝 DESCRIPTION</b>
+              </ColorHeader>
+            </ListHeader>
+            <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
+          </Detail>
+          <Detail>
+            <ListHeader>
+              <ColorHeader>
+                <b>✨ FEATURES</b>
+              </ColorHeader>
+            </ListHeader>
+            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
+          </Detail>
+        </>
+      ) : (
+        tabType === 'Guide' && (
+          <p dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />
+        )
+      );
 
     const handleSelect = tab => {
       this.setState({ tabType: tab });
