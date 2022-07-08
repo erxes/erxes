@@ -53,6 +53,37 @@ class PluginDetails extends React.Component<Props, State> {
       });
   }
 
+  renderContent = () => {
+    const { plugin, tabType } = this.state;
+
+    if (tabType === 'Description') {
+      return (
+        <>
+          <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
+          <Detail>
+            <ListHeader>
+              <ColorHeader>
+                <b>📝 DESCRIPTION</b>
+              </ColorHeader>
+            </ListHeader>
+            <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
+          </Detail>
+          <Detail>
+            <ListHeader>
+              <ColorHeader>
+                <b>✨ FEATURES</b>
+              </ColorHeader>
+            </ListHeader>
+            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
+          </Detail>
+        </>
+      );
+    } else if (tabType === 'Guide') {
+      return <div dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />;
+    }
+    return null;
+  };
+
   render() {
     const { enabledServicesQuery } = this.props;
     const { loading, plugin, tabType } = this.state;
@@ -79,33 +110,6 @@ class PluginDetails extends React.Component<Props, State> {
           Alert.error(error.message);
         });
     };
-
-    const tabContent =
-      tabType === 'Description' ? (
-        <>
-          <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
-          <Detail>
-            <ListHeader>
-              <ColorHeader>
-                <b>📝 DESCRIPTION</b>
-              </ColorHeader>
-            </ListHeader>
-            <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
-          </Detail>
-          <Detail>
-            <ListHeader>
-              <ColorHeader>
-                <b>✨ FEATURES</b>
-              </ColorHeader>
-            </ListHeader>
-            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
-          </Detail>
-        </>
-      ) : (
-        tabType === 'Guide' && (
-          <p dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />
-        )
-      );
 
     const handleSelect = tab => {
       this.setState({ tabType: tab });
@@ -182,25 +186,25 @@ class PluginDetails extends React.Component<Props, State> {
         <Tabs>
           <TabTitle
             onClick={() => handleSelect('Description')}
-            active={this.state.tabType === 'Description'}
+            active={tabType === 'Description'}
           >
             Description
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Guide')}
-            active={this.state.tabType === 'Guide'}
+            active={tabType === 'Guide'}
           >
             Guide
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Changelog')}
-            active={this.state.tabType === 'Changelog'}
+            active={tabType === 'Changelog'}
           >
             Changelog
           </TabTitle>
         </Tabs>
 
-        {tabContent}
+        {this.renderContent()}
       </DetailMainContainer>
     );
 
