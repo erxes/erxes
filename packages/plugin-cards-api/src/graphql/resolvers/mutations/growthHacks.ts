@@ -22,7 +22,7 @@ const growthHackMutations = {
   async growthHacksAdd(
     _root,
     doc: IGrowthHack & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     return itemsAdd(
       models,
@@ -30,8 +30,7 @@ const growthHackMutations = {
       doc,
       'growthHack',
       models.GrowthHacks.createGrowthHack,
-      user,
-      docModifier
+      user
     );
   },
 
@@ -66,13 +65,24 @@ const growthHackMutations = {
     doc: IItemDragCommonFields,
     { user, models, subdomain }: IContext
   ) {
-    return itemsChange(models, subdomain, doc, 'growthHack', user, models.GrowthHacks.updateGrowthHack);
+    return itemsChange(
+      models,
+      subdomain,
+      doc,
+      'growthHack',
+      user,
+      models.GrowthHacks.updateGrowthHack
+    );
   },
 
   /**
    * Remove a growth hack
    */
-  async growthHacksRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+  async growthHacksRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     return itemsRemove(models, subdomain, _id, 'growthHack', user);
   },
 
@@ -130,7 +140,14 @@ const growthHackMutations = {
     { stageId, proccessId }: { stageId: string; proccessId: string },
     { user, models, subdomain }: IContext
   ) {
-    return itemsArchive(models, subdomain, stageId, 'growthHack', proccessId, user);
+    return itemsArchive(
+      models,
+      subdomain,
+      stageId,
+      'growthHack',
+      proccessId,
+      user
+    );
   }
 };
 
