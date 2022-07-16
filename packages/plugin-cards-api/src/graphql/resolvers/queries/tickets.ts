@@ -20,10 +20,9 @@ const ticketQueries = {
   async tickets(
     _root,
     args: IListParams,
-    { user, commonQuerySelector, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const filter = {
-      ...commonQuerySelector,
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
@@ -33,10 +32,9 @@ const ticketQueries = {
   async ticketsTotalCount(
     _root,
     args: IListParams,
-    { user, commonQuerySelector, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const filter = {
-      ...commonQuerySelector,
       ...(await generateTicketCommonFilters(models, subdomain, user._id, args))
     };
 
@@ -57,7 +55,11 @@ const ticketQueries = {
   /**
    * Tickets detail
    */
-  async ticketDetail(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async ticketDetail(
+    _root,
+    { _id }: { _id: string },
+    { user, models }: IContext
+  ) {
     const ticket = await models.Tickets.getTicket(_id);
 
     return checkItemPermByUser(models, user._id, ticket);
