@@ -58,7 +58,7 @@ export const initBroker = async cl => {
 
       try {
         if (action === 'remove-account') {
-          response = { data: await removeAccount(models, subdomain, data._id) };
+          response = { data: await removeAccount(models, data._id) };
         }
 
         if (action === 'getTelnyxInfo') {
@@ -183,7 +183,7 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { integrationId } }) => {
       const models = await generateModels(subdomain);
 
-      await removeIntegration(models, subdomain, integrationId);
+      await removeIntegration(models, integrationId);
 
       return { status: 'success' };
     }

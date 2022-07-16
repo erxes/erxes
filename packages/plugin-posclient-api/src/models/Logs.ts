@@ -20,11 +20,3 @@ export const loadLogClass = models => {
 
   return logSchema;
 };
-
-// tslint:disable-next-line
-delete mongoose.connection.models['logs'];
-
-// tslint:disable-next-line
-const Logs = model<ILogDocument, ILogModel>('logs', logSchema);
-
-export default Logs;

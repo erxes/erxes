@@ -40,7 +40,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <ModalTrigger
         title="New Group"
-        autoOpenKey="showUserGroupAddModal"
+        autoOpenKey={object ? 'newUserGroup' : 'showUserGroupAddModal'}
         trigger={trigger}
         content={content}
       />

@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { graphql, compose } from "react-apollo";
 import { IBrowserInfo } from "../../types";
-import { Notifier as DumbNotifier } from "../components";
+import DumbNotifier from "../components/Notifier";
 import { connection } from "../connection";
 import graphqlTypes from "../graphql";
 import { EngageMessageQueryResponse, IMessage } from "../types";

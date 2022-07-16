@@ -57,12 +57,6 @@ const sendNotification = async (
     }
   });
 
-  for (const userId of doc.receivers) {
-    graphqlPubsub.publish('userChanged', {
-      userChanged: { userId }
-    });
-  }
-
   // collecting emails
   const recipients = await sendCoreMessage({
     subdomain,

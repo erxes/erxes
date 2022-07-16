@@ -1,3 +1,7 @@
+import {
+  moduleRequireLogin,
+  moduleCheckPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { ILabel, ILabelDocument } from '../../../models/definitions/labels';
 
@@ -18,5 +22,8 @@ const labelsMutations = {
     return await models.Labels.removeLabel(_id);
   }
 };
+
+moduleRequireLogin(labelsMutations);
+moduleCheckPermission(labelsMutations, 'manageSalesPlans');
 
 export default labelsMutations;

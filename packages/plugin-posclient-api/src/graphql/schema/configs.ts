@@ -39,6 +39,12 @@ export const types = `
     productId: String
   }
 
+  type PosclientSlot {
+    _id: String
+    code: String
+    name: String
+  }
+
   type PosConfig {
     _id: String
     name: String

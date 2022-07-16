@@ -10,6 +10,14 @@ const InfoDetail = styled.p`
   word-break: break-all;
 `;
 
+const OverallWorkSidebar = styled.div`
+  padding: 12px 20px;
+  border-color: black;
+  border: 3px;
+  border-radius: 3px;
+  cursor: default;
+`;
+
 const ProductContent = styled.div`
   padding: 12px 22px;
   word-break: break-word;
@@ -44,4 +52,4 @@ export const ContentBox = styled.div`
   margin: 0 auto;
 `;
 
-export { InfoDetail, ProductContent };
+export { InfoDetail, ProductContent, OverallWorkSidebar };

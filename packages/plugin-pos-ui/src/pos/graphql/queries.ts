@@ -1,4 +1,4 @@
-const posCommonFields = `
+export const posCommonFields = `
   _id
   name
   description
@@ -26,12 +26,13 @@ const posCommonFields = `
   uiOptions
   ebarimtConfig
   erkhetConfig
-
+  cardsConfig
   catProdMappings {
     _id
     categoryId
     productId
   }
+  
   initialCategoryIds
   kioskExcludeProductIds
   deliveryConfig
@@ -102,6 +103,17 @@ const branches = `
   }
 `;
 
+const posSlots = `
+  query posSlots($posId: String!) {
+    posSlots(posId: $posId) {
+      _id
+      posId
+      code
+      name
+    }
+  }
+`;
+
 const posDetail = `
   query posDetail($_id: String!) {
     posDetail(_id: $_id) {
@@ -120,7 +132,6 @@ const getDbSchemaLabels = `
   }
 `;
 
-
 export default {
   posList,
   configs,
@@ -128,4 +139,5 @@ export default {
   posDetail,
   getDbSchemaLabels,
   branches,
+  posSlots
 };

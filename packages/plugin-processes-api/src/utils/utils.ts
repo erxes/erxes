@@ -1,24 +1,28 @@
-import { IOverallWork } from './../models/definitions/overallWorks';
-import { IFlow, IFlowDocument } from './../models/definitions/flows';
-import { IWork, IWorkDocument } from './../models/definitions/works';
-import { IContext, IModels } from './../connectionResolver';
 import {
-  IJobRefer,
-  IJobReferDocument,
-  IProductsData
-} from './../models/definitions/jobs';
-import { IJob, IJobDocument } from '../models/definitions/flows';
-import { MODULE_NAMES, putCreateLog } from '../logUtils';
+  IOverallWork,
+  IOverallWorkDocument
+} from './../models/definitions/overallWorks';
+import { IFlowDocument } from './../models/definitions/flows';
+import { IWork } from './../models/definitions/works';
+import { IModels } from './../connectionResolver';
+import { IJobReferDocument, IProductsData } from './../models/definitions/jobs';
+import { IJobDocument } from '../models/definitions/flows';
 
 export const findLastJob = (
   jobs: IJobDocument[],
   jobRefers: IJobReferDocument[],
-  productId: string
+  productId: string,
+  branchId: string,
+  departmentId: string
 ) => {
   const lastJobs: IJobDocument[] = [];
 
   for (const job of jobs) {
-    if (!job.nextJobIds.length || job.nextJobIds.length === 0) {
+    if (
+      (!job.nextJobIds.length || job.nextJobIds.length === 0) &&
+      job.outBranchId === branchId &&
+      job.outDepartmentId === departmentId
+    ) {
       lastJobs.push(job);
     }
   }
@@ -90,8 +94,18 @@ export const getBeforeJobs = (leftJobs: IJobDocument[], jobId: string) => {
   return beforeJobs;
 };
 
-export const initDocOverallWork = () => {
-  console.log('test');
+export const initDocOverallWork = (work: IWork) => {
+  const {
+    jobId,
+    flowId,
+    outBranchId,
+    outDepartmentId,
+    inBranchId,
+    inDepartmentId,
+    needProducts,
+    resultProducts,
+    intervalId
+  } = work;
 
   const doc: IOverallWork = {
     status: 'active',
@@ -99,14 +113,15 @@ export const initDocOverallWork = () => {
     startAt: new Date(),
     endAt: new Date(),
     assignUserIds: [],
-    jobId: 'null',
-    flowId: 'null',
-    outBranchId: 'null',
-    outDepartmentId: 'null',
-    inBranchId: 'null',
-    inDepartmentId: 'null',
-    needProducts: [],
-    resultProducts: []
+    intervalId,
+    jobId,
+    flowId,
+    outBranchId,
+    outDepartmentId,
+    inBranchId,
+    inDepartmentId,
+    needProducts,
+    resultProducts
   };
 
   return doc;
@@ -117,11 +132,12 @@ export const initDocWork = (
   jobRefer: IJobReferDocument,
   productId: string,
   count: string,
-  job?: IJobDocument
+  job?: IJobDocument,
+  intervalId?: string
 ) => {
   const doc: IWork = {
     name: job?.label,
-    status: 'noOverall',
+    status: 'new',
     dueDate: new Date(),
     startAt: new Date(),
     endAt: new Date(),
@@ -129,6 +145,7 @@ export const initDocWork = (
     flowId: flow._id,
     productId,
     count,
+    intervalId,
     inBranchId: job?.inBranchId,
     inDepartmentId: job?.inDepartmentId,
     outBranchId: job?.outBranchId,
@@ -149,6 +166,70 @@ export const initProducts = (count: number, products: IProductsData[]) => {
   }
 
   return response;
+};
+
+export const overallWorksAdd = async (doc: IOverallWork, models: IModels) => {
+  const overallWork = await models.OverallWorks.createOverallWork(doc);
+
+  // await putCreateLog(
+  //   models,
+  //   subdomain,
+  //   {
+  //     type: MODULE_NAMES.OVERALWORK,
+  //     newData: {
+  //       ...doc
+  //     },
+  //     object: overallWork
+  //   },
+  //   user
+  // );
+
+  return overallWork;
+};
+
+export const overallWorksUpdate = async (
+  overalWork: IOverallWorkDocument,
+  work: IWork,
+  models: IModels
+) => {
+  const needProducts: IProductsData[] = overalWork.needProducts || [];
+  const resultProducts: IProductsData[] = overalWork.resultProducts || [];
+
+  const wNeedProducts: IProductsData[] = work.needProducts || [];
+  const wResultProducts: IProductsData[] = work.resultProducts || [];
+
+  const updatedNeedProducts: IProductsData[] = [];
+  const updatedResultProducts: IProductsData[] = [];
+
+  for await (const need of needProducts) {
+    const wNeedProduct =
+      wNeedProducts.find(wNeed => wNeed._id === need._id) ||
+      ({} as IProductsData);
+    need.quantity = need.quantity + wNeedProduct.quantity || 0;
+    updatedNeedProducts.push(need);
+  }
+
+  for await (const result of resultProducts) {
+    const wResultProduct =
+      wResultProducts.find(wNeed => wNeed._id === result._id) ||
+      ({} as IProductsData);
+    result.quantity = result.quantity + wResultProduct.quantity || 0;
+    updatedResultProducts.push(result);
+  }
+
+  await models.OverallWorks.updateOne(
+    { _id: overalWork._id },
+    {
+      $set: {
+        needProducts: updatedNeedProducts,
+        resultProducts: updatedResultProducts
+      }
+    }
+  );
+
+  const updated = await models.OverallWorks.findOne({ _id: overalWork._id });
+
+  return updated;
 };
 
 export const worksAdd = async (doc: IWork, models: IModels) => {
@@ -174,7 +255,8 @@ export const recursiveCatchBeforeJobs = async (
   recursiveJobs: IJobDocument[],
   leftJobs,
   level,
-  params
+  params,
+  intervalId
 ) => {
   console.log('Starting recursive ...');
 
@@ -216,7 +298,8 @@ export const recursiveCatchBeforeJobs = async (
       lastJobRefer[0],
       productId,
       count,
-      recursiveJob
+      recursiveJob,
+      intervalId
     );
 
     const work = await worksAdd(doc, models);
@@ -266,7 +349,8 @@ export const recursiveCatchBeforeJobs = async (
           recursiveJobs,
           leftJobs,
           level + levelCounter++,
-          params
+          params,
+          intervalId
         );
       }
     }

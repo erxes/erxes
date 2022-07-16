@@ -1,3 +1,7 @@
+import {
+  moduleRequireLogin,
+  moduleCheckPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext, models } from '../../../connectionResolver';
 import { sendProcessesMessage } from '../../../messageBroker';
 import { STATUS } from '../../../constants';
@@ -54,29 +58,42 @@ const salesLogMutations = {
       doc.status
     );
 
-    if (result && ![STATUS.PUBLISHED, STATUS.PENDING].includes(result.status)) {
-      let intervals: any = [];
+    if (result && doc.status === STATUS.PENDING) {
+      let worksIntervals: any = [];
 
-      result.products.map((item: any) => {
-        intervals.push({
-          productId: item.productId,
-          label: item.label,
-          count: item.label
+      /**
+       * Converts all the intervals into a format that allows process plugin to read
+       */
+      result.products.map((product: any) => {
+        const { intervals = [] } = product;
+
+        intervals.map((interval: any) => {
+          worksIntervals.push({
+            productId: product.productId,
+            label: interval.label,
+            count: interval.value
+          });
         });
       });
 
-      await sendProcessesMessage({
+      /**
+       * Sends the data to plugin-processes-api
+       */
+      const messageResult = await sendProcessesMessage({
         subdomain,
         action: 'createWorks',
         data: {
           salesLogId: result._id,
-          data: result.date,
+          date: result.date,
           branchId: result.branchId,
           departmentId: result.departmentId,
-          interval: intervals
+          intervalId: 'intervalId',
+          interval: { intervals: worksIntervals }
         },
         isRPC: false
       });
+
+      console.log(messageResult);
     }
 
     return result;
@@ -106,5 +123,8 @@ const salesLogMutations = {
     return await models.YearPlanConfigs.saveYearPlanConfig({ doc });
   }
 };
+
+moduleRequireLogin(salesLogMutations);
+moduleCheckPermission(salesLogMutations, 'manageSalesPlans');
 
 export default salesLogMutations;

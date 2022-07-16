@@ -5,17 +5,20 @@ import {
   IProductGroupDocument,
   IPosOrderDocument,
   posOrderSchema,
-  IPos
+  IPos,
+  posSlotSchema,
+  IPosSlotDocument,
+  IPosSlot
 } from './definitions/pos';
 import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface IPosModel extends Model<IPosDocument> {
-  getPosList(query: any): IPosDocument;
-  getPos(query: any): IPosDocument;
-  posAdd(user, doc: IPos): IPosDocument;
-  posEdit(_id: string, doc: IPos): IPosDocument;
-  posRemove(_id: string): IPosDocument;
+  getPosList(query: any): Promise<IPosDocument>;
+  getPos(query: any): Promise<IPosDocument>;
+  posAdd(user, doc: IPos): Promise<IPosDocument>;
+  posEdit(_id: string, doc: IPos): Promise<IPosDocument>;
+  posRemove(_id: string): Promise<IPosDocument>;
 }
 
 export const loadPosClass = (models: IModels, _subdomain) => {
@@ -90,10 +93,10 @@ export const loadPosClass = (models: IModels, _subdomain) => {
 };
 
 export interface IProductGroupModel extends Model<IProductGroupDocument> {
-  groups(posId: string): IProductGroupDocument[];
-  groupsAdd(user, name, description): IProductGroupDocument;
-  groupsEdit(_id, doc): IProductGroupDocument;
-  groupsRemove(_id: string): IProductGroupDocument;
+  groups(posId: string): Promise<IProductGroupDocument[]>;
+  groupsAdd(user, name, description): Promise<IProductGroupDocument>;
+  groupsEdit(_id, doc): Promise<IProductGroupDocument>;
+  groupsRemove(_id: string): Promise<IProductGroupDocument>;
 }
 
 export const loadProductGroupClass = (models, _subdomain) => {
@@ -145,4 +148,14 @@ export const loadPosOrderClass = (_models, _subdomain) => {
   posOrderSchema.loadClass(PosOrder);
 
   return posOrderSchema;
+};
+
+export interface IPosSlotModel extends Model<IPosSlotDocument> {}
+
+export const loadPosSlotClass = (models: IModels, _subdomain) => {
+  class PosSlot {}
+
+  posSlotSchema.loadClass(PosSlot);
+
+  return posSlotSchema;
 };

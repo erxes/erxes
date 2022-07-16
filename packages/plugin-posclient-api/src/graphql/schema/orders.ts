@@ -30,13 +30,12 @@ const addEditParams = `
 
 export const types = `
 
-  type Customer {
+  type PosCustomer {
     _id: String!
     state: String
     createdAt: Date
     modifiedAt: Date
     avatar: String
-    integrationId: String
     firstName: String
     lastName: String
     middleName: String
@@ -49,30 +48,7 @@ export const types = `
     phones: [String]
     phone: String
     tagIds: [String]
-    remoteAddress: String
-    internalNotes: JSON
-    location: JSON
-    visitorContactInfo: JSON
-    customFieldsData: JSON
-    trackedData: JSON
-    ownerId: String
-    position: String
-    department: String
-    leadStatus: String
-    hasAuthority: String
-    description: String
-    isSubscribed: String
     code: String
-    emailValidationStatus: String
-    phoneValidationStatus: String
-    isOnline: Boolean
-    lastSeenAt: Date
-    sessionCount: Int
-    urlVisits: [JSON]
-    details: PosUserDetailsType
-    links: JSON
-    owner: User
-    score: Float
   }
 
   type PosOrderItem {
@@ -89,7 +65,7 @@ export const types = `
     productImgUrl: String
   }
 
-  type PutResponse {
+  type PosPutResponse {
     createdAt: Date
     date: String
     contentType: String
@@ -145,10 +121,10 @@ export const types = `
     cardPaymentInfo: String
     cardPayments: [CardPayment]
     origin: String
-    customer: Customer
+    customer: PosCustomer
     items: [PosOrderItem]
     user: PosUser
-    putResponses: [PutResponse]
+    putResponses: [PosPutResponse]
     qpayInvoice: QPayInvoice
     qpayInvoices: [QPayInvoice]
   }
@@ -170,11 +146,11 @@ export const types = `
 export const mutations = `
   ordersAdd(${addEditParams}, origin: String): Order
   ordersEdit(_id: String!, ${addEditParams}): Order
-  ordersMakePayment(_id: String!, doc: OrderPaymentInput): PutResponse
+  ordersMakePayment(_id: String!, doc: OrderPaymentInput): PosPutResponse
   orderChangeStatus(_id: String!, status: String): Order
   ordersAddPayment(_id: String!, cashAmount: Float, cardAmount: Float, cardInfo: JSON): Order
   ordersCancel(_id: String!): JSON
-  ordersSettlePayment(_id: String!, billType: String!, registerNumber: String): PutResponse
+  ordersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse
 `;
 
 export const queries = `

@@ -25,7 +25,7 @@ const dealMutations = {
   async dealsAdd(
     _root,
     doc: IDeal & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     return itemsAdd(
       models,
@@ -33,8 +33,7 @@ const dealMutations = {
       doc,
       'deal',
       models.Deals.createDeal,
-      user,
-      docModifier
+      user
     );
   },
 

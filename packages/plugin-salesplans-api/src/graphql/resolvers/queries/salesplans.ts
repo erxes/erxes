@@ -1,3 +1,7 @@
+import {
+  moduleRequireLogin,
+  moduleCheckPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const salesLogQueries = {
@@ -9,8 +13,18 @@ const salesLogQueries = {
     return await models.Labels.find({ type });
   },
 
-  salesLogs: async (_root: any, _args: any, { models }: IContext) => {
-    return await models.SalesLogs.find({}).lean();
+  salesLogs: async (
+    _root: any,
+    { type, status }: { type: string; status: string },
+    { models }: IContext
+  ) => {
+    let query: any = {};
+
+    if (type && type.length !== 0) query.type = type;
+
+    if (status && status.length !== 0) query.status = status;
+
+    return await models.SalesLogs.find(query).lean();
   },
 
   salesLogDetail: async (
@@ -51,5 +65,8 @@ const salesLogQueries = {
     });
   }
 };
+
+moduleRequireLogin(salesLogQueries);
+moduleCheckPermission(salesLogQueries, 'showSalesPlans');
 
 export default salesLogQueries;

@@ -1,8 +1,7 @@
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
-import * as mongoose from 'mongoose';
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as sha256 from 'sha256';
 import {
   IPosUser,
@@ -277,13 +276,3 @@ export const loadPosUserClass = models => {
 
   return posUserSchema;
 };
-
-delete mongoose.connection.models['pos_users'];
-
-// tslint:disable-next-line
-const PosUsers = model<IPosUserDocument, IPosUserModel>(
-  'pos_users',
-  posUserSchema
-);
-
-export default PosUsers;

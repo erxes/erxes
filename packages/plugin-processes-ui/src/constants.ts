@@ -31,3 +31,10 @@ export const menuContacts = [
   { title: 'Jobs', link: '/processes/Jobs' },
   { title: 'Flows', link: '/processes/Flows' }
 ];
+
+export const menuContacts1 = [
+  { title: 'Assignments', link: '/processes/performances' },
+  { title: 'Works', link: '/processes/works' },
+  { title: 'OverallWorks', link: '/processes/overallWorks' },
+  { title: 'Performances', link: '/processes/performanceList' }
+];

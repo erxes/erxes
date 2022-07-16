@@ -7,9 +7,10 @@ import {
   Toggle,
   getEnv,
   Button,
-} from "@erxes/ui/src";
-import { LeftItem } from "@erxes/ui/src/components/step/styles";
-import React from "react";
+  ModalTrigger
+} from '@erxes/ui/src';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import React from 'react';
 import {
   DomainRow,
   FlexColumn,
@@ -18,15 +19,23 @@ import {
   Block,
   BlockRow,
   BlockRowUp,
-} from "../../../styles";
-import { IPos, IScreenConfig } from "../../../types";
-import Select from "react-select-plus";
+  PosSlotAddButton
+} from '../../../styles';
+import { IPos, IScreenConfig, ISlot } from '../../../types';
+import Select from 'react-select-plus';
+import PosSlotItem from '../productGroup/PosSlotItem';
+import Modal from 'react-bootstrap/Modal';
 
 type Props = {
-  onChange: (name: "pos" | "brand", value: any) => void;
-  pos?: IPos;
-  currentMode: "create" | "update" | undefined;
+  onChange: (name: 'pos' | 'slots', value: any) => void;
+  pos: IPos;
+  currentMode: 'create' | 'update';
   branches: any[];
+  posSlots: ISlot[];
+};
+
+type State = {
+  slots: ISlot[];
 };
 
 export const generateTree = (
@@ -53,20 +62,113 @@ export const generateTree = (
   }, []);
 };
 
+class GeneralStep extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
 
-class GeneralStep extends React.Component<Props, {}> {
+    this.state = {
+      slots: props.posSlots || []
+    };
+  }
+
+  onChangeConfig = (code: string, value) => {
+    this.setState({}, () => {});
+  };
+
+  onChangeCheckbox = (code: string, e) => {
+    this.onChangeConfig(code, e.target.checked);
+  };
+
+  renderMapping(slot: ISlot, props) {
+    const { slots } = this.state;
+
+    const removeItem = (_id: string) => {
+      const excluded = slots.filter(m => m._id !== _id);
+
+      this.setState({ slots: excluded });
+      this.props.onChange('slots', excluded);
+    };
+
+    const onChange = (changedSlot: ISlot) => {
+      const excluded = slots.filter(m => m._id !== changedSlot._id);
+
+      const updated = [...excluded, changedSlot];
+      this.setState({ slots: updated });
+      this.props.onChange('slots', updated);
+    };
+
+    return (
+      <PosSlotItem
+        {...props}
+        onChange={onChange}
+        removeItem={removeItem}
+        slot={slot}
+      />
+    );
+  }
+
+  renderPosSlotForm(trigger: React.ReactNode) {
+    const { slots = [] } = this.state;
+
+    const onClickAddSlot = () => {
+      const m = slots.slice();
+
+      m.push({
+        _id: `temp-${Math.random()}`,
+        code: '',
+        name: '',
+        posId: this.props.pos._id
+      });
+
+      this.setState({ slots: m });
+    };
+
+    const content = props => (
+      <FormGroup>
+        <PosSlotAddButton>
+          <Button
+            btnStyle="primary"
+            icon="plus-circle"
+            onClick={onClickAddSlot}
+          >
+            Add
+          </Button>
+        </PosSlotAddButton>
+        {slots.map(s => this.renderMapping(s, props))}
+        <Modal.Footer>
+          <Button
+            onClick={props.closeModal}
+            btnStyle="success"
+            icon={'plus-circle'}
+          >
+            {'Save'}
+          </Button>
+        </Modal.Footer>
+      </FormGroup>
+    );
+
+    return (
+      <ModalTrigger
+        title={'Slots'}
+        trigger={trigger}
+        content={content}
+        size={'lg'}
+      />
+    );
+  }
+
   onChangeFunction = (name: any, value: any) => {
     this.props.onChange(name, value);
   };
 
-  onChangeSwitchIsOnline = (e) => {
+  onChangeSwitchIsOnline = e => {
     const { pos } = this.props;
     pos.isOnline = e.target.checked;
 
-    this.onChangeFunction("pos", pos);
+    this.onChangeFunction('pos', pos);
   };
 
-  onChangeSwitch = (e) => {
+  onChangeSwitch = e => {
     const { pos } = this.props;
 
     if (pos[e.target.id]) {
@@ -75,35 +177,35 @@ class GeneralStep extends React.Component<Props, {}> {
       pos[e.target.id] = { isActive: e.target.checked };
     }
 
-    this.onChangeFunction("pos", pos);
+    this.onChangeFunction('pos', pos);
   };
 
   renderWaitingScreen() {
     const { pos } = this.props;
 
-    const onChangeType = (e) => {
+    const onChangeType = e => {
       e.preventDefault();
       pos.waitingScreen.type = e.target.value;
-      this.onChangeFunction("pos", pos);
+      this.onChangeFunction('pos', pos);
     };
 
-    const onChangeValue = (e) => {
+    const onChangeValue = e => {
       e.preventDefault();
       pos.waitingScreen.value = e.target.value;
-      this.onChangeFunction("pos", pos);
+      this.onChangeFunction('pos', pos);
     };
 
-    const onChangeContentUrl = (e) => {
+    const onChangeContentUrl = e => {
       e.preventDefault();
       pos.waitingScreen.contentUrl = e.target.value;
-      this.onChangeFunction("pos", pos);
+      this.onChangeFunction('pos', pos);
     };
 
     let waitingScreen: IScreenConfig = {
       isActive: false,
-      type: "time",
+      type: 'time',
       value: 0,
-      contentUrl: ""
+      contentUrl: ''
     };
 
     let posId;
@@ -111,9 +213,9 @@ class GeneralStep extends React.Component<Props, {}> {
     if (pos) {
       waitingScreen = pos.waitingScreen || {
         isActive: false,
-        type: "time",
+        type: 'time',
         value: 0,
-        contentUrl: ""
+        contentUrl: ''
       };
       posId = pos._id;
     }
@@ -121,18 +223,18 @@ class GeneralStep extends React.Component<Props, {}> {
     const { REACT_APP_API_URL } = getEnv();
 
     const typeOptions = [
-      { label: "Time", value: "time" },
-      { label: "Count", value: "count" },
+      { label: 'Time', value: 'time' },
+      { label: 'Count', value: 'count' }
     ];
 
     const valueTitle =
-      waitingScreen.type === "time" ? "Change time (min)" : "Change count";
+      waitingScreen.type === 'time' ? 'Change time (min)' : 'Change count';
 
     return (
       <FormGroup>
         {!waitingScreen.isActive ? null : (
           <DomainRow>
-            {this.props.currentMode !== "update" ? null : (
+            {this.props.currentMode !== 'update' ? null : (
               <>
                 <ControlLabel>Link</ControlLabel>
                 <Row>
@@ -143,8 +245,8 @@ class GeneralStep extends React.Component<Props, {}> {
                     value={`${REACT_APP_API_URL}/pos/${posId}/waiting`}
                   />
 
-                  <Button>{__("Copy")}</Button>
-                </Row>{" "}
+                  <Button>{__('Copy')}</Button>
+                </Row>{' '}
               </>
             )}
             <br />
@@ -152,13 +254,13 @@ class GeneralStep extends React.Component<Props, {}> {
             <FormControl
               name="changeType"
               componentClass="select"
-              placeholder={__("Select type")}
+              placeholder={__('Select type')}
               defaultValue={waitingScreen.type}
               onChange={onChangeType}
               required={true}
             >
               <option />
-              {typeOptions.map((option) => (
+              {typeOptions.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -194,22 +296,22 @@ class GeneralStep extends React.Component<Props, {}> {
   renderKitchen() {
     const { pos } = this.props;
 
-    const onChangeType = (e) => {
+    const onChangeType = e => {
       e.preventDefault();
       pos.kitchenScreen.type = e.target.value;
-      this.onChangeFunction("pos", pos);
+      this.onChangeFunction('pos', pos);
     };
 
-    const onChangeValue = (e) => {
+    const onChangeValue = e => {
       e.preventDefault();
       pos.kitchenScreen.value = e.target.value;
-      this.onChangeFunction("pos", pos);
+      this.onChangeFunction('pos', pos);
     };
 
     let kitchenScreen = {
       isActive: false,
-      type: "time",
-      value: 0,
+      type: 'time',
+      value: 0
     };
 
     let posId;
@@ -217,8 +319,8 @@ class GeneralStep extends React.Component<Props, {}> {
     if (pos) {
       kitchenScreen = pos.kitchenScreen || {
         isActive: false,
-        type: "time",
-        value: 0,
+        type: 'time',
+        value: 0
       };
       posId = pos._id;
     }
@@ -226,15 +328,15 @@ class GeneralStep extends React.Component<Props, {}> {
     const { REACT_APP_API_URL } = getEnv();
 
     const typeOptions = [
-      { label: "Time", value: "time" },
-      { label: "Manual", value: "manual" },
+      { label: 'Time', value: 'time' },
+      { label: 'Manual', value: 'manual' }
     ];
 
     return (
       <FormGroup>
         {!kitchenScreen.isActive ? null : (
           <DomainRow>
-            {this.props.currentMode !== "update" ? null : (
+            {this.props.currentMode !== 'update' ? null : (
               <>
                 <ControlLabel>Link</ControlLabel>
                 <Row>
@@ -245,8 +347,8 @@ class GeneralStep extends React.Component<Props, {}> {
                     value={`${REACT_APP_API_URL}/pos/${posId}/kitchen`}
                   />
 
-                  <Button>{__("Copy")}</Button>
-                </Row>{" "}
+                  <Button>{__('Copy')}</Button>
+                </Row>{' '}
               </>
             )}
 
@@ -255,13 +357,13 @@ class GeneralStep extends React.Component<Props, {}> {
             <FormControl
               name="statusChange"
               componentClass="select"
-              placeholder={__("Select type")}
+              placeholder={__('Select type')}
               defaultValue={kitchenScreen.type}
               onChange={onChangeType}
               required={true}
             >
               <option />
-              {typeOptions.map((option) => (
+              {typeOptions.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -270,7 +372,7 @@ class GeneralStep extends React.Component<Props, {}> {
 
             <br />
 
-            {kitchenScreen.type === "time" ? (
+            {kitchenScreen.type === 'time' ? (
               <>
                 <ControlLabel>Time (minute)</ControlLabel>
                 <FormControl
@@ -287,25 +389,23 @@ class GeneralStep extends React.Component<Props, {}> {
     );
   }
 
-  onChangeInput = (e) => {
+  onChangeInput = e => {
     const { pos } = this.props;
     pos[e.target.id] = (e.currentTarget as HTMLInputElement).value;
-    this.onChangeFunction("pos", pos);
+    this.onChangeFunction('pos', pos);
   };
 
   renderCauseOnline() {
     const { pos, branches } = this.props;
     if (pos.isOnline) {
-      const onChangeMultiBranches = (ops) => {
+      const onChangeMultiBranches = ops => {
         const selectedOptionsValues = ops.map(option => option.value);
 
-        this.onChangeFunction(
-          "pos",
-          { ...pos, allowBranchIds: selectedOptionsValues }
-        );
+        this.onChangeFunction('pos', {
+          ...pos,
+          allowBranchIds: selectedOptionsValues
+        });
       };
-
-
 
       return (
         <>
@@ -338,41 +438,42 @@ class GeneralStep extends React.Component<Props, {}> {
             </FormGroup>
           </BlockRow>
         </>
-      )
+      );
     }
 
-    const onChangeBranches = (opt) => {
-      this.onChangeFunction(
-        "pos",
-        { ...pos, branchId: opt.value }
-      );
+    const onChangeBranches = opt => {
+      this.onChangeFunction('pos', { ...pos, branchId: opt.value });
     };
 
     return (
       <>
-        <h4>{__("Domain")}</h4>
+        <h4>{__('Domain')}</h4>
         <BlockRow>
           <FormGroup>
             <ControlLabel>Waiting screen</ControlLabel>
             <Toggle
-              id={"waitingScreen"}
-              checked={pos && pos.waitingScreen ? pos.waitingScreen.isActive : false}
+              id={'waitingScreen'}
+              checked={
+                pos && pos.waitingScreen ? pos.waitingScreen.isActive : false
+              }
               onChange={this.onChangeSwitch}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>,
+                unchecked: <span>No</span>
               }}
             />
           </FormGroup>
           <FormGroup>
             <ControlLabel>Kitchen screen</ControlLabel>
             <Toggle
-              id={"kitchenScreen"}
-              checked={pos && pos.kitchenScreen ? pos.kitchenScreen.isActive : false}
+              id={'kitchenScreen'}
+              checked={
+                pos && pos.kitchenScreen ? pos.kitchenScreen.isActive : false
+              }
               onChange={this.onChangeSwitch}
               icons={{
                 checked: <span>Yes</span>,
-                unchecked: <span>No</span>,
+                unchecked: <span>No</span>
               }}
             />
           </FormGroup>
@@ -395,26 +496,46 @@ class GeneralStep extends React.Component<Props, {}> {
           {this.renderKitchen()}
         </BlockRowUp>
       </>
-    )
+    );
   }
+
+  renderCheckbox = (key: string, title?: string, description?: string) => {
+    return (
+      <>
+        {description && <p>{__(description)}</p>}
+
+        <FormControl
+          onChange={this.onChangeCheckbox.bind(this, key)}
+          componentClass="checkbox"
+        />
+        <ControlLabel>{title || key}</ControlLabel>
+      </>
+    );
+  };
 
   render() {
     const { pos } = this.props;
 
-    const onAdminSelect = (users) => {
+    const slotTrigger = (
+      <div>
+        Total slots: <button>{this.state.slots.length}</button>
+      </div>
+    );
+
+    const onAdminSelect = users => {
       pos.adminIds = users;
-      this.onChangeFunction("pos", pos);
+      this.onChangeFunction('pos', pos);
     };
 
-    const onCashierSelect = (users) => {
+    const onCashierSelect = users => {
       pos.cashierIds = users;
-      this.onChangeFunction("pos", pos);
+      this.onChangeFunction('pos', pos);
     };
 
-    let name = "POS name";
-    let description = "description";
-    let cashierIds = [];
-    let adminIds = [];
+    let name = 'POS name';
+    let description: any = 'description';
+    let cashierIds: any = [];
+    let adminIds: any = [];
 
     if (pos) {
       name = pos.name;
@@ -428,7 +549,7 @@ class GeneralStep extends React.Component<Props, {}> {
         <FlexColumn>
           <LeftItem>
             <Block>
-              <h4>{__("Pos")}</h4>
+              <h4>{__('Pos')}</h4>
               <BlockRow>
                 <FormGroup>
                   <ControlLabel required={true}>Name</ControlLabel>
@@ -449,12 +570,6 @@ class GeneralStep extends React.Component<Props, {}> {
                     onChange={this.onChangeInput}
                   />
                 </FormGroup>
-              </BlockRow>
-            </Block>
-
-            <Block>
-              <h4>{__("Features")}</h4>
-              <BlockRow>
                 <FormGroup>
                   <ControlLabel>Max Skip number</ControlLabel>
                   <FormControl
@@ -470,12 +585,22 @@ class GeneralStep extends React.Component<Props, {}> {
             </Block>
 
             <Block>
-              <h4>{__("Permission")}</h4>
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Slots:</ControlLabel>
+                </FormGroup>
+                <FormGroup>{this.renderCheckbox('Slot Required')}</FormGroup>
+                <FormGroup>{this.renderPosSlotForm(slotTrigger)}</FormGroup>
+              </BlockRow>
+            </Block>
+
+            <Block>
+              <h4>{__('Permission')}</h4>
               <BlockRow>
                 <FormGroup>
                   <ControlLabel required={true}>POS admin</ControlLabel>
                   <SelectTeamMembers
-                    label={__("Choose team member")}
+                    label={__('Choose team member')}
                     name="adminIds"
                     initialValue={adminIds}
                     onSelect={onAdminSelect}
@@ -485,7 +610,7 @@ class GeneralStep extends React.Component<Props, {}> {
                 <FormGroup>
                   <ControlLabel required={true}>POS cashier</ControlLabel>
                   <SelectTeamMembers
-                    label={__("Choose team member")}
+                    label={__('Choose team member')}
                     name="cashierIds"
                     initialValue={cashierIds}
                     onSelect={onCashierSelect}
@@ -497,12 +622,12 @@ class GeneralStep extends React.Component<Props, {}> {
             <Block>
               <ControlLabel>Is Online</ControlLabel>
               <Toggle
-                id={"isOnline"}
+                id={'isOnline'}
                 checked={pos && pos.isOnline ? true : false}
                 onChange={this.onChangeSwitchIsOnline}
                 icons={{
                   checked: <span>Yes</span>,
-                  unchecked: <span>No</span>,
+                  unchecked: <span>No</span>
                 }}
               />
               {this.renderCauseOnline()}

@@ -44,5 +44,4 @@ export const ContentBox = styled.div`
   margin: 0 auto;
 `;
 
-
 export { InfoDetail, ProductContent };

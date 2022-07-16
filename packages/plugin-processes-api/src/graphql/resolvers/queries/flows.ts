@@ -41,7 +41,6 @@ const flowQueries = {
     },
     { models, commonQuerySelector }: IContext
   ) {
-    console.log('flows step 1');
     const selector = generateFilter(params, commonQuerySelector);
 
     return paginate(
@@ -52,6 +51,16 @@ const flowQueries = {
         .lean(),
       { ...params }
     );
+  },
+
+  flowsAll(_root, _arg, { models }: IContext) {
+    // const selector = generateFilter(params, commonQuerySelector);
+
+    return models.Flows.find()
+      .sort({
+        code: 1
+      })
+      .lean();
   },
 
   flowTotalCount(
@@ -76,10 +85,11 @@ const flowQueries = {
    */
   async testGetReceiveDatas(_root, _args, { models, subdomain }: IContext) {
     const data = {
-      lasesLogId: 'lfkajsdlfjalskdj',
+      salesLogId: 'lfkajsdlfjalskdj',
       date: new Date(),
-      branchId: 'X5BcGHpzxofkTq8TL',
-      departmentId: 'ELea5cmuCwuQZy7qH',
+      branchId: 'bz9ExXQ9Tfa8Qs6Tp',
+      departmentId: 'DWkmyHbxF7u57x8h7',
+      intervalId: 'dfadfadfa',
       interval: {
         intervals: [
           { productId: 'Q7r2s3fJM3F88YkTD', count: 3 },

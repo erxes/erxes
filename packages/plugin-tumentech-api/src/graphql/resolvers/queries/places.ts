@@ -24,6 +24,16 @@ const placesQuery = {
       }),
       totalCount: models.Places.find(filter).count()
     };
+  },
+
+  getDealPlace: async (
+    _root,
+    { dealId }: { dealId: string },
+    { models }: IContext
+  ) => {
+    const filter: any = {};
+
+    return models.DealPlaces.findOne({ dealId }).lean();
   }
 };
 

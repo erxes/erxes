@@ -56,13 +56,11 @@ class AssignBox extends React.Component<Props, State> {
           query: gql(queries.userList),
           variables: {
             perPage: 20,
-            searchValue,
-            requireUsername: true
+            searchValue
           }
         })
         .then((response: { loading: boolean; data: { users?: IUser[] } }) => {
-          const verifiedUsers =
-            (response.data.users || []).filter(user => user.username) || [];
+          const verifiedUsers = response.data.users || [];
 
           this.setState({
             loading: response.loading,

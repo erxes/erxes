@@ -13,7 +13,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import CategoryForm from '../../containers/productCategory/CategoryForm';
 import { IJobCategory } from '../../types';
-import { pluginsOfJobCategoryActions } from 'coreui/pluginUtils';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -111,7 +110,6 @@ class List extends React.Component<IProps> {
           </Link>
           <ActionButtons>
             {this.renderEditAction(category)}
-            {pluginsOfJobCategoryActions(category._id)}
             {this.renderRemoveAction(category)}
           </ActionButtons>
         </SidebarListItem>

@@ -9,7 +9,7 @@ let client;
 export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = cl;
-  consumeQueue('processess:createWorks', async ({ subdomain, data }) => {
+  consumeQueue('processes:createWorks', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
@@ -62,6 +62,15 @@ export const sendSalesplansMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'salesplans',
+    ...args
+  });
+};
+
+export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'core',
     ...args
   });
 };

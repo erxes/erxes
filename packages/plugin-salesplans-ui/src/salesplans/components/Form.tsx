@@ -145,6 +145,22 @@ const Form = (props: Props) => {
             />
           </FormGroup>
           <FormGroup>
+            <ControlLabel>Description</ControlLabel>
+            <FormControl
+              type="text"
+              componentClass="textarea"
+              name="description"
+              placeholder={__('Description')}
+              value={salesPlan.description}
+              onChange={(event: any) =>
+                handleState(
+                  (event.target as HTMLInputElement).value,
+                  'description'
+                )
+              }
+            />
+          </FormGroup>
+          <FormGroup>
             <ControlLabel required={true}>Type</ControlLabel>
             <Select
               name="type"
@@ -156,8 +172,6 @@ const Form = (props: Props) => {
           </FormGroup>
           {renderSelectTime()}
           {renderSelectLabel()}
-        </FlexItem>
-        <FlexItem>
           <FormGroup>
             <ControlLabel required={true}>Department</ControlLabel>
             <SelectDepartment
@@ -178,22 +192,6 @@ const Form = (props: Props) => {
               initialValue={salesPlan.branchId}
               onSelect={branchId => handleState(branchId, 'branchId')}
               multi={false}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>Description</ControlLabel>
-            <FormControl
-              type="text"
-              componentClass="textarea"
-              name="description"
-              placeholder={__('Description')}
-              value={salesPlan.description}
-              onChange={(event: any) =>
-                handleState(
-                  (event.target as HTMLInputElement).value,
-                  'description'
-                )
-              }
             />
           </FormGroup>
         </FlexItem>

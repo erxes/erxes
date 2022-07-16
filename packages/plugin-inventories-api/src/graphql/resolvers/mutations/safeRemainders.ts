@@ -1,16 +1,16 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { ISafeRemainder } from '../../../models/definitions/safeRemainders';
 import {
-  ISafeRemainder,
-  ISafeRemItemDocument
-} from '../../../models/definitions/safeRemainders';
-import { SAFE_REMAINDER_STATUSES } from '../../../models/definitions/constants';
+  SAFE_REMAINDER_STATUSES,
+  SAFE_REMITEM_STATUSES
+} from '../../../models/definitions/constants';
+import { sendProductsMessage } from '../../../messageBroker';
 import { updateLiveRemainder } from './utils';
 
 export interface IUpdateSafeRemItemParams {
   _id: string;
-  status: string;
+  status?: string;
   remainder: number;
 }
 
@@ -120,10 +120,18 @@ const remainderMutations = {
   ) {
     const { _id, status, remainder } = params;
     const item = await models.SafeRemItems.getRemItemObject(_id);
+
     await models.SafeRemItems.updateOne(
       { _id },
-      { $set: { count: remainder, status } }
+      {
+        $set: {
+          lastTrDate: new Date(),
+          count: remainder,
+          status: status || SAFE_REMITEM_STATUSES.CHECKED
+        }
+      }
     );
+
     return models.SafeRemItems.getRemItemObject(_id);
   },
 
@@ -138,6 +146,9 @@ const remainderMutations = {
   }
 };
 
-checkPermission(remainderMutations, 'updateRemainders', 'manageRemainders');
+checkPermission(remainderMutations, 'createSafeRemainder', 'manageRemainders');
+checkPermission(remainderMutations, 'removeSafeRemainder', 'manageRemainders');
+checkPermission(remainderMutations, 'updateSafeRemItem', 'manageRemainders');
+checkPermission(remainderMutations, 'removeSafeRemItem', 'manageRemainders');
 
 export default remainderMutations;

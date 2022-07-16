@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   tags: {
     name: 'tags',
     description: 'Tags',

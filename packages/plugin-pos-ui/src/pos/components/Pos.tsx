@@ -4,6 +4,7 @@ import EbarimtConfig from './step/EbarimtConfig';
 import ErkhetConfig from './step/ErkhetConfig';
 import DeliveryConfig from './step/DeliveryConfig';
 import GeneralStep from './step/GeneralStep';
+import CardsConfig from './step/CardsConfig';
 import React from 'react';
 import {
   __,
@@ -15,11 +16,15 @@ import {
   Wrapper
 } from '@erxes/ui/src';
 import { Content, LeftContent } from '../../styles';
-import { ControlWrapper, Indicator, StepWrapper } from '@erxes/ui/src/components/step/styles';
-import { IPos, IProductGroup } from '../../types';
+import {
+  ControlWrapper,
+  Indicator,
+  StepWrapper
+} from '@erxes/ui/src/components/step/styles';
+import { IPos, IProductGroup, ISlot } from '../../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types'
+import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
 
 type Props = {
   pos?: IPos;
@@ -29,12 +34,14 @@ type Props = {
   save: (params: any) => void;
   productCategories: IProductCategory[];
   branches: any[];
+  slots: ISlot[];
 };
 
 type State = {
   name?: string;
   description?: string;
-  pos?: IPos;
+  pos: IPos;
+  slots: ISlot[];
   groups: IProductGroup[];
   currentMode?: 'create' | 'update' | undefined;
   logoPreviewStyle?: any;
@@ -46,6 +53,7 @@ type State = {
   ebarimtConfig: any;
   erkhetConfig: any;
   deliveryConfig: any;
+  cardsConfig: any;
 };
 
 class Pos extends React.Component<Props, State> {
@@ -75,13 +83,24 @@ class Pos extends React.Component<Props, State> {
       ebarimtConfig: pos.ebarimtConfig,
       erkhetConfig: pos.erkhetConfig,
       deliveryConfig: pos.deliveryConfig,
+      cardsConfig: pos.cardsConfig,
+      slots: props.slots || []
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { pos, groups, uiOptions, ebarimtConfig, erkhetConfig, deliveryConfig } = this.state;
+    const {
+      pos,
+      slots,
+      groups,
+      uiOptions,
+      ebarimtConfig,
+      erkhetConfig,
+      deliveryConfig,
+      cardsConfig
+    } = this.state;
 
     if (!pos.name) {
       return Alert.error('Enter POS name');
@@ -95,9 +114,18 @@ class Pos extends React.Component<Props, State> {
       return Alert.error('Choose cashier users');
     }
 
-    const cleanMappings = (pos.catProdMappings || []).map(
-      m => ({ _id: m._id, categoryId: m.categoryId, productId: m.productId })
-    );
+    const cleanMappings = (pos.catProdMappings || []).map(m => ({
+      _id: m._id,
+      categoryId: m.categoryId,
+      productId: m.productId
+    }));
+
+    const cleanSlot = (slots || []).map(m => ({
+      _id: (m._id || '').includes('temp') ? undefined : m._id,
+      code: m.code,
+      name: m.name,
+      posId: m.posId
+    }));
 
     let doc: any = {
       name: pos.name,
@@ -111,6 +139,7 @@ class Pos extends React.Component<Props, State> {
       ebarimtConfig,
       erkhetConfig,
       catProdMappings: cleanMappings,
+      posSlots: cleanSlot,
       isOnline: pos.isOnline,
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
@@ -121,19 +150,20 @@ class Pos extends React.Component<Props, State> {
       initialCategoryIds: pos.initialCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
       deliveryConfig,
+      cardsConfig
     };
 
     if (pos.isOnline) {
       doc = {
         ...doc,
         branchId: ''
-      }
+      };
     } else {
       doc = {
         ...doc,
         beginNumber: '',
         allowBranchIds: ''
-      }
+      };
     }
 
     this.props.save(doc);
@@ -217,12 +247,9 @@ class Pos extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, groups, currentMode, uiOptions } = this.state;
+    const { pos, slots, groups, currentMode, uiOptions } = this.state;
     const { productCategories, branches } = this.props;
-    const breadcrumb = [
-      { title: 'POS List', link: `/pos` },
-      { title: 'POS' }
-    ];
+    const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
     const name = pos.name || '';
     const logoPreviewUrl = uiOptions.logo;
@@ -241,8 +268,9 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
-                  currentMode={currentMode}
+                  currentMode={currentMode || 'create'}
                   branches={branches}
+                  posSlots={slots}
                 />
               </Step>
               <Step
@@ -254,7 +282,7 @@ class Pos extends React.Component<Props, State> {
                   onChange={this.onChange}
                   pos={pos}
                   groups={groups}
-                  catProdMappings={pos.catProdMappings}
+                  catProdMappings={pos.catProdMappings || []}
                   productCategories={productCategories}
                 />
               </Step>
@@ -276,10 +304,7 @@ class Pos extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <EbarimtConfig
-                  onChange={this.onChange}
-                  pos={pos}
-                />
+                <EbarimtConfig onChange={this.onChange} pos={pos} />
               </Step>
               <Step
                 img="/images/icons/erxes-07.svg"
@@ -287,10 +312,7 @@ class Pos extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <ErkhetConfig
-                  onChange={this.onChange}
-                  pos={pos}
-                />
+                <ErkhetConfig onChange={this.onChange} pos={pos} />
               </Step>
               <Step
                 img="/images/icons/erxes-09.svg"
@@ -298,10 +320,15 @@ class Pos extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <DeliveryConfig
-                  onChange={this.onChange}
-                  pos={pos}
-                />
+                <DeliveryConfig onChange={this.onChange} pos={pos} />
+              </Step>
+              <Step
+                img="/images/icons/erxes-07.svg"
+                title={'Sync Cards'}
+                onClick={this.onStepClick}
+                noButton={true}
+              >
+                <CardsConfig onChange={this.onChange} pos={pos} />
               </Step>
             </Steps>
             <ControlWrapper>

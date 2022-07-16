@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ItemMeta } from "../components";
+import ItemMeta from "../components/ItemMeta";
 import { IKbCategory } from "../types";
 
 type Props = {

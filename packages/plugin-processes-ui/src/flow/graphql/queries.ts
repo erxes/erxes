@@ -14,8 +14,16 @@ jobs
 `;
 
 const flows = `
-query flows {
-  flows {
+query flows($categoryId: String, $searchValue: String) {
+  flows(categoryId: $categoryId, searchValue: $searchValue) {
+    ${flowFields}
+  }
+}
+`;
+
+const flowsAll = `
+query flowsAll {
+  flowsAll {
     ${flowFields}
   }
 }
@@ -64,6 +72,7 @@ export default {
   flowCategoriesTotalCount,
 
   flows,
+  flowsAll,
   flowDetail,
   flowTotalCount,
 
