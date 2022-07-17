@@ -9,7 +9,10 @@ import { FlowsAllQueryResponse, IFlowDocument, IJob } from '../../flow/types';
 import { IJobRefer, JobRefersAllQueryResponse } from '../../job/types';
 import Form from '../components/perform/PerformForm';
 import { mutations } from '../graphql';
-import { IOverallWork, OverallWorksSideBarDetailQueryResponse } from '../types';
+import {
+  IOverallWorkDocument,
+  OverallWorksSideBarDetailQueryResponse
+} from '../types';
 import { withProps } from '@erxes/ui/src/utils';
 import { queries as jobQueries } from '../../job/graphql';
 import gql from 'graphql-tag';
@@ -19,37 +22,15 @@ import { queries } from '../graphql';
 type Props = {
   closeModal: () => void;
   history: any;
-  queryParams: any;
+  overallWorkDetail: IOverallWorkDocument;
   max: number;
+  jobRefers: IJobRefer[];
+  flows: IFlowDocument[];
 };
 
-type FinalProps = {
-  jobRefersAllQuery: JobRefersAllQueryResponse;
-  flowsAllQuery: FlowsAllQueryResponse;
-  overallWorksSideBarDetailQuery: OverallWorksSideBarDetailQueryResponse;
-} & Props;
-
-class ProductFormContainer extends React.Component<FinalProps> {
+class ProductFormContainer extends React.Component<Props> {
   render() {
-    const {
-      overallWorksSideBarDetailQuery,
-      max,
-      jobRefersAllQuery,
-      flowsAllQuery
-    } = this.props;
-
-    if (
-      overallWorksSideBarDetailQuery.loading ||
-      jobRefersAllQuery.loading ||
-      flowsAllQuery.loading
-    ) {
-      return false;
-    }
-
-    const jobRefers = jobRefersAllQuery.jobRefersAll || [];
-    const flows = flowsAllQuery.flowsAll || [];
-    const overallWorkDetail =
-      overallWorksSideBarDetailQuery.overallWorksSideBarDetail;
+    const { overallWorkDetail, max, jobRefers, flows } = this.props;
 
     const renderButton = ({
       name,
@@ -58,6 +39,13 @@ class ProductFormContainer extends React.Component<FinalProps> {
       callback
     }: IButtonMutateProps) => {
       const { count, performNeedProducts, performResultProducts } = values;
+
+      console.log(
+        'on renderButton container: ',
+        count,
+        performNeedProducts,
+        performResultProducts
+      );
 
       const doc = {
         startAt: new Date(),
@@ -111,29 +99,4 @@ const getRefetchQueries = test => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-    graphql<Props, JobRefersAllQueryResponse, {}>(
-      gql(jobQueries.jobRefersAll),
-      {
-        name: 'jobRefersAllQuery',
-        options: { fetchPolicy: 'no-cache' }
-      }
-    ),
-    graphql<Props, FlowsAllQueryResponse, {}>(gql(flowQueries.flowsAll), {
-      name: 'flowsAllQuery'
-    }),
-    graphql<Props, OverallWorksSideBarDetailQueryResponse, {}>(
-      gql(queries.overallWorksSideBarDetail),
-      {
-        name: 'overallWorksSideBarDetailQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            id: queryParams.overallWorkId
-          },
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
-  )(ProductFormContainer)
-);
+export default ProductFormContainer;

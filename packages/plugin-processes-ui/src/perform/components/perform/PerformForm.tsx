@@ -92,6 +92,8 @@ class Form extends React.Component<Props, State> {
       </li>
     );
 
+    const { count } = this.state;
+
     for (const product of products) {
       const { uom } = product;
       const productName = product.product ? product.product.name : 'not name';
@@ -99,7 +101,9 @@ class Form extends React.Component<Props, State> {
       const realData = realDatas.find(rd => rd._id === product._id);
       const quantity = realData ? realData.quantity : 0;
 
-      result.push(this.renderView(productName, quantity + '/' + uomCode + '/'));
+      result.push(
+        this.renderView(productName, quantity * count + '/' + uomCode + '/')
+      );
     }
 
     return result;
@@ -139,29 +143,14 @@ class Form extends React.Component<Props, State> {
 
   onChange = e => {
     const count = Number(e.target.value);
-    const { jobRefer } = this.state;
-    const { needProducts, resultProducts } = this.state;
+    const { needProducts, resultProducts, jobRefer } = this.state;
 
-    console.log('on onChange:', jobRefer);
-
-    for (const need of jobRefer?.needProducts || []) {
-      const currentNeed = needProducts?.find(n => n._id === need._id);
-
-      const { quantity } = need;
-      currentNeed.quantity = quantity * count;
-    }
-
-    for (const result of jobRefer?.resultProducts || []) {
-      const currentResult = resultProducts?.find(n => n._id === result._id);
-
-      const { quantity } = result;
-      currentResult.quantity = quantity * count;
-    }
+    console.log('on onChange:', { ...jobRefer });
+    console.log('on onChange needProducts:', needProducts);
+    console.log('on onChange resultProducts:', resultProducts);
 
     this.setState({
-      count,
-      needProducts,
-      resultProducts
+      count
     });
   };
 

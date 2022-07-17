@@ -257,22 +257,32 @@ class List extends React.Component<IProps, State> {
     this.setState({ overallWorkId });
   };
 
-  modalContent = props => (
-    <Form
-      {...props}
-      queryParams={this.props.queryParams}
-      max={this.state.max}
-    />
-  );
-
   render() {
-    const { performsCount, loading, queryParams, history } = this.props;
-    const { overallWorkId } = this.state;
+    const {
+      performsCount,
+      loading,
+      queryParams,
+      history,
+      overallWorkDetail,
+      jobRefers,
+      flows
+    } = this.props;
+    const { overallWorkId, max } = this.state;
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
         Add performance
       </Button>
+    );
+
+    const modalContent = props => (
+      <Form
+        {...props}
+        max={max}
+        overallWorkDetail={overallWorkDetail}
+        jobRefers={jobRefers}
+        flows={flows}
+      />
     );
 
     const content = (
@@ -297,7 +307,7 @@ class List extends React.Component<IProps, State> {
             title="Add performance"
             trigger={trigger}
             autoOpenKey="showPerformanceModal"
-            content={this.modalContent}
+            content={modalContent}
           />
         )}
       </>
