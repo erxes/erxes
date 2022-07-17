@@ -2,24 +2,55 @@ import React from 'react';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import * as compose from 'lodash.flowright';
+import { graphql } from 'react-apollo';
 
-import { IFlowDocument, IJob } from '../../flow/types';
-import { IJobRefer } from '../../job/types';
+import { FlowsAllQueryResponse, IFlowDocument, IJob } from '../../flow/types';
+import { IJobRefer, JobRefersAllQueryResponse } from '../../job/types';
 import Form from '../components/perform/PerformForm';
 import { mutations } from '../graphql';
-import { IOverallWorkDocument } from '../types';
+import { IOverallWork, OverallWorksSideBarDetailQueryResponse } from '../types';
+import { withProps } from '@erxes/ui/src/utils';
+import { queries as jobQueries } from '../../job/graphql';
+import gql from 'graphql-tag';
+import { queries as flowQueries } from '../../flow/graphql';
+import { queries } from '../graphql';
 
 type Props = {
   closeModal: () => void;
   history: any;
-  overallWorkDetail: IOverallWorkDocument;
+  queryParams: any;
   max: number;
-  jobRefer?: IJobRefer;
 };
 
-class ProductFormContainer extends React.Component<Props> {
+type FinalProps = {
+  jobRefersAllQuery: JobRefersAllQueryResponse;
+  flowsAllQuery: FlowsAllQueryResponse;
+  overallWorksSideBarDetailQuery: OverallWorksSideBarDetailQueryResponse;
+} & Props;
+
+class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { overallWorkDetail, max, jobRefer } = this.props;
+    const {
+      overallWorksSideBarDetailQuery,
+      max,
+      jobRefersAllQuery,
+      flowsAllQuery
+    } = this.props;
+
+    if (
+      overallWorksSideBarDetailQuery.loading ||
+      jobRefersAllQuery.loading ||
+      flowsAllQuery.loading
+    ) {
+      return false;
+    }
+
+    const jobRefers = jobRefersAllQuery.jobRefersAll || [];
+    const flows = flowsAllQuery.flowsAll || [];
+    const overallWorkDetail =
+      overallWorksSideBarDetailQuery.overallWorksSideBarDetail;
+
     const renderButton = ({
       name,
       values,
@@ -63,7 +94,8 @@ class ProductFormContainer extends React.Component<Props> {
         {...updatedProps}
         overallWorkDetail={overallWorkDetail}
         max={max}
-        jobRefer={jobRefer}
+        jobRefers={jobRefers}
+        flows={flows}
       />
     );
   }
@@ -71,7 +103,37 @@ class ProductFormContainer extends React.Component<Props> {
 
 const getRefetchQueries = test => {
   console.log(test);
-  return ['performsByOverallWorkId', 'performsByOverallWorkIdTotalCount'];
+  return [
+    'performsByOverallWorkId',
+    'performsByOverallWorkIdTotalCount',
+    'jobRefersAllQuery',
+    'flowsAllQuery'
+  ];
 };
 
-export default ProductFormContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props, JobRefersAllQueryResponse, {}>(
+      gql(jobQueries.jobRefersAll),
+      {
+        name: 'jobRefersAllQuery',
+        options: { fetchPolicy: 'no-cache' }
+      }
+    ),
+    graphql<Props, FlowsAllQueryResponse, {}>(gql(flowQueries.flowsAll), {
+      name: 'flowsAllQuery'
+    }),
+    graphql<Props, OverallWorksSideBarDetailQueryResponse, {}>(
+      gql(queries.overallWorksSideBarDetail),
+      {
+        name: 'overallWorksSideBarDetailQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            id: queryParams.overallWorkId
+          },
+          fetchPolicy: 'network-only'
+        })
+      }
+    )
+  )(ProductFormContainer)
+);
