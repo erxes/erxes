@@ -64,7 +64,7 @@ class WorkListContainer extends React.Component<FinalProps> {
       overallWorksSideBarDetailQuery.overallWorksSideBarDetail ||
       ({} as IOverallWork);
     const searchValue = this.props.queryParams.searchValue || '';
-    const jobs = jobRefersAllQuery.jobRefersAll || [];
+    const jobRefers = jobRefersAllQuery.jobRefersAll || [];
     const flows = flowsAllQuery.flowsAll || [];
 
     const updatedProps = {
@@ -75,20 +75,22 @@ class WorkListContainer extends React.Component<FinalProps> {
       overallWorkDetail,
       loading: performsByOverallWorkIdQuery.loading,
       searchValue,
-      jobRefers: jobs,
+      jobRefers,
       flows
     };
 
-    const performsList = props => {
+    const performancesList = props => {
       return <List {...updatedProps} {...props} />;
     };
 
     const refetch = () => {
       this.props.performsByOverallWorkIdQuery.refetch();
       this.props.performsByOverallWorkIdTotalCountQuery.refetch();
+      this.props.jobRefersAllQuery.refetch();
+      this.props.flowsAllQuery.refetch();
     };
 
-    return <Bulk content={performsList} refetch={refetch} />;
+    return <Bulk content={performancesList} refetch={refetch} />;
   }
 }
 
@@ -134,7 +136,8 @@ export default withProps<Props>(
     graphql<Props, JobRefersAllQueryResponse, {}>(
       gql(jobQueries.jobRefersAll),
       {
-        name: 'jobRefersAllQuery'
+        name: 'jobRefersAllQuery',
+        options: { fetchPolicy: 'no-cache' }
       }
     ),
     graphql<Props, FlowsAllQueryResponse, {}>(gql(flowQueries.flowsAll), {
