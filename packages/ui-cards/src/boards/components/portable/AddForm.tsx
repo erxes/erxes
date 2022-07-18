@@ -81,7 +81,7 @@ class AddForm extends React.Component<Props, State> {
     e.preventDefault();
 
     const { stageId, name, cardId, customFieldsData, priority } = this.state;
-    const { saveItem, closeModal, callback } = this.props;
+    const { saveItem, closeModal, callback, fields } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -89,6 +89,14 @@ class AddForm extends React.Component<Props, State> {
 
     if (!name && !cardId) {
       return Alert.error('Please enter name or select card');
+    }
+
+    for (const field of fields) {
+      const customField = customFieldsData.find(c => c.field === field._id);
+
+      if (field.isRequired && (!customField || !customField.value)) {
+        return Alert.error('Please enter or choose a required field');
+      }
     }
 
     const doc: any = {

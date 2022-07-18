@@ -30,6 +30,7 @@ const commonFields = `
   groupId
   searchable
   showInCard
+  isRequired
 
   ${genericFields}
 

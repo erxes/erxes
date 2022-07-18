@@ -18,6 +18,7 @@ import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
 
+// Props
 type Props = {
   queryParams: any;
   refetch?: () => void;
