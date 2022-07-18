@@ -14,7 +14,7 @@ import {
 import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
 import CardSelect from './CardSelect';
-import { IField } from '@erxes/ui/src/types';
+import { IAttachment, IField } from '@erxes/ui/src/types';
 import GenerateAddFormFields from './GenerateAddFormFields';
 
 type Props = {
@@ -42,6 +42,12 @@ type State = {
   cardId: string;
   customFieldsData: any[];
   priority?: string;
+  labelIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
+  assignedUserIds?: string[];
+  attachment?: IAttachment[];
+  description?: string;
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -80,7 +86,19 @@ class AddForm extends React.Component<Props, State> {
   save = e => {
     e.preventDefault();
 
-    const { stageId, name, cardId, customFieldsData, priority } = this.state;
+    const {
+      stageId,
+      name,
+      cardId,
+      customFieldsData,
+      priority,
+      labelIds,
+      startDate,
+      closeDate,
+      assignedUserIds,
+      description,
+      attachment
+    } = this.state;
     const { saveItem, closeModal, callback, fields } = this.props;
 
     if (!stageId) {
@@ -108,6 +126,30 @@ class AddForm extends React.Component<Props, State> {
 
     if (priority) {
       doc.priority = priority;
+    }
+
+    if (labelIds && labelIds.length > 0) {
+      doc.labelIds = labelIds;
+    }
+
+    if (startDate) {
+      doc.startDate = startDate;
+    }
+
+    if (closeDate) {
+      doc.closeDate = closeDate;
+    }
+
+    if (assignedUserIds && assignedUserIds.length > 0) {
+      doc.assignedUserIds = assignedUserIds;
+    }
+
+    if (attachment) {
+      doc.attachments = [attachment];
+    }
+
+    if (description) {
+      doc.description = description;
     }
 
     // before save, disable save button

@@ -265,9 +265,51 @@ export const CARD_PROPERTIES_INFO = {
       field: 'priority',
       canHide: false,
       validation: null,
-      isVisibleToCreate: false,
       type: 'select',
       options: ['Critical', 'High', 'Normal', 'Low']
+    },
+    {
+      label: 'Label',
+      field: 'labelIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
+    },
+    {
+      label: 'Start date',
+      field: 'startDate',
+      canHide: false,
+      validation: 'date',
+      type: 'input'
+    },
+    {
+      label: 'Close date',
+      field: 'closeDate',
+      canHide: false,
+      validation: 'date',
+      type: 'input'
+    },
+    {
+      label: 'Assigned to',
+      field: 'assignedUserIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
+    },
+    {
+      label: 'Attachment',
+      field: 'attachment',
+      canHide: false,
+      type: 'file'
+    },
+    {
+      label: 'Description',
+      field: 'description',
+      canHide: false,
+      validation: null,
+      type: 'textarea'
     }
   ]
 };

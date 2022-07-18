@@ -369,7 +369,6 @@ export const generateSystemFields = ({ data: { groupId, type } }) => {
       canHide: e.canHide,
       validation: e.validation,
       groupId,
-      isVisibleToCreate: e.isVisibleToCreate,
       options: e.options,
       contentType: `cards:${type}`,
       isDefinedByErxes: true

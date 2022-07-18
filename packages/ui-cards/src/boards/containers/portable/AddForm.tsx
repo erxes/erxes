@@ -66,15 +66,15 @@ class AddFormContainer extends React.Component<FinalProps> {
       bookingProductId
     } = this.props;
 
-    doc.assignedUserIds = assignedUserIds;
+    doc.assignedUserIds = doc.assignedUserIds || assignedUserIds;
 
     const proccessId = Math.random().toString();
 
     localStorage.setItem('proccessId', proccessId);
 
     doc.proccessId = proccessId;
-    doc.description = description;
-    doc.attachments = attachments;
+    doc.description = doc.description || description;
+    doc.attachments = doc.attachments || attachments;
 
     if (sourceConversationId) {
       doc.sourceConversationIds = [sourceConversationId];
