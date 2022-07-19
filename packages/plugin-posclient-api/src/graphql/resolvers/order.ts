@@ -8,6 +8,10 @@ export default {
   },
 
   async customer(order: IOrderDocument, _params, { subdomain }: IContext) {
+    if (!order.customerId) {
+      return null;
+    }
+
     return sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
