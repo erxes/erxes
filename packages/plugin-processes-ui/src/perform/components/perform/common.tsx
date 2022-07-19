@@ -8,19 +8,12 @@ export const calculateCount = (
   overallWorkDetail?: IOverallWorkDocument,
   type?: string
 ) => {
-  const flowId = overallWorkDetail?.flowId;
   const jobId = overallWorkDetail?.jobId;
   const resultProducts = overallWorkDetail?.resultProducts;
 
-  const flow = flows.find(f => f._id === flowId);
-  const flowJobs: IJob[] | undefined = flow?.jobs;
-  const flowJob: IJob =
-    (flowJobs && flowJobs.find(fj => fj.id === jobId)) || ({} as IJob);
-  const jobReferId = flowJob?.jobReferId || '';
-  const jobRefer =
-    jobReferId && jobRefers
-      ? jobRefers.find(jr => jr._id === jobReferId)
-      : ({} as IJobRefer);
+  const jobRefer = jobId
+    ? jobRefers.find(jr => jr._id === jobId)
+    : ({} as IJobRefer);
 
   const jobReferResultProducts = jobRefer ? jobRefer.resultProducts : [];
   const overallWorkResultProducts = resultProducts ? resultProducts : [];
@@ -35,14 +28,6 @@ export const calculateCount = (
       ? jobReferResultProducts[0].quantity
       : 1;
     count = overallQnty / jobReferQnty;
-
-    console.log(
-      `calculate count: ${type}`,
-      jobReferResultProducts,
-      overallQnty,
-      jobReferQnty,
-      count
-    );
   }
 
   return { count, jobRefer };

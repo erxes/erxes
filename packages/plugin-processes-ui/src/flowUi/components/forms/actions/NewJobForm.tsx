@@ -21,7 +21,7 @@ type Props = {
   onSave: () => void;
   activeAction?: IJob;
   jobRefers: IJobRefer[];
-  actions: IJob[];
+  flowJobs: IJob[];
   lastAction?: IJob;
   flowProduct?: IProduct;
   addAction: (
@@ -92,8 +92,9 @@ class Delay extends React.Component<Props, State> {
 
     return products.map(product => {
       const name = product.product.name;
-      let matchResult =
-        matchProducts && matchProducts.length
+
+      let matchResult: any[] | boolean | undefined =
+        matchProducts && matchProducts.length > 0
           ? matchProducts.includes(name)
           : matchProducts;
 
@@ -105,10 +106,9 @@ class Delay extends React.Component<Props, State> {
         <>
           <FormGroup>
             <ControlLabel key={product.id}>
-              {space} -{matchResult === undefined && name}
+              {space} - {matchResult === undefined && name}
               {matchResult === true && name}
               {matchResult === false && this.renderLabelInfo('danger', name)}
-              {/* {this.renderLabelInfo(style, type)} */}
             </ControlLabel>
           </FormGroup>
         </>
@@ -122,7 +122,7 @@ class Delay extends React.Component<Props, State> {
     type,
     beforeActions: IJob[]
   ) => {
-    let beforeResultProducts = [];
+    let beforeResultProducts: any = [];
     if (beforeActions.length > 0) {
       for (const before of beforeActions) {
         const jobRefer = jobRefers.find(job => job._id === before.jobReferId);
@@ -145,6 +145,9 @@ class Delay extends React.Component<Props, State> {
       const jobRefer = jobRefers.find(job => job._id === action.jobReferId);
       const needProducts = jobRefer.needProducts || [];
       const resultProducts = jobRefer.resultProducts || [];
+
+      beforeResultProducts =
+        beforeResultProducts.length === 0 ? false : beforeResultProducts;
 
       return (
         <>
@@ -185,10 +188,10 @@ class Delay extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { jobRefers, actions, activeAction } = this.props;
+    const { jobRefers, flowJobs, activeAction } = this.props;
     const activeActionId =
       activeAction && activeAction.id ? activeAction.id : '';
-    const beforeActions = actions.filter(e =>
+    const beforeActions = flowJobs.filter(e =>
       (e.nextJobIds || []).includes(activeActionId)
     );
     const onChangeValue = (type, e) => {

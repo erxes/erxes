@@ -89,8 +89,6 @@ class List extends React.Component<IProps, State> {
   calculatePercent = (type: string) => {
     const { performs, jobRefers, flows, overallWorkDetail } = this.props;
 
-    console.log('jobRefers on calculatePercent: ', jobRefers);
-
     const calculatedObject = calculateCount(
       jobRefers || [],
       flows || [],
@@ -103,8 +101,6 @@ class List extends React.Component<IProps, State> {
     for (const perform of performs) {
       total = total + Number(perform.count);
     }
-
-    console.log(count, total);
 
     return {
       percent: Math.round(total !== 0 ? (total * 100) / count : 0),

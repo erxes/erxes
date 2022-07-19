@@ -32,7 +32,7 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
 };
 
 const performQueries = {
-  performs(
+  async performs(
     _root,
     params: IParam & {
       page: number;
@@ -41,6 +41,8 @@ const performQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
+
+    console.log('selector: ', selector);
 
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
