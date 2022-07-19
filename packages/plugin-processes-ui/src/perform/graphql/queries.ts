@@ -54,8 +54,8 @@ query overallWorks($page: Int, $perPage: Int, $searchValue: String) {
 }`;
 
 const overallWorksSideBar = `
-query overallWorksSideBar($inBranchId: String, $inDepartmentId: String, $outBranchId: String, $outDepartmentId: String) {
-  overallWorksSideBar(inBranchId: $inBranchId, inDepartmentId: $inDepartmentId, outBranchId: $outBranchId, outDepartmentId: $outDepartmentId) {
+query overallWorksSideBar($inBranchId: String, $inDepartmentId: String, $outBranchId: String, $outDepartmentId: String,$jobReferId: String) {
+  overallWorksSideBar(inBranchId: $inBranchId, inDepartmentId: $inDepartmentId, outBranchId: $outBranchId, outDepartmentId: $outDepartmentId,jobReferId: $jobReferId) {
     _id
     intervalId
     interval

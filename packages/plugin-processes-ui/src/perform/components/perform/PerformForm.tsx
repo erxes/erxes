@@ -47,7 +47,6 @@ class Form extends React.Component<Props, State> {
 
     const { overallWorkDetail, jobRefers, flows } = this.props;
     const resultProductsDetail = overallWorkDetail?.resultProductsDetail;
-
     const calculatedObject = calculateCount(
       jobRefers || [],
       flows || [],
@@ -55,8 +54,6 @@ class Form extends React.Component<Props, State> {
       'on perform component'
     );
     const { jobRefer } = calculatedObject;
-
-    console.log('on constructor:', calculatedObject.jobRefer);
 
     this.state = {
       count: 1,
@@ -144,10 +141,6 @@ class Form extends React.Component<Props, State> {
   onChange = e => {
     const count = Number(e.target.value);
     const { needProducts, resultProducts, jobRefer } = this.state;
-
-    console.log('on onChange:', { ...jobRefer });
-    console.log('on onChange needProducts:', needProducts);
-    console.log('on onChange resultProducts:', resultProducts);
 
     this.setState({
       count

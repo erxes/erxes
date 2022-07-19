@@ -28,14 +28,6 @@ export const calculateCount = (
       ? jobReferResultProducts[0].quantity
       : 1;
     count = overallQnty / jobReferQnty;
-
-    console.log(
-      `calculate count: ${type}`,
-      jobReferResultProducts,
-      overallQnty,
-      jobReferQnty,
-      count
-    );
   }
 
   return { count, jobRefer };
