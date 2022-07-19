@@ -112,8 +112,21 @@ class AddForm extends React.Component<Props, State> {
     for (const field of fields) {
       const customField = customFieldsData.find(c => c.field === field._id);
 
-      if (field.isRequired && (!customField || !customField.value)) {
-        return Alert.error('Please enter or choose a required field');
+      if (field.isRequired) {
+        let alert = false;
+
+        if (field.isDefinedByErxes && !this.state[field.field || '']) {
+          alert = true;
+        } else if (
+          !field.isDefinedByErxes &&
+          (!customField || !customField.value)
+        ) {
+          alert = true;
+        }
+
+        if (alert) {
+          return Alert.error('Please enter or choose a required field');
+        }
       }
     }
 
