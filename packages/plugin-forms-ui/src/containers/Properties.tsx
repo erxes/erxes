@@ -51,7 +51,7 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible,
     fieldsUpdateOrder,
-    fieldsUpdateVisibleToCreate,
+    fieldsUpdateSystemFields,
     groupsUpdateOrder,
     queryParams,
     fieldsGetTypes
@@ -113,12 +113,20 @@ const PropertiesContainer = (props: FinalProps) => {
       });
   };
 
-  const updatePropertyVisibleToCreate = ({ _id, isVisibleToCreate }) => {
-    fieldsUpdateVisibleToCreate({
-      variables: { _id, isVisibleToCreate }
+  const updatePropertySystemFields = ({
+    _id,
+    isVisibleToCreate,
+    isRequired
+  }: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
+  }) => {
+    fieldsUpdateSystemFields({
+      variables: { _id, isVisibleToCreate, isRequired }
     })
       .then(() => {
-        Alert.success('You changed a property field visibility to create');
+        Alert.success('You changed a property field');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -188,7 +196,7 @@ const PropertiesContainer = (props: FinalProps) => {
     updatePropertyVisible,
     updatePropertyDetailVisible,
     updatePropertyGroupVisible,
-    updatePropertyVisibleToCreate,
+    updatePropertySystemFields,
     updateFieldOrder,
     updateGroupOrder
   };
@@ -238,9 +246,9 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, FieldsEditMutationResponse, { _id: string }>(
-      gql(mutations.fieldsUpdateVisibleToCreate),
+      gql(mutations.fieldsUpdateSystemFields),
       {
-        name: 'fieldsUpdateVisibleToCreate',
+        name: 'fieldsUpdateSystemFields',
         options
       }
     ),

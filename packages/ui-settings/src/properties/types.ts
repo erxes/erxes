@@ -67,10 +67,11 @@ export type FieldsEditMutationResponse = {
 };
 
 export type FieldsUpdateVisibilityToCreateMutationResponse = {
-  fieldsUpdateVisibleToCreate: (fieldsUpdateVisibleToCreate: {
+  fieldsUpdateSystemFields: (fieldsUpdateSystemFields: {
     variables: {
       _id: string;
-      isVisibleToCreate: boolean;
+      isVisibleToCreate?: boolean;
+      isRequired?: boolean;
     };
   }) => Promise<any>;
 };

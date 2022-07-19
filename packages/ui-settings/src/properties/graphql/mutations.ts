@@ -120,9 +120,9 @@ const fieldsEdit = `
   }
 `;
 
-const fieldsUpdateVisibleToCreate = `
-  mutation fieldsUpdateVisibleToCreate($_id: String!, $isVisibleToCreate: Boolean) {
-    fieldsUpdateVisibleToCreate(_id: $_id, isVisibleToCreate: $isVisibleToCreate) {
+const fieldsUpdateSystemFields = `
+  mutation fieldsUpdateSystemFields($_id: String!, $isVisibleToCreate: Boolean, $isRequired: Boolean) {
+    fieldsUpdateSystemFields(_id: $_id, isVisibleToCreate: $isVisibleToCreate, isRequired: $isRequired) {
       _id
     }
   }
@@ -165,7 +165,7 @@ export default {
   fieldsGroupsEdit,
   fieldsGroupsRemove,
   fieldsGroupsUpdateVisible,
-  fieldsUpdateVisibleToCreate,
+  fieldsUpdateSystemFields,
   fieldsAdd,
   fieldsEdit,
   fieldsRemove,

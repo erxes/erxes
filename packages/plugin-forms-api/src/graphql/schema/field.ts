@@ -155,7 +155,7 @@ export const fieldsMutations = `
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]
   fieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : Field
-  fieldsUpdateVisibleToCreate(_id: String!, isVisibleToCreate: Boolean) : Field
+  fieldsUpdateSystemFields(_id: String!, isVisibleToCreate: Boolean, isRequired: Boolean) : Field
 `;
 
 export const fieldsGroupsTypes = `

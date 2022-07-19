@@ -32,9 +32,10 @@ type Props = {
     _id: string;
     isVisibleInDetail: boolean;
   }) => void;
-  updatePropertyVisibleToCreate: (data: {
+  updatePropertySystemFields: (data: {
     _id: string;
-    isVisibleToCreate: boolean;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
   }) => void;
   updateFieldOrder: (fields: IField[]) => any;
 };
@@ -95,16 +96,10 @@ class PropertyRow extends React.Component<Props, State> {
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
   };
 
-  visibleToCreateHandler = (e, property) => {
-    const isVisibleToCreate = e.target.checked;
-
-    if (property.type === 'name') {
-      return Alert.error('You cannot update this property');
-    }
-
-    return this.props.updatePropertyVisibleToCreate({
+  updateSystemFieldsHandler = (e, property) => {
+    return this.props.updatePropertySystemFields({
       _id: property._id,
-      isVisibleToCreate
+      [e.target.id]: e.target.checked
     });
   };
 
@@ -192,18 +187,30 @@ class PropertyRow extends React.Component<Props, State> {
           <></>
         )}
         {contentType.startsWith('cards:') && (
-          <RowField>
-            <Toggle
-              id="isVisibleToCreate"
-              disabled={field.type === 'name'}
-              defaultChecked={field.isVisibleToCreate}
-              icons={{
-                checked: <span>Yes</span>,
-                unchecked: <span>No</span>
-              }}
-              onChange={e => this.visibleToCreateHandler(e, field)}
-            />
-          </RowField>
+          <>
+            <RowField>
+              <Toggle
+                id="isVisibleToCreate"
+                defaultChecked={field.isVisibleToCreate}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={e => this.updateSystemFieldsHandler(e, field)}
+              />
+            </RowField>
+            <RowField>
+              <Toggle
+                id="isRequired"
+                defaultChecked={field.isRequired}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={e => this.updateSystemFieldsHandler(e, field)}
+              />
+            </RowField>
+          </>
         )}
         <RowField>
           {this.renderActionButtons(
@@ -263,7 +270,10 @@ class PropertyRow extends React.Component<Props, State> {
             <ControlLabel>{__('Visible')}</ControlLabel>
           )}
           {contentType.startsWith('cards:') && (
-            <ControlLabel>{__('Visible to create')}</ControlLabel>
+            <>
+              <ControlLabel>{__('Visible to create')}</ControlLabel>
+              <ControlLabel>{__('Required')}</ControlLabel>
+            </>
           )}
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>
