@@ -209,14 +209,6 @@ const Center = styled.div`
   align-items: center;
 `;
 
-const Carousel = styled.div`
-  height: 250px;
-  width: 100%;
-  background-color: ${colors.bgGray};
-  border-radius: 8px;
-  margin: ${dimensions.unitSpacing}px 0;
-`;
-
 const DetailInformation = styled.div`
   display: flex;
   flex-direction: column;
@@ -237,6 +229,66 @@ const Hashtag = styled.div`
 
 const Detail = styled.div`
   padding-bottom: ${dimensions.unitSpacing}px;
+`;
+
+// Carousel
+const CarouselWrapper = styled.div`
+  height: 250px;
+  width: 100%;
+  padding-bottom: ${dimensions.coreSpacing}px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+`;
+
+const Buttons = styledTS<{ start: any; end: any }>(styled.div)`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: ${props =>
+    props.end ? 'end' : props.start ? 'start' : 'space-between'};
+  align-items: center;
+`;
+
+const SliderButton = styledTS<{ active?: boolean }>(styled.div)`
+  display: ${props => !props.active && 'none'};
+
+  &:hover {
+    cursor: pointer;
+    i {
+      color: ${colors.colorPrimary};
+    }
+  }
+`;
+
+const Dots = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const Dot = styledTS<{ active: boolean }>(styled.div)`
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  margin: 0 3px;
+  border: 1px solid ${props =>
+    props.active ? colors.colorPrimary : colors.borderDarker};
+  background-color: ${props => props.active && colors.colorPrimary};
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const Image = styled.img`
+  height: 230px;
+  max-width: calc(100% - 50px);
 `;
 
 // Detail right sidebar
@@ -476,7 +528,12 @@ export {
   DetailMainContainer,
   PluginTitle,
   Center,
-  Carousel,
+  CarouselWrapper,
+  Buttons,
+  SliderButton,
+  Dots,
+  Dot,
+  Image,
   DetailInformation,
   Hashtag,
   Detail,
