@@ -141,7 +141,7 @@ export const initDocWork = (
     dueDate: new Date(),
     startAt: new Date(),
     endAt: new Date(),
-    jobId: job?.id || '',
+    jobId: job?.jobReferId || '',
     flowId: flow._id,
     productId,
     count,
