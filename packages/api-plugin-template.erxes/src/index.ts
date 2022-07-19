@@ -241,7 +241,11 @@ async function startServer() {
   const apolloServer = await generateApolloServer(serviceDiscovery);
   await apolloServer.start();
 
-  apolloServer.applyMiddleware({ app, path: '/graphql' });
+  apolloServer.applyMiddleware({
+    app,
+    path: '/graphql',
+    cors: configs.corsOptions || {}
+  });
 
   await new Promise<void>(resolve =>
     httpServer.listen({ port: PORT }, resolve)

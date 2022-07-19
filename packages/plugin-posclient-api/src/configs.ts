@@ -1,4 +1,5 @@
 import typeDefs from './graphql/typeDefs';
+import * as cors from 'cors';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
@@ -26,7 +27,10 @@ export default {
     };
   },
   hasSubscriptions: true,
-  getHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
+  getHandlers: [
+    { path: `/initial-setup`, method: posInitialSetup },
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
+  ],
 
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -51,7 +55,24 @@ export default {
 
     return context;
   },
-  middlewares: [cookieParser(), posUserMiddleware],
+  corsOptions: {
+    credentials: true,
+    origin: [
+      ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
+    ]
+  },
+  middlewares: [
+    cookieParser(),
+    posUserMiddleware,
+    cors({
+      credentials: true,
+      origin: [
+        ...(process.env.ALLOWED_ORIGINS || '')
+          .split(',')
+          .map(c => c && RegExp(c))
+      ]
+    })
+  ],
 
   onServerInit: async options => {
     mainDb = options.db;

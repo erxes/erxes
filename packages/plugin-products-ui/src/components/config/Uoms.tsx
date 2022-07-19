@@ -28,6 +28,12 @@ class Brands extends React.Component<Props, {}> {
   renderContent() {
     const { uoms, renderButton, remove } = this.props;
 
+    if (uoms.length === 0) {
+      return (
+        <EmptyState image="/images/actions/8.svg" text="No Uoms" size="small" />
+      );
+    }
+
     return (
       <>
         <Table>
@@ -57,17 +63,11 @@ class Brands extends React.Component<Props, {}> {
   }
 
   render() {
-    const { uomsTotalCount, uoms, loading } = this.props;
+    const { uomsTotalCount, loading } = this.props;
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Uoms'), link: '/settings/uoms-manage' }
     ];
-
-    if (uoms.length === 0) {
-      return (
-        <EmptyState image="/images/actions/8.svg" text="No Uoms" size="small" />
-      );
-    }
 
     const addBrand = (
       <Button

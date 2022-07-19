@@ -29,28 +29,6 @@ const addEditParams = `
 `;
 
 export const types = `
-
-  type PosCustomer {
-    _id: String!
-    state: String
-    createdAt: Date
-    modifiedAt: Date
-    avatar: String
-    firstName: String
-    lastName: String
-    middleName: String
-    birthDate: Date
-    sex: Int
-    email: String
-    primaryEmail: String
-    emails: [String]
-    primaryPhone: String
-    phones: [String]
-    phone: String
-    tagIds: [String]
-    code: String
-  }
-
   type PosOrderItem {
     ${commonFields}
     productId: String!
