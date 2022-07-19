@@ -46,7 +46,7 @@ type State = {
   startDate?: Date;
   closeDate?: Date;
   assignedUserIds?: string[];
-  attachment?: IAttachment[];
+  attachments?: IAttachment[];
   description?: string;
 };
 
@@ -97,7 +97,7 @@ class AddForm extends React.Component<Props, State> {
       closeDate,
       assignedUserIds,
       description,
-      attachment
+      attachments
     } = this.state;
     const { saveItem, closeModal, callback, fields } = this.props;
 
@@ -144,8 +144,8 @@ class AddForm extends React.Component<Props, State> {
       doc.assignedUserIds = assignedUserIds;
     }
 
-    if (attachment) {
-      doc.attachments = [attachment];
+    if (attachments) {
+      doc.attachments = attachments;
     }
 
     if (description) {

@@ -1,7 +1,7 @@
 import GenerateField from '@erxes/ui-settings/src/properties/components/GenerateField';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import { HeaderContent, HeaderRow } from '../../styles/item';
+import { AddContent, AddRow } from '../../styles/item';
 import AssignedUsers from './AssignedUsers';
 import PipelineLabels from './PipelineLabels';
 
@@ -72,24 +72,24 @@ function GenerateAddFormFields(props: Props) {
         };
 
         return (
-          <HeaderRow key={index}>
-            <HeaderContent>{renderField()}</HeaderContent>
-          </HeaderRow>
+          <AddRow key={index}>
+            <AddContent>{renderField()}</AddContent>
+          </AddRow>
         );
       })}
 
       {customFields.map((field, index) => {
         return (
-          <HeaderRow>
-            <HeaderContent>
+          <AddRow>
+            <AddContent>
               <GenerateField
                 field={field}
                 key={index}
                 onValueChange={onCustomFieldsDataChange}
                 isEditing={true}
               />
-            </HeaderContent>
-          </HeaderRow>
+            </AddContent>
+          </AddRow>
         );
       })}
     </>

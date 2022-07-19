@@ -299,8 +299,8 @@ export const CARD_PROPERTIES_INFO = {
       options: []
     },
     {
-      label: 'Attachment',
-      field: 'attachment',
+      label: 'Attachments',
+      field: 'attachments',
       canHide: false,
       type: 'file'
     },
