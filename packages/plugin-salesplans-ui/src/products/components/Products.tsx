@@ -30,8 +30,6 @@ const Products = (props: Props) => {
             <CategoryFilter categories={categories} />
           </Wrapper.Sidebar>
         }
-        hasBorder={true}
-        transparent={true}
       />
     </WithPermission>
   );

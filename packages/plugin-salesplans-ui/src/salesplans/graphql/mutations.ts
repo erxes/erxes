@@ -40,17 +40,17 @@ const salesLogDocumentValues = `
   departmentId: $departmentId
 `;
 
-const removeLabel = `
-  mutation removeLabel($_id: String) {
-    removeLabel(_id: $_id)
+const labelsEdit = `
+  mutation labelsEdit($update: [LabelInput], $add: [AddLabelInput]) {
+    labelsEdit(update: $update, add: $add){
+      _id
+    }
   }
 `;
 
-const saveLabels = `
-  mutation saveLabels($update: [LabelInput], $add: [AddLabelInput]) {
-    saveLabels(update: $update, add: $add){
-      _id
-    }
+const labelsRemove = `
+  mutation labelsRemove($_id: String) {
+    labelsRemove(_id: $_id)
   }
 `;
 
@@ -104,17 +104,17 @@ const salesLogStatusUpdate = `
   }
 `;
 
-const saveTimeframes = `
-  mutation saveTimeframes($update: [TimeframeInput], $add: [AddTimeframeInput]) {
-    saveTimeframes(update: $update, add: $add){
+const timeframesEdit = `
+  mutation timeframesEdit($update: [TimeframeInput], $add: [AddTimeframeInput]) {
+    timeframesEdit(update: $update, add: $add){
       _id
     }
   }
 `;
 
-const removeTimeframe = `
-  mutation removeTimeframe($_id: String) {
-    removeTimeframe(_id: $_id)
+const timeframesRemove = `
+  mutation timeframesRemove($_id: String) {
+    timeframesRemove(_id: $_id)
   }
 `;
 
@@ -144,14 +144,14 @@ const saveYearPlanConfig = `
 `;
 
 export default {
-  saveLabels,
-  removeLabel,
+  labelsEdit,
+  labelsRemove,
   salesLogAdd,
   salesLogEdit,
   salesLogRemove,
   salesLogStatusUpdate,
-  saveTimeframes,
-  removeTimeframe,
+  timeframesEdit,
+  timeframesRemove,
   saveDayPlanConfig,
   saveMonthPlanConfig,
   saveYearPlanConfig

@@ -13,10 +13,12 @@ const Actionbar = (props: Props) => {
   const { addData } = props;
 
   const createLabelContent = (formProps: any) => {
+    console.log(formProps);
     return <ManageLabelsContainer {...formProps} />;
   };
 
   const manageConfigContent = (formProps: any) => {
+    console.log(formProps);
     return <ManageConfigsContainer {...formProps} />;
   };
 
@@ -76,9 +78,7 @@ const Actionbar = (props: Props) => {
     </>
   );
 
-  const renderLeft = () => <Title>{__('All sales plans')}</Title>;
-
-  return <Wrapper.ActionBar left={renderLeft()} right={renderRight()} />;
+  return <Wrapper.ActionBar right={renderRight()} />;
 };
 
 export default Actionbar;

@@ -15,15 +15,14 @@ import {
 } from '@erxes/ui/src';
 
 type Props = {
-  save: (update: any, add: any) => void;
   data: any;
   closeModal: () => void;
-  // refetch: () => void;
-  removedata: (_id: string) => void;
+  edit: (update: any, add: any) => void;
+  remove: (_id: string) => void;
 };
 
 const ManageConfigs = (props: Props) => {
-  const { save, data, closeModal, removedata } = props;
+  const { data, closeModal, edit, remove } = props;
 
   const [configs, setConfigs] = useState<any[]>([]);
   const [configsData, setConfigsData] = useState<any[]>(data ? data : []);
@@ -39,10 +38,10 @@ const ManageConfigs = (props: Props) => {
     setConfigs([...configs, {}]);
   };
 
-  const onChangeConfig = (e, index, key) => {
+  const onChangeConfig = (event: any, index: number, key: string) => {
     const updatedLabels: any = [...configs];
 
-    let value = (e.target as HTMLInputElement).value;
+    let value = (event.target as HTMLInputElement).value;
 
     if (
       key === 'startTime' &&
@@ -67,10 +66,10 @@ const ManageConfigs = (props: Props) => {
     setConfigs(updatedLabels);
   };
 
-  const onChangeConfigData = (e, index, key) => {
+  const onChangeConfigData = (event: any, index: number, key: string) => {
     const updatedLabels = [...configsData];
 
-    let value = (e.target as HTMLInputElement).value;
+    let value = (event.target as HTMLInputElement).value;
 
     if (
       key === 'startTime' &&
@@ -95,13 +94,13 @@ const ManageConfigs = (props: Props) => {
     setConfigsData(updatedLabels);
   };
 
-  const removeConfig = index => {
-    setConfigs(configs.filter((_element, i) => i !== index));
+  const removeConfig = (index: number) => {
+    setConfigs(configs.filter((_element, _index) => _index !== index));
   };
 
-  const removeConfigData = (index, _id) => {
-    setConfigsData(configsData.filter((_element, i) => i !== index));
-    removedata(_id);
+  const removeConfigData = (index: number, _id: string) => {
+    setConfigsData(configsData.filter((_element, _index) => _index !== index));
+    remove(_id);
   };
 
   const onCancel = () => {
@@ -109,30 +108,32 @@ const ManageConfigs = (props: Props) => {
   };
 
   const onSave = () => {
-    save(configsData, configs);
+    edit(configsData, configs);
     closeModal();
   };
 
   const renderConfig = () => {
-    const renderState = configs.map((t, index) => (
+    const renderState = configs.map((item, index) => (
       <>
         <FlexRow>
           <FlexItem>
             <FormControl
               type="text"
               id={`${index}`}
-              value={t.name || ''}
+              value={item.name || ''}
               placeholder={'Name'}
-              onChange={e => onChangeConfig(e, index, 'name')}
+              onChange={(event: any) => onChangeConfig(event, index, 'name')}
             />
           </FlexItem>
           <FlexItem>
             <FormControl
               componentClass="textarea"
               id={`${index}`}
-              value={t.description || ''}
+              value={item.description || ''}
               placeholder={'Description'}
-              onChange={e => onChangeConfig(e, index, 'description')}
+              onChange={(event: any) =>
+                onChangeConfig(event, index, 'description')
+              }
             />
           </FlexItem>
           <FlexItem>
@@ -142,8 +143,10 @@ const ManageConfigs = (props: Props) => {
               min={0}
               max={24}
               id={`${index}`}
-              value={t.startTime || ''}
-              onChange={e => onChangeConfig(e, index, 'startTime')}
+              value={item.startTime || ''}
+              onChange={(event: any) =>
+                onChangeConfig(event, index, 'startTime')
+              }
             />
           </FlexItem>
           <FlexItem>
@@ -153,15 +156,15 @@ const ManageConfigs = (props: Props) => {
               min={0}
               max={24}
               id={`${index}`}
-              value={t.endTime || ''}
-              onChange={e => onChangeConfig(e, index, 'endTime')}
+              value={item.endTime || ''}
+              onChange={(event: any) => onChangeConfig(event, index, 'endTime')}
             />
           </FlexItem>
           <FlexItem>
             <Button
               id="skill-edit-skill"
               btnStyle="link"
-              onClick={e => removeConfig(index)}
+              onClick={() => removeConfig(index)}
             >
               <Tip text={__('remove')} placement="bottom">
                 <Icon icon="times-circle" />
@@ -184,25 +187,29 @@ const ManageConfigs = (props: Props) => {
   };
 
   const renderConfigData = () => {
-    return configsData.map((t, index) => (
+    return configsData.map((item: any, index: number) => (
       <>
         <FlexRow>
           <FlexItem>
             <FormControl
               type="text"
               id={`${index}`}
-              value={t.name || ''}
+              value={item.name || ''}
               placeholder={'Name'}
-              onChange={e => onChangeConfigData(e, index, 'name')}
+              onChange={(event: any) =>
+                onChangeConfigData(event, index, 'name')
+              }
             />
           </FlexItem>
           <FlexItem>
             <FormControl
               componentClass="textarea"
               id={`${index}`}
-              value={t.description || ''}
+              value={item.description || ''}
               placeholder={'Description'}
-              onChange={e => onChangeConfigData(e, index, 'description')}
+              onChange={(event: any) =>
+                onChangeConfigData(event, index, 'description')
+              }
             />
           </FlexItem>
           <FlexItem>
@@ -212,8 +219,10 @@ const ManageConfigs = (props: Props) => {
               min={0}
               max={24}
               id={`${index}`}
-              value={t.startTime || ''}
-              onChange={e => onChangeConfigData(e, index, 'startTime')}
+              value={item.startTime || ''}
+              onChange={(event: any) =>
+                onChangeConfigData(event, index, 'startTime')
+              }
             />
           </FlexItem>
           <FlexItem>
@@ -223,15 +232,17 @@ const ManageConfigs = (props: Props) => {
               min={0}
               max={24}
               id={`${index}`}
-              value={t.endTime || ''}
-              onChange={e => onChangeConfigData(e, index, 'endTime')}
+              value={item.endTime || ''}
+              onChange={(event: any) =>
+                onChangeConfigData(event, index, 'endTime')
+              }
             />
           </FlexItem>
           <FlexItem>
             <Button
               id="skill-edit-skill"
               btnStyle="link"
-              onClick={e => removeConfigData(index, t._id)}
+              onClick={() => removeConfigData(index, item._id)}
             >
               <Tip text={__('remove')} placement="bottom">
                 <Icon icon="times-circle" />
