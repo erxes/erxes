@@ -2,18 +2,21 @@ import GenerateField from '@erxes/ui-settings/src/properties/components/Generate
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { HeaderContent, HeaderRow } from '../../styles/item';
+import AssignedUsers from './AssignedUsers';
+import PipelineLabels from './PipelineLabels';
 
 type Props = {
   fields: IField[];
   customFieldsData: any;
   onChangeField: (name: any, value: any) => void;
+  pipelineId: string;
 };
 
 function GenerateAddFormFields(props: Props) {
   const customFields = props.fields.filter(f => !f.isDefinedByErxes);
   const fields = props.fields.filter(f => f.isDefinedByErxes);
 
-  const { customFieldsData } = props;
+  const { customFieldsData, onChangeField } = props;
 
   const onCustomFieldsDataChange = ({ _id, value }) => {
     const field = customFieldsData.find(c => c.field === _id);
@@ -21,9 +24,9 @@ function GenerateAddFormFields(props: Props) {
     if (field) {
       field.value = value;
 
-      props.onChangeField('customFieldsData', customFieldsData);
+      onChangeField('customFieldsData', customFieldsData);
     } else {
-      props.onChangeField('customFieldsData', [
+      onChangeField('customFieldsData', [
         ...customFieldsData,
         { field: _id, value }
       ]);
@@ -34,26 +37,47 @@ function GenerateAddFormFields(props: Props) {
     const field = fields.find(c => c._id === _id);
 
     if (field && field.field) {
-      props.onChangeField(field.field, value);
+      onChangeField(field.field, value);
     }
   };
 
   return (
     <>
       {fields.map((field, index) => {
-        return (
-          <HeaderRow>
-            <HeaderContent>
-              <GenerateField
+        const renderField = () => {
+          if (field.field === 'labelIds') {
+            return (
+              <PipelineLabels
                 field={field}
-                key={index}
-                onValueChange={onFieldsDataChange}
-                isEditing={true}
+                pipelineId={props.pipelineId}
+                onChangeField={onChangeField}
               />
-            </HeaderContent>
+            );
+          }
+
+          if (field.field === 'assignedUserIds') {
+            return (
+              <AssignedUsers field={field} onChangeField={onChangeField} />
+            );
+          }
+
+          return (
+            <GenerateField
+              field={field}
+              key={index}
+              onValueChange={onFieldsDataChange}
+              isEditing={true}
+            />
+          );
+        };
+
+        return (
+          <HeaderRow key={index}>
+            <HeaderContent>{renderField()}</HeaderContent>
           </HeaderRow>
         );
       })}
+
       {customFields.map((field, index) => {
         return (
           <HeaderRow>

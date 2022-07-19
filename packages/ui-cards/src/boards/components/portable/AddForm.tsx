@@ -250,6 +250,7 @@ class AddForm extends React.Component<Props, State> {
             </HeaderContent>
           </HeaderRow>
           <GenerateAddFormFields
+            pipelineId={this.state.pipelineId}
             onChangeField={this.onChangeField}
             customFieldsData={this.state.customFieldsData}
             fields={this.props.fields}
