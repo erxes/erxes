@@ -2,20 +2,26 @@ export const types = `
   type Productreview {
     _id: String!
     productId: String!
-    customerIds : [String]
-    review: Int
-    count: Int
+    customerId : String
+    review: String
   }
 `;
 
-const params = `
+const queryParams = `
     productId: String!,
 `;
+
+const mutationParams = `
+    productId: String!,
+    customerId : String,
+    review: String
+`;
+
 export const queries = `
-  productreviews(${params}): [Productreview]
-  productreviewsTotalCount: Int
+  productreviews(${queryParams}): [Productreview]
 `;
 
 export const mutations = `
-  productreviewsAdd(${params}): Productreview
+  productreviewsAdd(${mutationParams}): Productreview
+  productreviewsCountAdd(${mutationParams}): Productreview
 `;

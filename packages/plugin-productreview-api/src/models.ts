@@ -24,9 +24,8 @@ const field = options => {
 
 export interface IProductreview {
   productId: string;
-  customerIds: [];
-  review: number;
-  count: number;
+  customerId: string;
+  review: string;
 }
 
 export interface IProductreviewDocument extends IProductreview, Document {
@@ -39,9 +38,8 @@ export interface IProductreviewDocument extends IProductreview, Document {
 export const productreviewSchema = new Schema({
   _id: field({ pkey: true }),
   productId: field({ type: String, label: 'ProductId' }),
-  customerIds: field({ type: [String], label: 'CustomerId' }),
-  review: field({ type: Number, label: 'Review' }),
-  count: field({ type: Number, label: 'Count' })
+  customerId: field({ type: String, label: 'CustomerId' }),
+  review: field({ type: String, label: 'Review' })
 });
 
 export interface IProductreviewModel extends Model<IProductreviewDocument> {
@@ -51,6 +49,10 @@ export interface IProductreviewModel extends Model<IProductreviewDocument> {
 class Productreview {
   public static async createProductreview(doc) {
     const productreview = await Productreviews.create(doc);
+    return productreview;
+  }
+  public static async updateProductreview(doc, productId) {
+    const productreview = await Productreviews.update({ productId }, doc);
     return productreview;
   }
 }
