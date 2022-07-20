@@ -23,7 +23,31 @@ const pageDetail = `
   }
 `;
 
+const contentTypes = `
+  query contentTypes {
+    webbuilderContentTypes {
+      _id
+      code
+      displayName
+      fields
+    }
+  }
+`;
+
+const contentTypeDetail = `
+  query contentTypeDetail($_id: String!) {
+    webbuilderContentTypeDetail(_id: $_id) {
+      _id
+      code
+      displayName
+      fields
+    }
+  } 
+`;
+
 export default {
   pages,
-  pageDetail
+  pageDetail,
+  contentTypes,
+  contentTypeDetail
 };
