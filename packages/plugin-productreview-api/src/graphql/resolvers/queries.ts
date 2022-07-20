@@ -8,6 +8,6 @@ const productreviewQueries = {
   }
 };
 
-// requireLogin(productreviewQueries, 'productreviews');
+requireLogin(productreviewQueries, 'productreviews');
 
 export default productreviewQueries;
