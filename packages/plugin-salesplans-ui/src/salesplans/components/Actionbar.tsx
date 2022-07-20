@@ -1,6 +1,5 @@
 import React from 'react';
 import { __, Wrapper, Button, ModalTrigger } from '@erxes/ui/src';
-import { Title } from '@erxes/ui/src/styles/main';
 import ManageLabelsContainer from '../containers/actions/ManageLabels';
 import ManageConfigsContainer from '../containers/actions/ManageConfigs';
 import FormContainer from '../containers/Form';
@@ -13,12 +12,10 @@ const Actionbar = (props: Props) => {
   const { addData } = props;
 
   const createLabelContent = (formProps: any) => {
-    console.log(formProps);
     return <ManageLabelsContainer {...formProps} />;
   };
 
   const manageConfigContent = (formProps: any) => {
-    console.log(formProps);
     return <ManageConfigsContainer {...formProps} />;
   };
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import RowContainer from '../containers/Row';
 import { __, DataWithLoader, EmptyState, Table } from '@erxes/ui/src';
+import RowContainer from '../containers/Row';
 
 type Props = {
   data: any[];

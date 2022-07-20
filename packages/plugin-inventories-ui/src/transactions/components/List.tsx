@@ -1,17 +1,44 @@
 import React from 'react';
-import { __, Wrapper } from '@erxes/ui/src';
-import { SUBMENU } from '../../constants';
+import { __, DataWithLoader, EmptyState, Table } from '@erxes/ui/src';
 
-type Props = {
-  data: any[];
-};
+const List = () => {
+  const loading = false;
+  const data = [];
 
-const List = (props: Props) => {
+  const renderRow = () =>
+    data.map((item: any, index: number) => {
+      <></>;
+    });
+
+  const renderTable = () => {
+    return (
+      <Table>
+        <thead>
+          <tr>
+            <th>{__('Name')}</th>
+            <th>{__('Description')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Created by')}</th>
+            <th>{__('Created at')}</th>
+          </tr>
+        </thead>
+        <tbody>{renderRow()}</tbody>
+      </Table>
+    );
+  };
+
   return (
-    <Wrapper
-      header={<Wrapper.Header title={__('Transactions')} submenu={SUBMENU} />}
-      content={<>List will be here</>}
-      leftSidebar={<Wrapper.Sidebar></Wrapper.Sidebar>}
+    <DataWithLoader
+      loading={loading}
+      count={0}
+      data={renderTable()}
+      emptyContent={
+        <EmptyState
+          image="/images/actions/12.svg"
+          text="No transactions"
+          size=""
+        />
+      }
     />
   );
 };

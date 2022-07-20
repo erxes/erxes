@@ -48,7 +48,7 @@ class List extends React.Component<IProps, {}> {
     const { loading, queryParams, history, totalCount } = this.props;
 
     const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
+      <Button btnStyle="success" icon="plus-circle" size="small">
         Add safe remainder
       </Button>
     );

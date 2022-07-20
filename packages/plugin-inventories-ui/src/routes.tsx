@@ -23,7 +23,7 @@ const SafeRemainderDetails = asyncComponent(() =>
 
 const Transactions = asyncComponent(() =>
   import(
-    /* webpackChunkName: "List - Transactions" */ './transactions/containers/List'
+    /* webpackChunkName: "List - Transactions" */ './transactions/containers/Transactions'
   )
 );
 
