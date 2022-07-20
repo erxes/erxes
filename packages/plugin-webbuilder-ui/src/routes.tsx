@@ -31,6 +31,12 @@ const EditContentType = asyncComponent(() =>
   )
 );
 
+const EntriesList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "EntriesList -- Webbuilders" */ './containers/entries/List'
+  )
+);
+
 const contentTypes = history => {
   const { location } = history;
 
@@ -48,6 +54,15 @@ const editContentType = ({ match, location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <EditContentType contentTypeId={id} queryParams={queryParams} />;
+};
+
+const entriesList = ({ location, history }) => {
+  return (
+    <EntriesList
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 const pageEdit = ({ match }) => {
@@ -87,6 +102,8 @@ const routes = () => {
         exact={true}
         component={editContentType}
       />
+
+      <Route path="/webbuilder/entries" exact={true} component={entriesList} />
     </>
   );
 };
