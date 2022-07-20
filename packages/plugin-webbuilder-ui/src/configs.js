@@ -16,6 +16,18 @@ module.exports = {
       url: "/webbuilder/pages",
       icon: "icon-car",
       location: "mainNavigation"
+    },
+    {
+      text: "Content type",
+      url: "/webbuilder/contenttypes",
+      icon: "icon-book",
+      location: "mainNavigation"
+    },
+    {
+      text: "Entry",
+      url: "/webbuilder/entries",
+      icon: "icon-home",
+      location: "mainNavigation"
     }
   ],
 };
