@@ -5,7 +5,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { posInitialSetup } from './routes';
+import { callBackQpay, posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
 import * as dotenv from 'dotenv';
@@ -27,6 +27,7 @@ export default {
     };
   },
   hasSubscriptions: true,
+  postHandlers: [{ path: `/pl:posclient/callBackQpay`, method: callBackQpay }],
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
     { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
