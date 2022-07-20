@@ -13,7 +13,7 @@ import {
 import { IRemainderProduct } from '../types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
-import { menuRemainder } from '../../constants';
+import { SUBMENU } from '../../constants';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
 import Sidebar from './Sidebar';
 
@@ -197,7 +197,7 @@ class List extends React.Component<IProps, State> {
         header={
           <Wrapper.Header
             title={__('Remainder of Products')}
-            submenu={menuRemainder}
+            submenu={SUBMENU}
           />
         }
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}

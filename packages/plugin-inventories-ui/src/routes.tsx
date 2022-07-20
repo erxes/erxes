@@ -21,6 +21,12 @@ const SafeRemainderDetails = asyncComponent(() =>
   )
 );
 
+const Transactions = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - Transactions" */ './transactions/containers/List'
+  )
+);
+
 const remainders = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
   return <Remainders queryParams={queryParams} history={history} />;
@@ -62,6 +68,13 @@ const routes = () => {
         path="/inventories/safe-remainders/details/:id"
         key="/inventories/safe-remainders/details/:id"
         component={safeRemainderDetails}
+      />
+
+      <Route
+        exact={true}
+        path="/inventories/transactions/"
+        key="/inventories/transactions"
+        component={Transactions}
       />
     </>
   );

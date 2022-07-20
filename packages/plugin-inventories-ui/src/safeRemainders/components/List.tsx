@@ -12,7 +12,7 @@ import {
 } from '@erxes/ui/src';
 import { ISafeRemainder } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { menuRemainder } from '../../constants';
+import { SUBMENU } from '../../constants';
 import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import SafeRemainderForm from '../containers/SafeRemainderForm';
@@ -103,10 +103,7 @@ class List extends React.Component<IProps, {}> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('Safe Remainders')}
-            submenu={menuRemainder}
-          />
+          <Wrapper.Header title={__('Safe Remainders')} submenu={SUBMENU} />
         }
         actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         leftSidebar={<Sidebar queryParams={queryParams} history={history} />}
