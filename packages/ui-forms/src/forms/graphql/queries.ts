@@ -5,8 +5,8 @@ const fieldsCombinedByContentType = `
 `;
 
 const fields = `
-  query fields($contentType: String!, $contentTypeId: String, $isVisibleToCreate: Boolean) {
-    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisibleToCreate: $isVisibleToCreate) {
+  query fields($contentType: String!, $contentTypeId: String, $isVisibleToCreate: Boolean, $pipelineId: String) {
+    fields(contentType: $contentType, contentTypeId: $contentTypeId, isVisibleToCreate: $isVisibleToCreate, pipelineId: $pipelineId) {
       _id
       type
       validation

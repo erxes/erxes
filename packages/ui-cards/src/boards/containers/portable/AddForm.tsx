@@ -231,10 +231,11 @@ export default (props: IProps) =>
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
         name: 'fieldsQuery',
-        options: ({ options }) => ({
+        options: ({ options, pipelineId }) => ({
           variables: {
             contentType: `cards:${options.type}`,
-            isVisibleToCreate: true
+            isVisibleToCreate: true,
+            pipelineId
           }
         })
       })
