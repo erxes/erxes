@@ -3,9 +3,6 @@ import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 
-/*
- * Mongoose field options wrapper
- */
 const field = options => {
   const { pkey, type, optional } = options;
 
@@ -25,7 +22,7 @@ const field = options => {
 export interface IProductreview {
   productId: string;
   customerId: string;
-  review: string;
+  review: number;
 }
 
 export interface IProductreviewDocument extends IProductreview, Document {
@@ -39,7 +36,7 @@ export const productreviewSchema = new Schema({
   _id: field({ pkey: true }),
   productId: field({ type: String, label: 'ProductId' }),
   customerId: field({ type: String, label: 'CustomerId' }),
-  review: field({ type: String, label: 'Review' })
+  review: field({ type: Number, label: 'Review' })
 });
 
 export interface IProductreviewModel extends Model<IProductreviewDocument> {

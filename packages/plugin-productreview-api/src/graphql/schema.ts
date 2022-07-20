@@ -3,7 +3,7 @@ export const types = `
     _id: String!
     productId: String!
     customerId : String
-    review: String
+    review: Int 
   }
 `;
 
@@ -14,7 +14,7 @@ const queryParams = `
 const mutationParams = `
     productId: String!,
     customerId : String,
-    review: String
+    review: Int 
 `;
 
 export const queries = `
