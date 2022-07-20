@@ -46,6 +46,11 @@ const safeRemainderDetails = ({ match, location, history }) => {
   );
 };
 
+const transactions = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+  return <Transactions queryParams={queryParams} history={history} />;
+};
+
 const routes = () => {
   return (
     <>
@@ -74,7 +79,7 @@ const routes = () => {
         exact={true}
         path="/inventories/transactions/"
         key="/inventories/transactions"
-        component={Transactions}
+        component={transactions}
       />
     </>
   );
