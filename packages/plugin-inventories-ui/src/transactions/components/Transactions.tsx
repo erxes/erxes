@@ -14,7 +14,6 @@ const Transactions = (props: Props) => {
       header={<Wrapper.Header title={__('Transactions')} submenu={SUBMENU} />}
       content={<List />}
       actionBar={<Actionbar />}
-      leftSidebar={<Wrapper.Sidebar>asd</Wrapper.Sidebar>}
     />
   );
 };

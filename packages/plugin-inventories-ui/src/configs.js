@@ -13,7 +13,7 @@ module.exports = {
     {
       text: "Remainders",
       url: "/inventories/remainders",
-      icon: 'icon-film',
+      icon: 'icon-box',
       location: "mainNavigation",
       scope: "inventories",
       action: "inventoriesAll",
