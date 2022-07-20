@@ -255,3 +255,61 @@ export const LOG_MAPPINGS: ISchemaMap[] = [
     schemas: [boardStageSchema]
   }
 ];
+
+export const CARD_PROPERTIES_INFO = {
+  priority: 'Priority',
+
+  ALL: [
+    {
+      label: 'Priority',
+      field: 'priority',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: ['Critical', 'High', 'Normal', 'Low']
+    },
+    {
+      label: 'Label',
+      field: 'labelIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
+    },
+    {
+      label: 'Start date',
+      field: 'startDate',
+      canHide: false,
+      validation: 'date',
+      type: 'input'
+    },
+    {
+      label: 'Close date',
+      field: 'closeDate',
+      canHide: false,
+      validation: 'date',
+      type: 'input'
+    },
+    {
+      label: 'Assigned to',
+      field: 'assignedUserIds',
+      canHide: false,
+      validation: null,
+      type: 'select',
+      options: []
+    },
+    {
+      label: 'Attachments',
+      field: 'attachments',
+      canHide: false,
+      type: 'file'
+    },
+    {
+      label: 'Description',
+      field: 'description',
+      canHide: false,
+      validation: null,
+      type: 'textarea'
+    }
+  ]
+};

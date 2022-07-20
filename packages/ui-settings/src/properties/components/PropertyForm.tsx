@@ -42,6 +42,7 @@ type State = {
   currentLocation: ILocationOption;
   searchable: boolean;
   showInCard: boolean;
+  isRequired: boolean;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -55,7 +56,8 @@ class PropertyForm extends React.Component<Props, State> {
       objectListConfigs: [],
       hasOptions: false,
       searchable: false,
-      showInCard: false
+      showInCard: false,
+      isRequired: false
     };
 
     if (props.field) {
@@ -65,14 +67,16 @@ class PropertyForm extends React.Component<Props, State> {
         locationOptions,
         objectListConfigs,
         searchable = false,
-        showInCard = false
+        showInCard = false,
+        isRequired = false
       } = props.field;
 
       doc = {
         ...doc,
         type,
         searchable,
-        showInCard
+        showInCard,
+        isRequired
       };
 
       if (
@@ -88,7 +92,8 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: [],
           objectListConfigs: [],
           searchable: searchable || false,
-          showInCard
+          showInCard,
+          isRequired
         };
       }
 
@@ -100,7 +105,8 @@ class PropertyForm extends React.Component<Props, State> {
           locationOptions: Object.assign([], locationOptions || []),
           objectListConfigs: Object.assign([], objectListConfigs || []),
           searchable: searchable || false,
-          showInCard: false
+          showInCard: false,
+          isRequired
         };
       }
 
@@ -130,7 +136,8 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       objectListConfigs,
       showInCard,
-      searchable
+      searchable,
+      isRequired
     } = this.state;
 
     const finalValues = values;
@@ -147,7 +154,8 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       objectListConfigs,
       searchable,
-      showInCard
+      showInCard,
+      isRequired
     };
   };
 
@@ -193,6 +201,10 @@ class PropertyForm extends React.Component<Props, State> {
 
   onSwitchChange = e => {
     this.setState({ showInCard: e.target.checked });
+  };
+
+  onChangeIsRequired = e => {
+    this.setState({ isRequired: e.target.checked });
   };
 
   renderOptions = () => {
@@ -270,6 +282,24 @@ class PropertyForm extends React.Component<Props, State> {
         <Toggle
           checked={showInCard}
           onChange={this.onSwitchChange}
+          icons={{
+            checked: <span>Yes</span>,
+            unchecked: <span>No</span>
+          }}
+        />
+      </FormGroup>
+    );
+  };
+
+  renderIsRequied = () => {
+    const { isRequired } = this.state;
+
+    return (
+      <FormGroup>
+        <ControlLabel>Required</ControlLabel>
+        <Toggle
+          checked={isRequired}
+          onChange={this.onChangeIsRequired}
           icons={{
             checked: <span>Yes</span>,
             unchecked: <span>No</span>
@@ -386,6 +416,7 @@ class PropertyForm extends React.Component<Props, State> {
         {this.renderObjectListConfigs()}
         {this.renderLocationOptions()}
         {this.renderShowInCard()}
+        {this.renderIsRequied()}
 
         <FormGroup>
           <ControlLabel>Validation:</ControlLabel>

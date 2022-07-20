@@ -1,6 +1,6 @@
 import { debug } from './configs';
 import { getCollection } from './models/utils';
-import { MODULE_NAMES } from './constants';
+import { CARD_PROPERTIES_INFO, MODULE_NAMES } from './constants';
 import { generateModels, IModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -356,4 +356,24 @@ export const getBoardsAndPipelines = doc => {
   doc.config = config;
 
   return doc;
+};
+
+export const generateSystemFields = ({ data: { groupId, type } }) => {
+  const fields: any = [];
+
+  CARD_PROPERTIES_INFO.ALL.map(e => {
+    fields.push({
+      text: e.label,
+      type: e.type,
+      field: e.field,
+      canHide: e.canHide,
+      validation: e.validation,
+      groupId,
+      options: e.options,
+      contentType: `cards:${type}`,
+      isDefinedByErxes: true
+    });
+  });
+
+  return fields;
 };

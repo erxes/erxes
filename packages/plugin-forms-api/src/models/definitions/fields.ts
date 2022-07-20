@@ -72,6 +72,7 @@ export interface IField extends IVisibility {
   objectListConfigs?: IObjectListConfig[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
+  isVisibleToCreate?: boolean;
   order?: number;
   groupId?: string;
   canHide?: boolean;
@@ -166,6 +167,11 @@ export const fieldSchema = schemaWrapper(
       type: Boolean,
       default: true,
       label: 'Can toggle isVisible'
+    }),
+    isVisibleToCreate: field({
+      type: Boolean,
+      default: false,
+      label: 'Is visible to create'
     }),
     searchable: field({
       type: Boolean,
