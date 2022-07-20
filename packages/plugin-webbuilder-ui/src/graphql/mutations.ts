@@ -52,10 +52,29 @@ const typesRemove = `
   }
 `;
 
+const entryParamDefs = `
+  $contentTypeId: String!
+  $values: JSON
+`;
+
+const entryPrams = `
+  contentTypeId: $contentTypeId
+  values: $values
+`;
+
+const entriesAdd = `
+  mutation entriesAdd(${entryParamDefs}) {
+    webbuilderEntriesAdd(${entryPrams}) {
+      _id
+    }
+  }
+`;
+
 export default {
   add,
   edit,
   typesAdd,
   typesEdit,
-  typesRemove
+  typesRemove,
+  entriesAdd
 };

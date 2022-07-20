@@ -8,19 +8,28 @@ export const types = `
     jsonData: JSON
   }
 
-  type ContentType {
+  type WebbuilderContentType {
     _id: String!
     code: String!
     displayName: String
     fields: JSON
   }
+
+  type WebbuilderEntry {
+    _id: String!
+    contentTypeId: String
+    values: JSON
+  }
+
 `;
 
 export const queries = `
   webbuilderPages: [WebbuilderPage]
   webbuilderPageDetail(_id: String!): WebbuilderPage
-  webbuilderContentTypes: [ContentType]
-  webbuilderContentTypeDetail(_id: String!): ContentType
+  webbuilderContentTypes: [WebbuilderContentType ]
+  webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
+  webbuilderEntries(contentTypeId: String!): [WebbuilderEntry]
+  webbuilderEntryDetail(_id: String!): WebbuilderEntry
 `;
 
 const params = `
@@ -40,7 +49,8 @@ const contentTypeParams = `
 export const mutations = `
   webbuilderPagesAdd(${params}): WebbuilderPage
   webbuilderPagesEdit(_id: String!, ${params}): WebbuilderPage
-  webbuilderContentTypesAdd(${contentTypeParams}): ContentType
-  webbuilderContentTypesEdit(_id: String!, ${contentTypeParams}): ContentType
+  webbuilderContentTypesAdd(${contentTypeParams}): WebbuilderContentType 
+  webbuilderContentTypesEdit(_id: String!, ${contentTypeParams}): WebbuilderContentType 
   webbuilderContentTypesRemove(_id: String!): JSON
+  webbuilderEntriesAdd(contentTypeId: String! values: JSON): WebbuilderEntry
 `;

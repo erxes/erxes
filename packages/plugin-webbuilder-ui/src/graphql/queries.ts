@@ -45,9 +45,20 @@ const contentTypeDetail = `
   } 
 `;
 
+const entries = `
+  query entries($contentTypeId: String!) {
+    webbuilderEntries(contentTypeId: $contentTypeId) {
+      _id
+      contentTypeId
+      values
+    } 
+  }
+`;
+
 export default {
   pages,
   pageDetail,
   contentTypes,
-  contentTypeDetail
+  contentTypeDetail,
+  entries
 };

@@ -1,6 +1,7 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { IPage, Pages } from '../../models/pages';
 import { IContentType, ContentTypes } from '../../models/contentTypes';
+import { IEntry, Entries } from '../../models/entries';
 
 const webbuilderMutations = {
   async webbuilderPagesAdd(_root, doc: IPage) {
@@ -28,6 +29,10 @@ const webbuilderMutations = {
 
   async webbuilderContentTypesRemove(_root, { _id }: { _id: string }) {
     return ContentTypes.deleteOne({ _id });
+  },
+
+  async webbuilderEntriesAdd(_root, doc: IEntry) {
+    return Entries.create(doc);
   }
 };
 
