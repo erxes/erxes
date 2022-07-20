@@ -5,6 +5,7 @@ import { Document, Schema } from 'mongoose';
 export interface IField {
   code: string;
   label: string;
+  type: string;
 }
 
 export interface IContentType {
@@ -20,7 +21,8 @@ export interface IContentTypeDocument extends IContentType, Document {
 export const fieldSchema = new Schema(
   {
     code: { type: String },
-    label: { type: String }
+    label: { type: String },
+    type: { type: String }
   },
   { _id: false }
 );

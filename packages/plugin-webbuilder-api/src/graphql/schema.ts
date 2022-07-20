@@ -7,11 +7,20 @@ export const types = `
     css: String
     jsonData: JSON
   }
+
+  type ContentType {
+    _id: String!
+    code: String!
+    displayName: String
+    fields: JSON
+  }
 `;
 
 export const queries = `
   webbuilderPages: [WebbuilderPage]
   webbuilderPageDetail(_id: String!): WebbuilderPage
+  webbuilderContentTypes: [ContentType]
+  webbuilderContentTypeDetail(_id: String!): ContentType
 `;
 
 const params = `
@@ -22,7 +31,16 @@ const params = `
   jsonData: JSON,
 `;
 
+const contentTypeParams = `
+  displayName: String
+  code: String
+  fields: JSON
+`;
+
 export const mutations = `
   webbuilderPagesAdd(${params}): WebbuilderPage
   webbuilderPagesEdit(_id: String!, ${params}): WebbuilderPage
+  webbuilderContentTypesAdd(${contentTypeParams}): ContentType
+  webbuilderContentTypesEdit(_id: String!, ${contentTypeParams}): ContentType
+  webbuilderContentTypesRemove(_id: String!): JSON
 `;
