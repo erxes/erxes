@@ -16,6 +16,8 @@ export interface IFieldsQuery {
   isVisible?: boolean;
   isDefinedByErxes?: boolean;
   searchable?: boolean;
+  isVisibleToCreate?: boolean;
+  groupId?: any;
 }
 
 const fieldQueries = {
@@ -45,18 +47,22 @@ const fieldQueries = {
   /**
    * Fields list
    */
-  fields(
+  async fields(
     _root,
     {
       contentType,
       contentTypeId,
       isVisible,
-      searchable
+      isVisibleToCreate,
+      searchable,
+      pipelineId
     }: {
       contentType: string;
       contentTypeId: string;
       isVisible: boolean;
+      isVisibleToCreate: boolean;
       searchable: boolean;
+      pipelineId: string;
     },
     { models }: IContext
   ) {
@@ -72,6 +78,20 @@ const fieldQueries = {
 
     if (searchable !== undefined) {
       query.searchable = searchable;
+    }
+
+    if (isVisibleToCreate !== undefined) {
+      query.isVisibleToCreate = isVisibleToCreate;
+    }
+
+    if (pipelineId) {
+      const groupIds = await models.FieldsGroups.find({
+        'config.boardsPipelines.pipelineIds': { $in: [pipelineId] }
+      }).distinct('_id');
+
+      if (groupIds && groupIds.length > 0) {
+        query.groupId = { $in: groupIds };
+      }
     }
 
     return models.Fields.find(query).sort({ order: 1 });

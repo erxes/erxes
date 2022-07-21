@@ -1,6 +1,6 @@
-import { IUser } from "@erxes/ui/src/auth/types";
-import { QueryResponse } from "@erxes/ui/src/types";
-import { IField } from "@erxes/ui/src/types";
+import { IUser } from '@erxes/ui/src/auth/types';
+import { QueryResponse } from '@erxes/ui/src/types';
+import { IField } from '@erxes/ui/src/types';
 
 export type FieldsQueryResponse = {
   fields: IField[];
@@ -45,12 +45,13 @@ export interface IFieldGroup {
 
 // mutation types
 export type FieldsMutationVariables = {
-  type: string;
-  validation: string;
-  text: string;
-  description: string;
-  options: any[];
-  groupId: string;
+  type?: string;
+  validation?: string;
+  text?: string;
+  description?: string;
+  options?: any[];
+  groupId?: string;
+  isVisibleToCreate?: boolean;
 };
 
 export type FieldsAddMutationResponse = {
@@ -61,7 +62,17 @@ export type FieldsAddMutationResponse = {
 
 export type FieldsEditMutationResponse = {
   fieldsEdit: (fieldsEdit: {
-    variables: FieldsMutationVariables;
+    variables: { _id: string } & FieldsMutationVariables;
+  }) => Promise<any>;
+};
+
+export type FieldsUpdateVisibilityToCreateMutationResponse = {
+  fieldsUpdateSystemFields: (fieldsUpdateSystemFields: {
+    variables: {
+      _id: string;
+      isVisibleToCreate?: boolean;
+      isRequired?: boolean;
+    };
   }) => Promise<any>;
 };
 

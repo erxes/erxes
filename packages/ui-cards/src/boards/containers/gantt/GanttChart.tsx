@@ -150,7 +150,7 @@ const getFilterParams = (
     endDate: queryParams.endDate,
     pipelineId: queryParams.pipelineId,
     hasStartAndCloseDate: true,
-    limit: 100,
+    limit: 1000,
     ...getExtraParams(queryParams)
   };
 
