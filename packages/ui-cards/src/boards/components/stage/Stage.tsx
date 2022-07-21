@@ -288,6 +288,7 @@ export default class Stage extends React.Component<Props, State> {
       showSelect: false,
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
+      pipelineId: stage.pipelineId,
       aboveItemId: ''
     };
 

@@ -504,8 +504,7 @@ export const conversationConvertToCard = async (
     stageId,
     bookingProductId,
     conversation,
-    user,
-    docModifier
+    user
   } = args;
 
   const { collection, create, update } = getCollection(models, type);
@@ -611,15 +610,7 @@ export const conversationConvertToCard = async (
       ];
     }
 
-    const item = await itemsAdd(
-      models,
-      subdomain,
-      doc,
-      type,
-      create,
-      user,
-      docModifier
-    );
+    const item = await itemsAdd(models, subdomain, doc, type, create, user);
 
     return item._id;
   }

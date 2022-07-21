@@ -112,6 +112,21 @@ export const HeaderContent = styled.div`
   }
 `;
 
+export const AddRow = styled(Flex)`
+  margin-bottom: 10px;
+`;
+
+export const AddContent = styled.div`
+  flex: 1;
+  textarea {
+    min-height: 60px;
+    padding: 5px 0;
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
+`;
+
 export const AddFormWidth = styled.div`
   max-width: 700px;
   overflow: hidden;
