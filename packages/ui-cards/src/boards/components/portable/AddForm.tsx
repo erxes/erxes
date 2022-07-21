@@ -110,17 +110,15 @@ class AddForm extends React.Component<Props, State> {
     }
 
     for (const field of fields) {
-      const customField = customFieldsData.find(c => c.field === field._id);
+      const customField =
+        customFieldsData.find(c => c.field === field._id) || {};
 
       if (field.isRequired) {
         let alert = false;
 
         if (field.isDefinedByErxes && !this.state[field.field || '']) {
           alert = true;
-        } else if (
-          !field.isDefinedByErxes &&
-          (!customField || !customField.value)
-        ) {
+        } else if (!field.isDefinedByErxes && !customField.value) {
           alert = true;
         }
 

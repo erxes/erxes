@@ -85,12 +85,21 @@ const fieldQueries = {
     }
 
     if (pipelineId) {
-      const groupIds = await models.FieldsGroups.find({
+      const erxesDefinedGroup = await models.FieldsGroups.findOne({
+        contentType,
+        isDefinedByErxes: true
+      });
+
+      const otherGroupIds: string[] = await models.FieldsGroups.find({
         'config.boardsPipelines.pipelineIds': { $in: [pipelineId] }
       }).distinct('_id');
 
-      if (groupIds && groupIds.length > 0) {
-        query.groupId = { $in: groupIds };
+      if (erxesDefinedGroup) {
+        otherGroupIds.push(erxesDefinedGroup._id);
+      }
+
+      if (otherGroupIds && otherGroupIds.length > 0) {
+        query.groupId = { $in: otherGroupIds };
       }
     }
 
