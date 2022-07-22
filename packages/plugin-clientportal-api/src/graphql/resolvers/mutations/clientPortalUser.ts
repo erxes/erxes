@@ -4,7 +4,6 @@ import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export interface IVerificationParams {
   userId: string;
@@ -105,12 +104,11 @@ const clientPortalUserMutations = {
   clientPortalLogin: async (
     _root,
     args: ILoginParams,
-    { models, requestInfo, res }: IContext
+    { models, res }: IContext
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
     const options = authCookieOptions({ sameSite: 'none' });
-    debugInfo(`cookie options: ${JSON.stringify(options)}`);
 
     res.cookie('client-auth-token', token, options);
 
