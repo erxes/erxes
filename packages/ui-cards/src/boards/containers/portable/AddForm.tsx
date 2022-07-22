@@ -182,9 +182,12 @@ class AddFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
+    const { fieldsQuery } = this.props;
+
     const extendedProps = {
       ...this.props,
-      fields: this.props.fieldsQuery?.fields || [],
+      fields: fieldsQuery?.fields || [],
+      refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
       fetchCards: this.fetchCards
     };

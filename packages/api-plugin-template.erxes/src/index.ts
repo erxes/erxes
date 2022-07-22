@@ -1,8 +1,18 @@
-import * as cors from 'cors';
+import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
 
 // load environment variables
 dotenv.config({ path: '../.env' });
+
+if (process.env.ELASTIC_APM_HOST_NAME) {
+  apm.start({
+    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-${process.env
+      .SERVICE_NAME || ''}`,
+    serverUrl: 'http://172.104.115.19:8200'
+  });
+}
+
+import * as cors from 'cors';
 
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
