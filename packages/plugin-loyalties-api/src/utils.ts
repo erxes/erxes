@@ -52,6 +52,7 @@ export const checkVouchersSale = async (
   const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
 
   const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
+
   const activeCampaignIds = activeVouchers.map(v => v.campaignId);
 
   const campaignFilter = {
@@ -94,6 +95,8 @@ export const checkVouchersSale = async (
             (sum, i) => sum + i.usedCount,
             0
           );
+        result[productId].type = 'bonus';
+        result[productId].bonusName = bonusVoucher.campaign.title;
       }
     }
   }
@@ -162,6 +165,8 @@ export const checkVouchersSale = async (
           result[productId].voucherCampaignId = discountVoucher.campaignId;
           result[productId].voucherId = discountVoucher._id;
           result[productId].discount = discountVoucher.campaign.discountPercent;
+          result[productId].voucherName = discountVoucher.campaign.title;
+          result[productId].type = 'discount';
         }
         result[productId].sumDiscount +=
           discountVoucher.campaign.discountPercent;

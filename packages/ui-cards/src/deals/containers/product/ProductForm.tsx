@@ -13,7 +13,7 @@ type Props = {
   paymentsData?: IPaymentsData;
   currentProduct?: string;
   closeModal: () => void;
-  dealQuery:any
+  dealQuery: any;
 };
 
 export default class ProductFormContainer extends React.Component<Props> {

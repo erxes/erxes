@@ -3,7 +3,7 @@ import EmptyState from './EmptyState';
 import FormControl from './form/Control';
 import Icon from './Icon';
 import ModalTrigger from './ModalTrigger';
-import { __ } from '../utils/core';
+import { isEnabled, __ } from '../utils/core';
 import React from 'react';
 import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';
@@ -112,7 +112,20 @@ class CommonChooser extends React.Component<Props, State> {
       return null;
     }
 
-    const onClick = () => this.handleChange(icon, data);
+    const onClick = () => {
+      const { datas } = this.state;
+      if (datas.length === 0 && isEnabled('loyalties')) {
+        const productData = {
+          product: {
+            _id: data._id
+          },
+          quantity: 1
+        };
+        this.props.loaddiscountPercent(productData);
+      }
+
+      this.handleChange(icon, data);
+    };
 
     return (
       <li key={data._id} onClick={onClick}>
@@ -123,9 +136,13 @@ class CommonChooser extends React.Component<Props, State> {
   }
 
   renderSelected(selectedDatas) {
+    const { discountCard } = this.props;
     if (selectedDatas.length) {
       return (
-        <ul>{selectedDatas.map(data => this.renderRow(data, 'times'))}</ul>
+        <ul>
+          {selectedDatas.map(data => this.renderRow(data, 'times'))}
+          {discountCard()}
+        </ul>
       );
     }
 

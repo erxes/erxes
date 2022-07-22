@@ -29,7 +29,7 @@ type Props = {
   uom: string[];
   currencies: string[];
   currentProduct?: string;
-  dealQuery:any
+  dealQuery: any;
 };
 
 type State = {
@@ -103,7 +103,7 @@ class ProductForm extends React.Component<Props, State> {
   setDiscount = (id, discount) => {
     const { productsData, onChangeProductsData } = this.props;
 
-    const discountAdded = productsData.map((p) =>
+    const discountAdded = productsData.map(p =>
       p.product?._id === id ? { ...p, discountPercent: discount } : p
     );
     onChangeProductsData(discountAdded);
@@ -157,7 +157,12 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData, currentProduct ,dealQuery} = this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      currentProduct,
+      dealQuery
+    } = this.props;
 
     if (productsData.length === 0) {
       return (
@@ -191,7 +196,6 @@ class ProductForm extends React.Component<Props, State> {
                 uom={this.props.uom}
                 currencies={this.props.currencies}
                 currentProduct={currentProduct}
-                checkLoyalty={undefined}
                 onChangeDiscount={this.setDiscount}
                 dealQuery={dealQuery}
               />

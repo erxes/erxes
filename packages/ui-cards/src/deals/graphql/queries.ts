@@ -200,6 +200,12 @@ const checkLoyalties = `
   }
 `;
 
+const checkDiscount = `
+  query checkDiscount($_id: String!, $products: [ProductField]) {
+    checkDiscount(_id: $_id, products: $products)
+  }
+`;
+
 export default {
   deals,
   dealsTotalCount,
@@ -208,5 +214,6 @@ export default {
   dealsTotalAmounts,
   archivedDeals,
   archivedDealsCount,
-  checkLoyalties
+  checkLoyalties,
+  checkDiscount
 };

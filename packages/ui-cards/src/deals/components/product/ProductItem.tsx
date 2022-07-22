@@ -17,13 +17,16 @@ import {
   Measure,
   ProductButton,
   ProductItemContainer,
-  ProductSettings
+  ProductSettings,
+  VoucherCard,
+  VoucherContainer
 } from '../../styles';
 import { IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 import ProductRow from './ProductRow';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   uom: string[];
@@ -34,13 +37,18 @@ type Props = {
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
   currentProduct?: string;
-  checkLoyalty: any;
-  dealQuery:any
+  checkDiscount: any;
+  dealQuery: any;
+  discountValue: any;
+  confirmLoyalties: any;
 };
 
 type State = {
   categoryId: string;
   currentProduct: string;
+  currentDiscountVoucher: any;
+  isSelectedVoucher: object;
+  quantityMax: number;
 };
 
 class ProductItem extends React.Component<Props, State> {
@@ -49,13 +57,16 @@ class ProductItem extends React.Component<Props, State> {
 
     this.state = {
       categoryId: '',
-      currentProduct: props.currentProduct
+      currentProduct: props.currentProduct,
+      currentDiscountVoucher: null,
+      isSelectedVoucher: {},
+      quantityMax: 0
     };
   }
 
   componentDidMount = () => {
     // default select item
-    const { uom, currencies, productData } = this.props;
+    const { uom, currencies, productData, discountValue } = this.props;
 
     if (uom.length > 0 && !productData.uom) {
       this.onChangeField('uom', uom[0], productData._id);
@@ -99,7 +110,7 @@ class ProductItem extends React.Component<Props, State> {
 
   onChangeField = (
     type: string,
-    value: string | boolean | IProduct,
+    value: string | boolean | IProduct | number,
     productId: string
   ) => {
     const { productsData, onChangeProductsData } = this.props;
@@ -154,18 +165,96 @@ class ProductItem extends React.Component<Props, State> {
       if (product) {
         this.onChangeField('product', product, productData._id);
         this.changeCurrentProduct(product._id);
-        if (productData.assignUserId && isEnabled('loyalties')) {
-          this.changeDiscountPercent(productData);
+        if (
+          isEnabled('loyalties') &&
+          Object.values(this.state.isSelectedVoucher)[0] === true
+        ) {
+          const { discountValue, confirmLoyalties } = this.props;
+          const { isSelectedVoucher } = this.state;
+          let variables = {};
+          variables['checkInfo'] = {
+            [product._id]: {
+              voucherId: discountValue.voucherId,
+              count: 1
+            }
+          };
+          confirmLoyalties(variables);
+          if (Object.keys(isSelectedVoucher)[0] === 'bonus') {
+            this.onChangeField('discountPercent', 100, productData._id);
+            this.setState({ quantityMax: discountValue.potentialBonus });
+          } else {
+            this.onChangeField(
+              'discountPercent',
+              discountValue?.sumDiscount,
+              productData._id
+            );
+          }
         }
       }
     };
+    const VoucherDiscountCard = () => {
+      const { isSelectedVoucher } = this.state;
+      const { discountValue } = this.props;
 
+      const Discountcard = ({ percentage, name, type }) => {
+        return (
+          <VoucherCard>
+            <FormControl
+              componentClass="checkbox"
+              checked={isSelectedVoucher[type]}
+              onChange={() =>
+                this.setState(prevState => ({
+                  ...prevState,
+                  isSelectedVoucher: {
+                    [type]: !prevState.isSelectedVoucher[type]
+                  }
+                }))
+              }
+            />
+            <div className="text-container">
+              <div className="text-discount">
+                <div>{`-${percentage}%`}</div>
+                <Icon icon="pricetag-alt" />
+              </div>
+              <div className="text-voucher-name">{name} Voucher</div>
+            </div>
+            <div className="left-dot"></div>
+            <div className="right-dot"></div>
+          </VoucherCard>
+        );
+      };
+
+      return (
+        discountValue && (
+          <VoucherContainer>
+            {discountValue.potentialBonus ? (
+              <Discountcard
+                percentage={100}
+                name={discountValue?.bonusName}
+                type="bonus"
+              />
+            ) : (
+              ''
+            )}
+            {discountValue.discount > 0 && (
+              <Discountcard
+                percentage={discountValue?.discount}
+                name={discountValue?.voucherName}
+                type="discount"
+              />
+            )}
+          </VoucherContainer>
+        )
+      );
+    };
     const content = props => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
         onChangeCategory={this.onChangeCategory}
         categoryId={this.state.categoryId}
+        loaddiscountPercent={this.changeDiscountPercent}
+        discountCard={VoucherDiscountCard}
         data={{
           name: 'Product',
           products: productData.product ? [productData.product] : []
@@ -227,31 +316,26 @@ class ProductItem extends React.Component<Props, State> {
     });
   };
 
-  changeDiscountPercent = (productData: any) => {
+  changeDiscountPercent = async (productData: any) => {
+    const { dealQuery, checkDiscount } = this.props;
+    const { quantity, product } = productData;
+
     const variables = {
-      ownerType: 'user',
-      ownerId: productData.assignUserId,
+      _id: dealQuery._id,
       products: [
         {
-          productId: productData.product?._id,
-          quantity: productData.quantity
+          productId: product._id,
+          quantity: quantity
         }
       ]
     };
-    this.props.checkLoyalty.refetch(variables).then(p => {
-      const discount =
-        p.data?.checkLoyalties[Object.keys(p.data?.checkLoyalties)[0]]
-          .sumDiscount;
-      this.onChangeField(
-        'discountPercent',
-        discount,
-        this.props.productData._id
-      );
-    });
+    checkDiscount.refetch({ ...variables });
   };
 
   renderForm = () => {
     const { productData, uom, currencies } = this.props;
+    const { quantityMax } = this.state;
+
     const selectOption = option => (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -333,6 +417,7 @@ class ProductItem extends React.Component<Props, State> {
                     defaultValue={productData.quantity || 0}
                     type="number"
                     min={1}
+                    max={quantityMax > 0 ? quantityMax : undefined}
                     placeholder="0"
                     name="quantity"
                     onChange={this.onChange}

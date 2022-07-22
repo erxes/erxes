@@ -3,7 +3,7 @@ import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import gql from 'graphql-tag';
-import { queries } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import { IProductData } from '../../types';
 import ProductItem from '../../components/product/ProductItem';
 
@@ -16,9 +16,10 @@ type Props = {
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
   currentProduct?: string;
-  checkLoyalty: any;
+  checkDiscount: any;
   onChangeDiscount: (id: string, discount: number) => void;
-  dealQuery:any
+  dealQuery: any;
+  confirmLoyalties: any;
 };
 
 class ProductItemContainer extends React.Component<Props> {
@@ -27,20 +28,49 @@ class ProductItemContainer extends React.Component<Props> {
   }
 
   render() {
+    const { checkDiscount, confirmLoyalties } = this.props;
+
+    const confirmLoyalty = variables => {
+      confirmLoyalties({ variables });
+    };
+
     const updatedProps = {
       ...this.props,
-      checkLoyalty: this.props.checkLoyalty
+      checkDiscount: checkDiscount,
+      discountValue: checkDiscount?.checkDiscount
+        ? Object.values(checkDiscount.checkDiscount)[0]
+        : null,
+      confirmLoyalties: confirmLoyalty
     };
 
     return <ProductItem {...updatedProps} />;
   }
 }
 
+const generateParams = ({ productsData, dealQuery }) => ({
+  _id: dealQuery._id,
+  products: [
+    {
+      productId: productsData[0].productId,
+      quantity: productsData[0].quantity
+    }
+  ]
+});
+
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.checkLoyalties), {
-      name: 'checkLoyalty',
-      skip:!isEnabled('loyalties')
+    graphql<Props>(gql(queries.checkDiscount), {
+      name: 'checkDiscount',
+      skip: ({ productsData }) =>
+        !isEnabled('loyalties') || productsData?.length === 0,
+      options: ({ productsData, dealQuery }) => ({
+        variables: generateParams({ productsData, dealQuery }),
+        fetchPolicy: 'network-only'
+      })
+    }),
+    graphql<Props>(gql(mutations.confirmLoyalties), {
+      name: 'confirmLoyalties',
+      skip: () => !isEnabled('loyalties')
     })
   )(ProductItemContainer)
 );
