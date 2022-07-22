@@ -124,6 +124,7 @@ const posProducts = `
           code
           name
         }
+        counts
         count
         amount
       }
