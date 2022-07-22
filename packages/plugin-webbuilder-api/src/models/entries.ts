@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 export interface IEntryValue {
   fieldCode: string;
@@ -34,25 +35,22 @@ export interface IEntryModel extends Model<IEntryDocument> {
   updateEntry(_id: string, doc: IEntry): Promise<IEntryDocument>;
 }
 
-class Entry {
-  public static async createEntry(doc) {
-    return Entries.create(doc);
+export const loadEntryClass = (models: IModels) => {
+  class Entry {
+    public static async createEntry(doc) {
+      return models.Entries.create(doc);
+    }
+
+    public static async updateEntry(_id: string, doc) {
+      return models.Entries.updateOne({ _id }, { $set: doc });
+    }
+
+    public static async remoteEntry(_id) {
+      return models.Entries.deleteOne({ _id });
+    }
   }
 
-  public static async updateEntry(_id: string, doc) {
-    return Entries.updateOne({ _id }, { $set: doc });
-  }
+  entrySchema.loadClass(Entry);
 
-  public static async remoteEntry(_id) {
-    return Entries.deleteOne({ _id });
-  }
-}
-
-entrySchema.loadClass(Entry);
-
-const Entries = model<IEntryDocument, IEntryModel>(
-  'webbuilder_entries',
-  entrySchema
-);
-
-export { Entries };
+  return entrySchema;
+};

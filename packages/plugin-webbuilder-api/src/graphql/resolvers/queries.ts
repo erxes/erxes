@@ -1,30 +1,35 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-
-import { Pages } from '../../models/pages';
-import { ContentTypes } from '../../models/contentTypes';
-import { Entries } from '../../models/entries';
+import { IContext } from '../../connectionResolver';
 
 const webbuilderQueries = {
-  webbuilderPages(_root) {
-    return Pages.find({});
+  webbuilderPages(_root, _args, { models }: IContext) {
+    return models.Pages.find({});
   },
 
-  webbuilderPageDetail(_root, { _id }) {
-    return Pages.findOne({ _id });
+  webbuilderPageDetail(_root, { _id }, { models }: IContext) {
+    return models.Pages.findOne({ _id });
   },
 
-  webbuilderContentTypes(_root) {
-    return ContentTypes.find({});
+  webbuilderContentTypes(_root, _args, { models }: IContext) {
+    return models.ContentTypes.find({});
   },
 
-  webbuilderContentTypeDetail(_root, { _id }: { _id: string }) {
-    return ContentTypes.findOne({ _id });
+  webbuilderContentTypeDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.ContentTypes.findOne({ _id });
   },
-  webbuilderEntries(_root, { contentTypeId }: { contentTypeId: string }) {
-    return Entries.find({ contentTypeId });
+  webbuilderEntries(
+    _root,
+    { contentTypeId }: { contentTypeId: string },
+    { models }: IContext
+  ) {
+    return models.Entries.find({ contentTypeId });
   },
-  webbuilderEntryDetail(_root, { _id }: { _id: string }) {
-    return Entries.findOne({ _id });
+  webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Entries.findOne({ _id });
   }
 };
 

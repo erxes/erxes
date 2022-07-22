@@ -1,38 +1,52 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-import { IPage, Pages } from '../../models/pages';
-import { IContentType, ContentTypes } from '../../models/contentTypes';
-import { IEntry, Entries } from '../../models/entries';
+import { IPage } from '../../models/pages';
+import { IContentType } from '../../models/contentTypes';
+import { IEntry } from '../../models/entries';
+import { IContext } from '../../connectionResolver';
 
 const webbuilderMutations = {
-  async webbuilderPagesAdd(_root, doc: IPage) {
-    return Pages.createPage(doc);
+  async webbuilderPagesAdd(_root, doc: IPage, { models }: IContext) {
+    return models.Pages.createPage(doc);
   },
 
-  async webbuilderPagesEdit(_root, args: { _id: string } & IPage) {
+  async webbuilderPagesEdit(
+    _root,
+    args: { _id: string } & IPage,
+    { models }: IContext
+  ) {
     const { _id, ...doc } = args;
 
-    return Pages.updatePage(_id, doc);
+    return models.Pages.updatePage(_id, doc);
   },
 
-  async webbuilderContentTypesAdd(_root, doc: IContentType) {
-    return ContentTypes.create(doc);
+  async webbuilderContentTypesAdd(
+    _root,
+    doc: IContentType,
+    { models }: IContext
+  ) {
+    return models.ContentTypes.create(doc);
   },
 
   async webbuilderContentTypesEdit(
     _root,
-    { _id, ...doc }: { _id: string; doc: IContentType }
+    { _id, ...doc }: { _id: string; doc: IContentType },
+    { models }: IContext
   ) {
-    await ContentTypes.updateOne({ _id }, { $set: doc });
+    await models.ContentTypes.updateOne({ _id }, { $set: doc });
 
-    return ContentTypes.findOne({ _id });
+    return models.ContentTypes.findOne({ _id });
   },
 
-  async webbuilderContentTypesRemove(_root, { _id }: { _id: string }) {
-    return ContentTypes.deleteOne({ _id });
+  async webbuilderContentTypesRemove(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.ContentTypes.deleteOne({ _id });
   },
 
-  async webbuilderEntriesAdd(_root, doc: IEntry) {
-    return Entries.create(doc);
+  async webbuilderEntriesAdd(_root, doc: IEntry, { models }: IContext) {
+    return models.Entries.create(doc);
   }
 };
 

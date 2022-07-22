@@ -1,11 +1,9 @@
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
-import { Pages } from './models/pages';
-import { Entries } from './models/entries';
-import { ContentTypes } from './models/contentTypes';
+import { getSubdomain } from '@erxes/api-utils/src/core';
+import { generateModels } from './connectionResolver';
 
 export let mainDb;
 export let debug;
@@ -23,7 +21,12 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    context.subdomain = req.hostname;
+    const subdomain = getSubdomain(req);
+
+    const models = await generateModels(subdomain);
+
+    context.subdomain = subdomain;
+    context.models = models;
 
     return context;
   },
@@ -39,7 +42,10 @@ export default {
     const { app } = options;
 
     app.get('/', async (req, res) => {
-      const page = await Pages.findOne({ name: 'home' });
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
+      const page = await models.Pages.findOne({ name: 'home' });
 
       if (!page) {
         return res.status(404).send('Not found');
@@ -47,7 +53,7 @@ export default {
 
       let html = page.html;
 
-      const pages = await Pages.find({ name: { $ne: 'home' } });
+      const pages = await models.Pages.find({ name: { $ne: 'home' } });
 
       for (const p of pages) {
         const holder = `{{${p.name}}}`;
@@ -57,10 +63,10 @@ export default {
 
           if (p.name.includes('_entry')) {
             const contentTypeCode = p.name.replace('_entry', '');
-            const contentType = await ContentTypes.findOne({
+            const contentType = await models.ContentTypes.findOne({
               code: contentTypeCode
             });
-            const entries = await Entries.find({
+            const entries = await models.Entries.find({
               contentTypeId: contentType?._id
             });
 
@@ -93,21 +99,26 @@ export default {
     });
 
     app.get('/detail/:contentType/:entryId', async (req, res) => {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
       const { contentType, entryId } = req.params;
 
-      const ct = await ContentTypes.findOne({ code: contentType });
+      const ct = await models.ContentTypes.findOne({ code: contentType });
 
       if (!ct) {
         return res.status(404).send('Not found');
       }
 
-      const page = await Pages.findOne({ name: `${contentType}_detail` });
+      const page = await models.Pages.findOne({
+        name: `${contentType}_detail`
+      });
 
       if (!page) {
         return res.status(404).send('Page not found');
       }
 
-      const entry = await Entries.findOne({ _id: entryId });
+      const entry = await models.Entries.findOne({ _id: entryId });
 
       if (!entry) {
         return res.status(404).send('Entry not found');
@@ -115,7 +126,7 @@ export default {
 
       let html = page.html;
 
-      const pages = await Pages.find({ name: { $ne: 'home' } });
+      const pages = await models.Pages.find({ name: { $ne: 'home' } });
 
       for (const p of pages) {
         html = html.replace(
@@ -140,9 +151,12 @@ export default {
     });
 
     app.get('/page/:name', async (req, res) => {
+      const subdomain = getSubdomain(req);
+      const models = await generateModels(subdomain);
+
       const { name } = req.params;
 
-      const page = await Pages.findOne({ name });
+      const page = await models.Pages.findOne({ name });
 
       if (!page) {
         return res.status(404).send('Page not found');

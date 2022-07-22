@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 export interface IField {
   code: string;
@@ -41,25 +42,22 @@ export interface IContentTypeModel extends Model<IContentTypeDocument> {
   ): Promise<IContentTypeDocument>;
 }
 
-class ContentType {
-  public static async createContentType(doc) {
-    return ContentTypes.create(doc);
+export const loadTypeClass = (models: IModels) => {
+  class ContentType {
+    public static async createContentType(doc) {
+      return models.ContentTypes.create(doc);
+    }
+
+    public static async updateContentType(_id: string, doc) {
+      return models.ContentTypes.updateOne({ _id }, { $set: doc });
+    }
+
+    public static async remoteContentType(_id) {
+      return models.ContentTypes.deleteOne({ _id });
+    }
   }
 
-  public static async updateContentType(_id: string, doc) {
-    return ContentTypes.updateOne({ _id }, { $set: doc });
-  }
+  contentTypeSchema.loadClass(ContentType);
 
-  public static async remoteContentType(_id) {
-    return ContentTypes.deleteOne({ _id });
-  }
-}
-
-contentTypeSchema.loadClass(ContentType);
-
-const ContentTypes = model<IContentTypeDocument, IContentTypeModel>(
-  'webbuilder_contenttypes',
-  contentTypeSchema
-);
-
-export { ContentTypes };
+  return contentTypeSchema;
+};

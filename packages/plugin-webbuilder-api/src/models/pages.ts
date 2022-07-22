@@ -1,6 +1,7 @@
 import { Model, model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
+import { IModels } from '../connectionResolver';
 
 export interface IPage {
   name: string;
@@ -28,24 +29,24 @@ export interface IPageModel extends Model<IPageDocument> {
   removePage(_id: string): Promise<IPageDocument>;
 }
 
-class Page {
-  public static async createPage(doc) {
-    return Pages.create(doc);
+export const loadPageClass = (models: IModels) => {
+  class Page {
+    public static async createPage(doc) {
+      return models.Pages.create(doc);
+    }
+
+    public static async updatePage(_id: string, doc) {
+      await models.Pages.updateOne({ _id }, { $set: doc });
+
+      return models.Pages.findOne({ _id });
+    }
+
+    public static async remotePage(_id) {
+      return models.Pages.deleteOne({ _id });
+    }
   }
 
-  public static async updatePage(_id: string, doc) {
-    await Pages.updateOne({ _id }, { $set: doc });
+  pageSchema.loadClass(Page);
 
-    return Pages.findOne({ _id });
-  }
-
-  public static async remotePage(_id) {
-    return Pages.deleteOne({ _id });
-  }
-}
-
-pageSchema.loadClass(Page);
-
-const Pages = model<IPageDocument, IPageModel>('webbuilder_pages', pageSchema);
-
-export { Pages };
+  return pageSchema;
+};
