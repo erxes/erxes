@@ -2,13 +2,15 @@ import { Alert } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import PageForm from '../components/PageForm';
+import PageForm from '../../components/pages/PageForm';
 import React from 'react';
-import { mutations, queries } from '../graphql';
+import { mutations, queries } from '../../graphql';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   _id?: string;
-};
+} & IRouterProps;
 
 type FinalProps = Props & {
   pagesAdd: any;
@@ -17,7 +19,7 @@ type FinalProps = Props & {
 };
 
 const FormContainer = (props: FinalProps) => {
-  const { pageDetailQuery } = props;
+  const { pageDetailQuery, history } = props;
 
   if (pageDetailQuery && pageDetailQuery.loading) {
     return null;
@@ -48,6 +50,10 @@ const FormContainer = (props: FinalProps) => {
     method({ variables })
       .then(() => {
         Alert.success(`Success`);
+
+        history.push({
+          pathname: '/webbuilder/pages'
+        });
       })
       .catch(error => {
         Alert.error(error.message);
@@ -65,11 +71,17 @@ const FormContainer = (props: FinalProps) => {
 
 export default compose(
   graphql<Props>(gql(mutations.add), {
-    name: 'pagesAdd'
+    name: 'pagesAdd',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.pages) }]
+    })
   }),
 
   graphql<Props>(gql(mutations.edit), {
-    name: 'pagesEdit'
+    name: 'pagesEdit',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.pages) }]
+    })
   }),
 
   graphql(gql(queries.pageDetail), {
@@ -79,4 +91,4 @@ export default compose(
       variables: { _id: props._id }
     })
   })
-)(FormContainer);
+)(withRouter(FormContainer));

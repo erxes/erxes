@@ -4,7 +4,7 @@ import gjsPresetWebpage from 'grapesjs-preset-webpage';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import 'grapesjs/dist/css/grapes.min.css';
-import { IPage } from '../types';
+import { IPage } from '../../types';
 
 type Props = {
   page?: IPage;
