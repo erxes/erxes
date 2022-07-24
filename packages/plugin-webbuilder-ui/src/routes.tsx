@@ -3,19 +3,15 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const Pages = asyncComponent(() =>
-  import(/* webpackChunkName: "Pages - Webbuilders" */ './containers/Pages')
+const WebBuilder = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "webbuilderHome - Webbuilders" */ './containers/WebBuilder'
+  )
 );
 
 const PageForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "PageForm - Webbuilders" */ './containers/PageForm'
-  )
-);
-
-const ContentTypesList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "ContentTypes - Webbuilders" */ './containers/contentTypes/List'
+    /* webpackChunkName: "PageForm - Webbuilders" */ './containers/pages/PageForm'
   )
 );
 
@@ -31,18 +27,14 @@ const EditContentType = asyncComponent(() =>
   )
 );
 
-const EntriesList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "EntriesList -- Webbuilders" */ './containers/entries/List'
-  )
-);
-
-const contentTypes = history => {
-  const { location } = history;
+const webBuilders = history => {
+  const { location, match } = history;
 
   const queryParams = queryString.parse(location.search);
 
-  return <ContentTypesList queryParams={queryParams} history={history} />;
+  const step = match.params.step;
+
+  return <WebBuilder step={step} queryParams={queryParams} history={history} />;
 };
 
 const createContentType = () => {
@@ -51,18 +43,10 @@ const createContentType = () => {
 
 const editContentType = ({ match, location }) => {
   const { id } = match.params;
+
   const queryParams = queryString.parse(location.search);
 
   return <EditContentType contentTypeId={id} queryParams={queryParams} />;
-};
-
-const entriesList = ({ location, history }) => {
-  return (
-    <EntriesList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
 };
 
 const pageEdit = ({ match }) => {
@@ -74,7 +58,6 @@ const pageEdit = ({ match }) => {
 const routes = () => {
   return (
     <>
-      <Route path="/webbuilder/pages" exact={true} component={Pages} />
       <Route
         path="/webbuilder/pages/create"
         exact={true}
@@ -88,22 +71,18 @@ const routes = () => {
       />
 
       <Route
-        path="/webbuilder/contenttypes"
-        exact={true}
-        component={contentTypes}
-      />
-      <Route
         path="/webbuilder/contenttypes/create"
         exact={true}
         component={createContentType}
       />
+
       <Route
         path="/webbuilder/contenttypes/edit/:id"
         exact={true}
         component={editContentType}
       />
 
-      <Route path="/webbuilder/entries" exact={true} component={entriesList} />
+      <Route path="/webbuilder/:step" exact={true} component={webBuilders} />
     </>
   );
 };
