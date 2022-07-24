@@ -4,7 +4,7 @@ import {
   FormWrapper,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GenerateField from '@erxes/ui-settings/src/properties/components/GenerateField';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import CommonForm from '@erxes/ui/src/components/form/Form';
@@ -17,16 +17,29 @@ type Props = {
 };
 
 function Form(props: Props) {
+  const { closeModal, contentType, renderButton, entry = {} } = props;
+  const entryValues = entry.values || [];
   const [data, setData] = useState({} as any);
 
-  const { closeModal, contentType, renderButton, entry } = props;
+  useEffect(() => {
+    entryValues.forEach(val => {
+      setData(dat => ({
+        ...dat,
+        [val.fieldCode]: {
+          fieldCode: val.fieldCode,
+          value: val.value
+        }
+      }));
+    });
+  }, []);
+
   const { fields = [] } = contentType;
 
   const generateDoc = () => {
     const values = [] as any;
 
     fields.map(field => {
-      const key = field.text;
+      const key = field.code;
 
       if (data[key]) {
         values.push(data[key]);
@@ -36,19 +49,23 @@ function Form(props: Props) {
     const doc = {
       contentTypeId: contentType._id,
       values
-    };
+    } as any;
+
+    if (entry._id) {
+      doc._id = entry._id;
+    }
 
     return doc;
   };
 
-  const onChange = (key: string, fieldCode: string, value: any) => {
-    setData({
-      ...data,
-      [key]: {
+  const onChange = (fieldCode: string, value: any) => {
+    setData(dat => ({
+      ...dat,
+      [fieldCode]: {
         fieldCode,
         value
       }
-    });
+    }));
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -63,14 +80,16 @@ function Form(props: Props) {
               return (
                 <>
                   <GenerateField
-                    key={field._id}
+                    key={field.code}
                     field={field}
                     hasLogic={false}
-                    currentLocation={{ lat: 0, lng: 0 }}
+                    currentLocation={{
+                      lat: 0,
+                      lng: 0
+                    }}
                     isEditing={false}
-                    onValueChange={({ value }) =>
-                      onChange(field.text, field.code, value)
-                    }
+                    onValueChange={({ value }) => onChange(field.code, value)}
+                    defaultValue={data[field.code]?.value || ''}
                   />
                 </>
               );
@@ -93,7 +112,7 @@ function Form(props: Props) {
             values: generateDoc(),
             isSubmitted,
             callback: closeModal,
-            object: entry
+            object: props.entry
           })}
         </ModalFooter>
       </>

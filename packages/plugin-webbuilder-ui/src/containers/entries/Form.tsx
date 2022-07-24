@@ -18,7 +18,7 @@ type FinalProps = {} & Props;
 
 class EntryFormContainer extends React.Component<FinalProps> {
   render() {
-    const { queryParams } = this.props;
+    const { contentType } = this.props;
 
     const renderButton = ({
       name,
@@ -29,10 +29,10 @@ class EntryFormContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
-          mutation={object ? mutations.edit : mutations.entriesAdd}
+          mutation={object ? mutations.entriesEdit : mutations.entriesAdd}
           variables={values}
           callback={callback}
-          refetchQueries={getRefetchQueries(queryParams)}
+          refetchQueries={getRefetchQueries(contentType)}
           isSubmitted={isSubmitted}
           type="submit"
           uppercase={false}
@@ -52,12 +52,12 @@ class EntryFormContainer extends React.Component<FinalProps> {
   }
 }
 
-const getRefetchQueries = queryParams => {
+const getRefetchQueries = contentType => {
   return [
     {
       query: gql(queries.entries),
       variables: {
-        contentTypeId: queryParams.contentTypeId
+        contentTypeId: contentType._id
       }
     }
   ];

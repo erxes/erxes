@@ -1,51 +1,80 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { FormControl } from '@erxes/ui/src/components/form';
-import React from 'react';
+import { __ } from 'coreui/utils';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import React, { useState, useEffect } from 'react';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Form from '../../containers/entries/Form';
 
 type Props = {
   entry: any;
-  history: any;
-  isChecked: boolean;
-  toggleBulk: (product: any, isChecked?: boolean) => void;
+  remove: (_id: string) => void;
+  contentType: any;
 };
 
-class Row extends React.Component<Props> {
-  render() {
-    const { entry, history, toggleBulk, isChecked } = this.props;
+function Row(props: Props) {
+  const { entry, contentType, remove } = props;
+  const { fields = [] } = contentType;
+  const { values = [] } = entry;
 
-    const onChange = e => {
-      if (toggleBulk) {
-        toggleBulk(entry, e.target.checked);
-      }
+  const [data, setData] = useState({});
+
+  useEffect(() => {
+    values.forEach(val => {
+      setData(dat => ({ ...dat, [val.fieldCode]: val.value }));
+    });
+  }, [values]);
+
+  const renderEditForm = formProps => {
+    return <Form {...formProps} />;
+  };
+
+  const renderEditAction = () => {
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="top">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    const content = modalProps => {
+      return renderEditForm({ ...modalProps, entry, contentType });
     };
-
-    const onClick = e => {
-      e.stopPropagation();
-    };
-
-    const onTrClick = () => {
-      history.push(`/settings/product-service/details/${entry._id}`);
-    };
-
-    const { contentTypeId } = entry;
 
     return (
-      <tr onClick={onTrClick}>
-        <td onClick={onClick}>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={onChange}
-          />
-        </td>
-        <td>{contentTypeId}</td>
-        <td>{''}</td>
-        <td>
-          <ActionButtons></ActionButtons>
-        </td>
-      </tr>
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
-  }
+  };
+
+  const renderRemoveAction = (item: any) => {
+    const onClick = () => remove(item._id);
+
+    return (
+      <Tip text={__('Delete')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="times-circle" />
+      </Tip>
+    );
+  };
+
+  return (
+    <tr>
+      {fields.map((val, i) => {
+        if (i > 1) {
+          return;
+        }
+
+        return <td key={val.code}>{data[val.code] || ''}</td>;
+      })}
+      <td>
+        <ActionButtons>
+          {renderEditAction()}
+          {renderRemoveAction(entry)}
+        </ActionButtons>
+      </td>
+    </tr>
+  );
 }
 
 export default Row;
