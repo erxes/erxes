@@ -51,7 +51,10 @@ function EditContentTypeContainer(props: FinalProps) {
 
 export default compose(
   graphql(gql(mutations.typesEdit), {
-    name: 'contentTypesEditMutation'
+    name: 'contentTypesEditMutation',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.contentTypes) }]
+    })
   }),
   graphql<FinalProps>(gql(queries.contentTypeDetail), {
     name: 'contentTypeDetailQuery',

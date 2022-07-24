@@ -10,6 +10,7 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 type Props = {
   history: any;
   queryParams: any;
+  getActionBar: (actionBar: any) => void;
 };
 
 type FinalProps = {
@@ -43,11 +44,7 @@ function ContentTypesContainer(props: FinalProps) {
     loading: contentTypesQuery.loading
   };
 
-  const content = bulkProps => {
-    return <List {...updatedProps} {...bulkProps} />;
-  };
-
-  return <Bulk content={content} refetch={contentTypesQuery.refetch()} />;
+  return <List {...updatedProps} />;
 }
 
 export default compose(

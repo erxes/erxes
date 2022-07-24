@@ -1,9 +1,7 @@
 import dayjs from 'dayjs';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
 import Tip from '@erxes/ui/src/components/Tip';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { __ } from 'coreui/utils';
@@ -13,8 +11,6 @@ import { Link } from 'react-router-dom';
 
 type Props = {
   contentType: any;
-  isChecked: boolean;
-  toggleBulk: (contentType: any, checked: boolean) => void;
   remove: (contentTypeId: string) => void;
 };
 
@@ -46,17 +42,10 @@ class Row extends React.Component<Props> {
   }
 
   render() {
-    const { contentType, isChecked, toggleBulk } = this.props;
+    const { contentType } = this.props;
 
     return (
       <tr>
-        <td>
-          <FormControl
-            checked={isChecked}
-            componentClass="checkbox"
-            onChange={() => console.log('hahahah')}
-          />
-        </td>
         <td>
           <RowTitle>
             <Link to={`contentTypes/edit/${contentType._id}`}>
@@ -64,9 +53,7 @@ class Row extends React.Component<Props> {
             </Link>
           </RowTitle>
         </td>
-        <td>
-          <TextInfo>{contentType.code}</TextInfo>
-        </td>
+        <td>{contentType.code}</td>
         <td>
           <Icon icon="calender" />{' '}
           <DateWrapper>

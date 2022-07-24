@@ -2,7 +2,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import ContentType from '../../components/contentTypes/ContenType';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -38,6 +38,9 @@ function CreateContentTypeContainer(props: Props) {
 
 export default compose(
   graphql(gql(mutations.typesAdd), {
-    name: 'typesAddMutation'
+    name: 'typesAddMutation',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.contentTypes) }]
+    })
   })
 )(withRouter(CreateContentTypeContainer));
