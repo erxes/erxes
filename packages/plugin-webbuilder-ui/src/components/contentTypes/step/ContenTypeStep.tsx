@@ -1,6 +1,6 @@
 import React from 'react';
 import { Description } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
@@ -35,9 +35,23 @@ class Step extends React.Component<Props, State> {
     const { onChange, fields } = this.props;
     const { currentMode } = this.state;
 
+    let duplicated: boolean = false;
+
+    fields.forEach(fld => {
+      if (fld.code === field.code) {
+        duplicated = true;
+      }
+    });
+
+    if (duplicated) {
+      return Alert.error('Sorry field code duplicated!');
+    }
+
     let updatedFields = [fields];
 
     if (currentMode === 'create') {
+      field._id = Math.random();
+
       updatedFields = [...fields, field];
     }
 
@@ -59,7 +73,7 @@ class Step extends React.Component<Props, State> {
         currentMode: 'create',
         currentField: {
           code: '',
-          label: '',
+          text: '',
           type: choice
         }
       });
@@ -101,7 +115,6 @@ class Step extends React.Component<Props, State> {
                 mode={currentMode || 'create'}
                 field={currentField}
                 onSubmit={this.onFieldSubmit}
-                onDelete={() => console.log('haahahhaha')}
                 onCancel={onFieldFormCancel}
               />
             )}

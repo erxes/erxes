@@ -19,7 +19,7 @@ import FieldPreview from '@erxes/ui-forms/src/forms/components/FieldPreview';
 
 type Props = {
   onSubmit: (field: IField) => void;
-  onDelete: (field: IField) => void;
+  onDelete?: (field: IField) => void;
   onCancel: () => void;
   mode: 'create' | 'update';
   field: any;
@@ -67,19 +67,20 @@ class FieldForm extends React.Component<Props, State> {
   };
 
   renderExtraButton() {
-    const { mode, field } = this.props;
+    const { field, onDelete } = this.props;
 
-    if (mode === 'create') {
+    if (!onDelete) {
       return null;
     }
 
-    const onDelete = e => {
+    const remove = e => {
       e.preventDefault();
-      this.props.onDelete(field);
+
+      onDelete(field);
     };
 
     return (
-      <Button btnStyle="danger" onClick={onDelete} icon="minus-circle-1">
+      <Button btnStyle="danger" onClick={remove} icon="minus-circle-1">
         Delete
       </Button>
     );
@@ -89,8 +90,8 @@ class FieldForm extends React.Component<Props, State> {
     const { mode, onCancel } = this.props;
     const { field } = this.state;
 
-    const label = e =>
-      this.onFieldChange('label', (e.currentTarget as HTMLInputElement).value);
+    const text = e =>
+      this.onFieldChange('text', (e.currentTarget as HTMLInputElement).value);
 
     const code = e =>
       this.onFieldChange('code', (e.currentTarget as HTMLInputElement).value);
@@ -108,8 +109,8 @@ class FieldForm extends React.Component<Props, State> {
             </ControlLabel>
 
             <FormControl
-              value={field.label || ''}
-              onChange={label}
+              value={field.text || ''}
+              onChange={text}
               autoFocus={true}
             />
           </FormGroup>
