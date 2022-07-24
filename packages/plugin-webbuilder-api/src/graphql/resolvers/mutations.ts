@@ -52,7 +52,7 @@ const webbuilderMutations = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    return models.ContentTypes.deleteOne({ _id });
+    return models.ContentTypes.removeContentType(_id);
   },
 
   async webbuilderEntriesAdd(_root, doc: IEntry, { models }: IContext) {

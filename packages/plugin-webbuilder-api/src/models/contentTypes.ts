@@ -76,6 +76,9 @@ export const loadTypeClass = (models: IModels) => {
     }
 
     public static async removeContentType(_id: string) {
+      // remove entries which belongs to this contentType
+      await models.Entries.deleteMany({ contentTypeId: _id });
+
       return models.ContentTypes.deleteOne({ _id });
     }
   }
