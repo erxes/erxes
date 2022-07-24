@@ -1,9 +1,23 @@
-import { Link } from 'react-router-dom';
+import Button from '@erxes/ui/src/components/Button';
 import GrapesJS from 'grapesjs';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
 import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
 import 'grapesjs/dist/css/grapes.min.css';
+import Select from 'react-select-plus';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
+import { EditorContainer } from '@erxes/ui-engage/src/styles';
+import { Indicator } from '@erxes/ui/src/components/step/styles';
+import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
+import Step from '@erxes/ui/src/components/step/Step';
+import Steps from '@erxes/ui/src/components/step/Steps';
+import { StepWrapper } from '@erxes/ui/src/components/step/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { IPage } from '../../types';
 
 type Props = {
@@ -15,12 +29,16 @@ type Props = {
     css: string,
     jsonData: any
   ) => void;
+  saveTemplate: (name: string, jsonData: any) => void;
+  templates: any;
 };
 
-class Form extends React.Component<
-  Props,
-  { name: string; description: string }
-> {
+type State = {
+  name: string;
+  description: string;
+};
+
+class AutoAndManualForm extends React.Component<Props, State> {
   grapes;
 
   constructor(props) {
@@ -120,6 +138,28 @@ class Form extends React.Component<
     ]);
   }
 
+  selectTemplates = () => {
+    const { templates } = this.props;
+    const options: any[] = [];
+
+    templates.map(template =>
+      options.push({
+        value: template.jsonData,
+        label: template.name
+      })
+    );
+
+    return options;
+  };
+
+  onChange = (type: string, value: any) => {
+    this.setState({ [type]: value } as any);
+  };
+
+  onSelectTemplate = (option: any) => {
+    this.grapes.loadProjectData(option.value);
+  };
+
   save = () => {
     const e = this.grapes;
 
@@ -132,39 +172,115 @@ class Form extends React.Component<
     );
   };
 
-  onChange = (type, e) => {
-    this.setState({ [type]: e.target.value } as any);
+  saveTemplate = () => {
+    const e = this.grapes;
+
+    this.props.saveTemplate(this.state.name || 'Template', e.getProjectData());
+  };
+
+  renderPageContent() {
+    const imagePath = '/images/icons/erxes-12.svg';
+    const { description, name } = this.state;
+
+    return (
+      <Step img={imagePath} title="Manage web builder page" noButton={true}>
+        <FlexItem>
+          <FlexPad direction="column" overflow="auto">
+            <FormGroup>
+              <ControlLabel>Name:</ControlLabel>
+              <FormControl
+                placeholder="Enter a name"
+                onChange={(e: any) => this.onChange('name', e.target.value)}
+                defaultValue={name}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Description:</ControlLabel>
+              <FormControl
+                placeholder="Enter a description"
+                onChange={(e: any) =>
+                  this.onChange('description', e.target.value)
+                }
+                defaultValue={description}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Page template:</ControlLabel>
+              <p>{'Choose a page template'}</p>
+
+              <Select
+                onChange={this.onSelectTemplate}
+                value={''}
+                options={this.selectTemplates()}
+                clearable={false}
+              />
+            </FormGroup>
+          </FlexPad>
+
+          <FlexItem overflow="auto" count="7">
+            <EditorContainer>
+              <div id="editor" />
+            </EditorContainer>
+          </FlexItem>
+        </FlexItem>
+      </Step>
+    );
+  }
+
+  renderButtons = () => {
+    const cancelButton = (
+      <Link to="/webbuilder/pages">
+        <Button btnStyle="simple" icon="times-circle">
+          Cancel
+        </Button>
+      </Link>
+    );
+
+    return (
+      <Button.Group>
+        {cancelButton}
+
+        <Button
+          btnStyle="warning"
+          icon={'check-circle'}
+          onClick={this.saveTemplate}
+        >
+          Save as template
+        </Button>
+
+        <Button btnStyle="success" icon={'check-circle'} onClick={this.save}>
+          Save
+        </Button>
+      </Button.Group>
+    );
   };
 
   render() {
-    const { name, description } = this.state;
+    const { name } = this.state;
+    const { page } = this.props;
+
+    const breadcrumb = [
+      { title: 'Webbuilder', link: '/webbuilder/pages' },
+      { title: __('Page') }
+    ];
 
     return (
-      <div>
-        <Link to="/webbuilder/pages">Back</Link>
+      <StepWrapper>
+        <Wrapper.Header title={'Page Form'} breadcrumb={breadcrumb} />
+        <Steps>{this.renderPageContent()}</Steps>
 
-        <p>
-          <input
-            placeholder="Name"
-            value={name}
-            onChange={this.onChange.bind(this, 'name')}
-          />
-        </p>
-
-        <p>
-          <input
-            placeholder="Description"
-            value={description}
-            onChange={this.onChange.bind(this, 'description')}
-          />
-        </p>
-
-        <button onClick={this.save}>Save</button>
-
-        <div id="editor" />
-      </div>
+        <ControlWrapper>
+          <Indicator>
+            {__('You are')} {page ? 'editing' : 'creating'}
+            <strong>{name}</strong> {__('page')}
+          </Indicator>
+          {this.renderButtons()}
+        </ControlWrapper>
+      </StepWrapper>
     );
   }
 }
 
-export default Form;
+export default AutoAndManualForm;

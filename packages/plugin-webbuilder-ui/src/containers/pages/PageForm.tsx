@@ -16,14 +16,30 @@ type FinalProps = Props & {
   pagesAdd: any;
   pagesEdit: any;
   pageDetailQuery?: any;
+  templatesQuery: any;
+  templatesAdd: any;
 };
 
 const FormContainer = (props: FinalProps) => {
-  const { pageDetailQuery, history } = props;
+  const { pageDetailQuery, history, templatesQuery, templatesAdd } = props;
 
-  if (pageDetailQuery && pageDetailQuery.loading) {
+  if ((pageDetailQuery && pageDetailQuery.loading) || templatesQuery.loading) {
     return null;
   }
+
+  const saveTemplate = (name: string, jsonData: any) => {
+    templatesAdd({ variables: { name, jsonData } })
+      .then(() => {
+        Alert.warning('You successfully added template.');
+
+        history.push({
+          pathname: '/webbuilder/pages'
+        });
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
 
   const save = (
     name: string,
@@ -66,7 +82,16 @@ const FormContainer = (props: FinalProps) => {
     page = pageDetailQuery.webbuilderPageDetail;
   }
 
-  return <PageForm save={save} page={page} />;
+  const templates = templatesQuery.webbuilderTemplates || [];
+
+  const updatedProps = {
+    save,
+    page,
+    templates,
+    saveTemplate
+  };
+
+  return <PageForm {...updatedProps} />;
 };
 
 export default compose(
@@ -89,6 +114,15 @@ export default compose(
     skip: (props: Props) => !props._id,
     options: (props: Props) => ({
       variables: { _id: props._id }
+    })
+  }),
+  graphql(gql(queries.templates), {
+    name: 'templatesQuery'
+  }),
+  graphql(gql(mutations.templatesAdd), {
+    name: 'templatesAdd',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.templates) }]
     })
   })
 )(withRouter(FormContainer));
