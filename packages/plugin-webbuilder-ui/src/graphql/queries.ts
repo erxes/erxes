@@ -30,6 +30,9 @@ const contentTypes = `
       code
       displayName
       fields
+      entries {
+        _id
+      }
     }
   }
 `;

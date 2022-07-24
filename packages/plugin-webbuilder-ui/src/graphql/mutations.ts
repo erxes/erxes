@@ -17,6 +17,12 @@ const edit = `
   }
 `;
 
+const remove = `
+  mutation webbuilderPagesRemove($_id: String!) {
+    webbuilderPagesRemove(_id: $_id) 
+  }
+`;
+
 const typeParamDefs = `
   $displayName: String
   $code: String
@@ -57,24 +63,41 @@ const entryParamDefs = `
   $values: JSON
 `;
 
-const entryPrams = `
+const entryParams = `
   contentTypeId: $contentTypeId
   values: $values
 `;
 
 const entriesAdd = `
   mutation entriesAdd(${entryParamDefs}) {
-    webbuilderEntriesAdd(${entryPrams}) {
+    webbuilderEntriesAdd(${entryParams}) {
       _id
     }
+  }
+`;
+
+const entriesEdit = `
+  mutation entriesEdit($_id: String!, ${entryParamDefs}) {
+    webbuilderEntriesEdit(_id: $_id, ${entryParams}) {
+      _id
+    }
+  }
+`;
+
+const entriesRemove = `
+  mutation entriesRemove($_id: String!) {
+    webbuilderEntriesRemove(_id: $_id) 
   }
 `;
 
 export default {
   add,
   edit,
+  remove,
   typesAdd,
   typesEdit,
   typesRemove,
-  entriesAdd
+  entriesAdd,
+  entriesEdit,
+  entriesRemove
 };
