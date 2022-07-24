@@ -4,6 +4,7 @@ import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface IEntryValue {
+  fieldId: string;
   fieldCode: string;
   value: any;
 }
@@ -19,6 +20,7 @@ export interface IEntryDocument extends IEntry, Document {
 
 export const valueSchema = new Schema(
   {
+    fieldId: { type: String },
     fieldCode: { type: String },
     value: { type: 'Mixed' }
   },

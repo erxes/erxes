@@ -13,6 +13,7 @@ export const types = `
     code: String!
     displayName: String
     fields: JSON
+    entries: [WebbuilderEntry]
   }
 
   type WebbuilderEntry {
@@ -49,8 +50,11 @@ const contentTypeParams = `
 export const mutations = `
   webbuilderPagesAdd(${params}): WebbuilderPage
   webbuilderPagesEdit(_id: String!, ${params}): WebbuilderPage
+  webbuilderPagesRemove(_id: String!): JSON
   webbuilderContentTypesAdd(${contentTypeParams}): WebbuilderContentType 
   webbuilderContentTypesEdit(_id: String!, ${contentTypeParams}): WebbuilderContentType 
   webbuilderContentTypesRemove(_id: String!): JSON
   webbuilderEntriesAdd(contentTypeId: String! values: JSON): WebbuilderEntry
+  webbuilderEntriesEdit(_id: String!, contentTypeId: String! values: JSON): WebbuilderEntry
+  webbuilderEntriesRemove(_id: String!): JSON
 `;
