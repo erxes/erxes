@@ -71,7 +71,7 @@ class List extends React.Component<Props> {
                   return;
                 }
 
-                return <th key={field.code}>{field.label}</th>;
+                return <th key={field.code}>{field.text}</th>;
               })}
               <th>{__('Actions')}</th>
             </tr>

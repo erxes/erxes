@@ -76,7 +76,6 @@ function Form(props: Props) {
         <FormWrapper>
           <FormColumn>
             {fields.map(field => {
-              field.text = field.label;
               return (
                 <>
                   <GenerateField
