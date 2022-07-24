@@ -12,6 +12,7 @@ import { LeftContent } from '@erxes/ui-settings/src/integrations/styles';
 import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import { __ } from '@erxes/ui/src/utils/core';
 import ContentTypeStep from './step/ContenTypeStep';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   action: (doc: any) => void;
@@ -47,6 +48,10 @@ class CreateContentType extends React.Component<Props, State> {
 
     const { displayName, code, fields } = this.state;
     const { contentType } = this.props;
+
+    if (!code) {
+      return Alert.error('Please enter a code!');
+    }
 
     const doc = {
       displayName,
