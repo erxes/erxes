@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
