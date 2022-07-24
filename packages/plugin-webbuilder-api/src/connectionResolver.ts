@@ -8,11 +8,17 @@ import {
 } from './models/contentTypes';
 import { IEntryDocument, IEntryModel, loadEntryClass } from './models/entries';
 import { IPageDocument, IPageModel, loadPageClass } from './models/pages';
+import {
+  ITemplateModel,
+  loadTemplateClass,
+  ITemplateDocument
+} from './models/templates';
 
 export interface IModels {
   Pages: IPageModel;
   ContentTypes: IContentTypeModel;
   Entries: IEntryModel;
+  Templates: ITemplateModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -35,6 +41,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.Entries = db.model<IEntryDocument, IEntryModel>(
     'webbuilder_entries',
     loadEntryClass(models)
+  );
+
+  models.Templates = db.model<ITemplateDocument, ITemplateModel>(
+    'webbuilder_templates',
+    loadTemplateClass(models)
   );
 
   return models;

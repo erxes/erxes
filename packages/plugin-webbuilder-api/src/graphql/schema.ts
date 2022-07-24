@@ -22,6 +22,11 @@ export const types = `
     values: JSON
   }
 
+  type WebbuilderTemplate {
+    _id: String!
+    name: String
+    jsonData: JSON,
+  }
 `;
 
 export const queries = `
@@ -31,6 +36,7 @@ export const queries = `
   webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
   webbuilderEntries(contentTypeId: String!): [WebbuilderEntry]
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
+  webbuilderTemplates: [WebbuilderTemplate]
 `;
 
 const params = `
@@ -57,4 +63,5 @@ export const mutations = `
   webbuilderEntriesAdd(contentTypeId: String! values: JSON): WebbuilderEntry
   webbuilderEntriesEdit(_id: String!, contentTypeId: String! values: JSON): WebbuilderEntry
   webbuilderEntriesRemove(_id: String!): JSON
+  webbuilderTemplatesAdd(name: String, jsonData: JSON): WebbuilderTemplate 
 `;

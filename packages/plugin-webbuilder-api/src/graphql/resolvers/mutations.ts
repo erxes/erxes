@@ -3,6 +3,7 @@ import { IPage } from '../../models/pages';
 import { IContentType } from '../../models/contentTypes';
 import { IEntry } from '../../models/entries';
 import { IContext } from '../../connectionResolver';
+import { ITemplate } from '../../models/templates';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -75,6 +76,10 @@ const webbuilderMutations = {
     { models }: IContext
   ) {
     return models.Entries.deleteOne({ _id });
+  },
+
+  async webbuilderTemplatesAdd(_root, doc: ITemplate, { models }: IContext) {
+    return models.Templates.createTemplate(doc);
   }
 };
 

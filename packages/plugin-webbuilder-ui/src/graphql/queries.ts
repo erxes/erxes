@@ -58,10 +58,21 @@ const entries = `
   }
 `;
 
+const templates = `
+  query templates {
+    webbuilderTemplates {
+      _id
+      name
+      jsonData
+    } 
+  }
+`;
+
 export default {
   pages,
   pageDetail,
   contentTypes,
   contentTypeDetail,
-  entries
+  entries,
+  templates
 };

@@ -30,6 +30,10 @@ const webbuilderQueries = {
   },
   webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Entries.findOne({ _id });
+  },
+
+  webbuilderTemplates(_root, _args, { models }: IContext) {
+    return models.Templates.find().lean();
   }
 };
 

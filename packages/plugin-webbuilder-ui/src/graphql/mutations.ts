@@ -90,6 +90,14 @@ const entriesRemove = `
   }
 `;
 
+const templatesAdd = `
+  mutation templatesAdd($name: String $jsonData: JSON) {
+    webbuilderTemplatesAdd(name: $name jsonData: $jsonData) {
+      _id
+    }
+  }
+`;
+
 export default {
   add,
   edit,
@@ -99,5 +107,6 @@ export default {
   typesRemove,
   entriesAdd,
   entriesEdit,
-  entriesRemove
+  entriesRemove,
+  templatesAdd
 };
