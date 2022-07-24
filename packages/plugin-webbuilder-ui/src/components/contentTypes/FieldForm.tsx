@@ -137,7 +137,7 @@ class FieldForm extends React.Component<Props, State> {
             btnStyle="success"
             icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
           >
-            {mode === 'update' ? 'Save' : 'Add to Form'}
+            {mode === 'update' ? 'Save' : 'Add Field'}
           </Button>
         </Modal.Footer>
       </>

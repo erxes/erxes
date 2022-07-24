@@ -1,4 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
+import FullPreview from '@erxes/ui/src/components/step/FullPreview';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import { Indicator } from '@erxes/ui/src/components/step/styles';
@@ -121,24 +122,14 @@ class CreateContentType extends React.Component<Props, State> {
           <PreviewWrapper>
             {/* <FullPreview
               onChange={this.onChange}
-              onDocChange={this.onFormDocChange}
-              calloutTitle={calloutTitle}
-              calloutBtnText={calloutBtnText}
-              bodyValue={bodyValue}
-              type={type}
-              color={color}
-              theme={theme}
-              image={logo}
-              thankTitle={thankTitle}
-              thankContent={thankContent}
-              skip={isSkip}
-              carousel={carousel}
-              formData={formData}
-              calloutImgSize={calloutImgSize}
-              successImgSize={successImageSize}
-              successImage={successImage}
-              configs={configs} */}
-            {/* /> */}
+              skip={true}
+              configs={[] as any}
+              carousel="form"
+              color="#5629B6"
+              theme=""
+              type="popup"
+              formData={contentType}
+            /> */}
           </PreviewWrapper>
         </Content>
       </StepWrapper>

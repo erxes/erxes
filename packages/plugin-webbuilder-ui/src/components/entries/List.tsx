@@ -9,7 +9,7 @@ import React from 'react';
 import Form from '../../containers/entries/Form';
 import Row from './Row';
 
-interface IProps extends IRouterProps {
+type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
@@ -17,9 +17,9 @@ interface IProps extends IRouterProps {
   contentType: any;
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
-}
+};
 
-class List extends React.Component<IProps> {
+class List extends React.Component<Props> {
   renderRow = () => {
     const { entries, remove, contentType } = this.props;
 
@@ -67,7 +67,7 @@ class List extends React.Component<IProps> {
           <thead>
             <tr>
               {fields.map((field, i) => {
-                if (i > 1) {
+                if (i > 2) {
                   return;
                 }
 

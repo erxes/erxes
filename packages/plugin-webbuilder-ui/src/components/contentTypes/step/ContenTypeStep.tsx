@@ -6,7 +6,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { FlexColumn, FlexItem } from '@erxes/ui/src/components/step/style';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import FieldChoices from '@erxes/ui-forms/src/forms/components/FieldChoices';
+import FieldChoices from './FieldChoices';
 import FieldForm from '../FieldForm';
 
 type Props = {

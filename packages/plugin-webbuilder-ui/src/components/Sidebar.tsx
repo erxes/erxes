@@ -1,11 +1,10 @@
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
 import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ITEMS } from '../constants';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -28,28 +27,12 @@ class List extends React.Component<Props> {
   renderContent() {
     const result: React.ReactNode[] = [];
 
-    const types = [
-      {
-        _id: '33',
-        link: 'pages',
-        name: 'Pages'
-      },
-      {
-        _id: '22',
-        link: 'contenttypes',
-        name: 'Content types'
-      }
-    ] as any;
-
-    for (const type of types) {
+    for (const item of ITEMS.ALL) {
       result.push(
-        <SidebarListItem
-          key={Math.random()}
-          isActive={this.isActive(type.link)}
-        >
-          <Link to={`/webbuilder/${type.link}`}>
+        <SidebarListItem key={item.link} isActive={this.isActive(item.link)}>
+          <Link to={`/webbuilder/${item.link}`}>
             {this.space}
-            <span>{type.name}</span>
+            <span>{item.name}</span>
           </Link>
         </SidebarListItem>
       );
@@ -84,8 +67,6 @@ class List extends React.Component<Props> {
         </Section.Title>
 
         {contentTypes.map(contentType => {
-          const { entries = [] } = contentType;
-
           return (
             <SidebarListItem
               key={contentType._id}
@@ -95,9 +76,7 @@ class List extends React.Component<Props> {
                 to={`/webbuilder/entries/?contentTypeId=${contentType._id}`}
               >
                 {this.space}
-                <span>
-                  {contentType.displayName} ({entries.length})
-                </span>
+                <span>{contentType.displayName}</span>
               </Link>
             </SidebarListItem>
           );
@@ -106,26 +85,11 @@ class List extends React.Component<Props> {
     );
   }
 
-  renderTypeList() {
-    return (
-      <SidebarList>
-        <DataWithLoader
-          data={this.renderContent()}
-          loading={false}
-          count={10}
-          emptyText="There is web builder"
-          emptyIcon="folder-2"
-          size="small"
-        />
-      </SidebarList>
-    );
-  }
-
   render() {
     return (
       <Sidebar wide={true} hasBorder={true} noMargin={true}>
         <Section maxHeight={488} noShadow={true} noMargin={true}>
-          {this.renderTypeList()}
+          {this.renderContent()}
           {this.renderEntries()}
         </Section>
       </Sidebar>

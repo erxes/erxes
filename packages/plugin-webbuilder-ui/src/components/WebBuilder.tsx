@@ -51,7 +51,7 @@ function WebBuilder(props: Props) {
       default:
         setComponent(<div />);
     }
-  }, [step]);
+  }, [queryParams]);
 
   const breadcrumb = [{ title: __('Webbuilder') }];
 
