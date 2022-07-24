@@ -86,9 +86,16 @@ class List extends React.Component<Props> {
   }
 
   render() {
+    const { contentTypes } = this.props;
+
     return (
       <Sidebar wide={true} hasBorder={true} noMargin={true}>
-        <Section maxHeight={488} noShadow={true} noMargin={true}>
+        <Section
+          maxHeight={488}
+          noShadow={true}
+          noMargin={true}
+          collapsible={contentTypes.length > 9}
+        >
           {this.renderContent()}
           {this.renderEntries()}
         </Section>
