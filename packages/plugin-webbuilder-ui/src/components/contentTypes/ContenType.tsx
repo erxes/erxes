@@ -1,5 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
-import FullPreview from '@erxes/ui/src/components/step/FullPreview';
+import FullPreview from './step/FullPreview';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import { Indicator } from '@erxes/ui/src/components/step/styles';
@@ -30,10 +30,15 @@ class CreateContentType extends React.Component<Props, State> {
 
     const { contentType = {} } = props;
 
+    const fields = (contentType.fields || []).map(field => ({
+      ...field,
+      _id: Math.random()
+    }));
+
     this.state = {
       displayName: contentType.displayName || '',
       code: contentType.code || '',
-      fields: contentType.fields || []
+      fields: fields || []
     };
   }
 
@@ -120,16 +125,13 @@ class CreateContentType extends React.Component<Props, State> {
           </LeftContent>
 
           <PreviewWrapper>
-            {/* <FullPreview
+            <FullPreview
               onChange={this.onChange}
-              skip={true}
-              configs={[] as any}
-              carousel="form"
-              color="#5629B6"
+              color=""
               theme=""
-              type="popup"
-              formData={contentType}
-            /> */}
+              type="dropdown"
+              fields={this.state.fields}
+            />
           </PreviewWrapper>
         </Content>
       </StepWrapper>
