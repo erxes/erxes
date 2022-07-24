@@ -4,6 +4,10 @@ import { IContentType } from '../../models/contentTypes';
 import { IEntry } from '../../models/entries';
 import { IContext } from '../../connectionResolver';
 
+interface IContentTypeEdit extends IContentType {
+  _id: string;
+}
+
 const webbuilderMutations = {
   async webbuilderPagesAdd(_root, doc: IPage, { models }: IContext) {
     return models.Pages.createPage(doc);
@@ -32,17 +36,15 @@ const webbuilderMutations = {
     doc: IContentType,
     { models }: IContext
   ) {
-    return models.ContentTypes.create(doc);
+    return models.ContentTypes.createContentType(doc);
   },
 
   async webbuilderContentTypesEdit(
     _root,
-    { _id, ...doc }: { _id: string; doc: IContentType },
+    { _id, ...doc }: IContentTypeEdit,
     { models }: IContext
   ) {
-    await models.ContentTypes.updateOne({ _id }, { $set: doc });
-
-    return models.ContentTypes.findOne({ _id });
+    return models.ContentTypes.updateContentType(_id, doc);
   },
 
   async webbuilderContentTypesRemove(
