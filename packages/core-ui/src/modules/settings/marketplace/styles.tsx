@@ -246,13 +246,12 @@ const CarouselWrapper = styled.div`
   position: relative;
 `;
 
-const Buttons = styledTS<{ start: any; end: any }>(styled.div)`
+const Buttons = styledTS<{ placement?: string }>(styled.div)`
   position: absolute;
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: ${props =>
-    props.end ? 'end' : props.start ? 'start' : 'space-between'};
+  justify-content: ${props => props.placement};
   align-items: center;
 `;
 
