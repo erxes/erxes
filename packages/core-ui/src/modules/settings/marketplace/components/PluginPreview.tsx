@@ -3,6 +3,7 @@ import { __ } from 'modules/common/utils';
 import {
   ListHeader,
   ListTitle,
+  CardWrapper,
   Card,
   PluginContainer,
   PluginPic,
@@ -49,17 +50,21 @@ class PluginPreview extends React.Component<
     return (
       <PluginContainer>
         {plugins.map(plugin => (
-          <Card key={plugin.title}>
+          <CardWrapper key={plugin.title}>
             <Link to={`installer/details/${plugin._id}`}>
-              <PluginPic src={plugin.image} />
-              <PluginInformation>
-                <b>{plugin.title}</b>
-                <Description
-                  dangerouslySetInnerHTML={{ __html: plugin.shortDescription }}
-                />
-              </PluginInformation>
+              <Card>
+                <PluginPic src={plugin.image} />
+                <PluginInformation>
+                  <b>{plugin.title}</b>
+                  <Description
+                    dangerouslySetInnerHTML={{
+                      __html: plugin.shortDescription
+                    }}
+                  />
+                </PluginInformation>
+              </Card>
             </Link>
-          </Card>
+          </CardWrapper>
         ))}
       </PluginContainer>
     );
