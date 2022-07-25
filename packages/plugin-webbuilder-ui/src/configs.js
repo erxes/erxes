@@ -13,7 +13,7 @@ module.exports = {
     {
       text: 'Web builder',
       url: '/webbuilder/pages',
-      icon: 'icon-car',
+      icon: 'icon-window-grid',
       location: 'mainNavigation'
     }
   ]
