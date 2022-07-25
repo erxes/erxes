@@ -288,13 +288,14 @@ export interface IActivityLogParams {
   messageBroker;
   action: string;
   data: any;
+  automations?: any;
 }
 
 export const putActivityLog = async (
   subdomain: string,
   params: IActivityLogParams
 ) => {
-  const { messageBroker, data } = params;
+  const { messageBroker, data, automations } = params;
   const isAutomationsAvailable = await messageBroker.sendRPCMessage(
     'gateway:isServiceAvailable',
     'automations'
@@ -306,7 +307,8 @@ export const putActivityLog = async (
         subdomain,
         data: {
           type: `${data.contentType}`,
-          targets: [data.target]
+          targets: [data.target],
+          ...(data.automations || {})
         }
       });
     }
