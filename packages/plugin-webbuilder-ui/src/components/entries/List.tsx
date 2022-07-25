@@ -2,7 +2,6 @@ import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Table from '@erxes/ui/src/components/table';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
