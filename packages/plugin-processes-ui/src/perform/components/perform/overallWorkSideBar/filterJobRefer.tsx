@@ -14,6 +14,7 @@ import { IJobRefer } from '../../../../job/types';
 interface IProps extends IRouterProps {
   history: any;
   jobRefers: IJobRefer[];
+  params?: any;
 }
 
 type State = {
@@ -24,8 +25,13 @@ class JobReferFilter extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
+    const { params } = this.props;
+    const { jobReferId } = params;
+
+    console.log('params on jobReferFilter: ', params);
+
     this.state = {
-      jobReferId: ''
+      jobReferId
     };
   }
 
@@ -33,17 +39,20 @@ class JobReferFilter extends React.Component<IProps, State> {
     const value = e.target.value;
     const { history } = this.props;
 
-    router.setParams(history, { [name]: value });
-    this.setState({ [name]: value } as any);
+    console.log('jobReferId on onChangeValue: ', name, value);
+
+    router.setParams(history, { jobReferId: value });
+    this.setState({ jobReferId: value });
   };
 
   render() {
     const { history, jobRefers } = this.props;
     const { jobReferId } = this.state;
 
+    console.log('jobReferId on filterJobRefer: ', jobReferId);
+
     const onClear = () => {
-      router.setParams(history, { outBranchId: null });
-      router.setParams(history, { outDepartmentId: null });
+      router.setParams(history, { jobReferId: null });
     };
 
     const extraButtons = (router.getParam(history, 'jobReferId') ||

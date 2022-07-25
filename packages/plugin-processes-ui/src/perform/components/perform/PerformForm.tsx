@@ -21,13 +21,16 @@ import {
 } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
+import { IFlowDocument } from '../../../flow/types';
+import { calculateCount } from './common';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  overallWorkDetail: IOverallWorkDocument;
+  overallWorkDetail?: IOverallWorkDocument;
   max: number;
-  jobRefer?: IJobRefer;
+  jobRefers: IJobRefer[];
+  flows: IFlowDocument[];
 };
 
 type State = {
@@ -42,10 +45,15 @@ class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { overallWorkDetail, jobRefer } = this.props;
-    const { resultProductsDetail } = overallWorkDetail;
-
-    console.log('on constructor:', jobRefer);
+    const { overallWorkDetail, jobRefers, flows } = this.props;
+    const resultProductsDetail = overallWorkDetail?.resultProductsDetail;
+    const calculatedObject = calculateCount(
+      jobRefers || [],
+      flows || [],
+      overallWorkDetail,
+      'on perform component'
+    );
+    const { jobRefer } = calculatedObject;
 
     this.state = {
       count: 1,
@@ -55,7 +63,8 @@ class Form extends React.Component<Props, State> {
         uom: e.uom
       })),
       needProducts: jobRefer?.needProducts || [],
-      resultProducts: jobRefer?.resultProducts || []
+      resultProducts: jobRefer?.resultProducts || [],
+      jobRefer
     };
   }
 
@@ -80,14 +89,18 @@ class Form extends React.Component<Props, State> {
       </li>
     );
 
+    const { count } = this.state;
+
     for (const product of products) {
       const { uom } = product;
-      const productName = product.product ? product.product.name : 'not noe';
+      const productName = product.product ? product.product.name : 'not name';
       const uomCode = uom ? uom.code : 'not uom';
       const realData = realDatas.find(rd => rd._id === product._id);
       const quantity = realData ? realData.quantity : 0;
 
-      result.push(this.renderView(productName, quantity + '/' + uomCode + '/'));
+      result.push(
+        this.renderView(productName, quantity * count + '/' + uomCode + '/')
+      );
     }
 
     return result;
@@ -96,7 +109,7 @@ class Form extends React.Component<Props, State> {
   renderDetailNeed() {
     const { overallWorkDetail } = this.props;
     const { needProducts } = this.state;
-    const { needProductsDetail } = overallWorkDetail;
+    const needProductsDetail = overallWorkDetail?.needProductsDetail;
 
     return (
       <SidebarList className="no-link">
@@ -112,7 +125,7 @@ class Form extends React.Component<Props, State> {
   renderDetailResult() {
     const { overallWorkDetail } = this.props;
     const { resultProducts } = this.state;
-    const { resultProductsDetail } = overallWorkDetail;
+    const resultProductsDetail = overallWorkDetail?.resultProductsDetail;
 
     return (
       <SidebarList className="no-link">
@@ -127,27 +140,10 @@ class Form extends React.Component<Props, State> {
 
   onChange = e => {
     const count = Number(e.target.value);
-    const { jobRefer } = this.props;
-    const { needProducts, resultProducts } = this.state;
-
-    for (const need of jobRefer?.needProducts || []) {
-      const currentNeed = needProducts?.find(n => n._id === need._id);
-
-      const { quantity } = need;
-      currentNeed.quantity = quantity * count;
-    }
-
-    for (const result of jobRefer?.resultProducts || []) {
-      const currentResult = resultProducts?.find(n => n._id === result._id);
-
-      const { quantity } = result;
-      currentResult.quantity = quantity * count;
-    }
+    const { needProducts, resultProducts, jobRefer } = this.state;
 
     this.setState({
-      count,
-      needProducts,
-      resultProducts
+      count
     });
   };
 

@@ -1,6 +1,5 @@
 import React from 'react';
 import { __, Wrapper, Button, ModalTrigger } from '@erxes/ui/src';
-import { Title } from '@erxes/ui/src/styles/main';
 import ManageLabelsContainer from '../containers/actions/ManageLabels';
 import ManageConfigsContainer from '../containers/actions/ManageConfigs';
 import FormContainer from '../containers/Form';
@@ -76,9 +75,7 @@ const Actionbar = (props: Props) => {
     </>
   );
 
-  const renderLeft = () => <Title>{__('All sales plans')}</Title>;
-
-  return <Wrapper.ActionBar left={renderLeft()} right={renderRight()} />;
+  return <Wrapper.ActionBar right={renderRight()} />;
 };
 
 export default Actionbar;

@@ -93,8 +93,6 @@ class SideBar extends React.Component<IProps> {
   }
 
   render() {
-    console.log(' job filter job filter job filter on overallworksSideBar');
-
     const onClear = () => {
       router.setParams(history, { overallWorkId: null });
     };

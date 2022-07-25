@@ -79,8 +79,8 @@ class SideBar extends React.Component<IProps> {
         {this.renderView('InBranch', outBranch || '')}
         {this.renderView('InBranch', outDepartment || '')}
 
-        {this.renderProducts('NeedProducts', needProductsDetail)}
-        {this.renderProducts('ResultProducts', resultProductsDetail)}
+        {this.renderProducts('NeedProducts', needProductsDetail || [])}
+        {this.renderProducts('ResultProducts', resultProductsDetail || [])}
       </SidebarList>
     );
   }
