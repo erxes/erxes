@@ -39,7 +39,7 @@ export const types = `
     totalCount: Float,
   }
 
-  type SafeRemItem {
+  type SafeRemainderItem {
     _id: String,
     modifiedAt: Date,
     status: String,
@@ -56,13 +56,9 @@ export const types = `
     product: Product
     uom: Uom_
   }
-
-  type SafeRemItemCount {
-    count: Int
-  }
 `;
 
-const safeRemItemsFilterParams = `
+const safeRemainderItemsFilterParams = `
   remainderId: String!,
   status: String,
   productCategoryId: String,
@@ -73,13 +69,13 @@ const safeRemItemsFilterParams = `
 export const queries = `
   safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
-  safeRemItems(${safeRemItemsFilterParams}): [SafeRemItem]
-  safeRemItemsCount(${safeRemItemsFilterParams}): Int
+  safeRemainderItems(${safeRemainderItemsFilterParams}): [SafeRemainderItem]
+  safeRemainderItemsCount(${safeRemainderItemsFilterParams}): Int
 `;
 
 export const mutations = `
   createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
   removeSafeRemainder(_id: String!): JSON
-  updateSafeRemItem(_id: String, status: String, remainder: Float): SafeRemItem
-  removeSafeRemItem(_id: String): JSON
+  updateSafeRemainderItem(_id: String, status: String, remainder: Float): SafeRemainderItem
+  removeSafeRemainderItem(_id: String): JSON
 `;

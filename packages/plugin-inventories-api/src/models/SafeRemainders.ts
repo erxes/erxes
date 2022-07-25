@@ -5,10 +5,7 @@ import { IRemainderParams } from './definitions/remainders';
 import {
   ISafeRemainder,
   ISafeRemainderDocument,
-  ISafeRemItem,
-  ISafeRemItemDocument,
-  safeRemainderSchema,
-  safeRemItemSchema
+  safeRemainderSchema
 } from './definitions/safeRemainders';
 
 export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
@@ -22,13 +19,6 @@ export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   removeRemainder(_id: string): void;
 }
 
-export interface ISafeRemItemModel extends Model<ISafeRemItemDocument> {
-  getRemItemObject(_id: string): Promise<ISafeRemItemDocument>;
-  getRemItem(params: IRemainderParams): Promise<Number>;
-  createRemItem(doc: ISafeRemItem): Promise<ISafeRemItemDocument>;
-  updateRemItem(_id: string, doc: ISafeRemItem): Promise<ISafeRemItemDocument>;
-  removeRemItem(_id: string): void;
-}
 export const loadSafeRemainderClass = (models: IModels) => {
   class Remainder {
     /*
@@ -103,80 +93,4 @@ export const loadSafeRemainderClass = (models: IModels) => {
   safeRemainderSchema.loadClass(Remainder);
 
   return safeRemainderSchema;
-};
-
-export const loadSafeRemItemClass = (models: IModels) => {
-  class RemItem {
-    /*
-     * Get a remItem
-     */
-    public static async getRemItemObject(_id: string) {
-      const remItem = await models.SafeRemItems.findOne({ _id });
-
-      if (!remItem) {
-        throw new Error('RemItem not found');
-      }
-
-      return remItem;
-    }
-
-    public static async getRemItem(params: IRemainderParams) {
-      const { productId, departmentId, branchId } = params;
-      const filter: any = { productId };
-
-      if (departmentId) {
-        filter.departmentId = departmentId;
-      }
-
-      if (branchId) {
-        filter.branchId = branchId;
-      }
-
-      const remItems = await models.SafeRemItems.find(filter);
-
-      let remItem = 0;
-      for (const rem of remItems) {
-        remItem = remItem + rem.count;
-      }
-
-      return remItem;
-    }
-
-    /**
-     * Create a remItem
-     */
-    public static async createRemItem(doc: ISafeRemItem) {
-      const remItem = await models.SafeRemItems.create({
-        ...doc,
-        createdAt: new Date()
-      });
-
-      return remItem;
-    }
-
-    /**
-     * Update RemItem
-     */
-    public static async updateRemItem(_id: string, doc: ISafeRemItem) {
-      const remItem = await models.SafeRemItems.getRemItemObject(_id);
-
-      await models.SafeRemItems.updateOne({ _id }, { $set: { ...doc } });
-
-      const updated = await models.SafeRemItems.getRemItemObject(_id);
-
-      return updated;
-    }
-
-    /**
-     * Remove RemItem
-     */
-    public static async removeRemItem(_id: string) {
-      await models.SafeRemItems.getRemItemObject(_id);
-      return models.SafeRemItems.deleteOne({ _id });
-    }
-  }
-
-  safeRemItemSchema.loadClass(RemItem);
-
-  return safeRemItemSchema;
 };

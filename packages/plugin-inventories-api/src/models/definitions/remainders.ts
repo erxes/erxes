@@ -51,7 +51,7 @@ export const remainderSchema = schemaHooksWrapper(
     branchId: field({ type: String, default: '', label: 'Branch' }),
     departmentId: field({ type: String, default: '', label: 'Department' })
   }),
-  'erxes_transactions'
+  'erxes_remainders'
 );
 
 // for remainderSchema query. increases search speed, avoids in-memory sorting
