@@ -18,6 +18,7 @@ import PropertyRow from './PropertyRow';
 import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
 
+// Props
 type Props = {
   queryParams: any;
   refetch?: () => void;
@@ -29,6 +30,11 @@ type Props = {
   updatePropertyDetailVisible: (data: {
     _id: string;
     isVisibleInDetail: boolean;
+  }) => void;
+  updatePropertySystemFields: (data: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
   }) => void;
   updatePropertyGroupVisible: (data: {
     _id: string;
@@ -76,6 +82,7 @@ class Properties extends React.Component<
       removeProperty,
       updatePropertyVisible,
       updatePropertyDetailVisible,
+      updatePropertySystemFields,
       updateFieldOrder
     } = this.props;
 
@@ -89,6 +96,7 @@ class Properties extends React.Component<
         updatePropertyVisible={updatePropertyVisible}
         updateFieldOrder={updateFieldOrder}
         updatePropertyDetailVisible={updatePropertyDetailVisible}
+        updatePropertySystemFields={updatePropertySystemFields}
       />
     );
   };

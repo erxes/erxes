@@ -25,7 +25,7 @@ import ActionsForm from '../../containers/forms/actions/ActionsForm';
 import Confirmation from '../../containers/forms/Confirmation';
 import {
   ActionBarButtonsWrapper,
-  AutomationFormContainer,
+  FlowFormContainer,
   BackButton,
   Container,
   RightDrawerContainer,
@@ -66,13 +66,12 @@ type State = {
   showDrawer: boolean;
   showTrigger: boolean;
   showAction: boolean;
-  isActionTab: boolean;
   isActive: boolean;
   showNoteForm: boolean;
   editNoteForm?: boolean;
   showTemplateForm: boolean;
-  actions: IJob[];
-  activeAction: IJob;
+  flowJobs: IJob[];
+  activeFlowJob: IJob;
   selectedContentId?: string;
   isZoomable: boolean;
   zoomStep: number;
@@ -95,14 +94,15 @@ class AutomationForm extends React.Component<Props, State> {
 
     const { flow } = this.props;
     const lenFlow = Object.keys(flow);
-    const actions = JSON.parse(JSON.stringify(lenFlow.length ? flow.jobs : []));
+    const flowJobs = JSON.parse(
+      JSON.stringify(lenFlow.length ? flow.jobs : [])
+    );
 
     this.state = {
       name: lenFlow.length ? flow.name : 'Your flow title',
-      actions,
+      flowJobs,
       activeId: '',
       currentTab: 'actions',
-      isActionTab: true,
       isActive: lenFlow.length ? flow.status === 'active' : false,
       showNoteForm: false,
       showTemplateForm: false,
@@ -113,7 +113,7 @@ class AutomationForm extends React.Component<Props, State> {
       zoomStep: 0.025,
       zoom: 1,
       percentage: 100,
-      activeAction: {} as IJob,
+      activeFlowJob: {} as IJob,
       actionEdited: false,
       categoryId: '',
       productId: flow.productId || '',
@@ -123,26 +123,26 @@ class AutomationForm extends React.Component<Props, State> {
     };
   }
 
-  findLastAction = (leftAction: IJob[] = []) => {
-    const { actions } = this.state;
+  findLastFlowJob = (leftflowJob: IJob[] = []) => {
+    const { flowJobs } = this.state;
     const { jobRefers } = this.props;
-    const lastActions: IJob[] = [];
+    const lastFlowJobs: IJob[] = [];
 
     // const realActions = leftAction || actions;
-    const realActions = leftAction.length > 0 ? leftAction : actions;
+    const realFlowJobs = leftflowJob.length > 0 ? leftflowJob : flowJobs;
 
-    for (const action of realActions) {
-      if (!(action.nextJobIds || []).length) {
-        lastActions.push(action);
+    for (const flowJob of realFlowJobs) {
+      if (!(flowJob.nextJobIds || []).length) {
+        lastFlowJobs.push(flowJob);
       }
     }
 
-    const lastActionIds: string[] =
-      lastActions
+    const lastFlobJobIds: string[] =
+      lastFlowJobs
         .filter(last => last.jobReferId)
         .map(last => last.jobReferId || '') || [];
     const lastJobRefers: IJobRefer[] =
-      jobRefers.filter(job => lastActionIds.includes(job._id)) || [];
+      jobRefers.filter(job => lastFlobJobIds.includes(job._id)) || [];
 
     let resultProducts: IProductsData[] = [];
     for (const lastJobRefer of lastJobRefers) {
@@ -171,13 +171,13 @@ class AutomationForm extends React.Component<Props, State> {
           : ({} as IJobRefer);
       }
 
-      const justLastAction: IJob | undefined = Object.keys(justLastJobRefer)
+      const justLastFlowJob: IJob | undefined = Object.keys(justLastJobRefer)
         .length
-        ? lastActions.find(last => last.jobReferId === justLastJobRefer._id)
+        ? lastFlowJobs.find(last => last.jobReferId === justLastJobRefer._id)
         : undefined;
 
       this.setState({
-        lastAction: justLastAction,
+        lastAction: justLastFlowJob,
         flowStatus: doubleCheckResult ? true : false
       });
     } else {
@@ -194,17 +194,11 @@ class AutomationForm extends React.Component<Props, State> {
 
   componentDidMount() {
     this.connectInstance();
-    this.findLastAction();
+    this.findLastFlowJob();
     document.addEventListener('click', this.handleClickOutside, true);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const { isActionTab } = this.state;
-
-    if (isActionTab && isActionTab !== prevState.isActionTab) {
-      this.connectInstance();
-    }
-
+  componentDidUpdate(_prevState) {
     this.setZoom = (zoom, instanceZoom, transformOrigin, el) => {
       transformOrigin = transformOrigin || [0.5, 0.5];
       instanceZoom = instanceZoom || jsPlumb;
@@ -242,7 +236,7 @@ class AutomationForm extends React.Component<Props, State> {
       Container: 'canvas'
     });
 
-    const { actions } = this.state;
+    const { flowJobs } = this.state;
 
     instance.bind('ready', () => {
       instance.bind('connection', info => {
@@ -253,18 +247,18 @@ class AutomationForm extends React.Component<Props, State> {
         this.onDettachConnection(info);
       });
 
-      for (const action of actions) {
-        this.renderControl('action', action, this.onClickAction);
+      for (const flowJob of flowJobs) {
+        this.renderControl('action', flowJob, this.onClickAction);
       }
 
       // create connections ===================
-      createInitialConnections(actions, instance);
+      createInitialConnections(flowJobs, instance);
 
       // delete connections ===================
       deleteConnection(instance);
     });
 
-    // hover action control ===================
+    // hover flowJob control ===================
     jquery('#canvas .control').hover(event => {
       event.preventDefault();
 
@@ -277,29 +271,29 @@ class AutomationForm extends React.Component<Props, State> {
     jquery('#canvas').on('click', '.delete-control', event => {
       event.preventDefault();
 
-      const innerActions = this.state.actions;
+      const innerFlowJobs = this.state.flowJobs;
       const item = event.currentTarget.id;
       const splitItem = item.split('-');
       const type = splitItem[0];
 
       instance.remove(item);
 
-      const leftActions = innerActions.filter(
-        action => action.id !== splitItem[1]
+      const leftFlowJobs = innerFlowJobs.filter(
+        flowJob => flowJob.id !== splitItem[1]
       );
 
-      this.findLastAction(leftActions);
+      this.findLastFlowJob(leftFlowJobs);
 
       if (type === 'action') {
         return this.setState({
-          actions: leftActions
+          flowJobs: leftFlowJobs
         });
       }
     });
   };
 
   handleSubmit = () => {
-    const { name, isActive, actions, productId, flowStatus } = this.state;
+    const { name, isActive, flowJobs, productId, flowStatus } = this.state;
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -313,7 +307,7 @@ class AutomationForm extends React.Component<Props, State> {
         status: isActive ? 'active' : 'draft',
         productId,
         flowJobStatus: flowStatus,
-        jobs: actions.map(a => ({
+        jobs: flowJobs.map(a => ({
           id: a.id,
           nextJobIds: a.nextJobIds,
           jobReferId: a.jobReferId,
@@ -342,10 +336,6 @@ class AutomationForm extends React.Component<Props, State> {
 
   handleTemplateModal = () => {
     this.setState({ showTemplateForm: !this.state.showTemplateForm });
-  };
-
-  switchActionbarTab = type => {
-    this.setState({ isActionTab: type === 'action' ? true : false });
   };
 
   onToggle = e => {
@@ -402,29 +392,29 @@ class AutomationForm extends React.Component<Props, State> {
     });
   };
 
-  onClickAction = (action: IJob) => {
+  onClickAction = (flowJob: IJob) => {
     this.setState({
       showAction: true,
       showDrawer: true,
       currentTab: 'actions',
-      activeAction: action ? action : ({} as IJob)
+      activeFlowJob: flowJob ? flowJob : ({} as IJob)
     });
   };
 
   onConnection = info => {
-    const { actions } = this.state;
+    const { flowJobs } = this.state;
 
     this.setState({
-      actions: connection(
-        actions,
+      flowJobs: connection(
+        flowJobs,
         info,
         info.targetId.replace('action-', ''),
         'connect',
-        this.findLastAction
+        this.findLastFlowJob
       )
     });
 
-    const sourceAction = actions.find(
+    const sourceAction = flowJobs.find(
       a => a.id.toString() === info.sourceId.replace('action-', '')
     );
 
@@ -436,15 +426,15 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   onDettachConnection = info => {
-    const { actions } = this.state;
+    const { flowJobs } = this.state;
 
     this.setState({
-      actions: connection(
-        actions,
+      flowJobs: connection(
+        flowJobs,
         info,
         info.targetId.replace('action-', ''),
         'disconnect',
-        this.findLastAction
+        this.findLastFlowJob
       )
     });
   };
@@ -503,11 +493,7 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   handleClickOutside = event => {
-    if (
-      this.wrapperRef &&
-      !this.wrapperRef.contains(event.target) &&
-      this.state.isActionTab
-    ) {
+    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
       this.setState({ showDrawer: false });
     }
   };
@@ -516,7 +502,7 @@ class AutomationForm extends React.Component<Props, State> {
     this.setState({
       showDrawer: !this.state.showDrawer,
       currentTab: type,
-      activeAction: {} as IJob
+      activeFlowJob: {} as IJob
     });
   };
 
@@ -542,48 +528,51 @@ class AutomationForm extends React.Component<Props, State> {
     outBranchId?: string,
     outDepartmentId?: string
   ) => {
-    const { actions } = this.state;
+    const { flowJobs } = this.state;
     const { jobRefers } = this.props;
 
-    let action: IJob = {
+    let flowJob: IJob = {
       ...(data || {}),
-      id: this.getNewId(actions.map(a => a.id))
+      id: this.getNewId(flowJobs.map(a => a.id))
     };
     let actionIndex = -1;
 
     if (actionId) {
-      actionIndex = actions.findIndex(a => a.id === actionId);
+      actionIndex = flowJobs.findIndex(a => a.id === actionId);
 
       if (actionIndex !== -1) {
-        action = actions[actionIndex];
+        flowJob = flowJobs[actionIndex];
       }
     }
 
-    action.jobReferId = jobReferId || '';
-    action.inBranchId = inBranchId || '';
-    action.inDepartmentId = inDepartmentId || '';
-    action.outBranchId = outBranchId || '';
-    action.outDepartmentId = outDepartmentId || '';
+    flowJob.jobReferId = jobReferId || '';
+    flowJob.inBranchId = inBranchId || '';
+    flowJob.inDepartmentId = inDepartmentId || '';
+    flowJob.outBranchId = outBranchId || '';
+    flowJob.outDepartmentId = outDepartmentId || '';
 
     const jobRefer: IJobRefer =
       jobRefers.find(j => j._id === jobReferId) || ({} as IJobRefer);
 
-    action.label = jobRefer.name;
-    action.description = description || jobRefer.name;
+    flowJob.label = jobRefer.name;
+    flowJob.description = description || jobRefer.name;
 
     if (actionIndex !== -1) {
-      actions[actionIndex] = action;
+      flowJobs[actionIndex] = flowJob;
     } else {
-      actions.push(action);
+      flowJobs.push(flowJob);
     }
 
-    this.setState({ actions, activeAction: action, actionEdited: true }, () => {
-      if (!actionId) {
-        this.renderControl('action', action, this.onClickAction);
+    this.setState(
+      { flowJobs, activeFlowJob: flowJob, actionEdited: true },
+      () => {
+        if (!actionId) {
+          this.renderControl('action', flowJob, this.onClickAction);
+        }
       }
-    });
+    );
 
-    this.findLastAction();
+    this.findLastFlowJob();
   };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
@@ -634,10 +623,6 @@ class AutomationForm extends React.Component<Props, State> {
   };
 
   renderButtons() {
-    if (!this.state.isActionTab) {
-      return null;
-    }
-
     return (
       <>
         <Button
@@ -724,9 +709,9 @@ class AutomationForm extends React.Component<Props, State> {
   onBackAction = () => this.setState({ showAction: false });
 
   onSave = () => {
-    const { activeAction } = this.state;
+    const { activeFlowJob } = this.state;
 
-    this.addAction(activeAction);
+    this.addAction(activeFlowJob);
 
     this.onBackAction();
   };
@@ -735,7 +720,7 @@ class AutomationForm extends React.Component<Props, State> {
     const {
       currentTab,
       showAction,
-      activeAction,
+      activeFlowJob,
       product,
       lastAction
     } = this.state;
@@ -743,13 +728,13 @@ class AutomationForm extends React.Component<Props, State> {
     const { jobRefers } = this.props;
 
     if (currentTab === 'actions') {
-      const { actions } = this.state;
+      const { flowJobs } = this.state;
 
-      if (showAction && activeAction) {
-        const checkArray = Object.keys(activeAction);
-        let checkedActiveAction = activeAction;
+      if (showAction && activeFlowJob) {
+        const checkArray = Object.keys(activeFlowJob);
+        let checkedActiveAction = activeFlowJob;
         if (!checkArray.includes('nextJobIds')) {
-          checkedActiveAction = { ...activeAction, nextJobIds: [] };
+          checkedActiveAction = { ...activeFlowJob, nextJobIds: [] };
         }
 
         return (
@@ -759,7 +744,7 @@ class AutomationForm extends React.Component<Props, State> {
               addAction={this.addAction}
               closeModal={this.onBackAction}
               jobRefers={jobRefers}
-              actions={actions}
+              flowJobs={flowJobs}
               onSave={this.onSave}
               lastAction={lastAction}
               flowProduct={product}
@@ -799,9 +784,9 @@ class AutomationForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { actions } = this.state;
+    const { flowJobs } = this.state;
 
-    if (actions.length === 0) {
+    if (flowJobs.length === 0) {
       return (
         <Container>
           <div
@@ -825,7 +810,7 @@ class AutomationForm extends React.Component<Props, State> {
 
   renderConfirmation() {
     const { id, queryParams, history, saveLoading, flow } = this.props;
-    const { actions, name } = this.state;
+    const { flowJobs, name } = this.state;
 
     if (saveLoading) {
       return null;
@@ -833,7 +818,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     const when = queryParams.isCreate
       ? !!id
-      : JSON.stringify(actions) !== JSON.stringify([]) ||
+      : JSON.stringify(flowJobs) !== JSON.stringify([]) ||
         flow.name !== this.state.name;
 
     return (
@@ -855,7 +840,7 @@ class AutomationForm extends React.Component<Props, State> {
       <>
         {this.renderConfirmation()}
         <HeightedWrapper>
-          <AutomationFormContainer>
+          <FlowFormContainer>
             <Wrapper.Header
               title={`${(flow && flow.name) || 'Flow detail'}`}
               breadcrumb={[
@@ -874,7 +859,7 @@ class AutomationForm extends React.Component<Props, State> {
             >
               {this.renderContent()}
             </PageContent>
-          </AutomationFormContainer>
+          </FlowFormContainer>
 
           <div ref={this.setWrapperRef}>
             <RTG.CSSTransition

@@ -204,6 +204,42 @@ const fieldMutations = {
       isVisible,
       isVisibleInDetail
     );
+  },
+
+  /**
+   * Update field's visible to create
+   */
+  async fieldsUpdateSystemFields(
+    _root,
+    {
+      _id,
+      isVisibleToCreate,
+      isRequired
+    }: { _id: string; isVisibleToCreate?: boolean; isRequired?: boolean },
+    { user, models, docModifier }: IContext
+  ) {
+    const doc: any = { lastUpdatedUserId: user._id };
+
+    if (isVisibleToCreate !== undefined) {
+      doc.isVisibleToCreate = isVisibleToCreate;
+    }
+
+    if (isRequired !== undefined) {
+      doc.isRequired = isRequired;
+    }
+
+    await models.Fields.updateOne(
+      {
+        _id
+      },
+      {
+        $set: docModifier(doc)
+      }
+    );
+
+    return models.Fields.findOne({
+      _id
+    });
   }
 };
 

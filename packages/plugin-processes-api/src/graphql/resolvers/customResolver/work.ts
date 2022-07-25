@@ -1,4 +1,4 @@
-import { Name } from '@erxes/ui-contacts/src/customers/styles';
+import { IJobRefer } from './../../../models/definitions/jobs';
 import { IWorkDocument } from './../../../models/definitions/works';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
@@ -9,12 +9,12 @@ export default {
   },
 
   async job(work: IWorkDocument, {}, { models }: IContext) {
-    const { jobId, flowId } = work;
-    const flow = await models.Flows.findOne({ _id: flowId });
-    const jobs = flow?.jobs || [];
-    const job = jobs.find(j => j.id === jobId);
+    const { jobId } = work;
+    const jobRefer: IJobRefer | null = await models.JobRefers.findOne({
+      _id: jobId
+    });
 
-    return { label: job?.label || '', description: job?.description || '' };
+    return { label: jobRefer?.name || '', description: jobRefer?.code || '' };
   },
 
   async flow(work: IWorkDocument, {}, { models }: IContext) {

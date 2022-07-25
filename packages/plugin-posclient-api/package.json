@@ -6,5 +6,10 @@
     "dev": "DEBUG=erxes* cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-posclient-api/.erxes && node src"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.5.1",
+    "sha256": "^0.2.0"
   }
 }

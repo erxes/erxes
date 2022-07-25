@@ -146,6 +146,9 @@ const remainderMutations = {
   }
 };
 
-checkPermission(remainderMutations, 'updateRemainders', 'manageRemainders');
+checkPermission(remainderMutations, 'createSafeRemainder', 'manageRemainders');
+checkPermission(remainderMutations, 'removeSafeRemainder', 'manageRemainders');
+checkPermission(remainderMutations, 'updateSafeRemItem', 'manageRemainders');
+checkPermission(remainderMutations, 'removeSafeRemItem', 'manageRemainders');
 
 export default remainderMutations;

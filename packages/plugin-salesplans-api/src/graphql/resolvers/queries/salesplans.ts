@@ -1,3 +1,7 @@
+import {
+  moduleRequireLogin,
+  moduleCheckPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 
 const salesLogQueries = {
@@ -56,10 +60,11 @@ const salesLogQueries = {
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
-    return await models.YearPlanConfigs.find({
-      salesLogId
-    });
+    return await models.YearPlanConfigs.find({ salesLogId });
   }
 };
+
+moduleRequireLogin(salesLogQueries);
+moduleCheckPermission(salesLogQueries, 'showSalesPlans');
 
 export default salesLogQueries;

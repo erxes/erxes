@@ -1,9 +1,10 @@
-import { authCookieOptions } from '../../../auth/authUtils';
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export interface IVerificationParams {
   userId: string;
@@ -108,11 +109,10 @@ const clientPortalUserMutations = {
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
-    res.cookie(
-      'client-auth-token',
-      token,
-      authCookieOptions(requestInfo.secure)
-    );
+    const options = authCookieOptions({ sameSite: 'none' });
+    debugInfo(`cookie options: ${JSON.stringify(options)}`);
+
+    res.cookie('client-auth-token', token, options);
 
     return 'loggedin';
   },

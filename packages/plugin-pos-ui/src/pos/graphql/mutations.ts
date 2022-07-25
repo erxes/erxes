@@ -1,3 +1,5 @@
+import { posCommonFields } from './queries';
+
 const commonFields = `
   $name: String
   $description: String
@@ -46,26 +48,18 @@ const commonVariables = `
   cardsConfig: $cardsConfig
 `;
 
-const commonPosFields = `
-  _id
-  name
-  description
-  createdAt
-  productDetails
-`;
-
 const posAdd = `
   mutation posAdd(${commonFields}) {
     posAdd(${commonVariables}){
-      ${commonPosFields}
+      ${posCommonFields}
     }
   }
 `;
 
 const posEdit = `
-  mutation posEdit($_id: String, ${commonFields}) {
+  mutation posEdit($_id: String!, ${commonFields}) {
     posEdit(_id: $_id, ${commonVariables}){
-      ${commonPosFields}
+      ${posCommonFields}
     }
   }
 `;
@@ -91,8 +85,16 @@ const brandAdd = `
 `;
 
 const saveProductGroups = `
-  mutation productGroupsBulkInsert($posId: String, $groups: [GroupInput]) {
+  mutation productGroupsBulkInsert($posId: String!, $groups: [GroupInput]) {
     productGroupsBulkInsert(posId: $posId, groups: $groups) {
+      _id
+    }
+  }
+`;
+
+const saveSlots = `
+  mutation posSlotBulkUpdate($posId: String!, $slots: [SlotInput]) {
+    posSlotBulkUpdate(posId: $posId, slots: $slots) {
       _id
     }
   }
@@ -104,5 +106,6 @@ export default {
   posRemove,
   updateConfigs,
   brandAdd,
-  saveProductGroups
+  saveProductGroups,
+  saveSlots
 };

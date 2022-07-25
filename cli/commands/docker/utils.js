@@ -342,7 +342,8 @@ const up = async ({ uis, fromInstaller }) => {
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: 'http://plugin_workers_api',
           MONGO_URL: mongoEnv(configs),
-          ...commonEnvs(configs)
+          ...commonEnvs(configs),
+          ...((configs.workers || {}).extra_env || {})
         },
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         extra_hosts,

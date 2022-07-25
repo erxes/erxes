@@ -47,6 +47,12 @@ interface ICatProd {
   productId: string;
 }
 
+interface IPosSlot {
+  _id: string;
+  code: string;
+  name: string;
+}
+
 export interface IConfig {
   name: string;
   description?: string;
@@ -140,6 +146,10 @@ export const configSchema = new Schema({
   catProdMappings: field({
     type: [Object],
     label: 'Product category mappings'
+  }),
+  posSlot: field({
+    type: [Object],
+    label: 'POS slot mappings'
   }),
   initialCategoryIds: field({
     type: [String],

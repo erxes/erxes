@@ -10,7 +10,9 @@ export const types = `
     startAt: Date,
     endAt: Date,
     overallWorkId: String,
+    overallWork: JSON,
     status: String,
+    productId: String,
     count: String,
     needProducts: JSON,
     resultProducts: JSON
@@ -19,10 +21,13 @@ export const types = `
 
 const qryParams = `
   searchValue: String
+
 `;
 
 export const queries = `
   performs(page: Int, perPage: Int, ${qryParams}): [Perform]
+  performsByOverallWorkId(overallWorkId: String, ${qryParams}):  [Perform]
+  performsByOverallWorkIdTotalCount(overallWorkId: String, ${qryParams}): Int
   performsTotalCount(${qryParams}): Int
 `;
 
@@ -32,6 +37,7 @@ const performParams = `
   dueDate: Date,
   overallWorkId: String,
   status: String,
+  productId: String,
   count: String,
   needProducts: [JobProductsInput],
   resultProducts: [JobProductsInput]

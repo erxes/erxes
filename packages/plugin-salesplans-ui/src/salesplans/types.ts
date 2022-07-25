@@ -71,11 +71,3 @@ export type saveDayPlanResponse = {
   loading: boolean;
   refetch: () => void;
 };
-
-type saveMonthPlan = {
-  _id: string;
-};
-
-type saveYearPlan = {
-  _id: string;
-};

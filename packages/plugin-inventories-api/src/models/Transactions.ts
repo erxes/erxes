@@ -64,7 +64,9 @@ export const loadTransactionClass = (models: IModels) => {
      * Remove Transaction
      */
     public static async removeTransaction(_id: string) {
-      await models.Transactions.getTransaction(_id);
+      const transaction = await models.Transactions.getTransaction(_id);
+      await models.TrItems.deleteMany({ transactionId: transaction._id });
+
       return models.Transactions.deleteOne({ _id });
     }
   }

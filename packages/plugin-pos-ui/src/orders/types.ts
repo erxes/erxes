@@ -63,6 +63,7 @@ export type OrdersSummaryQueryResponse = {
 }
 
 export type IPosProduct = {
+  counts: any;
   count: number;
   amount: number;
 } & IProduct
