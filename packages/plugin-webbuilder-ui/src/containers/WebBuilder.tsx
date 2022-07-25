@@ -3,7 +3,7 @@ import { graphql } from 'react-apollo';
 import React from 'react';
 import * as compose from 'lodash.flowright';
 import { queries } from '../graphql';
-import WebBuilder from '../components/Webbuilder';
+import WebBuilder from '../components/WebBuilder';
 
 type Props = {
   step: string;
