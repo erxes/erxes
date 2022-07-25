@@ -53,11 +53,7 @@ class List extends React.Component<IProps, State> {
     const { products, history } = this.props;
 
     return products.map(product => (
-      <Row
-        history={history}
-        key={product._id}
-        product={product}
-      />
+      <Row history={history} key={product._id} product={product} />
     ));
   };
 
@@ -164,14 +160,9 @@ class List extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('POS of Products')}
-            submenu={menuPos}
-          />
+          <Wrapper.Header title={__('POS of Products')} submenu={menuPos} />
         }
-        actionBar={
-          <Wrapper.ActionBar right={actionBarRight} />
-        }
+        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
         }

@@ -394,17 +394,17 @@ const queries = {
       },
       {
         $group: {
-          _id: { 'productId': '$productId', 'hour': { $hour: '$date' } },
+          _id: { productId: '$productId', hour: { $hour: '$date' } },
           count: { $sum: '$count' },
           amount: { $sum: '$amount' }
         }
       }
     ]);
 
-    const diffZone = process.env.TIMEZONE
+    const diffZone = process.env.TIMEZONE;
 
     for (const product of products) {
-      product.counts = {}
+      product.counts = {};
       product.count = 0;
       product.amount = 0;
 
@@ -415,7 +415,7 @@ const queries = {
         const { _id, count, amount } = item;
         const { hour } = _id;
 
-        const pureHour = Number(hour) + Number(diffZone || 0)
+        const pureHour = Number(hour) + Number(diffZone || 0);
 
         product.counts[pureHour] = count;
         product.count += count;
