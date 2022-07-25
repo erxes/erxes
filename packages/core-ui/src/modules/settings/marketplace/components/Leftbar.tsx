@@ -23,39 +23,37 @@ import {
 } from '../styles';
 
 type Props = {
-  onSearch?: (e) => void;
-  clearSearch?: () => void;
-  results?;
+  onSearch: (e) => void;
+  onFilter: (cat) => void;
   loading?: boolean;
 };
 
 class Leftbar extends React.Component<
   Props,
-  { showInput: boolean; searchValue: string }
+  { showInput: boolean; category: string }
 > {
   constructor(props) {
     super(props);
 
-    this.state = { showInput: true, searchValue: '' };
+    this.state = { showInput: true, category: 'All' };
   }
 
   openInput = () => {
     this.setState({ showInput: true });
   };
 
-  closeInput = e => {
-    e.stopPropagation();
-    this.setState({ showInput: false, searchValue: '' });
-    // this.props.clearSearch();
+  closeInput = () => {
+    this.setState({ showInput: false });
   };
 
-  handleInput = e => {
-    this.setState({ searchValue: e.target.value });
+  handleCategory = (cat: string) => {
+    this.setState({ category: cat });
+    this.props.onFilter(cat === 'All' ? '' : cat);
   };
 
   renderSearch = () => {
     const { onSearch } = this.props;
-    const { showInput, searchValue } = this.state;
+    const { showInput } = this.state;
 
     return (
       <>
@@ -63,12 +61,9 @@ class Leftbar extends React.Component<
           <Search>
             <input
               placeholder={__('Search results')}
-              value={searchValue}
               autoFocus={true}
-              onKeyDown={onSearch}
-              onChange={this.handleInput}
+              onKeyUp={onSearch}
             />
-            <Button size="small">Search</Button>
           </Search>
         ) : (
           <Box onClick={this.openInput}>
@@ -79,14 +74,16 @@ class Leftbar extends React.Component<
     );
   };
 
-  renderCheckbox(text: string, checked?: boolean) {
+  renderCheckbox(text: string) {
     return (
       <PaddingBottom>
         <FormControl
           componentClass="checkbox"
-          onChange={() => {}}
+          onChange={() => {
+            this.handleCategory(text);
+          }}
           color={colors.colorPrimary}
-          defaultChecked={checked}
+          checked={text === this.state.category}
         >
           {text}
         </FormControl>
@@ -116,12 +113,12 @@ class Leftbar extends React.Component<
               </Button>
             </FilterHeader>
             <CollapseFilter title="License" open hasBorder={true}>
-              {this.renderCheckbox('All', true)}
+              {this.renderCheckbox('All')}
               {this.renderCheckbox('Free')}
               {this.renderCheckbox('Premium')}
             </CollapseFilter>
             <CollapseFilter title="Categories" open hasBorder={true}>
-              {this.renderCheckbox('Marketing', true)}
+              {this.renderCheckbox('Marketing')}
               {this.renderCheckbox('Sales')}
               {this.renderCheckbox('Services')}
               {this.renderCheckbox('Operations')}

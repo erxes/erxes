@@ -13,39 +13,16 @@ import {
 import { Link } from 'react-router-dom';
 
 type Props = {
-  onSearch?: (e) => void;
-  clearSearch?: () => void;
-  results?;
+  plugins: any[];
 };
 
-class PluginPreview extends React.Component<
-  Props,
-  { showInput: boolean; searchValue: string; plugins: any[] }
-> {
+class PluginPreview extends React.Component<Props> {
   constructor(props) {
     super(props);
-
-    this.state = {
-      showInput: false,
-      searchValue: '',
-      plugins: []
-    };
-  }
-
-  async componentDidMount() {
-    fetch('https://erxes.io/plugins')
-      .then(async response => {
-        const plugins = await response.json();
-
-        this.setState({ plugins });
-      })
-      .catch(e => {
-        console.log(e);
-      });
   }
 
   renderList = () => {
-    const { plugins } = this.state;
+    const { plugins } = this.props;
 
     return (
       <PluginContainer>
