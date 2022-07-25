@@ -121,7 +121,7 @@ class Pos extends React.Component<Props, State> {
     }));
 
     const cleanSlot = (slots || []).map(m => ({
-      _id: (m._id || '').includes('temp') ? undefined : m._id,
+      _id: m._id,
       code: m.code,
       name: m.name,
       posId: m.posId
