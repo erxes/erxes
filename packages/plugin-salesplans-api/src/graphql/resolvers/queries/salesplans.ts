@@ -60,9 +60,7 @@ const salesLogQueries = {
     { salesLogId }: { salesLogId: string },
     { models }: IContext
   ) => {
-    return await models.YearPlanConfigs.find({
-      salesLogId
-    });
+    return await models.YearPlanConfigs.find({ salesLogId });
   }
 };
 

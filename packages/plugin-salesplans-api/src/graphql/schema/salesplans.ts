@@ -165,10 +165,10 @@ export const mutations = `
   salesLogProductUpdate(_id: String, data: ProductInput): JSON
   salesLogProductRemove(_id: String, productId: String): JSON
   salesLogStatusUpdate(_id: String, status: String): JSON
-  saveLabels(update: [LabelInput], add: [AddLabelInput]): [Label]
-  removeLabel(_id:String): JSON
-  saveTimeframes(update:[TimeframeInput], add:[AddTimeframeInput]):[Timeframe]
-  removeTimeframe(_id: String): JSON
+  labelsEdit(update: [LabelInput], add: [AddLabelInput]): [Label]
+  labelsRemove(_id:String): JSON
+  timeframesEdit(update:[TimeframeInput], add:[AddTimeframeInput]): [Timeframe]
+  timeframesRemove(_id: String): JSON
   saveDayPlanConfig(salesLogId: String, data:JSON):[DayPlanConfig]
   saveMonthPlanConfig(salesLogId: String, day: Date, data:JSON):[MonthPlanConfig]
   saveYearPlanConfig(salesLogId: String, data:JSON):[YearPlanConfig]

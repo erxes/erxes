@@ -175,6 +175,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     unitPrice: Float
     categoryId: String
     createdAt: Date,
+    counts: JSON,
     count: Float,
     amount: Float,
     ${

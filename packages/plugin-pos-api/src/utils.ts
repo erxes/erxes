@@ -15,7 +15,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 
 export const getPureDate = (date: Date) => {
   const ndate = new Date(date);
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
+  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
   return new Date(ndate.getTime() - diffTimeZone);
 };
 

@@ -274,6 +274,7 @@ const orderMutations = {
 
     return models.Orders.findOne({ _id: order._id });
   },
+
   async ordersCancel(_root, { _id }, { models }: IContext) {
     const order = await models.Orders.getOrder(_id);
 

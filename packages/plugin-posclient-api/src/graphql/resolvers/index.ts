@@ -8,7 +8,7 @@ const resolvers: any = async () => ({
   ...customScalars,
 
   Order,
-  OrderItem,
+  PosOrderItem: OrderItem,
   Mutation,
   Query
 });

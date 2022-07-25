@@ -1,5 +1,5 @@
 import { generateFields } from './fieldUtils';
-import { getBoardsAndPipelines } from './utils';
+import { generateSystemFields, getBoardsAndPipelines } from './utils';
 
 export default {
   types: [
@@ -55,5 +55,6 @@ export default {
       ]
     };
   },
-  fieldsGroupsHook: ({ data }) => getBoardsAndPipelines(data)
+  fieldsGroupsHook: ({ data }) => getBoardsAndPipelines(data),
+  systemFields: generateSystemFields
 };

@@ -26,10 +26,9 @@ const dealQueries = {
   async deals(
     _root,
     args: IDealListParams,
-    { user, commonQuerySelector, models, subdomain, serverTiming }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
     const filter = {
-      ...commonQuerySelector,
       ...(await generateDealCommonFilters(models, subdomain, user._id, args))
     };
 

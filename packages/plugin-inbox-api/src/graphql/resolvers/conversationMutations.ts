@@ -791,7 +791,7 @@ const conversationMutations = {
   async conversationConvertToCard(
     _root,
     params: IConversationConvert,
-    { user, docModifier, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const { _id } = params;
 
@@ -800,8 +800,7 @@ const conversationMutations = {
     const args = {
       ...params,
       conversation,
-      user,
-      docModifier
+      user
     };
 
     return sendCardsMessage({
