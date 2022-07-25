@@ -1,13 +1,10 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
   ITransaction,
   ITransactionDocument,
-  ITrItem,
-  ITrItemDocument,
-  transactionSchema,
-  trItemSchema
+  transactionSchema
 } from './definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
@@ -22,7 +19,7 @@ export interface ITransactionModel extends Model<ITransactionDocument> {
 
 export const loadTransactionClass = (models: IModels) => {
   class Transaction {
-    /*
+    /**
      * Get a transaction
      */
     public static async getTransaction(_id: string) {
@@ -65,7 +62,9 @@ export const loadTransactionClass = (models: IModels) => {
      */
     public static async removeTransaction(_id: string) {
       const transaction = await models.Transactions.getTransaction(_id);
-      await models.TrItems.deleteMany({ transactionId: transaction._id });
+      await models.TransactionItems.deleteMany({
+        transactionId: transaction._id
+      });
 
       return models.Transactions.deleteOne({ _id });
     }
@@ -74,66 +73,4 @@ export const loadTransactionClass = (models: IModels) => {
   transactionSchema.loadClass(Transaction);
 
   return transactionSchema;
-};
-
-// ============== items
-export interface ITrItemModel extends Model<ITrItemDocument> {
-  getTrItem(_id: string): Promise<ITrItemDocument>;
-  createTrItem(doc: ITrItem): Promise<ITrItemDocument>;
-  updateTrItem(_id: string, doc: ITrItem): Promise<ITrItemDocument>;
-  removeTrItem(_id: string): void;
-}
-
-export const loadTrItemClass = (models: IModels) => {
-  class TrItem {
-    /*
-     * Get a trItem
-     */
-    public static async getTrItem(_id: string) {
-      const trItem = await models.TrItems.findOne({ _id });
-
-      if (!trItem) {
-        throw new Error('TrItem not found');
-      }
-
-      return trItem;
-    }
-
-    /**
-     * Create a trItem
-     */
-    public static async createTrItem(doc: ITrItem) {
-      const trItem = await models.TrItems.create({
-        ...doc,
-        createdAt: new Date()
-      });
-
-      return trItem;
-    }
-
-    /**
-     * Update TrItem
-     */
-    public static async updateTrItem(_id: string, doc: ITrItem) {
-      const trItem = await models.TrItems.getTrItem(_id);
-
-      await models.TrItems.updateOne({ _id }, { $set: { ...doc } });
-
-      const updated = await models.TrItems.getTrItem(_id);
-
-      return updated;
-    }
-
-    /**
-     * Remove TrItem
-     */
-    public static async removeTrItem(_id: string) {
-      await models.TrItems.getTrItem(_id);
-      return models.TrItems.deleteOne({ _id });
-    }
-  }
-
-  trItemSchema.loadClass(TrItem);
-
-  return trItemSchema;
 };
