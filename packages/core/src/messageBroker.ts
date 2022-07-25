@@ -237,10 +237,12 @@ export const initBroker = async options => {
 
   consumeRPCQueue(
     'core:getConfig',
-    async ({ data: { code, defaultValue } }) => {
+    async ({ subdomain, data: { code, defaultValue } }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: 'success',
-        data: await getConfig(code, defaultValue)
+        data: await getConfig(code, defaultValue, models)
       };
     }
   );
