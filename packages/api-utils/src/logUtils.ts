@@ -295,7 +295,7 @@ export const putActivityLog = async (
   subdomain: string,
   params: IActivityLogParams
 ) => {
-  const { messageBroker, data, automations } = params;
+  const { messageBroker, data } = params;
   const isAutomationsAvailable = await messageBroker.sendRPCMessage(
     'gateway:isServiceAvailable',
     'automations'
