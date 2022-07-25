@@ -14,7 +14,8 @@ module.exports = {
       text: 'Web builder',
       url: '/webbuilder/pages',
       icon: 'icon-window-grid',
-      location: 'mainNavigation'
+      location: 'mainNavigation',
+      permission: 'showWebbuilder'
     }
   ]
 };

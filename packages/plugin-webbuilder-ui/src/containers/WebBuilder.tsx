@@ -1,9 +1,9 @@
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import React from 'react';
-import WebBuilder from '../components/Webbuilder';
 import * as compose from 'lodash.flowright';
 import { queries } from '../graphql';
+import WebBuilder from '../components/WebBuilder';
 
 type Props = {
   step: string;
