@@ -65,7 +65,7 @@ export const afterMutationHandlers = async (
         ...(await getConfig(subdomain, 'EBARIMT', {}))
       };
 
-      const ebarimtData = await getPostData(models, config, deal);
+      const ebarimtData = await getPostData(subdomain, config, deal);
 
       const ebarimtResponse = await models.PutResponses.putData(
         ebarimtData,
