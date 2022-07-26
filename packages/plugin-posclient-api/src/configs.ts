@@ -3,12 +3,12 @@ import * as cors from 'cors';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { callBackQpay, posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
 import * as dotenv from 'dotenv';
+import { loadSubscriptions } from './subscriptions';
 
 export let debug;
 export let graphqlPubsub;
@@ -27,6 +27,7 @@ export default {
     };
   },
   hasSubscriptions: true,
+  freeSubscriptions: loadSubscriptions,
   postHandlers: [{ path: `/pl:posclient/callBackQpay`, method: callBackQpay }],
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
@@ -79,8 +80,6 @@ export default {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     graphqlPubsub = options.pubsubClient;
 

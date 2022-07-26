@@ -24,7 +24,6 @@ import {
   queries as PaymentQueries,
   types as PaymentTypes
 } from './schema/payment';
-import { queries as LogQueries, types as LogTypes } from './schema/logs';
 import {
   queries as ProductQueries,
   types as ProductTypes
@@ -43,7 +42,6 @@ const typeDefs = async () => {
       _id: String! @external
     }
 
-    ${LogTypes}
     ${ProductTypes}
     ${PosUserTypes}
     ${OrderTypes}
@@ -53,7 +51,6 @@ const typeDefs = async () => {
     ${BridgesTypes}
 
    extend type Query {
-    ${LogQueries}
     ${PosUserQueries}
     ${ProductQueries}
     ${OrderQueries}

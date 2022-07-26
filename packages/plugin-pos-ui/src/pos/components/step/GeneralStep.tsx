@@ -114,7 +114,7 @@ class GeneralStep extends React.Component<Props, State> {
       const m = slots.slice();
 
       m.push({
-        _id: `temp-${Math.random()}`,
+        _id: Math.random().toString(),
         code: '',
         name: '',
         posId: this.props.pos._id

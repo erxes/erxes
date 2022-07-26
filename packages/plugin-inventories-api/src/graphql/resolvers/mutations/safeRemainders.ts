@@ -8,7 +8,7 @@ import {
 import { sendProductsMessage } from '../../../messageBroker';
 import { updateLiveRemainder } from './utils';
 
-export interface IUpdateSafeRemItemParams {
+export interface IUpdateSafeRemainderItemParams {
   _id: string;
   status?: string;
   remainder: number;
@@ -96,7 +96,7 @@ const remainderMutations = {
       });
     }
 
-    await models.SafeRemItems.insertMany(bulkOps);
+    await models.SafeRemainderItems.insertMany(bulkOps);
     return safeRemainder;
   },
 
@@ -107,21 +107,21 @@ const remainderMutations = {
   ) {
     await models.SafeRemainders.getRemainderObject(_id);
 
-    await models.SafeRemItems.deleteMany({ remainderId: _id });
+    await models.SafeRemainderItems.deleteMany({ remainderId: _id });
     //  TODO delete tr
 
     return models.SafeRemainders.deleteOne({ _id });
   },
 
-  async updateSafeRemItem(
+  async updateSafeRemainderItem(
     _root,
-    params: IUpdateSafeRemItemParams,
+    params: IUpdateSafeRemainderItemParams,
     { models }: IContext
   ) {
     const { _id, status, remainder } = params;
-    const item = await models.SafeRemItems.getRemItemObject(_id);
+    const item = await models.SafeRemainderItems.getItemObject(_id);
 
-    await models.SafeRemItems.updateOne(
+    await models.SafeRemainderItems.updateOne(
       { _id },
       {
         $set: {
@@ -132,23 +132,31 @@ const remainderMutations = {
       }
     );
 
-    return models.SafeRemItems.getRemItemObject(_id);
+    return models.SafeRemainderItems.getItemObject(_id);
   },
 
-  async removeSafeRemItem(
+  async removeSafeRemainderItem(
     _root,
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    await models.SafeRemItems.getRemItemObject(_id);
+    await models.SafeRemainderItems.getItemObject(_id);
 
-    return models.SafeRemItems.deleteOne({ _id });
+    return models.SafeRemainderItems.deleteOne({ _id });
   }
 };
 
 checkPermission(remainderMutations, 'createSafeRemainder', 'manageRemainders');
 checkPermission(remainderMutations, 'removeSafeRemainder', 'manageRemainders');
-checkPermission(remainderMutations, 'updateSafeRemItem', 'manageRemainders');
-checkPermission(remainderMutations, 'removeSafeRemItem', 'manageRemainders');
+checkPermission(
+  remainderMutations,
+  'updateSafeRemainderItem',
+  'manageRemainders'
+);
+checkPermission(
+  remainderMutations,
+  'removeSafeRemainderItem',
+  'manageRemainders'
+);
 
 export default remainderMutations;

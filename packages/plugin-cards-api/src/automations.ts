@@ -61,7 +61,8 @@ const getRelatedValue = async (
       subdomain,
       serviceName: 'tags',
       action: 'find',
-      data: { _id: { $in: target[targetKey] } }
+      data: { _id: { $in: target[targetKey] } },
+      isRPC: true
     });
 
     return (tags.map(tag => tag.name) || []).join(', ');
@@ -88,7 +89,8 @@ const getRelatedValue = async (
       subdomain,
       serviceName: 'inbox',
       action: 'conversations.find',
-      data: { _id: { $in: target[targetKey] } }
+      data: { _id: { $in: target[targetKey] } },
+      isRPC: true
     });
 
     return (conversations.map(c => c.content) || []).join(', ');

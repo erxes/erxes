@@ -35,7 +35,8 @@ const configMutations = {
         adminUsers = [],
         cashiers = [],
         productGroups = [],
-        qpayConfig
+        qpayConfig,
+        posSlot
       } = response;
 
       validateConfig(pos);
@@ -74,9 +75,6 @@ const configMutations = {
     const posService = await getService('pos');
 
     const config = await models.Configs.findOne({}).lean();
-
-    console.log('config::::::::::::::::::::::::::::', config);
-
     const response = await sendRequest({
       url: `${posService.address}/pos-sync-config`,
       method: 'get',

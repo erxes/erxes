@@ -41,6 +41,9 @@ export interface IOrder {
   cardPayments?: ICardPayment[];
   posToken?: string;
   deliveryInfo?: any;
+
+  //posSlot
+  slotId?: string;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -182,6 +185,11 @@ export const orderSchema = schemaHooksWrapper(
       type: String,
       label: 'Origin of the order',
       optional: true
+    }),
+    slotId: field({
+      type: String,
+      optional: true,
+      label: 'Slot id'
     })
   }),
   'erxes_orders'

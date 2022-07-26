@@ -1,20 +1,28 @@
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
-import { ISafeRemItemDocument } from '../../../models/definitions/safeRemainders';
+import { ISafeRemainderItemDocument } from '../../../models/definitions/safeRemainderItems';
 
 export default {
-  async product(safeRemItem: ISafeRemItemDocument, _, { subdomain }: IContext) {
+  async product(
+    safeRemainderItem: ISafeRemainderItemDocument,
+    _,
+    { subdomain }: IContext
+  ) {
     return sendProductsMessage({
       subdomain,
       action: 'findOne',
       data: {
-        _id: safeRemItem.productId
+        _id: safeRemainderItem.productId
       },
       isRPC: true
     });
   },
 
-  async uom(safeRemItem: ISafeRemItemDocument, _, { subdomain }: IContext) {
+  async uom(
+    safeRemainderItem: ISafeRemainderItemDocument,
+    _,
+    { subdomain }: IContext
+  ) {
     return { _id: '465', code: '1', name: 'aa' };
     // if (!(await models.ProductsConfigs.getConfig('isReqiureUOM', ''))) {
     //   return {};

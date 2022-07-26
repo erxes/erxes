@@ -288,6 +288,7 @@ export interface IActivityLogParams {
   messageBroker;
   action: string;
   data: any;
+  automations?: any;
 }
 
 export const putActivityLog = async (
@@ -306,7 +307,8 @@ export const putActivityLog = async (
         subdomain,
         data: {
           type: `${data.contentType}`,
-          targets: [data.target]
+          targets: [data.target],
+          ...(data.automations || {})
         }
       });
     }

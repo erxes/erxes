@@ -11,12 +11,12 @@ import {
   DetailMainContainer,
   PluginTitle,
   Center,
-  Carousel,
   DetailInformation,
   Hashtag,
   Detail,
   ColorHeader
 } from '../../styles';
+import Carousel from './Carousel';
 
 type Props = {
   id: string;
@@ -87,6 +87,13 @@ class PluginDetails extends React.Component<Props, State> {
   render() {
     const { enabledServicesQuery } = this.props;
     const { loading, plugin, tabType } = this.state;
+
+    // fake data
+    const dataSlider = [
+      'https://wallpaperaccess.com/full/1760844.jpg',
+      'https://wallpaperaccess.com/full/1282257.jpg',
+      'https://wallpaperaccess.com/full/124624.jpg'
+    ];
 
     const breadcrumb = [
       { title: __('Store'), link: '/settings/installer' },
@@ -181,7 +188,7 @@ class PluginDetails extends React.Component<Props, State> {
           )}
         </PluginTitle>
 
-        <Carousel />
+        {dataSlider.length !== 0 && <Carousel dataSlider={dataSlider} />}
 
         <Tabs>
           <TabTitle

@@ -135,7 +135,7 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        <Table hover={true}>
+        <Table>
           <thead>
             <tr>
               <th style={{ width: 60 }}>
