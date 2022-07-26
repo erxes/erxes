@@ -15,6 +15,12 @@ const PageForm = asyncComponent(() =>
   )
 );
 
+const EntryForm = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "EntryForm - Webbuilders" */ './containers/entries/EntryForm'
+  )
+);
+
 const CreateContentType = asyncComponent(() =>
   import(
     /* webpackChunkName: "CreateContentType -- Webbuilders" */ './containers/contentTypes/CreateContentType'
@@ -55,6 +61,27 @@ const pageEdit = ({ match }) => {
   return <PageForm _id={_id} />;
 };
 
+const entryAdd = ({ match, location }) => {
+  const { contentTypeId } = match.params;
+  const queryParams = queryString.parse(location.search);
+
+  return <EntryForm contentTypeId={contentTypeId} queryParams={queryParams} />;
+};
+
+const entryEdit = ({ match, location }) => {
+  const { contentTypeId, _id } = match.params;
+
+  const queryParams = queryString.parse(location.search);
+
+  return (
+    <EntryForm
+      contentTypeId={contentTypeId}
+      queryParams={queryParams}
+      _id={_id}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -80,6 +107,18 @@ const routes = () => {
         path="/webbuilder/contenttypes/edit/:id"
         exact={true}
         component={editContentType}
+      />
+
+      <Route
+        path="/webbuilder/entries/create/:contentTypeId"
+        exact={true}
+        component={entryAdd}
+      />
+      <Route
+        key="/webbuilder/entries/edit/:contentTypeId/:_id"
+        path="/webbuilder/entries/edit/:contentTypeId/:_id"
+        exact={true}
+        component={entryEdit}
       />
 
       <Route path="/webbuilder/:step" exact={true} component={webBuilders} />

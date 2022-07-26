@@ -1,11 +1,10 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { Link } from 'react-router-dom';
 import { __ } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import React, { useState, useEffect } from 'react';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Form from '../../containers/entries/Form';
 
 type Props = {
   entry: any;
@@ -26,25 +25,15 @@ function Row(props: Props) {
     });
   }, [values]);
 
-  const renderEditForm = formProps => {
-    return <Form {...formProps} />;
-  };
-
   const renderEditAction = () => {
-    const editTrigger = (
-      <Button btnStyle="link">
-        <Tip text={__('Edit')} placement="top">
-          <Icon icon="edit-3" />
-        </Tip>
-      </Button>
-    );
-
-    const content = modalProps => {
-      return renderEditForm({ ...modalProps, entry, contentType });
-    };
-
     return (
-      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
+      <Link to={`edit/${entry.contentTypeId}/${entry._id}`}>
+        <Button btnStyle="link">
+          <Tip text={__('Manage')} placement="top">
+            <Icon icon="edit-3" />
+          </Tip>
+        </Button>
+      </Link>
     );
   };
 
