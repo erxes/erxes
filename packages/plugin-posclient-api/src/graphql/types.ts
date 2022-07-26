@@ -46,4 +46,5 @@ export interface IOrderInput {
   branchId?: string;
   deliveryInfo?: any;
   origin?: string;
+  slotId?: string;
 }
