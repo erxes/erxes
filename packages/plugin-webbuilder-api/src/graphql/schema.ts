@@ -64,4 +64,5 @@ export const mutations = `
   webbuilderEntriesEdit(_id: String!, contentTypeId: String! values: JSON): WebbuilderEntry
   webbuilderEntriesRemove(_id: String!): JSON
   webbuilderTemplatesAdd(name: String, jsonData: JSON): WebbuilderTemplate 
+  webbuilderTemplatesRemove(_id: String!): JSON
 `;
