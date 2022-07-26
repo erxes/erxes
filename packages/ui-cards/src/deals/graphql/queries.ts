@@ -194,12 +194,6 @@ const productDetail = `
   }
 `;
 
-const checkLoyalties = `
-  query checkLoyalties($ownerId: String, $ownerType: String, $products: JSON) {
-    checkLoyalties(ownerId: $ownerId, ownerType: $ownerType, products: $products)
-  }
-`;
-
 const checkDiscount = `
   query checkDiscount($_id: String!, $products: [ProductField]) {
     checkDiscount(_id: $_id, products: $products)
@@ -214,6 +208,5 @@ export default {
   dealsTotalAmounts,
   archivedDeals,
   archivedDealsCount,
-  checkLoyalties,
   checkDiscount
 };

@@ -17,7 +17,7 @@ export const initBroker = async (cl) => {
 
       return {
         data: await models.VoucherCampaigns.find(data).lean(),
-        status: "success"
+        status: "success",
       };
     }
   );
@@ -32,7 +32,7 @@ export const initBroker = async (cl) => {
         ownerId,
         products
       ),
-      status: "success"
+      status: "success",
     };
   });
 };
@@ -44,7 +44,7 @@ export const sendProductsMessage = async (
     client,
     serviceDiscovery,
     serviceName: "products",
-    ...args
+    ...args,
   });
 };
 
@@ -55,7 +55,7 @@ export const sendContactsMessage = async (
     client,
     serviceDiscovery,
     serviceName: "contacts",
-    ...args
+    ...args,
   });
 };
 
@@ -64,7 +64,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: "core",
-    ...args
+    ...args,
   });
 };
 
@@ -75,7 +75,7 @@ export const sendNotificationsMessage = async (
     client,
     serviceDiscovery,
     serviceName: "notifications",
-    ...args
+    ...args,
   });
 };
 

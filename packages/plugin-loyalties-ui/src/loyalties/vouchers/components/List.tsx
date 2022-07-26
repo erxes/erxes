@@ -13,8 +13,8 @@ import {
 } from '@erxes/ui/src/components';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {__,
-   Alert,
-    confirm,router,} from '@erxes/ui/src/utils';
+  Alert,
+  confirm,router,} from '@erxes/ui/src/utils';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { MainStyleCount as Count,MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
@@ -139,7 +139,9 @@ class VouchersList extends React.Component<IProps, State> {
               <th>
                 <SortHandler sortField={'status'} label={__('Status')} />
               </th>
-              <th>Actions</th>
+              <th>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody id="vouchers">
@@ -252,7 +254,7 @@ class VouchersList extends React.Component<IProps, State> {
               emptyImage="/images/actions/1.svg"
             />
           </>
-          
+
         }
       />
     );

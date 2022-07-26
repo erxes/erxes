@@ -1,5 +1,5 @@
-import { IItem, IItemParams } from '../boards/types';
-import { IProduct } from '@erxes/ui-products/src/types';
+import { IItem, IItemParams } from "../boards/types";
+import { IProduct } from "@erxes/ui-products/src/types";
 
 export interface IQueryParams {
   brandIds: string;
@@ -78,13 +78,6 @@ export type DealsQueryResponse = {
 
 export type DealsTotalCountQueryResponse = {
   dealsTotalCount: number;
-  loading: boolean;
-  refetch: () => void;
-  fetchMore: any;
-};
-
-export type checkLoyalties = {
-  data: any;
   loading: boolean;
   refetch: () => void;
   fetchMore: any;

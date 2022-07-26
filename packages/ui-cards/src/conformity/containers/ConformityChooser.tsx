@@ -116,7 +116,7 @@ export default withProps<Props>(
       name: 'editConformityMutation',
       options: () => {
         return {
-          refetchQueries: ['activityLogs', 'dealDetail']
+          refetchQueries: ['activityLogs']
         };
       }
     })

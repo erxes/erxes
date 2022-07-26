@@ -56,7 +56,6 @@ export const loadVoucherCampaignClass = (
 ) => {
   class VoucherCampaign {
     public static async getVoucherCampaign(_id: string | [string]) {
-      console.log(_id);
       const voucherCampaign = await models.VoucherCampaigns.find({
         _id
       }).lean();

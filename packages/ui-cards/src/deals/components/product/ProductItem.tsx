@@ -73,7 +73,7 @@ class ProductItem extends React.Component<Props, State> {
     };
   }
 
-  componentDidMount = async () => {
+  componentDidMount = () => {
     // default select item
     const { uom, currencies, productData } = this.props;
 

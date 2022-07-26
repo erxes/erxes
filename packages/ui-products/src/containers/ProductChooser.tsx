@@ -9,13 +9,13 @@ import { Alert, withProps } from "@erxes/ui/src/utils";
 import ProductCategoryChooser from "../components/ProductCategoryChooser";
 import {
   mutations as productMutations,
-  queries as productQueries
+  queries as productQueries,
 } from "../graphql";
 import {
   IProduct,
   IProductDoc,
   ProductAddMutationResponse,
-  ProductsQueryResponse
+  ProductsQueryResponse,
 } from "../types";
 import ProductForm from "./ProductForm";
 import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
@@ -50,7 +50,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
     this.setState({ perPage: this.state.perPage + 20 }, () =>
       this.props.productsQuery.refetch({
         searchValue: value,
-        perPage: this.state.perPage
+        perPage: this.state.perPage,
       })
     );
   };
@@ -59,7 +59,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
   addProduct = (doc: IProductDoc, callback: () => void) => {
     this.props
       .productAdd({
-        variables: doc
+        variables: doc,
       })
       .then(() => {
         this.props.productsQuery.refetch();
@@ -68,7 +68,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
 
         callback();
       })
-      .catch(e => {
+      .catch((e) => {
         Alert.error(e.message);
       });
   };
@@ -106,7 +106,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       add: this.addProduct,
       clearState: () => this.search("", true),
       datas: productsQuery.products || [],
-      onSelect
+      onSelect,
     };
 
     return (
@@ -126,20 +126,20 @@ export default withProps<Props>(
       { perPage: number; categoryId: string }
     >(gql(productQueries.products), {
       name: "productsQuery",
-      options: props => ({
+      options: (props) => ({
         variables: {
           perPage: 20,
           categoryId: props.categoryId,
           pipelineId: queryString.parse(location.search).pipelineId,
-          boardId: queryString.parse(location.search).boardId
+          boardId: queryString.parse(location.search).boardId,
         },
-        fetchPolicy: "network-only"
-      })
+        fetchPolicy: "network-only",
+      }),
     }),
     graphql<{}, ProductCategoriesQueryResponse, {}>(
       gql(productQueries.productCategories),
       {
-        name: "productCategoriesQuery"
+        name: "productCategoriesQuery",
       }
     ),
     // mutations
@@ -151,10 +151,10 @@ export default withProps<Props>(
           refetchQueries: [
             {
               query: gql(productQueries.products),
-              variables: { perPage: 20 }
-            }
-          ]
-        })
+              variables: { perPage: 20 },
+            },
+          ],
+        }),
       }
     )
   )(ProductChooser)
