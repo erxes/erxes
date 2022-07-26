@@ -49,7 +49,7 @@ const FormContainer = (props: FinalProps) => {
         Alert.success(`Success`);
 
         history.push({
-          pathname: `/webbuilder/entries/?contentTypeId=${contentTypeId}`
+          pathname: `/webbuilder/pages`
         });
       })
       .catch(error => {
@@ -76,15 +76,19 @@ const FormContainer = (props: FinalProps) => {
 export default compose(
   graphql<Props>(gql(mutations.entriesAdd), {
     name: 'entriesAdd',
-    options: () => ({
-      refetchQueries: [{ query: gql(queries.entries) }]
+    options: ({ contentTypeId }) => ({
+      refetchQueries: [
+        { query: gql(queries.entries), variables: { contentTypeId } }
+      ]
     })
   }),
 
   graphql<Props>(gql(mutations.entriesEdit), {
     name: 'entriesEdit',
-    options: () => ({
-      refetchQueries: [{ query: gql(queries.entries) }]
+    options: ({ contentTypeId }) => ({
+      refetchQueries: [
+        { query: gql(queries.entries), variables: { contentTypeId } }
+      ]
     })
   }),
 

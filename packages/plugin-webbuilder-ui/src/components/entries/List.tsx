@@ -52,8 +52,8 @@ class List extends React.Component<Props> {
         <Table hover={true}>
           <thead>
             <tr>
-              {fields.map((field, i) => {
-                if (i > 2) {
+              {fields.map(field => {
+                if (!field.show) {
                   return;
                 }
 

@@ -49,8 +49,8 @@ function Row(props: Props) {
 
   return (
     <tr>
-      {fields.map((val, i) => {
-        if (i > 2) {
+      {fields.map(val => {
+        if (!val.show) {
           return;
         }
 

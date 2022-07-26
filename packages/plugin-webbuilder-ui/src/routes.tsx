@@ -38,7 +38,7 @@ const webBuilders = history => {
 
   const queryParams = queryString.parse(location.search);
 
-  const step = match.params.step;
+  const { step } = match.params;
 
   return <WebBuilder step={step} queryParams={queryParams} history={history} />;
 };

@@ -71,17 +71,17 @@ function Form(props: Props) {
 
   const renderField = (field: any) => {
     return (
-      <FormGroup>
+      <FormGroup key={field.code}>
         <ControlLabel htmlFor="html">{field.text}:</ControlLabel>
         {field.type === 'textarea' ? (
           <EditorCK
-            content={data[field.code]?.value}
+            content={data[field.code]?.value || ''}
             onChange={e => onChange(field.code, e.editor.getData())}
             height={250}
           />
         ) : (
           <FormControl
-            value={data[field.code]?.value}
+            value={data[field.code]?.value || ''}
             onChange={(e: any) => onChange(field.code, e.target.value)}
           />
         )}

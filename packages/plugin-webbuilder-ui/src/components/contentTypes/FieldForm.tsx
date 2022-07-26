@@ -96,6 +96,9 @@ class FieldForm extends React.Component<Props, State> {
     const code = e =>
       this.onFieldChange('code', (e.currentTarget as HTMLInputElement).value);
 
+    const show = e =>
+      this.onFieldChange('show', (e.currentTarget as HTMLInputElement).checked);
+
     return (
       <>
         <CollapseContent
@@ -104,9 +107,7 @@ class FieldForm extends React.Component<Props, State> {
           open={true}
         >
           <FormGroup>
-            <ControlLabel htmlFor="text" required={true}>
-              Field Label
-            </ControlLabel>
+            <ControlLabel>Field Label</ControlLabel>
 
             <FormControl
               value={field.text || ''}
@@ -116,8 +117,17 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           <FormGroup>
-            <ControlLabel htmlFor="code">Field Code</ControlLabel>
+            <ControlLabel>Field Code</ControlLabel>
             <FormControl value={field.code || ''} onChange={code} />
+          </FormGroup>
+
+          <FormGroup>
+            <ControlLabel>Show on entry row</ControlLabel>
+            <FormControl
+              checked={field.show}
+              componentClass="checkbox"
+              onChange={show}
+            />
           </FormGroup>
         </CollapseContent>
 
