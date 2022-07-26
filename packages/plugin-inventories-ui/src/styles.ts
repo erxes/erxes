@@ -133,6 +133,8 @@ export const PaddingTop = styled.div`
 `;
 
 export const TableOver = styled(StyledTable)`
+  box-shadow: 1px solid black;
+
   thead {
     th,
     td {
