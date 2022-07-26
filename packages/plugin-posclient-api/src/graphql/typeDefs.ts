@@ -32,6 +32,10 @@ import {
   queries as ReportQueries,
   types as ReportTypes
 } from './schema/report';
+import {
+  queries as PosSlotQueries,
+  types as PosSlotTypes
+} from './schema/slot';
 
 const typeDefs = async () => {
   return gql`
@@ -49,6 +53,7 @@ const typeDefs = async () => {
     ${PaymentTypes}
     ${ReportTypes}
     ${BridgesTypes}
+    ${PosSlotTypes}
 
    extend type Query {
     ${PosUserQueries}
@@ -58,6 +63,7 @@ const typeDefs = async () => {
     ${PaymentQueries}
     ${ReportQueries}
     ${BridgesQueries}
+    ${PosSlotQueries}
    }
 
    extend type Mutation {
