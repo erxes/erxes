@@ -12,12 +12,13 @@ type Props = {
   queryParams: any;
   history: any;
   contentTypes: any;
+  loading: boolean;
 };
 
 function WebBuilder(props: Props) {
   const [Component, setComponent] = useState(<div />);
   const [RightActionBar, setRightActionBar] = useState(<div />);
-  const { step, queryParams, history, contentTypes } = props;
+  const { step, queryParams, history, contentTypes, loading } = props;
 
   useEffect(() => {
     switch (step) {
@@ -83,7 +84,7 @@ function WebBuilder(props: Props) {
         content={
           <DataWithLoader
             data={Component}
-            loading={false}
+            loading={loading}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />

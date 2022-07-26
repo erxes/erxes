@@ -43,7 +43,7 @@ export interface IOrder {
   deliveryInfo?: any;
 
   //posSlot
-  slotId: string;
+  slotId?: string;
 }
 
 const commonAttributes = { positive: true, default: 0 };

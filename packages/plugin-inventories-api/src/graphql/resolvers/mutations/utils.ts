@@ -1,7 +1,7 @@
 import { generateModels } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 import { IRemainderDocument } from '../../../models/definitions/remainders';
-import { ISafeRemItemDocument } from '../../../models/definitions/safeRemainders';
+import { ISafeRemainderItemDocument } from '../../../models/definitions/safeRemainderItems';
 import { IUpdateRemaindersParams } from './remainders';
 
 export const updateLiveRemainder = async ({
@@ -40,7 +40,7 @@ export const updateLiveRemainder = async ({
     allProductIds = allProductIds.concat(productIds);
   }
 
-  const safeRems = await models.SafeRemItems.find(selector).lean();
+  const safeRems = await models.SafeRemainderItems.find(selector).lean();
 
   const remainders: IRemainderDocument[] = await models.Remainders.find(
     selector
@@ -48,7 +48,7 @@ export const updateLiveRemainder = async ({
 
   const resultRems: IRemainderDocument[] = [];
   for (const prodId of allProductIds) {
-    let safe: ISafeRemItemDocument | undefined = undefined;
+    let safe: ISafeRemainderItemDocument | undefined = undefined;
     const safed = safeRems.filter(
       s =>
         s.productId === prodId &&
@@ -69,7 +69,7 @@ export const updateLiveRemainder = async ({
       trSelector.date = { $gt: safe.lastTrDate };
     }
 
-    const trs = await models.TrItems.find(trSelector).lean();
+    const trs = await models.TransactionItems.find(trSelector).lean();
     let remCount = safe ? safe.count : 0;
 
     for (const tr of trs) {
