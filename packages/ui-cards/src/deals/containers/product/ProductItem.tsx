@@ -16,10 +16,9 @@ type Props = {
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
   currentProduct?: string;
-  checkDiscount: any;
   onChangeDiscount: (id: string, discount: number) => void;
   dealQuery: any;
-  confirmLoyalties: any;
+  confirmLoyalties?: any;
 };
 
 class ProductItemContainer extends React.Component<Props> {
@@ -28,7 +27,7 @@ class ProductItemContainer extends React.Component<Props> {
   }
 
   render() {
-    const { checkDiscount, confirmLoyalties } = this.props;
+    const { confirmLoyalties } = this.props;
 
     const confirmLoyalty = variables => {
       confirmLoyalties({ variables });
@@ -36,10 +35,6 @@ class ProductItemContainer extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      checkDiscount: checkDiscount,
-      discountValue: checkDiscount?.checkDiscount
-        ? Object.values(checkDiscount.checkDiscount)[0]
-        : null,
       confirmLoyalties: confirmLoyalty
     };
 
@@ -47,27 +42,8 @@ class ProductItemContainer extends React.Component<Props> {
   }
 }
 
-const generateParams = ({ productsData, dealQuery }) => ({
-  _id: dealQuery._id,
-  products: [
-    {
-      productId: productsData[0].productId,
-      quantity: productsData[0].quantity
-    }
-  ]
-});
-
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.checkDiscount), {
-      name: 'checkDiscount',
-      skip: ({ productsData }) =>
-        !isEnabled('loyalties') || productsData?.length === 0,
-      options: ({ productsData, dealQuery }) => ({
-        variables: generateParams({ productsData, dealQuery }),
-        fetchPolicy: 'network-only'
-      })
-    }),
     graphql<Props>(gql(mutations.confirmLoyalties), {
       name: 'confirmLoyalties',
       skip: () => !isEnabled('loyalties')

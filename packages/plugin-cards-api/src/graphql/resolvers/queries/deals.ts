@@ -265,8 +265,6 @@ const dealQueries = {
       defaultValue: []
     });
 
-    console.log({ customerIds });
-
     if (customerIds.length) {
       ownerId = customerIds[0];
       ownerType = 'customer';
@@ -288,7 +286,6 @@ const dealQueries = {
         ownerId = companyIds[0];
         ownerType = 'company';
       }
-      console.log({ companyIds });
     }
 
     if (!ownerId) {
