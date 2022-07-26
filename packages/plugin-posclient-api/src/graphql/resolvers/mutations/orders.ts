@@ -117,7 +117,8 @@ const orderMutations = {
       type: doc.type,
       totalAmount: getTotalAmount(preparedDoc.items),
       billType: doc.billType || BILL_TYPES.CITIZEN,
-      registerNumber: doc.registerNumber || ''
+      registerNumber: doc.registerNumber || '',
+      slotId: doc.slotId
     });
 
     return updatedOrder;
