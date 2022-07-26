@@ -71,6 +71,8 @@ export const types = `
     catProdMappings: [CatProd]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
+    slots: JSON
+
   }
 `;
 

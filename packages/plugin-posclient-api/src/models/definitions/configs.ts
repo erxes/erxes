@@ -76,6 +76,7 @@ export interface IConfig {
   catProdMappings: ICatProd[];
   initialCategoryIds: string[];
   kioskExcludeProductIds: string[];
+  posId: string;
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -158,7 +159,8 @@ export const configSchema = new Schema({
   kioskExcludeProductIds: field({
     type: [String],
     label: 'kiosk Exclude Products'
-  })
+  }),
+  posId: field({ type: String, label: 'Pos id' })
 });
 
 export const productGroupSchema = new Schema({

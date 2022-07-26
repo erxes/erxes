@@ -215,7 +215,8 @@ export const extractConfig = doc => {
     catProdMappings: doc.catProdMappings,
     posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
-    kioskExcludeProductIds: doc.kioskExcludeProductIds
+    kioskExcludeProductIds: doc.kioskExcludeProductIds,
+    posId: doc._id
   };
 };
 

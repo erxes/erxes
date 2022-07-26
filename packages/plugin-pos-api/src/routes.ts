@@ -188,6 +188,7 @@ export const posInit = async (req, res) => {
     syncInfo: { id: syncId, date: syncInfo[syncId] }
   });
   data.productGroups = await getProductsData(subdomain, models, pos);
+  data.posId = pos._id;
 
   return res.send(data);
 };
