@@ -1,35 +1,34 @@
+import Modal from 'react-bootstrap/Modal';
+import PosSlotItem from '../productGroup/PosSlotItem';
+import React from 'react';
+import Select from 'react-select-plus';
 import {
   __,
-  FormGroup,
+  Button,
   ControlLabel,
   FormControl,
-  SelectTeamMembers,
-  Toggle,
+  FormGroup,
   getEnv,
-  Button,
-  ModalTrigger
+  ModalTrigger,
+  SelectTeamMembers,
+  Toggle
 } from '@erxes/ui/src';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import React from 'react';
 import {
-  DomainRow,
-  FlexColumn,
-  FlexItem,
-  Row,
   Block,
   BlockRow,
   BlockRowUp,
-  PosSlotAddButton
+  DomainRow,
+  FlexColumn,
+  FlexItem,
+  PosSlotAddButton,
+  Row
 } from '../../../styles';
 import { IPos, IScreenConfig, ISlot } from '../../../types';
-import Select from 'react-select-plus';
-import PosSlotItem from '../productGroup/PosSlotItem';
-import Modal from 'react-bootstrap/Modal';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
   onChange: (name: 'pos' | 'slots', value: any) => void;
   pos: IPos;
-  currentMode: 'create' | 'update';
   branches: any[];
   posSlots: ISlot[];
 };
@@ -183,24 +182,6 @@ class GeneralStep extends React.Component<Props, State> {
   renderWaitingScreen() {
     const { pos } = this.props;
 
-    const onChangeType = e => {
-      e.preventDefault();
-      pos.waitingScreen.type = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeValue = e => {
-      e.preventDefault();
-      pos.waitingScreen.value = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeContentUrl = e => {
-      e.preventDefault();
-      pos.waitingScreen.contentUrl = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
     let waitingScreen: IScreenConfig = {
       isActive: false,
       type: 'time',
@@ -220,7 +201,31 @@ class GeneralStep extends React.Component<Props, State> {
       posId = pos._id;
     }
 
-    const { REACT_APP_API_URL } = getEnv();
+    if (!waitingScreen.isActive) {
+      return (
+        <FormGroup>
+          <DomainRow></DomainRow>
+        </FormGroup>
+      );
+    }
+
+    const onChangeType = e => {
+      e.preventDefault();
+      pos.waitingScreen.type = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeValue = e => {
+      e.preventDefault();
+      pos.waitingScreen.value = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeContentUrl = e => {
+      e.preventDefault();
+      pos.waitingScreen.contentUrl = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
 
     const typeOptions = [
       { label: 'Time', value: 'time' },
@@ -232,81 +237,51 @@ class GeneralStep extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        {!waitingScreen.isActive ? null : (
-          <DomainRow>
-            {this.props.currentMode !== 'update' ? null : (
-              <>
-                <ControlLabel>Link</ControlLabel>
-                <Row>
-                  <FormControl
-                    id="waitingLink"
-                    type="text"
-                    disabled={true}
-                    value={`${REACT_APP_API_URL}/pos/${posId}/waiting`}
-                  />
+        <DomainRow>
+          <ControlLabel>Change type</ControlLabel>
+          <FormControl
+            name="changeType"
+            componentClass="select"
+            placeholder={__('Select type')}
+            defaultValue={waitingScreen.type}
+            onChange={onChangeType}
+            required={true}
+          >
+            <option />
+            {typeOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </FormControl>
 
-                  <Button>{__('Copy')}</Button>
-                </Row>{' '}
-              </>
-            )}
-            <br />
-            <ControlLabel>Change type</ControlLabel>
-            <FormControl
-              name="changeType"
-              componentClass="select"
-              placeholder={__('Select type')}
-              defaultValue={waitingScreen.type}
-              onChange={onChangeType}
-              required={true}
-            >
-              <option />
-              {typeOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </FormControl>
+          <br />
 
-            <br />
+          <ControlLabel>{valueTitle}</ControlLabel>
 
-            <ControlLabel>{valueTitle}</ControlLabel>
+          <FormControl
+            id="changeValue"
+            type="text"
+            value={waitingScreen.value}
+            onChange={onChangeValue}
+          />
 
-            <FormControl
-              id="changeValue"
-              type="text"
-              value={waitingScreen.value}
-              onChange={onChangeValue}
-            />
+          <br />
+          <ControlLabel>Content Url</ControlLabel>
 
-            <br />
-            <ControlLabel>Content Url</ControlLabel>
-
-            <FormControl
-              id="contentUrl"
-              type="text"
-              value={waitingScreen.contentUrl || ''}
-              onChange={onChangeContentUrl}
-            />
-          </DomainRow>
-        )}
+          <FormControl
+            id="contentUrl"
+            type="text"
+            value={waitingScreen.contentUrl || ''}
+            onChange={onChangeContentUrl}
+          />
+        </DomainRow>
       </FormGroup>
     );
   }
 
   renderKitchen() {
     const { pos } = this.props;
-
-    const onChangeType = e => {
-      e.preventDefault();
-      pos.kitchenScreen.type = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeValue = e => {
-      e.preventDefault();
-      pos.kitchenScreen.value = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
 
     let kitchenScreen = {
       isActive: false,
@@ -325,7 +300,25 @@ class GeneralStep extends React.Component<Props, State> {
       posId = pos._id;
     }
 
-    const { REACT_APP_API_URL } = getEnv();
+    if (!kitchenScreen.isActive) {
+      return (
+        <FormGroup>
+          <DomainRow></DomainRow>
+        </FormGroup>
+      );
+    }
+
+    const onChangeType = e => {
+      e.preventDefault();
+      pos.kitchenScreen.type = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeValue = e => {
+      e.preventDefault();
+      pos.kitchenScreen.value = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
 
     const typeOptions = [
       { label: 'Time', value: 'time' },
@@ -334,57 +327,38 @@ class GeneralStep extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        {!kitchenScreen.isActive ? null : (
-          <DomainRow>
-            {this.props.currentMode !== 'update' ? null : (
-              <>
-                <ControlLabel>Link</ControlLabel>
-                <Row>
-                  <FormControl
-                    id="kitchenLink"
-                    type="text"
-                    disabled={true}
-                    value={`${REACT_APP_API_URL}/pos/${posId}/kitchen`}
-                  />
+        <DomainRow>
+          <ControlLabel>Status change</ControlLabel>
+          <FormControl
+            name="statusChange"
+            componentClass="select"
+            placeholder={__('Select type')}
+            defaultValue={kitchenScreen.type}
+            onChange={onChangeType}
+            required={true}
+          >
+            <option />
+            {typeOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </FormControl>
 
-                  <Button>{__('Copy')}</Button>
-                </Row>{' '}
-              </>
-            )}
+          <br />
 
-            <br />
-            <ControlLabel>Status change</ControlLabel>
-            <FormControl
-              name="statusChange"
-              componentClass="select"
-              placeholder={__('Select type')}
-              defaultValue={kitchenScreen.type}
-              onChange={onChangeType}
-              required={true}
-            >
-              <option />
-              {typeOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </FormControl>
-
-            <br />
-
-            {kitchenScreen.type === 'time' ? (
-              <>
-                <ControlLabel>Time (minute)</ControlLabel>
-                <FormControl
-                  id="changeValue"
-                  type="text"
-                  value={kitchenScreen.value}
-                  onChange={onChangeValue}
-                />
-              </>
-            ) : null}
-          </DomainRow>
-        )}
+          {kitchenScreen.type === 'time' ? (
+            <>
+              <ControlLabel>Time (minute)</ControlLabel>
+              <FormControl
+                id="changeValue"
+                type="text"
+                value={kitchenScreen.value}
+                onChange={onChangeValue}
+              />
+            </>
+          ) : null}
+        </DomainRow>
       </FormGroup>
     );
   }

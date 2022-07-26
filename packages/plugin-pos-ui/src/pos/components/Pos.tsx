@@ -43,7 +43,6 @@ type State = {
   pos: IPos;
   slots: ISlot[];
   groups: IProductGroup[];
-  currentMode?: 'create' | 'update' | undefined;
   logoPreviewStyle?: any;
   logoPreviewUrl?: string;
   uiOptions: IUIOptions;
@@ -181,7 +180,7 @@ class Pos extends React.Component<Props, State> {
     if (uiOptions[key]) {
       uiOptions[key] = value;
     } else {
-      uiOptions = { [key]: value };
+      uiOptions = { [key]: value } as IUIOptions;
     }
 
     if (pos.uiOptions) {
@@ -247,7 +246,7 @@ class Pos extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, slots, groups, currentMode, uiOptions } = this.state;
+    const { pos, slots, groups, uiOptions } = this.state;
     const { productCategories, branches } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
@@ -268,7 +267,6 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
-                  currentMode={currentMode || 'create'}
                   branches={branches}
                   posSlots={slots}
                 />
