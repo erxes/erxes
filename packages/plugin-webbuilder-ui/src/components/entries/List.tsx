@@ -1,11 +1,10 @@
 import Button from '@erxes/ui/src/components/Button';
+import { Link } from 'react-router-dom';
+import { Flex } from '@erxes/ui/src/styles/main';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
-import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import Form from '../../containers/entries/Form';
 import Row from './Row';
 
 type Props = {
@@ -33,29 +32,17 @@ class List extends React.Component<Props> {
   };
 
   render() {
-    const { queryParams, contentType, entries, getActionBar } = this.props;
+    const { contentType, entries, getActionBar } = this.props;
     const { fields = [] } = contentType;
 
-    const modalContent = props => (
-      <Form {...props} contentType={contentType} queryParams={queryParams} />
-    );
-
-    const trigger = (
-      <Button btnStyle="success" icon="plus-circle">
-        Add an entry
-      </Button>
-    );
-
     const actionBarRight = (
-      <BarItems>
-        <ModalTrigger
-          title="Add an entry"
-          trigger={trigger}
-          autoOpenKey="showEntryModal"
-          content={modalContent}
-          size="lg"
-        />
-      </BarItems>
+      <Flex>
+        <Link to={`create/${contentType._id}`}>
+          <Button btnStyle="success" size="small" icon="plus-circle">
+            Add Entry
+          </Button>
+        </Link>
+      </Flex>
     );
 
     getActionBar(actionBarRight);
@@ -65,8 +52,8 @@ class List extends React.Component<Props> {
         <Table hover={true}>
           <thead>
             <tr>
-              {fields.map((field, i) => {
-                if (i > 2) {
+              {fields.map(field => {
+                if (!field.show) {
                   return;
                 }
 
