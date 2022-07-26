@@ -58,6 +58,16 @@ const entries = `
   }
 `;
 
+const entryDetail = `
+  query entryDetail($_id: String!) {
+    webbuilderEntryDetail(_id: $_id) {
+      _id
+      contentTypeId
+      values
+    }
+  }
+`;
+
 const templates = `
   query templates {
     webbuilderTemplates {
@@ -74,5 +84,6 @@ export default {
   contentTypes,
   contentTypeDetail,
   entries,
+  entryDetail,
   templates
 };

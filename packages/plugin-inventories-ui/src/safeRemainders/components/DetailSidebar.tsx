@@ -28,71 +28,66 @@ function DetailSidebar({
 
   return (
     <Wrapper.Sidebar>
-      <PaddingTop>
-        <Box title={__('Main Info')} name="showDeviceProperties">
-          <FormGroup>
-            <ControlLabel>{__('Branch')}: </ControlLabel>
-            <span>{safeRemainder.branch && safeRemainder.branch.title}</span>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__('Department')}: </ControlLabel>
-            <span>
-              {safeRemainder.department && safeRemainder.department.title}
-            </span>
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__('Product Category')}: </ControlLabel>
-            <span>
-              {safeRemainder.productCategory &&
-                `${safeRemainder.productCategory.code} - ${safeRemainder.productCategory.name}`}
-            </span>
-          </FormGroup>
-        </Box>
+      <Box title={__('Main Info')} name="showDeviceProperties">
+        <FormGroup>
+          <ControlLabel>{__('Branch')}: </ControlLabel>
+          <span>{safeRemainder.branch && safeRemainder.branch.title}</span>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Department')}: </ControlLabel>
+          <span>
+            {safeRemainder.department && safeRemainder.department.title}
+          </span>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Product Category')}: </ControlLabel>
+          <span>
+            {safeRemainder.productCategory &&
+              `${safeRemainder.productCategory.code} - ${safeRemainder.productCategory.name}`}
+          </span>
+        </FormGroup>
+      </Box>
 
-        <Box title={__('Filters')} name="showDeviceProperties">
-          <FormGroup>
-            <ControlLabel>{__('Product')}</ControlLabel>
-            <SelectProductCategory
-              label="Choose product category"
-              name="selectedProductCategoryId"
-              initialValue={queryParams.productCategoryId}
-              onSelect={catId => setFilter('productCategoryId', catId)}
-              multi={false}
-              customOption={{ value: '', label: 'All products' }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__('Diff Type')}</ControlLabel>
-            <Select
-              options={[
-                { label: 'Тэнцүү', value: 'eq' },
-                { label: 'Их', value: 'gt' },
-                { label: 'Бага', value: 'lt' }
-              ]}
-              value={(queryParams.diffType || '').split(',')}
-              onChange={options =>
-                setFilter(
-                  'diffType',
-                  (options || []).map(o => o.value).join(',')
-                )
-              }
-              multi={true}
-            />
-          </FormGroup>
-          <FormGroup>
-            <ControlLabel>{__('Status')}</ControlLabel>
-            <Select
-              options={[
-                { label: 'All', value: '' },
-                { label: 'new', value: 'new' },
-                { label: 'checked', value: 'checked' }
-              ]}
-              value={queryParams.status || ''}
-              onChange={option => setFilter('status', option.value)}
-            />
-          </FormGroup>
-        </Box>
-      </PaddingTop>
+      <Box title={__('Filters')} name="showDeviceProperties">
+        <FormGroup>
+          <ControlLabel>{__('Product')}</ControlLabel>
+          <SelectProductCategory
+            label="Choose product category"
+            name="selectedProductCategoryId"
+            initialValue={queryParams.productCategoryId}
+            onSelect={catId => setFilter('productCategoryId', catId)}
+            multi={false}
+            customOption={{ value: '', label: 'All products' }}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Diff Type')}</ControlLabel>
+          <Select
+            options={[
+              { label: 'Тэнцүү', value: 'eq' },
+              { label: 'Их', value: 'gt' },
+              { label: 'Бага', value: 'lt' }
+            ]}
+            value={(queryParams.diffType || '').split(',')}
+            onChange={options =>
+              setFilter('diffType', (options || []).map(o => o.value).join(','))
+            }
+            multi={true}
+          />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>{__('Status')}</ControlLabel>
+          <Select
+            options={[
+              { label: 'All', value: '' },
+              { label: 'new', value: 'new' },
+              { label: 'checked', value: 'checked' }
+            ]}
+            value={queryParams.status || ''}
+            onChange={option => setFilter('status', option.value)}
+          />
+        </FormGroup>
+      </Box>
     </Wrapper.Sidebar>
   );
 }

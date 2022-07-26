@@ -74,7 +74,8 @@ class Step extends React.Component<Props, State> {
         currentField: {
           code: '',
           text: '',
-          type: choice
+          type: choice,
+          show: false
         }
       });
     };

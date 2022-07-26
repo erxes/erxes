@@ -97,6 +97,7 @@ const PaddingBottom = styled.div`
 `;
 
 // Plugin Preview
+
 const ListHeader = styled.div`
   padding: ${dimensions.coreSpacing}px 0px;
 `;
@@ -114,18 +115,19 @@ const PluginContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-const Card = styled.div`
+const CardWrapper = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   width: 23%;
   min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 8px;
-  padding: ${dimensions.unitSpacing}px;
+`;
 
-  a {
-    color: inherit;
-  }
+const Card = styled.div`
+  width: inherit;
+  padding: ${dimensions.unitSpacing}px;
+  color: ${colors.textPrimary};
 
   &:hover {
     box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
@@ -232,6 +234,7 @@ const Detail = styled.div`
 `;
 
 // Carousel
+
 const CarouselWrapper = styled.div`
   height: 250px;
   width: 100%;
@@ -243,13 +246,12 @@ const CarouselWrapper = styled.div`
   position: relative;
 `;
 
-const Buttons = styledTS<{ start: any; end: any }>(styled.div)`
+const Buttons = styledTS<{ placement?: string }>(styled.div)`
   position: absolute;
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: ${props =>
-    props.end ? 'end' : props.start ? 'start' : 'space-between'};
+  justify-content: ${props => props.placement};
   align-items: center;
 `;
 
@@ -521,6 +523,7 @@ export {
   ListTitle,
   ColorText,
   PluginContainer,
+  CardWrapper,
   Card,
   PluginPic,
   PluginInformation,

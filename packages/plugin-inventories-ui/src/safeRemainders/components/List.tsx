@@ -71,7 +71,7 @@ class List extends React.Component<IProps, {}> {
 
     let content = (
       <>
-        <Table hover={true}>
+        <Table>
           <thead>
             <tr>
               <th>{__('Date')}</th>
