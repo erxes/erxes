@@ -1,6 +1,18 @@
 import { IModels } from '../../connectionResolver';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
 import { IConfig } from '../../models/definitions/configs';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+
+export const getServerAddress = async () => {
+  const posService = await getService('pos');
+
+  if (posService.address) {
+    return posService.address;
+  }
+
+  const { SERVER_DOMAIN } = process.env;
+  return `${SERVER_DOMAIN || 'http://localhost:4000'}/pl:pos`;
+};
 
 export const importUsers = async (
   models: IModels,
@@ -18,6 +30,11 @@ export const importUsers = async (
       details: user.details
     });
   }
+};
+
+export const importSlots = async (models: IModels, slots: any[]) => {
+  await models.PosSlots.deleteMany({});
+  await models.PosSlots.insertMany(slots);
 };
 
 export const preImportProducts = async (models: IModels, groups: any = []) => {
@@ -106,41 +123,6 @@ export const importProducts = async (models: IModels, groups: any = []) => {
       }
     }
   } // end group loop
-};
-
-export const preImportCustomers = async customers => {
-  const importCustomerIds = customers.map(c => c._id);
-};
-
-export const importCustomers = async customers => {
-  let bulkOps: {
-    updateOne: {
-      filter: { _id: string };
-      update: any;
-      upsert: true;
-    };
-  }[] = [];
-
-  let counter = 0;
-  for (const customer of customers) {
-    if (counter > 1000) {
-      counter = 0;
-      bulkOps = [];
-    }
-
-    counter += 1;
-
-    bulkOps.push({
-      updateOne: {
-        filter: { _id: customer._id },
-        update: { $set: { ...customer } },
-        upsert: true
-      }
-    });
-  }
-
-  if (bulkOps.length) {
-  }
 };
 
 // Pos config created in main erxes differs from here

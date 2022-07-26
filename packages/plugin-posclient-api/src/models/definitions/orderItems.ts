@@ -1,6 +1,10 @@
 import { Document, Schema } from 'mongoose';
-import { getDateFieldDefinition, getNumberFieldDefinition } from './utils';
-import { field, schemaHooksWrapper } from './util';
+import {
+  field,
+  getDateFieldDefinition,
+  getNumberFieldDefinition,
+  schemaHooksWrapper
+} from './utils';
 
 export interface IOrderItem {
   createdAt?: Date;

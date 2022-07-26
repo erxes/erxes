@@ -51,7 +51,6 @@ export const types = `
     description: String
     userId: String
     createdAt: Date
-    integrationId: String
     productDetails: [String]
     adminIds: [String]
     cashierIds: [String]
@@ -60,9 +59,6 @@ export const types = `
     waitingScreen: JSON
     kioskMachine: JSON
     kitchenScreen: JSON
-    formSectionTitle: String
-    formIntegrationIds: [String]
-    brandId: String
     token: String
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
@@ -71,8 +67,6 @@ export const types = `
     catProdMappings: [CatProd]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
-    slots: JSON
-
   }
 `;
 
@@ -86,4 +80,5 @@ export const mutations = `
 export const queries = `
   currentConfig: PosConfig
   getBranches: JSON
+  poscSlots: [PosclientSlot]
 `;

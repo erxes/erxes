@@ -121,33 +121,42 @@ export const initBroker = async cl => {
   );
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+const sendMessageWrapper = async (
+  serviceName: string,
+  args: ISendMessageArgs
+): Promise<any> => {
+  const { SKIP_REDIS } = process.env;
+  if (SKIP_REDIS) {
+    const { action } = args;
+    return sendMessage({
+      client,
+      serviceDiscovery,
+      serviceName: '',
+      ...args,
+      action: `${serviceName}:${action}`
+    });
+  }
+
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'pos',
+    serviceName,
     ...args
   });
 };
 
+export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageWrapper('pos', args);
+};
+
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'core',
-    ...args
-  });
+  return sendMessageWrapper('core', args);
 };
 
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'contacts',
-    ...args
-  });
+  return sendMessageWrapper('contacts', args);
 };
 
 export default function() {
