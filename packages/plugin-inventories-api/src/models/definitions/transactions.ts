@@ -20,7 +20,7 @@ export const transactionSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     date: field({ type: Date, label: 'Date' }),
-    desctiption: field({ type: String, label: 'description' }),
+    description: field({ type: String, label: 'description' }),
     status: field({ type: String, label: 'Status' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String, label: 'Created User' },
