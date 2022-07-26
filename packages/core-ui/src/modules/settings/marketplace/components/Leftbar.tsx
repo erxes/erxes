@@ -28,14 +28,17 @@ type Props = {
   loading?: boolean;
 };
 
-class Leftbar extends React.Component<
-  Props,
-  { showInput: boolean; category: string }
-> {
+type State = {
+  showInput: boolean;
+  category: string;
+  searchValue: string;
+};
+
+class Leftbar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { showInput: true, category: 'All' };
+    this.state = { showInput: true, category: 'All', searchValue: '' };
   }
 
   openInput = () => {
@@ -46,6 +49,10 @@ class Leftbar extends React.Component<
     this.setState({ showInput: false });
   };
 
+  handleInput = e => {
+    this.setState({ searchValue: e.target.value });
+  };
+
   handleCategory = (cat: string) => {
     this.setState({ category: cat });
     this.props.onFilter(cat === 'All' ? '' : cat);
@@ -53,7 +60,7 @@ class Leftbar extends React.Component<
 
   renderSearch = () => {
     const { onSearch } = this.props;
-    const { showInput } = this.state;
+    const { showInput, searchValue } = this.state;
 
     return (
       <>
@@ -61,8 +68,10 @@ class Leftbar extends React.Component<
           <Search>
             <input
               placeholder={__('Search results')}
+              value={searchValue}
               autoFocus={true}
               onKeyUp={onSearch}
+              onChange={this.handleInput}
             />
           </Search>
         ) : (
