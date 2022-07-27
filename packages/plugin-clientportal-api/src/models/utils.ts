@@ -11,14 +11,13 @@ export interface IContactsParams {
 
 export const handleContacts = async (args: IContactsParams) => {
   const { subdomain, models, clientPortalId, document, password } = args;
-  const { type = 'customer', email, phone } = document;
+  const { type = 'customer' } = document;
 
-  let qry: any = { email };
+  let qry: any = { email: document.email };
   let user: any;
 
-  if (phone) {
-    qry = { phone };
-    document.phone = phone;
+  if (document.phone) {
+    qry = { phone: document.phone };
   }
 
   if (type === 'customer') {
@@ -26,8 +25,8 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'customers.findOne',
       data: {
-        customerPrimaryEmail: email,
-        customerPrimaryPhone: phone
+        customerPrimaryEmail: document.email,
+        customerPrimaryPhone: document.phone
       },
       isRPC: true
     });
@@ -57,8 +56,8 @@ export const handleContacts = async (args: IContactsParams) => {
         data: {
           firstName: document.firstName,
           lastName: document.lastName,
-          primaryEmail: email,
-          primaryPhone: phone,
+          primaryEmail: document.email,
+          primaryPhone: document.phone,
           state: 'lead'
         },
         isRPC: true
@@ -78,8 +77,8 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'companies.findOne',
       data: {
-        companyPrimaryEmail: email,
-        companyPrimaryPhone: phone,
+        companyPrimaryEmail: document.email,
+        companyPrimaryPhone: document.phone,
         companyCode: document.companyRegistrationNumber
       },
       isRPC: true
@@ -109,8 +108,8 @@ export const handleContacts = async (args: IContactsParams) => {
         action: 'companies.createCompany',
         data: {
           primaryName: document.companyName,
-          primaryEmail: email,
-          primaryPhone: phone,
+          primaryEmail: document.email,
+          primaryPhone: document.phone,
           code: document.companyRegistrationNumber
         },
         isRPC: true
