@@ -27,7 +27,19 @@ type FinalProps = {
   ClientPortalUserRemoveMutationResponse &
   IRouterProps;
 
-class ClientportalUserListContainer extends React.Component<FinalProps> {
+type State = {
+  loading: boolean;
+};
+
+class ClientportalUserListContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: false
+    };
+  }
+
   render() {
     const {
       clientPortalUsersQuery,
@@ -63,16 +75,12 @@ class ClientportalUserListContainer extends React.Component<FinalProps> {
         clientPortalUserTotalCountQuery.clientPortalUserCounts || 0,
       searchValue,
       queryParams,
-      loading: clientPortalUsersQuery.loading,
+      loading: clientPortalUsersQuery.loading || this.state.loading,
       removeUsers
     };
 
     const content = props => {
       return <ClientPortalUserList {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.clientPortalUsersQuery.refetch();
     };
 
     return (

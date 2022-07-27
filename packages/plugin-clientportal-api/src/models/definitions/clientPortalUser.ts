@@ -9,7 +9,7 @@ export interface IUser {
   firstName?: string;
   lastName?: string;
   companyName?: string;
-  companyRegistrationNumber?: String;
+  companyRegistrationNumber?: string;
   code?: string;
   password?: string;
   type?: string;

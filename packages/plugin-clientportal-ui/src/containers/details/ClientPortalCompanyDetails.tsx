@@ -5,10 +5,10 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import ClientPortalUserDetail from '../../components/detail/ClientPortalUserDetails';
 import { ClientPoratlUserDetailQueryResponse } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { queries } from '../../graphql';
+import ClientPortalCompanyDetails from '../../components/detail/ClientPortalCompanyDetails';
 
 type Props = {
   id: string;
@@ -20,7 +20,7 @@ type FinalProps = {
   currentUser: IUser;
 } & Props;
 
-function CustomerDetailsContainer(props: FinalProps) {
+function CompanyDetailsContainer(props: FinalProps) {
   const { id, clientPortalUserDetailQuery, currentUser } = props;
 
   if (clientPortalUserDetailQuery.loading) {
@@ -43,7 +43,7 @@ function CustomerDetailsContainer(props: FinalProps) {
     currentUser
   };
 
-  return <ClientPortalUserDetail {...updatedProps} />;
+  return <ClientPortalCompanyDetails {...updatedProps} />;
 }
 
 export default withProps<Props>(
@@ -59,5 +59,5 @@ export default withProps<Props>(
         })
       }
     )
-  )(CustomerDetailsContainer)
+  )(CompanyDetailsContainer)
 );

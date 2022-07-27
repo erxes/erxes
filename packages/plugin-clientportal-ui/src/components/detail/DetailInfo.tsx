@@ -16,18 +16,42 @@ class DetailInfo extends React.Component<Props> {
     );
   };
 
+  renderFields = type => {
+    const { clientPortalUser } = this.props;
+
+    if (type === 'customer') {
+      return (
+        <>
+          {this.renderRow('First Name', clientPortalUser.firstName)}
+          {this.renderRow('Last Name', clientPortalUser.lastName)}
+          {this.renderRow('UserName', clientPortalUser.username)}
+        </>
+      );
+    }
+
+    if (type === 'company') {
+      return (
+        <>
+          {this.renderRow('Company Name', clientPortalUser.companyName)}
+          {this.renderRow(
+            'Company Registration Number',
+            clientPortalUser.companyRegistrationNumber
+          )}
+        </>
+      );
+    }
+  };
+
   render() {
     const { clientPortalUser } = this.props;
 
     return (
       <SidebarList className="no-link">
-        {this.renderRow('First Name', clientPortalUser.firstName)}
-        {this.renderRow('Last Name', clientPortalUser.lastName)}
+        {this.renderFields(clientPortalUser.type)}
         {this.renderRow('Code', clientPortalUser.code)}
-        {this.renderRow('UserName', clientPortalUser.username)}
         {this.renderRow('Email', clientPortalUser.email)}
         {this.renderRow('Phone', clientPortalUser.phone)}
-        {this.renderRow('ClientPortal Id', clientPortalUser.clientPortalId)}
+        {this.renderRow('ClientPortal Id', clientPortalUser.clientPortal.name)}
       </SidebarList>
     );
   }

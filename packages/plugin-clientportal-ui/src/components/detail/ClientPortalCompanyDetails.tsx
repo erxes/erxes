@@ -14,14 +14,17 @@ type Props = {
   history: any;
 };
 
-class ClientPortalUserDetails extends React.Component<Props> {
+class ClientPortalCompanyDetails extends React.Component<Props> {
   render() {
     const { clientPortalUser } = this.props;
 
-    const title = clientPortalUser.firstName || 'Unknown';
+    const title = clientPortalUser.companyName || 'Unknown';
 
     const breadcrumb = [
-      { title: __('ClientPortal Users'), link: '/settings/client-portal/user' },
+      {
+        title: __('ClientPortal Companies'),
+        link: '/settings/client-portal/user'
+      },
       { title }
     ];
 
@@ -54,4 +57,4 @@ class ClientPortalUserDetails extends React.Component<Props> {
   }
 }
 
-export default ClientPortalUserDetails;
+export default ClientPortalCompanyDetails;

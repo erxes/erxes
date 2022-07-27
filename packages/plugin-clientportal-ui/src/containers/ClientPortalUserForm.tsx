@@ -62,7 +62,9 @@ class ClientPortalUserFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          Invite
+        </ButtonMutate>
       );
     };
 

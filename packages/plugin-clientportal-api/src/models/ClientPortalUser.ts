@@ -671,7 +671,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async invite(
       subdomain: string,
-      { password, email, phone, clientPortalId, ...doc }: IUser
+      { password, clientPortalId, ...doc }: IUser
     ) {
       if (!password) {
         password = generateRandomPassword();
@@ -687,7 +687,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         subdomain,
         models,
         clientPortalId,
-        document: { ...doc, email, phone },
+        document: doc,
         password
       });
 
@@ -706,7 +706,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         subdomain,
         action: 'sendEmail',
         data: {
-          toEmails: [email],
+          toEmails: [doc.email],
           title: `${clientPortal.name} invitation`,
           template: {
             name: 'base',

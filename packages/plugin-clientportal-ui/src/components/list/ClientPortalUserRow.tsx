@@ -27,12 +27,26 @@ class Row extends React.Component<Props> {
     };
 
     const onTrClick = () => {
-      history.push(
-        `/settings/client-portal/users/details/${clientPortalUser._id}`
-      );
+      if (clientPortalUser.type === 'customer') {
+        return history.push(
+          `/settings/client-portal/users/details/${clientPortalUser._id}`
+        );
+      }
+      if (clientPortalUser.type === 'company') {
+        return history.push(
+          `/settings/client-portal/companies/details/${clientPortalUser._id}`
+        );
+      }
     };
 
-    const { firstName, lastName, username, email, code } = clientPortalUser;
+    const {
+      firstName,
+      lastName,
+      username,
+      email,
+      code,
+      companyName
+    } = clientPortalUser;
 
     return (
       <tr onClick={onTrClick}>
@@ -43,7 +57,7 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{firstName}</td>
+        <td>{firstName || companyName}</td>
         <td>{lastName}</td>
         <td>{username}</td>
         <td>{email}</td>
