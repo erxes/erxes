@@ -22,10 +22,26 @@ export const types = `
     type: String
     isDateRange: Boolean
   }
+
+  type DashboardListResponse {
+    list: [Dashboard],
+    totalCount: Float,
+  }
+`;
+
+const queryParams = `
+  page: Int
+  perPage: Int
+  ids: [String]
+  excludeIds: Boolean
+  searchValue: String
+  sortField: String
+  sortDirection: Int
 `;
 
 export const queries = `
-  dashboards(page: Int, perPage: Int): [Dashboard]
+  dashboards(${queryParams}): [Dashboard]
+  dashboardsMain(${queryParams}): DashboardListResponse
   dashboardDetails(_id: String!): Dashboard
   dashboardsTotalCount: Int
   dashboardItems(dashboardId: String!): [DashboardItem]

@@ -1,5 +1,14 @@
 import { MutationVariables } from '@erxes/ui/src/types';
 
+export type ListQueryVariables = {
+  page?: number;
+  perPage?: number;
+  ids?: string[];
+  searchValue?: string;
+  sortField?: string;
+  sortDirection?: number;
+};
+
 export interface IDashboard {
   _id: string;
   name: string;
@@ -20,6 +29,12 @@ export type DashboardsQueryResponse = {
   refetch: () => void;
 };
 
+export type DashboardsMainQueryResponse = {
+  dashboardsMain: { list: IDashboard[]; totalCount: number };
+  loading: boolean;
+  refetch: () => void;
+};
+
 export interface IDashboardItem {
   _id: string;
   dashboardId: string;
@@ -35,6 +50,11 @@ export type DashboardItemsQueryResponse = {
 
 export type DashboardItemDetailsQueryResponse = {
   dashboardItem: IDashboardItem;
+  loading: boolean;
+};
+
+export type DashboardsTotalCountQueryResponse = {
+  dashboardsTotalCount: number;
   loading: boolean;
 };
 

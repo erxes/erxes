@@ -3,7 +3,6 @@ const commonParamsDef = `
   $description: String,
   $visibility: String,
   $selectedMemberIds: [String],
-  $parentId: String
 `;
 
 const commonParams = `
@@ -11,7 +10,6 @@ const commonParams = `
   description: $description,
   visibility: $visibility,
   selectedMemberIds: $selectedMemberIds,
-  parentId: $parentId
 `;
 
 const dashboardAdd = `

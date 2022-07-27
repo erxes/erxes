@@ -1,3 +1,4 @@
+import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
 import {
   sendCardsMessage,
@@ -5,6 +6,33 @@ import {
   sendInboxMessage,
   sendTagsMessage
 } from '../../messageBroker';
+
+interface IListArgs {
+  status: string;
+  searchValue: string;
+  ids?: string;
+  page?: number;
+  perPage?: number;
+  sortField: string;
+  sortDirection: number;
+}
+
+const generateFilter = (params: IListArgs) => {
+  const { status, searchValue } = params;
+
+  const filter: any = {};
+
+  if (status) {
+    filter.status = status;
+  } else {
+    filter.status = { $ne: 'template' };
+  }
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+  return filter;
+};
 
 const DashboardFilterTypes = {
   User: ['modifiedBy', 'firstRespondedUser', 'assignedUser']
@@ -333,8 +361,30 @@ export const getBoards = async (subdomain: string, stageType: string) => {
 };
 
 const dashBoardQueries = {
-  dashboards(_root, _args, { models }: IContext) {
-    return models.Dashboards.find({}).sort({ order: 1 });
+  async dashboards(_root, params: IListArgs, { models }: IContext) {
+    const filter = generateFilter(params);
+
+    return models.Dashboards.find(filter).lean();
+  },
+
+  async dashboardsMain(_root, params: IListArgs, { models }: IContext) {
+    const { page, perPage } = params;
+
+    const filter = generateFilter(params);
+
+    const dashboards = paginate(
+      models.Dashboards.find(filter)
+        .sort({ createdAt: -1 })
+        .lean(),
+      { perPage, page }
+    );
+
+    const totalCount = await models.Dashboards.find(filter).countDocuments();
+
+    return {
+      list: dashboards,
+      totalCount
+    };
   },
 
   dashboardDetails(_root, { _id }: { _id: string }, { models }: IContext) {

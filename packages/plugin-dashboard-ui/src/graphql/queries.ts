@@ -1,3 +1,25 @@
+const listParamsDef = `
+  $page: Int
+  $perPage: Int
+  $ids: [String]
+  $excludeIds: Boolean
+  $searchValue: String
+  $sortField: String
+  $sortDirection: Int
+  $status: String
+`;
+
+const listParamsValue = `
+  page: $page
+  perPage: $perPage
+  ids: $ids
+  excludeIds: $excludeIds
+  searchValue: $searchValue
+  sortField: $sortField
+  sortDirection: $sortDirection
+  status: $status
+`;
+
 const dashboardItemDetail = `
   query dashboardItemDetail($_id: String!) {
     dashboardItemDetail(_id: $_id) {
@@ -14,8 +36,8 @@ const dashboardItemDetail = `
 `;
 
 const dashboards = `
-  query dashboards($page: Int, $perPage: Int) {
-    dashboards(page: $page, perPage: $perPage) {
+  query dashboards(${listParamsDef}) {
+    dashboards(${listParamsDef}) {
 	    _id
 	    name
       description
@@ -26,6 +48,26 @@ const dashboards = `
       createdAt
       relatedIds
 	  }
+  }
+`;
+
+export const dashboardsMain = `
+  query dashboardsMain(${listParamsDef}) {
+    dashboardsMain(${listParamsValue}) {
+      list {
+        _id
+        name
+        description
+        visibility
+        selectedMemberIds
+        parentId
+        order
+        createdAt
+        relatedIds
+      }
+
+      totalCount
+    }
   }
 `;
 
@@ -52,6 +94,7 @@ const totalCount = `
 `;
 
 export default {
+  dashboardsMain,
   dashboardItemDetail,
   totalCount,
   dashboards,
