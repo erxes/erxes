@@ -66,7 +66,7 @@ export const handleContacts = async (args: IContactsParams) => {
           lastName: document.lastName,
           primaryEmail: email,
           primaryPhone: phone,
-          state: 'customer'
+          state: 'lead'
         },
         isRPC: true
       });
