@@ -1,7 +1,8 @@
 const Query = ` 
   extend type Query {
-    cmsTopicById(_id: String!): CmsTopic
-    cmsAllTopics(): [CmsTopic]
+    cmsCategoryById(_id: String!): CmsCategory
+    cmsAllCategories(): [CmsCategory]
+    cmsRootCategories(): [CmsCategory]
   }
 `;
 

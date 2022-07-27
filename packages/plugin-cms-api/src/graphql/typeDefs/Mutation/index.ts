@@ -1,6 +1,8 @@
 const Mutation = `
   extend type Mutation {
-    cmsCreateTopic(name: String!): CmsTopic
+    cmsCreateRootCategory(name: String!): CmsCategory
+    cmsCreateSubCategory(name: String!, parentId: String!): CmsCategory
+    cmsCreateCategory(name: String!, parentId: String): CmsCategory
   }
 `;
 
