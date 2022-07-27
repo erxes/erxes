@@ -1,28 +1,27 @@
-import { Tabs, TabTitle } from '@erxes/ui/src';
+import { router, Tabs, TabTitle } from '@erxes/ui/src';
 import { Button, ModalTrigger } from '@erxes/ui/src/components';
 import { Wrapper } from '@erxes/ui/src/layout';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { IRouterProps } from '@erxes/ui/src/types';
-import moment from 'moment';
 import React from 'react';
-import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
-import { Container, Description, TriggerTabs } from '../../../styles';
+import { ILotteryCampaign, LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
+import { TriggerTabs } from '../../../styles';
 import AwardContent from '../containers/award/content';
 import AwardDetail from '../containers/award/detail';
-import { lotteriesCampaignCustomerList } from '../types';
 import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   loading: boolean;
   queryParams: any;
   lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
+  lotteryCampaign?: ILotteryCampaign;
   loadVoucherCampaingDetail: (variables: string) => any;
   voucherDetail: any;
-  lotteriesCampaignCustomerList: lotteriesCampaignCustomerList;
   doLotteries: (variables: object) => any;
   multipledoLottery: (variables: object) => any;
   winners: any;
   winnerCount: number;
+  history: any;
 }
 type State = {
   searchValue?: string;
@@ -31,6 +30,7 @@ type State = {
   currentAwardCount?: number;
   isOpenNextChar?: boolean;
   multiple?: number;
+  potentailAwardCount?: number;
 };
 class VouchersAward extends React.Component<IProps, State> {
   constructor(props) {
@@ -38,6 +38,7 @@ class VouchersAward extends React.Component<IProps, State> {
     this.state = {
       currentTab: '',
       currentAwardId: '',
+      potentailAwardCount: 0,
       currentAwardCount: 0,
       isOpenNextChar: false,
       multiple: 0
@@ -47,23 +48,15 @@ class VouchersAward extends React.Component<IProps, State> {
     this.setState({
       currentTab
     });
+    router.setParams(this.props.history, { awardId: currentTab._id });
   }
 
   render() {
-    const {
-      loading,
-      queryParams,
-      lotteryCampaignDetailQuery
-      // winners,
-    } = this.props;
+    const { loading, queryParams, lotteryCampaignDetailQuery } = this.props;
     const { currentTab } = this.state;
     const lotteryCampaign = lotteryCampaignDetailQuery.lotteryCampaignDetail;
 
     const actionBarLeft = <Title>{'Lottery Award'} </Title>;
-
-    const parseDate = (value: any) => {
-      return moment(value).format('MM/D/YYYY');
-    };
 
     const detailBtn = (
       <Button btnStyle="success" size="small" icon="plus-circle">
@@ -71,18 +64,11 @@ class VouchersAward extends React.Component<IProps, State> {
       </Button>
     );
 
-    const RowDiv = ({ head, value, isdate }) => (
-      <div>
-        <strong>{head}:</strong>
-        {isdate ? parseDate(value) : value}
-      </div>
-    );
-
     const Modalcontent = () => {
-      const ids = [];
+      const ids: string[] = [];
 
       for (const award of lotteryCampaign?.awards || []) {
-        ids.push(award?.voucherCampaignId);
+        award?.voucherCampaignId && ids.push(award?.voucherCampaignId);
       }
 
       const updatedProps = {
@@ -94,15 +80,7 @@ class VouchersAward extends React.Component<IProps, State> {
     };
 
     const actionBarRight = () => {
-      return (
-        <ModalTrigger
-          title="Lottery Detail"
-          trigger={detailBtn}
-          autoOpenKey="showVoucherModal"
-          content={Modalcontent}
-          backDrop="static"
-        />
-      );
+      return <ModalTrigger title="Lottery Detail" trigger={detailBtn} autoOpenKey="showVoucherModal" content={Modalcontent} backDrop="static" />;
     };
 
     const updatedProps = {
@@ -116,41 +94,23 @@ class VouchersAward extends React.Component<IProps, State> {
       <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
         <TriggerTabs>
           <Tabs full={true}>
-            {lotteryCampaign?.awards.map(p => (
-              <TabTitle
-                className={currentTab.name === p.name ? 'active' : ''}
-                onClick={this.onClick.bind(this, p)}
-                key={p._id}
-              >
-                {p.name}
-              </TabTitle>
-            ))}
+            {lotteryCampaign?.awards &&
+              lotteryCampaign?.awards.map(p => (
+                <TabTitle className={currentTab?._id === p._id ? 'active' : ''} onClick={this.onClick.bind(this, p)} key={p._id}>
+                  {p.name}
+                </TabTitle>
+              ))}
           </Tabs>
         </TriggerTabs>
-        {currentTab && (
+        {queryParams.awardId && currentTab._id === queryParams.awardId && (
           <>
             <AwardContent {...updatedProps} />
           </>
         )}
       </div>
     );
-    const actionBar = (
-      <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />
-    );
-    return (
-      <Wrapper
-        actionBar={actionBar}
-        leftSidebar={
-          <Sidebar
-            loadingMainQuery={loading}
-            queryParams={queryParams}
-            history={history}
-            isAward={false}
-          />
-        }
-        content={content}
-      />
-    );
+    const actionBar = <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight()} />;
+    return <Wrapper actionBar={actionBar} leftSidebar={<Sidebar loadingMainQuery={loading} queryParams={queryParams} history={history} isAward={false} />} content={content} />;
   }
 }
 export default VouchersAward;

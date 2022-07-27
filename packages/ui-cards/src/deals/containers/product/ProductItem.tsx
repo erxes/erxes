@@ -4,7 +4,7 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import gql from 'graphql-tag';
 import { mutations, queries } from '../../graphql';
-import { IProductData } from '../../types';
+import { IDeal, IProductData } from '../../types';
 import ProductItem from '../../components/product/ProductItem';
 
 type Props = {
@@ -17,7 +17,7 @@ type Props = {
   updateTotal?: () => void;
   currentProduct?: string;
   onChangeDiscount: (id: string, discount: number) => void;
-  dealQuery: any;
+  dealQuery: IDeal;
   confirmLoyalties?: any;
 };
 

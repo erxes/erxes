@@ -1,8 +1,6 @@
 import {
-  Button,
   ControlLabel,
   DateControl,
-  Form,
   FormControl,
   FormGroup,
   Wrapper,
@@ -18,10 +16,8 @@ import React from 'react';
 import {
   ClearBtnContainer,
   PaddingTop,
-  FilterRowContainer,
-  SettingsContent
+  FilterRowContainer
 } from '../../../styles';
-import ScoreFormContainer from '../containers/Form';
 
 interface LayoutProps {
   children: React.ReactNode;

@@ -13,7 +13,7 @@ import {
   FormContainer,
   ProductTableWrapper
 } from '../../styles';
-import { IPaymentsData, IProductData } from '../../types';
+import { IDeal, IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
 import ProductItem from '../../containers/product/ProductItem';
 import ProductTotal from './ProductTotal';
@@ -29,7 +29,7 @@ type Props = {
   uom: string[];
   currencies: string[];
   currentProduct?: string;
-  dealQuery: any;
+  dealQuery: IDeal;
 };
 
 type State = {
@@ -84,7 +84,7 @@ class ProductForm extends React.Component<Props, State> {
         amount: 0,
         currency,
         tickUsed: true,
-        quantityMax: 0
+        maxQuantity: 0
       });
 
       onChangeProductsData(productsData);

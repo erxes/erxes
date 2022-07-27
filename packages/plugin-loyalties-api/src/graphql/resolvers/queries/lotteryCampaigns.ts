@@ -94,15 +94,15 @@ const lotteryCampaignQueries = {
     params: IParams,
     { models }: IContext
   ) {
-    const filter: any = await generateFilter(params);
+    const { campaignId } = params;
 
     const list = await paginate(
-      models.Lotteries.find({ ...filter, status: 'new' }),
+      models.Lotteries.find({ campaignId, status: 'new' }),
       params
     );
 
     const totalCount = await models.Lotteries.find({
-      ...filter,
+      campaignId,
       status: 'new'
     }).countDocuments();
 

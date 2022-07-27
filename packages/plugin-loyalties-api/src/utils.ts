@@ -162,11 +162,14 @@ export const checkVouchersSale = async (
         if (
           result[productId].discount < discountVoucher.campaign.discountPercent
         ) {
-          result[productId].voucherCampaignId = discountVoucher.campaignId;
-          result[productId].voucherId = discountVoucher._id;
-          result[productId].discount = discountVoucher.campaign.discountPercent;
-          result[productId].voucherName = discountVoucher.campaign.title;
-          result[productId].type = 'discount';
+          result[productId] = {
+            ...result[productId],
+            voucherCampaignId: discountVoucher.campaignId,
+            voucherId: discountVoucher._id,
+            discount: discountVoucher.campaign.discountPercent,
+            voucherName: discountVoucher.campaign.title,
+            type: 'discount'
+          };
         }
         result[productId].sumDiscount +=
           discountVoucher.campaign.discountPercent;

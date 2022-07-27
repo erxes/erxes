@@ -21,7 +21,7 @@ import {
   VoucherCard,
   VoucherContainer
 } from '../../styles';
-import { IDiscountValue, IProductData } from '../../types';
+import { IDeal, IDiscountValue, IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 import ProductRow from './ProductRow';
 import { Flex } from '@erxes/ui/src/styles/main';
@@ -39,7 +39,7 @@ type Props = {
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
   currentProduct?: string;
-  dealQuery: any;
+  dealQuery: IDeal;
   confirmLoyalties: any;
 };
 
@@ -199,7 +199,7 @@ class ProductItem extends React.Component<Props, State> {
           if (discountValue?.type === 'bonus') {
             this.onChangeField('discountPercent', 100, productData._id);
             this.onChangeField(
-              'quantityMax',
+              'maxQuantity',
               discountValue?.potentialBonus || 0,
               productData._id
             );
@@ -267,7 +267,7 @@ class ProductItem extends React.Component<Props, State> {
         onSelect={productOnChange}
         onChangeCategory={this.onChangeCategory}
         categoryId={this.state.categoryId}
-        loaddiscountPercent={this.changeDiscountPercent}
+        loadDiscountPercent={this.changeDiscountPercent}
         discountCard={VoucherDiscountCard}
         data={{
           name: 'Product',
@@ -457,8 +457,8 @@ class ProductItem extends React.Component<Props, State> {
                     type="number"
                     min={1}
                     max={
-                      productData?.quantityMax > 0
-                        ? productData?.quantityMax
+                      productData?.maxQuantity > 0
+                        ? productData?.maxQuantity
                         : undefined
                     }
                     placeholder="0"

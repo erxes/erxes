@@ -22,7 +22,7 @@ export type CommonProps = {
   resetAssociatedItem?: () => void;
   closeModal: () => void;
   onSelect: (datas: any[]) => void;
-  loaddiscountPercent?: (productData: any) => void;
+  loadDiscountPercent?: (productData: any) => void;
   discountCard?: any;
 };
 
@@ -116,8 +116,8 @@ class CommonChooser extends React.Component<Props, State> {
 
     const onClick = () => {
       const { datas } = this.state;
-      const { loaddiscountPercent } = this.props;
-      if (datas.length === 0 && isEnabled('loyalties') && loaddiscountPercent) {
+      const { loadDiscountPercent } = this.props;
+      if (datas.length === 0 && isEnabled('loyalties') && loadDiscountPercent) {
         const productData = {
           product: {
             _id: data._id
@@ -125,7 +125,7 @@ class CommonChooser extends React.Component<Props, State> {
           quantity: 1
         };
 
-        loaddiscountPercent(productData);
+        loadDiscountPercent(productData);
       }
 
       this.handleChange(icon, data);

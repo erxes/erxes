@@ -26,7 +26,7 @@ type Props = {
   onChangeCategory: (catgeoryId: string) => void;
   closeModal: () => void;
   onSelect: (products: IProduct[]) => void;
-  loaddiscountPercent?: (productsData: any) => void;
+  loadDiscountPercent?: (productsData: any) => void;
 };
 
 type FinalProps = {
@@ -68,7 +68,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
 
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -126,7 +126,7 @@ export default withProps<Props>(
       { perPage: number; categoryId: string }
     >(gql(productQueries.products), {
       name: "productsQuery",
-      options: (props) => ({
+      options: props => ({
         variables: {
           perPage: 20,
           categoryId: props.categoryId,

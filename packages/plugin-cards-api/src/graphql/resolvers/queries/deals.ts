@@ -305,7 +305,7 @@ const dealQueries = {
   }
 };
 
-// moduleRequireLogin(dealQueries);
+moduleRequireLogin(dealQueries);
 
 checkPermission(dealQueries, 'deals', 'showDeals', []);
 

@@ -1,4 +1,5 @@
-import { Alert, Bulk } from '@erxes/ui/src';
+import { Alert, Bulk, Spinner } from '@erxes/ui/src';
+import client from '@erxes/ui/src/apolloClient';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router } from '@erxes/ui/src/utils';
 import { withProps } from '@erxes/ui/src/utils/core';
@@ -15,7 +16,6 @@ type Props = { queryParams: any; nextChar: string };
 type FinalProps = {
   lotteryCampaignWinnerList: any;
   lotteriesCampaignCustomerList: any;
-  multipledoLottery: any;
   doLottery: any;
   getNextChar: any;
 } & Props &
@@ -37,21 +37,23 @@ class AwardContent extends React.Component<FinalProps, Props> {
   doLotteries(variables: any) {
     this.props
       .doLottery({ variables })
-      .then(() => {
-        this.props.lotteryCampaignWinnerList.refetch();
-        this.props.lotteriesCampaignCustomerList.refetch();
-      })
+      .then(() => {})
       .catch(error => {
         Alert.error(error.message);
       });
   }
 
   multipledoLottery(variables: any) {
-    this.props
-      .multipledoLottery({ variables })
-      .then(() => {})
-      .catch(error => {
-        Alert.error(error.message);
+    client
+      .mutate({
+        mutation: gql(mutations.multipledoLottery),
+        variables: variables
+      })
+      .then(() => {
+        setTimeout(() => {
+          this.props.lotteriesCampaignCustomerList.refetch();
+          this.props.lotteryCampaignWinnerList.refetch();
+        }, 300);
       });
   }
 
@@ -71,10 +73,11 @@ class AwardContent extends React.Component<FinalProps, Props> {
   }
 
   render() {
-    const {
-      lotteryCampaignWinnerList,
-      lotteriesCampaignCustomerList
-    } = this.props;
+    const { lotteryCampaignWinnerList, lotteriesCampaignCustomerList } = this.props;
+
+    if (lotteriesCampaignCustomerList.loading || lotteryCampaignWinnerList.loading) {
+      return <Spinner objective={true} />;
+    }
 
     const updatedProps = {
       ...this.props,
@@ -83,11 +86,9 @@ class AwardContent extends React.Component<FinalProps, Props> {
       getNextChar: this.getNextChar,
       nextChar: this.state.nextChar,
       winners: lotteryCampaignWinnerList.lotteryCampaignWinnerList?.list,
-      winnersTotalCount:
-        lotteryCampaignWinnerList.lotteryCampaignWinnerList?.totalCount,
+      winnersTotalCount: lotteryCampaignWinnerList.lotteryCampaignWinnerList?.totalCount,
       list: lotteriesCampaignCustomerList.lotteriesCampaignCustomerList?.list,
-      totalCount:
-        lotteriesCampaignCustomerList.lotteriesCampaignCustomerList?.totalCount
+      totalCount: lotteriesCampaignCustomerList.lotteriesCampaignCustomerList?.totalCount
     };
 
     const content = props => {
@@ -122,32 +123,17 @@ export default withProps<Props>(
         variables: generateParams({ queryParams })
       })
     }),
-    graphql<{ queryParams: any }, MainQueryResponse>(
-      gql(lotteriesCampaignMain),
-      {
-        name: 'lotteriesCampaignCustomerList',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<{ queryParams: any }, MainQueryResponse>(gql(lotteriesCampaignMain), {
+      name: 'lotteriesCampaignCustomerList',
+      options: ({ queryParams }) => ({
+        variables: generateParams({ queryParams }),
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql(gql(mutations.doLotteries), {
       name: 'doLottery',
       options: {
-        refetchQueries: [
-          'lotteryCampaignWinnerList',
-          'lotteriesCampaignCustomerList'
-        ]
-      }
-    }),
-    graphql(gql(mutations.multipledoLottery), {
-      name: 'multipledoLottery',
-      options: {
-        refetchQueries: [
-          'lotteriesCampaignCustomerList',
-          'lotteryCampaignWinnerList'
-        ]
+        refetchQueries: ['lotteryCampaignWinnerList', 'lotteriesCampaignCustomerList']
       }
     }),
     graphql(gql(mutations.getNextChar), {

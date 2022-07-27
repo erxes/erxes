@@ -9,7 +9,7 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import ProductForm from '../containers/product/ProductForm';
 import { CustomField, ProductName } from '../styles';
-import { IPaymentsData, IProductData } from '../types';
+import { IDeal, IPaymentsData, IProductData } from '../types';
 
 type Props = {
   productsData: IProductData[];
@@ -19,7 +19,7 @@ type Props = {
   onChangePaymentsData: (paymentsData: IPaymentsData) => void;
   onChangeProducts: (prs: IProduct[]) => void;
   saveProductsData: () => void;
-  dealQuery :any
+  dealQuery: IDeal;
 };
 
 function ProductSection({

@@ -1,4 +1,4 @@
-import { Bulk } from '@erxes/ui/src/components';
+import { Bulk, Spinner } from '@erxes/ui/src/components';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { router, withProps } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
@@ -9,17 +9,14 @@ import { withRouter } from 'react-router-dom';
 import { queries } from '../../../configs/lotteryCampaign/graphql';
 import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
 import { queries as VoucherQuery } from '../../../configs/voucherCampaign/graphql';
-import { VoucherCampaignDetailQueryResponse } from '../../../configs/voucherCampaign/types';
 import VoucherAward from '../components/Award';
-import { lotteriesCampaignMain } from '../graphql/queries';
-import { MainQueryResponse, RemoveMutationResponse } from '../types';
+import { RemoveMutationResponse } from '../types';
 
 type Props = { history: any; queryParams: any; voucherCampaignId: string };
 type FinalProps = {
-  VoucherCampaignDetailQueryResponse: LotteryCampaignDetailQueryResponse;
-  voucherCampaignDetailQuery: VoucherCampaignDetailQueryResponse;
   voucherCampaignDetail: any;
   doLottery: any;
+  lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
   // lotteryCampaignWinnerList: any;
   multipledoLottery: any;
 } & Props &
@@ -52,15 +49,18 @@ class AwardContainer extends React.Component<FinalProps, State> {
       });
   }
   doLotteries(variables: any) {
-    this.props.doLottery({ variables }).then(() => {
-      // this.props.lotteryCampaignWinnerList.refetch();
-    });
+    this.props.doLottery({ variables }).then(() => {});
   }
 
   render() {
+    if (this.props.lotteryCampaignDetailQuery.loading) {
+      return <Spinner />;
+    }
+
     const updatedProps = {
       ...this.props,
       voucherDetail: this.state.voucherDetail,
+      lotteryCampaign: this.props.lotteryCampaignDetailQuery.lotteryCampaignDetail,
       loadVoucherCampaingDetail: this.voucherDetail,
       doLotteries: this.doLotteries
     };
@@ -92,38 +92,22 @@ const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, LotteryCampaignDetailQueryResponse>(
-      gql(queries.lotteryCampaignDetail),
-      {
-        name: 'lotteryCampaignDetailQuery',
-        options: ({ queryParams }) => ({
-          variables: {
-            _id: queryParams.campaignId
-          }
-        }),
-        skip: ({ queryParams }) => !queryParams.campaignId
-      }
-    ),
-    graphql<Props, LotteryCampaignDetailQueryResponse>(
-      gql(VoucherQuery.voucherCampaignDetail),
-      {
-        name: 'voucherCampaignDetail',
-        options: ({ voucherCampaignId }) => ({
-          variables: {
-            _id: voucherCampaignId
-          }
-        })
-      }
-    ),
-    graphql<{ queryParams: any }, MainQueryResponse>(
-      gql(lotteriesCampaignMain),
-      {
-        name: 'lotteriesCampaignCustomerList',
-        options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
-        })
-      }
-    )
+    graphql<Props, LotteryCampaignDetailQueryResponse>(gql(queries.lotteryCampaignDetail), {
+      name: 'lotteryCampaignDetailQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          _id: queryParams.campaignId
+        }
+      }),
+      skip: ({ queryParams }) => !queryParams.campaignId
+    }),
+    graphql<Props, LotteryCampaignDetailQueryResponse>(gql(VoucherQuery.voucherCampaignDetail), {
+      name: 'voucherCampaignDetail',
+      options: ({ voucherCampaignId }) => ({
+        variables: {
+          _id: voucherCampaignId
+        }
+      })
+    })
   )(withRouter<IRouterProps>(AwardContainer))
 );
