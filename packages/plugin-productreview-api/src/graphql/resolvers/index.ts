@@ -1,15 +1,15 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 
-import mutations from './mutations';
-import queries from './queries';
+import { productreview as productreviewMutations } from './mutations';
+import { productreview as productreviewQueries } from './queries';
 
 const resolvers: any = async serviceDiscovery => ({
   ...customScalars,
   Mutation: {
-    ...mutations
+    ...productreviewMutations
   },
   Query: {
-    ...queries
+    ...productreviewQueries
   }
 });
 

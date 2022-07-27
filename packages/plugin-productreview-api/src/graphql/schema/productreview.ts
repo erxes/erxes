@@ -12,7 +12,7 @@ const queryParams = `
 `;
 
 const mutationParams = `
-    productId: String!,
+    productId: String,
     customerId : String,
     review: Int 
 `;
@@ -22,6 +22,7 @@ export const queries = `
 `;
 
 export const mutations = `
-  productreviewsAdd(${mutationParams}): Productreview
-  productreviewsCountAdd(${mutationParams}): Productreview
+  productreviewAdd(${mutationParams}): Productreview
+  productreviewUpdate(_id: String!, ${mutationParams}): Productreview
+  productreviewRemove(_id: String!): Productreview
 `;
