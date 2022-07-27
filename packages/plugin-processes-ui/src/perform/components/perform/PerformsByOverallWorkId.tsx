@@ -22,7 +22,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Form from '../../containers/PerformForm';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IJobRefer } from '../../../job/types';
-import { IFlowDocument, IJob } from '../../../flow/types';
+import { IFlowDocument } from '../../../flow/types';
 import Box from '@erxes/ui/src/components/Box';
 import { calculateCount } from './common';
 

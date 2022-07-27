@@ -141,7 +141,6 @@ class Form extends React.Component<Props, State> {
 
   onChange = e => {
     const count = Number(e.target.value);
-    const { needProducts, resultProducts, jobRefer } = this.state;
 
     this.setState({
       count

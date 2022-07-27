@@ -51,12 +51,15 @@ class ProductFormContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       const { count, performNeedProducts, performResultProducts } = values;
 
-      console.log(
-        'on renderButton container: ',
-        count,
-        performNeedProducts,
-        performResultProducts
-      );
+      for (const need of performNeedProducts) {
+        need.product = '';
+        need.uom = '';
+      }
+
+      for (const result of performResultProducts) {
+        result.product = '';
+        result.uom = '';
+      }
 
       const doc = {
         startAt: new Date(),
