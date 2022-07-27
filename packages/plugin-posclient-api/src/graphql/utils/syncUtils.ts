@@ -3,15 +3,16 @@ import { IPosUserDocument } from '../../models/definitions/posUsers';
 import { IConfig } from '../../models/definitions/configs';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 
-export const getServerAddress = async () => {
-  const posService = await getService('pos');
+export const getServerAddress = async (serviceName?: string) => {
+  const posService = await getService(serviceName || 'pos');
 
   if (posService.address) {
     return posService.address;
   }
 
   const { SERVER_DOMAIN } = process.env;
-  return `${SERVER_DOMAIN || 'http://localhost:4000'}/pl:pos`;
+  return `${SERVER_DOMAIN || 'http://localhost:4000'}/pl:${serviceName ||
+    'pos'}`;
 };
 
 export const importUsers = async (
@@ -73,8 +74,8 @@ export const preImportProducts = async (models: IModels, groups: any = []) => {
 };
 
 export const importProducts = async (models: IModels, groups: any = []) => {
-  const { NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN } = process.env;
-  const FILE_PATH = `${NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN}/read-file`;
+  const FILE_PATH = `${await getServerAddress('core')}/read-file`;
+
   const attachmentUrlChanger = attachment => {
     return attachment && attachment.url && !attachment.url.includes('http')
       ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
@@ -126,8 +127,7 @@ export const importProducts = async (models: IModels, groups: any = []) => {
 };
 
 // Pos config created in main erxes differs from here
-export const extractConfig = doc => {
-  const { NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN } = process.env;
+export const extractConfig = async doc => {
   const {
     uiOptions = {
       favIcon: '',
@@ -141,7 +141,7 @@ export const extractConfig = doc => {
   } = doc;
   console.log(uiOptions);
 
-  const FILE_PATH = `${NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN}/read-file`;
+  const FILE_PATH = `${await getServerAddress('core')}/read-file`;
 
   try {
     uiOptions.favIcon =
@@ -307,7 +307,7 @@ export const receivePosConfig = async (models: IModels, data) => {
 
     await models.Configs.updateConfig(config._id, {
       ...config,
-      ...extractConfig(updatedDocument)
+      ...(await extractConfig(updatedDocument))
     });
 
     // set not found users inactive

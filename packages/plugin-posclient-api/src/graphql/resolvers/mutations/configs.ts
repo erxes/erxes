@@ -40,7 +40,7 @@ const configMutations = {
       validateConfig(pos);
 
       await models.Configs.updateConfig(config._id, {
-        ...extractConfig(pos),
+        ...(await extractConfig(pos)),
         syncInfo: pos.syncInfo,
         qpayConfig
       });
@@ -97,7 +97,7 @@ const configMutations = {
         } = response;
 
         await models.Configs.updateConfig(config._id, {
-          ...extractConfig(pos),
+          ...(await extractConfig(pos)),
           syncInfo: pos.syncInfo || {},
           qpayConfig
         });
