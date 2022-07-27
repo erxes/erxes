@@ -5,7 +5,7 @@ import SetProperty from '../../../containers/forms/actions/subForms/SetProperty'
 import { IAction } from '../../../types';
 import Button from '@erxes/ui/src/components/Button';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Common from './Common';
 import CustomCode from './subForms/CustomCode';

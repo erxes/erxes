@@ -1,4 +1,5 @@
-import { Alert, confirm, withProps, ButtonMutate } from '@erxes/ui/src';
+import { Alert, ButtonMutate, confirm, withProps } from '@erxes/ui/src';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -14,7 +15,6 @@ import {
   IProductCategory,
   ProductCategoriesQueryResponse
 } from '../../types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 
 type Props = {
   history: any;

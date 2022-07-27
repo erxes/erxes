@@ -1,12 +1,14 @@
+import { Alert, Bulk, router, withProps } from '@erxes/ui/src';
+import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Bulk, Alert, withProps, router } from '@erxes/ui/src';
-import React from 'react';
 import queryString from 'query-string';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IQueryParams, IRouterProps } from '@erxes/ui/src/types';
+
 import CarsList from '../components/list/CarsList';
+import { FILTER_PARAMS } from '../constants';
 import { mutations, queries } from '../graphql';
 import {
   IProductCategory,
@@ -19,7 +21,6 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { FILTER_PARAMS } from '../constants';
 
 type Props = {
   queryParams: any;

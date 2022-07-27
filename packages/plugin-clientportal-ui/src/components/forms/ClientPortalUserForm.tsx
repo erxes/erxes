@@ -1,26 +1,26 @@
+import { IUser } from '@erxes/ui/src/auth/types';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import { Form } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import {
+  FormColumn,
+  FormWrapper,
+  ModalFooter,
+  ScrollWrapper
+} from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
+
+import { USER_LOGIN_TYPES } from '../../constants';
 import {
   ClientPortalConfig,
   IClientPortalUser,
   IClientPortalUserDoc
 } from '../../types';
-import React from 'react';
-import validator from 'validator';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { generateCategoryOptions, __ } from '@erxes/ui/src/utils';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import Button from '@erxes/ui/src/components/Button';
-import { Form } from '@erxes/ui/src/components/form';
-import {
-  ScrollWrapper,
-  FormWrapper,
-  FormColumn,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import { USER_LOGIN_TYPES } from '../../constants';
 
 type Props = {
   currentUser: IUser;
@@ -315,8 +315,6 @@ class CustomerForm extends React.Component<Props, State> {
           {this.state.type === 'customer'
             ? this.renderClientPortalUser(formProps)
             : this.renderClientPortalCompany(formProps)}
-
-          <CollapseContent title={__('Links')} compact={true} children={''} />
         </ScrollWrapper>
         <ModalFooter>
           <Button

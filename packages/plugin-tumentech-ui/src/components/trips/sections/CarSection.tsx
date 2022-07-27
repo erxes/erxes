@@ -1,12 +1,13 @@
 import {
-  Sidebar,
   CollapseContent,
   FieldStyle,
+  Sidebar,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src';
-import React from 'react';
 import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
 import { ICar } from '../../../types';
 
 type Props = {

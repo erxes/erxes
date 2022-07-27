@@ -2,7 +2,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
 import React from 'react';

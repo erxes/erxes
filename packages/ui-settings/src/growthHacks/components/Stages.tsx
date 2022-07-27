@@ -1,7 +1,7 @@
 import { IStage } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import SortableList from '@erxes/ui/src/components/SortableList';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { StageList } from '@erxes/ui-settings/src/boards/styles';
 import FormBuilder from './FormBuilder';
 import React from 'react';

@@ -1,11 +1,11 @@
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import {
   __,
+  CompanySection,
+  CustomerSection,
   FieldStyle,
   SidebarCounter,
-  SidebarList,
-  CustomerSection,
-  CompanySection
+  SidebarList
 } from '@erxes/ui/src';
 import React from 'react';
 

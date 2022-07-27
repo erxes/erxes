@@ -1,10 +1,11 @@
+import { Name, NameContainer } from '@erxes/ui-contacts/src/customers/styles';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { InfoWrapper } from '@erxes/ui/src/styles/main';
-import { Name, NameContainer } from '@erxes/ui-contacts/src/customers/styles';
 import React from 'react';
-import { IClientPortalUser } from '../../types';
+
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
+import { IClientPortalUser } from '../../types';
 
 type Props = {
   clientPortalUser: IClientPortalUser;

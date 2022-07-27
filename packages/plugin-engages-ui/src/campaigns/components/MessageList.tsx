@@ -8,7 +8,7 @@ import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import { EMPTY_CONTENT_ENGAGE } from '@erxes/ui-settings/src/constants';
 import Table from '@erxes/ui/src/components/table';
 import colors from '@erxes/ui/src/styles/colors';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';

@@ -1,7 +1,7 @@
 import { ColorButton } from '@erxes/ui-cards/src/boards/styles/common';
 import Icon from '@erxes/ui/src/components/Icon';
 import { colors } from '@erxes/ui/src/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import * as React from 'react';
 import { IGrowthHack } from '../../types';
 

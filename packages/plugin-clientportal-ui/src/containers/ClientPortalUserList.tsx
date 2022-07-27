@@ -1,17 +1,18 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations, queries } from '../graphql';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
 import ClientPortalUserList from '../components/list/ClientPortalUserList';
+import { mutations, queries } from '../graphql';
 import {
+  ClientPortalUserRemoveMutationResponse,
   ClientPortalUsersQueryResponse,
-  ClientPortalUserTotalCountQueryResponse,
-  ClientPortalUserRemoveMutationResponse
+  ClientPortalUserTotalCountQueryResponse
 } from '../types';
 
 type Props = {

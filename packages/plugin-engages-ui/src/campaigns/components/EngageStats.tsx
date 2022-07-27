@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import Attachment from '@erxes/ui/src/components/Attachment';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import {

@@ -1,16 +1,18 @@
-import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
+import * as mongoose from 'mongoose';
+
 import {
   IClientPortalModel,
   loadClientPortalClass
 } from './models/ClientPortal';
-import { IClientPortalDocument } from './models/definitions/clientPortal';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
 import {
   IUserModel,
   loadClientPortalUserClass
 } from './models/ClientPortalUser';
+import { IClientPortalDocument } from './models/definitions/clientPortal';
 import { IUserDocument } from './models/definitions/clientPortalUser';
+
 export interface IModels {
   ClientPortals: IClientPortalModel;
   ClientPortalUsers: IUserModel;

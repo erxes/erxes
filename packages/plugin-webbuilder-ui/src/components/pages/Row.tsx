@@ -1,5 +1,5 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';

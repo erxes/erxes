@@ -1,4 +1,4 @@
-import { commonFields, clientPortalUserFields } from './queries';
+import { clientPortalUserFields, commonFields } from './queries';
 
 const createOrUpdateConfig = `
   mutation clientPortalConfigUpdate(

@@ -1,11 +1,11 @@
-import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import gql from 'graphql-tag';
 import React from 'react';
+import { useQuery } from 'react-apollo';
+
 import DirectionForm from '../../components/directions/Form';
 import { mutations, queries } from '../../graphql';
-import { useQuery, useMutation } from 'react-apollo';
-import Alert from '@erxes/ui/src/utils/Alert';
 import { IDirection } from '../../types';
 
 type Props = {
