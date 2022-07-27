@@ -18,18 +18,6 @@ export interface IContext extends IMainContext {
 
 export let models: IModels | null = null;
 
-// export const generateModels = async (
-//   _hostnameOrSubdomain: string
-// ): Promise<IModels> => {
-//   if (models) {
-//     return models;
-//   }
-
-//   loadClasses(mainDb);
-
-//   return models;
-// };
-
 export const loadClasses = (
   db: mongoose.Connection,
   subdomain: string
