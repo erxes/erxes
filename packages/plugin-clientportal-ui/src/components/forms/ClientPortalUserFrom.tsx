@@ -315,8 +315,6 @@ class CustomerForm extends React.Component<Props, State> {
           {this.state.type === 'customer'
             ? this.renderClientPortalUser(formProps)
             : this.renderClientPortalCompany(formProps)}
-
-          <CollapseContent title={__('Links')} compact={true} children={''} />
         </ScrollWrapper>
         <ModalFooter>
           <Button
