@@ -4,8 +4,9 @@ export default `
     name: String!
     parentId: String
 
-    parentCategory: CmsCategory
-    subCategories: [CmsCategory]
-    descendantCategories: [CmsCategory]
+    parent: CmsCategory
+    children: [CmsCategory!]
+    descendants: [CmsCategory!]
+    ancestors: [CmsCategory!]
   }
 `;
