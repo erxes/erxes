@@ -1,11 +1,12 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import gql from 'graphql-tag';
 import React from 'react';
+import { useQuery } from 'react-apollo';
+
 import RouteForm from '../../components/routes/Form';
 import { mutations, queries } from '../../graphql';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
 import { IRoute } from '../../types';
 
 type Props = {

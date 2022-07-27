@@ -1,8 +1,9 @@
-import React from 'react';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { ITrip } from '../../types';
-import { formatValue, renderFullName, __ } from '@erxes/ui/src/utils/core';
+import { formatValue, renderFullName } from '@erxes/ui/src/utils/core';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
+
+import { ITrip } from '../../types';
 
 type Props = {
   trip: ITrip;

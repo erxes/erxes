@@ -1,15 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
-import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import Row from './Row';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+
 import PlaceForm from '../../containers/places/Form';
-import { tumentechMenu } from '../list/CarsList';
 import { IPlace } from '../../types';
+import { tumentechMenu } from '../list/CarsList';
+import Row from './Row';
 
 type Props = {
   places: IPlace[];

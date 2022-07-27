@@ -1,10 +1,11 @@
+import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
+import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
+import { formatValue, FormControl, TextInfo } from '@erxes/ui/src';
 import _ from 'lodash';
-import { __, FormControl, formatValue, TextInfo } from '@erxes/ui/src';
 import React from 'react';
+
 import { FlexItem } from '../../styles';
 import { ICar, IProductCategory } from '../../types';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
 
 type Props = {
   car: ICar;

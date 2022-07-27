@@ -1,8 +1,10 @@
+import LocationOption from '@erxes/ui-settings/src/properties/components/LocationOption';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Map from '@erxes/ui/src/containers/map/Map';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
@@ -11,11 +13,10 @@ import {
 } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
-import { IPlace } from '../../types';
-import { PROVINCES } from '../../constants';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/containers/map/Map';
-import LocationOption from '@erxes/ui-settings/src/properties/components/LocationOption';
+
+import { PROVINCES } from '../../constants';
+import { IPlace } from '../../types';
 
 type Props = {
   place?: IPlace;

@@ -1,13 +1,14 @@
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
-import { ITrip } from '../../types';
-import Map from '@erxes/ui/src/containers/map/Map';
-import { ILocationOption } from '@erxes/ui/src/types';
-import RightSidebar from './RightSideBar';
-import LeftSideBar from './LeftSideBar';
-import { TripTitle } from '../../styles';
 import { IField } from '@erxes/ui-segments/src/types';
+import Map from '@erxes/ui/src/containers/map/Map';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { ILocationOption } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import { TripTitle } from '../../styles';
+import { ITrip } from '../../types';
+import LeftSideBar from './LeftSideBar';
+import RightSidebar from './RightSideBar';
 
 type Props = {
   trip: ITrip;

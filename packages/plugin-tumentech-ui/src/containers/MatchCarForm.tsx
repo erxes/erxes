@@ -1,17 +1,18 @@
-import { withProps, Spinner, Alert } from '@erxes/ui/src';
+import { Alert, Spinner, withProps } from '@erxes/ui/src';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
+import { graphql } from 'react-apollo';
+
 import MatchForm from '../components/matchForm/MatchCarForm';
 import { mutations, queries } from '../graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import * as compose from 'lodash.flowright';
 import {
-  ICarCategory,
   CarCategoriesQueryResponse,
-  ProductMatchQueryResponse,
+  ICarCategory,
+  IProductCategory,
   ProductMatchMutationResponse,
   ProductMatchMutationVariables,
-  IProductCategory
+  ProductMatchQueryResponse
 } from '../types';
 
 type Props = {
@@ -41,7 +42,7 @@ class MatchCarFormContainer extends React.Component<FinalProps> {
       .then(() => {
         Alert.success('You successfully added a carCategories');
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
