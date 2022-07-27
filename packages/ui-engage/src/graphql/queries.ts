@@ -1,4 +1,4 @@
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const listParamsDef = `
   $kind: String
@@ -82,18 +82,18 @@ const engageMessages = `
       }
 
       ${
-        isEnabled("segments")
+        isEnabled('segments')
           ? `
               segments {
                 _id
                 name
               }
             `
-          : ""
+          : ''
       }
 
       ${
-        isEnabled("tags")
+        isEnabled('tags')
           ? `
               getTags {
                 ${tagFields}
@@ -102,7 +102,7 @@ const engageMessages = `
                 ${tagFields}
               }
             `
-          : ""
+          : ''
       }
     }
   }
@@ -129,23 +129,23 @@ export const engageDetailFields = `
   }
 
   ${
-    isEnabled("tags")
+    isEnabled('tags')
       ? `
           customerTags {
             ${tagFields}
           }
         `
-      : ""
+      : ''
   }
 
   ${
-    isEnabled("segments")
+    isEnabled('segments')
       ? `
           segments {
             contentType
           }
         `
-      : ""
+      : ''
   }
 `;
 
@@ -155,15 +155,7 @@ const engageMessageStats = `
       ${engageDetailFields}
       stats
 
-      logs {
-        _id
-        createdAt
-        engageMessageId
-        type
-        message
-      }
-
-      ${isEnabled("inbox") ? "fromIntegration" : ""}
+      ${isEnabled('inbox') ? 'fromIntegration' : ''}
     }
   }
 `;
@@ -350,6 +342,18 @@ const totalCount = `
   }
 `;
 
+const engageLogs = `
+  query engageLogs($engageMessageId: String!, $page: Int, $perPage: Int) {
+    engageLogs(engageMessageId: $engageMessageId, page: $page, perPage: $perPage) {
+      _id
+      createdAt
+      engageMessageId
+      type
+      message
+    }
+  }
+`;
+
 export default {
   engageMessages,
   engageMessagesTotalCount,
@@ -370,4 +374,5 @@ export default {
   engagesConfigDetail,
   emailTemplates,
   totalCount,
+  engageLogs
 };
