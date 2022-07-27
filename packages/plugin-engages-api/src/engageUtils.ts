@@ -140,7 +140,10 @@ export const send = async (
     brandIds,
     fromUserId,
     scheduleDate,
-    _id
+    _id,
+    kind,
+    runCount,
+    title
   } = engageMessage;
 
   // Check for pre scheduled engages
@@ -166,6 +169,16 @@ export const send = async (
   }
 
   if (!engageMessage.isLive) {
+    return;
+  }
+
+  if (kind === CAMPAIGN_KINDS.MANUAL && runCount && runCount > 0) {
+    await models.Logs.createLog(
+      _id,
+      'regular',
+      `Manual campaign "${title}" has already run before`
+    );
+
     return;
   }
 
