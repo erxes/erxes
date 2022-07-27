@@ -687,7 +687,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         subdomain,
         models,
         clientPortalId,
-        document: doc,
+        document: { ...doc, email, phone },
         password
       });
 
