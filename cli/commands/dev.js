@@ -201,6 +201,22 @@ module.exports.devCmd = async program => {
     });
   }
 
+  if (configs.dashboard) {
+    apps.push({
+      name: 'dashboard',
+      cwd: filePath(`../packages/dashboard-api`),
+      script: 'yarn',
+      args: 'dev',
+      ...commonOptions,
+      ignore_watch: ['node_modules'],
+      env: {
+        PORT: 4300,
+        ...commonEnv,
+        ...((configs.dashboard || {}).envs || {})
+      }
+    });
+  }
+
   apps.push({
     name: 'gateway',
     cwd: filePath(`../packages/gateway`),
