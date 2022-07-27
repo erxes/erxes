@@ -5,7 +5,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import { EMPTY_CONTENT_POPUPS } from '@erxes/ui-settings/src/constants';

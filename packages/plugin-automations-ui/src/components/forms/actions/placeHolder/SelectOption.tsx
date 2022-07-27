@@ -4,7 +4,7 @@ import Popover from 'react-bootstrap/Popover';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IOption } from '@erxes/ui/src/types';
 import { Attributes } from '../styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   config: any;

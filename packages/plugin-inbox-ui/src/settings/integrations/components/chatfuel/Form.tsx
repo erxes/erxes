@@ -5,7 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
@@ -97,10 +97,10 @@ class Chatfuel extends React.Component<Props> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={callback}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

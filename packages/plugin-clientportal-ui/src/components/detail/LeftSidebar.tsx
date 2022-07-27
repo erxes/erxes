@@ -1,9 +1,10 @@
 import { Sidebar } from '@erxes/ui/src';
+import Box from '@erxes/ui/src/components/Box';
 import React from 'react';
+
+import { List } from '../../styles';
 import { IClientPortalUser } from '../../types';
 import DetailInfo from './DetailInfo';
-import Box from '@erxes/ui/src/components/Box';
-import { List } from '../../styles';
 
 type Props = {
   clientPortalUser: IClientPortalUser;

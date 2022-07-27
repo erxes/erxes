@@ -4,7 +4,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { ITag } from '@erxes/ui/src/tags/types';
 import React from 'react';

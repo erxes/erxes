@@ -1,18 +1,18 @@
-import { ButtonMutate, AppConsumer, withProps } from '@erxes/ui/src';
+import { AppConsumer, ButtonMutate, withProps } from '@erxes/ui/src';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import {
   IButtonMutateProps,
   IQueryParams,
   IRouterProps
 } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ClientPortalUserForm from '../components/forms/ClientPortalUserForm';
-import { queries, mutations } from '../graphql';
-import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
+import ClientPortalUserForm from '../components/forms/ClientPortalUserForm';
+import { mutations, queries } from '../graphql';
+import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
 
 type Props = {
   clientPortalUser: IClientPortalUser;

@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import colors from '@erxes/ui/src/styles/colors';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
 import { List } from '../../../companies/styles';
 import { ICustomer } from '../../types';

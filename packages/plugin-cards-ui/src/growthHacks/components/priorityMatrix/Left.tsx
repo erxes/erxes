@@ -1,7 +1,7 @@
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import Table from '@erxes/ui/src/components/table';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { LeftContent, ScrollContent } from '../../styles';
 import { IGrowthHackParams } from '../../types';
 import React from 'react';

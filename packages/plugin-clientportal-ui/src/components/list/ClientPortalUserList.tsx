@@ -1,24 +1,24 @@
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Sidebar from './Sidebar';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Button from '@erxes/ui/src/components/Button';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import React from 'react';
+
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import { IClientPortalUser } from '../../types';
 import ClientPortalUserRow from './ClientPortalUserRow';
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   history: any;
