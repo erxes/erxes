@@ -80,6 +80,14 @@ const webbuilderMutations = {
 
   async webbuilderTemplatesAdd(_root, doc: ITemplate, { models }: IContext) {
     return models.Templates.createTemplate(doc);
+  },
+
+  async webbuilderTemplatesRemove(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.Templates.deleteOne({ _id });
   }
 };
 

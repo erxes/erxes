@@ -1,7 +1,11 @@
 import React from 'react';
 import { __, DataWithLoader, EmptyState, Table } from '@erxes/ui/src';
 
-const List = () => {
+type Props = {
+  loading: boolean;
+};
+
+const List = (props: Props) => {
   const loading = false;
   const data = [];
 

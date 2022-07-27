@@ -5,13 +5,13 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
-import { ISafeRemItem } from '../types';
+import { ISafeRemainderItem } from '../types';
 import { FinanceAmount } from '../../styles';
 
 type Props = {
-  item: ISafeRemItem;
+  item: ISafeRemainderItem;
   updateItem: (_id: string, remainder: number, status: string) => void;
-  removeItem: (item: ISafeRemItem) => void;
+  removeItem: (item: ISafeRemainderItem) => void;
 };
 
 type State = {

@@ -18,15 +18,12 @@ type FinalProps = {
 function WebBuilderContainer(props: FinalProps) {
   const { contentTypesQuery } = props;
 
-  if (contentTypesQuery.loading) {
-    return null;
-  }
-
   const contentTypes = contentTypesQuery.webbuilderContentTypes || [];
 
   const updatedProps = {
     ...props,
-    contentTypes
+    contentTypes,
+    loading: contentTypesQuery.loading
   };
 
   return <WebBuilder {...updatedProps} />;

@@ -8,8 +8,8 @@ import { __ } from '@erxes/ui/src/utils';
 import { IQueryParams } from '@erxes/ui/src/types';
 import {
   ISafeRemainder,
-  ISafeRemItem,
-  SafeRemItemsQueryResponse
+  ISafeRemainderItem,
+  SafeRemainderItemsQueryResponse
 } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { TableOver } from '../../styles';
@@ -18,23 +18,23 @@ type Props = {
   queryParams: IQueryParams;
   totalCount: number;
   history: any;
-  safeRemItemsQuery: SafeRemItemsQueryResponse;
+  safeRemainderItemsQuery: SafeRemainderItemsQueryResponse;
   safeRemainder: ISafeRemainder;
   currentUser: IUser;
-  updateRemItem: (_id: string, remainder: number, status: string) => void;
-  removeRemItem: (item: ISafeRemItem) => void;
+  updateRemainderItem: (_id: string, remainder: number, status: string) => void;
+  removeRemainderItem: (item: ISafeRemainderItem) => void;
 };
 
 class Details extends React.Component<Props> {
-  renderRow = (remItems: ISafeRemItem[]) => {
-    const { updateRemItem, removeRemItem } = this.props;
+  renderRow = (remItems: ISafeRemainderItem[]) => {
+    const { updateRemainderItem, removeRemainderItem } = this.props;
 
     return (remItems || []).map(rem => (
       <Row
         key={rem._id}
         item={rem}
-        updateItem={updateRemItem}
-        removeItem={removeRemItem}
+        updateItem={updateRemainderItem}
+        removeItem={removeRemainderItem}
       />
     ));
   };
@@ -45,18 +45,18 @@ class Details extends React.Component<Props> {
       queryParams,
       history,
       totalCount,
-      safeRemItemsQuery
+      safeRemainderItemsQuery
     } = this.props;
     const breadcrumb = [
       { title: __('Safe Remainders'), link: '/inventories/safe-remainders' },
       { title: 'Safe Remainder' }
     ];
 
-    if (safeRemItemsQuery.loading) {
+    if (safeRemainderItemsQuery.loading) {
       return <Spinner />;
     }
 
-    const remainderItems = safeRemItemsQuery.safeRemItems;
+    const remainderItems = safeRemainderItemsQuery.safeRemainderItems;
 
     const content = (
       <TableOver>

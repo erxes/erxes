@@ -7,6 +7,7 @@ export interface IField {
   code: string;
   text: string;
   type: string;
+  show: boolean;
 }
 
 export interface IContentType {
@@ -23,7 +24,8 @@ export const fieldSchema = new Schema(
   {
     code: { type: String },
     text: { type: String },
-    type: { type: String }
+    type: { type: String },
+    show: { type: Boolean }
   },
   { _id: false }
 );

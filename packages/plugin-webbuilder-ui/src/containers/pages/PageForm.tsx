@@ -1,4 +1,4 @@
-import { Alert } from '@erxes/ui/src';
+import { Alert, confirm } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
@@ -18,10 +18,17 @@ type FinalProps = Props & {
   pageDetailQuery?: any;
   templatesQuery: any;
   templatesAdd: any;
+  templatesRemove: any;
 };
 
 const FormContainer = (props: FinalProps) => {
-  const { pageDetailQuery, history, templatesQuery, templatesAdd } = props;
+  const {
+    pageDetailQuery,
+    history,
+    templatesQuery,
+    templatesAdd,
+    templatesRemove
+  } = props;
 
   if ((pageDetailQuery && pageDetailQuery.loading) || templatesQuery.loading) {
     return null;
@@ -30,7 +37,7 @@ const FormContainer = (props: FinalProps) => {
   const saveTemplate = (name: string, jsonData: any) => {
     templatesAdd({ variables: { name, jsonData } })
       .then(() => {
-        Alert.warning('You successfully added template.');
+        Alert.success('You successfully added template.');
 
         history.push({
           pathname: '/webbuilder/pages'
@@ -39,6 +46,18 @@ const FormContainer = (props: FinalProps) => {
       .catch(e => {
         Alert.error(e.message);
       });
+  };
+
+  const removeTemplate = (_id: string) => {
+    confirm().then(() => {
+      templatesRemove({ variables: { _id } })
+        .then(() => {
+          Alert.success('You successfully removed template.');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
   };
 
   const save = (
@@ -88,7 +107,8 @@ const FormContainer = (props: FinalProps) => {
     save,
     page,
     templates,
-    saveTemplate
+    saveTemplate,
+    removeTemplate
   };
 
   return <PageForm {...updatedProps} />;
@@ -121,6 +141,12 @@ export default compose(
   }),
   graphql(gql(mutations.templatesAdd), {
     name: 'templatesAdd',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.templates) }]
+    })
+  }),
+  graphql(gql(mutations.templatesRemove), {
+    name: 'templatesRemove',
     options: () => ({
       refetchQueries: [{ query: gql(queries.templates) }]
     })

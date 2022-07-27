@@ -165,7 +165,7 @@ const actionCreate = async ({
     newData.userId = execution.target.userId;
   }
 
-  if (execution.triggerType === 'conversation') {
+  if (execution.triggerType === 'inbox:conversation') {
     newData.sourceConversationIds = [execution.targetId];
   }
 
