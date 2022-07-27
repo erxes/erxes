@@ -21,6 +21,7 @@ export const types = `
 
 const qryParams = `
   searchValue: String
+
 `;
 
 export const queries = `

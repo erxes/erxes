@@ -141,7 +141,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       save,
       branches,
       isActionLoading: this.state.isLoading,
-      currentMode: 'update',
       slots,
       productCategories
     };

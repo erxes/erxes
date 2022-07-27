@@ -2,11 +2,11 @@ import * as jwt from 'jsonwebtoken';
 
 export const createJwtToken = payload => {
   const token = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    expiresIn: '1d'
+    expiresIn: '14d'
   });
 
   const refreshToken = jwt.sign(payload, process.env.JWT_TOKEN_SECRET || '', {
-    expiresIn: '7d'
+    expiresIn: '30d'
   });
 
   return { token, refreshToken };

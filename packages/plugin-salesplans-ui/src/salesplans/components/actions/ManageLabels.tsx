@@ -26,57 +26,74 @@ import { ColorPickerWrapper, ColorPick, ColorPicker } from '../../styles';
 type Props = {
   getLabels: any;
   type: string;
-  remove: (_id: string) => void;
-  save: (update: any, add: any) => void;
   onChangeType: (type: string) => void;
   closeModal: () => void;
-  refetch: () => void;
+  edit: (update: any, add: any) => void;
+  remove: (_id: string) => void;
 };
 
 const ManageLabels = (props: Props) => {
-  const { getLabels, onChangeType, type, save, remove, closeModal } = props;
+  const { getLabels, onChangeType, type, closeModal, edit, remove } = props;
   const [labels, setLabels] = useState<any[]>([]);
   const [labelsData, setLabelsData] = useState(getLabels);
 
   useEffect(() => {
-    getLabels.map(value => {
+    getLabels.map((value: any) => {
       delete value.__typename;
     });
     setLabelsData(getLabels);
   }, [getLabels]);
 
-  const onchangeLabel = (e, index, key) => {
+  const handleLabel = (event: any, index: number, key: string) => {
     const updatedLabels: any = [...labels];
 
-    updatedLabels[index][key] = (e.target as HTMLInputElement).value;
+    updatedLabels[index][key] = (event.target as HTMLInputElement).value;
 
     setLabels(updatedLabels);
   };
 
-  const onchangeLabelStatus = (e, index, key) => {
+  const handleLabelStatus = (event: any, index: number, key: string) => {
     const updatedLabels: any = [...labels];
-    updatedLabels[index][key] = e.value;
+    updatedLabels[index][key] = event.value;
     setLabels(updatedLabels);
   };
 
-  const onchangeDataLabel = (e, index, key) => {
+  const handleDataLabel = (event: any, index: number, key: string) => {
     const updatedLabels: any = [...labelsData];
-    updatedLabels[index][key] = (e.target as HTMLInputElement).value;
+    updatedLabels[index][key] = (event.target as HTMLInputElement).value;
     setLabelsData(updatedLabels);
   };
 
-  const onchangeDataLabelStatus = (e, index, key) => {
+  const handleDataLabelStatus = (event: any, index: number, key: string) => {
     const updatedLabels = [...labelsData];
-    updatedLabels[index][key] = e.value;
+    updatedLabels[index][key] = event.value;
     setLabelsData(updatedLabels);
   };
 
-  const removeLabel = index => {
-    setLabels(labels.filter((_element, i) => i !== index));
+  const handleColor = (event: any, index: number) => {
+    const updatedLabels: any = [...labels];
+
+    updatedLabels[index].color = event.hex;
+
+    setLabels(updatedLabels);
   };
 
-  const removeDataLabel = (index, _id) => {
-    setLabelsData(labelsData.filter((_element, i) => i !== index));
+  const handleDataColor = (event: any, index: number) => {
+    const updatedLabels = [...labelsData];
+
+    updatedLabels[index].color = event.hex;
+
+    setLabelsData(updatedLabels);
+  };
+
+  const removeLabel = (index: number) => {
+    setLabels(labels.filter((_element: any, _index: any) => _index !== index));
+  };
+
+  const removeDataLabel = (index: number, _id: string) => {
+    setLabelsData(
+      labelsData.filter((_element: any, _index: any) => _index !== index)
+    );
     remove(_id);
   };
 
@@ -90,7 +107,11 @@ const ManageLabels = (props: Props) => {
     ]);
   };
 
-  const colorPopover = (color, onChange, id: string) => {
+  const colorPopover = (
+    color: string,
+    id: string,
+    onChange: (event: any, index: number) => void
+  ) => {
     return (
       <Popover id={id}>
         <TwitterPicker
@@ -104,22 +125,6 @@ const ManageLabels = (props: Props) => {
     );
   };
 
-  const onChangeColor = (e: any, index: number) => {
-    const updatedLabels: any = [...labels];
-
-    updatedLabels[index].color = e.hex;
-
-    setLabels(updatedLabels);
-  };
-
-  const onChangeDataColor = (e, index) => {
-    const updatedLabels = [...labelsData];
-
-    updatedLabels[index].color = e.hex;
-
-    setLabelsData(updatedLabels);
-  };
-
   const renderLabelsContent = () => {
     const renderLabelsExisting = () => {
       const statusOptions = [
@@ -127,15 +132,17 @@ const ManageLabels = (props: Props) => {
         { value: 'active', label: 'active' }
       ];
 
-      const render = labelsData.map((t, index) => (
+      console.log(labelsData);
+
+      const render = labelsData.map((item: any, index: number) => (
         <FlexRow id={`${index}`}>
           <FlexItem>
             <FormControl
               type="text"
               id={`${index}`}
-              value={t.title || ''}
+              value={item.title || ''}
               placeholder={'Title'}
-              onChange={e => onchangeDataLabel(e, index, 'title')}
+              onChange={(event: any) => handleDataLabel(event, index, 'title')}
             />
           </FlexItem>
           <FlexItem>
@@ -144,14 +151,12 @@ const ManageLabels = (props: Props) => {
                 trigger="click"
                 rootClose={true}
                 placement="bottom"
-                overlay={colorPopover(
-                  t.color,
-                  e => onChangeDataColor(e, index),
-                  `${index}`
+                overlay={colorPopover(item.color, `${index}`, (event: any) =>
+                  handleDataColor(event, index)
                 )}
               >
                 <ColorPick>
-                  <ColorPicker style={{ backgroundColor: t.color || '' }} />
+                  <ColorPicker style={{ backgroundColor: item.color || '' }} />
                 </ColorPick>
               </OverlayTrigger>
             </ColorPickerWrapper>
@@ -159,8 +164,10 @@ const ManageLabels = (props: Props) => {
           <FlexItem>
             <Select
               options={statusOptions}
-              value={t.status}
-              onChange={e => onchangeDataLabelStatus(e, index, 'status')}
+              value={item.status}
+              onChange={(event: any) =>
+                handleDataLabelStatus(event, index, 'status')
+              }
               clearable={false}
               searchable={false}
             />
@@ -169,7 +176,7 @@ const ManageLabels = (props: Props) => {
             <Button
               id="skill-edit-skill"
               btnStyle="link"
-              onClick={e => removeDataLabel(index, t._id)}
+              onClick={() => removeDataLabel(index, item._id)}
             >
               <Tip text={__('Remove')} placement="bottom">
                 <Icon icon="times-circle" />
@@ -188,15 +195,15 @@ const ManageLabels = (props: Props) => {
         { value: 'active', label: 'active' }
       ];
 
-      const render = labels.map((t: any, index: number) => (
+      const render = labels.map((item: any, index: number) => (
         <FlexRow id={`${index}`}>
           <FlexItem>
             <FormControl
               type="text"
               id={`${index}`}
-              value={t.title || ''}
+              value={item.title || ''}
               placeholder={'Title'}
-              onChange={e => onchangeLabel(e, index, 'title')}
+              onChange={(event: any) => handleLabel(event, index, 'title')}
             />
           </FlexItem>
           <FlexItem>
@@ -204,15 +211,13 @@ const ManageLabels = (props: Props) => {
               <OverlayTrigger
                 trigger="click"
                 placement="bottom"
-                overlay={colorPopover(
-                  t.color,
-                  e => onChangeColor(e, index),
-                  `${index}`
+                overlay={colorPopover(item.color, `${index}`, (event: any) =>
+                  handleColor(event, index)
                 )}
                 rootClose={true}
               >
                 <ColorPick>
-                  <ColorPicker style={{ backgroundColor: t.color || '' }} />
+                  <ColorPicker style={{ backgroundColor: item.color || '' }} />
                 </ColorPick>
               </OverlayTrigger>
             </ColorPickerWrapper>
@@ -220,8 +225,10 @@ const ManageLabels = (props: Props) => {
           <FlexItem>
             <Select
               options={statusOptions}
-              value={t.status}
-              onChange={e => onchangeLabelStatus(e, index, 'status')}
+              value={item.status}
+              onChange={(event: any) =>
+                handleLabelStatus(event, index, 'status')
+              }
               clearable={false}
               searchable={false}
             />
@@ -230,7 +237,7 @@ const ManageLabels = (props: Props) => {
             <Button
               id="skill-edit-skill"
               btnStyle="link"
-              onClick={e => removeLabel(index)}
+              onClick={() => removeLabel(index)}
             >
               <Tip text={__('remove')} placement="bottom">
                 <Icon icon="times-circle" />
@@ -293,15 +300,14 @@ const ManageLabels = (props: Props) => {
     return null;
   };
 
-  const changeType = value => {
+  const changeType = (value: string) => {
     setLabels([]);
 
     onChangeType(value);
   };
 
   const onSave = () => {
-    save(labelsData, labels);
-    // refetch;
+    edit(labelsData, labels);
   };
 
   const renderTab = () => {

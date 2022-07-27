@@ -113,7 +113,13 @@ export const putActivityLog = async (
 
   const updatedParams = {
     ...params,
-    data: { ...data, contentType: `tags:${data.contentType}` }
+    data: {
+      ...data,
+      contentType: `tags:${data.contentType}`,
+      automations: {
+        type: data.contentType
+      }
+    }
   };
 
   return commonPutActivityLog(subdomain, {

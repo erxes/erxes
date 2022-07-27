@@ -1,15 +1,14 @@
-import React from 'react';
-import { IPos } from '../../../types';
-import { __, Button, Alert } from '@erxes/ui/src';
-import { FlexColumn, FlexRow, FlexItem, Block } from '../../../styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { IConfigsMap } from '../../../types';
 import PerConfigs from '../cardsGroup/PerConfigs';
+import React from 'react';
+import { __, Alert, Button } from '@erxes/ui/src';
+import { Block, FlexColumn, FlexItem, FlexRow } from '../../../styles';
+import { IConfigsMap } from '../../../types';
+import { IPos } from '../../../types';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+
 type Props = {
   onChange: (name: 'cardsConfig', value: any) => void;
   pos?: IPos;
-  configsMap: IConfigsMap;
 };
 type State = {
   configsMap: IConfigsMap;

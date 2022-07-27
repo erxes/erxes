@@ -47,17 +47,9 @@ interface ICatProd {
   productId: string;
 }
 
-interface IPosSlot {
-  _id: string;
-  code: string;
-  name: string;
-}
-
 export interface IConfig {
   name: string;
   description?: string;
-  brandId?: string;
-  tagIds?: string[];
   productDetails: string[];
   adminIds: string[];
   cashierIds: string[];
@@ -66,8 +58,6 @@ export interface IConfig {
   kitchenScreen: any;
   waitingScreen: any;
   kioskMachine?: any;
-  formSectionTitle?: string;
-  formIntegrationIds?: string[];
   token?: string;
   uiOptions: IUIOptions;
   ebarimtConfig: IEbarimtConfig;
@@ -76,6 +66,7 @@ export interface IConfig {
   catProdMappings: ICatProd[];
   initialCategoryIds: string[];
   kioskExcludeProductIds: string[];
+  posId: string;
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -147,10 +138,6 @@ export const configSchema = new Schema({
     type: [Object],
     label: 'Product category mappings'
   }),
-  posSlot: field({
-    type: [Object],
-    label: 'POS slot mappings'
-  }),
   initialCategoryIds: field({
     type: [String],
     label: 'Pos initial categories'
@@ -158,7 +145,8 @@ export const configSchema = new Schema({
   kioskExcludeProductIds: field({
     type: [String],
     label: 'kiosk Exclude Products'
-  })
+  }),
+  posId: field({ type: String, label: 'Pos id' })
 });
 
 export const productGroupSchema = new Schema({

@@ -14,6 +14,18 @@ const performMutations = {
     doc: IPerform,
     { user, docModifier, models, subdomain }: IContext
   ) {
+    const { needProducts, resultProducts, count } = doc;
+
+    for (const need of needProducts) {
+      const { quantity } = need;
+      need.quantity = quantity * Number(count);
+    }
+
+    for (const result of resultProducts) {
+      const { quantity } = result;
+      result.quantity = quantity * Number(count);
+    }
+
     const perform = await models.Performs.createPerform(docModifier(doc));
 
     console.log(perform);

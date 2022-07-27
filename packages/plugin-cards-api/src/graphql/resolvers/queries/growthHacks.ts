@@ -24,11 +24,15 @@ const growthHackQueries = {
   async growthHacks(
     _root,
     args: IGrowthHackListParams,
-    { user, commonQuerySelector, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const filter = {
-      ...commonQuerySelector,
-      ...(await generateGrowthHackCommonFilters(models, subdomain, user._id, args))
+      ...(await generateGrowthHackCommonFilters(
+        models,
+        subdomain,
+        user._id,
+        args
+      ))
     };
     const { sortField, sortDirection, skip = 0, limit = 10 } = args;
 
@@ -66,7 +70,12 @@ const growthHackQueries = {
     args: IGrowthHackListParams,
     { user, models, subdomain }: IContext
   ) {
-    const filter = await generateGrowthHackCommonFilters(models, subdomain, user._id, args);
+    const filter = await generateGrowthHackCommonFilters(
+      models,
+      subdomain,
+      user._id,
+      args
+    );
 
     return models.GrowthHacks.find(filter).count();
   },
@@ -76,7 +85,12 @@ const growthHackQueries = {
     args: IListParams,
     { user, models, subdomain }: IContext
   ) {
-    const filter = await generateGrowthHackCommonFilters(models, subdomain, user._id, args);
+    const filter = await generateGrowthHackCommonFilters(
+      models,
+      subdomain,
+      user._id,
+      args
+    );
 
     filter.ease = { $exists: true, $gt: 0 };
     filter.impact = { $exists: true, $gt: 0 };
@@ -110,7 +124,11 @@ const growthHackQueries = {
   /**
    * Growth hack detail
    */
-  async growthHackDetail(_root, { _id }: { _id: string }, { user, models }: IContext) {
+  async growthHackDetail(
+    _root,
+    { _id }: { _id: string },
+    { user, models }: IContext
+  ) {
     const growthHack = await models.GrowthHacks.getGrowthHack(_id);
 
     return checkItemPermByUser(models, user._id, growthHack);

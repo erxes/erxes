@@ -16,6 +16,7 @@ const commonFields = `
   canHide
   validation
   options
+  isVisibleToCreate
   locationOptions{
     lat
     lng
@@ -29,6 +30,7 @@ const commonFields = `
   groupId
   searchable
   showInCard
+  isRequired
 
   ${genericFields}
 

@@ -26,31 +26,10 @@ const addEditParams = `
   deliveryInfo: JSON,
   billType: String,
   registerNumber: String
+  slotCode: String
 `;
 
 export const types = `
-
-  type PosCustomer {
-    _id: String!
-    state: String
-    createdAt: Date
-    modifiedAt: Date
-    avatar: String
-    firstName: String
-    lastName: String
-    middleName: String
-    birthDate: Date
-    sex: Int
-    email: String
-    primaryEmail: String
-    emails: [String]
-    primaryPhone: String
-    phones: [String]
-    phone: String
-    tagIds: [String]
-    code: String
-  }
-
   type PosOrderItem {
     ${commonFields}
     productId: String!
@@ -63,6 +42,7 @@ export const types = `
     isPackage: Boolean
     isTake: Boolean
     productImgUrl: String
+    slotCode: String
   }
 
   type PosPutResponse {
@@ -127,6 +107,8 @@ export const types = `
     putResponses: [PosPutResponse]
     qpayInvoice: QPayInvoice
     qpayInvoices: [QPayInvoice]
+
+    slotCode: String
   }
 
   input OrderItemInput {

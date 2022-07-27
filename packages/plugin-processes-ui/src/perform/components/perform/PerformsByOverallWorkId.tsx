@@ -24,6 +24,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IJobRefer } from '../../../job/types';
 import { IFlowDocument, IJob } from '../../../flow/types';
 import Box from '@erxes/ui/src/components/Box';
+import { calculateCount } from './common';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -42,7 +43,6 @@ type State = {
   overallWorkPercent: number;
   overallWorkId: string;
   count: number;
-  jobRefer?: IJobRefer;
   max: number;
 };
 
@@ -52,24 +52,28 @@ class List extends React.Component<IProps, State> {
   constructor(props) {
     super(props);
 
-    const { queryParams } = this.props;
+    const { queryParams, jobRefers, flows, overallWorkDetail } = this.props;
     const { overallWorkId } = queryParams;
 
-    const percentageObject = this.calculatePercent();
-    const calculatedObject = this.calculateCount();
+    const percentageObject = this.calculatePercent('onConstructor');
+    const calculatedObject = calculateCount(
+      jobRefers || [],
+      flows || [],
+      overallWorkDetail,
+      'onConstructor1'
+    );
 
     this.state = {
       searchValue: this.props.searchValue,
       overallWorkPercent: percentageObject.percent,
       overallWorkId: overallWorkId || '',
       count: calculatedObject.count,
-      max: percentageObject.max,
-      jobRefer: calculatedObject.jobRefer
+      max: percentageObject.max
     };
   }
 
   componentDidUpdate() {
-    const percentageObject = this.calculatePercent();
+    const percentageObject = this.calculatePercent('componentDidUpdate');
     const { overallWorkPercent, max } = this.state;
     if (
       percentageObject.percent !== overallWorkPercent &&
@@ -82,52 +86,21 @@ class List extends React.Component<IProps, State> {
     }
   }
 
-  calculateCount = () => {
-    const { jobRefers, flows, overallWorkDetail } = this.props;
-    const { flowId, jobId, resultProducts } = overallWorkDetail;
+  calculatePercent = (type: string) => {
+    const { performs, jobRefers, flows, overallWorkDetail } = this.props;
 
-    const flow = flows
-      ? flows.find(f => f._id === flowId)
-      : ({} as IFlowDocument);
-    const flowJobs: IJob[] = flow ? flow.jobs || [] : [];
-    const flowJob: IJob = flowJobs.find(fj => fj.id === jobId) || ({} as IJob);
-    const jobReferId =
-      Object.keys(flowJob).length > 0 ? flowJob.jobReferId : '';
-    const jobRefer =
-      jobReferId && jobRefers
-        ? jobRefers.find(jr => jr._id === jobReferId)
-        : ({} as IJobRefer);
-
-    const jobReferResultProducts = jobRefer ? jobRefer.resultProducts : [];
-    const overallWorkResultProducts = resultProducts ? resultProducts : [];
-
-    let count = 0;
-    if (
-      (jobReferResultProducts || []).length > 0 &&
-      overallWorkResultProducts.length > 0
-    ) {
-      const overallQnty = overallWorkResultProducts[0].quantity || 1;
-      const jobReferQnty = jobReferResultProducts
-        ? jobReferResultProducts[0].quantity
-        : 1;
-      count = overallQnty / jobReferQnty;
-
-      console.log('calculate count: ', overallQnty, jobReferQnty, count);
-    }
-
-    return { count, jobRefer };
-  };
-
-  calculatePercent = () => {
-    const { performs } = this.props;
-    const calculatedObject = this.calculateCount();
+    const calculatedObject = calculateCount(
+      jobRefers || [],
+      flows || [],
+      overallWorkDetail,
+      type
+    );
     const count = calculatedObject.count;
+
     let total = 0;
     for (const perform of performs) {
       total = total + Number(perform.count);
     }
-
-    console.log(count, total);
 
     return {
       percent: Math.round(total !== 0 ? (total * 100) / count : 0),
@@ -281,21 +254,30 @@ class List extends React.Component<IProps, State> {
   };
 
   render() {
-    const { performsCount, loading, queryParams, history, flows } = this.props;
-    const { overallWorkId, max, jobRefer } = this.state;
+    const {
+      performsCount,
+      loading,
+      queryParams,
+      history,
+      overallWorkDetail,
+      jobRefers,
+      flows
+    } = this.props;
+    const { overallWorkId, max } = this.state;
 
     const trigger = (
       <Button btnStyle="success" icon="plus-circle">
         Add performance
       </Button>
     );
+
     const modalContent = props => (
       <Form
         {...props}
-        overallWorkDetail={this.props.overallWorkDetail}
         max={max}
+        overallWorkDetail={overallWorkDetail}
+        jobRefers={jobRefers}
         flows={flows}
-        jobRefer={jobRefer}
       />
     );
 

@@ -3,7 +3,7 @@ import messageBroker, {
   sendCoreMessage,
   sendProductsMessage
 } from '../../../messageBroker';
-import { getFullDate, getTomorrow } from '../../../utils';
+import { getFullDate, getPureDate, getTomorrow } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
 
 export const paginate = (
@@ -78,10 +78,10 @@ const generateFilterPosQuery = async (
 
   const paidQry: any = {};
   if (paidStartDate) {
-    paidQry.$gte = new Date(paidStartDate);
+    paidQry.$gte = getPureDate(paidStartDate);
   }
   if (paidEndDate) {
-    paidQry.$lte = new Date(paidEndDate);
+    paidQry.$lte = getPureDate(paidEndDate);
   }
   if (Object.keys(paidQry).length) {
     query.paidDate = paidQry;
@@ -97,10 +97,10 @@ const generateFilterPosQuery = async (
 
   const createdQry: any = {};
   if (createdStartDate) {
-    createdQry.$gte = new Date(createdStartDate);
+    createdQry.$gte = getPureDate(createdStartDate);
   }
   if (createdEndDate) {
-    createdQry.$lte = new Date(createdEndDate);
+    createdQry.$lte = getPureDate(createdEndDate);
   }
   if (Object.keys(createdQry).length) {
     query.createdAt = createdQry;
@@ -325,7 +325,7 @@ const queries = {
         subdomain,
         action: 'categories.find',
         data: {
-          regData: { order: { $regex: new RegExp(category.order) } }
+          regData: category.order
         },
         isRPC: true,
         defaultValue: []
@@ -388,24 +388,39 @@ const queries = {
         $project: {
           productId: '$items.productId',
           count: '$items.count',
+          date: '$paidDate',
           amount: { $multiply: ['$items.unitPrice', '$items.count'] }
         }
       },
       {
         $group: {
-          _id: '$productId',
+          _id: { productId: '$productId', hour: { $hour: '$date' } },
           count: { $sum: '$count' },
           amount: { $sum: '$amount' }
         }
       }
     ]);
 
-    for (const product of products) {
-      const { count = 0, amount = 0 } =
-        items.find(i => i._id === product._id) || {};
+    const diffZone = process.env.TIMEZONE;
 
-      product.count = count;
-      product.amount = amount;
+    for (const product of products) {
+      product.counts = {};
+      product.count = 0;
+      product.amount = 0;
+
+      const itemsByProduct =
+        items.filter(i => i._id.productId === product._id) || [];
+
+      for (const item of itemsByProduct) {
+        const { _id, count, amount } = item;
+        const { hour } = _id;
+
+        const pureHour = Number(hour) + Number(diffZone || 0);
+
+        product.counts[pureHour] = count;
+        product.count += count;
+        product.amount += amount;
+      }
     }
 
     return { totalCount, products };

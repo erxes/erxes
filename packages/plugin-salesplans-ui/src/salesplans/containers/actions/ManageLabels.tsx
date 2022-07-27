@@ -11,27 +11,30 @@ type Props = {
 
 const ManageLabelsContainer = (props: Props) => {
   const { closeModal } = props;
-  const [type, setType] = useState('');
+  const [type, setType] = useState<string>('');
 
-  const [save] = useMutation(gql(mutations.saveLabels));
-  const [remove] = useMutation(gql(mutations.removeLabel));
+  const [edit] = useMutation(gql(mutations.labelsEdit));
+  const [remove] = useMutation(gql(mutations.labelsRemove));
 
   const labelsQuery = useQuery(gql(queries.labels), {
-    variables: { type }
+    variables: { type },
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true
   });
 
-  const saveData = (update, add) => {
-    save({ variables: { update, add } })
+  const editData = (update, add) => {
+    edit({ variables: { update, add } })
       .then(() => {
         Alert.success('Successfully saved!');
       })
       .catch(e => {
         Alert.error(e.message);
       });
+
     closeModal();
   };
 
-  const removedata = (_id: string) => {
+  const removeData = (_id: string) => {
     remove({ variables: { _id } })
       .then(() => {
         Alert.success('Successfully removed');
@@ -43,23 +46,19 @@ const ManageLabelsContainer = (props: Props) => {
 
   const onChangeType = (type: string) => {
     setType(type);
-    labelsQuery.refetch({ type });
-  };
-
-  const refetch = () => {
-    labelsQuery.refetch({ type });
+    labelsQuery.refetch();
   };
 
   return (
     <ManageLabelsComponent
       getLabels={labelsQuery.data ? labelsQuery.data.labels : []}
       type={type}
-      remove={removedata}
-      save={saveData}
-      refetch={refetch}
       onChangeType={onChangeType}
       closeModal={closeModal}
+      edit={editData}
+      remove={removeData}
     />
   );
 };
+
 export default ManageLabelsContainer;

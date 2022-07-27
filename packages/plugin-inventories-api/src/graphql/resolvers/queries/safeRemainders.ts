@@ -89,7 +89,7 @@ const safeRemainderQueries = {
       let allRemainders = await models.SafeRemainders.find(query).lean();
       const remIds = allRemainders.map(r => r._id);
 
-      const items = await models.SafeRemItems.find({
+      const items = await models.SafeRemainderItems.find({
         remainderId: { $in: remIds },
         productId: params.productId
       }).lean();
@@ -106,14 +106,22 @@ const safeRemainderQueries = {
     };
   },
 
-  safeRemItems: async (_root, params, { models, subdomain }: IContext) => {
+  safeRemainderItems: async (
+    _root,
+    params,
+    { models, subdomain }: IContext
+  ) => {
     const query = await generateFilterItems(params, subdomain);
-    return models.SafeRemItems.find(query);
+    return models.SafeRemainderItems.find(query);
   },
 
-  safeRemItemsCount: async (_root, params, { models, subdomain }: IContext) => {
+  safeRemainderItemsCount: async (
+    _root,
+    params,
+    { models, subdomain }: IContext
+  ) => {
     const query = await generateFilterItems(params, subdomain);
-    return models.SafeRemItems.find(query).count();
+    return models.SafeRemainderItems.find(query).count();
   }
 };
 

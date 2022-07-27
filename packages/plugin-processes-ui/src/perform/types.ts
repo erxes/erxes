@@ -105,7 +105,7 @@ export type OverallWorksSideBarQueryResponse = {
 } & QueryResponse;
 
 export type OverallWorksSideBarDetailQueryResponse = {
-  overallWorksSideBarDetail: IOverallWork;
+  overallWorksSideBarDetail: IOverallWorkDocument;
 } & QueryResponse;
 
 export type OverallWorksTotalCountQueryResponse = {

@@ -14,6 +14,7 @@ interface IParam {
   ids: string[];
   excludeIds: boolean;
   id: string;
+  jobReferId: string;
 }
 
 const generateFilter = (params: IParam, commonQuerySelector) => {
@@ -25,7 +26,8 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
     inBranchId,
     inDepartmentId,
     outBranchId,
-    outDepartmentId
+    outDepartmentId,
+    jobReferId
   } = params;
   const selector: any = { ...commonQuerySelector };
 
@@ -45,6 +47,10 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
   if (inBranchId && inDepartmentId) {
     selector.inBranchId = inBranchId;
     selector.inDepartmentId = inDepartmentId;
+  }
+
+  if (jobReferId) {
+    selector.jobId = jobReferId;
   }
 
   if (ids && ids.length > 0) {

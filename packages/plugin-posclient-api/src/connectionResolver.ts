@@ -1,31 +1,31 @@
 import * as mongoose from 'mongoose';
-import { IPosUserDocument } from './models/definitions/posUsers';
-import { IPosUserModel, loadPosUserClass } from './models/PosUsers';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-
+import { IConfigDocument } from './models/definitions/configs';
 import { IConfigModel, loadConfigClass } from './models/Configs';
+import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { ILogModel } from './models/Logs';
+import { IOrderDocument } from './models/definitions/orders';
+import { IOrderItemDocument } from './models/definitions/orderItems';
 import { IOrderItemModel, loadOrderItemClass } from './models/OrderItems';
 import { IOrderModel, loadOrderClass } from './models/Orders';
+import { IPosSlotDocument } from './models/definitions/slots';
+import { IPosSlotModel, loadPosSlotClass } from './models/Slots';
+import { IPosUserDocument } from './models/definitions/posUsers';
+import { IPosUserModel, loadPosUserClass } from './models/PosUsers';
 import {
-  IProductModel,
-  loadProductClass,
-  IProductCategoryModel,
-  loadProductCategoryClass
-} from './models/Products';
-import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
-import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
-
-import { IConfigDocument } from './models/definitions/configs';
-import { IOrderItemDocument } from './models/definitions/orderItems';
-import { IOrderDocument } from './models/definitions/orders';
-import {
-  IProductDocument,
-  IProductCategoryDocument
+  IProductCategoryDocument,
+  IProductDocument
 } from './models/definitions/products';
+import {
+  IProductCategoryModel,
+  IProductModel,
+  loadProductCategoryClass,
+  loadProductClass
+} from './models/Products';
 import { IPutResponseDocument } from './models/definitions/putResponses';
+import { IPutResponseModel, loadPutResponseClass } from './models/PutResponses';
 import { IQpayInvoiceDocument } from './models/definitions/qpayInvoices';
+import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
 
 export interface IModels {
   Configs: IConfigModel;
@@ -37,6 +37,7 @@ export interface IModels {
   PutResponses: IPutResponseModel;
   QPayInvoices: IQpayInvoiceModel;
   PosUsers: IPosUserModel;
+  PosSlots: IPosSlotModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -86,6 +87,11 @@ export const loadClasses = (
     'posclient_qpay_invoices',
     loadQPayInvoiceClass(models)
   );
+  models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
+    'posclient_slots',
+    loadPosSlotClass(models)
+  );
+
   return models;
 };
 

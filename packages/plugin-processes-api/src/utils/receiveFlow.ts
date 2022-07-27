@@ -19,17 +19,14 @@ import { sendSalesplansMessage } from '../messageBroker';
 export const rf = async (models: IModels, subdomain: string, params) => {
   let descriptionForWork = '';
   const inputData = params.data;
-  const {
-    branchId,
-    departmentId,
-    interval,
-    salesLogId,
-    intervalId
-  } = inputData;
+  const { branchId, departmentId, interval, salesLogId } = inputData;
   const { intervals } = interval;
 
+  let intervalId = 'intervalId';
+
   for (const intervalData of intervals) {
-    const { productId, count } = intervalData;
+    const { productId, count, label } = intervalData;
+    intervalId = label;
     const flowJobStatus = true;
     const status = 'active';
     const filter = { productId, flowJobStatus, status };

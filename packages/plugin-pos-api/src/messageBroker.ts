@@ -235,6 +235,14 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+  consumeRPCQueue('pos:findSlots', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.PosSlots.find({ posId: data.posId }).lean()
+    };
+  });
 };
 
 export const sendProductsMessage = async (
