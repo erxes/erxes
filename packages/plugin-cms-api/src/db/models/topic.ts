@@ -1,4 +1,4 @@
-import { Document, Schema, Model, model } from 'mongoose';
+import { Document, Schema, Model, Connection } from 'mongoose';
 import { IModels } from './index';
 
 export interface ITopic {
@@ -15,19 +15,23 @@ export const topicSchema = new Schema<ITopicDocument>({
   name: { type: String, required: true }
 });
 
-export const genTopicModel = (
-  models: IModels,
-  subdomain: string
-): ITopicModel => {
+export const generateTopicModel = (
+  subdomain: string,
+  con: Connection,
+  models: IModels
+): void => {
   class TopicModel implements ITopic {
     public name: string;
     async createRandom(): Promise<ITopicDocument> {
-      const res = new models.Topic({ name: 'asdfaswdf' });
+      const res = new models.Topic({ name: `${Date.now()}${Math.random()}` });
+      await res.save();
       return res;
     }
   }
   topicSchema.loadClass(TopicModel);
 
-  const Topic = model<ITopicDocument, ITopicModel>('topics', topicSchema);
-  return Topic;
+  models.Topic = con.model<ITopicDocument, ITopicModel>(
+    'cms-topics',
+    topicSchema
+  );
 };
