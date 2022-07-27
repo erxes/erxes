@@ -1,10 +1,10 @@
-import tumentechMutations from './tumentech';
 import tumentechMatchMutations from './carCategoryProduct';
-import participantMutations from './participants';
 import directionMutations from './directions';
-import routeMutations from './routes';
+import participantMutations from './participants';
 import placeMutations from './places';
+import routeMutations from './routes';
 import tripMutations from './trips';
+import tumentechMutations from './tumentech';
 
 export default {
   ...tumentechMutations,

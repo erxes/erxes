@@ -1,7 +1,7 @@
 import { formatText } from '@erxes/ui/src/activityLogs/utils';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import NylasForm from '../../containers/mail/Form';
 import React from 'react';
 import { Link } from 'react-router-dom';

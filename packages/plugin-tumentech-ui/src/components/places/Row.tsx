@@ -1,12 +1,13 @@
-import React from 'react';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { IPlace } from '../../types';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
 import PlaceForm from '../../containers/places/Form';
+import { IPlace } from '../../types';
 
 type Props = {
   place: IPlace;

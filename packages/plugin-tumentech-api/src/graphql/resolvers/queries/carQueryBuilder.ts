@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import { IModels } from '../../../connectionResolver';
 import { sendSegmentsMessage } from '../../../messageBroker';
 

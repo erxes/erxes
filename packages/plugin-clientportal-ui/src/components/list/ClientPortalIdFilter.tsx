@@ -1,13 +1,17 @@
-import { SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { __, router } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
-import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Icon from '@erxes/ui/src/components/Icon';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from '@erxes/ui/src/utils';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
+
 import { ClientPortalConfig, IClientPortalUser } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };

@@ -8,7 +8,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import styled from 'styled-components';
 import options from '@erxes/ui-cards/src/deals/options';
 import { IDeal, IDealTotalAmount } from '@erxes/ui-cards/src/deals/types';

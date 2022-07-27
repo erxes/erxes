@@ -1,6 +1,6 @@
 // TODO: check if related stages are selected in client portal config
-
 import { paginate } from '@erxes/api-utils/src';
+
 import { IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,

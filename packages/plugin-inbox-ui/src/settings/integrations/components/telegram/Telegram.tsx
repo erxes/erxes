@@ -6,7 +6,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
 import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
@@ -41,7 +41,7 @@ class Telegram extends React.Component<Props> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             required={true}
             autoFocus={true}
           />
@@ -51,16 +51,16 @@ class Telegram extends React.Component<Props> {
           <ControlLabel required={true}>Telegram Bot Token</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='token'
+            type="text"
+            name="token"
             required={true}
           />
         </FormGroup>
 
         <a
-          href='https://erxes.org/administrator/system-config#telegram'
-          target='_blank'
-          rel='noopener noreferrer'
+          href="https://erxes.org/administrator/system-config#telegram"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {'Learn more about Telegram'}
         </a>
@@ -81,10 +81,10 @@ class Telegram extends React.Component<Props> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={callback}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

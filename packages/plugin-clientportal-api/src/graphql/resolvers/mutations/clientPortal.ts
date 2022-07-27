@@ -1,4 +1,5 @@
 import { checkPermission } from '@erxes/api-utils/src';
+
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendContactsMessage } from '../../../messageBroker';
 import { IClientPortal } from '../../../models/definitions/clientPortal';

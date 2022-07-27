@@ -387,21 +387,23 @@ class PropertyForm extends React.Component<Props, State> {
         {this.renderLocationOptions()}
         {this.renderShowInCard()}
 
-        <FormGroup>
-          <ControlLabel>Validation:</ControlLabel>
+        {type === 'input' && (
+          <FormGroup>
+            <ControlLabel>Validation:</ControlLabel>
 
-          <FormControl
-            {...formProps}
-            componentClass="select"
-            name="validation"
-            defaultValue={object.validation || ''}
-          >
-            <option />
-            <option value="email">Email</option>
-            <option value="number">Number</option>
-            <option value="date">Date</option>
-          </FormControl>
-        </FormGroup>
+            <FormControl
+              {...formProps}
+              componentClass="select"
+              name="validation"
+              defaultValue={object.validation || ''}
+            >
+              <option />
+              <option value="email">Email</option>
+              <option value="number">Number</option>
+              <option value="date">Date</option>
+            </FormControl>
+          </FormGroup>
+        )}
 
         <FormGroup>
           <FormControl

@@ -5,7 +5,7 @@ import LoadMore from '@erxes/ui/src/components/LoadMore';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';

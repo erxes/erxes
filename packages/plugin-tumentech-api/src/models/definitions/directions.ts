@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 import { field, schemaHooksWrapper } from './utils';
 
 //  zamiin suljeenii chigelliin dugaar , awto zamiin chigleliin dugaar , awto zamin dugaar, zamiin ner

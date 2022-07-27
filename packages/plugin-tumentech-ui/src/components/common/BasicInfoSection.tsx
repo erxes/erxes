@@ -29,7 +29,7 @@ class BasicInfoSection extends React.Component<Props> {
     const onDelete = () =>
       confirm()
         .then(() => remove())
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
 
@@ -58,7 +58,7 @@ class BasicInfoSection extends React.Component<Props> {
     const { Section } = Sidebar;
     const { car } = this.props;
 
-    const content = (props) => <CarForm {...props} car={car} />;
+    const content = props => <CarForm {...props} car={car} />;
 
     return (
       <Sidebar.Section>

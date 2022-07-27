@@ -1,22 +1,23 @@
-import { Alert, Chooser, Spinner, withProps } from '@erxes/ui/src';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { mutations, queries } from '../../graphql';
+import { Alert, Chooser, withProps } from '@erxes/ui/src';
 import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
+import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
 import {
   CustomersQueryResponse,
   ICustomer
 } from '@erxes/ui/src/customers/types';
+import { renderFullName } from '@erxes/ui/src/utils/core';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
+import { mutations, queries } from '../../graphql';
 import {
-  IParticipant,
   AddParticipantsMutation,
+  IParticipant,
   ParticipantsQueryResponse,
   RemoveParticipantsMutation
 } from '../../types';
-import { renderFullName } from '@erxes/ui/src/utils/core';
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
 
 type Props = {
   search: (value: string, loadMore?: boolean) => void;

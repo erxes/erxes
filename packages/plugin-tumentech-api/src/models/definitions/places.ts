@@ -1,5 +1,6 @@
 import { ILocationOption } from '@erxes/ui/src/types';
 import { Document, Schema } from 'mongoose';
+
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IPlace {
