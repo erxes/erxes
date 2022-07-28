@@ -5,6 +5,7 @@ import { getOwner } from './utils';
 import { IModels } from '../connectionResolver';
 import { IScoreLogDocument, scoreLogSchema, IScoreLog } from './definitions/scoreLog';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
+
 import { IScoreParams } from './definitions/common';
 import { paginate } from '@erxes/api-utils/src';
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
@@ -63,7 +64,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'customers.findOne',
           data: { _id: ownerId },
-          isRPC: true,
+          isRPC: true
         });
         sendMessage = sendContactsMessage;
         action = 'customers.updateOne'
@@ -74,7 +75,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'users.findOne',
           data: { _id: ownerId },
-          isRPC: true,
+          isRPC: true
         });
         sendMessage = sendCoreMessage;
         action = 'users.updateOne';
@@ -85,7 +86,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           subdomain,
           action: 'companies.findOne',
           data: { _id: ownerId },
-          isRPC: true,
+          isRPC: true
         });
         sendMessage = sendContactsMessage;
         action = 'companies.updateCommon';
@@ -106,7 +107,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         subdomain,
         action,
         data: { selector: { _id: ownerId }, modifier: { $set: { score: newScore } } },
-        isRPC: true,
+        isRPC: true
       });
 
       if (!response) {
@@ -114,7 +115,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       }
       return await models.ScoreLogs.create({
         ownerId, ownerType, changeScore: score,
-        createdAt: new Date(), description, createdBy,
+        createdAt: new Date(), description, createdBy
       });
     }
   }
