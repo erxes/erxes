@@ -139,39 +139,15 @@ const getProductsData = async (
   return productGroups;
 };
 
-const getCustomersData = async (subdomain: string) => {
-  // consider 'customer' state as valid customers
-  return await sendContactsMessage({
-    subdomain,
-    action: 'customers.findActiveCustomers',
-    data: {
-      selector: {},
-      fields: {
-        state: 1,
-        firstName: 1,
-        lastName: 1,
-        middleName: 1,
-        birthDate: 1,
-        sex: 1,
-        primaryEmail: 1,
-        emails: 1,
-        primaryPhone: 1,
-        phones: 1,
-        profileScore: 1,
-        score: 1,
-        code: 1
-      }
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-};
-
 export const posInit = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const token = req.headers['pos-token'];
   const pos = await models.Pos.findOne({ token }).lean();
+
+  if (!pos) {
+    return res.send({ error: 'Not found POS by token' });
+  }
 
   const syncId = Math.random().toString();
   const syncInfo = { [syncId]: new Date() };
@@ -216,8 +192,6 @@ export const posSyncConfig = async (req, res) => {
       return res.send({
         productGroups: await getProductsData(subdomain, models, pos)
       });
-    case 'customers':
-      return res.send({ customers: await getCustomersData(subdomain) });
   }
 
   return res.send({ error: 'wrong type' });

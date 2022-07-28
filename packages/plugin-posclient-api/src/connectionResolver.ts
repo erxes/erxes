@@ -3,7 +3,6 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IConfigDocument } from './models/definitions/configs';
 import { IConfigModel, loadConfigClass } from './models/Configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { ILogModel } from './models/Logs';
 import { IOrderDocument } from './models/definitions/orders';
 import { IOrderItemDocument } from './models/definitions/orderItems';
 import { IOrderItemModel, loadOrderItemClass } from './models/OrderItems';
@@ -29,7 +28,6 @@ import { IQpayInvoiceModel, loadQPayInvoiceClass } from './models/QPayInvoices';
 
 export interface IModels {
   Configs: IConfigModel;
-  Logs: ILogModel;
   OrderItems: IOrderItemModel;
   Orders: IOrderModel;
   Products: IProductModel;

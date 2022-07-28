@@ -26,27 +26,30 @@ export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    if (data) {
-      switch (data.type) {
-        case 'product':
-          await receiveProduct(models, data);
-          break;
-        case 'productCategory':
-          await receiveProductCategory(models, data);
-          break;
-        case 'user':
-          await receiveUser(models, data);
-          break;
-        case 'pos':
-          await receivePosConfig(models, data);
-          break;
-        default:
-          break;
+  consumeQueue(
+    `posclient:crudData_${config.token}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      if (data) {
+        switch (data.type) {
+          case 'product':
+            await receiveProduct(models, data);
+            break;
+          case 'productCategory':
+            await receiveProductCategory(models, data);
+            break;
+          case 'user':
+            await receiveUser(models, data);
+            break;
+          case 'pos':
+            await receivePosConfig(subdomain, models, data);
+            break;
+          default:
+            break;
+        }
       }
     }
-  });
+  );
 
   consumeQueue(
     `posclient:updateSynced_${syncId}`,
