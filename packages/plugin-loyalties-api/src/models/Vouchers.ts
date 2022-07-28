@@ -12,15 +12,7 @@ export interface IVoucherModel extends Model<IVoucherDocument> {
   updateVoucher(_id: string, doc: IVoucher): Promise<IVoucherDocument>;
   buyVoucher(params: IBuyParams): Promise<IVoucherDocument>;
   removeVouchers(_ids: string[]): void;
-  checkVouchersSale({
-    ownerType,
-    ownerId,
-    products
-  }: {
-    ownerType: string;
-    ownerId: string;
-    products: any;
-  }): Promise<any>;
+  checkVouchersSale({ ownerType, ownerId, products }: { ownerType: string, ownerId: string, products: any }): Promise<any>;
   confirmVoucherSale({ checkInfo }: any): void;
 }
 
@@ -30,7 +22,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
       const voucherRule = await models.Vouchers.findOne({ _id });
 
       if (!voucherRule) {
-        throw new Error('not found voucher rule');
+        throw new Error('not found voucher rule')
       }
 
       return voucherRule;
@@ -94,10 +86,10 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
 
       const now = new Date();
 
-      return models.Vouchers.updateOne( { _id }, {
-          $set: {
-            campaignId, ownerType, ownerId, modifiedAt: now, status, userId
-          }
+      return models.Vouchers.updateOne({ _id }, {
+        $set: {
+          campaignId, ownerType, ownerId, modifiedAt: now, status, userId
+        }
         });
     }
 
