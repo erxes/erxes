@@ -1,6 +1,6 @@
 import { IContext } from '../';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
-import { ICategory, ICategoryDocument } from '../../db/models/category';
+import { ICategory } from '../../db/models/category';
 
 const CmsCategory: IObjectTypeResolver<ICategory, IContext> = {
   async parent({ parentId }, _, { models }) {

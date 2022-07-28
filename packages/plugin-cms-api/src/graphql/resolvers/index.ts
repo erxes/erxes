@@ -9,6 +9,9 @@ export default function generateResolvers(serviceDiscovery) {
     Query: {
       cmsAllCategories: (parent, args, { models }: IContext) => {
         return models.Category.find();
+      },
+      cmsCategory: (parent, { _id }, { models }: IContext) => {
+        return models.Category.findById(_id);
       }
     },
     Mutation: {

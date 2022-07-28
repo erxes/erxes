@@ -7,20 +7,16 @@ export interface ICategory {
   parentId?: string | null;
 }
 
-export interface ICategoryDocument extends ICategory, Document {}
-
-export interface ICategoryQueryHelpers {
+export type CategoryDocument = ICategory & Document;
+export interface ICategoryModel extends Model<CategoryDocument> {
   getDescendantsOf(_id: string): Promise<ICategory[] | null | undefined>;
   getAncestorsOf(_id: string): Promise<ICategory[] | null | undefined>;
 }
 
-export interface ICategoryModel
-  extends Model<ICategoryDocument, ICategoryQueryHelpers>,
-    ICategoryQueryHelpers {}
-
-export const categorySchema = new Schema<ICategoryDocument>({
+export const categorySchema = new Schema<CategoryDocument>({
+  // _id: { type: String, pkey: true },
   name: { type: String, required: true },
-  parentId: { type: String }
+  parentId: { type: Types.ObjectId }
 });
 
 export const generateCategoryModel = (
@@ -28,15 +24,17 @@ export const generateCategoryModel = (
   con: Connection,
   models: IModels
 ): void => {
-  class CategoryModel implements ICategoryQueryHelpers {
-    async getDescendantsOf(
+  class CategoryModel {
+    public static async getDescendantsOf(
       _id: string
     ): Promise<ICategory[] | undefined | null> {
       const matchedCategories = await models.Category.aggregate([
         {
           $match: {
             _id
-          },
+          }
+        },
+        {
           $graphLookup: {
             from: models.Category.collection.collectionName,
             startWith: '$_id',
@@ -47,6 +45,10 @@ export const generateCategoryModel = (
         }
       ]);
 
+      console.log('-----------------------------------------');
+      console.log(matchedCategories);
+      console.log('-----------------------------------------');
+
       if (!matchedCategories?.length) {
         throw new Error(`Category with _id=${_id} doesn't exist`);
       }
@@ -55,14 +57,16 @@ export const generateCategoryModel = (
       return matchedCategories[0].descendants;
     }
 
-    async getAncestorsOf(
+    public static async getAncestorsOf(
       _id: string
-    ): Promise<ICategoryDocument[] | undefined | null> {
+    ): Promise<ICategory[] | undefined | null> {
       const results = await models.Category.aggregate([
         {
           $match: {
             _id
-          },
+          }
+        },
+        {
           $graphLookup: {
             from: models.Category.collection.collectionName,
             startWith: '$parentId',
@@ -83,8 +87,8 @@ export const generateCategoryModel = (
   }
   categorySchema.loadClass(CategoryModel);
 
-  models.Category = con.model<ICategoryDocument, ICategoryModel>(
-    'cms-categories',
+  models.Category = con.model<CategoryDocument, ICategoryModel>(
+    'cms_categories',
     categorySchema
   );
 };
