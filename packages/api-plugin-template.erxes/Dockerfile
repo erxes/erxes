@@ -1,4 +1,4 @@
-FROM node:12.19-alpine
+FROM node:14.18.2-alpine
 WORKDIR /erxes-plugin-api
 RUN chown -R node:node /erxes-plugin-api \
  && apk add --no-cache tzdata \

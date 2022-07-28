@@ -1,4 +1,4 @@
-import { authCookieOptions } from '@erxes/api-utils/src/core';
+import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 import { IContext } from '../../../connectionResolver';
@@ -110,9 +110,11 @@ const clientPortalUserMutations = {
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
-    const cookieOptions: any = { secure: requestInfo.secure };
+    const cookieOptions: any = {};
 
-    if (requestInfo.secure) {
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
       cookieOptions.sameSite = 'none';
     }
 
@@ -127,9 +129,21 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { res }: IContext) {
-    // res.cookie('client-auth-token', '1', { maxAge: 0 });
-    res.clearCookie('client-auth-token');
+  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    const options: any = {
+      domain: requestInfo.headers.hostname,
+      path: '/'
+    };
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      options.sameSite = 'none';
+      options.secure = true;
+    }
+
+    debugInfo(`options: ${JSON.stringify(options)}`);
+    res.clearCookie('client-auth-token', options);
     return 'loggedout';
   },
 
