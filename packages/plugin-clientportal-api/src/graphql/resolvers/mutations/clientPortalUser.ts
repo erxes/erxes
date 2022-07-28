@@ -1,10 +1,11 @@
-import { authCookieOptions } from '@erxes/api-utils/src/core';
+import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
+
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
 import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
-import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export interface IVerificationParams {
   userId: string;
@@ -46,7 +47,7 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { models, subdomain }: IContext
+    { models }: IContext
   ) {
     const updated = await models.ClientPortalUsers.updateUser(_id, doc);
 
@@ -109,7 +110,15 @@ const clientPortalUserMutations = {
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
-    const options = authCookieOptions({ sameSite: 'none' });
+    const cookieOptions: any = {};
+
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      cookieOptions.sameSite = 'none';
+    }
+
+    const options = authCookieOptions(cookieOptions);
     debugInfo(`cookie options: ${JSON.stringify(options)}`);
 
     res.cookie('client-auth-token', token, options);
@@ -120,9 +129,21 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { res }: IContext) {
-    res.cookie('client-auth-token', '1', { maxAge: 0 });
+  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
+    const options: any = {
+      domain: requestInfo.headers.hostname,
+      path: '/'
+    };
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      options.sameSite = 'none';
+      options.secure = true;
+    }
+
+    debugInfo(`options: ${JSON.stringify(options)}`);
+    res.clearCookie('client-auth-token', options);
     return 'loggedout';
   },
 

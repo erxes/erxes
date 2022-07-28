@@ -1,6 +1,7 @@
 import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import * as _ from 'underscore';
+
 import { generateModels } from './connectionResolver';
 import { sendCardsMessage } from './messageBroker';
 import { IPlaceDocument } from './models/definitions/places';

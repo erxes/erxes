@@ -1,11 +1,11 @@
 import gql from 'graphql-tag';
-import Bulk from '@erxes/ui/src/components/Bulk';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import List from '../../components/contentTypes/List';
 import { queries, mutations } from '../../graphql';
 import React from 'react';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import { TypesQueryResponse, TypesRemoveMutationResponse } from '../../types';
 
 type Props = {
   history: any;
@@ -14,18 +14,18 @@ type Props = {
 };
 
 type FinalProps = {
-  contentTypesQuery: any;
-  contentTypesRemoveMutation: any;
-} & Props;
+  contentTypesQuery: TypesQueryResponse;
+} & Props &
+  TypesRemoveMutationResponse;
 
 function ContentTypesContainer(props: FinalProps) {
-  const { contentTypesQuery, contentTypesRemoveMutation } = props;
+  const { contentTypesQuery, typesRemoveMutation } = props;
 
   const contentTypes = contentTypesQuery.webbuilderContentTypes || [];
 
   const remove = (_id: string) => {
     confirm().then(() => {
-      contentTypesRemoveMutation({ variables: { _id } })
+      typesRemoveMutation({ variables: { _id } })
         .then(() => {
           Alert.success('Successfully removed a type');
 
@@ -48,10 +48,10 @@ function ContentTypesContainer(props: FinalProps) {
 }
 
 export default compose(
-  graphql(gql(queries.contentTypes), {
+  graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
     name: 'contentTypesQuery'
   }),
-  graphql(gql(mutations.typesRemove), {
-    name: 'contentTypesRemoveMutation'
+  graphql<{}, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
+    name: 'typesRemoveMutation'
   })
 )(ContentTypesContainer);

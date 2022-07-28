@@ -1,17 +1,18 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations, queries } from '../graphql';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
 import ClientPortalUserList from '../components/list/ClientPortalUserList';
+import { mutations, queries } from '../graphql';
 import {
+  ClientPortalUserRemoveMutationResponse,
   ClientPortalUsersQueryResponse,
-  ClientPortalUserTotalCountQueryResponse,
-  ClientPortalUserRemoveMutationResponse
+  ClientPortalUserTotalCountQueryResponse
 } from '../types';
 
 type Props = {
@@ -27,7 +28,19 @@ type FinalProps = {
   ClientPortalUserRemoveMutationResponse &
   IRouterProps;
 
-class ClientportalUserListContainer extends React.Component<FinalProps> {
+type State = {
+  loading: boolean;
+};
+
+class ClientportalUserListContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: false
+    };
+  }
+
   render() {
     const {
       clientPortalUsersQuery,
@@ -63,16 +76,12 @@ class ClientportalUserListContainer extends React.Component<FinalProps> {
         clientPortalUserTotalCountQuery.clientPortalUserCounts || 0,
       searchValue,
       queryParams,
-      loading: clientPortalUsersQuery.loading,
+      loading: clientPortalUsersQuery.loading || this.state.loading,
       removeUsers
     };
 
     const content = props => {
       return <ClientPortalUserList {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.clientPortalUsersQuery.refetch();
     };
 
     return (

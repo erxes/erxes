@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Modal from '../../../../containers/conversationDetail/responseTemplate/Modal';
 import PopoverContent from '../../../../containers/conversationDetail/responseTemplate/PopoverContent';
 import { ResponseTemplateStyled } from '@erxes/ui-inbox/src/inbox/styles';
@@ -39,16 +39,16 @@ class ResponseTemplate extends React.Component<Props, State> {
     const { brands, content, brandId, attachments } = this.props;
 
     const saveTrigger = (
-      <Button id='response-template-handler' btnStyle='link'>
+      <Button id="response-template-handler" btnStyle="link">
         <Tip text={__('Save as template')}>
-          <Icon icon='file-upload-alt' />
+          <Icon icon="file-upload-alt" />
         </Tip>
       </Button>
     );
 
     const popover = (
-      <Popover className='popover-template' id='templates-popover'>
-        <Popover.Title as='h3'>{__('Response Templates')}</Popover.Title>
+      <Popover className="popover-template" id="templates-popover">
+        <Popover.Title as="h3">{__('Response Templates')}</Popover.Title>
         <Popover.Content>
           <PopoverContent {...this.props} onSelectTemplate={this.hidePopover} />
         </Popover.Content>
@@ -58,17 +58,17 @@ class ResponseTemplate extends React.Component<Props, State> {
     return (
       <ResponseTemplateStyled>
         <OverlayTrigger
-          trigger='click'
-          placement='top'
+          trigger="click"
+          placement="top"
           overlay={popover}
           rootClose={true}
           ref={overlayTrigger => {
             this.overlayRef = overlayTrigger;
           }}
         >
-          <Button btnStyle='link'>
+          <Button btnStyle="link">
             <Tip text={__('Response template')}>
-              <Icon icon='file-bookmark-alt' />
+              <Icon icon="file-bookmark-alt" />
             </Tip>
           </Button>
         </OverlayTrigger>

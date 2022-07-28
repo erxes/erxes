@@ -18,10 +18,10 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IPage } from '../../types';
+import { IPageDoc } from '../../types';
 
 type Props = {
-  page?: IPage;
+  page?: IPageDoc;
   save: (
     name: string,
     description: string,
@@ -31,14 +31,16 @@ type Props = {
   ) => void;
   saveTemplate: (name: string, jsonData: any) => void;
   templates: any;
+  removeTemplate: (_id: string) => void;
 };
 
 type State = {
   name: string;
   description: string;
+  templateId: string;
 };
 
-class AutoAndManualForm extends React.Component<Props, State> {
+class PageForm extends React.Component<Props, State> {
   grapes;
 
   constructor(props) {
@@ -48,7 +50,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
     this.state = {
       name: page.name,
-      description: page.description
+      description: page.description,
+      templateId: ''
     };
   }
 
@@ -140,12 +143,13 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
   selectTemplates = () => {
     const { templates } = this.props;
-    const options: any[] = [];
+    const options: any[] = [{ label: ' . ' }];
 
     templates.map(template =>
       options.push({
-        value: template.jsonData,
-        label: template.name
+        value: template._id,
+        label: template.name,
+        jsonData: template.jsonData
       })
     );
 
@@ -157,7 +161,9 @@ class AutoAndManualForm extends React.Component<Props, State> {
   };
 
   onSelectTemplate = (option: any) => {
-    this.grapes.loadProjectData(option.value);
+    this.setState({ templateId: option.value });
+
+    this.grapes.loadProjectData(option.jsonData);
   };
 
   save = () => {
@@ -180,7 +186,8 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
   renderPageContent() {
     const imagePath = '/images/icons/erxes-12.svg';
-    const { description, name } = this.state;
+    const { description, name, templateId } = this.state;
+    const { removeTemplate } = this.props;
 
     return (
       <Step img={imagePath} title="Manage web builder page" noButton={true}>
@@ -212,11 +219,23 @@ class AutoAndManualForm extends React.Component<Props, State> {
 
               <Select
                 onChange={this.onSelectTemplate}
-                value={''}
+                value={templateId}
                 options={this.selectTemplates()}
                 clearable={false}
               />
             </FormGroup>
+
+            {templateId ? (
+              <Button
+                btnStyle="danger"
+                uppercase={false}
+                icon="times-circle"
+                size="small"
+                onClick={() => removeTemplate(templateId)}
+              >
+                Remove a selected template
+              </Button>
+            ) : null}
           </FlexPad>
 
           <FlexItem overflow="auto" count="7">
@@ -283,4 +302,4 @@ class AutoAndManualForm extends React.Component<Props, State> {
   }
 }
 
-export default AutoAndManualForm;
+export default PageForm;

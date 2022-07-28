@@ -2,7 +2,7 @@ import { IPipeline } from '@erxes/ui-cards/src/boards/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import PipelineForm from '../containers/PipelineForm';

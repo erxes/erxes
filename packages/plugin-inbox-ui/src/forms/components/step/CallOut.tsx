@@ -7,11 +7,16 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { uploadHandler } from '@erxes/ui/src/utils';
 import ActionBar from '@erxes/ui/src/layout/components/ActionBar';
 import React from 'react';
-import { FlexColumn, FlexItem, ImagePreview, ImageUpload } from '@erxes/ui/src/components/step/style';
+import {
+  FlexColumn,
+  FlexItem,
+  ImagePreview,
+  ImageUpload
+} from '@erxes/ui/src/components/step/style';
 
 const defaultValue = {
   isSkip: false

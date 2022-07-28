@@ -9,30 +9,26 @@ import {
 import { IPosDocument } from './models/definitions/pos';
 import { getChildCategories, getConfig } from './utils';
 
-const getConfigData = async (subdomain, pos: IPosDocument) => {
+const getConfigData = async (
+  subdomain: string,
+  models: IModels,
+  pos: IPosDocument
+) => {
   const data: any = { pos };
-
-  const userFields = {
-    email: 1,
-    username: 1,
-    password: 1,
-    isOwner: 1,
-    isActive: 1,
-    details: 1
-  };
 
   // qpay configs
   const qpayUrl = await getConfig(subdomain, 'qpayUrl', {});
-  const qpayCallbackUrl = await getConfig(subdomain, 'callbackUrl', {});
-  const qpayMerchantUser = await getConfig(subdomain, 'qpayMerchantUser', {});
-  const qpayMerchantPassword = await getConfig(
-    subdomain,
-    'qpayMerchantPassword',
-    {}
-  );
-  const qpayInvoiceCode = await getConfig(subdomain, 'qpayInvoiceCode', {});
+  console.log('oooooooooooooooooooooo', qpayUrl);
+  if (qpayUrl) {
+    const qpayCallbackUrl = await getConfig(subdomain, 'callbackUrl', {});
+    const qpayMerchantUser = await getConfig(subdomain, 'qpayMerchantUser', {});
+    const qpayMerchantPassword = await getConfig(
+      subdomain,
+      'qpayMerchantPassword',
+      {}
+    );
+    const qpayInvoiceCode = await getConfig(subdomain, 'qpayInvoiceCode', {});
 
-  if (pos) {
     data.qpayConfig = {
       url: qpayUrl && qpayUrl.value,
       callbackUrl: qpayCallbackUrl && qpayCallbackUrl.value,
@@ -71,6 +67,8 @@ const getConfigData = async (subdomain, pos: IPosDocument) => {
       isRPC: true
     });
   }
+
+  data.slots = await models.PosSlots.find({ posId: pos._id }).lean();
 
   return data;
 };
@@ -183,17 +181,19 @@ export const posInit = async (req, res) => {
     { $set: { syncInfos: { ...pos.syncInfos, ...syncInfo } } }
   );
 
-  const data: any = await getConfigData(models, {
+  const data: any = await getConfigData(subdomain, models, {
     ...pos,
     syncInfo: { id: syncId, date: syncInfo[syncId] }
   });
   data.productGroups = await getProductsData(subdomain, models, pos);
+  data.posId = pos._id;
 
   return res.send(data);
 };
 
 export const posSyncConfig = async (req, res) => {
   const subdomain = getSubdomain(req);
+
   const models = await generateModels(subdomain);
 
   const token = req.headers['pos-token'];
@@ -205,13 +205,13 @@ export const posSyncConfig = async (req, res) => {
     return res.send({ error: 'not found pos' });
   }
 
-  // pos.syncInfos[syncId] = new Date();
+  pos.syncInfos[syncId] = new Date();
 
   await models.Pos.updateOne({ _id: pos._id }, { $set: { ...pos } });
 
   switch (type) {
     case 'config':
-      return res.send(await getConfigData(models, pos));
+      return res.send(await getConfigData(subdomain, models, pos));
     case 'products':
       return res.send({
         productGroups: await getProductsData(subdomain, models, pos)

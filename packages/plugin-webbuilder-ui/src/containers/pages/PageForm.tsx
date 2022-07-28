@@ -1,4 +1,4 @@
-import { Alert } from '@erxes/ui/src';
+import { Alert, confirm } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
@@ -7,21 +7,35 @@ import React from 'react';
 import { mutations, queries } from '../../graphql';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
+import {
+  PageDetailQueryResponse,
+  PagesAddMutationResponse,
+  PagesEditMutationResponse,
+  TemplatesAddMutationResponse,
+  TemplatesQueryResponse,
+  TemplatesRemoveMutationResponse
+} from '../../types';
 
 type Props = {
   _id?: string;
 } & IRouterProps;
 
 type FinalProps = Props & {
-  pagesAdd: any;
-  pagesEdit: any;
-  pageDetailQuery?: any;
-  templatesQuery: any;
-  templatesAdd: any;
-};
+  pageDetailQuery?: PageDetailQueryResponse;
+  templatesQuery: TemplatesQueryResponse;
+} & PagesAddMutationResponse &
+  PagesEditMutationResponse &
+  TemplatesAddMutationResponse &
+  TemplatesRemoveMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
-  const { pageDetailQuery, history, templatesQuery, templatesAdd } = props;
+  const {
+    pageDetailQuery,
+    history,
+    templatesQuery,
+    templatesAdd,
+    templatesRemove
+  } = props;
 
   if ((pageDetailQuery && pageDetailQuery.loading) || templatesQuery.loading) {
     return null;
@@ -30,7 +44,7 @@ const FormContainer = (props: FinalProps) => {
   const saveTemplate = (name: string, jsonData: any) => {
     templatesAdd({ variables: { name, jsonData } })
       .then(() => {
-        Alert.warning('You successfully added template.');
+        Alert.success('You successfully added template.');
 
         history.push({
           pathname: '/webbuilder/pages'
@@ -41,6 +55,18 @@ const FormContainer = (props: FinalProps) => {
       });
   };
 
+  const removeTemplate = (_id: string) => {
+    confirm().then(() => {
+      templatesRemove({ variables: { _id } })
+        .then(() => {
+          Alert.success('You successfully removed template.');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    });
+  };
+
   const save = (
     name: string,
     description: string,
@@ -48,7 +74,7 @@ const FormContainer = (props: FinalProps) => {
     css: string,
     jsonData
   ) => {
-    let method = props.pagesAdd;
+    let method: any = props.pagesAdd;
 
     const variables: any = {
       name,
@@ -88,39 +114,49 @@ const FormContainer = (props: FinalProps) => {
     save,
     page,
     templates,
-    saveTemplate
+    saveTemplate,
+    removeTemplate
   };
 
   return <PageForm {...updatedProps} />;
 };
 
 export default compose(
-  graphql<Props>(gql(mutations.add), {
+  graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
     name: 'pagesAdd',
     options: () => ({
       refetchQueries: [{ query: gql(queries.pages) }]
     })
   }),
 
-  graphql<Props>(gql(mutations.edit), {
+  graphql<{}, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
     options: () => ({
       refetchQueries: [{ query: gql(queries.pages) }]
     })
   }),
 
-  graphql(gql(queries.pageDetail), {
-    name: 'pageDetailQuery',
-    skip: (props: Props) => !props._id,
-    options: (props: Props) => ({
-      variables: { _id: props._id }
-    })
-  }),
-  graphql(gql(queries.templates), {
+  graphql<Props, PageDetailQueryResponse, { _id?: string }>(
+    gql(queries.pageDetail),
+    {
+      name: 'pageDetailQuery',
+      skip: ({ _id }) => !_id,
+      options: ({ _id }) => ({
+        variables: { _id }
+      })
+    }
+  ),
+  graphql<{}, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery'
   }),
-  graphql(gql(mutations.templatesAdd), {
+  graphql<{}, TemplatesAddMutationResponse>(gql(mutations.templatesAdd), {
     name: 'templatesAdd',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.templates) }]
+    })
+  }),
+  graphql<{}, TemplatesRemoveMutationResponse>(gql(mutations.templatesRemove), {
+    name: 'templatesRemove',
     options: () => ({
       refetchQueries: [{ query: gql(queries.templates) }]
     })

@@ -1,6 +1,19 @@
 import { IModels } from '../../connectionResolver';
 import { IPosUserDocument } from '../../models/definitions/posUsers';
 import { IConfig } from '../../models/definitions/configs';
+import { getService } from '@erxes/api-utils/src/serviceDiscovery';
+
+export const getServerAddress = async (serviceName?: string) => {
+  const posService = await getService(serviceName || 'pos');
+
+  if (posService.address) {
+    return posService.address;
+  }
+
+  const { SERVER_DOMAIN } = process.env;
+  return `${SERVER_DOMAIN || 'http://localhost:4000'}/pl:${serviceName ||
+    'pos'}`;
+};
 
 export const importUsers = async (
   models: IModels,
@@ -18,6 +31,11 @@ export const importUsers = async (
       details: user.details
     });
   }
+};
+
+export const importSlots = async (models: IModels, slots: any[]) => {
+  await models.PosSlots.deleteMany({});
+  await models.PosSlots.insertMany(slots);
 };
 
 export const preImportProducts = async (models: IModels, groups: any = []) => {
@@ -56,8 +74,8 @@ export const preImportProducts = async (models: IModels, groups: any = []) => {
 };
 
 export const importProducts = async (models: IModels, groups: any = []) => {
-  const { NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN } = process.env;
-  const FILE_PATH = `${NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN}/read-file`;
+  const FILE_PATH = `${await getServerAddress('core')}/read-file`;
+
   const attachmentUrlChanger = attachment => {
     return attachment && attachment.url && !attachment.url.includes('http')
       ? { ...attachment, url: `${FILE_PATH}?key=${attachment.url}` }
@@ -108,44 +126,8 @@ export const importProducts = async (models: IModels, groups: any = []) => {
   } // end group loop
 };
 
-export const preImportCustomers = async customers => {
-  const importCustomerIds = customers.map(c => c._id);
-};
-
-export const importCustomers = async customers => {
-  let bulkOps: {
-    updateOne: {
-      filter: { _id: string };
-      update: any;
-      upsert: true;
-    };
-  }[] = [];
-
-  let counter = 0;
-  for (const customer of customers) {
-    if (counter > 1000) {
-      counter = 0;
-      bulkOps = [];
-    }
-
-    counter += 1;
-
-    bulkOps.push({
-      updateOne: {
-        filter: { _id: customer._id },
-        update: { $set: { ...customer } },
-        upsert: true
-      }
-    });
-  }
-
-  if (bulkOps.length) {
-  }
-};
-
 // Pos config created in main erxes differs from here
-export const extractConfig = doc => {
-  const { NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN } = process.env;
+export const extractConfig = async doc => {
   const {
     uiOptions = {
       favIcon: '',
@@ -159,7 +141,7 @@ export const extractConfig = doc => {
   } = doc;
   console.log(uiOptions);
 
-  const FILE_PATH = `${NEXT_PUBLIC_REACT_APP_MAIN_API_DOMAIN}/read-file`;
+  const FILE_PATH = `${await getServerAddress('core')}/read-file`;
 
   try {
     uiOptions.favIcon =
@@ -215,7 +197,8 @@ export const extractConfig = doc => {
     catProdMappings: doc.catProdMappings,
     posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
-    kioskExcludeProductIds: doc.kioskExcludeProductIds
+    kioskExcludeProductIds: doc.kioskExcludeProductIds,
+    posId: doc._id
   };
 };
 
@@ -324,7 +307,7 @@ export const receivePosConfig = async (models: IModels, data) => {
 
     await models.Configs.updateConfig(config._id, {
       ...config,
-      ...extractConfig(updatedDocument)
+      ...(await extractConfig(updatedDocument))
     });
 
     // set not found users inactive

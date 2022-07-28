@@ -64,7 +64,7 @@ export const loadClasses = (
     loadPosOrderClass(models, subdomain)
   );
   models.PosSlots = db.model<IPosSlotDocument, IPosSlotModel>(
-    'pos_slot',
+    'pos_slots',
     loadPosSlotClass(models, subdomain)
   );
 

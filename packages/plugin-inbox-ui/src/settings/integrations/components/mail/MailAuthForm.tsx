@@ -2,7 +2,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 type Props = {
@@ -19,7 +19,7 @@ function MailAuthForm({ kind, formProps }: Props) {
     return (
       <p>
         {__('In order to connect Yahoo, you  should generate the app password')}{' '}
-        <a href='https://login.yahoo.com/account/security'>
+        <a href="https://login.yahoo.com/account/security">
           Click here to generate password for erxes
         </a>
       </p>

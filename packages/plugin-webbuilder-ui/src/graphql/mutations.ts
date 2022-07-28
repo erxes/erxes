@@ -98,6 +98,12 @@ const templatesAdd = `
   }
 `;
 
+const templatesRemove = `
+  mutation templatesRemove($_id: String!) {
+    webbuilderTemplatesRemove(_id: $_id) 
+  }
+`;
+
 export default {
   add,
   edit,
@@ -108,5 +114,6 @@ export default {
   entriesAdd,
   entriesEdit,
   entriesRemove,
-  templatesAdd
+  templatesAdd,
+  templatesRemove
 };

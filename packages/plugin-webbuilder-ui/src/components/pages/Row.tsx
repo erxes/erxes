@@ -1,14 +1,14 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import { IPage } from '../../types';
+import { IPageDoc } from '../../types';
 
 type Props = {
-  page: IPage;
+  page: IPageDoc;
   history: any;
   remove: (_id: string) => void;
 };

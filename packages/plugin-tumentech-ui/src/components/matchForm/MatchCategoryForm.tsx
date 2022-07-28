@@ -1,15 +1,16 @@
 import {
   __,
-  MainStyleModalFooter as ModalFooter,
   Button,
-  Form as CommonForm,
   ControlLabel,
-  FormGroup
+  Form as CommonForm,
+  FormGroup,
+  MainStyleModalFooter as ModalFooter
 } from '@erxes/ui/src';
 import React from 'react';
+import Select from 'react-select-plus';
+
 import { Row } from '../../styles';
 import { IOption, IProductCategory } from '../../types';
-import Select from 'react-select-plus';
 import { generateTree } from '../../utils';
 
 type Props = {
@@ -35,7 +36,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   onChangeCategory = (category: IOption[]) => {
-    this.setState({ categoryIds: category.map((v) => v.value) });
+    this.setState({ categoryIds: category.map(v => v.value) });
   };
 
   saveMatches = () => {
@@ -49,7 +50,7 @@ class ProductForm extends React.Component<Props, State> {
     const { closeModal, productCategories } = this.props;
     const { categoryIds } = this.state;
 
-    const categories = productCategories.map((c) => {
+    const categories = productCategories.map(c => {
       if (c.parentId === null) {
         return { ...c, parentId: '' };
       }

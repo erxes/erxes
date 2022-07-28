@@ -1,5 +1,5 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Sidebar from '../containers/Sidebar';
@@ -20,8 +20,8 @@ class Empty extends React.Component<Props, {}> {
     const content = (
       <EmptyState
         text={__('There is no Channel') + '.'}
-        size='full'
-        image='/images/actions/18.svg'
+        size="full"
+        image="/images/actions/18.svg"
       />
     );
 

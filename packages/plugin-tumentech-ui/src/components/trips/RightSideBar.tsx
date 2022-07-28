@@ -1,7 +1,8 @@
 import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
-import DealsSection from './sections/DealsSection';
+
 import { ITrip } from '../../types';
+import DealsSection from './sections/DealsSection';
 
 type Props = {
   trip: ITrip;

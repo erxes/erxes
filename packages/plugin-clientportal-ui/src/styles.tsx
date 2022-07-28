@@ -1,8 +1,8 @@
+import { RowTitle } from '@erxes/ui-settings/src/main/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { RowTitle } from '@erxes/ui-settings/src/main/styles';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
 
 export const StyledUrl = styled.div`
   color: ${colors.colorCoreGray};

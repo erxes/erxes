@@ -1,11 +1,13 @@
 import { Document, Schema } from 'mongoose';
-
-import { getDateFieldDefinition, getNumberFieldDefinition } from './utils';
-import { ORDER_TYPES, ORDER_STATUSES } from './constants';
+import {
+  field,
+  getDateFieldDefinition,
+  getNumberFieldDefinition,
+  schemaHooksWrapper
+} from './utils';
 import { IOrderItemDocument } from './orderItems';
-import { IOrderModel } from '../Orders';
-import { field, schemaHooksWrapper } from './util';
 import { IQpayInvoiceDocument } from './qpayInvoices';
+import { ORDER_STATUSES, ORDER_TYPES } from './constants';
 
 interface ICardPayment {
   _id: string;
@@ -43,7 +45,7 @@ export interface IOrder {
   deliveryInfo?: any;
 
   //posSlot
-  slotId?: string;
+  slotCode?: string;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -186,10 +188,10 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Origin of the order',
       optional: true
     }),
-    slotId: field({
+    slotCode: field({
       type: String,
       optional: true,
-      label: 'Slot id'
+      label: 'Slot code'
     })
   }),
   'erxes_orders'

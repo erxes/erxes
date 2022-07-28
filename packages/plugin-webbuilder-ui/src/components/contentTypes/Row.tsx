@@ -1,16 +1,15 @@
-import dayjs from 'dayjs';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { DateWrapper } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { IContentTypeDoc } from '../../types';
 
 type Props = {
-  contentType: any;
+  contentType: IContentTypeDoc;
   remove: (contentTypeId: string) => void;
 };
 
@@ -54,12 +53,6 @@ class Row extends React.Component<Props> {
           </RowTitle>
         </td>
         <td>{contentType.code}</td>
-        <td>
-          <Icon icon="calender" />{' '}
-          <DateWrapper>
-            {dayjs(contentType.createdDate).format('ll')}
-          </DateWrapper>
-        </td>
         <td>
           <ActionButtons>
             {this.manageAction(contentType)}

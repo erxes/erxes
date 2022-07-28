@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import {
   clientPortalSchema,
