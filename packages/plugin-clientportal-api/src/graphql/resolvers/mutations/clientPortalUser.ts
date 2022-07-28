@@ -136,7 +136,8 @@ const clientPortalUserMutations = {
       domain: requestInfo.headers.hostname,
       path: '/',
       httpOnly: true,
-      maxAge: 0 // delete cookie
+      maxAge: 0, // delete cookie
+      overwrite: true
     };
 
     if (!['test', 'development'].includes(NODE_ENV)) {
