@@ -165,7 +165,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           fitLotteriesCount,
           luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id }).lean()
         }
-        
+
       }
 
       const fitLotteries = await models.Lotteries.find(filter).limit(10).lean();
