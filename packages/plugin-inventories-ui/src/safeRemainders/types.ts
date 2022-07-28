@@ -33,11 +33,10 @@ export type ISafeRemainder = {
 export type ISafeRemainderItem = {
   _id: string;
   modifiedAt: Date;
-  lastTrDate: Date;
+  lastTransactionDate: Date;
   status: string;
   remainderId: string;
   productId: string;
-  quantity: number;
   uomId: string;
   preCount: number;
   count: number;

@@ -14,6 +14,11 @@ import {
   queries as SafeRemainderItemQueries,
   types as SafeRemainderItemTypes
 } from './schema/safeRemainderItem';
+import {
+  mutations as TransactionMutations,
+  queries as TransactionQueries,
+  types as TransactionTypes
+} from './schema/transaction';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
@@ -34,17 +39,20 @@ const typeDefs = async _serviceDiscovery => {
     ${RemainderTypes}
     ${SafeRemainderTypes}
     ${SafeRemainderItemTypes}
+    ${TransactionTypes}
 
     extend type Query {
       ${RemainderQueries}
       ${SafeRemainderQueries}
       ${SafeRemainderItemQueries}
+      ${TransactionQueries}
     }
 
     extend type Mutation {
       ${RemainderMutations}
       ${SafeRemainderMutations}
       ${SafeRemainderItemMutations}
+      ${TransactionMutations}
     }
   `;
 };

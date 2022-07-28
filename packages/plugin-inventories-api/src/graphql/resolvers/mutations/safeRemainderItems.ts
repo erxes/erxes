@@ -21,7 +21,7 @@ const safeRemainderItemMutations = {
       { _id },
       {
         $set: {
-          lastTrDate: new Date(),
+          lastTransactionDate: new Date(),
           count: remainder,
           status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED
         }

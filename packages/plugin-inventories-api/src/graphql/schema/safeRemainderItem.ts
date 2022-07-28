@@ -6,10 +6,9 @@ export const types = `
     lastTransactionDate: Date,
     remainderId: String,
     productId: String,
-    quantity: Float,
-    uomId: String,
     preCount: Float,
     count: Float,
+    uomId: String,
     branchId: String,
     departmentId: String,
 

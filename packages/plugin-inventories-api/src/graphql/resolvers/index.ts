@@ -5,12 +5,14 @@ import SafeRemainderItem from './customResolvers/safeRemainderItem';
 import {
   Remainders as remainderMutations,
   SafeRemainders as safeRemainderMutations,
-  SafeRemainderItems as safeRemainderItemMutations
+  SafeRemainderItems as safeRemainderItemMutations,
+  Transactions as transactionMutations
 } from './mutations';
 import {
   Remainders as remainderQueries,
   SafeRemainders as safeRemainderQueries,
-  SafeRemainderItems as safeRemainderItemsQueries
+  SafeRemainderItems as safeRemainderItemsQueries,
+  Transactions as transactionQueries
 } from './queries';
 
 const resolvers: any = async _serviceDiscovery => ({
@@ -21,12 +23,14 @@ const resolvers: any = async _serviceDiscovery => ({
   Mutation: {
     ...remainderMutations,
     ...safeRemainderMutations,
-    ...safeRemainderItemMutations
+    ...safeRemainderItemMutations,
+    ...transactionMutations
   },
   Query: {
     ...remainderQueries,
     ...safeRemainderQueries,
-    ...safeRemainderItemsQueries
+    ...safeRemainderItemsQueries,
+    ...transactionQueries
   }
 });
 

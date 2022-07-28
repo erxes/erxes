@@ -4,7 +4,6 @@ import {
   MiddleContent,
   ModalFooter
 } from '@erxes/ui/src/styles/main';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 import {
   __,
   ControlLabel,
@@ -13,6 +12,7 @@ import {
   Icon,
   Button
 } from '@erxes/ui/src';
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
 
 type Props = {
   data: any;

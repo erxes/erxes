@@ -30,6 +30,12 @@ const removeSafeRemainder = `
   }
 `;
 
+const transactionAdd = `
+  mutation transactionAdd($contentId: String, $contentType: String, $products: [TransactionProductInput], $status: String) {
+    transactionAdd(contentId: $contentId, contentType: $contentType, products: $products, status: $status)
+  }
+`;
+
 const updateSafeRemainderItem = `
   mutation updateSafeRemainderItem(
     $_id: String,
@@ -59,7 +65,7 @@ const removeSafeRemainderItem = `
 export default {
   createSafeRemainder,
   removeSafeRemainder,
-
+  transactionAdd,
   updateSafeRemainderItem,
   removeSafeRemainderItem
 };

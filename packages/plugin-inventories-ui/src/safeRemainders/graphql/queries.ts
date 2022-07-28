@@ -72,7 +72,6 @@ export const safeRemainderItemFields = `
   lastTransactionDate
   remainderId
   productId
-  quantity
   uomId
   preCount
   count

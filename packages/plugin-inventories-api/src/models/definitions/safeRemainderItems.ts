@@ -19,7 +19,7 @@ export interface ISafeRemainderItemDocument
     Document {
   _id: string;
   modifiedAt: Date;
-  lastTrDate: Date;
+  lastTransactionDate: Date;
 }
 
 export const safeRemainderItemSchema = schemaHooksWrapper(

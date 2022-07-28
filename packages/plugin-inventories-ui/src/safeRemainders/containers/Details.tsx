@@ -1,22 +1,21 @@
-import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import gql from 'graphql-tag';
-import ProductDetails from '../components/Details';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, Spinner } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
 import {
   ISafeRemainder,
   ISafeRemainderItem,
   RemoveSafeRemainderItemMutationResponse,
   SafeRemainderDetailQueryResponse,
   SafeRemainderItemsQueryResponse,
-  UpdateSafeRemainderItemMutationResponse
+  UpdateSafeRemainderItemMutationResponse,
+  SafeRemainderItemsCountQueryResponse
 } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import DetailsComponent from '../components/Details';
 import { mutations, queries } from '../graphql';
-import { SafeRemainderItemsCountQueryResponse } from '../types';
-import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
@@ -28,6 +27,7 @@ type FinalProps = {
   safeRemainderQuery: SafeRemainderDetailQueryResponse;
   safeRemainderItemsQuery: SafeRemainderItemsQueryResponse;
   safeRemainderItemsCountQuery: SafeRemainderItemsCountQueryResponse;
+  transactionAdd: any;
   currentUser: IUser;
 } & Props &
   UpdateSafeRemainderItemMutationResponse &
@@ -40,6 +40,7 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
       safeRemainderItemsQuery,
       currentUser,
       safeRemainderItemsCountQuery,
+      transactionAdd,
       updateSafeRemainderItem,
       removeSafeRemainderItem
     } = this.props;
@@ -74,6 +75,37 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
         });
     };
 
+    const createTransaction = (data: ISafeRemainderItem[]) => {
+      let products: any = [];
+
+      data.map((item: any) => {
+        products.push({
+          branchId: item.branchId,
+          departmentId: item.departmentId,
+          remainderId: item.remainderId,
+          productId: item.productId,
+          count: item.count,
+          isDebit: true
+        });
+      });
+
+      transactionAdd({
+        variables: {
+          contentType: 'safe remainder',
+          contentId: 'safe_remainder_id',
+          status: 'pog',
+          products: products
+        }
+      })
+        .then(() => {
+          Alert.success('Success!');
+          safeRemainderItemsQuery.refetch();
+        })
+        .catch((error: any) => {
+          Alert.error(error.message);
+        });
+    };
+
     const safeRemainder =
       safeRemainderQuery.safeRemainderDetail || ({} as ISafeRemainder);
 
@@ -84,14 +116,15 @@ class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
       ...this.props,
       loading: safeRemainderItemsQuery.loading,
       safeRemainderItemsQuery,
-      updateRemainderItem,
-      removeRemainderItem,
       totalCount,
       safeRemainder,
-      currentUser
+      currentUser,
+      createTransaction,
+      updateRemainderItem,
+      removeRemainderItem
     };
 
-    return <ProductDetails {...updatedProps} />;
+    return <DetailsComponent {...updatedProps} />;
   }
 }
 
@@ -134,6 +167,15 @@ export default withProps<Props>(
         options: ({ id, queryParams }) => ({
           variables: getVariables(id, queryParams),
           fetchPolicy: 'network-only'
+        })
+      }
+    ),
+    graphql<Props, {}, { data: ISafeRemainderItem[] }>(
+      gql(mutations.transactionAdd),
+      {
+        name: 'transactionAdd',
+        options: () => ({
+          refetchQueries: ['transactionAdd']
         })
       }
     ),
