@@ -110,7 +110,13 @@ const clientPortalUserMutations = {
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
-    const options = authCookieOptions({ sameSite: 'none' });
+    const cookieOptions: any = { secure: requestInfo.secure };
+
+    if (requestInfo.secure) {
+      cookieOptions.sameSite = 'none';
+    }
+
+    const options = authCookieOptions(cookieOptions);
     debugInfo(`cookie options: ${JSON.stringify(options)}`);
 
     res.cookie('client-auth-token', token, options);
