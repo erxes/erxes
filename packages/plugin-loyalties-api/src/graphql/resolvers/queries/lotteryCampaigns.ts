@@ -4,10 +4,6 @@ import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
 import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
 
-interface IParams extends ICommonParams {
-  voucherCampaignId: string;
-  awardId: string;
-}
 const generateFilter = async params => {
   const filter: any = {};
 
@@ -23,20 +19,13 @@ const generateFilter = async params => {
 };
 
 const lotteryCampaignQueries = {
-  async lotteryCampaigns(
-    _root,
-    params: ICommonCampaignParams,
-    { models }: IContext
-  ) {
+  async lotteryCampaigns(_root, params: ICommonCampaignParams, { models }: IContext) {
     const filter = await generateFilter(params);
 
-    return paginate(
-      models.LotteryCampaigns.find(filter).sort({ modifiedAt: -1 }),
-      {
-        page: params.page,
-        perPage: params.perPage
-      }
-    );
+    return paginate(models.LotteryCampaigns.find(filter).sort({ modifiedAt: -1 }), {
+      page: params.page,
+      perPage: params.perPage
+    });
   },
 
   cpLotteryCampaigns(_root, {}, { models }: IContext) {
@@ -49,11 +38,7 @@ const lotteryCampaignQueries = {
     }).sort({ modifiedAt: -1 });
   },
 
-  async lotteryCampaignsCount(
-    _root,
-    params: ICommonCampaignParams,
-    { models }: IContext
-  ) {
+  async lotteryCampaignsCount(_root, params: ICommonCampaignParams, { models }: IContext) {
     const filter = await generateFilter(params);
 
     return models.LotteryCampaigns.find(filter).countDocuments();
@@ -62,24 +47,18 @@ const lotteryCampaignQueries = {
   lotteryCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.LotteryCampaigns.getLotteryCampaign(_id);
   },
-  async lotteryCampaignWinnerList(
-    _root,
-    params: IParams,
-    { models }: IContext
-  ) {
-    const awardId = params.awardId;
-
-    const filter: any = await generateFilter(params);
+  async lotteryCampaignWinnerList(_root, params: ICommonParams, { models }: IContext) {
+    const { awardId, campaignId } = params;
 
     const list = await paginate(
-      models.Lotteries.find({ ...filter, status: 'won', awardId }).sort({
+      models.Lotteries.find({ campaignId, status: 'won', awardId }).sort({
         usedAt: -1
       }),
       params
     );
 
     const totalCount = await models.Lotteries.find({
-      ...filter,
+      campaignId,
       status: 'won',
       awardId
     }).countDocuments();
@@ -89,17 +68,10 @@ const lotteryCampaignQueries = {
       totalCount
     };
   },
-  async lotteriesCampaignCustomerList(
-    _root,
-    params: IParams,
-    { models }: IContext
-  ) {
+  async lotteriesCampaignCustomerList(_root, params: ICommonParams, { models }: IContext) {
     const { campaignId } = params;
 
-    const list = await paginate(
-      models.Lotteries.find({ campaignId, status: 'new' }),
-      params
-    );
+    const list = await paginate(models.Lotteries.find({ campaignId, status: 'new' }), params);
 
     const totalCount = await models.Lotteries.find({
       campaignId,

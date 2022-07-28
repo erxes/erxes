@@ -1,10 +1,10 @@
-import * as _ from "underscore";
-import { CAMPAIGN_STATUS, LOTTERY_STATUS } from "./definitions/constants";
-import { Model, model } from "mongoose";
-import { getRandomNumber, randomBetween, validCampaign } from "./utils";
-import { IModels } from "../connectionResolver";
-import { ILotteryAward, ILotteryCampaign, ILotteryCampaignDocument, lotteryCampaignSchema } from "./definitions/lotteryCampaigns";
-import { ILottery } from "./definitions/lotteries";
+import * as _ from 'underscore';
+import { CAMPAIGN_STATUS, LOTTERY_STATUS } from './definitions/constants';
+import { Model, model } from 'mongoose';
+import { getRandomNumber, randomBetween, validCampaign } from './utils';
+import { IModels } from '../connectionResolver';
+import { ILotteryAward, ILotteryCampaign, ILotteryCampaignDocument, lotteryCampaignSchema } from './definitions/lotteryCampaigns';
+import { ILottery } from './definitions/lotteries';
 
 export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   getLotteryCampaign(_id: string): Promise<ILotteryCampaignDocument>;
@@ -22,7 +22,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       const lotteryCampaign = await models.LotteryCampaigns.findOne({ _id });
 
       if (!lotteryCampaign) {
-        throw new Error("not found lottery campaign");
+        throw new Error('not found lottery campaign');
       }
 
       return lotteryCampaign;
@@ -42,7 +42,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       const modifier = {
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date(),
+        modifiedAt: new Date()
       };
 
       return models.LotteryCampaigns.create(modifier);
@@ -57,7 +57,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       const modifier = {
         ...doc,
-        modifiedAt: new Date(),
+        modifiedAt: new Date()
       };
 
       return models.LotteryCampaigns.updateOne({ _id }, { $set: modifier });
@@ -65,49 +65,49 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
     public static async removeLotteryCampaigns(ids: string[]) {
       const atLotteryIds = await models.Lotteries.find({
-        campaignId: { $in: ids },
-      }).distinct("campaignId");
+        campaignId: { $in: ids }
+      }).distinct('campaignId');
 
       const atVoucherIds = await models.VoucherCampaigns.find({
-        lotteryCampaignId: { $in: ids },
-      }).distinct("lotteryCampaignId");
+        lotteryCampaignId: { $in: ids }
+      }).distinct('lotteryCampaignId');
 
       const campaignIds = [...atLotteryIds, ...atVoucherIds];
 
-      const usedCampaignIds = ids.filter((id) => campaignIds.includes(id));
-      const deleteCampaignIds = ids.map((id) => !usedCampaignIds.includes(id));
+      const usedCampaignIds = ids.filter(id => campaignIds.includes(id));
+      const deleteCampaignIds = ids.map(id => !usedCampaignIds.includes(id));
       const now = new Date();
 
       await models.LotteryCampaigns.updateMany({ _id: { $in: usedCampaignIds } }, { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } });
 
       return models.LotteryCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds },
+        _id: { $in: deleteCampaignIds }
       });
     }
 
     static async validDoLottery(campaignId, awardId) {
       const campaign = await (await models.LotteryCampaigns.getLotteryCampaign(campaignId)).toObject();
-      const award = campaign.awards.find((a) => a._id === awardId);
+      const award = campaign.awards.find(a => a._id === awardId);
       if (!award) {
-        throw new Error("not found award");
+        throw new Error('not found award');
       }
 
       if ((award.wonLotteryIds || []).length >= award.count) {
-        throw new Error("this award is fully");
+        throw new Error('this award is fully');
       }
 
       return { campaign, award };
     }
 
     static async setLuckyLottery(campaign, award, luckyLottery) {
-      const awards = campaign.awards.map((a) => (a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
+      const awards = campaign.awards.map(a => (a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
 
       await models.LotteryCampaigns.updateOne({ _id: campaign._id }, { awards });
 
       const voucher = await models.Vouchers.createVoucher({
         campaignId: award.voucherCampaignId,
         ownerType: luckyLottery.ownerType,
-        ownerId: luckyLottery.ownerId,
+        ownerId: luckyLottery.ownerId
       });
       await models.Lotteries.updateOne(
         { _id: luckyLottery._id },
@@ -116,8 +116,8 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
             usedAt: new Date(),
             status: LOTTERY_STATUS.WON,
             voucherId: voucher._id,
-            awardId: award._id,
-          },
+            awardId: award._id
+          }
         }
       );
     }
@@ -146,7 +146,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
         .lean();
 
       if (!luckyLottery) {
-        throw new Error("not found lucky lottery");
+        throw new Error('not found lucky lottery');
       }
 
       await this.setLuckyLottery(campaign, award, luckyLottery);
@@ -164,7 +164,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       const filter = {
         campaignId,
         status: LOTTERY_STATUS.NEW,
-        formatNumber: new RegExp(`^${afterChars}.*`, "g"),
+        formatNumber: new RegExp(`^${afterChars}.*`, 'g')
       };
 
       const fitLotteriesCount = await models.Lotteries.find(filter).countDocuments();
@@ -179,8 +179,8 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           afterChars,
           fitLotteriesCount,
           luckyLottery: await models.Lotteries.findOne({
-            _id: (luckyLottery as any)._id,
-          }).lean(),
+            _id: (luckyLottery as any)._id
+          }).lean()
         };
       }
 
@@ -192,7 +192,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
         nextChar,
         afterChars,
         fitLotteriesCount,
-        fitLotteries,
+        fitLotteries
       };
     }
   }

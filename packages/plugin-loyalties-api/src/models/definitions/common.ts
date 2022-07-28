@@ -49,6 +49,7 @@ export interface ICommonParams {
   ownerId?: string;
   status?: string;
   statuses?: string[];
+  awardId?: string;
 }
 
 export interface IScoreParams {
