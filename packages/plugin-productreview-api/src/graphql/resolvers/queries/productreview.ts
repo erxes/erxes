@@ -1,5 +1,4 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-
 import { IContext } from '../../../connectionResolver';
 
 const productreviewQueries = {
@@ -12,7 +11,5 @@ const productreviewQueries = {
     return ProductReview.getAllProductReview(productId);
   }
 };
-
 //requireLogin(productreviewQueries, 'productreviews');
-
 export default productreviewQueries;

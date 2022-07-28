@@ -8,7 +8,7 @@ import { IModels } from '../connectionResolver';
 
 export interface IProductReviewModel extends Model<IProductreviewDocument> {
   getProductReview(_id: string): Promise<IProductreviewDocument>;
-  getAllProductReview(_productId: string): Promise<IProductreviewDocument>;
+  getAllProductReview(productId: string): Promise<IProductreviewDocument>;
   createProductReview(doc: IProductreview): Promise<IProductreviewDocument>;
   updateProductReview(
     _id: string,
@@ -35,14 +35,13 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
     }
     public static async updateProductReview(_id: string, doc: IProductreview) {
       const current = await models.ProductReview.getProductReview(_id);
-      const updated = {};
       if (current) {
-        const updated = await models.ProductReview.updateOne(
+        await models.ProductReview.updateOne(
           { _id },
           { $set: { ...doc, modifiedAt: new Date() } }
         );
       }
-      return updated;
+      return models.ProductReview.findOne({ _id });
     }
     public static async removeProductReview(_id: string) {
       return models.ProductReview.findOneAndRemove({ _id });
