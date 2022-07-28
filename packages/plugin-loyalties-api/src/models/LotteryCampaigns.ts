@@ -42,7 +42,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       const modifier = {
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       };
 
       return models.LotteryCampaigns.create(modifier);
@@ -57,7 +57,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       const modifier = {
         ...doc,
-        modifiedAt: new Date()
+        modifiedAt: new Date(),
       };
 
       return models.LotteryCampaigns.updateOne({ _id }, { $set: modifier });
@@ -65,11 +65,11 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
     public static async removeLotteryCampaigns(ids: string[]) {
       const atLotteryIds = await models.Lotteries.find({
-        campaignId: { $in: ids }
+        campaignId: { $in: ids },
       }).distinct('campaignId');
 
       const atVoucherIds = await models.VoucherCampaigns.find({
-        lotteryCampaignId: { $in: ids }
+        lotteryCampaignId: { $in: ids },
       }).distinct('lotteryCampaignId');
 
       const campaignIds = [...atLotteryIds, ...atVoucherIds];
@@ -80,9 +80,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       await models.LotteryCampaigns.updateMany({ _id: { $in: usedCampaignIds } }, { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } });
 
-      return models.LotteryCampaigns.deleteMany({
-        _id: { $in: deleteCampaignIds }
-      });
+      return models.LotteryCampaigns.deleteMany({ _id: { $in: deleteCampaignIds } });
     }
 
     static async validDoLottery(campaignId, awardId) {
@@ -104,22 +102,8 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       await models.LotteryCampaigns.updateOne({ _id: campaign._id }, { awards });
 
-      const voucher = await models.Vouchers.createVoucher({
-        campaignId: award.voucherCampaignId,
-        ownerType: luckyLottery.ownerType,
-        ownerId: luckyLottery.ownerId
-      });
-      await models.Lotteries.updateOne(
-        { _id: luckyLottery._id },
-        {
-          $set: {
-            usedAt: new Date(),
-            status: LOTTERY_STATUS.WON,
-            voucherId: voucher._id,
-            awardId: award._id
-          }
-        }
-      );
+      const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId });
+      await models.Lotteries.updateOne( { _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id } } );
     }
 
     public static async multipleDoLottery({ campaignId, awardId, multiple }) {
@@ -141,9 +125,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       const random = Math.floor(randomBetween(0, lotteriesCount));
 
-      const luckyLottery = await models.Lotteries.findOne(filter)
-        .skip(random)
-        .lean();
+      const luckyLottery = await models.Lotteries.findOne(filter).skip(random).lean();
 
       if (!luckyLottery) {
         throw new Error('not found lucky lottery');
@@ -164,13 +146,13 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       const filter = {
         campaignId,
         status: LOTTERY_STATUS.NEW,
-        formatNumber: new RegExp(`^${afterChars}.*`, 'g')
+        formatNumber: new RegExp(`^${afterChars}.*`, "g"),
       };
 
       const fitLotteriesCount = await models.Lotteries.find(filter).countDocuments();
 
       if (fitLotteriesCount === 1) {
-        const luckyLottery = (await models.Lotteries.findOne(filter)) || {};
+        const luckyLottery = await models.Lotteries.findOne(filter) || {};
 
         await this.setLuckyLottery(campaign, award, luckyLottery);
 
@@ -178,24 +160,20 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           nextChar,
           afterChars,
           fitLotteriesCount,
-          luckyLottery: await models.Lotteries.findOne({
-            _id: (luckyLottery as any)._id
-          }).lean()
+          luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id }).lean(),
         };
       }
 
-      const fitLotteries = await models.Lotteries.find(filter)
-        .limit(10)
-        .lean();
+      const fitLotteries = await models.Lotteries.find(filter).limit(10).lean();
 
       return {
         nextChar,
         afterChars,
         fitLotteriesCount,
-        fitLotteries
-      };
+        fitLotteries,
+      }
     }
-  }
+  };
 
   lotteryCampaignSchema.loadClass(LotteryCampaign);
 
