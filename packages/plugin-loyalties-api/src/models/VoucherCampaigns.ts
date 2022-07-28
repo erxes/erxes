@@ -11,7 +11,6 @@ import {
 
 export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   getVoucherCampaign(_id: string | [string]): Promise<IVoucherCampaignDocument>;
-
   createVoucherCampaign(
     doc: IVoucherCampaign
   ): Promise<IVoucherCampaignDocument>;
@@ -56,9 +55,7 @@ export const loadVoucherCampaignClass = (
 ) => {
   class VoucherCampaign {
     public static async getVoucherCampaign(_id: string | [string]) {
-      const voucherCampaign = await models.VoucherCampaigns.find({
-        _id
-      }).lean();
+      const voucherCampaign = await models.VoucherCampaigns.find({ _id }).lean();
 
       if (!voucherCampaign) {
         throw new Error('not found voucher rule');
