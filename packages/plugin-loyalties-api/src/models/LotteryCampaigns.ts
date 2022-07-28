@@ -11,8 +11,8 @@ export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   createLotteryCampaign(doc: ILotteryCampaign): Promise<ILotteryCampaignDocument>;
   updateLotteryCampaign(_id: string, doc: ILotteryCampaign): Promise<ILotteryCampaignDocument>;
   removeLotteryCampaigns(_ids: string[]): void;
-  doLottery({ campaignId, awardId }: { campaignId: string; awardId: string }): Promise<ILottery>;
-  getNextChar({ campaignId, awardId, prevChars }: { campaignId: string; awardId: string; prevChars: string }): Promise<any>;
+  doLottery({ campaignId, awardId }: { campaignId: string, awardId: string }): Promise<ILottery>;
+  getNextChar({ campaignId, awardId, prevChars }: { campaignId: string, awardId: string, prevChars: string }): Promise<any>;
   multipleDoLottery({ campaignId, awardId, multiple }): Promise<any>;
 }
 
@@ -29,7 +29,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
     }
 
     static async validLotteryCampaign(doc) {
-      validCampaign(doc);
+      validCampaign(doc)
     }
 
     public static async createLotteryCampaign(doc: ILotteryCampaign) {
@@ -43,7 +43,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
         ...doc,
         createdAt: new Date(),
         modifiedAt: new Date(),
-      };
+      }
 
       return models.LotteryCampaigns.create(modifier);
     }
@@ -58,34 +58,37 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       const modifier = {
         ...doc,
         modifiedAt: new Date(),
-      };
+      }
 
       return models.LotteryCampaigns.updateOne({ _id }, { $set: modifier });
     }
 
     public static async removeLotteryCampaigns(ids: string[]) {
       const atLotteryIds = await models.Lotteries.find({
-        campaignId: { $in: ids },
+        campaignId: { $in: ids }
       }).distinct('campaignId');
 
       const atVoucherIds = await models.VoucherCampaigns.find({
-        lotteryCampaignId: { $in: ids },
+        lotteryCampaignId: { $in: ids }
       }).distinct('lotteryCampaignId');
 
       const campaignIds = [...atLotteryIds, ...atVoucherIds];
 
-      const usedCampaignIds = ids.filter(id => campaignIds.includes(id));
+      const usedCampaignIds = ids.filter(id => (campaignIds.includes(id)));
       const deleteCampaignIds = ids.map(id => !usedCampaignIds.includes(id));
       const now = new Date();
 
-      await models.LotteryCampaigns.updateMany({ _id: { $in: usedCampaignIds } }, { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } });
+      await models.LotteryCampaigns.updateMany(
+        { _id: { $in: usedCampaignIds } },
+        { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } }
+      );
 
       return models.LotteryCampaigns.deleteMany({ _id: { $in: deleteCampaignIds } });
     }
 
     static async validDoLottery(campaignId, awardId) {
       const campaign = await (await models.LotteryCampaigns.getLotteryCampaign(campaignId)).toObject();
-      const award = campaign.awards.find(a => a._id === awardId);
+      const award = campaign.awards.find(a => a._id === awardId)
       if (!award) {
         throw new Error('not found award');
       }
@@ -94,7 +97,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
         throw new Error('this award is fully');
       }
 
-      return { campaign, award };
+      return { campaign, award }
     }
 
     static async setLuckyLottery(campaign, award, luckyLottery) {
@@ -102,8 +105,8 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       await models.LotteryCampaigns.updateOne({ _id: campaign._id }, { awards });
 
-      const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId });
-      await models.Lotteries.updateOne( { _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id } } );
+      const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId })
+      await models.Lotteries.updateOne({ _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id } });
     }
 
     public static async multipleDoLottery({ campaignId, awardId, multiple }) {
@@ -146,8 +149,8 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
       const filter = {
         campaignId,
         status: LOTTERY_STATUS.NEW,
-        formatNumber: new RegExp(`^${afterChars}.*`, "g"),
-      };
+        formatNumber: new RegExp(`^${afterChars}.*`, "g")
+      }
 
       const fitLotteriesCount = await models.Lotteries.find(filter).countDocuments();
 
@@ -160,7 +163,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           nextChar,
           afterChars,
           fitLotteriesCount,
-          luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id }).lean(),
+          luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id }).lean()
         };
       }
 
@@ -170,7 +173,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
         nextChar,
         afterChars,
         fitLotteriesCount,
-        fitLotteries,
+        fitLotteries
       }
     }
   };
