@@ -148,7 +148,6 @@ const clientPortalUserMutations = {
     debugInfo(`options: ${JSON.stringify(options)}`);
 
     res.cookie('client-auth-token', '1', options);
-    res.end();
 
     return 'loggedout';
   },
