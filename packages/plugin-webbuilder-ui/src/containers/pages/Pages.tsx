@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import Pages from '../../components/pages/Pages';
@@ -19,6 +20,10 @@ type FinalProps = {
 class PagesContainer extends React.Component<FinalProps> {
   render() {
     const { pagesQuery, pagesRemoveMutation } = this.props;
+
+    if (pagesQuery.loading) {
+      return <Spinner objective={true} />;
+    }
 
     const pages = pagesQuery.webbuilderPages || [];
 
