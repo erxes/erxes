@@ -24,9 +24,7 @@ interface IProps {
 
 class List extends React.Component<IProps> {
   clearCategoryFilter = () => {
-    router.setParams(this.props.history, {
-      campaignId: null
-    });
+    router.setParams(this.props.history, { campaignId: null });
   };
 
   isActive = (id: string) => {
@@ -42,7 +40,7 @@ class List extends React.Component<IProps> {
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
     delete otherParams.awardId;
-    const qryString = queryString.stringify(otherParams);
+    const qryString = queryString.stringify(otherParams)
 
     const result: React.ReactNode[] = [];
 
@@ -54,7 +52,9 @@ class List extends React.Component<IProps> {
           key={campaign._id}
           isActive={this.isActive(campaign._id)}
         >
-          <Link to={`?${qryString}&campaignId=${campaign._id}`}>
+          <Link
+            to={`?${qryString}&campaignId=${campaign._id}`}
+          >
             {name}
           </Link>
         </SidebarListItem>
@@ -73,19 +73,9 @@ class List extends React.Component<IProps> {
             {__('Manage Lottery Campaigns')}
           </Link>
           <Section.QuickButtons>
-            {router.getParam(
-              this.props.history,
-              'campaignId'
-            ) && (
-              <a
-                href="#cancel"
-                tabIndex={0}
-                onClick={this.clearCategoryFilter}
-              >
-                <Tip
-                  text={__('Clear filter')}
-                  placement="bottom"
-                >
+            {router.getParam( this.props.history, 'campaignId' ) && (
+              <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
+                <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="cancel-1" />
                 </Tip>
               </a>
@@ -97,7 +87,9 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryList() {
-    const { lotteryCampaignsCount, loading } = this.props;
+    const {
+      lotteryCampaignsCount,
+      loading } = this.props;
 
     return (
       <DataWithLoader
