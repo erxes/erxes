@@ -6,13 +6,14 @@ import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Row from './Row';
+import { IContentTypeDoc, IEntryDoc } from '../../types';
 
 type Props = {
   history: any;
   queryParams: any;
   loading: boolean;
-  entries: any[];
-  contentType: any;
+  entries: IEntryDoc[];
+  contentType: IContentTypeDoc;
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
 };

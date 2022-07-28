@@ -18,10 +18,10 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IPage } from '../../types';
+import { IPageDoc } from '../../types';
 
 type Props = {
-  page?: IPage;
+  page?: IPageDoc;
   save: (
     name: string,
     description: string,

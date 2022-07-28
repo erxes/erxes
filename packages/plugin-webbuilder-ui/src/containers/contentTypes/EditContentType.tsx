@@ -7,6 +7,10 @@ import { mutations, queries } from '../../graphql';
 import { Alert } from '@erxes/ui/src/utils';
 import { IRouterProps } from '@erxes/ui/src/types';
 import ContentType from '../../components/contentTypes/ContenType';
+import {
+  TypeDetailQueryResponse,
+  TypesEditMutationResponse
+} from '../../types';
 
 type Props = {
   contentTypeId: string;
@@ -14,12 +18,12 @@ type Props = {
 } & IRouterProps;
 
 type FinalProps = {
-  contentTypesEditMutation: any;
-  contentTypeDetailQuery: any;
-} & Props;
+  contentTypeDetailQuery: TypeDetailQueryResponse;
+} & Props &
+  TypesEditMutationResponse;
 
 function EditContentTypeContainer(props: FinalProps) {
-  const { contentTypesEditMutation, contentTypeDetailQuery, history } = props;
+  const { typesEditMutation, contentTypeDetailQuery, history } = props;
 
   if (contentTypeDetailQuery.loading) {
     return null;
@@ -28,7 +32,7 @@ function EditContentTypeContainer(props: FinalProps) {
   const contentType = contentTypeDetailQuery.webbuilderContentTypeDetail || {};
 
   const action = (doc: any) => {
-    contentTypesEditMutation({ variables: doc })
+    typesEditMutation({ variables: doc })
       .then(() => {
         Alert.success('Successfully edited a type');
 
@@ -50,13 +54,13 @@ function EditContentTypeContainer(props: FinalProps) {
 }
 
 export default compose(
-  graphql(gql(mutations.typesEdit), {
-    name: 'contentTypesEditMutation',
+  graphql<{}, TypesEditMutationResponse>(gql(mutations.typesEdit), {
+    name: 'typesEditMutation',
     options: () => ({
       refetchQueries: [{ query: gql(queries.contentTypes) }]
     })
   }),
-  graphql<FinalProps>(gql(queries.contentTypeDetail), {
+  graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
     name: 'contentTypeDetailQuery',
     options: ({ contentTypeId }) => ({
       variables: {

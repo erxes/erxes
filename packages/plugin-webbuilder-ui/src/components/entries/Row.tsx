@@ -5,11 +5,12 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import React, { useState, useEffect } from 'react';
+import { IContentTypeDoc, IEntryDoc } from '../../types';
 
 type Props = {
-  entry: any;
+  entry: IEntryDoc;
   remove: (_id: string) => void;
-  contentType: any;
+  contentType: IContentTypeDoc;
 };
 
 function Row(props: Props) {

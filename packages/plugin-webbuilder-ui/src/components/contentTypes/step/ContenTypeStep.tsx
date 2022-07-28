@@ -13,7 +13,7 @@ type Props = {
   onChange: (key: string, value: any) => void;
   displayName: string;
   code: string;
-  fields: any;
+  fields: any[];
 };
 
 type State = {
@@ -47,7 +47,7 @@ class Step extends React.Component<Props, State> {
       return Alert.error('Sorry field code duplicated!');
     }
 
-    let updatedFields = [fields];
+    let updatedFields = fields;
 
     if (currentMode === 'create') {
       field._id = Math.random();
