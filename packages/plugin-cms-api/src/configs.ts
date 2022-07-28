@@ -18,7 +18,7 @@ export let serviceDiscovery;
 export let debug;
 
 export default {
-  name: 'cards',
+  name: 'cms',
   permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
@@ -28,7 +28,7 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
-  hasSubscriptions: true,
+  hasSubscriptions: false,
 
   meta: {},
 

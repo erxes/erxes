@@ -1,5 +1,6 @@
 import { graphqlPubsub, serviceDiscovery } from './configs';
-import { generateModels } from './connectionResolver';
+// import { generateModels } from './connectionResolver';
+import { generateModels } from './db/models';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
@@ -10,26 +11,26 @@ export const initBroker = async cl => {
 
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
+  // consumeRPCQueue('cards:tickets.create', async ({ subdomain, data }) => {
+  //   const models = await generateModels(subdomain);
 
-    return {
-      status: 'success',
-      data: await models.Tickets.create(data)
-    };
-  });
+  //   return {
+  //     status: 'success',
+  //     data: await models.Tickets.create(data)
+  //   };
+  // });
 
-  consumeQueue(
-    'cards:checklists.removeChecklists',
-    async ({ subdomain, data: { type, itemIds } }) => {
-      const models = await generateModels(subdomain);
+  // consumeQueue(
+  //   'cards:checklists.removeChecklists',
+  //   async ({ subdomain, data: { type, itemIds } }) => {
+  //     const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Checklists.removeChecklists(type, itemIds)
-      };
-    }
-  );
+  //     return {
+  //       status: 'success',
+  //       data: await models.Checklists.removeChecklists(type, itemIds)
+  //     };
+  //   }
+  // );
 };
 
 export const sendContactsMessage = async (

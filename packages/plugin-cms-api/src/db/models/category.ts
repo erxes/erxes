@@ -10,8 +10,8 @@ export interface ICategory {
 export interface ICategoryDocument extends ICategory, Document {}
 
 export interface ICategoryQueryHelpers {
-  getDescendantsOf(_id: string): Promise<ICategory[]>;
-  getAncestorsOf(_id: string): Promise<ICategory[]>;
+  getDescendantsOf(_id: string): Promise<ICategory[] | null | undefined>;
+  getAncestorsOf(_id: string): Promise<ICategory[] | null | undefined>;
 }
 
 export interface ICategoryModel
@@ -31,7 +31,7 @@ export const generateCategoryModel = (
   class CategoryModel implements ICategoryQueryHelpers {
     async getDescendantsOf(
       _id: string
-    ): Promise<ICategoryDocument[] | undefined | null> {
+    ): Promise<ICategory[] | undefined | null> {
       const matchedCategories = await models.Category.aggregate([
         {
           $match: {

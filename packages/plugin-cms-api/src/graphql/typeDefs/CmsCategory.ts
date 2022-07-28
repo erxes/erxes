@@ -1,6 +1,6 @@
 export default `
   type CmsCategory @key(fields: "_id") {
-    _id: String!
+    _id: ID!
     name: String!
     parentId: String
 
