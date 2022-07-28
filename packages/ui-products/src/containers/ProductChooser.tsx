@@ -35,10 +35,7 @@ type FinalProps = {
 } & Props &
   ProductAddMutationResponse;
 
-class ProductChooser extends React.Component<
-  FinalProps,
-  { perPage: number }
-> {
+class ProductChooser extends React.Component<FinalProps,{ perPage: number }> {
   constructor(props) {
     super(props);
 
@@ -67,9 +64,7 @@ class ProductChooser extends React.Component<
       .then(() => {
         this.props.productsQuery.refetch();
 
-        Alert.success(
-          "You successfully added a product or service"
-        );
+        Alert.success("You successfully added a product or service");
 
         callback();
       })
@@ -79,16 +74,11 @@ class ProductChooser extends React.Component<
   };
 
   renderProductCategoryChooser = () => {
-    const {
-      productCategoriesQuery,
-      onChangeCategory,
-    } = this.props;
+    const { productCategoriesQuery, onChangeCategory } = this.props;
 
     return (
       <ProductCategoryChooser
-        categories={
-          productCategoriesQuery.productCategories || []
-        }
+        categories={productCategoriesQuery.productCategories || []}
         onChangeCategory={onChangeCategory}
       />
     );
@@ -109,11 +99,9 @@ class ProductChooser extends React.Component<
 
         return product.name;
       },
-      renderForm: ({
-        closeModal,
-      }: {
-        closeModal: () => void;
-      }) => <ProductForm closeModal={closeModal} />,
+      renderForm: ({ closeModal }: { closeModal: () => void }) => (
+        <ProductForm closeModal={closeModal} />
+      ),
       perPage: this.state.perPage,
       add: this.addProduct,
       clearState: () => this.search("", true),
@@ -142,8 +130,7 @@ export default withProps<Props>(
         variables: {
           perPage: 20,
           categoryId: props.categoryId,
-          pipelineId: queryString.parse(location.search)
-            .pipelineId,
+          pipelineId: queryString.parse(location.search).pipelineId,
           boardId: queryString.parse(location.search).boardId,
         },
         fetchPolicy: "network-only",
