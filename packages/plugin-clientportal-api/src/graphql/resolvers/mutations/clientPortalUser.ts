@@ -119,10 +119,9 @@ const clientPortalUserMutations = {
     }
 
     const options = authCookieOptions(cookieOptions);
-    debugInfo(`cookie options: ${JSON.stringify(options)}`);
 
     res.cookie('client-auth-token', token, options);
-    res.cookie('pos-auth-token', '1', { maxAge: 0 });
+
     return 'loggedin';
   },
 
@@ -141,7 +140,6 @@ const clientPortalUserMutations = {
       options.secure = true;
     }
 
-    debugInfo(`options: ${JSON.stringify(options)}`);
     res.clearCookie('client-auth-token', options);
     return 'loggedout';
   },
