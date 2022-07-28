@@ -35,7 +35,7 @@ type FinalProps = {
 } & Props &
   ProductAddMutationResponse;
 
-class ProductChooser extends React.Component<FinalProps,{ perPage: number }> {
+class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
   constructor(props) {
     super(props);
 
