@@ -12,6 +12,7 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreParams): Promise<IScoreLogDocument>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument>;
+
 }
 
 const generateFilter = (params: IScoreParams) => {
@@ -118,6 +119,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         createdAt: new Date(), description, createdBy
       });
     }
+    
   }
 
   scoreLogSchema.loadClass(ScoreLog);
