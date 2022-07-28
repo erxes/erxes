@@ -135,7 +135,8 @@ const clientPortalUserMutations = {
     const options: any = {
       domain: requestInfo.headers.hostname,
       path: '/',
-      httpOnly: true
+      httpOnly: true,
+      maxAge: 0 // delete cookie
     };
 
     if (!['test', 'development'].includes(NODE_ENV)) {
@@ -144,7 +145,8 @@ const clientPortalUserMutations = {
     }
 
     debugInfo(`options: ${JSON.stringify(options)}`);
-    res.clearCookie('client-auth-token', options);
+
+    res.cookie('client-auth-token', '1', options);
     return 'loggedout';
   },
 
