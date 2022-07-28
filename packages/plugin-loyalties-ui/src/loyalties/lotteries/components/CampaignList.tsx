@@ -45,6 +45,7 @@ class List extends React.Component<IProps> {
     const result: React.ReactNode[] = [];
 
     for (const campaign of lotteryCampaigns || []) {
+
       const name = `${campaign.title} (${campaign.lotteriesCount})`;
 
       result.push(
@@ -52,9 +53,7 @@ class List extends React.Component<IProps> {
           key={campaign._id}
           isActive={this.isActive(campaign._id)}
         >
-          <Link
-            to={`?${qryString}&campaignId=${campaign._id}`}
-          >
+          <Link to={`?${qryString}&campaignId=${campaign._id}`}>
             {name}
           </Link>
         </SidebarListItem>
@@ -68,12 +67,14 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Section.Title>
-          <Link to={`/erxes-plugin-loyalty/settings/lottery`}>
+          <Link
+            to={`/erxes-plugin-loyalty/settings/lottery`}
+          >
             <Icon icon="cog" />
             {__('Manage Lottery Campaigns')}
           </Link>
           <Section.QuickButtons>
-            {router.getParam( this.props.history, 'campaignId' ) && (
+            {router.getParam(this.props.history, 'campaignId' ) && (
               <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
                 <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="cancel-1" />
@@ -89,7 +90,8 @@ class List extends React.Component<IProps> {
   renderCategoryList() {
     const {
       lotteryCampaignsCount,
-      loading } = this.props;
+      loading
+    } = this.props;
 
     return (
       <DataWithLoader
