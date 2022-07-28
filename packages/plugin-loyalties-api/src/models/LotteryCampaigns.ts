@@ -14,7 +14,7 @@ export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   doLottery({ campaignId, awardId }: { campaignId: string, awardId: string }): Promise<ILottery>;
   getNextChar({ campaignId, awardId, prevChars }: { campaignId: string, awardId: string, prevChars: string }): Promise<any>;
   multipleDoLottery({ campaignId, awardId, multiple }): Promise<any>;
-}
+};
 
 export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) => {
   class LotteryCampaign {
@@ -164,7 +164,8 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
           afterChars,
           fitLotteriesCount,
           luckyLottery: await models.Lotteries.findOne({ _id: (luckyLottery as any)._id }).lean()
-        };
+        }
+        
       }
 
       const fitLotteries = await models.Lotteries.find(filter).limit(10).lean();
