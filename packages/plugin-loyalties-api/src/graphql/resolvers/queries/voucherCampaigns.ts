@@ -42,10 +42,13 @@ const voucherCampaignQueries = {
   ) {
     const filter = await generateFilter(models, params);
 
-    return paginate(models.VoucherCampaigns.find(filter).sort({ modifiedAt: -1 }), {
-      page: params.page,
-      perPage: params.perPage
-    });
+    return paginate(
+      models.VoucherCampaigns.find(filter).sort({ modifiedAt: -1 }),
+      {
+        page: params.page,
+        perPage: params.perPage
+      }
+    );
   },
 
   cpVoucherCampaigns(_root, {}, { models }: IContext) {
@@ -58,13 +61,21 @@ const voucherCampaignQueries = {
     }).sort({ modifiedAt: -1 });
   },
 
-  async voucherCampaignsCount(_root, params: ICommonCampaignParams, { models }: IContext) {
+  async voucherCampaignsCount(
+    _root,
+    params: ICommonCampaignParams,
+    { models }: IContext
+  ) {
     const filter = await generateFilter(models, params);
 
     return models.VoucherCampaigns.find(filter).countDocuments();
   },
 
-  async voucherCampaignDetail(_root, { _id }: { _id: string | [string] }, { models }: IContext) {
+  async voucherCampaignDetail(
+    _root,
+    { _id }: { _id: string | [string] },
+    { models }: IContext
+  ) {
     return models.VoucherCampaigns.getVoucherCampaign(_id);
   }
 };
