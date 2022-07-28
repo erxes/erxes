@@ -1,4 +1,4 @@
-import { authCookieOptions } from '@erxes/api-utils/src/core';
+import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 import { IContext } from '../../../connectionResolver';
@@ -112,7 +112,9 @@ const clientPortalUserMutations = {
 
     const cookieOptions: any = { secure: requestInfo.secure };
 
-    if (requestInfo.secure) {
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
       cookieOptions.sameSite = 'none';
     }
 
