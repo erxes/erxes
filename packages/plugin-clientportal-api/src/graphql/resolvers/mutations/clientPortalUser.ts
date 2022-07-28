@@ -129,8 +129,20 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { res }: IContext) {
-    res.clearCookie('client-auth-token');
+  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    const options: any = {
+      httpOnly: true
+    };
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      options.sameSite = 'none';
+      options.secure = true;
+    }
+
+    debugInfo(`options: ${JSON.stringify(options)}`);
+    res.clearCookie('client-auth-token', options);
     return 'loggedout';
   },
 
