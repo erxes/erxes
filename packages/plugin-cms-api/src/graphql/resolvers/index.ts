@@ -14,6 +14,9 @@ export default function generateResolvers(serviceDiscovery) {
     Mutation: {
       cmsTestMutation: () => {
         return 'hello';
+      },
+      async cmsCreateCategory(_, args, { models: { Category } }: IContext) {
+        return await Category.create(args);
       }
     }
   };
