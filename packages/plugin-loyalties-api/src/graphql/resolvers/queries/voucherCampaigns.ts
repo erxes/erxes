@@ -71,11 +71,7 @@ const voucherCampaignQueries = {
     return models.VoucherCampaigns.find(filter).countDocuments();
   },
 
-  async voucherCampaignDetail(
-    _root,
-    { _id }: { _id: string | [string] },
-    { models }: IContext
-  ) {
+  voucherCampaignDetail( _root, { _id }: { _id: string | [string] }, { models }: IContext ) {
     return models.VoucherCampaigns.getVoucherCampaign(_id);
   }
 };
