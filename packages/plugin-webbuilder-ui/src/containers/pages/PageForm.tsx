@@ -7,19 +7,26 @@ import React from 'react';
 import { mutations, queries } from '../../graphql';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
+import {
+  PageDetailQueryResponse,
+  PagesAddMutationResponse,
+  PagesEditMutationResponse,
+  TemplatesAddMutationResponse,
+  TemplatesQueryResponse,
+  TemplatesRemoveMutationResponse
+} from '../../types';
 
 type Props = {
   _id?: string;
 } & IRouterProps;
 
 type FinalProps = Props & {
-  pagesAdd: any;
-  pagesEdit: any;
-  pageDetailQuery?: any;
-  templatesQuery: any;
-  templatesAdd: any;
-  templatesRemove: any;
-};
+  pageDetailQuery?: PageDetailQueryResponse;
+  templatesQuery: TemplatesQueryResponse;
+} & PagesAddMutationResponse &
+  PagesEditMutationResponse &
+  TemplatesAddMutationResponse &
+  TemplatesRemoveMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
   const {
@@ -67,7 +74,7 @@ const FormContainer = (props: FinalProps) => {
     css: string,
     jsonData
   ) => {
-    let method = props.pagesAdd;
+    let method: any = props.pagesAdd;
 
     const variables: any = {
       name,
@@ -115,37 +122,40 @@ const FormContainer = (props: FinalProps) => {
 };
 
 export default compose(
-  graphql<Props>(gql(mutations.add), {
+  graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
     name: 'pagesAdd',
     options: () => ({
       refetchQueries: [{ query: gql(queries.pages) }]
     })
   }),
 
-  graphql<Props>(gql(mutations.edit), {
+  graphql<{}, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
     options: () => ({
       refetchQueries: [{ query: gql(queries.pages) }]
     })
   }),
 
-  graphql(gql(queries.pageDetail), {
-    name: 'pageDetailQuery',
-    skip: (props: Props) => !props._id,
-    options: (props: Props) => ({
-      variables: { _id: props._id }
-    })
-  }),
-  graphql(gql(queries.templates), {
+  graphql<Props, PageDetailQueryResponse, { _id?: string }>(
+    gql(queries.pageDetail),
+    {
+      name: 'pageDetailQuery',
+      skip: ({ _id }) => !_id,
+      options: ({ _id }) => ({
+        variables: { _id }
+      })
+    }
+  ),
+  graphql<{}, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery'
   }),
-  graphql(gql(mutations.templatesAdd), {
+  graphql<{}, TemplatesAddMutationResponse>(gql(mutations.templatesAdd), {
     name: 'templatesAdd',
     options: () => ({
       refetchQueries: [{ query: gql(queries.templates) }]
     })
   }),
-  graphql(gql(mutations.templatesRemove), {
+  graphql<{}, TemplatesRemoveMutationResponse>(gql(mutations.templatesRemove), {
     name: 'templatesRemove',
     options: () => ({
       refetchQueries: [{ query: gql(queries.templates) }]

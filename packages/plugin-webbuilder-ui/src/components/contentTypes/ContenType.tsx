@@ -13,10 +13,11 @@ import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import { __ } from '@erxes/ui/src/utils/core';
 import ContentTypeStep from './step/ContenTypeStep';
 import { Alert } from '@erxes/ui/src/utils';
+import { IContentTypeDoc } from '../../types';
 
 type Props = {
   action: (doc: any) => void;
-  contentType?: any;
+  contentType?: IContentTypeDoc;
 };
 
 type State = {
@@ -29,7 +30,7 @@ class CreateContentType extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { contentType = {} } = props;
+    const { contentType = {} as IContentTypeDoc } = props;
 
     const fields = (contentType.fields || []).map(field => ({
       ...field,

@@ -4,6 +4,7 @@ import React from 'react';
 import * as compose from 'lodash.flowright';
 import { queries } from '../graphql';
 import WebBuilder from '../components/WebBuilder';
+import { TypesQueryResponse } from '../types';
 
 type Props = {
   step: string;
@@ -12,7 +13,7 @@ type Props = {
 };
 
 type FinalProps = {
-  contentTypesQuery: any;
+  contentTypesQuery: TypesQueryResponse;
 } & Props;
 
 function WebBuilderContainer(props: FinalProps) {
@@ -30,7 +31,7 @@ function WebBuilderContainer(props: FinalProps) {
 }
 
 export default compose(
-  graphql(gql(queries.contentTypes), {
+  graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
     name: 'contentTypesQuery'
   })
 )(WebBuilderContainer);

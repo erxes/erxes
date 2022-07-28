@@ -7,10 +7,9 @@ import { Alert } from '@erxes/ui/src/utils';
 import ContentType from '../../components/contentTypes/ContenType';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withRouter } from 'react-router-dom';
+import { TypesAddMutationResponse } from '../../types';
 
-type Props = {
-  typesAddMutation: any;
-} & IRouterProps;
+type Props = {} & IRouterProps & TypesAddMutationResponse;
 
 function CreateContentTypeContainer(props: Props) {
   const { typesAddMutation, history } = props;
@@ -37,7 +36,7 @@ function CreateContentTypeContainer(props: Props) {
 }
 
 export default compose(
-  graphql(gql(mutations.typesAdd), {
+  graphql<{}, TypesAddMutationResponse>(gql(mutations.typesAdd), {
     name: 'typesAddMutation',
     options: () => ({
       refetchQueries: [{ query: gql(queries.contentTypes) }]

@@ -6,17 +6,17 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import { Link } from 'react-router-dom';
-import { IPage } from '../../types';
+import { IPageDoc } from '../../types';
 import Row from './Row';
 
 type Props = {
-  pages: IPage[];
+  pages: IPageDoc[];
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
 };
 
 class Pages extends React.Component<Props, {}> {
-  renderRow = (pages: IPage[]) => {
+  renderRow = (pages: IPageDoc[]) => {
     const { remove } = this.props;
 
     return pages.map(page => (

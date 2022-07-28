@@ -6,12 +6,13 @@ import ContentTypeList from '../containers/contentTypes/List';
 import EntriesList from '../containers/entries/List';
 import Pages from '../containers/pages/Pages';
 import SideBar from './Sidebar';
+import { IContentTypeDoc } from '../types';
 
 type Props = {
   step: string;
   queryParams: any;
   history: any;
-  contentTypes: any;
+  contentTypes: IContentTypeDoc[];
   loading: boolean;
 };
 

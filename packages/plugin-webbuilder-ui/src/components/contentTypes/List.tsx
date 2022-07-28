@@ -1,16 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Flex } from '@erxes/ui/src/styles/main';
 import Row from './Row';
+import { IContentTypeDoc } from '../../types';
 
 type Props = {
   history: any;
   queryParams: any;
-  contentTypes: any[];
+  contentTypes: IContentTypeDoc[];
   remove: (contentTypeId: string) => void;
   loading: boolean;
   getActionBar: (actionBar: any) => void;
@@ -48,9 +48,6 @@ class ContentTypes extends React.Component<Props, {}> {
           <tr>
             <th>Display name</th>
             <th>Code</th>
-            <th>
-              <SortHandler sortField={'createdDate'} label={'Created at'} />
-            </th>
             <th>{'Actions'}</th>
           </tr>
         </thead>

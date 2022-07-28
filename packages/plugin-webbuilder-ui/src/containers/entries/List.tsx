@@ -5,6 +5,11 @@ import * as compose from 'lodash.flowright';
 import List from '../../components/entries/List';
 import { queries, mutations } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import {
+  EntriesQueryResponse,
+  EntriesRemoveMutationResponse,
+  TypeDetailQueryResponse
+} from '../../types';
 
 type Props = {
   history: any;
@@ -13,10 +18,10 @@ type Props = {
 };
 
 type FinalProps = {
-  entriesQuery: any;
-  contentTypeDetailQuery: any;
-  entriesRemoveMutation: any;
-} & Props;
+  entriesQuery: EntriesQueryResponse;
+  contentTypeDetailQuery: TypeDetailQueryResponse;
+} & Props &
+  EntriesRemoveMutationResponse;
 
 function ListContainer(props: FinalProps) {
   const { entriesQuery, contentTypeDetailQuery, entriesRemoveMutation } = props;
@@ -54,7 +59,7 @@ function ListContainer(props: FinalProps) {
 }
 
 export default compose(
-  graphql<FinalProps>(gql(queries.entries), {
+  graphql<Props, EntriesQueryResponse>(gql(queries.entries), {
     name: 'entriesQuery',
     options: ({ queryParams }) => ({
       variables: {
@@ -62,7 +67,7 @@ export default compose(
       }
     })
   }),
-  graphql<FinalProps>(gql(queries.contentTypeDetail), {
+  graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
     name: 'contentTypeDetailQuery',
     options: ({ queryParams }) => ({
       variables: {
@@ -70,7 +75,7 @@ export default compose(
       }
     })
   }),
-  graphql(gql(mutations.entriesRemove), {
+  graphql<{}, EntriesRemoveMutationResponse>(gql(mutations.entriesRemove), {
     name: 'entriesRemoveMutation'
   })
 )(ListContainer);
