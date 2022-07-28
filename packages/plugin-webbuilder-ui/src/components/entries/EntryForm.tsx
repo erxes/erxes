@@ -14,15 +14,16 @@ import Steps from '@erxes/ui/src/components/step/Steps';
 import { StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import React, { useState, useEffect } from 'react';
+import { IContentTypeDoc, IEntryDoc } from '../../types';
 
 type Props = {
-  contentType: any;
-  entry?: any;
+  contentType: IContentTypeDoc;
+  entry?: IEntryDoc;
   save: (contentTypeId: string, values: any) => void;
 };
 
 function Form(props: Props) {
-  const { contentType, entry = {}, save } = props;
+  const { contentType, entry = {} as IEntryDoc, save } = props;
   const entryValues = entry.values || [];
   const [data, setData] = useState({} as any);
 

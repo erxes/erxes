@@ -1,23 +1,29 @@
 import gql from 'graphql-tag';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import Pages from '../../components/pages/Pages';
 import { queries, mutations } from '../../graphql';
 import React from 'react';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import { PagesQueryResponse, PagesRemoveMutationResponse } from '../../types';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
 };
 
 type FinalProps = {
-  pagesQuery: any;
-  pagesRemoveMutation: any;
-} & Props;
+  pagesQuery: PagesQueryResponse;
+} & Props &
+  PagesRemoveMutationResponse;
 
 class PagesContainer extends React.Component<FinalProps> {
   render() {
     const { pagesQuery, pagesRemoveMutation } = this.props;
+
+    if (pagesQuery.loading) {
+      return <Spinner objective={true} />;
+    }
 
     const pages = pagesQuery.webbuilderPages || [];
 
@@ -46,10 +52,10 @@ class PagesContainer extends React.Component<FinalProps> {
 }
 
 export default compose(
-  graphql(gql(queries.pages), {
+  graphql<{}, PagesQueryResponse>(gql(queries.pages), {
     name: 'pagesQuery'
   }),
-  graphql(gql(mutations.remove), {
+  graphql<{}, PagesRemoveMutationResponse>(gql(mutations.remove), {
     name: 'pagesRemoveMutation'
   })
 )(PagesContainer);
