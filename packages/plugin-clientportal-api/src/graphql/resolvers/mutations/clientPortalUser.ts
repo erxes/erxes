@@ -128,8 +128,8 @@ const clientPortalUserMutations = {
    * Logout
    */
   async clientPortalLogout(_root, _args, { res }: IContext) {
-    res.cookie('client-auth-token', '1', { maxAge: 0 });
-
+    // res.cookie('client-auth-token', '1', { maxAge: 0 });
+    res.clearCookie('client-auth-token');
     return 'loggedout';
   },
 
