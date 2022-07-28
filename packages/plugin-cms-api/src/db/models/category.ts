@@ -1,23 +1,26 @@
-import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Document, Schema, Model, Connection, Types, model } from 'mongoose';
 import { IModels } from './index';
 
 export interface ICategory {
+  _id: any;
   name: string;
-  parentCategoryId?: string | null;
-  topicId?: string | null;
+  parentId?: string | null;
 }
 
-export interface ICategoryDocument extends Document, ICategory {}
+export interface ICategoryDocument extends ICategory, Document {}
 
-export interface ICategoryModel extends Model<ICategoryDocument> {
+export interface ICategoryQueryHelpers {
   getDescendantsOf(_id: string): Promise<ICategory[]>;
   getAncestorsOf(_id: string): Promise<ICategory[]>;
 }
 
+export interface ICategoryModel
+  extends Model<ICategoryDocument, ICategoryQueryHelpers>,
+    ICategoryQueryHelpers {}
+
 export const categorySchema = new Schema<ICategoryDocument>({
   name: { type: String, required: true },
-  parentCategoryId: { type: String },
-  topicId: { type: String }
+  parentId: { type: String }
 });
 
 export const generateCategoryModel = (
@@ -25,12 +28,10 @@ export const generateCategoryModel = (
   con: Connection,
   models: IModels
 ): void => {
-  class CategoryModel implements ICategory {
-    public name: string;
-
+  class CategoryModel implements ICategoryQueryHelpers {
     async getDescendantsOf(
       _id: string
-    ): Promise<ICategory[] | undefined | null> {
+    ): Promise<ICategoryDocument[] | undefined | null> {
       const matchedCategories = await models.Category.aggregate([
         {
           $match: {
@@ -54,7 +55,9 @@ export const generateCategoryModel = (
       return matchedCategories[0].descendants;
     }
 
-    async getAncestorsOf(_id: string): Promise<ICategory[] | undefined | null> {
+    async getAncestorsOf(
+      _id: string
+    ): Promise<ICategoryDocument[] | undefined | null> {
       const results = await models.Category.aggregate([
         {
           $match: {
