@@ -110,7 +110,7 @@ const clientPortalUserMutations = {
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
-    const cookieOptions: any = { secure: requestInfo.secure };
+    const cookieOptions: any = {};
 
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
