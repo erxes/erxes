@@ -46,7 +46,7 @@ class List extends React.Component<IProps> {
 
     for (const campaign of lotteryCampaigns || []) {
 
-      const name = `${campaign.title} (${campaign.lotteriesCount})`;
+      const name = `${campaign.title} (${campaign.lotteriesCount})`
 
       result.push(
         <SidebarListItem
@@ -74,7 +74,7 @@ class List extends React.Component<IProps> {
             {__('Manage Lottery Campaigns')}
           </Link>
           <Section.QuickButtons>
-            {router.getParam(this.props.history, 'campaignId' ) && (
+            {router.getParam(this.props.history, 'campaignId') && (
               <a href="#cancel" tabIndex={0} onClick={this.clearCategoryFilter}>
                 <Tip text={__('Clear filter')} placement="bottom">
                   <Icon icon="cancel-1" />
