@@ -129,9 +129,12 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { res }: IContext) {
-    // res.cookie('client-auth-token', '1', { maxAge: 0 });
-    res.clearCookie('client-auth-token');
+  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
+    debugInfo(`requestInfo: ${JSON.stringify(requestInfo)}`);
+    res.clearCookie('client-auth-token', {
+      domain: 'COOKIE_DOMAIN',
+      path: '/'
+    });
     return 'loggedout';
   },
 
