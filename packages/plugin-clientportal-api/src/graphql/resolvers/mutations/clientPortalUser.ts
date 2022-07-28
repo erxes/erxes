@@ -134,7 +134,8 @@ const clientPortalUserMutations = {
 
     const options: any = {
       domain: requestInfo.headers.hostname,
-      path: '/'
+      path: '/',
+      httpOnly: true
     };
 
     if (!['test', 'development'].includes(NODE_ENV)) {
