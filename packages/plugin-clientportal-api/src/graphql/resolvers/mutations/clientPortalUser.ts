@@ -122,33 +122,15 @@ const clientPortalUserMutations = {
     debugInfo(`cookie options: ${JSON.stringify(options)}`);
 
     res.cookie('client-auth-token', token, options);
-
+    res.cookie('pos-auth-token', '1', { maxAge: 0 });
     return 'loggedin';
   },
 
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
-    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-
-    const options: any = {
-      domain: requestInfo.headers.hostname,
-      path: '/',
-      httpOnly: true,
-      maxAge: 0, // delete cookie
-      overwrite: true
-    };
-
-    if (!['test', 'development'].includes(NODE_ENV)) {
-      options.sameSite = 'none';
-      options.secure = true;
-    }
-
-    debugInfo(`options: ${JSON.stringify(options)}`);
-
-    res.cookie('client-auth-token', '1', options);
-
+  async clientPortalLogout(_root, _args, { res }: IContext) {
+    res.clearCookie('client-auth-token');
     return 'loggedout';
   },
 
