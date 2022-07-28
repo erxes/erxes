@@ -132,7 +132,7 @@ const clientPortalUserMutations = {
   async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
     debugInfo(`requestInfo: ${JSON.stringify(requestInfo)}`);
     res.clearCookie('client-auth-token', {
-      domain: 'COOKIE_DOMAIN',
+      domain: requestInfo.headers.hostname,
       path: '/'
     });
     return 'loggedout';
