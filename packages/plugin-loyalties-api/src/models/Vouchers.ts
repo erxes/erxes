@@ -91,6 +91,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
           campaignId, ownerType, ownerId, modifiedAt: now, status, userId
         }
         });
+        
     }
 
     public static async buyVoucher(doc: IBuyParams) {
