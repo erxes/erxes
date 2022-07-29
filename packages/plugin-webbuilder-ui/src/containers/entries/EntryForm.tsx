@@ -78,22 +78,23 @@ const FormContainer = (props: FinalProps) => {
   return <EntryForm {...updatedProps} />;
 };
 
+const refetchEntryQueries = (contentTypeId: string) => [
+  { query: gql(queries.entries), variables: { contentTypeId } },
+  { query: gql(queries.entriesTotalCount), variables: { contentTypeId } }
+];
+
 export default compose(
   graphql<Props, EntriesAddMutationResponse>(gql(mutations.entriesAdd), {
     name: 'entriesAddMutation',
     options: ({ contentTypeId }) => ({
-      refetchQueries: [
-        { query: gql(queries.entries), variables: { contentTypeId } }
-      ]
+      refetchQueries: refetchEntryQueries(contentTypeId)
     })
   }),
 
   graphql<Props, EntriesEditMutationResponse>(gql(mutations.entriesEdit), {
     name: 'entriesEditMutation',
     options: ({ contentTypeId }) => ({
-      refetchQueries: [
-        { query: gql(queries.entries), variables: { contentTypeId } }
-      ]
+      refetchQueries: refetchEntryQueries(contentTypeId)
     })
   }),
 

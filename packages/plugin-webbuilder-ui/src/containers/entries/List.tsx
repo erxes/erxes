@@ -8,26 +8,36 @@ import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   EntriesQueryResponse,
   EntriesRemoveMutationResponse,
+  EntriesTotalCountQueryResponse,
   TypeDetailQueryResponse
 } from '../../types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   history: any;
   queryParams: any;
   getActionBar: (actionBar: any) => void;
+  setCount: (count: number) => void;
 };
 
 type FinalProps = {
   entriesQuery: EntriesQueryResponse;
   contentTypeDetailQuery: TypeDetailQueryResponse;
+  entriesTotalCountQuery: EntriesTotalCountQueryResponse;
 } & Props &
   EntriesRemoveMutationResponse;
 
 function ListContainer(props: FinalProps) {
-  const { entriesQuery, contentTypeDetailQuery, entriesRemoveMutation } = props;
+  const {
+    entriesQuery,
+    contentTypeDetailQuery,
+    entriesRemoveMutation,
+    entriesTotalCountQuery
+  } = props;
 
-  if (contentTypeDetailQuery.loading) {
-    return null;
+  if (contentTypeDetailQuery.loading || entriesTotalCountQuery.loading) {
+    return <Spinner objective={true} />;
   }
 
   const remove = (_id: string) => {
@@ -45,6 +55,7 @@ function ListContainer(props: FinalProps) {
   };
 
   const entries = entriesQuery.webbuilderEntries || [];
+  const entriesCount = entriesTotalCountQuery.webbuilderEntriesTotalCount || 0;
   const contentType = contentTypeDetailQuery.webbuilderContentTypeDetail || {};
 
   const updatedProps = {
@@ -52,7 +63,8 @@ function ListContainer(props: FinalProps) {
     entries,
     loading: entriesQuery.loading,
     contentType,
-    remove
+    remove,
+    entriesCount
   };
 
   return <List {...updatedProps} />;
@@ -63,10 +75,23 @@ export default compose(
     name: 'entriesQuery',
     options: ({ queryParams }) => ({
       variables: {
-        contentTypeId: queryParams.contentTypeId || ''
-      }
+        contentTypeId: queryParams.contentTypeId || '',
+        ...generatePaginationParams(queryParams)
+      },
+      fetchPolicy: 'network-only'
     })
   }),
+  graphql<Props, EntriesTotalCountQueryResponse>(
+    gql(queries.entriesTotalCount),
+    {
+      name: 'entriesTotalCountQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          contentTypeId: queryParams.contentTypeId || ''
+        }
+      })
+    }
+  ),
   graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
     name: 'contentTypeDetailQuery',
     options: ({ queryParams }) => ({

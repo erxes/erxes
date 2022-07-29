@@ -7,6 +7,7 @@ import EntriesList from '../containers/entries/List';
 import Pages from '../containers/pages/Pages';
 import SideBar from './Sidebar';
 import { IContentTypeDoc } from '../types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 type Props = {
   step: string;
@@ -19,6 +20,7 @@ type Props = {
 function WebBuilder(props: Props) {
   const [Component, setComponent] = useState(<div />);
   const [RightActionBar, setRightActionBar] = useState(<div />);
+  const [count, setCount] = useState(1);
   const { step, queryParams, history, contentTypes, loading } = props;
 
   useEffect(() => {
@@ -29,6 +31,7 @@ function WebBuilder(props: Props) {
             queryParams={queryParams}
             history={history}
             getActionBar={setRightActionBar}
+            setCount={setCount}
           />
         );
 
@@ -40,13 +43,20 @@ function WebBuilder(props: Props) {
             queryParams={queryParams}
             history={history}
             getActionBar={setRightActionBar}
+            setCount={setCount}
           />
         );
 
         break;
 
       case 'pages':
-        setComponent(<Pages getActionBar={setRightActionBar} />);
+        setComponent(
+          <Pages
+            getActionBar={setRightActionBar}
+            setCount={setCount}
+            queryParams={queryParams}
+          />
+        );
 
         break;
 
@@ -90,6 +100,7 @@ function WebBuilder(props: Props) {
             emptyImage="/images/actions/5.svg"
           />
         }
+        footer={<Pagination count={count} />}
         hasBorder={true}
         transparent={true}
         noPadding={true}

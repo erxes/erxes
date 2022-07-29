@@ -39,7 +39,10 @@ export default compose(
   graphql<{}, TypesAddMutationResponse>(gql(mutations.typesAdd), {
     name: 'typesAddMutation',
     options: () => ({
-      refetchQueries: [{ query: gql(queries.contentTypes) }]
+      refetchQueries: [
+        { query: gql(queries.contentTypes) },
+        { query: gql(queries.contentTypesTotalCount) }
+      ]
     })
   })
 )(withRouter(CreateContentTypeContainer));

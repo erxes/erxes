@@ -57,7 +57,10 @@ export default compose(
   graphql<{}, TypesEditMutationResponse>(gql(mutations.typesEdit), {
     name: 'typesEditMutation',
     options: () => ({
-      refetchQueries: [{ query: gql(queries.contentTypes) }]
+      refetchQueries: [
+        { query: gql(queries.contentTypes) },
+        { query: gql(queries.contentTypesTotalCount) }
+      ]
     })
   }),
   graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
