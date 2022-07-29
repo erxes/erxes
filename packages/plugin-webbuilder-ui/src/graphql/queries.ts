@@ -2,9 +2,6 @@ const fields = `
       _id
       name
       description
-      html
-      css
-      jsonData
 `;
 
 const pages = `
@@ -25,6 +22,9 @@ const pageDetail = `
   query pageDetail($_id: String!) {
     webbuilderPageDetail(_id: $_id) {
       ${fields}
+      html
+      css
+      jsonData
     }
   }
 `;
