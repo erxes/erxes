@@ -8,10 +8,16 @@ const fields = `
 `;
 
 const pages = `
-  query pages {
-    webbuilderPages {
+  query pages($page: Int, $perPage: Int) {
+    webbuilderPages(page: $page, perPage: $perPage) {
       ${fields}
     }
+  }
+`;
+
+const pagesTotalCount = `
+  query pagesTotalCount {
+    webbuilderPagesTotalCount
   }
 `;
 
@@ -24,8 +30,8 @@ const pageDetail = `
 `;
 
 const contentTypes = `
-  query contentTypes {
-    webbuilderContentTypes {
+  query contentTypes($page: Int $perPage: Int) {
+    webbuilderContentTypes(page: $page perPage: $perPage) {
       _id
       code
       displayName
@@ -34,6 +40,12 @@ const contentTypes = `
         _id
       }
     }
+  }
+`;
+
+const contentTypesTotalCount = `
+  query contentTypesTotalCount {
+    webbuilderContentTypesTotalCount
   }
 `;
 
@@ -49,12 +61,18 @@ const contentTypeDetail = `
 `;
 
 const entries = `
-  query entries($contentTypeId: String!) {
-    webbuilderEntries(contentTypeId: $contentTypeId) {
+  query entries($contentTypeId: String! $page: Int $perPage: Int) {
+    webbuilderEntries(contentTypeId: $contentTypeId page: $page perPage: $perPage) {
       _id
       contentTypeId
       values
     } 
+  }
+`;
+
+const entriesTotalCount = `
+  query entriesTotalCount($contentTypeId: String!) {
+    webbuilderEntriesTotalCount(contentTypeId: $contentTypeId)
   }
 `;
 
@@ -80,10 +98,13 @@ const templates = `
 
 export default {
   pages,
+  pagesTotalCount,
   pageDetail,
   contentTypes,
+  contentTypesTotalCount,
   contentTypeDetail,
   entries,
   entryDetail,
-  templates
+  templates,
+  entriesTotalCount
 };
