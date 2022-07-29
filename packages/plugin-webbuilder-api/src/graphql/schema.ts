@@ -30,11 +30,14 @@ export const types = `
 `;
 
 export const queries = `
-  webbuilderPages: [WebbuilderPage]
+  webbuilderPages(page: Int perPage: Int): [WebbuilderPage]
+  webbuilderPagesTotalCount: Int
   webbuilderPageDetail(_id: String!): WebbuilderPage
-  webbuilderContentTypes: [WebbuilderContentType ]
+  webbuilderContentTypes(page: Int perPage: Int): [WebbuilderContentType ]
+  webbuilderContentTypesTotalCount: Int
   webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
-  webbuilderEntries(contentTypeId: String!): [WebbuilderEntry]
+  webbuilderEntries(contentTypeId: String! page: Int perPage: Int): [WebbuilderEntry]
+  webbuilderEntriesTotalCount(contentTypeId: String! page: Int perPage: Int): Int
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
   webbuilderTemplates: [WebbuilderTemplate]
 `;
