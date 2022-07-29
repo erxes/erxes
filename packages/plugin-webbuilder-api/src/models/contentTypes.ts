@@ -11,6 +11,7 @@ export interface IField {
 }
 
 export interface IContentType {
+  siteId: string;
   code: string;
   displayName: string;
   fields: IField[];
@@ -31,6 +32,7 @@ export const fieldSchema = new Schema(
 );
 
 export const contentTypeSchema = new Schema({
+  siteId: { type: String },
   code: { type: String, label: 'Name' },
   displayName: { type: String, label: 'Description' },
   fields: { type: [fieldSchema] }
@@ -63,10 +65,17 @@ export const loadTypeClass = (models: IModels) => {
       }
     }
 
-    public static async createContentType(doc: IContentType) {
+    public static async createContentType(doc) {
+      let site = await models.Sites.findOne({});
+
+      if (!site) {
+        await models.Sites.create({ name: 'web' });
+        site = await models.Sites.findOne({});
+      }
+
       await this.checkCodeDuplication(doc.code);
 
-      return models.ContentTypes.create(doc);
+      return models.ContentTypes.create({ siteId: site?._id, ...doc });
     }
 
     public static async updateContentType(_id: string, doc: IContentType) {

@@ -43,11 +43,22 @@ export default {
 
     const { app } = options;
 
-    app.get('/', async (req, res) => {
+    app.get('/:sitename', async (req, res) => {
+      const { sitename } = req.params;
+
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
-      const page = await models.Pages.findOne({ name: 'home' });
+      const site = await models.Sites.findOne({ name: sitename }).lean();
+
+      if (!site) {
+        return res.status(404).send('Not found');
+      }
+
+      const page = await models.Pages.findOne({
+        siteId: site._id,
+        name: 'home'
+      });
 
       if (!page) {
         return res.status(404).send('Not found');
@@ -55,7 +66,10 @@ export default {
 
       let html = page.html;
 
-      const pages = await models.Pages.find({ name: { $ne: 'home' } });
+      const pages = await models.Pages.find({
+        siteId: site._id,
+        name: { $ne: 'home' }
+      });
 
       for (const p of pages) {
         const holder = `{{${p.name}}}`;
@@ -65,9 +79,12 @@ export default {
 
           if (p.name.includes('_entry')) {
             const contentTypeCode = p.name.replace('_entry', '');
+
             const contentType = await models.ContentTypes.findOne({
+              siteId: site._id,
               code: contentTypeCode
             });
+
             const entries = await models.Entries.find({
               contentTypeId: contentType?._id
             });
@@ -100,27 +117,37 @@ export default {
       );
     });
 
-    app.get('/detail/:contentType/:entryId', async (req, res) => {
+    app.get('/:sitename/detail/:contenttype/:entryid', async (req, res) => {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
-      const { contentType, entryId } = req.params;
+      const { sitename, contenttype, entryid } = req.params;
 
-      const ct = await models.ContentTypes.findOne({ code: contentType });
+      const site = await models.Sites.findOne({ name: sitename }).lean();
+
+      if (!site) {
+        return res.status(404).send('Not found');
+      }
+
+      const ct = await models.ContentTypes.findOne({
+        siteId: site._id,
+        code: contenttype
+      });
 
       if (!ct) {
         return res.status(404).send('Not found');
       }
 
       const page = await models.Pages.findOne({
-        name: `${contentType}_detail`
+        siteId: site._id,
+        name: `${contenttype}_detail`
       });
 
       if (!page) {
         return res.status(404).send('Page not found');
       }
 
-      const entry = await models.Entries.findOne({ _id: entryId });
+      const entry = await models.Entries.findOne({ _id: entryid });
 
       if (!entry) {
         return res.status(404).send('Entry not found');
@@ -128,7 +155,10 @@ export default {
 
       let html = page.html;
 
-      const pages = await models.Pages.find({ name: { $ne: 'home' } });
+      const pages = await models.Pages.find({
+        siteId: site._id,
+        name: { $ne: 'home' }
+      });
 
       for (const p of pages) {
         html = html.replace(
@@ -152,13 +182,19 @@ export default {
       );
     });
 
-    app.get('/page/:name', async (req, res) => {
+    app.get('/:sitename/page/:name', async (req, res) => {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
-      const { name } = req.params;
+      const { sitename, name } = req.params;
 
-      const page = await models.Pages.findOne({ name });
+      const site = await models.Sites.findOne({ name: sitename }).lean();
+
+      if (!site) {
+        return res.status(404).send('Not found');
+      }
+
+      const page = await models.Pages.findOne({ siteId: site._id, name });
 
       if (!page) {
         return res.status(404).send('Page not found');

@@ -4,6 +4,7 @@ import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface IPage {
+  siteId: string;
   name: string;
   description: string;
   html: string;
@@ -16,6 +17,7 @@ export interface IPageDocument extends IPage, Document {
 }
 
 export const pageSchema = new Schema({
+  siteId: { type: String },
   name: { type: String, label: 'Name' },
   description: { type: String, label: 'Description' },
   html: { type: String },
@@ -32,7 +34,14 @@ export interface IPageModel extends Model<IPageDocument> {
 export const loadPageClass = (models: IModels) => {
   class Page {
     public static async createPage(doc) {
-      return models.Pages.create(doc);
+      let site = await models.Sites.findOne({});
+
+      if (!site) {
+        await models.Sites.create({ name: 'web' });
+        site = await models.Sites.findOne({});
+      }
+
+      return models.Pages.create({ siteId: site?._id, ...doc });
     }
 
     public static async updatePage(_id: string, doc) {
