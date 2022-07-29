@@ -292,7 +292,7 @@ class PageForm extends React.Component<Props, State> {
 
         <ControlWrapper>
           <Indicator>
-            {__('You are')} {page ? 'editing' : 'creating'}
+            {__('You are')} {page ? 'editing ' : 'creating '}
             <strong>{name}</strong> {__('page')}
           </Indicator>
           {this.renderButtons()}

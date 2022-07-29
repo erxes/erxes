@@ -21,15 +21,9 @@ const EntryForm = asyncComponent(() =>
   )
 );
 
-const CreateContentType = asyncComponent(() =>
+const ContentTypeForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CreateContentType -- Webbuilders" */ './containers/contentTypes/CreateContentType'
-  )
-);
-
-const EditContentType = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "EditContentType -- Webbuilders" */ './containers/contentTypes/EditContentType'
+    /* webpackChunkName: "ContentType -- Webbuilders" */ './containers/contentTypes/ContentTypeForm'
   )
 );
 
@@ -43,16 +37,10 @@ const webBuilders = history => {
   return <WebBuilder step={step} queryParams={queryParams} history={history} />;
 };
 
-const createContentType = () => {
-  return <CreateContentType />;
-};
+const typeEdit = ({ match }) => {
+  const id = match.params.id;
 
-const editContentType = ({ match, location }) => {
-  const { id } = match.params;
-
-  const queryParams = queryString.parse(location.search);
-
-  return <EditContentType contentTypeId={id} queryParams={queryParams} />;
+  return <ContentTypeForm contentTypeId={id} />;
 };
 
 const pageEdit = ({ match }) => {
@@ -100,13 +88,13 @@ const routes = () => {
       <Route
         path="/webbuilder/contenttypes/create"
         exact={true}
-        component={createContentType}
+        component={ContentTypeForm}
       />
 
       <Route
         path="/webbuilder/contenttypes/edit/:id"
         exact={true}
-        component={editContentType}
+        component={typeEdit}
       />
 
       <Route

@@ -7,6 +7,7 @@ import React from 'react';
 import { mutations, queries } from '../../graphql';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import {
   EntriesAddMutationResponse,
   EntriesEditMutationResponse,
@@ -33,7 +34,7 @@ const FormContainer = (props: FinalProps) => {
     (entryDetailQuery && entryDetailQuery.loading) ||
     contentTypeDetailQuery.loading
   ) {
-    return null;
+    return <Spinner objective={true} />;
   }
 
   const save = (contentTypeId: string, values: any) => {
