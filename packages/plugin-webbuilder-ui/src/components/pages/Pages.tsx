@@ -13,6 +13,8 @@ type Props = {
   pages: IPageDoc[];
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
+  setCount: (count: number) => void;
+  pagesCount: number;
 };
 
 class Pages extends React.Component<Props, {}> {
@@ -25,7 +27,7 @@ class Pages extends React.Component<Props, {}> {
   };
 
   render() {
-    const { pages, getActionBar } = this.props;
+    const { pages, getActionBar, setCount, pagesCount } = this.props;
 
     const actionBarRight = (
       <Flex>
@@ -40,6 +42,7 @@ class Pages extends React.Component<Props, {}> {
     const ActionBar = <Wrapper.ActionBar right={actionBarRight} />;
 
     getActionBar(ActionBar);
+    setCount(pagesCount);
 
     let content = (
       <>

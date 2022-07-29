@@ -121,18 +121,25 @@ const FormContainer = (props: FinalProps) => {
   return <PageForm {...updatedProps} />;
 };
 
+const refetchPageQueries = () => [
+  { query: gql(queries.pages) },
+  { query: gql(queries.pagesTotalCount) }
+];
+
+const refetchTemplateQuery = () => [{ query: gql(queries.templates) }];
+
 export default compose(
   graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
     name: 'pagesAdd',
     options: () => ({
-      refetchQueries: [{ query: gql(queries.pages) }]
+      refetchQueries: refetchPageQueries()
     })
   }),
 
   graphql<{}, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
     options: () => ({
-      refetchQueries: [{ query: gql(queries.pages) }]
+      refetchQueries: refetchPageQueries()
     })
   }),
 
@@ -152,13 +159,13 @@ export default compose(
   graphql<{}, TemplatesAddMutationResponse>(gql(mutations.templatesAdd), {
     name: 'templatesAdd',
     options: () => ({
-      refetchQueries: [{ query: gql(queries.templates) }]
+      refetchQueries: refetchTemplateQuery()
     })
   }),
   graphql<{}, TemplatesRemoveMutationResponse>(gql(mutations.templatesRemove), {
     name: 'templatesRemove',
     options: () => ({
-      refetchQueries: [{ query: gql(queries.templates) }]
+      refetchQueries: refetchTemplateQuery()
     })
   })
 )(withRouter(FormContainer));

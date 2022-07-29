@@ -26,7 +26,7 @@ type State = {
   fields: any;
 };
 
-class CreateContentType extends React.Component<Props, State> {
+class ContentTypeForm extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -145,4 +145,4 @@ class CreateContentType extends React.Component<Props, State> {
   }
 }
 
-export default CreateContentType;
+export default ContentTypeForm;

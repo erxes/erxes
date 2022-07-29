@@ -3,16 +3,19 @@ import { IPosUserDocument } from '../../models/definitions/posUsers';
 import { IConfig } from '../../models/definitions/configs';
 import { getService } from '@erxes/api-utils/src/serviceDiscovery';
 
-export const getServerAddress = async (serviceName?: string) => {
+export const getServerAddress = async (
+  subdomain: string,
+  serviceName?: string
+) => {
   const posService = await getService(serviceName || 'pos');
 
-  if (posService.address) {
-    return posService.address;
+  if (!posService.address) {
+    const { SERVER_DOMAIN } = process.env;
+    return `${SERVER_DOMAIN || 'http://localhost:4000'}/pl:${serviceName ||
+      'pos'}`;
   }
 
-  const { SERVER_DOMAIN } = process.env;
-  return `${SERVER_DOMAIN || 'http://localhost:4000'}/pl:${serviceName ||
-    'pos'}`;
+  return posService.address.replace('://', `://${subdomain}.`);
 };
 
 export const importUsers = async (
@@ -73,8 +76,12 @@ export const preImportProducts = async (models: IModels, groups: any = []) => {
   }
 };
 
-export const importProducts = async (models: IModels, groups: any = []) => {
-  const FILE_PATH = `${await getServerAddress('core')}/read-file`;
+export const importProducts = async (
+  subdomain,
+  models: IModels,
+  groups: any = []
+) => {
+  const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
   const attachmentUrlChanger = attachment => {
     return attachment && attachment.url && !attachment.url.includes('http')
@@ -127,7 +134,7 @@ export const importProducts = async (models: IModels, groups: any = []) => {
 };
 
 // Pos config created in main erxes differs from here
-export const extractConfig = async doc => {
+export const extractConfig = async (subdomain, doc) => {
   const {
     uiOptions = {
       favIcon: '',
@@ -141,7 +148,7 @@ export const extractConfig = async doc => {
   } = doc;
   console.log(uiOptions);
 
-  const FILE_PATH = `${await getServerAddress('core')}/read-file`;
+  const FILE_PATH = `${await getServerAddress(subdomain, 'core')}/read-file`;
 
   try {
     uiOptions.favIcon =
@@ -289,7 +296,11 @@ export const receiveUser = async (models: IModels, data) => {
   }
 };
 
-export const receivePosConfig = async (models: IModels, data) => {
+export const receivePosConfig = async (
+  subdomain: string,
+  models: IModels,
+  data
+) => {
   const {
     updatedDocument = {},
     action = '',
@@ -307,7 +318,7 @@ export const receivePosConfig = async (models: IModels, data) => {
 
     await models.Configs.updateConfig(config._id, {
       ...config,
-      ...(await extractConfig(updatedDocument))
+      ...(await extractConfig(subdomain, updatedDocument))
     });
 
     // set not found users inactive

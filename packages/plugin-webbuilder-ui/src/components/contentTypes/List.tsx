@@ -14,6 +14,8 @@ type Props = {
   remove: (contentTypeId: string) => void;
   loading: boolean;
   getActionBar: (actionBar: any) => void;
+  setCount: (count: number) => void;
+  contentTypesCount: number;
 };
 
 class ContentTypes extends React.Component<Props, {}> {
@@ -26,7 +28,7 @@ class ContentTypes extends React.Component<Props, {}> {
   }
 
   render() {
-    const { getActionBar } = this.props;
+    const { getActionBar, setCount, contentTypesCount } = this.props;
 
     const actionBarRight = (
       <Flex>
@@ -41,6 +43,7 @@ class ContentTypes extends React.Component<Props, {}> {
     const ActionBar = <Wrapper.ActionBar right={actionBarRight} />;
 
     getActionBar(ActionBar);
+    setCount(contentTypesCount);
 
     const content = (
       <Table whiteSpace="nowrap" hover={true}>

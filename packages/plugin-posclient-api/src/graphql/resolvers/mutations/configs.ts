@@ -17,38 +17,50 @@ import { redis } from '@erxes/api-utils/src/serviceDiscovery';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 
 const configMutations = {
-  posConfigsFetch: async (_root, { token }, { models }: IContext) => {
-    const address = await getServerAddress();
+  posConfigsFetch: async (
+    _root,
+    { token },
+    { models, subdomain }: IContext
+  ) => {
+    const address = await getServerAddress(subdomain);
 
     const config = await models.Configs.createConfig(token);
 
-    const response = await sendRequest({
-      url: `${address}/pos-init`,
-      method: 'get',
-      headers: { 'POS-TOKEN': token }
-    });
-    if (response) {
-      const {
-        pos = {},
-        adminUsers = [],
-        cashiers = [],
-        productGroups = [],
-        qpayConfig,
-        slots = []
-      } = response;
-
-      validateConfig(pos);
-
-      await models.Configs.updateConfig(config._id, {
-        ...(await extractConfig(pos)),
-        syncInfo: pos.syncInfo,
-        qpayConfig
+    try {
+      const response = await sendRequest({
+        url: `${address}/pos-init`,
+        method: 'get',
+        headers: { 'POS-TOKEN': token }
       });
+      if (response && !response.error) {
+        const {
+          pos = {},
+          adminUsers = [],
+          cashiers = [],
+          productGroups = [],
+          qpayConfig,
+          slots = []
+        } = response;
 
-      await importUsers(models, cashiers);
-      await importUsers(models, adminUsers, true);
-      await importSlots(models, slots);
-      await importProducts(models, productGroups);
+        validateConfig(pos);
+
+        await models.Configs.updateConfig(config._id, {
+          ...(await extractConfig(subdomain, pos)),
+          syncInfo: pos.syncInfo,
+          qpayConfig
+        });
+
+        await importUsers(models, cashiers);
+        await importUsers(models, adminUsers, true);
+        await importSlots(models, slots);
+        await importProducts(subdomain, models, productGroups);
+      } else {
+        await models.Configs.deleteOne({ token });
+        throw new Error(response ? response.error : 'cant connect server');
+      }
+    } catch (e) {
+      await models.Configs.deleteOne({ token });
+      throw new Error(e.message);
     }
 
     const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
@@ -70,8 +82,8 @@ const configMutations = {
     return config;
   },
 
-  async syncConfig(_root, { type }, { models }: IContext) {
-    const address = await getServerAddress();
+  async syncConfig(_root, { type }, { models, subdomain }: IContext) {
+    const address = await getServerAddress(subdomain);
 
     const config = await models.Configs.findOne({}).lean();
     const syncId = (config.syncInfo || {}).id;
@@ -97,7 +109,7 @@ const configMutations = {
         } = response;
 
         await models.Configs.updateConfig(config._id, {
-          ...(await extractConfig(pos)),
+          ...(await extractConfig(subdomain, pos)),
           syncInfo: pos.syncInfo || {},
           qpayConfig
         });
@@ -110,7 +122,7 @@ const configMutations = {
       case 'products':
         const { productGroups = [] } = response;
         await preImportProducts(models, productGroups);
-        await importProducts(models, productGroups);
+        await importProducts(subdomain, models, productGroups);
         break;
     }
 
@@ -122,7 +134,7 @@ const configMutations = {
     return 'success';
   },
 
-  async syncOrders(_root, _param, { models }: IContext) {
+  async syncOrders(_root, _param, { models, subdomain }: IContext) {
     const orderFilter = {
       synced: false,
       status: { $in: ORDER_STATUSES.FULL },
@@ -164,7 +176,7 @@ const configMutations = {
 
     const config = await models.Configs.getConfig({});
     const syncId = config.syncInfo.id;
-    const address = await getServerAddress();
+    const address = await getServerAddress(subdomain);
 
     try {
       const response = await sendRequest({

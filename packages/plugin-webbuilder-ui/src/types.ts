@@ -57,6 +57,10 @@ export type PagesQueryResponse = {
   webbuilderPages: IPageDoc[];
 } & QueryResponse;
 
+export type PagesTotalCountQueryResponse = {
+  webbuilderPagesTotalCount: number;
+} & QueryResponse;
+
 export type PageDetailQueryResponse = {
   webbuilderPageDetail: IPageDoc;
 } & QueryResponse;
@@ -66,6 +70,10 @@ export type TypesQueryResponse = {
   webbuilderContentTypes: IContentTypeDoc[];
 } & QueryResponse;
 
+export type TypesTotalCountQueryResponse = {
+  webbuilderContentTypesTotalCount: number;
+} & QueryResponse;
+
 export type TypeDetailQueryResponse = {
   webbuilderContentTypeDetail: IContentTypeDoc;
 } & QueryResponse;
@@ -73,6 +81,10 @@ export type TypeDetailQueryResponse = {
 // entry
 export type EntriesQueryResponse = {
   webbuilderEntries: IEntryDoc[];
+} & QueryResponse;
+
+export type EntriesTotalCountQueryResponse = {
+  webbuilderEntriesTotalCount: number;
 } & QueryResponse;
 
 export type EntryDetailQueryResponse = {

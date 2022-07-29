@@ -6,26 +6,39 @@ import Pages from '../../components/pages/Pages';
 import { queries, mutations } from '../../graphql';
 import React from 'react';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { PagesQueryResponse, PagesRemoveMutationResponse } from '../../types';
+import {
+  PagesQueryResponse,
+  PagesRemoveMutationResponse,
+  PagesTotalCountQueryResponse
+} from '../../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
+  setCount: (count: number) => void;
+  queryParams: any;
 };
 
 type FinalProps = {
   pagesQuery: PagesQueryResponse;
+  pagesTotalCountQuery: PagesTotalCountQueryResponse;
 } & Props &
   PagesRemoveMutationResponse;
 
 class PagesContainer extends React.Component<FinalProps> {
   render() {
-    const { pagesQuery, pagesRemoveMutation } = this.props;
+    const {
+      pagesQuery,
+      pagesRemoveMutation,
+      pagesTotalCountQuery
+    } = this.props;
 
-    if (pagesQuery.loading) {
+    if (pagesQuery.loading || pagesTotalCountQuery.loading) {
       return <Spinner objective={true} />;
     }
 
     const pages = pagesQuery.webbuilderPages || [];
+    const pagesCount = pagesTotalCountQuery.webbuilderPagesTotalCount || 0;
 
     const remove = (_id: string) => {
       confirm().then(() => {
@@ -34,6 +47,7 @@ class PagesContainer extends React.Component<FinalProps> {
             Alert.success('You successfully deleted a page.');
 
             pagesQuery.refetch();
+            pagesTotalCountQuery.refetch();
           })
           .catch(e => {
             Alert.error(e.message);
@@ -44,6 +58,7 @@ class PagesContainer extends React.Component<FinalProps> {
     const updatedProps = {
       ...this.props,
       pages,
+      pagesCount,
       remove
     };
 
@@ -52,8 +67,17 @@ class PagesContainer extends React.Component<FinalProps> {
 }
 
 export default compose(
-  graphql<{}, PagesQueryResponse>(gql(queries.pages), {
-    name: 'pagesQuery'
+  graphql<Props, PagesQueryResponse>(gql(queries.pages), {
+    name: 'pagesQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        ...generatePaginationParams(queryParams)
+      },
+      fetchPolicy: 'network-only'
+    })
+  }),
+  graphql<{}, PagesTotalCountQueryResponse>(gql(queries.pagesTotalCount), {
+    name: 'pagesTotalCountQuery'
   }),
   graphql<{}, PagesRemoveMutationResponse>(gql(mutations.remove), {
     name: 'pagesRemoveMutation'

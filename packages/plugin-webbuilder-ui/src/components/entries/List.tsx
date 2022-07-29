@@ -16,6 +16,8 @@ type Props = {
   contentType: IContentTypeDoc;
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
+  setCount: (count: number) => void;
+  entriesCount: number;
 };
 
 class List extends React.Component<Props> {
@@ -33,7 +35,13 @@ class List extends React.Component<Props> {
   };
 
   render() {
-    const { contentType, entries, getActionBar } = this.props;
+    const {
+      contentType,
+      entries,
+      getActionBar,
+      setCount,
+      entriesCount
+    } = this.props;
     const { fields = [] } = contentType;
 
     const actionBarRight = (
@@ -47,6 +55,7 @@ class List extends React.Component<Props> {
     );
 
     getActionBar(actionBarRight);
+    setCount(entriesCount);
 
     let content = (
       <>
