@@ -15,7 +15,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { SUBMENU } from '../../constants';
 import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import SafeRemainderForm from '../containers/SafeRemainderForm';
+import SafeRemainderForm from '../containers/Form';
 
 interface IProps extends IRouterProps {
   history: any;

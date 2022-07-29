@@ -1,20 +1,11 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { ISafeRemainder } from '../../../models/definitions/safeRemainders';
-import {
-  SAFE_REMAINDER_STATUSES,
-  SAFE_REMITEM_STATUSES
-} from '../../../models/definitions/constants';
+import { SAFE_REMAINDER_STATUSES } from '../../../models/definitions/constants';
 import { sendProductsMessage } from '../../../messageBroker';
 import { updateLiveRemainder } from './utils';
 
-export interface IUpdateSafeRemainderItemParams {
-  _id: string;
-  status?: string;
-  remainder: number;
-}
-
-const remainderMutations = {
+const safeRemainderMutations = {
   async createSafeRemainder(
     _root,
     params: ISafeRemainder,
@@ -111,52 +102,18 @@ const remainderMutations = {
     //  TODO delete tr
 
     return models.SafeRemainders.deleteOne({ _id });
-  },
-
-  async updateSafeRemainderItem(
-    _root,
-    params: IUpdateSafeRemainderItemParams,
-    { models }: IContext
-  ) {
-    const { _id, status, remainder } = params;
-    const item = await models.SafeRemainderItems.getItemObject(_id);
-
-    await models.SafeRemainderItems.updateOne(
-      { _id },
-      {
-        $set: {
-          lastTrDate: new Date(),
-          count: remainder,
-          status: status || SAFE_REMITEM_STATUSES.CHECKED
-        }
-      }
-    );
-
-    return models.SafeRemainderItems.getItemObject(_id);
-  },
-
-  async removeSafeRemainderItem(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext
-  ) {
-    await models.SafeRemainderItems.getItemObject(_id);
-
-    return models.SafeRemainderItems.deleteOne({ _id });
   }
 };
 
-checkPermission(remainderMutations, 'createSafeRemainder', 'manageRemainders');
-checkPermission(remainderMutations, 'removeSafeRemainder', 'manageRemainders');
 checkPermission(
-  remainderMutations,
-  'updateSafeRemainderItem',
+  safeRemainderMutations,
+  'createSafeRemainder',
   'manageRemainders'
 );
 checkPermission(
-  remainderMutations,
-  'removeSafeRemainderItem',
+  safeRemainderMutations,
+  'removeSafeRemainder',
   'manageRemainders'
 );
 
-export default remainderMutations;
+export default safeRemainderMutations;

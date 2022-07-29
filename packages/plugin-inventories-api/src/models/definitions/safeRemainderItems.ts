@@ -9,9 +9,9 @@ export interface ISafeRemainderItem {
 
   preCount: number;
   count: number;
-  uomId: string;
-
   status: string;
+
+  uomId: string;
 }
 
 export interface ISafeRemainderItemDocument
@@ -19,7 +19,7 @@ export interface ISafeRemainderItemDocument
     Document {
   _id: string;
   modifiedAt: Date;
-  lastTrDate: Date;
+  lastTransactionDate: Date;
 }
 
 export const safeRemainderItemSchema = schemaHooksWrapper(
@@ -35,12 +35,12 @@ export const safeRemainderItemSchema = schemaHooksWrapper(
 
     status: field({ type: String, label: 'Status' }),
 
+    lastTransactionDate: field({ type: Date, label: 'Last Transaction Date' }),
     modifiedAt: field({
       type: Date,
       default: new Date(),
       label: 'Modified date'
-    }),
-    lastTrDate: field({ type: Date, label: 'Last TR' })
+    })
   }),
   'erxes_safe_remainder_items'
 );

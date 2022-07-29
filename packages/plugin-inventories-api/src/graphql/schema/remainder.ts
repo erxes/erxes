@@ -3,9 +3,8 @@ export const types = `
     _id: String
     modifiedAt: Date
     productId: String
-    quantity: Float
-    uomId: String
     count: Float
+    uomId: String
     branchId: String
     departmentId: String
   }

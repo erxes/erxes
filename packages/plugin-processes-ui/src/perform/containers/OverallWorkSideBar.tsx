@@ -45,6 +45,7 @@ class OverallWorkSideBarContainer extends React.Component<FinalProps> {
     const outBranchId = this.props.queryParams.outBranchId || '';
     const outDepartmentId = this.props.queryParams.outDepartmentId || '';
     const jobReferId = this.props.queryParams.jobReferId || '';
+    const overallWorkId = this.props.queryParams.overallWorkId || '';
 
     const params = {
       inBranchId,
@@ -52,7 +53,8 @@ class OverallWorkSideBarContainer extends React.Component<FinalProps> {
       outBranchId,
       outDepartmentId,
       searchValue,
-      jobReferId
+      jobReferId,
+      overallWorkId
     };
 
     const updatedProps = {

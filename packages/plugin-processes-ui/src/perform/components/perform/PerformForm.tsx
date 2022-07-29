@@ -23,6 +23,7 @@ import { __ } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
 import { IFlowDocument } from '../../../flow/types';
 import { calculateCount } from './common';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -31,6 +32,7 @@ type Props = {
   max: number;
   jobRefers: IJobRefer[];
   flows: IFlowDocument[];
+  products: IProduct[];
 };
 
 type State = {
@@ -50,8 +52,7 @@ class Form extends React.Component<Props, State> {
     const calculatedObject = calculateCount(
       jobRefers || [],
       flows || [],
-      overallWorkDetail,
-      'on perform component'
+      overallWorkDetail
     );
     const { jobRefer } = calculatedObject;
 
@@ -140,7 +141,6 @@ class Form extends React.Component<Props, State> {
 
   onChange = e => {
     const count = Number(e.target.value);
-    const { needProducts, resultProducts, jobRefer } = this.state;
 
     this.setState({
       count
