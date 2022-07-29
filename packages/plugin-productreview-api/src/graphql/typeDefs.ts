@@ -16,13 +16,13 @@ const typeDefs = async _serviceDiscovery => {
     scalar Date
 
     ${productreviewTypes}
-    ${wishlistTypes}    
+    ${wishlistTypes}
 
     extend type Query {
       ${productreviewQueries}
       ${wishlistQueries}
     }
-    
+
     extend type Mutation {
       ${productreviewMutations}
       ${wishlistMutations}

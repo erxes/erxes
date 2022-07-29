@@ -1,5 +1,5 @@
-import { IRoute } from '../../../models/definitions/routes';
 import { IContext } from '../../../connectionResolver';
+import { IRoute } from '../../../models/definitions/routes';
 
 export interface IRouteEdit extends IRoute {
   _id: string;

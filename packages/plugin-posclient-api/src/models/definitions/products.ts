@@ -1,7 +1,11 @@
 import { attachmentSchema, customFieldSchema, ICustomField } from './common';
 import { Document, Schema } from 'mongoose';
-import { getDateFieldDefinition } from './utils';
-import { field, schemaHooksWrapper, schemaWrapper } from './util';
+import {
+  field,
+  getDateFieldDefinition,
+  schemaHooksWrapper,
+  schemaWrapper
+} from './utils';
 import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
 
 interface IAttachment {

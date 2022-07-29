@@ -1,13 +1,13 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import { IRouterProps } from "@erxes/ui/src/types";
-import { Alert, withProps } from "@erxes/ui/src/utils";
-import { router } from "@erxes/ui/src/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withRouter } from "react-router-dom";
-import Properties from "../components/Properties";
-import { mutations, queries } from "@erxes/ui-settings/src/properties/graphql";
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { router } from '@erxes/ui/src/utils';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import Properties from '../components/Properties';
+import { mutations, queries } from '@erxes/ui-settings/src/properties/graphql';
 import {
   FieldsGroupsRemoveMutationResponse,
   FieldsGroupsUpdateVisibleMutationResponse,
@@ -15,11 +15,15 @@ import {
   FieldsUpdateVisibleMutationResponse,
   FieldsUpdateOrderMutationResponse,
   FieldsUpdateOrderMutationVariables,
-  GroupsUpdateOrderMutationResponse,
-} from "../types";
-import { FieldsGroupsQueryResponse } from "@erxes/ui-settings/src/properties/types";
-import { updateCustomFieldsCache } from "@erxes/ui-settings/src/properties/utils";
-import Spinner from "@erxes/ui/src/components/Spinner";
+  GroupsUpdateOrderMutationResponse
+} from '../types';
+import {
+  FieldsEditMutationResponse,
+  FieldsGroupsQueryResponse,
+  FieldsUpdateVisibilityToCreateMutationResponse
+} from '@erxes/ui-settings/src/properties/types';
+import { updateCustomFieldsCache } from '@erxes/ui-settings/src/properties/utils';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   queryParams: any;
@@ -34,6 +38,7 @@ type FinalProps = {
   FieldsGroupsUpdateVisibleMutationResponse &
   FieldsUpdateVisibleMutationResponse &
   FieldsUpdateOrderMutationResponse &
+  FieldsUpdateVisibilityToCreateMutationResponse &
   GroupsUpdateOrderMutationResponse &
   IRouterProps;
 
@@ -46,9 +51,10 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible,
     fieldsUpdateOrder,
+    fieldsUpdateSystemFields,
     groupsUpdateOrder,
     queryParams,
-    fieldsGetTypes,
+    fieldsGetTypes
   } = props;
 
   if (fieldsGroupsQuery.loading) {
@@ -61,20 +67,20 @@ const PropertiesContainer = (props: FinalProps) => {
 
   const services = fieldsGetTypes.fieldsGetTypes || [];
 
-  if (!router.getParam(history, "type")) {
+  if (!router.getParam(history, 'type')) {
     router.setParams(
       history,
-      { type: services.length > 0 ? services[0].contentType.toString() : "" },
+      { type: services.length > 0 ? services[0].contentType.toString() : '' },
       true
     );
   }
 
   const removePropertyGroup = ({ _id }) => {
     fieldsGroupsRemove({
-      variables: { _id },
+      variables: { _id }
     })
       .then(() => {
-        Alert.success("You successfully deleted a property group");
+        Alert.success('You successfully deleted a property group');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -83,12 +89,12 @@ const PropertiesContainer = (props: FinalProps) => {
 
   const removeProperty = ({ _id }) => {
     fieldsRemove({
-      variables: { _id },
+      variables: { _id }
     })
       .then(() => {
         updateCustomFieldsCache({ id: _id, type: queryParams.type });
 
-        Alert.success("You successfully deleted a property field");
+        Alert.success('You successfully deleted a property field');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -97,10 +103,30 @@ const PropertiesContainer = (props: FinalProps) => {
 
   const updatePropertyVisible = ({ _id, isVisible }) => {
     fieldsUpdateVisible({
-      variables: { _id, isVisible },
+      variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success("You changed a property field visibility");
+        Alert.success('You changed a property field visibility');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const updatePropertySystemFields = ({
+    _id,
+    isVisibleToCreate,
+    isRequired
+  }: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
+  }) => {
+    fieldsUpdateSystemFields({
+      variables: { _id, isVisibleToCreate, isRequired }
+    })
+      .then(() => {
+        Alert.success('You changed a property field');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -109,10 +135,10 @@ const PropertiesContainer = (props: FinalProps) => {
 
   const updatePropertyDetailVisible = ({ _id, isVisibleInDetail }) => {
     fieldsUpdateVisible({
-      variables: { _id, isVisibleInDetail },
+      variables: { _id, isVisibleInDetail }
     })
       .then(() => {
-        Alert.success("You changed a property field visibility");
+        Alert.success('You changed a property field visibility');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -121,10 +147,10 @@ const PropertiesContainer = (props: FinalProps) => {
 
   const updatePropertyGroupVisible = ({ _id, isVisible }) => {
     fieldsGroupsUpdateVisible({
-      variables: { _id, isVisible },
+      variables: { _id, isVisible }
     })
       .then(() => {
-        Alert.success("You changed a property group visibility");
+        Alert.success('You changed a property group visibility');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -136,9 +162,9 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: {
         orders: fieldOrders.map((field, index) => ({
           _id: field._id,
-          order: index + 1,
-        })),
-      },
+          order: index + 1
+        }))
+      }
     }).catch(error => {
       Alert.error(error.message);
     });
@@ -149,15 +175,15 @@ const PropertiesContainer = (props: FinalProps) => {
       variables: {
         orders: groupOrders.map((group, index) => ({
           _id: group._id,
-          order: index + 1,
-        })),
-      },
+          order: index + 1
+        }))
+      }
     }).catch(error => {
       Alert.error(error.message);
     });
   };
 
-  const currentType = router.getParam(history, "type");
+  const currentType = router.getParam(history, 'type');
   const fieldsGroups = [...(fieldsGroupsQuery.fieldsGroups || [])];
 
   const updatedProps = {
@@ -170,8 +196,9 @@ const PropertiesContainer = (props: FinalProps) => {
     updatePropertyVisible,
     updatePropertyDetailVisible,
     updatePropertyGroupVisible,
+    updatePropertySystemFields,
     updateFieldOrder,
-    updateGroupOrder,
+    updateGroupOrder
   };
 
   return <Properties {...updatedProps} />;
@@ -184,38 +211,45 @@ const options = ({ queryParams }) => ({
         ${queries.fieldsGroups}
       `,
       variables: {
-        contentType: queryParams.type,
-      },
-    },
-  ],
+        contentType: queryParams.type
+      }
+    }
+  ]
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.fieldsGetTypes), {
-      name: "fieldsGetTypes",
+      name: 'fieldsGetTypes'
     }),
 
     graphql<Props, FieldsGroupsQueryResponse>(gql(queries.fieldsGroups), {
-      name: "fieldsGroupsQuery",
+      name: 'fieldsGroupsQuery',
       options: ({ queryParams }) => ({
         variables: {
-          contentType: queryParams.type || "",
-        },
-      }),
+          contentType: queryParams.type || ''
+        }
+      })
     }),
     graphql<Props, FieldsGroupsRemoveMutationResponse, { _id: string }>(
       gql(mutations.fieldsGroupsRemove),
       {
-        name: "fieldsGroupsRemove",
-        options,
+        name: 'fieldsGroupsRemove',
+        options
       }
     ),
     graphql<Props, FieldsRemoveMutationResponse, { _id: string }>(
       gql(mutations.fieldsRemove),
       {
-        name: "fieldsRemove",
-        options,
+        name: 'fieldsRemove',
+        options
+      }
+    ),
+    graphql<Props, FieldsEditMutationResponse, { _id: string }>(
+      gql(mutations.fieldsUpdateSystemFields),
+      {
+        name: 'fieldsUpdateSystemFields',
+        options
       }
     ),
     graphql<
@@ -223,32 +257,32 @@ export default withProps<Props>(
       FieldsUpdateVisibleMutationResponse,
       { _id: string; isVisible: boolean; isVisibleInDetail: boolean }
     >(gql(mutations.fieldsUpdateVisible), {
-      name: "fieldsUpdateVisible",
-      options,
+      name: 'fieldsUpdateVisible',
+      options
     }),
     graphql<
       Props,
       FieldsGroupsUpdateVisibleMutationResponse,
       { _id: string; isVisible: boolean }
     >(gql(mutations.fieldsGroupsUpdateVisible), {
-      name: "fieldsGroupsUpdateVisible",
-      options,
+      name: 'fieldsGroupsUpdateVisible',
+      options
     }),
     graphql<
       Props,
       FieldsUpdateOrderMutationResponse,
       FieldsUpdateOrderMutationVariables
     >(gql(mutations.fieldsUpdateOrder), {
-      name: "fieldsUpdateOrder",
-      options,
+      name: 'fieldsUpdateOrder',
+      options
     }),
     graphql<
       Props,
       GroupsUpdateOrderMutationResponse,
       FieldsUpdateOrderMutationVariables
     >(gql(mutations.groupsUpdateOrder), {
-      name: "groupsUpdateOrder",
-      options,
+      name: 'groupsUpdateOrder',
+      options
     })
   )(withRouter<FinalProps>(PropertiesContainer))
 );

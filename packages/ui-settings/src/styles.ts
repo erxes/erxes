@@ -325,10 +325,6 @@ const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
   }
   `;
 
-const MarginRight = styled.div`
-  margin-right: ${dimensions.unitSpacing}px;
-`;
-
 const CreatedDate = styled.div`
   float: left;
   font-size: 10px;
@@ -359,6 +355,5 @@ export {
   InputBar,
   Header,
   Title,
-  MarginRight,
   CreatedDate
 };

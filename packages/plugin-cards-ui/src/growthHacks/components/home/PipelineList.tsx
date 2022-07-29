@@ -3,7 +3,7 @@ import { BoxContainer, ProjectItem } from './styles';
 
 import { IPipeline } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import PipelineForm from '../../../settings/boards/containers/PipelineForm';
 import { options } from '../../../settings/growthHacks/options';
 import PipelineRow from './PipelineRow';

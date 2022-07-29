@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { AccquireInformation } from '../components';
+import AccquireInformation from '../components/AccquireInformation';
 import { AppConsumer } from './AppContext';
 
 export default class extends React.Component {

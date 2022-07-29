@@ -1,5 +1,7 @@
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
+import { commonCheckPayment } from './graphql/utils/orderUtils';
+import { IConfigDocument } from './models/definitions/configs';
 
 export const posInitialSetup = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -22,4 +24,39 @@ export const posInitialSetup = async (req, res) => {
   }
 
   return res.end('success');
+};
+
+export const callBackQpay = async (req, res) => {
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const { payment_id, qpay_payment_id } = req.query;
+  if (!payment_id || !qpay_payment_id) {
+    return;
+  }
+
+  const orderId = payment_id;
+  const paymentId = qpay_payment_id;
+  const invoice = await models.QPayInvoices.findOne({
+    senderInvoiceNo: orderId
+  }).lean();
+  if (!invoice) {
+    return;
+  }
+
+  await models.QPayInvoices.updateOne(
+    { senderInvoiceNo: orderId },
+    {
+      $set: {
+        paymentDate: new Date(),
+        qpayPaymentId: paymentId,
+        status: 'PAID'
+      }
+    }
+  );
+  const paidMobileAmount = await models.QPayInvoices.getPaidAmount(orderId);
+
+  const config: IConfigDocument =
+    (await models.Configs.findOne().lean()) || ({} as IConfigDocument);
+  await commonCheckPayment(models, orderId, config, paidMobileAmount);
 };

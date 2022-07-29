@@ -1,6 +1,6 @@
 import { Document, Schema } from 'mongoose';
 import { getDateFieldDefinition } from './utils';
-import { field, schemaHooksWrapper } from './util';
+import { field, schemaHooksWrapper } from './utils';
 
 export interface IPutResponse {
   contentType: string;

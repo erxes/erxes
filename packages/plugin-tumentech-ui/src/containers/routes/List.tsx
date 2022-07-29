@@ -1,10 +1,11 @@
-import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
+import { router } from '@erxes/ui/src';
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
+import React from 'react';
+import { useMutation, useQuery } from 'react-apollo';
+
 import List from '../../components/routes/List';
 import { mutations, queries } from '../../graphql';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import { router } from '@erxes/ui/src';
 
 type Props = {
   refetch: () => void;
@@ -40,8 +41,6 @@ export default function RoutesContainer(props: Props) {
   };
 
   const routes = (data && data.routes.list) || [];
-
-  console.log(routes);
 
   const totalCount = (data && data.routes.totalCount) || 0;
 

@@ -1,5 +1,6 @@
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+
+import { IContext } from '../../../connectionResolver';
 
 const placesQuery = {
   places: async (
@@ -24,6 +25,16 @@ const placesQuery = {
       }),
       totalCount: models.Places.find(filter).count()
     };
+  },
+
+  getDealPlace: async (
+    _root,
+    { dealId }: { dealId: string },
+    { models }: IContext
+  ) => {
+    const filter: any = {};
+
+    return models.DealPlaces.findOne({ dealId }).lean();
   }
 };
 

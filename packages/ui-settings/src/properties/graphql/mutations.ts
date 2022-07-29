@@ -76,7 +76,7 @@ const commonVariables = `
   $code: String,
   $searchable: Boolean,
   $showInCard: Boolean,
-  $objectListConfigs: [objectListConfigInput]
+  $objectListConfigs: [objectListConfigInput],
 `;
 
 const commonParams = `
@@ -93,7 +93,7 @@ const commonParams = `
   code: $code,
   searchable: $searchable,
   showInCard: $showInCard,
-  objectListConfigs: $objectListConfigs
+  objectListConfigs: $objectListConfigs,
 `;
 
 const fieldsAdd = `
@@ -115,6 +115,14 @@ const fieldsAdd = `
 const fieldsEdit = `
   mutation fieldsEdit($_id: String!, ${commonVariables}) {
     fieldsEdit(_id: $_id, ${commonParams}) {
+      _id
+    }
+  }
+`;
+
+const fieldsUpdateSystemFields = `
+  mutation fieldsUpdateSystemFields($_id: String!, $isVisibleToCreate: Boolean, $isRequired: Boolean) {
+    fieldsUpdateSystemFields(_id: $_id, isVisibleToCreate: $isVisibleToCreate, isRequired: $isRequired) {
       _id
     }
   }
@@ -157,6 +165,7 @@ export default {
   fieldsGroupsEdit,
   fieldsGroupsRemove,
   fieldsGroupsUpdateVisible,
+  fieldsUpdateSystemFields,
   fieldsAdd,
   fieldsEdit,
   fieldsRemove,

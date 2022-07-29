@@ -53,11 +53,7 @@ class List extends React.Component<IProps, State> {
     const { products, history } = this.props;
 
     return products.map(product => (
-      <Row
-        history={history}
-        key={product._id}
-        product={product}
-      />
+      <Row history={history} key={product._id} product={product} />
     ));
   };
 
@@ -129,6 +125,19 @@ class List extends React.Component<IProps, State> {
               <th>{__('Name')}</th>
               <th>{__('Category')}</th>
               <th>{__('Unit Price')}</th>
+              <th>{__('<10')}</th>
+              <th>{__('10')}</th>
+              <th>{__('11')}</th>
+              <th>{__('12')}</th>
+              <th>{__('13')}</th>
+              <th>{__('14')}</th>
+              <th>{__('15')}</th>
+              <th>{__('16')}</th>
+              <th>{__('17')}</th>
+              <th>{__('18')}</th>
+              <th>{__('19')}</th>
+              <th>{__('20')}</th>
+              <th>{__('21<')}</th>
               <th>{__('Pos Sale')}</th>
               <th>{__('Pos Amount')}</th>
             </tr>
@@ -151,14 +160,9 @@ class List extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header
-            title={__('POS of Products')}
-            submenu={menuPos}
-          />
+          <Wrapper.Header title={__('POS of Products')} submenu={menuPos} />
         }
-        actionBar={
-          <Wrapper.ActionBar right={actionBarRight} />
-        }
+        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
         }

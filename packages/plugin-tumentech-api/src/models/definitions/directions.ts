@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 import { field, schemaHooksWrapper } from './utils';
 
 //  zamiin suljeenii chigelliin dugaar , awto zamiin chigleliin dugaar , awto zamin dugaar, zamiin ner
@@ -10,6 +11,7 @@ export interface IDirection {
   totalDistance: number;
   roadConditions: string[];
   duration: number;
+  googleMapPath?: string;
 }
 
 export interface IDirectionDocument extends IDirection, Document {
@@ -33,6 +35,7 @@ export const directionSchema = schemaHooksWrapper(
     duration: field({ type: Number, label: 'total duration (minuts)' }),
     routeCode: field({ type: String, label: 'route code' }),
     roadCode: field({ type: String, label: 'road code' }),
+    googleMapPath: field({ type: String, label: 'Google map path' }),
     searchText: field({ type: String, optional: true, index: true })
   }),
   'directions'

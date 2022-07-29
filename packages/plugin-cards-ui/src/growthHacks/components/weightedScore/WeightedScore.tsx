@@ -4,7 +4,7 @@ import {
   BoardContent
 } from '@erxes/ui-cards/src/boards/styles/common';
 import { colors } from '@erxes/ui/src/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IGrowthHack, IGrowthHackParams } from '../../types';
 import Header from '@erxes/ui/src/layout/components/Header';
 import React from 'react';

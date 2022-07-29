@@ -31,7 +31,8 @@ const Conversation = asyncComponent(() =>
 );
 
 const deals = () => {
-  let dealsLink = '/deal/board';
+  let view = localStorage.getItem('dealView') || 'board';
+  let dealsLink = `/deal/${view}`;
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
@@ -41,7 +42,7 @@ const deals = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    dealsLink = `/deal/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    dealsLink = `/deal/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={dealsLink} />;

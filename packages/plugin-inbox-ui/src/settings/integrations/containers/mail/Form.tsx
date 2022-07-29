@@ -1,6 +1,6 @@
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Form from '../../components/mail/Form';
 import { mutations } from '@erxes/ui-settings/src/integrations/graphql';
 import * as React from 'react';
@@ -52,7 +52,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         callback={callback}
         refetchQueries={getRefetchQueries(this.props.kind)}
         isSubmitted={isSubmitted}
-        type='submit'
+        type="submit"
         successMessage={__(`You successfully added a`) + `${name}`}
       />
     );

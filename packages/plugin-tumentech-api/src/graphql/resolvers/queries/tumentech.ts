@@ -1,8 +1,11 @@
-import { paginate } from 'erxes-api-utils';
 import { checkPermission } from '@erxes/api-utils/src';
+import { paginate } from 'erxes-api-utils';
+
+import { countByCars } from '../../../carUtils';
+import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
-import { Builder } from './carQueryBuilder';
-import { generateRandomString } from '../../../utils';
+import { generateRandomString, getFullDate, getTomorrow } from '../../../utils';
+import { Builder, IListArgs } from './carQueryBuilder';
 
 const generateFilter = async (params, commonQuerySelector, subdomain) => {
   const filter: any = commonQuerySelector;
@@ -58,6 +61,73 @@ const generateFilter = async (params, commonQuerySelector, subdomain) => {
         defaultValue: []
       })
     };
+  }
+
+  if (params.plateNumber) {
+    filter.plateNumber = params.plateNumber;
+  }
+
+  if (params.vinNumber) {
+    filter.vinNumber = params.vinNumber;
+  }
+
+  if (params.vintageYear) {
+    filter.vintageYear = params.vintageYear;
+  }
+
+  if (params.importYear) {
+    filter.importYear = params.importYear;
+  }
+
+  if (params.drivingClassification) {
+    filter.drivingClassification = params.drivingClassification;
+  }
+
+  if (params.manufacture) {
+    filter.manufacture = params.manufacture;
+  }
+
+  if (params.trailerType) {
+    filter.trailerType = params.trailerType;
+  }
+
+  if (params.brakeType) {
+    filter.brakeType = params.brakeType;
+  }
+
+  if (params.bowType) {
+    filter.bowType = params.bowType;
+  }
+
+  if (params.tireLoadType) {
+    filter.tireLoadType = params.tireLoadType;
+  }
+
+  if (params.diagnosisDate) {
+    filter.diagnosisDate = params.diagnosisDate;
+  }
+
+  if (params.taxDate) {
+    filter.taxDate = params.taxDate;
+  }
+
+  const createdQry: any = {};
+  if (params.createdStartDate) {
+    createdQry.$gte = new Date(params.createdStartDate);
+  }
+  if (params.createdEndDate) {
+    createdQry.$lte = new Date(params.createdEndDate);
+  }
+  if (Object.keys(createdQry).length) {
+    filter.createdAt = createdQry;
+  }
+
+  if (params.paidDate === 'today') {
+    const now = new Date();
+
+    const startDate = getFullDate(now);
+    const endDate = getTomorrow(now);
+    filter.createdAt = { $gte: startDate, $lte: endDate };
   }
 
   return filter;
@@ -119,6 +189,19 @@ const carQueries = {
     };
 
     return response;
+  },
+
+  /**
+   * Group car counts by segments
+   */
+  async carCounts(_root, params: IListArgs, { models, subdomain }: IContext) {
+    const counts = {
+      bySegment: {}
+    };
+
+    counts.bySegment = await countByCars(models, subdomain, params);
+
+    return counts;
   },
 
   carCategoryMatchProducts: async (

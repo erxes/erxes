@@ -1,4 +1,3 @@
-import { pluginsOfJobCategoryActions } from 'coreui/pluginUtils';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -113,7 +112,6 @@ class List extends React.Component<IProps> {
           </Link>
           <ActionButtons>
             {this.renderEditAction(category)}
-            {pluginsOfJobCategoryActions(category._id)}
             {this.renderRemoveAction(category)}
           </ActionButtons>
         </SidebarListItem>

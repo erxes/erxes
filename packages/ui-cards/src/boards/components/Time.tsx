@@ -1,7 +1,8 @@
 import { getCurrentDate, monthColumns } from '@erxes/ui/src/utils/calendar';
+
+import { IDateColumn } from '@erxes/ui/src/types';
 import React from 'react';
 import dayjs from 'dayjs';
-import { IDateColumn } from '@erxes/ui/src/types';
 
 type State = { currentDate: dayjs.Dayjs };
 
@@ -14,7 +15,7 @@ class TimeView extends React.Component<Props, State> {
 
   renderColumns(index: number, date: IDateColumn) {
     return (
-      <div>
+      <div key={index}>
         {date.year} - {date.month}
       </div>
     );
@@ -30,8 +31,6 @@ class TimeView extends React.Component<Props, State> {
   };
 
   render() {
-    const { currentDate } = this.state;
-
     return <div>{this.renderMonths()}</div>;
   }
 }

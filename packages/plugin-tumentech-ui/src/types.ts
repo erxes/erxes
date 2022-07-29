@@ -1,5 +1,4 @@
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
@@ -9,6 +8,7 @@ import {
   IActivityLog,
   IActivityLogForMonth
 } from '@erxes/ui/src/activityLogs/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { ILocationOption } from '@erxes/ui/src/types';
 
@@ -445,6 +445,7 @@ export type IDirection = {
   roadCode: string;
   routeCode: string;
   duration: number;
+  googleMapPath?: string;
 };
 
 export type IDirectionItem = {
@@ -465,4 +466,38 @@ export type IRoute = {
   directionIds: string[];
   directions: IDirection[];
   summary: IRouteSummary;
+};
+
+export type IDealPlace = {
+  dealId: string;
+  startPlaceId: string;
+  endPlaceId: string;
+  startPlace: IPlace;
+  endPlace: IPlace;
+};
+
+export type ITrackingData = {
+  lat: number;
+  lng: number;
+  trackedDate: Date;
+};
+
+export type ITrip = {
+  _id: string;
+  carId: string;
+  closedDate: Date;
+  createdAt: Date;
+  dealIds: string[];
+  driverId: string;
+  estimatedCloseDate: Date;
+  routeId: string;
+  routeReversed: boolean;
+  startedDate: Date;
+  status: string;
+  statusInfo: any;
+  route: IRoute;
+  driver: ICustomer;
+  deals: IDeal[];
+  car: ICar;
+  trackingData: ITrackingData[];
 };

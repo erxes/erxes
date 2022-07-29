@@ -22,8 +22,8 @@ export default {
     };
   },
   apolloServerContext: async (context, req) => {
-    context.subdomain = req.hostname;
     const subdomain = getSubdomain(req);
+    context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
     return context;
   },
@@ -31,8 +31,6 @@ export default {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     graphqlPubsub = options.pubsubClient;
 

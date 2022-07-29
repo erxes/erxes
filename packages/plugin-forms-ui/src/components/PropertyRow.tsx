@@ -32,6 +32,11 @@ type Props = {
     _id: string;
     isVisibleInDetail: boolean;
   }) => void;
+  updatePropertySystemFields: (data: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
+  }) => void;
   updateFieldOrder: (fields: IField[]) => any;
 };
 
@@ -89,6 +94,13 @@ class PropertyRow extends React.Component<Props, State> {
     const isVisible = e.target.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
+  };
+
+  updateSystemFieldsHandler = (e, property) => {
+    return this.props.updatePropertySystemFields({
+      _id: property._id,
+      [e.target.id]: e.target.checked
+    });
   };
 
   renderActionButtons = (data, remove, content, isGroup) => {
@@ -174,6 +186,32 @@ class PropertyRow extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+        {contentType.startsWith('cards:') && (
+          <>
+            <RowField>
+              <Toggle
+                id="isVisibleToCreate"
+                defaultChecked={field.isVisibleToCreate}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={e => this.updateSystemFieldsHandler(e, field)}
+              />
+            </RowField>
+            <RowField>
+              <Toggle
+                id="isRequired"
+                defaultChecked={field.isRequired}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={e => this.updateSystemFieldsHandler(e, field)}
+              />
+            </RowField>
+          </>
+        )}
         <RowField>
           {this.renderActionButtons(
             field,
@@ -230,6 +268,12 @@ class PropertyRow extends React.Component<Props, State> {
             <ControlLabel>{__('Visible in Team Inbox')}</ControlLabel>
           ) : (
             <ControlLabel>{__('Visible')}</ControlLabel>
+          )}
+          {contentType.startsWith('cards:') && (
+            <>
+              <ControlLabel>{__('Visible to create')}</ControlLabel>
+              <ControlLabel>{__('Required')}</ControlLabel>
+            </>
           )}
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>

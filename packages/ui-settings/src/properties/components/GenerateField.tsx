@@ -16,13 +16,13 @@ import Select from 'react-select-plus';
 import { IOption } from '@erxes/ui/src/types';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import { __ } from '@erxes/ui/src/utils/core';
-import Map from '@erxes/ui/src/components/map/Map';
+import Map from '@erxes/ui/src/containers/map/Map';
 import { Button, Icon } from '@erxes/ui/src/components';
 import ObjectList from './ObjectList';
 
 type Props = {
   field: IField;
-  currentLocation: ILocationOption;
+  currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
   isEditing: boolean;
@@ -35,7 +35,7 @@ type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
-  currentLocation: ILocationOption;
+  currentLocation?: ILocationOption;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
@@ -384,7 +384,6 @@ export default class GenerateField extends React.Component<Props, State> {
       <Map
         id={field._id}
         center={currentLocation || { lat: 0, lng: 0 }}
-        googleMapApiKey={localStorage.getItem('GOOGLE_MAP_API_KEY') || ''}
         locationOptions={locationOptions}
         streetViewControl={false}
         onChangeMarker={onChangeMarker}

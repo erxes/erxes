@@ -2,7 +2,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import { SubItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
@@ -64,11 +64,11 @@ class PageStyles extends React.Component<Props, State> {
     const { color } = this.props;
 
     const popoverContent = (
-      <Popover id='color-picker'>
+      <Popover id="color-picker">
         <TwitterPicker
           color={color}
           onChange={this.onChangeColor.bind(null, 'color')}
-          triangle='hide'
+          triangle="hide"
         />
       </Popover>
     );
@@ -81,9 +81,9 @@ class PageStyles extends React.Component<Props, State> {
           <SubItem>
             <ControlLabel>{__('Choose a background color')}</ControlLabel>
             <OverlayTrigger
-              trigger='click'
+              trigger="click"
               rootClose={true}
-              placement='bottom-start'
+              placement="bottom-start"
               overlay={popoverContent}
             >
               <ColorPick>

@@ -6,21 +6,107 @@ import Wrapper from '../containers/Wrapper';
 
 import { ImageWrapper } from '../styles';
 
-class Installer extends React.Component {
+type State = {
+  plugins: any[];
+  searchField: string;
+  filterField: string;
+};
+
+class Installer extends React.Component<{}, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      plugins: [],
+      searchField: '',
+      filterField: ''
+    };
+  }
+
+  async componentDidMount() {
+    fetch('https://erxes.io/plugins')
+      .then(async response => {
+        const plugins = await response.json();
+
+        this.setState({ plugins });
+      })
+      .catch(e => {
+        console.log(e);
+      });
+  }
+
   renderContent() {
+    const { plugins, searchField, filterField } = this.state;
+
+    // Fake data
+    const categories = [
+      { category: 'Premium Marketing Sales' },
+      { category: 'Free Sales' },
+      { category: 'Premium Services' },
+      { category: 'Free Operations' },
+      { category: 'Free Communications' },
+      { category: 'Free Productivity' },
+      { category: 'Free Website' },
+      { category: 'Free ECommerce' },
+      { category: 'Free Document management' },
+      { category: 'Free Human resource' },
+      { category: 'Free Finance' },
+      { category: 'Free Inventory' },
+      { category: 'Free Analytics' },
+      { category: 'Free Reporting' },
+      { category: 'Free Marketing' },
+      { category: 'Free Marketing' },
+      { category: 'Free Marketing' },
+      { category: 'Free Marketing' },
+      { category: 'Free Marketing' },
+      { category: 'Free Marketing' }
+    ];
+
+    const pluginsFakeData = plugins.map((plugin, index) => ({
+      ...plugin,
+      ...(categories[index]
+        ? categories[index]
+        : { category: 'Free Marketing' })
+    }));
+
+    const filteredByCategory = pluginsFakeData.filter(plugin => {
+      return plugin.category
+        .toLowerCase()
+        .includes(filterField && filterField.toLowerCase());
+    });
+
+    const finalFilteredPlugins = filteredByCategory.filter(plugin => {
+      return plugin.title
+        .toLowerCase()
+        .includes(searchField && searchField.toLowerCase());
+    });
+
     return (
       <>
         <ImageWrapper>
           <span>Product Experience management template</span>
           <img src="/images/marketplace.png" alt="installer" />
         </ImageWrapper>
-        <PluginPreview />
+        <PluginPreview plugins={finalFilteredPlugins || []} />
       </>
     );
   }
 
   render() {
-    return <Wrapper content={this.renderContent()} leftSidebar={<Leftbar />} />;
+    const onSearch = e => {
+      this.setState({ searchField: e.target.value || '' });
+    };
+
+    const onFilter = (cat: string) => {
+      this.setState({ filterField: cat || '' });
+    };
+
+    return (
+      <Wrapper
+        content={this.renderContent()}
+        leftSidebar={<Leftbar onSearch={onSearch} onFilter={onFilter} />}
+      />
+    );
   }
 }
 

@@ -1,59 +1,40 @@
+import Modal from 'react-bootstrap/Modal';
+import PosSlotItem from '../productGroup/PosSlotItem';
+import React from 'react';
+import Select from 'react-select-plus';
 import {
   __,
-  FormGroup,
+  Button,
   ControlLabel,
   FormControl,
-  SelectTeamMembers,
-  Toggle,
+  FormGroup,
   getEnv,
-  Button,
-  ModalTrigger
+  ModalTrigger,
+  SelectTeamMembers,
+  Toggle
 } from '@erxes/ui/src';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import React from 'react';
 import {
-  DomainRow,
-  FlexColumn,
-  FlexItem,
-  Row,
   Block,
   BlockRow,
   BlockRowUp,
-  PosSlotAddButton
+  DomainRow,
+  FlexColumn,
+  FlexItem,
+  PosSlotAddButton,
+  Row
 } from '../../../styles';
-import {
-  CatProd,
-  IPos,
-  IProductGroup,
-  IScreenConfig,
-  ISlotGroup
-} from '../../../types';
-import Select from 'react-select-plus';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import PosProdItem from '../productGroup/PosSlotItem';
-import Modal from 'react-bootstrap/Modal';
+import { IPos, IScreenConfig, ISlot } from '../../../types';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 
 type Props = {
-  onChange: (name: 'pos' | 'brand' | 'group', value: any) => void;
-  pos?: IPos;
-  groups: IProductGroup[];
-  currentMode: 'create' | 'update' | undefined;
+  onChange: (name: 'pos' | 'slots', value: any) => void;
+  pos: IPos;
   branches: any[];
-  catProdMappings: CatProd[];
-  productCategories: IProductCategory[];
-  closeModal: () => void;
-  onSubmit: (group: ISlotGroup) => void;
-  slotGroup?: ISlotGroup;
-  mode: 'create' | 'update';
+  posSlots: ISlot[];
 };
 
 type State = {
-  groups: IProductGroup[];
-  currentMode: 'create' | 'update' | undefined;
-  mappings: CatProd[];
-  initialCategoryIds: string[];
-  kioskExcludeProductIds: string[];
-  slotGroup: ISlotGroup[];
+  slots: ISlot[];
 };
 
 export const generateTree = (
@@ -84,44 +65,10 @@ class GeneralStep extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const { groups = [], pos } = props;
-
     this.state = {
-      groups,
-      currentMode: undefined,
-      mappings: pos && pos.catProdMappings ? pos.catProdMappings : [],
-      initialCategoryIds: (pos && pos.initialCategoryIds) || [],
-      kioskExcludeProductIds: (pos && pos.kioskExcludeProductIds) || [],
-      slotGroup: []
+      slots: props.posSlots || []
     };
   }
-
-  onSubmitGroup = (group: IProductGroup) => {
-    const { groups } = this.state;
-
-    const index = groups.findIndex(e => e._id === group._id);
-
-    if (index !== -1) {
-      groups[index] = group;
-    } else {
-      groups.push(group);
-    }
-
-    this.props.onChange('pos', groups);
-  };
-  onSubmitSlotGroup = (group: ISlotGroup) => {
-    const { slotGroup } = this.state;
-
-    const index = slotGroup.findIndex(e => e._id === group._id);
-
-    if (index !== -1) {
-      slotGroup[index] = group;
-    } else {
-      slotGroup.push(group);
-    }
-
-    this.props.onChange('group', slotGroup);
-  };
 
   onChangeConfig = (code: string, value) => {
     this.setState({}, () => {});
@@ -131,55 +78,77 @@ class GeneralStep extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.checked);
   };
 
-  renderPosFormTrigger(trigger: React.ReactNode, group?: ISlotGroup) {
-    const { mappings = [] } = this.state;
+  renderMapping(slot: ISlot, props) {
+    const { slots } = this.state;
 
-    const onClick = () => {
-      const m = mappings.slice();
+    const removeItem = (_id: string) => {
+      const excluded = slots.filter(m => m._id !== _id);
+
+      this.setState({ slots: excluded });
+      this.props.onChange('slots', excluded);
+    };
+
+    const onChange = (changedSlot: ISlot) => {
+      const excluded = slots.filter(m => m._id !== changedSlot._id);
+
+      const updated = [...excluded, changedSlot];
+      this.setState({ slots: updated });
+      this.props.onChange('slots', updated);
+    };
+
+    return (
+      <PosSlotItem
+        {...props}
+        onChange={onChange}
+        removeItem={removeItem}
+        slot={slot}
+      />
+    );
+  }
+
+  renderPosSlotForm(trigger: React.ReactNode) {
+    const { slots = [] } = this.state;
+
+    const onClickAddSlot = () => {
+      const m = slots.slice();
 
       m.push({
         _id: Math.random().toString(),
-        categoryId: '',
-        productId: ''
+        code: '',
+        name: '',
+        posId: this.props.pos._id
       });
 
-      this.setState({ mappings: m });
+      this.setState({ slots: m });
     };
 
     const content = props => (
       <FormGroup>
         <PosSlotAddButton>
-          <Button btnStyle="primary" icon="plus-circle" onClick={onClick}>
+          <Button
+            btnStyle="primary"
+            icon="plus-circle"
+            onClick={onClickAddSlot}
+          >
             Add
           </Button>
         </PosSlotAddButton>
-        {mappings.map(item => this.renderMapping(item, props))}
-        {/* <Modal.Footer>
+        {slots.map(s => this.renderMapping(s, props))}
+        <Modal.Footer>
           <Button
-            btnStyle="simple"
-            type="button"
-            icon="times-circle"
-            onClick={this.onClickCancel}
-          >
-            Cancel
-          </Button>
-
-          <Button
-            onClick={this.onClicksave}
+            onClick={props.closeModal}
             btnStyle="success"
-            icon={mode === 'update' ? 'check-circle' : 'plus-circle'}
+            icon={'plus-circle'}
           >
-            {mode === 'update' ? 'Save' : 'Save'}
+            {'Save'}
           </Button>
-        </Modal.Footer> */}
+        </Modal.Footer>
       </FormGroup>
     );
 
-    const title = 'Slots';
-
     return (
       <ModalTrigger
-        title={title}
+        title={'Slots'}
         trigger={trigger}
         content={content}
         size={'lg'}
@@ -213,24 +182,6 @@ class GeneralStep extends React.Component<Props, State> {
   renderWaitingScreen() {
     const { pos } = this.props;
 
-    const onChangeType = e => {
-      e.preventDefault();
-      pos.waitingScreen.type = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeValue = e => {
-      e.preventDefault();
-      pos.waitingScreen.value = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeContentUrl = e => {
-      e.preventDefault();
-      pos.waitingScreen.contentUrl = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
     let waitingScreen: IScreenConfig = {
       isActive: false,
       type: 'time',
@@ -250,7 +201,31 @@ class GeneralStep extends React.Component<Props, State> {
       posId = pos._id;
     }
 
-    const { REACT_APP_API_URL } = getEnv();
+    if (!waitingScreen.isActive) {
+      return (
+        <FormGroup>
+          <DomainRow></DomainRow>
+        </FormGroup>
+      );
+    }
+
+    const onChangeType = e => {
+      e.preventDefault();
+      pos.waitingScreen.type = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeValue = e => {
+      e.preventDefault();
+      pos.waitingScreen.value = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeContentUrl = e => {
+      e.preventDefault();
+      pos.waitingScreen.contentUrl = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
 
     const typeOptions = [
       { label: 'Time', value: 'time' },
@@ -262,81 +237,51 @@ class GeneralStep extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        {!waitingScreen.isActive ? null : (
-          <DomainRow>
-            {this.props.currentMode !== 'update' ? null : (
-              <>
-                <ControlLabel>Link</ControlLabel>
-                <Row>
-                  <FormControl
-                    id="waitingLink"
-                    type="text"
-                    disabled={true}
-                    value={`${REACT_APP_API_URL}/pos/${posId}/waiting`}
-                  />
+        <DomainRow>
+          <ControlLabel>Change type</ControlLabel>
+          <FormControl
+            name="changeType"
+            componentClass="select"
+            placeholder={__('Select type')}
+            defaultValue={waitingScreen.type}
+            onChange={onChangeType}
+            required={true}
+          >
+            <option />
+            {typeOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </FormControl>
 
-                  <Button>{__('Copy')}</Button>
-                </Row>{' '}
-              </>
-            )}
-            <br />
-            <ControlLabel>Change type</ControlLabel>
-            <FormControl
-              name="changeType"
-              componentClass="select"
-              placeholder={__('Select type')}
-              defaultValue={waitingScreen.type}
-              onChange={onChangeType}
-              required={true}
-            >
-              <option />
-              {typeOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </FormControl>
+          <br />
 
-            <br />
+          <ControlLabel>{valueTitle}</ControlLabel>
 
-            <ControlLabel>{valueTitle}</ControlLabel>
+          <FormControl
+            id="changeValue"
+            type="text"
+            value={waitingScreen.value}
+            onChange={onChangeValue}
+          />
 
-            <FormControl
-              id="changeValue"
-              type="text"
-              value={waitingScreen.value}
-              onChange={onChangeValue}
-            />
+          <br />
+          <ControlLabel>Content Url</ControlLabel>
 
-            <br />
-            <ControlLabel>Content Url</ControlLabel>
-
-            <FormControl
-              id="contentUrl"
-              type="text"
-              value={waitingScreen.contentUrl || ''}
-              onChange={onChangeContentUrl}
-            />
-          </DomainRow>
-        )}
+          <FormControl
+            id="contentUrl"
+            type="text"
+            value={waitingScreen.contentUrl || ''}
+            onChange={onChangeContentUrl}
+          />
+        </DomainRow>
       </FormGroup>
     );
   }
 
   renderKitchen() {
     const { pos } = this.props;
-
-    const onChangeType = e => {
-      e.preventDefault();
-      pos.kitchenScreen.type = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onChangeValue = e => {
-      e.preventDefault();
-      pos.kitchenScreen.value = e.target.value;
-      this.onChangeFunction('pos', pos);
-    };
 
     let kitchenScreen = {
       isActive: false,
@@ -355,7 +300,25 @@ class GeneralStep extends React.Component<Props, State> {
       posId = pos._id;
     }
 
-    const { REACT_APP_API_URL } = getEnv();
+    if (!kitchenScreen.isActive) {
+      return (
+        <FormGroup>
+          <DomainRow></DomainRow>
+        </FormGroup>
+      );
+    }
+
+    const onChangeType = e => {
+      e.preventDefault();
+      pos.kitchenScreen.type = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
+
+    const onChangeValue = e => {
+      e.preventDefault();
+      pos.kitchenScreen.value = e.target.value;
+      this.onChangeFunction('pos', pos);
+    };
 
     const typeOptions = [
       { label: 'Time', value: 'time' },
@@ -364,57 +327,38 @@ class GeneralStep extends React.Component<Props, State> {
 
     return (
       <FormGroup>
-        {!kitchenScreen.isActive ? null : (
-          <DomainRow>
-            {this.props.currentMode !== 'update' ? null : (
-              <>
-                <ControlLabel>Link</ControlLabel>
-                <Row>
-                  <FormControl
-                    id="kitchenLink"
-                    type="text"
-                    disabled={true}
-                    value={`${REACT_APP_API_URL}/pos/${posId}/kitchen`}
-                  />
+        <DomainRow>
+          <ControlLabel>Status change</ControlLabel>
+          <FormControl
+            name="statusChange"
+            componentClass="select"
+            placeholder={__('Select type')}
+            defaultValue={kitchenScreen.type}
+            onChange={onChangeType}
+            required={true}
+          >
+            <option />
+            {typeOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </FormControl>
 
-                  <Button>{__('Copy')}</Button>
-                </Row>{' '}
-              </>
-            )}
+          <br />
 
-            <br />
-            <ControlLabel>Status change</ControlLabel>
-            <FormControl
-              name="statusChange"
-              componentClass="select"
-              placeholder={__('Select type')}
-              defaultValue={kitchenScreen.type}
-              onChange={onChangeType}
-              required={true}
-            >
-              <option />
-              {typeOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </FormControl>
-
-            <br />
-
-            {kitchenScreen.type === 'time' ? (
-              <>
-                <ControlLabel>Time (minute)</ControlLabel>
-                <FormControl
-                  id="changeValue"
-                  type="text"
-                  value={kitchenScreen.value}
-                  onChange={onChangeValue}
-                />
-              </>
-            ) : null}
-          </DomainRow>
-        )}
+          {kitchenScreen.type === 'time' ? (
+            <>
+              <ControlLabel>Time (minute)</ControlLabel>
+              <FormControl
+                id="changeValue"
+                type="text"
+                value={kitchenScreen.value}
+                onChange={onChangeValue}
+              />
+            </>
+          ) : null}
+        </DomainRow>
       </FormGroup>
     );
   }
@@ -531,7 +475,7 @@ class GeneralStep extends React.Component<Props, State> {
 
   renderCheckbox = (key: string, title?: string, description?: string) => {
     return (
-      <FormGroup>
+      <>
         {description && <p>{__(description)}</p>}
 
         <FormControl
@@ -539,47 +483,18 @@ class GeneralStep extends React.Component<Props, State> {
           componentClass="checkbox"
         />
         <ControlLabel>{title || key}</ControlLabel>
-      </FormGroup>
+      </>
     );
   };
 
-  renderMapping(mapping: CatProd, props) {
-    const { productCategories, pos, onChange } = this.props;
-
-    // for omitting react __typename field
-    const mappings = this.state.mappings.map(m => ({
-      _id: m._id,
-      categoryId: m.categoryId,
-      productId: m.productId
-    }));
-
-    const removeMapping = (_id: string) => {
-      const excluded = mappings.filter(m => m._id !== _id);
-
-      this.setState({ mappings: excluded });
-
-      pos.catProdMappings = excluded;
-
-      onChange('pos', pos);
-    };
-
-    return (
-      <PosProdItem
-        {...props}
-        removeMapping={removeMapping}
-        item={mapping}
-        onSubmit={this.onSubmitSlotGroup}
-        productCategories={productCategories}
-        key={mapping._id}
-      />
-    );
-  }
-
   render() {
     const { pos } = this.props;
-    const { mappings = [] } = this.state;
 
-    const groupTrigger = <div> Тоо 10</div>;
+    const slotTrigger = (
+      <div>
+        Total slots: <button>{this.state.slots.length}</button>
+      </div>
+    );
 
     const onAdminSelect = users => {
       pos.adminIds = users;
@@ -592,9 +507,9 @@ class GeneralStep extends React.Component<Props, State> {
     };
 
     let name = 'POS name';
-    let description = 'description';
-    let cashierIds = [];
-    let adminIds = [];
+    let description: any = 'description';
+    let cashierIds: any = [];
+    let adminIds: any = [];
 
     if (pos) {
       name = pos.name;
@@ -648,10 +563,11 @@ class GeneralStep extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Slots:</ControlLabel>
                 </FormGroup>
-                <FormGroup>{this.renderPosFormTrigger(groupTrigger)}</FormGroup>
                 <FormGroup>{this.renderCheckbox('Slot Required')}</FormGroup>
+                <FormGroup>{this.renderPosSlotForm(slotTrigger)}</FormGroup>
               </BlockRow>
             </Block>
+
             <Block>
               <h4>{__('Permission')}</h4>
               <BlockRow>

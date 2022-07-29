@@ -1,22 +1,23 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ICarCategory, IProduct, IProductCategory } from '../../types';
+import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
 import {
   __,
   Button,
-  Icon,
-  Tip,
-  Wrapper,
   DataWithLoader,
-  ModalTrigger,
+  Icon,
   MainStyleTopHeader as TopHeader,
+  ModalTrigger,
   router,
   Sidebar,
-  SidebarList
+  SidebarList,
+  Tip,
+  Wrapper
 } from '@erxes/ui/src';
-import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
-import { ActionButtons, SidebarListItem } from '../../styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
 import MatchForm from '../../containers/MatchCarForm';
+import { ActionButtons, SidebarListItem } from '../../styles';
+import { ICarCategory, IProduct, IProductCategory } from '../../types';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -34,7 +35,7 @@ interface IProps {
 
 class CategoryList extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, category?: IProductCategory) {
-    const content = (props) => (
+    const content = props => (
       <CategoryForm
         {...props}
         category={category}
@@ -80,7 +81,7 @@ class CategoryList extends React.Component<IProps> {
       </Button>
     );
 
-    const content = (props) => (
+    const content = props => (
       <MatchForm
         {...props}
         carCategories={carCategories}

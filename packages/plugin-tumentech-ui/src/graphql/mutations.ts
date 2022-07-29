@@ -297,8 +297,8 @@ mutation directionsAdd($placeIds: [String]!, $totalDistance: Int, $roadCondition
 `;
 
 const editDirection = `
-mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String) {
-  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode) {
+mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int, $roadConditions: [String], $duration: Int, $routeCode: String, $roadCode: String, $googleMapPath: String) {
+  directionsEdit(_id: $_id, placeIds: $placeIds, totalDistance: $totalDistance, roadConditions: $roadConditions, duration: $duration, routeCode: $routeCode, roadCode: $roadCode, googleMapPath: $googleMapPath) {
     _id
   }
 }`;
@@ -306,6 +306,14 @@ mutation directionsEdit($_id: String!, $placeIds: [String]!, $totalDistance: Int
 const removeDirection = `
 mutation directionsRemove($_id: String!) {
   directionsRemove(_id: $_id)
+}
+`;
+
+const saveDirectionPath = `
+mutation directionsSavePath($_id: String!, $googleMapPath: [JSON]) {
+  directionsSavePath(_id: $_id, googleMapPath: $googleMapPath) {
+    _id
+  }
 }
 `;
 
@@ -359,6 +367,24 @@ mutation placesRemove($_id: String!) {
 }
 `;
 
+const setDealPlace = `
+mutation setDealPlace(
+  $dealId: String!
+  $endPlaceId: String
+  $startPlaceId: String
+) {
+  setDealPlace(
+    dealId: $dealId
+    endPlaceId: $endPlaceId
+    startPlaceId: $startPlaceId
+  ) {
+    dealId
+    endPlaceId
+    startPlaceId
+  }
+}
+`;
+
 export default {
   carsAdd,
   carsEdit,
@@ -381,9 +407,11 @@ export default {
   addPlace,
   editPlace,
   removePlace,
+  setDealPlace,
 
   addDirection,
   editDirection,
+  saveDirectionPath,
   removeDirection,
 
   addRoute,

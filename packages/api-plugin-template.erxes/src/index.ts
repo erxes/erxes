@@ -1,8 +1,18 @@
-import * as cors from 'cors';
+import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
 
 // load environment variables
 dotenv.config({ path: '../.env' });
+
+if (process.env.ELASTIC_APM_HOST_NAME) {
+  apm.start({
+    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-${process.env
+      .SERVICE_NAME || ''}`,
+    serverUrl: 'http://172.104.115.19:8200'
+  });
+}
+
+import * as cors from 'cors';
 
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
@@ -21,6 +31,7 @@ import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import * as path from 'path';
+import * as ws from 'ws';
 import {
   getService,
   getServices,
@@ -241,7 +252,11 @@ async function startServer() {
   const apolloServer = await generateApolloServer(serviceDiscovery);
   await apolloServer.start();
 
-  apolloServer.applyMiddleware({ app, path: '/graphql' });
+  apolloServer.applyMiddleware({
+    app,
+    path: '/graphql',
+    cors: configs.corsOptions || {}
+  });
 
   await new Promise<void>(resolve =>
     httpServer.listen({ port: PORT }, resolve)
@@ -517,6 +532,15 @@ async function startServer() {
         error: debugError
       }
     });
+
+    if (configs.freeSubscriptions) {
+      const wsServer = new ws.Server({
+        server: httpServer,
+        path: '/subscriptions'
+      });
+
+      await configs.freeSubscriptions(wsServer);
+    }
 
     debugInfo(`${configs.name} server is running on port: ${PORT}`);
   } catch (e) {

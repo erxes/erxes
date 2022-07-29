@@ -62,7 +62,8 @@ export interface IFieldModel extends Model<IFieldDocument> {
   ): Promise<IFieldDocument>;
   createSystemFields(
     groupId: string,
-    serviceName: string
+    serviceName: string,
+    type: string
   ): Promise<IFieldDocument[]>;
   generateCustomFieldsData(
     data: {
@@ -436,14 +437,16 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
 
     public static async createSystemFields(
       groupId: string,
-      serviceName: string
+      serviceName: string,
+      type: string
     ) {
       const fields = await sendCommonMessage({
         subdomain,
         serviceName,
         action: 'systemFields',
         data: {
-          groupId
+          groupId,
+          type
         },
         isRPC: true,
         defaultValue: []
@@ -670,7 +673,11 @@ export const loadGroupClass = (models: IModels) => {
 
             const fieldGroup = await models.FieldsGroups.create(doc);
 
-            await models.Fields.createSystemFields(fieldGroup._id, serviceName);
+            await models.Fields.createSystemFields(
+              fieldGroup._id,
+              serviceName,
+              type.type
+            );
           }
         }
       }

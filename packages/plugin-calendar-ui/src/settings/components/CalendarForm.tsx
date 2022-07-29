@@ -8,7 +8,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { colors } from '@erxes/ui/src/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -119,10 +119,10 @@ class CalendarForm extends React.Component<FinalProps, State> {
       !calendar || (calendar && currentUserId === calendar.userId);
 
     const popoverBottom = (
-      <Popover id='color-picker'>
+      <Popover id="color-picker">
         <TwitterPicker
-          width='266px'
-          triangle='hide'
+          width="266px"
+          triangle="hide"
           color={this.state.backgroundColor}
           onChange={this.onColorChange}
           colors={COLORS}
@@ -131,7 +131,7 @@ class CalendarForm extends React.Component<FinalProps, State> {
     );
 
     return (
-      <div id='manage-calendar-modal'>
+      <div id="manage-calendar-modal">
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {calendar ? `Edit ${calendarName}` : `Add ${calendarName}`}
@@ -144,9 +144,9 @@ class CalendarForm extends React.Component<FinalProps, State> {
               <ControlLabel>Background</ControlLabel>
               <div>
                 <OverlayTrigger
-                  trigger='click'
+                  trigger="click"
                   rootClose={true}
-                  placement='bottom'
+                  placement="bottom"
                   overlay={popoverBottom}
                 >
                   <ColorPick>
@@ -167,9 +167,9 @@ class CalendarForm extends React.Component<FinalProps, State> {
 
               <FormControl
                 {...formProps}
-                name='isPrimary'
+                name="isPrimary"
                 defaultChecked={this.state.isPrimary}
-                componentClass='checkbox'
+                componentClass="checkbox"
                 onChange={this.onChangeIsPrimary}
               />
             </FormGroup>
@@ -177,9 +177,9 @@ class CalendarForm extends React.Component<FinalProps, State> {
 
           <Modal.Footer>
             <Button
-              btnStyle='simple'
-              type='button'
-              icon='times-circle'
+              btnStyle="simple"
+              type="button"
+              icon="times-circle"
               onClick={closeModal}
             >
               Cancel

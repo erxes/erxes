@@ -71,7 +71,9 @@ export interface IOverallWorkDocument extends IOverallWork, Document {
 
 export interface IPerform {
   overallWorkId: string;
+  overallWork: any;
   status: string;
+  productId: string;
   count: string;
   startAt: Date;
   endAt: Date;
@@ -103,7 +105,7 @@ export type OverallWorksSideBarQueryResponse = {
 } & QueryResponse;
 
 export type OverallWorksSideBarDetailQueryResponse = {
-  overallWorksSideBarDetail: IOverallWork;
+  overallWorksSideBarDetail: IOverallWorkDocument;
 } & QueryResponse;
 
 export type OverallWorksTotalCountQueryResponse = {
@@ -114,6 +116,14 @@ export type PerformsQueryResponse = {
   performs: IPerform[];
 } & QueryResponse;
 
+export type PerformsByOverallWorkIdQueryResponse = {
+  performsByOverallWorkId: IPerform[];
+} & QueryResponse;
+
 export type PerformsTotalCountQueryResponse = {
   performsTotalCount: number;
+} & QueryResponse;
+
+export type PerformsByOverallWorkIdTotalCountQueryResponse = {
+  performsByOverallWorkIdTotalCount: number;
 } & QueryResponse;

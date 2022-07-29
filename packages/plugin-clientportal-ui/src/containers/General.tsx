@@ -1,16 +1,17 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import compose from 'lodash.flowright';
 import {
   BoardsQueryResponse,
   IPipeline
 } from '@erxes/ui-cards/src/boards/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
 import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
+import boardQueries from '@erxes/ui-settings/src/boards/graphql/queries';
+import client from '@erxes/ui/src/apolloClient';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import compose from 'lodash.flowright';
 import React, { useEffect, useState } from 'react';
 import { graphql } from 'react-apollo';
-import knowledgeBaseQueries from '@erxes/ui-knowledgebase/src/graphql/queries';
-import boardQueries from '@erxes/ui-settings/src/boards/graphql/queries';
+
 import General from '../components/forms/General';
 
 type Props = {

@@ -16,6 +16,7 @@ import { sendLogsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { redis } from '../serviceDiscovery';
+import { sendContactsMessage } from '../messageBroker';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -993,6 +994,46 @@ export const getFileUploadConfigs = async (models: IModels) => {
 
 export const saveValidatedToken = (token: string, user: IUserDocument) => {
   return redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
+};
+
+/*
+ * Handle engage unsubscribe request
+ */
+export const handleUnsubscription = async (
+  models: IModels,
+  subdomain: string,
+  query: {
+    cid: string;
+    uid: string;
+  }
+) => {
+  const { cid, uid } = query;
+
+  if (cid) {
+    await sendContactsMessage({
+      subdomain,
+      action: 'customers.updateOne',
+      data: {
+        selector: {
+          _id: cid
+        },
+        modifier: {
+          $set: { isSubscribed: 'No' }
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+  }
+
+  if (uid) {
+    await models.Users.updateOne(
+      {
+        _id: uid
+      },
+      { $set: { isSubscribed: 'No' } }
+    );
+  }
 };
 
 export const getEnv = utils.getEnv;

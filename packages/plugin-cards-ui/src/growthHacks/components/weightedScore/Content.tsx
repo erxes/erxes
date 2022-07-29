@@ -1,7 +1,7 @@
 import { IPipeline } from '@erxes/ui-cards/src/boards/types';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { FixedContainer, ScrollContent, TableHead } from '../../styles';
 import { IGrowthHack, IGrowthHackParams } from '../../types';
 import React from 'react';

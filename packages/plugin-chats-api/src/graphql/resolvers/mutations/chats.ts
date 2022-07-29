@@ -55,7 +55,10 @@ const chatMutations = {
       data: {
         title: doc.title,
         body: doc.description,
-        receivers: allParticipantIds
+        receivers: allParticipantIds,
+        data: {
+          type: 'chats'
+        }
       }
     });
 
@@ -177,7 +180,10 @@ const chatMutations = {
       data: {
         title: `${user?.details?.fullName || user?.fullName} sent you chat`,
         body: strip_html(args.content),
-        receivers: recievers
+        receivers: recievers,
+        data: {
+          type: 'chats'
+        }
       }
     });
 

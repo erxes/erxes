@@ -1,9 +1,10 @@
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
 import List from '../containers/List';
 

@@ -1,11 +1,12 @@
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import { ITripEdit } from '../graphql/resolvers/mutations/trips';
 import {
-  tripSchema,
+  ITrackingItem,
   ITrip,
   ITripDocument,
-  ITrackingItem
+  tripSchema
 } from './definitions/trips';
 
 export interface ITripModel extends Model<ITripDocument> {
@@ -60,8 +61,8 @@ export const loadTripClass = (models: IModels) => {
           $push: {
             trackingData: {
               $each: trackingData.map(e => [
-                e.lng,
                 e.lat,
+                e.lng,
                 e.trackedDate.getTime() / 1000
               ])
             }

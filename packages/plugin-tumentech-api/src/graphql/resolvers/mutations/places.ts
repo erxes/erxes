@@ -1,5 +1,5 @@
-import { IPlace, IPlaceEdit } from '../../../models/definitions/places';
 import { IContext } from '../../../connectionResolver';
+import { IPlace, IPlaceEdit } from '../../../models/definitions/places';
 
 const placeMutations = {
   placesAdd: async (_root, doc: IPlace, { models }: IContext) => {
@@ -12,6 +12,10 @@ const placeMutations = {
 
   placesRemove: (_root, { _id }, { models }: IContext) => {
     return models.Places.remove({ _id });
+  },
+
+  setDealPlace: (_root, args, { models }: IContext) => {
+    return models.DealPlaces.createOrUpdateDealPlace(args);
   }
 };
 

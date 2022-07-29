@@ -109,7 +109,7 @@ export const engageTracker = async (req, res) => {
   const chunks: any = [];
 
   req.setEncoding('utf8');
-  
+
   req.on('data', chunk => {
     chunks.push(chunk);
   });
@@ -117,7 +117,7 @@ export const engageTracker = async (req, res) => {
   req.on('end', async () => {
     const message = JSON.parse(chunks.join(''));
 
-    debugBase(`receiving on tracker: ${message}`);
+    debugBase(`receiving on tracker: ${JSON.stringify(message)}`);
 
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);

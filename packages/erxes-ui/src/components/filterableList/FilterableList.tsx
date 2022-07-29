@@ -1,9 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import EmptyState from "../EmptyState";
-import Icon from "../Icon";
-import Spinner from "../Spinner";
-import Filter from "./Filter";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import EmptyState from '../EmptyState';
+import Icon from '../Icon';
+import Spinner from '../Spinner';
+import Filter from './Filter';
 import {
   AvatarImg,
   FlexRow,
@@ -13,9 +13,9 @@ import {
   PopoverHeader,
   PopoverList,
   ChildList,
-  ToggleIcon,
-} from "./styles";
-import { SidebarList } from "../../layout/styles";
+  ToggleIcon
+} from './styles';
+import { SidebarList } from '../../layout/styles';
 
 type Props = {
   items?: any[];
@@ -44,9 +44,9 @@ class FilterableList extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      key: "",
+      key: '',
       items: props.items,
-      parentIds: {},
+      parentIds: {}
     };
   }
 
@@ -62,21 +62,21 @@ class FilterableList extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (JSON.stringify(this.props.items) !== JSON.stringify(nextProps.items)) {
       this.setState({
-        items: nextProps.items,
+        items: nextProps.items
       });
     }
   }
 
-  filterItems = (e) => {
+  filterItems = e => {
     this.setState({ key: e.target.value });
   };
 
   toggleItem = (id: string) => {
     const items = this.state.items;
-    const item = items.find((i) => i._id === id);
+    const item = items.find(i => i._id === id);
 
     items[items.indexOf(item)].selectedBy =
-      item.selectedBy === "all" ? "none" : "all";
+      item.selectedBy === 'all' ? 'none' : 'all';
 
     this.setState({ items });
 
@@ -89,7 +89,7 @@ class FilterableList extends React.Component<Props, State> {
   };
 
   groupByParent = (array: any[]) => {
-    const key = "parentId";
+    const key = 'parentId';
 
     return array.reduce((rv, x) => {
       (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -116,12 +116,11 @@ class FilterableList extends React.Component<Props, State> {
           <ToggleIcon
             isIndented={this.props.isIndented}
             onClick={this.onToggle.bind(this, item._id, isOpen)}
+            type="list"
           >
-            <Icon icon={isOpen ? "angle-down" : "angle-right"} />
+            <Icon icon={isOpen ? 'angle-down' : 'angle-right'} />
           </ToggleIcon>
         )}
-
-        <i className={item.iconClass} style={{ color: item.iconColor }} />
       </>
     );
   }
@@ -139,16 +138,18 @@ class FilterableList extends React.Component<Props, State> {
 
     return (
       <FlexRow key={item._id}>
-        <li
-          className={showCheckmark ? item.selectedBy : ""}
-          style={item.style}
-          onClick={onClick}
-        >
+        <li className={showCheckmark ? item.selectedBy : ''} style={item.style}>
           {this.renderIcons(item, hasChildren, isOpen)}
+
+          <i
+            className={item.iconClass}
+            style={{ color: item.iconColor }}
+            onClick={onClick}
+          />
 
           {item.avatar ? <AvatarImg src={item.avatar} /> : null}
 
-          <span>{item.title || "[undefined]"}</span>
+          <span onClick={onClick}>{item.title || '[undefined]'}</span>
         </li>
 
         {item.additionalIconClass && (
@@ -178,7 +179,7 @@ class FilterableList extends React.Component<Props, State> {
 
           <ChildList>
             {isOpen &&
-              childrens.map((childparent) =>
+              childrens.map(childparent =>
                 this.renderTree(childparent, subFields)
               )}
           </ChildList>
@@ -207,13 +208,13 @@ class FilterableList extends React.Component<Props, State> {
     }
 
     if (!treeView) {
-      return items.map((item) => this.renderItem(item, false));
+      return items.map(item => this.renderItem(item, false));
     }
 
-    const parents = items.filter((item) => !item.parentId);
-    const subFields = items.filter((item) => item.parentId);
+    const parents = items.filter(item => !item.parentId);
+    const subFields = items.filter(item => item.parentId);
 
-    return parents.map((parent) => this.renderTree(parent, subFields));
+    return parents.map(parent => this.renderTree(parent, subFields));
   }
 
   render() {
@@ -233,7 +234,7 @@ class FilterableList extends React.Component<Props, State> {
         {links && (
           <PopoverFooter>
             <PopoverList>
-              {links.map((link) => (
+              {links.map(link => (
                 <li key={link.href}>
                   <Link onClick={link.onClick} to={link.href}>
                     {link.title}

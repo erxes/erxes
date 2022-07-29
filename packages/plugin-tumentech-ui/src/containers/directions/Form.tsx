@@ -1,16 +1,20 @@
-import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import gql from 'graphql-tag';
 import React from 'react';
-import DirectionForm from '../../components/directions/Form';
-import { mutations, queries } from '../../graphql';
 import { useQuery } from 'react-apollo';
 
+import DirectionForm from '../../components/directions/Form';
+import { mutations, queries } from '../../graphql';
+import { IDirection } from '../../types';
+
 type Props = {
+  direction?: IDirection;
   closeModal: () => void;
 };
 
 const DirectionFormContainer = (props: Props) => {
+  const direction = props.direction;
   const { data } = useQuery(gql(queries.placesQuery), {
     fetchPolicy: 'network-only',
     variables: { perPage: 9999 }

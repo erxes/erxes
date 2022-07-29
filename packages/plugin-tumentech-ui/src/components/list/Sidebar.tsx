@@ -1,18 +1,17 @@
 import { Wrapper } from '@erxes/ui/src';
-import React from 'react';
-
-import SegmentFilter from '../../containers/SegmentFilter';
-import CategoryList from '../../containers/carCategory/CategoryList';
-import { IProduct, IProductCategory } from '../../types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import CategoryList from '../../containers/carCategory/CategoryList';
+import SegmentFilter from '../../containers/SegmentFilter';
+import { IProduct, IProductCategory } from '../../types';
 
 function Sidebar({
   loadingMainQuery,
   history,
   queryParams,
   products,
-  onSelect,
   saveMatch,
   productCategories,
   renderButton
@@ -21,7 +20,6 @@ function Sidebar({
   history: any;
   queryParams: any;
   products: IProduct[];
-  onSelect: (prs: IProduct[]) => void;
   saveMatch: () => void;
   productCategories: IProductCategory[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -35,7 +33,6 @@ function Sidebar({
         queryParams={queryParams}
         history={history}
         products={products}
-        onSelect={onSelect}
         saveMatch={saveMatch}
         renderButton={renderButton}
         productCategories={productCategories}

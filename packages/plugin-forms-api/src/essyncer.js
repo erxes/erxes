@@ -16,7 +16,7 @@ module.exports = [
   },
   {
     name: "form_submissions",
-    schema: "{}",
+    schema: "{ 'value': { 'type': 'text' } }",
     script: "",
   }
 ];

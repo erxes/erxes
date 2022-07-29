@@ -1,5 +1,6 @@
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+
+import { IContext } from '../../../connectionResolver';
 
 const routesQuery = {
   routes: async (
@@ -24,6 +25,14 @@ const routesQuery = {
       }),
       totalCount: models.Routes.find(filter).count()
     };
+  },
+
+  routeDetail: async (
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return models.Routes.getRoute({ _id });
   }
 };
 

@@ -1,13 +1,14 @@
 import { gql } from 'apollo-server-express';
+
 import {
-  types as clientPortalTypes,
+  mutations as clientPortalMutations,
   queries as clientPortalQueries,
-  mutations as clientPortalMutations
+  types as clientPortalTypes
 } from './schema/clientPortal';
 import {
-  types as clientPortalUserTypes,
+  mutations as clientPortalUserMutations,
   queries as clientPortalUserQueries,
-  mutations as clientPortalUserMutations
+  types as clientPortalUserTypes
 } from './schema/clientPortalUser';
 
 const typeDefs = async serviceDiscovery => {

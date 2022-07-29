@@ -386,10 +386,10 @@ export const checkInvoiceAmount = async ({
 };
 
 export const commonCheckPayment = async (
+  models,
   orderId,
   config,
-  paidAmount,
-  models
+  paidAmount
 ) => {
   let order = await models.Orders.getOrder(orderId);
 
