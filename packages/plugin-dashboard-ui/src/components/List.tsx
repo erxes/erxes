@@ -11,12 +11,11 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IDashboard, DashboardsCount } from '../types';
-import Row from './Row';
 import { EmptyContent } from '../styles';
-import Sidebar from './Sidebar';
+import Row from './Row';
 
 interface IProps extends IRouterProps {
-  automations: IDashboard[];
+  dashboards: IDashboard[];
   loading: boolean;
   searchValue: string;
   totalCount: number;
@@ -27,7 +26,7 @@ interface IProps extends IRouterProps {
   emptyBulk: () => void;
   addDashboard: () => void;
   removeDashboards: (
-    doc: { automationIds: string[] },
+    doc: { dashboardIds: string[] },
     emptyBulk: () => void
   ) => void;
   queryParams: any;
@@ -55,9 +54,9 @@ class DashboardsList extends React.Component<IProps, State> {
   }
 
   onChange = () => {
-    const { toggleAll, automations } = this.props;
+    const { toggleAll, dashboards } = this.props;
 
-    toggleAll(automations, 'automations');
+    toggleAll(dashboards, 'dashboards');
   };
 
   search = e => {
@@ -76,14 +75,14 @@ class DashboardsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeDashboards = automations => {
-    const automationIds: string[] = [];
+  removeDashboards = dashboards => {
+    const dashboardIds: string[] = [];
 
-    automations.forEach(automation => {
-      automationIds.push(automation._id);
+    dashboards.forEach(dashboard => {
+      dashboardIds.push(dashboard._id);
     });
 
-    this.props.removeDashboards({ automationIds }, this.props.emptyBulk);
+    this.props.removeDashboards({ dashboardIds }, this.props.emptyBulk);
   };
 
   moveCursorAtTheEnd = e => {
@@ -115,7 +114,7 @@ class DashboardsList extends React.Component<IProps, State> {
       addDashboard
     } = this.props;
 
-    const automations = this.props.automations || [];
+    const dashboards = this.props.dashboards || [];
 
     const mainContent = (
       <withTableWrapper.Wrapper>
@@ -130,9 +129,7 @@ class DashboardsList extends React.Component<IProps, State> {
                 />
               </th>
               <th>{__('Name')}</th>
-              <th>{__('Status')}</th>
-              <th>{__('Triggers')}</th>
-              <th>{__('Action')}</th>
+              <th>{__('Items')}</th>
               <th>{__('Last updated by')}</th>
               <th>{__('Created by')}</th>
               <th>{__('Last update')}</th>
@@ -140,16 +137,15 @@ class DashboardsList extends React.Component<IProps, State> {
               <th>{__('Actions')}</th>
             </tr>
           </thead>
-          <tbody id="automations" className={isExpand ? 'expand' : ''}>
-            {(automations || []).map(automation => (
+          <tbody id="dashboards" className={isExpand ? 'expand' : ''}>
+            {(dashboards || []).map(dashboard => (
               <Row
-                key={automation._id}
-                automation={automation}
-                isChecked={bulk.includes(automation)}
+                key={dashboard._id}
+                dashboard={dashboard}
+                isChecked={bulk.includes(dashboard)}
                 history={history}
                 removeDashboards={this.removeDashboards}
                 toggleBulk={toggleBulk}
-                duplicate={duplicate}
               />
             ))}
           </tbody>
@@ -178,7 +174,7 @@ class DashboardsList extends React.Component<IProps, State> {
       <BarItems>
         <FormControl
           type="text"
-          placeholder={__('Search an automation')}
+          placeholder={__('Search an dashboard')}
           onChange={this.search}
           value={this.state.searchValue}
           autoFocus={true}
@@ -191,7 +187,7 @@ class DashboardsList extends React.Component<IProps, State> {
           icon="plus-circle"
           onClick={addDashboard}
         >
-          {__('Create an automation')}
+          {__('Create an dashboard')}
         </Button>
       </BarItems>
     );
@@ -210,19 +206,18 @@ class DashboardsList extends React.Component<IProps, State> {
           />
         }
         actionBar={actionBar}
-        leftSidebar={<Sidebar counts={counts || ({} as any)} />}
         footer={<Pagination count={totalCount} />}
         content={
           <DataWithLoader
             data={mainContent}
             loading={loading}
-            count={(automations || []).length}
+            count={(dashboards || []).length}
             emptyContent={
               <EmptyContent>
-                <img src="/images/actions/automation.svg" alt="empty-img" />
+                <img src="/images/actions/dashboard.svg" alt="empty-img" />
 
                 <p>
-                  <b>{__('You don’t have any automations yet')}.</b>
+                  <b>{__('You don’t have any dashboards yet')}.</b>
                   {__(
                     'Automatically execute repetitive tasks and make sure nothing falls through the cracks'
                   )}

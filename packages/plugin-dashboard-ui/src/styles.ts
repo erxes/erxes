@@ -4,88 +4,93 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
+import { Contents, FlexContent } from '@erxes/ui/src/layout/styles';
 
 const Header = styled(PageHeader)`
-min-height: auto;
+  min-height: auto;
 `;
 
-const Title = styled.div`
-font-size: 24px;
-display: flex;
-align-items: center;
-margin-top: 7px;
+const Title = styled(FlexContent)`
+  transition: all ease 0.3s;
+  padding: 0 ${dimensions.unitSpacing}px;
+  border-radius: 4px;
 
-i {
-  font-size: 22px;
-  color: ${colors.colorCoreGray};
-  margin: 5px 0 0 ${dimensions.unitSpacing}px;
-}
+  input {
+    border: 0;
+    font-size: 16px;
+  }
 
-&:hover {
-  cursor: pointer;
-}
+  i {
+    visibility: hidden;
+  }
+
+  &:hover {
+    background: ${colors.bgActive};
+
+    i {
+      visibility: visible;
+    }
+  }
 `;
-
 const RightActions = styled.div`
-align-self: center;
+  align-self: center;
 
-a {
-  margin-left: ${dimensions.unitSpacing}px;
-}
+  a {
+    margin-left: ${dimensions.unitSpacing}px;
+  }
 
-button {
-  margin: ${dimensions.unitSpacing}px 0;
-}
+  button {
+    margin: ${dimensions.unitSpacing}px 0;
+  }
 `;
 
 const Dashboards = styled.ul`
-padding: 0;
-min-width: 280px;
-max-height: 75vh;
-overflow: auto;
-margin: -8px 0 0 0;
+  padding: 0;
+  min-width: 280px;
+  max-height: 75vh;
+  overflow: auto;
+  margin: -8px 0 0 0;
 
-> li {
-  border-color: rgba(0, 0, 0, 0.06);
-  
-  button {
-    font-size: 14px;
-    padding: 0;
-    margin-left: 5px;
-    
-    i {
-      color: ${colors.colorSecondary};
+  > li {
+    border-color: rgba(0, 0, 0, 0.06);
+
+    button {
+      font-size: 14px;
+      padding: 0;
+      margin-left: 5px;
+
+      i {
+        color: ${colors.colorSecondary};
+      }
     }
-  }
-  
-  > a {
-    padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 20px;
-    white-space: normal;
-    
+
+    > a {
+      padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px 20px;
+      white-space: normal;
+
+      &:hover {
+        background: transparent;
+      }
+    }
+
     &:hover {
-      background: transparent;
+      background: ${rgba(colors.colorPrimary, 0.1)};
     }
   }
-  
-  &:hover {
-    background: ${rgba(colors.colorPrimary, 0.1)};
-  }
-}
 `;
 
 const Create = styled.div`
-padding: 8px 20px;
-border-top: 1px solid rgba(0, 0, 0, 0.06);
-margin-bottom: -8px;
-font-weight: 500;
-color: ${colors.colorSecondary};
+  padding: 8px 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: -8px;
+  font-weight: 500;
+  color: ${colors.colorSecondary};
 
-&:hover {
-  cursor: pointer;
-  background: ${rgba(colors.colorPrimary, 0.1)};
-}
+  &:hover {
+    cursor: pointer;
+    background: ${rgba(colors.colorPrimary, 0.1)};
+  }
 `;
-
 
 const SelectMemberStyled = styledTS<{ zIndex?: number }>(styled.div)`
 position: relative;
@@ -130,4 +135,75 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
   }
 `;
 
-export { Title, RightActions, Dashboards, Create, Header, SelectMemberStyled, SidebarListItem };
+const EmptyContent = styled.div`
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  > img {
+    width: 300px;
+  }
+
+  p {
+    text-align: center;
+    max-width: 400px;
+
+    b {
+      margin: ${dimensions.unitSpacing}px 0;
+      display: block;
+    }
+  }
+`;
+
+const AutomationFormContainer = styled(Contents)`
+  margin: 0;
+
+  > section {
+    margin: 0;
+  }
+`;
+
+const BackButton = styled.div`
+  width: 35px;
+  height: 35px;
+  border-radius: 35px;
+  line-height: 35px;
+  background: rgba(0, 0, 0, 0.12);
+  text-align: center;
+  margin-right: ${dimensions.unitSpacing}px;
+  color: ${colors.textPrimary};
+  transition: all ease 0.3s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.18);
+  }
+`;
+
+const ActionBarButtonsWrapper = styled.div`
+  @media (max-width: 1450px) {
+    max-width: 350px;
+    white-space: normal;
+    text-align: right;
+    margin-bottom: ${dimensions.unitSpacing}px;
+
+    > button {
+      margin-top: ${dimensions.unitSpacing - 5}px;
+    }
+  }
+`;
+
+export {
+  ActionBarButtonsWrapper,
+  AutomationFormContainer,
+  BackButton,
+  Title,
+  RightActions,
+  Dashboards,
+  Create,
+  Header,
+  SelectMemberStyled,
+  SidebarListItem,
+  EmptyContent
+};

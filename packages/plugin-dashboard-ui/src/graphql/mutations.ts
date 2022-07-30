@@ -12,30 +12,63 @@ const commonParams = `
   selectedMemberIds: $selectedMemberIds,
 `;
 
-const dashboardAdd = `
-	mutation dashboardAdd(${commonParamsDef}) {
-		dashboardAdd(${commonParams}) {
+const dashboardsAdd = `
+	mutation dashboardsAdd(${commonParamsDef}) {
+		dashboardsAdd(${commonParams}) {
 			_id
 		}
 	}
 `;
 
-const dashboardEdit = `
-	mutation dashboardEdit($_id: String!, ${commonParamsDef}) {
-		dashboardEdit(_id: $_id, ${commonParams}) {
+const dashboardsEdit = `
+	mutation dashboardsEdit($_id: String!, ${commonParamsDef}) {
+		dashboardsEdit(_id: $_id, ${commonParams}) {
 			_id
 		}
 	}
 `;
 
-const dashboardRemove = `
-	mutation dashboardRemove($_id: String!) {
-		dashboardRemove(_id: $_id)
+const dashboardsRemove = `
+  mutation dashboardsRemove($dashboardIds: [String]) {
+    dashboardsRemove(dashboardIds: $dashboardIds)
+  }
+`;
+
+const dashboardItemsEdit = `
+  mutation dashboardItemsEdit($_id: String!, $layout: String, $vizState: String, $name: String, $type: String) {
+    dashboardItemsEdit(_id: $_id, layout: $layout, vizState: $vizState, name: $name, type: $type) {
+      _id
+      layout
+      vizState
+      name
+      type
+    }
+  }
+`;
+
+const dashboardItemsAdd = `
+  mutation dashboardItemsAdd($dashboardId: String, $layout: String, $vizState: String, $name: String, $type: String, $isDateRange: Boolean) {
+    dashboardItemsAdd(dashboardId: $dashboardId, layout: $layout, vizState: $vizState, name: $name, type: $type, isDateRange: $isDateRange) {
+      _id
+      layout
+      vizState
+      name
+      type
+    }
+  }
+`;
+
+const dashboardItemsRemove = `
+	mutation dashboardItemsRemove($_id: String!) {
+		dashboardItemsRemove(_id: $_id)
 	}
 `;
 
 export default {
-  dashboardRemove,
-  dashboardAdd,
-  dashboardEdit
+  dashboardsRemove,
+  dashboardsAdd,
+  dashboardsEdit,
+  dashboardItemsAdd,
+  dashboardItemsEdit,
+  dashboardItemsRemove
 };

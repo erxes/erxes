@@ -12,29 +12,42 @@ interface IDashboardItemEdit extends IDashboardItemInput {
 }
 
 const dashboardsMutations = {
-  async dashboardAdd(
+  async dashboardsAdd(
     _root,
     doc: IDashboard,
-    { docModifier, models }: IContext
+    { docModifier, models, user }: IContext
   ) {
-    const dashboard = await models.Dashboards.create(docModifier(doc));
+    const dashboard = await models.Dashboards.create({
+      ...docModifier(doc),
+      createdAt: new Date(),
+      createdBy: user._id,
+      updatedBy: user._id
+    });
 
     return dashboard;
   },
 
-  async dashboardEdit(
+  async dashboardsEdit(
     _root,
     { _id, ...fields }: IDashboardEdit,
+    { models, user }: IContext
+  ) {
+    return models.Dashboards.editDashboard(_id, fields, user);
+  },
+
+  async dashboardsRemove(
+    _root,
+    { dashboardIds }: { dashboardIds: string[] },
     { models }: IContext
   ) {
-    return models.Dashboards.editDashboard(_id, fields);
+    await models.DashboardItems.deleteMany({
+      dashboardId: { $in: dashboardIds }
+    });
+
+    return models.Dashboards.deleteMany({ _id: { $in: dashboardIds } });
   },
 
-  async dashboardRemove(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Dashboards.removeDashboard(_id);
-  },
-
-  async dashboardItemAdd(
+  async dashboardItemsAdd(
     _root,
     doc: IDashboardItemInput,
     { models }: IContext
@@ -46,7 +59,7 @@ const dashboardsMutations = {
     return dashboardItem;
   },
 
-  async dashboardItemEdit(
+  async dashboardItemsEdit(
     _root,
     { _id, ...fields }: IDashboardItemEdit,
     { models }: IContext
@@ -54,7 +67,7 @@ const dashboardsMutations = {
     return models.DashboardItems.editDashboardItem(_id, fields);
   },
 
-  async dashboardItemRemove(
+  async dashboardItemsRemove(
     _root,
     { _id }: { _id: string },
     { models }: IContext

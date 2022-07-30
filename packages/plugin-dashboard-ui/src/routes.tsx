@@ -3,47 +3,30 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const Dashboard = asyncComponent(() =>
-  import(/* webpackChunkName: "Dashboards" */ './containers/Home')
+const DashboardList = asyncComponent(() =>
+  import(/* webpackChunkName: "Dashboards" */ './containers/List')
 );
 
-const DashboardDetail = asyncComponent(() =>
-  import(/* webpackChunkName: "Dashboards" */ './containers/DashboardDetail')
+const DashboardDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Dashboards" */ './containers/dashboard/Dashboard'
+  )
 );
 
-const InitialData = asyncComponent(() =>
-  import(/* webpackChunkName: "InitialData" */ './components/InitialData')
-);
-
-const Dashboards = ({ location, history }) => {
+const dashboardList = ({ location, history }) => {
   return (
-    <Dashboard
+    <DashboardList
       history={history}
       queryParams={queryString.parse(location.search)}
     />
   );
 };
 
-const dashboardDetail = ({ match, history }) => {
+const dashboardDetail = ({ match, location, history }) => {
   const id = match.params.id;
-
-  return <DashboardDetail id={id} history={history} />;
-};
-
-const dashboardExplore = ({ match, history }) => {
-  const dashboardId = match.params.id;
-
   return (
-    <DashboardDetail id={dashboardId} history={history} isExplore={true} />
-  );
-};
-
-const initialData = ({ location, match, history }) => {
-  const dashboardId = match.params.id;
-
-  return (
-    <InitialData
-      dashboardId={dashboardId}
+    <DashboardDetails
+      id={id}
       history={history}
       queryParams={queryString.parse(location.search)}
     />
@@ -54,28 +37,16 @@ const routes = () => {
   return (
     <>
       <Route
-        key="/dashboard"
+        key="/dashboards"
         exact={true}
-        path="/dashboard"
-        component={Dashboards}
+        path="/dashboards"
+        component={dashboardList}
       />
       <Route
-        key="/dashboard/detail"
+        key="/dashboards/details"
         exact={true}
-        path="/dashboard/:id"
+        path="/dashboards/details/:id"
         component={dashboardDetail}
-      />
-      <Route
-        key="/dashboard/reports"
-        exact={true}
-        path="/dashboard/reports/:id"
-        component={initialData}
-      />
-      <Route
-        key="/dashboard/explore"
-        exact={true}
-        path="/dashboard/explore/:id"
-        component={dashboardExplore}
       />
     </>
   );

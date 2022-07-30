@@ -8,11 +8,13 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 import {
   DashboardsMainQueryResponse,
   DashboardsTotalCountQueryResponse,
-  ListQueryVariables
+  ListQueryVariables,
+  RemoveMutationResponse,
+  RemoveMutationVariables
 } from '../types';
 
 type Props = {
@@ -23,7 +25,8 @@ type FinalProps = {
   dashboardsMainQuery: DashboardsMainQueryResponse;
   dashboardsTotalCountQuery: DashboardsTotalCountQueryResponse;
 } & Props &
-  IRouterProps;
+  IRouterProps &
+  RemoveMutationResponse;
 
 type State = {
   loading: boolean;
@@ -53,11 +56,32 @@ class ListContainer extends React.Component<FinalProps, State> {
   };
 
   render() {
-    const { dashboardsMainQuery, dashboardsTotalCountQuery } = this.props;
+    const {
+      dashboardsMainQuery,
+      dashboardsTotalCountQuery,
+      dashboardsRemove
+    } = this.props;
 
     const counts = dashboardsTotalCountQuery
       ? dashboardsTotalCountQuery.dashboardsTotalCount
       : null;
+
+    const removeDashboards = ({ dashboardIds }, emptyBulk) => {
+      confirm().then(() => {
+        dashboardsRemove({
+          variables: { dashboardIds }
+        })
+          .then(() => {
+            emptyBulk();
+            Alert.success('You successfully deleted a dashboard.', 4500);
+
+            this.refetchWithDelay();
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      });
+    };
 
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } =
@@ -68,9 +92,10 @@ class ListContainer extends React.Component<FinalProps, State> {
       counts,
       totalCount,
       searchValue,
-      dashboard: list,
+      dashboards: list,
       loading: dashboardsMainQuery.loading || this.state.loading,
-      refetch: this.refetchWithDelay
+      refetch: this.refetchWithDelay,
+      removeDashboards
     };
 
     const dashboardList = props => {
@@ -121,12 +146,16 @@ export default withProps<Props>(
       }
     ),
     graphql<Props, DashboardsTotalCountQueryResponse>(gql(queries.totalCount), {
-      name: 'dashboardsTotalCountQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          status: queryParams.status
-        }
-      })
-    })
+      name: 'dashboardsTotalCountQuery'
+    }),
+    graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
+      gql(mutations.dashboardsRemove),
+      {
+        name: 'dashboardsRemove',
+        options: ({ queryParams }) => ({
+          refetchQueries: getRefetchQueries(queryParams)
+        })
+      }
+    )
   )(withRouter<IRouterProps>(ListContainer))
 );

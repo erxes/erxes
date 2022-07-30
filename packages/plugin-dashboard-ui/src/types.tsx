@@ -1,4 +1,5 @@
-import { MutationVariables } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { MutationVariables, Counts } from '@erxes/ui/src/types';
 
 export type ListQueryVariables = {
   page?: number;
@@ -18,9 +19,15 @@ export interface IDashboard {
   parentId?: string;
   order?: string;
   childsDashboard: [IDashboard];
-  createdAt: Date;
   dashboardCount: number;
   relatedIds: string[];
+  updatedAt?: Date;
+  createdAt?: Date;
+  updatedBy?: string;
+  createdBy?: string;
+  updatedUser?: IUser;
+  createdUser?: IUser;
+  itemsCount?: number;
 }
 
 export type DashboardsQueryResponse = {
@@ -46,6 +53,7 @@ export interface IDashboardItem {
 export type DashboardItemsQueryResponse = {
   dashboardItems: IDashboardItem[];
   loading: boolean;
+  refetch: () => void;
 };
 
 export type DashboardItemDetailsQueryResponse = {
@@ -56,6 +64,11 @@ export type DashboardItemDetailsQueryResponse = {
 export type DashboardsTotalCountQueryResponse = {
   dashboardsTotalCount: number;
   loading: boolean;
+};
+
+export type DashboardsCount = {
+  total: number;
+  byStatus: Counts;
 };
 
 export type DashboardDetailsQueryResponse = {
@@ -90,8 +103,22 @@ export type EditDashboardItemMutationResponse = {
   }) => Promise<void>;
 };
 
-export type RemoveDashboardMutationResponse = {
-  removeDashboardMutation: (params: {
-    variables: MutationVariables;
+export type RemoveMutationVariables = {
+  dashboardIds: string[];
+};
+
+export type RemoveMutationResponse = {
+  dashboardsRemove: (params: {
+    variables: RemoveMutationVariables;
   }) => Promise<any>;
+};
+
+export type RemoveDashboardItemMutationResponse = {
+  removeDashboardItemMutation: (params: {
+    variables: RemoveDashboardItemMutationVariables;
+  }) => Promise<void>;
+};
+
+export type RemoveDashboardItemMutationVariables = {
+  _id: string;
 };

@@ -6,5 +6,8 @@
     "start": "cd .erxes && yarn start",
     "build": "cd .erxes && yarn build",
     "tsc": "cd .erxes && yarn tsc"
+  },
+  "dependencies": {
+    "react-grid-layout": "^1.3.4"
   }
 }

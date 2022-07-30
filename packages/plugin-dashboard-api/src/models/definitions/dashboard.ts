@@ -37,9 +37,12 @@ export interface IDashboardItemEdit {
 export interface IDashboardDocument extends IDashboard, Document {
   _id: string;
   createdAt: Date;
+  updatedAt: Date;
   order?: string;
   dashboardCount?: number;
   relatedIds?: string[];
+  createdBy?: string;
+  updatedBy?: string;
 }
 export interface IDashboardItemDocument extends IDashboardItem, Document {
   _id: string;
@@ -56,10 +59,19 @@ export const dashboardSchema = schemaWrapper(
     parentId: field({ type: String, optional: true }),
     childsDashboard: field({ type: [String] }),
     order: field({ type: String }),
-    createdAt: field({ type: Date }),
+
     code: field({ type: String }),
     dashboardCount: field({ type: Number }),
-    relatedIds: field({ type: [String] })
+    relatedIds: field({ type: [String] }),
+
+    createdAt: {
+      type: Date,
+      default: new Date(),
+      label: 'Created date'
+    },
+    createdBy: { type: String },
+    updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
+    updatedBy: { type: String }
   })
 );
 

@@ -24,7 +24,6 @@ export const transformDimensions = dimensions => {
     };
   }, {});
 
-  console.log(aa, '2131');
   return aa;
 };
 
