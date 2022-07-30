@@ -116,7 +116,7 @@ class Dashboard extends React.Component<Props, State> {
             <Wrapper.Header
               title={`${(dashboard && dashboard.name) || 'Automation'}`}
               breadcrumb={[
-                { title: __('Dashboard'), link: '/dashboards' },
+                { title: __('Dashboar1d'), link: '/dashboards' },
                 { title: `${(dashboard && dashboard.name) || ''}` }
               ]}
             />
