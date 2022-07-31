@@ -1,11 +1,12 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { ClientPortalConfig } from '../../types';
 import Select from 'react-select-plus';
+
 import { CONFIGURATIONS } from '../../constants';
+import { ClientPortalConfig } from '../../types';
 
 type Props = {
   handleFormChange: (name: string, value: any) => void;

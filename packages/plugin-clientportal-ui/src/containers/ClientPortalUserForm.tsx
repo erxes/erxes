@@ -1,18 +1,18 @@
-import { ButtonMutate, AppConsumer, withProps } from '@erxes/ui/src';
+import { AppConsumer, ButtonMutate, withProps } from '@erxes/ui/src';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import {
   IButtonMutateProps,
   IQueryParams,
   IRouterProps
 } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ClientPortalUserFrom from '../components/forms/ClientPortalUserFrom';
-import { queries, mutations } from '../graphql';
-import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
+import ClientPortalUserForm from '../components/forms/ClientPortalUserForm';
+import { mutations, queries } from '../graphql';
+import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
@@ -27,7 +27,7 @@ type FinalProps = {
 } & Props &
   IRouterProps;
 
-class ClientPortalUserFromContainer extends React.Component<FinalProps> {
+class ClientPortalUserFormContainer extends React.Component<FinalProps> {
   render() {
     const { clientPortalConfigsQuery } = this.props;
 
@@ -62,7 +62,9 @@ class ClientPortalUserFromContainer extends React.Component<FinalProps> {
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
-        />
+        >
+          Invite
+        </ButtonMutate>
       );
     };
 
@@ -78,7 +80,7 @@ class ClientPortalUserFromContainer extends React.Component<FinalProps> {
     return (
       <AppConsumer>
         {({ currentUser }) => (
-          <ClientPortalUserFrom
+          <ClientPortalUserForm
             {...updatedProps}
             currentUser={currentUser || ({} as IUser)}
           />
@@ -97,5 +99,5 @@ export default withProps<Props>(
     graphql<Props, ClientPortalConfigsQueryResponse>(gql(queries.getConfigs), {
       name: 'clientPortalConfigsQuery'
     })
-  )(ClientPortalUserFromContainer)
+  )(ClientPortalUserFormContainer)
 );

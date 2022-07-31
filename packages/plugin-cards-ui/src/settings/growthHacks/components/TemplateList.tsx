@@ -5,7 +5,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { BoxContainer } from '../../../growthHacks/components/home/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';

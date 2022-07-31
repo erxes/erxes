@@ -56,7 +56,7 @@ class FormComponent extends React.Component<Props, State> {
     const { tag } = this.props;
 
     this.state = {
-      colorCode: tag ? tag.colorCode : COLORS[getRandomNumber(7)]
+      colorCode: tag ? tag.colorCode || '' : COLORS[getRandomNumber(7)]
     };
   }
 

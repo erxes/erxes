@@ -25,7 +25,8 @@ const MainActionBar = asyncComponent(() =>
 );
 
 const tasks = () => {
-  let link = '/task/board';
+  let view = localStorage.getItem('taskView') || 'board';
+  let link = `/task/${view}`;
 
   const { defaultBoards, defaultPipelines } = getDefaultBoardAndPipelines();
 
@@ -35,7 +36,7 @@ const tasks = () => {
   ];
 
   if (defaultBoardId && defaultPipelineId) {
-    link = `/task/board?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
+    link = `/task/${view}?id=${defaultBoardId}&pipelineId=${defaultPipelineId}`;
   }
 
   return <Redirect to={link} />;

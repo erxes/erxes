@@ -4,7 +4,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { respondrates } from '../../../constants';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Select from 'react-select-plus';
 import { IOnlineHour } from '@erxes/ui-settings/src/integrations/types';
@@ -132,8 +132,8 @@ class Availability extends React.Component<Props> {
         <LeftItem>
           <FormGroup>
             <FormControl
-              value='manual'
-              componentClass='radio'
+              value="manual"
+              componentClass="radio"
               checked={this.props.availabilityMethod === 'manual'}
               onChange={onChange}
               inline={true}
@@ -142,8 +142,8 @@ class Availability extends React.Component<Props> {
             </FormControl>
 
             <FormControl
-              value='auto'
-              componentClass='radio'
+              value="auto"
+              componentClass="radio"
               checked={this.props.availabilityMethod === 'auto'}
               onChange={onChange}
               inline={true}
@@ -158,8 +158,8 @@ class Availability extends React.Component<Props> {
           <FormGroup>
             <ControlLabel required={true}>Response rate</ControlLabel>
             <FormControl
-              value='auto'
-              componentClass='radio'
+              value="auto"
+              componentClass="radio"
               checked={false}
               inline={true}
               disabled={true}
@@ -169,8 +169,8 @@ class Availability extends React.Component<Props> {
               )}
             </FormControl>
             <FormControl
-              value='manual'
-              componentClass='radio'
+              value="manual"
+              componentClass="radio"
               checked={true}
               inline={true}
             >

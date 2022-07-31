@@ -1,7 +1,7 @@
 import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
 import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import BasicInfo from '../../containers/detail/BasicInfo';
 import { ICompany } from '@erxes/ui/src/companies/types';
 import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';

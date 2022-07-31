@@ -2,7 +2,7 @@ import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import AccountCalendars from '../containers/AccountCalendars';
@@ -47,11 +47,11 @@ class GroupRow extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text={__('Edit')} placement='top'>
-          <Button btnStyle='link' onClick={edit} icon='edit-3' />
+        <Tip text={__('Edit')} placement="top">
+          <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>
         <Tip text={__('Delete')}>
-          <Button btnStyle='link' onClick={onClick} icon='times-circle' />
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </>
     );
@@ -86,11 +86,11 @@ class GroupRow extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text={__('Edit')} placement='top'>
-          <Button btnStyle='link' onClick={edit} icon='edit-3' />
+        <Tip text={__('Edit')} placement="top">
+          <Button btnStyle="link" onClick={edit} icon="edit-3" />
         </Tip>
         <Tip text={__('Delete')}>
-          <Button btnStyle='link' onClick={onClick} icon='times-circle' />
+          <Button btnStyle="link" onClick={onClick} icon="times-circle" />
         </Tip>
       </>
     );

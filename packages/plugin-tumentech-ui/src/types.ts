@@ -1,5 +1,4 @@
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
@@ -9,6 +8,7 @@ import {
   IActivityLog,
   IActivityLogForMonth
 } from '@erxes/ui/src/activityLogs/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { ICustomer } from '@erxes/ui/src/customers/types';
 import { ILocationOption } from '@erxes/ui/src/types';
 
@@ -476,6 +476,12 @@ export type IDealPlace = {
   endPlace: IPlace;
 };
 
+export type ITrackingData = {
+  lat: number;
+  lng: number;
+  trackedDate: Date;
+};
+
 export type ITrip = {
   _id: string;
   carId: string;
@@ -493,4 +499,5 @@ export type ITrip = {
   driver: ICustomer;
   deals: IDeal[];
   car: ICar;
+  trackingData: ITrackingData[];
 };

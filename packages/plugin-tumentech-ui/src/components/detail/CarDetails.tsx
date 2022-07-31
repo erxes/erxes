@@ -4,11 +4,12 @@ import {
   ActivityLogsContainer as ActivityLogs,
   Wrapper
 } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
+
 import { ICar } from '../../types';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   car: ICar;
@@ -22,7 +23,7 @@ class CarDetails extends React.Component<Props> {
     const title = car.plateNumber || 'Unknown';
 
     const breadcrumb = [
-      { title: __('Cars'), link: '/erxes-plugin-tumentech/list' },
+      { title: __('Cars'), link: '/erxes-plugin-tumentech/car/list' },
       { title }
     ];
 

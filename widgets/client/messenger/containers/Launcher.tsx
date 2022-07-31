@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import * as React from 'react';
 import { ChildProps, graphql } from 'react-apollo';
 import { IBrowserInfo, IIntegrationUiOptions } from '../../types';
-import { Launcher as DumpLauncher } from '../components';
+import DumpLauncher from '../components/Launcher';
 import { connection } from '../connection';
 import graphqlTypes from '../graphql';
 import { IMessage } from '../types';

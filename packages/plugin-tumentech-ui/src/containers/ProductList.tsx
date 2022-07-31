@@ -1,15 +1,13 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import * as router from '@erxes/ui/src/utils/router';
-
-export const generatePaginationParams = router.generatePaginationParams;
-
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
 import List from '../components/product/ProductList';
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import {
   CarCategoriesQueryResponse,
   CategoryDetailQueryResponse,
@@ -18,6 +16,8 @@ import {
   ProductsCountQueryResponse,
   ProductsQueryResponse
 } from '../types';
+
+export const generatePaginationParams = router.generatePaginationParams;
 
 type Props = {
   queryParams: any;
@@ -58,7 +58,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       productsRemove({
         variables: { productIds }
       })
-        .then((removeStatus) => {
+        .then(removeStatus => {
           emptyBulk();
 
           const status = removeStatus.data.productsRemove;
@@ -67,7 +67,7 @@ class ProductListContainer extends React.Component<FinalProps> {
             ? Alert.success('You successfully deleted a product')
             : Alert.warning('Product status deleted');
         })
-        .catch((e) => {
+        .catch(e => {
           Alert.error(e.message);
         });
     };
@@ -88,7 +88,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       carCategories
     };
 
-    const productList = (props) => {
+    const productList = props => {
       return <List {...updatedProps} {...props} />;
     };
 

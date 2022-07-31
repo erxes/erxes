@@ -1,5 +1,5 @@
-import { IDirection } from '../../../models/definitions/directions';
 import { IContext } from '../../../connectionResolver';
+import { IDirection } from '../../../models/definitions/directions';
 
 export interface IDirectionEdit extends IDirection {
   _id: string;

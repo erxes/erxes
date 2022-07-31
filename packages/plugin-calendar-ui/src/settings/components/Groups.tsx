@@ -5,7 +5,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import Table from '@erxes/ui/src/components/table';
 import { Count } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';

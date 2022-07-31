@@ -1,29 +1,30 @@
 import { gql } from 'apollo-server-express';
+
 import {
-  types as tumentechTypes,
-  queries as tumentechQueries,
-  mutations as tumentechMutations
-} from './schema/tumentech';
-import {
-  types as placeTypes,
-  queries as placeQueries,
-  mutations as placeMutations
-} from './schema/places';
-import {
-  types as directionTypes,
+  mutations as directionMutations,
   queries as directionQueries,
-  mutations as directionMutations
+  types as directionTypes
 } from './schema/directions';
 import {
-  types as routeTypes,
+  mutations as placeMutations,
+  queries as placeQueries,
+  types as placeTypes
+} from './schema/places';
+import {
+  mutations as routeMutations,
   queries as routeQueries,
-  mutations as routeMutations
+  types as routeTypes
 } from './schema/routes';
 import {
-  types as tripTypes,
+  mutations as tripMutations,
   queries as tripQueries,
-  mutations as tripMutations
+  types as tripTypes
 } from './schema/trips';
+import {
+  mutations as tumentechMutations,
+  queries as tumentechQueries,
+  types as tumentechTypes
+} from './schema/tumentech';
 
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');

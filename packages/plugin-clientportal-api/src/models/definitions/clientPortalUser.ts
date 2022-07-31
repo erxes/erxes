@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 import { USER_LOGIN_TYPES } from './constants';
 import { field } from './utils';
 
@@ -9,7 +10,7 @@ export interface IUser {
   firstName?: string;
   lastName?: string;
   companyName?: string;
-  companyRegistrationNumber?: String;
+  companyRegistrationNumber?: string;
   code?: string;
   password?: string;
   type?: string;

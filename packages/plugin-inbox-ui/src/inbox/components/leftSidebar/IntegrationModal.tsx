@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import colors from '@erxes/ui/src/styles/colors';
 import { BoxRoot } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';

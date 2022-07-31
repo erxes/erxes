@@ -1,3 +1,7 @@
+import {
+  moduleRequireLogin,
+  moduleCheckPermission
+} from '@erxes/api-utils/src/permissions';
 import { IContext, models } from '../../../connectionResolver';
 import { sendProcessesMessage } from '../../../messageBroker';
 import { STATUS } from '../../../constants';
@@ -119,5 +123,8 @@ const salesLogMutations = {
     return await models.YearPlanConfigs.saveYearPlanConfig({ doc });
   }
 };
+
+moduleRequireLogin(salesLogMutations);
+moduleCheckPermission(salesLogMutations, 'manageSalesPlans');
 
 export default salesLogMutations;

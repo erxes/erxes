@@ -1,4 +1,5 @@
-import { sendInboxMessage } from "../../../messageBroker";
+import { IContext } from '../../../connectionResolver';
+import { sendInboxMessage } from '../../../messageBroker';
 
 const adsMutations = {
   formSubmissionsEdit: async (_root, params, { models, subdomain }) => {
@@ -10,17 +11,17 @@ const adsMutations = {
 
     const conversation = await sendInboxMessage({
       subdomain,
-      action: "findOne",
+      action: 'findOne',
       data: {
         _id: contentTypeId,
-        customerId,
+        customerId
       },
       isRPC: true,
-      defaultValue: {},
+      defaultValue: {}
     });
 
     if (!conversation) {
-      throw new Error("Form submission not found !");
+      throw new Error('Form submission not found !');
     }
 
     for (const submission of submissions) {
@@ -29,13 +30,13 @@ const adsMutations = {
     }
 
     const formSubmissions = await models.FormSubmissions.find({
-      contentTypeId,
+      contentTypeId
     }).lean();
 
     return {
       ...conversation,
       contentTypeId: conversation._id,
-      submissions: formSubmissions,
+      submissions: formSubmissions
     };
   },
 
@@ -43,13 +44,18 @@ const adsMutations = {
     const { customerId, contentTypeId } = params;
     const removed = await models.Conversations.deleteOne({
       customerId,
-      _id: contentTypeId,
+      _id: contentTypeId
     });
 
     await models.FormSubmissions.remove({ customerId, contentTypeId });
 
     return removed;
   },
+  adReviewAdd: async (_root, params, { models: { AdReview } }: IContext) => {
+    const { adId, review } = params;
+    const added = await AdReview.createAdReview({ adId, review });
+    return added;
+  }
 };
 
 export default adsMutations;

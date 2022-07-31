@@ -8,7 +8,7 @@ import {
 } from '../../../styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import OnlineHours from '../../OnlineHours';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Button from '@erxes/ui/src/components/Button';
@@ -111,26 +111,26 @@ class Settings extends React.Component<Props, State> {
     };
 
     return (
-      <div className='date-row'>
+      <div className="date-row">
         <DateControl
           value={this.state.date}
           required={false}
-          name='date'
+          name="date"
           onChange={date => this.onDateChange(date)}
           placeholder={'Start date'}
           dateFormat={'YYYY-MM-DD'}
         />
 
         <FormControl
-          componentClass='checkbox'
+          componentClass="checkbox"
           value={this.state.isAnnulay}
           onChange={this.onChangeAnnually}
         >
           {__('Annually')}
         </FormControl>
 
-        <Button size='small' btnStyle='danger' onClick={remove}>
-          <Icon icon='cancel-1' />
+        <Button size="small" btnStyle="danger" onClick={remove}>
+          <Icon icon="cancel-1" />
         </Button>
       </div>
     );
@@ -147,8 +147,8 @@ class Settings extends React.Component<Props, State> {
             <p>{'What times do you want the actions to execute'}?</p>
             <FormGroup>
               <FormControl
-                componentClass='checkbox'
-                value='any'
+                componentClass="checkbox"
+                value="any"
                 onChange={this.onChangeTimeType}
                 inline={true}
               >
@@ -156,8 +156,8 @@ class Settings extends React.Component<Props, State> {
               </FormControl>
 
               <FormControl
-                componentClass='checkbox'
-                value='specific'
+                componentClass="checkbox"
+                value="specific"
                 onChange={this.onChangeTimeType}
                 inline={true}
               >
@@ -181,10 +181,10 @@ class Settings extends React.Component<Props, State> {
                 </React.Fragment>
               ))}
               <Button
-                btnStyle='success'
-                size='small'
+                btnStyle="success"
+                size="small"
                 onClick={this.add}
-                icon='add'
+                icon="add"
               >
                 Add another dates
               </Button>

@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import ConversationItem from '../../containers/leftSidebar/ConversationItem';
 import React from 'react';
 import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
@@ -31,12 +31,12 @@ export default class ConversationList extends React.Component<Props> {
     } = this.props;
 
     const popupTrigger = (
-      <Button icon='processor'>{__('Connect Integration')}</Button>
+      <Button icon="processor">{__('Connect Integration')}</Button>
     );
 
     return (
       <React.Fragment>
-        <ConversationItems id='conversations'>
+        <ConversationItems id="conversations">
           {conversations.map(conv => (
             <ConversationItem
               key={conv._id}
@@ -54,8 +54,8 @@ export default class ConversationList extends React.Component<Props> {
         {!loading && conversations.length === 0 && (
           <EmptyState
             text="Let's get you messaging away!"
-            size='full'
-            image='/images/actions/6.svg'
+            size="full"
+            image="/images/actions/6.svg"
             extra={<IntegrationModal trigger={popupTrigger} />}
           />
         )}

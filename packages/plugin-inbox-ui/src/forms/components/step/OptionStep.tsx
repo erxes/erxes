@@ -16,7 +16,7 @@ import {
   BackgroundSelector,
   FlexItem
 } from '@erxes/ui/src/components/step/style';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
 
 type Props = {

@@ -1,7 +1,7 @@
 import { IUser } from '@erxes/ui/src/auth/types';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Sidebar from '../containers/leftSidebar/Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
@@ -17,22 +17,22 @@ function Empty({ queryParams, currentUser }: Props) {
 
   const suggestContent = (
     <>
-      <Link to='/settings/channels'>
-        <Button btnStyle='simple' icon='sitemap-1'>
+      <Link to="/settings/channels">
+        <Button btnStyle="simple" icon="sitemap-1">
           {__('Manage Channels')}
         </Button>
       </Link>
-      <Link to='/tutorial#usingStage?open=teamInbox'>
-        <Button icon='laptop-1'>{__('Watch Tutorial')}</Button>
+      <Link to="/tutorial#usingStage?open=teamInbox">
+        <Button icon="laptop-1">{__('Watch Tutorial')}</Button>
       </Link>
     </>
   );
 
   const content = (
     <EmptyState
-      text='Whoops! No messages here but you can always start'
-      size='full'
-      image='/images/actions/12.svg'
+      text="Whoops! No messages here but you can always start"
+      size="full"
+      image="/images/actions/12.svg"
       extra={suggestContent}
     />
   );

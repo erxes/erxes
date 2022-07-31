@@ -2,19 +2,33 @@ import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 import { putCreateLog, MODULE_NAMES } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IWork } from '../../../models/definitions/works';
+import { IPerform } from '../../../models/definitions/performs';
 
 const performMutations = {
   /**
    * Creates a new flow
    * @param {Object} doc Product document
    */
-  async worksAdd(
+  async performsAdd(
     _root,
-    doc: IWork,
+    doc: IPerform,
     { user, docModifier, models, subdomain }: IContext
   ) {
+    const { needProducts, resultProducts, count } = doc;
+
+    for (const need of needProducts) {
+      const { quantity } = need;
+      need.quantity = quantity * Number(count);
+    }
+
+    for (const result of resultProducts) {
+      const { quantity } = result;
+      result.quantity = quantity * Number(count);
+    }
+
     const perform = await models.Performs.createPerform(docModifier(doc));
+
+    console.log(perform);
 
     await putCreateLog(
       models,

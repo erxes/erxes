@@ -1,20 +1,16 @@
 export default {
-  tags: {
-    name: 'tags',
-    description: 'Tags',
+  inventories: {
+    name: 'inventories',
+    description: 'Intentories',
     actions: [
       {
-        name: 'tagsAll',
+        name: 'inventoriesAll',
         description: 'All',
-        use: ['showTags', 'manageTags']
+        use: ['manageRemainders']
       },
       {
-        name: 'manageTags',
-        description: 'Manage tags'
-      },
-      {
-        name: 'showTags',
-        description: 'Show tags'
+        name: 'manageRemainder',
+        description: 'Manage remainders'
       }
     ]
   }

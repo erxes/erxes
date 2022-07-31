@@ -5,7 +5,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import { ISkillData } from '@erxes/ui-settings/src/integrations/types';
@@ -137,7 +137,7 @@ function BuildSkill({
           <FormGroup>
             <ControlLabel required={true}>Select a skill</ControlLabel>
             <Select
-              placeholder='Choose a select'
+              placeholder="Choose a select"
               value={option.skillId}
               isLoading={loading}
               options={generateOptions(skills)}
@@ -160,9 +160,9 @@ function BuildSkill({
               onChange={handleResponseChange}
             />
           </FormGroup>
-          <Tip text={__('Remove')} placement='top'>
+          <Tip text={__('Remove')} placement="top">
             <RemoveButton onClick={handleRemove}>
-              <Icon icon='times' />
+              <Icon icon="times" />
             </RemoveButton>
           </Tip>
         </Item>
@@ -172,8 +172,8 @@ function BuildSkill({
 
   function renderAddSkill() {
     return (
-      <Link to={'/settings/skills'} target='_blank'>
-        <Button btnStyle='primary' icon='plus-circle'>
+      <Link to={'/settings/skills'} target="_blank">
+        <Button btnStyle="primary" icon="plus-circle">
           Create skill
         </Button>
       </Link>
@@ -216,7 +216,7 @@ function BuildSkill({
           <ControlLabel>Choose a skill type</ControlLabel>
           <Row>
             <Select
-              placeholder='Please select a skill type'
+              placeholder="Please select a skill type"
               value={skillType}
               options={generateOptions(skillTypes)}
               onChange={handleSelectChange}
@@ -226,7 +226,7 @@ function BuildSkill({
         </FormGroup>
         {skillType ? (
           <FormGroup>
-            <Button btnStyle='simple' icon='plus-circle' onClick={handleAdd}>
+            <Button btnStyle="simple" icon="plus-circle" onClick={handleAdd}>
               Add skill option
             </Button>
           </FormGroup>

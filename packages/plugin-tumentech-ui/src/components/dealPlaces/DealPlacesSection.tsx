@@ -1,13 +1,14 @@
 import Box from '@erxes/ui/src/components/Box';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
+import Map from '@erxes/ui/src/containers/map/Map';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
 import DealPlaceForm from '../../containers/dealPlaces/Form';
 import { IDealPlace } from '../../types';
-import Map from '@erxes/ui/src/containers/map/Map';
-import { __ } from '@erxes/ui/src/utils/core';
-import Icon from '@erxes/ui/src/components/Icon';
 
 export type Props = {
   actionSection?: any;

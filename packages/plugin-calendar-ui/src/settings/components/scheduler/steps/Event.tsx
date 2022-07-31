@@ -2,7 +2,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { FlexRow } from '@erxes/ui-settings/src/integrations/styles';
 import React from 'react';
 
@@ -76,14 +76,14 @@ class Event extends React.Component<Props, State> {
           </FormGroup>
 
           <FlexRow>
-            <div className='flex-item'>
+            <div className="flex-item">
               <FormGroup>
                 <ControlLabel>Duration</ControlLabel>
                 <FormControl
                   value={duration}
-                  name='duration'
+                  name="duration"
                   onChange={this.onChangeInput.bind(null, 'duration')}
-                  componentClass='select'
+                  componentClass="select"
                 >
                   <option value={15}>15</option>
                   <option value={30}>30</option>
@@ -94,15 +94,15 @@ class Event extends React.Component<Props, State> {
                 </FormControl>
               </FormGroup>
             </div>
-            <div className='flex-item' />
-            <div className='flex-item' />
+            <div className="flex-item" />
+            <div className="flex-item" />
           </FlexRow>
 
           <FormGroup>
             <ControlLabel>Cancellation Policy</ControlLabel>
 
             <FormControl
-              componentClass='textarea'
+              componentClass="textarea"
               rows={3}
               value={cancellationPolicy}
               onChange={this.onChangeInput.bind(null, 'cancellationPolicy')}

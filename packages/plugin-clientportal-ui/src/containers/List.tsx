@@ -1,19 +1,24 @@
-import gql from "graphql-tag";
-import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
-import compose from "lodash.flowright";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { IRouterProps } from "@erxes/ui/src/types";
-import { router as routerUtils } from "@erxes/ui/src/utils";
-import React from "react";
-import { graphql } from "react-apollo";
-import Component from "../components/List";
-import queries from "../graphql/queries";
-import mutations from "../graphql/mutations";
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { IRouterProps } from '@erxes/ui/src/types';
+import {
+  Alert,
+  confirm,
+  router as routerUtils,
+  withProps
+} from '@erxes/ui/src/utils';
+import gql from 'graphql-tag';
+import compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
+import Component from '../components/List';
+import mutations from '../graphql/mutations';
+import queries from '../graphql/queries';
 import {
   ClientPortalConfigsQueryResponse,
   ClientPortalGetLastQueryResponse,
-  ClientPortalTotalQueryResponse,
-} from "../types";
+  ClientPortalTotalQueryResponse
+} from '../types';
 
 type ListProps = {
   _id?: string;
@@ -37,17 +42,17 @@ class List extends React.Component<Props & ListProps> {
     } = this.props;
 
     // remove action
-    const remove = (_id) => {
+    const remove = _id => {
       confirm().then(() => {
         removeMutation({
-          variables: { _id },
+          variables: { _id }
         })
           .then(() => {
-            Alert.success("You successfully deleted a client portal.");
+            Alert.success('You successfully deleted a client portal.');
 
-            history.push("/settings/client-portal");
+            history.push('/settings/client-portal');
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
       });
@@ -62,7 +67,7 @@ class List extends React.Component<Props & ListProps> {
       remove,
       totalCount,
       configs,
-      loading: configsQuery.loading || false,
+      loading: configsQuery.loading || false
     };
 
     return <Component {...updatedProps} />;
@@ -72,31 +77,31 @@ class List extends React.Component<Props & ListProps> {
 const options = () => ({
   refetchQueries: [
     {
-      query: gql(queries.getConfigs),
+      query: gql(queries.getConfigs)
     },
-    "clientPortalGetLast",
-    "clientPortalGetConfig",
-    "clientPortalConfigsTotalCount",
-  ],
+    'clientPortalGetLast',
+    'clientPortalGetConfig',
+    'clientPortalConfigsTotalCount'
+  ]
 });
 
 const ListContainer = withProps<ListProps & IRouterProps>(
   compose(
     graphql(gql(queries.getConfigs), {
-      name: "configsQuery",
+      name: 'configsQuery',
       options: ({ queryParams }: { queryParams: any }) => ({
         variables: {
           page: queryParams.page,
-          perPage: queryParams.perPage,
-        },
-      }),
+          perPage: queryParams.perPage
+        }
+      })
     }),
     graphql(gql(queries.getTotalCount), {
-      name: "totalCountQuery",
+      name: 'totalCountQuery'
     }),
     graphql<Props, any, any>(gql(mutations.remove), {
-      name: "removeMutation",
-      options,
+      name: 'removeMutation',
+      options
     })
   )(List)
 );
@@ -121,7 +126,7 @@ const LastConfig = (props: LastConfigProps & ListProps & IRouterProps) => {
 
   const extendedProps = {
     _id: lastConfig && lastConfig._id,
-    ...props,
+    ...props
   };
 
   return <ListContainer {...extendedProps} />;
@@ -132,7 +137,7 @@ const LastConfigContainer = withProps<ListProps>(
     graphql<Props, ClientPortalGetLastQueryResponse, {}>(
       gql(queries.getConfigLast),
       {
-        name: "configGetLastQuery",
+        name: 'configGetLastQuery'
       }
     )
   )(LastConfig)
@@ -141,7 +146,7 @@ const LastConfigContainer = withProps<ListProps>(
 // Main home component
 const MainContainer = (props: ListProps) => {
   const { history } = props;
-  const _id = routerUtils.getParam(history, "_id");
+  const _id = routerUtils.getParam(history, '_id');
 
   if (_id) {
     const extendedProps = { ...props, _id };

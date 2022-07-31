@@ -41,7 +41,6 @@ const flowQueries = {
     },
     { models, commonQuerySelector }: IContext
   ) {
-    console.log('flows step 1');
     const selector = generateFilter(params, commonQuerySelector);
 
     return paginate(
@@ -52,6 +51,16 @@ const flowQueries = {
         .lean(),
       { ...params }
     );
+  },
+
+  flowsAll(_root, _arg, { models }: IContext) {
+    // const selector = generateFilter(params, commonQuerySelector);
+
+    return models.Flows.find()
+      .sort({
+        code: 1
+      })
+      .lean();
   },
 
   flowTotalCount(

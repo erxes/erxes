@@ -1,14 +1,15 @@
+import { validSearchText } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import { IDirectionEdit } from '../graphql/resolvers/mutations/directions';
+import { sendCoreMessage } from '../messageBroker';
+import { getPath } from '../utils';
 import {
   directionSchema,
   IDirection,
   IDirectionDocument
 } from './definitions/directions';
-import { validSearchText } from '@erxes/api-utils/src';
-import { getPath } from '../utils';
-import { sendCoreMessage } from '../messageBroker';
 
 export interface IDirectionModel extends Model<IDirectionDocument> {
   getDirection(doc: any): IDirectionDocument;

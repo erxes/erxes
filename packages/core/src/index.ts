@@ -1,7 +1,18 @@
-import * as cookieParser from 'cookie-parser';
-
-import * as cors from 'cors';
+import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
+
+// load environment variables
+dotenv.config();
+
+if (process.env.ELASTIC_APM_HOST_NAME) {
+  apm.start({
+    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-core-api`,
+    serverUrl: 'http://172.104.115.19:8200'
+  });
+}
+
+import * as cookieParser from 'cookie-parser';
+import * as cors from 'cors';
 import * as telemetry from 'erxes-telemetry';
 import * as express from 'express';
 import * as helmet from 'helmet';
@@ -10,10 +21,12 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 import { initApolloServer } from './apolloClient';
 import { templateExport } from './data/modules/fileExporter/templateExport';
+import * as fs from 'fs';
 
 import {
   deleteFile,
   getEnv,
+  handleUnsubscription,
   readFileRequest,
   registerOnboardHistory,
   routeErrorHandling
@@ -37,9 +50,6 @@ import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
-
-// load environment variables
-dotenv.config();
 
 const {
   JWT_TOKEN_SECRET,
@@ -219,6 +229,25 @@ app.post(
     }
 
     return res.status(500).send(status);
+  })
+);
+
+// unsubscribe
+app.get(
+  '/unsubscribe',
+  routeErrorHandling(async (req: any, res) => {
+    const subdomain = getSubdomain(req);
+    const models = await generateModels(subdomain);
+
+    await handleUnsubscription(models, subdomain, req.query);
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+
+    const template = fs.readFileSync(
+      __dirname + '/private/emailTemplates/unsubscribe.html'
+    );
+
+    return res.send(template);
   })
 );
 

@@ -2,7 +2,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import BuildSkill from '../../../containers/messenger/BuildSkill';
 import {
   IMessages,
@@ -68,7 +68,7 @@ class Intro extends React.Component<Props, State> {
             <ControlLabel>Welcome message</ControlLabel>
 
             <FormControl
-              componentClass='textarea'
+              componentClass="textarea"
               placeholder={__('Write here Welcome message') + '.'}
               rows={3}
               value={message.welcome}
@@ -82,7 +82,7 @@ class Intro extends React.Component<Props, State> {
             <ControlLabel>Away message</ControlLabel>
 
             <FormControl
-              componentClass='textarea'
+              componentClass="textarea"
               placeholder={__('Write here Away message') + '.'}
               rows={3}
               value={message.away}
@@ -94,7 +94,7 @@ class Intro extends React.Component<Props, State> {
             <ControlLabel>Thank you message</ControlLabel>
 
             <FormControl
-              componentClass='textarea'
+              componentClass="textarea"
               placeholder={__('Write here Thank you message') + '.'}
               rows={3}
               value={message.thank}

@@ -4,7 +4,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -106,8 +106,8 @@ class GroupForm extends React.Component<Props, State> {
         <ControlLabel>Members</ControlLabel>
 
         <SelectTeamMembers
-          label='Choose members'
-          name='selectedMemberIds'
+          label="Choose members"
+          name="selectedMemberIds"
           initialValue={selectedMemberIds}
           onSelect={this.onChangeMembers}
         />
@@ -122,7 +122,7 @@ class GroupForm extends React.Component<Props, State> {
     const groupName = 'group';
 
     return (
-      <div id='manage-group-modal'>
+      <div id="manage-group-modal">
         <Modal.Header closeButton={true}>
           <Modal.Title>
             {group ? `Edit ${groupName}` : `Add ${groupName}`}
@@ -134,7 +134,7 @@ class GroupForm extends React.Component<Props, State> {
             <ControlLabel required={true}>Name</ControlLabel>
             <FormControl
               {...formProps}
-              name='name'
+              name="name"
               defaultValue={object.name}
               autoFocus={true}
               required={true}
@@ -148,9 +148,9 @@ class GroupForm extends React.Component<Props, State> {
 
             <FormControl
               {...formProps}
-              name='isPrivate'
+              name="isPrivate"
               defaultChecked={this.state.isPrivate}
-              componentClass='checkbox'
+              componentClass="checkbox"
               onChange={this.onChangeIsPrivate}
             />
           </FormGroup>
@@ -159,9 +159,9 @@ class GroupForm extends React.Component<Props, State> {
 
           <Modal.Footer>
             <Button
-              btnStyle='simple'
-              type='button'
-              icon='times-circle'
+              btnStyle="simple"
+              type="button"
+              icon="times-circle"
               onClick={closeModal}
             >
               Cancel

@@ -11,6 +11,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import AddForm from '../../components/portable/AddForm';
 import { mutations as boardMutations, queries } from '../../graphql';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import {
   ConvertToMutationResponse,
   ConvertToMutationVariables,
@@ -45,6 +46,7 @@ type FinalProps = {
   addMutation: SaveMutation;
   conversationConvertToCard: ConvertToMutationResponse;
   editConformity: EditConformityMutation;
+  fieldsQuery: any;
 } & IProps &
   ConvertToMutationResponse;
 
@@ -64,15 +66,15 @@ class AddFormContainer extends React.Component<FinalProps> {
       bookingProductId
     } = this.props;
 
-    doc.assignedUserIds = assignedUserIds;
+    doc.assignedUserIds = doc.assignedUserIds || assignedUserIds;
 
     const proccessId = Math.random().toString();
 
     localStorage.setItem('proccessId', proccessId);
 
     doc.proccessId = proccessId;
-    doc.description = description;
-    doc.attachments = attachments;
+    doc.description = doc.description || description;
+    doc.attachments = doc.attachments || attachments;
 
     if (sourceConversationId) {
       doc.sourceConversationIds = [sourceConversationId];
@@ -180,8 +182,12 @@ class AddFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
+    const { fieldsQuery } = this.props;
+
     const extendedProps = {
       ...this.props,
+      fields: fieldsQuery?.fields || [],
+      refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
       fetchCards: this.fetchCards
     };
@@ -225,6 +231,16 @@ export default (props: IProps) =>
         {
           name: 'editConformity'
         }
-      )
+      ),
+      graphql<FinalProps>(gql(formQueries.fields), {
+        name: 'fieldsQuery',
+        options: ({ options, pipelineId }) => ({
+          variables: {
+            contentType: `cards:${options.type}`,
+            isVisibleToCreate: true,
+            pipelineId
+          }
+        })
+      })
     )(AddFormContainer)
   );

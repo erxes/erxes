@@ -2,7 +2,7 @@ import * as classNames from "classnames";
 import * as React from "react";
 import { iconRight } from "../../icons/Icons";
 import { __ } from "../../utils";
-import { TopBar } from "../containers";
+import TopBar from "../containers/TopBar";
 
 type Props = {
   save: (doc: State) => void;

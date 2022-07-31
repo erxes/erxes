@@ -4,7 +4,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IBoard, IGroup } from '../types';
 import React from 'react';

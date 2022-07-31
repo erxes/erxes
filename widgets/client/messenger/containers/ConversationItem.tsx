@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { ConversationItem as DumbConversationItem } from "../components";
+import DumbConversationItem from "../components/ConversationItem";
 import graphqlTypes from "../graphql";
 import { IConversation } from "../types";
 

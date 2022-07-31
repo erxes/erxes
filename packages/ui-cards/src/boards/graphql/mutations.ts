@@ -29,7 +29,7 @@ export const commonMutationVariables = `
   $status: String,
   $priority: String,
   $sourceConversationIds: [String],
-  $customFieldsData: JSON
+  $customFieldsData: JSON,
 `;
 
 export const commonMutationParams = `

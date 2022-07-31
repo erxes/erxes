@@ -1,20 +1,21 @@
+import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 import Button from '@erxes/ui/src/components/Button';
-import Tip from '@erxes/ui/src/components/Tip';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import LoadMore from '@erxes/ui/src/components/LoadMore';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { TopHeader } from '@erxes/ui/src/styles/main';
-import { IRouterProps } from '@erxes/ui/src/types';
+import Tip from '@erxes/ui/src/components/Tip';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
-import { SidebarListItem, ActionButtons } from '@erxes/ui-settings/src/styles';
+import { TopHeader } from '@erxes/ui/src/styles/main';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
+
 import ClientPortalDetailContainer from '../containers/ClientPortalDetail';
 import { StyledUrl } from '../styles';
 import { ClientPortalConfig } from '../types';
-import { __ } from 'coreui/utils';
 
 type Props = {
   configs: ClientPortalConfig[];

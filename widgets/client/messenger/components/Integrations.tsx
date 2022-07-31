@@ -1,8 +1,16 @@
 import * as React from 'react';
 import { __ } from '../../utils';
-import { ConversationInit, ConversationList, LeadConnect, WebsiteApp } from '../containers';
+import ConversationInit from "../containers/ConversationInit";
+import asyncComponent from '../../AsyncComponent';
+import WebsiteApp from "../containers/websiteApp/WebsiteApp";
 import { IWebsiteApp } from '../types';
-import { IntegrationItem } from './';
+import IntegrationItem from './IntegrationItem';
+
+const LeadConnect = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerLeadConnect" */ '../containers/lead/LeadConnect'
+  )
+);
 
 type Props = {
   formCodes: string[];
