@@ -75,10 +75,11 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
 
     return (
       <Dashboard
+        editDashboardItem={editDashboardItem}
         queryParams={queryParams}
         dashboard={dashboard}
-        // removeDashboardItem={removeDashboardItem}
-        // dashboardItems={dashboardItemsQuery.dashboardItems || []}
+        removeDashboardItem={removeDashboardItem}
+        dashboardItems={dashboardItemsQuery.dashboardItems || []}
         dashboardId={id}
         history={history}
       />
