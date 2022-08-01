@@ -130,7 +130,7 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
+  async clientPortalLogout(_root, _args, { res }: IContext) {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {
