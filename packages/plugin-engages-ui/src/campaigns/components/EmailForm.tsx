@@ -10,7 +10,7 @@ import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { ISelectedOption } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import {

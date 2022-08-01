@@ -1,16 +1,18 @@
+import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import { __, ActivityInputs, Wrapper } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
+
+import BasicInfo from '../../containers/details/BasicInfo';
 import { IClientPortalUser } from '../../types';
+import InfoSection from './InfoSection';
 import LeftSidebar from './LeftSidebar';
 import RightSidebar from './RightSidebar';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
-import BasicInfo from '../../containers/details/BasicInfo';
-import InfoSection from './InfoSection';
 
 type Props = {
   clientPortalUser: IClientPortalUser;
   currentUser: IUser;
+  history: any;
 };
 
 class ClientPortalUserDetails extends React.Component<Props> {

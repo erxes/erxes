@@ -1,8 +1,8 @@
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { __ } from 'coreui/utils';
-import ClientPortalIdFilter from '../../containers/ClientPortalIdFilter';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import ClientPortalIdFilter from '../../containers/ClientPortalIdFilter';
 import { IClientPortalUser } from '../../types';
 
 function Sidebar({

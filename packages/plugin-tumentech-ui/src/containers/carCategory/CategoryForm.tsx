@@ -1,11 +1,12 @@
 import { ButtonMutate, withProps } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
+import { graphql } from 'react-apollo';
+
 import CategoryForm from '../../components/carCategory/CategoryForm';
 import { mutations, queries } from '../../graphql';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import * as compose from 'lodash.flowright';
 import { CarCategoriesQueryResponse, ICarCategory } from '../../types';
 
 type Props = {

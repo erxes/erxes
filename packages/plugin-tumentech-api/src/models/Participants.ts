@@ -1,10 +1,11 @@
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import { PARTICIPATION_STATUSES } from '../constants';
 import {
-  participantSchema,
   IParticipant,
-  IParticipantDocument
+  IParticipantDocument,
+  participantSchema
 } from './definitions/participants';
 
 export interface IParticipantModel extends Model<IParticipantDocument> {

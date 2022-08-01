@@ -1,6 +1,7 @@
 import { IOverallWorkDocument } from './../../../models/definitions/overallWorks';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+import { IJobRefer } from '../../../models/definitions/jobs';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
@@ -8,12 +9,12 @@ export default {
   },
 
   async job(work: IOverallWorkDocument, {}, { models }: IContext) {
-    const { jobId, flowId } = work;
-    const flow = await models.Flows.findOne({ _id: flowId });
-    const jobs = flow?.jobs || [];
-    const job = jobs.find(j => j.id === jobId);
+    const { jobId } = work;
+    const jobRefer: IJobRefer | null = await models.JobRefers.findOne({
+      _id: jobId
+    });
 
-    return { label: job?.label || '', description: job?.description || '' };
+    return { label: jobRefer?.name || '', description: jobRefer?.code || '' };
   },
 
   async flow(work: IOverallWorkDocument, {}, { models }: IContext) {

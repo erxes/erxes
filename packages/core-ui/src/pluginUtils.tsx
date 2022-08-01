@@ -414,28 +414,3 @@ export const pluginsOfProductCategoryActions = (category: any) => {
     />
   );
 };
-
-export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
-  const plugins: any[] = (window as any).plugins || [];
-
-  return (
-    <PluginsWrapper
-      plugins={plugins}
-      itemName={'jobCategoryActions'}
-      callBack={(_plugin, actions) => {
-        return actions.map(action => {
-          const Component = React.lazy(
-            loadComponent(action.scope, action.component)
-          );
-
-          return (
-            <Component
-              key={Math.random()}
-              productCategoryId={productCategoryId}
-            />
-          );
-        });
-      }}
-    />
-  );
-};

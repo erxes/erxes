@@ -20,7 +20,7 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
 };
 
 export const validCompanyCode = async (config, companyCode) => {
-  let result = false;
+  let result = '';
 
   const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
 
@@ -48,6 +48,10 @@ export const companyCheckCode = async (user, params, subdomain) => {
 
   if (!companyName) {
     throw new Error(`Байгууллагын код буруу бөглөсөн байна. "${params.code}"`);
+  }
+
+  if (companyName.includes('**') && params.primaryName) {
+    return params;
   }
 
   params.primaryName = companyName;

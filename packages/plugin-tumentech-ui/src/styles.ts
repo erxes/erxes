@@ -1,4 +1,4 @@
-import { colors, dimensions, SidebarList } from '@erxes/ui/src';
+import { colors, dimensions, SidebarList, typography } from '@erxes/ui/src';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -365,6 +365,15 @@ export const MenuFooter = styled.footer`
   max-width: 95%;
 `;
 
+const TripTitle = styled.h4`
+  text-transform: uppercase;
+  font-weight: ${typography.fontWeightMedium};
+  border-bottom: 1px dotted ${colors.colorShadowGray};
+  padding-bottom: ${dimensions.unitSpacing}px;
+  font-size: 14px;
+  margin: ${dimensions.coreSpacing}px 0;
+`;
+
 export {
   InfoTitle,
   InfoDetail,
@@ -381,5 +390,6 @@ export {
   SidebarListItem,
   Description,
   ScrollTableColls,
-  Row
+  Row,
+  TripTitle
 };

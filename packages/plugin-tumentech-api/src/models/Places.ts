@@ -1,12 +1,13 @@
+import { validSearchText } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import {
-  placeSchema,
   IPlace,
   IPlaceDocument,
-  IPlaceEdit
+  IPlaceEdit,
+  placeSchema
 } from './definitions/places';
-import { validSearchText } from '@erxes/api-utils/src';
 
 export interface IPlaceModel extends Model<IPlaceDocument> {
   getPlace(doc: any): IPlaceDocument;

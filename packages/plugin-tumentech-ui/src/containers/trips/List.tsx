@@ -1,18 +1,17 @@
-import React from 'react';
-import { useQuery, useMutation } from 'react-apollo';
-import gql from 'graphql-tag';
-import List from '../../components/trips/List';
-import { mutations, queries } from '../../graphql';
-import { Alert, confirm } from '@erxes/ui/src/utils';
 import { router } from '@erxes/ui/src';
+import gql from 'graphql-tag';
+import React from 'react';
+import { useQuery } from 'react-apollo';
+
+import List from '../../components/trips/List';
+import { queries } from '../../graphql';
 
 type Props = {
-  // refetch: () => void;
   queryParams: any;
 };
 
 const TripListContainer = (props: Props) => {
-  const { data, loading, refetch } = useQuery(gql(queries.trips), {
+  const { data, loading } = useQuery(gql(queries.trips), {
     variables: {
       ...router.generatePaginationParams(props.queryParams || {})
     },
@@ -28,7 +27,6 @@ const TripListContainer = (props: Props) => {
     loading,
     trips,
     totalCount
-    // refetch,
   };
 
   return <List {...extendedProps} />;

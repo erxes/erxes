@@ -5,7 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
@@ -61,22 +61,22 @@ class TelnyxForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             required={true}
             autoFocus={true}
           />
         </FormGroup>
         <FormGroup>
           <ControlLabel>Telnyx messaging profile id</ControlLabel>
-          <FormControl {...formProps} type='text' name='telnyxProfileId' />
+          <FormControl {...formProps} type="text" name="telnyxProfileId" />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Telnyx phone number</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='telnyxPhoneNumber'
+            type="text"
+            name="telnyxPhoneNumber"
             required={true}
           />
         </FormGroup>
@@ -95,10 +95,10 @@ class TelnyxForm extends React.Component<Props, State> {
         />
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

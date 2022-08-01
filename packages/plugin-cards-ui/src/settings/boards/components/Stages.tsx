@@ -2,7 +2,7 @@ import { IStage } from '@erxes/ui-cards/src/boards/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import { LinkButton } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { StageList } from '@erxes/ui-settings/src/boards/styles';
 import { IDepartment } from '@erxes/ui/src/team/types';

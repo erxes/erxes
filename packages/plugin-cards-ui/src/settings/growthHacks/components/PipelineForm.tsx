@@ -10,7 +10,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { colors } from '@erxes/ui/src/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import BoardNumberConfigs from '../../boards/components/numberConfig/BoardNumberConfigs';
 import { SelectMemberStyled } from '@erxes/ui-settings/src/boards/styles';
 import { ExpandWrapper } from '@erxes/ui-settings/src/styles';

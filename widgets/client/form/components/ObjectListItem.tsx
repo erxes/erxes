@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { IObjectListConfig } from '../types';
-import { useState } from 'react';
 
 type Props = {
   objectListConfigs: IObjectListConfig[];

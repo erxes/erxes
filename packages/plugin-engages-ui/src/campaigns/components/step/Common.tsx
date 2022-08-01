@@ -1,7 +1,7 @@
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IButtonMutateProps, Counts } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { CustomerCounts, RadioContainer } from '@erxes/ui-engage/src/styles';
 import React from 'react';
 import Targets from '../Targets';

@@ -1,4 +1,4 @@
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { RightContent } from '../../styles';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';

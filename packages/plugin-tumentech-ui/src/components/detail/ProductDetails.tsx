@@ -1,9 +1,10 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IProduct } from '../../types';
-import React from 'react';
-import { __, Wrapper } from '@erxes/ui/src';
+import { Wrapper } from '@erxes/ui/src';
 import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+
+import { IProduct } from '../../types';
 
 type Props = {
   product: IProduct;

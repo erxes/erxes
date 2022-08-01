@@ -13,6 +13,7 @@ import { queries as jobQueries } from '../../job/graphql';
 type Props = {
   queryParams: any;
   history: any;
+  overallWorkIdgetter: (overallWorkId: string) => void;
 };
 
 type FinalProps = {
@@ -38,19 +39,20 @@ class OverallWorkSideBarContainer extends React.Component<FinalProps> {
 
     const overallWorks = overallWorksSideBarQuery.overallWorksSideBar || [];
     const jobRefers = jobRefersAllQuery.jobRefersAll;
-
-    console.log('jobRefers:', jobRefers);
     const searchValue = this.props.queryParams.searchValue || '';
     const inBranchId = this.props.queryParams.inBranchId || '';
     const inDepartmentId = this.props.queryParams.inDepartmentId || '';
     const outBranchId = this.props.queryParams.outBranchId || '';
     const outDepartmentId = this.props.queryParams.outDepartmentId || '';
+    const jobReferId = this.props.queryParams.jobReferId || '';
+
     const params = {
       inBranchId,
       inDepartmentId,
       outBranchId,
       outDepartmentId,
-      searchValue
+      searchValue,
+      jobReferId
     };
 
     const updatedProps = {
@@ -86,7 +88,8 @@ export default withProps<Props>(
             inBranchId: queryParams.inBranchId,
             inDepartmentId: queryParams.inDepartmentId,
             outBranchId: queryParams.outBranchId,
-            outDepartmentId: queryParams.outDepartmentId
+            outDepartmentId: queryParams.outDepartmentId,
+            jobReferId: queryParams.jobReferId
           },
           fetchPolicy: 'network-only'
         })

@@ -1,32 +1,32 @@
-import { IDealPlaceModel, loadDealPlaceClass } from './models/DealPlaces';
-import { IRouteDocument } from './models/definitions/routes';
-import { IDirectionDocument } from './models/definitions/directions';
-import { IRouteModel, loadRouteClass } from './models/Routes';
-import { loadDirectionClass, IDirectionModel } from './models/Directions';
-import * as mongoose from 'mongoose';
-import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
+import * as mongoose from 'mongoose';
+
+import { mainDb } from './configs';
+import { IDealPlaceModel, loadDealPlaceClass } from './models/DealPlaces';
+import { IDealPlaceDocument } from './models/definitions/dealPlaces';
+import { IDirectionDocument } from './models/definitions/directions';
+import { IParticipantDocument } from './models/definitions/participants';
+import { IPlaceDocument } from './models/definitions/places';
+import { IRouteDocument } from './models/definitions/routes';
+import { ITripDocument } from './models/definitions/trips';
 import {
-  ICarDocument,
   ICarCategoryDocument,
+  ICarDocument,
   IProductCarCategoryDocument,
   productCarCategorySchema
 } from './models/definitions/tumentech';
-import {
-  loadCarsClass,
-  loadCarCategoryClass,
-  ICarModel,
-  ICarCategoryModel,
-  IProductCarCategoryModel
-} from './models/Tumentech';
-
-import { IParticipantDocument } from './models/definitions/participants';
+import { IDirectionModel, loadDirectionClass } from './models/Directions';
 import { IParticipantModel, loadParticipantClass } from './models/Participants';
 import { IPlaceModel, loadPlaceClass } from './models/Places';
-import { IPlaceDocument } from './models/definitions/places';
+import { IRouteModel, loadRouteClass } from './models/Routes';
 import { ITripModel, loadTripClass } from './models/Trips';
-import { ITripDocument } from './models/definitions/trips';
-import { IDealPlaceDocument } from './models/definitions/dealPlaces';
+import {
+  ICarCategoryModel,
+  ICarModel,
+  IProductCarCategoryModel,
+  loadCarCategoryClass,
+  loadCarsClass
+} from './models/Tumentech';
 
 export interface IModels {
   Cars: ICarModel;

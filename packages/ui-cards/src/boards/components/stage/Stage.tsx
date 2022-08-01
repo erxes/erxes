@@ -16,7 +16,7 @@ import {
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { AddForm } from '../../containers/portable';
@@ -288,6 +288,7 @@ export default class Stage extends React.Component<Props, State> {
       showSelect: false,
       callback: (item: IItem) => onAddItem(stage._id, item),
       stageId: stage._id,
+      pipelineId: stage.pipelineId,
       aboveItemId: ''
     };
 

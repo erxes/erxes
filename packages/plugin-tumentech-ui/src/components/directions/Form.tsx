@@ -3,14 +3,15 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Map from '@erxes/ui/src/containers/map/Map';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
-import { IDirection, IPlace } from '../../types';
-import { ROAD_CONDITIONS } from '../../constants';
 import Select from 'react-select-plus';
-import Map from '@erxes/ui/src/containers/map/Map';
+
+import { ROAD_CONDITIONS } from '../../constants';
+import { IDirection, IPlace } from '../../types';
 
 type Props = {
   direction?: IDirection;

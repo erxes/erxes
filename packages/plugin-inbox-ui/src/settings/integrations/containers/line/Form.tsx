@@ -2,7 +2,7 @@ import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { Alert } from '@erxes/ui/src/utils';
 import Line from '../../components/line/Line';
 import {
@@ -42,7 +42,7 @@ class LineContainer extends React.Component<FinalProps, State> {
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
-        type='submit'
+        type="submit"
         successMessage={__(`You successfully added a`) + `${name}`}
       />
     );

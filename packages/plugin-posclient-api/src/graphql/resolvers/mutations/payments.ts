@@ -149,14 +149,17 @@ const paymentMutations = {
         const paidMobileAmount = await models.QPayInvoices.getPaidAmount(
           orderId
         );
+
         return await commonCheckPayment(
+          models,
           orderId,
           config,
-          paidMobileAmount,
-          models
+          paidMobileAmount
         );
       }
     }
+
+    return models.QPayInvoices.findOne({ _id: invoice._id });
   }
 };
 

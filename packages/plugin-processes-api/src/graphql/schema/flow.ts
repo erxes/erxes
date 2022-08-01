@@ -37,7 +37,8 @@ const qryParams = `
 `;
 
 export const queries = `
-  flows(page: Int, perPage: Int ids: [String], ${qryParams}): [Flow]
+  flows(page: Int, perPage: Int, ids: [String], ${qryParams}): [Flow]
+  flowsAll: [Flow]
   flowTotalCount(${qryParams}): Int
   flowDetail(_id: String!): Flow
 

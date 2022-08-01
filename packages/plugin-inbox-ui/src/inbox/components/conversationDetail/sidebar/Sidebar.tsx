@@ -6,7 +6,7 @@ import { BasicInfo, TabContent } from './styles';
 import { IUser } from '@erxes/ui/src/auth/types';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Box from '@erxes/ui/src/components/Box';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
 import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/WebsiteActivity';
 import { ICustomer } from '@erxes/ui/src/customers/types';

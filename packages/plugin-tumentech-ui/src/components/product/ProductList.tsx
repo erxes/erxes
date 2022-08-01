@@ -1,22 +1,26 @@
-import { ICarCategory, IRouterProps } from '../../types';
-import React from 'react';
-import { IProduct, IProductCategory } from '../../types';
-import Row from './ProductRow';
 import {
   __,
-  FormControl,
-  Button,
+  BarItems,
   DataWithLoader,
   EmptyState,
+  FormControl,
   Pagination,
+  router,
   Table,
-  Wrapper,
-  BarItems,
-  router
+  Wrapper
 } from '@erxes/ui/src';
-import { tumentechMenu } from '../list/CarsList';
-import CategoryList from '../../containers/productCategory/CategoryList';
 import { Count, Title } from '@erxes/ui/src/styles/main';
+import React from 'react';
+
+import CategoryList from '../../containers/productCategory/CategoryList';
+import {
+  ICarCategory,
+  IProduct,
+  IProductCategory,
+  IRouterProps
+} from '../../types';
+import { tumentechMenu } from '../list/CarsList';
+import Row from './ProductRow';
 
 interface IProps extends IRouterProps {
   history: any;

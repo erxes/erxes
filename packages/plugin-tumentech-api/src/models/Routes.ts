@@ -1,9 +1,10 @@
-import { IDirectionDocument } from './definitions/directions';
-import { IRouteEdit } from './../graphql/resolvers/mutations/routes';
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { routeSchema, IRoute, IRouteDocument } from './definitions/routes';
 import { validSearchText } from '@erxes/api-utils/src';
+import { Model } from 'mongoose';
+
+import { IModels } from '../connectionResolver';
+import { IRouteEdit } from './../graphql/resolvers/mutations/routes';
+import { IDirectionDocument } from './definitions/directions';
+import { IRoute, IRouteDocument, routeSchema } from './definitions/routes';
 
 export interface IRouteModel extends Model<IRouteDocument> {
   getRoute(doc: any): IRouteDocument;

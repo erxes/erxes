@@ -1,18 +1,18 @@
-import * as _ from "underscore";
-import { IItemDragCommonFields } from "../../../models/definitions/boards";
-import { IDeal } from "../../../models/definitions/deals";
-import { checkPermission } from "@erxes/api-utils/src/permissions";
-import { checkUserIds } from "@erxes/api-utils/src";
+import * as _ from 'underscore';
+import { IItemDragCommonFields } from '../../../models/definitions/boards';
+import { IDeal } from '../../../models/definitions/deals';
+import { checkPermission } from '@erxes/api-utils/src/permissions';
+import { checkUserIds } from '@erxes/api-utils/src';
 import {
   itemsAdd,
   itemsArchive,
   itemsChange,
   itemsCopy,
   itemsEdit,
-  itemsRemove,
-} from "./utils";
-import { IContext } from "../../../connectionResolver";
-import { sendProductsMessage } from "../../../messageBroker";
+  itemsRemove
+} from './utils';
+import { IContext } from '../../../connectionResolver';
+import { sendProductsMessage } from '../../../messageBroker';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -25,16 +25,15 @@ const dealMutations = {
   async dealsAdd(
     _root,
     doc: IDeal & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     return itemsAdd(
       models,
       subdomain,
       doc,
-      "deal",
+      'deal',
       models.Deals.createDeal,
-      user,
-      docModifier
+      user
     );
   },
 
@@ -54,27 +53,27 @@ const dealMutations = {
         doc.assignedUserIds
       );
       const oldAssignedUserPdata = (oldDeal.productsData || [])
-        .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || "");
-      const cantRemoveUserIds = removedUserIds.filter((userId) =>
+        .filter(pdata => pdata.assignUserId)
+        .map(pdata => pdata.assignUserId || '');
+      const cantRemoveUserIds = removedUserIds.filter(userId =>
         oldAssignedUserPdata.includes(userId)
       );
 
       if (cantRemoveUserIds.length > 0) {
         throw new Error(
-          "Cannot remove the team member, it is assigned in the product / service section"
+          'Cannot remove the team member, it is assigned in the product / service section'
         );
       }
     }
 
     if (doc.productsData) {
       const assignedUsersPdata = doc.productsData
-        .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || "");
+        .filter(pdata => pdata.assignUserId)
+        .map(pdata => pdata.assignUserId || '');
 
       const oldAssignedUserPdata = (oldDeal.productsData || [])
-        .filter((pdata) => pdata.assignUserId)
-        .map((pdata) => pdata.assignUserId || "");
+        .filter(pdata => pdata.assignUserId)
+        .map(pdata => pdata.assignUserId || '');
 
       const { addedUserIds, removedUserIds } = checkUserIds(
         oldAssignedUserPdata,
@@ -86,7 +85,7 @@ const dealMutations = {
           doc.assignedUserIds || oldDeal.assignedUserIds || [];
         assignedUserIds = [...new Set(assignedUserIds.concat(addedUserIds))];
         assignedUserIds = assignedUserIds.filter(
-          (userId) => !removedUserIds.includes(userId)
+          userId => !removedUserIds.includes(userId)
         );
         doc.assignedUserIds = assignedUserIds;
       }
@@ -96,7 +95,7 @@ const dealMutations = {
       models,
       subdomain,
       _id,
-      "deal",
+      'deal',
       oldDeal,
       doc,
       proccessId,
@@ -114,16 +113,16 @@ const dealMutations = {
     { user, models, subdomain }: IContext
   ) {
     const deal = await models.Deals.getDeal(doc.itemId);
-    
+
     if (deal.productsData) {
       const productsData = deal.productsData;
 
       const stage = await models.Stages.getStage(doc.destinationStageId);
       const prevStage = await models.Stages.getStage(doc.sourceStageId);
 
-      const productIds = productsData.map((p) => p.productId);
+      const productIds = productsData.map(p => p.productId);
 
-      if ((stage.probability === "Won" || prevStage.probability === "Won")) {
+      if (stage.probability === 'Won' || prevStage.probability === 'Won') {
         const products = await sendProductsMessage({
           subdomain,
           action: 'find',
@@ -137,20 +136,27 @@ const dealMutations = {
           defaultValue: []
         });
 
-        const multiplier = stage.probability === "Won" ? -1 : 1;
+        const multiplier = stage.probability === 'Won' ? -1 : 1;
 
         await sendProductsMessage({
           subdomain,
-          action: "update",
+          action: 'update',
           data: {
-            selector: { _id: { $in: products.map((p) => p._id) } },
-            modifier: { $inc: { productCount: multiplier } },
+            selector: { _id: { $in: products.map(p => p._id) } },
+            modifier: { $inc: { productCount: multiplier } }
           }
         });
       }
     }
 
-    return itemsChange(models, subdomain, doc, "deal", user, models.Deals.updateDeal);
+    return itemsChange(
+      models,
+      subdomain,
+      doc,
+      'deal',
+      user,
+      models.Deals.updateDeal
+    );
   },
 
   /**
@@ -161,7 +167,7 @@ const dealMutations = {
     { _id }: { _id: string },
     { user, models, subdomain }: IContext
   ) {
-    return itemsRemove(models, subdomain, _id, "deal", user);
+    return itemsRemove(models, subdomain, _id, 'deal', user);
   },
 
   /**
@@ -185,9 +191,9 @@ const dealMutations = {
       subdomain,
       _id,
       proccessId,
-      "deal",
+      'deal',
       user,
-      ["productsData", "paymentsData"],
+      ['productsData', 'paymentsData'],
       models.Deals.createDeal
     );
   },
@@ -197,14 +203,14 @@ const dealMutations = {
     { stageId, proccessId }: { stageId: string; proccessId: string },
     { user, models, subdomain }: IContext
   ) {
-    return itemsArchive(models, subdomain, stageId, "deal", proccessId, user);
-  },
+    return itemsArchive(models, subdomain, stageId, 'deal', proccessId, user);
+  }
 };
 
-checkPermission(dealMutations, "dealsAdd", "dealsAdd");
-checkPermission(dealMutations, "dealsEdit", "dealsEdit");
-checkPermission(dealMutations, "dealsRemove", "dealsRemove");
-checkPermission(dealMutations, "dealsWatch", "dealsWatch");
-checkPermission(dealMutations, "dealsArchive", "dealsArchive");
+checkPermission(dealMutations, 'dealsAdd', 'dealsAdd');
+checkPermission(dealMutations, 'dealsEdit', 'dealsEdit');
+checkPermission(dealMutations, 'dealsRemove', 'dealsRemove');
+checkPermission(dealMutations, 'dealsWatch', 'dealsWatch');
+checkPermission(dealMutations, 'dealsArchive', 'dealsArchive');
 
 export default dealMutations;

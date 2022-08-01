@@ -2,7 +2,7 @@ import { afterMutationHandlers } from './afterMutations';
 import { generateModels, IModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { orderToErkhet } from './utils';
+import { orderToErkhet, getBranchesUtil } from './utils';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -234,6 +234,22 @@ export const initBroker = async cl => {
     return {
       status: 'success'
     };
+  });
+
+  consumeRPCQueue('pos:findSlots', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      status: 'success',
+      data: await models.PosSlots.find({ posId: data.posId }).lean()
+    };
+  });
+
+  consumeRPCQueue('pos:ecommerceGetBranches', async ({ subdomain, data }) => {
+    const { posToken } = data;
+
+    const models = await generateModels(subdomain);
+    return await getBranchesUtil(subdomain, models, posToken);
   });
 };
 

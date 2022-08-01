@@ -37,6 +37,10 @@ const TripList = asyncComponent(() =>
   import(/* webpackChunkName: "TripList" */ './containers/trips/List')
 );
 
+const TripDetail = asyncComponent(() =>
+  import(/* webpackChunkName: "TripDetail" */ './containers/trips/Detail')
+);
+
 const placeList = history => {
   const { location } = history;
   const queryParams = queryString.parse(location.search);
@@ -63,6 +67,12 @@ const tripList = history => {
   const queryParams = queryString.parse(location.search);
 
   return <TripList queryParams={queryParams} history={history} />;
+};
+
+const tripDetail = ({ match }) => {
+  const id = match.params.id;
+
+  return <TripDetail id={id} />;
 };
 
 const details = ({ match }) => {
@@ -99,16 +109,16 @@ const routes = () => {
   return (
     <React.Fragment>
       <Route
-        key="/erxes-plugin-tumentech/list"
+        key="/erxes-plugin-tumentech/car/list"
         exact={true}
-        path="/erxes-plugin-tumentech/list"
+        path="/erxes-plugin-tumentech/car/list"
         component={list}
       />
 
       <Route
-        key="/erxes-plugin-car/details/:id"
+        key="/erxes-plugin-tumentech/car/details/:id"
         exact={true}
-        path="/erxes-plugin-car/details/:id"
+        path="/erxes-plugin-tumentech/car/details/:id"
         component={details}
       />
 
@@ -124,29 +134,36 @@ const routes = () => {
       <Route
         key={'/place'}
         exact={true}
-        path="/tumentech/place/list"
+        path="/erxes-plugin-tumentech/place/list"
         component={placeList}
       />
 
       <Route
         key={'/direction'}
         exact={true}
-        path="/tumentech/direction/list"
+        path="/erxes-plugin-tumentech/direction/list"
         component={directionList}
       />
 
       <Route
         key={'/route'}
         exact={true}
-        path="/tumentech/route/list"
+        path="/erxes-plugin-tumentech/route/list"
         component={routeList}
       />
 
       <Route
         key={'/trip'}
         exact={true}
-        path="/tumentech/trips/list"
+        path="/erxes-plugin-tumentech/trips/list"
         component={tripList}
+      />
+
+      <Route
+        key="/erxes-plugin-tumentech/trips/detail/:id"
+        exact={true}
+        path="/erxes-plugin-tumentech/trips/detail/:id"
+        component={tripDetail}
       />
     </React.Fragment>
   );

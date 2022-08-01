@@ -3,7 +3,7 @@ import {
   BoardContainer,
   BoardContent
 } from '@erxes/ui-cards/src/boards/styles/common';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Header from '@erxes/ui/src/layout/components/Header';
 import React from 'react';
 import Content from '../../containers/priorityMatrix/Content';

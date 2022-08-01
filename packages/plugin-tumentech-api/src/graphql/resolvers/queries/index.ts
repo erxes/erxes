@@ -1,9 +1,9 @@
-import tumentechQuery from './tumentech';
-import participantsQuery from './participants';
 import directionsQuery from './directions';
-import routesQuery from './routes';
+import participantsQuery from './participants';
 import placesQuery from './places';
+import routesQuery from './routes';
 import tripsQuery from './trips';
+import tumentechQuery from './tumentech';
 
 export default {
   ...tumentechQuery,

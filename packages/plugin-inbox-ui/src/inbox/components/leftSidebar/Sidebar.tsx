@@ -2,7 +2,7 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { CONVERSATION_STATUSES } from '../../constants';
 import FilterToggler from '../../containers/leftSidebar/FilterToggler';
 import Resolver from '../../containers/Resolver';

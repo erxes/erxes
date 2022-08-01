@@ -1,16 +1,9 @@
-import * as Redis from 'ioredis';
 import * as dotenv from 'dotenv';
+import redisClient from './redis';
 
 dotenv.config();
 
-const {
-  REDIS_HOST,
-  REDIS_PORT,
-  REDIS_PASSWORD,
-  NODE_ENV,
-  LOAD_BALANCER_ADDRESS,
-  ENABLED_SERVICES_PATH
-} = process.env;
+const { NODE_ENV, LOAD_BALANCER_ADDRESS, ENABLED_SERVICES_PATH } = process.env;
 
 const isDev = NODE_ENV === 'development';
 
@@ -40,11 +33,7 @@ const readEnabledServices = async () => {
   return enabledServices;
 };
 
-export const redis = new Redis({
-  host: REDIS_HOST,
-  port: parseInt(REDIS_PORT || '6379', 10),
-  password: REDIS_PASSWORD
-});
+export const redis = redisClient;
 
 const generateKey = name => `service:config:${name}`;
 

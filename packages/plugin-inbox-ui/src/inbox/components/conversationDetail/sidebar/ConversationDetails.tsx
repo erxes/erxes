@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import IntegrationIcon from '@erxes/ui-settings/src/integrations/components/IntegrationIcon';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {
   FieldStyle,
@@ -98,7 +98,7 @@ class ConversationDetails extends React.Component<Props> {
     return (
       <Section>
         <div>
-          <SidebarList className='no-link'>
+          <SidebarList className="no-link">
             {this.renderVisitorContactInfo(customer)}
             {this.renderRow(
               'opened',

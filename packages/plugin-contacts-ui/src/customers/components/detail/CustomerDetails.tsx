@@ -139,7 +139,12 @@ class CustomerDetails extends React.Component<Props> {
         }
         mainHead={
           <UserHeader>
-            <InfoSection nameSize={16} avatarSize={60} customer={customer}>
+            <InfoSection
+              nameSize={10}
+              avatarSize={40}
+              customer={customer}
+              hideForm={true}
+            >
               <ActionSection customer={customer} />
             </InfoSection>
             <LeadState customer={customer} />

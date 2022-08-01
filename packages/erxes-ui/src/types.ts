@@ -87,6 +87,7 @@ export interface IField {
   contentTypeId?: string;
   type: string;
   validation?: string;
+  field?: string;
   text?: string;
   code?: string;
   content?: string;
@@ -99,6 +100,7 @@ export interface IField {
   canHide?: boolean;
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
+  isVisibleToCreate?: boolean;
   isDefinedByErxes?: boolean;
   groupId?: string;
   lastUpdatedUser?: IUser;

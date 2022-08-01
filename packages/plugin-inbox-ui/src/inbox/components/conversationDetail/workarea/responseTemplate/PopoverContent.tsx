@@ -2,7 +2,7 @@ import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IAttachment } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import {
   InlineColumn,
   InlineHeader,
@@ -78,7 +78,7 @@ class PopoverContent extends React.Component<Props, State> {
     const { responseTemplates } = this.props;
 
     if (responseTemplates.length === 0) {
-      return <EmptyState icon='clipboard-1' text='No templates' />;
+      return <EmptyState icon="clipboard-1" text="No templates" />;
     }
 
     return responseTemplates.map(item => {
@@ -102,7 +102,7 @@ class PopoverContent extends React.Component<Props, State> {
 
     return (
       <PopoverLoadMore>
-        <Button btnStyle='simple' onClick={this.fetchTemplates}>
+        <Button btnStyle="simple" onClick={this.fetchTemplates}>
           {__('Load more')}
         </Button>
       </PopoverLoadMore>
@@ -134,7 +134,7 @@ class PopoverContent extends React.Component<Props, State> {
           <InlineHeader>
             <InlineColumn>
               <FormControl
-                type='text'
+                type="text"
                 placeholder={__('Search') as string}
                 onChange={onChangeSearchValue}
                 defaultValue={this.state.searchValue}
@@ -143,7 +143,7 @@ class PopoverContent extends React.Component<Props, State> {
             </InlineColumn>
             <InlineColumn>
               <FormControl
-                componentClass='select'
+                componentClass="select"
                 placeholder={__('Select Brand') as string}
                 onChange={onChangeBrand}
                 defaultValue={this.state.brandId}
@@ -167,7 +167,7 @@ class PopoverContent extends React.Component<Props, State> {
         <PopoverFooter>
           <PopoverList center={true}>
             <li>
-              <Link to='/settings/response-templates'>
+              <Link to="/settings/response-templates">
                 {__('Manage templates')}
               </Link>
             </li>

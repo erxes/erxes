@@ -1,9 +1,31 @@
 import * as React from 'react';
 import { iconClose } from '../../icons/Icons';
-import { Booking, Intro, CategoryDetail, Product } from '../containers';
 import { IBookingData } from '../types';
-import Header from '../containers/common/Header';
-import Form from '../containers/form/Form';
+import asyncComponent from '../../AsyncComponent';
+
+const Form = asyncComponent(() =>
+  import(/* webpackChunkName: "BookingForm" */ '../containers/form/Form')
+);
+
+const Booking = asyncComponent(() =>
+  import(/* webpackChunkName: "BookingMain" */ '../containers/Booking')
+);
+
+const Intro = asyncComponent(() =>
+  import(/* webpackChunkName: "BookingIntro" */ '../containers/Intro')
+);
+
+const CategoryDetail = asyncComponent(() =>
+  import(/* webpackChunkName: "BookingCategoryDetail" */ '../containers/CategoryDetail')
+);
+
+const Product = asyncComponent(() =>
+  import(/* webpackChunkName: "BookingProduct" */ '../containers/Product')
+);
+
+const Header = asyncComponent(() =>
+  import(/* webpackChunkName: "BookingHeader" */ '../containers/common/Header')
+);
 
 type Props = {
   activeRoute: string;

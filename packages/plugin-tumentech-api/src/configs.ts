@@ -1,12 +1,12 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import { generateModels } from './connectionResolver';
-
-import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import segments from './segments';
+
+import { generateModels } from './connectionResolver';
 import forms from './forms';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
+import { initMemoryStorage } from './inmemoryStorage';
+import { initBroker } from './messageBroker';
+import segments from './segments';
 
 export let debug;
 export let graphqlPubsub;

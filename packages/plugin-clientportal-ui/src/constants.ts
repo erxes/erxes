@@ -57,3 +57,14 @@ export const CONFIGURATIONS = [
     value: 'messagePro'
   }
 ];
+
+export const USER_LOGIN_TYPES = [
+  {
+    label: 'Customer',
+    value: 'customer'
+  },
+  {
+    label: 'Company',
+    value: 'company'
+  }
+];

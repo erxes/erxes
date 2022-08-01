@@ -1,9 +1,10 @@
+import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
 import { withProps } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import ConformityChooser from '@erxes/ui-cards/src/conformity/containers/ConformityChooser';
+
 import { mutations, queries } from '../graphql';
 import {
   AddMutationResponse,
@@ -43,7 +44,7 @@ class CarChooser extends React.Component<
   render() {
     const { data, carsQuery, search } = this.props;
 
-    const renderName = (car) => {
+    const renderName = car => {
       return car.plateNumber || car.vinNumber || 'Unknown';
     };
 
@@ -64,7 +65,7 @@ class CarChooser extends React.Component<
       search,
       clearState: () => search(''),
       title: 'Car',
-      renderForm: (formProps) => (
+      renderForm: formProps => (
         <CarForm {...formProps} getAssociatedCar={getAssociatedCar} />
       ),
       renderName,

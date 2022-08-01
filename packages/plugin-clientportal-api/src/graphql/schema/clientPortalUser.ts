@@ -9,6 +9,8 @@ export const types = () => `
     email: String
     username: String
     type: String
+    companyName: String
+    companyRegistrationNumber: String
     erxesCustomerId: String
     erxesCompanyId: String
     clientPortalId: String
@@ -17,6 +19,8 @@ export const types = () => `
     links: JSON,
     customFieldsData: JSON,
     password: String
+
+    clientPortal: ClientPortal
   }
 
   type clientPortalUsersListResponse {

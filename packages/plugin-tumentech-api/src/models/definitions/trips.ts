@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 import { field, schemaHooksWrapper } from './utils';
 
 export interface ITrackingItem {

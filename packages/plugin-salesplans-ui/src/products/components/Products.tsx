@@ -1,5 +1,6 @@
 import React from 'react';
 import { __, Wrapper } from '@erxes/ui/src';
+import WithPermission from 'coreui/withPermission';
 import ListContainer from '../containers/List';
 import CategoryFilter from './filters/CategoryFilter';
 
@@ -15,22 +16,22 @@ const Products = (props: Props) => {
   ];
 
   return (
-    <Wrapper
-      header={
-        <Wrapper.Header
-          title={__('Sales Plans - Products')}
-          breadcrumb={breadcrumbs}
-        />
-      }
-      content={<ListContainer />}
-      leftSidebar={
-        <Wrapper.Sidebar>
-          <CategoryFilter categories={categories} />
-        </Wrapper.Sidebar>
-      }
-      hasBorder={true}
-      transparent={true}
-    />
+    <WithPermission action="showSalesPlans">
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__('Sales Plans - Products')}
+            breadcrumb={breadcrumbs}
+          />
+        }
+        content={<ListContainer />}
+        leftSidebar={
+          <Wrapper.Sidebar>
+            <CategoryFilter categories={categories} />
+          </Wrapper.Sidebar>
+        }
+      />
+    </WithPermission>
   );
 };
 

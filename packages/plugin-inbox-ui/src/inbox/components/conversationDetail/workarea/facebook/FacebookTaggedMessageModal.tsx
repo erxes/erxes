@@ -4,7 +4,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { FacebookTagText } from './styles';
 
@@ -45,8 +45,8 @@ class Modal extends React.Component<Props, {}> {
           </p>
           <ControlLabel>Tag</ControlLabel>
           <FormControl
-            id='facebook-message-tag'
-            componentClass='select'
+            id="facebook-message-tag"
+            componentClass="select"
             placeholder={__('Select Brand') as string}
             defaultValue={this.props.tag}
           >
@@ -63,9 +63,9 @@ class Modal extends React.Component<Props, {}> {
             tags outside of the approved use cases may result in restrictions on
             the Page's ability to send messages.
             <a
-              href='https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/'
-              target='_blank'
-              rel='noopener noreferrer'
+              href="https://developers.facebook.com/docs/messenger-platform/send-messages/message-tags/"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               {__('Learn more')}
             </a>
@@ -73,7 +73,7 @@ class Modal extends React.Component<Props, {}> {
         </FormGroup>
 
         <ModalFooter>
-          <Button onClick={this.onSave} btnStyle='success'>
+          <Button onClick={this.onSave} btnStyle="success">
             Submit
           </Button>
         </ModalFooter>
@@ -82,11 +82,11 @@ class Modal extends React.Component<Props, {}> {
   };
 
   render() {
-    const trigger = <Button btnStyle='default'>{__('Choose tag')}</Button>;
+    const trigger = <Button btnStyle="default">{__('Choose tag')}</Button>;
 
     return (
       <ModalTrigger
-        title='Choose tag'
+        title="Choose tag"
         trigger={trigger}
         content={this.renderForm}
       />
