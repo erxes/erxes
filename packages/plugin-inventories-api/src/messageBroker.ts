@@ -26,6 +26,15 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+
+  // consumeRPCQueue('inventories:transaction', async({ subdomain, data }) => {
+  //   const models = await generateModels(subdomain);
+
+  //   return {
+  //     data: await models.Transactions.createTransaction(subdomain),
+  //     status: 'success'
+  //   }
+  // })
 };
 
 export const sendCommonMessage = async (

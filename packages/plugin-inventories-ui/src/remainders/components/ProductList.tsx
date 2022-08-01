@@ -83,24 +83,30 @@ class List extends React.Component<IProps, State> {
     }, 500);
   };
 
-  moveCursorAtTheEnd(e) {
-    const tmpValue = e.target.value;
+  moveCursorAtTheEnd(event: any) {
+    const tempValue = event.target.value;
 
-    e.target.value = '';
-    e.target.value = tmpValue;
+    event.target.value = '';
+    event.target.value = tempValue;
   }
 
-  onChange = () => {
+  handleChange = () => {
     const { toggleAll, products } = this.props;
     toggleAll(products, 'products');
   };
 
-  recalcRemainders = (products, departmentId, branchId) => {
+  recalcRemainders = (
+    products: any,
+    departmentId: string,
+    branchId: string
+  ) => {
     const productIds: string[] = [];
 
-    products.forEach(product => {
+    products.forEach((product: any) => {
       productIds.push(product._id);
     });
+
+    console.log(departmentId, branchId);
 
     this.props.recalc(
       { productIds, departmentId, branchId },
@@ -142,7 +148,7 @@ class List extends React.Component<IProps, State> {
                 <FormControl
                   checked={isAllSelected}
                   componentClass="checkbox"
-                  onChange={this.onChange}
+                  onChange={this.handleChange}
                 />
               </th>
               <th>{__('Code')}</th>

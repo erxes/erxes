@@ -17,6 +17,14 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue('products:findUom', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      data: await models.Uoms.find(data).lean(),
+      status: 'success'
+    };
+  });
+
   consumeRPCQueue('products:findOne', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 

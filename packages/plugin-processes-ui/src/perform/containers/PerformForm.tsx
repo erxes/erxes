@@ -5,18 +5,13 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
 
-import { FlowsAllQueryResponse, IFlowDocument, IJob } from '../../flow/types';
-import { IJobRefer, JobRefersAllQueryResponse } from '../../job/types';
+import { IFlowDocument } from '../../flow/types';
+import { IJobRefer, IProduct } from '../../job/types';
 import Form from '../components/perform/PerformForm';
 import { mutations } from '../graphql';
-import {
-  IOverallWorkDocument,
-  OverallWorksSideBarDetailQueryResponse
-} from '../types';
+import { AllProductsQueryResponse, IOverallWorkDocument } from '../types';
 import { withProps } from '@erxes/ui/src/utils';
-import { queries as jobQueries } from '../../job/graphql';
 import gql from 'graphql-tag';
-import { queries as flowQueries } from '../../flow/graphql';
 import { queries } from '../graphql';
 
 type Props = {
@@ -28,9 +23,25 @@ type Props = {
   flows: IFlowDocument[];
 };
 
-class ProductFormContainer extends React.Component<Props> {
+type FinalProps = {
+  allProductsQuery: AllProductsQueryResponse;
+} & Props;
+
+class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const { overallWorkDetail, max, jobRefers, flows } = this.props;
+    const {
+      overallWorkDetail,
+      max,
+      jobRefers,
+      flows,
+      allProductsQuery
+    } = this.props;
+
+    if (allProductsQuery.loading) {
+      return null;
+    }
+
+    const products: IProduct[] = allProductsQuery.allProducts || [];
 
     const renderButton = ({
       name,
@@ -40,12 +51,15 @@ class ProductFormContainer extends React.Component<Props> {
     }: IButtonMutateProps) => {
       const { count, performNeedProducts, performResultProducts } = values;
 
-      console.log(
-        'on renderButton container: ',
-        count,
-        performNeedProducts,
-        performResultProducts
-      );
+      for (const need of performNeedProducts) {
+        need.product = '';
+        need.uom = '';
+      }
+
+      for (const result of performResultProducts) {
+        result.product = '';
+        result.uom = '';
+      }
 
       const doc = {
         startAt: new Date(),
@@ -84,6 +98,7 @@ class ProductFormContainer extends React.Component<Props> {
         max={max}
         jobRefers={jobRefers}
         flows={flows}
+        products={products}
       />
     );
   }
@@ -99,4 +114,10 @@ const getRefetchQueries = test => {
   ];
 };
 
-export default ProductFormContainer;
+export default withProps<Props>(
+  compose(
+    graphql<Props, AllProductsQueryResponse, {}>(gql(queries.allProducts), {
+      name: 'allProductsQuery'
+    })
+  )(ProductFormContainer)
+);

@@ -1,5 +1,5 @@
 import { dimensions, colors, ContentHeader } from '@erxes/ui/src';
-import { StyledTable } from '@erxes/ui/src/components/table/styles';
+import { Table } from '@erxes/ui/src';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -51,6 +51,10 @@ export const Content = styled.div`
     flex-direction: column;
     flex: 1;
   }
+`;
+
+export const SidebarContent = styled.div`
+  padding: 18px;
 `;
 
 export const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
@@ -128,53 +132,31 @@ export const Row = styled.div`
   }
 `;
 
-export const PaddingTop = styled.div`
-  padding-top: ${dimensions.unitSpacing}px;
-`;
-
-export const TableOver = styled(StyledTable)`
+export const TableOver = styled(Table)`
   box-shadow: 1px solid black;
+  border-collapse: collapse;
 
-  thead {
+  th {
+    border: 1px solid ${colors.borderPrimary};
+    border-top: none;
+    text-align: center;
+  }
+
+  td {
+    border-bottom: none;
+  }
+
+  tr:first-child {
+    th:first-child,
+    td:first-child {
+      text-align: left;
+    }
+    th:last-child,
+    td:last-child {
+      text-align: right;
+    }
     th,
     td {
-      border-bottom: 1px dotted ${colors.borderPrimary};
-    }
-  }
-
-  thead {
-    tr:first-child {
-      th {
-        text-align: center;
-      }
-
-      th:nth-of-type(2) {
-        border-right: 1px solid ${colors.borderPrimary};
-      }
-    }
-    tr:last-child {
-      th:nth-of-type(3) {
-        border-right: 1px solid ${colors.borderPrimary};
-      }
-    }
-  }
-
-  tr {
-    td:nth-of-type(4),
-    td:nth-of-type(5),
-    td:nth-of-type(7) {
-      border-right: 1px solid ${colors.borderPrimary};
-    }
-
-    td:nth-of-type(5),
-    td:nth-of-type(6),
-    td:nth-of-type(7),
-    td:nth-of-type(8) {
-      padding-top: 0px;
-      padding-bottom: 0px;
-    }
-
-    td:nth-of-type(5) {
       text-align: center;
     }
   }

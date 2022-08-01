@@ -4,7 +4,7 @@ import React from 'react';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import From from '../components/SafeRemainderForm';
+import From from '../components/Form';
 import { mutations } from '../graphql';
 
 type Props = {
@@ -12,9 +12,7 @@ type Props = {
   history: any;
 };
 
-type FinalProps = {} & Props;
-
-class SafeRemainderFormContainer extends React.Component<FinalProps> {
+class Form extends React.Component<Props> {
   render() {
     const { history } = this.props;
     const renderButton = ({
@@ -60,4 +58,4 @@ const getRefetchQueries = () => {
   return ['safeRemainders'];
 };
 
-export default withProps<Props>(compose()(SafeRemainderFormContainer));
+export default withProps<Props>(compose()(Form));

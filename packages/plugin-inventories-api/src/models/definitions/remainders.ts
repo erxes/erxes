@@ -2,9 +2,9 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IRemainderParams {
-  productId: string;
   departmentId?: string;
   branchId?: string;
+  productId: string;
   uomId?: string;
 }
 
@@ -16,12 +16,11 @@ export interface IRemaindersParams {
 }
 
 export interface IRemainder {
-  productId: string;
-  quantity: number;
-  uomId: string;
-  count: number;
   branchId: string;
   departmentId: string;
+  productId: string;
+  count: number;
+  uomId: string;
 }
 
 export interface IRemainderDocument extends IRemainder, Document {
@@ -39,17 +38,17 @@ export const remainderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     status: field({ type: String, label: 'Status' }),
+    productId: field({ type: String, index: true }),
+    count: field({ type: Number, label: 'Count' }),
+
+    branchId: field({ type: String, default: '', label: 'Branch' }),
+    departmentId: field({ type: String, default: '', label: 'Department' }),
+
     modifiedAt: field({
       type: Date,
       default: new Date(),
       label: 'Modified date'
-    }),
-
-    productId: field({ type: String, index: true }),
-    count: field({ type: Number, label: 'Remainder count' }),
-
-    branchId: field({ type: String, default: '', label: 'Branch' }),
-    departmentId: field({ type: String, default: '', label: 'Department' })
+    })
   }),
   'erxes_remainders'
 );

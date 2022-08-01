@@ -22,7 +22,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Form from '../../containers/PerformForm';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IJobRefer } from '../../../job/types';
-import { IFlowDocument, IJob } from '../../../flow/types';
+import { IFlowDocument } from '../../../flow/types';
 import Box from '@erxes/ui/src/components/Box';
 import { calculateCount } from './common';
 
@@ -55,12 +55,11 @@ class List extends React.Component<IProps, State> {
     const { queryParams, jobRefers, flows, overallWorkDetail } = this.props;
     const { overallWorkId } = queryParams;
 
-    const percentageObject = this.calculatePercent('onConstructor');
+    const percentageObject = this.calculatePercent();
     const calculatedObject = calculateCount(
       jobRefers || [],
       flows || [],
-      overallWorkDetail,
-      'onConstructor1'
+      overallWorkDetail
     );
 
     this.state = {
@@ -73,7 +72,7 @@ class List extends React.Component<IProps, State> {
   }
 
   componentDidUpdate() {
-    const percentageObject = this.calculatePercent('componentDidUpdate');
+    const percentageObject = this.calculatePercent();
     const { overallWorkPercent, max } = this.state;
     if (
       percentageObject.percent !== overallWorkPercent &&
@@ -86,14 +85,13 @@ class List extends React.Component<IProps, State> {
     }
   }
 
-  calculatePercent = (type: string) => {
+  calculatePercent = () => {
     const { performs, jobRefers, flows, overallWorkDetail } = this.props;
 
     const calculatedObject = calculateCount(
       jobRefers || [],
       flows || [],
-      overallWorkDetail,
-      type
+      overallWorkDetail
     );
     const count = calculatedObject.count;
 

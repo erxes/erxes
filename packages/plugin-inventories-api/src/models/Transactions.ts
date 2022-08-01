@@ -8,13 +8,8 @@ import {
 } from './definitions/transactions';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
-  getTransaction(_id: string): Promise<ITransactionDocument>;
-  createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
-  updateTransaction(
-    _id: string,
-    doc: ITransaction
-  ): Promise<ITransactionDocument>;
-  removeTransaction(_id: string): void;
+  transactionDetail(_id: string): Promise<ITransactionDocument>;
+  transactionAdd(doc: ITransaction): Promise<ITransactionDocument>;
 }
 
 export const loadTransactionClass = (models: IModels) => {
@@ -22,7 +17,7 @@ export const loadTransactionClass = (models: IModels) => {
     /**
      * Get a transaction
      */
-    public static async getTransaction(_id: string) {
+    public static async transactionDetail(_id: string) {
       const transaction = await models.Transactions.findOne({ _id });
 
       if (!transaction) {
@@ -30,43 +25,6 @@ export const loadTransactionClass = (models: IModels) => {
       }
 
       return transaction;
-    }
-
-    /**
-     * Create a transaction
-     */
-    public static async createTransaction(doc: ITransaction) {
-      const transaction = await models.Transactions.create({
-        ...doc,
-        createdAt: new Date()
-      });
-
-      return transaction;
-    }
-
-    /**
-     * Update Transaction
-     */
-    public static async updateTransaction(_id: string, doc: ITransaction) {
-      const transaction = await models.Transactions.getTransaction(_id);
-
-      await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
-
-      const updated = await models.Transactions.getTransaction(_id);
-
-      return updated;
-    }
-
-    /**
-     * Remove Transaction
-     */
-    public static async removeTransaction(_id: string) {
-      const transaction = await models.Transactions.getTransaction(_id);
-      await models.TransactionItems.deleteMany({
-        transactionId: transaction._id
-      });
-
-      return models.Transactions.deleteOne({ _id });
     }
   }
 

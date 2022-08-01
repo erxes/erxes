@@ -1,17 +1,13 @@
-import * as dayjs from 'dayjs';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
-import { ISafeRemItem } from '../types';
+import * as dayjs from 'dayjs';
+import { ActionButtons, Button, FormControl, Tip } from '@erxes/ui/src';
+import { ISafeRemainderItem } from '../types';
 import { FinanceAmount } from '../../styles';
 
 type Props = {
-  item: ISafeRemItem;
+  item: ISafeRemainderItem;
   updateItem: (_id: string, remainder: number, status: string) => void;
-  removeItem: (item: ISafeRemItem) => void;
+  removeItem: (item: ISafeRemainderItem) => void;
 };
 
 type State = {
@@ -33,7 +29,7 @@ class Row extends React.Component<Props, State> {
     };
   }
 
-  displayNumber = value => {
+  displayNumber = (value: number) => {
     return (value || 0).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
   };
 
@@ -50,13 +46,13 @@ class Row extends React.Component<Props, State> {
     removeItem(item);
   };
 
-  onChangeCheck = e => {
+  onChangeCheck = (event: any) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
-    e.preventDefault();
+    event.preventDefault();
 
-    const checked = e.target.checked;
+    const checked = event.target.checked;
     this.setState({ status: checked ? 'checked' : 'new' });
 
     this.timer = setTimeout(() => {
@@ -64,13 +60,13 @@ class Row extends React.Component<Props, State> {
     }, 100);
   };
 
-  onChangeRemainder = e => {
+  onChangeRemainder = (event: any) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
 
-    e.preventDefault();
-    const value = Number(e.target.value);
+    event.preventDefault();
+    const value = Number(event.target.value);
     this.setState({
       remainder: value,
       diff: value - this.props.item.preCount,
@@ -82,13 +78,13 @@ class Row extends React.Component<Props, State> {
     }, 500);
   };
 
-  onChangeDiff = e => {
+  onChangeDiff = (event: any) => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
 
-    e.preventDefault();
-    const value = Number(e.target.value);
+    event.preventDefault();
+    const value = Number(event.target.value);
     this.setState({
       diff: value,
       remainder: value + this.props.item.preCount,
@@ -100,7 +96,7 @@ class Row extends React.Component<Props, State> {
     }, 500);
   };
 
-  renderDate(date) {
+  renderDate(date: Date) {
     if (!date) {
       return null;
     }
