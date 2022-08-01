@@ -35,7 +35,7 @@ export const loadSiteClass = (models: IModels) => {
       return models.Sites.findOne({ _id });
     }
 
-    public static async remoteSite(_id) {
+    public static async removeSite(_id) {
       return models.Sites.deleteOne({ _id });
     }
   }

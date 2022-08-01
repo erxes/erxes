@@ -50,7 +50,7 @@ export const loadPageClass = (models: IModels) => {
       return models.Pages.findOne({ _id });
     }
 
-    public static async remotePage(_id) {
+    public static async removePage(_id) {
       return models.Pages.deleteOne({ _id });
     }
   }
