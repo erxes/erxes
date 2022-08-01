@@ -11,9 +11,11 @@ import {
   PageDetailQueryResponse,
   PagesAddMutationResponse,
   PagesEditMutationResponse,
+  PagesQueryResponse,
   TemplatesAddMutationResponse,
   TemplatesQueryResponse,
-  TemplatesRemoveMutationResponse
+  TemplatesRemoveMutationResponse,
+  TypesQueryResponse
 } from '../../types';
 
 type Props = {
@@ -23,6 +25,8 @@ type Props = {
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;
   templatesQuery: TemplatesQueryResponse;
+  pagesQuery: PagesQueryResponse;
+  typesQuery: TypesQueryResponse;
 } & PagesAddMutationResponse &
   PagesEditMutationResponse &
   TemplatesAddMutationResponse &
@@ -34,10 +38,17 @@ const FormContainer = (props: FinalProps) => {
     history,
     templatesQuery,
     templatesAdd,
-    templatesRemove
+    templatesRemove,
+    pagesQuery,
+    typesQuery
   } = props;
 
-  if ((pageDetailQuery && pageDetailQuery.loading) || templatesQuery.loading) {
+  if (
+    (pageDetailQuery && pageDetailQuery.loading) ||
+    templatesQuery.loading ||
+    pagesQuery.loading ||
+    typesQuery.loading
+  ) {
     return null;
   }
 
@@ -109,13 +120,18 @@ const FormContainer = (props: FinalProps) => {
   }
 
   const templates = templatesQuery.webbuilderTemplates || [];
+  const pages = pagesQuery.webbuilderPages || [];
+  const contentTypes = typesQuery.webbuilderContentTypes || [];
 
   const updatedProps = {
+    ...props,
     save,
     page,
     templates,
     saveTemplate,
-    removeTemplate
+    removeTemplate,
+    contentTypes,
+    pages
   };
 
   return <PageForm {...updatedProps} />;
@@ -167,5 +183,11 @@ export default compose(
     options: () => ({
       refetchQueries: refetchTemplateQuery()
     })
+  }),
+  graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
+    name: 'typesQuery'
+  }),
+  graphql<{}, PagesQueryResponse>(gql(queries.pages), {
+    name: 'pagesQuery'
   })
 )(withRouter(FormContainer));

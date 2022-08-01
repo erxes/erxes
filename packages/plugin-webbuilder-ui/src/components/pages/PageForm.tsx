@@ -18,7 +18,8 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IPageDoc } from '../../types';
+import { IContentTypeDoc, IPageDoc } from '../../types';
+import customPlugins from './customPlugins';
 
 type Props = {
   page?: IPageDoc;
@@ -32,6 +33,8 @@ type Props = {
   saveTemplate: (name: string, jsonData: any) => void;
   templates: any;
   removeTemplate: (_id: string) => void;
+  contentTypes: IContentTypeDoc[];
+  pages: IPageDoc[];
 };
 
 type State = {
@@ -56,14 +59,24 @@ class PageForm extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    const { page, contentTypes } = this.props;
+    let { pages } = this.props;
+
+    pages = pages.filter(p => p._id !== page?._id);
+
     this.grapes = GrapesJS.init({
       container: `#editor`,
       fromElement: true,
-      plugins: [gjsPresetWebpage],
+      plugins: [gjsPresetWebpage, customPlugins],
+      pluginsOpts: {
+        [customPlugins as any]: {
+          pages,
+          contentTypes,
+          open: false
+        }
+      },
       storageManager: false
     });
-
-    const { page } = this.props;
 
     if (page && page.jsonData) {
       this.grapes.loadProjectData(page.jsonData);
