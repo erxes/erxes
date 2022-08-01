@@ -21,8 +21,15 @@ export const handleContacts = async (args: IContactsParams) => {
   } = args;
   const { type = 'customer' } = document;
 
-  let qry: any = { email: document.email };
+  const tEmail = (document.email || '').toLowerCase().trim();
+
+  let qry: any = { type };
   let user: any;
+
+  if (document.email) {
+    qry = { email: tEmail };
+    document.email = tEmail;
+  }
 
   if (document.phone) {
     qry = { phone: document.phone };
@@ -33,7 +40,7 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'customers.findOne',
       data: {
-        customerPrimaryEmail: document.email,
+        customerPrimaryEmail: tEmail,
         customerPrimaryPhone: document.phone
       },
       isRPC: true
