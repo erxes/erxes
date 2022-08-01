@@ -268,7 +268,7 @@ class ProductItem extends React.Component<Props, State> {
         onChangeCategory={this.onChangeCategory}
         categoryId={this.state.categoryId}
         loadDiscountPercent={this.changeDiscountPercent}
-        discountCard={VoucherDiscountCard}
+        extraField={VoucherDiscountCard}
         data={{
           name: 'Product',
           products: productData.product ? [productData.product] : []
