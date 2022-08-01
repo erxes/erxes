@@ -2,7 +2,10 @@ import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
-import { IUser } from '../../../models/definitions/clientPortalUser';
+import {
+  IUser,
+  IUserParams
+} from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
 
 export interface IVerificationParams {
@@ -68,7 +71,7 @@ const clientPortalUserMutations = {
     return response;
   },
 
-  clientPortalRegister: async (_root, args: IUser, context: IContext) => {
+  clientPortalRegister: async (_root, args: IUserParams, context: IContext) => {
     const { models, subdomain } = context;
     const clientPortal = await models.ClientPortals.getConfig(
       args.clientPortalId
@@ -217,7 +220,11 @@ const clientPortalUserMutations = {
     return 'sent';
   },
 
-  clientPortalUsersInvite: async (_root, args: IUser, context: IContext) => {
+  clientPortalUsersInvite: async (
+    _root,
+    args: IUserParams,
+    context: IContext
+  ) => {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.invite(subdomain, {

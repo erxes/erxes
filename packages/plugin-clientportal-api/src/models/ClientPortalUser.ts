@@ -8,7 +8,8 @@ import { IModels } from '../connectionResolver';
 import {
   clientPortalUserSchema,
   IUser,
-  IUserDocument
+  IUserDocument,
+  IUserParams
 } from './definitions/clientPortalUser';
 import { sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
@@ -39,9 +40,9 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string;
     code?: string;
   }): never;
-  invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
+  invite(subdomain: string, doc: IUserParams): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
-  createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
+  createUser(subdomain: string, doc: IUserParams): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
   removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
@@ -166,7 +167,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async createUser(
       subdomain: string,
-      { password, clientPortalId, ...doc }: IUser
+      { password, clientPortalId, customerState, ...doc }: IUserParams
     ) {
       if (password) {
         this.checkPassword(password);
@@ -177,7 +178,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
         models,
         clientPortalId,
         document: doc,
-        password
+        password,
+        customerState
       });
     }
 

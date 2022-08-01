@@ -1,4 +1,4 @@
-import { STATUSES, DEFAULT_SEX_CHOICES } from '@erxes/api-utils/src/constants'
+import { STATUSES, DEFAULT_SEX_CHOICES } from '@erxes/api-utils/src/constants';
 
 export const ACTIVITY_CONTENT_TYPES = {
   CUSTOMER: 'customer',
@@ -6,10 +6,7 @@ export const ACTIVITY_CONTENT_TYPES = {
   ALL: ['customer', 'company']
 };
 
-export {
-  STATUSES,
-  DEFAULT_SEX_CHOICES
-}
+export { STATUSES, DEFAULT_SEX_CHOICES };
 
 export const COMPANY_SELECT_OPTIONS = {
   BUSINESS_TYPES: [
@@ -87,7 +84,8 @@ export const CUSTOMER_SELECT_OPTIONS = {
   STATE: [
     { label: 'Visitor', value: 'visitor' },
     { label: 'Lead', value: 'lead' },
-    { label: 'Customer', value: 'customer' }
+    { label: 'Customer', value: 'customer' },
+    { label: 'Driver', value: 'driver' }
   ]
 };
 

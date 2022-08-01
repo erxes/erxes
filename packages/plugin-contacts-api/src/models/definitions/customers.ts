@@ -30,7 +30,7 @@ export interface IVisitorContact {
 export interface IVisitorContactDocument extends IVisitorContact, Document {}
 
 export interface ICustomer {
-  state?: 'visitor' | 'lead' | 'customer';
+  state?: 'visitor' | 'lead' | 'customer' | 'driver';
 
   scopeBrandIds?: string[];
   firstName?: string;

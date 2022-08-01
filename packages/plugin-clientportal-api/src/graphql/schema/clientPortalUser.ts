@@ -70,7 +70,8 @@ const userParams = `
   ownerId: String,
   links: JSON,
   customFieldsData: JSON,
-  
+  customerState: String,
+
   type: String,
 `;
 

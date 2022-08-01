@@ -7,25 +7,35 @@ export interface IContactsParams {
   clientPortalId: string;
   document: any;
   password?: string;
+  customerState?: string;
 }
 
 export const handleContacts = async (args: IContactsParams) => {
-  const { subdomain, models, clientPortalId, document, password } = args;
-  const { type = 'customer', email, phone } = document;
+  const {
+    subdomain,
+    models,
+    clientPortalId,
+    document,
+    password,
+    customerState
+  } = args;
+  const { type = 'customer' } = document;
 
-  const tEmail = (email || '').toLowerCase().trim();
+  console.log('customerState: ', customerState);
+
+  const tEmail = (document.email || '').toLowerCase().trim();
 
   let qry: any = { type };
   let user: any;
 
-  if (email) {
+  if (document.email) {
     qry = { email: tEmail };
     document.email = tEmail;
   }
 
-  if (phone) {
-    qry = { phone };
-    document.phone = phone;
+  if (document.phone) {
+    qry = { phone: document.phone };
+    document.phone = document.phone;
   }
 
   if (type === 'customer') {
@@ -33,8 +43,8 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'customers.findOne',
       data: {
-        customerPrimaryEmail: email,
-        customerPrimaryPhone: phone
+        customerPrimaryEmail: document.email,
+        customerPrimaryPhone: document.phone
       },
       isRPC: true
     });
@@ -64,15 +74,27 @@ export const handleContacts = async (args: IContactsParams) => {
         data: {
           firstName: document.firstName,
           lastName: document.lastName,
-          primaryEmail: email,
-          primaryPhone: phone,
-          state: 'customer'
+          primaryEmail: document.email,
+          primaryPhone: document.phone,
+          state: customerState || 'lead'
         },
         isRPC: true
       });
     }
 
     if (customer && customer._id) {
+      if (customer.state !== customerState) {
+        await sendContactsMessage({
+          subdomain,
+          action: 'customers.updateCustomer',
+          data: {
+            _id: customer._id,
+            doc: { state: customerState }
+          },
+          isRPC: true
+        });
+      }
+
       await models.ClientPortalUsers.updateOne(
         { _id: user._id },
         { $set: { erxesCustomerId: customer._id } }
@@ -85,8 +107,8 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'companies.findOne',
       data: {
-        companyPrimaryEmail: email,
-        companyPrimaryPhone: phone,
+        companyPrimaryEmail: document.email,
+        companyPrimaryPhone: document.phone,
         companyCode: document.companyRegistrationNumber
       },
       isRPC: true
@@ -116,8 +138,8 @@ export const handleContacts = async (args: IContactsParams) => {
         action: 'companies.createCompany',
         data: {
           primaryName: document.companyName,
-          primaryEmail: email,
-          primaryPhone: phone,
+          primaryEmail: document.email,
+          primaryPhone: document.phone,
           code: document.companyRegistrationNumber
         },
         isRPC: true
