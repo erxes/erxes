@@ -22,7 +22,7 @@ class Pages extends React.Component<Props, {}> {
     const { remove } = this.props;
 
     return pages.map(page => (
-      <Row history={history} key={page._id} page={page} remove={remove} />
+      <Row key={page._id} page={page} remove={remove} />
     ));
   };
 
