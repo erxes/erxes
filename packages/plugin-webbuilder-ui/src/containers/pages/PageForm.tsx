@@ -152,10 +152,13 @@ export default compose(
     })
   }),
 
-  graphql<{}, PagesEditMutationResponse>(gql(mutations.edit), {
+  graphql<Props, PagesEditMutationResponse>(gql(mutations.edit), {
     name: 'pagesEdit',
-    options: () => ({
-      refetchQueries: refetchPageQueries()
+    options: ({ _id }) => ({
+      refetchQueries: [
+        ...refetchPageQueries(),
+        { query: gql(queries.pageDetail), variables: { _id } }
+      ]
     })
   }),
 
