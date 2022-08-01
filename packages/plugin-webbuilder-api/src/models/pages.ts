@@ -26,6 +26,7 @@ export const pageSchema = new Schema({
 });
 
 export interface IPageModel extends Model<IPageDocument> {
+  checkDuplication(name: string): void;
   createPage(doc: IPage): Promise<IPageDocument>;
   updatePage(_id: string, doc: IPage): Promise<IPageDocument>;
   removePage(_id: string): Promise<IPageDocument>;
@@ -33,7 +34,25 @@ export interface IPageModel extends Model<IPageDocument> {
 
 export const loadPageClass = (models: IModels) => {
   class Page {
+    public static async checkDuplication(name: string, id?: string) {
+      const query: { [key: string]: any } = {
+        name
+      };
+
+      if (id) {
+        query._id = { $ne: id };
+      }
+
+      const page = await models.Pages.findOne(query);
+
+      if (page) {
+        throw new Error('Name duplicated');
+      }
+    }
+
     public static async createPage(doc) {
+      await this.checkDuplication(doc.name);
+
       let site = await models.Sites.findOne({});
 
       if (!site) {
@@ -45,6 +64,8 @@ export const loadPageClass = (models: IModels) => {
     }
 
     public static async updatePage(_id: string, doc) {
+      await this.checkDuplication(doc.name, _id);
+
       await models.Pages.updateOne({ _id }, { $set: doc });
 
       return models.Pages.findOne({ _id });
