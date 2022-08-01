@@ -12,7 +12,6 @@ type Props = {
   queryParams: any;
   contentTypes: IContentTypeDoc[];
   remove: (contentTypeId: string) => void;
-  loading: boolean;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
   contentTypesCount: number;

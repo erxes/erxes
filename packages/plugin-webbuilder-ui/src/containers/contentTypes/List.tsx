@@ -55,7 +55,6 @@ function ContentTypesContainer(props: FinalProps) {
     ...props,
     contentTypes,
     remove,
-    loading: typesQuery.loading,
     contentTypesCount
   };
 
