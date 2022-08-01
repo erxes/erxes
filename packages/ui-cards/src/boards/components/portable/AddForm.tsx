@@ -30,6 +30,7 @@ type Props = {
   closeModal: () => void;
   callback?: (item?: IItem) => void;
   fields: IField[];
+  refetchFields: ({ pipelineId }: { pipelineId: string }) => void;
 };
 
 type State = {
@@ -80,6 +81,11 @@ class AddForm extends React.Component<Props, State> {
         }
       });
     }
+
+    if (name === 'pipelineId') {
+      this.props.refetchFields({ pipelineId: value });
+    }
+
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 

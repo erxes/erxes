@@ -1,5 +1,14 @@
+import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
+
 dotenv.config();
+
+if (process.env.ELASTIC_APM_HOST_NAME) {
+  apm.start({
+    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-gateway`,
+    serverUrl: 'http://172.104.115.19:8200'
+  });
+}
 
 import { ApolloServer } from 'apollo-server-express';
 import { ApolloGateway } from '@apollo/gateway';

@@ -1,15 +1,16 @@
 import { validSearchText } from 'erxes-api-utils';
+import { Model } from 'mongoose';
+
+import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
 import {
-  carSchema,
   carCategorySchema,
+  carSchema,
   ICar,
-  ICarDocument,
-  ICarCategoryDocument,
   ICarCategory,
+  ICarCategoryDocument,
+  ICarDocument,
   IProductCarCategoryDocument
 } from './definitions/tumentech';
-import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
-import { Model } from 'mongoose';
 
 export interface ICarModel extends Model<ICarDocument> {
   createCar(doc: ICar, user: any): Promise<ICarDocument>;

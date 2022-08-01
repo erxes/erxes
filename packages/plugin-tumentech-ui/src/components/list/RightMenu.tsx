@@ -1,7 +1,3 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import React from 'react';
-import RTG from 'react-transition-group';
 import {
   Button,
   ControlLabel,
@@ -10,16 +6,14 @@ import {
   Icon,
   MainStyleDateContainer as DateContainer
 } from '@erxes/ui/src';
-import { __ } from '@erxes/ui/src/utils';
-import {
-  CustomRangeContainer,
-  FilterBox,
-  FilterButton,
-  MenuFooter,
-  RightMenuContainer,
-  TabContent
-} from '../../styles';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { IQueryParams } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import Datetime from '@nateradebaugh/react-datetime';
+import dayjs from 'dayjs';
+import React from 'react';
+import RTG from 'react-transition-group';
+
 import {
   BOW_TYPES,
   BRAKE_TYPES,
@@ -28,7 +22,14 @@ import {
   TIRE_LOAD_TYPES,
   TRAILER_TYPES
 } from '../../constants';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
+import {
+  CustomRangeContainer,
+  FilterBox,
+  FilterButton,
+  MenuFooter,
+  RightMenuContainer,
+  TabContent
+} from '../../styles';
 
 type Props = {
   onSearch: (search: string, key?: string) => void;

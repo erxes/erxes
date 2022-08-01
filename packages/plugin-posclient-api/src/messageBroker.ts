@@ -26,27 +26,30 @@ export const initBroker = async cl => {
   client = cl;
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    if (data) {
-      switch (data.type) {
-        case 'product':
-          await receiveProduct(models, data);
-          break;
-        case 'productCategory':
-          await receiveProductCategory(models, data);
-          break;
-        case 'user':
-          await receiveUser(models, data);
-          break;
-        case 'pos':
-          await receivePosConfig(models, data);
-          break;
-        default:
-          break;
+  consumeQueue(
+    `posclient:crudData_${config.token}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      if (data) {
+        switch (data.type) {
+          case 'product':
+            await receiveProduct(models, data);
+            break;
+          case 'productCategory':
+            await receiveProductCategory(models, data);
+            break;
+          case 'user':
+            await receiveUser(models, data);
+            break;
+          case 'pos':
+            await receivePosConfig(subdomain, models, data);
+            break;
+          default:
+            break;
+        }
       }
     }
-  });
+  );
 
   consumeQueue(
     `posclient:updateSynced_${syncId}`,
@@ -121,33 +124,42 @@ export const initBroker = async cl => {
   );
 };
 
-export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+const sendMessageWrapper = async (
+  serviceName: string,
+  args: ISendMessageArgs
+): Promise<any> => {
+  const { SKIP_REDIS } = process.env;
+  if (SKIP_REDIS) {
+    const { action } = args;
+    return sendMessage({
+      client,
+      serviceDiscovery,
+      serviceName: '',
+      ...args,
+      action: `${serviceName}:${action}`
+    });
+  }
+
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'pos',
+    serviceName,
     ...args
   });
 };
 
+export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessageWrapper('pos', args);
+};
+
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'core',
-    ...args
-  });
+  return sendMessageWrapper('core', args);
 };
 
 export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
-  return sendMessage({
-    client,
-    serviceDiscovery,
-    serviceName: 'contacts',
-    ...args
-  });
+  return sendMessageWrapper('contacts', args);
 };
 
 export default function() {

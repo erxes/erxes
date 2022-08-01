@@ -51,6 +51,7 @@ var plugins = [
   { name: 'processes', ui: true, api: true },
   { name: 'inventories', ui: true, api: true },
   { name: 'posclient', api: true },
+  { name: 'webbuilder', ui: true, api: true },
 ];
 
 const pluginsMap = {};

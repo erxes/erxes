@@ -44,12 +44,17 @@ class OverallWorkSideBarContainer extends React.Component<FinalProps> {
     const inDepartmentId = this.props.queryParams.inDepartmentId || '';
     const outBranchId = this.props.queryParams.outBranchId || '';
     const outDepartmentId = this.props.queryParams.outDepartmentId || '';
+    const jobReferId = this.props.queryParams.jobReferId || '';
+    const overallWorkId = this.props.queryParams.overallWorkId || '';
+
     const params = {
       inBranchId,
       inDepartmentId,
       outBranchId,
       outDepartmentId,
-      searchValue
+      searchValue,
+      jobReferId,
+      overallWorkId
     };
 
     const updatedProps = {
@@ -85,7 +90,8 @@ export default withProps<Props>(
             inBranchId: queryParams.inBranchId,
             inDepartmentId: queryParams.inDepartmentId,
             outBranchId: queryParams.outBranchId,
-            outDepartmentId: queryParams.outDepartmentId
+            outDepartmentId: queryParams.outDepartmentId,
+            jobReferId: queryParams.jobReferId
           },
           fetchPolicy: 'network-only'
         })

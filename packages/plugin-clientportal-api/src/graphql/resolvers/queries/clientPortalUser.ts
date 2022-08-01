@@ -1,8 +1,8 @@
 // TODO: check if related stages are selected in client portal config
-
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
+
+import { IContext } from '../../../connectionResolver';
 
 const clientPortalUserQueries = {
   /**

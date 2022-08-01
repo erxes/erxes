@@ -11,10 +11,11 @@ import {
   ModalTrigger,
   Tip
 } from '@erxes/ui/src';
+import { Actions } from '@erxes/ui/src/styles/main';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
+
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
-import { Actions } from '@erxes/ui/src/styles/main';
 import { IClientPortalUser } from '../../types';
 
 type Props = {

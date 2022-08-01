@@ -1,9 +1,9 @@
-import dayjs from 'dayjs';
 import Box from '@erxes/ui/src/components/Box';
-import { __ } from 'coreui/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-
+import { __ } from '@erxes/ui/src/utils/core';
+import dayjs from 'dayjs';
 import React from 'react';
+
 import { List } from '../../styles';
 import { IClientPortalUser } from '../../types';
 

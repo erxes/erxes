@@ -10,7 +10,7 @@ import { ActionContainer } from '@erxes/ui-cards/src/boards/styles/item';
 import { IOptions } from '@erxes/ui-cards/src/boards/types';
 import ChecklistAdd from '@erxes/ui-cards/src/checklists/components/AddButton';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IGrowthHack } from '../../types';
 import React from 'react';
 import { HACKSTAGES } from '@erxes/ui-cards/src/boards/constants';

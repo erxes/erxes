@@ -7,7 +7,7 @@ import {
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 import { additionalField } from '../../../types';
@@ -106,9 +106,9 @@ class CustomFields extends React.Component<Props, State> {
 
   renderRemoveInput = (i: number) => {
     return (
-      <Tip text={__('Remove')} placement='top'>
+      <Tip text={__('Remove')} placement="top">
         <RemoveButton onClick={this.handleRemoveWebsite.bind(null, i)}>
-          <Icon icon='times' />
+          <Icon icon="times" />
         </RemoveButton>
       </Tip>
     );
@@ -125,7 +125,7 @@ class CustomFields extends React.Component<Props, State> {
       <RequiredField>
         <span>
           (required)
-          <Icon icon='lock' />
+          <Icon icon="lock" />
         </span>
         {name}
       </RequiredField>
@@ -150,7 +150,7 @@ class CustomFields extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel required={true}>Label</ControlLabel>
                   <FormControl
-                    name='label'
+                    name="label"
                     onChange={this.onChangeInput.bind(null, index, 'label')}
                     required={true}
                     value={field.label}
@@ -161,25 +161,25 @@ class CustomFields extends React.Component<Props, State> {
 
                   <FormControl
                     value={field.type}
-                    name='type'
+                    name="type"
                     onChange={this.onChangeInput.bind(null, index, 'type')}
-                    componentClass='select'
+                    componentClass="select"
                   >
-                    <option value='text'>text</option>
-                    <option value='multi-line text'>multi-line text</option>
-                    <option value='email'>email</option>
-                    <option value='phone'>phone</option>
-                    <option value='number'>number</option>
-                    <option value='dropdown'>dropdown</option>
-                    <option value='checkbox'>checkbox</option>
+                    <option value="text">text</option>
+                    <option value="multi-line text">multi-line text</option>
+                    <option value="email">email</option>
+                    <option value="phone">phone</option>
+                    <option value="number">number</option>
+                    <option value="dropdown">dropdown</option>
+                    <option value="checkbox">checkbox</option>
                   </FormControl>
                 </FormGroup>
                 <FormGroup>
                   <ControlLabel>Required</ControlLabel>
                   <FormControl
-                    name='required'
+                    name="required"
                     defaultChecked={field.required}
-                    componentClass='checkbox'
+                    componentClass="checkbox"
                     onChange={this.onChangeInput.bind(null, index, 'required')}
                   />
                 </FormGroup>
@@ -189,8 +189,8 @@ class CustomFields extends React.Component<Props, State> {
           ))}
           <Button
             onClick={this.onAddMoreInput}
-            icon='plus-circle'
-            btnStyle='primary'
+            icon="plus-circle"
+            btnStyle="primary"
           >
             Add a field
           </Button>

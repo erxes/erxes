@@ -4,7 +4,7 @@ import {
   ScrolledContent
 } from '@erxes/ui-cards/src/boards/styles/common';
 
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { menuDeal } from '@erxes/ui/src/utils/menus';
 import Stages from '../../containers/conversion/Stages';
 import Header from '@erxes/ui/src/layout/components/Header';

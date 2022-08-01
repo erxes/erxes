@@ -1,8 +1,11 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
 
-import { __ } from 'coreui/utils';
-import { DesktopPreviewContent, MobilePreviewContent } from '@erxes/ui-engage/src/styles';
+import { __ } from '@erxes/ui/src/utils/core';
+import {
+  DesktopPreviewContent,
+  MobilePreviewContent
+} from '@erxes/ui-engage/src/styles';
 
 import {
   DesktopPreview,

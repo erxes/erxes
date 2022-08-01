@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IBrand } from '@erxes/ui/src/brands/types';
 import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IMessagesItem } from '@erxes/ui-settings/src/integrations/types';
@@ -55,7 +55,7 @@ class TopBar extends React.Component<Props> {
     }
 
     return (
-      <a href='#icon'>
+      <a href="#icon">
         <Icon icon={icon} size={18} />
       </a>
     );
@@ -63,7 +63,7 @@ class TopBar extends React.Component<Props> {
 
   renderServerInfo() {
     const { showChatPreview, timezone } = this.props;
-    
+
     if (!showChatPreview) {
       return null;
     }

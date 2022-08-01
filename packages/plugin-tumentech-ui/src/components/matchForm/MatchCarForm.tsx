@@ -1,18 +1,18 @@
 import {
   __,
-  MainStyleModalFooter as ModalFooter,
   Button,
-  Form as CommonForm,
   ControlLabel,
+  Form as CommonForm,
   FormGroup,
+  MainStyleModalFooter as ModalFooter,
   ModalTrigger
 } from '@erxes/ui/src';
 import React from 'react';
+import Select from 'react-select-plus';
+
 import CategoryForm from '../../containers/carCategory/CategoryForm';
 import { Row } from '../../styles';
 import { ICarCategory, IOption } from '../../types';
-
-import Select from 'react-select-plus';
 import { generateTree } from '../../utils';
 
 type Props = {
@@ -46,7 +46,7 @@ class MatchCarForm extends React.Component<Props, State> {
       </Button>
     );
 
-    const content = (props) => (
+    const content = props => (
       <CategoryForm {...props} carCategories={carCategories} />
     );
 
@@ -61,7 +61,7 @@ class MatchCarForm extends React.Component<Props, State> {
 
   onChangeCategory = (category: IOption[]) => {
     this.setState({
-      categoryIds: category.map((v) => v.value)
+      categoryIds: category.map(v => v.value)
     });
   };
 

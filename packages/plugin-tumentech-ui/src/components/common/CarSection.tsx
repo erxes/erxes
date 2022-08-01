@@ -1,18 +1,19 @@
+import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 import {
+  __,
   Box,
   EmptyState,
   Icon,
-  ModalTrigger,
   MainStyleButtonRelated as ButtonRelated,
-  __,
+  ModalTrigger,
   SectionBodyItem
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
+
 import CarChooser from '../../containers/CarChooser';
 import { queries } from '../../graphql';
 import { ICar } from '../../types';
-import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
 
 type Props = {
   name: string;

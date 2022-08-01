@@ -65,7 +65,7 @@ export interface IPos {
   initialCategoryIds: string;
   kioskExcludeProductIds: string;
   deliveryConfig: Object;
-  slotId: string;
+  slotCode: string;
   cardsConfig: Object;
 }
 export interface IPosDocument extends IPos, Document {

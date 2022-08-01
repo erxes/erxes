@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { field } from './util';
+import { field } from './utils';
 
 export interface IRule {
   kind: string;

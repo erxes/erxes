@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import {
   __,
   Box,
@@ -6,6 +5,7 @@ import {
   CustomerSection,
   Sidebar
 } from '@erxes/ui/src';
+import dayjs from 'dayjs';
 import React from 'react';
 
 import { List } from '../../styles';

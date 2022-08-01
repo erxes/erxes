@@ -21,21 +21,11 @@ export const handleContacts = async (args: IContactsParams) => {
   } = args;
   const { type = 'customer' } = document;
 
-  console.log('customerState: ', customerState);
-
-  const tEmail = (document.email || '').toLowerCase().trim();
-
-  let qry: any = { type };
+  let qry: any = { email: document.email };
   let user: any;
-
-  if (document.email) {
-    qry = { email: tEmail };
-    document.email = tEmail;
-  }
 
   if (document.phone) {
     qry = { phone: document.phone };
-    document.phone = document.phone;
   }
 
   if (type === 'customer') {

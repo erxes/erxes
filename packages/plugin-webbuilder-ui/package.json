@@ -1,0 +1,16 @@
+{
+  "name": "plugin-webbuilder-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "start": "cd .erxes && yarn start",
+    "build": "cd .erxes && yarn build"
+  },
+  "dependencies": {
+    "add": "^2.0.6",
+    "grapejs": "^2.1.2",
+    "grapesjs": "^0.19.4",
+    "grapesjs-preset-webpage": "^0.1.11",
+    "yarn": "^1.22.19"
+  }
+}

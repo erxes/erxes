@@ -1,20 +1,11 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { ISafeRemainder } from '../../../models/definitions/safeRemainders';
-import {
-  SAFE_REMAINDER_STATUSES,
-  SAFE_REMITEM_STATUSES
-} from '../../../models/definitions/constants';
+import { SAFE_REMAINDER_STATUSES } from '../../../models/definitions/constants';
 import { sendProductsMessage } from '../../../messageBroker';
 import { updateLiveRemainder } from './utils';
 
-export interface IUpdateSafeRemItemParams {
-  _id: string;
-  status?: string;
-  remainder: number;
-}
-
-const remainderMutations = {
+const safeRemainderMutations = {
   async createSafeRemainder(
     _root,
     params: ISafeRemainder,
@@ -96,7 +87,7 @@ const remainderMutations = {
       });
     }
 
-    await models.SafeRemItems.insertMany(bulkOps);
+    await models.SafeRemainderItems.insertMany(bulkOps);
     return safeRemainder;
   },
 
@@ -107,48 +98,22 @@ const remainderMutations = {
   ) {
     await models.SafeRemainders.getRemainderObject(_id);
 
-    await models.SafeRemItems.deleteMany({ remainderId: _id });
+    await models.SafeRemainderItems.deleteMany({ remainderId: _id });
     //  TODO delete tr
 
     return models.SafeRemainders.deleteOne({ _id });
-  },
-
-  async updateSafeRemItem(
-    _root,
-    params: IUpdateSafeRemItemParams,
-    { models }: IContext
-  ) {
-    const { _id, status, remainder } = params;
-    const item = await models.SafeRemItems.getRemItemObject(_id);
-
-    await models.SafeRemItems.updateOne(
-      { _id },
-      {
-        $set: {
-          lastTrDate: new Date(),
-          count: remainder,
-          status: status || SAFE_REMITEM_STATUSES.CHECKED
-        }
-      }
-    );
-
-    return models.SafeRemItems.getRemItemObject(_id);
-  },
-
-  async removeSafeRemItem(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext
-  ) {
-    await models.SafeRemItems.getRemItemObject(_id);
-
-    return models.SafeRemItems.deleteOne({ _id });
   }
 };
 
-checkPermission(remainderMutations, 'createSafeRemainder', 'manageRemainders');
-checkPermission(remainderMutations, 'removeSafeRemainder', 'manageRemainders');
-checkPermission(remainderMutations, 'updateSafeRemItem', 'manageRemainders');
-checkPermission(remainderMutations, 'removeSafeRemItem', 'manageRemainders');
+checkPermission(
+  safeRemainderMutations,
+  'createSafeRemainder',
+  'manageRemainders'
+);
+checkPermission(
+  safeRemainderMutations,
+  'removeSafeRemainder',
+  'manageRemainders'
+);
 
-export default remainderMutations;
+export default safeRemainderMutations;

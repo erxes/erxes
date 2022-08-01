@@ -3,10 +3,11 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
-import { renderFullName, __ } from '@erxes/ui/src/utils/core';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { __, renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+
 import ParticipantChooser from '../../containers/participants/ParticipantChooser';
 import { IParticipant } from '../../types';
 import ParticipantsForm from './ParticipantsForm';
