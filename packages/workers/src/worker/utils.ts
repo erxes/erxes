@@ -258,10 +258,9 @@ export const receiveImportRemove = async (
   models: IModels,
   subdomain: string
 ) => {
+  const { contentType, importHistoryId } = content;
   try {
     debugWorkers(`Remove import called`);
-
-    const { contentType, importHistoryId } = content;
 
     const handleOnEndWorker = async () => {
       debugWorkers(`Remove import ended`);
@@ -304,7 +303,7 @@ export const receiveImportRemove = async (
   } catch (e) {
     debugWorkers(`Failed to remove import: ${e.message}`);
     return models.ImportHistory.updateOne(
-      { _id: 'importHistoryId' },
+      { _id: importHistoryId },
       { error: e.message }
     );
   }
@@ -446,7 +445,7 @@ export const receiveImportCreate = async (
       });
     } catch (e) {
       return models.ImportHistory.updateOne(
-        { _id: 'importHistoryId' },
+        { _id: importHistoryId },
         { error: e.message }
       );
     }
@@ -464,7 +463,7 @@ export const receiveImportCreate = async (
     });
   } catch (e) {
     return models.ImportHistory.updateOne(
-      { _id: 'importHistoryId' },
+      { _id: importHistoryId },
       { error: e.message }
     );
   }
