@@ -67,7 +67,17 @@ export const basicFields = `
   code
   email
   phone
+  companyName
+  companyRegistrationNumber
   clientPortalId
+  type
+
+  clientPortal {
+    name
+  }
+
+  erxesCustomerId
+  erxesCompanyId
 
   modifiedAt
   ownerId

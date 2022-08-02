@@ -21,6 +21,7 @@ export const types = `
 
 const qryParams = `
   searchValue: String
+
 `;
 
 export const queries = `
@@ -28,6 +29,8 @@ export const queries = `
   performsByOverallWorkId(overallWorkId: String, ${qryParams}):  [Perform]
   performsByOverallWorkIdTotalCount(overallWorkId: String, ${qryParams}): Int
   performsTotalCount(${qryParams}): Int
+
+  allProducts: JSON
 `;
 
 const performParams = `

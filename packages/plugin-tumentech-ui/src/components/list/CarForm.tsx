@@ -3,47 +3,47 @@ import {
   Button,
   CollapseContent,
   ControlLabel,
+  extractAttachment,
   Form,
   FormControl,
   FormGroup,
+  generateCategoryOptions,
+  MainStyleDateContainer as DateContainer,
   MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  generateCategoryOptions,
-  MainStyleDateContainer as DateContainer,
-  extractAttachment
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Uploader from '@erxes/ui/src/components/Uploader';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 
 import {
-  OWNER_TYPES,
+  BOW_TYPES,
+  BRAKE_TYPES,
   CAR_FUEL_TYPES,
   CAR_STEERING_WHEEL,
-  MANUFACTURE_TYPES,
-  DRIVING_CLASSIFICATION,
-  REPAIR_SERVICE_TYPES,
-  TRANSMISSION_TYPES,
-  ENGINE_CHANGE,
-  TRAILER_TYPES,
-  BRAKE_TYPES,
-  BOW_TYPES,
-  TIRE_LOAD_TYPES,
-  FLOOR_TYPE,
-  LIFT_TYPE,
   DOOR_CHANGE,
-  SEAT_CHANGE,
+  DRIVING_CLASSIFICATION,
+  ENGINE_CHANGE,
+  FLOOR_TYPE,
   INTERVAL_TYPES,
-  WAGON_CAPACITY_TYPES,
-  LIFT_WAGON_CAPACITY_TYPES,
   LIFT_CHANGE,
-  RUNNING_TYPES
+  LIFT_TYPE,
+  LIFT_WAGON_CAPACITY_TYPES,
+  MANUFACTURE_TYPES,
+  OWNER_TYPES,
+  REPAIR_SERVICE_TYPES,
+  RUNNING_TYPES,
+  SEAT_CHANGE,
+  TIRE_LOAD_TYPES,
+  TRAILER_TYPES,
+  TRANSMISSION_TYPES,
+  WAGON_CAPACITY_TYPES
 } from '../../constants';
-import { ICar, ICarCategory, ICarDoc, ITrailer } from '../../types';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import { ICar, ICarCategory, ICarDoc } from '../../types';
 
 const generateOptionsConstants = (items, isEmpty = false) => {
   const result: React.ReactNode[] = [];

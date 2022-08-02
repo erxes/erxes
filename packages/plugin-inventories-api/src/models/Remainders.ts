@@ -28,14 +28,15 @@ export interface IRemainderModel extends Model<IRemainderDocument> {
 
 export const loadRemainderClass = (models: IModels) => {
   class Remainder {
-    /*
+    /**
      * Get a remainder
      */
     public static async getRemainderObject(_id: string) {
       const remainder = await models.Remainders.findOne({ _id });
 
       if (!remainder) {
-        throw new Error('Remainder not found');
+        // throw new Error('Remainder not found');
+        return;
       }
 
       return remainder;
@@ -132,6 +133,8 @@ export const loadRemainderClass = (models: IModels) => {
         ...doc,
         createdAt: new Date()
       });
+
+      console.log('CREATED: ', remainder);
 
       return remainder;
     }

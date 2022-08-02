@@ -38,48 +38,14 @@ export const types = `
     remainders: [SafeRemainder],
     totalCount: Float,
   }
-
-  type SafeRemItem {
-    _id: String,
-    modifiedAt: Date,
-    status: String,
-    lastTrDate: Date,
-    remainderId: String,
-    productId: String,
-    quantity: Float,
-    uomId: String,
-    preCount: Float,
-    count: Float,
-    branchId: String,
-    departmentId: String,
-
-    product: Product
-    uom: Uom_
-  }
-
-  type SafeRemItemCount {
-    count: Int
-  }
-`;
-
-const safeRemItemsFilterParams = `
-  remainderId: String!,
-  status: String,
-  productCategoryId: String,
-  searchValue: String,
-  diffType: String
 `;
 
 export const queries = `
   safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
-  safeRemItems(${safeRemItemsFilterParams}): [SafeRemItem]
-  safeRemItemsCount(${safeRemItemsFilterParams}): Int
 `;
 
 export const mutations = `
   createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
   removeSafeRemainder(_id: String!): JSON
-  updateSafeRemItem(_id: String, status: String, remainder: Float): SafeRemItem
-  removeSafeRemItem(_id: String): JSON
 `;

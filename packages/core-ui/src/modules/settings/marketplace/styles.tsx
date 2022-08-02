@@ -97,6 +97,7 @@ const PaddingBottom = styled.div`
 `;
 
 // Plugin Preview
+
 const ListHeader = styled.div`
   padding: ${dimensions.coreSpacing}px 0px;
 `;
@@ -114,18 +115,19 @@ const PluginContainer = styled.div`
   flex-wrap: wrap;
 `;
 
-const Card = styled.div`
+const CardWrapper = styled.div`
   margin-right: ${dimensions.coreSpacing}px;
   margin-bottom: ${dimensions.coreSpacing}px;
   width: 23%;
   min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
   border-radius: 8px;
-  padding: ${dimensions.unitSpacing}px;
+`;
 
-  a {
-    color: inherit;
-  }
+const Card = styled.div`
+  width: inherit;
+  padding: ${dimensions.unitSpacing}px;
+  color: ${colors.textPrimary};
 
   &:hover {
     box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
@@ -209,14 +211,6 @@ const Center = styled.div`
   align-items: center;
 `;
 
-const Carousel = styled.div`
-  height: 250px;
-  width: 100%;
-  background-color: ${colors.bgGray};
-  border-radius: 8px;
-  margin: ${dimensions.unitSpacing}px 0;
-`;
-
 const DetailInformation = styled.div`
   display: flex;
   flex-direction: column;
@@ -237,6 +231,66 @@ const Hashtag = styled.div`
 
 const Detail = styled.div`
   padding-bottom: ${dimensions.unitSpacing}px;
+`;
+
+// Carousel
+
+const CarouselWrapper = styled.div`
+  height: 250px;
+  width: 100%;
+  padding-bottom: ${dimensions.coreSpacing}px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+`;
+
+const Buttons = styledTS<{ placement?: string }>(styled.div)`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: ${props => props.placement};
+  align-items: center;
+`;
+
+const SliderButton = styledTS<{ active?: boolean }>(styled.div)`
+  display: ${props => !props.active && 'none'};
+
+  &:hover {
+    cursor: pointer;
+    i {
+      color: ${colors.colorPrimary};
+    }
+  }
+`;
+
+const Dots = styled.div`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
+const Dot = styledTS<{ active: boolean }>(styled.div)`
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  margin: 0 3px;
+  border: 1px solid ${props =>
+    props.active ? colors.colorPrimary : colors.borderDarker};
+  background-color: ${props => props.active && colors.colorPrimary};
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const Image = styled.img`
+  height: 230px;
+  max-width: calc(100% - 50px);
 `;
 
 // Detail right sidebar
@@ -469,6 +523,7 @@ export {
   ListTitle,
   ColorText,
   PluginContainer,
+  CardWrapper,
   Card,
   PluginPic,
   PluginInformation,
@@ -476,7 +531,12 @@ export {
   DetailMainContainer,
   PluginTitle,
   Center,
-  Carousel,
+  CarouselWrapper,
+  Buttons,
+  SliderButton,
+  Dots,
+  Dot,
+  Image,
   DetailInformation,
   Hashtag,
   Detail,

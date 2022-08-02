@@ -14,6 +14,8 @@ import {
 import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
 import CardSelect from './CardSelect';
+import { IAttachment, IField } from '@erxes/ui/src/types';
+import GenerateAddFormFields from './GenerateAddFormFields';
 
 type Props = {
   options: IOptions;
@@ -27,6 +29,8 @@ type Props = {
   fetchCards: (stageId: string, callback: (cards: any) => void) => void;
   closeModal: () => void;
   callback?: (item?: IItem) => void;
+  fields: IField[];
+  refetchFields: ({ pipelineId }: { pipelineId: string }) => void;
 };
 
 type State = {
@@ -37,6 +41,14 @@ type State = {
   pipelineId: string;
   cards: any;
   cardId: string;
+  customFieldsData: any[];
+  priority?: string;
+  labelIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
+  assignedUserIds?: string[];
+  attachments?: IAttachment[];
+  description?: string;
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -53,7 +65,8 @@ class AddForm extends React.Component<Props, State> {
       name:
         localStorage.getItem(`${props.options.type}Name`) ||
         props.mailSubject ||
-        ''
+        '',
+      customFieldsData: []
     };
   }
 
@@ -68,14 +81,31 @@ class AddForm extends React.Component<Props, State> {
         }
       });
     }
+
+    if (name === 'pipelineId') {
+      this.props.refetchFields({ pipelineId: value });
+    }
+
     this.setState(({ [name]: value } as unknown) as Pick<State, keyof State>);
   };
 
   save = e => {
     e.preventDefault();
 
-    const { stageId, name, cardId } = this.state;
-    const { saveItem, closeModal, callback } = this.props;
+    const {
+      stageId,
+      name,
+      cardId,
+      customFieldsData,
+      priority,
+      labelIds,
+      startDate,
+      closeDate,
+      assignedUserIds,
+      description,
+      attachments
+    } = this.state;
+    const { saveItem, closeModal, callback, fields } = this.props;
 
     if (!stageId) {
       return Alert.error('No stage');
@@ -85,11 +115,59 @@ class AddForm extends React.Component<Props, State> {
       return Alert.error('Please enter name or select card');
     }
 
-    const doc = {
+    for (const field of fields) {
+      const customField =
+        customFieldsData.find(c => c.field === field._id) || {};
+
+      if (field.isRequired) {
+        let alert = false;
+
+        if (field.isDefinedByErxes && !this.state[field.field || '']) {
+          alert = true;
+        } else if (!field.isDefinedByErxes && !customField.value) {
+          alert = true;
+        }
+
+        if (alert) {
+          return Alert.error('Please enter or choose a required field');
+        }
+      }
+    }
+
+    const doc: any = {
       name,
       stageId,
+      customFieldsData,
       _id: cardId
     };
+
+    if (priority) {
+      doc.priority = priority;
+    }
+
+    if (labelIds && labelIds.length > 0) {
+      doc.labelIds = labelIds;
+    }
+
+    if (startDate) {
+      doc.startDate = startDate;
+    }
+
+    if (closeDate) {
+      doc.closeDate = closeDate;
+    }
+
+    if (assignedUserIds && assignedUserIds.length > 0) {
+      doc.assignedUserIds = assignedUserIds;
+    }
+
+    if (attachments) {
+      doc.attachments = attachments;
+    }
+
+    if (description) {
+      doc.description = description;
+    }
 
     // before save, disable save button
     this.setState({ disabled: true });
@@ -188,6 +266,12 @@ class AddForm extends React.Component<Props, State> {
               </AddFormWidth>
             </HeaderContent>
           </HeaderRow>
+          <GenerateAddFormFields
+            pipelineId={this.state.pipelineId}
+            onChangeField={this.onChangeField}
+            customFieldsData={this.state.customFieldsData}
+            fields={this.props.fields}
+          />
         </SelectContainer>
         <FormFooter>
           <Button

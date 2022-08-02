@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 import { PARTICIPATION_STATUSES } from '../../constants';
 import { field, schemaHooksWrapper } from './utils';
 

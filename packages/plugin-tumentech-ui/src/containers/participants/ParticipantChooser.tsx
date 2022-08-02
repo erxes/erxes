@@ -6,7 +6,7 @@ import {
   ParticipantsQueryResponse,
   RemoveParticipantsMutation
 } from '../../types';
-import { Alert, Chooser, Spinner, withProps } from '@erxes/ui/src';
+import { Alert, Chooser, withProps } from '@erxes/ui/src';
 import {
   CustomersQueryResponse,
   ICustomer

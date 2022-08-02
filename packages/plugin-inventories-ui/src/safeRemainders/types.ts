@@ -30,14 +30,13 @@ export type ISafeRemainder = {
   modifiedUser: IUser;
 };
 
-export type ISafeRemItem = {
+export type ISafeRemainderItem = {
   _id: string;
   modifiedAt: Date;
-  lastTrDate: Date;
+  lastTransactionDate: Date;
   status: string;
   remainderId: string;
   productId: string;
-  quantity: number;
   uomId: string;
   preCount: number;
   count: number;
@@ -56,30 +55,32 @@ export type SafeRemainderDetailQueryResponse = {
   safeRemainderDetail: ISafeRemainder;
 } & QueryResponse;
 
-export type SafeRemItemsQueryResponse = {
-  safeRemItems: ISafeRemItem[];
+export type SafeRemainderItemsQueryResponse = {
+  safeRemainderItems: ISafeRemainderItem[];
 } & QueryResponse;
 
-export type SafeRemItemsCountQueryResponse = {
-  safeRemItemsCount: number;
+export type SafeRemainderItemsCountQueryResponse = {
+  safeRemainderItemsCount: number;
 } & QueryResponse;
 
 export type RemoveSafeRemainderMutationResponse = {
   removeSafeRemainder: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
-export type UpdateSafeRemItemsMutationVariables = {
+export type UpdateSafeRemainderItemsMutationVariables = {
   _id: string;
   status?: string;
   remainder: number;
 };
 
-export type UpdateSafeRemItemMutationResponse = {
-  updateSafeRemItem: (params: {
-    variables: UpdateSafeRemItemsMutationVariables;
+export type UpdateSafeRemainderItemMutationResponse = {
+  updateSafeRemainderItem: (params: {
+    variables: UpdateSafeRemainderItemsMutationVariables;
   }) => Promise<any>;
 };
 
-export type RemoveSafeRemItemMutationResponse = {
-  removeSafeRemItem: (params: { variables: { _id: string } }) => Promise<any>;
+export type RemoveSafeRemainderItemMutationResponse = {
+  removeSafeRemainderItem: (params: {
+    variables: { _id: string };
+  }) => Promise<any>;
 };

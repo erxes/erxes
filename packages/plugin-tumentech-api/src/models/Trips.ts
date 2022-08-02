@@ -1,11 +1,12 @@
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import { ITripEdit } from '../graphql/resolvers/mutations/trips';
 import {
-  tripSchema,
+  ITrackingItem,
   ITrip,
   ITripDocument,
-  ITrackingItem
+  tripSchema
 } from './definitions/trips';
 
 export interface ITripModel extends Model<ITripDocument> {

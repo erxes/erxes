@@ -60,6 +60,7 @@ const DealMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
+    type: 'm',
     link: `/deal/${viewType}`
   };
 

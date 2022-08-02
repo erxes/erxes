@@ -4,6 +4,7 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
+import { sendProductsMessage } from '../../../messageBroker';
 
 interface IParam {
   searchValue?: string;
@@ -32,7 +33,7 @@ const generateFilter = (params: IParam, commonQuerySelector) => {
 };
 
 const performQueries = {
-  performs(
+  async performs(
     _root,
     params: IParam & {
       page: number;
@@ -41,6 +42,8 @@ const performQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
+
+    console.log('selector: ', selector);
 
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
@@ -76,6 +79,25 @@ const performQueries = {
     const selector = generateFilter(params, commonQuerySelector);
 
     return models.Performs.find(selector).count();
+  },
+  async allProducts(_root, _args, { subdomain }: IContext) {
+    const productsCount =
+      (await sendProductsMessage({
+        subdomain,
+        action: 'count',
+        data: {},
+        isRPC: true
+      })) || null;
+
+    const productsData =
+      (await sendProductsMessage({
+        subdomain,
+        action: 'find',
+        data: { limit: productsCount },
+        isRPC: true
+      })) || [];
+
+    return productsData;
   }
 };
 

@@ -1,13 +1,14 @@
 import typeDefs from './graphql/typeDefs';
+import * as cors from 'cors';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { posInitialSetup } from './routes';
+import { callBackQpay, posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
 import * as dotenv from 'dotenv';
+import { loadSubscriptions } from './subscriptions';
 
 export let debug;
 export let graphqlPubsub;
@@ -26,7 +27,12 @@ export default {
     };
   },
   hasSubscriptions: true,
-  getHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
+  freeSubscriptions: loadSubscriptions,
+  postHandlers: [{ path: `/pl:posclient/callBackQpay`, method: callBackQpay }],
+  getHandlers: [
+    { path: `/initial-setup`, method: posInitialSetup },
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
+  ],
 
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
@@ -51,14 +57,29 @@ export default {
 
     return context;
   },
-  middlewares: [cookieParser(), posUserMiddleware],
+  corsOptions: {
+    credentials: true,
+    origin: [
+      ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
+    ]
+  },
+  middlewares: [
+    cookieParser(),
+    posUserMiddleware,
+    cors({
+      credentials: true,
+      origin: [
+        ...(process.env.ALLOWED_ORIGINS || '')
+          .split(',')
+          .map(c => c && RegExp(c))
+      ]
+    })
+  ],
 
   onServerInit: async options => {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     graphqlPubsub = options.pubsubClient;
 

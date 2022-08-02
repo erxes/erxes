@@ -15,6 +15,7 @@ const fieldCommonFields = `
   code: String
   searchable: Boolean
   showInCard: Boolean
+  isVisibleToCreate: Boolean
   productCategoryId: String
 `;
 
@@ -68,6 +69,7 @@ export const fieldsTypes = ({ products }) => `
     contentType: String!
     contentTypeId: String
     name: String
+    field: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
@@ -120,7 +122,7 @@ export const fieldsTypes = ({ products }) => `
 
 export const fieldsQueries = `
   fieldsGetTypes: [JSON]
-  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean): [Field]
+  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String): [Field]
   fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
 `;
@@ -143,6 +145,7 @@ const fieldsCommonFields = `
   searchable: Boolean
   showInCard: Boolean
   objectListConfigs: [objectListConfigInput]
+  isVisibleToCreate: Boolean
 `;
 
 export const fieldsMutations = `
@@ -152,6 +155,7 @@ export const fieldsMutations = `
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]
   fieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : Field
+  fieldsUpdateSystemFields(_id: String!, isVisibleToCreate: Boolean, isRequired: Boolean) : Field
 `;
 
 export const fieldsGroupsTypes = `

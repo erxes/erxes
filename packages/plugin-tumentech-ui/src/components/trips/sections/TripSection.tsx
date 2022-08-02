@@ -1,11 +1,12 @@
 import {
   __,
-  Sidebar,
   FieldStyle,
+  Sidebar,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src';
 import React from 'react';
+
 import { ITrip } from '../../../types';
 
 type Props = {

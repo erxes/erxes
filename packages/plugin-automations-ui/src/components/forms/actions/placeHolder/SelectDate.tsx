@@ -4,7 +4,7 @@ import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import Datetime from '@nateradebaugh/react-datetime';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   config: any;

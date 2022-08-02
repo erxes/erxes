@@ -220,7 +220,7 @@ export type EngageMessageCounts = {
   all: number;
   auto: number;
   manual: number;
-  visitoryAuto: number;
+  visitorAuto: number;
 };
 
 export type CountQueryResponse = {
@@ -267,3 +267,16 @@ export interface IIntegrationWithPhone {
 export type CopyMutationResponse = {
   copyMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
+
+export interface IEngageLog {
+  _id: string;
+  createdAt: Date;
+  engageMessageId: string;
+  message: string;
+  type: string;
+}
+
+export type EngageLogsQueryResponse = {
+  engageLogs: IEngageLog[];
+  fetchMore: any;
+} & QueryResponse;

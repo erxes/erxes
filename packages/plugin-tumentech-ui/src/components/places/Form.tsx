@@ -3,7 +3,6 @@ import {
   IFormProps,
   ILocationOption
 } from '@erxes/ui/src/types';
-import { MapContainer, ModalFooter } from '@erxes/ui/src/styles/main';
 import React, { useState } from 'react';
 
 import Button from '@erxes/ui/src/components/Button';
@@ -14,6 +13,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IPlace } from '../../types';
 import LocationOption from '@erxes/ui-forms/src/settings/properties/components/LocationOption';
 import Map from '@erxes/ui/src/containers/map/Map';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { PROVINCES } from '../../constants';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils/core';

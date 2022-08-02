@@ -2,7 +2,7 @@ import { IStage } from '@erxes/ui-cards/src/boards/types';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import { CloseModal, ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';

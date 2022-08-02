@@ -1,42 +1,37 @@
 import React, { useEffect } from 'react';
-import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { useQuery, useMutation } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
-import { withProps } from '@erxes/ui/src/utils/core';
 import { Alert } from '@erxes/ui/src/utils';
-import { Spinner } from '@erxes/ui/src/components';
 import ManageConfigsComponent from '../../components/actions/ManageConfigs';
 
 type Props = {
   closeModal: () => void;
 };
 
-type FinalProps = {
-  dayConfigQuery: any;
-  save: any;
-  remove: any;
-} & Props;
+const ManageConfigsContainer = (props: Props) => {
+  const { closeModal } = props;
+  const [edit] = useMutation(gql(mutations.timeframesEdit));
+  const [remove] = useMutation(gql(mutations.timeframesRemove));
 
-const ConfigContainer = (props: FinalProps) => {
-  const { closeModal, dayConfigQuery, save, remove } = props;
-  useEffect(() => refetch(), []);
+  const dayConfigQuery = useQuery(gql(queries.timeframes), {
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true
+  });
 
-  const saveData = (update, add) => {
-    save({ variables: { update, add } })
+  const editData = (update: any, add: any) => {
+    edit({ variables: { update, add } })
       .then(() => {
         Alert.success('Day Configs successfully saved!');
       })
       .catch(e => {
         Alert.error(e.message);
       });
+
+    closeModal();
   };
 
-  const refetch = () => {
-    dayConfigQuery.refetch();
-  };
-
-  const removedata = (_id: string) => {
+  const removeData = (_id: string) => {
     remove({ variables: { _id } })
       .then(() => {
         Alert.success('Successfully removed');
@@ -46,32 +41,18 @@ const ConfigContainer = (props: FinalProps) => {
       });
   };
 
-  if (dayConfigQuery.loading) return <Spinner objective={true} />;
-
-  if (dayConfigQuery.error) {
-    return <div>{dayConfigQuery.error.message}</div>;
-  }
+  useEffect(() => {
+    dayConfigQuery.refetch();
+  }, []);
 
   return (
     <ManageConfigsComponent
-      save={saveData}
-      data={dayConfigQuery ? dayConfigQuery.timeframes : []}
+      data={dayConfigQuery.data ? dayConfigQuery.data.timeframes : []}
       closeModal={closeModal}
-      // refetch={refetch}
-      removedata={removedata}
+      edit={editData}
+      remove={removeData}
     />
   );
 };
-export default withProps<Props>(
-  compose(
-    graphql<Props>(gql(queries.timeframes), {
-      name: 'dayConfigQuery'
-    }),
-    graphql<Props>(gql(mutations.saveTimeframes), {
-      name: 'save'
-    }),
-    graphql<Props>(gql(mutations.removeTimeframe), {
-      name: 'remove'
-    })
-  )(ConfigContainer)
-);
+
+export default ManageConfigsContainer;

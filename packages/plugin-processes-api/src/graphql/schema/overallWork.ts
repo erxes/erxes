@@ -37,7 +37,8 @@ const qryParams = `
   inDepartmentId: String,
   outBranchId: String,
   outDepartmentId: String,
-  id: String
+  id: String,
+  jobReferId: String
 `;
 
 export const queries = `

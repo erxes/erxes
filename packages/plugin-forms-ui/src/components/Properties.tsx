@@ -18,6 +18,7 @@ import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 
+// Props
 type Props = {
   queryParams: any;
   refetch?: () => void;
@@ -29,6 +30,11 @@ type Props = {
   updatePropertyDetailVisible: (data: {
     _id: string;
     isVisibleInDetail: boolean;
+  }) => void;
+  updatePropertySystemFields: (data: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
   }) => void;
   updatePropertyGroupVisible: (data: {
     _id: string;
@@ -76,6 +82,7 @@ class Properties extends React.Component<
       removeProperty,
       updatePropertyVisible,
       updatePropertyDetailVisible,
+      updatePropertySystemFields,
       updateFieldOrder
     } = this.props;
 
@@ -89,6 +96,7 @@ class Properties extends React.Component<
         updatePropertyVisible={updatePropertyVisible}
         updateFieldOrder={updateFieldOrder}
         updatePropertyDetailVisible={updatePropertyDetailVisible}
+        updatePropertySystemFields={updatePropertySystemFields}
       />
     );
   };

@@ -16,6 +16,8 @@ export interface IFieldsQuery {
   isVisible?: boolean;
   isDefinedByErxes?: boolean;
   searchable?: boolean;
+  isVisibleToCreate?: boolean;
+  groupId?: any;
 }
 
 const fieldQueries = {
@@ -45,18 +47,22 @@ const fieldQueries = {
   /**
    * Fields list
    */
-  fields(
+  async fields(
     _root,
     {
       contentType,
       contentTypeId,
       isVisible,
-      searchable
+      isVisibleToCreate,
+      searchable,
+      pipelineId
     }: {
       contentType: string;
       contentTypeId: string;
       isVisible: boolean;
+      isVisibleToCreate: boolean;
       searchable: boolean;
+      pipelineId: string;
     },
     { models }: IContext
   ) {
@@ -72,6 +78,33 @@ const fieldQueries = {
 
     if (searchable !== undefined) {
       query.searchable = searchable;
+    }
+
+    let groupIds: string[] = [];
+
+    if (isVisibleToCreate !== undefined) {
+      query.isVisibleToCreate = isVisibleToCreate;
+
+      const erxesDefinedGroup = await models.FieldsGroups.findOne({
+        contentType,
+        isDefinedByErxes: true
+      });
+
+      if (erxesDefinedGroup) {
+        groupIds.push(erxesDefinedGroup._id);
+      }
+    }
+
+    if (pipelineId) {
+      const otherGroupIds: string[] = await models.FieldsGroups.find({
+        'config.boardsPipelines.pipelineIds': { $in: [pipelineId] }
+      }).distinct('_id');
+
+      groupIds = groupIds.concat(otherGroupIds);
+    }
+
+    if (groupIds && groupIds.length > 0) {
+      query.groupId = { $in: groupIds };
     }
 
     return models.Fields.find(query).sort({ order: 1 });

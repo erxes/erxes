@@ -1,35 +1,35 @@
 import * as mongoose from 'mongoose';
+/* Definitions */
 import { IRemainderDocument } from './models/definitions/remainders';
+import { ITransactionDocument } from './models/definitions/transactions';
+import { ITransactionItemDocument } from './models/definitions/transactionItems';
+import { ISafeRemainderDocument } from './models/definitions/safeRemainders';
+import { ISafeRemainderItemDocument } from './models/definitions/safeRemainderItems';
+/** Models and classes loaders */
 import { IRemainderModel, loadRemainderClass } from './models/Remainders';
+import { ITransactionModel, loadTransactionClass } from './models/Transactions';
 import {
-  ITransactionDocument,
-  ITrItemDocument
-} from './models/definitions/transactions';
-import {
-  ITransactionModel,
-  ITrItemModel,
-  loadTransactionClass,
-  loadTrItemClass
-} from './models/Transactions';
-import { IContext as IMainContext } from '@erxes/api-utils/src';
-import { createGenerateModels } from '@erxes/api-utils/src/core';
+  ITransactionItemModel,
+  loadTransactionItemClass
+} from './models/TransactionItems';
 import {
   ISafeRemainderModel,
-  ISafeRemItemModel,
-  loadSafeRemainderClass,
-  loadSafeRemItemClass
+  loadSafeRemainderClass
 } from './models/SafeRemainders';
 import {
-  ISafeRemainderDocument,
-  ISafeRemItemDocument
-} from './models/definitions/safeRemainders';
+  ISafeRemainderItemModel,
+  loadSafeRemainderItemClass
+} from './models/SafeRemainderItems';
+
+import { IContext as IMainContext } from '@erxes/api-utils/src';
+import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
-  TrItems: ITrItemModel;
   Transactions: ITransactionModel;
+  TransactionItems: ITransactionItemModel;
   Remainders: IRemainderModel;
   SafeRemainders: ISafeRemainderModel;
-  SafeRemItems: ISafeRemItemModel;
+  SafeRemainderItems: ISafeRemainderItemModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -45,10 +45,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'transactions',
     loadTransactionClass(models)
   );
-  models.TrItems = db.model<ITrItemDocument, ITrItemModel>(
-    'tr_items',
-    loadTrItemClass(models)
-  );
+  models.TransactionItems = db.model<
+    ITransactionItemDocument,
+    ITransactionItemModel
+  >('transaction_items', loadTransactionItemClass(models));
   models.Remainders = db.model<IRemainderDocument, IRemainderModel>(
     'remainders',
     loadRemainderClass(models)
@@ -57,10 +57,10 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'safe_remainders',
     loadSafeRemainderClass(models)
   );
-  models.SafeRemItems = db.model<ISafeRemItemDocument, ISafeRemItemModel>(
-    'safe_rem_items',
-    loadSafeRemItemClass(models)
-  );
+  models.SafeRemainderItems = db.model<
+    ISafeRemainderItemDocument,
+    ISafeRemainderItemModel
+  >('safe_remainder_items', loadSafeRemainderItemClass(models));
 
   return models;
 };

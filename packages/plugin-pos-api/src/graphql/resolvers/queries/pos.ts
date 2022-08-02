@@ -3,7 +3,12 @@ import messageBroker, {
   sendCoreMessage,
   sendProductsMessage
 } from '../../../messageBroker';
-import { getFullDate, getTomorrow } from '../../../utils';
+import {
+  getBranchesUtil,
+  getFullDate,
+  getPureDate,
+  getTomorrow
+} from '../../../utils';
 import { IContext } from '../../../connectionResolver';
 
 export const paginate = (
@@ -78,10 +83,10 @@ const generateFilterPosQuery = async (
 
   const paidQry: any = {};
   if (paidStartDate) {
-    paidQry.$gte = new Date(paidStartDate);
+    paidQry.$gte = getPureDate(paidStartDate);
   }
   if (paidEndDate) {
-    paidQry.$lte = new Date(paidEndDate);
+    paidQry.$lte = getPureDate(paidEndDate);
   }
   if (Object.keys(paidQry).length) {
     query.paidDate = paidQry;
@@ -97,10 +102,10 @@ const generateFilterPosQuery = async (
 
   const createdQry: any = {};
   if (createdStartDate) {
-    createdQry.$gte = new Date(createdStartDate);
+    createdQry.$gte = getPureDate(createdStartDate);
   }
   if (createdEndDate) {
-    createdQry.$lte = new Date(createdEndDate);
+    createdQry.$lte = getPureDate(createdEndDate);
   }
   if (Object.keys(createdQry).length) {
     query.createdAt = createdQry;
@@ -127,69 +132,7 @@ const queries = {
     { posToken },
     { models, subdomain }: IContext
   ) => {
-    const pos = await models.Pos.findOne({ token: posToken }).lean();
-
-    if (!pos) {
-      return { error: 'not found pos' };
-    }
-
-    const allowsPos = await models.Pos.find({
-      isOnline: { $ne: true },
-      branchId: { $in: pos.allowBranchIds }
-    }).lean();
-
-    const healthyBranchIds = [] as any;
-
-    for (const allowPos of allowsPos) {
-      const syncIds = Object.keys(allowPos.syncInfos || {}) || [];
-
-      if (!syncIds.length) {
-        continue;
-      }
-
-      for (const syncId of syncIds) {
-        const syncDate = allowPos.syncInfos[syncId];
-
-        // expired sync 72 hour
-        if (
-          (new Date().getTime() - syncDate.getTime()) / (60 * 60 * 1000) >
-          72
-        ) {
-          continue;
-        }
-
-        const longTask = async () =>
-          await messageBroker().sendRPCMessage(
-            `rpc_queue:health_check_${syncId}`,
-            {
-              thirdService: true
-            }
-          );
-
-        const timeout = (cb, interval) => () =>
-          new Promise(resolve => setTimeout(() => cb(resolve), interval));
-
-        const onTimeout = timeout(resolve => resolve({}), 3000);
-
-        let response = { healthy: 'down' };
-        await Promise.race([longTask, onTimeout].map(f => f())).then(
-          result => (response = result)
-        );
-
-        if (response.healthy === 'ok') {
-          healthyBranchIds.push(allowPos.branchId);
-          break;
-        }
-      }
-    }
-
-    return await sendCoreMessage({
-      subdomain,
-      action: 'branches.find',
-      data: { query: { _id: { $in: healthyBranchIds } } },
-      isRPC: true,
-      defaultValue: []
-    });
+    return await getBranchesUtil(subdomain, models, posToken);
   },
 
   productGroups: async (
@@ -325,7 +268,7 @@ const queries = {
         subdomain,
         action: 'categories.find',
         data: {
-          regData: { order: { $regex: new RegExp(category.order) } }
+          regData: category.order
         },
         isRPC: true,
         defaultValue: []
@@ -388,24 +331,39 @@ const queries = {
         $project: {
           productId: '$items.productId',
           count: '$items.count',
+          date: '$paidDate',
           amount: { $multiply: ['$items.unitPrice', '$items.count'] }
         }
       },
       {
         $group: {
-          _id: '$productId',
+          _id: { productId: '$productId', hour: { $hour: '$date' } },
           count: { $sum: '$count' },
           amount: { $sum: '$amount' }
         }
       }
     ]);
 
-    for (const product of products) {
-      const { count = 0, amount = 0 } =
-        items.find(i => i._id === product._id) || {};
+    const diffZone = process.env.TIMEZONE;
 
-      product.count = count;
-      product.amount = amount;
+    for (const product of products) {
+      product.counts = {};
+      product.count = 0;
+      product.amount = 0;
+
+      const itemsByProduct =
+        items.filter(i => i._id.productId === product._id) || [];
+
+      for (const item of itemsByProduct) {
+        const { _id, count, amount } = item;
+        const { hour } = _id;
+
+        const pureHour = Number(hour) + Number(diffZone || 0);
+
+        product.counts[pureHour] = count;
+        product.count += count;
+        product.amount += amount;
+      }
     }
 
     return { totalCount, products };

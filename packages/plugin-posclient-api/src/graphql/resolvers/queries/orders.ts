@@ -79,7 +79,7 @@ const orderQueries = {
     );
   },
 
-  orderDetail(_root, { _id }, { posUser, user, models }: IContext) {
+  async orderDetail(_root, { _id }, { posUser, user, models }: IContext) {
     if (posUser) {
       return models.Orders.findOne({ _id });
     }

@@ -57,7 +57,7 @@ const posAdd = `
 `;
 
 const posEdit = `
-  mutation posEdit($_id: String, ${commonFields}) {
+  mutation posEdit($_id: String!, ${commonFields}) {
     posEdit(_id: $_id, ${commonVariables}){
       ${posCommonFields}
     }
@@ -85,7 +85,7 @@ const brandAdd = `
 `;
 
 const saveProductGroups = `
-  mutation productGroupsBulkInsert($posId: String, $groups: [GroupInput]) {
+  mutation productGroupsBulkInsert($posId: String!, $groups: [GroupInput]) {
     productGroupsBulkInsert(posId: $posId, groups: $groups) {
       _id
     }

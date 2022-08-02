@@ -1,13 +1,13 @@
-import React from 'react';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { IRoute } from '../../types';
-import { ROAD_CONDITIONS } from '../../constants';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
 import RouteForm from '../../containers/routes/Form';
+import { IRoute } from '../../types';
 
 type Props = {
   route: IRoute;

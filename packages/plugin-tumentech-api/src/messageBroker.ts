@@ -1,4 +1,5 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+
 import { serviceDiscovery } from './configs';
 
 let client;

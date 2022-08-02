@@ -1,8 +1,8 @@
+import { IContext } from '../../../connectionResolver';
 import {
   IParticipant,
   IParticipantDocument
 } from './../../../models/definitions/participants';
-import { IContext } from '../../../connectionResolver';
 
 interface IParticipantEdit extends IParticipant {
   _id: string;

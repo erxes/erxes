@@ -1,7 +1,8 @@
-import gql from 'graphql-tag';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import gql from 'graphql-tag';
 import React from 'react';
+
 import PlaceForm from '../../components/places/Form';
 import { mutations, queries } from '../../graphql';
 

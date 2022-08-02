@@ -1,9 +1,10 @@
+import { router } from '@erxes/ui/src';
+import gql from 'graphql-tag';
 import React from 'react';
 import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
+
 import List from '../../components/trips/List';
 import { queries } from '../../graphql';
-import { router } from '@erxes/ui/src';
 
 type Props = {
   queryParams: any;

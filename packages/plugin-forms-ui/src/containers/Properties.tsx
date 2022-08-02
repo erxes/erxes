@@ -2,6 +2,11 @@ import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
+  FieldsEditMutationResponse,
+  FieldsGroupsQueryResponse,
+  FieldsUpdateVisibilityToCreateMutationResponse
+} from '@erxes/ui-forms/src/settings/properties/types';
+import {
   FieldsGroupsRemoveMutationResponse,
   FieldsGroupsUpdateVisibleMutationResponse,
   FieldsRemoveMutationResponse,
@@ -15,7 +20,6 @@ import {
   queries
 } from '@erxes/ui-forms/src/settings/properties/graphql';
 
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Properties from '../components/Properties';
 import React from 'react';
@@ -39,6 +43,7 @@ type FinalProps = {
   FieldsGroupsUpdateVisibleMutationResponse &
   FieldsUpdateVisibleMutationResponse &
   FieldsUpdateOrderMutationResponse &
+  FieldsUpdateVisibilityToCreateMutationResponse &
   GroupsUpdateOrderMutationResponse &
   IRouterProps;
 
@@ -51,6 +56,7 @@ const PropertiesContainer = (props: FinalProps) => {
     fieldsGroupsUpdateVisible,
     fieldsUpdateVisible,
     fieldsUpdateOrder,
+    fieldsUpdateSystemFields,
     groupsUpdateOrder,
     queryParams,
     fieldsGetTypes
@@ -106,6 +112,26 @@ const PropertiesContainer = (props: FinalProps) => {
     })
       .then(() => {
         Alert.success('You changed a property field visibility');
+      })
+      .catch(e => {
+        Alert.error(e.message);
+      });
+  };
+
+  const updatePropertySystemFields = ({
+    _id,
+    isVisibleToCreate,
+    isRequired
+  }: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
+  }) => {
+    fieldsUpdateSystemFields({
+      variables: { _id, isVisibleToCreate, isRequired }
+    })
+      .then(() => {
+        Alert.success('You changed a property field');
       })
       .catch(e => {
         Alert.error(e.message);
@@ -175,6 +201,7 @@ const PropertiesContainer = (props: FinalProps) => {
     updatePropertyVisible,
     updatePropertyDetailVisible,
     updatePropertyGroupVisible,
+    updatePropertySystemFields,
     updateFieldOrder,
     updateGroupOrder
   };
@@ -220,6 +247,13 @@ export default withProps<Props>(
       gql(mutations.fieldsRemove),
       {
         name: 'fieldsRemove',
+        options
+      }
+    ),
+    graphql<Props, FieldsEditMutationResponse, { _id: string }>(
+      gql(mutations.fieldsUpdateSystemFields),
+      {
+        name: 'fieldsUpdateSystemFields',
         options
       }
     ),

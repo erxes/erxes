@@ -9,7 +9,6 @@ import {
   InfoWrapper,
   PreviewContent,
   RightSection,
-  Shell,
   Title
 } from '@erxes/ui-engage/src/styles';
 import {
@@ -23,6 +22,7 @@ import {
 } from '@erxes/ui-engage/src/types';
 
 import Attachment from '@erxes/ui/src/components/Attachment';
+import EngageLogsContainer from '../containers/EngageLogsContainer';
 import React from 'react';
 import StatItem from './EngageStatItem';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -250,8 +250,6 @@ class EmailStatistics extends React.Component<Props> {
   render() {
     const { message } = this.props;
 
-    const logs = message.logs || [];
-
     const actionBar = (
       <Wrapper.ActionBar left={<Title>{this.props.message.title}</Title>} />
     );
@@ -274,16 +272,7 @@ class EmailStatistics extends React.Component<Props> {
           <RightSection>
             {this.renderEmailStats()}
             {this.renderSmsStats()}
-            <Shell>
-              <div className="shell-wrap">
-                <p className="shell-top-bar">Log messages</p>
-                <ul className="shell-body">
-                  {logs.map((log, index) => (
-                    <li key={index}>{log.message}</li>
-                  ))}
-                </ul>
-              </div>
-            </Shell>
+            <EngageLogsContainer messageId={message._id} />
           </RightSection>
         </Half>
       </FlexContainer>

@@ -1,5 +1,5 @@
-import { IPlace, IPlaceEdit } from '../../../models/definitions/places';
 import { IContext } from '../../../connectionResolver';
+import { IPlace, IPlaceEdit } from '../../../models/definitions/places';
 
 const placeMutations = {
   placesAdd: async (_root, doc: IPlace, { models }: IContext) => {

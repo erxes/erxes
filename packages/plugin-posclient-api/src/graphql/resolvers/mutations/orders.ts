@@ -117,7 +117,8 @@ const orderMutations = {
       type: doc.type,
       totalAmount: getTotalAmount(preparedDoc.items),
       billType: doc.billType || BILL_TYPES.CITIZEN,
-      registerNumber: doc.registerNumber || ''
+      registerNumber: doc.registerNumber || '',
+      slotCode: doc.slotCode
     });
 
     return updatedOrder;
@@ -274,6 +275,7 @@ const orderMutations = {
 
     return models.Orders.findOne({ _id: order._id });
   },
+
   async ordersCancel(_root, { _id }, { models }: IContext) {
     const order = await models.Orders.getOrder(_id);
 

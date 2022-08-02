@@ -109,9 +109,9 @@ const mutations = {
     const oldPosSlots = await models.PosSlots.find({ posId });
 
     const slotIds = slots.map(s => s._id);
-    const toDeleteSlolts = oldPosSlots.filter(s => !slotIds.includes(s._id));
+    const toDeleteSlots = oldPosSlots.filter(s => !slotIds.includes(s._id));
     await models.PosSlots.deleteMany({
-      _id: { $in: toDeleteSlolts.map(s => s._id) }
+      _id: { $in: toDeleteSlots.map(s => s._id) }
     });
 
     const updateSlots = slots.filter(s => s._id);

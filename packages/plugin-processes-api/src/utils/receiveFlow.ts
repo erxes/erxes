@@ -19,17 +19,14 @@ import { sendSalesplansMessage } from '../messageBroker';
 export const rf = async (models: IModels, subdomain: string, params) => {
   let descriptionForWork = '';
   const inputData = params.data;
-  const {
-    branchId,
-    departmentId,
-    interval,
-    salesLogId,
-    intervalId
-  } = inputData;
+  const { branchId, departmentId, interval, salesLogId } = inputData;
   const { intervals } = interval;
 
+  let intervalId = 'intervalId';
+
   for (const intervalData of intervals) {
-    const { productId, count } = intervalData;
+    const { productId, count, label } = intervalData;
+    intervalId = label;
     const flowJobStatus = true;
     const status = 'active';
     const filter = { productId, flowJobStatus, status };
@@ -75,11 +72,12 @@ export const rf = async (models: IModels, subdomain: string, params) => {
 
         console.log('lastJobRefer: ', lastJobRefer[0].name);
 
-        const doc: IWork = initDocWork(
+        const doc: IWork = await initDocWork(
           flow,
           lastJobRefer[0],
           productId,
           count,
+          subdomain,
           lastJob,
           intervalId
         );
@@ -115,7 +113,8 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             jobRefers,
             models
           },
-          intervalId
+          intervalId,
+          subdomain
         );
 
         for await (const responseleftjob of responseleftjobs) {
@@ -124,11 +123,12 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             jobRefers
           );
 
-          const docLeft: IWork = initDocWork(
+          const docLeft: IWork = await initDocWork(
             flow,
             leftJobRefer[0],
             productId,
             count,
+            subdomain,
             responseleftjob,
             intervalId
           );

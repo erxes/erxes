@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 import { USER_LOGIN_TYPES } from './constants';
 import { field } from './utils';
 
@@ -9,7 +10,7 @@ export interface IUser {
   firstName?: string;
   lastName?: string;
   companyName?: string;
-  companyRegistrationNumber?: String;
+  companyRegistrationNumber?: string;
   code?: string;
   password?: string;
   type?: string;
@@ -50,10 +51,11 @@ export const clientPortalUserSchema = new Schema({
       'Please fill a valid email address'
     ],
     label: 'Email',
-    optional: true
+    optional: true,
+    sparse: true
   }),
-  phone: field({ type: String, unique: true, optional: true }),
-  username: field({ type: String, optional: true, unique: true }),
+  phone: field({ type: String, unique: true, optional: true, sparse: true }),
+  username: field({ type: String, optional: true, unique: true, sparse: true }),
   code: field({ type: String, optional: true }),
   password: field({ type: String }),
   firstName: field({ type: String, optional: true }),
@@ -97,7 +99,7 @@ export const clientPortalUserSchema = new Schema({
 });
 
 clientPortalUserSchema.index(
-  { createdAt: 1 },
+  { createdAt: 1, userName: 1, email: 1, phone: 1 },
   {
     expireAfterSeconds: 24 * 60 * 60,
     partialFilterExpression: {

@@ -106,7 +106,6 @@ const remainderQueries = {
     }
 
     const remainders = await models.Remainders.find(remQuery).lean();
-    console.log(remainders);
 
     for (const product of products) {
       const { count = 0, uomId = '' } =

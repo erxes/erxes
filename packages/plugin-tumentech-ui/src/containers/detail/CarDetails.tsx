@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
 import CarDetails from '../../components/detail/CarDetails';
 import { queries } from '../../graphql';
 import { DetailQueryResponse } from '../../types';

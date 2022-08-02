@@ -22,9 +22,16 @@ const ticketMutations = {
   async ticketsAdd(
     _root,
     doc: ITicket & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsAdd(models, subdomain, doc, 'ticket', models.Tickets.createTicket, user, docModifier);
+    return itemsAdd(
+      models,
+      subdomain,
+      doc,
+      'ticket',
+      models.Tickets.createTicket,
+      user
+    );
   },
 
   /**
@@ -53,14 +60,29 @@ const ticketMutations = {
   /**
    * Change ticket
    */
-  async ticketsChange(_root, doc: IItemDragCommonFields, { user, models, subdomain }: IContext) {
-    return itemsChange(models, subdomain, doc, 'ticket', user, models.Tickets.updateTicket);
+  async ticketsChange(
+    _root,
+    doc: IItemDragCommonFields,
+    { user, models, subdomain }: IContext
+  ) {
+    return itemsChange(
+      models,
+      subdomain,
+      doc,
+      'ticket',
+      user,
+      models.Tickets.updateTicket
+    );
   },
 
   /**
    * Remove ticket
    */
-  async ticketsRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+  async ticketsRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     return itemsRemove(models, subdomain, _id, 'ticket', user);
   },
 

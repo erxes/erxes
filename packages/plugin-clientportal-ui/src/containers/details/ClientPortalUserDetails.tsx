@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
+import { IUser } from '@erxes/ui/src/auth/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { withProps } from '@erxes/ui/src/utils';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import ClientPortalDetail from '../../components/detail/ClientPortalUserDetails';
-import { ClientPoratlUserDetailQueryResponse } from '../../types';
-import { IUser } from '@erxes/ui/src/auth/types';
+
+import ClientPortalUserDetail from '../../components/detail/ClientPortalUserDetails';
 import { queries } from '../../graphql';
+import { ClientPoratlUserDetailQueryResponse } from '../../types';
 
 type Props = {
   id: string;
+  history: any;
 };
 
 type FinalProps = {
@@ -42,7 +44,7 @@ function CustomerDetailsContainer(props: FinalProps) {
     currentUser
   };
 
-  return <ClientPortalDetail {...updatedProps} />;
+  return <ClientPortalUserDetail {...updatedProps} />;
 }
 
 export default withProps<Props>(

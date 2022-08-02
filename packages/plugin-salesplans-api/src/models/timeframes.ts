@@ -7,16 +7,16 @@ import {
 } from './definitions/timeframes';
 
 export interface ITimeframeModel extends Model<ITimeframeDocument> {
-  saveTimeframes(doc: {
+  timeframesEdit(doc: {
     add: ITimeframe[];
     update: ITimeframeDocument[];
   }): Promise<ITimeframeDocument[]>;
-  removeTimeframe(_id: string): Promise<JSON>;
+  timeframesRemove(_id: string): Promise<JSON>;
 }
 
 export const loadTimeframeClass = (models: IModels) => {
   class Timeframe {
-    public static async saveTimeframes(doc: {
+    public static async timeframesEdit(doc: {
       add: ITimeframe[];
       update: ITimeframeDocument[];
     }) {
@@ -34,7 +34,7 @@ export const loadTimeframeClass = (models: IModels) => {
       return await timeframe;
     }
 
-    public static async removeTimeframes(_id: string) {
+    public static async timeframesRemove(_id: string) {
       return await models.Timeframes.remove({ _id });
     }
   }

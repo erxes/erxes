@@ -2,14 +2,11 @@ import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
 
 import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Form } from '@erxes/ui/src/components/form';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IParticipant } from '../../types';
 import List from './List';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 
 type Props = {
   deal?: any;
