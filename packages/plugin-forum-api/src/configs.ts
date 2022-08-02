@@ -18,7 +18,7 @@ export let serviceDiscovery;
 export let debug;
 
 export default {
-  name: 'cms',
+  name: 'forum',
   permissions,
   graphql: async sd => {
     serviceDiscovery = sd;

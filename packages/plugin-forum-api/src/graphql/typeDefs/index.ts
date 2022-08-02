@@ -1,14 +1,14 @@
 import { gql } from 'apollo-server-express';
 import Query from './Query';
 import Mutation from './Mutation';
-import CmsCategory from './CmsCategory';
+import ForumCategory from './ForumCategory';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
     scalar JSON
     scalar Date
 
-    ${CmsCategory}
+    ${ForumCategory}
 
     ${Query}
     ${Mutation}

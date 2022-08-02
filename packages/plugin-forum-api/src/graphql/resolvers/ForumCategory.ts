@@ -1,8 +1,8 @@
-import { IContext } from '../';
+import { IContext } from '..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { ICategory } from '../../db/models/category';
 
-const CmsCategory: IObjectTypeResolver<ICategory, IContext> = {
+const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
   async parent({ parentId }, _, { models }) {
     return models.Category.findById(parentId);
   },
@@ -20,4 +20,4 @@ const CmsCategory: IObjectTypeResolver<ICategory, IContext> = {
   }
 };
 
-export default CmsCategory;
+export default ForumCategory;

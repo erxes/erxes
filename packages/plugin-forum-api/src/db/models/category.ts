@@ -88,7 +88,7 @@ export const generateCategoryModel = (
   categorySchema.loadClass(CategoryModel);
 
   models.Category = con.model<CategoryDocument, ICategoryModel>(
-    'cms_categories',
+    'forum_categories',
     categorySchema
   );
 };
