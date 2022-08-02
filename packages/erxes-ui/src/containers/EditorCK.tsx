@@ -9,7 +9,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { isEnabled } from '../utils/core';
 import { isValidURL } from '../utils/urlParser';
-import segmentQueries from '@erxes/ui-segments/src/graphql/queries';
+import segmentQueries from './queries';
 import { queries as teamQueries } from '../team/graphql';
 import { withProps } from '../utils';
 

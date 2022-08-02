@@ -16,10 +16,8 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import UserDetailForm from '../components/detail/UserDetailForm';
 import UserForm from './UserForm';
 import UserSkillForm from '../components/detail/UserSkillForm';
-import channelQueries from '@erxes/ui-inbox/src/settings/channels/graphql/queries';
 import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import skillQueries from '@erxes/ui-inbox/src/settings/skills/graphql/queries';
 
 type Props = {
   _id: string;
@@ -189,7 +187,7 @@ export default withProps<Props>(
       }),
       skip: !isEnabled('inbox')
     }),
-    graphql(gql(channelQueries.channels), {
+    graphql(gql(queries.channels), {
       name: 'channelsQuery',
       options: commonOptions,
       skip: !isEnabled('inbox')
@@ -202,7 +200,7 @@ export default withProps<Props>(
       }),
       skip: !isEnabled('inbox')
     }),
-    graphql<Props, any>(gql(skillQueries.skillTypes), {
+    graphql<Props, any>(gql(queries.skillTypes), {
       //check - SkillTypesQueryResponse
       name: 'skillTypesQuery',
       skip: !isEnabled('inbox')

@@ -6,11 +6,11 @@ import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import UserForm from '../components/UserForm';
-import channelQueries from '@erxes/ui-inbox/src/settings/channels/graphql/queries';
 import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { isEnabled } from '../../utils/core';
+import { queries } from '../graphql';
 import { queries as usersGroupsQueries } from '@erxes/ui-settings/src/permissions/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -67,7 +67,7 @@ export default withProps<ICommonFormProps>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<{}, any>(gql(channelQueries.channels), {
+    graphql<{}, any>(gql(queries.channels), {
       //check - ChannelsQueryResponse
       name: 'channelsQuery',
       options: () => ({ fetchPolicy: 'network-only' }),

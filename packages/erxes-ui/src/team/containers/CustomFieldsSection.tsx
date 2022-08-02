@@ -1,16 +1,16 @@
 import * as compose from 'lodash.flowright';
 
+import { mutations, queries } from '../graphql';
+
 import { EditMutationResponse } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import asyncComponent from '../../components/AsyncComponent';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { isEnabled } from '../../utils/core';
-import { mutations } from '../graphql';
 import path from 'path';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -71,18 +71,15 @@ const CustomFieldsSection = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any, { contentType: string }>( //check - FieldsGroupsQueryResponse
-      gql(fieldQueries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: 'core:user',
-            isDefinedByErxes: false
-          }
-        })
-      }
-    ),
+    graphql<Props, any, { contentType: string }>(gql(queries.fieldsGroups), { //check - FieldsGroupsQueryResponse
+      name: 'fieldsGroupsQuery',
+      options: () => ({
+        variables: {
+          contentType: 'core:user',
+          isDefinedByErxes: false
+        }
+      })
+    }),
 
     // mutations
     graphql<Props, EditMutationResponse, IUser>(gql(mutations.usersEdit), {
