@@ -2,12 +2,14 @@ import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { IDashboard, IDashboardItem } from '../../types';
+import RTG from 'react-transition-group';
 import {
   BackButton,
   Title,
-  AutomationFormContainer,
+  DashboardFormContainer,
   ActionBarButtonsWrapper,
-  DragField
+  DragField,
+  RightDrawerContainer
 } from '../../styles';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
@@ -17,6 +19,8 @@ import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import DashboardItem from './DashboardItem';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import ChartFrom from '../explore/ChartForm';
 
 const deserializeItem = i => ({
   ...i,
@@ -48,9 +52,13 @@ type Props = {
 type State = {
   isDragging: boolean;
   name: string;
+  showEdit: boolean;
+  showDrawer: boolean;
 };
 
 class Dashboard extends React.Component<Props, State> {
+  private wrapperRef;
+
   constructor(props) {
     super(props);
 
@@ -58,9 +66,15 @@ class Dashboard extends React.Component<Props, State> {
 
     this.state = {
       isDragging: false,
-      name: dashboard.name
+      name: dashboard.name,
+      showEdit: false,
+      showDrawer: false
     };
   }
+
+  setWrapperRef = node => {
+    this.wrapperRef = node;
+  };
 
   setIsDragging = value => {
     this.setState({ isDragging: value });
@@ -116,6 +130,7 @@ class Dashboard extends React.Component<Props, State> {
     return (
       <BarItems>
         <ActionBarButtonsWrapper>
+          {this.renderButtons()}
           <Button
             btnStyle="success"
             size="small"
@@ -153,6 +168,50 @@ class Dashboard extends React.Component<Props, State> {
     );
   }
 
+  toggleDrawer = (_type: string) => {
+    const { showDrawer } = this.state;
+
+    this.setState({ showDrawer: !showDrawer });
+  };
+
+  renderButtons() {
+    return (
+      <>
+        <Button
+          btnStyle="primary"
+          size="small"
+          icon="plus-circle"
+          onClick={this.toggleDrawer.bind(this, 'triggers')}
+        >
+          Add a chart
+        </Button>
+      </>
+    );
+  }
+
+  showEdit = () => {
+    if (this.state.showEdit) {
+      return (
+        <>
+          <TextInfo hugeness="big">edit</TextInfo>
+          <TextInfo hugeness="big" textStyle="danger">
+            delete
+          </TextInfo>
+        </>
+      );
+    }
+
+    return;
+  };
+
+  onMouseOver = () => {
+    this.setState({ showEdit: true });
+  };
+
+  onMouseOut = () => {
+    this.setState({ showEdit: false });
+  };
+
   render() {
     const { dashboard, dashboardItems, dashboardId } = this.props;
 
@@ -170,7 +229,7 @@ class Dashboard extends React.Component<Props, State> {
     return (
       <>
         <HeightedWrapper>
-          <AutomationFormContainer>
+          <DashboardFormContainer>
             <Wrapper.Header
               title={`${(dashboard && dashboard.name) || 'Automation'}`}
               breadcrumb={[
@@ -187,23 +246,30 @@ class Dashboard extends React.Component<Props, State> {
               }
               transparent={false}
             >
-              <DragField
-                cols={6}
-                margin={[30, 30]}
-                containerPadding={[30, 30]}
-                onDragStart={() => this.setIsDragging(true)}
-                onDragStop={() => this.setIsDragging(false)}
-                onResizeStart={() => this.setIsDragging(true)}
-                onResizeStop={() => this.setIsDragging(false)}
-                rowHeight={160}
-                onLayoutChange={this.onLayoutChange}
-                isDragging={this.state.isDragging}
-                useCSSTransforms={true}
-              >
-                {dashboardItems.map(deserializeItem).map(dashboardItem)}
-              </DragField>
+              {!this.state.showDrawer ? (
+                <DragField
+                  cols={6}
+                  margin={[30, 30]}
+                  containerPadding={[30, 30]}
+                  onDragStart={() => this.setIsDragging(true)}
+                  onDragStop={() => this.setIsDragging(false)}
+                  onResizeStart={() => this.setIsDragging(true)}
+                  onResizeStop={() => this.setIsDragging(false)}
+                  rowHeight={160}
+                  onLayoutChange={this.onLayoutChange}
+                  isDragging={this.state.isDragging}
+                  useCSSTransforms={true}
+                >
+                  {dashboardItems.map(deserializeItem).map(dashboardItem)}
+                </DragField>
+              ) : null}
+
+              <ChartFrom
+                showDrawer={this.state.showDrawer}
+                item={dashboardItems[0]}
+              />
             </PageContent>
-          </AutomationFormContainer>
+          </DashboardFormContainer>
         </HeightedWrapper>
       </>
     );

@@ -28,11 +28,6 @@ type Props = {
   chartHeight?: any;
 };
 
-const numberFormatter = item => {
-  console.log(item);
-  return numeral(item).format('0,0');
-};
-
 const nFormatter = num => {
   const si = [
     { value: 1, symbol: '' },
@@ -215,8 +210,6 @@ const ChartRenderer = (props: Props) => {
   const component = TypeToMemoChartComponent[chartType];
   const renderProps = useCubeQuery(query);
   let dateType = '';
-
-  console.log(renderProps);
 
   if (renderProps.resultSet) {
     const { timeDimensions } = query;

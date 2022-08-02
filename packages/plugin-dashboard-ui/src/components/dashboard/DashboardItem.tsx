@@ -7,8 +7,7 @@ type Props = {
 };
 
 type State = {
-  isDragging: boolean;
-  name: string;
+  showEdit: boolean;
 };
 
 class DashboardItem extends React.Component<Props, State> {
@@ -18,13 +17,11 @@ class DashboardItem extends React.Component<Props, State> {
     const height = item.layout.h * 160;
 
     return (
-      <div>
-        <ChartRenderer
-          chartType={item.vizState.chartType}
-          chartHeight={height}
-          query={item.vizState.query}
-        />
-      </div>
+      <ChartRenderer
+        chartType={item.vizState.chartType}
+        chartHeight={height}
+        query={item.vizState.query}
+      />
     );
   }
 }

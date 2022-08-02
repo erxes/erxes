@@ -5,11 +5,19 @@ import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
 import { Contents, FlexContent } from '@erxes/ui/src/layout/styles';
+import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 import RGL, { WidthProvider } from 'react-grid-layout';
 const ReactGridLayout = WidthProvider(RGL);
 
 const Header = styled(PageHeader)`
   min-height: auto;
+`;
+
+export const RightDrawerContainer = styled(RightMenuContainer)`
+  background: ${colors.colorWhite};
+  width: 500px;
+  padding: ${dimensions.unitSpacing}px;
+  z-index: 10;
 `;
 
 const Title = styled(FlexContent)`
@@ -159,7 +167,7 @@ const EmptyContent = styled.div`
   }
 `;
 
-const AutomationFormContainer = styled(Contents)`
+const DashboardFormContainer = styled(Contents)`
   margin: 0;
 
   > section {
@@ -261,6 +269,8 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
       height: 100%;
       border: 2px solid transparent;
       padding: 10px;
+      padding-top: 30px;
+      padding-right:20px;
       box-shadow: 0px 2px 4px rgba(141, 149, 166, 0.1);
       border-radius: 4px;
       &:hover {
@@ -272,6 +282,10 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
 
   .react-grid-item.cssTransforms {
     transition-property: transform;
+  }
+
+  .recharts-tooltip-wrapper{
+    background-color:black
   }
 
   .react-grid-item.resizing {
@@ -328,7 +342,7 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
 export {
   DragField,
   ActionBarButtonsWrapper,
-  AutomationFormContainer,
+  DashboardFormContainer,
   BackButton,
   Title,
   RightActions,
