@@ -47,7 +47,6 @@ type Props = {
   pipelineText?: string;
   options: IOptions;
   viewType: string;
-  type: string;
 };
 
 class MainActionBar extends React.Component<Props> {
@@ -224,14 +223,9 @@ class MainActionBar extends React.Component<Props> {
   };
 
   renderViewChooser = () => {
-    const {
-      currentBoard,
-      currentPipeline,
-      options,
-      viewType,
-      type
-    } = this.props;
+    const { currentBoard, currentPipeline, options, viewType } = this.props;
 
+    const type = options.type;
     localStorage.setItem(`${type}View`, `${viewType}`);
 
     const onFilterClick = (type: string) => {
