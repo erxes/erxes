@@ -20,11 +20,8 @@ export const initBroker = async cl => {
   consumeQueue('pos:createOrUpdateOrders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { action, posToken, syncId, response, order, items } = data;
+    const { action, posToken, response, order, items } = data;
     const pos = await models.Pos.findOne({ token: posToken }).lean();
-    const syncInfos = { ...pos.syncInfos, ...{ [syncId]: new Date() } };
-
-    await models.Pos.updateOne({ _id: pos._id }, { $set: { syncInfos } });
 
     // ====== if (action === 'statusToDone')
     if (action === 'statusToDone') {
@@ -171,7 +168,7 @@ export const initBroker = async cl => {
     await sendEbarimtMessage({
       subdomain,
       action: 'putresponses.createOrUpdate',
-      data: { _id: response._id, doc: { ...response, posToken, syncId } },
+      data: { _id: response._id, doc: { ...response, posToken } },
       isRPC: true
     });
 
@@ -181,7 +178,6 @@ export const initBroker = async cl => {
         $set: {
           ...order,
           posToken,
-          syncId,
           items,
           branchId: order.branchId || pos.branchId
         }
@@ -197,10 +193,8 @@ export const initBroker = async cl => {
       data: {
         status: 'ok',
         posToken,
-        syncId,
         responseId: response._id,
-        orderId: order._id,
-        thirdService: true
+        orderId: order._id
       },
       pos
     });
@@ -306,62 +300,39 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-export const getChannels = async (
-  models: IModels,
-  channel: string,
-  pos?: IPosDocument,
-  excludeTokens?: string[]
-) => {
-  const channels: string[] = [];
-  const allPos = pos ? [pos] : await models.Pos.find().lean();
-
-  for (const p of allPos) {
-    if (
-      excludeTokens &&
-      excludeTokens.length &&
-      excludeTokens.includes(p.token)
-    ) {
-      continue;
-    }
-
-    const syncIds = Object.keys(p.syncInfos || {}) || [];
-
-    if (!syncIds.length) {
-      continue;
-    }
-
-    for (const syncId of syncIds) {
-      const syncDate = p.syncInfos[syncId];
-
-      // expired sync 72 hour
-      if ((new Date().getTime() - syncDate.getTime()) / (60 * 60 * 1000) > 72) {
-        continue;
-      }
-      channels.push(`${channel}_${syncId}`);
-    }
-  }
-  return channels;
-};
-
 export const sendPosclientMessage = async (
   args: ISendMessageArgs & {
-    pos?: IPosDocument | undefined;
-    excludeTokens?: string[];
+    pos: IPosDocument;
   }
 ) => {
-  const { subdomain, action, pos, excludeTokens } = args;
-  const models = await generateModels(subdomain);
-  const channels = await getChannels(models, action, pos, excludeTokens);
-  for (const ch of channels) {
-    console.log(ch);
-    await sendMessage({
-      client,
-      serviceDiscovery,
-      serviceName: 'posclient',
-      ...args,
-      action: `${ch}`
-    });
+  const { action, pos } = args;
+  let lastAction = action;
+  let serviceName = 'posclient';
+
+  const { ALL_AUTO_INIT } = process.env;
+  console.log(
+    ALL_AUTO_INIT,
+    pos.onServer,
+    !ALL_AUTO_INIT && !pos.onServer,
+    pos.token,
+    Boolean(pos.onServer)
+  );
+  if (!ALL_AUTO_INIT || !pos.onServer) {
+    lastAction = `posclient:${action}_${pos.token}`;
+    serviceName = '';
+    args.data.thirdService = true;
   }
+
+  args.data.token = pos.token;
+  console.log(lastAction, 'lllllllllllllllllllllllllllllllllllllllllllll');
+
+  await sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName,
+    ...args,
+    action: lastAction
+  });
 };
 
 export default function() {

@@ -257,7 +257,7 @@ export const sendMessage = async (
 
   return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
     serviceName + (serviceName ? ':' : '') + action,
-    { subdomain, data }
+    { subdomain, data, thirdService: data.thirdService }
   );
 };
 

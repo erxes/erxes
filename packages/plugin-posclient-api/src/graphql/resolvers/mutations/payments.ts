@@ -53,7 +53,8 @@ const paymentMutations = {
 
       const invoice = await models.QPayInvoices.createInvoice({
         senderInvoiceNo: order._id,
-        amount: amount ? amount.toString() : order.totalAmount.toString()
+        amount: amount ? amount.toString() : order.totalAmount.toString(),
+        token: config.token
       });
 
       if (invoiceData) {
@@ -79,7 +80,7 @@ const paymentMutations = {
         throw new Error('Can not cancel paid invoice');
       }
 
-      if (invoice.status === INVOICE_STATUSES.OPEN) {
+      if (config.qpayConfig && invoice.status === INVOICE_STATUSES.OPEN) {
         const response = await requestInvoiceDeletion(
           invoice.qpayInvoiceId!,
           tokenInfo.access_token,
@@ -106,9 +107,10 @@ const paymentMutations = {
     const invoice = await models.QPayInvoices.getInvoice(_id);
 
     if (
-      invoice.status === INVOICE_STATUSES.PAID &&
-      invoice.qpayPaymentId &&
-      invoice.paymentDate
+      !config.qpayConfig ||
+      (invoice.status === INVOICE_STATUSES.PAID &&
+        invoice.qpayPaymentId &&
+        invoice.paymentDate)
     ) {
       return invoice;
     }

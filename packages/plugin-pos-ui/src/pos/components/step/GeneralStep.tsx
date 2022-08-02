@@ -31,6 +31,7 @@ type Props = {
   pos: IPos;
   branches: any[];
   posSlots: ISlot[];
+  envs: any;
 };
 
 type State = {
@@ -163,6 +164,13 @@ class GeneralStep extends React.Component<Props, State> {
   onChangeSwitchIsOnline = e => {
     const { pos } = this.props;
     pos.isOnline = e.target.checked;
+
+    this.onChangeFunction('pos', pos);
+  };
+
+  onChangeSwitchOnServer = e => {
+    const { pos } = this.props;
+    pos.onServer = e.target.checked;
 
     this.onChangeFunction('pos', pos);
   };
@@ -488,7 +496,7 @@ class GeneralStep extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos } = this.props;
+    const { pos, envs } = this.props;
 
     const slotTrigger = (
       <div>
@@ -594,16 +602,34 @@ class GeneralStep extends React.Component<Props, State> {
             </Block>
 
             <Block>
-              <ControlLabel>Is Online</ControlLabel>
-              <Toggle
-                id={'isOnline'}
-                checked={pos && pos.isOnline ? true : false}
-                onChange={this.onChangeSwitchIsOnline}
-                icons={{
-                  checked: <span>Yes</span>,
-                  unchecked: <span>No</span>
-                }}
-              />
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>Is Online</ControlLabel>
+                  <Toggle
+                    id={'isOnline'}
+                    checked={pos && pos.isOnline ? true : false}
+                    onChange={this.onChangeSwitchIsOnline}
+                    icons={{
+                      checked: <span>Yes</span>,
+                      unchecked: <span>No</span>
+                    }}
+                  />
+                </FormGroup>
+                {(!envs || !envs.ALL_AUTO_INIT) && (
+                  <FormGroup>
+                    <ControlLabel>On Server</ControlLabel>
+                    <Toggle
+                      id={'on Server'}
+                      checked={pos && pos.onServer ? true : false}
+                      onChange={this.onChangeSwitchOnServer}
+                      icons={{
+                        checked: <span>Yes</span>,
+                        unchecked: <span>No</span>
+                      }}
+                    />
+                  </FormGroup>
+                )}
+              </BlockRow>
               {this.renderCauseOnline()}
             </Block>
           </LeftItem>

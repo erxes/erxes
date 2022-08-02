@@ -39,6 +39,7 @@ export type IPos = {
   cashierIds: [string];
   user: IUser;
   isOnline: boolean;
+  onServer: boolean;
   branchId?: string;
   allowBranchIds?: string[];
   beginNumber?: string;
@@ -107,6 +108,10 @@ export type BrandsQueryResponse = {
 
 export type PosDetailQueryResponse = {
   posDetail: IPos;
+} & QueryResponse;
+
+export type PosEnvQueryResponse = {
+  posEnv: any;
 } & QueryResponse;
 
 export type AddPosMutationResponse = {

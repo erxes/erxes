@@ -26,7 +26,6 @@ export type IOrder = {
 
   items: any;
   posToken: string;
-  syncId: string;
   posName: string;
   user: IUser;
   customer: ICustomer;
