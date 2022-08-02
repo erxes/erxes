@@ -9,6 +9,7 @@ import PropertyForm from '../components/PropertyForm';
 import { mutations, queries } from '../graphql';
 import {
   FieldsAddMutationResponse,
+  FieldsCombinedByTypeQueryResponse,
   FieldsEditMutationResponse,
   FieldsGroupsQueryResponse
 } from '../types';
@@ -22,12 +23,13 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  fieldsCombinedByTypeQuery: FieldsCombinedByTypeQueryResponse;
 } & Props &
   FieldsAddMutationResponse &
   FieldsEditMutationResponse;
 
 const PropertyFormContainer = (props: FinalProps) => {
-  const { fieldsGroupsQuery, queryParams } = props;
+  const { fieldsGroupsQuery, fieldsCombinedByTypeQuery, queryParams } = props;
   const { type } = queryParams;
 
   let { renderButton } = props;
@@ -59,8 +61,8 @@ const PropertyFormContainer = (props: FinalProps) => {
           callback={handleCallback}
           refetchQueries={getRefetchQueries(queryParams)}
           isSubmitted={isSubmitted}
-          type='submit'
-          icon='check-circle'
+          type="submit"
+          icon="check-circle"
           successMessage={`You successfully ${
             object ? 'updated' : 'added'
           } a ${name}`}
@@ -74,6 +76,7 @@ const PropertyFormContainer = (props: FinalProps) => {
     type,
     renderButton,
     groups: fieldsGroupsQuery.fieldsGroups,
+    fields: fieldsCombinedByTypeQuery.fieldsCombinedByContentType || [],
     refetchQueries: getRefetchQueries(queryParams)
   };
 
@@ -95,6 +98,17 @@ export default withProps<Props>(
       gql(queries.fieldsGroups),
       {
         name: 'fieldsGroupsQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            contentType: queryParams.type
+          }
+        })
+      }
+    ),
+    graphql<Props, FieldsCombinedByTypeQueryResponse, { contentType: string }>(
+      gql(queries.fieldsCombinedByContentType),
+      {
+        name: 'fieldsCombinedByTypeQuery',
         options: ({ queryParams }) => ({
           variables: {
             contentType: queryParams.type

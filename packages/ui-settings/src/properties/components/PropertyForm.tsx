@@ -22,11 +22,14 @@ import { IFieldGroup } from '../types';
 import Map from '@erxes/ui/src/containers/map/Map';
 import ObjectListConfigs from './ObjectListConfigs';
 import LocationOptions from './LocationOptions';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import FieldLogics from '@erxes/ui-forms/src/forms/components/FieldLogics';
 
 type Props = {
   queryParams: any;
   field?: IField;
   groups: IFieldGroup[];
+  fields: IField[];
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
@@ -301,6 +304,8 @@ class PropertyForm extends React.Component<Props, State> {
     const { values, isSubmitted } = formProps;
     const { type, searchable } = this.state;
 
+    console.log(groups);
+
     return (
       <>
         <FormGroup>
@@ -416,6 +421,20 @@ class PropertyForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
 
+        {/* <FormGroup> */}
+        {type.length > 0 && (
+          <CollapseContent title={__('Logic')} compact={true}>
+            <FieldLogics
+              fields={this.props.fields}
+              currentField={this.props.field || ({} as IField)}
+              onFieldChange={e => {
+                console.log(e);
+              }}
+            />
+          </CollapseContent>
+        )}
+
+        {/* </FormGroup> */}
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close
