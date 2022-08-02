@@ -1,55 +1,36 @@
-import {
-  convertStringPropToFunction,
-  transformDimensions,
-  transformMeasures
-} from './utils';
-import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+// import {
+//   convertStringPropToFunction,
+//   transformDimensions,
+//   transformMeasures
+// } from './utils';
+// import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
 
-asyncModule(async () => {
-  const services = await getServices();
-  const dynamicCubes = [];
+// asyncModule(async () => {
+//   const services = await getServices();
+//   const dynamicCubes = [];
 
-  for (const serviceName of services) {
-    const service = await getService(serviceName, true);
-    const meta = service.config?.meta || {};
+//   for (const serviceName of services) {
+//     const service = await getService(serviceName, true);
+//     const meta = service.config?.meta || {};
 
-    if (meta && meta.dashboards) {
-      const schemas = meta.dashboards.schemas || [];
+//     if (meta && meta.dashboards) {
+//       const schemas = meta.dashboards.schemas || [];
 
-      for (const schema of schemas) {
-        dynamicCubes.push(schema);
-      }
-    }
-  }
-  console.log('12313', dynamicCubes);
-  // [
-  //   {
-  //      dimensions: {
-  //        color: {
-  //          sql: `color`,
-  //          type: `string`,
-  //        },
-  //      },
-  //      measures: {
-  //        price: {
-  //          sql: `price`,
-  //          type: `number`,
-  //        }
-  //      },
-  //      title: 'DynamicCubeSchema',
-  //      sql: 'SELECT * FROM public.my_table',
-  //   },
-  // ]
+//       for (const schema of schemas) {
+//         dynamicCubes.push(schema);
+//       }
+//     }
+//   }
 
-  dynamicCubes.forEach(dynamicCube => {
-    const dimensions = transformDimensions(dynamicCube.dimensions);
-    const measures = transformMeasures(dynamicCube.measures);
+//   dynamicCubes.forEach(dynamicCube => {
+//     const dimensions = transformDimensions(dynamicCube.dimensions);
+//     const measures = transformMeasures(dynamicCube.measures);
 
-    cube(dynamicCube.title, {
-      sql: dynamicCube.sql,
-      dimensions,
-      measures,
-      dataSource: `default`
-    });
-  });
-});
+//     cube(dynamicCube.title, {
+//       sql: dynamicCube.sql,
+//       dimensions,
+//       measures,
+//       dataSource: `default`
+//     });
+//   });
+// });

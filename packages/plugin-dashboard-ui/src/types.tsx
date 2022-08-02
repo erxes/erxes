@@ -45,8 +45,8 @@ export type DashboardsMainQueryResponse = {
 export interface IDashboardItem {
   _id: string;
   dashboardId: string;
-  layout: string;
-  vizState: string;
+  layout: any;
+  vizState: any;
   name: string;
 }
 

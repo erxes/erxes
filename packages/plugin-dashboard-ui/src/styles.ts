@@ -196,22 +196,6 @@ const ActionBarButtonsWrapper = styled.div`
   }
 `;
 
-const DashboardItem = styled.div`
-  transition: box-shadow 0.15s ease-in-out;
-  width: 100%;
-  height: 100%;
-  border: 2px solid transparent;
-  padding: 10px;
-  box-shadow: 0px 2px 4px rgba(141, 149, 166, 0.1);
-  border-radius: 4px;
-
-  &:hover {
-    border: 2px solid transparent;
-    border-radius: 4px;
-    border-color: ${colors.colorPrimary};
-  }
-`;
-
 const DragField1 = styledTS<any>(styled(ReactGridLayout))`
   background-image: radial-gradient(
     ${colors.bgActive} 20%,
@@ -262,11 +246,14 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
       ${colors.colorWhite} 20%
     );
     background-size: 10px 10px
+    height: 100% !important
 
     .react-grid-layout {
+      
       position: relative;
       transition: height 200ms ease;
     }
+    
    .react-grid-item {
       transition: all 200ms ease;
       transition-property: left, top;
@@ -327,8 +314,8 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
     position: absolute;
     right: 3px;
     bottom: 3px;
-    width: 5px;
-    height: 5px;
+    width: 8px;
+    height: 8px;
     border-right: 2px solid rgba(0, 0, 0, 0.4);
     border-bottom: 2px solid rgba(0, 0, 0, 0.4);
   }
@@ -340,7 +327,6 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
 
 export {
   DragField,
-  DashboardItem,
   ActionBarButtonsWrapper,
   AutomationFormContainer,
   BackButton,

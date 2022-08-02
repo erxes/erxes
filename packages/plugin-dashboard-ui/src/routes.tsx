@@ -3,6 +3,9 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
+import { CubeProvider } from '@cubejs-client/react';
+import cubejs from '@cubejs-client/core';
+
 const DashboardList = asyncComponent(() =>
   import(/* webpackChunkName: "Dashboards" */ './containers/List')
 );
@@ -24,12 +27,19 @@ const dashboardList = ({ location, history }) => {
 
 const dashboardDetail = ({ match, location, history }) => {
   const id = match.params.id;
+
+  const cubejsApi = cubejs({
+    apiUrl: `http://localhost:4300/cubejs-api/v1`
+  });
+
   return (
-    <DashboardDetails
-      id={id}
-      history={history}
-      queryParams={queryString.parse(location.search)}
-    />
+    <CubeProvider cubejsApi={cubejsApi}>
+      <DashboardDetails
+        id={id}
+        history={history}
+        queryParams={queryString.parse(location.search)}
+      />
+    </CubeProvider>
   );
 };
 

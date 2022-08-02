@@ -1,4 +1,4 @@
-import { __, Alert } from 'coreui/utils';
+import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { IDashboard, IDashboardItem } from '../../types';
@@ -7,7 +7,6 @@ import {
   Title,
   AutomationFormContainer,
   ActionBarButtonsWrapper,
-  DashboardItem,
   DragField
 } from '../../styles';
 import { FormControl } from '@erxes/ui/src/components/form';
@@ -17,10 +16,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
 import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import RGL, { WidthProvider } from 'react-grid-layout';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
-import colors from '@erxes/ui/src/styles/colors';
+import DashboardItem from './DashboardItem';
 
 const deserializeItem = i => ({
   ...i,
@@ -162,11 +158,9 @@ class Dashboard extends React.Component<Props, State> {
 
     const dashboardItem = item => {
       if (item.layout) {
-        const height = item.layout.h * 40;
-
         return (
           <div key={item._id} data-grid={defaultLayout(item)}>
-            <div onMouseOver={() => console.log('123')}>xaxaxa</div>
+            <DashboardItem item={item} />
           </div>
         );
       }

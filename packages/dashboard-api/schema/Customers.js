@@ -1,5 +1,5 @@
 cube(`Customers`, {
-  sql: `SELECT * FROM erxes.customers WHERE state='visitor'`,
+  sql: `SELECT * FROM erxes.customers `,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -32,8 +32,7 @@ cube(`Customers`, {
         trackeddatabackupOrganizationexpirydate,
         trackeddatabackupOrganizationname,
         trackeddatabackupUsername,
-        visitorid,
-        createdat
+        visitorid
       ]
     },
 
@@ -367,7 +366,7 @@ cube(`Customers`, {
       type: `string`
     },
 
-    createdat: {
+    createdDate: {
       sql: `${CUBE}.\`createdAt\``,
       type: `time`
     },
