@@ -5,18 +5,35 @@ export interface ICategory {
   _id: any;
   name: string;
   parentId?: string | null;
+  ancestorIds?: string[] | null;
+}
+
+export interface ICategoryInsertInput {
+  name: string;
+  parentId?: string;
+}
+
+export interface ICategoryPatchInput {
+  name?: string;
+  parentId?: string | null;
 }
 
 export type CategoryDocument = ICategory & Document;
 export interface ICategoryModel extends Model<CategoryDocument> {
+  createCategory(c: ICategoryInsertInput): Promise<ICategoryModel>;
+  patchCategory(_id: string, c: ICategoryPatchInput): Promise<ICategoryModel>;
   getDescendantsOf(_id: string): Promise<ICategory[] | null | undefined>;
-  getAncestorsOf(_id: string): Promise<ICategory[] | null | undefined>;
 }
 
+/**
+ * https://www.mongodb.com/docs/manual/tutorial/model-tree-structures-with-ancestors-array/
+ * Array of ancestors pattern
+ * This pattern has the best balance between simplicity and speed of descendant/ancestor operations
+ *  */
 export const categorySchema = new Schema<CategoryDocument>({
-  // _id: { type: String, pkey: true },
   name: { type: String, required: true },
-  parentId: { type: Types.ObjectId }
+  ancestorIds: { type: [Types.ObjectId], index: true, ref: 'forum_categories' },
+  parentId: { type: Types.ObjectId, index: true, ref: 'forum_categories' }
 });
 
 export const generateCategoryModel = (
@@ -25,64 +42,75 @@ export const generateCategoryModel = (
   models: IModels
 ): void => {
   class CategoryModel {
+    public static async createCategory(
+      input: ICategoryInsertInput
+    ): Promise<CategoryDocument> {
+      const doc = { ...input } as ICategory;
+
+      if (doc.parentId) {
+        const parent = await models.Category.findById(doc.parentId).lean();
+        console.log('parent', parent);
+
+        if (!parent) {
+          throw new Error(
+            `Parent category with \`{ "_id" :  "${doc.parentId}"\` } not found`
+          );
+        }
+
+        doc.ancestorIds = [...(parent.ancestorIds || []), doc.parentId];
+      }
+
+      console.log(JSON.stringify(doc, null, 2));
+
+      const res = await models.Category.create(doc);
+      return res;
+    }
+    public static async patchCategory(
+      _id: string,
+      input: ICategoryPatchInput
+    ): Promise<CategoryDocument> {
+      console.log('input', input);
+
+      const patch = { ...input } as ICategory;
+
+      console.log('patch', patch);
+
+      if (patch.parentId !== null) {
+        if (patch.parentId !== undefined) {
+          const parent = await models.Category.findById(patch.parentId).lean();
+
+          if (!parent) {
+            throw new Error(
+              `Parent category with \`{ "_id" :  "${patch.parentId}"\` } not found`
+            );
+          }
+
+          patch.ancestorIds = [...(parent.ancestorIds || []), patch.parentId];
+        }
+      } else {
+        patch.ancestorIds = null;
+      }
+
+      // console.log(JSON.stringify(patch, null, 2));
+
+      // throw new Error("Unimplemented");
+
+      const res = await models.Category.updateOne({ _id }, patch);
+
+      const updated = await models.Category.findById(_id);
+
+      if (!updated) {
+        throw new Error(`Category with \`{ "_id" : "${_id}"} doesn't exist\``);
+      }
+
+      // console.log(JSON.stringify(updated, null, 2));
+      return updated;
+    }
     public static async getDescendantsOf(
       _id: string
     ): Promise<ICategory[] | undefined | null> {
-      const matchedCategories = await models.Category.aggregate([
-        {
-          $match: {
-            _id
-          }
-        },
-        {
-          $graphLookup: {
-            from: models.Category.collection.collectionName,
-            startWith: '$_id',
-            connectFromField: '_id',
-            connectToField: 'parentId',
-            as: 'descendants'
-          }
-        }
-      ]);
-
-      console.log('-----------------------------------------');
-      console.log(matchedCategories);
-      console.log('-----------------------------------------');
-
-      if (!matchedCategories?.length) {
-        throw new Error(`Category with _id=${_id} doesn't exist`);
-      }
-
-      // it should contain only 1 root category, since we $match-ed using its _id
-      return matchedCategories[0].descendants;
-    }
-
-    public static async getAncestorsOf(
-      _id: string
-    ): Promise<ICategory[] | undefined | null> {
-      const results = await models.Category.aggregate([
-        {
-          $match: {
-            _id
-          }
-        },
-        {
-          $graphLookup: {
-            from: models.Category.collection.collectionName,
-            startWith: '$parentId',
-            connectFromField: 'parentId',
-            connectToField: '_id',
-            as: 'ancestors'
-          }
-        }
-      ]);
-
-      if (!results?.length) {
-        throw new Error(`Category with _id=${_id} doesn't exist`);
-      }
-
-      // it should contain only 1 root category, since we $match-ed using its _id
-      return results[0].ancestors;
+      const descendants = await models.Category.find({ ancestorIds: _id });
+      return descendants;
     }
   }
   categorySchema.loadClass(CategoryModel);

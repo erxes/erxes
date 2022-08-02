@@ -4,7 +4,7 @@ import { ICategory } from '../../db/models/category';
 
 const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
   async parent({ parentId }, _, { models }) {
-    return models.Category.findById(parentId);
+    return models.Category.findById(parentId).lean();
   },
 
   async children({ _id }, _, { models }) {
@@ -12,11 +12,11 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
   },
 
   async descendants({ _id }, _, { models }) {
-    return models.Category.getDescendantsOf(_id);
+    return models.Category.find({ ancestorIds: _id }).lean();
   },
 
-  async ancestors({ _id }, _, { models }) {
-    return models.Category.getAncestorsOf(_id);
+  async ancestors({ ancestorIds }, _, { models }) {
+    return models.Category.find({ _id: { $in: ancestorIds } }).lean();
   }
 };
 

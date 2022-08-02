@@ -1,6 +1,7 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import ForumCategory from './ForumCategory';
 import { IContext } from '../';
+import Mutation from './Mutation';
 
 export default async function generateResolvers(serviceDiscovery) {
   return {
@@ -14,13 +15,6 @@ export default async function generateResolvers(serviceDiscovery) {
         return models.Category.findById(_id);
       }
     },
-    Mutation: {
-      forumTestMutation: () => {
-        return 'hello';
-      },
-      async forumCreateCategory(_, args, { models: { Category } }: IContext) {
-        return await Category.create(args);
-      }
-    }
+    Mutation
   };
 }

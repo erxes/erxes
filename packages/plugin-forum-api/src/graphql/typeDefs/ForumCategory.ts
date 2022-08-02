@@ -3,6 +3,7 @@ export default `
     _id: ID!
     name: String!
     parentId: ID
+    ancestorIds: [ID!]
 
     parent: ForumCategory
     children: [ForumCategory!]
