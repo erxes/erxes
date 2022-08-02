@@ -1,6 +1,6 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import colors from '@erxes/ui/src/styles/colors';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import styled from 'styled-components';
 

@@ -3,7 +3,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IMessages } from '@erxes/ui-settings/src/integrations/types';
 import { SubHeading } from '@erxes/ui-settings/src/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
@@ -107,7 +107,7 @@ class Greeting extends React.Component<Props, State> {
             <ControlLabel>Greeting message</ControlLabel>
 
             <FormControl
-              componentClass='textarea'
+              componentClass="textarea"
               placeholder={__('Write here Greeting message') + '.'}
               rows={3}
               value={message.greetings.message}
@@ -119,8 +119,8 @@ class Greeting extends React.Component<Props, State> {
             <ControlLabel>Supporters</ControlLabel>
 
             <SelectTeamMembers
-              label='Choose users'
-              name='supporterIds'
+              label="Choose users"
+              name="supporterIds"
               initialValue={supporterIds}
               onSelect={usersOnChange}
             />

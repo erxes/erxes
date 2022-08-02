@@ -1,4 +1,5 @@
-import { Schema, Document } from 'mongoose';
+import { Document, Schema } from 'mongoose';
+
 import { CAR_SELECT_OPTIONS } from '../../constants';
 import { field, schemaHooksWrapper } from './utils';
 

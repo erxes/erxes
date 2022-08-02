@@ -3,7 +3,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { DropIcon } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import CategoryForm from '../../containers/category/CategoryForm';

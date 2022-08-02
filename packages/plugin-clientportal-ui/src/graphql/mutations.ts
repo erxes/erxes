@@ -1,4 +1,4 @@
-import { commonFields, clientPortalUserFields } from './queries';
+import { clientPortalUserFields, commonFields } from './queries';
 
 const createOrUpdateConfig = `
   mutation clientPortalConfigUpdate(
@@ -79,7 +79,10 @@ const commonUserFields = `
   $code: String,
   $email: String,
   $phone: String,
-  $clientPortalId: String
+  $companyName: String,
+  $companyRegistrationNumber: String,
+  $type: String,
+  $clientPortalId: String,
   $ownerId: String,
   $links: JSON,
   $customFieldsData: JSON,
@@ -92,6 +95,9 @@ const commonUserVariables = `
   code: $code,
   email: $email,
   phone: $phone,
+  companyName: $companyName,
+  companyRegistrationNumber: $companyRegistrationNumber,
+  type: $type
   clientPortalId: $clientPortalId,
   ownerId: $ownerId,
   links: $links,

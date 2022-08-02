@@ -13,6 +13,7 @@ const commonEnvs = configs => {
   }@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
 
   return {
+    ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
     DEBUG: 'erxes*',
     NODE_ENV: 'production',
     DOMAIN: configs.domain,
@@ -72,6 +73,7 @@ const generatePluginBlock = (configs, plugin) => {
   const conf = {
     image: `erxes/plugin-${plugin.name}-api:federation`,
     environment: {
+      SERVICE_NAME: plugin.name,
       PORT: plugin.port || 80,
       API_MONGO_URL: api_mongo_url,
       MONGO_URL: mongo_url,
@@ -288,6 +290,7 @@ const up = async ({ uis, fromInstaller }) => {
       plugin_core_api: {
         image: 'erxes/core:federation',
         environment: {
+          SERVICE_NAME: 'core-api',
           PORT: '80',
           CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
@@ -311,6 +314,7 @@ const up = async ({ uis, fromInstaller }) => {
       gateway: {
         image: 'erxes/gateway:federation',
         environment: {
+          SERVICE_NAME: 'gateway',
           PORT: '80',
           LOAD_BALANCER_ADDRESS: 'http://gateway',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
@@ -338,6 +342,7 @@ const up = async ({ uis, fromInstaller }) => {
       plugin_workers_api: {
         image: 'erxes/workers:federation',
         environment: {
+          SERVICE_NAME: 'workers',
           PORT: '80',
           JWT_TOKEN_SECRET: configs.jwt_token_secret,
           LOAD_BALANCER_ADDRESS: 'http://plugin_workers_api',

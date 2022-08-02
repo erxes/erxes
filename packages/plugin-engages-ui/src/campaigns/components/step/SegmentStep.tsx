@@ -1,6 +1,6 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { IButtonMutateProps, Counts } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Common from './Common';
 import SegmentsForm from './forms/SegmentsForm';

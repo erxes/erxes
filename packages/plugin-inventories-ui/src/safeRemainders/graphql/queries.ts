@@ -65,14 +65,13 @@ export const safeRemainderFields = `
 
 `;
 
-export const safeRemItemFields = `
+export const safeRemainderItemFields = `
   _id
   modifiedAt
   status
-  lastTrDate
+  lastTransactionDate
   remainderId
   productId
-  quantity
   uomId
   preCount
   count
@@ -119,35 +118,35 @@ const safeRemainderDetail = `
   }
 `;
 
-const safeRemItems = `
-  query safeRemItems (
+const safeRemainderItems = `
+  query safeRemainderItems (
     $remainderId: String!
     $status: String
     $productCategoryId: String
     $diffType: String
     $searchValue: String
   ) {
-    safeRemItems (
+    safeRemainderItems (
       remainderId: $remainderId,
       status: $status,
       productCategoryId: $productCategoryId,
       diffType: $diffType,
       searchValue: $searchValue
     ) {
-      ${safeRemItemFields}
+      ${safeRemainderItemFields}
     }
   }
 `;
 
-const safeRemItemsCount = `
-  query safeRemItemsCount (
+const safeRemainderItemsCount = `
+  query safeRemainderItemsCount (
     $remainderId: String!
     $status: String
     $productCategoryId: String
     $diffType: String
     $searchValue: String
   ) {
-    safeRemItemsCount (
+    safeRemainderItemsCount (
       remainderId: $remainderId,
       status: $status,
       productCategoryId: $productCategoryId,
@@ -160,6 +159,6 @@ const safeRemItemsCount = `
 export default {
   safeRemainders,
   safeRemainderDetail,
-  safeRemItems,
-  safeRemItemsCount
+  safeRemainderItems,
+  safeRemainderItemsCount
 };

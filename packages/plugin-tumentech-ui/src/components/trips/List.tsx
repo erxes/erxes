@@ -2,11 +2,12 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import Row from './Row';
-import { tumentechMenu } from '../list/CarsList';
-import { ITrip } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import { ITrip } from '../../types';
+import { tumentechMenu } from '../list/CarsList';
+import Row from './Row';
 
 type Props = {
   trips: ITrip[];

@@ -1,7 +1,7 @@
 import { generateModels } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 import { IRemainderDocument } from '../../../models/definitions/remainders';
-import { ISafeRemItemDocument } from '../../../models/definitions/safeRemainders';
+import { ISafeRemainderItemDocument } from '../../../models/definitions/safeRemainderItems';
 import { IUpdateRemaindersParams } from './remainders';
 
 export const updateLiveRemainder = async ({
@@ -40,71 +40,72 @@ export const updateLiveRemainder = async ({
     allProductIds = allProductIds.concat(productIds);
   }
 
-  const safeRems = await models.SafeRemItems.find(selector).lean();
+  const safeRemainders = await models.SafeRemainderItems.find(selector).lean();
 
   const remainders: IRemainderDocument[] = await models.Remainders.find(
     selector
   ).lean();
 
-  const resultRems: IRemainderDocument[] = [];
-  for (const prodId of allProductIds) {
-    let safe: ISafeRemItemDocument | undefined = undefined;
-    const safed = safeRems.filter(
-      s =>
-        s.productId === prodId &&
-        s.departmentId === departmentId &&
-        s.branchId === branchId
+  const resultRemainder: IRemainderDocument[] = [];
+
+  for (const productId of allProductIds) {
+    let safe: ISafeRemainderItemDocument | undefined = undefined;
+    const safed = safeRemainders.filter(
+      (item: any) =>
+        item.productId === productId &&
+        item.departmentId === departmentId &&
+        item.branchId === branchId
     );
     if (safed.length) {
       safe = safed[0];
     }
 
-    const trSelector: any = {
+    const transactionSelector: any = {
       departmentId,
       branchId,
-      productId: prodId
+      productId: productId
     };
 
-    if (safe && safe.lastTrDate) {
-      trSelector.date = { $gt: safe.lastTrDate };
+    if (safe && safe.lastTransactionDate) {
+      transactionSelector.date = { $gt: safe.lastTransactionDate };
     }
 
-    const trs = await models.TrItems.find(trSelector).lean();
-    let remCount = safe ? safe.count : 0;
+    const trs = await models.TransactionItems.find(transactionSelector).lean();
+    let remainderCount = safe ? safe.count : 0;
 
     for (const tr of trs) {
-      remCount += tr.isDebit ? tr.count : -1 * tr.count;
+      remainderCount += tr.isDebit ? tr.count : -1 * tr.count;
     }
 
-    const realRem = remainders.find(
-      s =>
-        s.productId === prodId &&
-        s.departmentId === departmentId &&
-        s.branchId === branchId
+    const realRemainder = remainders.find(
+      (item: any) =>
+        item.productId === productId &&
+        item.departmentId === departmentId &&
+        item.branchId === branchId
     );
-    if (realRem && realRem._id) {
-      if (realRem.count === remCount) {
-        resultRems.push(realRem);
+
+    if (realRemainder && realRemainder._id) {
+      if (realRemainder.count === remainderCount) {
+        resultRemainder.push(realRemainder);
       } else {
         models.Remainders.updateOne(
-          { _id: realRem._id },
-          { $set: { count: remCount } }
+          { _id: realRemainder._id },
+          { $set: { count: remainderCount } }
         );
-        resultRems.push(
-          await models.Remainders.getRemainderObject(realRem._id)
+        resultRemainder.push(
+          await models.Remainders.getRemainderObject(realRemainder._id)
         );
       }
     } else {
       models.Remainders.create({
-        productId: prodId,
+        productId,
         departmentId,
         branchId,
-        count: remCount
-        // quantity:
+        count: remainderCount
         // uomId:
       });
     }
   }
 
-  return resultRems;
+  return resultRemainder;
 };

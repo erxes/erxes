@@ -6,7 +6,7 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { ITag } from '@erxes/ui/src/tags/types';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -100,7 +100,7 @@ class Row extends React.Component<Props, State> {
         </Info>
       );
     };
-    
+
     return (
       <Modal show={true} onHide={this.toggleMergeWindow}>
         <Modal.Header closeButton={true}>

@@ -1,10 +1,11 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Label from '@erxes/ui/src/components/Label';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
-import React from 'react';
-import { IParticipant } from '../../types';
-import { renderFullName } from '@erxes/ui/src/utils/core';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import { renderFullName } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import { IParticipant } from '../../types';
 
 type Props = {
   participant: IParticipant;

@@ -1,5 +1,6 @@
 import { checkPermission } from '@erxes/api-utils/src';
-import { sendCoreMessage, sendProductsMessage } from '../../../messageBroker';
+
+import { sendProductsMessage } from '../../../messageBroker';
 
 const carCategoryProductMutations = {
   carCategoryMatch: async (_root, doc, { models, subdomain }) => {
@@ -7,13 +8,13 @@ const carCategoryProductMutations = {
 
     const dbProductIds = (
       (await models.ProductCarCategories.find({ carCategoryId }).lean()) || []
-    ).map((i) => i.productCategoryId);
+    ).map(i => i.productCategoryId);
 
     const toDelProductIds = dbProductIds.filter(
-      (p) => !productCategoryIds.includes(p)
+      p => !productCategoryIds.includes(p)
     );
     const toInsProductIds = productCategoryIds.filter(
-      (p) => !dbProductIds.includes(p)
+      p => !dbProductIds.includes(p)
     );
 
     if (toDelProductIds.length) {
@@ -61,13 +62,13 @@ const carCategoryProductMutations = {
     const dbcarCategoryIds = (
       (await models.ProductCarCategories.find({ productCategoryId }).lean()) ||
       []
-    ).map((i) => i.carCategoryId);
+    ).map(i => i.carCategoryId);
 
     const toDelCarCategoryIds = dbcarCategoryIds.filter(
-      (p) => !carCategoryIds.includes(p)
+      p => !carCategoryIds.includes(p)
     );
     const toInsCarCategoryIds = carCategoryIds.filter(
-      (p) => !dbcarCategoryIds.includes(p)
+      p => !dbcarCategoryIds.includes(p)
     );
 
     if (toDelCarCategoryIds.length) {

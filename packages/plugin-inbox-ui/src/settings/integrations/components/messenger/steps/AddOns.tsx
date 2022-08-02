@@ -7,7 +7,7 @@ import {
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { Options } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
 import {

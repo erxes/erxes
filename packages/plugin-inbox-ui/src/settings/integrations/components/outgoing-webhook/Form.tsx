@@ -5,7 +5,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Select from 'react-select-plus';
 import React from 'react';
 import { WEBHOOK_ACTIONS } from '@erxes/ui-settings/src/constants';
@@ -94,7 +94,7 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
           <ControlLabel required={true}>Endpoint url</ControlLabel>
           <FormControl
             {...formProps}
-            name='url'
+            name="url"
             required={true}
             autoFocus={true}
           />
@@ -113,10 +113,10 @@ class OutgoingWebhookForm extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={callback}
-            icon='times-circle'
+            icon="times-circle"
             uppercase={false}
           >
             Cancel

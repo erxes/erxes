@@ -3,7 +3,7 @@ import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { DateContainer } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { SCHEDULE_TYPES } from '@erxes/ui-engage/src/constants';
 import React from 'react';
 import { SelectMonth } from '@erxes/ui-engage/src/styles';

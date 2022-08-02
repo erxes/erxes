@@ -1,11 +1,14 @@
 import { Controls, FlexRow } from '../styles';
-import { HeaderButton, HeaderLink } from '@erxes/ui-cards/src/boards/styles/header';
+import {
+  HeaderButton,
+  HeaderLink
+} from '@erxes/ui-cards/src/boards/styles/header';
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { IBoard, IGroup } from '../types';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -59,11 +62,11 @@ class BoardChooser extends React.Component<Props> {
     if (groups.length === 0 || !currentBoard) {
       return (
         <EmptyState
-          icon='web-grid-alt'
-          text='Create Calendar group first'
-          size='small'
+          icon="web-grid-alt"
+          text="Create Calendar group first"
+          size="small"
           extra={
-            <Button btnStyle='warning' size='small'>
+            <Button btnStyle="warning" size="small">
               <Link
                 to={`/settings/calendars?boardId=${
                   currentBoard ? currentBoard._id : ''
@@ -101,9 +104,9 @@ class BoardChooser extends React.Component<Props> {
     return (
       <Controls>
         <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id='dropdown-board'>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
             <HeaderButton hasBackground={true}>
-              <Icon icon='web-section-alt' />
+              <Icon icon="web-section-alt" />
               {(currentBoard && currentBoard.name) || __('Choose board')}
             </HeaderButton>
           </Dropdown.Toggle>
@@ -111,22 +114,22 @@ class BoardChooser extends React.Component<Props> {
         </Dropdown>
         <FlexRow>
           <Dropdown>
-            <Dropdown.Toggle as={DropdownToggle} id='dropdown-group'>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-group">
               <HeaderButton hasBackground={true}>
-                <Icon icon='window-grid' />
+                <Icon icon="window-grid" />
                 {(currentGroup && currentGroup.name) || __('Choose group')}
               </HeaderButton>
             </Dropdown.Toggle>
             <Dropdown.Menu>{this.renderGroups()}</Dropdown.Menu>
           </Dropdown>
           <HeaderLink>
-            <Tip text={__('Manage Board & Group')} placement='bottom'>
+            <Tip text={__('Manage Board & Group')} placement="bottom">
               <Link
                 to={`/settings/calendars?boardId=${
                   currentBoard ? currentBoard._id : ''
                 }`}
               >
-                <Icon icon='cog' />
+                <Icon icon="cog" />
               </Link>
             </Tip>
           </HeaderLink>

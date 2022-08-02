@@ -72,11 +72,12 @@ export const rf = async (models: IModels, subdomain: string, params) => {
 
         console.log('lastJobRefer: ', lastJobRefer[0].name);
 
-        const doc: IWork = initDocWork(
+        const doc: IWork = await initDocWork(
           flow,
           lastJobRefer[0],
           productId,
           count,
+          subdomain,
           lastJob,
           intervalId
         );
@@ -112,7 +113,8 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             jobRefers,
             models
           },
-          intervalId
+          intervalId,
+          subdomain
         );
 
         for await (const responseleftjob of responseleftjobs) {
@@ -121,11 +123,12 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             jobRefers
           );
 
-          const docLeft: IWork = initDocWork(
+          const docLeft: IWork = await initDocWork(
             flow,
             leftJobRefer[0],
             productId,
             count,
+            subdomain,
             responseleftjob,
             intervalId
           );

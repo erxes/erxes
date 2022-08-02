@@ -1,11 +1,12 @@
-import React from 'react';
-import { useQuery } from 'react-apollo';
-import gql from 'graphql-tag';
-import DealPlacesSection from '../../components/dealPlaces/DealPlacesSection';
-import { mutations, queries } from '../../graphql';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import gql from 'graphql-tag';
+import React from 'react';
+import { useQuery } from 'react-apollo';
+
+import DealPlacesSection from '../../components/dealPlaces/DealPlacesSection';
+import { mutations, queries } from '../../graphql';
 
 type Props = {
   title: string;

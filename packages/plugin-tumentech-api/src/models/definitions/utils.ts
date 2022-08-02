@@ -1,10 +1,11 @@
 import * as Random from 'meteor-random';
+
 import { removeKey } from '../../inmemoryStorage';
 
 /*
  * Mongoose field options wrapper
  */
-export const field = (options) => {
+export const field = options => {
   const { pkey, type, optional } = options;
 
   if (type === String && !pkey && !optional) {
@@ -20,7 +21,7 @@ export const field = (options) => {
   return options;
 };
 
-export const schemaWrapper = (schema) => {
+export const schemaWrapper = schema => {
   schema.add({ scopeBrandIds: [String] });
 
   return schema;

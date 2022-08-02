@@ -1,3 +1,5 @@
+import { IModels } from './connectionResolver';
+import messageBroker, { sendPosclientMessage } from './messageBroker';
 import {
   sendContactsMessage,
   sendCoreMessage,
@@ -258,4 +260,71 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   }
 
   return Array.from(new Set(catIds));
+};
+
+export const getBranchesUtil = async (
+  subdomain: string,
+  models: IModels,
+  posToken: string
+) => {
+  const pos = await models.Pos.findOne({ token: posToken }).lean();
+
+  if (!pos) {
+    return { error: 'not found pos' };
+  }
+
+  const allowsPos = await models.Pos.find({
+    isOnline: { $ne: true },
+    branchId: { $in: pos.allowBranchIds }
+  }).lean();
+
+  const healthyBranchIds = [] as any;
+
+  for (const allowPos of allowsPos) {
+    const syncIds = Object.keys(allowPos.syncInfos || {}) || [];
+
+    if (!syncIds.length) {
+      continue;
+    }
+
+    for (const syncId of syncIds) {
+      const syncDate = allowPos.syncInfos[syncId];
+
+      // expired sync 72 hour
+      if ((new Date().getTime() - syncDate.getTime()) / (60 * 60 * 1000) > 72) {
+        continue;
+      }
+
+      const longTask = async () =>
+        await messageBroker().sendRPCMessage(
+          `posclient:health_check_${syncId}`,
+          {
+            thirdService: true
+          }
+        );
+
+      const timeout = (cb, interval) => () =>
+        new Promise(resolve => setTimeout(() => cb(resolve), interval));
+
+      const onTimeout = timeout(resolve => resolve({}), 3000);
+
+      let response = { healthy: 'down' };
+      await Promise.race([longTask, onTimeout].map(f => f())).then(
+        result => (response = result as { healthy: string })
+      );
+
+      if (response.healthy === 'ok') {
+        healthyBranchIds.push(allowPos.branchId);
+        break;
+      }
+    }
+  }
+
+  return await sendCoreMessage({
+    subdomain,
+    action: 'branches.find',
+    data: { query: { _id: { $in: healthyBranchIds } } },
+    isRPC: true,
+    defaultValue: []
+  });
 };

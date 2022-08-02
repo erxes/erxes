@@ -3,6 +3,7 @@ import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import {
   __,
   Alert,
+  BarItems,
   Button,
   confirm,
   DataWithLoader,
@@ -12,13 +13,12 @@ import {
   router,
   SortHandler,
   Table,
-  Wrapper,
-  BarItems
+  Wrapper
 } from '@erxes/ui/src';
 import {
-  IRouterProps,
   IButtonMutateProps,
-  IQueryParams
+  IQueryParams,
+  IRouterProps
 } from '@erxes/ui/src/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';

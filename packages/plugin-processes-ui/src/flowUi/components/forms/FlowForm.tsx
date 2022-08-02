@@ -156,17 +156,20 @@ class AutomationForm extends React.Component<Props, State> {
       resultProducts.find(pro => pro.productId === this.state.productId) ||
       ({} as IProductsData);
 
-    const doubleCheckResult = Object.keys(checkResult ? checkResult : {})
-      .length;
+    let doubleCheckResult: number | boolean = Object.keys(
+      checkResult ? checkResult : {}
+    ).length;
 
     if (doubleCheckResult) {
       let justLastJobRefer = {} as IJobRefer;
       for (const lastJobRefer of lastJobRefers) {
-        const lastJobRefersIds = (lastJobRefer.resultProducts || []).map(
+        const lastJobReferProductIds = (lastJobRefer.resultProducts || []).map(
           last => last.productId
         );
 
-        justLastJobRefer = lastJobRefersIds.includes(checkResult.productId)
+        justLastJobRefer = lastJobReferProductIds.includes(
+          checkResult.productId
+        )
           ? lastJobRefer
           : ({} as IJobRefer);
       }
@@ -175,6 +178,14 @@ class AutomationForm extends React.Component<Props, State> {
         .length
         ? lastFlowJobs.find(last => last.jobReferId === justLastJobRefer._id)
         : undefined;
+
+      doubleCheckResult = this.recursiveFlowJobChecker(
+        flowJobs,
+        jobRefers,
+        justLastFlowJob || ({} as IJob)
+      );
+
+      console.log('doubleCheckResult boolean: ' + doubleCheckResult);
 
       this.setState({
         lastAction: justLastFlowJob,
@@ -186,6 +197,73 @@ class AutomationForm extends React.Component<Props, State> {
         flowStatus: doubleCheckResult ? true : false
       });
     }
+  };
+
+  recursiveFlowJobChecker = (
+    flowJobs: IJob[],
+    jobRefers: IJobRefer[],
+    lastFlowJob: IJob
+  ) => {
+    const lastJobRefer = jobRefers.find(
+      jr => jr._id === (lastFlowJob.jobReferId || '')
+    );
+    const boforeFlowJobs = flowJobs.filter(fj =>
+      (fj.nextJobIds || []).includes(lastFlowJob.id)
+    );
+
+    let response = true;
+
+    console.log(
+      ' ---------------------- ' +
+        lastJobRefer?.name +
+        ' ------------------------'
+    );
+
+    const lastNeedProducts = lastJobRefer?.needProducts;
+
+    if (boforeFlowJobs.length === 0 && (lastNeedProducts || []).length > 0) {
+      console.log('false1 ' + lastJobRefer?.name);
+      response = false;
+    }
+
+    let productIds: string[] = [];
+    for (const beforeFlowJob of boforeFlowJobs) {
+      const beforeJobRefer = jobRefers.find(
+        jr => jr._id === (beforeFlowJob.jobReferId || '')
+      );
+      const resultProducts = beforeJobRefer?.resultProducts;
+      const ids = resultProducts?.map(rp => rp.productId);
+
+      productIds =
+        productIds.length === 0 ? ids || [] : productIds.concat(ids || []);
+    }
+
+    console.log(lastJobRefer?.name + ' beforeProductIds: ' + productIds);
+
+    for (const lastNeedProduct of lastNeedProducts || []) {
+      if (!productIds.includes(lastNeedProduct.productId)) {
+        console.log('false2 ' + lastJobRefer?.name);
+        response = false;
+      }
+    }
+
+    if (response) {
+      for (const beforeFlowJob of boforeFlowJobs) {
+        response = this.recursiveFlowJobChecker(
+          flowJobs,
+          jobRefers,
+          beforeFlowJob
+        );
+        if (response) {
+          continue;
+        } else {
+          break;
+        }
+      }
+    }
+
+    console.log('false3 ' + lastJobRefer?.name + ' boolean: ' + response);
+    return response;
   };
 
   setWrapperRef = node => {

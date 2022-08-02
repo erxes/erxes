@@ -1,5 +1,5 @@
-import { ITrackingItem, ITrip } from '../../../models/definitions/trips';
 import { IContext } from '../../../connectionResolver';
+import { ITrackingItem, ITrip } from '../../../models/definitions/trips';
 
 export interface ITripEdit extends ITrip {
   _id: string;

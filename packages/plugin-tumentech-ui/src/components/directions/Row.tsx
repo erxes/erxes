@@ -1,13 +1,14 @@
-import React from 'react';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { IDirection } from '../../types';
-import { ROAD_CONDITIONS } from '../../constants';
-import Tip from '@erxes/ui/src/components/Tip';
-import Button from '@erxes/ui/src/components/Button';
-import { __ } from '@erxes/ui/src/utils/core';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import { ROAD_CONDITIONS } from '../../constants';
 import DirectionForm from '../../containers/directions/Form';
+import { IDirection } from '../../types';
 
 type Props = {
   direction: IDirection;
