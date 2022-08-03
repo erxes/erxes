@@ -5,10 +5,12 @@ export interface IPage {
   html: string;
   css: string;
   jsonData: any;
+  siteId: string;
 }
 
 export interface IPageDoc extends IPage {
   _id: string;
+  site: ISiteDoc;
 }
 export interface IField {
   code: string;
@@ -20,10 +22,12 @@ export interface IContentType {
   code: string;
   displayName: string;
   fields: IField[];
+  siteId: string;
 }
 
 export interface IContentTypeDoc extends IContentType {
   _id: string;
+  site: ISiteDoc;
 }
 
 export interface IEntryValue {

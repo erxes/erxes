@@ -32,7 +32,7 @@ export const fieldSchema = new Schema(
 );
 
 export const contentTypeSchema = new Schema({
-  siteId: { type: String },
+  siteId: { type: String, label: 'Site Id' },
   code: { type: String, label: 'Name' },
   displayName: { type: String, label: 'Description' },
   fields: { type: [fieldSchema] }
@@ -65,17 +65,10 @@ export const loadTypeClass = (models: IModels) => {
       }
     }
 
-    public static async createContentType(doc) {
-      let site = await models.Sites.findOne({});
-
-      if (!site) {
-        await models.Sites.create({ name: 'web' });
-        site = await models.Sites.findOne({});
-      }
-
+    public static async createContentType(doc: IContentType) {
       await this.checkCodeDuplication(doc.code);
 
-      return models.ContentTypes.create({ siteId: site?._id, ...doc });
+      return models.ContentTypes.create(doc);
     }
 
     public static async updateContentType(_id: string, doc: IContentType) {

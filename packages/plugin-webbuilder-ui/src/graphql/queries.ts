@@ -2,6 +2,10 @@ const fields = `
       _id
       name
       description
+      site {
+        name
+        domain
+      }
 `;
 
 const pages = `
@@ -25,6 +29,7 @@ const pageDetail = `
       html
       css
       jsonData
+      siteId
     }
   }
 `;
@@ -38,6 +43,10 @@ const contentTypes = `
       fields
       entries {
         _id
+      }
+      site {
+        name
+        domain
       }
     }
   }
@@ -56,6 +65,7 @@ const contentTypeDetail = `
       code
       displayName
       fields
+      siteId
     }
   } 
 `;
