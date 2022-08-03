@@ -11,7 +11,6 @@ import { ClientPortalConfigsQueryResponse, IClientPortalUser } from '../types';
 
 type Props = {
   counts: Counts;
-  clientPortalUsers: IClientPortalUser[];
 };
 
 type FinalProps = {
@@ -20,7 +19,7 @@ type FinalProps = {
 
 class ClientPortalIdFilterContainer extends React.Component<FinalProps> {
   render() {
-    const { clientPortalConfigsQuery, counts, clientPortalUsers } = this.props;
+    const { clientPortalConfigsQuery, counts } = this.props;
 
     const updatedProps = {
       ...this.props,
@@ -31,8 +30,7 @@ class ClientPortalIdFilterContainer extends React.Component<FinalProps> {
       loading:
         (clientPortalConfigsQuery ? clientPortalConfigsQuery.loading : null) ||
         false,
-      counts: counts || {},
-      clientPortalUsers
+      counts: counts || {}
     };
 
     return <ClientPortalIdFilter {...updatedProps} />;

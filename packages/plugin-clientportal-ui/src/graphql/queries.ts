@@ -176,6 +176,17 @@ const clientPortalUserDetail = `
   query clientPortalUserDetail($_id: String!) {
     clientPortalUserDetail(_id: $_id) {
       ${clientPortalUserFields}
+      customer {
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+      company {
+        primaryName
+        primaryEmail
+        primaryPhone
+      }
     }
   }
 `;

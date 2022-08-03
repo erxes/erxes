@@ -1,9 +1,11 @@
 import { FormControl } from '@erxes/ui/src/components/form';
+import { formatValue } from '@erxes/ui/src/utils';
 import React from 'react';
 
 import { IClientPortalUser } from '../../types';
 
 type Props = {
+  index: number;
   clientPortalUser: IClientPortalUser;
   history: any;
   isChecked: boolean;
@@ -15,7 +17,13 @@ type Props = {
 
 class Row extends React.Component<Props> {
   render() {
-    const { clientPortalUser, history, toggleBulk, isChecked } = this.props;
+    const {
+      clientPortalUser,
+      history,
+      toggleBulk,
+      isChecked,
+      index
+    } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -45,8 +53,12 @@ class Row extends React.Component<Props> {
       lastName,
       username,
       email,
+      phone,
+      createdAt,
       code,
-      companyName
+      companyName,
+      clientPortal,
+      type
     } = clientPortalUser;
 
     return (
@@ -58,11 +70,16 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
+        <td>{index.toString()}</td>
+        <td>{email}</td>
+        <td>{phone}</td>
+        <td>{username}</td>
+        <td>{code}</td>
         <td>{firstName || companyName}</td>
         <td>{lastName}</td>
-        <td>{username}</td>
-        <td>{email}</td>
-        <td>{code}</td>
+        <td>{type}</td>
+        <td>{clientPortal.name}</td>
+        <td>{formatValue(createdAt)}</td>
       </tr>
     );
   }
