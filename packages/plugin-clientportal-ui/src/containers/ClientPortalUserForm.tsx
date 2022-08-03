@@ -43,7 +43,20 @@ class ClientPortalUserFormContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       const { closeModal } = this.props;
 
-      const afterSave = data => {
+      const cleanValues = obj => {
+        const newObj = { ...obj };
+
+        Object.keys(newObj).forEach(key => {
+          const val = newObj[key];
+          if (val === null || val === undefined || val === '') {
+            delete newObj[key];
+          }
+        });
+
+        return newObj;
+      };
+
+      const afterSave = _data => {
         closeModal();
       };
 
@@ -54,7 +67,7 @@ class ClientPortalUserFormContainer extends React.Component<FinalProps> {
               ? mutations.clientPortalUsersEdit
               : mutations.clientPortalUsersInvite
           }
-          variables={values}
+          variables={cleanValues(values)}
           callback={afterSave}
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
