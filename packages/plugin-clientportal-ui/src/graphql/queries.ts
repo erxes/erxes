@@ -150,6 +150,8 @@ const clientPortalUsers = `
   query clientPortalUsers(${listParamsDef}) {
     clientPortalUsers(${listParamsValue}) {
       ${clientPortalUserFields}
+      isPhoneVerified
+      isEmailVerified
     }
   }
 `;
