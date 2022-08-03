@@ -33,6 +33,9 @@ interface IUIOptions {
   bgImage: string;
   favIcon: string;
   receiptIcon: string;
+  kioskHeaderImage: string;
+  mobileAppImage: string;
+  qrCodeImage: string;
   texts: IConfigColors;
 }
 
