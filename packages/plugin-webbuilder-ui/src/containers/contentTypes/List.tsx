@@ -55,7 +55,6 @@ function ContentTypesContainer(props: FinalProps) {
     ...props,
     contentTypes,
     remove,
-    loading: typesQuery.loading,
     contentTypesCount
   };
 
@@ -79,6 +78,9 @@ export default compose(
     }
   ),
   graphql<{}, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
-    name: 'typesRemoveMutation'
+    name: 'typesRemoveMutation',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.contentTypes) }]
+    })
   })
 )(ContentTypesContainer);

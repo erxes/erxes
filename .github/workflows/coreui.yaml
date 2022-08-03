@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-      - name: Use Node.js 12.20.x
+      - name: Use Node.js 14.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.20.x
+          node-version: 14.20.x
 
       - uses: actions/checkout@v2
 

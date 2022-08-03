@@ -1,22 +1,21 @@
-import * as compose from 'lodash.flowright';
-import Alert from '@erxes/ui/src/utils/Alert';
-import gql from 'graphql-tag';
-import ProductDetails from '../components/Details';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import { Alert, Spinner } from '@erxes/ui/src';
+import { withProps } from '@erxes/ui/src/utils';
+import { IUser } from '@erxes/ui/src/auth/types';
 import {
   ISafeRemainder,
-  ISafeRemItem,
-  RemoveSafeRemItemMutationResponse,
+  ISafeRemainderItem,
+  RemoveSafeRemainderItemMutationResponse,
   SafeRemainderDetailQueryResponse,
-  SafeRemItemsQueryResponse,
-  UpdateSafeRemItemMutationResponse
+  SafeRemainderItemsQueryResponse,
+  UpdateSafeRemainderItemMutationResponse,
+  SafeRemainderItemsCountQueryResponse
 } from '../types';
-import { IUser } from '@erxes/ui/src/auth/types';
+import DetailsComponent from '../components/Details';
 import { mutations, queries } from '../graphql';
-import { SafeRemItemsCountQueryResponse } from '../types';
-import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;
@@ -26,67 +25,106 @@ type Props = {
 
 type FinalProps = {
   safeRemainderQuery: SafeRemainderDetailQueryResponse;
-  safeRemItemsQuery: SafeRemItemsQueryResponse;
-  safeRemItemsCountQuery: SafeRemItemsCountQueryResponse;
+  safeRemainderItemsQuery: SafeRemainderItemsQueryResponse;
+  safeRemainderItemsCountQuery: SafeRemainderItemsCountQueryResponse;
+  transactionAdd: any;
   currentUser: IUser;
 } & Props &
-  UpdateSafeRemItemMutationResponse &
-  RemoveSafeRemItemMutationResponse;
+  UpdateSafeRemainderItemMutationResponse &
+  RemoveSafeRemainderItemMutationResponse;
 
 class SafeRemainderDetailsContainer extends React.Component<FinalProps> {
   render() {
     const {
       safeRemainderQuery,
-      safeRemItemsQuery,
+      safeRemainderItemsQuery,
       currentUser,
-      safeRemItemsCountQuery,
-      updateSafeRemItem,
-      removeSafeRemItem
+      safeRemainderItemsCountQuery,
+      transactionAdd,
+      updateSafeRemainderItem,
+      removeSafeRemainderItem
     } = this.props;
 
-    if (safeRemainderQuery.loading || safeRemItemsCountQuery.loading) {
+    if (safeRemainderQuery.loading || safeRemainderItemsCountQuery.loading) {
       return <Spinner />;
     }
 
-    const updateRemItem = (_id: string, remainder: number, status?: string) => {
-      updateSafeRemItem({ variables: { _id, remainder, status } })
+    const updateRemainderItem = (
+      _id: string,
+      remainder: number,
+      status?: string
+    ) => {
+      updateSafeRemainderItem({ variables: { _id, remainder, status } })
         .then(() => {
           Alert.success('You successfully updated a census');
-          safeRemItemsQuery.refetch();
+          safeRemainderItemsQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
         });
     };
 
-    const removeRemItem = (item: ISafeRemItem) => {
-      removeSafeRemItem({ variables: { _id: item._id } })
+    const removeRemainderItem = (item: ISafeRemainderItem) => {
+      removeSafeRemainderItem({ variables: { _id: item._id } })
         .then(() => {
           Alert.success('You successfully deleted a census');
-          safeRemItemsQuery.refetch();
+          safeRemainderItemsQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
+        });
+    };
+
+    const createTransaction = (data: ISafeRemainderItem[]) => {
+      let products: any = [];
+
+      data.map((item: any) => {
+        products.push({
+          branchId: item.branchId,
+          departmentId: item.departmentId,
+          remainderId: item.remainderId,
+          productId: item.productId,
+          count: item.count,
+          isDebit: true
+        });
+      });
+
+      transactionAdd({
+        variables: {
+          contentType: 'safe remainder',
+          contentId: 'safe_remainder_id',
+          status: 'pog',
+          products: products
+        }
+      })
+        .then(() => {
+          Alert.success('Success!');
+          safeRemainderItemsQuery.refetch();
+        })
+        .catch((error: any) => {
+          Alert.error(error.message);
         });
     };
 
     const safeRemainder =
       safeRemainderQuery.safeRemainderDetail || ({} as ISafeRemainder);
 
-    const totalCount = safeRemItemsCountQuery.safeRemItemsCount || 0;
+    const totalCount =
+      safeRemainderItemsCountQuery.safeRemainderItemsCount || 0;
 
     const updatedProps = {
       ...this.props,
-      loading: safeRemItemsQuery.loading,
-      safeRemItemsQuery,
-      updateRemItem,
-      removeRemItem,
+      loading: safeRemainderItemsQuery.loading,
+      safeRemainderItemsQuery,
       totalCount,
       safeRemainder,
-      currentUser
+      currentUser,
+      createTransaction,
+      updateRemainderItem,
+      removeRemainderItem
     };
 
-    return <ProductDetails {...updatedProps} />;
+    return <DetailsComponent {...updatedProps} />;
   }
 }
 
@@ -112,38 +150,50 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, SafeRemItemsQueryResponse, {}>(gql(queries.safeRemItems), {
-      name: 'safeRemItemsQuery',
-      options: ({ id, queryParams }) => ({
-        variables: getVariables(id, queryParams),
-        fetchPolicy: 'network-only'
-      })
-    }),
-    graphql<Props, SafeRemItemsCountQueryResponse, {}>(
-      gql(queries.safeRemItemsCount),
+    graphql<Props, SafeRemainderItemsQueryResponse, {}>(
+      gql(queries.safeRemainderItems),
       {
-        name: 'safeRemItemsCountQuery',
+        name: 'safeRemainderItemsQuery',
         options: ({ id, queryParams }) => ({
           variables: getVariables(id, queryParams),
           fetchPolicy: 'network-only'
         })
       }
     ),
-    graphql<Props, UpdateSafeRemItemMutationResponse, { _id: string }>(
-      gql(mutations.updateSafeRemItem),
+    graphql<Props, SafeRemainderItemsCountQueryResponse, {}>(
+      gql(queries.safeRemainderItemsCount),
       {
-        name: 'updateSafeRemItem',
-        options: () => ({
-          refetchQueries: ['safeRemItemsQuery']
+        name: 'safeRemainderItemsCountQuery',
+        options: ({ id, queryParams }) => ({
+          variables: getVariables(id, queryParams),
+          fetchPolicy: 'network-only'
         })
       }
     ),
-    graphql<Props, RemoveSafeRemItemMutationResponse, { _id: string }>(
-      gql(mutations.removeSafeRemItem),
+    graphql<Props, {}, { data: ISafeRemainderItem[] }>(
+      gql(mutations.transactionAdd),
       {
-        name: 'removeSafeRemItem',
+        name: 'transactionAdd',
         options: () => ({
-          refetchQueries: ['safeRemItemsQuery']
+          refetchQueries: ['transactionAdd']
+        })
+      }
+    ),
+    graphql<Props, UpdateSafeRemainderItemMutationResponse, { _id: string }>(
+      gql(mutations.updateSafeRemainderItem),
+      {
+        name: 'updateSafeRemainderItem',
+        options: () => ({
+          refetchQueries: ['safeRemainderItemsQuery']
+        })
+      }
+    ),
+    graphql<Props, RemoveSafeRemainderItemMutationResponse, { _id: string }>(
+      gql(mutations.removeSafeRemainderItem),
+      {
+        name: 'removeSafeRemainderItem',
+        options: () => ({
+          refetchQueries: ['safeRemainderItemsQuery']
         })
       }
     )

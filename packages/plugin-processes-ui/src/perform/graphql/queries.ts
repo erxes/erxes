@@ -135,6 +135,12 @@ const performsByOverallWorkIdTotalCount = `
   }
 `;
 
+const allProducts = `
+query allProducts {
+  allProducts
+}
+`;
+
 export default {
   works,
   worksTotalCount,
@@ -145,5 +151,6 @@ export default {
   performs,
   performsByOverallWorkId,
   performsTotalCount,
-  performsByOverallWorkIdTotalCount
+  performsByOverallWorkIdTotalCount,
+  allProducts
 };

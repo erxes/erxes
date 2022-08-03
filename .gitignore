@@ -35,3 +35,4 @@ packages/core-ui/public/js/plugins.js
 cli/permissions.json
 cli/enabled-services.js
 cli/configs.json
+essyncer/plugins.json

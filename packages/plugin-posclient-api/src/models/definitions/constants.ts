@@ -10,6 +10,13 @@ export const PRODUCT_STATUSES = {
   ALL: ['active', 'deleted']
 };
 
+export const PRODUCT_CATEGORY_STATUSES = {
+  ACTIVE: 'active',
+  DISABLED: 'disabled',
+  ARCHIVED: 'archived',
+  ALL: ['active', 'disabled', 'archived']
+};
+
 export const ORDER_TYPES = {
   TAKE: 'take',
   EAT: 'eat',

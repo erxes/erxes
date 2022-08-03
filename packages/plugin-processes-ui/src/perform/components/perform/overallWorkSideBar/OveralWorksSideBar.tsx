@@ -28,7 +28,7 @@ interface IProps extends IRouterProps {
 
 class SideBar extends React.Component<IProps> {
   renderContent() {
-    const { overallWorks, overallWorkIdgetter } = this.props;
+    const { overallWorks, overallWorkIdgetter, params } = this.props;
 
     const result: React.ReactNode[] = [];
 
@@ -45,7 +45,7 @@ class SideBar extends React.Component<IProps> {
     const paramKey = 'overallWorkId';
 
     for (const overallWork of overallWorks) {
-      const { job, intervalId, _id } = overallWork;
+      const { job, _id } = overallWork;
 
       const name = <span>{job.label || 'not found'}</span>;
 
@@ -54,9 +54,7 @@ class SideBar extends React.Component<IProps> {
           <a
             href="#filter"
             tabIndex={0}
-            className={
-              router.getParam(history, [paramKey]) === _id ? 'active' : ''
-            }
+            className={params[paramKey] === _id ? 'active' : ''}
             onClick={onClick.bind(this, paramKey, _id)}
           >
             {name}

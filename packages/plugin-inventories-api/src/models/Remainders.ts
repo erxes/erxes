@@ -28,14 +28,14 @@ export interface IRemainderModel extends Model<IRemainderDocument> {
 
 export const loadRemainderClass = (models: IModels) => {
   class Remainder {
-    /*
+    /**
      * Get a remainder
      */
     public static async getRemainderObject(_id: string) {
       const remainder = await models.Remainders.findOne({ _id });
 
       if (!remainder) {
-        throw new Error('Remainder not found');
+        return new Error('Remainder not found');
       }
 
       return remainder;
@@ -85,7 +85,7 @@ export const loadRemainderClass = (models: IModels) => {
     }
 
     public static async getRemainders(
-      subdomain,
+      subdomain: string,
       {
         departmentId,
         branchId,

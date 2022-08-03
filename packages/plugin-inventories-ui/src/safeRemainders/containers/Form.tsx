@@ -1,10 +1,9 @@
-import * as compose from 'lodash.flowright';
 import React from 'react';
-
+import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
-import From from '../components/SafeRemainderForm';
+import From from '../components/Form';
 import { mutations } from '../graphql';
 
 type Props = {
@@ -12,9 +11,7 @@ type Props = {
   history: any;
 };
 
-type FinalProps = {} & Props;
-
-class SafeRemainderFormContainer extends React.Component<FinalProps> {
+class Form extends React.Component<Props> {
   render() {
     const { history } = this.props;
     const renderButton = ({
@@ -23,7 +20,7 @@ class SafeRemainderFormContainer extends React.Component<FinalProps> {
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
-      const callBack = data => {
+      const callBack = (data: any) => {
         if (callback) {
           callback(data);
         }
@@ -60,4 +57,4 @@ const getRefetchQueries = () => {
   return ['safeRemainders'];
 };
 
-export default withProps<Props>(compose()(SafeRemainderFormContainer));
+export default withProps<Props>(compose()(Form));
