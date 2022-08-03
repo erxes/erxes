@@ -22,8 +22,8 @@ export type CommonProps = {
   resetAssociatedItem?: () => void;
   closeModal: () => void;
   onSelect: (datas: any[]) => void;
-  extraField?: any;
-  handleExtra?:(data:any) =>void
+  extraField?: () => any;
+  handleExtra?: (data: any) => void;
 };
 
 type Props = {
@@ -115,7 +115,7 @@ class CommonChooser extends React.Component<Props, State> {
     }
 
     const onClick = () => {
-      this.props.handleExtra && this.props.handleExtra(data)
+      this.props.handleExtra && this.props.handleExtra(data);
       this.handleChange(icon, data);
     };
 
