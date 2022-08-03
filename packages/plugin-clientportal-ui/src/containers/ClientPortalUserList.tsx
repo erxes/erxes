@@ -51,6 +51,8 @@ class ClientportalUserListContainer extends React.Component<FinalProps, State> {
       clientPortalUserTotalCountQuery
     } = this.props;
 
+    console.log(queryParams);
+
     // remove action
     const removeUsers = ({ clientPortalUserIds }, emptyBulk) => {
       clientPortalUsersRemove({
@@ -113,6 +115,7 @@ export default withProps<Props>(
         variables: {
           searchValue: queryParams.searchValue,
           cpId: queryParams.cpId,
+          type: queryParams.type,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'

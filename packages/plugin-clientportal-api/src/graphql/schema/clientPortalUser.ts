@@ -1,4 +1,19 @@
-export const types = () => `
+export const types = (isContactsEnabled: boolean) => `
+
+${
+  isContactsEnabled
+    ? `
+      extend type Customer @key(fields: "_id") {
+        _id: String! @external
+      }
+
+      extend type Company @key(fields: "_id") {
+        _id: String! @external
+      }
+      `
+    : ''
+}
+
   type ClientPortalUser {
     _id: String!
     createdAt: Date
@@ -21,6 +36,15 @@ export const types = () => `
     password: String
 
     clientPortal: ClientPortal
+
+    ${
+      isContactsEnabled
+        ? `
+        customer: Customer
+        company: Company
+      `
+        : ''
+    }
   }
 
   type clientPortalUsersListResponse {

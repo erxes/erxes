@@ -78,8 +78,11 @@ class ClientportalUserList extends React.Component<IProps, State> {
       clientPortalUsers,
       toggleBulk,
       bulk,
-      history
+      history,
+      queryParams
     } = this.props;
+
+    const { page = 1, perPage = 20 } = queryParams;
 
     return (
       <withTableWrapper.Wrapper>
@@ -99,16 +102,22 @@ class ClientportalUserList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
+              <th>#</th>
+              <th>{__('Email')}</th>
+              <th>{__('Phone')}</th>
+              <th>{__('User Name')}</th>
+              <th>{__('Code')}</th>
               <th>{__('First Name')}</th>
               <th>{__('Last Name')}</th>
-              <th>{__('User Name')}</th>
-              <th>{__('Email')}</th>
-              <th>{__('Code')}</th>
+              <th>{__('Type')}</th>
+              <th>{__('from')}</th>
+              <th>{__('Registered Date')}</th>
             </tr>
           </thead>
           <tbody id="clientPortalUsers">
             {(clientPortalUsers || []).map((clientPortalUser, i) => (
               <ClientPortalUserRow
+                index={(page - 1) * perPage + i + 1}
                 clientPortalUser={clientPortalUser}
                 key={clientPortalUser._id}
                 isChecked={bulk.includes(clientPortalUser)}
@@ -230,8 +239,10 @@ class ClientportalUserList extends React.Component<IProps, State> {
         footer={<Pagination count={clientPortalUserCount} />}
         leftSidebar={
           <Sidebar
-            loadingMainQuery={loading}
-            clientPortalUsers={clientPortalUsers}
+            counts={{
+              byCP: { byCP: clientPortalUserCount },
+              byType: { byType: 0 }
+            }}
           />
         }
         content={
