@@ -37,6 +37,7 @@ interface IProps extends IRouterProps {
     doc: { clientPortalUserIds: string[] },
     emptyBulk: () => void
   ) => void;
+  verifyUsers: (type: string, userIds: string[]) => void;
 }
 
 type State = {
@@ -70,6 +71,13 @@ class ClientportalUserList extends React.Component<IProps, State> {
     const { removeUsers, emptyBulk } = this.props;
 
     removeUsers({ clientPortalUserIds }, emptyBulk);
+  };
+
+  verifyUsers = (type, clientPortalUsers) => {
+    this.props.verifyUsers(
+      type,
+      clientPortalUsers.map(cpUser => cpUser._id)
+    );
   };
 
   renderContent() {
@@ -208,6 +216,21 @@ class ClientportalUserList extends React.Component<IProps, State> {
             Alert.error(e.message);
           });
 
+      const onClickConfirm = e => {
+        const type = e.currentTarget.id;
+        confirm(
+          `This action forces the ${
+            bulk.length > 1 ? "users'" : "user's"
+          }  ${type} to be verified. Do you want to continue?`
+        )
+          .then(() => {
+            this.verifyUsers(type, bulk);
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      };
+
       actionBarLeft = (
         <BarItems>
           <Button
@@ -217,6 +240,25 @@ class ClientportalUserList extends React.Component<IProps, State> {
             onClick={onClick}
           >
             Remove
+          </Button>
+          <Button
+            id="phone"
+            btnStyle="default"
+            size="small"
+            icon="check-circle"
+            onClick={onClickConfirm}
+          >
+            Verify user phone
+          </Button>
+
+          <Button
+            id="email"
+            btnStyle="default"
+            size="small"
+            icon="check-circle"
+            onClick={onClickConfirm}
+          >
+            Verify user email
           </Button>
         </BarItems>
       );

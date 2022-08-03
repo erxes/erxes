@@ -34,6 +34,8 @@ ${
     links: JSON,
     customFieldsData: JSON,
     password: String
+    isEmailVerified: Boolean
+    isPhoneVerified: Boolean
 
     clientPortal: ClientPortal
 
@@ -108,6 +110,7 @@ export const mutations = () => `
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
   clientPortalRegister(${userParams}): String
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
+  clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
   clientPortalLogout: String
 
