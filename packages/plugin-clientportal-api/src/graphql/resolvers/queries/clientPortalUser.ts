@@ -56,6 +56,11 @@ const clientPortalUserQueries = {
             $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
           }
         },
+        {
+          phone: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        },
         { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
       ];
 
