@@ -16,8 +16,6 @@ const typeDefs = async serviceDiscovery => {
   const cardAvailable = await serviceDiscovery.isEnabled('cards');
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
 
-  console.log('isContactsEnabled: ', isContactsEnabled);
-
   return gql`
     scalar JSON
     scalar Date
