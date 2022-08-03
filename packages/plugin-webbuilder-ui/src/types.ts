@@ -50,6 +50,15 @@ export interface ITemplateDoc extends ITemplate {
   _id: string;
 }
 
+export interface ISite {
+  name: string;
+  domain: string;
+}
+
+export interface ISiteDoc extends ISite {
+  _id: string;
+}
+
 // query
 
 // page
@@ -93,7 +102,20 @@ export type EntryDetailQueryResponse = {
 
 // template
 export type TemplatesQueryResponse = {
-  webbuilderTemplates: ITemplateDoc;
+  webbuilderTemplates: ITemplateDoc[];
+} & QueryResponse;
+
+// site
+export type SitesQueryResponse = {
+  webbuilderSites: ISiteDoc[];
+} & QueryResponse;
+
+export type SitesTotalCountQueryResponse = {
+  webbuilderSitesTotalCount: number;
+} & QueryResponse;
+
+export type SiteDetailQueryResponse = {
+  webbuilderSiteDetail: ISiteDoc;
 } & QueryResponse;
 
 // mutation
@@ -148,4 +170,20 @@ export type TemplatesAddMutationResponse = {
 
 export type TemplatesRemoveMutationResponse = {
   templatesRemove: (doc: { variables: { _id: string } }) => Promise<any>;
+};
+
+// site
+
+export type SitesAddMutationResponse = {
+  sitesAddMutation: (doc: { variables: ISite }) => Promise<any>;
+};
+
+export type SitesEditMutationResponse = {
+  sitesEditMutation: (doc: {
+    variables: { _id: string } & ISite;
+  }) => Promise<any>;
+};
+
+export type SitesRemoveMutationResponse = {
+  sitesRemoveMutation: (doc: { variables: { _id: string } }) => Promise<any>;
 };

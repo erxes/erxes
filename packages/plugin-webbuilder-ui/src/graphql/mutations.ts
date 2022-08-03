@@ -104,6 +104,28 @@ const templatesRemove = `
   }
 `;
 
+const sitesAdd = `
+  mutation sitesAdd($name: String $domain: String) {
+    webbuilderSitesAdd(name: $name domain: $domain) {
+      _id
+    }
+  }
+`;
+
+const sitesEdit = `
+  mutation sitesEdit($_id: String! $name: String $domain: String) {
+    webbuilderSitesEdit(_id: $_id name: $name domain: $domain) {
+      _id
+    }
+  }
+`;
+
+const sitesRemove = `
+  mutation sitesRemove($_id: String!) {
+    webbuilderSitesRemove(_id: $_id) 
+  }
+`;
+
 export default {
   add,
   edit,
@@ -115,5 +137,8 @@ export default {
   entriesEdit,
   entriesRemove,
   templatesAdd,
-  templatesRemove
+  templatesRemove,
+  sitesAdd,
+  sitesEdit,
+  sitesRemove
 };
