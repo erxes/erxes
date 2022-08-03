@@ -61,13 +61,13 @@ export const preImportProducts = async (
     { _id: 1, tokens: 1 }
   ).lean();
 
-  const oldProductIds = oldAllProducts.map(p => p._id);
+  const oldProductIds = (oldAllProducts || []).map(p => p._id);
   const oldAllProductCats = await models.ProductCategories.find(
     { tokens: { $in: [token] } },
     { _id: 1, tokens: 1 }
   ).lean();
 
-  const oldCategoryIds = oldAllProductCats.map(p => p._id);
+  const oldCategoryIds = (oldAllProductCats || []).map(p => p._id);
 
   for (const group of groups) {
     const categories = group.categories || [];
@@ -75,7 +75,7 @@ export const preImportProducts = async (
     for (const category of categories) {
       importProductCatIds.push(category._id);
       importProductIds = importProductIds.concat(
-        category.products.map(p => p._id)
+        (category.products || []).map(p => p._id)
       );
     }
   } // end group loop
@@ -89,9 +89,8 @@ export const preImportProducts = async (
     { $pull: { tokens: { $in: [token] } } }
   );
 
-  const removeCategoryIds = oldCategoryIds.filter(
-    id => !importProductCatIds.includes(id)
-  );
+  const removeCategoryIds =
+    oldCategoryIds.filter(id => !importProductCatIds.includes(id)) || [];
 
   await models.ProductCategories.updateMany(
     { _id: { $in: removeCategoryIds } },
@@ -102,13 +101,15 @@ export const preImportProducts = async (
     { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
     { _id: 1 }
   ).lean();
-  await models.Products.removeProducts(deleteProductIds.map(d => d._id``));
+  await models.Products.removeProducts(
+    (deleteProductIds || []).map(d => d._id``)
+  );
 
   const deleteCategoryIds = await models.ProductCategories.find(
     { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
     { _id: 1 }
   ).lean();
-  for (const catId of deleteCategoryIds.map(d => d._id) || []) {
+  for (const catId of (deleteCategoryIds || []).map(d => d._id) || []) {
     await models.ProductCategories.removeProductCategory(catId);
   }
 };

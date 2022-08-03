@@ -133,6 +133,23 @@ export const initBroker = async cl => {
   consumeRPCQueue(
     `posclient:health_check${channelToken}`,
     async ({ subdomain, data }) => {
+      if (channelToken) {
+        return {
+          status: 'success',
+          data: { healthy: 'ok' }
+        };
+      }
+
+      const models = await generateModels(subdomain);
+      const conf = await models.Configs.findOne({ token: data.token });
+
+      if (!conf) {
+        return {
+          status: 'success',
+          data: { healthy: 'no' }
+        };
+      }
+
       return {
         status: 'success',
         data: { healthy: 'ok' }

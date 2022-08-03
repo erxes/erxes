@@ -41,6 +41,11 @@ export type MainQueryResponse = {
   refetch: () => void;
 };
 
+export type lotteriesCampaignCustomerList = {
+  lotteriesCampaignCustomerList: { list: ILottery[]; totalCount: number };
+  loading: boolean;
+  refetch: () => void;
+};
 export type LotteriesQueryResponse = {
   lotteries: ILottery[];
   loading: boolean;

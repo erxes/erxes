@@ -19,7 +19,8 @@ import {
   SpinCampaigns as SpinCampaignMutations,
   Lotteries as LotteryMutations,
   LotteryCampaigns as LotteryCampaignMutations,
-  Loyalties as LoyaltyMutations
+  Loyalties as LoyaltyMutations,
+  ScoreLogs as ScoreLogMutations
 } from './mutations';
 import {
   Donates as DonateQueries,
@@ -57,7 +58,8 @@ const resolvers: any = async (serviceDiscovery) => (
       ...SpinCampaignMutations,
       ...LotteryMutations,
       ...LotteryCampaignMutations,
-      ...LoyaltyMutations
+      ...LoyaltyMutations,
+      ...ScoreLogMutations
     },
     Query: {
       ...loyaltyConfigQueries,

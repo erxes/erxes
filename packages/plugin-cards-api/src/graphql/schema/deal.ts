@@ -46,6 +46,12 @@ export const types = ({ contacts, tags }) => `
     name: String
     currencies: [DealTotalCurrency]
   }
+
+  input ProductField {
+    productId : String
+    quantity: Int
+  }
+
 `;
 
 const dealMutationParams = `
@@ -100,6 +106,7 @@ const archivedDealsParams = `
 
 export const queries = `
   dealDetail(_id: String!): Deal
+  checkDiscount(_id: String!,products:[ProductField]):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(
