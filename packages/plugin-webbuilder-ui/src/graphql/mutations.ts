@@ -1,5 +1,5 @@
-const commonParamDefs = `$name: String!, $description: String, $html: String, $css: String, $jsonData: JSON`;
-const commonParams = `name: $name, description: $description, html: $html, css: $css, jsonData: $jsonData`;
+const commonParamDefs = `$name: String!, $description: String, $html: String, $css: String, $jsonData: JSON $siteId: String`;
+const commonParams = `name: $name, description: $description, html: $html, css: $css, jsonData: $jsonData siteId: $siteId`;
 
 const add = `
   mutation webbuilderPagesAdd(${commonParamDefs}) {
@@ -27,12 +27,14 @@ const typeParamDefs = `
   $displayName: String
   $code: String
   $fields: JSON
+  $siteId: String
 `;
 
 const typeParams = `
   displayName: $displayName
   code: $code
   fields: $fields
+  siteId: $siteId
 `;
 
 const typesAdd = `
@@ -104,6 +106,28 @@ const templatesRemove = `
   }
 `;
 
+const sitesAdd = `
+  mutation sitesAdd($name: String $domain: String) {
+    webbuilderSitesAdd(name: $name domain: $domain) {
+      _id
+    }
+  }
+`;
+
+const sitesEdit = `
+  mutation sitesEdit($_id: String! $name: String $domain: String) {
+    webbuilderSitesEdit(_id: $_id name: $name domain: $domain) {
+      _id
+    }
+  }
+`;
+
+const sitesRemove = `
+  mutation sitesRemove($_id: String!) {
+    webbuilderSitesRemove(_id: $_id) 
+  }
+`;
+
 export default {
   add,
   edit,
@@ -115,5 +139,8 @@ export default {
   entriesEdit,
   entriesRemove,
   templatesAdd,
-  templatesRemove
+  templatesRemove,
+  sitesAdd,
+  sitesEdit,
+  sitesRemove
 };

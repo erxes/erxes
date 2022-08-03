@@ -41,7 +41,7 @@ class AwardContentComponent extends React.Component<IProps, State> {
   }
 
   componentDidMount = () => {
-    if (this.props.list.length === 0) {
+    if (this.props.list && this.props.list.length === 0) {
       this.setState({ IsDisabledStartBtn: true });
     }
   };
