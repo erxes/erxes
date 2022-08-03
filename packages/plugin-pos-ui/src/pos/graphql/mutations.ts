@@ -7,6 +7,7 @@ const commonFields = `
   $adminIds: [String]
   $cashierIds: [String]
   $isOnline: Boolean
+  $onServer: Boolean
   $branchId: String
   $allowBranchIds: [String]
   $beginNumber: String
@@ -31,6 +32,7 @@ const commonVariables = `
   adminIds: $adminIds
   cashierIds: $cashierIds
   isOnline: $isOnline
+  onServer: $onServer
   branchId: $branchId
   allowBranchIds: $allowBranchIds
   beginNumber: $beginNumber

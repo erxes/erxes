@@ -53,7 +53,6 @@ export const orderFields = `
   userId
   items
   posToken
-  syncId
 
   syncedErkhet
 

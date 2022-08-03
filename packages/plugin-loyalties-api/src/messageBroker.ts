@@ -1,6 +1,7 @@
 import { generateModels } from "./connectionResolver";
 import { ISendMessageArgs, sendMessage } from "@erxes/api-utils/src/core";
 import { serviceDiscovery } from "./configs";
+import { checkVouchersSale } from "./utils";
 
 let client;
 
@@ -20,6 +21,20 @@ export const initBroker = async (cl) => {
       };
     }
   );
+  consumeRPCQueue("loyalties:checkLoyalties", async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { ownerType, ownerId, products } = data;
+    return {
+      data: await checkVouchersSale(
+        models,
+        subdomain,
+        ownerType,
+        ownerId,
+        products
+      ),
+      status: "success",
+    };
+  });
 };
 
 export const sendProductsMessage = async (

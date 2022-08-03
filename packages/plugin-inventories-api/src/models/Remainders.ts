@@ -35,8 +35,7 @@ export const loadRemainderClass = (models: IModels) => {
       const remainder = await models.Remainders.findOne({ _id });
 
       if (!remainder) {
-        // throw new Error('Remainder not found');
-        return;
+        return new Error('Remainder not found');
       }
 
       return remainder;
@@ -86,7 +85,7 @@ export const loadRemainderClass = (models: IModels) => {
     }
 
     public static async getRemainders(
-      subdomain,
+      subdomain: string,
       {
         departmentId,
         branchId,
@@ -133,8 +132,6 @@ export const loadRemainderClass = (models: IModels) => {
         ...doc,
         createdAt: new Date()
       });
-
-      console.log('CREATED: ', remainder);
 
       return remainder;
     }

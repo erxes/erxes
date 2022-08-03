@@ -50,22 +50,21 @@ interface ICatProd {
 export interface IConfig {
   name: string;
   description?: string;
-  productDetails: string[];
+  productDetails?: string[];
   adminIds: string[];
   cashierIds: string[];
-  beginNumber: string;
-  maxSkipNumber: number;
-  kitchenScreen: any;
-  waitingScreen: any;
+  beginNumber?: string;
+  maxSkipNumber?: number;
+  kitchenScreen?: any;
+  waitingScreen?: any;
   kioskMachine?: any;
-  token?: string;
+  token: string;
   uiOptions: IUIOptions;
-  ebarimtConfig: IEbarimtConfig;
-  qpayConfig: IQPayConfig;
-  syncInfo: ISyncInfo;
-  catProdMappings: ICatProd[];
-  initialCategoryIds: string[];
-  kioskExcludeProductIds: string[];
+  ebarimtConfig?: IEbarimtConfig;
+  qpayConfig?: IQPayConfig;
+  catProdMappings?: ICatProd[];
+  initialCategoryIds?: string[];
+  kioskExcludeProductIds?: string[];
   posId: string;
 }
 
@@ -133,7 +132,6 @@ export const configSchema = new Schema({
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema }),
   qpayConfig: field({ type: qpayConfigSchema }),
-  syncInfo: field({ type: Object, optional: true }),
   catProdMappings: field({
     type: [Object],
     label: 'Product category mappings'

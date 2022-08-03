@@ -4,12 +4,7 @@ import Popover from 'react-bootstrap/Popover';
 import React from 'react';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import {
-  __,
-  AvatarUpload,
-  FormControl,
-  FormGroup,
-} from '@erxes/ui/src';
+import { __, AvatarUpload, FormControl, FormGroup } from '@erxes/ui/src';
 import {
   AppearanceRow,
   ColorPick,
@@ -18,8 +13,8 @@ import {
   Block,
   LogoWrapper,
   ColorPickerWrap,
-  ColorChooserTile,
-} from "../../../styles";
+  ColorChooserTile
+} from '../../../styles';
 
 interface IColor {
   [key: string]: string;
@@ -36,7 +31,7 @@ export interface IUIOptions {
 
 type Props = {
   onChange: (
-    name: "uiOptions" | "logoPreviewUrl" | "logoPreviewStyle",
+    name: 'uiOptions' | 'logoPreviewUrl' | 'logoPreviewStyle',
     value: any
   ) => void;
   uiOptions?: IUIOptions;
@@ -58,14 +53,17 @@ class Appearance extends React.Component<Props, State> {
       bgImage: '',
       receiptIcon: '',
       texts: {},
+      kioskHeaderImage: '',
+      mobileAppImage: '',
+      qrCodeImage: ''
     };
 
     if (!uiOptions.colors) {
-      uiOptions.colors = {}
+      uiOptions.colors = {};
     }
 
     if (!uiOptions.texts) {
-      uiOptions.texts = {}
+      uiOptions.texts = {};
     }
 
     this.state = { uiOptions };
@@ -79,9 +77,8 @@ class Appearance extends React.Component<Props, State> {
     const { onChange } = this.props;
     const { uiOptions } = this.state;
 
-
-    this.setState({ uiOptions: { ...uiOptions, [id]: url } })
-    onChange('uiOptions', { ...uiOptions, [id]: url })
+    this.setState({ uiOptions: { ...uiOptions, [id]: url } });
+    onChange('uiOptions', { ...uiOptions, [id]: url });
   };
 
   renderUploadImage(id, title, desc) {
@@ -103,10 +100,10 @@ class Appearance extends React.Component<Props, State> {
   renderInput = (key: string, title?: string, description?: string) => {
     const { uiOptions } = this.state;
 
-    const onChangeInput = (e) => {
+    const onChangeInput = e => {
       uiOptions['texts'][key] = e.target.value;
 
-      this.onChangeFunction("uiOptions", uiOptions);
+      this.onChangeFunction('uiOptions', uiOptions);
     };
 
     const defaultValue = (uiOptions['texts'] || {})[key];
@@ -114,26 +111,23 @@ class Appearance extends React.Component<Props, State> {
       <FormGroup>
         <ControlLabel>{title || key}</ControlLabel>
         {description && <p>{__(description)}</p>}
-        <FormControl
-          defaultValue={defaultValue}
-          onChange={onChangeInput}
-        />
+        <FormControl defaultValue={defaultValue} onChange={onChangeInput} />
       </FormGroup>
     );
   };
 
   renderPicker(group, key, title, colour) {
-    const { uiOptions } = this.props;
+    const { uiOptions } = this.state;
 
     const color =
       uiOptions[group] && uiOptions[group][key]
         ? uiOptions[group][key]
         : colour;
 
-    const onChangeColor = (e) => {
+    const onChangeColor = e => {
       uiOptions[group][key] = e.hex;
 
-      this.onChangeFunction("uiOptions", uiOptions);
+      this.onChangeFunction('uiOptions', uiOptions);
     };
 
     const popoverContent = (
@@ -166,51 +160,61 @@ class Appearance extends React.Component<Props, State> {
       <FlexItem>
         <LeftItem>
           <Block>
-            <h4>{__("Logo and favicon")}</h4>
+            <h4>{__('Logo and favicon')}</h4>
             <AppearanceRow>
-              {this.renderUploadImage("logo", "Main Logo", "Pos main logo PNG")}
+              {this.renderUploadImage('logo', 'Main Logo', 'Pos main logo PNG')}
               {this.renderUploadImage(
-                "bgImage",
-                "Background Image",
-                "Pos background Image PNG"
+                'bgImage',
+                'Background Image',
+                'Pos background Image PNG'
               )}
               {this.renderUploadImage(
-                "favIcon",
-                "Favicon",
-                "16x16px transparent PNG"
+                'favIcon',
+                'Favicon',
+                '16x16px transparent PNG'
               )}
               {this.renderUploadImage(
-                "receiptIcon",
-                "Receipt icon",
-                "16x16px transparent PNG"
+                'receiptIcon',
+                'Receipt icon',
+                '16x16px transparent PNG'
+              )}
+              {this.renderUploadImage(
+                'kioskHeaderImage',
+                'Kiosk header image',
+                'Kiosk header image PNG'
+              )}
+              {this.renderUploadImage(
+                'mobileAppImage',
+                'Mobile app image',
+                'Mobile app image PNG'
+              )}
+              {this.renderUploadImage(
+                'qrCodeImage',
+                'QR code image',
+                'QR code image PNG'
               )}
             </AppearanceRow>
           </Block>
           <Block>
-            <h4>{__("Main colors")}</h4>
+            <h4>{__('Main colors')}</h4>
             <FormGroup>
-              <ControlLabel>{__("Colors")}</ControlLabel>
+              <ControlLabel>{__('Colors')}</ControlLabel>
               <AppearanceRow>
                 <ColorPickerWrap>
-                  {this.renderPicker("colors", "primary", "Primary", "#6569df")}
+                  {this.renderPicker('colors', 'primary', 'Primary', '#6569df')}
                   {this.renderPicker(
-                    "colors",
-                    "secondary",
-                    "Secondary",
-                    "#3fc7cc"
+                    'colors',
+                    'secondary',
+                    'Secondary',
+                    '#3fc7cc'
                   )}
-                  {this.renderPicker(
-                    "colors",
-                    "third",
-                    "Third",
-                    "#3fc700"
-                  )}
+                  {this.renderPicker('colors', 'third', 'Third', '#3fc700')}
                 </ColorPickerWrap>
               </AppearanceRow>
             </FormGroup>
           </Block>
           <Block>
-            <h4>{__("Infos")}</h4>
+            <h4>{__('Infos')}</h4>
             <FormGroup>
               {this.renderInput('website', 'WebSite', '')}
               {this.renderInput('phone', 'Phone', '')}

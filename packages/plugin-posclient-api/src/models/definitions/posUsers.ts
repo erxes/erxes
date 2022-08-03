@@ -26,6 +26,7 @@ export interface IPosUser {
 
 export interface IPosUserDocument extends IPosUser, Document {
   _id: string;
+  tokens: string[];
 }
 
 const detailSchema = new Schema(
@@ -68,5 +69,6 @@ export const posUserSchema = new Schema({
     label: 'Email'
   }),
   isActive: field({ type: Boolean, default: true, label: 'Is active' }),
-  details: field({ type: detailSchema, default: {}, label: 'Details' })
+  details: field({ type: detailSchema, default: {}, label: 'Details' }),
+  tokens: field({ type: [String] })
 });

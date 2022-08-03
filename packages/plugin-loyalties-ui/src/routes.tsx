@@ -36,6 +36,13 @@ const Donates = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './loyalties/donates/containers/List')
 )
 
+const ScoreLogs = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './loyalties/scorelogs/containers/List')
+)
+
+const Award = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './loyalties/lotteries/containers/Award')
+)
 const voucherCampaignList = ({ location, history }) => {
   return (
     <VoucherCampaigns
@@ -105,6 +112,21 @@ const donates = ({ location, history }) => {
   );
 };
 
+const award = ({ location, history }) => {
+  return (
+    <Award queryParams={queryString.parse(location.search)} history={history} />
+  );
+};
+
+const scorelogs = ({ history, location }) => {
+  return (
+    <ScoreLogs
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
 const routes = () => {
   return (
     <>
@@ -118,6 +140,8 @@ const routes = () => {
 
       <Route path="/erxes-plugin-loyalty/settings/donate" component={donateCampaignList} />
 
+      <Route path="/lotteryAward" component={award} />
+
       <Route path="/vouchers" component={vouchers} />
 
       <Route path="/lotteries" component={lotteries} />
@@ -125,6 +149,7 @@ const routes = () => {
       <Route path="/spins" component={spins} />
 
       <Route path="/donates" component={donates} />
+      <Route path="/score" component={scorelogs} />
     </>
   );
 };

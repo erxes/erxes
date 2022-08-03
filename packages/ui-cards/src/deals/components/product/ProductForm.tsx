@@ -13,9 +13,9 @@ import {
   FormContainer,
   ProductTableWrapper
 } from '../../styles';
-import { IPaymentsData, IProductData } from '../../types';
+import { IDeal, IPaymentsData, IProductData } from '../../types';
 import PaymentForm from './PaymentForm';
-import ProductItem from './ProductItem';
+import ProductItem from '../../containers/product/ProductItem';
 import ProductTotal from './ProductTotal';
 
 type Props = {
@@ -29,6 +29,7 @@ type Props = {
   uom: string[];
   currencies: string[];
   currentProduct?: string;
+  dealQuery: IDeal;
 };
 
 type State = {
@@ -82,7 +83,8 @@ class ProductForm extends React.Component<Props, State> {
           : 0,
         amount: 0,
         currency,
-        tickUsed: true
+        tickUsed: true,
+        maxQuantity: 0
       });
 
       onChangeProductsData(productsData);
@@ -97,6 +99,16 @@ class ProductForm extends React.Component<Props, State> {
     onChangeProductsData(removedProductsData);
 
     this.updateTotal(removedProductsData);
+  };
+
+  setDiscount = (id, discount) => {
+    const { productsData, onChangeProductsData } = this.props;
+
+    const discountAdded = productsData.map(p =>
+      p.product?._id === id ? { ...p, discountPercent: discount } : p
+    );
+    onChangeProductsData(discountAdded);
+    this.updateTotal(discountAdded);
   };
 
   updateTotal = (productsData = this.props.productsData) => {
@@ -146,7 +158,7 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData, currentProduct } = this.props;
+    const { productsData, onChangeProductsData, currentProduct, dealQuery } = this.props;
 
     if (productsData.length === 0) {
       return (
@@ -180,6 +192,8 @@ class ProductForm extends React.Component<Props, State> {
                 uom={this.props.uom}
                 currencies={this.props.currencies}
                 currentProduct={currentProduct}
+                onChangeDiscount={this.setDiscount}
+                dealQuery={dealQuery}
               />
             ))}
           </tbody>

@@ -35,6 +35,7 @@ type Props = {
   productCategories: IProductCategory[];
   branches: any[];
   slots: ISlot[];
+  envs: any;
 };
 
 type State = {
@@ -140,6 +141,7 @@ class Pos extends React.Component<Props, State> {
       catProdMappings: cleanMappings,
       posSlots: cleanSlot,
       isOnline: pos.isOnline,
+      onServer: pos.onServer,
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
       branchId: pos.branchId,
@@ -247,7 +249,7 @@ class Pos extends React.Component<Props, State> {
 
   render() {
     const { pos, slots, groups, uiOptions } = this.state;
-    const { productCategories, branches } = this.props;
+    const { productCategories, branches, envs } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
     const name = pos.name || '';
@@ -269,6 +271,7 @@ class Pos extends React.Component<Props, State> {
                   pos={pos}
                   branches={branches}
                   posSlots={slots}
+                  envs={envs}
                 />
               </Step>
               <Step

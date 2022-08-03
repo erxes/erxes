@@ -1,21 +1,20 @@
 import React from 'react';
-import Row from './Row';
-import Sidebar from './Sidebar';
-import { __ } from '@erxes/ui/src/utils';
 import {
+  __,
+  Wrapper,
   BarItems,
-  DataWithLoader,
-  EmptyState,
+  Button,
   Pagination,
   Table,
-  Wrapper
+  DataWithLoader,
+  ModalTrigger
 } from '@erxes/ui/src';
-import { ISafeRemainder } from '../types';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { ISafeRemainder } from '../types';
 import { SUBMENU } from '../../constants';
-import Button from '@erxes/ui/src/components/Button';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import SafeRemainderForm from '../containers/Form';
+import Form from '../containers/Form';
+import Row from './Row';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -53,9 +52,7 @@ class List extends React.Component<IProps, {}> {
       </Button>
     );
 
-    const modalContent = props => (
-      <SafeRemainderForm {...props} history={history} />
-    );
+    const modalContent = props => <Form {...props} history={history} />;
 
     let actionBarRight = (
       <BarItems>
@@ -90,16 +87,6 @@ class List extends React.Component<IProps, {}> {
       </>
     );
 
-    if (totalCount === 0) {
-      content = (
-        <EmptyState
-          image="/images/actions/8.svg"
-          text="No Brands"
-          size="small"
-        />
-      );
-    }
-
     return (
       <Wrapper
         header={
@@ -112,6 +99,7 @@ class List extends React.Component<IProps, {}> {
           <DataWithLoader
             data={content}
             loading={loading}
+            count={totalCount}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />

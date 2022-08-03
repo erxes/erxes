@@ -13,6 +13,7 @@ export interface ILotteryCampaignModel extends Model<ILotteryCampaignDocument> {
   removeLotteryCampaigns(_ids: string[]): void;
   doLottery({ campaignId, awardId }: { campaignId: string, awardId: string }): Promise<ILottery>;
   getNextChar({ campaignId, awardId, prevChars }: { campaignId: string, awardId: string, prevChars: string }): Promise<any>;
+  multipleDoLottery({ campaignId, awardId, multiple }): Promise<any>;
 };
 
 export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) => {
@@ -86,7 +87,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
     }
 
     static async validDoLottery(campaignId, awardId) {
-      const campaign = await models.LotteryCampaigns.getLotteryCampaign(campaignId);
+      const campaign = await (await models.LotteryCampaigns.getLotteryCampaign(campaignId)).toObject();
       const award = campaign.awards.find(a => a._id === awardId)
       if (!award) {
         throw new Error('not found award');
@@ -102,10 +103,21 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
     static async setLuckyLottery(campaign, award, luckyLottery) {
       const awards = campaign.awards.map(a => (a._id === award._id ? { ...a, wonLotteryIds: [...a.wonLotteryIds, luckyLottery._id] } : a));
 
-      await models.LotteryCampaigns.updateOne({ _id: campaign._id }, { $set: { awards } });
+      await models.LotteryCampaigns.updateOne({ _id: campaign._id }, { awards });
 
       const voucher = await models.Vouchers.createVoucher({ campaignId: award.voucherCampaignId, ownerType: luckyLottery.ownerType, ownerId: luckyLottery.ownerId })
       await models.Lotteries.updateOne({ _id: luckyLottery._id }, { $set: { usedAt: new Date(), status: LOTTERY_STATUS.WON, voucherId: voucher._id, awardId: award._id } });
+    }
+
+    public static async multipleDoLottery({ campaignId, awardId, multiple }) {
+      Array.from(Array(parseInt(multiple)), async (e, i) => {
+        try {
+          await this.doLottery({ campaignId, awardId });
+        } catch (error) {
+          throw new Error(error.message);
+        }
+        return true;
+      });
     }
 
     public static async doLottery({ campaignId, awardId }) {
@@ -132,7 +144,7 @@ export const loadLotteryCampaignClass = (models: IModels, _subdomain: string) =>
 
       const randomNumber = getRandomNumber(campaign.numberFormat);
 
-      const nextChar = randomNumber.substring(prevChars.len, prevChars.len);
+      const nextChar = randomNumber.substring(prevChars.length, prevChars.length + 1);
       const afterChars = `${prevChars}${nextChar}`;
       const filter = {
         campaignId,

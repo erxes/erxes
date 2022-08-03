@@ -13,6 +13,7 @@ import {
   GroupsQueryResponse,
   IProductGroup,
   PosDetailQueryResponse,
+  PosEnvQueryResponse,
   SlotsBulkUpdateMutationResponse,
   SlotsQueryResponse
 } from '../../types';
@@ -40,6 +41,7 @@ type FinalProps = {
   productCategoriesQuery: ProductCategoriesQueryResponse;
   branchesQuery: BranchesQueryResponse;
   slotsQuery: SlotsQueryResponse;
+  posEnvQuery: PosEnvQueryResponse;
 } & Props &
   EditPosMutationResponse &
   AddPosMutationResponse &
@@ -65,24 +67,26 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       history,
       productCategoriesQuery,
       branchesQuery,
-      slotsQuery
+      slotsQuery,
+      posEnvQuery
     } = this.props;
 
     if (
       (posDetailQuery && posDetailQuery.loading) ||
-      groupsQuery.loading ||
+      (groupsQuery && groupsQuery.loading) ||
       productCategoriesQuery.loading ||
       branchesQuery.loading ||
-      slotsQuery.loading
+      (slotsQuery && slotsQuery.loading)
     ) {
       return <Spinner objective={true} />;
     }
 
     const pos = (posDetailQuery && posDetailQuery.posDetail) || ({} as IPos);
-    const groups = groupsQuery.productGroups || [];
+    const groups = (groupsQuery && groupsQuery.productGroups) || [];
     const branches = branchesQuery.branches || [];
-    const slots = slotsQuery.posSlots || [];
+    const slots = (slotsQuery && slotsQuery.posSlots) || [];
     const productCategories = productCategoriesQuery.productCategories || [];
+    const envs = posEnvQuery.posEnv || {};
 
     const save = doc => {
       const { posId } = this.props;
@@ -142,7 +146,8 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       branches,
       isActionLoading: this.state.isLoading,
       slots,
-      productCategories
+      productCategories,
+      envs
     };
 
     return <Pos {...updatedProps} />;
@@ -156,16 +161,21 @@ export default withProps<Props>(
       {
         name: 'posDetailQuery',
         skip: ({ posId }) => !posId,
-        options: ({ posId }) => ({
+        options: ({ posId }: { posId?: string }) => ({
           fetchPolicy: 'cache-and-network',
           variables: {
-            _id: posId,
-            posId
+            _id: posId || '',
+            posId: posId || ''
           }
         })
       }
     ),
-
+    graphql<Props, PosDetailQueryResponse, {}>(gql(queries.posEnv), {
+      name: 'posEnvQuery',
+      options: () => ({
+        fetchPolicy: 'cache-and-network'
+      })
+    }),
     graphql<{}, AddPosMutationResponse, IPos>(gql(mutations.posAdd), {
       name: 'addPosMutation'
     }),
@@ -174,10 +184,11 @@ export default withProps<Props>(
       gql(queries.productGroups),
       {
         name: 'groupsQuery',
-        options: ({ posId }) => ({
+        skip: ({ posId }) => !posId,
+        options: ({ posId }: { posId?: string }) => ({
           fetchPolicy: 'cache-and-network',
           variables: {
-            posId
+            posId: posId || ''
           }
         })
       }
@@ -187,8 +198,9 @@ export default withProps<Props>(
       gql(queries.posSlots),
       {
         name: 'slotsQuery',
-        options: ({ posId }) => ({
-          variables: { posId },
+        skip: ({ posId }) => !posId,
+        options: ({ posId }: { posId?: string }) => ({
+          variables: { posId: posId || '' },
           fetchPolicy: 'network-only'
         })
       }

@@ -1,7 +1,7 @@
 import { IProduct } from '@erxes/ui-products/src/types';
 import React from 'react';
 import ProductForm from '../../components/product/ProductForm';
-import { IPaymentsData, IProductData } from '../../types';
+import { IDeal, IPaymentsData, IProductData } from '../../types';
 import { AppConsumer } from 'coreui/appContext';
 
 type Props = {
@@ -13,6 +13,7 @@ type Props = {
   paymentsData?: IPaymentsData;
   currentProduct?: string;
   closeModal: () => void;
+  dealQuery: IDeal;
 };
 
 export default class ProductFormContainer extends React.Component<Props> {

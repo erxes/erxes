@@ -138,7 +138,7 @@ export const mutations = `
 export const queries = `
   orders(searchValue: String, page: Int, perPage: Int): [Order]
   fullOrders(searchValue: String, statuses: [String], customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
-  orderDetail(_id: String): Order
+  orderDetail(_id: String, customerId: String): Order
   ordersCheckCompany(registerNumber: String!): JSON
   ordersDeliveryInfo(orderId: String!): JSON
 `;
