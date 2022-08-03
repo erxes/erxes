@@ -1,20 +1,19 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
 import ForumCategory from './ForumCategory';
-import { IContext } from '../';
 import Mutation from './Mutation';
+import Query from './Query';
+import { IContext } from '..';
+import { IResolvers } from '@graphql-tools/utils';
 
-export default async function generateResolvers(serviceDiscovery) {
-  return {
+export default async function generateResolvers(
+  serviceDiscovery
+): Promise<IResolvers<any, IContext>> {
+  const resolvers: IResolvers<any, IContext> = {
     ...customScalars,
     ForumCategory,
-    Query: {
-      forumAllCategories: (parent, args, { models }: IContext) => {
-        return models.Category.find();
-      },
-      forumCategory: (parent, { _id }, { models }: IContext) => {
-        return models.Category.findById(_id);
-      }
-    },
+    Query,
     Mutation
   };
+
+  return resolvers;
 }

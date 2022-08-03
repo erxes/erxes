@@ -22,7 +22,6 @@ export type CategoryDocument = ICategory & Document;
 export interface ICategoryModel extends Model<CategoryDocument> {
   createCategory(c: ICategoryInsertInput): Promise<ICategoryModel>;
   patchCategory(_id: string, c: ICategoryPatchInput): Promise<ICategoryModel>;
-  getDescendantsOf(_id: string): Promise<ICategory[] | null | undefined>;
 }
 
 /**
@@ -49,7 +48,6 @@ export const generateCategoryModel = (
 
       if (doc.parentId) {
         const parent = await models.Category.findById(doc.parentId).lean();
-        console.log('parent', parent);
 
         if (!parent) {
           throw new Error(
@@ -58,6 +56,8 @@ export const generateCategoryModel = (
         }
 
         doc.ancestorIds = [...(parent.ancestorIds || []), doc.parentId];
+      } else {
+        doc.ancestorIds = null;
       }
 
       console.log(JSON.stringify(doc, null, 2));
@@ -69,33 +69,30 @@ export const generateCategoryModel = (
       _id: string,
       input: ICategoryPatchInput
     ): Promise<CategoryDocument> {
-      console.log('input', input);
-
       const patch = { ...input } as ICategory;
 
-      console.log('patch', patch);
-
-      if (patch.parentId !== null) {
-        if (patch.parentId !== undefined) {
-          const parent = await models.Category.findById(patch.parentId).lean();
-
-          if (!parent) {
-            throw new Error(
-              `Parent category with \`{ "_id" :  "${patch.parentId}"\` } not found`
-            );
-          }
-
-          patch.ancestorIds = [...(parent.ancestorIds || []), patch.parentId];
-        }
-      } else {
+      // parent is null, which means ancestors should also be null
+      if (patch.parentId === null) {
         patch.ancestorIds = null;
       }
+      // Parent is being changed to specific _id. Which means, this category must update its ancestorIds to match it.
+      else if (patch.parentId !== null && patch.parentId !== undefined) {
+        const parent = await models.Category.findById(patch.parentId).lean();
 
-      // console.log(JSON.stringify(patch, null, 2));
+        if (!parent) {
+          throw new Error(
+            `Parent category with \`{ "_id" :  "${patch.parentId}"\` } not found`
+          );
+        }
 
-      // throw new Error("Unimplemented");
+        patch.ancestorIds = [...(parent.ancestorIds || []), patch.parentId];
+      }
+      // Parent is not being updated. AncestorIds should also stay same
+      else if (patch.parentId === undefined) {
+        delete patch.ancestorIds;
+      }
 
-      const res = await models.Category.updateOne({ _id }, patch);
+      await models.Category.updateOne({ _id }, patch);
 
       const updated = await models.Category.findById(_id);
 
@@ -105,12 +102,6 @@ export const generateCategoryModel = (
 
       // console.log(JSON.stringify(updated, null, 2));
       return updated;
-    }
-    public static async getDescendantsOf(
-      _id: string
-    ): Promise<ICategory[] | undefined | null> {
-      const descendants = await models.Category.find({ ancestorIds: _id });
-      return descendants;
     }
   }
   categorySchema.loadClass(CategoryModel);

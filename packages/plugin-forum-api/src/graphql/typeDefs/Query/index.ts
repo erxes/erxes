@@ -1,7 +1,7 @@
 const Query = ` 
   extend type Query {
-    forumCategory(_id: String!): ForumCategory
-    forumAllCategories: [ForumCategory]
+    forumCategory(_id: ID!): ForumCategory
+    forumAllCategories(_ids: [ID!], parentIds: [ID], ancestorIds: [ID!]): [ForumCategory]
   }
 `;
 
