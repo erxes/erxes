@@ -136,28 +136,34 @@ export const TableOver = styled(Table)`
   box-shadow: 1px solid black;
   border-collapse: collapse;
 
-  th {
-    border: 1px solid ${colors.borderPrimary};
-    border-top: none;
-    text-align: center;
-  }
-
-  td {
-    border-bottom: none;
-  }
-
-  tr:first-child {
-    th:first-child,
-    td:first-child {
-      text-align: left;
-    }
-    th:last-child,
-    td:last-child {
-      text-align: right;
-    }
-    th,
-    td {
+  thead {
+    th {
+      border: 1px solid ${colors.borderPrimary};
+      border-top: none;
       text-align: center;
+    }
+    tr:first-child {
+      th:first-child {
+        text-align: left;
+      }
+      th:last-child {
+        text-align: right;
+      }
+    }
+  }
+
+  tbody {
+    td {
+      border-bottom: none;
+      text-align: center;
+    }
+    tr {
+      td:first-child {
+        text-align: left;
+      }
+      td:last-child {
+        text-align: right;
+      }
     }
   }
 `;

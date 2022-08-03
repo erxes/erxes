@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import { Model } from 'mongoose';
 import * as sha256 from 'sha256';
+import { IConfigDocument } from './definitions/configs';
 import {
   IPosUser,
   IPosUserDocument,
@@ -28,7 +29,8 @@ export interface IPosUserModel extends Model<IPosUserDocument> {
   generateToken(): { token: string; expires: Date };
   createUser(doc: IPosUser): Promise<IPosUserDocument>;
   createOrUpdateUser(
-    doc: IPosUser | IPosUserDocument
+    doc: IPosUser | IPosUserDocument,
+    token: string
   ): Promise<IPosUserDocument>;
   setUserActiveOrInactive(_id: string): Promise<IPosUserDocument>;
   generatePassword(password: string): Promise<string>;
@@ -37,7 +39,10 @@ export interface IPosUserModel extends Model<IPosUserDocument> {
   refreshTokens(
     refreshToken: string
   ): { token: string; refreshToken: string; user: IPosUserDocument };
-  posLogin(params: IPosLoginParams): { token: string; refreshToken: string };
+  posLogin(
+    params: IPosLoginParams,
+    config: IConfigDocument
+  ): { token: string; refreshToken: string };
   getTokenFields(user: IPosUserDocument);
 }
 
@@ -123,7 +128,10 @@ export const loadPosUserClass = models => {
       });
     }
 
-    public static async createOrUpdateUser(doc: IPosUser | IPosUserDocument) {
+    public static async createOrUpdateUser(
+      doc: IPosUser | IPosUserDocument,
+      token: string
+    ) {
       // empty string password validation
       if (doc.password === '') {
         throw new Error('Password can not be empty');
@@ -135,9 +143,16 @@ export const loadPosUserClass = models => {
         : { email: doc.email };
       const user = await models.PosUsers.findOne(query);
 
-      user && user._id
-        ? await models.PosUsers.updateOne({ _id: user._id }, doc)
-        : await models.PosUsers.create(doc);
+      if (user && user._id) {
+        const tokens = user.tokens || [];
+        if (!tokens.includes(token)) {
+          tokens.push(token);
+        }
+
+        await models.PosUsers.updateOne({ _id: user._id }, { ...doc, tokens });
+      } else {
+        await models.PosUsers.create({ ...doc, tokens: [token] });
+      }
 
       return models.PosUsers.findOne(query);
     }
@@ -228,14 +243,17 @@ export const loadPosUserClass = models => {
     /*
      * Validates user credentials and generates tokens
      */
-    public static async posLogin({
-      email,
-      password
-    }: {
-      email: string;
-      password: string;
-      deviceToken?: string;
-    }) {
+    public static async posLogin(
+      {
+        email,
+        password
+      }: {
+        email: string;
+        password: string;
+        deviceToken?: string;
+      },
+      config: IConfigDocument
+    ) {
       email = (email || '').toLowerCase().trim();
       password = (password || '').trim();
 
@@ -244,7 +262,8 @@ export const loadPosUserClass = models => {
           { email: { $regex: new RegExp(`^${email}$`, 'i') } },
           { username: { $regex: new RegExp(`^${email}$`, 'i') } }
         ],
-        isActive: true
+        isActive: true,
+        tokens: { $in: [config.token] }
       });
 
       if (!user || !user.password) {

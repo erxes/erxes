@@ -227,6 +227,68 @@ const ProductSettings = styled.div`
   padding-top: 16px;
 `;
 
+const VoucherContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const VoucherCard = styled.div`
+  display: flex
+  border-radius: 4px;
+  border: 1px solid rgb(223 228 231);
+  align-items: center;
+  padding: 10px;
+  label{
+    padding-left: 10px;
+  }
+  .left-dot {
+    position: absolute;
+    width:20px;
+    height:20px;
+    background-color: #fff;
+    border: 2px solid #dfe4e7;
+    border-radius: 14px;
+    left: 10px;
+    border-bottom-color:transparent
+    border-left-color:transparent
+    transform:rotate(45deg)
+  }
+  .right-dot {
+    position: absolute;
+    width:20px;
+    height:20px;
+    background-color: #fff;
+    border: 2px solid #dfe4e7;
+    border-radius: 14px;
+    right:0px;
+    border-bottom-color:transparent
+    border-left-color:transparent
+    transform:rotate(225deg)
+  }
+  .text-container {
+    display: flex;
+    flex-direction: column;
+    padding: 0 10px
+    width: 100%;
+    justify-content: space-around;
+      .text-voucher-name{
+        font-size:18px;
+        font-weight:500;
+        white-space: nowrap;
+        border-top: 2px dashed #dfe4e7
+      }
+    .text-discount {
+      display:flex;
+      font-size:24px;
+      font-weight:bold;
+      i{
+        font-weight:bold;
+      }
+    }
+  }
+`;
+
 export {
   ProductName,
   FormContainer,
@@ -246,5 +308,7 @@ export {
   ProductTableWrapper,
   TypeBox,
   ProductSettings,
-  RemoveRow
+  VoucherCard,
+  RemoveRow,
+  VoucherContainer
 };

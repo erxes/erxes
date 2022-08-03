@@ -17,12 +17,18 @@ import {
   Measure,
   ProductButton,
   ProductItemContainer,
-  ProductSettings
+  ProductSettings,
+  VoucherCard,
+  VoucherContainer
 } from '../../styles';
-import { IProductData } from '../../types';
+import { IDeal, IDiscountValue, IProductData } from '../../types';
 import { selectConfigOptions } from '../../utils';
 import ProductRow from './ProductRow';
 import { Flex } from '@erxes/ui/src/styles/main';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { queries } from '../../graphql';
 
 type Props = {
   uom: string[];
@@ -33,11 +39,16 @@ type Props = {
   onChangeProductsData?: (productsData: IProductData[]) => void;
   updateTotal?: () => void;
   currentProduct?: string;
+  dealQuery: IDeal;
+  confirmLoyalties: any;
 };
 
 type State = {
   categoryId: string;
   currentProduct: string;
+  currentDiscountVoucher: any;
+  isSelectedVoucher: boolean;
+  discountValue?: IDiscountValue;
 };
 
 class ProductItem extends React.Component<Props, State> {
@@ -46,7 +57,19 @@ class ProductItem extends React.Component<Props, State> {
 
     this.state = {
       categoryId: '',
-      currentProduct: props.currentProduct
+      currentProduct: props.currentProduct,
+      currentDiscountVoucher: null,
+      isSelectedVoucher: false,
+      discountValue: {
+        bonusName: '',
+        discount: 0,
+        potentialBonus: 0,
+        sumDiscount: 0,
+        type: '',
+        voucherCampaignId: '',
+        voucherId: '',
+        voucherName: ''
+      }
     };
   }
 
@@ -61,6 +84,17 @@ class ProductItem extends React.Component<Props, State> {
     if (currencies.length > 0 && !productData.currency) {
       this.onChangeField('currency', currencies[0], productData._id);
     }
+    if (isEnabled('loyalties') && productData.product) {
+      this.changeDiscountPercent(productData);
+      this.toggleVoucherCardChecBox();
+    }
+  };
+
+  toggleVoucherCardChecBox = () => {
+    this.setState(prevState => ({
+      ...prevState,
+      isSelectedVoucher: !prevState.isSelectedVoucher
+    }));
   };
 
   calculateAmount = (type: string, productData: IProductData) => {
@@ -96,7 +130,7 @@ class ProductItem extends React.Component<Props, State> {
 
   onChangeField = (
     type: string,
-    value: string | boolean | IProduct,
+    value: string | boolean | IProduct | number,
     productId: string
   ) => {
     const { productsData, onChangeProductsData } = this.props;
@@ -151,15 +185,90 @@ class ProductItem extends React.Component<Props, State> {
       if (product) {
         this.onChangeField('product', product, productData._id);
         this.changeCurrentProduct(product._id);
+        if (isEnabled('loyalties') && this.state.isSelectedVoucher === true) {
+          const { confirmLoyalties } = this.props;
+          const { discountValue } = this.state;
+          let variables = {};
+          variables['checkInfo'] = {
+            [product._id]: {
+              voucherId: discountValue?.voucherId,
+              count: 1
+            }
+          };
+          confirmLoyalties(variables);
+          if (discountValue?.type === 'bonus') {
+            this.onChangeField('discountPercent', 100, productData._id);
+            this.onChangeField(
+              'maxQuantity',
+              discountValue?.potentialBonus || 0,
+              productData._id
+            );
+          } else {
+            this.onChangeField(
+              'discountPercent',
+              discountValue?.discount || 0,
+              productData._id
+            );
+          }
+        }
       }
     };
+    const VoucherDiscountCard = () => {
+      const { isSelectedVoucher, discountValue } = this.state;
 
+      const Discountcard = ({ percentage, name, type }) => {
+        return (
+          <VoucherCard>
+            <FormControl
+              componentClass="checkbox"
+              checked={isSelectedVoucher}
+              onChange={() => this.toggleVoucherCardChecBox()}
+            />
+            <div className="text-container">
+              <div className="text-discount">
+                <div>{`-${percentage}%`}</div>
+                <Icon icon="pricetag-alt" />
+              </div>
+              <div className="text-voucher-name">{`${name} ${type
+                .substring(0, 1)
+                .toUpperCase()}${type.substring(1)} Voucher`}</div>
+            </div>
+            <div className="left-dot"></div>
+            <div className="right-dot"></div>
+          </VoucherCard>
+        );
+      };
+
+      return (
+        discountValue && (
+          <VoucherContainer>
+            {discountValue.potentialBonus > 0 ? (
+              <Discountcard
+                percentage={100}
+                name={discountValue?.bonusName}
+                type="bonus"
+              />
+            ) : discountValue.discount > 0 ? (
+              <Discountcard
+                percentage={discountValue?.discount}
+                name={discountValue?.voucherName}
+                type="discount"
+              />
+            ) : (
+              ''
+            )}
+          </VoucherContainer>
+        )
+      );
+    };
     const content = props => (
       <ProductChooser
         {...props}
         onSelect={productOnChange}
         onChangeCategory={this.onChangeCategory}
         categoryId={this.state.categoryId}
+        loadDiscountPercent={this.changeDiscountPercent}
+        renderExtra={VoucherDiscountCard}
         data={{
           name: 'Product',
           products: productData.product ? [productData.product] : []
@@ -221,8 +330,51 @@ class ProductItem extends React.Component<Props, State> {
     });
   };
 
+  changeDiscountPercent = async (productData: any) => {
+    const { dealQuery } = this.props;
+    const { quantity, product } = productData;
+
+    const variables = {
+      _id: dealQuery._id,
+      products: [
+        {
+          productId: product._id,
+          quantity: quantity
+        }
+      ]
+    };
+    client
+      .query({
+        query: gql(queries.checkDiscount),
+        fetchPolicy: 'network-only',
+        variables
+      })
+      .then(res => {
+        const { checkDiscount } = res.data;
+        if (checkDiscount !== null) {
+          const result: IDiscountValue = Object.values(
+            checkDiscount
+          )[0] as IDiscountValue;
+          return this.setState({ discountValue: result });
+        }
+        this.setState({
+          discountValue: {
+            bonusName: '',
+            discount: 0,
+            potentialBonus: 0,
+            sumDiscount: 0,
+            type: '',
+            voucherCampaignId: '',
+            voucherId: '',
+            voucherName: ''
+          }
+        });
+      });
+  };
+
   renderForm = () => {
     const { productData, uom, currencies } = this.props;
+
     const selectOption = option => (
       <div className="simple-option">
         <span>{option.label}</span>
@@ -304,6 +456,11 @@ class ProductItem extends React.Component<Props, State> {
                     defaultValue={productData.quantity || 0}
                     type="number"
                     min={1}
+                    max={
+                      productData?.maxQuantity > 0
+                        ? productData?.maxQuantity
+                        : undefined
+                    }
                     placeholder="0"
                     name="quantity"
                     onChange={this.onChange}

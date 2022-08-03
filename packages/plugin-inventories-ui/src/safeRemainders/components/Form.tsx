@@ -1,35 +1,18 @@
-import {
-  FormColumn,
-  FormWrapper,
-  ModalFooter
-} from '@erxes/ui/src/styles/main';
-import {
-  IAttachment,
-  IButtonMutateProps,
-  IFormProps
-} from '@erxes/ui/src/types';
-import {
-  __,
-  extractAttachment,
-  generateCategoryOptions
-} from '@erxes/ui/src/utils';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 
 import Button from '@erxes/ui/src/components/Button';
 import CommonForm from '@erxes/ui/src/components/form/Form';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import Select from 'react-select-plus';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
-import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -91,27 +74,27 @@ class Form extends React.Component<Props, State> {
 
     return (
       <>
-        <FormWrapper>
-          <FormColumn>
+        <FlexContent>
+          <FlexItem>
             <FormGroup>
               <ControlLabel>{__('Date')}</ControlLabel>
               <Datetime
                 inputProps={{ placeholder: 'Click to select a date' }}
-                dateFormat="YYYY-MM-DD"
-                timeFormat="HH:mm"
+                dateFormat="YYYY MM DD"
+                timeFormat=""
+                viewMode={'days'}
+                closeOnSelect
+                utc
+                input
                 value={date}
-                closeOnSelect={true}
-                utc={true}
-                input={true}
                 onChange={date =>
                   this.setState({ date: new Date(date || new Date()) })
                 }
-                viewMode={'days'}
               />
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Description</ControlLabel>
+              <ControlLabel required>Description</ControlLabel>
               <FormControl
                 {...formProps}
                 name="description"
@@ -121,8 +104,8 @@ class Form extends React.Component<Props, State> {
                     description: (e.currentTarget as HTMLButtonElement).value
                   })
                 }
-                autoFocus={true}
-                required={true}
+                autoFocus
+                required
               />
             </FormGroup>
 
@@ -166,8 +149,8 @@ class Form extends React.Component<Props, State> {
                 multi={false}
               />
             </FormGroup>
-          </FormColumn>
-        </FormWrapper>
+          </FlexItem>
+        </FlexContent>
 
         <ModalFooter>
           <Button

@@ -19,7 +19,8 @@ import {
   SpinCampaigns as SpinCampaignMutations,
   Lotteries as LotteryMutations,
   LotteryCampaigns as LotteryCampaignMutations,
-  Loyalties as LoyaltyMutations
+  Loyalties as LoyaltyMutations,
+  ScoreLogs as ScoreLogMutations
 } from './mutations';
 import {
   Donates as DonateQueries,
@@ -34,44 +35,43 @@ import {
   Loyalties as LoyaltyQueries
 } from './queries';
 
-const resolvers: any = async (serviceDiscovery) => (
-
-  {
-    ...customScalars,
-    Donate,
-    DonateCampaign,
-    Voucher,
-    VoucherCampaign,
-    Spin,
-    SpinCampaign,
-    Lottery,
-    LotteryCampaign,
-    ScoreLog,
-    Mutation: {
-      ...LoyaltyConfigMutations,
-      ...DonateMutations,
-      ...DonateCampaignMutations,
-      ...VoucherMutations,
-      ...VoucherCampaignMutations,
-      ...SpinMutations,
-      ...SpinCampaignMutations,
-      ...LotteryMutations,
-      ...LotteryCampaignMutations,
-      ...LoyaltyMutations
-    },
-    Query: {
-      ...loyaltyConfigQueries,
-      ...DonateQueries,
-      ...DonateCampaignQueries,
-      ...SpinQueries,
-      ...SpinCampaignQueries,
-      ...LotteryQueries,
-      ...LotteryCampaignQueries,
-      ...VoucherQueries,
-      ...VoucherCampaignQueries,
-      ...ScoreLogQueries,
-      ...LoyaltyQueries
-    }
-  });
+const resolvers: any = async serviceDiscovery => ({
+  ...customScalars,
+  Donate,
+  DonateCampaign,
+  Voucher,
+  VoucherCampaign,
+  Spin,
+  SpinCampaign,
+  Lottery,
+  LotteryCampaign,
+  ScoreLog,
+  Mutation: {
+    ...LoyaltyConfigMutations,
+    ...DonateMutations,
+    ...DonateCampaignMutations,
+    ...VoucherMutations,
+    ...VoucherCampaignMutations,
+    ...SpinMutations,
+    ...SpinCampaignMutations,
+    ...LotteryMutations,
+    ...LotteryCampaignMutations,
+    ...LoyaltyMutations,
+    ...ScoreLogMutations
+  },
+  Query: {
+    ...loyaltyConfigQueries,
+    ...DonateQueries,
+    ...DonateCampaignQueries,
+    ...SpinQueries,
+    ...SpinCampaignQueries,
+    ...LotteryQueries,
+    ...LotteryCampaignQueries,
+    ...VoucherQueries,
+    ...VoucherCampaignQueries,
+    ...ScoreLogQueries,
+    ...LoyaltyQueries
+  }
+});
 
 export default resolvers;
