@@ -5,51 +5,46 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const GeneralSettings = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './components/GeneralSettings')
-)
+);
 
 const StageSettings = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './components/StageSettings')
-)
+);
 
 const ReturnStageSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './components/ReturnStageSettings')
-)
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './components/ReturnStageSettings'
+  )
+);
 
 const PipelineSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './components/PipelineSettings')
-)
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './components/PipelineSettings'
+  )
+);
+
+const FilterDeals = asyncComponent(() =>
+  import(/* webpackChunkName: "KnowledgeBase" */ './containers/FilterDeals')
+);
 
 const GeneralSetting = () => {
-  return (
-    <Settings
-      component={GeneralSettings}
-    />
-  )
-}
+  return <Settings component={GeneralSettings} />;
+};
 
 const StageSetting = () => {
-  return (
-    <Settings
-      component={StageSettings}
-    />
-  )
-}
+  return <Settings component={StageSettings} />;
+};
 
 const ReturnStageSetting = () => {
-  return (
-    <Settings
-      component={ReturnStageSettings}
-    />
-  )
-}
+  return <Settings component={ReturnStageSettings} />;
+};
 
 const PipelineSetting = () => {
-  return (
-    <Settings
-      component={PipelineSettings}
-    />
-  )
-}
+  return <Settings component={PipelineSettings} />;
+};
+const FilterDeal = ({ location, history }) => {
+  return <FilterDeals />;
+};
 
 const routes = () => {
   return (
@@ -81,8 +76,15 @@ const routes = () => {
         path="/erxes-plugin-sync-erkhet/settings/pipeline"
         component={PipelineSetting}
       />
+
+      <Route
+        key="/sync-erkhet-check"
+        exact={true}
+        path="/sync-erkhet-check"
+        component={FilterDeal}
+      />
     </React.Fragment>
-  )
+  );
 };
 
 export default routes;
