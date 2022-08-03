@@ -104,7 +104,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
         .then(data => {
           productGroupsBulkInsertMutation({
             variables: {
-              posId: posId || data.addPos.id,
+              posId: posId || data.data.posAdd._id,
               groups: doc.groups.map(e => ({
                 _id: e._id,
                 name: e.name,
@@ -117,7 +117,7 @@ class EditPosContainer extends React.Component<FinalProps, State> {
           });
           slotsBulkUpdateMutation({
             variables: {
-              posId: posId || data.addPos.id,
+              posId: posId || data.data.posAdd._id,
               slots: doc.posSlots
             }
           });

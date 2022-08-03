@@ -44,6 +44,7 @@ function ContentTypesContainer(props: FinalProps) {
           Alert.success('Successfully removed a type');
 
           typesQuery.refetch();
+          typesTotalCountQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);

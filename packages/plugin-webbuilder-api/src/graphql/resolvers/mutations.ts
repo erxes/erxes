@@ -1,9 +1,10 @@
-import { requireLogin } from '@erxes/api-utils/src/permissions';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IPage } from '../../models/pages';
 import { IContentType } from '../../models/contentTypes';
 import { IEntry } from '../../models/entries';
-import { IContext } from '../../connectionResolver';
+import { IContext, models } from '../../connectionResolver';
 import { ITemplate } from '../../models/templates';
+import { ISite } from '../../models/sites';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -88,10 +89,31 @@ const webbuilderMutations = {
     { models }: IContext
   ) {
     return models.Templates.deleteOne({ _id });
+  },
+
+  async webbuilderSitesAdd(_root, doc: ISite, { models }: IContext) {
+    return models.Sites.createSite(doc);
+  },
+
+  async webbuilderSitesEdit(
+    _root,
+    args: { _id: string } & ISite,
+    { models }: IContext
+  ) {
+    const { _id, ...doc } = args;
+
+    return models.Sites.updateSite(_id, doc);
+  },
+
+  async webbuilderSitesRemove(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.Sites.removeSite(_id);
   }
 };
 
-requireLogin(webbuilderMutations, 'webbuilderPagesAdd');
-requireLogin(webbuilderMutations, 'webbuilderPagesEdit');
+moduleRequireLogin(webbuilderMutations);
 
 export default webbuilderMutations;

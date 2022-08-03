@@ -7,6 +7,10 @@ export const ITEMS = {
     {
       link: 'contenttypes',
       name: 'Content types'
+    },
+    {
+      link: 'sites',
+      name: 'Sites'
     }
   ]
 };

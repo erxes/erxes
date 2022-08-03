@@ -68,10 +68,13 @@ class Pos extends React.Component<Props, State> {
         headerColor: '#6569DF',
         footerColor: '#3CCC38'
       },
-      logo: '/images/erxes.png',
+      logo: '',
       bgImage: '',
-      favIcon: '/images/erxes.png',
-      receiptIcon: '/images/erxes.png'
+      favIcon: '',
+      receiptIcon: '',
+      kioskHeaderImage: '',
+      mobileAppImage: '',
+      qrCodeImage: ''
     };
 
     this.state = {

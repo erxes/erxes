@@ -47,6 +47,7 @@ function ListContainer(props: FinalProps) {
           Alert.success('Successfully deleted a entry');
 
           entriesQuery.refetch();
+          entriesTotalCountQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
