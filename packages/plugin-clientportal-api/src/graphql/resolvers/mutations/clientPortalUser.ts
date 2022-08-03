@@ -100,6 +100,16 @@ const clientPortalUserMutations = {
     return models.ClientPortalUsers.verifyUser(args);
   },
 
+  clientPortalUsersVerify: async (
+    _root,
+    { userIds, type }: { userIds: string[]; type: string },
+    context: IContext
+  ) => {
+    const { models } = context;
+
+    return models.ClientPortalUsers.verifyUsers(userIds, type);
+  },
+
   /*
    * Login
    */
