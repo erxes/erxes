@@ -310,14 +310,8 @@ export const sendPosclientMessage = async (
   let serviceName = 'posclient';
 
   const { ALL_AUTO_INIT } = process.env;
-  console.log(
-    ALL_AUTO_INIT,
-    pos.onServer,
-    !ALL_AUTO_INIT && !pos.onServer,
-    pos.token,
-    Boolean(pos.onServer)
-  );
-  if (!ALL_AUTO_INIT || !pos.onServer) {
+
+  if (!ALL_AUTO_INIT && !pos.onServer) {
     lastAction = `posclient:${action}_${pos.token}`;
     serviceName = '';
     args.data.thirdService = true;

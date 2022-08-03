@@ -1,8 +1,8 @@
 import { IModels } from './connectionResolver';
-import messageBroker from './messageBroker';
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendPosclientMessage,
   sendProductsMessage
 } from './messageBroker';
 
@@ -282,12 +282,13 @@ export const getBranchesUtil = async (
 
   for (const allowPos of allowsPos) {
     const longTask = async () =>
-      await messageBroker().sendRPCMessage(
-        `posclient:health_check_${allowPos.token}`,
-        {
-          thirdService: true
-        }
-      );
+      await sendPosclientMessage({
+        subdomain,
+        action: 'health_check',
+        data: { token: allowPos.token },
+        pos: allowPos,
+        isRPC: true
+      });
 
     const timeout = (cb, interval) => () =>
       new Promise(resolve => setTimeout(() => cb(resolve), interval));
