@@ -6,6 +6,7 @@ export const types = `
     html: String
     css: String
     jsonData: JSON
+    siteId: String
   }
 
   type WebbuilderContentType {
@@ -14,6 +15,7 @@ export const types = `
     displayName: String
     fields: JSON
     entries: [WebbuilderEntry]
+    siteId: String
   }
 
   type WebbuilderEntry {
@@ -60,12 +62,14 @@ const params = `
   html: String,
   css: String,
   jsonData: JSON,
+  siteId: String
 `;
 
 const contentTypeParams = `
   displayName: String
   code: String
   fields: JSON
+  siteId: String
 `;
 
 export const mutations = `

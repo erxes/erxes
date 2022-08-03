@@ -5,6 +5,7 @@ export interface IPage {
   html: string;
   css: string;
   jsonData: any;
+  siteId: string;
 }
 
 export interface IPageDoc extends IPage {
@@ -20,6 +21,7 @@ export interface IContentType {
   code: string;
   displayName: string;
   fields: IField[];
+  siteId: string;
 }
 
 export interface IContentTypeDoc extends IContentType {

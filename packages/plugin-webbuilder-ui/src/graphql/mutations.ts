@@ -1,5 +1,5 @@
-const commonParamDefs = `$name: String!, $description: String, $html: String, $css: String, $jsonData: JSON`;
-const commonParams = `name: $name, description: $description, html: $html, css: $css, jsonData: $jsonData`;
+const commonParamDefs = `$name: String!, $description: String, $html: String, $css: String, $jsonData: JSON $siteId: String`;
+const commonParams = `name: $name, description: $description, html: $html, css: $css, jsonData: $jsonData siteId: $siteId`;
 
 const add = `
   mutation webbuilderPagesAdd(${commonParamDefs}) {
@@ -27,12 +27,14 @@ const typeParamDefs = `
   $displayName: String
   $code: String
   $fields: JSON
+  $siteId: String
 `;
 
 const typeParams = `
   displayName: $displayName
   code: $code
   fields: $fields
+  siteId: $siteId
 `;
 
 const typesAdd = `

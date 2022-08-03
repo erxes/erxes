@@ -25,6 +25,7 @@ const pageDetail = `
       html
       css
       jsonData
+      siteId
     }
   }
 `;
@@ -56,6 +57,7 @@ const contentTypeDetail = `
       code
       displayName
       fields
+      siteId
     }
   } 
 `;
