@@ -324,7 +324,6 @@ export const sendPosclientMessage = async (
   }
 
   args.data.token = pos.token;
-  console.log(lastAction, 'lllllllllllllllllllllllllllllllllllllllllllll');
 
   await sendMessage({
     client,
