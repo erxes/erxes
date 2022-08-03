@@ -1,5 +1,4 @@
 import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
 import { __ } from '@erxes/ui/src/utils';
 import { IField, ISegmentCondition } from '../../types';
 import React from 'react';
