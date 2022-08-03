@@ -7,6 +7,7 @@ export const types = `
     css: String
     jsonData: JSON
     siteId: String
+    site: WebbuilderSite
   }
 
   type WebbuilderContentType {
@@ -16,6 +17,7 @@ export const types = `
     fields: JSON
     entries: [WebbuilderEntry]
     siteId: String
+    site: WebbuilderSite
   }
 
   type WebbuilderEntry {

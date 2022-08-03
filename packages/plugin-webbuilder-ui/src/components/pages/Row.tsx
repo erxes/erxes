@@ -42,7 +42,9 @@ class Row extends React.Component<Props> {
   render() {
     const { page } = this.props;
 
-    const { name, description, _id } = page;
+    const { name, description, _id, site } = page;
+
+    const siteName = site?.name || '';
 
     return (
       <tr>
@@ -52,6 +54,7 @@ class Row extends React.Component<Props> {
           </RowTitle>
         </td>
         <td>{description}</td>
+        <td>{siteName}</td>
         <td>
           <ActionButtons>
             {this.manageAction(page)}

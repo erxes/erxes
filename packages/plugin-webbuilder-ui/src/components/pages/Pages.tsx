@@ -51,6 +51,7 @@ class Pages extends React.Component<Props, {}> {
             <tr>
               <th>{__('Name')}</th>
               <th>{__('Description')}</th>
+              <th>{__('Site')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>

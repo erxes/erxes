@@ -10,6 +10,7 @@ export interface IPage {
 
 export interface IPageDoc extends IPage {
   _id: string;
+  site: ISiteDoc;
 }
 export interface IField {
   code: string;
@@ -26,6 +27,7 @@ export interface IContentType {
 
 export interface IContentTypeDoc extends IContentType {
   _id: string;
+  site: ISiteDoc;
 }
 
 export interface IEntryValue {

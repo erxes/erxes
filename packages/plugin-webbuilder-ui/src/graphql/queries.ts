@@ -2,6 +2,10 @@ const fields = `
       _id
       name
       description
+      site {
+        name
+        domain
+      }
 `;
 
 const pages = `
@@ -39,6 +43,10 @@ const contentTypes = `
       fields
       entries {
         _id
+      }
+      site {
+        name
+        domain
       }
     }
   }

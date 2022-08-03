@@ -51,6 +51,7 @@ class ContentTypes extends React.Component<Props, {}> {
           <tr>
             <th>Display name</th>
             <th>Code</th>
+            <th>Site</th>
             <th>{'Actions'}</th>
           </tr>
         </thead>
