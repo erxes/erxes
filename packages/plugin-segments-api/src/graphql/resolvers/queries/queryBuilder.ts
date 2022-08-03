@@ -610,9 +610,13 @@ export function elkConvertConditionToQuery(args: {
 }) {
   const { field, type, operator, value } = args;
 
-  const fixedValue = (value || '').includes('now')
+  let fixedValue: any = (value || '').includes('now')
     ? value
     : value.toLocaleLowerCase();
+
+  if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(operator || '')) {
+    fixedValue = new Date(value);
+  }
 
   let positiveQuery;
   let negativeQuery;
