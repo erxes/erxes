@@ -5,6 +5,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import ContentTypeList from '../containers/contentTypes/List';
 import EntriesList from '../containers/entries/List';
 import Pages from '../containers/pages/Pages';
+import Sites from '../containers/sites/List';
 import SideBar from './Sidebar';
 import { IContentTypeDoc } from '../types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
@@ -52,6 +53,17 @@ function WebBuilder(props: Props) {
       case 'pages':
         setComponent(
           <Pages
+            getActionBar={setRightActionBar}
+            setCount={setCount}
+            queryParams={queryParams}
+          />
+        );
+
+        break;
+
+      case 'sites':
+        setComponent(
+          <Sites
             getActionBar={setRightActionBar}
             setCount={setCount}
             queryParams={queryParams}

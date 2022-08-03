@@ -5,10 +5,12 @@ export interface IPage {
   html: string;
   css: string;
   jsonData: any;
+  siteId: string;
 }
 
 export interface IPageDoc extends IPage {
   _id: string;
+  site: ISiteDoc;
 }
 export interface IField {
   code: string;
@@ -20,10 +22,12 @@ export interface IContentType {
   code: string;
   displayName: string;
   fields: IField[];
+  siteId: string;
 }
 
 export interface IContentTypeDoc extends IContentType {
   _id: string;
+  site: ISiteDoc;
 }
 
 export interface IEntryValue {
@@ -47,6 +51,15 @@ export interface ITemplate {
 }
 
 export interface ITemplateDoc extends ITemplate {
+  _id: string;
+}
+
+export interface ISite {
+  name: string;
+  domain: string;
+}
+
+export interface ISiteDoc extends ISite {
   _id: string;
 }
 
@@ -93,7 +106,20 @@ export type EntryDetailQueryResponse = {
 
 // template
 export type TemplatesQueryResponse = {
-  webbuilderTemplates: ITemplateDoc;
+  webbuilderTemplates: ITemplateDoc[];
+} & QueryResponse;
+
+// site
+export type SitesQueryResponse = {
+  webbuilderSites: ISiteDoc[];
+} & QueryResponse;
+
+export type SitesTotalCountQueryResponse = {
+  webbuilderSitesTotalCount: number;
+} & QueryResponse;
+
+export type SiteDetailQueryResponse = {
+  webbuilderSiteDetail: ISiteDoc;
 } & QueryResponse;
 
 // mutation
@@ -148,4 +174,20 @@ export type TemplatesAddMutationResponse = {
 
 export type TemplatesRemoveMutationResponse = {
   templatesRemove: (doc: { variables: { _id: string } }) => Promise<any>;
+};
+
+// site
+
+export type SitesAddMutationResponse = {
+  sitesAddMutation: (doc: { variables: ISite }) => Promise<any>;
+};
+
+export type SitesEditMutationResponse = {
+  sitesEditMutation: (doc: {
+    variables: { _id: string } & ISite;
+  }) => Promise<any>;
+};
+
+export type SitesRemoveMutationResponse = {
+  sitesRemoveMutation: (doc: { variables: { _id: string } }) => Promise<any>;
 };

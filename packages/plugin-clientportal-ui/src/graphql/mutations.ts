@@ -121,8 +121,8 @@ const clientPortalUsersEdit = `
 `;
 
 const clientPortalUsersRemove = `
-  mutation clientPortalUsersRemove($clientPortalUserIds: [String!]) {
-    clientPortalUsersRemove(clientPortalUserIds: $clientPortalUserIds)
+  mutation clientPortalUsersVerify($clientPortalUserIds: [String!]) {
+    clientPortalUsersVerify(clientPortalUserIds: $clientPortalUserIds)
   }
 `;
 
@@ -136,10 +136,17 @@ const remove = `
   }
 `;
 
+const verifyUsers = `
+mutation clientPortalUsersVerify($type: String, $userIds: [String]!) {
+  clientPortalUsersVerify(type: $type, userIds: $userIds)
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
   clientPortalUsersInvite,
   clientPortalUsersEdit,
-  clientPortalUsersRemove
+  clientPortalUsersRemove,
+  verifyUsers
 };

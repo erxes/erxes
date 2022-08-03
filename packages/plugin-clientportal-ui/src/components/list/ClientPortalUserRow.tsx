@@ -1,4 +1,7 @@
 import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
+import colors from '@erxes/ui/src/styles/colors';
 import { formatValue } from '@erxes/ui/src/utils';
 import React from 'react';
 
@@ -48,6 +51,20 @@ class Row extends React.Component<Props> {
       }
     };
 
+    const renderStatus = (verified: boolean) => {
+      return (
+        <Tip
+          text={`Status: ${verified ? 'verified' : 'not verified'}`}
+          placement="top"
+        >
+          <Icon
+            icon={verified ? 'shield-check' : 'shield-slash'}
+            color={verified ? colors.colorCoreGreen : colors.colorCoreGray}
+          />
+        </Tip>
+      );
+    };
+
     const {
       firstName,
       lastName,
@@ -71,8 +88,14 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{index.toString()}</td>
-        <td>{email}</td>
-        <td>{phone}</td>
+        <td>
+          {renderStatus(clientPortalUser.isEmailVerified)}
+          {email}
+        </td>
+        <td>
+          {renderStatus(clientPortalUser.isPhoneVerified)}
+          {phone}
+        </td>
         <td>{username}</td>
         <td>{code}</td>
         <td>{firstName || companyName}</td>

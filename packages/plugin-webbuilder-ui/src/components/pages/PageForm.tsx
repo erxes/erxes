@@ -20,12 +20,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { IContentTypeDoc, IPageDoc } from '../../types';
 import customPlugins from './customPlugins';
+import SelectSite from '../../containers/sites/SelectSite';
 
 type Props = {
   page?: IPageDoc;
   save: (
     name: string,
     description: string,
+    siteId: string,
     html: string,
     css: string,
     jsonData: any
@@ -41,6 +43,7 @@ type State = {
   name: string;
   description: string;
   templateId: string;
+  siteId: string;
 };
 
 class PageForm extends React.Component<Props, State> {
@@ -54,6 +57,7 @@ class PageForm extends React.Component<Props, State> {
     this.state = {
       name: page.name,
       description: page.description,
+      siteId: page.siteId,
       templateId: ''
     };
   }
@@ -179,12 +183,17 @@ class PageForm extends React.Component<Props, State> {
     this.grapes.loadProjectData(option.jsonData);
   };
 
+  onSelectSite = (value: any) => {
+    this.setState({ siteId: value });
+  };
+
   save = () => {
     const e = this.grapes;
 
     this.props.save(
       this.state.name,
       this.state.description,
+      this.state.siteId,
       e.getHtml(),
       e.getCss(),
       e.getProjectData()
@@ -199,7 +208,7 @@ class PageForm extends React.Component<Props, State> {
 
   renderPageContent() {
     const imagePath = '/images/icons/erxes-12.svg';
-    const { description, name, templateId } = this.state;
+    const { description, name, templateId, siteId } = this.state;
     const { removeTemplate } = this.props;
 
     return (
@@ -223,6 +232,17 @@ class PageForm extends React.Component<Props, State> {
                   this.onChange('description', e.target.value)
                 }
                 defaultValue={description}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Site:</ControlLabel>
+              <SelectSite
+                label="Choose a site"
+                name="siteId"
+                onSelect={this.onSelectSite}
+                multi={false}
+                initialValue={siteId}
               />
             </FormGroup>
 

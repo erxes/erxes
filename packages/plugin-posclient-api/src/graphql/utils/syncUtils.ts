@@ -11,15 +11,21 @@ export const getServerAddress = async (
   subdomain: string,
   serviceName?: string
 ) => {
+  const { SERVER_DOMAIN } = process.env;
+  if (SERVER_DOMAIN) {
+    return `${SERVER_DOMAIN.replace(
+      '<subdomain>',
+      subdomain
+    )}/pl:${serviceName || 'pos'}`;
+  }
+
   const posService = await getService(serviceName || 'pos');
 
   if (!posService.address) {
-    const { SERVER_DOMAIN } = process.env;
-    return `${SERVER_DOMAIN || 'http://localhost:4000'}/pl:${serviceName ||
-      'pos'}`;
+    return `http://localhost:4000/pl:${serviceName || 'pos'}`;
   }
 
-  return posService.address.replace('://', `://${subdomain}.`);
+  return posService.address;
 };
 
 export const importUsers = async (
@@ -102,7 +108,7 @@ export const preImportProducts = async (
     { _id: 1 }
   ).lean();
   await models.Products.removeProducts(
-    (deleteProductIds || []).map(d => d._id``)
+    (deleteProductIds || []).map(d => d._id)
   );
 
   const deleteCategoryIds = await models.ProductCategories.find(
