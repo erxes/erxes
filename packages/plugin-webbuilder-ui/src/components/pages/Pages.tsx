@@ -59,7 +59,7 @@ class Pages extends React.Component<Props, {}> {
       </>
     );
 
-    if (pages.length === 0) {
+    if (pagesCount < 1) {
       content = (
         <EmptyState
           image="/images/actions/8.svg"

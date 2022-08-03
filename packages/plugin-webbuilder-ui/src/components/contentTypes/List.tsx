@@ -1,4 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
@@ -44,7 +45,7 @@ class ContentTypes extends React.Component<Props, {}> {
     getActionBar(ActionBar);
     setCount(contentTypesCount);
 
-    const content = (
+    let content = (
       <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
@@ -56,6 +57,16 @@ class ContentTypes extends React.Component<Props, {}> {
         <tbody>{this.renderRow()}</tbody>
       </Table>
     );
+
+    if (contentTypesCount < 1) {
+      content = (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Content types"
+          size="small"
+        />
+      );
+    }
 
     return <>{content}</>;
   }
