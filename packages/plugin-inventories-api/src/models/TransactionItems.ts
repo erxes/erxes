@@ -15,28 +15,25 @@ export interface ITransactionItemModel extends Model<ITransactionItemDocument> {
 export const loadTransactionItemClass = (models: IModels) => {
   class TransactionItem {
     /**
-     * Get a Transaction Item
+     * Get transaction item
+     * @param _id Transaction item ID
+     * @returns Found object
      */
     public static async getItem(_id: string) {
-      const result = await models.TransactionItems.findOne({ _id });
+      const result = await models.TransactionItems.findById(_id);
 
-      if (!result) {
-        throw new Error('TrItem not found');
-      }
+      if (!result) throw new Error('Transaction item not found');
 
       return result;
     }
 
     /**
-     * Create a TransactionItem
+     * Create transaction item
+     * @param doc New data to create
+     * @returns Created response
      */
     public static async createItem(doc: ITransactionItem) {
-      const result = await models.TransactionItems.create({
-        ...doc,
-        createdAt: new Date()
-      });
-
-      return result;
+      return await models.TransactionItems.create(doc);
     }
   }
 
