@@ -10,7 +10,7 @@ import { mutations as voucherCampaignMutations, queries as voucherCampaignQuerie
 import { mutations as voucherMutations, queries as voucherQueries, types as voucherTypes } from './schema/voucher';
 import { mutations as loyaltyMutations, queries as loyaltyQueries, types as loyaltyTypes } from './schema/loyalty';
 import { mutations as configMutations, queries as configQueries, types as configTypes } from './schema/config';
-import { queries as scoreLogQueries, types as scoreLogTypes } from './schema/scoreLog';
+import { mutation as ScoreLogMutations,  queries as scoreLogQueries, types as scoreLogTypes } from './schema/scoreLog';
 
 const typeDefs = async (_serviceDiscovery) => {
   return gql`
@@ -68,6 +68,7 @@ const typeDefs = async (_serviceDiscovery) => {
       ${voucherMutations}
       ${loyaltyMutations}
       ${configMutations}
+      ${ScoreLogMutations}
     }
   `;
 };

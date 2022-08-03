@@ -39,6 +39,7 @@ class List extends React.Component<IProps> {
 
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
+    delete otherParams.awardId;
     const qryString = queryString.stringify(otherParams)
 
     const result: React.ReactNode[] = [];

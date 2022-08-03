@@ -8,16 +8,20 @@ function Sidebar({
   loadingMainQuery,
   history,
   queryParams,
+  isAward
 }: {
   loadingMainQuery: boolean;
   history: any;
   queryParams: any;
+  isAward: boolean;
 }) {
   return (
     <Wrapper.Sidebar>
       <PaddingTop>
         <CampaignList queryParams={queryParams} history={history} />
-        <FilterCampaign queryParams={queryParams} history={history} />
+        {isAward && (
+          <FilterCampaign queryParams={queryParams} history={history} />
+        )}
       </PaddingTop>
     </Wrapper.Sidebar>
   );

@@ -119,7 +119,7 @@ export const loadVoucherClass = (models: IModels, subdomain: string) => {
     }
 
     public static async checkVouchersSale({ ownerType, ownerId, products }) {
-      return checkVouchersSale(models, ownerType, ownerId, products);
+      return checkVouchersSale(models, subdomain, ownerType, ownerId, products);
     }
 
     public static async confirmVoucherSale({ checkInfo }) {

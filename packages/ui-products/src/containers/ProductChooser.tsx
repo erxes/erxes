@@ -19,6 +19,7 @@ import {
 } from "../types";
 import ProductForm from "./ProductForm";
 import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+import { isEnabled } from "@erxes/ui/src/utils/core"
 
 type Props = {
   data: { name: string; products: IProduct[] };
@@ -26,6 +27,7 @@ type Props = {
   onChangeCategory: (catgeoryId: string) => void;
   closeModal: () => void;
   onSelect: (products: IProduct[]) => void;
+  loadDiscountPercent?: (productsData: any) => void;
 };
 
 type FinalProps = {
@@ -83,6 +85,19 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
     );
   };
 
+  renderDiscount = (data) =>{
+    const {loadDiscountPercent} = this.props;
+    if(isEnabled('loyalties') && loadDiscountPercent && data){
+      const productData = {
+        product: {
+          _id: data._id
+        },
+        quantity: 1
+      };
+      loadDiscountPercent(productData);
+    }
+  }
+
   render() {
     const { data, productsQuery, onSelect } = this.props;
 
@@ -112,6 +127,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       <Chooser
         {...updatedProps}
         renderFilter={this.renderProductCategoryChooser}
+        handleExtra={this.renderDiscount}
       />
     );
   }

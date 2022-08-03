@@ -20,6 +20,7 @@ export const commonCampaignInputs = `
   startDate: Date,
   endDate: Date,
   finishDateOfUse: Date,
+  numberFormat:String,
   attachment: AttachmentInput,
   status: String,
 `;

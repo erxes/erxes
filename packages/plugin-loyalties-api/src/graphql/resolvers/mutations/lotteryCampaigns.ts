@@ -14,6 +14,16 @@ const lotteriesMutations = {
   async lotteryCampaignsRemove(_root, { _ids }: { _ids: string[] }, { models }: IContext) {
     return models.LotteryCampaigns.removeLotteryCampaigns(_ids)
   },
+
+  async doLottery(_root, params: { campaignId: string; awardId: string }, { models }: IContext) {
+    return models.LotteryCampaigns.doLottery(params)
+  },
+  async doLotteryMultiple(_root, params: { campaignId: string; awardId: string; multiple: number }, { models }: IContext) {
+    return models.LotteryCampaigns.multipleDoLottery(params)
+  },
+  async getNextChar(_root, params: { campaignId: string; awardId: string; prevChars: string }, { models }: IContext) {
+    return models.LotteryCampaigns.getNextChar(params)
+  }
 };
 
 checkPermission(lotteriesMutations, 'lotteryCampaignsAdd', 'manageLoyalties');
