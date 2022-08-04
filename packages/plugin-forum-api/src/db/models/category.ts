@@ -1,4 +1,5 @@
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { Transform } from 'stream';
 import { IModels } from './index';
 
 export interface ICategory {
@@ -88,6 +89,24 @@ export const generateCategoryModel = (
           `Cannot delete a category that has existing posts without specifying a different category to transfer its existing posts`
         );
       }
+
+      const session = await con.startSession();
+      session.startTransaction();
+      try {
+        await models.Post.updateMany(
+          { categoryId: _id },
+          { categoryId: tranfserDescendantsToCategory }
+        );
+        await models.Category.updateMany(
+          { parentId: _id },
+          { parentId: tranfserDescendantsToCategory }
+        );
+        await models.Category.deleteOne({ _id });
+      } catch (e) {
+        await session.abortTransaction();
+        throw e;
+      }
+      await session.commitTransaction();
     }
 
     public static async getDescendantsOf(
