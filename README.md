@@ -146,11 +146,8 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## Upgrade Guides
 
-Follow our <a href="https://github.com/orgs/erxes/repositories"></a>upgrade guides on the documentation to keep your erxes code up-to-date.
-Documentation
-See our dedicated repository for the erxes documentation, or view our documentation live:
+Follow our <a href="https://github.com/orgs/erxes/repositories">upgrade guides</a> on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our <a href="https://www.erxes.org/overview/deployment-overview">documentation here</a>.
 
-- <a href="https://www.erxes.org/overview/deployment-overview">Developer docs</a>
  
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >LICENSE</a> file for licensing information.
