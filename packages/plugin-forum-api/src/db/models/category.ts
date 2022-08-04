@@ -1,4 +1,4 @@
-import { Document, Schema, Model, Connection, Types, model } from 'mongoose';
+import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { IModels } from './index';
 
 export interface ICategory {
@@ -7,16 +7,24 @@ export interface ICategory {
   code?: string | null;
   thumbnail?: string | null;
   parentId?: string | null;
-  ancestorIds?: string[] | null;
 }
+
+export type InputCategoryInsert = Omit<ICategory, '_id'>;
+export type InputCategoryPatch = Partial<Omit<ICategory, '_id'>>;
 
 export type CategoryDocument = ICategory & Document;
 export interface ICategoryModel extends Model<CategoryDocument> {
-  createCategory(c: Omit<ICategory, '_id'>): Promise<ICategoryModel>;
+  createCategory(input: InputCategoryInsert): Promise<CategoryDocument>;
   patchCategory(
     _id: string,
-    c: Partial<Omit<ICategory, '_id'>>
-  ): Promise<ICategoryModel>;
+    input: InputCategoryPatch
+  ): Promise<CategoryDocument>;
+  deleteCategory(
+    _id: string,
+    tranfserChildrenToCategory?: string
+  ): Promise<void>;
+  getDescendantsOf(_id: string): Promise<ICategory[] | undefined | null>;
+  getAncestorsOf(_id: string): Promise<ICategory[] | undefined | null>;
 }
 
 /**
@@ -26,9 +34,8 @@ export interface ICategoryModel extends Model<CategoryDocument> {
  *  */
 export const categorySchema = new Schema<CategoryDocument>({
   name: { type: String, required: true },
-  code: { type: String, index: true, unique: true },
+  code: { type: String, index: true, unique: true, sparse: true },
   thumbnail: String,
-  ancestorIds: { type: [Types.ObjectId], index: true },
   parentId: { type: Types.ObjectId, index: true }
 });
 
@@ -39,53 +46,15 @@ export const generateCategoryModel = (
 ): void => {
   class CategoryModel {
     public static async createCategory(
-      input: Omit<ICategory, '_id'>
+      input: InputCategoryInsert
     ): Promise<CategoryDocument> {
-      const doc = { ...input } as ICategory;
-
-      if (doc.parentId) {
-        const parent = await models.Category.findById(doc.parentId).lean();
-
-        if (!parent) {
-          throw new Error(
-            `Parent category with \`{ "_id" :  "${doc.parentId}"\` } not found`
-          );
-        }
-
-        doc.ancestorIds = [...(parent.ancestorIds || []), doc.parentId];
-      } else {
-        doc.ancestorIds = null;
-      }
-
-      const res = await models.Category.create(doc);
-      return res;
+      return await models.Category.create(input);
     }
     public static async patchCategory(
       _id: string,
-      input: Partial<Omit<ICategory, '_id'>>
+      input: InputCategoryPatch
     ): Promise<CategoryDocument> {
-      const patch = { ...input } as ICategory;
-
-      // parent is null, which means ancestors should also be null
-      if (patch.parentId === null) {
-        patch.ancestorIds = null;
-      }
-      // Parent is being changed to specific _id. Which means, this category must update its ancestorIds to match it.
-      else if (patch.parentId !== null && patch.parentId !== undefined) {
-        const parent = await models.Category.findById(patch.parentId).lean();
-
-        if (!parent) {
-          throw new Error(
-            `Parent category with \`{ "_id" :  "${patch.parentId}"\` } not found`
-          );
-        }
-
-        patch.ancestorIds = [...(parent.ancestorIds || []), patch.parentId];
-      }
-      // Parent is not being updated. AncestorIds should also stay same
-      else if (patch.parentId === undefined) {
-        delete patch.ancestorIds;
-      }
+      const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
 
       await models.Category.updateOne({ _id }, patch);
 
@@ -95,8 +64,90 @@ export const generateCategoryModel = (
         throw new Error(`Category with \`{ "_id" : "${_id}"} doesn't exist\``);
       }
 
-      // console.log(JSON.stringify(updated, null, 2));
       return updated;
+    }
+
+    public static async deleteCategory(
+      _id: string,
+      tranfserDescendantsToCategory?: string
+    ): Promise<void> {
+      const childrenCount = await models.Category.countDocuments({
+        parentId: _id
+      });
+
+      if (childrenCount > 0 && !tranfserDescendantsToCategory) {
+        throw new Error(
+          `Cannot delete a category that has existing subcategories without specifying a different category to transfer its existing subcategories`
+        );
+      }
+
+      const postsCount = await models.Post.countDocuments({ categoryId: _id });
+
+      if (postsCount > 0 && !tranfserDescendantsToCategory) {
+        throw new Error(
+          `Cannot delete a category that has existing posts without specifying a different category to transfer its existing posts`
+        );
+      }
+    }
+
+    public static async getDescendantsOf(
+      _id: string
+    ): Promise<ICategory[] | undefined | null> {
+      const matchedCategories = await models.Category.aggregate([
+        {
+          $match: {
+            _id
+          }
+        },
+        {
+          $graphLookup: {
+            from: models.Category.collection.collectionName,
+            startWith: '$_id',
+            connectFromField: '_id',
+            connectToField: 'parentId',
+            as: 'descendants'
+          }
+        }
+      ]);
+
+      console.log('-----------------------------------------');
+      console.log(matchedCategories);
+      console.log('-----------------------------------------');
+
+      if (!matchedCategories?.length) {
+        throw new Error(`Category with _id=${_id} doesn't exist`);
+      }
+
+      // it should contain only 1 category, since we $match-ed using its _id
+      return matchedCategories[0].descendants;
+    }
+
+    public static async getAncestorsOf(
+      _id: string
+    ): Promise<ICategory[] | undefined | null> {
+      const results = await models.Category.aggregate([
+        {
+          $match: {
+            _id
+          }
+        },
+        {
+          $graphLookup: {
+            from: models.Category.collection.collectionName,
+            startWith: '$parentId',
+            connectFromField: 'parentId',
+            connectToField: '_id',
+            as: 'ancestors'
+          }
+        }
+      ]);
+
+      if (!results?.length) {
+        throw new Error(`Category with _id=${_id} doesn't exist`);
+      }
+
+      // it should contain only 1 category, since we $match-ed using its _id
+      return results[0].ancestors;
     }
   }
   categorySchema.loadClass(CategoryModel);

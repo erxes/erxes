@@ -7,7 +7,6 @@ export default `
     thumbnail: String
 
     parentId: ID
-    ancestorIds: [ID!]
 
     parent: ForumCategory
     children: [ForumCategory!]

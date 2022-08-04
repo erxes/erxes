@@ -5,7 +5,7 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
   forumCategoryByCode: (_, { code }, { models: { Category } }) => {
     return Category.findOne({ code }).lean();
   },
-  forumAllCategories: (_, params, { models: { Category } }) => {
+  forumCategories: (_, params, { models: { Category } }) => {
     const query: any = {};
 
     const fields = ['_id', 'parentId', 'ancestorIds', 'code'];
