@@ -1,27 +1,28 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ModifiableList from '@erxes/ui/src/components/ModifiableList';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from '@erxes/ui/src/utils/core';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
   IFormProps,
   ILocationOption,
   IObjectListConfig
 } from '@erxes/ui/src/types';
-import { Row } from '../../integrations/styles';
-import React from 'react';
-import PropertyGroupForm from '../containers/PropertyGroupForm';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IField } from '@erxes/ui/src/types';
 import { IFieldGroup } from '../types';
-import Map from '@erxes/ui/src/containers/map/Map';
-import ObjectListConfigs from './ObjectListConfigs';
 import LocationOptions from './LocationOptions';
+import Map from '@erxes/ui/src/containers/map/Map';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
+import ObjectListConfigs from './ObjectListConfigs';
+import PropertyGroupForm from '../containers/PropertyGroupForm';
+import React from 'react';
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams: any;

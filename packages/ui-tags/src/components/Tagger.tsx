@@ -1,8 +1,9 @@
-import FilterableList from '../../components/filterableList/FilterableList';
-import Spinner from '../../components/Spinner';
-import { __ } from '../../utils';
-import { ITag, ITagTypes } from '../../tags/types';
+import { ITag, ITagTypes } from '../types';
+
+import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { __ } from 'coreui/utils';
 
 type Props = {
   type: ITagTypes | string;

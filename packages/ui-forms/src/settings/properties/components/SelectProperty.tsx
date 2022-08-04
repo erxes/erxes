@@ -1,15 +1,19 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps, IOption } from '@erxes/ui/src/types';
-import { LeftContent, Row } from '../../integrations/styles';
+import {
+  LeftContent,
+  Row
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '../types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import PropertyForm from '../containers/PropertyForm';
 import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
-import PropertyForm from '../containers/PropertyForm';
-import { IField } from '@erxes/ui/src/types';
-import { IFieldGroup } from '../types';
 
 type Props = {
   queryParams: any;

@@ -1,4 +1,4 @@
-import { __ } from '../utils';
+import { __ } from 'coreui/utils';
 
 export const TAG_TYPES = {
   CONVERSATION: __('inbox:conversation'),
