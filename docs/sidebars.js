@@ -2,6 +2,21 @@ module.exports = {
   docs: [
     {
       type: 'category',
+      label: 'What is erxes?',
+      items: [
+        {
+          Overview: [
+            'introduction/Welcome-to-erxes',
+            'introduction/with-erxes',
+            'introduction/open-source',
+            'introduction/support'
+          ]
+        },
+        'overview/quickstart'
+      ]
+    },
+    {
+      type: 'category',
       label: 'Getting Started',
       items: [
         {
