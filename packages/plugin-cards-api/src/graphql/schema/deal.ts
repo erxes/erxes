@@ -81,6 +81,7 @@ const commonQueryParams = `
   hasStartAndCloseDate: Boolean
   stageChangedStartDate: Date
   stageChangedEndDate: Date
+  noSkipArchive: Boolean
   `;
 
 const listQueryParams = `

@@ -117,6 +117,7 @@ const generateParams = ({ queryParams }) => {
     limit: pageInfo.perPage || 10,
     skip: (pageInfo.page - 1) * pageInfo.perPage,
     pipelineId: queryParams.pipelineId,
+    noSkipArchive: true,
     stageId: queryParams.stageId,
     stageChangedStartDate: queryParams.stageChangedStartDate,
     stageChangedEndDate: queryParams.stageChangedEndDate,

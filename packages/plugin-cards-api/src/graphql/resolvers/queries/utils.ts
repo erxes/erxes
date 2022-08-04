@@ -156,14 +156,17 @@ export const generateCommonFilters = async (
     endDate,
     hasStartAndCloseDate,
     stageChangedStartDate,
-    stageChangedEndDate
+    stageChangedEndDate,
+    noSkipArchive
   } = args;
 
   const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
   };
 
-  const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
+  const filter: any = noSkipArchive
+    ? {}
+    : { status: { $ne: BOARD_STATUSES.ARCHIVED } };
 
   let filterIds: string[] = [];
 

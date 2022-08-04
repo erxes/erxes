@@ -29,6 +29,7 @@ const commonParams = `
   $stageId: String
   $stageChangedStartDate: Date
   $stageChangedEndDate: Date
+  $noSkipArchive: Boolean
   $assignedUserIds: [String],
   $productIds: [String],
 `;
@@ -43,6 +44,7 @@ const commonParamDefs = `
   stageId: $stageId
   stageChangedStartDate: $stageChangedStartDate
   stageChangedEndDate: $stageChangedEndDate
+  noSkipArchive: $noSkipArchive
   assignedUserIds: $assignedUserIds,
   productIds: $productIds,
 `;
