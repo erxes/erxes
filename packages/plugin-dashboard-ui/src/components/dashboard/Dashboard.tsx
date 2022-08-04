@@ -263,11 +263,13 @@ class Dashboard extends React.Component<Props, State> {
                   {dashboardItems.map(deserializeItem).map(dashboardItem)}
                 </DragField>
               ) : null}
-
-              <ChartFrom
-                showDrawer={this.state.showDrawer}
-                item={dashboardItems[0]}
-              />
+              {this.state.showDrawer ? (
+                <ChartFrom
+                  showDrawer={this.state.showDrawer}
+                  item={dashboardItems[0]}
+                  vizState={dashboardItem[0]}
+                />
+              ) : null}
             </PageContent>
           </DashboardFormContainer>
         </HeightedWrapper>

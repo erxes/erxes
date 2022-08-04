@@ -204,48 +204,24 @@ const ActionBarButtonsWrapper = styled.div`
   }
 `;
 
-const DragField1 = styledTS<any>(styled(ReactGridLayout))`
+const FormChart = styled.div`
+  width: calc(100% - 500px);
+  background: white;
+
+  box-shadow: 1px 4px 16px rgba(141, 149, 166, 0.1);
+  border: 2px solid transparent;
+  border-radius: 4px;
+  padding: 2rem;
+`;
+
+const FormContainer = styled.div`
   background-image: radial-gradient(
     ${colors.bgActive} 20%,
     ${colors.colorWhite} 20%
   );
-  background-size: 10px 10px
-  padding: 20px;
-  height: 100%;
-
-  .react-grid-item > .react-resizable-handle {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    bottom: 0;
-    right: 0;
-    cursor: se-resize;
-  }
-  .react-grid-item > .react-resizable-handle::after {
-    content: "";
-    position: absolute;
-    right: 3px;
-    bottom: 3px;
-    width: 5px;
-    height: 5px;
-    border-right: 2px solid rgba(0, 0, 0, 0.4);
-    border-bottom: 2px solid rgba(0, 0, 0, 0.4);
-  }
-
-  .react-grid-item.react-grid-placeholder {
-    border: 2px solid transparent;
-    border-style: dashed;
-    border-radius: 4px;
-    border-color: ${colors.colorPrimary};
-    transition-duration: 100ms;
-    z-index: 2;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
-  }
-
+  padding: 2rem;
+  background-size: 10px 10px;
+  height: 100% !important;
 `;
 
 const DragField = styledTS<any>(styled(ReactGridLayout))`
@@ -351,5 +327,7 @@ export {
   Header,
   SelectMemberStyled,
   SidebarListItem,
-  EmptyContent
+  EmptyContent,
+  FormChart,
+  FormContainer
 };

@@ -1,14 +1,22 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
 import RTG from 'react-transition-group';
-import { RightDrawerContainer } from '../../styles';
+import { FormChart, FormContainer, RightDrawerContainer } from '../../styles';
 import { IDashboardItem } from '../../types';
 import ChartRenderer from '../dashboard/ChartRenderer';
-import Modal from 'react-bootstrap/Modal';
+import { QueryBuilder } from '@cubejs-client/react';
+import stateChangeHeuristics from './stateChangeHeuristics';
 
 type Props = {
   showDrawer: boolean;
   item: IDashboardItem;
+  vizState: any;
+  setVizState?: any;
+  cubejsApi?: any;
+  type?: string;
+  setType?: any;
+  setIsDateRange?: any;
+  isDateRange?: boolean;
 };
 
 type State = {};
@@ -31,39 +39,68 @@ class ChartFrom extends React.Component<Props, State> {
   };
 
   render() {
-    return (
-      <>
-        <div
-          ref={this.setWrapperRef}
-          style={{ width: 'calc( 100% - 500px)', padding: '2rem;' }}
-        >
-          <RTG.CSSTransition
-            in={this.props.showDrawer}
-            timeout={300}
-            classNames="slide-in-left"
-            unmountOnExit={true}
-          >
-            <ChartRenderer
-              query={deserializeItem(this.props.item).vizState.query}
-              chartType={deserializeItem(this.props.item).vizState.chartType}
-              chartHeight={800}
-            />
-          </RTG.CSSTransition>
-        </div>
+    const { vizState, setVizState, cubejsApi } = this.props;
 
-        <div ref={this.setWrapperRef}>
-          <RTG.CSSTransition
-            in={this.props.showDrawer}
-            timeout={300}
-            classNames="slide-in-right"
-            unmountOnExit={true}
-          >
-            <RightDrawerContainer>
-              <div>123</div>
-            </RightDrawerContainer>
-          </RTG.CSSTransition>
-        </div>
-      </>
+    return (
+      <QueryBuilder
+        vizState={deserializeItem(this.props.item).vizState}
+        setVizState={setVizState}
+        cubejsApi={cubejsApi}
+        wrapWithQueryRenderer={false}
+        stateChangeHeuristics={stateChangeHeuristics}
+        render={({
+          measures,
+          availableMeasures,
+          updateMeasures,
+          dimensions,
+          availableDimensions,
+          updateDimensions,
+          timeDimensions,
+          availableTimeDimensions,
+          updateTimeDimensions,
+          isQueryPresent,
+          chartType,
+          updateChartType,
+          validatedQuery,
+          filters,
+          updateFilters
+        }) => {
+          console.log(measures, availableMeasures);
+
+          return (
+            <FormContainer>
+              <FormChart>
+                <RTG.CSSTransition
+                  in={this.props.showDrawer}
+                  timeout={300}
+                  classNames="slide-in-right"
+                  unmountOnExit={true}
+                >
+                  <ChartRenderer
+                    query={deserializeItem(this.props.item).vizState.query}
+                    chartType={
+                      deserializeItem(this.props.item).vizState.chartType
+                    }
+                    chartHeight={600}
+                  />
+                </RTG.CSSTransition>
+              </FormChart>
+              <div ref={this.setWrapperRef}>
+                <RTG.CSSTransition
+                  in={this.props.showDrawer}
+                  timeout={300}
+                  classNames="slide-in-right"
+                  unmountOnExit={true}
+                >
+                  <RightDrawerContainer>
+                    <div>123</div>
+                  </RightDrawerContainer>
+                </RTG.CSSTransition>
+              </div>
+            </FormContainer>
+          );
+        }}
+      />
     );
   }
 }
