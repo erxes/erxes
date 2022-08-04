@@ -32,9 +32,9 @@ const Sidebar = (props: Props) => {
     router.setParams(history, { [name]: value });
   };
 
-  const onChangeDate = (lbl, date) => {
+  const onChangeDate = (label: string, date: any) => {
     const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    setFilter(lbl, cDate);
+    setFilter(label, cDate);
   };
 
   const moveCursorAtTheEnd = (event: any) => {

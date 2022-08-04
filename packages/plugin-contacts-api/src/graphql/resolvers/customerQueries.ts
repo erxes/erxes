@@ -153,6 +153,9 @@ const customerQueries = {
       case 'byIntegrationType':
         counts.byIntegrationType = await countByIntegrationType(qb);
         break;
+
+      default:
+        break;
     }
 
     return counts;

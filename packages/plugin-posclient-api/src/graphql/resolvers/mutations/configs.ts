@@ -46,14 +46,14 @@ const configMutations = {
 
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          syncInfo: pos.syncInfo,
-          qpayConfig
+          qpayConfig,
+          token
         });
 
-        await importUsers(models, cashiers);
-        await importUsers(models, adminUsers, true);
+        await importUsers(models, cashiers, token);
+        await importUsers(models, adminUsers, token, true);
         await importSlots(models, slots);
-        await importProducts(subdomain, models, productGroups);
+        await importProducts(subdomain, models, token, productGroups);
       } else {
         await models.Configs.deleteOne({ token });
         throw new Error(response ? response.error : 'cant connect server');
@@ -82,16 +82,15 @@ const configMutations = {
     return config;
   },
 
-  async syncConfig(_root, { type }, { models, subdomain }: IContext) {
+  async syncConfig(_root, { type }, { models, subdomain, config }: IContext) {
     const address = await getServerAddress(subdomain);
+    const { token } = config;
 
-    const config = await models.Configs.findOne({}).lean();
-    const syncId = (config.syncInfo || {}).id;
     const response = await sendRequest({
       url: `${address}/pos-sync-config`,
       method: 'get',
       headers: { 'POS-TOKEN': config.token || '' },
-      body: { syncId, type }
+      body: { token, type }
     });
 
     if (!response) {
@@ -110,31 +109,25 @@ const configMutations = {
 
         await models.Configs.updateConfig(config._id, {
           ...(await extractConfig(subdomain, pos)),
-          syncInfo: pos.syncInfo || {},
-          qpayConfig
+          qpayConfig,
+          token: config.token
         });
 
-        await importUsers(models, cashiers);
-        await importUsers(models, adminUsers);
+        await importUsers(models, cashiers, config.token);
+        await importUsers(models, adminUsers, config.token, true);
         await importSlots(models, slots);
 
         break;
       case 'products':
         const { productGroups = [] } = response;
-        await preImportProducts(models, productGroups);
-        await importProducts(subdomain, models, productGroups);
+        await preImportProducts(models, token, productGroups);
+        await importProducts(subdomain, models, token, productGroups);
         break;
     }
-
-    await models.Configs.updateOne(
-      { _id: config._id },
-      { $set: { syncInfo: { id: syncId, date: new Date() } } }
-    );
-
     return 'success';
   },
 
-  async syncOrders(_root, _param, { models, subdomain }: IContext) {
+  async syncOrders(_root, _param, { models, subdomain, config }: IContext) {
     const orderFilter = {
       synced: false,
       status: { $in: ORDER_STATUSES.FULL },
@@ -174,8 +167,6 @@ const configMutations = {
         .lean();
     }
 
-    const config = await models.Configs.getConfig({});
-    const syncId = config.syncInfo.id;
     const address = await getServerAddress(subdomain);
 
     try {
@@ -183,7 +174,7 @@ const configMutations = {
         url: `${address}/pos-sync-orders`,
         method: 'post',
         headers: { 'POS-TOKEN': config.token || '' },
-        body: { syncId, orders, putResponses }
+        body: { token: config.token, orders, putResponses }
       });
 
       const { error, resOrderIds, putResponseIds } = response;
@@ -224,6 +215,22 @@ const configMutations = {
     return {
       deletedCount: count
     };
+  },
+
+  posChooseConfig: async (
+    _root,
+    { token }: { token: string },
+    { res, models }: IContext
+  ) => {
+    const config = await models.Configs.findOne({ token });
+
+    if (!config) {
+      throw new Error('token not found');
+    }
+
+    res.cookie('pos-config-token', token);
+
+    return 'chosen';
   }
 };
 

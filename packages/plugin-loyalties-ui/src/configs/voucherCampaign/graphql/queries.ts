@@ -37,8 +37,8 @@ const voucherCampaignsCount = `
 `;
 
 const voucherCampaignDetail = `
-  query voucherCampaignDetail($_id: String!) {
-    voucherCampaignDetail(_id: $_id) {
+  query VoucherCampaignDetail($id: String) {
+    voucherCampaignDetail(_id: $id) {
       ${voucherCampaignFields}
     }
   }

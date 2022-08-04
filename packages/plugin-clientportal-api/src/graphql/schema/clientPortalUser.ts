@@ -1,4 +1,19 @@
-export const types = () => `
+export const types = (isContactsEnabled: boolean) => `
+
+${
+  isContactsEnabled
+    ? `
+      extend type Customer @key(fields: "_id") {
+        _id: String! @external
+      }
+
+      extend type Company @key(fields: "_id") {
+        _id: String! @external
+      }
+      `
+    : ''
+}
+
   type ClientPortalUser {
     _id: String!
     createdAt: Date
@@ -19,8 +34,19 @@ export const types = () => `
     links: JSON,
     customFieldsData: JSON,
     password: String
+    isEmailVerified: Boolean
+    isPhoneVerified: Boolean
 
     clientPortal: ClientPortal
+
+    ${
+      isContactsEnabled
+        ? `
+        customer: Customer
+        company: Company
+      `
+        : ''
+    }
   }
 
   type clientPortalUsersListResponse {
@@ -84,6 +110,7 @@ export const mutations = () => `
   clientPortalUsersRemove(clientPortalUserIds: [String!]): JSON
   clientPortalRegister(${userParams}): String
   clientPortalVerifyOTP(userId: String!, phoneOtp: String, emailOtp: String, password: String): String
+  clientPortalUsersVerify(userIds: [String]!, type: String): JSON
   clientPortalLogin(login: String!, password: String!, clientPortalId: String!, deviceToken: String): String
   clientPortalLogout: String
 

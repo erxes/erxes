@@ -20,6 +20,7 @@ export const commonCampaignInputs = `
   startDate: Date,
   endDate: Date,
   finishDateOfUse: Date,
+  numberFormat:String,
   attachment: AttachmentInput,
   status: String,
 `;
@@ -32,6 +33,7 @@ export const paginateTypes = `
 `;
 
 export const commonFilterTypes = `
+  _ids: [String],
   searchValue: String,
   filterStatus: String,
 `

@@ -72,7 +72,7 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = vouchersMainQuery.vouchersMain || {};
     const currentCampaign =
-      voucherCampaignDetailQuery &&
+    voucherCampaignDetailQuery &&
       voucherCampaignDetailQuery.voucherCampaignDetail;
 
     const updatedProps = {
@@ -135,7 +135,7 @@ export default withProps<Props>(
         name: 'voucherCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.campaignId
+            id: queryParams.campaignId
           }
         }),
         skip: ({ queryParams }) => !queryParams.campaignId

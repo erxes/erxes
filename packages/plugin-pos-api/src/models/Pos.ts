@@ -80,7 +80,12 @@ export const loadPosClass = (models: IModels, _subdomain) => {
     public static async posRemove(_id: string) {
       const pos = await models.Pos.getPos({ _id });
 
+      if (await models.PosOrders.findOne({ posToken: pos.token })) {
+        throw new Error('This pos used in orders');
+      }
+
       await models.ProductGroups.remove({ posId: pos._id });
+      await models.PosSlots.remove({ posId: pos._id });
 
       return models.Pos.deleteOne({ _id });
     }

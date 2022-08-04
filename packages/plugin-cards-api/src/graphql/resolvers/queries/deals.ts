@@ -12,8 +12,12 @@ import {
   getItemList,
   IArchiveArgs
 } from './utils';
-import { IContext } from '../../../connectionResolver';
-import { sendProductsMessage } from '../../../messageBroker';
+import { IContext, models } from '../../../connectionResolver';
+import {
+  sendCoreMessage,
+  sendLoyaltiesMessage,
+  sendProductsMessage
+} from '../../../messageBroker';
 
 interface IDealListParams extends IListParams {
   productIds?: [string];
@@ -236,6 +240,67 @@ const dealQueries = {
     const deal = await models.Deals.getDeal(_id);
 
     return checkItemPermByUser(models, user._id, deal);
+  },
+
+  async checkDiscount(
+    _root,
+    {
+      _id,
+      products
+    }: { _id: string; products: { productId: string; quantity: number }[] },
+    { subdomain }: IContext
+  ) {
+    let ownerId = '';
+    let ownerType = '';
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: 'deal',
+        mainTypeId: _id,
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (customerIds.length) {
+      ownerId = customerIds[0];
+      ownerType = 'customer';
+    }
+
+    if (!ownerId) {
+      const companyIds = await sendCoreMessage({
+        subdomain,
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: 'deal',
+          mainTypeId: _id,
+          relTypes: ['company']
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+      if (companyIds.length) {
+        ownerId = companyIds[0];
+        ownerType = 'company';
+      }
+    }
+
+    if (!ownerId) {
+      return null;
+    }
+
+    return await sendLoyaltiesMessage({
+      subdomain,
+      action: 'checkLoyalties',
+      data: {
+        ownerType,
+        ownerId,
+        products: products
+      },
+      isRPC: true
+    });
   }
 };
 

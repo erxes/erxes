@@ -31,7 +31,7 @@ export const types = `
 `;
 
 export const queries = `
-  voucherCampaignDetail(_id: String!): VoucherCampaign
+  voucherCampaignDetail(_id: String): VoucherCampaign
   voucherCampaigns(${commonFilterTypes} ${paginateTypes} equalTypeCampaignId: String voucherType: String): [VoucherCampaign]
   cpVoucherCampaigns: [VoucherCampaign]
   voucherCampaignsCount(${commonFilterTypes}): Int

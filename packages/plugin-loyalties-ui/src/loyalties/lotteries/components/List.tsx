@@ -227,6 +227,7 @@ class LotteriesList extends React.Component<IProps, State> {
             loadingMainQuery={loading}
             queryParams={queryParams}
             history={history}
+            isAward={true}
           />
         }
         content={

@@ -16,6 +16,10 @@ const generateFilter = async (models, params) => {
     }
   }
 
+  if(params._ids){
+    filter._id = params._ids;
+  }
+
   if (params.searchValue) {
     filter.title = new RegExp(params.searchValue);
   }
@@ -37,9 +41,11 @@ const voucherCampaignQueries = {
     params: ICommonCampaignParams & {
       equalTypeCampaignId: string;
       voucherType: string;
+      _ids:[string]
     },
     { models }: IContext
   ) {
+
     const filter = await generateFilter(models, params);
 
     return paginate(

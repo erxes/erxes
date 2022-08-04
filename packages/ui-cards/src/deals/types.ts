@@ -20,6 +20,16 @@ export interface IDealTotalAmount {
   ];
 }
 
+export interface IDiscountValue {
+  bonusName: string;
+  discount: number;
+  potentialBonus: number;
+  sumDiscount: number;
+  type: string;
+  voucherCampaignId: string;
+  voucherId: string;
+  voucherName: string;
+}
 export interface IProductData {
   _id: string;
   productId?: string;
@@ -35,6 +45,7 @@ export interface IProductData {
   amount: number;
   tickUsed: boolean;
   assignUserId?: string;
+  maxQuantity: number;
 }
 
 export interface IPaymentsData {

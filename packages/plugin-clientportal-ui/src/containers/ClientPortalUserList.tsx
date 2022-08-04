@@ -12,7 +12,8 @@ import { mutations, queries } from '../graphql';
 import {
   ClientPortalUserRemoveMutationResponse,
   ClientPortalUsersQueryResponse,
-  ClientPortalUserTotalCountQueryResponse
+  ClientPortalUserTotalCountQueryResponse,
+  ClientPortalVerifyUsersMutationResponse
 } from '../types';
 
 type Props = {
@@ -26,6 +27,7 @@ type FinalProps = {
   clientPortalUserTotalCountQuery: ClientPortalUserTotalCountQueryResponse;
 } & Props &
   ClientPortalUserRemoveMutationResponse &
+  ClientPortalVerifyUsersMutationResponse &
   IRouterProps;
 
 type State = {
@@ -65,6 +67,22 @@ class ClientportalUserListContainer extends React.Component<FinalProps, State> {
         });
     };
 
+    const verifyUsers = (type, userIds) => {
+      const { clientPortalUsersVerify } = this.props;
+      clientPortalUsersVerify({
+        variables: {
+          type,
+          userIds
+        }
+      })
+        .then(() => {
+          Alert.success('You successfully verified a client portal user');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const clientPortalUsers = clientPortalUsersQuery.clientPortalUsers || [];
 
     const searchValue = this.props.queryParams.searchValue || '';
@@ -77,7 +95,8 @@ class ClientportalUserListContainer extends React.Component<FinalProps, State> {
       searchValue,
       queryParams,
       loading: clientPortalUsersQuery.loading || this.state.loading,
-      removeUsers
+      removeUsers,
+      verifyUsers
     };
 
     const content = props => {
@@ -113,6 +132,7 @@ export default withProps<Props>(
         variables: {
           searchValue: queryParams.searchValue,
           cpId: queryParams.cpId,
+          type: queryParams.type,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'
@@ -133,6 +153,15 @@ export default withProps<Props>(
       { clientPortalUserIds: string[] }
     >(gql(mutations.clientPortalUsersRemove), {
       name: 'clientPortalUsersRemove',
+      options
+    }),
+
+    graphql<
+      Props,
+      ClientPortalUserRemoveMutationResponse,
+      { type: string; userIds: string[] }
+    >(gql(mutations.verifyUsers), {
+      name: 'clientPortalUsersVerify',
       options
     })
   )(ClientportalUserListContainer)

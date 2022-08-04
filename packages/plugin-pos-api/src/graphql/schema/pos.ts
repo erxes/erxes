@@ -19,6 +19,7 @@ const posCommonFields = `
   adminIds: [String]
   cashierIds: [String]
   isOnline: Boolean
+  onServer: Boolean
   branchId: String
   allowBranchIds: [String]
   beginNumber: String
@@ -64,7 +65,6 @@ const posOrderFields = contactsEnabled => `
   userId: String,
   items: JSON,
   posToken: String,
-  syncId: String,
   posName: String,
   user: User,
   ${
@@ -214,6 +214,7 @@ export const queries = `
     sortField: String
     sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
+  posEnv: JSON
   productGroups(posId: String!): [ProductGroups]
   posSlots(posId: String!): [PosSlot]
   posOrders(${queryParams}): [PosOrder]

@@ -136,10 +136,17 @@ const remove = `
   }
 `;
 
+const verifyUsers = `
+mutation clientPortalUsersVerify($type: String, $userIds: [String]!) {
+  clientPortalUsersVerify(type: $type, userIds: $userIds)
+}
+`;
+
 export default {
   createOrUpdateConfig,
   remove,
   clientPortalUsersInvite,
   clientPortalUsersEdit,
-  clientPortalUsersRemove
+  clientPortalUsersRemove,
+  verifyUsers
 };

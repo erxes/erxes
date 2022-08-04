@@ -56,6 +56,11 @@ const clientPortalUserQueries = {
             $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
           }
         },
+        {
+          phone: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        },
         { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
       ];
 
@@ -68,7 +73,7 @@ const clientPortalUserQueries = {
 
     return paginate(
       models.ClientPortalUsers.find(filter)
-        .sort('code')
+        .sort({ createdAt: -1 })
         .lean(),
       pagintationArgs
     );

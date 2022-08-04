@@ -79,16 +79,20 @@ const orderQueries = {
     );
   },
 
-  async orderDetail(_root, { _id }, { posUser, user, models }: IContext) {
+  async orderDetail(
+    _root,
+    { _id, customerId }: { _id: string; customerId?: string },
+    { posUser, models }: IContext
+  ) {
     if (posUser) {
       return models.Orders.findOne({ _id });
     }
 
-    if (!user.erxesCustomerId) {
+    if (!customerId) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, customerId: user.erxesCustomerId });
+    return models.Orders.findOne({ _id, customerId });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
