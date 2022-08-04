@@ -1,4 +1,3 @@
-
 // Settings
 
 const updateConfigs = `
@@ -7,7 +6,23 @@ const updateConfigs = `
   }
 `;
 
+const toCheckSyncedDeals = `
+  mutation toCheckSyncedDeals($dealIds: [String]) {
+    toCheckSyncedDeals(dealIds: $dealIds) {
+      dealId
+      isSynced
+    }
+  }
+`;
+
+const toSyncDeals = `
+  mutation toSyncDeals($dealIds: [String]) {
+    toSyncDeals(dealIds: $dealIds)
+  }
+`;
 
 export default {
-  updateConfigs
+  updateConfigs,
+  toCheckSyncedDeals,
+  toSyncDeals
 };

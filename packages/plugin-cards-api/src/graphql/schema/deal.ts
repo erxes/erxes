@@ -29,7 +29,7 @@ export const types = ({ contacts, tags }) => `
     }
 
     ${tags ? `tags: [Tag]` : ''}
-    
+
     products: JSON
     productsData: JSON
     paymentsData: JSON
@@ -79,6 +79,8 @@ const commonQueryParams = `
   startDate: String
   endDate: String
   hasStartAndCloseDate: Boolean
+  stageChangedStartDate: Date
+  stageChangedEndDate: Date
   `;
 
 const listQueryParams = `

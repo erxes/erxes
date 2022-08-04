@@ -1,6 +1,7 @@
 import { gql } from 'apollo-server-express';
+import { mutations, types } from './schema/mutations';
 
-const typeDefs = async (_serviceDiscovery) => {
+const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
@@ -16,6 +17,10 @@ const typeDefs = async (_serviceDiscovery) => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
+    ${types}
+    extend type Mutation {
+      ${mutations}
+    }
   `;
 };
 
