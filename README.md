@@ -1,8 +1,10 @@
+<br>
+
 <p align="center">
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">An open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business.
+<p align="center">An open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business
 </p>
 
 <p align="center">
@@ -48,18 +50,19 @@
 </p>
 
 <p align="center">
- <a href="https://erxes.org" target="_blank"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/readme.gif" alt="erxes Growth Marketing Platform "></a>
+ <a href="https://www.erxes.io/![Cover](https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg)"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/xos.jpeg" width="100%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)">
+</a>
 </p>
 
 
-Achieving growth and unity within your company is possible with erxes. 
+Achieving growth and unity within your company is possible with erxes, because it is: 
 
 
 
-- **100% free & sustainable** erxes offers a sustainable business model in </br> which both developers and users win. Fair-code is like open source software, but better.
-- **100% customizable** Our fair-code nature and plugin architecture provide unlimited customization and let you meet all your needs, no matter how specific they are.
-- **100% privacy** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
-- **100% in control** With the erxes platform, you are in control of your experiences. You can build any experience you want, where all the channels your business operates on are connected and integrated.
+- **100% free & sustainable:** erxes offers a sustainable business model in which both developers and users win. Fair-code is like open source software, but better.
+- **100% customizable:** Our fair-code nature and plugin architecture provide unlimited customization and let you meet all your needs, no matter how specific they are.
+- **100% privacy:** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
+- **100% in control:** With the erxes platform, you are in control of your experiences. You can build any experience you want, where all the channels your business operates on are connected and integrated.
 
 
 ## What does erxes mean? How do you pronounce it?
@@ -77,33 +80,34 @@ erxes is composed of 2 main components: XOS & Plugins
 - Permission 
 - Team members 
 - Brands 
-- Import & export
-- Application 
+- Import & export 
 - Marketplace 
 
 
-**XOS Plugins:** Erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from after you’ve installed XOS:
+**XOS Plugins:** erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from after you’ve installed XOS:
 
-- Team Inbox - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">  
-- Messenger - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
-- Card Pipeline - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
-- Lead generation - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
-- Engage - Start converting your prospects into potential customers through email, SMS, messenger, or more interactions to drive them to a successful close.
-- CRM - Access our all-in-one CRM system in one go, so it’s easier to coordinate and manage your customer interactions.
-- Knowledgebase - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
-- App store - Publish an integration app on the erxes App Store, among powerful tools like Gmail, Facebook page, Messenger, Twitter, and Google Meet.
-<a href="https://erxes.io/marketplace" >See more on our website.</a>
+- **Team Inbox** - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">  
+- **Messenger** - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
+- **Sales Management** - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
+- **Lead generation** - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
+- **Engage** - Start converting your prospects into potential customers through email, SMS, messenger, or more interactions to drive them to a successful close.
+- **Contact Management** - Access our all-in-one CRM system in one go, so it’s easier to coordinate and manage your customer interactions.
+- **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
+- **Task Management** - Create a more collaborative, self-reliant and cross-linked team. <a href="https://erxes.io/marketplace" >See more on our website.</a>
  
 ## Getting Started
-<a href="https://docs.strapi.io/developer-docs/latest/getting-started/quick-start.html" >https://www.erxes.org/overview/deployment-overview</a> to install erxes locally.
- 
-🖐 Requirements
+
+Read <a href="https://www.erxes.org/overview/deployment-overview" > the documentation <a> to install erxes locally.
+
+**🖐 Requirements**
+
 Complete installation requirements can be found in the documentation under <a href="https://www.erxes.org/overview/architecture-overview" >installation requirements.</a>
 
 Supported operating systems:
 
 - Ubuntu v20.04 or higher
 - macOS Mojave or higher
+
 Node:
 
 - NodeJS v12.0 or higher
@@ -112,7 +116,9 @@ Node:
 Database:
 
 - MongoDB
-- Redis
+- Redist
+- RabbitMQ
+- Elasticsearch
 
 Software package managing systems:
 
@@ -120,9 +126,7 @@ Software package managing systems:
 - Yarn
 - Xcode (optional)
 
-We recommend always using the latest version of erxes to start your new projects.
-
-Enjoy 🎉
+We recommend always using the latest version of erxes to start your new projects. Enjoy 🎉
 
 ## Become a partner
 
