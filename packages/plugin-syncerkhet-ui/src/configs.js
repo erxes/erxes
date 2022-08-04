@@ -20,11 +20,12 @@ module.exports = {
       permission: "syncErkhetConfig",
     },
     {
-      text: 'Sync Erkhet Deals Check',
-      to: '/sync-erkhet-check',
-      image: '/images/icons/erxes-04.svg',
-      location: "settings",
-      scope: 'syncerkhet'
-    }
+      text: 'Sync Erkhet',
+      url: '/check-synced-deals',
+      icon: 'icon-file-check-alt',
+      location: "mainNavigation",
+      scope: 'syncerkhet',
+      permission: 'syncErkhetConfig',
+    },
   ]
 };

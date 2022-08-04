@@ -2,6 +2,7 @@ import Settings from './containers/Settings';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
 const GeneralSettings = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './components/GeneralSettings')
@@ -23,8 +24,10 @@ const PipelineSettings = asyncComponent(() =>
   )
 );
 
-const FilterDeals = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './containers/FilterDeals')
+const CheckSyncedDeals = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './containers/CheckSyncedDeals'
+  )
 );
 
 const GeneralSetting = () => {
@@ -42,8 +45,13 @@ const ReturnStageSetting = () => {
 const PipelineSetting = () => {
   return <Settings component={PipelineSettings} />;
 };
-const FilterDeal = ({ location, history }) => {
-  return <FilterDeals />;
+const checkSyncedDealList = ({ location, history }) => {
+  return (
+    <CheckSyncedDeals
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
 };
 
 const routes = () => {
@@ -78,10 +86,10 @@ const routes = () => {
       />
 
       <Route
-        key="/sync-erkhet-check"
+        key="/check-synced-deals"
         exact={true}
-        path="/sync-erkhet-check"
-        component={FilterDeal}
+        path="/check-synced-deals"
+        component={checkSyncedDealList}
       />
     </React.Fragment>
   );
