@@ -4,24 +4,19 @@ import { IModels } from './index';
 export interface ICategory {
   _id: any;
   name: string;
+  code?: string | null;
+  thumbnail?: string | null;
   parentId?: string | null;
   ancestorIds?: string[] | null;
 }
 
-export interface ICategoryInsertInput {
-  name: string;
-  parentId?: string;
-}
-
-export interface ICategoryPatchInput {
-  name?: string;
-  parentId?: string | null;
-}
-
 export type CategoryDocument = ICategory & Document;
 export interface ICategoryModel extends Model<CategoryDocument> {
-  createCategory(c: ICategoryInsertInput): Promise<ICategoryModel>;
-  patchCategory(_id: string, c: ICategoryPatchInput): Promise<ICategoryModel>;
+  createCategory(c: Omit<ICategory, '_id'>): Promise<ICategoryModel>;
+  patchCategory(
+    _id: string,
+    c: Partial<Omit<ICategory, '_id'>>
+  ): Promise<ICategoryModel>;
 }
 
 /**
@@ -31,8 +26,10 @@ export interface ICategoryModel extends Model<CategoryDocument> {
  *  */
 export const categorySchema = new Schema<CategoryDocument>({
   name: { type: String, required: true },
-  ancestorIds: { type: [Types.ObjectId], index: true, ref: 'forum_categories' },
-  parentId: { type: Types.ObjectId, index: true, ref: 'forum_categories' }
+  code: { type: String, index: true, unique: true },
+  thumbnail: String,
+  ancestorIds: { type: [Types.ObjectId], index: true },
+  parentId: { type: Types.ObjectId, index: true }
 });
 
 export const generateCategoryModel = (
@@ -42,7 +39,7 @@ export const generateCategoryModel = (
 ): void => {
   class CategoryModel {
     public static async createCategory(
-      input: ICategoryInsertInput
+      input: Omit<ICategory, '_id'>
     ): Promise<CategoryDocument> {
       const doc = { ...input } as ICategory;
 
@@ -60,14 +57,12 @@ export const generateCategoryModel = (
         doc.ancestorIds = null;
       }
 
-      console.log(JSON.stringify(doc, null, 2));
-
       const res = await models.Category.create(doc);
       return res;
     }
     public static async patchCategory(
       _id: string,
-      input: ICategoryPatchInput
+      input: Partial<Omit<ICategory, '_id'>>
     ): Promise<CategoryDocument> {
       const patch = { ...input } as ICategory;
 

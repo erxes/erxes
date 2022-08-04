@@ -2,25 +2,26 @@ import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 
 const CategoryQueries: IObjectTypeResolver<any, IContext> = {
-  forumAllCategories: (parent, args, { models }) => {
-    const { _ids, parentIds, ancestorIds } = args;
-    const query: any = {};
-    if (_ids) {
-      query._id = { $in: _ids };
-    }
-
-    if (parentIds) {
-      query.parentId = { $in: parentIds };
-    }
-
-    if (ancestorIds) {
-      query.ancestorIds = { $in: ancestorIds };
-    }
-
-    return models.Category.find(query);
+  forumCategoryByCode: (_, { code }, { models: { Category } }) => {
+    return Category.findOne({ code }).lean();
   },
-  forumCategory: (parent, { _id }, { models }) => {
-    return models.Category.findById(_id);
+  forumAllCategories: (_, params, { models: { Category } }) => {
+    const query: any = {};
+
+    const fields = ['_id', 'parentId', 'ancestorIds', 'code'];
+
+    for (const field of fields) {
+      const param = params[field];
+
+      if (param) {
+        query[field] = { $in: param };
+      }
+    }
+
+    return Category.find(query).lean();
+  },
+  forumCategory: (_, { _id }, { models: { Category } }) => {
+    return Category.findById(_id).lean();
   }
 };
 

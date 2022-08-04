@@ -25,7 +25,7 @@ const CategoryMutations: IObjectTypeResolver<any, IContext> = {
   },
   async forumPatchSubCategory(_, args, { models: { Category } }) {
     if (args.parentId === null) {
-      throw new Error(`Sub category must have a parentId`);
+      throw new Error(`Cannot set sub category's parentId to \`null\``);
     }
     const { _id, ...rest } = args;
     return await Category.patchCategory(_id, rest);

@@ -1,15 +1,49 @@
+const insertParams = `
+  name: String!
+  code: String
+  thumbnail: String
+`;
+
+const patchParams = `
+  name: String
+  code: String
+  thumbnail: String
+`;
+
 const Mutation = `
 
   extend type Mutation {
 
-    forumCreateRootCategory(name: String!): ForumCategory
-    forumPatchRootCategory(_id: ID!, name: String): ForumCategory
+    forumCreateRootCategory(
+      ${insertParams}
+    ): ForumCategory
 
-    forumCreateSubCategory(name: String!, parentId: String!): ForumCategory
-    forumPatchSubCategory(_id: ID!, name: String, parentId: String): ForumCategory
+    forumPatchRootCategory(
+      _id: ID!
+      ${patchParams}
+    ): ForumCategory
 
-    forumCreateCategory(name: String!, parentId: String): ForumCategory
-    forumPatchCategory(_id: ID!, name: String, parentId: String): ForumCategory
+    forumCreateSubCategory(
+      parentId: String!
+      ${insertParams}
+    ): ForumCategory
+
+    forumPatchSubCategory(
+      _id: ID!
+      parentId: String
+      ${patchParams}
+    ): ForumCategory
+
+    forumCreateCategory(
+      parentId: String
+      ${insertParams}
+    ): ForumCategory
+
+    forumPatchCategory(
+      _id: ID!
+      parentId: String
+      ${patchParams}
+    ): ForumCategory
   }
 `;
 

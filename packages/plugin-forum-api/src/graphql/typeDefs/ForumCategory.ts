@@ -2,6 +2,10 @@ export default `
   type ForumCategory @key(fields: "_id") {
     _id: ID!
     name: String!
+
+    code: String
+    thumbnail: String
+
     parentId: ID
     ancestorIds: [ID!]
 
