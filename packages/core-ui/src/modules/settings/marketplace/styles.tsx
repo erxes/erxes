@@ -113,6 +113,10 @@ const ColorText = styled.b`
 const PluginContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+
+  b {
+    font-size: 12px;
+  }
 `;
 
 const CardWrapper = styled.div`
@@ -133,6 +137,7 @@ const Card = styled.div`
   &:hover {
     box-shadow: 0 5px 15px ${rgba(colors.colorCoreDarkGray, 0.12)};
     cursor: pointer;
+    transition: 0.3s;
   }
 `;
 
@@ -175,7 +180,7 @@ const DetailMainContainer = styled.div`
   height: 100%;
   border-radius: 8px;
   border: 1px solid ${colors.borderPrimary};
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow-x: hidden;
   ::-webkit-scrollbar {
     display: none;
@@ -188,8 +193,8 @@ const PluginTitle = styled.div`
   align-items: center;
 
   img {
-    width: 80px;
-    height: 80px;
+    max-width: 70px;
+    max-height: 70px;
     margin-right: ${dimensions.coreSpacing}px;
   }
 
@@ -284,8 +289,8 @@ const SliderButton = styledTS<{ active?: boolean; left?: boolean }>(styled.div)`
     cursor: pointer;
     background-image: ${props =>
       props.left
-        ? 'linear-gradient(to left, rgba(0,0,0,0), rgba(0,0,0,0.5));'
-        : 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5))'};
+        ? 'linear-gradient(to left, rgba(0,0,0,0), rgba(0,0,0,0.3));'
+        : 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.3))'};
   }
 `;
 
@@ -364,6 +369,7 @@ const ColorHeader = styled.p`
 const DetailCard = styled.div`
   display: flex;
   margin-top: ${dimensions.unitSpacing}px;
+  align-items: center;
 `;
 
 const MemberPic = styled.div`
@@ -385,7 +391,7 @@ const CardInformation = styled.div`
 
 const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
   font-size: 11px;
-  margin-top: ${props => props.withMargin && dimensions.unitSpacing}px;
+  margin-top: ${props => props.withMargin && '5'}px;
 `;
 
 //**************
