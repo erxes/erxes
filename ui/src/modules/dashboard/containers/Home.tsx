@@ -8,9 +8,13 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import Home from '../components/Home';
 import { queries } from '../graphql';
-import { DashboardsQueryResponse } from '../types';
+import { DashboardsQueryResponse, IDashboard } from '../types';
 
-type Props = { queryParams: any } & IRouterProps;
+type Props = {
+  queryParams: any;
+  dashboard: IDashboard;
+  dashboards: IDashboard[];
+} & IRouterProps;
 
 type FinalProps = {
   dashboardsQuery: DashboardsQueryResponse;

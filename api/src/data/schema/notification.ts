@@ -25,6 +25,7 @@ const params = `
   page: Int,
   perPage: Int,
   requireRead: Boolean,
+  notifType: String
   title: String
 `;
 

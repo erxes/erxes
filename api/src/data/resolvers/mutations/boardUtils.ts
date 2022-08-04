@@ -1,5 +1,11 @@
 import resolvers from '..';
-import { Boards, Notifications, Pipelines, Stages } from '../../../db/models';
+import {
+  Boards,
+  Fields,
+  Notifications,
+  Pipelines,
+  Stages
+} from '../../../db/models';
 import {
   destroyBoardItemRelations,
   getCollection,
@@ -108,6 +114,13 @@ export const itemsAdd = async (
       aboveItemId: doc.aboveItemId
     })
   };
+
+  if (extendedDoc.customFieldsData) {
+    // clean custom field values
+    extendedDoc.customFieldsData = await Fields.prepareCustomFieldsData(
+      extendedDoc.customFieldsData
+    );
+  }
 
   const item = await createModel(extendedDoc);
 
@@ -240,6 +253,13 @@ export const itemsEdit = async (
     modifiedAt: new Date(),
     modifiedBy: user._id
   };
+
+  if (extendedDoc.customFieldsData) {
+    // clean custom field values
+    extendedDoc.customFieldsData = await Fields.prepareCustomFieldsData(
+      extendedDoc.customFieldsData
+    );
+  }
 
   const updatedItem = await modelUpate(_id, extendedDoc);
   // labels should be copied to newly moved pipeline

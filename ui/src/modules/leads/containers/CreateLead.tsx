@@ -6,6 +6,7 @@ import {
   EmailTemplatesTotalCountQueryResponse
 } from 'modules/settings/emailTemplates/containers/List';
 import { queries as templatesQuery } from 'modules/settings/emailTemplates/graphql';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 import {
   AddIntegrationMutationResponse,
   AddIntegrationMutationVariables
@@ -17,11 +18,13 @@ import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '../../common/types';
 import Lead from '../components/Lead';
 import { mutations } from '../graphql';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
 import { ILeadData } from '../types';
 
 type Props = {
   emailTemplatesQuery: EmailTemplatesQueryResponse;
   emailTemplatesTotalCountQuery: EmailTemplatesTotalCountQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & IRouterProps &
   AddIntegrationMutationResponse &
   AddFieldsMutationResponse;
@@ -47,7 +50,12 @@ class CreateLeadContainer extends React.Component<Props, State> {
   }
 
   render() {
-    const { addIntegrationMutation, history, emailTemplatesQuery } = this.props;
+    const {
+      addIntegrationMutation,
+      history,
+      emailTemplatesQuery,
+      configsQuery
+    } = this.props;
     const afterFormDbSave = id => {
       this.setState({ isReadyToSaveForm: false });
 
@@ -104,7 +112,8 @@ class CreateLeadContainer extends React.Component<Props, State> {
       afterFormDbSave,
       isActionLoading: this.state.isLoading,
       isReadyToSaveForm: this.state.isReadyToSaveForm,
-      emailTemplates: emailTemplatesQuery.emailTemplates || []
+      emailTemplates: emailTemplatesQuery.emailTemplates || [],
+      configs: configsQuery.configs || []
     };
 
     return <Lead {...updatedProps} />;
@@ -131,6 +140,9 @@ export default withProps<Props>(
   compose(
     graphql(gql(templatesQuery.totalCount), {
       name: 'emailTemplatesTotalCountQuery'
+    }),
+    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+      name: 'configsQuery'
     }),
     graphql<
       {},

@@ -6,7 +6,7 @@ import {
   findElk,
   findUser
 } from '../../data/resolvers/mutations/engageUtils';
-import { isUsingElk, replaceEditorAttributes } from '../../data/utils';
+import { isUsingElk } from '../../data/utils';
 import { getNumberOfVisits } from '../../events';
 import { IBrowserInfo } from './Customers';
 import { METHODS } from './definitions/constants';
@@ -22,7 +22,7 @@ import {
 } from './definitions/engages';
 import { CONTENT_TYPES } from './definitions/segments';
 import { IUserDocument } from './definitions/users';
-
+import EditorAttributeUtil from '../../data/editorAttributeUtils';
 interface ICheckRulesParams {
   rules: IRule[];
   browserInfo: IBrowserInfo;
@@ -334,11 +334,13 @@ export const loadClass = () => {
         // conversations
         if (hasPassedAllRules) {
           // replace keys in content
-          const { replacedContent } = await replaceEditorAttributes({
-            content: messenger.content,
-            customer,
-            user
-          });
+          const replacedContent = await new EditorAttributeUtil().replaceAttributes(
+            {
+              content: messenger.content,
+              customer,
+              user
+            }
+          );
 
           if (messenger.rules) {
             messenger.rules = messenger.rules.map(r => ({

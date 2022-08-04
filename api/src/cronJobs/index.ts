@@ -15,6 +15,7 @@ import './engages';
 import './integrations';
 import './notificatons';
 import './robot';
+import './log';
 
 // load environment variables
 dotenv.config();

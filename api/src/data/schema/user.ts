@@ -21,6 +21,9 @@ export const types = `
     password: String
     groupId: String
     channelIds: [String]
+    unitId: String
+    branchId: String
+    departmentId: String
   }
 
   type UserDetailsType {
@@ -58,6 +61,7 @@ export const types = `
     configs: JSON
     configsConstants: [JSON]
     onboardingHistory: OnboardingHistory
+    department: Department
     score: Float
   }
 
@@ -84,10 +88,13 @@ const commonSelector = `
   requireUsername: Boolean,
   ids: [String],
   brandIds: [String]
+  departmentId: String
+  branchId: String
+  unitId: String
 `;
 
 export const queries = `
-  users(page: Int, perPage: Int, status: String, excludeIds: Boolean, ${commonSelector}): [User]
+  users(sortField: String, sortDirection: Int, page: Int, perPage: Int, status: String, excludeIds: Boolean, ${commonSelector}): [User]
   allUsers(isActive: Boolean): [User]
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int

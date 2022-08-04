@@ -144,12 +144,12 @@ export const productSchema = schemaWrapper(
       index: true
     }),
     productCount: field({
-      type: String,
+      type: Number,
       label: 'productCount',
       default: '0'
     }),
     minimiumCount: field({
-      type: String,
+      type: Number,
       label: 'minimiumCount',
       default: '0'
     }),

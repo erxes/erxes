@@ -39,6 +39,12 @@ const tasks = () => {
   return <Redirect to={link} />;
 };
 
+const charts = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="chart" queryParams={queryParams} />;
+};
+
 const boards = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -49,6 +55,12 @@ const activity = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <TaskBoard viewType="activity" queryParams={queryParams} />;
+};
+
+const gantt = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <TaskBoard viewType="gantt" queryParams={queryParams} />;
 };
 
 const calendar = ({ location }) => {
@@ -77,6 +89,13 @@ const routes = () => {
       <Route key="/task" exact={true} path="/task" render={tasks} />
 
       <Route
+        key="task/gantt"
+        exact={true}
+        path="/task/gantt"
+        component={gantt}
+      />
+
+      <Route
         key="/task/board"
         exact={true}
         path="/task/board"
@@ -88,6 +107,13 @@ const routes = () => {
         exact={true}
         path="/task/calendar"
         component={calendar}
+      />
+
+      <Route
+        key="task/chart"
+        exact={true}
+        path="/task/chart"
+        component={charts}
       />
 
       <Route

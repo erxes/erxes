@@ -78,12 +78,14 @@ const deals = `
     $initialStageId: String,
     $stageId: String,
     $skip: Int,
+    $limit: Int,
     ${commonParams}
   ) {
     deals(
       initialStageId: $initialStageId,
       stageId: $stageId,
       skip: $skip,
+      limit: $limit,
       ${commonParamDefs}
     ) {
       products
@@ -109,18 +111,44 @@ const dealsTotalCount = `
   }
 `;
 
+const archivedDealsParams = `
+  $pipelineId: String!
+  $search: String
+  $userIds: [String]
+  $priorities: [String]
+  $assignedUserIds: [String]
+  $labelIds: [String]
+  $productIds: [String]
+  $companyIds: [String]
+  $customerIds: [String]
+  $startDate: String
+  $endDate: String
+`;
+
+const archivedDealsArgs = `
+  pipelineId: $pipelineId
+  search: $search
+  userIds: $userIds
+  priorities: $priorities
+  assignedUserIds: $assignedUserIds
+  labelIds: $labelIds
+  productIds: $productIds
+  companyIds: $companyIds
+  customerIds: $customerIds
+  startDate: $startDate
+  endDate: $endDate
+`;
+
 const archivedDeals = `
   query archivedDeals(
-    $pipelineId: String!,
-    $search: String,
-    $page: Int,
-    $perPage: Int,
+    $page: Int
+    $perPage: Int
+    ${archivedDealsParams}
   ) {
     archivedDeals(
-      pipelineId: $pipelineId,
-      search: $search,
-      page: $page,
-      perPage: $perPage,
+      page: $page
+      perPage: $perPage
+      ${archivedDealsArgs}
     ) {
       ${dealFields}
       ${commonFields}
@@ -130,12 +158,10 @@ const archivedDeals = `
 
 const archivedDealsCount = `
   query archivedDealsCount(
-    $pipelineId: String!,
-    $search: String
+    ${archivedDealsParams}
   ) {
     archivedDealsCount(
-      pipelineId: $pipelineId,
-      search: $search
+      ${archivedDealsArgs}
     )
   }
 `;

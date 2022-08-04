@@ -7,10 +7,11 @@ import utc from 'dayjs/plugin/utc';
 import 'erxes-icon/css/erxes.min.css';
 // global style
 import 'modules/common/styles/global-styles.ts';
-import { getEnv } from 'modules/common/utils';
+import { getEnv, readFile } from 'modules/common/utils';
 import React from 'react';
 import { ApolloProvider } from 'react-apollo';
 import { render } from 'react-dom';
+import { getThemeItem } from 'utils';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(relativeTime);
@@ -25,6 +26,19 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
 })
   .then(response => response.text())
   .then(res => {
+    if (res !== 'no owner') {
+      localStorage.setItem('erxes_theme_configs', res);
+
+      const link = document.createElement('link');
+      link.id = 'favicon';
+      link.rel = 'shortcut icon';
+      link.href = getThemeItem('favicon')
+        ? readFile(getThemeItem('favicon'))
+        : '/favicon.png';
+
+      document.head.appendChild(link);
+    }
+
     const apolloClient = require('./apolloClient').default;
     const { OwnerDescription } = require('modules/auth/components/OwnerSetup');
     const OwnerSetup = require('modules/auth/containers/OwnerSetup').default;

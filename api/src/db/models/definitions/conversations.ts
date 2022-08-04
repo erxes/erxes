@@ -37,6 +37,7 @@ export interface IConversation {
 
   isCustomerRespondedLast?: boolean;
   customFieldsData?: ICustomField[];
+  bookingProductId?: string;
 }
 
 // Conversation schema
@@ -106,7 +107,9 @@ export const conversationSchema = new Schema({
     type: [customFieldSchema],
     optional: true,
     label: 'Custom fields data'
-  })
+  }),
+
+  bookingProductId: field({ type: String })
 });
 
 conversationSchema.index(

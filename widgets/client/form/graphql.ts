@@ -15,12 +15,16 @@ export const formDetailQuery = `
         content
         description
         options
+        locationOptions{
+          lat
+          lng
+          description
+        }
         isRequired
         order
         validation
         associatedFieldId
         column
-        
         groupId
         logicAction
         pageNumber

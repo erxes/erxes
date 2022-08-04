@@ -10,9 +10,9 @@ describe('ProductSection component', () => {
     order: 'order',
     code: 'code',
     name: 'categoryName',
-    status: 'active',
     productCount: 1,
     isRoot: true,
+    status: 'status',
     createdAt: new Date()
   };
 

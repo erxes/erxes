@@ -5,6 +5,10 @@ const dashboardItemDetail = `
       layout
       vizState
       name
+      parentId
+      order
+      createdAt
+      relatedIds
     }
   }
 `;
@@ -14,6 +18,13 @@ const dashboards = `
     dashboards(page: $page, perPage: $perPage) {
 	    _id
 	    name
+      description
+      visibility
+      selectedMemberIds
+      parentId
+      order
+      createdAt
+      relatedIds
 	  }
   }
 `;
@@ -23,6 +34,13 @@ const dashboardDetails = `
     dashboardDetails(_id: $_id) {
 	    _id
 	    name
+      description
+      visibility
+      selectedMemberIds
+      parentId
+      order
+      createdAt
+      relatedIds
     }
   }
 `;

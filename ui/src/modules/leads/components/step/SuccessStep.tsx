@@ -3,15 +3,18 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import { LeftItem } from 'modules/common/components/step/styles';
 import EditorCK from 'modules/common/containers/EditorCK';
-import { __ } from 'modules/common/utils';
+import { readFile, uploadHandler, __ } from 'modules/common/utils';
 import { generateEmailTemplateParams } from 'modules/engage/utils';
 import { ILeadData } from 'modules/leads/types';
 import { IEmailTemplate } from 'modules/settings/emailTemplates/types';
 import { FORM_SUCCESS_ACTIONS } from 'modules/settings/integrations/constants';
 import React from 'react';
 import Select from 'react-select-plus';
-import { FlexItem } from './style';
+import { FlexItem, ImagePreview, ImageUpload } from './style';
 import Uploader from 'modules/common/components/Uploader';
+import Button from 'modules/common/components/Button';
+import Icon from 'modules/common/components/Icon';
+import Spinner from 'modules/common/components/Spinner';
 
 type Name =
   | 'successAction'
@@ -25,7 +28,10 @@ type Name =
   | 'thankContent'
   | 'thankTitle'
   | 'templateId'
-  | 'attachments';
+  | 'attachments'
+  | 'successImageSize'
+  | 'successImage'
+  | 'successPreviewStyle';
 
 type Props = {
   type: string;
@@ -38,6 +44,9 @@ type Props = {
   leadData?: ILeadData;
   formId?: string;
   emailTemplates: IEmailTemplate[];
+  successImage?: string;
+  successPreviewStyle?: { opacity?: string };
+  successImageSize?: string;
 };
 
 type State = {
@@ -267,12 +276,25 @@ class SuccessStep extends React.Component<Props, State> {
   }
 
   renderThankContent() {
-    const { thankContent, thankTitle } = this.props;
+    const { thankContent, thankTitle, successImageSize } = this.props;
     const { successAction } = this.state;
 
-    const onChange = e => {
+    const onChangeImageWidth = e =>
       this.onChangeFunction(
-        e.currentTarget.id,
+        'successImageSize',
+        (e.currentTarget as HTMLInputElement).value
+      );
+
+    const onChangeTitle = e => {
+      this.onChangeFunction(
+        'thankTitle',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
+    const onChangeContent = e => {
+      this.onChangeFunction(
+        'thankContent',
         (e.currentTarget as HTMLInputElement).value
       );
     };
@@ -290,7 +312,7 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             componentClass="textinput"
             defaultValue={thankTitle}
-            onChange={onChange}
+            onChange={onChangeTitle}
           />
         </FormGroup>
         <FormGroup>
@@ -300,8 +322,25 @@ class SuccessStep extends React.Component<Props, State> {
             type="text"
             componentClass="textarea"
             defaultValue={thankContent}
-            onChange={onChange}
+            onChange={onChangeContent}
           />
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Featured image</ControlLabel>
+          <p>{__('You can upload only image file')}</p>
+          {this.renderUploadImage()}
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel>Confirm image size</ControlLabel>
+          <FormControl
+            id="validation"
+            componentClass="select"
+            value={successImageSize}
+            onChange={onChangeImageWidth}
+          >
+            <option value="100%">{__('Full width')}</option>
+            <option value="50%">{__('Half width')}</option>
+          </FormControl>
         </FormGroup>
       </div>
     );
@@ -315,6 +354,78 @@ class SuccessStep extends React.Component<Props, State> {
         </option>
       );
     });
+  }
+
+  removeImage = () => {
+    this.props.onChange('successImage', '');
+  };
+
+  handleImage = (e: React.FormEvent<HTMLInputElement>) => {
+    const imageFile = e.currentTarget.files;
+
+    uploadHandler({
+      files: imageFile,
+
+      beforeUpload: () => {
+        this.props.onChange('successPreviewStyle', { opacity: '0.9' });
+      },
+
+      afterUpload: ({ response }) => {
+        this.props.onChange('successPreviewStyle', { opacity: '1' });
+
+        this.props.onChange('successImage', response);
+      }
+    });
+  };
+
+  renderImagePreview() {
+    const { successImage, successPreviewStyle } = this.props;
+
+    if (successPreviewStyle && successPreviewStyle.opacity === '0.9') {
+      return <Spinner />;
+    }
+
+    if (!successImage) {
+      return (
+        <>
+          <Icon icon="plus" />
+          {__('Upload')}
+        </>
+      );
+    }
+
+    return <ImagePreview src={readFile(successImage)} alt="previewImage" />;
+  }
+
+  renderUploadImage() {
+    const { successImage } = this.props;
+
+    const onChange = (e: React.FormEvent<HTMLInputElement>) =>
+      this.handleImage(e);
+
+    const onClick = () => this.removeImage();
+
+    return (
+      <ImageUpload>
+        <label>
+          <input
+            type="file"
+            onChange={onChange}
+            accept="image/x-png,image/jpeg"
+          />
+          {this.renderImagePreview()}
+        </label>
+
+        {successImage && (
+          <Button
+            btnStyle="link"
+            icon="cancel"
+            size="small"
+            onClick={onClick}
+          />
+        )}
+      </ImageUpload>
+    );
   }
 
   render() {

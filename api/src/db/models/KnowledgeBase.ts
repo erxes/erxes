@@ -25,7 +25,11 @@ export interface IArticleModel extends Model<IArticleDocument> {
     userId?: string
   ): Promise<IArticleDocument>;
   removeDoc(_id: string): void;
-  incReactionCount(articleId: string, reactionChoice): void;
+  modifyReactionCount(
+    articleId: string,
+    reactionChoice: string,
+    modifyType: 'inc' | 'dec'
+  ): void;
 }
 
 export const loadArticleClass = () => {
@@ -94,22 +98,19 @@ export const loadArticleClass = () => {
     }
 
     /*
-     * Increase form view count
+     * Modify form view count
      */
-    public static async incReactionCount(
+    public static async modifyReactionCount(
       articleId: string,
-      reactionChoice: string
+      reactionChoice: string,
+      modifyType: 'inc' | 'dec'
     ) {
-      const article = await KnowledgeBaseArticles.findOne({ _id: articleId });
-
-      if (!article) {
-        throw new Error('Article not found');
-      }
+      const article = await KnowledgeBaseArticles.getArticle(articleId);
 
       const reactionCounts = article.reactionCounts || {};
 
       reactionCounts[reactionChoice] =
-        (reactionCounts[reactionChoice] || 0) + 1;
+        (reactionCounts[reactionChoice] || 0) + (modifyType === 'inc' ? 1 : -1);
 
       await KnowledgeBaseArticles.updateOne(
         { _id: articleId },

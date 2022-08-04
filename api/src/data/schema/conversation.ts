@@ -39,6 +39,8 @@ export const types = `
     videoCallData: VideoCallData
     isFacebookTaggedMessage: Boolean
     customFieldsData: JSON
+
+    bookingProductId: String
   }
 
   type EngageData {
@@ -56,6 +58,7 @@ export const types = `
     name: String
     type: String!
     size: Float
+    duration: Float
   }
 
   type ConversationMessage {
@@ -79,6 +82,7 @@ export const types = `
     mailData: MailData
     videoCallData: VideoCallData
     contentType: String
+    bookingWidgetData: JSON
   }
 
   type FacebookPost {
@@ -180,6 +184,7 @@ export const types = `
     name: String!
     type: String
     size: Float
+    duration: Float
   }
 `;
 
@@ -195,6 +200,7 @@ const mutationFilterParams = `
   starred: String
   startDate: String
   endDate: String
+  segment: String
 `;
 
 const filterParams = `
@@ -256,6 +262,6 @@ export const mutations = `
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
   conversationsSaveVideoRecordingInfo(conversationId: String!, recordingId: String): String
-  conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String): String
+  conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String, bookingProductId: String): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;

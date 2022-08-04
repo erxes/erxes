@@ -16,14 +16,14 @@
 
     @include prefix(
       (
-        transition: background 0.3s ease-in-out,
+        transition: background 0.3s ease-in-out
       ),
       webkit moz ms o
     );
 
     @include prefix(
       (
-        transform: translate(0, -25%),
+        transform: translate(0, -25%)
       ),
       webkit moz ms o
     );
@@ -47,7 +47,7 @@
   background-color: rgba($black, 0.6);
   @include prefix(
     (
-      transition: opacity 0.15s linear,
+      transition: opacity 0.15s linear
     ),
     webkit moz ms o
   );
@@ -55,14 +55,14 @@
   .erxes-form {
     @include prefix(
       (
-        transition: transform 0.3s ease,
+        transition: transform 0.3s ease
       ),
       webkit moz ms o
     );
 
     @include prefix(
       (
-        transform: translate(0, -25%),
+        transform: translate(0, -25%)
       ),
       webkit moz ms o
     );
@@ -83,7 +83,7 @@
     .erxes-form {
       @include prefix(
         (
-          transform: translate(0, 0),
+          transform: translate(0, 0)
         ),
         webkit moz ms o
       );
@@ -92,7 +92,7 @@
     .close {
       @include prefix(
         (
-          transform: translate(0, 0),
+          transform: translate(0, 0)
         ),
         webkit moz ms o
       );
@@ -137,6 +137,17 @@
       color: lighten($black, 36%);
       margin-bottom: 5px;
     }
+
+    .erxes-success-body {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+
+    .erxes-success-image {
+      width: 300px;
+      height: 150px;
+    }
   }
 
   .erxes-result {
@@ -163,7 +174,7 @@
 .container-popup {
   @include prefix(
     (
-      transition: opacity 0.15s linear,
+      transition: opacity 0.15s linear
     ),
     webkit moz ms o
   );
@@ -176,14 +187,14 @@
   .erxes-form {
     @include prefix(
       (
-        transition: transform 0.3s ease,
+        transition: transform 0.3s ease
       ),
       webkit moz ms o
     );
 
     @include prefix(
       (
-        transform: translate(0, -25%),
+        transform: translate(0, -25%)
       ),
       webkit moz ms o
     );
@@ -209,6 +220,7 @@
       margin-bottom: 0;
       margin-right: 20px;
       width: auto;
+      color: $text-color;
     }
 
     .erxes-button.btn-block {
@@ -257,5 +269,45 @@
 
   &:before {
     content: none;
+  }
+}
+
+.erxes-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  position: absolute;
+  transform: rotate(-45deg);
+  left: 50%;
+  top: 50%;
+  margin: -20px 0 0 -20px;
+  animation-name: bounce;
+  animation-fill-mode: both;
+  animation-duration: 1s;
+  &::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    margin: 8px 0 0 8px;
+    background: #ffffff;
+    position: absolute;
+    border-radius: 50%;
+  }
+}
+
+@keyframes bounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-2000px) rotate(-45deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(30px) rotate(-45deg);
+  }
+  80% {
+    transform: translateY(-10px) rotate(-45deg);
+  }
+  100% {
+    transform: translateY(0) rotate(-45deg);
   }
 }

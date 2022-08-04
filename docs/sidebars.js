@@ -2,21 +2,6 @@ module.exports = {
   docs: [
     {
       type: 'category',
-      label: 'What is erxes?',
-      items: [
-        {
-          Overview: [
-            'introduction/Welcome-to-erxes',
-            'introduction/with-erxes',
-            'introduction/open-source',
-            'introduction/support'
-          ]
-        },
-        'overview/quickstart'
-      ]
-    },
-    {
-      type: 'category',
       label: 'Getting Started',
       items: [
         {
@@ -61,6 +46,8 @@ module.exports = {
       label: "Developer's Guide",
       items: [
         'developer/developer',
+        'developer/plugin',
+        'developer/events',
         'developer/documentation_guide',
         {
           "Administrator's Guide": [
@@ -76,7 +63,7 @@ module.exports = {
             'developer/android-sdk',
             'developer/ios-sdk',
             'developer/push-notifications',
-            'user/script-install'
+            'developer/script-install'
           ]
         },
         {
@@ -92,7 +79,13 @@ module.exports = {
             'developer/integrations-overview/sunshine-conversations'
           ]
         },
-        'developer/troubleshooting'
+        'developer/troubleshooting',
+        'developer/webhook',
+        {
+          type: 'link',
+          label: 'GraphQL API references',
+          href: 'pathname:///developers/docs/references'
+        }
       ]
     },
     {
@@ -107,43 +100,86 @@ module.exports = {
       ]
     }
   ],
-  tutorials: [
-    {
-      type: 'category',
-      label: "User's Guide",
-      items: [
-        'user/subscription-getting-started',
-        'user/initial-setup',
-        'user/general-settings',
-        'user/engage-phone-settings',
-        'user/team-inbox',
-        'user/knowledge-base',
-        'user/popups',
-        'user/script-install',
-        'user/contacts',
-        'user/segments',
-        'user/sales-pipeline',
-        'user/engage',
-        'user/profile-settings',
-        'user/notification',
-        'user/mobile-apps',
-        'user/import'
-      ]
-    }
-  ],
   components: [
     {
       type: 'category',
+      label: 'Getting Started',
+      collapsed: false,
+      items: ['components/GettingStarted/introduction']
+    },
+    {
+      type: 'category',
       label: 'Components',
+      collapsed: false,
       items: [
-        'components/Button/buttons',
+        'components/AnimatedLoader/animatedLoader',
+        'components/Attachment/attachment',
+        'components/AvatarUpload/avatarUpload',
+        'components/BreadCrumb/breadcrumbs',
+        'components/Button/button',
+        'components/Chip/chip',
+        'components/DatawithLoader/datawithloader',
+        'components/EmptyContent/emptycontent',
         'components/EmptyState/emptystate',
         'components/ErrorMsg/errormsg',
+        'components/FilePreview/filepreview',
+        'components/FilterByParams/filterbyparams',
+        'components/HelpPopOver/helppopover',
+        'components/Icon/icon',
         'components/Info/info',
         'components/Label/label',
+        'components/ModalTrigger/modaltrigger',
         'components/Namecard/namecard',
-        'components/Spinner/spinners',
-        'components/Table/table'
+        'components/Pagination/pagination',
+        'components/ProgressBar/progressbar',
+        'components/SortableList/sortablelist',
+        'components/SortHandler/sorthandler',
+        'components/Spinner/spinner',
+        'components/SubMenu/submenu',
+        'components/Table/table',
+        'components/Tab/tab',
+        'components/Tag/tag',
+        'components/TextDivider/textdivider',
+        'components/TextInfo/textinfo',
+        'components/Tip/tip',
+        'components/Toggle/toggle',
+        'components/Uploader/uploader'
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Utilities',
+      collapsed: false,
+      items: [
+        'utilities/Alert/alert',
+        'utilities/Box/box',
+        'utilities/CollapseContent/collapsecontent',
+        'utilities/CountsByTag/countsbytag',
+        'utilities/FilterableList/filterablelist',
+        'utilities/Form/form',
+        'utilities/HeaderDescription/headerdescription',
+        'utilities/ModifiableList/modifiablelist',
+        {
+          Step: ['utilities/Step/Step/step', 'utilities/Step/Steps/steps']
+        },
+        'utilities/Timer/timer',
+        'utilities/Rule/rule'
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Icons',
+      collapsed: false,
+      items: ['icons/usage', 'icons/icons']
+    },
+    {
+      type: 'category',
+      label: 'Styles',
+      collapsed: false,
+      items: [
+        'styles/Color/color',
+        'styles/Dimension/dimension',
+        'styles/Typography/typography'
       ]
     }
   ]

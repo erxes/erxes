@@ -71,6 +71,7 @@ export interface ISegment {
   description?: string;
   subOf?: string;
   color?: string;
+  shouldWriteActivityLog: boolean;
 
   conditions: ICondition[];
   conditionsConjunction?: 'and' | 'or';
@@ -169,6 +170,11 @@ export const segmentSchema = schemaWrapper(
     description: field({ type: String, optional: true }),
     subOf: field({ type: String, optional: true, index: true }),
     color: field({ type: String }),
+    shouldWriteActivityLog: field({
+      type: Boolean,
+      required: true,
+      default: false
+    }),
 
     conditionsConjunction: field({
       type: String,

@@ -5,7 +5,6 @@ title: Table
 
 import { TableComponent } from './table.js'
 
-
 ## Bordered
 
 <p>Add border color with <code>bordered</code> prop.</p>
@@ -13,14 +12,6 @@ import { TableComponent } from './table.js'
     ['1', 'James', 'Smith', '@james'],
     ['2', 'Robert', 'Rodriguez', '@robert'],
     ['3', 'Larry', 'Bird', '@twitter']
-]} />
-
-## Merge cells
-
-<p>Merge cells by <code>colSpan</code> prop.</p>
-<TableComponent type="merge" mergedCellText="Larry the bird" table={[
-    ['1', 'James', 'Smith', '@james'],
-    ['2', 'Robert', 'Rodriguez', '@robert']
 ]} />
 
 ## Striped
@@ -44,17 +35,20 @@ import { TableComponent } from './table.js'
 ## White-space
 
 <p>Customize cell type with <code>white-space</code> prop.</p>
-<TableComponent type="whiteSpace" mergedCellText="Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed 'the Hick from French Lick' and 'Larry Legend,' Bird is widely regarded as one of the greatest basketball players of all time." table={[
+<TableComponent type="whiteSpace" table={[
     ['1', 'James', 'Smith', '@james'],
-    ['2', 'Robert', 'Rodriguez', '@robert']
+    ['2', 'Robert', 'Rodriguez', '@robert'],
+    ['3', 'Larry the Bird. Larry Joe Bird (born December 7, 1956) is an American former professional basketball player, coach and executive in the National Basketball Association (NBA). Nicknamed the Hick from French Lick and Larry Legend,Bird is widely regarded as one of the greatest basketball players of all time.', 'Bird', '@larry']
 ]} />
 
 ## API
 
 <TableComponent type="APItable" table={[
-    ['bordered', 'boolean', 'false', 'Adds border color'],
-    ['colSpan', 'number', '', 'Merges the number of row cells'],
-    ['striped', 'boolean', 'false', 'Gives table strip color'],
-    ['hover', 'boolean', 'false', 'Activates table hover'],
-    ['white-space', 'normal | nowrap | pre | pre-wrap | pre-line | break-spaces', '', 'Costumizes thee cells']
+['children*', 'React.ReactNode', '', 'Shows table content'],
+['striped', 'boolean', 'false', 'Gives table strip color'],
+['bordered', 'boolean', 'false', 'Add border color'],
+['hover', 'boolean', 'false', 'Activates table hover'],
+['responsive', 'boolean', 'false', 'Add horizontal scroll bar when needed'],
+['whiteSpace', 'normal | nowrap | pre | pre-wrap | pre-line | break-spaces', '', 'Costumizes the cells'],
+['alignTop', 'boolean', 'false', 'Writes content vertically top']
 ]} />

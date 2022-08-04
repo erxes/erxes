@@ -96,6 +96,176 @@ const userAddSkill = `
   }
 `;
 
+const commonContactInfoParamsDef = `
+  $phoneNumber: String
+  $email: String
+  $links: JSON
+  $coordinate: CoordinateInput
+  $image: AttachmentInput
+`;
+
+const commonContactInfoParams = `
+  phoneNumber: $phoneNumber
+  email: $email
+  links: $links
+  coordinate: $coordinate
+  image: $image
+`;
+
+const commonStructureParamsDef = `
+  $title: String!
+  $description: String
+  $code: String
+  $supervisorId: String
+  ${commonContactInfoParamsDef}
+`;
+
+const commonStructureParams = `
+  title: $title
+  description: $description
+  code: $code
+  supervisorId: $supervisorId
+  ${commonContactInfoParams}
+`;
+
+const structuresAdd = `
+  mutation structuresAdd(${commonStructureParamsDef}) {
+    structuresAdd(${commonStructureParams}) {
+      _id
+    }
+  }
+`;
+
+const structuresEdit = `
+  mutation structuresEdit($_id: String!, ${commonStructureParamsDef}) {
+    structuresEdit(_id: $_id, ${commonStructureParams}) {
+      _id
+    }
+  }
+`;
+
+const commonDeparmentParamsDef = `
+  $title: String,
+  $description: String,
+  $parentId: String
+  $code: String
+  $supervisorId: String
+  $userIds: [String]
+`;
+
+const commonDeparmentParams = `
+  title: $title,
+  description: $description
+  parentId: $parentId
+  code: $code
+  supervisorId: $supervisorId
+  userIds: $userIds
+`;
+
+const departmentsAdd = `
+  mutation departmentsAdd(${commonDeparmentParamsDef}) {
+    departmentsAdd(${commonDeparmentParams}) {
+      _id
+    }
+  }
+`;
+
+const departmentsEdit = `
+  mutation departmentsEdit($_id: String!, ${commonDeparmentParamsDef}) {
+    departmentsEdit(_id: $_id, ${commonDeparmentParams}) {
+      _id
+    }
+  }
+`;
+
+const departmentsRemove = `
+  mutation departmentsRemove($_id: String!) {
+    departmentsRemove(_id: $_id)
+  }
+`;
+
+const commonUnitParamsDef = `
+  $title: String
+  $description: String
+  $supervisorId: String
+  $code: String
+  $departmentId: String
+  $userIds: [String]
+`;
+
+const commonUnitParams = `
+  title: $title,
+  description: $description
+  departmentId: $departmentId
+  code: $code
+  supervisorId: $supervisorId
+  userIds: $userIds
+`;
+
+const unitsAdd = `
+  mutation unitsAdd(${commonUnitParamsDef}) {
+    unitsAdd(${commonUnitParams}) {
+      _id
+    }
+  }
+`;
+
+const unitsEdit = `
+  mutation unitsEdit($_id: String!, ${commonUnitParamsDef}) {
+    unitsEdit(_id: $_id, ${commonUnitParams}) {
+      _id
+    }
+  }
+`;
+
+const unitsRemove = `
+  mutation unitsRemove($_id: String!) {
+    unitsRemove(_id: $_id)
+  }
+`;
+
+const commonBranchParamsDef = `
+  $title: String
+  $address: String
+  $supervisorId: String
+  $code: String
+  $parentId: String
+  $userIds: [String]
+  ${commonContactInfoParamsDef}
+`;
+
+const commonBranchParams = `
+  title: $title,
+  address: $address
+  parentId: $parentId
+  code: $code
+  supervisorId: $supervisorId
+  userIds: $userIds
+  ${commonContactInfoParams}
+`;
+
+const branchesAdd = `
+  mutation branchesAdd(${commonBranchParamsDef}) {
+    branchesAdd(${commonBranchParams}) {
+      _id
+    }
+  }
+`;
+
+const branchesEdit = `
+  mutation branchesEdit($_id: String!, ${commonBranchParamsDef}) {
+    branchesEdit(_id: $_id, ${commonBranchParams}) {
+      _id
+    }
+  }
+`;
+
+const branchesRemove = `
+  mutation branchesRemove($_id: String!) {
+    branchesRemove(_id: $_id)
+  }
+`;
+
 export default {
   usersEditProfile,
   usersEdit,
@@ -105,5 +275,16 @@ export default {
   usersSetActiveStatus,
   usersResetMemberPassword,
   userAddSkill,
-  userExcludeSkill
+  userExcludeSkill,
+  structuresAdd,
+  structuresEdit,
+  departmentsAdd,
+  departmentsEdit,
+  departmentsRemove,
+  unitsAdd,
+  unitsEdit,
+  unitsRemove,
+  branchesAdd,
+  branchesEdit,
+  branchesRemove
 };

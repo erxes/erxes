@@ -14,11 +14,13 @@ const notificationQueries = {
       requireRead,
       title,
       limit,
+      notifType,
       ...params
     }: {
       requireRead: boolean;
       title: string;
       limit: number;
+      notifType: string;
       page: number;
       perPage: number;
     },
@@ -33,6 +35,10 @@ const notificationQueries = {
 
     if (title) {
       selector.title = title;
+    }
+
+    if (notifType) {
+      selector.notifType = notifType;
     }
 
     if (limit) {

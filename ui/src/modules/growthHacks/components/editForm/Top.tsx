@@ -20,6 +20,7 @@ type Props = {
   onChangeStage: (stageId: string) => void;
   score?: () => React.ReactNode;
   dueDate?: React.ReactNode;
+  number?: () => React.ReactNode;
 };
 
 function Top(props: Props) {
@@ -63,7 +64,7 @@ function Top(props: Props) {
     );
   }
 
-  const { saveItem, score, dueDate } = props;
+  const { saveItem, score, dueDate, number } = props;
   const { assignedUsers = [], priority } = item;
 
   const onNameBlur = e => {
@@ -98,7 +99,7 @@ function Top(props: Props) {
             {renderHackStage()}
           </MetaInfo>
         </HeaderContent>
-
+        {number && number()}
         {score && score()}
       </HeaderRow>
 

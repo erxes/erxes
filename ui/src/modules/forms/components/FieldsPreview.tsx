@@ -1,4 +1,5 @@
 import SortableList from 'modules/common/components/SortableList';
+import { IConfig } from 'modules/settings/general/types';
 import { IField } from 'modules/settings/properties/types';
 import React from 'react';
 import xss from 'xss';
@@ -7,6 +8,7 @@ import FieldPreview from './FieldPreview';
 
 type Props = {
   fields: IField[];
+  configs: IConfig[];
   formDesc?: string;
   onFieldClick?: (field: IField) => void;
   onChangeFieldsOrder?: (fields: IField[]) => void;
@@ -72,6 +74,7 @@ class FieldsPreview extends React.Component<Props, State> {
           key={field._id}
           onClick={this.props.onFieldClick}
           field={field}
+          configs={this.props.configs}
         />
       );
     };

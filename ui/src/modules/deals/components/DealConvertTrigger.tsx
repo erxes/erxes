@@ -13,6 +13,7 @@ type Props = {
   refetch: () => void;
   description?: string;
   attachments?: any[];
+  bookingProductId?: string;
 };
 
 export default (props: Props) => {

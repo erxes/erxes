@@ -76,4 +76,6 @@ export default `
   }
   isFacebookTaggedMessage
   customFieldsData
+  
+  bookingProductId
 `;

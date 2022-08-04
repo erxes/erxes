@@ -21,6 +21,7 @@ import {
   integrationFactory,
   knowledgeBaseArticleFactory,
   messengerAppFactory,
+  productFactory,
   skillFactor,
   userFactory
 } from '../db/factories';
@@ -1110,6 +1111,30 @@ describe('knowledgebase', () => {
         updatedArticle.reactionCounts.wow
     ).toBe(1);
   });
+
+  test('widgetsKnowledgebaseDecReactionCount', async () => {
+    const article = await knowledgeBaseArticleFactory({
+      reactionChoices: ['wow']
+    });
+
+    await widgetMutations.widgetsKnowledgebaseDecReactionCount(
+      {},
+      {
+        articleId: article._id,
+        reactionChoice: 'wow'
+      }
+    );
+
+    const updatedArticle = await KnowledgeBaseArticles.findOne({
+      _id: article._id
+    });
+
+    expect(
+      updatedArticle &&
+        updatedArticle.reactionCounts &&
+        updatedArticle.reactionCounts.wow
+    ).toBe(-1);
+  });
 });
 
 describe('lead', () => {
@@ -1436,12 +1461,12 @@ describe('lead', () => {
 
     const companyNameField = await fieldFactory({
       ...params,
-      type: 'companyName'
+      type: 'company_primaryName'
     });
 
     const companyNameField2 = await fieldFactory({
       ...params,
-      type: 'companyName',
+      type: 'company_primaryName',
       groupId: (group && group._id) || ''
     });
 
@@ -1452,7 +1477,7 @@ describe('lead', () => {
 
     const companyAvatarField = await fieldFactory({
       ...params,
-      type: 'companyAvatar'
+      type: 'company_avatar'
     });
 
     const industryField = await fieldFactory({
@@ -1518,106 +1543,148 @@ describe('lead', () => {
 
     const companyDescriptionField = await fieldFactory({
       ...params,
-      type: 'companyDescription'
+      type: 'company_description'
     });
 
     const companyDoNotDisturbField = await fieldFactory({
       ...params,
-      type: 'companyDoNotDisturb'
+      type: 'company_isSubscribed'
+    });
+
+    const customMapProperty = await fieldFactory({
+      type: 'map',
+      isVisible: true,
+      contentType: 'customer'
+    });
+
+    const mapField = await fieldFactory({
+      type: customMapProperty.type,
+      contentTypeId: form._id,
+      contentType: 'form',
+      associatedFieldId: customMapProperty._id
+    });
+
+    const dateField = await fieldFactory({
+      type: 'input',
+      validation: 'date'
+    });
+
+    const numberField = await fieldFactory({
+      type: 'input',
+      validation: 'number'
     });
 
     const integration = await integrationFactory({ formId: form._id });
+
+    const submissions = [
+      {
+        _id: emailField._id,
+        type: 'email',
+        value: 'email@yahoo.com',
+        groupId: (group && group._id) || ''
+      },
+      {
+        _id: firstNameField._id,
+        type: 'firstName',
+        value: 'firstName',
+        groupId: (group && group._id) || ''
+      },
+      { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
+      { _id: phoneField._id, type: 'phone', value: '+88998833' },
+      { _id: radioField._id, type: 'radio', value: 'radio2' },
+      { _id: checkField._id, type: 'check', value: 'check1, check2' },
+      {
+        _id: inputField._id,
+        type: 'input',
+        value: 1,
+        associatedFieldId: inputField.associatedFieldId
+      },
+      { _id: companyNameField._id, type: 'companyName', value: 'company' },
+      {
+        _id: companyNameField2._id,
+        type: 'company_primaryName',
+        value: 'com',
+        groupId: (group && group._id) || ''
+      },
+      {
+        _id: companyEmailField._id,
+        type: 'company_primaryEmail',
+        value: 'info@company.com'
+      },
+      {
+        _id: companyPhoneField._id,
+        type: 'company_primaryPhone',
+        value: '+99112233'
+      },
+      {
+        _id: avatarField._id,
+        type: 'avatar',
+        value: [{ url: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }]
+      },
+      {
+        _id: companyAvatarField._id,
+        type: 'company_avatar',
+        value: [{ url: 'https://i.pravatar.cc/150?img=63' }]
+      },
+      { _id: industryField._id, type: 'industry', value: 'Banks' },
+      { _id: sizeField._id, type: 'size', value: '10' },
+      {
+        _id: businessTypeField._id,
+        type: 'businessType',
+        value: 'Investor'
+      },
+      { _id: pronounField._id, type: 'pronoun', value: 'Male' },
+      { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
+      { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
+      { _id: subscribedField._id, type: 'isSubscribed', value: 'Yes' },
+      { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'No' },
+      {
+        _id: birthDateField._id,
+        type: 'birthDate',
+        value: 'Fri Mar 26 2021 18:01:50 GMT+0800'
+      },
+      {
+        _id: descriptionField._id,
+        type: 'description',
+        value: 'description'
+      },
+      { _id: departmentField._id, type: 'department', value: 'department' },
+      { _id: positionField._id, type: 'position', value: 'position' },
+      {
+        _id: companyDescriptionField._id,
+        type: 'companyDescription',
+        value: 'companyDescription'
+      },
+      {
+        _id: companyDoNotDisturbField._id,
+        type: 'company_isSubscribed',
+        value: 'Yes'
+      },
+      {
+        _id: mapField._id,
+        type: 'map',
+        value: { lat: 0, lng: 0, description: 'desc' }
+      },
+      {
+        _id: dateField._id,
+        type: 'input',
+        value: new Date(),
+        validation: 'date'
+      },
+      {
+        _id: numberField._id,
+        type: 'input',
+        value: '100',
+        validation: 'number'
+      }
+    ];
 
     const response = await widgetMutations.widgetsSaveLead(
       {},
       {
         integrationId: integration._id,
         formId: form._id,
-        submissions: [
-          {
-            _id: emailField._id,
-            type: 'email',
-            value: 'email@yahoo.com',
-            groupId: (group && group._id) || ''
-          },
-          {
-            _id: firstNameField._id,
-            type: 'firstName',
-            value: 'firstName',
-            groupId: (group && group._id) || ''
-          },
-          { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
-          { _id: phoneField._id, type: 'phone', value: '+88998833' },
-          { _id: radioField._id, type: 'radio', value: 'radio2' },
-          { _id: checkField._id, type: 'check', value: 'check1, check2' },
-          {
-            _id: inputField._id,
-            type: 'input',
-            value: 1,
-            associatedFieldId: inputField.associatedFieldId
-          },
-          { _id: companyNameField._id, type: 'companyName', value: 'company' },
-          {
-            _id: companyNameField2._id,
-            type: 'companyName',
-            value: 'com',
-            groupId: (group && group._id) || ''
-          },
-          {
-            _id: companyEmailField._id,
-            type: 'companyEmail',
-            value: 'info@company.com'
-          },
-          {
-            _id: companyPhoneField._id,
-            type: 'companyPhone',
-            value: '+99112233'
-          },
-          {
-            _id: avatarField._id,
-            type: 'avatar',
-            value: [{ url: 'https://i.pravatar.cc/150?u=a042581f4e29026704d' }]
-          },
-          {
-            _id: companyAvatarField._id,
-            type: 'companyAvatar',
-            value: [{ url: 'https://i.pravatar.cc/150?img=63' }]
-          },
-          { _id: industryField._id, type: 'industry', value: 'Banks' },
-          { _id: sizeField._id, type: 'size', value: '10' },
-          {
-            _id: businessTypeField._id,
-            type: 'businessType',
-            value: 'Investor'
-          },
-          { _id: pronounField._id, type: 'pronoun', value: 'Male' },
-          { _id: pronounField1._id, type: 'pronoun', value: 'Female' },
-          { _id: pronounField2._id, type: 'pronoun', value: 'Not applicable' },
-          { _id: subscribedField._id, type: 'isSubscribed', value: 'Yes' },
-          { _id: hasAuthorityField._id, type: 'hasAuthority', value: 'No' },
-          {
-            _id: birthDateField._id,
-            type: 'birthDate',
-            value: 'Fri Mar 26 2021 18:01:50 GMT+0800'
-          },
-          {
-            _id: descriptionField._id,
-            type: 'description',
-            value: 'description'
-          },
-          { _id: departmentField._id, type: 'department', value: 'department' },
-          { _id: positionField._id, type: 'position', value: 'position' },
-          {
-            _id: companyDescriptionField._id,
-            type: 'companyDescription',
-            value: 'companyDescription'
-          },
-          {
-            _id: companyDoNotDisturbField._id,
-            type: 'companyDoNotDisturb',
-            value: 'Yes'
-          }
-        ],
+        submissions,
         browserInfo: {
           currentPageUrl: '/page'
         }
@@ -1629,7 +1696,9 @@ describe('lead', () => {
     expect(await Conversations.find().countDocuments()).toBe(1);
     expect(await ConversationMessages.find().countDocuments()).toBe(1);
     expect(await Customers.find().countDocuments()).toBe(2);
-    expect(await FormSubmissions.find().countDocuments()).toBe(1);
+    expect(await FormSubmissions.find().countDocuments()).toBe(
+      submissions.length
+    );
 
     const message = await ConversationMessages.findOne();
     const formData = message ? message.formWidgetData : {};
@@ -1684,5 +1753,147 @@ describe('lead', () => {
 
     expect(response).toBe(undefined);
     mock.restore();
+  });
+
+  test('widgetsBookingConnect', async () => {
+    const integration = await integrationFactory({});
+
+    const response = await widgetMutations.widgetsBookingConnect(
+      {},
+      { _id: integration._id }
+    );
+
+    expect(integration._id).toBe(response._id);
+  });
+
+  test('saveBooking: form not found', async () => {
+    const product = await productFactory({});
+    try {
+      await widgetMutations.widgetsSaveBooking(
+        {},
+        {
+          integrationId: '_id',
+          formId: '_id',
+          submissions: [{ _id: 'id', value: null }],
+          browserInfo: {},
+          productId: product._id
+        }
+      );
+    } catch (e) {
+      expect(e.message).toBe('Form not found');
+    }
+  });
+
+  test('saveBooking: invalid', async () => {
+    const form = await formFactory({});
+    const product = await productFactory({});
+
+    const requiredField = await fieldFactory({
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const integration = await integrationFactory({ formId: form._id });
+
+    const response = await widgetMutations.widgetsSaveBooking(
+      {},
+      {
+        integrationId: integration._id,
+        formId: form._id,
+        submissions: [{ _id: requiredField._id, value: null }],
+        browserInfo: {
+          currentPageUrl: '/page'
+        },
+        productId: product._id
+      }
+    );
+
+    expect(response && response.status).toBe('error');
+  });
+
+  test('saveBooking: success', async () => {
+    const product = await productFactory({});
+    const form = await formFactory({});
+    const group = await fieldGroupFactory({ contentType: 'form' });
+
+    const params = {
+      validation: 'text',
+      isRequired: true,
+      contentTypeId: form._id
+    };
+
+    const emailField = await fieldFactory({
+      ...params,
+      type: 'email',
+      groupId: (group && group._id) || ''
+    });
+
+    const firstNameField = await fieldFactory({
+      ...params,
+      type: 'firstName',
+      groupId: (group && group._id) || ''
+    });
+
+    const lastNameField = await fieldFactory({
+      ...params,
+      type: 'lastName'
+    });
+
+    const phoneField = await fieldFactory({
+      type: 'phone',
+      contentTypeId: form._id,
+      isRequired: true
+    });
+
+    const descriptionField = await fieldFactory({
+      ...params,
+      type: 'description'
+    });
+
+    const integration = await integrationFactory({ formId: form._id });
+
+    const submissions = [
+      {
+        _id: emailField._id,
+        type: 'email',
+        value: 'email@yahoo.com',
+        groupId: (group && group._id) || ''
+      },
+      {
+        _id: firstNameField._id,
+        type: 'firstName',
+        value: 'firstName',
+        groupId: (group && group._id) || ''
+      },
+      { _id: lastNameField._id, type: 'lastName', value: 'lastName' },
+      { _id: phoneField._id, type: 'phone', value: '+88998833' },
+      {
+        _id: descriptionField._id,
+        type: 'description',
+        value: 'description'
+      }
+    ];
+
+    const response = await widgetMutations.widgetsSaveBooking(
+      {},
+      {
+        integrationId: integration._id,
+        formId: form._id,
+        submissions,
+        browserInfo: {
+          currentPageUrl: '/page'
+        },
+        productId: product._id
+      }
+    );
+
+    expect(response && response.status).toBe('ok');
+
+    expect(await Conversations.find().countDocuments()).toBe(1);
+    expect(await ConversationMessages.find().countDocuments()).toBe(1);
+    expect(await Customers.find().countDocuments()).toBe(2);
+    expect(await FormSubmissions.find().countDocuments()).toBe(
+      submissions.length
+    );
   });
 });

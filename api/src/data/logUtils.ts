@@ -62,6 +62,12 @@ import messageBroker from '../messageBroker';
 import { callAfterMutation } from '../pluginUtils';
 import { MODULE_NAMES, RABBITMQ_QUEUES } from './constants';
 import {
+  buildLabelList,
+  INameLabel,
+  ISchemaMap,
+  LOG_MAPPINGS
+} from './resolvers/queries/logs';
+import {
   getSubServiceDomain,
   registerOnboardHistory,
   sendRequest,
@@ -1585,4 +1591,34 @@ export const putActivityLog = async (params: IActivityLogParams) => {
   } catch (e) {
     return e.message;
   }
+};
+
+export const getDbSchemaLabels = async (type: string) => {
+  let fieldNames: INameLabel[] = [];
+
+  const found: ISchemaMap | undefined = LOG_MAPPINGS.find(m => m.name === type);
+
+  if (found) {
+    const schemas: any = found.schemas || [];
+
+    for (const schema of schemas) {
+      // schema comes as either mongoose schema or plain object
+      const names: string[] = Object.getOwnPropertyNames(schema.obj || schema);
+
+      for (const name of names) {
+        const field: any = schema.obj ? schema.obj[name] : schema[name];
+
+        if (field && field.label) {
+          fieldNames.push({ name, label: field.label });
+        }
+
+        // nested object field names
+        if (typeof field === 'object' && field.type && field.type.obj) {
+          fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
+        }
+      }
+    } // end schema for loop
+  } // end schema name mapping
+
+  return fieldNames;
 };

@@ -10,7 +10,7 @@ import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import WithPermission from 'modules/common/components/WithPermission';
 import { DateWrapper } from 'modules/common/styles/main';
-import { __, getEnv } from 'modules/common/utils';
+import { getEnv, __ } from 'modules/common/utils';
 import { RowTitle } from 'modules/engage/styles';
 import { Capitalize } from 'modules/settings/permissions/styles';
 import React from 'react';

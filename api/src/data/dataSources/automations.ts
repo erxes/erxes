@@ -75,7 +75,7 @@ export default class AutomationAPI extends RESTDataSource {
   // fetches counts
   public async getTotalCount(status) {
     try {
-      return this.get(`/api/getTotalCount/`, status);
+      return await this.get(`/api/getTotalCount/`, status);
     } catch (e) {
       debugError(e);
 
@@ -85,7 +85,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async updateAutomation(doc) {
     try {
-      return this.post(`/api/update`, { doc });
+      return await this.post(`/api/update`, { doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -94,7 +94,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async removeAutomations(automationIds) {
     try {
-      return this.post(`/api/remove`, { automationIds });
+      return await this.post(`/api/remove`, { automationIds });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -103,7 +103,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async createAutomation(doc) {
     try {
-      return this.post(`/api/create`, { doc });
+      return await this.post(`/api/create`, { doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -112,7 +112,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async createAutomationNote(doc) {
     try {
-      return this.post(`/api/createNote`, { doc });
+      return await this.post(`/api/createNote`, { doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -121,7 +121,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async updateAutomationNote(_id, doc) {
     try {
-      return this.post(`/api/updateNote`, { _id, doc });
+      return await this.post(`/api/updateNote`, { _id, doc });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -130,7 +130,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async removeAutomationNote(_id: string) {
     try {
-      return this.post(`/api/deleteNote`, { _id });
+      return await this.post(`/api/deleteNote`, { _id });
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -139,7 +139,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async getAutomationNotes(selector) {
     try {
-      return this.get(`/api/notes`, selector);
+      return await this.get(`/api/notes`, selector);
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -148,7 +148,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async getAutomationNote(selector) {
     try {
-      return this.get(`/api/note`, selector);
+      return await this.get(`/api/note`, selector);
     } catch (e) {
       debugError(e);
       return { error: e.message };
@@ -157,7 +157,7 @@ export default class AutomationAPI extends RESTDataSource {
 
   public async getAutomationHistories(selector) {
     try {
-      return this.get(`/api/histories`, selector);
+      return await this.get(`/api/histories`, selector);
     } catch (e) {
       debugError(e);
       return { error: e.message };

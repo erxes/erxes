@@ -8,8 +8,10 @@ import {
   IConversation
 } from 'modules/inbox/types';
 import Sidebar from 'modules/layout/components/Sidebar';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { renderWithProps } from '../../../common/utils';
@@ -22,13 +24,20 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & Props &
   EditMutationResponse;
 
 const ConversationCustomFieldsSection = (props: FinalProps) => {
-  const { loading, conversation, fieldsGroupsQuery, editCustomFields } = props;
+  const {
+    loading,
+    conversation,
+    fieldsGroupsQuery,
+    configsQuery,
+    editCustomFields
+  } = props;
 
-  if (fieldsGroupsQuery.loading) {
+  if (fieldsGroupsQuery.loading || configsQuery.loading) {
     return (
       <Sidebar full={true}>
         <Spinner />
@@ -55,7 +64,8 @@ const ConversationCustomFieldsSection = (props: FinalProps) => {
     loading,
     isDetail: false,
     customFieldsData: conversation.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
+    configs: configsQuery.configs || []
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -77,6 +87,9 @@ export default (props: Props) => {
           })
         }
       ),
+      graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+        name: 'configsQuery'
+      }),
       graphql<Props, EditMutationResponse, EditCustomFieldsMutationVariables>(
         gql(mutations.editCustomFields),
         {

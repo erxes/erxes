@@ -11,6 +11,12 @@ export interface IForm {
   buttonText?: string;
 }
 
+export interface IFormSubmissionFilter {
+  operator: string;
+  value: any;
+  formFieldId: string;
+}
+
 export interface IFormDocument extends IForm, Document {
   _id: string;
   createdUserId: string;
@@ -45,6 +51,7 @@ export const formSchema = schemaWrapper(
 
 export interface IFormSubmission {
   customerId?: string;
+  userId?: string;
   contentType?: string;
   contentTypeId?: string;
   formId?: string;
@@ -62,6 +69,7 @@ export const formSubmissionSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
     customerId: field({ type: String, optional: true }),
+    userId: field({ type: String, optional: true }),
     contentType: field({ type: String, optional: true }),
     contentTypeId: field({ type: String, optional: true }),
     value: field({ type: Object, optional: true }),

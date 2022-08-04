@@ -15,6 +15,12 @@ const List = asyncComponent(() =>
   import(/* webpackChunkName: "List - Form" */ './containers/List')
 );
 
+const ResponseList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "List - FormResponse" */ './containers/ResponseList'
+  )
+);
+
 const forms = history => {
   const { location } = history;
 
@@ -40,6 +46,11 @@ const editLead = ({ match, location }) => {
   );
 };
 
+const responseList = ({ match, location }) => {
+  const { integrationId, formId } = match.params;
+  return <ResponseList queryParams={{ integrationId, formId }} />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -57,6 +68,13 @@ const routes = () => {
         exact={true}
         path="/forms/edit/:contentTypeId/:formId?"
         component={editLead}
+      />
+
+      <Route
+        key="/forms/responses/:integrationId?/:formId?"
+        exact={true}
+        path="/forms/responses/:integrationId?/:formId?"
+        component={responseList}
       />
     </React.Fragment>
   );

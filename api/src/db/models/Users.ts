@@ -666,7 +666,7 @@ export const loadClass = () => {
       );
 
       // storing tokens in user collection.
-      if(token){
+      if (token) {
         const validatedTokens: string[] = user.validatedTokens || [];
         validatedTokens.push(token);
         await user.update({ $set: { validatedTokens } });
@@ -694,17 +694,22 @@ export const loadClass = () => {
     /**
      * Logging out user from database
      */
-     public static async logout(user: IUserDocument, currentToken: string) {
-      const currentUser:any = await this.getUser(user._id);
+    public static async logout(user: IUserDocument, currentToken: string) {
+      const currentUser: any = await this.getUser(user._id);
       let validatedTokens: string[] = currentUser.validatedTokens || [];
 
-      if(validatedTokens.includes(currentToken)){
+      if (validatedTokens.includes(currentToken)) {
         // invalidating token.
-        validatedTokens = await validatedTokens.filter(token => token !== currentToken)
-        await Users.updateOne({ _id: currentUser._id }, { $set: { validatedTokens } });
+        validatedTokens = await validatedTokens.filter(
+          token => token !== currentToken
+        );
+        await Users.updateOne(
+          { _id: currentUser._id },
+          { $set: { validatedTokens } }
+        );
         return 'loggedout';
       }
-      
+
       return 'token not found';
     }
 

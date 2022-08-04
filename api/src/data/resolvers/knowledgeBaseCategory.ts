@@ -12,6 +12,8 @@ export const KnowledgeBaseCategory = {
     return KnowledgeBaseArticles.find({
       categoryId: category._id,
       status: PUBLISH_STATUSES.PUBLISH
+    }).sort({
+      createdDate: -1
     });
   },
 

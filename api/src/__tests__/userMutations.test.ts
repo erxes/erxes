@@ -5,12 +5,22 @@ import * as sinon from 'sinon';
 import utils, * as allUtils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
+  branchFactory,
   brandFactory,
   channelFactory,
+  departmentFactory,
+  unitFactory,
   userFactory,
   usersGroupFactory
 } from '../db/factories';
-import { Brands, Channels, Users } from '../db/models';
+import {
+  Branches,
+  Brands,
+  Channels,
+  Departments,
+  Units,
+  Users
+} from '../db/models';
 import './setup.ts';
 
 /*
@@ -296,6 +306,45 @@ describe('User mutations', () => {
     spyEmail.mockRestore();
   });
 
+  test('usersInvite (when choosing department, unit and branch, then user is going to be added them)', async () => {
+    const mutation = `
+      mutation usersInvite($entries: [InvitationEntry]) {
+        usersInvite(entries: $entries)
+      }
+    `;
+
+    const _group = await usersGroupFactory();
+    const _department = await departmentFactory({});
+    const _branch = await branchFactory({});
+    const _unit = await unitFactory({});
+
+    const params = {
+      entries: [
+        {
+          email: 'test@example.com',
+          password: strongPassword,
+          groupId: _group._id,
+          departmentId: _department._id,
+          branchId: _branch._id,
+          unitId: _unit._id
+        }
+      ]
+    };
+
+    await graphqlRequest(mutation, 'usersInvite', params, { user: _admin });
+
+    const department = await Departments.getDepartment({
+      _id: _department._id
+    });
+    const branch = await Branches.getBranch({ _id: _branch._id });
+    const unit = await Units.getUnit({ _id: _unit._id });
+    const user = await Users.findOne({ email: 'test@example.com' });
+
+    expect(department.userIds).toContain(user?._id);
+    expect(branch.userIds).toContain(user?._id);
+    expect(unit.userIds).toContain(user?._id);
+  });
+
   test('usersResendInvitation', async () => {
     process.env.MAIN_APP_DOMAIN = ' ';
     process.env.COMPANY_EMAIL_FROM = ' ';
@@ -413,6 +462,17 @@ describe('User mutations', () => {
     expect(user.links.website).toBe(doc.links.website);
 
     // if channelIds is empty
+    user = await graphqlRequest(
+      mutation,
+      'usersEdit',
+      { _id: _user._id, ...doc, channelIds: [] },
+      { user: _admin }
+    );
+    channel = await Channels.getChannel(_channel._id);
+
+    expect(channel.memberIds).not.toContain(user._id);
+
+    // if channelIds is undefined
     user = await graphqlRequest(
       mutation,
       'usersEdit',

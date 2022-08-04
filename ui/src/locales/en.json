@@ -2128,5 +2128,7 @@
   "Primary action button": "Primary action button",
   "Secondary action button": "Secondary action button",
   "Heading divider & Input focus glow": "Heading divider & Input focus glow",
-  "Active tab": "Active tab"
+  "Active tab": "Active tab",
+  "Latitude": "Latitude",
+  "Longitude": "Longitude"
 }

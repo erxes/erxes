@@ -67,20 +67,20 @@ import { taskSchema } from '../../../db/models/definitions/tasks';
 import { ticketSchema } from '../../../db/models/definitions/tickets';
 import { userSchema } from '../../../db/models/definitions/users';
 import { MODULE_NAMES } from '../../constants';
-import { fetchLogs, ILogQueryParams } from '../../logUtils';
+import { fetchLogs, getDbSchemaLabels, ILogQueryParams } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 
-interface INameLabel {
+export interface INameLabel {
   name: string;
   label: string;
 }
 
-interface ISchemaMap {
+export interface ISchemaMap {
   name: string;
   schemas: any[];
 }
 
-const LOG_MAPPINGS: ISchemaMap[] = [
+export const LOG_MAPPINGS: ISchemaMap[] = [
   {
     name: MODULE_NAMES.BOARD_DEAL,
     schemas: [attachmentSchema, boardSchema]
@@ -251,7 +251,7 @@ const LOG_MAPPINGS: ISchemaMap[] = [
 /**
  * Creates field name-label mapping list from given object
  */
-const buildLabelList = (obj = {}): INameLabel[] => {
+export const buildLabelList = (obj = {}): INameLabel[] => {
   const list: INameLabel[] = [];
   const fieldNames: string[] = Object.getOwnPropertyNames(obj);
 
@@ -274,37 +274,7 @@ const logQueries = {
   },
 
   async getDbSchemaLabels(_root, params: { type: string }) {
-    let fieldNames: INameLabel[] = [];
-
-    const found: ISchemaMap | undefined = LOG_MAPPINGS.find(
-      m => m.name === params.type
-    );
-
-    if (found) {
-      const schemas: any = found.schemas || [];
-
-      for (const schema of schemas) {
-        // schema comes as either mongoose schema or plain object
-        const names: string[] = Object.getOwnPropertyNames(
-          schema.obj || schema
-        );
-
-        for (const name of names) {
-          const field: any = schema.obj ? schema.obj[name] : schema[name];
-
-          if (field && field.label) {
-            fieldNames.push({ name, label: field.label });
-          }
-
-          // nested object field names
-          if (typeof field === 'object' && field.type && field.type.obj) {
-            fieldNames = fieldNames.concat(buildLabelList(field.type.obj));
-          }
-        }
-      } // end schema for loop
-    } // end schema name mapping
-
-    return fieldNames;
+    return getDbSchemaLabels(params.type);
   }
 };
 

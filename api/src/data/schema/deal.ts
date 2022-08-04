@@ -60,6 +60,7 @@ const commonQueryParams = `
   assignedToMe: String
   startDate: String
   endDate: String
+  hasStartAndCloseDate: Boolean
   `;
 
 const listQueryParams = `
@@ -71,12 +72,32 @@ const listQueryParams = `
     ${conformityQueryFields}
  `;
 
+const archivedDealsParams = `
+  pipelineId: String! 
+  search: String 
+  userIds: [String]
+  priorities: [String]
+  assignedUserIds: [String]
+  labelIds: [String]
+  productIds: [String]
+  companyIds: [String]
+  customerIds: [String]
+  startDate: String
+  endDate: String
+ `;
+
 export const queries = `
   dealDetail(_id: String!): Deal
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
-  archivedDeals(pipelineId: String!, search: String, page: Int, perPage: Int): [Deal]
-  archivedDealsCount(pipelineId: String!, search: String): Int
+  archivedDeals(
+    page: Int 
+    perPage: Int 
+    ${archivedDealsParams}
+  ): [Deal]
+  archivedDealsCount(
+    ${archivedDealsParams}
+  ): Int
   dealsTotalAmounts(
     ${commonQueryParams}
     ${conformityQueryFields}

@@ -13,6 +13,7 @@ const generateData = (): ISegment => ({
   description: 'New users',
   subOf: 'DFSAFDSAFDFFFD',
   color: '#fdfdfd',
+  shouldWriteActivityLog: false,
   conditions: [
     {
       type: 'property',

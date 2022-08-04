@@ -16,6 +16,7 @@ type Props = {
   type?: string;
   description?: string;
   attachments?: any[];
+  bookingProductId?: string;
 };
 
 export default function ConvertTrigger(props: Props) {
@@ -31,7 +32,8 @@ export default function ConvertTrigger(props: Props) {
     type,
     subject,
     description,
-    attachments
+    attachments,
+    bookingProductId
   } = props;
 
   if (url) {
@@ -58,6 +60,7 @@ export default function ConvertTrigger(props: Props) {
       assignedUserIds={assignedUserIds}
       sourceConversationId={sourceConversationId}
       showSelect={true}
+      bookingProductId={bookingProductId}
     />
   );
 

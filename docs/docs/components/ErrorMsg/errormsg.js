@@ -6,13 +6,12 @@ import { renderApiTable } from "../common.js";
 
 export function ErrorMsgComponent(props) {
   const { table = [], children } = props;
-
   if (children) {
     return (
       <>
-        <ErrorMsg children={children} />
+        <ErrorMsg>{children}</ErrorMsg>
         <CodeBlock className="language-jsx">
-          {`<ErrorMsg children="${children}"/>`}
+          {`<ErrorMsg>${children}</ErrorMsg>`}
         </CodeBlock>
       </>
     );
@@ -21,6 +20,5 @@ export function ErrorMsgComponent(props) {
   if (table) {
     return renderApiTable("ErrorMsg", table);
   }
-  
   return null;
 }

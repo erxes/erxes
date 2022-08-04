@@ -10,6 +10,7 @@ import {
 } from '.';
 import { KIND_CHOICES } from './definitions/constants';
 import {
+  IBookingData,
   IIntegration,
   IIntegrationDocument,
   ILeadData,
@@ -137,6 +138,15 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     get?: boolean
   ): Promise<IIntegrationDocument>;
   isOnline(integration: IIntegrationDocument, now?: Date): boolean;
+  createBookingIntegration(
+    doc: IIntegration,
+    userId: string
+  ): Promise<IIntegrationDocument>;
+  updateBookingIntegration(
+    _id: string,
+    doc: IIntegration
+  ): Promise<IIntegrationDocument>;
+  increaseBookingViewCount(_id: string): Promise<IIntegrationDocument>;
 }
 
 export const loadClass = () => {
@@ -545,6 +555,82 @@ export const loadClass = () => {
       }
 
       return false;
+    }
+
+    /**
+     * Create a booking kind integration
+     */
+    public static async createBookingIntegration(
+      { bookingData = {}, ...mainDoc }: IIntegration,
+      userId: string
+    ) {
+      // check duplication
+      const isDuplicated = await Integrations.findOne({
+        'bookingData.productCategoryId': bookingData.productCategoryId
+      });
+
+      if (isDuplicated) {
+        throw new Error('Product main category already registered!');
+      }
+
+      const doc = { ...mainDoc, kind: KIND_CHOICES.BOOKING, bookingData };
+
+      if (Object.keys(bookingData).length === 0) {
+        throw new Error('bookingData must be supplied');
+      }
+
+      return Integrations.createIntegration(doc, userId);
+    }
+
+    /**
+     * Update booking integration
+     */
+    public static async updateBookingIntegration(
+      _id: string,
+      { bookingData = {}, ...mainDoc }: IIntegration
+    ) {
+      const prevEntry = await Integrations.getIntegration({ _id });
+      const prevBookingData: IBookingData = prevEntry.bookingData || {};
+
+      // check duplication
+      const isDuplicated = await Integrations.findOne({
+        'bookingData.productCategoryId': bookingData.productCategoryId,
+        _id: { $ne: prevEntry._id }
+      });
+
+      if (isDuplicated) {
+        throw new Error('Product main category already registered!');
+      }
+
+      const doc = {
+        ...mainDoc,
+        kind: KIND_CHOICES.BOOKING,
+        bookingData: {
+          ...bookingData,
+          viewCount: prevBookingData.viewCount
+        }
+      };
+
+      await Integrations.updateOne(
+        { _id },
+        { $set: doc },
+        { runValidators: true }
+      );
+
+      return Integrations.findOne({ _id });
+    }
+
+    /**
+     * Increase booking view count
+     */
+
+    public static async increaseBookingViewCount(_id: string) {
+      await Integrations.updateOne(
+        { _id, bookingData: { $exists: true } },
+        { $inc: { 'bookingData.viewCount': 1 } }
+      );
+
+      return Integrations.findOne({ _id });
     }
   }
 

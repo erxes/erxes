@@ -3,7 +3,6 @@ import {
   Companies,
   Customers,
   Deals,
-  ImportHistory,
   Products,
   Tasks,
   Tickets
@@ -15,7 +14,7 @@ const { parentPort, workerData } = require('worker_threads');
 
 connect()
   .then(async () => {
-    const { result, contentType, importHistoryId } = workerData;
+    const { result, contentType } = workerData;
 
     switch (contentType) {
       case 'company':
@@ -41,22 +40,6 @@ connect()
         break;
       default:
         break;
-    }
-
-    await ImportHistory.updateOne(
-      { _id: importHistoryId },
-      { $pull: { ids: { $in: result } } }
-    );
-
-    const importHistory = await ImportHistory.findOne({
-      _id: importHistoryId
-    }).lean();
-
-    if (importHistory && (importHistory.ids || []).length === 0) {
-      await ImportHistory.updateOne(
-        { _id: importHistoryId },
-        { $set: { status: 'Removed' } }
-      );
     }
 
     mongoose.connection.close();

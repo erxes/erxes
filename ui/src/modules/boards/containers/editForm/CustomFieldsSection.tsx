@@ -8,8 +8,10 @@ import {
 } from 'modules/boards/types';
 import Spinner from 'modules/common/components/Spinner';
 import Sidebar from 'modules/layout/components/Sidebar';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 import GenerateCustomFields from 'modules/settings/properties/components/GenerateCustomFields';
 import { queries as fieldQueries } from 'modules/settings/properties/graphql';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { renderWithProps } from '../../../common/utils';
@@ -23,13 +25,20 @@ type Props = {
 
 type FinalProps = {
   fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  configsQuery: ConfigsQueryResponse;
   editMutation: SaveMutation;
 } & Props;
 
 const CustomFieldsSection = (props: FinalProps) => {
-  const { loading, item, fieldsGroupsQuery, editMutation } = props;
+  const {
+    loading,
+    item,
+    fieldsGroupsQuery,
+    editMutation,
+    configsQuery
+  } = props;
 
-  if (fieldsGroupsQuery.loading) {
+  if (fieldsGroupsQuery.loading || configsQuery.loading) {
     return (
       <Sidebar full={true}>
         <Spinner />
@@ -56,7 +65,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     isDetail: false,
     customFieldsData: item.customFieldsData,
-    fieldsGroups: fieldsGroupsQuery.fieldsGroups || []
+    fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
+    configs: configsQuery.configs || []
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -81,6 +91,9 @@ export default (props: Props) => {
             pipelineId: item.pipeline._id || ''
           }
         })
+      }),
+      graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+        name: 'configsQuery'
       }),
       graphql<Props, SaveMutation, IItemParams>(
         gql(options.mutations.editMutation),

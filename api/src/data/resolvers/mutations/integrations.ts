@@ -15,9 +15,11 @@ import {
 } from '../../../db/models/definitions/constants';
 import {
   IIntegration,
+  IIntegrationDocument,
   IMessengerData,
   IUiOptions
 } from '../../../db/models/definitions/integrations';
+import { IUserDocument } from '../../../db/models/definitions/users';
 import { IExternalIntegrationParams } from '../../../db/models/Integrations';
 import { debugError } from '../../../debuggers';
 import messageBroker from '../../../messageBroker';
@@ -31,7 +33,8 @@ import {
 } from '../../logUtils';
 import { checkPermission } from '../../permissions/wrappers';
 import { IContext } from '../../types';
-import { registerOnboardHistory, replaceEditorAttributes } from '../../utils';
+import { registerOnboardHistory } from '../../utils';
+import EditorAttributeUtil from '../../editorAttributeUtils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -48,6 +51,66 @@ interface ISmsParams {
   to: string;
 }
 
+const createIntegration = async (
+  doc: IIntegration,
+  integration: IIntegrationDocument,
+  user: IUserDocument,
+  type: string
+) => {
+  if (doc.channelIds) {
+    await Channels.updateMany(
+      { _id: { $in: doc.channelIds } },
+      { $push: { integrationIds: integration._id } }
+    );
+  }
+
+  await putCreateLog(
+    {
+      type: MODULE_NAMES.INTEGRATION,
+      newData: { ...doc, createdUserId: user._id, isActive: true },
+      object: integration
+    },
+    user
+  );
+
+  telemetry.trackCli('integration_created', { type });
+
+  await registerOnboardHistory({ type: `${type}IntegrationCreated`, user });
+
+  return integration;
+};
+
+const editIntegration = async (
+  fields: IIntegration,
+  integration: IIntegrationDocument,
+  user: IUserDocument,
+  updated: IIntegrationDocument
+) => {
+  await Channels.updateMany(
+    { integrationIds: integration._id },
+    { $pull: { integrationIds: integration._id } }
+  );
+
+  if (fields.channelIds) {
+    await Channels.updateMany(
+      { _id: { $in: fields.channelIds } },
+      { $push: { integrationIds: integration._id } }
+    );
+  }
+
+  await putUpdateLog(
+    {
+      type: MODULE_NAMES.INTEGRATION,
+      object: integration,
+      newData: fields,
+      updatedDocument: updated
+    },
+    user
+  );
+
+  return updated;
+};
+
 const integrationMutations = {
   /**
    * Creates a new messenger integration
@@ -62,27 +125,7 @@ const integrationMutations = {
       user._id
     );
 
-    if (doc.channelIds) {
-      await Channels.updateMany(
-        { _id: { $in: doc.channelIds } },
-        { $push: { integrationIds: integration._id } }
-      );
-    }
-
-    await putCreateLog(
-      {
-        type: MODULE_NAMES.INTEGRATION,
-        newData: { ...doc, createdUserId: user._id, isActive: true },
-        object: integration
-      },
-      user
-    );
-
-    telemetry.trackCli('integration_created', { type: 'messenger' });
-
-    await registerOnboardHistory({ type: 'messengerIntegrationCreate', user });
-
-    return integration;
+    return createIntegration(doc, integration, user, 'messenger');
   },
 
   /**
@@ -96,29 +139,7 @@ const integrationMutations = {
     const integration = await Integrations.getIntegration({ _id });
     const updated = await Integrations.updateMessengerIntegration(_id, fields);
 
-    await Channels.updateMany(
-      { integrationIds: integration._id },
-      { $pull: { integrationIds: integration._id } }
-    );
-
-    if (fields.channelIds) {
-      await Channels.updateMany(
-        { _id: { $in: fields.channelIds } },
-        { $push: { integrationIds: integration._id } }
-      );
-    }
-
-    await putUpdateLog(
-      {
-        type: MODULE_NAMES.INTEGRATION,
-        object: integration,
-        newData: fields,
-        updatedDocument: updated
-      },
-      user
-    );
-
-    return updated;
+    return editIntegration(fields, integration, user, updated);
   },
 
   /**
@@ -151,27 +172,7 @@ const integrationMutations = {
   ) {
     const integration = await Integrations.createLeadIntegration(doc, user._id);
 
-    if (doc.channelIds) {
-      await Channels.updateMany(
-        { _id: { $in: doc.channelIds } },
-        { $push: { integrationIds: integration._id } }
-      );
-    }
-
-    await putCreateLog(
-      {
-        type: MODULE_NAMES.INTEGRATION,
-        newData: { ...doc, createdUserId: user._id, isActive: true },
-        object: integration
-      },
-      user
-    );
-
-    telemetry.trackCli('integration_created', { type: 'lead' });
-
-    await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
-
-    return integration;
+    return createIntegration(doc, integration, user, 'lead');
   },
 
   /**
@@ -179,25 +180,14 @@ const integrationMutations = {
    */
   async integrationsEditLeadIntegration(
     _root,
-    { _id, ...doc }: IEditIntegration
+    { _id, ...doc }: IEditIntegration,
+    { user }: IContext
   ) {
     const integration = await Integrations.getIntegration({ _id });
 
     const updated = await Integrations.updateLeadIntegration(_id, doc);
 
-    await Channels.updateMany(
-      { integrationIds: integration._id },
-      { $pull: { integrationIds: integration._id } }
-    );
-
-    if (doc.channelIds) {
-      await Channels.updateMany(
-        { _id: { $in: doc.channelIds } },
-        { $push: { integrationIds: integration._id } }
-      );
-    }
-
-    return updated;
+    return editIntegration(doc, integration, user, updated);
   },
 
   /**
@@ -432,7 +422,7 @@ const integrationMutations = {
       });
     }
 
-    const { replacedContent } = await replaceEditorAttributes({
+    const replacedContent = await new EditorAttributeUtil().replaceAttributes({
       content: body,
       user,
       customer: customer || undefined
@@ -621,6 +611,36 @@ const integrationMutations = {
     await registerOnboardHistory({ type: 'leadIntegrationCreate', user });
 
     return copiedIntegration;
+  },
+  /**
+   * Create a new booking integration
+   */
+  async integrationsCreateBookingIntegration(
+    _root,
+    doc: IIntegration,
+    { user }: IContext
+  ) {
+    const integration = await Integrations.createBookingIntegration(
+      doc,
+      user._id
+    );
+
+    return createIntegration(doc, integration, user, 'booking');
+  },
+
+  /**
+   * Edit a boooking integration
+   */
+  async integrationsEditBookingIntegration(
+    _root,
+    { _id, ...doc }: IEditIntegration,
+    { user }: IContext
+  ) {
+    const integration = await Integrations.getIntegration({ _id });
+
+    const updated = await Integrations.updateBookingIntegration(_id, doc);
+
+    return editIntegration(doc, integration, user, updated);
   }
 };
 
@@ -673,6 +693,16 @@ checkPermission(
   integrationMutations,
   'integrationsCopyLeadIntegration',
   'integrationsCreateLeadIntegration'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsCreateBookingIntegration',
+  'integrationsCreateBookingIntegration'
+);
+checkPermission(
+  integrationMutations,
+  'integrationsEditBookingIntegration',
+  'integrationsEditBookingIntegration'
 );
 
 export default integrationMutations;

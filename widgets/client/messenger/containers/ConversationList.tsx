@@ -31,6 +31,9 @@ class ConversationList extends React.PureComponent<
           const createConversation = () => {
             changeRoute("conversationCreate");
           };
+          const goToHome = () => {
+            changeRoute("home");
+          };
 
           return (
             <DumbConversationList
@@ -39,6 +42,7 @@ class ConversationList extends React.PureComponent<
               conversations={conversations}
               goToConversation={goToConversation}
               createConversation={createConversation}
+              goToHome={goToHome}
             />
           );
         }}

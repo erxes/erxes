@@ -126,6 +126,7 @@ const SubHeading = styled.h4`
     font-weight: normal;
     margin-top: ${dimensions.unitSpacing}px;
     color: ${colors.colorCoreGray};
+    font-size: 12px;
   }
 `;
 

@@ -12,6 +12,8 @@ module.exports = {
     knowledgebaseWidget: './client/knowledgebase/widget/index.ts',
     events: './client/events/index.ts',
     eventsWidget: './client/events/widget/index.ts',
+    booking: './client/booking/index.ts',
+    bookingWidget: './client/booking/widget/index.ts'
   },
 
   output: {
@@ -50,6 +52,10 @@ module.exports = {
         use: ['style-loader', 'css-loader', 'sass-loader'],
         exclude: [/node_modules/]
       },
+      {
+        test: /\.(eot|woff|woff2|ttf|svg|png|jpg|gif)$/,
+        loader: 'url-loader?limit=30000&name=[name]-[hash].[ext]'
+      }
     ],
   },
 

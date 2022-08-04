@@ -11,11 +11,14 @@ import DashboardList from '../components/DashboardList';
 import { mutations, queries } from '../graphql';
 import {
   DashboardsQueryResponse,
+  IDashboard,
   RemoveDashboardMutationResponse
 } from '../types';
 
 type Props = {
   currentDashboard?: string;
+  dashboard: IDashboard;
+  dashboards: IDashboard[];
 } & IRouterProps;
 
 type FinalProps = {

@@ -16,14 +16,14 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Build base docker image
-      env:
-        BASE_IMAGE: nginx:1.18-alpine
-        TAG_VERSION: base-1.18-alpine
-      run: |
-        cd ui
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:$TAG_VERSION -f base.Dockerfile .
-        docker push erxes/erxes:$TAG_VERSION
+      - name: Build base docker image
+        env:
+          BASE_IMAGE: nginx:1.18-alpine
+          TAG_VERSION: base-1.18-alpine
+        run: |
+          cd ui
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:$TAG_VERSION -f base.Dockerfile .
+          docker push erxes/erxes:$TAG_VERSION

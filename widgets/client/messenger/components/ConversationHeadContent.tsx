@@ -12,6 +12,8 @@ type Props = {
   loading?: boolean;
   expanded: boolean;
   toggleExpand: () => void;
+  showTimezone?: boolean;
+  serverTime?: string;
 };
 
 class ConversationHeadContent extends React.Component<Props> {
@@ -32,7 +34,7 @@ class ConversationHeadContent extends React.Component<Props> {
   }
 
   withComponent(isExpanded: boolean) {
-    const { supporters, isOnline, color, loading, participators } = this.props;
+    const { supporters, isOnline, color, loading, participators, showTimezone, serverTime } = this.props;
 
     let content = (
       <>
@@ -53,6 +55,8 @@ class ConversationHeadContent extends React.Component<Props> {
           user={participators[0]}
           isOnline={isOnline}
           isExpanded={isExpanded}
+          showTimezone={showTimezone}
+          serverTime={serverTime}
         />
       );
     }

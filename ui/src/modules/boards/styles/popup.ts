@@ -16,6 +16,14 @@ const buttonColor = name => {
     return lighten(colors.colorCoreYellow, 10);
   }
 
+  if (name === 'blue') {
+    return lighten(colors.colorCoreBlue, 10);
+  }
+
+  if (name === 'teal') {
+    return lighten(colors.colorCoreTeal, 10);
+  }
+
   return colors.colorCoreLightGray;
 };
 
@@ -48,7 +56,7 @@ export const CloseDateLabel = styled(Button)`
 `;
 
 export const CheckBoxWrapper = styled.span`
-  margin-right: 10px;
+  margin-left: 10px;
 `;
 
 export const CalenderWrapper = styled.div`

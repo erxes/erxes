@@ -72,6 +72,7 @@ export interface ISegmentDoc {
   conditionsConjunction: string;
   boardId: string;
   pipelineId: string;
+  shouldWriteActivityLog: boolean;
 }
 
 export interface ISegment extends ISegmentDoc {

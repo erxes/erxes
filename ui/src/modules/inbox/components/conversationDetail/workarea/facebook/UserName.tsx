@@ -7,13 +7,13 @@ type Props = {
 
 class UserName extends React.Component<Props, {}> {
   render() {
-    const { username, userId } = this.props;
+    const { username } = this.props;
 
     return (
       <a
         target="_blank"
         rel="noopener noreferrer"
-        href={`https://facebook.com/${username}-${userId}`}
+        href={`https://www.facebook.com/search/top/?q=${username}`}
       >
         {username}
       </a>

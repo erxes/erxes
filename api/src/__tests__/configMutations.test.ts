@@ -14,7 +14,7 @@ describe('Test configs mutations', () => {
     `;
 
     await graphqlRequest(mutation, 'configsUpdate', {
-      configsMap: { UPLOAD_SERVICE_TYPE: ['local'], '': '' }
+      configsMap: { UPLOAD_SERVICE_TYPE: ['local'], '': '', THEME_LOGO: 'logo' }
     });
 
     const uploadConfig = await Configs.getConfig('UPLOAD_SERVICE_TYPE');
