@@ -14,10 +14,8 @@ import { RemoveMutationResponse } from '../types';
 
 type Props = { history: any; queryParams: any; voucherCampaignId: string };
 type FinalProps = {
-  voucherCampaignDetail: any;
   doLottery: any;
   lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
-  // lotteryCampaignWinnerList: any;
   multipledoLottery: any;
 } & Props &
   IRouterProps &
@@ -25,7 +23,6 @@ type FinalProps = {
 
 type State = {
   loading: boolean;
-  voucherDetail: Object;
 };
 class AwardContainer extends React.Component<FinalProps, State> {
   constructor(props) {
@@ -33,20 +30,8 @@ class AwardContainer extends React.Component<FinalProps, State> {
 
     this.state = {
       loading: false,
-      voucherDetail: {}
     };
-    this.voucherDetail = this.voucherDetail.bind(this);
     this.doLotteries = this.doLotteries.bind(this);
-  }
-  voucherDetail(variables: any) {
-    this.props.voucherCampaignDetail
-      .refetch({
-        _id: variables
-      })
-      .then(res => {
-        const { voucherCampaignDetail } = res.data;
-        this.setState({ voucherDetail: voucherCampaignDetail });
-      });
   }
   doLotteries(variables: any) {
     this.props.doLottery({ variables }).then(() => {});
@@ -59,14 +44,12 @@ class AwardContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      voucherDetail: this.state.voucherDetail,
       lotteryCampaign: this.props.lotteryCampaignDetailQuery.lotteryCampaignDetail,
-      loadVoucherCampaingDetail: this.voucherDetail,
       doLotteries: this.doLotteries
     };
 
     const refetch = () => {
-      this.props.voucherCampaignDetail.refetch();
+      this.props.lotteryCampaignDetailQuery.refetch();
     };
 
     const list = props => {
@@ -101,13 +84,5 @@ export default withProps<Props>(
       }),
       skip: ({ queryParams }) => !queryParams.campaignId
     }),
-    graphql<Props, LotteryCampaignDetailQueryResponse>(gql(VoucherQuery.voucherCampaignDetail), {
-      name: 'voucherCampaignDetail',
-      options: ({ voucherCampaignId }) => ({
-        variables: {
-          _id: voucherCampaignId
-        }
-      })
-    })
   )(withRouter<IRouterProps>(AwardContainer))
 );

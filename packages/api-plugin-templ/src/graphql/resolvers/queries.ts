@@ -1,21 +1,23 @@
 import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
+import { IContext } from '../../connectionResolver';
 
-import { {Name}s } from '../../models'
-
-const {name}Queries = {
-  {name}s(
+const templateQueries = {
+  templates(
     _root,
+    _args,
+    { models }: IContext
   ) {
-    return {Name}s.find();
+    return models.Templates.find({});
   },
-  {name}sTotalCount(_root, _args) {
-    return {Name}s.find({}).countDocuments();
+
+  templatesTotalCount(_root, _args, { models }: IContext) {
+    return models.Templates.find({}).countDocuments();
   }
 };
 
-requireLogin({name}Queries, '{name}s');
-requireLogin({name}Queries, '{name}sTotalCount');
+requireLogin(templateQueries, 'templates');
+requireLogin(templateQueries, 'templatesTotalCount');
 
-export default {name}Queries;
+export default templateQueries;
