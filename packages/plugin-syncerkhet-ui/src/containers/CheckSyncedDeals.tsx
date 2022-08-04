@@ -62,6 +62,7 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
             s => s.dealId
           );
           this.setState({ unSyncedDealIds });
+          Alert.success('Check finished');
         })
         .catch(e => {
           Alert.error(e.message);
