@@ -103,7 +103,7 @@ const ListHeader = styled.div`
 `;
 
 const ListTitle = styled.b`
-  height: ${typography.lineHeightHeading5};
+  font-size: ${typography.fontSizeHeading6}px;
 `;
 
 const ColorText = styled.b`
@@ -128,9 +128,10 @@ const Card = styled.div`
   width: inherit;
   padding: ${dimensions.unitSpacing}px;
   color: ${colors.textPrimary};
+  border-radius: 8px;
 
   &:hover {
-    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
+    box-shadow: 0 5px 15px ${rgba(colors.colorCoreDarkGray, 0.12)};
     cursor: pointer;
   }
 `;
@@ -143,12 +144,21 @@ const PluginPic = styled.img`
 const PluginInformation = styled.div`
   margin-top: ${dimensions.unitSpacing}px;
 
+  .title {
+    font-size: 14px;
+  }
+
   b {
     text-transform: capitalize;
   }
 
   p {
     margin: 0;
+
+    .gray {
+      color: ${colors.textSecondary};
+      line-height: 25px;
+    }
   }
 `;
 
@@ -167,6 +177,9 @@ const DetailMainContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.coreSpacing}px;
   overflow-x: hidden;
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const PluginTitle = styled.div`
@@ -177,7 +190,7 @@ const PluginTitle = styled.div`
   img {
     width: 80px;
     height: 80px;
-    margin: ${dimensions.coreSpacing}px;
+    margin-right: ${dimensions.coreSpacing}px;
   }
 
   b {
@@ -214,6 +227,9 @@ const Center = styled.div`
 const DetailInformation = styled.div`
   display: flex;
   flex-direction: column;
+  b {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const Hashtag = styled.div`
@@ -236,9 +252,10 @@ const Detail = styled.div`
 // Carousel
 
 const CarouselWrapper = styled.div`
-  height: 250px;
+  height: 300px;
   width: 100%;
   padding-bottom: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.coreSpacing}px 0;
 
   display: flex;
   justify-content: center;
@@ -249,20 +266,26 @@ const CarouselWrapper = styled.div`
 const Buttons = styledTS<{ placement?: string }>(styled.div)`
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 280px;
   display: flex;
   justify-content: ${props => props.placement};
   align-items: center;
 `;
 
-const SliderButton = styledTS<{ active?: boolean }>(styled.div)`
-  display: ${props => !props.active && 'none'};
+const SliderButton = styledTS<{ active?: boolean; left?: boolean }>(styled.div)`
+  display: ${props => (!props.active ? 'none' : 'flex')};
+  color: ${colors.colorWhite};
+  height: 100%;
+  width: 100px;
+  justify-content:center;
+  align-items: center;
 
   &:hover {
     cursor: pointer;
-    i {
-      color: ${colors.colorPrimary};
-    }
+    background-image: ${props =>
+      props.left
+        ? 'linear-gradient(to left, rgba(0,0,0,0), rgba(0,0,0,0.5));'
+        : 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.5))'};
   }
 `;
 
@@ -288,9 +311,13 @@ const Dot = styledTS<{ active: boolean }>(styled.div)`
   }
 `;
 
-const Image = styled.img`
-  height: 230px;
-  max-width: calc(100% - 50px);
+const Image = styledTS<{ image?: string }>(styled.div)`
+  height: 280px;
+  width: 100%;
+  background-image: url(${props => props.image});
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 `;
 
 // Detail right sidebar

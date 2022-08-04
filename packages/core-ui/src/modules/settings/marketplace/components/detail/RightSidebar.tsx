@@ -63,7 +63,7 @@ export default class RightSidebar extends React.Component<Props> {
             target="_blank"
             btnStyle="simple"
           >
-            <Icon icon="twitter-alt" size={20} />
+            <Icon icon="twitter" size={20} />
             Twitter
           </Button>
         </PluginContainer>
