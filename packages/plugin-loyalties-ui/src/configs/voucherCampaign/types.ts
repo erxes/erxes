@@ -35,7 +35,7 @@ export type VoucherCampaignQueryResponse = {
 };
 
 export type VoucherCampaignDetailQueryResponse = {
-  voucherCampaignDetail: IVoucherCampaign;
+  voucherCampaignDetail: IVoucherCampaign[];
   loading: boolean;
   refetch: () => void;
 };

@@ -81,6 +81,7 @@ const FormContainer = (props: FinalProps) => {
   const save = (
     name: string,
     description: string,
+    siteId: string,
     html: string,
     css: string,
     jsonData
@@ -90,6 +91,7 @@ const FormContainer = (props: FinalProps) => {
     const variables: any = {
       name,
       description,
+      siteId,
       html,
       css,
       jsonData

@@ -51,6 +51,7 @@ class Pages extends React.Component<Props, {}> {
             <tr>
               <th>{__('Name')}</th>
               <th>{__('Description')}</th>
+              <th>{__('Site')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
@@ -59,7 +60,7 @@ class Pages extends React.Component<Props, {}> {
       </>
     );
 
-    if (pages.length === 0) {
+    if (pagesCount < 1) {
       content = (
         <EmptyState
           image="/images/actions/8.svg"

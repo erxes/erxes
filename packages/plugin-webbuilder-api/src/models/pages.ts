@@ -50,17 +50,10 @@ export const loadPageClass = (models: IModels) => {
       }
     }
 
-    public static async createPage(doc) {
+    public static async createPage(doc: IPage) {
       await this.checkDuplication(doc.name);
 
-      let site = await models.Sites.findOne({});
-
-      if (!site) {
-        await models.Sites.create({ name: 'web' });
-        site = await models.Sites.findOne({});
-      }
-
-      return models.Pages.create({ siteId: site?._id, ...doc });
+      return models.Pages.create(doc);
     }
 
     public static async updatePage(_id: string, doc) {

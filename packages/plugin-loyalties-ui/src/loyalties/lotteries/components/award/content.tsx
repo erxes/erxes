@@ -6,16 +6,16 @@ import {
   FormGroup,
   Wrapper
 } from '@erxes/ui/src';
+import { AwardContainer, Card } from '../../../../styles';
+
+import AwardList from './list';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
-import { AwardContainer, Card } from '../../../../styles';
-import AwardList from './list';
 
 type State = {
   multiple: number;
   isOpenNextChar: boolean;
   isOpenInput: boolean;
-  IsDisabledStartBtn: boolean;
 };
 
 interface IProps extends IRouterProps {
@@ -42,16 +42,9 @@ class AwardContentComponent extends React.Component<IProps, State> {
     this.state = {
       multiple: 0,
       isOpenNextChar: false,
-      isOpenInput: false,
-      IsDisabledStartBtn: false
+      isOpenInput: false
     };
   }
-
-  componentDidMount = () => {
-    if (this.props.list.length === 0) {
-      this.setState({ IsDisabledStartBtn: true });
-    }
-  };
 
   render() {
     const {
@@ -68,12 +61,7 @@ class AwardContentComponent extends React.Component<IProps, State> {
       getNextChar,
       nextChar
     } = this.props;
-    const {
-      multiple,
-      isOpenNextChar,
-      isOpenInput,
-      IsDisabledStartBtn
-    } = this.state;
+    const { multiple, isOpenNextChar, isOpenInput } = this.state;
 
     const actionbarLotteryRight = () => {
       return (
@@ -192,7 +180,10 @@ class AwardContentComponent extends React.Component<IProps, State> {
       <>
         <Wrapper.ActionBar
           left={
-            <Button disabled={IsDisabledStartBtn} onClick={() => doLottery()}>
+            <Button
+              disabled={!this.props.list.length}
+              onClick={() => doLottery()}
+            >
               {BtnText()}
             </Button>
           }

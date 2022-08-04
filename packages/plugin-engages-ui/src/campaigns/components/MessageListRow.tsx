@@ -171,11 +171,14 @@ class Row extends React.Component<Props> {
     let labelStyle = 'primary';
     let labelText = 'Sending';
 
-    if (!isLive && isDraft) {
+    if (isDraft === true) {
+      return <Label lblStyle="simple">{__('Draft')}</Label>;
+    }
+
+    if (!isLive) {
       labelStyle = 'simple';
       labelText = 'Paused';
-    }
-    if (isLive && !isDraft) {
+    } else {
       labelStyle = 'primary';
       labelText = 'Sending';
     }
@@ -184,6 +187,9 @@ class Row extends React.Component<Props> {
       if (runCount > 0) {
         labelStyle = 'success';
         labelText = 'Sent';
+      } else {
+        labelStyle = 'danger';
+        labelText = 'Not Sent';
       }
     }
 
@@ -233,11 +239,12 @@ class Row extends React.Component<Props> {
     }
 
     const kind = MESSAGE_KIND_FILTERS.find(item => item.name === msg.kind);
+
     return (
       <div>
         <Icon icon={icon} /> {label}
         <HelperText>
-          <Icon icon="clipboard-notes" /> {kind && kind.text} Campaign
+          <Icon icon="clipboard-notes" /> {kind && kind.text}
         </HelperText>
       </div>
     );
@@ -245,11 +252,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { isChecked, message, remove } = this.props;
-    const {
-      brand = { name: '' },
-      scheduleDate,
-      totalCustomersCount = 0
-    } = message;
+    const { brand = { name: '' }, scheduleDate, totalCustomersCount } = message;
 
     return (
       <tr key={message._id}>
@@ -261,10 +264,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>
-          <RowTitle onClick={this.onClick}>
-            {message.title}{' '}
-            {message.isDraft && <Label lblStyle="simple">Draft</Label>}
-          </RowTitle>
+          <RowTitle onClick={this.onClick}>{message.title}</RowTitle>
           {this.renderBrands(message)}
           {this.renderSegments(message)}
           {this.renderMessengerRules(message)}
@@ -272,7 +272,7 @@ class Row extends React.Component<Props> {
         <td>{this.renderStatus()}</td>
         <td className="text-primary">
           <Icon icon="cube-2" />
-          <b> {s.numberFormat(totalCustomersCount)}</b>
+          <b> {s.numberFormat(totalCustomersCount || 0)}</b>
         </td>
         <td>{this.renderType(message)}</td>
         <td>

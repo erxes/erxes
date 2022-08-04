@@ -24,6 +24,7 @@ type State = {
   displayName: string;
   code: string;
   fields: any;
+  siteId: string;
 };
 
 class ContentTypeForm extends React.Component<Props, State> {
@@ -40,14 +41,15 @@ class ContentTypeForm extends React.Component<Props, State> {
     this.state = {
       displayName: contentType.displayName || '',
       code: contentType.code || '',
-      fields: fields || []
+      fields: fields || [],
+      siteId: contentType.siteId
     };
   }
 
   handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { displayName, code, fields } = this.state;
+    const { displayName, code, fields, siteId } = this.state;
     const { contentType } = this.props;
 
     if (!code) {
@@ -57,7 +59,8 @@ class ContentTypeForm extends React.Component<Props, State> {
     const doc = {
       displayName,
       code,
-      fields
+      fields,
+      siteId
     } as any;
 
     if (contentType) {
@@ -96,7 +99,7 @@ class ContentTypeForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { displayName, code } = this.state;
+    const { displayName, code, siteId } = this.state;
     const { contentType } = this.props;
 
     const breadcrumb = [{ title: __('Content types'), link: '/contenttypes' }];
@@ -117,6 +120,7 @@ class ContentTypeForm extends React.Component<Props, State> {
                   displayName={displayName}
                   code={code}
                   fields={this.state.fields}
+                  siteId={siteId}
                 />
               </Step>
             </Steps>

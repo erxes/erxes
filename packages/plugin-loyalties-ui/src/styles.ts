@@ -98,6 +98,7 @@ export const Row = styled.div`
 export const Badge = styled.div`
   border-radius: 15px;
   background-color: ${props => props.color};
+  font-size: 11px;
   max-width: 50px;
   color: white;
   text-align: center;
