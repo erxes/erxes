@@ -54,7 +54,7 @@
 
 Achieving growth and unity within your company is possible with erxes. 
 
-<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
+
 
 - **100% free & sustainable** erxes offers a sustainable business model in </br> which both developers and users win. Fair-code is like open source software, but better.
 - **100% customizable** Our fair-code nature and plugin architecture provide unlimited customization and let you meet all your needs, no matter how specific they are.
@@ -84,7 +84,7 @@ erxes is composed of 2 main components: XOS & Plugins
 
 **XOS Plugins:** Erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from after you’ve installed XOS:
 
-- Team Inbox - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.  
+- Team Inbox - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">  
 - Messenger - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
 - Card Pipeline - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
 - Lead generation - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
