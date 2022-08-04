@@ -1,23 +1,25 @@
+import { IContext } from '../../connectionResolver';
 import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { {Name}s, I{Name} } from '../../models';
+import { ITemplate } from '../../models/definitions/template';
 
-const {name}Mutations = {
+const templateMutations = {
   /**
-   * Creates a new {name}
+   * Creates a new template
    */
-  async {name}sAdd(
+  async templatesAdd(
     _root,
-    doc: I{Name},
+    doc: ITemplate,
+    { models }: IContext
   ) {
-    const {name} = await {Name}s.create{Name}(doc);
+    const template = await models.Templates.createTemplate(doc);
 
-    return {name};
+    return template;
   },
 
 };
 
-requireLogin({name}Mutations, '{name}sAdd');
+requireLogin(templateMutations, 'templatesAdd');
 
-export default {name}Mutations;
+export default templateMutations;
