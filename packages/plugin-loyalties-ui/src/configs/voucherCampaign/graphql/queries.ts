@@ -37,7 +37,7 @@ const voucherCampaignsCount = `
 `;
 
 const voucherCampaignDetail = `
-  query VoucherCampaignDetail($id: [String]) {
+  query VoucherCampaignDetail($id: String) {
     voucherCampaignDetail(_id: $id) {
       ${voucherCampaignFields}
     }

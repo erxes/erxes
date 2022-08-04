@@ -12,7 +12,7 @@ type Props = { queryParams: any };
 
 type FinalProps = {
   lotteryCampaign: any;
-  voucherCampaignDetail: any;
+  voucherCampaigns: any;
 };
 class AwardDetail extends React.Component<FinalProps, Props> {
   constructor(props) {
@@ -20,10 +20,10 @@ class AwardDetail extends React.Component<FinalProps, Props> {
   }
 
   render() {
-    const { voucherCampaignDetail, lotteryCampaign } = this.props;
+    const { voucherCampaigns, lotteryCampaign } = this.props;
     const updatedProps = {
-      loading: voucherCampaignDetail.loading,
-      data: voucherCampaignDetail.voucherCampaignDetail,
+      loading: voucherCampaigns.loading,
+      data: voucherCampaigns.voucherCampaigns,
       lotteryCampaign: lotteryCampaign
     };
 
@@ -37,7 +37,7 @@ class AwardDetail extends React.Component<FinalProps, Props> {
 
 const generateParams = ({ queryParams }) => ({
   ...router.generatePaginationParams(queryParams || {}),
-  id: queryParams.ids,
+  _ids: queryParams.ids,
   campaignId: queryParams.campaignId,
   awardId: queryParams.awardId,
   status: queryParams.status,
@@ -51,8 +51,8 @@ const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: [string] }>(gql(queries.voucherCampaignDetail), {
-      name: 'voucherCampaignDetail',
+    graphql<{ queryParams: [string] }>(gql(queries.voucherCampaigns), {
+      name: 'voucherCampaigns',
       options: ({ queryParams }) => ({
         variables: generateParams({ queryParams }),
         fetchPolicy: 'network-only'
