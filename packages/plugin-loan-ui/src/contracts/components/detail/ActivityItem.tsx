@@ -1,4 +1,4 @@
-import { IActivityLog } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import PerInvoice from '../../../invoices/containers/PerInvoice';
 import React from 'react';
 

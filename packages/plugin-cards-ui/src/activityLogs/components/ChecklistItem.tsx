@@ -3,9 +3,9 @@ import {
   ActivityRow,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui-log/activityLogs/styles';
+} from '@erxes/ui-log/src/activityLogs/styles';
 
-import { IActivityLogItemProps } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import dayjs from 'dayjs';

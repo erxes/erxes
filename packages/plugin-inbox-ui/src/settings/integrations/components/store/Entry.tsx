@@ -16,7 +16,7 @@ import React from 'react';
 import TelnyxForm from '../../containers/telnyx/TelnyxForm';
 import Twitter from '../../containers/twitter/Twitter';
 import { __ } from 'coreui/utils';
-import { formatText } from '@erxes/ui-log/activityLogs/utils';
+import { formatText } from '@erxes/ui-log/src/activityLogs/utils';
 
 type TotalCount = {
   messenger: number;

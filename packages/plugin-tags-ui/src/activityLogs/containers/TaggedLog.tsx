@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 
-import { IActivityLogItemProps } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import TaggedLog from '../component/TaggedLog';

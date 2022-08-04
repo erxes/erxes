@@ -1,5 +1,5 @@
 import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { ICompany } from '../../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';

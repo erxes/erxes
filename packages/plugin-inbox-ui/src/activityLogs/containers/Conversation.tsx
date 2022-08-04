@@ -7,7 +7,7 @@ import {
 } from '@erxes/ui-inbox/src/inbox/types';
 
 import Conversation from '../components/Conversation';
-import { IActivityLog } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';

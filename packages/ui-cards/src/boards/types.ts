@@ -4,7 +4,7 @@ import {
   QueryResponse
 } from '@erxes/ui/src/types';
 
-import { IActivityLog } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ISavedConformity } from '../conformity/types';

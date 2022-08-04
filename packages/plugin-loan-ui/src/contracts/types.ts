@@ -1,7 +1,7 @@
 import {
   IActivityLog,
   IActivityLogForMonth
-} from '@erxes/ui-log/activityLogs/types';
+} from '@erxes/ui-log/src/activityLogs/types';
 
 import { IContractTypeDoc } from '../contractTypes/types';
 import { IInsuranceType } from '../insuranceTypes/types';

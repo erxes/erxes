@@ -15,7 +15,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditorCK from '../containers/EditorCK';
 import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import HelpPopover from '@erxes/ui/src/components/HelpPopover';

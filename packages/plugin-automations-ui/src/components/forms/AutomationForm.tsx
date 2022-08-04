@@ -34,7 +34,7 @@ import ActionDetailForm from './actions/ActionDetailForm';
 import ActionsForm from '../../containers/forms/actions/ActionsForm';
 import Button from '@erxes/ui/src/components/Button';
 import Confirmation from '../../containers/forms/Confirmation';
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import Form from '@erxes/ui/src/components/form/Form';
 import { FormControl } from '@erxes/ui/src/components/form';
 import Histories from '../../components/histories/Wrapper';

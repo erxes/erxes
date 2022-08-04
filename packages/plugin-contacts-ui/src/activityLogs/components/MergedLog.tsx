@@ -2,10 +2,10 @@ import {
   ActivityDate,
   FlexCenterContent,
   MergedContacts
-} from '@erxes/ui-log/activityLogs/styles';
+} from '@erxes/ui-log/src/activityLogs/styles';
 import { __, renderFullName, renderUserFullName } from '@erxes/ui/src/utils';
 
-import { IActivityLogItemProps } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';

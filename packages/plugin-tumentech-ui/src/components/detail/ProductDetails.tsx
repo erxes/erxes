@@ -1,7 +1,7 @@
 import { Wrapper, __ } from '@erxes/ui/src';
 
-import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 import { IProduct } from '../../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';

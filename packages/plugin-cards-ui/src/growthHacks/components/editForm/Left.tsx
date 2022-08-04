@@ -1,8 +1,8 @@
 import { IGrowthHack, IGrowthHackParams } from '../../types';
 import { __, extractAttachment } from 'coreui/utils';
 
-import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 import Checklists from '@erxes/ui-cards/src/checklists/containers/Checklists';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';

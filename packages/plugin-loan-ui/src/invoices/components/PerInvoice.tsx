@@ -1,4 +1,7 @@
-import { ActivityIcon, ActivityRow } from '@erxes/ui-log/activityLogs/styles';
+import {
+  ActivityIcon,
+  ActivityRow
+} from '@erxes/ui-log/src/activityLogs/styles';
 import { Alert, Button, Icon, ModalTrigger, __, confirm } from '@erxes/ui/src';
 import {
   ItemDesc,
@@ -7,7 +10,7 @@ import {
   ScheduleItem
 } from '../../contracts/styles';
 
-import { IActivityLog } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import InvoiceForm from '../containers/InvoiceForm';
 import React from 'react';
 import TransactionForm from '../../transactions/containers/TransactionForm';

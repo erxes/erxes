@@ -23,7 +23,7 @@ const ActivityInputs = asyncComponent(
   () =>
     isEnabled('logs') &&
     path.resolve(
-      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/activityLogs/components/ActivityInputs'
+      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
     )
 );
 
@@ -31,7 +31,7 @@ const ActivityLogs = asyncComponent(
   () =>
     isEnabled('logs') &&
     path.resolve(
-      /* webpackChunkName: "ActivityLogs" */ '@@erxes/ui-log/activityLogs/containers/ActivityLogs'
+      /* webpackChunkName: "ActivityLogs" */ '@@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
     )
 );
 

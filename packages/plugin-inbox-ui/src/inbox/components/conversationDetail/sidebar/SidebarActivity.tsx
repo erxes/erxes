@@ -1,6 +1,6 @@
 import { ActivityLogContent, NoteFormContainer } from './styles';
 
-import ActivityList from '@erxes/ui-log/activityLogs/components/ActivityList';
+import ActivityList from '@erxes/ui-log/src/activityLogs/components/ActivityList';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';

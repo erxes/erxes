@@ -1,5 +1,5 @@
-import ActivityInputs from '@erxes/ui-log/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui-log/activityLogs/containers/ActivityLogs';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import LeftSidebar from './LeftSidebar';

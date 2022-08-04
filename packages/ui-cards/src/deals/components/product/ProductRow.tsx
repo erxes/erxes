@@ -1,6 +1,6 @@
 import { RemoveRow, TypeBox } from '../../styles';
 
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import { IProductData } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';

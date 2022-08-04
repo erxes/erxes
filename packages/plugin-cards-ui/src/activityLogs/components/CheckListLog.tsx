@@ -4,10 +4,10 @@ import {
   FlexCenterContent,
   Header,
   ShowMore
-} from '@erxes/ui-log/activityLogs/styles';
+} from '@erxes/ui-log/src/activityLogs/styles';
 
 import CheckListItem from './ChecklistItem';
-import { IActivityLog } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import { IChecklist } from '@erxes/ui-cards/src/checklists/types';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';

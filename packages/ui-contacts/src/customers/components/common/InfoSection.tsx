@@ -1,7 +1,7 @@
 import { CustomerState, Name, NameContainer } from '../../styles';
 import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
 
-import { AvatarWrapper } from '@erxes/ui-log/activityLogs/styles';
+import { AvatarWrapper } from '@erxes/ui-log/src/activityLogs/styles';
 import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import Icon from '@erxes/ui/src/components/Icon';

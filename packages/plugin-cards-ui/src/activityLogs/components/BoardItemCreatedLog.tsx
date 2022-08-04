@@ -2,9 +2,9 @@ import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui-log/activityLogs/styles';
+} from '@erxes/ui-log/src/activityLogs/styles';
 
-import { IActivityLogItemProps } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import React from 'react';

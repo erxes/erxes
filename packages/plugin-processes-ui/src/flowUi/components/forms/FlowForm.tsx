@@ -1,8 +1,8 @@
 import {
   ActionBarButtonsWrapper,
-  FlowFormContainer,
   BackButton,
   Container,
+  FlowFormContainer,
   RightDrawerContainer,
   Title,
   ToggleWrapper,
@@ -27,7 +27,7 @@ import {
 import ActionsForm from '../../containers/forms/actions/ActionsForm';
 import Button from '@erxes/ui/src/components/Button';
 import Confirmation from '../../containers/forms/Confirmation';
-import { FlexContent } from '@erxes/ui-log/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IProduct } from '@erxes/ui-products/src/types';
 import Icon from '@erxes/ui/src/components/Icon';

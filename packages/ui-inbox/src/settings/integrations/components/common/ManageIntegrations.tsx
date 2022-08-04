@@ -13,7 +13,7 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
-import { formatText } from '@erxes/ui-log/activityLogs/utils';
+import { formatText } from '@erxes/ui-log/src/activityLogs/utils';
 
 type Props = {
   current: IChannelDoc | IBrandDoc;

@@ -13,7 +13,7 @@ import Sidebar from './LeftSidebar';
 import { TYPES } from '../constants';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
-import { capitalize } from '@erxes/ui-log/activityLogs/utils';
+import { capitalize } from '@erxes/ui-log/src/activityLogs/utils';
 import dayjs from 'dayjs';
 
 type Props = {

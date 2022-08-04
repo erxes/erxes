@@ -7,7 +7,7 @@ import {
   RemoveMutationVariables
 } from '../types';
 
-import { IActivityLog } from '@erxes/ui-log/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import PerInvoice from '../components/PerInvoice';
 import React from 'react';
