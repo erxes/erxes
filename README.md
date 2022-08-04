@@ -138,10 +138,10 @@ Please read our <a href="https://www.erxes.org/getting-started/contributing-guid
 
 For general help using erxes, please refer to the erxes documentation. For additional help, you can use one of these channels to ask a question:
 
-- <a href="https://discord.com/invite/aaGzy3gQK5" > Discord</a> For live discussion with the Community
-- <a href="https://github.com/erxes/erxes" > GitHub</a> Bug reports, Contributions
-- <a href="https://github.com/erxes/erxes/discussions" > Community forum</a> Questions and Discussions
-- <a href="https://github.com/erxes/erxes/issues" > Feedback section</a> Roadmap, Feature requests & bugs
+- <a href="https://discord.com/invite/aaGzy3gQK5" > Discord</a> For live discussion with the community
+- <a href="https://github.com/erxes/erxes" > GitHub</a> Bug reports, contributions
+- <a href="https://github.com/erxes/erxes/discussions" > Community forum</a> Questions and discussions
+- <a href="https://github.com/erxes/erxes/issues" > Feedback section</a> Roadmap, feature requests & bugs
 - <a href="https://twitter.com/erxesHQ" > Twitter</a> Get the news fast
  
 ## Upgrade Guides
