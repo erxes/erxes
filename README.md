@@ -2,7 +2,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">An open-source of the Hubspot/Qualtrics alternative enables creating unique experiences for SaaS providers and digital marketing agencies/developers.
+<p align="center">An open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business.
 </p>
 
 <p align="center">
@@ -57,7 +57,7 @@ Achieving growth and unity within your company is possible with erxes.
 <img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">
 
 - **100% free & sustainable** erxes offers a sustainable business model in </br> which both developers and users win. Fair-code is like open source software, but better.
-- **100% customizable** Our fair-code nature and plugin architecture provide unlimited customization and lets you meet all your needs, no matter how specific they are.
+- **100% customizable** Our fair-code nature and plugin architecture provide unlimited customization and let you meet all your needs, no matter how specific they are.
 - **100% privacy** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
 - **100% in control** With the erxes platform, you are in control of your experiences. You can build any experience you want, where all the channels your business operates on are connected and integrated.
 
@@ -72,7 +72,7 @@ erxes is an open-source experience operating system that enables SaaS providers 
 ## Plugins
 erxes is composed of 2 main components: XOS & Plugins
 
-**XOS:**   XOS contains the core of the project, you can find the admin panel, and the whole code that runs different plugins. The operating system comes with utility features that allow users to customize, improve speed, enhance experience along with ever growing plugins/features.  XOS comes with features like:
+**XOS:**   XOS contains the core of the project, you can find the admin panel, and the whole code that runs different plugins. The operating system comes with utility features that allow users to customize, improve speed, enhance experience along with ever growing plugins/features.  XOS comes with core features like:
 - System config 
 - Permission 
 - Team members 
@@ -82,20 +82,20 @@ erxes is composed of 2 main components: XOS & Plugins
 - Marketplace 
 
 
-**XOS Plugins:** Erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some of the plugins that you can choose from after you’ve installed XOS:
+**XOS Plugins:** Erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from after you’ve installed XOS:
 
-- Team Inbox - Combine real-time client and team communication with in-app messaging, live chat, email and form, so your customers can reach you however and whenever they want.  
+- Team Inbox - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.  
 - Messenger - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
 - Card Pipeline - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
-- Lead generation - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up or embed placements.
-- Engage - Start converting your prospects into potential customers through email, SMS, messenger or more interactions to drive them to a successful close.
-- CRM - Access our all-in-one CRM system in one go so that it’s easier to coordinate and manage your interactions with your customers.
-- Knowledgebase - Educate both your customers and staff by creating a help center related to your brands, products and services to reach higher level of satisfactions
-- App store - Publish an integration app on the erxes App Store among powerful tools like Gmail, Facebook page, Messenger, Twitter and Google Meet.
+- Lead generation - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
+- Engage - Start converting your prospects into potential customers through email, SMS, messenger, or more interactions to drive them to a successful close.
+- CRM - Access our all-in-one CRM system in one go, so it’s easier to coordinate and manage your customer interactions.
+- Knowledgebase - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
+- App store - Publish an integration app on the erxes App Store, among powerful tools like Gmail, Facebook page, Messenger, Twitter, and Google Meet.
 <a href="https://erxes.io/marketplace" >See more on our website.</a>
  
 ## Getting Started
-<a href="https://docs.strapi.io/developer-docs/latest/getting-started/quick-start.html" >https://www.erxes.org/overview/deployment-overview</a> in order to install erxes locally.
+<a href="https://docs.strapi.io/developer-docs/latest/getting-started/quick-start.html" >https://www.erxes.org/overview/deployment-overview</a> to install erxes locally.
  
 🖐 Requirements
 Complete installation requirements can be found in the documentation under <a href="https://www.erxes.org/overview/architecture-overview" >installation requirements.</a>
@@ -152,7 +152,6 @@ Documentation
 See our dedicated repository for the erxes documentation, or view our documentation live:
 
 - <a href="https://www.erxes.org/overview/deployment-overview">Developer docs</a>
-- <a href="https://help.erxes.io/help/knowledge-base" >User guide</a>
  
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >LICENSE</a> file for licensing information.
