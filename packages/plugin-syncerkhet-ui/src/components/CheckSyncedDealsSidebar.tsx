@@ -62,6 +62,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
     } = this.state;
 
     router.setParams(this.props.history, {
+      page: 1,
       boardId,
       pipelineId,
       stageId,
