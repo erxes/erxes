@@ -70,18 +70,12 @@ Achieving growth and unity within your company is possible with erxes, because i
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
 ## What is erxes?
-erxes is an open-source experience operating system that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about <a href="https://www.erxes.org/overview/architecture-overview">erxes architecture in our documentation.</a>
+erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about <a href="https://www.erxes.org/overview/architecture-overview">erxes architecture in our documentation.</a>
 
-## Plugins
+## erxes XOS & Plugins
 erxes is composed of 2 main components: XOS & Plugins
 
-**XOS:**   XOS contains the core of the project, you can find the admin panel, and the whole code that runs different plugins. The operating system comes with utility features that allow users to customize, improve speed, enhance experience along with ever growing plugins/features.  XOS comes with core features like:
-- System config 
-- Permission 
-- Team members 
-- Brands 
-- Import & export 
-- Marketplace 
+**XOS:** It contains the project's core. You can find the admin panel and the code that runs different plugins. The operating system comes with utility features that allow users to customize, improve speed, and enhance the experience along with plugins/features. 
 
 
 **XOS Plugins:** erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from after you’ve installed XOS:
