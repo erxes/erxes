@@ -33,6 +33,7 @@ export const paginateTypes = `
 `;
 
 export const commonFilterTypes = `
+  _ids: [String],
   searchValue: String,
   filterStatus: String,
 `

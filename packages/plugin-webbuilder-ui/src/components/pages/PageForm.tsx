@@ -109,6 +109,7 @@ class PageForm extends React.Component<Props, State> {
       indentWithTabs: true
     });
 
+    editor.getConfig().allowScripts = 1;
     btnEdit.innerHTML = 'Edit';
     btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
     btnEdit.onclick = () => {

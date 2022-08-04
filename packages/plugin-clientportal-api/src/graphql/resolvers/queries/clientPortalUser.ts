@@ -73,7 +73,7 @@ const clientPortalUserQueries = {
 
     return paginate(
       models.ClientPortalUsers.find(filter)
-        .sort('code')
+        .sort({ createdAt: -1 })
         .lean(),
       pagintationArgs
     );

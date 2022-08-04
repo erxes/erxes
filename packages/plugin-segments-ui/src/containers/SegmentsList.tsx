@@ -36,7 +36,7 @@ const SegmentListContainer = (props: FinalProps) => {
   if (!router.getParam(history, 'contentType') || !segmentsQuery) {
     router.setParams(
       history,
-      { contentType: types[0].contentType.toString() },
+      { contentType: types[0] ? types[0].contentType.toString() : '' },
       true
     );
   }
