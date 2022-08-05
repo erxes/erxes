@@ -67,6 +67,32 @@ class ScoreLogsListComponent extends React.Component<IProps> {
           return 'companies';
       }
     };
+    const email = (type, owner) => {
+      if (!owner) {
+        return '-';
+      }
+      switch (type) {
+        case 'customer':
+          return owner?.primaryEmail;
+        case 'user':
+          return owner?.email;
+        case 'company':
+          return owner?.primaryEmail ? owner?.primaryEmail : owner?.primaryName;
+      }
+    };
+    const name = (type, owner) => {
+      if(!owner){
+        return '-'
+      }
+      switch (type) {
+        case 'customer':
+          return `${owner?.firstName} ${owner?.lastName}`;
+        case 'user':
+          return owner?.details?.fullName;
+        case 'company':
+          return owner?.primaryName 
+      }
+    }
 
     const Content = error ? (
       <Info>{error.message}</Info>
@@ -84,10 +110,10 @@ class ScoreLogsListComponent extends React.Component<IProps> {
             <tr key={i}>
               <td>
                 <Link to={`/${route(p.ownerType)}/details/${p.ownerId}`}>
-                  {p.owner.email}
+                  {email(p.ownerType,p.owner)}
                 </Link>
               </td>
-              <td>{p.owner.details.fullName}</td>
+              <td>{name(p.ownerType,p.owner)}</td>
               <td>{p.ownerType}</td>
               <td>{p.changeScore}</td>
               <td>{p.owner.score}</td>
