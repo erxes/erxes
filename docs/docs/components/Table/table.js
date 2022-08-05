@@ -5,7 +5,7 @@ import { renderApiTable, stringify } from "../common.js";
 import Table from "erxes-ui/lib/components/table/index";
 
 export function TableComponent(props) {
-  const { type, table = [], mergedCellText } = props;
+  const { type, table = [] } = props;
 
   const propDatas = (propName) => {
     const datas = {
@@ -15,24 +15,17 @@ export function TableComponent(props) {
     return datas;
   };
 
-  const renderBlock = (propName, merge) => {
-    const additional = merge && (
-      <tr>
-        <td>3</td>
-        <td colSpan="2">{mergedCellText}</td>
-        <td>@twitter</td>
-      </tr>
-    );
+  const renderBlock = (propName) => {
     return (
       <>
         <div className={styles.styled}>
           <Table {...propDatas(propName)}>
             <thead>
-              <tr>
-                <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Username</th>
+              <tr key="-1">
+                <th key="0">#</th>
+                <th key="1">First Name</th>
+                <th key="2">Last Name</th>
+                <th key="3">Username</th>
               </tr>
             </thead>
             <tbody>
@@ -45,7 +38,6 @@ export function TableComponent(props) {
                   </tr>
                 );
               })}
-              {additional}
             </tbody>
           </Table>
         </div>
@@ -61,16 +53,14 @@ export function TableComponent(props) {
           {`\n    <tr>`}
           {`\n  </thead>`}
           {`\n  <tbody>`}
-          {`${table.map(
-            (row) =>
-              `\n    <tr>${row.map(
-                (cell) => `\n      <td>${cell}</td>`
-              )}\n    <tr>`
-          )}`}
-          {`${
-            additional &&
-            `\n    <tr>\n      <td>3</td>\n      <td colSpan="2">${mergedCellText}</td>\n      <td>@twitter</td>\n    <tr>`
-          }`}
+          {`${table
+            .map(
+              (row) =>
+                `\n    <tr>${row
+                  .map((cell) => `\n      <td>${cell}</td>`)
+                  .join(" ")}\n    <tr>`
+            )
+            .join(" ")}`}
           {`\n  </tbody>`}
           {`\n</Table>`}
         </CodeBlock>

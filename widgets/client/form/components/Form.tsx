@@ -5,7 +5,8 @@ import {
   __,
   checkLogicFulfilled,
   fixErrorMessage,
-  LogicParams
+  LogicParams,
+  readFile
 } from '../../utils';
 import { connection } from '../connection';
 import {
@@ -13,7 +14,8 @@ import {
   ICurrentStatus,
   IFieldError,
   IForm,
-  IFormDoc
+  IFormDoc,
+  ILocationOption
 } from '../types';
 import { TopBar } from './';
 import Field from './Field';
@@ -36,13 +38,23 @@ type Props = {
 type State = {
   doc: IFormDoc;
   currentPage: number;
+  currentLocation?: ILocationOption;
 };
 
 class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { doc: this.resetDocState(), currentPage: 1 };
+    let currentLocation: ILocationOption | undefined;
+
+    if (props.form.fields.findIndex(e => e.type === 'map') !== -1) {
+      currentLocation = {
+        lat: connection.browserInfo.latitude,
+        lng: connection.browserInfo.longitude
+      };
+    }
+
+    this.state = { doc: this.resetDocState(), currentPage: 1, currentLocation };
   }
 
   componentDidMount() {
@@ -138,7 +150,7 @@ class Form extends React.Component<Props, State> {
 
     for (const field of requiredFields) {
       const value = this.state.doc[field._id].value;
-     
+
       if (this.state.doc[field._id].isHidden) {
         continue;
       }
@@ -317,6 +329,8 @@ class Form extends React.Component<Props, State> {
           error={fieldError}
           onChange={this.onFieldValueChange}
           value={this.state.doc[field._id].value || ''}
+          currentLocation={this.state.currentLocation}
+          color={this.props.color}
         />
       );
     });
@@ -413,20 +427,30 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderSuccessForm(thankTitle?: string, thankContent?: string) {
+  renderSuccessImage(image: string, title: string) {
+    if (!image) {
+      return null;
+    }
+
+    return (
+      <img onLoad={this.props.setHeight} src={readFile(image)} alt={title} />
+    );
+  }
+  renderSuccessForm(
+    thankTitle?: string,
+    thankContent?: string,
+    successImage?: string
+  ) {
     const { integration, form } = this.props;
 
     return (
       <div className="erxes-form">
         {this.renderHead(thankTitle || form.title)}
         <div className="erxes-form-content">
-          <div className="erxes-result">
-            <p>
-              {thankContent ||
-                __(
-                  'Thanks for your message. We will respond as soon as we can.'
-                )}
-            </p>
+          <div className="erxes-callout-body">
+            {this.renderSuccessImage(successImage || '', form.title)}
+            {thankContent ||
+              __('Thanks for your message. We will respond as soon as we can.')}
           </div>
         </div>
       </div>
@@ -449,7 +473,8 @@ class Form extends React.Component<Props, State> {
         adminEmailContent,
         thankTitle,
         thankContent,
-        attachments
+        attachments,
+        successImage
       } = integration.leadData;
 
       // redirect to some url
@@ -492,7 +517,7 @@ class Form extends React.Component<Props, State> {
         }
       } // end successAction = "email"
 
-      return this.renderSuccessForm(thankTitle, thankContent);
+      return this.renderSuccessForm(thankTitle, thankContent, successImage);
     }
 
     return this.renderForm();

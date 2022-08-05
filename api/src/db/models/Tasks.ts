@@ -1,6 +1,6 @@
 import { Model, model } from 'mongoose';
-import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
 import {
+  createBoardItem,
   destroyBoardItemRelations,
   fillSearchTextItem,
   watchItem
@@ -46,20 +46,7 @@ export const loadTaskClass = () => {
         }
       }
 
-      const task = await Tasks.create({
-        ...doc,
-        createdAt: new Date(),
-        modifiedAt: new Date(),
-        stageChangedDate: new Date(),
-        searchText: fillSearchTextItem(doc)
-      });
-
-      await putActivityLog({
-        action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
-        data: { item: task, contentType: 'task' }
-      });
-
-      return task;
+      return createBoardItem(doc, 'task');
     }
 
     /**

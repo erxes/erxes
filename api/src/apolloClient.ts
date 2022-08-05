@@ -83,6 +83,8 @@ export const initApolloServer = async app => {
     context: ({ req, res, connection }) => {
       let user = req && req.user ? req.user : null;
 
+      const dataLoaders: IDataLoaders = generateAllDataLoaders();
+
       if (!req) {
         if (connection && connection.context && connection.context.user) {
           user = connection.context.user;
@@ -90,11 +92,10 @@ export const initApolloServer = async app => {
 
         return {
           dataSources: generateDataSources(),
+          dataLoaders,
           user
         };
       }
-
-      const dataLoaders: IDataLoaders = generateAllDataLoaders();
 
       const requestInfo = {
         secure: req.secure,

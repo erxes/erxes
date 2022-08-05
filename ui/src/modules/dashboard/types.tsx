@@ -1,6 +1,15 @@
 export interface IDashboard {
   _id: string;
   name: string;
+  visibility: string;
+  selectedMemberIds?: string[];
+  description: string;
+  parentId?: string;
+  order?: string;
+  childsDashboard: [IDashboard];
+  createdAt: Date;
+  dashboardCount: number;
+  relatedIds: string[];
 }
 
 export type DashboardsQueryResponse = {

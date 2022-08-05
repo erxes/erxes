@@ -12,6 +12,7 @@ import ControlLabel from 'modules/common/components/form/Label';
 import { colors } from 'modules/common/styles';
 import { IButtonMutateProps, IFormProps } from 'modules/common/types';
 import { __ } from 'modules/common/utils';
+import BoardNumberConfigs from 'modules/settings/boards/components/numberConfig/BoardNumberConfigs';
 import { SelectMemberStyled } from 'modules/settings/boards/styles';
 import { ColorPick, ColorPicker, ExpandWrapper } from 'modules/settings/styles';
 import SelectTeamMembers from 'modules/settings/team/containers/SelectTeamMembers';
@@ -46,6 +47,8 @@ type State = {
   boardId: string;
   startDate?: Date;
   endDate?: Date;
+  numberConfig?: string;
+  numberSize?: string;
 };
 
 class PipelineForm extends React.Component<Props, State> {
@@ -65,7 +68,9 @@ class PipelineForm extends React.Component<Props, State> {
       metric: pipeline ? pipeline.metric : '',
       startDate: pipeline ? pipeline.startDate : undefined,
       endDate: pipeline ? pipeline.endDate : undefined,
-      boardId: props.boardId || ''
+      boardId: props.boardId || '',
+      numberConfig: (pipeline && pipeline.numberConfig) || '',
+      numberSize: (pipeline && pipeline.numberSize) || ''
     };
   }
 
@@ -115,6 +120,10 @@ class PipelineForm extends React.Component<Props, State> {
     this.setState({ backgroundColor: e.hex });
   };
 
+  onChangeNumber = (key: string, value: string) => {
+    this.setState({ [key]: value } as any);
+  };
+
   generateDoc = (values: {
     _id?: string;
     name: string;
@@ -129,7 +138,9 @@ class PipelineForm extends React.Component<Props, State> {
       startDate,
       endDate,
       metric,
-      boardId
+      boardId,
+      numberConfig,
+      numberSize
     } = this.state;
     const finalValues = values;
 
@@ -147,7 +158,9 @@ class PipelineForm extends React.Component<Props, State> {
       hackScoringType,
       startDate,
       endDate,
-      metric
+      metric,
+      numberConfig,
+      numberSize
     };
   };
 
@@ -238,6 +251,20 @@ class PipelineForm extends React.Component<Props, State> {
           {__(desc)} <strong>{formula}</strong>
         </p>
       </Box>
+    );
+  }
+
+  renderNumberInput() {
+    return (
+      <FormGroup>
+        <BoardNumberConfigs
+          onChange={(key: string, conf: string) =>
+            this.onChangeNumber(key, conf)
+          }
+          config={this.state.numberConfig || ''}
+          size={this.state.numberSize || ''}
+        />
+      </FormGroup>
     );
   }
 
@@ -387,6 +414,7 @@ class PipelineForm extends React.Component<Props, State> {
 
           {this.renderSelectMembers()}
           {this.renderTemplates()}
+          {this.renderNumberInput()}
 
           <Modal.Footer>
             <Button

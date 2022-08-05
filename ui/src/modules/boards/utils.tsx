@@ -196,6 +196,25 @@ export const generateButtonClass = (closeDate: Date, isComplete?: boolean) => {
   return colorName;
 };
 
+export const generateButtonStart = (startDate: Date) => {
+  let colorName = 'teal';
+
+  if (startDate) {
+    const now = new Date();
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    if (new Date(startDate).getTime() - now.getTime() < oneDay) {
+      colorName = 'blue';
+    }
+
+    if (now > startDate) {
+      colorName = 'red';
+    }
+  }
+
+  return colorName;
+};
+
 export const onCalendarLoadMore = (fetchMore, queryName, skip: number) => {
   fetchMore({
     variables: { skip },
@@ -227,10 +246,60 @@ export const calendarColumnQuery = (query, name) =>
     }
   });
 
+export const getColors = (index: number) => {
+  const COLORS = [
+    '#EA475D',
+    '#3CCC38',
+    '#FDA50D',
+    '#63D2D6',
+    '#3B85F4',
+    '#0A1E41',
+    '#5629B6',
+    '#6569DF',
+    '#888888'
+  ];
+
+  if (index > 9) {
+    return COLORS[2];
+  }
+
+  return COLORS[index];
+};
+
 export const isRefresh = (queryParams: any, routerUtils: any, history: any) => {
   const keys = Object.keys(queryParams || {});
 
   if (!(keys.length === 2 || (keys.includes('key') && keys.length === 3))) {
     routerUtils.setParams(history, { key: Math.random() });
   }
+};
+
+export const getBoardViewType = () => {
+  let viewType = 'board';
+
+  if (window.location.href.includes('calendar')) {
+    viewType = 'calendar';
+  }
+
+  if (window.location.href.includes('activity')) {
+    viewType = 'activity';
+  }
+
+  if (window.location.href.includes('conversion')) {
+    viewType = 'conversion';
+  }
+
+  if (window.location.href.includes('list')) {
+    viewType = 'list';
+  }
+
+  if (window.location.href.includes('chart')) {
+    viewType = 'chart';
+  }
+
+  if (window.location.href.includes('gantt')) {
+    viewType = 'gantt';
+  }
+
+  return viewType;
 };

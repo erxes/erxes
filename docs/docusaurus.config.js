@@ -32,18 +32,18 @@ module.exports = {
           position: "left",
         },
         {
-          to: "/user/subscription-getting-started",
-          label: "User's guide",
-          position: "left",
-        },
-        {
           to: "/invest",
           label: "Invest",
           position: "left",
         },
         {
-          to: "/components/Button/buttons",
+          to: "/components/GettingStarted/Introduction",
           label: "Components",
+          position: "left",
+        },
+        {
+          to: "pathname:///developers/docs/references",
+          label: "API reference",
           position: "left",
         },
         {
@@ -58,11 +58,6 @@ module.exports = {
         {
           href: "https://github.com/erxes/erxes",
           label: "GitHub",
-          position: "right",
-        },
-        {
-          to: "blog/",
-          label: "Blog",
           position: "right",
         },
       ],
@@ -89,6 +84,10 @@ module.exports = {
               label: "Developers Guide",
               to: "/developer/developer",
             },
+            {
+              label: "Graphql API reference",
+              to: "pathname:///developers/docs/references"
+            }
           ],
         },
         {
@@ -100,15 +99,23 @@ module.exports = {
             },
             {
               label: "Blog",
-              href: "/blog",
+              to: "/blog",
+            },
+            {
+              label: "Interviews",
+              to: "/interviews",
+            },
+            {
+              label: "Case Studies",
+              to: "/caseStudies",
             },
             {
               label: "Roadmap",
               href: "https://erxes.io/roadmap",
             },
             {
-              label: "Install server",
-              href: "http://localhost:3500/install",
+              label: "GSoD",
+              href: "/gsod",
             },
           ],
         },
@@ -116,22 +123,12 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Community Chat",
-              href: "https://community.erxes.io/register/Gw4WRJnk9fSbyAXTq",
+              label: "Discussions",
+              href: "https://github.com/erxes/erxes/discussions ",
             },
             {
-              label: "Facebook Group",
-              href: "https://www.facebook.com/groups/erxescommunity",
-            },
-          ],
-        },
-
-        {
-          title: "Support Us",
-          items: [
-            {
-              label: "Back us on Github",
-              href: "https://github.com/sponsors/erxes",
+              label: "Discord",
+              href: "https://discord.gg/CEPj6vPh",
             },
           ],
         },
@@ -144,6 +141,24 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} erxes Inc.`,
     },
   },
+  plugins: [
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        id: "interviews",
+        routeBasePath: "interviews",
+        path: "./interviews",
+      },
+    ],
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        id: "caseStudies",
+        routeBasePath: "caseStudies",
+        path: "./caseStudies",
+      },
+    ],
+  ],
   presets: [
     [
       "@docusaurus/preset-classic",

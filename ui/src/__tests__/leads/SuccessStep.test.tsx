@@ -21,7 +21,10 @@ describe('SuccessStep component', () => {
         | 'thankTitle'
         | 'thankContent'
         | 'templateId'
-        | 'attachments',
+        | 'attachments'
+        | 'successImageSize'
+        | 'successImage'
+        | 'successPreviewStyle',
       value: string
     ) => null
   };

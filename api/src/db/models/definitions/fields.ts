@@ -1,11 +1,12 @@
 import { Document, Schema } from 'mongoose';
-import { FIELDS_GROUPS_CONTENT_TYPES } from './constants';
+import { ICoordinates } from './common';
 import { field, schemaWrapper } from './utils';
 
 export interface ISubmission {
   _id: string;
   value: any;
   type?: string;
+  text?: string;
   validation?: string;
   associatedFieldId?: string;
   stageId?: string;
@@ -59,6 +60,7 @@ export interface IField extends IVisibility {
   content?: string;
   description?: string;
   options?: string[];
+  locationOptions?: ICoordinates[];
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   order?: number;
@@ -129,6 +131,11 @@ export const fieldSchema = schemaWrapper(
       optional: true,
       label: 'Options'
     }),
+    locationOptions: field({
+      type: Array,
+      optional: true,
+      label: 'Location Options'
+    }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
     order: field({ type: Number, label: 'Order' }),
@@ -178,7 +185,6 @@ export const fieldGroupSchema = schemaWrapper(
     // customer, company
     contentType: field({
       type: String,
-      enum: FIELDS_GROUPS_CONTENT_TYPES.ALL,
       label: 'Content type'
     }),
     order: field({ type: Number, label: 'Order' }),

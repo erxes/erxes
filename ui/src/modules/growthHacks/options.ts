@@ -48,11 +48,23 @@ const options = {
   },
   isMove: false,
   getExtraParams: (queryParams: any) => {
-    const { priority, hackStage } = queryParams;
+    const { priority, hackStage, userIds, startDate, endDate } = queryParams;
     const extraParams: any = {};
 
     if (priority) {
       extraParams.priority = priority;
+    }
+
+    if (userIds) {
+      extraParams.userIds = userIds;
+    }
+
+    if (startDate) {
+      extraParams.startDate = startDate;
+    }
+
+    if (endDate) {
+      extraParams.endDate = endDate;
     }
 
     if (hackStage) {

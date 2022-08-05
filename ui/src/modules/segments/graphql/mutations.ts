@@ -8,6 +8,7 @@ const paramDefs = `
   $boardId: String,
   $pipelineId: String,
   $conditionsConjunction: String
+  $shouldWriteActivityLog: Boolean!
 `;
 
 const params = `
@@ -20,6 +21,7 @@ const params = `
   pipelineId: $pipelineId,
   conditionsConjunction: $conditionsConjunction
   conditionSegments: $conditionSegments
+  shouldWriteActivityLog: $shouldWriteActivityLog
 `;
 
 const segmentsAdd = `

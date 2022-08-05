@@ -189,6 +189,28 @@ class LeftSidebar extends React.Component<Props, State> {
             </FilterToggler>
 
             <FilterToggler
+              groupText="Segments"
+              toggleName="showSegments"
+              manageUrl="/segments/conversation"
+            >
+              <FilterList
+                query={{
+                  queryName: 'segmentList',
+                  dataName: 'segments',
+                  variables: {
+                    contentTypes: [TAG_TYPES.CONVERSATION]
+                  }
+                }}
+                queryParams={queryParams}
+                counts="bySegment"
+                paramKey="segment"
+                icon="tag-alt"
+                refetchRequired={refetchRequired}
+                treeView={true}
+              />
+            </FilterToggler>
+
+            <FilterToggler
               groupText="Brands"
               toggleName="showBrands"
               manageUrl="/settings/brands"

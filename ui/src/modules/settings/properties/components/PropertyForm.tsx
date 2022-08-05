@@ -210,7 +210,8 @@ class PropertyForm extends React.Component<Props, State> {
           >
             <option />
             <option value="input">Input</option>
-            <option value="list">List</option>
+            <option value="list">String List</option>
+            <option value="objectList">Object List</option>
             <option value="textarea">Text area</option>
             <option value="select">Select</option>
             <option value="multiSelect">Multiple select</option>
@@ -218,6 +219,7 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="radio">Radio button</option>
             <option value="file">File</option>
             <option value="customer">Customer</option>
+            <option value="map">Location/Map</option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}

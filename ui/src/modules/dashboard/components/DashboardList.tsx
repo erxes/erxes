@@ -6,10 +6,12 @@ import { IDashboard } from '../types';
 import DashboardRow from './DashboardRow';
 
 type Props = {
+  dashboard: IDashboard;
   dashboards: IDashboard[];
   loading: boolean;
   currentDashboard?: string;
   removeDashboard: (id: string) => void;
+  history: any;
 };
 
 function DashboardList(props: Props) {
@@ -20,14 +22,22 @@ function DashboardList(props: Props) {
       return <Spinner objective={true} />;
     }
 
-    return dashboards.map(dashboard => (
-      <DashboardRow
-        isActive={currentDashboard === dashboard._id}
-        key={dashboard._id}
-        dashboard={dashboard}
-        removeDashboard={removeDashboard}
-      />
-    ));
+    return dashboards.map(dashboard => {
+      const order = dashboard.order || '';
+      const foundedString = order.match(/[/]/gi);
+
+      return (
+        <DashboardRow
+          isActive={currentDashboard === dashboard._id}
+          key={dashboard._id}
+          dashboard={dashboard}
+          removeDashboard={removeDashboard}
+          loading={loading}
+          space={foundedString ? foundedString.length : 0}
+          dashboards={dashboards}
+        />
+      );
+    });
   };
 
   const triggerCreate = <Create>Create a Dashboard</Create>;
@@ -35,7 +45,11 @@ function DashboardList(props: Props) {
   return (
     <>
       <Dashboards>{renderContent()}</Dashboards>
-      <DashbaordForm trigger={triggerCreate} />
+      <DashbaordForm
+        trigger={triggerCreate}
+        dashboards={dashboards}
+        loading={loading}
+      />
     </>
   );
 }

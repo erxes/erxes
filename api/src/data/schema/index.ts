@@ -214,6 +214,11 @@ import {
   queries as SmsDeliveryQueries,
   types as SmsDeliveryTypes
 } from './smsDelivery';
+import {
+  mutations as StructureMutations,
+  queries as StructureQueries,
+  types as StructureTypes
+} from './structure';
 
 export let types = `
   scalar JSON
@@ -263,6 +268,7 @@ export let types = `
   ${WebhookTypes}
   ${CalendarTypes}
   ${SmsDeliveryTypes}
+  ${StructureTypes}
   ${AutomationTypes}
 `;
 
@@ -310,6 +316,7 @@ export let queries = `
   ${CalendarQueries}
   ${MessengerAppQueries}
   ${SmsDeliveryQueries}
+  ${StructureQueries}
   ${AutomationQueries}
 `;
 
@@ -354,6 +361,7 @@ export let mutations = `
   ${WidgetMutations}
   ${WebhookMutations}
   ${CalendarMutations}
+  ${StructureMutations}
   ${AutomationMutations}
 `;
 

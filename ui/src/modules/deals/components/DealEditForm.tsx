@@ -244,8 +244,6 @@ export default class DealEditForm extends React.Component<Props, State> {
       refresh: this.state.refresh
     };
 
-    console.log('item: ', this.props.item);
-
     return <EditForm {...extendedProps} />;
   }
 }

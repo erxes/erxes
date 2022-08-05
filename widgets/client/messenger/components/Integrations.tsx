@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { __ } from '../../utils';
-import { ConversationList, LeadConnect, WebsiteApp } from '../containers';
+import { ConversationInit, ConversationList, LeadConnect, WebsiteApp } from '../containers';
 import { IWebsiteApp } from '../types';
 import { IntegrationItem } from './';
 
@@ -42,14 +42,14 @@ export default class Integrations extends React.PureComponent<Props> {
     });
   }
 
-  renderConversations() {
+  renderConversationInit() {
     if (this.props.hideConversations) {
       return null;
     }
 
     return (
       <IntegrationItem title="Recent conversations">
-        <ConversationList />
+        <ConversationInit />
       </IntegrationItem>
     );
   }
@@ -57,7 +57,7 @@ export default class Integrations extends React.PureComponent<Props> {
   render() {
     return (
       <>
-        {this.renderConversations()}
+        {this.renderConversationInit()}
         {this.renderLead()}
         {this.renderWebsiteApps()}
       </>

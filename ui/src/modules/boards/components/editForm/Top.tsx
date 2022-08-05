@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import Move from '../../containers/editForm/Move';
 import { IItem, IOptions } from '../../types';
 import CloseDate from './CloseDate';
+import StartDate from './StartDate';
 
 type Props = {
   item: IItem;
@@ -77,6 +78,21 @@ function Top(props: Props) {
     );
   };
 
+  const renderNumber = () => {
+    const { number } = item;
+
+    if (!number) {
+      return null;
+    }
+
+    return (
+      <HeaderContentSmall>
+        <ControlLabel>Number</ControlLabel>
+        <p>{number}</p>
+      </HeaderContentSmall>
+    );
+  };
+
   return (
     <React.Fragment>
       <HeaderRow>
@@ -92,14 +108,18 @@ function Top(props: Props) {
             />
           </TitleRow>
         </HeaderContent>
-
+        {renderNumber()}
         {renderScore()}
         {amount && amount()}
       </HeaderRow>
 
       <HeaderRow>
         <HeaderContent>{renderMove()}</HeaderContent>
-
+        <StartDate
+          onChangeField={onCloseDateFieldsChange}
+          startDate={item.startDate}
+          reminderMinute={item.reminderMinute}
+        />
         <CloseDate
           onChangeField={onCloseDateFieldsChange}
           closeDate={item.closeDate}

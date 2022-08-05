@@ -229,7 +229,8 @@ describe('ticketQueries', () => {
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const args = {
       stageId: stage._id,
-      status: BOARD_STATUSES.ARCHIVED
+      status: BOARD_STATUSES.ARCHIVED,
+      source: 'callpro'
     };
 
     await ticketFactory({ ...args, name: 'james' });
@@ -241,13 +242,15 @@ describe('ticketQueries', () => {
         $pipelineId: String!,
         $search: String,
         $page: Int,
-        $perPage: Int
+        $perPage: Int,
+        $sources: [String]
       ) {
         archivedTickets(
           pipelineId: $pipelineId
           search: $search
           page: $page
           perPage: $perPage
+          sources: $sources
         ) {
           _id
         }
@@ -255,7 +258,8 @@ describe('ticketQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'archivedTickets', {
-      pipelineId: pipeline._id
+      pipelineId: pipeline._id,
+      sources: ['callpro']
     });
 
     expect(response.length).toBe(3);

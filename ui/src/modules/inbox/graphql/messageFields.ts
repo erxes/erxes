@@ -22,6 +22,7 @@ export default `
   createdAt
   isCustomerRead
   formWidgetData
+  bookingWidgetData
   messengerAppData
   botData
   user {

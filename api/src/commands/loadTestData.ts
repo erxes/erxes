@@ -569,7 +569,8 @@ const main = async () => {
       contentType: 'customer',
       color: faker.internet.color(),
       subOf: '',
-      conditions: []
+      conditions: [],
+      shouldWriteActivityLog: false
     },
     []
   );

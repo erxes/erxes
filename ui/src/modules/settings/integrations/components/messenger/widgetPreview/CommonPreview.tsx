@@ -25,6 +25,8 @@ type Props = {
   brandId?: string;
   brands?: IBrand[];
   timezone?: string;
+  responseRate?: string;
+  showTimezone?: boolean;
   skillData?: ISkillData;
   showChatPreview?: boolean;
   showVideoCallRequest?: boolean;
@@ -47,7 +49,8 @@ class CommonPreview extends React.Component<Props> {
       skillData,
       activeStep,
       messengerApps,
-      showVideoCallRequest
+      showVideoCallRequest,
+      responseRate
     } = this.props;
 
     if (showChatPreview) {
@@ -56,6 +59,7 @@ class CommonPreview extends React.Component<Props> {
           activeStep={activeStep}
           messengerApps={messengerApps}
           color={color}
+          responseRate={responseRate}
         />
       );
     }

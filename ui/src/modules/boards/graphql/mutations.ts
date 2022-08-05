@@ -2,6 +2,7 @@ export const commonMutationVariables = `
   $proccessId: String,
   $aboveItemId: String,
   $stageId: String,
+  $startDate: Date,
   $closeDate: Date,
   $description: String,
   $assignedUserIds: [String],
@@ -19,6 +20,7 @@ export const commonMutationParams = `
   proccessId: $proccessId,
   aboveItemId: $aboveItemId,
   stageId: $stageId,
+  startDate: $startDate,
   closeDate: $closeDate,
   description: $description,
   assignedUserIds: $assignedUserIds,
@@ -58,11 +60,14 @@ export const commonListFields = `
   stage
   isComplete
   isWatched
+  relations
+  startDate
   closeDate
   modifiedAt
   priority
   hasNotified
   score
+  number
 `;
 
 export const commonFields = `
@@ -89,6 +94,7 @@ export const commonFields = `
     primaryPhone
     visitorContactInfo
   }
+  startDate
   closeDate
   description
   priority
@@ -129,6 +135,7 @@ export const commonFields = `
     timeSpent
     startDate
   }
+  number
 `;
 
 const stagesUpdateOrder = `
@@ -197,14 +204,20 @@ const stagesSortItems = `
 `;
 
 const conversationConvertToCard = `
-  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String){
-    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName )
+  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String $bookingProductId: String){
+    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName bookingProductId: $bookingProductId)
   }
 `;
 
 const boardItemUpdateTimeTracking = `
   mutation boardItemUpdateTimeTracking($_id: String!, $type: String!, $status: String!, $timeSpent: Int! $startDate: String) {
     boardItemUpdateTimeTracking(_id: $_id, type: $type, status: $status, timeSpent: $timeSpent, startDate: $startDate)
+  }
+`;
+
+const boardItemsSaveForGanttTimeline = `
+  mutation boardItemsSaveForGanttTimeline($items: JSON, $links: JSON, $type: String!) {
+    boardItemsSaveForGanttTimeline(items: $items, links: $links, type: $type)
   }
 `;
 
@@ -219,5 +232,6 @@ export default {
   stagesRemove,
   stagesSortItems,
   conversationConvertToCard,
-  boardItemUpdateTimeTracking
+  boardItemUpdateTimeTracking,
+  boardItemsSaveForGanttTimeline
 };

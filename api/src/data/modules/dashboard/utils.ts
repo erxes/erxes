@@ -100,10 +100,10 @@ export const getPipelines = async (stageType: string) => {
     }
   ]);
 
-  pipelines.map(pipeline => {
+  pipelines.forEach(pipeline => {
     const stageIds = [] as any;
 
-    pipeline.stages.map(stage => {
+    pipeline.stages.forEach(stage => {
       stageIds.push(stage._id);
     });
 
@@ -150,10 +150,10 @@ export const getBoards = async (stageType: string) => {
     }
   ]);
 
-  boards.map(board => {
+  boards.forEach(board => {
     const stageIds = [] as any;
 
-    board.stages.map(stage => {
+    board.stages.forEach(stage => {
       stageIds.push(stage._id);
     });
 

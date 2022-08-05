@@ -1,5 +1,8 @@
 import { generateCategoryOptions } from 'erxes-ui/lib/utils';
-import { PRODUCT_TYPE_CHOISES, PRODUCT_CATEGORIES_STATUS_FILTER } from './constants';
+import {
+  PRODUCT_TYPE_CHOISES,
+  PRODUCT_CATEGORIES_STATUS_FILTER
+} from './constants';
 
 export { generateCategoryOptions };
 

@@ -11,10 +11,24 @@ describe('Import history mutations', () => {
     await ImportHistory.deleteMany({});
   });
 
+  test('Create import history', async () => {
+    const mutation = `
+       mutation importHistoriesCreate($contentTypes: [String], $files: JSON, $columnsConfig: JSON, $importName: String, $associatedContentType: String, $associatedField: String) {
+        importHistoriesCreate(contentTypes: $contentTypes, files: $files, columnsConfig: $columnsConfig, importName: $importName,  associatedContentType: $associatedContentType, associatedField: $associatedField)
+    }
+    `;
+
+    await graphqlRequest(mutation, 'importHistoriesCreate');
+
+    const importHistories = await ImportHistory.find({});
+
+    expect(importHistories.length).toBe(1);
+  });
+
   test('Remove import histories', async () => {
     const mutation = `
-      mutation importHistoriesRemove($_id: String!) {
-        importHistoriesRemove(_id: $_id)
+      mutation importHistoriesRemove($_id: String!, $contentType: String!) {
+        importHistoriesRemove(_id: $_id, contentType: $contentType)
       }
     `;
 
@@ -25,25 +39,27 @@ describe('Import history mutations', () => {
 
     const customerHistory = await importHistoryFactory({
       ids: [customer._id],
-      contentType: 'customer'
+      contentTypes: ['customer']
     });
 
     await graphqlRequest(mutation, 'importHistoriesRemove', {
-      _id: customerHistory._id
+      _id: customerHistory._id,
+      contentType: 'customer'
     });
+
     const historyObj = await ImportHistory.getImportHistory(
       customerHistory._id
     );
 
-    expect(historyObj.status).toBe('Removing');
+    expect(historyObj.removed?.length).toBe(1);
 
     spy.mockRestore();
   });
 
   test('Remove import histories (Error)', async () => {
     const mutation = `
-      mutation importHistoriesRemove($_id: String!) {
-        importHistoriesRemove(_id: $_id)
+      mutation importHistoriesRemove($_id: String!, $contentType: String!) {
+        importHistoriesRemove(_id: $_id, contentType: $contentType)
       }
     `;
 
@@ -57,7 +73,8 @@ describe('Import history mutations', () => {
 
     try {
       await graphqlRequest(mutation, 'importHistoriesRemove', {
-        _id: importHistory._id
+        _id: importHistory._id,
+        contentType: 'customer'
       });
     } catch (e) {
       expect(e[0].message).toBe('Workers are busy');

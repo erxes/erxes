@@ -16,6 +16,7 @@ type Props = {
   activeStep?: string;
   color?: string;
   messengerApps?: IMessengerApps;
+  responseRate?: string;
 };
 
 function renderWebsiteApps(websites, color) {
@@ -37,6 +38,8 @@ function GreetingContent(props: Props) {
   const { knowledgebases, websites } =
     props.messengerApps || ({} as IMessengerApps);
 
+  const { responseRate } = props;
+
   const isTabbed =
     (knowledgebases || []).length !== 0 &&
     (knowledgebases || [])[0].topicId &&
@@ -57,7 +60,8 @@ function GreetingContent(props: Props) {
             </LeftSide>
             <RightSide>
               <span>{__('Start new conversation')}</span>
-              <p>{__('Talk with support staff')}</p>
+              <p>Our usual response time</p>
+              <p> {responseRate || 'A few minutes'}</p>
             </RightSide>
           </li>
           <li>

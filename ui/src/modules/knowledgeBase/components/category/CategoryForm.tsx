@@ -91,7 +91,7 @@ class CategoryForm extends React.Component<Props, State> {
     const options = selectable
       ? [
           {
-            value: '',
+            value: null,
             label: 'Select category'
           }
         ]

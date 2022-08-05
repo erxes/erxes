@@ -12,7 +12,7 @@ import { ContentBox } from '../../styles';
 import { KEY_LABELS } from '../constants';
 import { IConfigsMap } from '../types';
 import Header from './Header';
-import Sidebar from './Sidebar';
+import Sidebar from '../containers/Sidebar';
 
 type Props = {
   save: (configsMap: IConfigsMap) => void;

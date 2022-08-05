@@ -6,6 +6,7 @@ import { FIELDS_GROUPS_CONTENT_TYPES } from '../data/constants';
 import { fetchElk } from '../elasticsearch';
 import {
   Boards,
+  Branches,
   Brands,
   CalendarBoards,
   CalendarGroups,
@@ -23,6 +24,7 @@ import {
   DashboardItems,
   Dashboards,
   Deals,
+  Departments,
   EmailDeliveries,
   EmailTemplates,
   EngageMessages,
@@ -52,9 +54,11 @@ import {
   Skills,
   SkillTypes,
   Stages,
+  Structures,
   Tags,
   Tasks,
   Tickets,
+  Units,
   Users,
   UsersGroups,
   Webhooks
@@ -124,12 +128,18 @@ export const activityLogFactory = async (
 });
 
 interface IDashboardFactoryInput {
+  relatedIds?: string[];
   name?: string;
+  parentId?: string;
+  description?: string;
 }
 
 export const dashboardFactory = async (params: IDashboardFactoryInput) => {
   const dashboard = new Dashboards({
-    name: params.name || 'name'
+    name: params.name || faker.random.word(),
+    parentId: params.parentId,
+    description: params.description || faker.random.word(),
+    relatedIds: params.relatedIds || []
   });
 
   return dashboard.save();
@@ -805,6 +815,7 @@ interface IIntegrationFactoryInput {
   isActive?: boolean;
   messengerData?: any;
   languageCode?: string;
+  bookingData?: any;
 }
 
 export const integrationFactory = async (
@@ -826,7 +837,13 @@ export const integrationFactory = async (
     isActive:
       params.isActive === undefined || params.isActive === null
         ? true
-        : params.isActive
+        : params.isActive,
+    bookingData: params.bookingData
+      ? params.bookingData
+      : {
+          name: 'Booking Data',
+          description: 'Booking description'
+        }
   };
 
   if (params.messengerData && !params.messengerData.timezone) {
@@ -1028,13 +1045,14 @@ interface IKnowledgeBaseArticleCategoryInput {
   modifiedBy?: string;
   topicId?: string;
   categoryId?: string;
+  title?: string;
 }
 
 export const knowledgeBaseArticleFactory = async (
   params: IKnowledgeBaseArticleCategoryInput = {}
 ) => {
   const doc = {
-    title: faker.random.word(),
+    title: params.title || faker.random.word(),
     summary: faker.lorem.sentence,
     content: faker.lorem.sentence,
     icon: faker.random.word(),
@@ -1077,6 +1095,8 @@ interface IPipelineFactoryInput {
   startDate?: Date;
   endDate?: Date;
   templateId?: string;
+  numberConfig?: string;
+  numberSize?: string;
 }
 
 export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
@@ -1100,7 +1120,9 @@ export const pipelineFactory = async (params: IPipelineFactoryInput = {}) => {
     watchedUserIds: params.watchedUserIds,
     startDate: params.startDate,
     endDate: params.endDate,
-    templateId: params.templateId
+    templateId: params.templateId,
+    numberConfig: params.numberConfig || '{year}_',
+    numberSize: params.numberSize || '1'
   });
 };
 
@@ -1151,6 +1173,8 @@ interface IDealFactoryInput {
   sourceConversationIds?: string[];
   companyIds?: string[];
   customerIds?: string[];
+  priority?: string;
+  startDate?: Date;
 }
 
 const createConformities = async (mainType, object, params) => {
@@ -1217,6 +1241,7 @@ export const dealFactory = async (
       ? { closeDate: params.closeDate || new Date() }
       : {}),
     description: faker.random.word(),
+    startDate: params.startDate,
     productsData: params.productsData,
     assignedUserIds: params.assignedUserIds || [faker.random.word()],
     userId: params.userId || faker.random.word(),
@@ -1226,6 +1251,7 @@ export const dealFactory = async (
     probability: params.probability,
     searchText: params.searchText,
     sourceConversationIds: params.sourceConversationIds,
+    priority: params.priority,
     createdAt: new Date()
   };
 
@@ -1439,6 +1465,9 @@ interface IProductFactoryInput {
   vendorId?: string;
   customFieldsData?: ICustomField[];
   attachmentMore?: any[];
+  unitPrice?: number;
+  productCount?: number;
+  supply?: string;
 }
 
 export const productFactory = async (params: IProductFactoryInput = {}) => {
@@ -1453,7 +1482,10 @@ export const productFactory = async (params: IProductFactoryInput = {}) => {
     code: await getUniqueValue(Products, 'code'),
     vendorId: params.vendorId,
     createdAt: new Date(),
-    tagIds: params.tagIds || []
+    tagIds: params.tagIds || [],
+    unitPrice: params.unitPrice || 10,
+    productCount: params.productCount || 0,
+    supply: params.supply || 'unique'
   });
 
   return product.save();
@@ -1528,7 +1560,7 @@ export const fieldGroupFactory = async (params: IFieldGroupFactoryInput) => {
 };
 
 interface IImportHistoryFactoryInput {
-  contentType?: string;
+  contentTypes?: string[];
   failed?: number;
   total?: number;
   success?: string;
@@ -1546,7 +1578,7 @@ export const importHistoryFactory = async (
     total: params.total || faker.random.number(),
     success: params.success || faker.random.number(),
     ids: params.ids,
-    contentType: params.contentType || 'customer',
+    contentTypes: params.contentTypes || ['customer'],
     errorMsgs: params.errorMsgs
   };
 
@@ -1801,6 +1833,70 @@ export const skillFactor = async (params: {
   });
 
   return skill.save();
+};
+
+export const structureFactory = async (params: {
+  title?: string;
+  description?: string;
+  supervisorId?: string;
+}) => {
+  const structure = new Structures({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    supervisorId: params.supervisorId
+  });
+
+  return structure.save();
+};
+
+export const departmentFactory = async (params: {
+  title?: string;
+  parentId?: string;
+  description?: string;
+  userIds?: string[];
+  supervisorId?: string;
+}) => {
+  const department = new Departments({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    parentId: params.parentId,
+    userIds: params.userIds || [],
+    supervisorId: params.supervisorId
+  });
+
+  return department.save();
+};
+
+export const unitFactory = async (params: {
+  title?: string;
+  departmentId?: string;
+  description?: string;
+  userIds?: string[];
+}) => {
+  const unit = new Units({
+    title: params.title || faker.random.word(),
+    description: params.description || faker.random.word(),
+    departmentId: params.departmentId,
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return unit.save();
+};
+
+export const branchFactory = async (params: {
+  title?: string;
+  parentId?: string;
+  address?: string;
+  userIds?: string[];
+}) => {
+  const unit = new Branches({
+    title: params.title || faker.random.word(),
+    parentId: params.parentId,
+    address: params.address || faker.random.word(),
+    userIds: params.userIds || [faker.random.word()]
+  });
+
+  return unit.save();
 };
 
 export const clientPortalFactory = async (params: { name?: string }) => {

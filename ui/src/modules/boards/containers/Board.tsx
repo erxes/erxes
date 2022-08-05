@@ -10,11 +10,12 @@ import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import { EMPTY_CONTENT_DEAL, EMPTY_CONTENT_TASK } from '../constants';
 import { queries } from '../graphql';
-import { RootBack, ScrolledContent } from '../styles/common';
+import { RootBack, ScrolledContent, ChartBack } from '../styles/common';
 import { IOptions, PipelineDetailQueryResponse } from '../types';
 import Pipeline from './Pipeline';
 import PipelineActivity from './PipelineActivity';
-import ListPipeline from './ListPipeline';
+import ViewGroupBy from './ViewGroupBy';
+import ChartStack from './chart/ChartRenderer';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -66,12 +67,38 @@ class Board extends React.Component<Props> {
 
     if (viewType === 'list') {
       return (
-        <ListPipeline
+        <ViewGroupBy
           key={pipeline._id}
           options={options}
           pipeline={pipeline}
           queryParams={queryParams}
+          viewType={viewType}
         />
+      );
+    }
+
+    if (viewType === 'gantt') {
+      return (
+        <ViewGroupBy
+          key={pipeline._id}
+          options={options}
+          pipeline={pipeline}
+          queryParams={queryParams}
+          viewType={viewType}
+        />
+      );
+    }
+
+    if (viewType === 'chart') {
+      return (
+        <ChartBack>
+          <ChartStack
+            stackBy={queryParams.stackBy}
+            type={options.type}
+            pipelineId={pipeline._id}
+            chartType={queryParams.chartType}
+          />
+        </ChartBack>
       );
     }
 

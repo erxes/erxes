@@ -38,6 +38,7 @@ type IProps = {
   type?: string;
   description?: string;
   attachments?: any[];
+  bookingProductId?: string;
 };
 
 type FinalProps = {
@@ -59,7 +60,8 @@ class AddFormContainer extends React.Component<FinalProps> {
       attachments,
       relType,
       relTypeIds,
-      editConformity
+      editConformity,
+      bookingProductId
     } = this.props;
 
     doc.assignedUserIds = assignedUserIds;
@@ -81,7 +83,8 @@ class AddFormContainer extends React.Component<FinalProps> {
           type: options.type,
           itemId: doc._id,
           itemName: doc.name,
-          stageId: doc.stageId
+          stageId: doc.stageId,
+          bookingProductId
         }
       })
         .then(({ data }) => {

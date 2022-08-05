@@ -138,6 +138,8 @@ export const smsSchema = new Schema(
   { _id: false }
 );
 
+const optNumber = { type: Number, optional: true, default: 0 };
+
 export const engageMessageSchema = schemaWrapper(
   new Schema({
     _id: field({ pkey: true }),
@@ -191,16 +193,20 @@ export const engageMessageSchema = schemaWrapper(
     messenger: field({ type: messengerSchema, label: 'Messenger' }),
     lastRunAt: field({ type: Date, optional: true }),
 
-    totalCustomersCount: field({ type: Number, optional: true }),
-    validCustomersCount: field({ type: Number, optional: true }),
+    totalCustomersCount: field({
+      ...optNumber,
+      label: 'Total customers chosen via selectors'
+    }),
+    validCustomersCount: field({
+      ...optNumber,
+      label: 'Valid customers filter at engages'
+    }),
 
     shortMessage: field({ type: smsSchema, label: 'Short message' }),
     createdBy: field({ type: String, label: 'Created user id' }),
     runCount: field({
-      type: Number,
-      label: 'Run count',
-      optional: true,
-      default: 0
+      ...optNumber,
+      label: 'Run count'
     })
   })
 );

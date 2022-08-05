@@ -1,0 +1,10 @@
+{
+  "name": "@erxes/api-plugin-template.erxes",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node dist",
+    "dev": "NODE_ENV=development nodemon src/index.ts",
+    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json && node fix-build.js",
+    "test": "jest --coverage --forceExit --runInBand"
+  }
+}

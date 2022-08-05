@@ -1,3 +1,4 @@
+import { IBookingData } from 'modules/bookings/types';
 import { QueryResponse } from 'modules/common/types';
 import { IForm } from 'modules/forms/types';
 import { ILeadData, ILeadIntegration, IWebhookData } from 'modules/leads/types';
@@ -82,6 +83,8 @@ export interface IMessengerData {
   availabilityMethod?: string;
   isOnline?: boolean;
   timezone?: string;
+  responseRate?: string;
+  showTimezone?: boolean;
   requireAuth?: boolean;
   showChat?: boolean;
   showLauncher?: boolean;
@@ -157,6 +160,7 @@ export interface IIntegration {
   leadMessengerApps?: ILeadMessengerApp[];
   websiteMessengerApps?: IWebsiteMessengerApp[];
   knowledgeBaseMessengerApps?: ITopicMessengerApp[];
+  bookingData?: IBookingData;
 }
 
 export interface IAccount {

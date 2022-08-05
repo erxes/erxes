@@ -1,7 +1,13 @@
 import { Model, model } from 'mongoose';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
+import { configReplacer } from '../../data/utils';
 import { Checklists, Conformities, Forms, InternalNotes } from './';
-import { getCollection, updateOrder, watchItem } from './boardUtils';
+import {
+  getCollection,
+  updateOrder,
+  watchItem,
+  boardNumberGenerator
+} from './boardUtils';
 import {
   boardSchema,
   IBoard,
@@ -135,6 +141,42 @@ const createOrUpdatePipelineStages = async (
   }
 
   return Stages.deleteMany({ pipelineId, _id: { $nin: validStageIds } });
+};
+
+// pipeline lastNum generater
+const generateLastNum = async (doc: IPipeline) => {
+  const replacedConfig = await configReplacer(doc.numberConfig);
+  const re = replacedConfig + '[0-9]+$';
+
+  const pipeline = await Pipelines.findOne({
+    lastNum: new RegExp(re),
+    type: doc.type
+  });
+
+  if (pipeline) {
+    return pipeline.lastNum;
+  }
+
+  const { collection } = await getCollection(doc.type);
+
+  const item = await collection
+    .findOne({
+      number: new RegExp(re)
+    })
+    .sort({ createdAt: -1 });
+
+  if (item) {
+    return item.number;
+  }
+
+  // generate new number by new numberConfig
+  const generatedNum = await boardNumberGenerator(
+    doc.numberConfig || '',
+    doc.numberSize || '',
+    true
+  );
+
+  return generatedNum;
 };
 
 export interface IBoardModel extends Model<IBoardDocument> {
@@ -273,6 +315,10 @@ export const loadPipelineClass = () => {
       doc: IPipeline,
       stages?: IPipelineStage[]
     ) {
+      if (doc.numberSize) {
+        doc.lastNum = await generateLastNum(doc);
+      }
+
       const pipeline = await Pipelines.create(doc);
 
       if (doc.templateId) {
@@ -316,6 +362,14 @@ export const loadPipelineClass = () => {
         }
       } else if (stages) {
         await createOrUpdatePipelineStages(stages, _id, doc.type);
+      }
+
+      if (doc.numberSize) {
+        const pipeline = await Pipelines.getPipeline(_id);
+
+        if (pipeline.numberConfig !== doc.numberConfig) {
+          doc.lastNum = await generateLastNum(doc);
+        }
       }
 
       await Pipelines.updateOne({ _id }, { $set: doc });

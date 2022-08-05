@@ -9,13 +9,13 @@ const UserDetail = asyncComponent(() =>
   )
 );
 
-const UserList = asyncComponent(() =>
-  import(/* webpackChunkName: "Settings - UserList" */ './containers/UserList')
+const Home = asyncComponent(() =>
+  import(/* webpackChunkName: "Settings - Home" */ './containers/Home')
 );
 
 const team = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
-  return <UserList queryParams={queryParams} history={history} />;
+  return <Home queryParams={queryParams} history={history} />;
 };
 
 const userDetail = ({ match, location }) => {

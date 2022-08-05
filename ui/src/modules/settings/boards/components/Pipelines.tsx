@@ -194,11 +194,11 @@ class Pipelines extends React.Component<Props, State> {
     }
 
     return (
-      <Table>
+      <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
             <th>
-              <SortHandler sortField={'name'} label={__('pipelineName')} />
+              <SortHandler sortField={'name'} label={__('Name')} />
             </th>
             <th>{__('Status')}</th>
             <th>{__('Created at')}</th>

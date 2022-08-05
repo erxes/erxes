@@ -7,9 +7,6 @@ import {
   ICommonFormProps,
   ICommonListProps
 } from 'modules/settings/common/types';
-import { queries as generalQueries } from 'modules/settings/general/graphql';
-import { queries as permissionQueries } from 'modules/settings/permissions/graphql';
-import { IUserGroup } from 'modules/settings/permissions/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { commonListComposer } from '../../utils';
@@ -20,29 +17,11 @@ type Props = ICommonListProps &
   ICommonFormProps & {
     statusChangedMutation: any;
     listQuery: any;
+    totalCountQuery: any;
     renderButton: (props: IButtonMutateProps) => JSX.Element;
   };
 
-class UserListContainer extends React.Component<
-  Props,
-  { usersGroups: IUserGroup[] }
-> {
-  constructor(props) {
-    super(props);
-
-    this.state = { usersGroups: [] };
-  }
-
-  componentDidMount() {
-    client
-      .query({
-        query: gql(permissionQueries.usersGroups)
-      })
-      .then(({ data: { usersGroups } }: any) => {
-        this.setState({ usersGroups });
-      });
-  }
-
+class UserListContainer extends React.Component<Props> {
   changeStatus = (id: string): void => {
     const { statusChangedMutation, listQuery } = this.props;
 
@@ -73,34 +52,31 @@ class UserListContainer extends React.Component<
       });
   }
 
-  getRefetchQueries = () => {
-    return [
-      { query: gql(queries.users), options },
-      { query: gql(queries.usersTotalCount), options }
-    ];
-  };
-
   render() {
+    const { totalCountQuery, renderButton } = this.props;
+
     return (
       <UserList
         {...this.props}
-        usersGroups={this.state.usersGroups}
         changeStatus={this.changeStatus}
         resendInvitation={this.resendInvitation}
-        refetchQueries={this.getRefetchQueries()}
-        renderButton={this.props.renderButton}
+        renderButton={renderButton}
+        totalCount={totalCountQuery.usersTotalCount || 0}
       />
     );
   }
 }
 
-const options = ({ queryParams }: { queryParams: any }): any => {
+export const options = ({ queryParams }: { queryParams: any }): any => {
   return {
     variables: {
       ...generatePaginationParams(queryParams),
       searchValue: queryParams.searchValue,
       isActive: queryParams.isActive === 'false' ? false : true,
-      brandIds: queryParams.brandIds
+      brandIds: queryParams.brandIds,
+      departmentId: queryParams.departmentId,
+      unitId: queryParams.unitId,
+      branchId: queryParams.branchId
     },
     fetchPolicy: 'network-only'
   };
@@ -143,9 +119,5 @@ export default commonListComposer<{ queryParams: any; history: any }>({
     name: 'totalCountQuery',
     options
   }),
-  ListComponent: UserListContainer,
-  gqlConfigsQuery: graphql(gql(generalQueries.configsGetEnv), {
-    name: 'configsEnvQuery',
-    options: { fetchPolicy: 'network-only' }
-  })
+  ListComponent: UserListContainer
 });

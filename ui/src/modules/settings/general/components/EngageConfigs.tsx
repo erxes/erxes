@@ -4,7 +4,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import React from 'react';
 import EngageSettingsContent from '../containers/EngageSettingsContent';
 import Header from './Header';
-import Sidebar from './Sidebar';
+import Sidebar from '../containers/Sidebar';
 
 function EngageConfigs() {
   const breadcrumb = [

@@ -7,11 +7,13 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import DashboardDetail from '../components/DashboardDetail';
 import { queries } from '../graphql';
-import { DashboardDetailsQueryResponse } from '../types';
+import { DashboardDetailsQueryResponse, IDashboard } from '../types';
 
 type Props = {
   id: string;
   isExplore?: boolean;
+  dashboard: IDashboard;
+  dashboards: IDashboard[];
 };
 
 type FinalProps = {

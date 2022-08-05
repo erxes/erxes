@@ -26,12 +26,13 @@ app.use('/build', express.static(path.join(__dirname, '../static')));
 app.use('/static', express.static('public'));
 
 const getEnv = () => {
-  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL } = process.env;
+  const { ROOT_URL, API_URL, API_SUBSCRIPTIONS_URL, GOOGLE_MAP_API_KEY } = process.env;
 
   return JSON.stringify({
     ROOT_URL,
     API_URL,
-    API_SUBSCRIPTIONS_URL
+    API_SUBSCRIPTIONS_URL, 
+    GOOGLE_MAP_API_KEY
   });
 };
 
@@ -55,10 +56,24 @@ app.get('/knowledgebase', (req, res) => {
   });
 });
 
-app.get('/test', (req, res) => {
-  const { form_id, brand_id, topic_id } = req.query;
+app.get('/booking', (req, res) => {
+  res.render('widget', {
+    type: 'booking',
+    env: getEnv(),
+    integrationId: req.query.integrationId
+  });
+});
 
-  res.render(`widget-${req.query.type}-test`, { topic_id, brand_id, form_id, env: getEnv() });
+app.get('/test', (req, res) => {
+  const { form_id, brand_id, topic_id, integration_id } = req.query;
+
+  res.render(`widget-${req.query.type}-test`, {
+    topic_id,
+    brand_id,
+    form_id,
+    integration_id,
+    env: getEnv()
+  });
 });
 
 const port = process.env.PORT || 3200;

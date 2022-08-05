@@ -71,7 +71,11 @@ export default function ConvertTo(props: Props) {
             />
           </li>
           <li key="deal">
-            <DealConvertTrigger {...triggerProps} url={convertToInfo.dealUrl} />
+            <DealConvertTrigger
+              {...triggerProps}
+              bookingProductId={conversation.bookingProductId}
+              url={convertToInfo.dealUrl}
+            />
           </li>
           <li key="task">
             <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />

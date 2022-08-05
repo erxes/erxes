@@ -24,6 +24,7 @@ import {
 import { twinkling } from 'modules/common/utils/animations';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
+import { getThemeItem } from 'utils';
 
 import { colors, dimensions } from '../common/styles';
 import { rgba } from '../common/styles/color';
@@ -32,6 +33,9 @@ const wideNavigation =
   dimensions.headerSpacingWide +
   dimensions.headerSpacingWide +
   dimensions.coreSpacing;
+
+const thBackground = getThemeItem('background');
+const thColor = getThemeItem('text_color');
 
 const UserHelper = styled.div`
   height: 50px;
@@ -75,8 +79,12 @@ const Authlayout = styled.div`
   height: 100%;
   overflow: auto;
   position: relative;
-  background: ${colors.colorPrimaryDark} url('/images/stars.png') repeat top
-    center;
+  background: ${
+    thBackground
+      ? thBackground
+      : `${colors.colorPrimaryDark} url('/images/stars.png') repeat top center;`
+  }
+  color: ${thColor ? thColor : ''}
   flex: 1;
   display: flex;
 
@@ -85,7 +93,11 @@ const Authlayout = styled.div`
     position: absolute;
     width: 100%;
     height: 100%;
-    background: transparent url('/images/twinkling.png') repeat top center;
+    background: ${
+      thBackground
+        ? thBackground
+        : `transparent url('/images/twinkling.png') repeat top center;`
+    }
     animation: ${twinkling} 200s linear infinite;
   }
 

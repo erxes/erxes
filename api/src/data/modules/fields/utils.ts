@@ -105,7 +105,11 @@ const getFieldGroup = async (_id: string) => {
 };
 
 // Checking field names, all field names must be configured correctly
-export const checkFieldNames = async (type: string, fields: string[]) => {
+export const checkFieldNames = async (
+  type: string,
+  fields: string[],
+  columnConfig?: object
+) => {
   const properties: any[] = [];
   let schema: any;
   let basicInfos: string[] = [];
@@ -158,9 +162,13 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       continue;
     }
 
-    fieldName = fieldName.trim();
-
     const property: { [key: string]: any } = {};
+
+    property.fieldName = fieldName;
+
+    if (columnConfig) {
+      fieldName = columnConfig[fieldName].value;
+    }
 
     const fieldObj = await Fields.findOne({
       text: fieldName,
@@ -199,6 +207,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
       property.type = 'tag';
     }
 
+    if (fieldName === 'assignedUserEmail') {
+      property.name = 'assignedUserIds';
+      property.type = 'assignedUserEmail';
+    }
+
     if (fieldName === 'boardName') {
       property.name = 'boardId';
       property.type = 'boardName';
@@ -227,6 +240,11 @@ export const checkFieldNames = async (type: string, fields: string[]) => {
     if (fieldName === 'vendorCode') {
       property.name = 'vendorCode';
       property.type = 'vendorCode';
+    }
+
+    if (type === 'Company' && fieldName === 'CustomerEmail') {
+      property.name = 'aaaa';
+      property.type = 'aaaa';
     }
 
     if (!property.type) {

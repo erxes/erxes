@@ -1,4 +1,4 @@
-import { allModels } from '../../../pluginUtils';
+import { allModels, pluginsAutomationConsume } from '../../../pluginUtils';
 import { Conformities } from '../../../db/models';
 import { isInSegment } from '../segments/queryBuilder';
 import { receiveRpcMessageBoardItem } from './boardItems';
@@ -136,6 +136,10 @@ export const receiveRpcMessage = async msg => {
     } catch (e) {
       return sendSuccess({ error: e.message });
     }
+  }
+
+  if (action.includes('erxes-plugin-')) {
+    return sendSuccess(await pluginsAutomationConsume(action, doc));
   }
 
   return receiveRpcMessageBoardItem(action, doc);

@@ -72,10 +72,17 @@ const conversationDetailQuery = `
           shortName
           description
           position
+          location
         }
         links
       }
     }
+  }
+`;
+
+const widgetExportMessengerDataQuery = `
+  query widgetExportMessengerData($_id: String, $integrationId: String!) {
+    widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
   }
 `;
 
@@ -262,6 +269,7 @@ const integrationsFetchApi = `
 export default {
   messageFields,
   conversationDetailQuery,
+  widgetExportMessengerDataQuery,
   unreadCountQuery,
   totalUnreadCountQuery,
   conversationMessageInserted,

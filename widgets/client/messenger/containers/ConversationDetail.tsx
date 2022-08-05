@@ -178,7 +178,8 @@ const WithConsumer = (props: PropsWithConsumer) => {
         const {
           isOnline,
           forceLogoutWhenResolve,
-          botShowInitialMessage
+          botShowInitialMessage, 
+          showTimezone
         } = getMessengerData();
 
         return (
@@ -191,6 +192,7 @@ const WithConsumer = (props: PropsWithConsumer) => {
             goToConversationList={goToConversationList}
             getBotInitialMessage={getBotInitialMessage}
             botShowInitialMessage={botShowInitialMessage}
+            showTimezone={showTimezone}
             setBotTyping={setBotTyping}
             endConversation={endConversation}
             errorMessage={errorMessage}

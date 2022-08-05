@@ -64,11 +64,15 @@ const setDayjsLocale = (code: string) => {
     .catch(() => dayjs.locale('en'));
 };
 
-export const setLocale = (code?: string) => {
+export const setLocale = (code?: string, callBack?: () => void) => {
   import(`../locales/${code}.json`)
     .then((translations) => {
       T.setTexts(translations);
       setDayjsLocale(code || 'en');
+
+      if (callBack) {
+        callBack()
+      }
     })
     .catch((e) => console.log(e)); // tslint:disable-line
 };

@@ -1,4 +1,4 @@
-import { colors } from 'modules/common/styles';
+import { colors, dimensions } from 'modules/common/styles';
 import { rgba } from 'modules/common/styles/color';
 import { Contents, MainContent } from 'modules/layout/styles';
 import styled from 'styled-components';
@@ -40,6 +40,12 @@ export const RootBack = styled.div`
   flex-direction: column;
   overflow: hidden;
   background-color: ${colors.colorPrimary};
+`;
+
+export const ChartBack = styled(RootBack)`
+  background-color: ${colors.colorWhite};
+  margin: ${dimensions.coreSpacing}px;
+  border-radius: ${dimensions.unitSpacing - 5}px;
 `;
 
 export const GroupByContent = styled.div`

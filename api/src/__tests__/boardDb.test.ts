@@ -128,7 +128,9 @@ describe('Test board model', () => {
         boardId: pipeline.boardId,
         userId: user._id,
         type: pipeline.type,
-        bgColor: pipeline.bgColor
+        bgColor: pipeline.bgColor,
+        numberConfig: pipeline.numberConfig,
+        numberSize: pipeline.numberSize
       },
       [stage.toJSON()]
     );
@@ -147,6 +149,7 @@ describe('Test board model', () => {
     expect(createdPipeline.boardId).toEqual(board._id);
     expect(createdPipeline.createdAt).toEqual(pipeline.createdAt);
     expect(createdPipeline.userId).toEqual(user._id);
+    expect(createdPipeline.numberConfig).toBe(pipeline.numberConfig);
   });
 
   test('Create pipeline by templateId', async () => {
@@ -183,6 +186,36 @@ describe('Test board model', () => {
     expect(createdPipeline).toBeDefined();
     expect(createdPipeline.name).toEqual(pipeline.name);
     expect(createdPipeline.type).toEqual(pipeline.type);
+  });
+
+  test('Create pipeline with numberConfig and deal', async () => {
+    const dealPipeline = await pipelineFactory({
+      type: 'deal',
+      numberConfig: 'deal_config_',
+      numberSize: '1'
+    });
+    const dealStage = await stageFactory({ pipelineId: dealPipeline._id });
+    const testDeal = await Deals.createDeal({ stageId: dealStage._id });
+
+    await Pipelines.updateOne(
+      { _id: dealPipeline._id },
+      { $set: { numberConfig: 'updatedDeal_' } }
+    );
+
+    const createdPipeline = await Pipelines.createPipeline(
+      {
+        name: dealPipeline.name,
+        boardId: dealPipeline.boardId,
+        userId: user._id,
+        type: dealPipeline.type,
+        bgColor: dealPipeline.bgColor,
+        numberConfig: dealPipeline.numberConfig,
+        numberSize: dealPipeline.numberSize
+      },
+      [stage.toJSON()]
+    );
+
+    expect(createdPipeline.lastNum).toBe(testDeal.number);
   });
 
   test('Update pipeline', async () => {
@@ -284,6 +317,51 @@ describe('Test board model', () => {
 
     expect(updatedPipeline.order).toBe(4);
     expect(updatedPipelineToOrder.order).toBe(5);
+  });
+
+  test('Update pipeline with new numberConfig for generate new number', async () => {
+    const dealPipeline = await pipelineFactory({
+      type: 'deal',
+      numberConfig: 'config_',
+      numberSize: '1'
+    });
+
+    const config = 'updatedConfig_';
+
+    const updatedPipeline = await Pipelines.updatePipeline(dealPipeline._id, {
+      name: dealPipeline.name,
+      boardId: dealPipeline.boardId,
+      userId: user._id,
+      type: dealPipeline.type,
+      numberConfig: config,
+      numberSize: '2'
+    });
+
+    expect(updatedPipeline.lastNum).toBe(config + '00');
+  });
+
+  test('Update pipeline and get last number in deal', async () => {
+    const deal = await Deals.createDeal({
+      stageId: stage._id
+    });
+
+    await Pipelines.deleteMany({});
+
+    const dealPipeline = await pipelineFactory({
+      type: 'deal',
+      numberConfig: 'config_',
+      numberSize: '1'
+    });
+
+    const updatedPipeline = await Pipelines.updatePipeline(dealPipeline._id, {
+      boardId: dealPipeline.boardId,
+      type: dealPipeline.type,
+      userId: user._id,
+      numberConfig: pipeline.numberConfig,
+      numberSize: '1'
+    });
+
+    expect(updatedPipeline.lastNum).toEqual(deal.number);
   });
 
   test('Remove pipeline', async () => {

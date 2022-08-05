@@ -104,6 +104,7 @@ export const KIND_CHOICES = {
   WHATSAPP: 'whatsapp',
   TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
+  BOOKING: 'booking',
   ALL: [
     'messenger',
     'lead',
@@ -125,7 +126,8 @@ export const KIND_CHOICES = {
     'smooch-twilio',
     'whatsapp',
     'telnyx',
-    'webhook'
+    'webhook',
+    'booking'
   ]
 };
 
@@ -531,6 +533,7 @@ export const NOTIFICATION_TYPES = {
   TASK_DELETE: 'taskDelete',
   CUSTOMER_MENTION: 'customerMention',
   COMPANY_MENTION: 'companyMention',
+  IMPORT_DONE: 'importDone',
   ALL: [
     'channelMembersChange',
     'conversationAddMessage',
@@ -562,14 +565,16 @@ export const NOTIFICATION_TYPES = {
     'taskDelete',
     'customerMention',
     'companyMention',
-    'plugin'
+    'plugin',
+    'importDone'
   ]
 };
 
 export const FORM_TYPES = {
   LEAD: 'lead',
   GROWTH_HACK: 'growthHack',
-  ALL: ['lead', 'growthHack']
+  BOOKING: 'booking',
+  ALL: ['lead', 'growthHack', 'booking']
 };
 
 export const NOTIFICATION_CONTENT_TYPES = {

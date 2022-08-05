@@ -19,6 +19,19 @@ type IProps = {
   type: string;
   search: string;
   pipelineId: string;
+  itemFilters: {
+    userIds: string[];
+    priorities: string[];
+    assignedUserIds: string[];
+    labelIds: string[];
+    productIds: string[];
+    companyIds: string[];
+    customerIds: string[];
+    startDate: string;
+    endDate: string;
+    sources: string[];
+    hackStages: string[];
+  };
 };
 
 type IFinalProps = {
@@ -119,7 +132,9 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
       options,
       archivedItemsCountQuery,
       archivedItemsQuery,
-      archivedStagesQuery
+      archivedStagesQuery,
+      itemFilters,
+      type
     } = this.props;
 
     let query;
@@ -146,13 +161,22 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
     }
 
     if (!loading && hasMore) {
+      let variables = {
+        pipelineId,
+        search,
+        perPage: 20,
+        page: items.length
+      };
+
+      if (type === 'item') {
+        variables = {
+          ...variables,
+          ...itemFilters
+        };
+      }
+
       query.fetchMore({
-        variables: {
-          pipelineId,
-          search,
-          perPage: 20,
-          page: items.length
-        },
+        variables,
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) {
             return prev;
@@ -216,7 +240,7 @@ class ArchivedItemsContainer extends React.Component<IFinalProps> {
 }
 
 export default (props: IProps) => {
-  const { options } = props;
+  const { options, itemFilters } = props;
 
   return renderWithProps<IProps>(
     props,
@@ -233,7 +257,7 @@ export default (props: IProps) => {
         name: 'archivedItemsQuery',
         skip: ({ type }) => type === 'list',
         options: ({ pipelineId, search }) => ({
-          variables: { pipelineId, search, perPage: 20 },
+          variables: { pipelineId, search, perPage: 20, ...itemFilters },
           fetchPolicy: 'network-only'
         })
       }),
@@ -249,7 +273,7 @@ export default (props: IProps) => {
         name: 'archivedItemsCountQuery',
         skip: ({ type }) => type === 'list',
         options: ({ pipelineId, search }) => ({
-          variables: { pipelineId, search },
+          variables: { pipelineId, search, ...itemFilters },
           fetchPolicy: 'network-only'
         })
       }),

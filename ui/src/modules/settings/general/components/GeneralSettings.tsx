@@ -18,13 +18,14 @@ import {
   FILE_SYSTEM_TYPES,
   KEY_LABELS,
   LANGUAGES,
+  LOG_RETENTION_DURATION,
   MEASUREMENTS,
   SERVICE_TYPES
 } from '../constants';
 import { IConfigsMap } from '../types';
 import ActivateInstallation from './ActivateInstallation';
 import Header from './Header';
-import Sidebar from './Sidebar';
+import Sidebar from '../containers/Sidebar';
 
 type Props = {
   currentLanguage: string;
@@ -352,6 +353,7 @@ class GeneralSettings extends React.Component<Props, State> {
             'GOOGLE_APPLICATION_CREDENTIALS_JSON',
             'Firebase config for notifications'
           )}
+          {this.renderItem('GOOGLE_MAP_API_KEY', 'Google Map Api Key')}
         </CollapseContent>
 
         <CollapseContent title={__('Common mail config')}>
@@ -426,6 +428,14 @@ class GeneralSettings extends React.Component<Props, State> {
               this,
               'NOTIFICATION_DATA_RETENTION'
             )}
+          />
+          <ControlLabel>{KEY_LABELS.LOG_DATA_RETENTION}</ControlLabel>
+          <Select
+            options={LOG_RETENTION_DURATION}
+            value={configsMap.LOG_DATA_RETENTION || 1}
+            clearable={false}
+            searchable={false}
+            onChange={this.onChangeSingleCombo.bind(this, 'LOG_DATA_RETENTION')}
           />
         </CollapseContent>
 

@@ -1,4 +1,4 @@
-import { QueryResponse } from 'modules/common/types';
+import { QueryResponse, IAttachment } from 'modules/common/types';
 import { IActivityLogForMonth } from '../../activityLogs/types';
 import { IUser, IUserDetails, IUserDoc, IUserLinks } from '../../auth/types';
 import { IConversation } from '../../inbox/types';
@@ -8,6 +8,9 @@ export type IInvitationEntry = {
   password: string;
   groupId: string;
   channelIds: string[];
+  departmentId: string;
+  unitId: string;
+  branchId: string;
 };
 
 export type UserMutationVariables = {
@@ -30,6 +33,12 @@ export type AllUsersQueryResponse = {
 
 export type UserDetailQueryResponse = {
   userDetail: IUser;
+} & QueryResponse;
+
+export type CountQueryResponse = {
+  usersTotalCount: {
+    bySegment: { [key: string]: number };
+  };
 } & QueryResponse;
 
 export type EditMutationResponse = {
@@ -69,3 +78,55 @@ export type ResetMemberPasswordResponse = {
     variables: { _id: string; newPassword: string };
   }) => Promise<any>;
 };
+
+interface IStructureCommon {
+  _id: string;
+  title: string;
+  code: string;
+  supervisorId: string;
+  supervisor: IUser;
+}
+
+export interface IDepartment extends IStructureCommon {
+  description: string;
+  userIds: string[];
+  users: IUser;
+}
+
+export interface IUnit extends IStructureCommon {
+  departmentId: string;
+  description: string;
+  userIds: string[];
+  users: IUser;
+}
+
+interface IContactInfo {
+  phoneNumber?: string;
+  email?: string;
+  links?: any;
+  coordinate?: any;
+  image?: IAttachment;
+}
+
+export interface IBranch extends IStructureCommon, IContactInfo {
+  address: string;
+  parentId: string;
+  userIds: string[] | string;
+  users: IUser[];
+}
+
+export interface IStructure extends IStructureCommon, IContactInfo {
+  description?: string;
+}
+
+export type UnitsQueryResponse = {
+  units: IUnit[];
+} & QueryResponse;
+
+export type BranchesQueryResponse = {
+  branches: IBranch[];
+} & QueryResponse;
+
+export type DepartmentsQueryResponse = {
+  departments: IDepartment[];
+} & QueryResponse;

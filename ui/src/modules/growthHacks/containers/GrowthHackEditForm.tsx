@@ -13,6 +13,9 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import GrowthHackEditForm from '../components/GrowthHackEditForm';
 import { IGrowthHack, IGrowthHackParams } from '../types';
+import { queries } from 'modules/settings/general/graphql';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
+import { Spinner } from 'erxes-ui';
 
 type Props = {
   options: IOptions;
@@ -27,6 +30,7 @@ type Props = {
 };
 
 type FinalProps = {
+  configsQuery: ConfigsQueryResponse;
   saveFormSubmissionMutation: SaveFormSubmissionMutation;
 } & Props;
 
@@ -61,8 +65,15 @@ class GrowthHackEditFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
+    const { configsQuery } = this.props;
+
+    if (configsQuery.loading) {
+      return <Spinner objective={true} />;
+    }
+
     const extendedProps = {
       ...this.props,
+      configs: configsQuery.configs || [],
       saveFormSubmission: this.saveFormSubmission
     };
 
@@ -72,6 +83,9 @@ class GrowthHackEditFormContainer extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
+    graphql<{}, ConfigsQueryResponse>(gql(queries.configs), {
+      name: 'configsQuery'
+    }),
     graphql<Props, SaveFormSubmissionMutation, IFormSubmissionParams>(
       gql(mutations.formSubmissionsSave),
       {

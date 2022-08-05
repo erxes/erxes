@@ -1,6 +1,7 @@
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert, withProps } from 'modules/common/utils';
+import { ConfigsQueryResponse } from 'modules/settings/general/types';
 import { IIntegration } from 'modules/settings/integrations/types';
 import { FieldsQueryResponse, IField } from 'modules/settings/properties/types';
 import React from 'react';
@@ -19,6 +20,7 @@ import {
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
+import { queries as settingsQueries } from 'modules/settings/general/graphql';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -35,6 +37,7 @@ type Props = {
 type FinalProps = {
   fieldsQuery: FieldsQueryResponse;
   formDetailQuery: FormDetailQueryResponse;
+  configsQuery: ConfigsQueryResponse;
 } & Props &
   EditFormMutationResponse &
   RemoveFieldMutationResponse &
@@ -63,10 +66,15 @@ class EditFormContainer extends React.Component<FinalProps> {
       fieldsBulkAddAndEditMutation,
       fieldsQuery,
       formDetailQuery,
+      configsQuery,
       showMessage
     } = this.props;
 
-    if (fieldsQuery.loading || formDetailQuery.loading) {
+    if (
+      fieldsQuery.loading ||
+      formDetailQuery.loading ||
+      configsQuery.loading
+    ) {
       return false;
     }
 
@@ -182,7 +190,8 @@ class EditFormContainer extends React.Component<FinalProps> {
       ...this.props,
       fields: dbFields.map(field => ({ ...field })),
       saveForm,
-      form
+      form,
+      configs: configsQuery.configs || []
     };
 
     return <Form {...updatedProps} />;
@@ -218,6 +227,9 @@ export default withProps<Props>(
         })
       }
     ),
+    graphql<{}, ConfigsQueryResponse>(gql(settingsQueries.configs), {
+      name: 'configsQuery'
+    }),
     graphql<
       Props,
       FieldsBulkAddAndEditMutationResponse,

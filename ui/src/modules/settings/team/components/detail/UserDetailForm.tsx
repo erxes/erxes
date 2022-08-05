@@ -8,6 +8,11 @@ import { ISkillDocument } from 'modules/settings/skills/types';
 import React from 'react';
 import { IConversation } from '../../../../inbox/types';
 import LeftSidebar from './LeftSidebar';
+import { UserHeader } from 'modules/customers/styles';
+import InfoSection from './InfoSection';
+import LeadState from 'modules/customers/containers/LeadState';
+import ActionSection from '../../containers/ActionSection';
+import RightSidebar from './RightSidebar';
 
 type Props = {
   user: IUser;
@@ -75,6 +80,19 @@ function UserDetails({
   return (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+      mainHead={
+        <UserHeader>
+          <InfoSection
+            nameSize={16}
+            avatarSize={60}
+            user={user}
+            renderEditForm={renderEditForm}
+          >
+            <ActionSection user={user} renderEditForm={renderEditForm} />
+          </InfoSection>
+          <LeadState customer={user} />
+        </UserHeader>
+      }
       leftSidebar={
         <LeftSidebar
           user={user}
@@ -82,9 +100,9 @@ function UserDetails({
           skills={skills}
           excludeUserSkill={excludeUserSkill}
           renderSkillForm={renderSkillForm}
-          renderEditForm={renderEditForm}
         />
       }
+      rightSidebar={<RightSidebar user={user} />}
       content={content}
       transparent={true}
     />

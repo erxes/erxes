@@ -4,30 +4,39 @@ import { field } from './utils';
 export interface IImportHistory {
   success: number;
   failed: number;
+  updated: number;
   total: number;
-  ids: string[];
-  contentType: string;
+  contentTypes: string[];
   status?: string;
   percentage?: number;
+  attachments: any;
+  name: string;
+  removed?: string[];
 }
 
 export interface IImportHistoryDocument extends IImportHistory, Document {
   _id: string;
   userId: string;
   date: Date;
-  errorMsgs: string[];
+  errorMsgs: object[];
+  ids: string[];
 }
 
 export const importHistorySchema = new Schema({
   _id: field({ pkey: true }),
   success: field({ type: Number, default: 0, label: 'Successful attempts' }),
+  updated: field({ type: Number, default: 0, label: 'Updated attempts' }),
   failed: field({ type: Number, default: 0, label: 'Failed attempts' }),
   total: field({ type: Number, label: 'Total attempts' }),
-  ids: field({ type: [String], default: [], label: 'Ids' }),
-  contentType: field({ type: String, label: 'Content type' }),
+  contentTypes: field({ type: [String], label: 'Content type' }),
   userId: field({ type: String, label: 'Created by' }),
   date: field({ type: Date, label: 'Date of import' }),
-  errorMsgs: field({ type: [String], default: [], label: 'Error messages' }),
   status: field({ type: String, default: 'In Progress', label: 'Status' }),
-  percentage: field({ type: Number, default: 0, label: 'Percentage' })
+  name: field({ type: String, label: 'Name' }),
+  percentage: field({ type: Number, default: 0, label: 'Percentage' }),
+  errorMsgs: field({ type: [Object] }),
+  removed: field({ type: [String] }),
+  ids: field({ type: [String] }),
+
+  attachments: field({ type: Object, label: 'Attachments' })
 });

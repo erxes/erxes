@@ -14,6 +14,7 @@ import {
 } from './models/Executions';
 import { getActionsMap } from './helpers';
 import { sendRPCMessage } from './messageBroker';
+import { callPluginsAction } from './pluginUtils';
 
 export const getEnv = ({
   name,
@@ -119,6 +120,10 @@ export const executeActions = async (
     if (action.type === ACTIONS.CUSTOM_CODE) {
       actionResponse = await customCode({ action, execution })
     }
+
+    if (action.type.includes('erxes-plugin-')) {
+      actionResponse = await callPluginsAction({ action, execution })
+    }
   } catch (e) {
     execAction.result = { error: e.message, result: e.result };
     execution.actions = [...(execution.actions || []), execAction]
@@ -139,6 +144,32 @@ export const executeActions = async (
     action.nextActionId
   );
 };
+
+const isDiffValue = (latest, target, field) => {
+  const getValue = (obj, attr) => {
+    try {
+      return obj[attr]
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  const extractFields = field.split('.');
+  let latestValue = latest;
+  let targetValue = target;
+
+
+  for (const f of extractFields) {
+    latestValue = getValue(latestValue, f);
+    targetValue = getValue(targetValue, f);
+  }
+
+  if (targetValue !== latestValue) {
+    return true;
+  }
+
+  return false;
+}
 
 export const calculateExecution = async ({
   automationId,
@@ -185,7 +216,7 @@ export const calculateExecution = async ({
     let isChanged = false;
 
     for (const reEnrollmentRule of reEnrollmentRules) {
-      if (latestExecution.target[reEnrollmentRule] !== target[reEnrollmentRule]) {
+      if (isDiffValue(latestExecution.target, target, reEnrollmentRule)) {
         isChanged = true;
         break;
       }

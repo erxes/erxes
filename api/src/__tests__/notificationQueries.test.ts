@@ -5,6 +5,7 @@ import {
   userFactory
 } from '../db/factories';
 import { NotificationConfigurations, Notifications, Users } from '../db/models';
+import { NOTIFICATION_TYPES } from '../db/models/definitions/constants';
 
 import './setup.ts';
 
@@ -15,6 +16,7 @@ describe('notificationsQueries', () => {
     $perPage: Int,
     $requireRead: Boolean,
     $title: String
+    $notifType: String
   `;
 
   const commonParams = `
@@ -22,6 +24,7 @@ describe('notificationsQueries', () => {
     page: $page
     perPage: $perPage
     requireRead: $requireRead
+    notifType: $notifType
     title: $title
   `;
 
@@ -44,7 +47,8 @@ describe('notificationsQueries', () => {
       title: title1,
       createdUser: user,
       receiver,
-      isRead: true
+      isRead: true,
+      notifType: NOTIFICATION_TYPES.COMPANY_MENTION
     });
 
     await notificationFactory({
@@ -100,6 +104,17 @@ describe('notificationsQueries', () => {
 
     expect(response.length).toBe(1);
     expect(response[0].isRead).toBe(false);
+
+    // filter by notifType
+    response = await graphqlRequest(
+      qry,
+      'notifications',
+      { notifType: NOTIFICATION_TYPES.COMPANY_MENTION },
+      { user: receiver }
+    );
+
+    expect(response.length).toBe(1);
+    expect(response[0].notifType).toBe(NOTIFICATION_TYPES.COMPANY_MENTION);
   });
 
   test('Count notifications', async () => {

@@ -1,6 +1,5 @@
 import * as faker from 'faker';
 import { IntegrationsAPI } from '../data/dataSources';
-import * as utils from '../data/utils';
 import { graphqlRequest } from '../db/connection';
 import {
   brandFactory,
@@ -20,7 +19,7 @@ import {
   Users
 } from '../db/models';
 import { KIND_CHOICES } from '../db/models/definitions/constants';
-
+import EditorAttributeUtil from '../data/editorAttributeUtils';
 import messageBroker from '../messageBroker';
 import './setup.ts';
 
@@ -211,6 +210,8 @@ describe('mutations', () => {
         }
       ],
       timezone: faker.random.word(),
+      responseRate: faker.random.word(),
+      showTimezone: false,
       messages: {
         en: {
           welcome: faker.random.word(),
@@ -575,20 +576,22 @@ describe('mutations', () => {
       customerId: customer._id
     };
 
-    const spy = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
-    const mockReplaceEditorAttribute = jest.spyOn(
-      utils,
-      'replaceEditorAttributes'
-    );
+    const mockReplaceEditorAttribute = jest
+      .spyOn(EditorAttributeUtil.prototype, 'replaceAttributes')
+      .mockReturnValue(Promise.resolve('body'));
 
-    mockReplaceEditorAttribute.mockImplementation(() =>
-      Promise.resolve({
-        replacedContent: 'replacedContent',
-        replacers: [{ key: 'key', value: 'value' }]
-      })
-    );
+    try {
+      await graphqlRequest(mutation, 'integrationSendMail', args, {
+        dataSources
+      });
+    } catch (e) {
+      console.log(e);
+      // Should be something like "Integration API not running"
+      expect(e[0].message).toBeDefined();
+    }
 
-    spy.mockImplementation(() => Promise.resolve());
+    const mockSendEmail = jest.spyOn(dataSources.IntegrationsAPI, 'sendEmail');
+    mockSendEmail.mockImplementation(() => Promise.resolve());
 
     try {
       await graphqlRequest(mutation, 'integrationSendMail', args, {
@@ -619,16 +622,7 @@ describe('mutations', () => {
       expect(e[0].message).toBe('Duplicated email');
     }
 
-    spy.mockRestore();
-
-    try {
-      await graphqlRequest(mutation, 'integrationSendMail', args, {
-        dataSources
-      });
-    } catch (e) {
-      expect(e[0].message).toBeDefined();
-    }
-
+    mockSendEmail.mockRestore();
     mockReplaceEditorAttribute.mockRestore();
   });
 
@@ -919,6 +913,133 @@ describe('mutations', () => {
     }
 
     spy.mockRestore();
+  });
+
+  test('Create booking integration', async () => {
+    const bookingIntegration = await integrationFactory({
+      formId: 'formId',
+      kind: 'booking'
+    });
+
+    const channel = await channelFactory({});
+
+    const args = {
+      name: bookingIntegration.name,
+      brandId: _brand._id,
+      formId: bookingIntegration.formId,
+      channelIds: [channel._id],
+      bookingData: {
+        name: 'booking name',
+        description: 'booking description',
+        productCategoryId: 'test'
+      },
+      ...commonLeadProperties
+    };
+
+    const mutation = `
+      mutation integrationsCreateBookingIntegration(
+        ${commonParamDefs}
+        $formId: String!
+        $channelIds: [String]
+        $leadData: IntegrationLeadData
+        $bookingData: IntegrationBookingData
+      ) {
+        integrationsCreateBookingIntegration(
+          ${commonParams}
+          formId: $formId
+          channelIds: $channelIds
+          leadData: $leadData
+          bookingData: $bookingData
+        ) {
+          name
+          brandId
+          languageCode
+          formId
+          leadData
+          bookingData {
+            name
+            description
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsCreateBookingIntegration',
+      args
+    );
+
+    expect(response.name).toBe(args.name);
+    expect(response.brandId).toBe(args.brandId);
+    expect(response.languageCode).toBe(args.languageCode);
+    expect(response.formId).toBe(args.formId);
+    expect(response.bookingData.name).toBe(args.bookingData.name);
+  });
+
+  test('Edit booking integration', async () => {
+    const bookingIntegration = await integrationFactory({
+      formId: 'formId',
+      kind: 'booking'
+    });
+
+    const channel = await channelFactory({});
+
+    const args = {
+      _id: bookingIntegration._id,
+      name: bookingIntegration.name,
+      brandId: _brand._id,
+      formId: bookingIntegration.formId,
+      channelIds: [channel._id],
+      bookingData: {
+        name: 'booking name',
+        description: 'booking description',
+        productCategoryId: 'test1'
+      },
+      ...commonLeadProperties
+    };
+
+    const mutation = `
+      mutation integrationsEditBookingIntegration(
+        $_id: String!
+        ${commonParamDefs}
+        $formId: String!
+        $channelIds: [String]
+        $leadData: IntegrationLeadData
+        $bookingData: IntegrationBookingData
+      ) {
+        integrationsEditBookingIntegration(
+          _id: $_id
+          ${commonParams}
+          formId: $formId
+          channelIds: $channelIds
+          leadData: $leadData
+          bookingData: $bookingData
+        ) {
+          name
+          brandId
+          languageCode
+          formId
+          leadData
+          bookingData {
+            name
+            description
+          }
+        }
+      }
+    `;
+
+    const response = await graphqlRequest(
+      mutation,
+      'integrationsEditBookingIntegration',
+      args
+    );
+
+    expect(response.name).toBe(args.name);
+    expect(response.brandId).toBe(args.brandId);
+    expect(response.languageCode).toBe(args.languageCode);
+    expect(response.formId).toBe(args.formId);
+    expect(response.bookingData.name).toBe(args.bookingData.name);
   });
 });
 

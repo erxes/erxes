@@ -1,4 +1,10 @@
-import { Conversations, Users } from '../../../db/models';
+import {
+  Branches,
+  Conversations,
+  Departments,
+  Units,
+  Users
+} from '../../../db/models';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../types';
 import { paginate } from '../../utils';
@@ -6,6 +12,8 @@ import { paginate } from '../../utils';
 interface IListArgs {
   page?: number;
   perPage?: number;
+  sortDirection?: number;
+  sortField?: string;
   searchValue?: string;
   excludeIds?: boolean;
   isActive?: boolean;
@@ -14,6 +22,9 @@ interface IListArgs {
   email?: string;
   status?: string;
   brandIds?: string[];
+  departmentId?: string;
+  branchId?: string;
+  unitId?: string;
 }
 
 const queryBuilder = async (params: IListArgs) => {
@@ -24,7 +35,10 @@ const queryBuilder = async (params: IListArgs) => {
     ids,
     status,
     excludeIds,
-    brandIds
+    brandIds,
+    departmentId,
+    unitId,
+    branchId
   } = params;
 
   const selector: any = {
@@ -61,6 +75,32 @@ const queryBuilder = async (params: IListArgs) => {
     selector.brandIds = { $in: brandIds };
   }
 
+  const getUserIds = obj => {
+    const userIds = obj.supervisorId
+      ? (obj.userIds || []).concat(obj.supervisorId)
+      : obj.userIds || [];
+
+    return { $in: userIds };
+  };
+
+  if (departmentId) {
+    const department = await Departments.getDepartment({ _id: departmentId });
+
+    selector._id = getUserIds(department);
+  }
+
+  if (unitId) {
+    const unit = await Units.getUnit({ _id: unitId });
+
+    selector._id = getUserIds(unit);
+  }
+
+  if (branchId) {
+    const branch = await Branches.getBranch({ _id: branchId });
+
+    selector._id = getUserIds(branch);
+  }
+
   return selector;
 };
 
@@ -70,7 +110,13 @@ const userQueries = {
    */
   async users(_root, args: IListArgs, { userBrandIdsSelector }: IContext) {
     const selector = { ...userBrandIdsSelector, ...(await queryBuilder(args)) };
-    const sort = { username: 1 };
+
+    const { sortField, sortDirection } = args;
+
+    const sort =
+      sortField && sortDirection
+        ? { [sortField]: sortDirection }
+        : { username: 1 };
 
     return paginate(Users.find(selector).sort(sort), args);
   },

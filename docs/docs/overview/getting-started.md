@@ -10,25 +10,6 @@ title: Getting  Started
 - [Deployment Overview](/overview/deployment-overview)
 - [Integrations Overview](/overview/integrations-overview)
 
-### User's Guide
-
-- [Subscription getting started](/user/subscription-getting-started)
-- [Initial setup](/user/initial-setup)
-- [General settings](/user/general-settings)
-- [Import](/user/import)
-- [Team Inbox](/user/team-inbox)
-- [Knowledge Base](/user/knowledge-base)
-- [Popups](/user/popups)
-- [Script installation](/user/script-install)
-- [Contacts](/user/contacts)
-- [Segments](/user/segments)
-- [Sales pipeline](/user/sales-pipeline)
-- [Engage](/user/engage)
-- [Insights](/user/insights)
-- [Profile settings](/user/profile-settings)
-- [Notifications](/user/notification)
-- [Mobile Apps](/user/mobile-apps)
-
 ### Installation Guide
 
 - [Ubuntu 18.04](/installation/ubuntu)
@@ -45,6 +26,7 @@ title: Getting  Started
 ### Developer's guide
 
 - [Developer](/developer/developer)
+- [Plugin](/developer/plugin)
 - [Contributing](/developer/contributing)
 - [GraphQL API](/developer/graphql-api)
 - [Push Notifications](/developer/push-notifications)

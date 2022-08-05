@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookingMessage } from '.';
 import { IMessage } from '../../../../../types';
 import AppMessage from './AppMessage';
 import FormMessage from './FormMessage';
@@ -24,6 +25,10 @@ function Message(props: Props) {
 
   if (message.botData) {
     return <MessageBot message={message} />;
+  }
+
+  if (message.bookingWidgetData) {
+    return <BookingMessage {...props} />;
   }
 
   return (

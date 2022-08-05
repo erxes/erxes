@@ -22,6 +22,10 @@ export const PROPERTY_TYPES = [
   {
     value: 'conversation',
     label: 'Conversation'
+  },
+  {
+    value: 'user',
+    label: 'Team Member'
   }
 ];
 

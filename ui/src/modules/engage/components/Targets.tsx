@@ -30,7 +30,7 @@ class Targets<
   componentDidMount() {
     const { defaultValues } = this.props;
 
-    if (defaultValues !== []) {
+    if (defaultValues && defaultValues.length) {
       this.setState({ selectedIds: defaultValues });
     }
   }

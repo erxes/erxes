@@ -86,12 +86,6 @@ const Box = styled(BoxRoot)`
     border-bottom: ${dimensions.unitSpacing - 7}px solid
       ${colors.colorCoreGreen};
   }
-
-  &:hover {
-    img {
-      transform: scale(1.1) rotate(4deg);
-    }
-  }
 `;
 
 const Divider = styled.div`

@@ -260,7 +260,7 @@ describe('Companies model tests', () => {
     });
 
     const deal1 = await dealFactory({});
-    companyIds.map(async companyId => {
+    companyIds.forEach(async companyId => {
       await conformityFactory({
         mainType: 'deal',
         mainTypeId: deal1._id,

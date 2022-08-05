@@ -3,21 +3,21 @@ name: Automations CI
 on:
   push:
     branches:
-      - "**"
+      - '**'
     paths:
-      - "automations/**"
-      - "!automations/**.md"
-      - "!.github/**"
-      - ".github/workflows/automations.yaml"
+      - 'automations/**'
+      - '!automations/**.md'
+      - '!.github/**'
+      - '.github/workflows/automations.yaml'
   pull_request:
     branches:
       - master
       - develop
     paths:
-      - "automations/**"
-      - "!automations/**.md"
-      - "!.github/**"
-      - ".github/workflows/automations.yaml"
+      - 'automations/**'
+      - '!automations/**.md'
+      - '!.github/**'
+      - '.github/workflows/automations.yaml'
 
 jobs:
   automations:

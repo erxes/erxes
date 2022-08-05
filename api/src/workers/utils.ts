@@ -6,21 +6,23 @@ import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
 import { checkFieldNames } from '../data/modules/fields/utils';
-import {
+import utils, {
   createAWS,
-  deleteFile,
   getConfig,
+  getS3FileInfo,
+  ISendNotification,
   uploadsFolderPath
 } from '../data/utils';
-import { CUSTOMER_SELECT_OPTIONS } from '../db/models/definitions/constants';
 import {
-  default as ImportHistories,
-  default as ImportHistory
-} from '../db/models/ImportHistory';
+  CUSTOMER_SELECT_OPTIONS,
+  NOTIFICATION_TYPES
+} from '../db/models/definitions/constants';
+import { default as ImportHistory } from '../db/models/ImportHistory';
 import { debugError, debugWorkers } from '../debuggers';
 import CustomWorker from './workerUtil';
 import * as streamify from 'stream-array';
 import * as os from 'os';
+import { graphqlPubsub } from '../pubsub';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 
@@ -29,7 +31,7 @@ export const connect = () =>
 
 dotenv.config();
 
-const WORKER_BULK_LIMIT = 1000;
+const WORKER_BULK_LIMIT = 300;
 
 const myWorker = new CustomWorker();
 
@@ -59,56 +61,6 @@ export const generatePronoun = value => {
   return pronoun ? pronoun.value : '';
 };
 
-const getS3FileInfo = async ({ s3, query, params }): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    s3.selectObjectContent(
-      {
-        ...params,
-        ExpressionType: 'SQL',
-        Expression: query,
-        InputSerialization: {
-          CSV: {
-            FileHeaderInfo: 'NONE',
-            RecordDelimiter: '\n',
-            FieldDelimiter: ',',
-            AllowQuotedRecordDelimiter: true
-          }
-        },
-        OutputSerialization: {
-          CSV: {
-            RecordDelimiter: '\n',
-            FieldDelimiter: ','
-          }
-        }
-      },
-      (error, data) => {
-        if (error) {
-          return reject(error);
-        }
-
-        if (!data) {
-          return reject('Failed to get file info');
-        }
-
-        // data.Payload is a Readable Stream
-        const eventStream: any = data.Payload;
-
-        let result;
-
-        // Read events as they are available
-        eventStream.on('data', event => {
-          if (event.Records) {
-            result = event.Records.Payload.toString();
-          }
-        });
-        eventStream.on('end', () => {
-          resolve(result);
-        });
-      }
-    );
-  });
-};
-
 const getCsvInfo = (fileName: string, uploadType: string) => {
   return new Promise(async resolve => {
     if (uploadType === 'local') {
@@ -135,7 +87,7 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 
         debugWorkers(`Get CSV Info type: local, totalRow: ${total}`);
 
-        resolve({ total, columns });
+        resolve({ rows: total, columns });
       });
     } else {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -162,25 +114,41 @@ const getCsvInfo = (fileName: string, uploadType: string) => {
 
       debugWorkers(`Get CSV Info type: AWS, totalRow: ${total}`);
 
-      return resolve({ total, columns });
+      return resolve({ rows: total, columns });
     }
   });
 };
 
 const importBulkStream = ({
+  contentType,
   fileName,
   bulkLimit,
   uploadType,
-  handleBulkOperation
+  handleBulkOperation,
+  associateContentType,
+  associateField,
+  mainAssociateField
 }: {
+  contentType: string;
   fileName: string;
   bulkLimit: number;
   uploadType: 'AWS' | 'local';
-  handleBulkOperation: (rows: any) => Promise<void>;
+  handleBulkOperation: (
+    rowIndex: number,
+    rows: any,
+    contentType: string,
+    associatedContentType?: string,
+    associatedField?: string,
+    mainAssociateField?: string
+  ) => Promise<void>;
+  associateContentType?: string;
+  associateField?: string;
+  mainAssociateField?: string;
 }) => {
   return new Promise(async (resolve, reject) => {
     let rows: any = [];
     let readSteam;
+    let rowIndex = 0;
 
     if (uploadType === 'AWS') {
       const AWS_BUCKET = await getConfig('AWS_BUCKET');
@@ -200,10 +168,18 @@ const importBulkStream = ({
     }
 
     const write = (row, _, next) => {
+      rowIndex++;
       rows.push(row);
 
       if (rows.length === bulkLimit) {
-        return handleBulkOperation(rows)
+        return handleBulkOperation(
+          rowIndex,
+          rows,
+          contentType,
+          associateContentType,
+          associateField,
+          mainAssociateField
+        )
           .then(() => {
             rows = [];
             next();
@@ -221,7 +197,15 @@ const importBulkStream = ({
       .pipe(csvParser())
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
-        handleBulkOperation(rows).then(() => {
+        rowIndex++;
+        handleBulkOperation(
+          rowIndex,
+          rows,
+          contentType,
+          associateContentType,
+          associateField,
+          mainAssociateField
+        ).then(() => {
           resolve('success');
         });
       })
@@ -274,27 +258,16 @@ export const receiveImportRemove = async (content: any) => {
     const { contentType, importHistoryId } = content;
 
     const handleOnEndWorker = async () => {
-      const updatedImportHistory = await ImportHistory.findOne({
-        _id: importHistoryId
-      });
-
-      if (updatedImportHistory && updatedImportHistory.status === 'Removed') {
-        await ImportHistory.deleteOne({ _id: importHistoryId });
-      }
-
       debugWorkers(`Remove import ended`);
     };
 
     myWorker.setHandleEnd(handleOnEndWorker);
 
-    const importHistory = await ImportHistories.getImportHistory(
-      importHistoryId
-    );
+    const importHistory = await ImportHistory.getImportHistory(importHistoryId);
 
     const ids = importHistory.ids || [];
 
     if (ids.length === 0) {
-      await ImportHistory.deleteOne({ _id: importHistoryId });
       return { status: 'ok' };
     }
 
@@ -333,43 +306,84 @@ export const receiveImportCancel = () => {
 };
 
 export const receiveImportCreate = async (content: any) => {
-  const { fileName, type, scopeBrandIds, user, uploadType, fileType } = content;
-
-  debugWorkers(`Import created called`);
-
-  let importHistory;
+  const {
+    contentTypes,
+    files,
+    scopeBrandIds,
+    user,
+    uploadType,
+    columnsConfig,
+    importHistoryId,
+    associatedContentType,
+    associatedField
+  } = content;
 
   const useElkSyncer = ELK_SYNCER === 'false' ? false : true;
 
-  if (fileType !== 'csv') {
-    throw new Error('Invalid file type');
+  const config: any = {};
+
+  let total = 0;
+
+  let mainType = contentTypes[0];
+
+  if (associatedContentType) {
+    mainType = associatedContentType;
   }
 
-  const { total, columns }: any = await getCsvInfo(fileName, uploadType);
+  for (const contentType of contentTypes) {
+    const file = files[contentType];
+    const columnConfig = columnsConfig[contentType];
+    const fileName = file[0].url;
 
-  if (total === 0) {
-    throw new Error('Please import at least one row of data');
+    const { rows, columns }: any = await getCsvInfo(fileName, uploadType);
+
+    if (rows === 0) {
+      throw new Error('Please import at least one row of data');
+    }
+
+    total = total + rows;
+
+    const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
+
+    const properties = await checkFieldNames(
+      contentType,
+      updatedColumns,
+      columnConfig
+    );
+
+    config[contentType] = { total: rows, properties, fileName };
   }
 
-  const updatedColumns = (columns || '').replace(/\n|\r/g, '').split(',');
+  await ImportHistory.updateOne(
+    { _id: importHistoryId },
+    {
+      contentTypes,
+      userId: user._id,
+      date: Date.now(),
+      total
+    }
+  );
 
-  const properties = await checkFieldNames(type, updatedColumns);
+  const getAssociatedField = contentType => {
+    const properties = config[contentType].properties;
 
-  importHistory = await ImportHistory.create({
-    contentType: type,
-    userId: user._id,
-    date: Date.now(),
-    total
-  });
+    const property = properties.find(
+      value => value.fieldName === associatedField
+    );
+
+    return property.name;
+  };
 
   const updateImportHistory = async doc => {
-    return ImportHistory.updateOne({ _id: importHistory.id }, doc);
+    return ImportHistory.updateOne({ _id: importHistoryId }, doc);
   };
 
   const handleOnEndBulkOperation = async () => {
     const updatedImportHistory = await ImportHistory.findOne({
-      _id: importHistory.id
+      _id: importHistoryId
     });
+
+    let status = 'inProgress';
 
     if (!updatedImportHistory) {
       throw new Error('Import history not found');
@@ -379,17 +393,58 @@ export const receiveImportCreate = async (content: any) => {
       updatedImportHistory.failed + updatedImportHistory.success ===
       updatedImportHistory.total
     ) {
+      status = 'Done';
       await updateImportHistory({
-        $set: { status: 'Done', percentage: 100 }
+        $set: { status, percentage: 100 }
       });
+
+      const notifDoc: ISendNotification = {
+        title: `your ${updatedImportHistory.name} is done`,
+        action: ``,
+        createdUser: ``,
+        receivers: [user._id],
+        content: `your ${updatedImportHistory.name} import is done`,
+        link: `/settings/importHistories?${mainType}`,
+        notifType: NOTIFICATION_TYPES.IMPORT_DONE,
+        contentType: 'import',
+        contentTypeId: importHistoryId
+      };
+
+      await utils.sendNotification(notifDoc);
+
+      graphqlPubsub.publish('importHistoryChanged', {});
     }
 
-    await deleteFile(fileName);
+    if (associatedContentType && associatedField && status !== 'Done') {
+      const contentType = contentTypes.find(value => value !== mainType);
+
+      const mainAssociateField = getAssociatedField(mainType);
+
+      const associateField = getAssociatedField(contentType);
+
+      importBulkStream({
+        contentType,
+        fileName: config[contentType].fileName,
+        uploadType,
+        bulkLimit: WORKER_BULK_LIMIT,
+        handleBulkOperation,
+        associateContentType: associatedContentType,
+        associateField,
+        mainAssociateField
+      });
+    }
 
     debugWorkers(`Import create ended`);
   };
 
-  const handleBulkOperation = async (rows: any) => {
+  const handleBulkOperation = async (
+    rowIndex: number,
+    rows: any,
+    contentType: string,
+    associateContentType?: string,
+    associateField?: string,
+    mainAssociateField?: string
+  ) => {
     if (rows.length === 0) {
       return debugWorkers('Please import at least one row of data');
     }
@@ -403,27 +458,32 @@ export const receiveImportCreate = async (content: any) => {
     const workerPath = path.resolve(getWorkerFile('bulkInsert'));
 
     await myWorker.createWorker(workerPath, {
+      rowIndex,
       scopeBrandIds,
       user,
-      contentType: type,
-      properties,
-      importHistoryId: importHistory._id,
+      contentType,
+      properties: config[contentType].properties,
+      importHistoryId,
       result,
       useElkSyncer,
-      percentage: Number(((result.length / total) * 100).toFixed(3))
+      percentage: Number(((result.length / total) * 100).toFixed(3)),
+      associateContentType,
+      associateField,
+      mainAssociateField
     });
   };
 
   myWorker.setHandleEnd(handleOnEndBulkOperation);
 
   importBulkStream({
-    fileName,
+    contentType: mainType,
+    fileName: config[mainType].fileName,
     uploadType,
     bulkLimit: WORKER_BULK_LIMIT,
     handleBulkOperation
   });
 
-  return { id: importHistory.id };
+  return { id: importHistoryId };
 };
 
 const importWebhookStream = ({

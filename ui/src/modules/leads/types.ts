@@ -46,6 +46,8 @@ export interface ILeadData {
   attachments?: IAttachment[];
   css?: string;
   conversionRate?: number;
+  successImage?: string;
+  successImageSize?: string;
 }
 
 export interface IWebhookData {

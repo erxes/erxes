@@ -105,10 +105,21 @@ const fieldsItemTyped = `
   }
 `;
 
+const configs = `
+  query configs {
+    configs {
+      _id
+      code
+      value
+    }
+  }
+`;
+
 export default {
   fieldsGroups,
   fields,
   getSystemFieldsGroup,
   inboxFields,
-  fieldsItemTyped
+  fieldsItemTyped,
+  configs
 };

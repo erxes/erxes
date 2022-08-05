@@ -251,7 +251,8 @@ describe('growthHackQueries', () => {
     const stage = await stageFactory({ pipelineId: pipeline._id });
     const args = {
       stageId: stage._id,
-      status: BOARD_STATUSES.ARCHIVED
+      status: BOARD_STATUSES.ARCHIVED,
+      hackStages: ['a', 'b']
     };
 
     await growthHackFactory({ ...args, name: 'james' });
@@ -263,13 +264,15 @@ describe('growthHackQueries', () => {
         $pipelineId: String!,
         $search: String,
         $page: Int,
-        $perPage: Int
+        $perPage: Int,
+        $hackStages: [String]
       ) {
         archivedGrowthHacks(
           pipelineId: $pipelineId
           search: $search
           page: $page
           perPage: $perPage
+          hackStages: $hackStages
         ) {
           _id
         }
@@ -277,7 +280,8 @@ describe('growthHackQueries', () => {
     `;
 
     let response = await graphqlRequest(qry, 'archivedGrowthHacks', {
-      pipelineId: pipeline._id
+      pipelineId: pipeline._id,
+      hackStages: ['a', 'b']
     });
 
     expect(response.length).toBe(3);

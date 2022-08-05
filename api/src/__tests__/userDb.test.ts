@@ -716,7 +716,6 @@ describe('User db utils', () => {
     // invalid token ==============
     const loggedout = await Users.logout(_user, '');
     expect(loggedout).toBe('token not found');
-    
 
     // valid login
     const response = await Users.login({

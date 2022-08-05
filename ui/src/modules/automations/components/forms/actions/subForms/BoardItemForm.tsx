@@ -172,6 +172,24 @@ class BoardItemForm extends React.Component<Props, State> {
                 label: 'Now',
                 name: 'now',
                 type: 'Date'
+              },
+              {
+                _id: String(Math.random()),
+                label: 'Tomorrow',
+                name: 'tomorrow',
+                type: 'Date'
+              },
+              {
+                _id: String(Math.random()),
+                label: 'Next Week',
+                name: 'nextWeek',
+                type: 'Date'
+              },
+              {
+                _id: String(Math.random()),
+                label: 'Next Month',
+                name: 'nextMonth',
+                type: 'Date'
               }
             ]}
           />

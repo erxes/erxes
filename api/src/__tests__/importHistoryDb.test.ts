@@ -1,8 +1,4 @@
-import {
-  customerFactory,
-  importHistoryFactory,
-  userFactory
-} from '../db/factories';
+import { importHistoryFactory, userFactory } from '../db/factories';
 import { Customers, ImportHistory, Users } from '../db/models';
 
 import './setup.ts';
@@ -30,37 +26,30 @@ describe('Import history model test', () => {
   });
 
   test('Create import history', async () => {
-    const customer = await customerFactory({});
     const user = await userFactory({});
 
     const importHistory = await ImportHistory.createHistory(
       {
         success: 0,
         failed: 1,
+        updated: 0,
         total: 4,
-        ids: [customer._id],
-        contentType: 'customer'
+        attachments: [],
+        name: 'test',
+        contentTypes: ['customer']
       },
       user
     );
 
-    if (!importHistory || !importHistory.ids) {
-      throw new Error('History not found');
-    }
-
     expect(importHistory.success).toBe(0);
     expect(importHistory.failed).toBe(1);
     expect(importHistory.total).toBe(4);
-    expect(importHistory.ids.length).toBe(1);
-    expect(importHistory.contentType).toBe('customer');
+    expect(importHistory.contentTypes).toBeDefined();
   });
 
   test('Remove history', async () => {
     expect.assertions(2);
 
-    const customer = await customerFactory({});
-    const customer1 = await customerFactory({});
-    const customer2 = await customerFactory({});
     const user = await userFactory({});
 
     const importHistory = await ImportHistory.createHistory(
@@ -68,8 +57,10 @@ describe('Import history model test', () => {
         success: 3,
         failed: 0,
         total: 3,
-        ids: [customer._id, customer1._id, customer2._id],
-        contentType: 'customer'
+        contentTypes: ['customer'],
+        updated: 0,
+        attachments: [],
+        name: 'test'
       },
       user
     );

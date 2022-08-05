@@ -299,7 +299,7 @@ const activityLogQueries = {
         });
       }
 
-      allTotalCount += totalCount;
+      allTotalCount += totalCount || 0;
     }
 
     if (action.includes('delete')) {
@@ -325,7 +325,7 @@ const activityLogQueries = {
         });
       }
 
-      allTotalCount += totalCount;
+      allTotalCount += totalCount || 0;
     }
 
     if (action.includes('addNote')) {
@@ -354,12 +354,12 @@ const activityLogQueries = {
 
       const totalCount = await InternalNotes.countDocuments(filter);
 
-      allTotalCount += totalCount;
+      allTotalCount += totalCount || 0;
     }
 
     return {
       activityLogs: allActivityLogs,
-      totalCount: allTotalCount
+      totalCount: allTotalCount || 0
     };
   }
 };

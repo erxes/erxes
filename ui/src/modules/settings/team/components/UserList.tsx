@@ -2,9 +2,6 @@ import { AppConsumer } from 'appContext';
 import { IUser } from 'modules/auth/types';
 import ActionButtons from 'modules/common/components/ActionButtons';
 import Button from 'modules/common/components/Button';
-import { FormControl } from 'modules/common/components/form';
-import ControlLabel from 'modules/common/components/form/Label';
-import HeaderDescription from 'modules/common/components/HeaderDescription';
 import Icon from 'modules/common/components/Icon';
 import ModalTrigger from 'modules/common/components/ModalTrigger';
 import NameCard from 'modules/common/components/nameCard/NameCard';
@@ -13,29 +10,21 @@ import TextInfo from 'modules/common/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 import Toggle from 'modules/common/components/Toggle';
 import { IButtonMutateProps } from 'modules/common/types';
-import { router } from 'modules/common/utils';
 import { __ } from 'modules/common/utils';
-import SelectBrands from 'modules/settings/brands/containers/SelectBrands';
-import { IUserGroup } from 'modules/settings/permissions/types';
-import { FlexItem, FlexRow } from 'modules/settings/styles';
+import Pagination from 'modules/common/components/pagination/Pagination';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Select from 'react-select-plus';
-import List from '../../common/components/List';
 import { ICommonFormProps, ICommonListProps } from '../../common/types';
 import UserForm from '../containers/UserForm';
-import UserInvitationForm from '../containers/UserInvitationForm';
 import UserResetPasswordForm from '../containers/UserResetPasswordForm';
-import { FilterContainer, UserAvatar } from '../styles';
+import { UserAvatar } from '../styles';
 
 type IProps = {
   changeStatus: (id: string) => void;
   resendInvitation: (email: string) => void;
-  usersGroups: IUserGroup[];
-  refetchQueries: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  totalCount: number;
   queryParams?: any;
-  configsEnvQuery?: any;
 };
 
 type FinalProps = ICommonListProps &
@@ -47,8 +36,6 @@ type States = {
 };
 
 class UserList extends React.Component<FinalProps, States> {
-  private timer?: NodeJS.Timer;
-
   constructor(props: FinalProps) {
     super(props);
 
@@ -63,19 +50,6 @@ class UserList extends React.Component<FinalProps, States> {
 
   onAvatarClick = object => {
     return this.props.history.push(`team/details/${object._id}`);
-  };
-
-  renderInvitationForm = props => {
-    const { usersGroups, refetchQueries, renderButton } = this.props;
-
-    return (
-      <UserInvitationForm
-        closeModal={props.closeModal}
-        usersGroups={usersGroups}
-        refetchQueries={refetchQueries}
-        renderButton={renderButton}
-      />
-    );
   };
 
   renderForm = props => {
@@ -201,149 +175,28 @@ class UserList extends React.Component<FinalProps, States> {
     });
   }
 
-  search = e => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    const searchValue = e.target.value;
-
-    this.setState({ searchValue });
-
-    this.timer = setTimeout(() => {
-      router.setParams(this.props.history, { searchValue });
-    }, 500);
-  };
-
-  moveCursorAtTheEnd(e) {
-    const tmpValue = e.target.value;
-    e.target.value = '';
-    e.target.value = tmpValue;
-  }
-
-  onStatusChange = (status: { label: string; value: boolean }) => {
-    router.setParams(this.props.history, { isActive: status.value });
-  };
-
-  renderBrandChooser() {
-    const { configsEnvQuery = {}, history, queryParams } = this.props;
-
-    const env = configsEnvQuery.configsGetEnv || {};
-
-    if (env.USE_BRAND_RESTRICTIONS !== 'true') {
-      return null;
-    }
-
-    const onSelect = brandIds => {
-      router.setParams(history, { brandIds });
-    };
-
-    return (
-      <FlexItem>
-        <ControlLabel>{__('Brand')}</ControlLabel>
-        <SelectBrands
-          label={__('Choose brands')}
-          onSelect={onSelect}
-          initialValue={queryParams.brandIds}
-          name="selectedBrands"
-        />
-      </FlexItem>
-    );
-  }
-
-  renderFilter = () => {
-    return (
-      <FilterContainer>
-        <FlexRow>
-          {this.renderBrandChooser()}
-          <FlexItem>
-            <ControlLabel>{__('Search')}</ControlLabel>
-            <FormControl
-              placeholder={__('Search')}
-              name="searchValue"
-              onChange={this.search}
-              value={this.state.searchValue}
-              autoFocus={true}
-              onFocus={this.moveCursorAtTheEnd}
-            />
-          </FlexItem>
-
-          <FlexItem>
-            <ControlLabel>{__('Status')}</ControlLabel>
-            <Select
-              placeholder={__('Choose status')}
-              value={this.props.queryParams.isActive || true}
-              onChange={this.onStatusChange}
-              clearable={false}
-              options={[
-                {
-                  value: true,
-                  label: __('Active')
-                },
-                {
-                  value: false,
-                  label: __('Deactivated')
-                }
-              ]}
-            />
-          </FlexItem>
-        </FlexRow>
-      </FilterContainer>
-    );
-  };
-
   renderContent = props => {
     return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Full name')}</th>
-            <th>{__('Invitation status')}</th>
-            <th>{__('Email')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Actions')}</th>
-          </tr>
-        </thead>
-        <tbody>{this.renderRows(props)}</tbody>
-      </Table>
+      <>
+        <Table>
+          <thead>
+            <tr>
+              <th>{__('Full name')}</th>
+              <th>{__('Invitation status')}</th>
+              <th>{__('Email')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Actions')}</th>
+            </tr>
+          </thead>
+          <tbody>{this.renderRows(props)}</tbody>
+        </Table>
+        <Pagination count={this.props.totalCount} />
+      </>
     );
   };
 
-  breadcrumb() {
-    return [
-      { title: __('Settings'), link: '/settings' },
-      { title: __('Team members') }
-    ];
-  }
-
   render() {
-    return (
-      <List
-        formTitle={__('Invite team members')}
-        size="xl"
-        breadcrumb={[
-          { title: __('Settings'), link: '/settings' },
-          { title: __('Team members') }
-        ]}
-        title={__('Team members')}
-        mainHead={
-          <HeaderDescription
-            icon="/images/actions/21.svg"
-            title="Team members"
-            description={`${__(
-              'Your team members are the bolts and nuts of your business'
-            )}.${__('Make sure all the parts are set and ready to go')}.${__(
-              'Here you can see a list of all your team members, you can categorize them into groups, welcome new members and edit their info'
-            )}`}
-          />
-        }
-        renderFilter={this.renderFilter}
-        renderForm={this.renderInvitationForm}
-        renderContent={this.renderContent}
-        center={true}
-        {...this.props}
-      />
-    );
+    return this.renderContent(this.props);
   }
 }
 

@@ -11,15 +11,23 @@ import {
   COUNTRIES
 } from 'modules/companies/constants';
 import React from 'react';
-import { LogicIndicator, SelectInput } from '../styles';
-import { IField } from '../types';
+import { LogicIndicator, SelectInput, ObjectList } from '../styles';
+import { IField, ILocationOption } from '../types';
 import Select from 'react-select-plus';
 import { IOption } from 'erxes-ui/lib/types';
 import ModifiableList from 'modules/common/components/ModifiableList';
 import { __ } from 'erxes-ui/lib/utils/core';
+import { FieldStyle, SidebarCounter, SidebarList } from 'modules/layout/styles';
+import { MapContainer, Marker, CircleMarker, Popup } from 'react-leaflet';
+import ReactLeafletGoogleLayer from 'react-leaflet-google-layer';
+import { FullscreenControl } from 'react-leaflet-fullscreen';
+import 'react-leaflet-fullscreen/dist/styles.css';
+import { IConfig } from 'modules/settings/general/types';
+import { Alert } from 'erxes-ui';
 
 type Props = {
   field: IField;
+  configs: IConfig[];
   onValueChange?: (data: { _id: string; value: any }) => void;
   defaultValue?: any;
   hasLogic?: boolean;
@@ -29,13 +37,52 @@ type State = {
   value?: any;
   checkBoxValues: any[];
   errorCounter: number;
+  currentLocation?: ILocationOption;
+  googleMapApiKey: string;
 };
 
 export default class GenerateField extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = { errorCounter: 0, ...this.generateState(props) };
+    const config = props.configs.find(e => e.code === 'GOOGLE_MAP_API_KEY');
+
+    this.state = {
+      errorCounter: 0,
+      ...this.generateState(props),
+      googleMapApiKey: config ? config.value : ''
+    };
+  }
+
+  componentDidMount() {
+    const onSuccess = (position: { coords: any }) => {
+      const coordinates = position.coords;
+
+      this.setState({
+        currentLocation: {
+          lat: coordinates.latitude,
+          lng: coordinates.longitude
+        }
+      });
+    };
+
+    const onError = (err: { code: any; message: any }) => {
+      return Alert.error(`${err.code}): ${err.message}`);
+    };
+
+    if (navigator.geolocation) {
+      navigator.permissions.query({ name: 'geolocation' }).then(result => {
+        if (result.state === 'granted') {
+          navigator.geolocation.getCurrentPosition(onSuccess);
+        } else if (result.state === 'prompt') {
+          navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          });
+        }
+      });
+    }
   }
 
   generateState = props => {
@@ -288,6 +335,104 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderObject(object: any, index: number) {
+    const entries = Object.entries(object);
+
+    return (
+      <SidebarList className="no-hover" key={index}>
+        {entries.map(e => {
+          const key = e[0];
+          const value: any = e[1] || '';
+
+          return (
+            <li key={key}>
+              <FieldStyle>{key}:</FieldStyle>
+              <SidebarCounter>{value}</SidebarCounter>
+            </li>
+          );
+        })}
+      </SidebarList>
+    );
+  }
+
+  renderObjectList(attrs) {
+    let { value = [] } = attrs;
+
+    if (typeof value === 'string' && value.length > 0) {
+      try {
+        value = JSON.parse(value);
+      } catch {
+        value = [];
+      }
+    }
+
+    return (
+      <ObjectList>
+        {(value || []).map((object, index) => this.renderObject(object, index))}
+      </ObjectList>
+    );
+  }
+
+  renderMap(attrs) {
+    const { field, onValueChange } = this.props;
+
+    const { currentLocation, googleMapApiKey } = this.state;
+
+    const { locationOptions = [] } = field;
+
+    const dragend = e => {
+      const location = e.target.getLatLng();
+      if (onValueChange) {
+        onValueChange({ _id: field._id, value: location });
+      }
+    };
+
+    const { value } = attrs;
+    let centerCoordinates: [number, number] = [0, 0];
+
+    if (currentLocation) {
+      centerCoordinates = [currentLocation.lat, currentLocation.lng];
+    }
+
+    if (value && value.length !== 0) {
+      centerCoordinates = value;
+    }
+
+    let zoom = 10;
+
+    if (centerCoordinates[0] === 0 && centerCoordinates[1] === 0) {
+      zoom = 2;
+    }
+
+    return (
+      <MapContainer
+        style={{ width: '100%', aspectRatio: '1/1' }}
+        zoom={zoom}
+        center={centerCoordinates}
+      >
+        <ReactLeafletGoogleLayer
+          apiKey={googleMapApiKey}
+          useGoogMapsLoader={true}
+        />
+        <FullscreenControl />
+
+        {locationOptions.map((option, index) => (
+          <div key={index}>
+            <CircleMarker key={index} center={[option.lat, option.lng]}>
+              <Popup>{option.description}</Popup>
+            </CircleMarker>
+          </div>
+        ))}
+
+        <Marker
+          draggable={true}
+          position={centerCoordinates}
+          eventHandlers={{ dragend }}
+        />
+      </MapContainer>
+    );
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -387,7 +532,7 @@ export default class GenerateField extends React.Component<Props, State> {
           return this.renderRadioOrCheckInputs(boolOptions, attrs, true);
         }
 
-      case 'companyIsSubscribed':
+      case 'company_isSubscribed':
         attrs.name = Math.random().toString();
         try {
           return this.renderRadioOrCheckInputs(boolOptions, attrs);
@@ -401,7 +546,7 @@ export default class GenerateField extends React.Component<Props, State> {
       case 'description':
         return this.renderTextarea(attrs);
 
-      case 'companyDescription':
+      case 'company_description':
         return this.renderTextarea(attrs);
 
       case 'file': {
@@ -412,7 +557,7 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderFile(attrs);
       }
 
-      case 'companyAvatar': {
+      case 'company_avatar': {
         return this.renderFile(attrs);
       }
 
@@ -438,6 +583,14 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'list': {
         return this.renderList(attrs);
+      }
+
+      case 'objectList': {
+        return this.renderObjectList(attrs);
+      }
+
+      case 'map': {
+        return this.renderMap(attrs);
       }
 
       default:

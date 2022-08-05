@@ -1,8 +1,10 @@
 import Button from 'modules/common/components/Button';
-import { __, bustIframe } from 'modules/common/utils';
+import xss from 'xss';
+import { __, bustIframe, readFile } from 'modules/common/utils';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import { getThemeItem } from 'utils';
 import {
   AuthContent,
   AuthDescription,
@@ -51,27 +53,41 @@ class AuthLayout extends React.Component<Props, {}> {
 
   renderDesciption() {
     const { description } = this.props;
+    const logo = getThemeItem('logo');
+    const themeDescription = getThemeItem('login_page_description');
+    const logoSrc = logo ? readFile(logo) : '/images/logo.png';
 
     if (description) {
       return (
         <>
-          <img src="/images/logo.png" alt="erxes" />
+          <img src={logoSrc} alt="erxes" />
           {description}
         </>
       );
     }
 
     return (
-      <>
-        <img src="/images/logo.png" alt="erxes" />
-        <h1>{__('Open Source Growth Marketing Platform')}</h1>
-        <p>
-          {__(
-            'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
-          )}
-        </p>
-        <a href={__('Homepage link')}>« {__('Go to home page')}</a>
-      </>
+      <div>
+        <img src={logoSrc} alt="erxes" />
+
+        {themeDescription ? (
+          <div
+            dangerouslySetInnerHTML={{
+              __html: xss(themeDescription)
+            }}
+          />
+        ) : (
+          <>
+            <h1>{__('Open Source Growth Marketing Platform')}</h1>
+            <p>
+              {__(
+                'Marketing, sales, and customer service platform designed to help your business attract more engaged customers. Replace Hubspot with the mission and community-driven ecosystem.'
+              )}
+            </p>
+            <a href={__('Homepage link')}>« {__('Go to home page')}</a>
+          </>
+        )}
+      </div>
     );
   }
 

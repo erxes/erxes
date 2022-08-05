@@ -5,8 +5,12 @@ import {
   IUserDoc as IUserDocC,
   IUserLinks as IUserLinksC
 } from 'erxes-ui/lib/auth/types';
+import { IDepartment } from 'modules/settings/team/types';
 
-export type IUser = IUserC & { isSubscribed?: boolean } & {
+export type IUser = IUserC & {
+  isSubscribed?: boolean;
+  department?: IDepartment;
+} & {
   isShowNotification?: boolean;
 } & {
   customFieldsData?: {

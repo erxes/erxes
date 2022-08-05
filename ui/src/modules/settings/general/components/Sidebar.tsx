@@ -5,7 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import SidebarHeader from 'modules/settings/common/components/SidebarHeader';
 
-class Sidebar extends React.Component {
+class Sidebar extends React.Component<{ isThemeEnabled?: boolean }> {
   renderListItem(url: string, text: string) {
     return (
       <li>
@@ -29,6 +29,10 @@ class Sidebar extends React.Component {
             'Integrations config'
           )}
           {this.renderListItem('/settings/campaign-configs', 'Campaign config')}
+
+          {this.props.isThemeEnabled
+            ? this.renderListItem('/settings/theme', 'Theme config')
+            : null}
         </List>
       </LeftSidebar>
     );

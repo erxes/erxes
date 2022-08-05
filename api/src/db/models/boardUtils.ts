@@ -11,7 +11,11 @@ import {
   Tickets
 } from '.';
 import { ACTIVITY_LOG_ACTIONS, putActivityLog } from '../../data/logUtils';
-import { validSearchText } from '../../data/utils';
+import {
+  configReplacer,
+  numberCalculator,
+  validSearchText
+} from '../../data/utils';
 import { IItemCommonFields, IOrderInput } from './definitions/boards';
 import { BOARD_STATUSES, BOARD_TYPES } from './definitions/constants';
 
@@ -293,4 +297,105 @@ export const getBoardItemLink = async (stageId: string, itemId: string) => {
   const board = await Boards.getBoard(pipeline.boardId);
 
   return `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${itemId}`;
+};
+
+export const boardNumberGenerator = async (
+  config: string,
+  size: string,
+  skip: boolean,
+  type?: string
+) => {
+  const replacedConfig = await configReplacer(config);
+  const re = replacedConfig + '[0-9]+$';
+
+  let number;
+
+  if (!skip) {
+    const pipeline = await Pipelines.findOne({
+      lastNum: new RegExp(re),
+      type
+    });
+
+    if (pipeline?.lastNum) {
+      const lastNum = pipeline.lastNum;
+
+      const lastGeneratedNumber = lastNum.slice(replacedConfig.length);
+
+      number =
+        replacedConfig +
+        (await numberCalculator(parseInt(size, 10), lastGeneratedNumber));
+
+      return number;
+    }
+  }
+
+  number =
+    replacedConfig + (await numberCalculator(parseInt(size, 10), '', skip));
+
+  return number;
+};
+
+export const generateBoardNumber = async (doc: IItemCommonFields) => {
+  const stage = await Stages.getStage(doc.stageId);
+  const pipeline = await Pipelines.getPipeline(stage.pipelineId);
+
+  if (pipeline.numberSize) {
+    const { numberSize, numberConfig = '' } = pipeline;
+
+    const number = await boardNumberGenerator(
+      numberConfig,
+      numberSize,
+      false,
+      pipeline.type
+    );
+
+    doc.number = number;
+  }
+
+  return { updatedDoc: doc, pipeline };
+};
+
+export const createBoardItem = async (doc: IItemCommonFields, type: string) => {
+  const { collection } = await getCollection(type);
+
+  const response = await generateBoardNumber(doc);
+
+  const { pipeline, updatedDoc } = response;
+
+  let item;
+
+  try {
+    item = await collection.create({
+      ...updatedDoc,
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      stageChangedDate: new Date(),
+      searchText: fillSearchTextItem(doc)
+    });
+  } catch (e) {
+    if (
+      e.message === `E11000 duplicate key error dup key: { : "${doc.number}" }`
+    ) {
+      await createBoardItem(doc, type);
+    }
+  }
+
+  // update numberConfig of the same configed pipelines
+  if (doc.number) {
+    await Pipelines.updateMany(
+      {
+        numberConfig: pipeline.numberConfig,
+        type: pipeline.type
+      },
+      { $set: { lastNum: doc.number } }
+    );
+  }
+
+  // create log
+  await putActivityLog({
+    action: ACTIVITY_LOG_ACTIONS.CREATE_BOARD_ITEM,
+    data: { item, contentType: type }
+  });
+
+  return item;
 };

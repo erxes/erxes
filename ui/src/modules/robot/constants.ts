@@ -560,7 +560,7 @@ export const ROLE_SETUP_DETAILS = {
     videoThumb: '',
     settingsDetails: {
       leadIntegrationCreate: {
-        name: 'Create forms',
+        name: 'Create form',
         url: '/forms/create'
       },
       leadIntegrationInstalled: {

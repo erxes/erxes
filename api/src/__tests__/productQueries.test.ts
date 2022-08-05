@@ -206,7 +206,6 @@ describe('productQueries', () => {
           category { _id }
           getTags { _id }
           vendor { _id }
-          customFieldsDataWithText
         }
       }
     `;
