@@ -8,27 +8,25 @@ const TabContainer = styled.div`
   display: flex;
   flex-shrink: 0;
   height: ${dimensions.headerSpacing}px;
-  margin: ${dimensions.unitSpacing}px 0;
+  margin: ${dimensions.coreSpacing}px 0;
+  border-bottom: 1px solid ${colors.borderDarker};
 `;
 
 const TabCaption = styledTS<{ active?: boolean }>(styled.div)`
   cursor: pointer;
-  display: inline-block;
+  display: flex;
+  align-items: center;
   color: ${props => props.active && colors.colorPrimary};
   font-weight: bold;
-  margin: 15px 0;
   padding: 0 ${dimensions.coreSpacing}px;
   position: relative;
-  transition: all ease 0.3s;
-  border-right: 2px solid ${colors.textPrimary};
-
-  &:first-child {
-    padding-left: 0;
-  }
-
-  &:last-child {
-    border: none;
-  }
+  border-radius: 5px 5px 0px 0px;
+  border: ${props => props.active && `1px solid ${colors.borderDarker}`};
+  border-bottom: ${props => props.active && 0};
+  padding-bottom: 1px;
+  margin-bottom: -1px;
+  
+  background-color: ${props => props.active && colors.colorWhite};
 
   &:hover {
     color: ${colors.colorPrimary};

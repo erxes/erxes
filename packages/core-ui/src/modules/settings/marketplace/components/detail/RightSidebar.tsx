@@ -48,7 +48,7 @@ export default class RightSidebar extends React.Component<Props> {
             btnStyle="simple"
           >
             <Icon icon="github-circled" size={20} />
-            Github
+            <b>Github</b>
           </Button>
           <Button
             href="https://www.facebook.com/erxesHQ"
@@ -56,15 +56,15 @@ export default class RightSidebar extends React.Component<Props> {
             btnStyle="simple"
           >
             <Icon icon="facebook-official" size={20} />
-            Facebook
+            <b>Facebook</b>
           </Button>
           <Button
             href="https://twitter.com/erxesHQ"
             target="_blank"
             btnStyle="simple"
           >
-            <Icon icon="twitter-alt" size={20} />
-            Twitter
+            <Icon icon="twitter" size={20} />
+            <b>Twitter</b>
           </Button>
         </PluginContainer>
       </SidebarBox>
@@ -81,7 +81,8 @@ export default class RightSidebar extends React.Component<Props> {
           target="_blank"
           block
         >
-          Report an issue
+          <Icon icon="exclamation-circle" size={20} />
+          &nbsp;Report an issue
         </Button>
       </SidebarWrapper>
     );
