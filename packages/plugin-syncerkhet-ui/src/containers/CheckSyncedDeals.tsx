@@ -89,6 +89,10 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
         })
         .then(response => {
           const { skipped, error, success } = response.data.toSyncDeals;
+          const changed = this.state.unSyncedDealIds.filter(
+            u => !dealIds.includes(u)
+          );
+          this.setState({ unSyncedDealIds: changed });
           Alert.success(
             `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
           );
