@@ -11,6 +11,7 @@ const params = `
 `;
 export const queries = `
 	wishlist(productId: String!): [Wishlist]
+	allWishlists: [Wishlist]
 `;
 export const mutations = `
 	wishlistAdd(${params}): Wishlist
