@@ -1,57 +1,58 @@
-import { __, Alert } from 'coreui/utils';
-import { jsPlumb } from 'jsplumb';
-import jquery from 'jquery';
-import RTG from 'react-transition-group';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import Form from '@erxes/ui/src/components/form/Form';
-import { IAction, IAutomation, ITrigger, IAutomationNote } from '../../types';
 import {
-  Container,
-  BackButton,
-  Title,
-  RightDrawerContainer,
+  ActionBarButtonsWrapper,
   AutomationFormContainer,
-  ScrolledContent,
+  BackButton,
   BackIcon,
   CenterBar,
+  Container,
+  RightDrawerContainer,
+  ScrolledContent,
+  Title,
   ToggleWrapper,
   ZoomActions,
-  ZoomIcon,
-  ActionBarButtonsWrapper
+  ZoomIcon
 } from '../../styles';
-import { FormControl } from '@erxes/ui/src/components/form';
+import { Alert, __ } from 'coreui/utils';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
-import TriggerForm from '../../containers/forms/triggers/TriggerForm';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import TriggerDetailForm from './triggers/TriggerDetailForm';
+import { IAction, IAutomation, IAutomationNote, ITrigger } from '../../types';
+import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 import {
-  createInitialConnections,
   connection,
+  connectorHoverStyle,
+  connectorPaintStyle,
+  createInitialConnections,
   deleteConnection,
+  getTriggerType,
+  hoverPaintStyle,
+  noEndPoint,
   sourceEndpoint,
   targetEndpoint,
-  connectorPaintStyle,
-  connectorHoverStyle,
-  hoverPaintStyle,
-  yesEndPoint,
-  noEndPoint,
-  getTriggerType
+  yesEndPoint
 } from '../../utils';
+
 import ActionDetailForm from './actions/ActionDetailForm';
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import Button from '@erxes/ui/src/components/Button';
+import Confirmation from '../../containers/forms/Confirmation';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import Form from '@erxes/ui/src/components/form/Form';
+import { FormControl } from '@erxes/ui/src/components/form';
+import Histories from '../../components/histories/Wrapper';
 import Icon from '@erxes/ui/src/components/Icon';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
-import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import Toggle from '@erxes/ui/src/components/Toggle';
 import Modal from 'react-bootstrap/Modal';
 import NoteFormContainer from '../../containers/forms/NoteForm';
-import TemplateForm from '../../containers/forms/TemplateForm';
-import Histories from '../../components/histories/Wrapper';
-import Confirmation from '../../containers/forms/Confirmation';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import RTG from 'react-transition-group';
+import React from 'react';
 import { TRIGGER_TYPES } from '../../constants';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import TemplateForm from '../../containers/forms/TemplateForm';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import TriggerDetailForm from './triggers/TriggerDetailForm';
+import TriggerForm from '../../containers/forms/triggers/TriggerForm';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import jquery from 'jquery';
+import { jsPlumb } from 'jsplumb';
 
 const plumb: any = jsPlumb;
 let instance;

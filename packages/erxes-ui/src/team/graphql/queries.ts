@@ -272,6 +272,96 @@ const branchDetail = `
   }
 `;
 
+const channels = `
+  query channels($memberIds: [String]) {
+    channels(memberIds: $memberIds) {
+      _id
+      name
+      description
+      integrationIds
+      memberIds
+      members {
+        _id
+        email
+        details {
+          avatar
+          fullName
+        }
+      }
+    }
+  }
+`;
+
+const skillTypes = `
+  query skillTypes {
+    skillTypes {
+      _id
+      name
+    }
+  }
+`;
+
+const genericFields = `
+  _id
+  description
+  code
+  order
+  isVisible
+  isVisibleInDetail
+  contentType
+  isDefinedByErxes
+`;
+
+const commonFields = `
+  type
+  text
+  
+  canHide
+  validation
+  options
+  isVisibleToCreate
+  locationOptions{
+    lat
+    lng
+    description
+  }
+  objectListConfigs{
+    key
+    label
+    type
+  }
+  groupId
+  searchable
+  showInCard
+  isRequired
+
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+`;
+
+const fieldsGroups = `
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
+      name
+  ${genericFields}
+  config
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+  fields  {
+    ${commonFields}
+  }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -287,5 +377,8 @@ export default {
   noDepartmentUsers,
   branches,
   branchDetail,
-  detailFields
+  detailFields,
+  channels,
+  skillTypes,
+  fieldsGroups
 };

@@ -1,12 +1,13 @@
-import { IConditionsRule } from '@erxes/ui/src/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IAttachment } from '@erxes/ui/src/types';
-import { QueryResponse } from '@erxes/ui/src/types';
-import { IBrand } from '@erxes/ui/src/brands/types';
 import { ISegment, ISegmentCondition } from '@erxes/ui-segments/src/types';
-import { ITag } from '@erxes/ui/src/tags/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+
+import { IAttachment } from '@erxes/ui/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IConditionsRule } from '@erxes/ui/src/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import { MutationVariables } from '@erxes/ui/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IEngageScheduleDate = {
   type: string;

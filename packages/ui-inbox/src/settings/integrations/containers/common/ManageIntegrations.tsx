@@ -1,13 +1,14 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { IBrandDoc } from '@erxes/ui/src/brands/types';
-import { IChannelDoc } from '@erxes/ui-settings/src/channels/types';
+import { IChannelDoc } from '@erxes/ui-inbox/src/settings/channels/types';
+import { IntegrationsQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
 import ManageIntegrations from '../../components/common/ManageIntegrations';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
 import React from 'react';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { withProps } from '@erxes/ui/src/utils';
-import { IntegrationsQueryResponse } from '@erxes/ui-settings/src/integrations/types';
 
 type Props = {
   current: IChannelDoc | IBrandDoc;

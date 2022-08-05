@@ -1,20 +1,13 @@
-import Appearance, { IUIOptions } from './step/Appearance';
-import ConfigStep from './step/ConfigStep';
-import EbarimtConfig from './step/EbarimtConfig';
-import ErkhetConfig from './step/ErkhetConfig';
-import DeliveryConfig from './step/DeliveryConfig';
-import GeneralStep from './step/GeneralStep';
-import CardsConfig from './step/CardsConfig';
-import React from 'react';
 import {
-  __,
   Alert,
   Button,
   ButtonMutate,
   Step,
   Steps,
-  Wrapper
+  Wrapper,
+  __
 } from '@erxes/ui/src';
+import Appearance, { IUIOptions } from './step/Appearance';
 import { Content, LeftContent } from '../../styles';
 import {
   ControlWrapper,
@@ -22,9 +15,16 @@ import {
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { IPos, IProductGroup, ISlot } from '../../types';
+
+import CardsConfig from './step/CardsConfig';
+import ConfigStep from './step/ConfigStep';
+import DeliveryConfig from './step/DeliveryConfig';
+import EbarimtConfig from './step/EbarimtConfig';
+import ErkhetConfig from './step/ErkhetConfig';
+import GeneralStep from './step/GeneralStep';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import React from 'react';
 
 type Props = {
   pos?: IPos;
@@ -95,7 +95,7 @@ class Pos extends React.Component<Props, State> {
     e.preventDefault();
 
     const {
-      pos,
+      pos = {} as IPos,
       slots,
       groups,
       uiOptions,
@@ -179,7 +179,7 @@ class Pos extends React.Component<Props, State> {
 
   onChangeAppearance = (key: string, value: any) => {
     let uiOptions = this.state.uiOptions || {};
-    const { pos } = this.state || {};
+    const { pos = {} as IPos } = this.state || {};
     uiOptions[key] = value;
 
     if (uiOptions[key]) {
@@ -332,7 +332,11 @@ class Pos extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <CardsConfig onChange={this.onChange} pos={pos} />
+                <CardsConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  configsMap={{}}
+                />
               </Step>
             </Steps>
             <ControlWrapper>

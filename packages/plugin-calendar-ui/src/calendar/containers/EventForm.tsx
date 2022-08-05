@@ -1,13 +1,14 @@
-import gql from 'graphql-tag';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
-import queryString from 'query-string';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import EventForm from '../components/EventForm';
-import { mutations } from '../graphql';
 import { IAccount, IEvent } from '../types';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import EventForm from '../components/EventForm';
+import React from 'react';
+import gql from 'graphql-tag';
+import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { mutations } from '../graphql';
+import queryString from 'query-string';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   startTime?: Date;
@@ -31,7 +32,7 @@ class FormContainer extends React.Component<Props> {
             variables: {
               ...queryParams,
               startTime,
-              endTime 
+              endTime
             }
           }
         : {};
@@ -62,8 +63,8 @@ class FormContainer extends React.Component<Props> {
           callback={callBackResponse}
           refetchQueries={[refetchQuery]}
           isSubmitted={isSubmitted}
-          type='submit'
-          icon='check-circle'
+          type="submit"
+          icon="check-circle"
         />
       );
     };

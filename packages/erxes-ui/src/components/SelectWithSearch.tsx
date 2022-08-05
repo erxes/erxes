@@ -1,15 +1,16 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import debounce from 'lodash/debounce';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Select from 'react-select-plus';
-import styled from 'styled-components';
-import colors from '../styles/colors';
-import { IOption } from '../types';
+
 import { __, confirm, readFile, withProps } from '../utils';
+
+import { IOption } from '../types';
 import Icon from './Icon';
-import { SelectOption } from '@erxes/ui-cards/src/boards/styles/item';
+import React from 'react';
+import Select from 'react-select-plus';
+import colors from '../styles/colors';
+import debounce from 'lodash/debounce';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import styled from 'styled-components';
 
 export const SelectValue = styled.div`
   display: flex;
@@ -22,6 +23,12 @@ export const SelectValue = styled.div`
     position: absolute;
     left: 0;
   }
+`;
+
+const SelectOption = styled.div`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 export const Avatar = styled.img`

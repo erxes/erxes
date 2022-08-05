@@ -75,7 +75,13 @@ class AwardList extends React.Component<IProps> {
               {lotteries?.map((lottery, i) => (
                 <tr key={i}>
                   <td>
-                    <Link to={`/${route(lottery.ownerType)}/details/${lottery.ownerId}`}>{email(lottery.ownerType, lottery.owner)}</Link>
+                    <Link
+                      to={`/${route(lottery.ownerType)}/details/${
+                        lottery.ownerId
+                      }`}
+                    >
+                      {email(lottery.ownerType, lottery.owner)}
+                    </Link>
                   </td>
 
                   <td>{lottery?.ownerType}</td>

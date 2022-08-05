@@ -1,14 +1,15 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import {
   IAttachment,
-  QueryResponse,
-  MutationVariables
+  MutationVariables,
+  QueryResponse
 } from '@erxes/ui/src/types';
+
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ISavedConformity } from '../conformity/types';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IOptions {
   EditForm: any;

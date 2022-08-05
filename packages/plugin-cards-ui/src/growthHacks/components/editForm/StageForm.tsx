@@ -1,9 +1,9 @@
 import Button from '@erxes/ui/src/components/Button';
-import colors from '@erxes/ui/src/styles/colors';
+import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import { IFormSubmission } from '@erxes/ui-forms/src/forms/types';
 import { IGrowthHack } from '../../types';
-import GenerateField from '@erxes/ui-settings/src/properties/components/GenerateField';
 import React from 'react';
+import colors from '@erxes/ui/src/styles/colors';
 import styled from 'styled-components';
 
 const RightContainer = styled.div`

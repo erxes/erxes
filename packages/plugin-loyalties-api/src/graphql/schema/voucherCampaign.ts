@@ -1,4 +1,9 @@
-import { commonCampaignInputs, commonCampaignTypes, commonFilterTypes, paginateTypes } from './common';
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from './common';
 
 export const types = `
   type VoucherCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -60,7 +65,7 @@ const VoucherCampaignDoc = `
 
   lotteryCampaignId: String,
   lotteryCount: Float,
-`
+`;
 
 export const mutations = `
   voucherCampaignsAdd(${VoucherCampaignDoc}): VoucherCampaign

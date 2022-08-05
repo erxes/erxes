@@ -1,31 +1,30 @@
-import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
-import { IUser, IUserDetails, IUserLinks } from '@erxes/ui/src/auth/types';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { IUser, IUserDetails, IUserLinks } from '@erxes/ui/src/auth/types';
 import { __, getConstantFromStore } from '@erxes/ui/src/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import CommonForm from '@erxes/ui-settings/src/common/components/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import UserCommonInfos from '@erxes/ui-settings/src/common/components/UserCommonInfos';
 
 type Props = {
-  channels: IChannel[];
-  groups: IUserGroup[];
-  selectedChannels: IChannel[];
-  selectedGroups: IUserGroup[];
+  channels: any[]; //check - IChannel
+  groups: any[]; //check - IUserGroup
+  selectedChannels: any[]; //check - IChannel
+  selectedGroups: any[]; //check - IUserGroup
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   showBrands: boolean;
 } & ICommonFormProps;
 
 type State = {
   avatar: string;
-  selectedChannels: IChannel[];
-  selectedGroups: IUserGroup[];
+  selectedChannels: any[]; //check - IChannel
+  selectedGroups: any[]; //check - IUserGroup
   selectedBrands: string[];
 };
 

@@ -1,13 +1,14 @@
-import gql from 'graphql-tag';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
-import { InboxFieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+
 import { IField } from '@erxes/ui/src/types';
 import { IFieldsVisibility } from './types';
+import { InboxFieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IStore {
   deviceFields: IField[];

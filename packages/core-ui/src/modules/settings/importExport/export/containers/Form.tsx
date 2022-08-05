@@ -1,26 +1,21 @@
-import client from 'apolloClient';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
 
-import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src//forms/graphql';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
 import Form from '../components/Form';
 import React from 'react';
-import { queries } from '../../graphql';
+import Spinner from 'modules/common/components/Spinner';
+import client from 'apolloClient';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import {
-  FieldsCombinedByTypeQueryResponse,
-  IConfigColumn
-} from '@erxes/ui-settings/src/properties/types';
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/properties/constants';
+import { queries } from '../../graphql';
+import { withProps } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
 };
 
 type FinalProps = {
-  fieldsQuery: FieldsCombinedByTypeQueryResponse;
+  fieldsQuery: any; //check
 } & Props;
 
 class FormContainer extends React.Component<
@@ -79,7 +74,7 @@ class FormContainer extends React.Component<
           order: field.order || 0
         };
       }
-    ) as IConfigColumn[];
+    ) as any[]; //check type - IConfigColumn
 
     return (
       <Form
@@ -95,7 +90,8 @@ class FormContainer extends React.Component<
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
+    graphql<Props>(gql(queries.fieldsCombinedByContentType), {
+      // check this query duplication
       name: 'fieldsQuery',
       options: ({ contentType }) => {
         return {

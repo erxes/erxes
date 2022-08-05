@@ -1,13 +1,15 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import * as React from 'react';
+
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
 import Accounts from '../../containers/Accounts';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -47,14 +49,14 @@ class Twitter extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name='name' required={true} />
+          <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
 
         <SelectBrand isRequired={true} formProps={formProps} />
 
         <Accounts
-          kind='twitter'
-          addLink='twitter/login'
+          kind="twitter"
+          addLink="twitter/login"
           onSelect={onAccountSelect}
           onRemove={onRemoveAccount}
           formProps={formProps}

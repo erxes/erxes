@@ -1,4 +1,4 @@
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
 
 // Settings
 
@@ -22,5 +22,5 @@ const customerDetail = `
 
 export default {
   customerDetail,
-  configs,
+  configs
 };

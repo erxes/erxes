@@ -1,24 +1,26 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { Alert, withProps, confirm } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
+
 import {
   AddMutationResponse,
+  CountQueryResponse,
   IAutomationDoc,
   ListQueryVariables,
   MainQueryResponse,
   RemoveMutationResponse,
-  RemoveMutationVariables,
-  CountQueryResponse
+  RemoveMutationVariables
 } from '../types';
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { mutations, queries } from '../graphql';
+
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import List from '../components/List';
+import React from 'react';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams?: any;

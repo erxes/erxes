@@ -1,7 +1,7 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
 const UserDetail = asyncComponent(() =>
   import(
@@ -15,6 +15,7 @@ const Home = asyncComponent(() =>
 
 const team = ({ history, location }) => {
   const queryParams = queryString.parse(location.search);
+
   return <Home queryParams={queryParams} history={history} />;
 };
 

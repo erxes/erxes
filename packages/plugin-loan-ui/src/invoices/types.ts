@@ -1,7 +1,7 @@
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { ITransactionDoc } from '../../api/models/definitions/transactions';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { IContract } from '../contracts/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { ITransactionDoc } from '../../api/models/definitions/transactions';
 
 export interface IInvoiceDoc {
   contractId: string;

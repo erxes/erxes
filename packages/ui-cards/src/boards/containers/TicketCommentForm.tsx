@@ -1,13 +1,15 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Form from '@erxes/ui/src/internalNotes/components/Form';
-import { mutations } from '../graphql';
+
 import {
   TicketCommentAddMutationResponse,
   TicketCommentAddMutationVariables
 } from '../types';
+
+import Form from '@erxes/ui-internalnotes/src/components/Form';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
 
 type Props = {
   contentType: string;

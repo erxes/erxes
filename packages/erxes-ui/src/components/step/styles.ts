@@ -1,4 +1,6 @@
 import { colors, dimensions } from '../../styles';
+
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -412,6 +414,108 @@ const StepButton = styledTS<{ next?: boolean }>(styled.button)`
   }
 `;
 
+const WidgetPreviewStyled = styled.div`
+  background: ${colors.colorWhite};
+  color: ${colors.colorWhite};
+  border-radius: ${dimensions.unitSpacing}px;
+  border-bottom-right-radius: 25px;
+  bottom: 80px;
+  box-shadow: 0 2px 16px 1px ${rgba(colors.colorBlack, 0.2)};
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 95px);
+  max-height: 660px;
+  overflow: hidden;
+  position: absolute;
+  right: 8px;
+  width: 380px;
+  z-index: 1;
+`;
+
+const LogoContainer = styled.div`
+  color: ${colors.colorWhite};
+  line-height: 56px;
+  text-align: center;
+  border-radius: 28px;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  box-shadow: 0 0 ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
+  background-image: url('/images/erxes.png');
+  background-color: ${colors.colorPrimary};
+  background-position: center;
+  background-size: 20px;
+  background-repeat: no-repeat;
+  margin-top: ${dimensions.unitSpacing}px;
+  position: relative;
+  float: right;
+  display: table;
+
+  span {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: ${colors.colorCoreRed};
+    display: block;
+    right: -2px;
+    top: -5px;
+    color: ${colors.colorWhite};
+    border-radius: ${dimensions.unitSpacing}px;
+    text-align: center;
+    line-height: 20px;
+    font-size: ${dimensions.unitSpacing}px;
+  }
+
+  input[type='file'] {
+    display: none;
+  }
+
+  label {
+    display: block;
+    margin: 0;
+    visibility: hidden;
+    border-radius: 50%;
+  }
+
+  &:hover label {
+    visibility: visible;
+    cursor: pointer;
+  }
+`;
+
+const LauncherContainer = styled(LogoContainer)`
+  position: absolute;
+  right: ${dimensions.unitSpacing}px;
+  bottom: ${dimensions.unitSpacing}px;
+`;
+
+const WidgetPreview = styled(WidgetPreviewStyled)`
+  height: auto;
+  bottom: 90px;
+  right: 20px;
+  max-height: calc(100% - 95px);
+  max-width: calc(100% - 40px);
+`;
+
+const WebPreview = styledTS<{ isEngage?: boolean }>(styled.div)`
+  min-height: 100%;
+  position: relative;
+  background: linear-gradient(
+    140deg,
+    rgba(0, 0, 0, 0) 70%,
+    rgba(0, 0, 0, 0.08) 95%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  width: ${props => props.isEngage && '100%'};
+
+  .engage-message {
+    > div:first-of-type {
+      flex-shrink: 0;
+      padding: 20px 20px 10px 20px;
+    }
+  }
+`;
+
 export {
   StepContainer,
   StepItem,
@@ -435,5 +539,8 @@ export {
   LeftItem,
   Preview,
   StyledButton,
-  ButtonContainer
+  ButtonContainer,
+  LauncherContainer,
+  WebPreview,
+  WidgetPreview
 };

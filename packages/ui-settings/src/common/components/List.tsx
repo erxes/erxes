@@ -1,16 +1,16 @@
+// import ActionBarDropDown from '../../templates/containers/actionBar/ActionBar';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
+import { Flex } from '@erxes/ui/src/styles/main';
 import { IBreadCrumbItem } from '@erxes/ui/src/types';
 import { ICommonListProps } from '../types';
-import ActionBarDropDown from '../../templates/containers/actionBar/ActionBar';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { Flex } from '@erxes/ui/src/styles/main';
 import { MarginRight } from '../../styles';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   title: string;
@@ -76,7 +76,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
     const actionBarRight = rightActionBar ? (
       <BarItems>
         {additionalButton}
-        <ActionBarDropDown queryParams={queryParams} history={history} />
+        {/* <ActionBarDropDown queryParams={queryParams} history={history} /> */}
       </BarItems>
     ) : (
       <Flex>

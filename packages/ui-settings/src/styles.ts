@@ -1,9 +1,10 @@
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { lighten } from '@erxes/ui/src/styles/ecolor';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -336,6 +337,26 @@ const CreatedDate = styled.div`
   }
 `;
 
+const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
+  }
+`;
+
 export {
   MarkdownWrapper,
   FlexItem,
@@ -355,5 +376,7 @@ export {
   InputBar,
   Header,
   Title,
-  CreatedDate
+  CreatedDate,
+  LeftContent,
+  Row
 };

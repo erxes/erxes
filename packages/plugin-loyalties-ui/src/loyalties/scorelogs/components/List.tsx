@@ -127,7 +127,14 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       </>
     );
 
-    return <Wrapper header={header} leftSidebar={sidebar} content={content} footer={<Pagination count={total}/>}/>;
+    return (
+      <Wrapper
+        header={header}
+        leftSidebar={sidebar}
+        content={content}
+        footer={<Pagination count={total} />}
+      />
+    );
   }
 }
 

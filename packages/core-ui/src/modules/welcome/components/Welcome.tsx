@@ -1,27 +1,28 @@
-import { IUser } from 'modules/auth/types';
-import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
-import { __ } from 'modules/common/utils';
-import _ from 'lodash';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import { useHistory } from 'react-router-dom';
-import { STEPS, BANNER, COMMUNITY } from '../constants';
+import { BANNER, COMMUNITY, STEPS } from '../constants';
 import {
-  BoxedStep,
   BoxHeader,
-  Left,
+  BoxedStep,
   Boxes,
   Card,
   Header,
-  SideNumber,
-  LinkedButton
+  Left,
+  LinkedButton,
+  SideNumber
 } from '../styles';
+import { Step, Steps } from '@erxes/ui/src/components/step';
+
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
-import { WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
-import { Step, Steps } from '@erxes/ui/src/components/step';
-import ProgressBar from '@erxes/ui/src/components/ProgressBar';
+import { DescImg } from '@erxes/ui/src/components/HeaderDescription';
+import { IUser } from 'modules/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
+import ProgressBar from '@erxes/ui/src/components/ProgressBar';
+import React from 'react';
+import { WidgetBackgrounds } from '@erxes/ui-settings/src/styles';
+import Wrapper from 'modules/layout/components/Wrapper';
+import _ from 'lodash';
+import { __ } from 'modules/common/utils';
+import { useHistory } from 'react-router-dom';
 
 type Props = {
   currentUser: IUser;
