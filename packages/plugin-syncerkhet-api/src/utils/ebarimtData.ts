@@ -1,15 +1,18 @@
 import { sendRequest } from '@erxes/api-utils/src/requests';
-import { sendContactsMessage, sendCoreMessage, sendProductsMessage } from '../messageBroker';
+import {
+  sendContactsMessage,
+  sendCoreMessage,
+  sendProductsMessage
+} from '../messageBroker';
 
-export const validConfigMsg = async (config) => {
+export const validConfigMsg = async config => {
   if (!config.url) {
     return 'required url';
   }
   return '';
-}
+};
 
-
-export const getPostData = async (subdomain, config, deal) => {
+export const getPostData = async (subdomain, config, deal, isNow = true) => {
   let billType = 1;
   let customerCode = '';
 
@@ -19,25 +22,27 @@ export const getPostData = async (subdomain, config, deal) => {
     data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['company'] },
     isRPC: true,
     defaultValue: []
-  })
+  });
 
   if (companyIds.length > 0) {
     const companies = await sendContactsMessage({
       subdomain,
       action: 'companies.findActiveCompanies',
-      data: { selector: { _id: { $in: companyIds } }, fields: { _id: 1, code: 1 } },
+      data: {
+        selector: { _id: { $in: companyIds } },
+        fields: { _id: 1, code: 1 }
+      },
       isRPC: true,
       defaultValue: []
     });
 
     const re = new RegExp('(^[А-ЯЁӨҮ]{2}[0-9]{8}$)|(^\\d{7}$)', 'gui');
     for (const company of companies) {
-
       if (re.test(company.code)) {
         const checkCompanyRes = await sendRequest({
           url: config.checkCompanyUrl,
           method: 'GET',
-          params: { regno: company.code },
+          params: { regno: company.code }
         });
 
         if (checkCompanyRes.found) {
@@ -56,13 +61,16 @@ export const getPostData = async (subdomain, config, deal) => {
       data: { mainType: 'deal', mainTypeId: deal._id, relTypes: ['customer'] },
       isRPC: true,
       defaultValue: []
-    })
+    });
 
     if (customerIds.length > 0) {
       const customers = await sendContactsMessage({
         subdomain,
         action: 'customers.findActiveCustomers',
-        data: { selector: { _id: { $in: customerIds } }, fields: { _id: 1, code: 1 } },
+        data: {
+          selector: { _id: { $in: customerIds } },
+          fields: { _id: 1, code: 1 }
+        },
         isRPC: true,
         defaultValue: []
       });
@@ -71,7 +79,9 @@ export const getPostData = async (subdomain, config, deal) => {
     }
   }
 
-  const assignUserIds = deal.productsData.filter(item => item.assignUserId).map(item => item.assignUserId);
+  const assignUserIds = deal.productsData
+    .filter(item => item.assignUserId)
+    .map(item => item.assignUserId);
 
   const assignUsers = await sendCoreMessage({
     subdomain,
@@ -79,7 +89,7 @@ export const getPostData = async (subdomain, config, deal) => {
     data: { query: { _id: { $in: assignUserIds } } },
     isRPC: true,
     defaultValue: []
-  })
+  });
 
   const userEmailById = {};
   for (const user of assignUsers) {
@@ -94,7 +104,7 @@ export const getPostData = async (subdomain, config, deal) => {
     data: { query: { _id: { $in: productsIds } } },
     isRPC: true,
     defaultValue: []
-  })
+  });
 
   const productCodeById = {};
   for (const product of products) {
@@ -119,7 +129,8 @@ export const getPostData = async (subdomain, config, deal) => {
       amount: productData.amount,
       discount: productData.discount,
       inventoryCode: productCodeById[productData.productId],
-      workerEmail: productData.assignUserId && userEmailById[productData.assignUserId],
+      workerEmail:
+        productData.assignUserId && userEmailById[productData.assignUserId]
     });
   }
 
@@ -133,7 +144,7 @@ export const getPostData = async (subdomain, config, deal) => {
     wallet: 'debtAmount',
     barter: 'debtBarterAmount',
     after: 'debtAmount',
-    other: 'debtAmount',
+    other: 'debtAmount'
   };
 
   let sumSaleAmount = details.reduce((predet, detail) => {
@@ -142,18 +153,22 @@ export const getPostData = async (subdomain, config, deal) => {
 
   for (const paymentKind of Object.keys(deal.paymentsData || [])) {
     const payment = deal.paymentsData[paymentKind];
-    payments[configure[paymentKind]] = (payments[configure[paymentKind]] || 0) + payment.amount;
+    payments[configure[paymentKind]] =
+      (payments[configure[paymentKind]] || 0) + payment.amount;
     sumSaleAmount = sumSaleAmount - payment.amount;
   }
 
   // if payments is less sum sale amount then create debt
   if (sumSaleAmount > 0.005) {
-    payments[config.defaultPay] = (payments[config.defaultPay] || 0) + sumSaleAmount;
+    payments[config.defaultPay] =
+      (payments[config.defaultPay] || 0) + sumSaleAmount;
   }
 
   const orderInfos = [
     {
-      date: new Date().toISOString().slice(0, 10),
+      date: isNow
+        ? new Date().toISOString().slice(0, 10)
+        : new Date(deal.stageChangedDate).toISOString().slice(0, 10),
       orderId: deal._id,
       hasVat: config.hasVat || false,
       hasCitytax: config.hasCitytax || false,
@@ -161,8 +176,8 @@ export const getPostData = async (subdomain, config, deal) => {
       customerCode,
       description: deal.name,
       details,
-      ...payments,
-    },
+      ...payments
+    }
   ];
 
   return {
@@ -170,6 +185,6 @@ export const getPostData = async (subdomain, config, deal) => {
     token: config.apiToken,
     apiKey: config.apiKey,
     apiSecret: config.apiSecret,
-    orderInfos: JSON.stringify(orderInfos),
+    orderInfos: JSON.stringify(orderInfos)
   };
-}
+};
