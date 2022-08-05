@@ -205,6 +205,26 @@ const DateWrapper = styled.div`
   }
 `;
 
+const DateInputContainer = styled.div`
+  display: flex;
+
+  > div {
+    flex: 1;
+
+    &:last-child {
+      margin-left: 5px;
+    }
+  }
+
+  input {
+    max-width: 175px;
+  }
+
+  .filterDate {
+    max-width: 50%;
+  }
+`;
+
 export {
   FieldWrapper,
   FieldItem,
@@ -221,5 +241,6 @@ export {
   LogicRow,
   RowSmall,
   DateWrapper,
-  RowFill
+  RowFill,
+  DateInputContainer
 };
