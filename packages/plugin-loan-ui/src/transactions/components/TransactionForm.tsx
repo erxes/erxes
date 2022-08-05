@@ -1,25 +1,43 @@
+import * as path from 'path';
+
 import {
-  __,
   Button,
   ControlLabel,
   DateControl,
   Form,
+  MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
-  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  SelectCompanies,
-  SelectCustomers,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
-import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { Amount } from '../../contracts/styles';
-
-import { IInvoice } from '../../invoices/types';
 import { ITransaction, ITransactionDoc } from '../types';
+
+import { Amount } from '../../contracts/styles';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { IInvoice } from '../../invoices/types';
+import React from 'react';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -56,7 +74,7 @@ class TransactionForm extends React.Component<Props, State> {
       companyId: transaction.companyId || (invoice && invoice.companyId) || '',
       customerId:
         transaction.customerId || (invoice && invoice.customerId) || '',
-      invoice: invoice || transaction.invoice || null,
+      invoice: invoice || transaction.invoice || null
     };
   }
 
@@ -75,11 +93,11 @@ class TransactionForm extends React.Component<Props, State> {
       invoiceId: this.state.invoiceId,
       ...this.state,
       payDate: finalValues.payDate,
-      total: Number(this.state.total),
+      total: Number(this.state.total)
     };
   };
 
-  onFieldClick = (e) => {
+  onFieldClick = e => {
     e.target.select();
   };
 
@@ -193,14 +211,14 @@ class TransactionForm extends React.Component<Props, State> {
       this.setState({ [name]: value } as any);
     };
 
-    const onChangePayDate = (value) => {
+    const onChangePayDate = value => {
       this.setState({ payDate: value });
     };
 
-    const onChangeField = (e) => {
+    const onChangeField = e => {
       this.setState({
         [(e.target as HTMLInputElement).name]: (e.target as HTMLInputElement)
-          .value,
+          .value
       } as any);
     };
 
@@ -249,27 +267,31 @@ class TransactionForm extends React.Component<Props, State> {
             </FormColumn>
 
             <FormColumn>
-              <FormGroup>
-                <ControlLabel>Company</ControlLabel>
-                <SelectCompanies
-                  label="Choose an company"
-                  name="companyId"
-                  initialValue={this.state.companyId}
-                  onSelect={onSelect}
-                  multi={false}
-                />
-              </FormGroup>
+              {isEnabled('contacts') && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>Company</ControlLabel>
+                    <SelectCompanies
+                      label="Choose an company"
+                      name="companyId"
+                      initialValue={this.state.companyId}
+                      onSelect={onSelect}
+                      multi={false}
+                    />
+                  </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>Customer</ControlLabel>
-                <SelectCustomers
-                  label="Choose an customer"
-                  name="customerId"
-                  initialValue={this.state.customerId}
-                  onSelect={onSelect}
-                  multi={false}
-                />
-              </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>Customer</ControlLabel>
+                    <SelectCustomers
+                      label="Choose an customer"
+                      name="customerId"
+                      initialValue={this.state.customerId}
+                      onSelect={onSelect}
+                      multi={false}
+                    />
+                  </FormGroup>
+                </>
+              )}
 
               {this.renderRowTr('total', 'total')}
             </FormColumn>
@@ -287,7 +309,7 @@ class TransactionForm extends React.Component<Props, State> {
             name: 'transaction',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.transaction,
+            object: this.props.transaction
           })}
         </ModalFooter>
       </>

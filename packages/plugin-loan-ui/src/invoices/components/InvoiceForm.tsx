@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 import {
   Button,
   ControlLabel,
@@ -8,10 +10,7 @@ import {
   FormGroup,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  SelectCompanies,
-  SelectCustomers,
-  __
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { IInvoice, IInvoiceDoc } from '../types';
@@ -20,10 +19,29 @@ import { DateContainer } from '@erxes/ui/src/styles/main';
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import React from 'react';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
 import { setTimeout } from 'timers';
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -188,27 +206,31 @@ class InvoiceForm extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>Company</ControlLabel>
-                <SelectCompanies
-                  label="Choose an company"
-                  name="companyId"
-                  initialValue={this.state.companyId}
-                  onSelect={onSelect}
-                  multi={false}
-                />
-              </FormGroup>
+              {isEnabled('contacts') && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>Company</ControlLabel>
+                    <SelectCompanies
+                      label="Choose an company"
+                      name="companyId"
+                      initialValue={this.state.companyId}
+                      onSelect={onSelect}
+                      multi={false}
+                    />
+                  </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>Customer</ControlLabel>
-                <SelectCustomers
-                  label="Choose an customer"
-                  name="customerId"
-                  initialValue={this.state.customerId}
-                  onSelect={onSelect}
-                  multi={false}
-                />
-              </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>Customer</ControlLabel>
+                    <SelectCustomers
+                      label="Choose an customer"
+                      name="customerId"
+                      initialValue={this.state.customerId}
+                      onSelect={onSelect}
+                      multi={false}
+                    />
+                  </FormGroup>
+                </>
+              )}
             </FormColumn>
             <FormColumn>
               {this.renderFormGroup('payment', {
