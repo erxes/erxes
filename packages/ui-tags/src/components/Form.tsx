@@ -1,19 +1,19 @@
-import { COLORS } from '../../constants/colors';
-import Button from '../../components/Button';
-import FormControl from '../../components/form/Control';
-import Form from '../../components/form/Form';
-import FormGroup from '../../components/form/Group';
-import ControlLabel from '../../components/form/Label';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 
-import { colors } from '../../styles';
-import { ModalFooter } from '../../styles/main';
-import { IButtonMutateProps, IFormProps } from '../../types';
-import { getRandomNumber } from '../../utils';
-import { ITag } from '../../tags/types';
-import React from 'react';
+import Button from '@erxes/ui/src/components/Button';
+import { COLORS } from '@erxes/ui/src/constants/colors';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ITag } from '../types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import React from 'react';
 import TwitterPicker from 'react-color/lib/Twitter';
+import { colors } from '@erxes/ui/src/styles';
+import { getRandomNumber } from '@erxes/ui/src/utils';
 import styled from 'styled-components';
 
 const ColorPick = styled.div`

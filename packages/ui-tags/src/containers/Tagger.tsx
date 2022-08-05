@@ -1,15 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '../../utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Tagger from '../components/Tagger';
+
+import { Alert, withProps } from 'coreui/utils';
 import {
   ITagTypes,
   TagMutationResponse,
   TagMutationVariables,
   TagsQueryResponse
 } from '../types';
+
+import React from 'react';
+import Tagger from '../components/Tagger';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
   // targets can be conversation, customer, company etc ...

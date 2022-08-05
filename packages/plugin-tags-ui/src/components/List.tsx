@@ -103,6 +103,7 @@ function List({
     { title: __('Tags'), link: '/tags' },
     { title: __(contentType) }
   ];
+
   return (
     <Wrapper
       header={

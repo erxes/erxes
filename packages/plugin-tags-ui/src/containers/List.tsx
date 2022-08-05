@@ -1,18 +1,20 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
 import {
   MergeMutationResponse,
   RemoveMutationResponse,
   TagsQueryResponse
 } from '../types';
+import { mutations, queries } from '../graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import List from '../components/List';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { router } from '@erxes/ui/src/utils';
 
 type Props = {
@@ -37,14 +39,18 @@ const ListContainer = (props: FinalProps) => {
     history
   } = props;
 
-  if (tagsGetTypes.loading) {
+  if (tagsGetTypes.loading || tagsQuery.loading) {
     return <Spinner />;
   }
 
   const types = tagsGetTypes.tagsGetTypes || [];
 
   if (!router.getParam(history, 'type') || !tagsQuery) {
-    router.setParams(history, { type: types[0].contentType.toString() }, true);
+    router.setParams(
+      history,
+      { type: types.length !== 0 ? types[0].contentType.toString() : '' },
+      true
+    );
   }
 
   const remove = tag => {
@@ -131,7 +137,7 @@ export default withProps<Props>(
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
       name: 'tagsQuery',
       options: ({ type }) => ({
-        variables: { type },
+        variables: { type: type || '' },
         fetchPolicy: 'network-only'
       })
     }),

@@ -1,15 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
+
+import { ChildProps, graphql } from 'react-apollo';
+
 import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { mutations } from '../../boards/graphql';
-import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
 import SelectBoards from '../components/SelectBoardPipeline';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { mutations } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { queries } from '@erxes/ui-cards/src/boards/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   onChangeItems: (items: any) => any;
