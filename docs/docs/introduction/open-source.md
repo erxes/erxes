@@ -4,8 +4,6 @@ title: Open-source & Contribution
 sidebar_label: Open-source & Contribution
 ---
 
-## Open-source & Contribution
-
 Our community is at the heart of everything we do. We understand that people who contribute to a project are the main drivers who push a project forward. erxes core project, the documentation, and any related tool can be found in the erxes on GitHub. 
 
 - <a href="https://github.com/erxes/erxes" target="_blank">erxes</a> - erxes codebase
