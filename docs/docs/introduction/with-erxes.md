@@ -4,7 +4,6 @@ title: With erxes, you can...
 sidebar_label: With erxes, you can...
 ---
 
-## With erxes, you can…
 
 Achieving growth and unity within your company is possible with erxes. 
 
