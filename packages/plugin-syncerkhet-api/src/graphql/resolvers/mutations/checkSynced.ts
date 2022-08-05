@@ -64,7 +64,7 @@ const checkSyncedMutations = {
         ...configs[deal.stageId],
         ...mainConfig
       };
-      const postData = await getPostData(subdomain, config, deal);
+      const postData = await getPostData(subdomain, config, deal, false);
 
       const response = await sendRPCMessage(
         'rpc_queue:erxes-automation-erkhet',
