@@ -5,8 +5,9 @@ const wishlistQueries = {
     const { productId } = params;
     return Wishlist.getWishlist(productId);
   },
-  allWishlists: async () => {
-    return models?.Wishlist.getAllWishlist();
+  allWishlists: async (_root, params) => {
+    const { customerId } = params;
+    return models?.Wishlist.getAllWishlist(customerId);
   }
 };
 //requireLogin(wishlistQueries, '');
