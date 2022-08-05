@@ -1,6 +1,5 @@
 ---
 id: Welcome-to-erxes
-title: Welcome to erxes
 ---
 
 ### Welcome
