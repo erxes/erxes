@@ -1,19 +1,20 @@
-import { ButtonMutate, withProps } from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { queries as companyQueries } from '@erxes/ui/src/companies/graphql';
-import { CompaniesQueryResponse } from '@erxes/ui/src/companies/types';
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
-import { CustomersQueryResponse } from '@erxes/ui/src/customers/types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
 
-import InvoiceForm from '../components/InvoiceForm';
-import { mutations } from '../graphql';
+import { ButtonMutate, withProps } from '@erxes/ui/src';
+
+import { CompaniesQueryResponse } from '@erxes/ui-contacts/src/companies/types';
+import { CustomersQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IInvoice } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import InvoiceForm from '../components/InvoiceForm';
+import React from 'react';
+import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { queries as companyQueries } from '@erxes/ui-contacts/src/companies/graphql';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
 
 type Props = {
   invoice: IInvoice;
@@ -40,11 +41,11 @@ class InvoiceFromContainer extends React.Component<FinalProps> {
       name,
       values,
       isSubmitted,
-      object,
+      object
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedInvoice } = this.props;
 
-      const afterSave = (data) => {
+      const afterSave = data => {
         closeModal();
 
         if (getAssociatedInvoice) {
@@ -79,7 +80,7 @@ class InvoiceFromContainer extends React.Component<FinalProps> {
       renderButton,
       companies,
       customers,
-      invoice: { ...invoice },
+      invoice: { ...invoice }
     };
     return <InvoiceForm {...updatedProps} />;
   }
@@ -97,9 +98,9 @@ export default withProps<Props>(
         variables: {
           mainType: 'contract',
           mainTypeId: invoice && invoice.contractId,
-          isSaved: true,
-        },
-      }),
+          isSaved: true
+        }
+      })
     }),
     graphql<Props, CustomersQueryResponse>(gql(customerQueries.customers), {
       name: 'customersQuery',
@@ -107,9 +108,9 @@ export default withProps<Props>(
         variables: {
           mainType: 'contract',
           mainTypeId: invoice && invoice.contractId,
-          isSaved: true,
-        },
-      }),
+          isSaved: true
+        }
+      })
     })
   )(InvoiceFromContainer)
 );

@@ -1,20 +1,22 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import {
   BoardsQueryResponse,
   StagesQueryResponse
 } from '@erxes/ui-cards/src/boards/types';
-import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+
 import { DepartmentsQueryResponse } from '@erxes/ui/src/team/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import PipelineForm from '../components/PipelineForm';
-import { queries } from '@erxes/ui-settings/src/boards/graphql';
-import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
 import { IOption } from '../types';
+import { IPipeline } from '@erxes/ui-cards/src/boards/types';
+import PipelineForm from '../components/PipelineForm';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   pipeline?: IPipeline;

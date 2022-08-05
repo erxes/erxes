@@ -1,10 +1,11 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import { IButtonMutateProps,Counts } from '@erxes/ui/src/types';
-import { TagAdd } from '@erxes/ui-engage/src/types';
-import React from 'react';
+import { Counts, IButtonMutateProps } from '@erxes/ui/src/types';
+
 import Common from './Common';
+import { ITag } from '@erxes/ui-tags/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import { TagAdd } from '@erxes/ui-engage/src/types';
 import TagsForm from './forms/TagsForm';
-import { ITag } from '@erxes/ui/src/tags/types';
 
 type Props = {
   tagIds: string[];

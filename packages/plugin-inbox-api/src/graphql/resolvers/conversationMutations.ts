@@ -1,3 +1,4 @@
+import { IAttachment } from '@erxes/ui/src/types';
 import * as strip from 'strip';
 import * as _ from 'underscore';
 
@@ -54,6 +55,14 @@ interface IConversationConvert {
   stageId: string;
   itemName: string;
   bookingProductId?: string;
+  customFieldsData?: { [key: string]: any };
+  priority?: String;
+  assignedUserIds?: [String];
+  labelIds?: [String];
+  startDate?: Date;
+  closeDate?: Date;
+  attachments?: IAttachment[];
+  description?: String;
 }
 
 /**

@@ -1,20 +1,18 @@
-import React from 'react';
-import Datetime from '@nateradebaugh/react-datetime';
-import {
-  __,
-  Button,
-  FormControl,
-  FormGroup,
-  Form as CommonForm,
-  ControlLabel,
-  FlexContent,
-  FlexItem,
-  MainStyleModalFooter as ModalFooter
-} from '@erxes/ui/src';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
+import Button from '@erxes/ui/src/components/Button';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Datetime from '@nateradebaugh/react-datetime';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

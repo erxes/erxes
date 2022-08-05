@@ -1,9 +1,10 @@
 import {
   IActivityLog,
   IActivityLogForMonth
-} from '@erxes/ui/src/activityLogs/types';
-import { IUser } from '@erxes/ui/src/auth/types';
+} from '@erxes/ui-log/src/activityLogs/types';
+
 import { IAttachment } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface ICarCategoryDoc {
   _id?: string;

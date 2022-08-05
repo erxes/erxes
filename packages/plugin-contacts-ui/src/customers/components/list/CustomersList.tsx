@@ -1,43 +1,45 @@
-import gql from 'graphql-tag';
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import DateFilter from '@erxes/ui/src/components/DateFilter';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
-import Table from '@erxes/ui/src/components/table';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
 import * as routerUtils from '@erxes/ui/src/utils/router';
+
+import { Alert, __, confirm, router } from 'coreui/utils';
 import {
   EMAIL_VALIDATION_STATUSES,
   PHONE_VALIDATION_STATUSES
-} from '@erxes/ui/src/customers/constants';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
-import React from 'react';
+} from '@erxes/ui-contacts/src/customers/constants';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
+import CustomerRow from './CustomerRow';
+import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import DateFilter from '@erxes/ui/src/components/DateFilter';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import { ICustomer } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from 'coreui/utils';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Sidebar from './Sidebar';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
-import { ICustomer } from '../../types';
-import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
-import CustomerRow from './CustomerRow';
-import Sidebar from './Sidebar';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import { withRouter } from 'react-router-dom';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 interface IProps extends IRouterProps {
   type: string;

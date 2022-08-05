@@ -1,25 +1,45 @@
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
-import { IUser } from '@erxes/ui/src/auth/types';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import { ISkillDocument } from '@erxes/ui-settings/src/skills/types';
-import React from 'react';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import LeftSidebar from './LeftSidebar';
-import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
-import InfoSection from './InfoSection';
-import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import ActionSection from '../../containers/ActionSection';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { IUser } from '@erxes/ui/src/auth/types';
+import InfoSection from './InfoSection';
+import LeftSidebar from './LeftSidebar';
+import React from 'react';
 import RightSidebar from './RightSidebar';
+import { UserHeader } from './styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import path from 'path';
+
+const LeadState = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "LeadState" */ '@erxes/ui-contacts/src/customers/containers/LeadState'
+    )
+);
+
+const ActivityInputs = asyncComponent(
+  () =>
+    isEnabled('logs') &&
+    path.resolve(
+      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
+    )
+);
+
+const ActivityLogs = asyncComponent(
+  () =>
+    isEnabled('logs') &&
+    path.resolve(
+      /* webpackChunkName: "ActivityLogs" */ '@@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
+    )
+);
 
 type Props = {
   user: IUser;
-  channels: IChannel[];
-  skills: ISkillDocument[];
-  participatedConversations: IConversation[];
+  channels: any[]; //check - IChannel
+  skills: any[]; //check - ISkillDocument
+  participatedConversations: any[]; //check - IConversation
   totalConversationCount: number;
   excludeUserSkill: (skillId: string, userId: string) => void;
   renderSkillForm: ({
@@ -93,7 +113,7 @@ function UserDetails({
           >
             <ActionSection user={user} renderEditForm={renderEditForm} />
           </InfoSection>
-          <LeadState customer={user} />
+          {isEnabled('contacts') && <LeadState customer={user} />}
         </UserHeader>
       }
       leftSidebar={

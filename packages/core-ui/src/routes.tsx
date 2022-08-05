@@ -1,13 +1,16 @@
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { pluginLayouts, pluginRouters } from './pluginUtils';
-import queryString from 'query-string';
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
+import React from 'react';
 import SettingsRoutes from './modules/settings/routes';
 import WelcomeRoutes from './modules/welcome/routes';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import path from 'path';
+import queryString from 'query-string';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -27,10 +30,12 @@ const UserConfirmation = asyncComponent(() =>
   )
 );
 
-const Schedule = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
-  )
+const Schedule = asyncComponent(
+  () =>
+    isEnabled('calendar') &&
+    path.resolve(
+      /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
+    )
 );
 
 export const unsubscribe = ({ location }) => {
@@ -41,6 +46,10 @@ export const unsubscribe = ({ location }) => {
 
 const schedule = ({ match }) => {
   const slug = match.params.slug;
+
+  if (!isEnabled('calendar')) {
+    return null;
+  }
 
   return <Schedule slug={slug} />;
 };

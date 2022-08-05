@@ -1,8 +1,3 @@
-import dayjs from 'dayjs';
-import Attachment from '@erxes/ui/src/components/Attachment';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
 import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
@@ -10,8 +5,8 @@ import {
 } from '@erxes/ui-engage/src/constants';
 import {
   FlexContainer,
-  InfoWrapper,
   Half,
+  InfoWrapper,
   PreviewContent,
   RightSection,
   Title
@@ -19,14 +14,20 @@ import {
 import {
   FlexRow,
   Subject
-} from '@erxes/ui-settings/src/integrations/components/mail/styles';
+} from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
 import {
   IEngageMessage,
   IEngageSmsStats,
   IEngageStats
 } from '@erxes/ui-engage/src/types';
-import StatItem from './EngageStatItem';
+
+import Attachment from '@erxes/ui/src/components/Attachment';
 import EngageLogsContainer from '../containers/EngageLogsContainer';
+import React from 'react';
+import StatItem from './EngageStatItem';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   message: IEngageMessage;

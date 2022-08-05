@@ -1,5 +1,3 @@
-import React from 'react';
-import SelectCampaigns from '../../containers/SelectCampaigns';
 import {
   Button,
   ControlLabel,
@@ -7,18 +5,21 @@ import {
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { ISpin, ISpinDoc } from '../types';
 import {
   MainStyleModalFooter as ModalFooter,
   MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src/styles/eindex';
+
+import React from 'react';
+import SelectCampaigns from '../../containers/SelectCampaigns';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import { __ } from '@erxes/ui/src/utils';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { ISpin, ISpinDoc } from '../types';
 import { queries } from '../../../configs/spinCampaign/graphql';
 import { queries as voucherCampaignQueries } from '../../../configs/voucherCampaign/graphql';
-import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

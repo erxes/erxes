@@ -1,20 +1,24 @@
-import { AppConsumer } from 'coreui/appContext';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps, MutationVariables } from '@erxes/ui/src/types';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import inboxQueries from '@erxes/ui-inbox/src/inbox/graphql/queries';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
-import { mutations, queries } from '../graphql';
 import {
-  ChannelsCountQueryResponse,
-} from '../types';
-import { RemovePipelineLabelMutationResponse } from '@erxes/ui-cards/src/boards/types'
-import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
+  IButtonMutateProps,
+  IRouterProps,
+  MutationVariables
+} from '@erxes/ui/src/types';
+import { mutations, queries } from '../graphql';
+
+import { AppConsumer } from 'coreui/appContext';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { ChannelsCountQueryResponse } from '../types';
+import { ChannelsQueryResponse } from '@erxes/ui-inbox/src/settings/channels/types';
+import React from 'react';
+import { RemovePipelineLabelMutationResponse } from '@erxes/ui-cards/src/boards/types';
+import Sidebar from '../components/Sidebar';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import inboxQueries from '@erxes/ui-inbox/src/inbox/graphql/queries';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;
@@ -78,7 +82,7 @@ const SidebarContainer = (props: FinalProps) => {
           currentUserId
         )}
         isSubmitted={isSubmitted}
-        type='submit'
+        type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
         } a ${name}`}
@@ -147,20 +151,19 @@ const WithProps = withProps<Props>(
     graphql<Props, ChannelsCountQueryResponse, {}>(gql(queries.channelsCount), {
       name: 'channelsCountQuery'
     }),
-    graphql<
-      Props,
-      RemovePipelineLabelMutationResponse,
-      MutationVariables
-    >(gql(mutations.channelRemove), {
-      name: 'removeMutation',
-      options: ({ queryParams, currentChannelId, currentUserId }: Props) => ({
-        refetchQueries: getRefetchQueries(
-          queryParams,
-          currentChannelId,
-          currentUserId
-        )
-      })
-    })
+    graphql<Props, RemovePipelineLabelMutationResponse, MutationVariables>(
+      gql(mutations.channelRemove),
+      {
+        name: 'removeMutation',
+        options: ({ queryParams, currentChannelId, currentUserId }: Props) => ({
+          refetchQueries: getRefetchQueries(
+            queryParams,
+            currentChannelId,
+            currentUserId
+          )
+        })
+      }
+    )
   )(withRouter<FinalProps>(SidebarContainer))
 );
 

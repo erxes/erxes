@@ -1,20 +1,21 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import { __ } from '@erxes/ui/src/utils';
-import { selectConfigOptions } from '../../utils';
-// import { pluginsOfPaymentForm } from '@erxes/ui/src/pluginUtils';
-import React from 'react';
-import Select from 'react-select-plus';
-import { PAYMENT_TYPES } from '../../constants';
 import {
   ContentColumn,
   ContentRowTitle,
   Divider,
   WrongLess
 } from '../../styles';
-import { IPaymentsData } from '../../types';
+
+import CURRENCIES from '@erxes/ui/src/constants/currencies';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Flex } from '@erxes/ui/src/styles/main';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IPaymentsData } from '../../types';
+import { PAYMENT_TYPES } from '../../constants';
+import React from 'react';
+import Select from 'react-select-plus';
+import { __ } from '@erxes/ui/src/utils';
+import { pluginsOfPaymentForm } from 'coreui/pluginUtils';
+import { selectConfigOptions } from '../../utils';
 
 type Props = {
   total: { currency?: string; amount?: number };
@@ -185,7 +186,7 @@ class PaymentForm extends React.Component<Props, State> {
         <Divider />
 
         {this.renderPayments()}
-        {/* {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))} */}
+        {pluginsOfPaymentForm(type => this.renderPaymentsByType(type))}
       </>
     );
   }

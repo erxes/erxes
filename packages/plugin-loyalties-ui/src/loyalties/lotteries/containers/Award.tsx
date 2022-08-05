@@ -1,16 +1,17 @@
-import { Bulk, Spinner } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { queries } from '../../../configs/lotteryCampaign/graphql';
+
+import { Bulk, Spinner } from '@erxes/ui/src/components';
+import { router, withProps } from '@erxes/ui/src/utils';
+
+import { IRouterProps } from '@erxes/ui/src/types';
 import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
-import { queries as VoucherQuery } from '../../../configs/voucherCampaign/graphql';
-import VoucherAward from '../components/Award';
+import React from 'react';
 import { RemoveMutationResponse } from '../types';
+import VoucherAward from '../components/Award';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '../../../configs/lotteryCampaign/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = { history: any; queryParams: any; voucherCampaignId: string };
 type FinalProps = {
@@ -29,7 +30,7 @@ class AwardContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      loading: false,
+      loading: false
     };
     this.doLotteries = this.doLotteries.bind(this);
   }
@@ -44,7 +45,8 @@ class AwardContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      lotteryCampaign: this.props.lotteryCampaignDetailQuery.lotteryCampaignDetail,
+      lotteryCampaign: this.props.lotteryCampaignDetailQuery
+        .lotteryCampaignDetail,
       doLotteries: this.doLotteries
     };
 
@@ -75,14 +77,17 @@ const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, LotteryCampaignDetailQueryResponse>(gql(queries.lotteryCampaignDetail), {
-      name: 'lotteryCampaignDetailQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          _id: queryParams.campaignId
-        }
-      }),
-      skip: ({ queryParams }) => !queryParams.campaignId
-    }),
+    graphql<Props, LotteryCampaignDetailQueryResponse>(
+      gql(queries.lotteryCampaignDetail),
+      {
+        name: 'lotteryCampaignDetailQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            _id: queryParams.campaignId
+          }
+        }),
+        skip: ({ queryParams }) => !queryParams.campaignId
+      }
+    )
   )(withRouter<IRouterProps>(AwardContainer))
 );

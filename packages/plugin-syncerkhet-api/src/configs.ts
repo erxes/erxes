@@ -4,7 +4,6 @@ import { generateModels } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import { initBrokerErkhet } from './messageBrokerErkhet';
-import { initMemoryStorage } from './inmemoryStorage';
 import afterMutations from './afterMutations';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
@@ -39,8 +38,6 @@ export default {
 
     await initBroker(options.messageBrokerClient);
     await initBrokerErkhet();
-
-    initMemoryStorage();
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

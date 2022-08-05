@@ -1,9 +1,10 @@
-import GenerateField from '@erxes/ui-settings/src/properties/components/GenerateField';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
 import { AddContent, AddRow } from '../../styles/item';
+
 import AssignedUsers from './AssignedUsers';
+import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
+import { IField } from '@erxes/ui/src/types';
 import PipelineLabels from './PipelineLabels';
+import React from 'react';
 
 type Props = {
   fields: IField[];

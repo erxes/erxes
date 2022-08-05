@@ -256,9 +256,39 @@ const stagesUpdateOrder = `
 `;
 
 const conversationConvertToCard = `
-  mutation conversationConvertToCard($_id: String!, $type:String!, $stageId: String, $itemName:String, $itemId:String $bookingProductId: String){
-    conversationConvertToCard(_id:$_id,type:$type,itemId:$itemId,stageId:$stageId,itemName:$itemName bookingProductId: $bookingProductId)
-  }
+mutation conversationConvertToCard(
+  $_id: String!
+  $type: String!
+  $assignedUserIds: [String]
+  $attachments: [AttachmentInput]
+  $bookingProductId: String
+  $closeDate: Date
+  $customFieldsData: JSON
+  $description: String
+  $itemId: String
+  $itemName: String
+  $labelIds: [String]
+  $priority: String
+  $stageId: String
+  $startDate: Date
+) {
+  conversationConvertToCard(
+    _id: $_id
+    type: $type
+    assignedUserIds: $assignedUserIds
+    attachments: $attachments
+    bookingProductId: $bookingProductId
+    closeDate: $closeDate
+    customFieldsData: $customFieldsData
+    description: $description
+    itemId: $itemId
+    itemName: $itemName
+    labelIds: $labelIds
+    priority: $priority
+    stageId: $stageId
+    startDate: $startDate
+  )
+}
 `;
 
 export default {

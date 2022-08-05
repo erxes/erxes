@@ -1,21 +1,22 @@
-import SelectItem from '../../components/SelectItem';
-import { PRIORITIES } from '../../constants';
-import Watch from '../../containers/editForm/Watch';
-import LabelChooser from '../../containers/label/LabelChooser';
-import { ColorButton } from '../../styles/common';
-import { ActionContainer } from '../../styles/item';
 import { IItem, IOptions } from '../../types';
-import ChecklistAdd from '../../../checklists/components/AddButton';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
+
+import { ActionContainer } from '../../styles/item';
 import { ArchiveBtn } from './ArchiveBtn';
-import PriorityIndicator from './PriorityIndicator';
+import ChecklistAdd from '../../../checklists/components/AddButton';
+import { ColorButton } from '../../styles/common';
+import Icon from '@erxes/ui/src/components/Icon';
+import LabelChooser from '../../containers/label/LabelChooser';
+import { PRIORITIES } from '../../constants';
 import { PopoverButton } from '@erxes/ui-inbox/src/inbox/styles';
+import PriorityIndicator from './PriorityIndicator';
+import React from 'react';
+import SelectItem from '../../components/SelectItem';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
 import Tags from '@erxes/ui/src/components/Tags';
+import Watch from '../../containers/editForm/Watch';
+import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
 
 type Props = {
   item: IItem;

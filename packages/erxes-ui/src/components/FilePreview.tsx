@@ -1,10 +1,9 @@
 import Icon from './Icon';
 import ImageWithPreview from './ImageWithPreview';
 import React from 'react';
-import styled from 'styled-components';
-import { rgba } from '../styles/ecolor';
 import colors from '../styles/colors';
-import { SelectOption } from '@erxes/ui-cards/src/boards/styles/item';
+import { rgba } from '../styles/ecolor';
+import styled from 'styled-components';
 
 const Wrapper = styled.a`
   border-radius: 4px;
@@ -23,6 +22,12 @@ const Wrapper = styled.a`
     max-width: 100%;
     max-height: 320px;
   }
+`;
+
+const SelectOption = styled.div`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const Content = styled.div`

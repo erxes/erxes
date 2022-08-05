@@ -1,16 +1,14 @@
-import React from 'react';
-import { Nav } from '../../styles';
+import { Redirect, Route } from 'react-router-dom';
 
+import { Nav } from '../../styles';
 import NavigationItem from './NavigationItem';
 import NavigationMore from './NavigationMore';
-
 import { Plugin } from './types';
+import React from 'react';
 import { pluginNavigations } from './utils';
-import { Redirect, Route } from 'react-router-dom';
 
 type Props = {
   navCollapse: number;
-  unreadConversationsCount?: number;
 };
 
 type State = {
@@ -47,7 +45,7 @@ export default class NavigationList extends React.Component<Props, State> {
   };
 
   render() {
-    const { navCollapse, unreadConversationsCount } = this.props;
+    const { navCollapse } = this.props;
 
     const {
       showMenu,
@@ -80,7 +78,6 @@ export default class NavigationList extends React.Component<Props, State> {
               showMenu={showMenu}
               clickedMenu={clickedMenu}
               toggleMenu={this.toggleMenu}
-              unreadConversationsCount={unreadConversationsCount}
             />
           ))}
 

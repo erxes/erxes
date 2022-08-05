@@ -1,32 +1,33 @@
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
-import Button from '@erxes/ui/src/components/Button';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Uploader from '@erxes/ui/src/components/Uploader';
 import {
-  ModalFooter,
   FormColumn,
-  FormWrapper
+  FormWrapper,
+  ModalFooter
 } from '@erxes/ui/src/styles/main';
 import {
   IAttachment,
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
+import { IConfigsMap, IProduct, IProductCategory, IUom } from '../types';
+import { PRODUCT_SUPPLY, TYPES } from '../constants';
 import {
   extractAttachment,
   generateCategoryOptions
 } from '@erxes/ui/src/utils';
-import { TYPES, PRODUCT_SUPPLY } from '../constants';
+
+import Button from '@erxes/ui/src/components/Button';
 import CategoryForm from '../containers/CategoryForm';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import { IProduct, IProductCategory, IUom, IConfigsMap } from '../types';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import Select from 'react-select-plus';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import Uploader from '@erxes/ui/src/components/Uploader';
 
 type Props = {
   product?: IProduct;

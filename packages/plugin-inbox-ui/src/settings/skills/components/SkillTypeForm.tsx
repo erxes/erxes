@@ -1,11 +1,12 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { ISkillTypesDocument } from '@erxes/ui-inbox/src/settings/skills/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 
 type Props = {
   closeModal: () => void;
@@ -38,17 +39,17 @@ function SkillTypeForm({ closeModal, object, renderButton }: Props) {
         <ControlLabel>Name</ControlLabel>
         <FormControl
           {...formProps}
-          name='name'
+          name="name"
           defaultValue={item.name}
           autoFocus={true}
           required={true}
         />
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

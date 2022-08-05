@@ -365,7 +365,7 @@ export const receiveImportCreate = async (
       properties = await checkFieldNames(updatedColumns, columnConfig);
     } catch (e) {
       return models.ImportHistory.updateOne(
-        { _id: 'importHistoryId' },
+        { _id: importHistoryId },
         { error: e.message }
       );
     }

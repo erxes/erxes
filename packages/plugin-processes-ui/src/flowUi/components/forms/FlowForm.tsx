@@ -1,39 +1,18 @@
-import jquery from 'jquery';
-import { jsPlumb } from 'jsplumb';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import RTG from 'react-transition-group';
-
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import { __, Alert } from '@erxes/ui/src/utils';
-
-import { IFlowDocument, IJob } from '../../../flow/types';
-import { IJobRefer, IProductsData } from '../../../job/types';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import Confirmation from '../../containers/forms/Confirmation';
 import {
   ActionBarButtonsWrapper,
-  FlowFormContainer,
   BackButton,
   Container,
+  FlowFormContainer,
   RightDrawerContainer,
   Title,
   ToggleWrapper,
   ZoomActions,
   ZoomIcon
 } from '../../styles';
+import { Alert, __ } from '@erxes/ui/src/utils';
+import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+import { IFlowDocument, IJob } from '../../../flow/types';
+import { IJobRefer, IProductsData } from '../../../job/types';
 import {
   connection,
   connectorHoverStyle,
@@ -44,7 +23,27 @@ import {
   sourceEndpoint,
   targetEndpoint
 } from '../../utils';
+
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import Button from '@erxes/ui/src/components/Button';
+import Confirmation from '../../containers/forms/Confirmation';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IProduct } from '@erxes/ui-products/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NewJobForm from './actions/NewJobForm';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import RTG from 'react-transition-group';
+import React from 'react';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import jquery from 'jquery';
+import { jsPlumb } from 'jsplumb';
 
 const plumb: any = jsPlumb;
 let instance;

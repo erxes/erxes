@@ -1,19 +1,16 @@
-import { StepButton } from '@erxes/ui/src/components/step/styles';
+import { Content, LeftContent } from '../../styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
-import { __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-import React from 'react';
-import FileUpload from './FileUpload';
 
-import Details from './Details';
-import TypeForm from '../containers/TypeForm';
 import AccociateForm from '../containers/AccociateForm';
-import MapColumn from '../containers/MapColumn';
+import Details from './Details';
+import FileUpload from './FileUpload';
 import { IImportHistoryContentType } from '../../types';
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
+import MapColumn from '../containers/MapColumn';
+import React from 'react';
+import { StepButton } from '@erxes/ui/src/components/step/styles';
+import TypeForm from '../containers/TypeForm';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   contentType: string;

@@ -1,37 +1,38 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import { Alert, __ } from 'coreui/utils';
+import { Appearance, Availability, Greeting, Intro, Options } from './steps';
+import {
+  Content,
+  LeftContent
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ControlWrapper,
   Indicator,
   Preview,
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
-import { __, Alert } from 'coreui/utils';
-import { linkify } from '@erxes/ui-inbox/src/inbox/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
-import { MessengerPreview } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   IIntegration,
   IMessages,
   IMessengerData,
   ISkillData,
   IUiOptions
-} from '@erxes/ui-settings/src/integrations/types';
-import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import { Step, Steps } from '@erxes/ui/src/components/step';
+
 import AddOns from '../../containers/messenger/AddOns';
-import { Appearance, Availability, Greeting, Intro, Options } from './steps';
-import Connection from './steps/Connection';
+import Button from '@erxes/ui/src/components/Button';
 import CommonPreview from './widgetPreview/CommonPreview';
+import Connection from './steps/Connection';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import { Link } from 'react-router-dom';
+import { MessengerPreview } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import React from 'react';
 import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { linkify } from '@erxes/ui-inbox/src/inbox/utils';
 
 type Props = {
   teamMembers: IUser[];

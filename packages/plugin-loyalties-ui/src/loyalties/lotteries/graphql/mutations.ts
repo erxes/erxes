@@ -1,5 +1,5 @@
-import { commonDefs, commonVariables } from "../../common/graphq";
-import { lotteryFields } from "./queries";
+import { commonDefs, commonVariables } from '../../common/graphq';
+import { lotteryFields } from './queries';
 
 const lotteriesAdd = `
   mutation lotteriesAdd(${commonDefs}, $status: String) {

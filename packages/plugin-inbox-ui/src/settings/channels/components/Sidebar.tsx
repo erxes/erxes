@@ -1,15 +1,15 @@
 import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
+import ChannelForm from '@erxes/ui-inbox/src/settings/channels/containers/ChannelForm';
 import ChannelRow from './ChannelRow';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { Header } from '@erxes/ui-settings/src/styles';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
+import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   channels: IChannel[];

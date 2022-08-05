@@ -1,14 +1,15 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexCenterContent,
   MergedContacts
-} from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import Tip from '@erxes/ui/src/components/Tip';
+} from '@erxes/ui-log/src/activityLogs/styles';
 import { __, renderFullName, renderUserFullName } from '@erxes/ui/src/utils';
-import React from 'react';
+
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import { Link } from 'react-router-dom';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
 
 type Props = { contentDetail: any } & IActivityLogItemProps;
 

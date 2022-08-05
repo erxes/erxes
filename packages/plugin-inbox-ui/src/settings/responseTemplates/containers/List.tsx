@@ -1,18 +1,22 @@
-import gql from 'graphql-tag';
-import client from '@erxes/ui/src/apolloClient';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { graphql } from 'react-apollo';
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { commonListComposer } from '@erxes/ui/src/utils';
-import List from '../components/List';
-import { mutations, queries } from '@erxes/ui-settings/src/responseTemplates/graphql';
-import { RESPONSE_TEMPLATE_STATUSES } from '../constants';
-import React from 'react';
 import {
   ICommonFormProps,
   ICommonListProps
 } from '@erxes/ui-settings/src/common/types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/responseTemplates/graphql';
+
 import { IButtonMutateProps } from '@erxes/ui/src/types';
+import List from '../components/List';
+import { RESPONSE_TEMPLATE_STATUSES } from '../constants';
+import React from 'react';
+import client from '@erxes/ui/src/apolloClient';
+import { commonListComposer } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = ICommonListProps &
   ICommonFormProps & {

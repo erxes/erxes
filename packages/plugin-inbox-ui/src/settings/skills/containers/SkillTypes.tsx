@@ -1,17 +1,18 @@
-import gql from 'graphql-tag';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { graphql } from 'react-apollo';
-import { commonListComposer } from '@erxes/ui/src/utils';
-import SkillTypes from '../components/SkillTypes';
-import mutations from '../graphql/mutations';
-import queries from '../graphql/queries';
-import { SkillTypesQueryResponse } from '@erxes/ui-settings/src/skills/types';
 import {
   SkillTypesAddMutation,
   SkillTypesEditMutation,
   SkillTypesRemoveMutation,
   SkillTypesTotalCountQueryResponse
 } from '../types';
+
+import SkillTypes from '../components/SkillTypes';
+import { SkillTypesQueryResponse } from '@erxes/ui-inbox/src/settings/skills/types';
+import { commonListComposer } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import mutations from '../graphql/mutations';
+import queries from '../graphql/queries';
 
 type Props = {
   queryParams: any;

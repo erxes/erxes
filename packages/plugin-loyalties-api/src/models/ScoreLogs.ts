@@ -3,7 +3,11 @@ import { Model, model } from 'mongoose';
 import { checkVouchersSale } from '../utils';
 import { getOwner } from './utils';
 import { IModels } from '../connectionResolver';
-import { IScoreLogDocument, scoreLogSchema, IScoreLog } from './definitions/scoreLog';
+import {
+  IScoreLogDocument,
+  scoreLogSchema,
+  IScoreLog
+} from './definitions/scoreLog';
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 
 import { IScoreParams } from './definitions/common';
@@ -12,7 +16,6 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
   getScoreLogs(doc: IScoreParams): Promise<IScoreLogDocument>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument>;
-
 }
 
 const generateFilter = (params: IScoreParams) => {
@@ -38,7 +41,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const scoreLog = await models.ScoreLogs.findOne({ _id }).lean();
 
       if (!scoreLog) {
-        throw new Error('not found scoreLog rule')
+        throw new Error('not found scoreLog rule');
       }
 
       return scoreLog;
@@ -47,13 +50,22 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
     public static async getScoreLogs(doc: IScoreParams) {
       const { order, orderType } = doc;
       const filter = generateFilter(doc);
-      const list = paginate(models.ScoreLogs.find(filter).sort({ [orderType]: order }), doc);
+      const list = paginate(
+        models.ScoreLogs.find(filter).sort({ [orderType]: order }),
+        doc
+      );
       const total = await models.ScoreLogs.find(filter).count();
       return { list, total };
     }
 
     public static async changeScore(doc: IScoreLog) {
-      const { ownerType, ownerId, changeScore, description, createdBy = '' } = doc;
+      const {
+        ownerType,
+        ownerId,
+        changeScore,
+        description,
+        createdBy = ''
+      } = doc;
 
       const score = Number(changeScore);
       let owner;
@@ -68,7 +80,7 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
           isRPC: true
         });
         sendMessage = sendContactsMessage;
-        action = 'customers.updateOne'
+        action = 'customers.updateOne';
       }
 
       if (ownerType === 'user') {
@@ -107,7 +119,10 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
       const response = await sendMessage({
         subdomain,
         action,
-        data: { selector: { _id: ownerId }, modifier: { $set: { score: newScore } } },
+        data: {
+          selector: { _id: ownerId },
+          modifier: { $set: { score: newScore } }
+        },
         isRPC: true
       });
 
@@ -115,11 +130,14 @@ export const loadScoreLogClass = (models: IModels, subdomain: string) => {
         return;
       }
       return await models.ScoreLogs.create({
-        ownerId, ownerType, changeScore: score,
-        createdAt: new Date(), description, createdBy
+        ownerId,
+        ownerType,
+        changeScore: score,
+        createdAt: new Date(),
+        description,
+        createdBy
       });
     }
-
   }
 
   scoreLogSchema.loadClass(ScoreLog);
