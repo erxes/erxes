@@ -8,7 +8,7 @@ const checkSyncedMutations = {
   async toCheckSyncedDeals(
     _root,
     { dealIds }: { dealIds: string[] },
-    { user, models, subdomain }: IContext
+    { subdomain }: IContext
   ) {
     const config = await getConfig(subdomain, 'ERKHET', {});
 
@@ -27,16 +27,23 @@ const checkSyncedMutations = {
 
     const result = JSON.parse(response);
 
-    return (Object.keys(result.data) || []).map(dealId => ({
-      dealId,
-      isSynced: result.data[dealId]
-    }));
+    const data = result.data;
+
+    return (Object.keys(data) || []).map(dealId => {
+      const res: any = data[dealId] || {};
+      return {
+        dealId,
+        isSynced: res.isSynced,
+        syncedDate: res.date,
+        syncedBillNumber: res.bill_number
+      };
+    });
   },
 
   async toSyncDeals(
     _root,
     { dealIds }: { dealIds: string[] },
-    { user, models, subdomain }: IContext
+    { subdomain }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],

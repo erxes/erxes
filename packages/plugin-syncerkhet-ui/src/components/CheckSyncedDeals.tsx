@@ -21,6 +21,7 @@ type Props = {
   toggleBulk: () => void;
   toggleAll: (targets: any[], containerId: string) => void;
   unSyncedDealIds: string[];
+  syncedDealInfos: any;
   toSyncDeals: (dealIds: string[]) => void;
 };
 
@@ -40,7 +41,8 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       toggleBulk,
       bulk,
       unSyncedDealIds,
-      toSyncDeals
+      toSyncDeals,
+      syncedDealInfos
     } = this.props;
 
     return deals.map(deal => (
@@ -52,6 +54,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
         isChecked={bulk.includes(deal)}
         isUnsynced={unSyncedDealIds.includes(deal._id)}
         toSync={toSyncDeals}
+        syncedInfo={syncedDealInfos[deal._id] || {}}
       />
     ));
   };
@@ -79,15 +82,20 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       isAllSelected,
       bulk,
       unSyncedDealIds,
-      toSyncDeals
+      toSyncDeals,
+      syncedDealInfos
     } = this.props;
-
+    console.log(syncedDealInfos);
     const tablehead = [
       'deal name',
       'Amount',
-      'createdAt',
-      'modifiedAt',
-      'stageChangedDate'
+      'created At',
+      'modified At',
+      'stage Changed Date',
+      'Un Synced',
+      'Synced Date',
+      'Synced bill Number',
+      'Sync Actions'
     ];
 
     const Content = (
@@ -104,7 +112,6 @@ class CheckSyncedDeals extends React.Component<Props, State> {
             {tablehead.map(p => (
               <th key={p}>{p || ''}</th>
             ))}
-            <th></th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>

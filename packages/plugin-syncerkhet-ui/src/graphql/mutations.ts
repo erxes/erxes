@@ -11,6 +11,8 @@ const toCheckSyncedDeals = `
     toCheckSyncedDeals(dealIds: $dealIds) {
       dealId
       isSynced
+      syncedDate
+      syncedBillNumber
     }
   }
 `;

@@ -2,6 +2,8 @@ export const types = `
   type CheckResponse {
     dealId: String
     isSynced: Boolean
+    syncedDate: Date
+    syncedBillNumber: String
   }
 `;
 

@@ -32,6 +32,7 @@ type FinalProps = {
 
 type State = {
   unSyncedDealIds: string[];
+  syncedDealInfos: any;
 };
 
 class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
@@ -39,7 +40,8 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      unSyncedDealIds: []
+      unSyncedDealIds: [],
+      syncedDealInfos: {}
     };
   }
 
@@ -58,10 +60,21 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
         .then(response => {
           emptyBulk();
           const statuses = response.data.toCheckSyncedDeals;
+
           const unSyncedDealIds = (statuses.filter(s => !s.isSynced) || []).map(
             s => s.dealId
           );
-          this.setState({ unSyncedDealIds });
+          const syncedDealInfos = {};
+          const syncedDeals = statuses.filter(s => s.isSynced) || [];
+
+          syncedDeals.forEach(item => {
+            syncedDealInfos[item.dealId] = {
+              syncedBillNumber: item.syncedBillNumber || '',
+              syncedDate: item.syncedDate || ''
+            };
+          });
+
+          this.setState({ unSyncedDealIds, syncedDealInfos });
           Alert.success('Check finished');
         })
         .catch(e => {
@@ -102,6 +115,7 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
       totalCount,
       checkSynced,
       unSyncedDealIds: this.state.unSyncedDealIds,
+      syncedDealInfos: this.state.syncedDealInfos,
       toSyncDeals
     };
 
