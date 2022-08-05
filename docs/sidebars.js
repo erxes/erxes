@@ -17,6 +17,65 @@ module.exports = {
     },
     {
       type: 'category',
+      label: 'Installation & configuration',
+      items: [
+        {
+          Production: [
+            'ubuntu/server',
+            {
+              Ubuntu: [
+                {
+                  Installation: [
+                    'ubuntu/prerequisites',
+                    'ubuntu/installation',
+                    'ubuntu/deployment'
+                  ]
+                }
+              ]
+            },
+            {
+              Mac: [
+                {
+                  Installation: [
+                    'mac/prerequisites',
+                    'mac/installation',
+                    'mac/deployment'
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          Developer: [
+            {
+              Ubuntu: [
+                {
+                  Installation: [
+                    'developer/ubuntu/prerequisites',
+                    'developer/ubuntu/installation',
+                    'developer/ubuntu/deployment'
+                  ]
+                }
+              ]
+            },
+            {
+              Mac: [
+                {
+                  Installation: [
+                    'developer/mac/prerequisites',
+                    'developer/mac/installation',
+                    'developer/mac/deployment'
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: 'category',
       label: 'Getting Started',
       items: [
         {
