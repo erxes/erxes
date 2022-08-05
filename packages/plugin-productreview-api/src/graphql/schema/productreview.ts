@@ -19,7 +19,7 @@ const mutationParams = `
 
 export const queries = `
   productreviews(${queryParams}): [Productreview]
-  allProductreviews(customerId: String): [Productreview]
+  allProductreviews: [Productreview]
 `;
 
 export const mutations = `

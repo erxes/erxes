@@ -9,7 +9,7 @@ import {
 export interface IWishlistModel extends Model<IWishlistDocument> {
   getWishlistById(_id: string): Promise<IWishlistDocument>;
   getWishlist(_productId: string): Promise<IWishlistDocument>;
-  getAllWishlist(customerId: string): Promise<IWishlistDocument>;
+  getAllWishlist(): Promise<IWishlistDocument>;
   createWishlist(doc: IWishlist): Promise<IWishlistDocument>;
   updateWishlist(_id: string, doc: IWishlist): Promise<IWishlistDocument>;
   removeWishlist(_id: string): Promise<IWishlistDocument>;
@@ -23,8 +23,8 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
     public static async getWishlist(productId: string) {
       return models.Wishlist.find({ productId }).lean();
     }
-    public static async getAllWishlist(customerId: string) {
-      return models.Wishlist.find({ customerId }).lean();
+    public static async getAllWishlist() {
+      return models.Wishlist.find();
     }
     public static async createWishlist(doc: IWishlist) {
       const review = await models.Wishlist.create({
