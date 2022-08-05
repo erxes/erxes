@@ -1,5 +1,7 @@
-
-import { attachmentInput, attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+import {
+  attachmentInput,
+  attachmentType
+} from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = ({ tags, forms }) => `
   ${attachmentType}
@@ -236,6 +238,23 @@ const mutationFilterParams = `
   segment: String
 `;
 
+const convertParams = `
+  _id: String!
+  type: String!
+  itemId: String
+  itemName: String
+  stageId: String
+  bookingProductId: String
+  customFieldsData: JSON
+  priority: String
+  assignedUserIds: [String]
+  labelIds: [String]
+  startDate: Date
+  closeDate: Date
+  attachments: [AttachmentInput]
+  description: String
+`;
+
 const filterParams = `
   limit: Int,
   ids: [String]
@@ -260,7 +279,7 @@ export const queries = ({ forms }) => `
   conversationDetail(_id: String!): Conversation
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
-  ${ forms ? `inboxFields: InboxField` : '' }
+  ${forms ? `inboxFields: InboxField` : ''}
   userConversations(_id: String, perPage: Int): UserConversationListResponse
 `;
 
@@ -283,6 +302,6 @@ export const mutations = `
   conversationCreateVideoChatRoom(_id: String!): VideoCallData
   changeConversationOperator(_id: String! operatorStatus: String!): JSON
   conversationResolveAll(${mutationFilterParams}): Int
-  conversationConvertToCard(_id: String!, type: String!, itemId: String, itemName: String, stageId: String, bookingProductId: String): String
+  conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, customFieldsData: JSON): Conversation
 `;
