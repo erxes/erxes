@@ -10,8 +10,9 @@ const productreviewQueries = {
     const { productId } = params;
     return ProductReview.getProductReview(productId);
   },
-  allProductreviews: async () => {
-    return models?.ProductReview.getAllProductReview();
+  allProductreviews: async (_root, params) => {
+    const { customerId } = params;
+    return models?.ProductReview.getAllProductReview(customerId);
   }
 };
 //requireLogin(productreviewQueries, 'productreviews');

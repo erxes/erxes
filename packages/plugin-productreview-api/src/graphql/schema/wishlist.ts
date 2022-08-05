@@ -7,11 +7,11 @@ export const types = `
 `;
 const params = `
     productId: String,
-		customerId: String
+	customerId: String
 `;
 export const queries = `
 	wishlist(productId: String!): [Wishlist]
-	allWishlists: [Wishlist]
+	allWishlists(customerId: String): [Wishlist]
 `;
 export const mutations = `
 	wishlistAdd(${params}): Wishlist
