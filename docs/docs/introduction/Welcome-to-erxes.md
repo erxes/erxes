@@ -1,8 +1,7 @@
 ---
 id: Welcome-to-erxes
+title: Welcome
 ---
-
-### Welcome
 
 ### What is erxes?
 
