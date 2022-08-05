@@ -3,8 +3,6 @@ id: with-erxes
 title: With erxes, you can...
 ---
 
-### With erxes, you can...
-
 Achieving growth and unity within your company is possible with erxes. 
 
 - erxes is an open-source project (see <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">LICENSE</a> for more information); everyone (individuals and companies, especially SaaS providers) can use it for free privately to create better experiences for everything they do, such as customer, employee, production, service, and many more experiences. 
