@@ -110,10 +110,10 @@ Node:
 
 Database:
 
-- MongoDB
-- Redist
-- RabbitMQ
-- Elasticsearch
+- MongoDB 3.6
+- Redis 3
+- RabbitMQ 10.2.7
+- Elasticsearch 5.7.8
 
 Software package managing systems:
 
