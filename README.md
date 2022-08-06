@@ -113,7 +113,7 @@ Database:
 - MongoDB 3.6+
 - Redis 3.x+
 - RabbitMQ 3.8.x+
-- Elasticsearch 5.7.8
+- Elasticsearch
 
 Software package managing systems:
 
