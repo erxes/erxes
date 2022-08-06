@@ -1,6 +1,6 @@
 ---
-id: with-erxes
-title: With erxes, you can...
+id: Architecture
+title: Architecture
 ---
 
 Achieving growth and unity within your company is possible with erxes. 
