@@ -3,11 +3,6 @@ id: introduction
 title: Introduction
 sidebar_label: Introduction
 ---
----
-id: Welcome-to-erxes
-title: Introduction
----
-
 
 
 ## What is erxes?
