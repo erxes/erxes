@@ -6,10 +6,9 @@ module.exports = {
       items: [
         {
           Overview: [
-            'introduction/Welcome-to-erxes',
-            'introduction/with-erxes',
-            'introduction/open-source',
-            'introduction/support'
+            'introduction/introduction',
+            'introduction/architecture',
+            'introduction/faq'
           ]
         },
         'overview/quickstart'
@@ -113,7 +112,7 @@ module.exports = {
     {
       type: 'category',
       label: 'Overview',
-      items: ['overview/overview', 'overview/architecture-overview']
+      items: ['overview/overview']
     },
     {
       type: 'category',
