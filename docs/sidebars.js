@@ -63,6 +63,7 @@ module.exports = {
         'contribute/contribute-to-codebase',
         {
           'Contribute to documentation': [
+            'contribute/contribute-to-documentation',
             'contribute/documentation-style-guide'
           ]
         }
