@@ -6,10 +6,9 @@ module.exports = {
       items: [
         {
           Overview: [
-            'introduction/Welcome-to-erxes',
-            'introduction/with-erxes',
-            'introduction/open-source',
-            'introduction/support'
+            'introduction/introduction',
+            'introduction/architecture',
+            'introduction/faq'
           ]
         },
         'overview/quickstart'
