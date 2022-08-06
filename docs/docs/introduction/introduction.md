@@ -45,9 +45,7 @@ Our community is at the heart of everything we do. We understand that people who
 
 ## Community
 
-<a href="https://www.erxes.org/overview/deployment-overview" target="_blank">erxes documentation</a> contains instructions for everything you need to know about erxes. 
-
-For additional information, you can use any of these channels to get the answer you want:
+<a href="https://www.erxes.org/overview/deployment-overview" target="_blank">erxes documentation</a> contains instructions for everything you need to know about erxes. For additional information, you can use any of these channels to get the answer you want:
 
 
 :::tip
