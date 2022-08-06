@@ -30,5 +30,5 @@ erxes’s coding architecture comprises Backend, UI, and Widgets.
 
 </br>
 
-<a href="https://www.erxes.org/introduction/architecture![Cover](https://imagedelivery.net/5m26Aj-CutMXPPNacMs_yQ/d991900c-31b5-4bf1-cedd-9369b4170300/public)"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/structure.svg" width="100%" alt="the open-source of the Hubspot/Qualtrics alternative">
+<a href="https://www.erxes.org/introduction/architecture![Cover](https://imagedelivery.net/5m26Aj-CutMXPPNacMs_yQ/d991900c-31b5-4bf1-cedd-9369b4170300/public)"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/structure.svg" width="100%" alt="the open-source of the Hubspot/Qualtrics alternative"></img>
 </a>
