@@ -1,7 +1,7 @@
 ---
-id: contribute-to-the-documentation
-title: Contribute to the documentation
-sidebar_label: Contribute to the documentation
+id: contribute-to-documentation
+title: Contribute to documentation
+sidebar_label: Contribute to documentation
 ---
 
 You can write content using [GitHub-flavored Markdown syntax](https://github.github.com/gfm/).

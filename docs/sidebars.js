@@ -59,12 +59,13 @@ module.exports = {
       type: 'category',
       label: 'Contributing to open source',
       items: [
+        'contribute/overview',
+        'contribute/contribute-to-codebase',
         {
-          Overview: ['contribute/overview']
-        },
-        'contribute/contribute-to-erxes',
-        'contribute/coding-standarts',
-        'contribute/contribute-to-the-documentation'
+          'Contribute to documentation': [
+            'contribute/documentation-style-guide'
+          ]
+        }
       ]
     },
     {
