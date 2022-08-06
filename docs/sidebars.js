@@ -19,58 +19,52 @@ module.exports = {
       label: 'Installation & configuration',
       items: [
         {
-          Production: [
+          'Installation for Production': [
             'ubuntu/server',
-            {
-              Ubuntu: [
-                {
-                  Installation: [
-                    'ubuntu/prerequisites',
-                    'ubuntu/installation',
-                    'ubuntu/deployment'
-                  ]
-                }
-              ]
-            },
-            {
-              Mac: [
-                {
-                  Installation: [
-                    'mac/prerequisites',
-                    'mac/installation',
-                    'mac/deployment'
-                  ]
-                }
-              ]
-            }
+            'ubuntu/ubuntu',
+            'mac/mac'
           ]
         },
         {
-          Developer: [
-            {
-              Ubuntu: [
-                {
-                  Installation: [
-                    'developer/ubuntu/prerequisites',
-                    'developer/ubuntu/installation',
-                    'developer/ubuntu/deployment'
-                  ]
-                }
-              ]
-            },
-            {
-              Mac: [
-                {
-                  Installation: [
-                    'developer/mac/prerequisites',
-                    'developer/mac/installation',
-                    'developer/mac/deployment'
-                  ]
-                }
-              ]
-            }
+          Developer: ['developer/ubuntu', 'developer/mac']
+        },
+        {
+          Plugins: [
+            'plugins/choose-your-plugins',
+            'plugins/plugin-api',
+            'plugins/plugin-ui'
           ]
+        },
+        {
+          Integrations: ['integrations/3rd-party-integration']
+        },
+        {
+          ' Update erxes': ['other/update']
+        },
+        {
+          Troubleshooting: ['other/troubleshooting']
+        },
+        {
+          Changelog: ['other/changelog']
+        },
+        {
+          'General feedback': ['other/general-feedback']
+        },
+        {
+          'Typescript Support': ['other/typescript']
         }
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Contributing to open source',
+      items: [
+        {
+          Overview: ['contribute/overview']
+        },
+        'contribute/contribute-to-erxes',
+        'contribute/coding-standarts',
+        'contribute/contribute-to-the-documentation'
       ]
     },
     {
