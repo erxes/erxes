@@ -3,11 +3,23 @@ id: Architecture
 title: Architecture
 ---
 
-Achieving growth and unity within your company is possible with erxes. 
+## Architecture
 
-- erxes is an open-source project (see <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">LICENSE</a> for more information); everyone (individuals and companies, especially SaaS providers) can use it for free privately to create better experiences for everything they do, such as customer, employee, production, service, and many more experiences. 
-- We love open-source and the idea everybody can freely use and extend what we wrote. Digital marketing technology agencies are welcome to add value to their product and services by selling erxes to their clients to use erxes privately. 
-- <a href="https://erxes.io/marketplace" target="_blank">erxes Marketplace</a> is a great place to add the source of revenue for independent developers and digital marketing technology agencies to earn and distribute your plugins they created on erxes XOS. 
+Erxes’s coding architecture comprises Backend, UI, and Widgets.
+
+- Backend part is responsible for ensuring all APIs of different plugins work together smoothly. 
+- UI part used React, Apollo, and GraphQL and is also responsible for ensuring all API’s UI work together. It is built with Nodejs, Graphql, and Apollo. XOS has utility features: 
+
+         - System config 
+         - Permission 
+         - Team members 
+         - Brands 
+         - Import & export 
+         - Application 
+         - Marketplace 
+
+- erxes - Widgets are built with Web Widgets, iOS SDK, Android SDK, React Native SDK - React, React Native, Apollo, GraphQl. It contains the codes that work on the user’s website and mobile application.
+- The database is used for any erxes project.  
 
 
 
