@@ -52,14 +52,14 @@ Our community is at the heart of everything we do. We understand that people who
 
 Want to join the community?
 
-You can join <a href="https://github.com/erxes/erxes" target="_blank">GitHub</a>, <a href="https://github.com/erxes/erxes/discussions" > Community forum</a>, and <a href=" https://discord.com/invite/aaGzy3gQK5" target="_blank">Discord</a> to share your ideas and opinions with other community members and members of the erxes team. If you're looking for news and updates about erxes, <a href="https://twitter.com/erxesHQ" target="_blank">Twitter</a> and the <a href="https://erxes.io/blog" target="_blank">blog</a> are the places to start!
+You can join <a href="https://github.com/erxes/erxes" target="_blank">GitHub</a>, <a href="https://github.com/erxes/erxes/discussions" > Community forum</a>, and <a href="https://discord.com/invite/aaGzy3gQK5" > Discord</a> to share your ideas and opinions with other community members and members of the erxes team. If you're looking for news and updates about erxes, <a href="https://twitter.com/erxesHQ" target="_blank">Twitter</a> and the <a href="https://erxes.io/blog" target="_blank">blog</a> are the places to start!
 
 :::
 
 
 ## Support
 
-If you need any support during your development with erxes, you can join our <a href="https://discord.com/invite/aaGzy3gQK5" target="_blank">Discord Server.</a> You will get help directly from our core team and our community.
+If you need any support during your development with erxes, you can join our<a href="https://discord.com/invite/aaGzy3gQK5" > Discord.</a>  You will get help directly from our core team and our community.
 
 
 By joining our Discord Server, you’ll also have the chance to participate in many events and showcase your work with erxes.
