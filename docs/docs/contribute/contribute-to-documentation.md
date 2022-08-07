@@ -4,8 +4,6 @@ title: Contribute to documentation
 sidebar_label: Contribute to documentation
 ---
 
-## Contribute to documentation
-
 Thank you for your interest in contributing to the documentation! You will be helping the open source community and other developers interested in learning more about erxes and using them.
 
 :::tip
