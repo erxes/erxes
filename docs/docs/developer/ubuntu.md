@@ -31,18 +31,18 @@ erxes installation requires at least four software prerequisites to be already i
 git clone git@github.com:erxes/erxes.git
 ```
 
-2. Switch a federation branch:
+2. Switch a federation branch by using following command:
 ```
 git checkout federation
 ```
 
-3. Install node modules:
+3. Install node modules by using following command:
 ```
 cd erxes
 yarn install
 ```
 
-4. Install pm2:
+4. Install pm2 by using following command:
 ```
 sudo npm install -g pm2
 ```
@@ -101,7 +101,7 @@ networks:
     driver: bridge
 ```
 
-2. Run the following command in the folder where above file in:
+2. Run the following command in the folder where above file exists:
 
 ```
 docker-compose up -d
