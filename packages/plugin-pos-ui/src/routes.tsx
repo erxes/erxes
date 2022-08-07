@@ -8,20 +8,22 @@ const List = asyncComponent(() =>
 );
 
 const PosContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PosContainer" */ './pos/containers/Pos'
-  )
+  import(/* webpackChunkName: "PosContainer" */ './pos/containers/Pos')
 );
 
 const OrderList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "OrderList" */ './orders/containers/List'
-  )
+  import(/* webpackChunkName: "OrderList" */ './orders/containers/List')
 );
 
 const PosProductList = asyncComponent(() =>
   import(
     /* webpackChunkName: "PosProductList" */ './orders/containers/ProductList'
+  )
+);
+
+const CheckSyncedOrders = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "PosProductList" */ './orders/containers/CheckSyncedOrders'
   )
 );
 
@@ -35,7 +37,9 @@ const posComponent = ({ match, location, history }) => {
   const { posId } = match.params;
   const queryParams = queryString.parse(location.search);
 
-  return <PosContainer queryParams={queryParams} posId={posId} history={history} />;
+  return (
+    <PosContainer queryParams={queryParams} posId={posId} history={history} />
+  );
 };
 
 const OrderListComponent = ({ location, history }) => {
@@ -44,16 +48,24 @@ const OrderListComponent = ({ location, history }) => {
       queryParams={queryString.parse(location.search)}
       history={history}
     />
-  )
-}
+  );
+};
 const OrderItemsComponent = ({ location, history }) => {
   return (
     <PosProductList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
-  )
-}
+  );
+};
+const CheckSyncedOrderList = ({ location, history }) => {
+  return (
+    <CheckSyncedOrders
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
 
 const routes = () => {
   return (
@@ -87,6 +99,12 @@ const routes = () => {
         exact={true}
         path="/pos-order-items"
         component={OrderItemsComponent}
+      />
+      <Route
+        key="/check-pos-orders"
+        exact={true}
+        path="/check-pos-orders"
+        component={CheckSyncedOrderList}
       />
     </>
   );

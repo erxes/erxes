@@ -1,15 +1,15 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedDeals from '../components/CheckSyncedDeals';
+import CheckSyncedOrders from '../components/CheckSyncedOrders';
 import gql from 'graphql-tag';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Bulk } from '@erxes/ui/src/components';
 import {
-  CheckSyncedDealsMutationResponse,
-  CheckSyncedDealsQueryResponse,
-  CheckSyncedDealsTotalCountQueryResponse,
-  ToSyncDealsMutationResponse
+  CheckSyncedOrdersMutationResponse,
+  CheckSyncedOrdersQueryResponse,
+  CheckSyncedOrdersTotalCountQueryResponse,
+  ToSyncOrdersMutationResponse
 } from '../types';
 import { graphql } from 'react-apollo';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -23,74 +23,76 @@ type Props = {
 };
 
 type FinalProps = {
-  checkSyncItemsQuery: CheckSyncedDealsQueryResponse;
-  checkSyncedDealsTotalCountQuery: CheckSyncedDealsTotalCountQueryResponse;
+  checkSyncItemsQuery: CheckSyncedOrdersQueryResponse;
+  checkSyncedOrdersTotalCountQuery: CheckSyncedOrdersTotalCountQueryResponse;
 } & Props &
   IRouterProps &
-  CheckSyncedDealsMutationResponse &
-  ToSyncDealsMutationResponse;
+  CheckSyncedOrdersMutationResponse &
+  ToSyncOrdersMutationResponse;
 
 type State = {
-  unSyncedDealIds: string[];
-  syncedDealInfos: any;
+  unSyncedOrderIds: string[];
+  syncedOrderInfos: any;
 };
 
-class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
+class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      unSyncedDealIds: [],
-      syncedDealInfos: {}
+      unSyncedOrderIds: [],
+      syncedOrderInfos: {}
     };
   }
 
   render() {
     const {
-      toCheckSyncedDeals,
+      toCheckSyncedOrders,
       checkSyncItemsQuery,
-      checkSyncedDealsTotalCountQuery
+      checkSyncedOrdersTotalCountQuery
     } = this.props;
 
     // remove action
-    const checkSynced = ({ dealIds }, emptyBulk) => {
-      toCheckSyncedDeals({
-        variables: { dealIds }
+    const checkSynced = ({ orderIds }, emptyBulk) => {
+      toCheckSyncedOrders({
+        variables: { orderIds }
       })
         .then(response => {
           emptyBulk();
-          const statuses = response.data.toCheckSyncedDeals;
-          const unSyncedDealIds = (statuses.filter(s => !s.isSynced) || []).map(
-            s => s.dealId
-          );
-          const syncedDealInfos = {};
-          const syncedDeals = statuses.filter(s => s.isSynced) || [];
+          const statuses = response.data.toCheckSyncedOrders;
 
-          syncedDeals.forEach(item => {
-            syncedDealInfos[item.dealId] = {
+          const unSyncedOrderIds = (
+            statuses.filter(s => !s.isSynced) || []
+          ).map(s => s.orderId);
+          const syncedOrderInfos = {};
+          const syncedOrders = statuses.filter(s => s.isSynced) || [];
+
+          syncedOrders.forEach(item => {
+            syncedOrderInfos[item.orderId] = {
               syncedBillNumber: item.syncedBillNumber || '',
               syncedDate: item.syncedDate || ''
             };
           });
 
-          this.setState({ unSyncedDealIds, syncedDealInfos });
+          this.setState({ unSyncedOrderIds, syncedOrderInfos });
+          Alert.success('Check finished');
         })
         .catch(e => {
           Alert.error(e.message);
         });
     };
 
-    const toSyncDeals = dealIds => {
+    const toSyncOrders = orderIds => {
       this.props
-        .toSyncDeals({
-          variables: { dealIds }
+        .toSyncOrders({
+          variables: { orderIds }
         })
         .then(response => {
-          const { skipped, error, success } = response.data.toSyncDeals;
-          const changed = this.state.unSyncedDealIds.filter(
-            u => !dealIds.includes(u)
+          const { skipped, error, success } = response.data.toSyncOrders;
+          const changed = this.state.unSyncedOrderIds.filter(
+            u => !orderIds.includes(u)
           );
-          this.setState({ unSyncedDealIds: changed });
+          this.setState({ unSyncedOrderIds: changed });
           Alert.success(
             `Алгассан: ${skipped.length}, Алдаа гарсан: ${error.length}, Амжилттай: ${success.length}`
           );
@@ -102,26 +104,26 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
 
     if (
       checkSyncItemsQuery.loading ||
-      checkSyncedDealsTotalCountQuery.loading
+      checkSyncedOrdersTotalCountQuery.loading
     ) {
       return <Spinner />;
     }
 
-    const deals = checkSyncItemsQuery.deals || [];
-    const totalCount = checkSyncedDealsTotalCountQuery.dealsTotalCount || 0;
+    const orders = checkSyncItemsQuery.orders || [];
+    const totalCount = checkSyncedOrdersTotalCountQuery.ordersTotalCount || 0;
 
     const updatedProps = {
       ...this.props,
       loading: checkSyncItemsQuery.loading,
-      deals,
+      orders,
       totalCount,
       checkSynced,
-      unSyncedDealIds: this.state.unSyncedDealIds,
-      syncedDealInfos: this.state.syncedDealInfos,
-      toSyncDeals
+      unSyncedOrderIds: this.state.unSyncedOrderIds,
+      syncedOrderInfos: this.state.syncedOrderInfos,
+      toSyncOrders
     };
 
-    const content = props => <CheckSyncedDeals {...props} {...updatedProps} />;
+    const content = props => <CheckSyncedOrders {...props} {...updatedProps} />;
 
     return <Bulk content={content} />;
   }
@@ -145,8 +147,8 @@ const generateParams = ({ queryParams }) => {
 
 export default withProps<Props>(
   compose(
-    graphql<{ queryParams: any }, CheckSyncedDealsQueryResponse>(
-      gql(queries.checkSyncDeals),
+    graphql<{ queryParams: any }, CheckSyncedOrdersQueryResponse>(
+      gql(queries.checkSyncOrders),
       {
         name: 'checkSyncItemsQuery',
         options: ({ queryParams }) => ({
@@ -156,27 +158,27 @@ export default withProps<Props>(
       }
     ),
 
-    graphql<{ queryParams: any }, CheckSyncedDealsTotalCountQueryResponse>(
-      gql(queries.checkSyncDealsTotalCount),
+    graphql<{ queryParams: any }, CheckSyncedOrdersTotalCountQueryResponse>(
+      gql(queries.checkSyncOrdersTotalCount),
       {
-        name: 'checkSyncedDealsTotalCountQuery',
+        name: 'checkSyncedOrdersTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: generateParams({ queryParams }),
           fetchPolicy: 'network-only'
         })
       }
     ),
-    graphql<Props, CheckSyncedDealsMutationResponse, { dealIds: string[] }>(
-      gql(mutations.toCheckSyncedDeals),
+    graphql<Props, CheckSyncedOrdersMutationResponse, { orderIds: string[] }>(
+      gql(mutations.toCheckSyncedOrders),
       {
-        name: 'toCheckSyncedDeals'
+        name: 'toCheckSyncedOrders'
       }
     ),
-    graphql<Props, ToSyncDealsMutationResponse, { dealIds: string[] }>(
-      gql(mutations.toSyncDeals),
+    graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(
+      gql(mutations.toSyncOrders),
       {
-        name: 'toSyncDeals'
+        name: 'toSyncOrders'
       }
     )
-  )(withRouter<IRouterProps>(CheckSyncedDealsContainer))
+  )(withRouter<IRouterProps>(CheckSyncedOrdersContainer))
 );

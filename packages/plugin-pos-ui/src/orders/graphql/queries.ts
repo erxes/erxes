@@ -133,10 +133,68 @@ const posProducts = `
     }
   }
 `;
+const commonParams = `
+  $skip: Int,
+  $limit: Int,
+  $sortField: String,
+  $sortDirection: Int,
+  $userIds: [String],
+  $pipelineId: String
+  $stageId: String
+  $stageChangedStartDate: Date
+  $stageChangedEndDate: Date
+  $noSkipArchive: Boolean
+  $assignedUserIds: [String],
+  $productIds: [String],
+`;
 
+const commonParamDefs = `
+  skip: $skip,
+  limit: $limit,
+  sortField: $sortField
+  sortDirection: $sortDirection
+  userIds: $userIds
+  pipelineId: $pipelineId
+  stageId: $stageId
+  stageChangedStartDate: $stageChangedStartDate
+  stageChangedEndDate: $stageChangedEndDate
+  noSkipArchive: $noSkipArchive
+  assignedUserIds: $assignedUserIds,
+  productIds: $productIds,
+`;
+
+const checkSyncOrdersTotalCount = `
+  query dealsTotalCount (
+    ${commonParams}
+  ) {
+    dealsTotalCount (
+      ${commonParamDefs}
+    )
+  }
+`;
+const checkSyncOrders = `
+  query orders (
+    ${commonParams}
+  ) {
+    orders (
+      ${commonParamDefs}
+    ) {
+      _id
+      name
+      amount
+      assignedUsers
+      modifiedAt
+      number
+      createdAt
+      stageChangedDate
+    }
+  }
+`;
 const productCategories = productQueries.productCategories;
 
 export default {
+  checkSyncOrdersTotalCount,
+  checkSyncOrders,
   posOrders,
   posOrdersSummary,
   posOrderDetail,

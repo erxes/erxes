@@ -19,6 +19,13 @@ module.exports = {
       permission: "showPos",
     },
     {
+      text: "Check Pos Orders",
+      url: "/check-pos-orders",
+      icon: "icon-lamp",
+      location: "mainNavigation",
+      permission: [ 'showPos' ],
+    },
+    {
       text: "POS",
       to: "/pos",
       image: "/images/icons/erxes-05.svg",

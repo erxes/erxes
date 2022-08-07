@@ -24,7 +24,6 @@ const checkSyncedMutations = {
       payload: JSON.stringify(postData),
       thirdService: true
     });
-
     const result = JSON.parse(response);
 
     const data = result.data;

@@ -99,3 +99,37 @@ export type PosOrderChangePaymentsMutationResponse = {
     };
   }) => Promise<any>;
 };
+
+export type IConfigsMap = { [key: string]: any };
+
+export type IConfig = {
+  _id: string;
+  code: string;
+  value: any;
+};
+// query types
+export type ConfigsQueryResponse = {
+  configs: IConfig[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type CheckSyncedOrdersQueryResponse = {
+  orders: any[];
+} & QueryResponse;
+
+export type CheckSyncedOrdersTotalCountQueryResponse = {
+  ordersTotalCount: number;
+} & QueryResponse;
+
+export type CheckSyncedOrdersMutationResponse = {
+  toCheckSyncedOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
+};
+
+export type ToSyncOrdersMutationResponse = {
+  toSyncOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
+};

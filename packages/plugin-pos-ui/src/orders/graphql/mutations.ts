@@ -1,4 +1,4 @@
-import { orderFields } from "./queries";
+import { orderFields } from './queries';
 
 const posOrderSyncErkhet = `
   mutation posOrderSyncErkhet($_id: String!) {
@@ -23,9 +23,26 @@ const posOrderChangePayments = `
     }
   }
 `;
+const toCheckSyncedOrders = `
+  mutation toCheckSyncedOrders($orderIds: [String]) {
+    toCheckSyncedOrders(orderIds: $orderIds) {
+      orderId
+      isSynced
+      syncedDate
+      syncedBillNumber
+    }
+  }
+`;
 
+const toSyncOrders = `
+  mutation toSyncOrders($orderIds: [String]) {
+    toSyncOrders(dealIds: $orderIds)
+  }
+`;
 export default {
   posOrderSyncErkhet,
   posOrderReturnBill,
-  posOrderChangePayments
+  posOrderChangePayments,
+  toCheckSyncedOrders,
+  toSyncOrders
 };

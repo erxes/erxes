@@ -4,9 +4,7 @@ import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import Tip from '@erxes/ui/src/components/Tip';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
 
@@ -135,10 +133,10 @@ class CheckerSidebar extends React.Component<IProps, State> {
     return (
       <Wrapper.Sidebar>
         <Sidebar>
-          <Section maxHeight={188} collapsible={false}>
+          <Section collapsible={false}>
             <Section.Title>
               {__('Filters')}
-              <Section.QuickButtons>
+              {/* <Section.QuickButtons>
                 {(router.getParam(history, 'status') ||
                   router.getParam(history, 'ownerType') ||
                   router.getParam(history, 'ownerID') ||
@@ -153,11 +151,11 @@ class CheckerSidebar extends React.Component<IProps, State> {
                     </Tip>
                   </a>
                 )}
-              </Section.QuickButtons>
+              </Section.QuickButtons> */}
             </Section.Title>
 
             <FormGroup>
-              <ControlLabel>Stage</ControlLabel>
+              <ControlLabel>Choose Stage</ControlLabel>
               <BoardSelectContainer
                 type="deal"
                 autoSelectStage={false}
