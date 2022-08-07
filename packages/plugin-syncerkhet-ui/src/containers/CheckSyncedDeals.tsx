@@ -53,8 +53,8 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
     } = this.props;
 
     // remove action
-    const checkSynced = ({ dealIds }, emptyBulk) => {
-      toCheckSyncedDeals({
+    const checkSynced = async ({ dealIds }, emptyBulk) => {
+      await toCheckSyncedDeals({
         variables: { dealIds }
       })
         .then(response => {
@@ -72,7 +72,6 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
               syncedDate: item.syncedDate || ''
             };
           });
-
           this.setState({ unSyncedDealIds, syncedDealInfos });
         })
         .catch(e => {
