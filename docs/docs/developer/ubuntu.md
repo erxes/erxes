@@ -5,44 +5,51 @@ sidebar_label: Ubuntu
 ---
 ---
 
+The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">Docker</a> on <a href="https://ubuntu.com/" target="_blank">Ubuntu</a>.
+
+Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
 ## Preparing the installation
 
-The Erxes installation guide requires at least four software prerequisites to be already installed on your computer:
+erxes installation requires at least four software prerequisites to be already installed on your computer:
+
+:::warning Prerequisites
 
 - <a href="https://github.com/git-guides/install-git" target="_blank">Git</a>
 - [Node.js](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes.
 - [npm](https://docs.npmjs.com/cli/v6/commands/npm-install) (v6 only) or [yarn](https://yarnpkg.com/getting-started/install) to run the CLI installation scripts.
 - <a href="https://docs.docker.com/engine/install/">Docker</a>
 
+:::
+
 
 ### Installing erxes
 
 
-1. in terminal, run the following command:
+1. In terminal, run the following command:
 ```
 git clone git@github.com:erxes/erxes.git
 ```
 
-2. switch a federation branch
+2. Switch a federation branch:
 ```
 git checkout federation
 ```
 
-3. installing node modules
+3. Install node modules:
 ```
 cd erxes
 yarn install
 ```
 
-4. installing pm2
+4. Install pm2:
 ```
 sudo npm install -g pm2
 ```
 
 ### Installing dependencies using docker
 
-include the below scripts in docker-compose.yml
+1. Include the below scripts in docker-compose.yml:
 
 ```
 version: '3.6'
@@ -94,7 +101,7 @@ networks:
     driver: bridge
 ```
 
-Тэгээд уг файл байгаа хавтас дотороо доорх коммандыг ажиллуулах
+2. Run the following command in the folder where above file in:
 
 ```
 docker-compose up -d
@@ -107,7 +114,7 @@ cd erxes/cli
 yarn install
 ```
 
-configs.json.sample файлыг copy - хийж configs.json файл болгож доорх байдлаар тохируулна.
+Copy configs.json.sample, then convert it to configs.json.
 
 ```
 {
@@ -135,8 +142,8 @@ configs.json.sample файлыг copy - хийж configs.json файл болг�
 }
 ```
 
+To run your erxes project created with Docker, use one of the following commands:
 
-Дараах коммандаар асаана.
 ```
 ./bin/erxes.js dev --bash --deps
 ```
