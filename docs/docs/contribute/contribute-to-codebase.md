@@ -10,7 +10,7 @@ Thank you for considering contributing to erxes! This document will outline how 
 
 :::info
 
-**Prerequisites**
+## Prerequisites
 
 - You're familiar with GitHub Issues and Pull Requests
 - You've read the <a href="https://www.erxes.org/overview/deployment-overview" target="_blank">docs</a>.
