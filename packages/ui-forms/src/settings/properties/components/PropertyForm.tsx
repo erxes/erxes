@@ -1,29 +1,30 @@
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import Map from '@erxes/ui/src/containers/map/Map';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
+  IField,
   IFormProps,
   ILocationOption,
   IObjectListConfig
 } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
 
-import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IField } from '@erxes/ui/src/types';
+import FieldLogics from '../../../forms/components/FieldLogics';
+import PropertyGroupForm from '../containers/PropertyGroupForm';
 import { IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
-import Map from '@erxes/ui/src/containers/map/Map';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import ObjectListConfigs from './ObjectListConfigs';
-import PropertyGroupForm from '../containers/PropertyGroupForm';
-import React from 'react';
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from '@erxes/ui/src/utils/core';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 
 type Props = {
   queryParams: any;
