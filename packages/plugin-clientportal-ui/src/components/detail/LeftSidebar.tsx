@@ -1,4 +1,4 @@
-import { Sidebar } from '@erxes/ui/src';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Box from '@erxes/ui/src/components/Box';
 import { LinkButton } from '@erxes/ui/src/styles/main';
 import { renderFullName } from '@erxes/ui/src/utils/core';
