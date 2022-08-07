@@ -29,8 +29,8 @@ You’ll also find MDX files. MDX files combine the power of Markdown with React
 
 ## What You Can Contribute To
 
-You can contribute to the Docusaurus codebase to add a new plugin or fix a bug in the documentation website.
-You can contribute to the documentation content either by fixing errors you find or adding documentation pages.
+- You can contribute to the Docusaurus codebase to add a new plugin or fix a bug in the documentation website.
+- You can contribute to the documentation content either by fixing errors you find or adding documentation pages.
 
 
 ## Style Guide
@@ -44,11 +44,11 @@ If you’re fixing errors in an existing documentation page, you can scroll down
 If you’re adding a new page or contributing to the codebase, fork the repository, create a new branch, and make all changes necessary in your repository. Then, once you’re done creating a PR in erxes repository.
 For more details on how to contribute, check out the contribution guidelines on our repository.
 
--Branch Name
+- Branch Name
 When you make edit to an existing documentation page or fork the repository to make changes to the documentation, you have to create a new branch.
 Make sure that the branch name starts with docs/. For example, docs/fix-services.
 
--Pull Request Conventions
+- Pull Request Conventions
 When you create a pull request, prefix the title with “docs:”. Make sure to keep “docs” in small letters.
 In the body of the PR, explain clearly what the PR does. If the PR solves an issue, use closing keywords with the issue number. For example, “Closes #1333”.
 
@@ -57,7 +57,7 @@ In the body of the PR, explain clearly what the PR does. If the PR solves an iss
 
 When you add a new page to the documentation, you must add the new page in www/docs/sidebars.js under the tutorialSidebar. You can learn more about the syntax used <a href="https://docusaurus.io/docs/sidebar/items" target="_blank">here</a>.
 
--Terminology
+- Terminology
 When the documentation page is a conceptual or overview documentation, the label in the sidebar should start with a noun.
 When the documentation page is a tutorial documentation, the label in the sidebar should start with a verb. An exception of this rule are integration documentations and upgrade guides.
 
