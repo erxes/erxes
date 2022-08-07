@@ -10,7 +10,7 @@ erxes’s coding architecture comprises Backend, UI, and Widgets.
 
 **Backend** part is responsible for ensuring all APIs of different plugins work together smoothly.
 
-**UI** part used React, Apollo, and GraphQL and is also responsible for ensuring all API’s UI work together. It is built with React, nodeJS, GraphQL, and Apollo. XOS comes with utility features to help you manage your account:
+**UI** part used React, Apollo, and GraphQL and is also responsible for ensuring all API’s UI work together. XOS comes with utility features to help you manage your account:
 
 - System config
 - Permission
