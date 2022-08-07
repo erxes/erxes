@@ -15,7 +15,7 @@ erxes is an open-source experience operating system (XOS) that enables SaaS prov
 :::tip
 
 Can't wait to start using erxes?  
-Get started with erxes with our <a href="" >Quickstart guide</a> ! Try out a <a href="">video demo</a>, or you can schedule a <a href="https://xosdemo.erxes.io/" target="_blank">live demo</a>!
+Get started with erxes with our <a href="https://www.erxes.org/introduction/introduction/" >Quickstart guide</a> ! Try out a <a href="https://xosdemo.erxes.io/" target="_blank">live demo</a>!
 
 :::
 
@@ -34,11 +34,11 @@ Our community is at the heart of everything we do. We understand that people who
 - <a href="https://github.com/erxes/erxes" target="_blank">erxes</a> - erxes codebase
 - <a href="https://www.erxes.org/installation/docker" target="_blank">erxes Docker</a> - erxes containerized
 - <a href="https://xosdemo.erxes.io/" target="_blank">erxes Demo</a> - erxes official demo
-- <a href="https://www.erxes.org/getting-started/contributing-guide" target="_blank">contributing guide</a> - to contribute
+- <a href="https://www.erxes.org/contribute/overview" target="_blank">contributing guide</a> - to contribute
 
 ## Community
 
-<a href="https://www.erxes.org/overview/deployment-overview" target="_blank">erxes documentation</a> contains instructions for everything you need to know about erxes. For additional information, you can use any of these channels to get the answer you want:
+<a href="https://www.erxes.org/introduction/introduction/" target="_blank">erxes documentation</a> contains instructions for everything you need to know about erxes. For additional information, you can use any of these channels to get the answer you want:
 
 :::tip
 
