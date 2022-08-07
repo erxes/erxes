@@ -1,13 +1,14 @@
-import { AvatarWrapper } from '@erxes/ui/src/activityLogs/styles';
+import { CustomerState, Name, NameContainer } from '../../styles';
+import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
+
+import { AvatarWrapper } from '@erxes/ui-log/src/activityLogs/styles';
+import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
-import { renderFullName } from '@erxes/ui/src/utils';
-import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import React from 'react';
-import { CustomerState, Name, NameContainer } from '../../styles';
+import { renderFullName } from '@erxes/ui/src/utils';
 
 type Props = {
   customer: ICustomer;

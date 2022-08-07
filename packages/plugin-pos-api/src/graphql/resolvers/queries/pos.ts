@@ -115,6 +115,13 @@ const generateFilterPosQuery = async (
 };
 
 const queries = {
+  posEnv: async (_root, _args, {}: IContext) => {
+    const { ALL_AUTO_INIT } = process.env;
+    return {
+      ALL_AUTO_INIT: ['true', 'True', '1'].includes(ALL_AUTO_INIT || '')
+    };
+  },
+
   posList: async (_root, params, { commonQuerySelector, models }) => {
     const query = await generateFilterQuery(params, commonQuerySelector);
 

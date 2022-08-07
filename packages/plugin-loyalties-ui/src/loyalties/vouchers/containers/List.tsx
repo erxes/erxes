@@ -135,7 +135,7 @@ export default withProps<Props>(
         name: 'voucherCampaignDetailQuery',
         options: ({ queryParams }) => ({
           variables: {
-            _id: queryParams.campaignId
+            id: queryParams.campaignId
           }
         }),
         skip: ({ queryParams }) => !queryParams.campaignId

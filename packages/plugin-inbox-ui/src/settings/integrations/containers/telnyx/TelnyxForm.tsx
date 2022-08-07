@@ -1,11 +1,12 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import TelnyxForm from '../../components/telnyx/TelnyxForm';
-import { mutations } from '@erxes/ui-settings/src/integrations/graphql';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import React from 'react';
+import TelnyxForm from '../../components/telnyx/TelnyxForm';
 import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
+import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;
@@ -27,7 +28,7 @@ class TelnyxContainer extends React.Component<FinalProps> {
         variables={values}
         callback={callback}
         isSubmitted={isSubmitted}
-        type='submit'
+        type="submit"
         successMessage={`You successfully added a ${name}`}
         refetchQueries={getRefetchQueries(INTEGRATION_KINDS.TELNYX)}
       />

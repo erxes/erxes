@@ -1,10 +1,11 @@
+import { __, getEnv } from '@erxes/ui/src/utils';
+
 import Button from '@erxes/ui/src/components/Button';
 import Info from '@erxes/ui/src/components/Info';
+import { IntegrationMutationVariables } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, getEnv } from '@erxes/ui/src/utils';
 import React from 'react';
 import { RefreshPermission } from '../../styles';
-import { IntegrationMutationVariables } from '@erxes/ui-settings/src/integrations/types';
 
 type CommonTypes = {
   name: string;

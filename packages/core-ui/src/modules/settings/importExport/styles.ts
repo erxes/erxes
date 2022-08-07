@@ -1,8 +1,9 @@
 import { colors, dimensions, typography } from 'modules/common/styles';
-import { BoxRoot } from 'modules/common/styles/main';
 import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+
+import { BoxRoot } from 'modules/common/styles/main';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styledTS from 'styled-components-ts';
 
 const tableHoverColor = '#f5f5f5';
 
@@ -10,6 +11,24 @@ const ImportColumnRow = styled.tr`
   i {
     font-size: 15px;
   }
+`;
+
+const Content = styled.div`
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+
+  > form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+`;
+
+const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 `;
 
 const Box = styled(BoxRoot)`
@@ -194,6 +213,24 @@ const Width = styled.div`
   width: ${(dimensions.unitSpacing - 2) * 10}px;
 `;
 
+const OperatorList = styled.div`
+  label {
+    display: block;
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+  p {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+  p:hover {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`;
+
+const MessengerPreview = styled.div`
+  width: 40%;
+`;
+
 export {
   ImportColumnRow,
   ColumnTable,
@@ -206,5 +243,9 @@ export {
   TypeContent,
   ImportHeader,
   FileUploadBox,
-  Width
+  Width,
+  MessengerPreview,
+  OperatorList,
+  Content,
+  LeftContent
 };

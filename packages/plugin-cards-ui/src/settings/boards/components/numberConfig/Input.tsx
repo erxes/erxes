@@ -1,14 +1,14 @@
-import { BoardHeader } from '@erxes/ui-settings/src/boards/styles';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components/form';
-import React from 'react';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 
-import Attribution from './Attribution';
 import { Alert } from '@erxes/ui/src/utils';
+import Attribution from './Attribution';
+import { BoardHeader } from '@erxes/ui-cards/src/settings/boards/styles';
+import React from 'react';
 
 type Props = {
   onChange: (key: string, config: string) => void;

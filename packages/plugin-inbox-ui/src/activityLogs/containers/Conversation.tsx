@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+
 import {
   ConversationDetailQueryResponse,
   FacebookCommentsQueryResponse,
   MessagesQueryResponse
 } from '@erxes/ui-inbox/src/inbox/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+
 import Conversation from '../components/Conversation';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   activity: IActivityLog;

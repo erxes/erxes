@@ -33,7 +33,6 @@ export interface IPosOrder {
   items: IPosOrderItem[];
   branchId: string;
   posToken: string;
-  syncId: string;
   syncedErkhet: Boolean;
   deliveryInfo: Object;
 }
@@ -49,6 +48,7 @@ export interface IPos {
   adminIds: string[];
   cashierIds: string[];
   isOnline: Boolean;
+  onServer?: Boolean;
   branchId: string;
   allowBranchIds: string;
   beginNumber: string;
@@ -148,7 +148,6 @@ export const posOrderSchema = schemaHooksWrapper(
     items: field({ type: [posOrderItemSchema], label: 'items' }),
     branchId: field({ type: String, label: 'Branch' }),
     posToken: field({ type: String, optional: true }),
-    syncId: field({ type: String, optional: true }),
 
     syncedErkhet: field({ type: Boolean, default: false }),
     deliveryInfo: field({
@@ -171,6 +170,11 @@ export const posSchema = schemaHooksWrapper(
     adminIds: field({ type: [String], label: 'Admin user ids' }),
     cashierIds: field({ type: [String], label: 'Cashier ids' }),
     isOnline: field({ type: Boolean, label: 'Is online pos' }),
+    onServer: field({
+      type: Boolean,
+      optional: true,
+      label: 'On cloud server'
+    }),
     branchId: field({ type: String, optional: true, label: 'Branch' }),
     allowBranchIds: field({
       type: [String],

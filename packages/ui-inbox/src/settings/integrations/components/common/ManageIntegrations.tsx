@@ -1,18 +1,19 @@
-import { formatText } from '@erxes/ui/src/activityLogs/utils';
+import { BrandName, IntegrationName } from '../../styles';
+import { CenterContent, ModalFooter } from '@erxes/ui/src/styles/main';
+import { Column, Columns } from '@erxes/ui/src/styles/chooser';
+
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import IntegrationIcon from '@erxes/ui-settings/src/integrations/components/IntegrationIcon';
-import Tip from '@erxes/ui/src/components/Tip';
-import { Column, Columns } from '@erxes/ui/src/styles/chooser';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { CenterContent, ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
 import { IBrandDoc } from '@erxes/ui/src/brands/types';
-import { IChannelDoc } from '@erxes/ui-settings/src/channels/types';
+import { IChannelDoc } from '@erxes/ui-inbox/src/settings/channels/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import IntegrationIcon from '@erxes/ui-inbox/src/settings/integrations/components/IntegrationIcon';
 import React from 'react';
-import { BrandName, IntegrationName } from '../../styles';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import Tip from '@erxes/ui/src/components/Tip';
+import { Title } from '@erxes/ui-settings/src/styles';
+import { __ } from '@erxes/ui/src/utils';
+import { formatText } from '@erxes/ui-log/src/activityLogs/utils';
 
 type Props = {
   current: IChannelDoc | IBrandDoc;

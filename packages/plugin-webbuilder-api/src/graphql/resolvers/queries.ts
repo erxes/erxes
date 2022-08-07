@@ -1,5 +1,5 @@
 import { paginate } from '@erxes/api-utils/src';
-import { requireLogin } from '@erxes/api-utils/src/permissions';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 const webbuilderQueries = {
@@ -57,10 +57,17 @@ const webbuilderQueries = {
 
   webbuilderTemplates(_root, _args, { models }: IContext) {
     return models.Templates.find().lean();
+  },
+
+  webbuilderSites(_root, args, { models }: IContext) {
+    return paginate(models.Sites.find({}).lean(), args);
+  },
+
+  webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
+    return models.Sites.find().count();
   }
 };
 
-requireLogin(webbuilderQueries, 'webbuilderPages');
-requireLogin(webbuilderQueries, 'webbuilderPageDetail');
+moduleRequireLogin(webbuilderQueries);
 
 export default webbuilderQueries;

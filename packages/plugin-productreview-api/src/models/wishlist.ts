@@ -7,8 +7,9 @@ import {
 } from './definitions/wishlist';
 
 export interface IWishlistModel extends Model<IWishlistDocument> {
-  getWishlist(_id: string): Promise<IWishlistDocument>;
-  getAllWishlist(_productId: string): Promise<IWishlistDocument>;
+  getWishlistById(_id: string): Promise<IWishlistDocument>;
+  getWishlist(_productId: string): Promise<IWishlistDocument>;
+  getAllWishlist(customerId: string): Promise<IWishlistDocument>;
   createWishlist(doc: IWishlist): Promise<IWishlistDocument>;
   updateWishlist(_id: string, doc: IWishlist): Promise<IWishlistDocument>;
   removeWishlist(_id: string): Promise<IWishlistDocument>;
@@ -16,11 +17,14 @@ export interface IWishlistModel extends Model<IWishlistDocument> {
 
 export const loadWishlistClass = (models: IModels, subdomain: string) => {
   class Wishlist {
-    public static async getWishlist(_id: string) {
+    public static async getWishlistById(_id: string) {
       return models.Wishlist.findOne({ _id }).lean();
     }
-    public static async getAllWishlist(productId: string) {
+    public static async getWishlist(productId: string) {
       return models.Wishlist.find({ productId }).lean();
+    }
+    public static async getAllWishlist(customerId: string) {
+      return models.Wishlist.find({ customerId }).lean();
     }
     public static async createWishlist(doc: IWishlist) {
       const review = await models.Wishlist.create({
@@ -31,7 +35,7 @@ export const loadWishlistClass = (models: IModels, subdomain: string) => {
       return review;
     }
     public static async updateWishlist(_id: string, doc: IWishlist) {
-      const current = await models.Wishlist.getWishlist(_id);
+      const current = await models.Wishlist.getWishlistById(_id);
       if (current) {
         await models.Wishlist.updateOne(
           { _id },

@@ -167,6 +167,7 @@ export default class DealEditForm extends React.Component<Props, State> {
         paymentsData={paymentsData}
         products={products}
         saveProductsData={this.saveProductsData}
+        dealQuery={this.props.item}
       />
     );
   };

@@ -153,7 +153,12 @@ const generate = async () => {
         erxes: "erxes",
       },
       dependencies: {
-        erxes: "^0.1.20",
+        "amqplib": "^0.8.0",
+        "create-erxes-app": "0.0.28",
+        "dup": "^1.0.0",
+        "erxes": "^0.2.105",
+        "ip": "^1.1.5",
+        "up": "^1.0.2"
       },
     },
     {

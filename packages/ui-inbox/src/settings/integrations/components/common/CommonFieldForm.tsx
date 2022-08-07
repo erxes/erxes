@@ -1,14 +1,14 @@
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
-import { IntegrationMutationVariables } from '@erxes/ui-settings/src/integrations/types';
+import { IntegrationMutationVariables } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import { __ } from '@erxes/ui/src/utils';
 
 type CommonTypes = {
   name: string;
@@ -65,7 +65,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
         <FormGroup>
           <ControlLabel required={false}>Token</ControlLabel>
           <FormControl
-            name='token'
+            name="token"
             required={false}
             autoFocus={false}
             defaultValue={webhookData.token}
@@ -76,7 +76,7 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
         <FormGroup>
           <ControlLabel required={false}>Origin</ControlLabel>
           <FormControl
-            name='origin'
+            name="origin"
             required={false}
             autoFocus={false}
             defaultValue={webhookData.origin}
@@ -87,8 +87,8 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
         <FormGroup>
           <ControlLabel required={false}>{__('Script')}</ControlLabel>
           <FormControl
-            name='script'
-            componentClass='textarea'
+            name="script"
+            componentClass="textarea"
             required={true}
             defaultValue={webhookData.script}
             onChange={onChangeWebhookData}
@@ -162,18 +162,18 @@ class CommonFieldForm extends React.PureComponent<Props, CommonTypes> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>
           <Button
             onClick={saveIntegration}
-            type='submit'
-            btnStyle='success'
-            icon='check-circle'
+            type="submit"
+            btnStyle="success"
+            icon="check-circle"
           >
             {__('Save')}
           </Button>

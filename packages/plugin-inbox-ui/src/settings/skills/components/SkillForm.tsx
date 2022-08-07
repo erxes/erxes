@@ -1,17 +1,21 @@
-import Button from '@erxes/ui/src/components/Button';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { Alert, __ } from 'coreui/utils';
 import {
   ControlLabel,
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components/form';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { __, Alert } from 'coreui/utils';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import {
+  ISkillDocument,
+  ISkillTypesDocument
+} from '@erxes/ui-inbox/src/settings/skills/types';
 import React, { useState } from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import mutations from '../graphql/mutations';
-import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
 
 type Props = {
   skill: ISkillDocument;
@@ -108,8 +112,8 @@ function SkillForm({
         <FormGroup>
           <ControlLabel required={true}>Team members</ControlLabel>
           <SelectTeamMembers
-            label='Choose team members'
-            name='memberIds'
+            label="Choose team members"
+            name="memberIds"
             initialValue={memberIds}
             onSelect={handleTeamMemberSelect}
           />
@@ -130,11 +134,11 @@ function SkillForm({
       {renderContent()}
       <ModalFooter>
         <Button
-          id='skill-form'
-          btnStyle='simple'
-          type='button'
+          id="skill-form"
+          btnStyle="simple"
+          type="button"
           onClick={closeModal}
-          icon='times-circle'
+          icon="times-circle"
         >
           Cancel
         </Button>
@@ -144,7 +148,7 @@ function SkillForm({
           callback={closeModal}
           refetchQueries={handleRefetch}
           isSubmitted={isSubmitted}
-          type='submit'
+          type="submit"
         />
       </ModalFooter>
     </form>

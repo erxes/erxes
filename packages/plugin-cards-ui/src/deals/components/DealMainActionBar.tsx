@@ -1,13 +1,13 @@
-import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
 import { IBoard } from '@erxes/ui-cards/src/boards/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import SelectCompanies from '@erxes/ui/src/companies/containers/SelectCompanies';
-import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
-import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import MainActionBar from '@erxes/ui-cards/src/boards/components/MainActionBar';
 import React from 'react';
-import options from '@erxes/ui-cards/src/deals/options';
+import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { __ } from 'coreui/utils';
 import { getBoardViewType } from '@erxes/ui-cards/src/boards/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import options from '@erxes/ui-cards/src/deals/options';
 
 type Props = {
   onSearch: (search: string) => void;
@@ -60,6 +60,7 @@ const DealMainActionBar = (props: Props) => {
     ...props,
     options,
     extraFilter,
+    type: 'm',
     link: `/deal/${viewType}`
   };
 

@@ -470,7 +470,6 @@ export const commonCheckPayment = async (
       messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
         action: 'makePayment',
         posToken: config.token,
-        syncId: config.syncInfo.id,
         response,
         order,
         items

@@ -1,14 +1,16 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Info from '@erxes/ui/src/components/Info';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { __, Alert, confirm, withProps } from 'coreui/utils';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Event from '../components/Event';
+
+import { Alert, __, confirm, withProps } from 'coreui/utils';
 import { mutations, subscriptions } from '../graphql';
-import {queries as integrationsQueries} from '@erxes/ui-settings/src/integrations/graphql'
+
+import Event from '../components/Event';
+import Info from '@erxes/ui/src/components/Info';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationsQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   type: string;
@@ -75,7 +77,11 @@ class EventContainer extends React.Component<FinalProps, {}> {
             }
           })
             .then(() => {
-              integrationsGetNylasEventsQuery.refetch({ startTime, endTime, queryParams });
+              integrationsGetNylasEventsQuery.refetch({
+                startTime,
+                endTime,
+                queryParams
+              });
 
               const msg = `${__(`You successfully deleted a`)} ${__('event')}.`;
 

@@ -1,18 +1,19 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import Sidebar from "@erxes/ui/src/layout/components/Sidebar";
-import GenerateCustomFields from "@erxes/ui-settings/src/properties/components/GenerateCustomFields";
-import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-settings/src/properties/constants";
-import { queries as fieldQueries } from "@erxes/ui-settings/src/properties/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { withProps } from "@erxes/ui/src/utils";
-import { FieldsGroupsQueryResponse } from "@erxes/ui-settings/src/properties/types";
-import { mutations } from "../graphql";
-import { ICustomer } from "../types";
-import { EditMutationResponse } from "../types";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import * as compose from 'lodash.flowright';
+
+import { EditMutationResponse } from '../types';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
+import { ICustomer } from '../types';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { mutations } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   customer: ICustomer;
@@ -31,7 +32,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     customersEdit,
     fieldsGroupsQuery,
     loading,
-    isDetail,
+    isDetail
   } = props;
 
   if (fieldsGroupsQuery && fieldsGroupsQuery.loading) {
@@ -46,12 +47,12 @@ const CustomFieldsSection = (props: FinalProps) => {
 
   const save = (variables, callback) => {
     customersEdit({
-      variables: { _id, ...variables },
+      variables: { _id, ...variables }
     })
       .then(() => {
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         callback(e);
       });
   };
@@ -61,7 +62,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     customFieldsData: customer.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
-    isDetail,
+    isDetail
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -72,14 +73,14 @@ export default withProps<Props>(
     graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
       gql(fieldQueries.fieldsGroups),
       {
-        name: "fieldsGroupsQuery",
+        name: 'fieldsGroupsQuery',
         options: () => ({
           variables: {
             contentType: FIELDS_GROUPS_CONTENT_TYPES.CUSTOMER,
-            isDefinedByErxes: false,
-          },
+            isDefinedByErxes: false
+          }
         }),
-        skip: !isEnabled("forms") ? true : false,
+        skip: !isEnabled('forms') ? true : false
       }
     ),
 
@@ -87,10 +88,10 @@ export default withProps<Props>(
     graphql<Props, EditMutationResponse, ICustomer>(
       gql(mutations.customersEdit),
       {
-        name: "customersEdit",
+        name: 'customersEdit',
         options: () => ({
-          refetchQueries: ["customerDetail"],
-        }),
+          refetchQueries: ['customerDetail']
+        })
       }
     )
   )(CustomFieldsSection)

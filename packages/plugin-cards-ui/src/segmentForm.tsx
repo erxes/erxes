@@ -1,16 +1,17 @@
-import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+
+import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import Select from 'react-select-plus';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import { withProps } from '@erxes/ui/src/utils';
-import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-
-import { queries } from '@erxes/ui-settings/src/boards/graphql';
+import Select from 'react-select-plus';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   type: string;

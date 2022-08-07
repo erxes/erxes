@@ -44,6 +44,9 @@ export interface IListParams extends IConformityQueryParams {
   labelIds?: string[];
   userIds?: string[];
   segment?: string;
+  stageChangedStartDate?: Date;
+  stageChangedEndDate?: Date;
+  noSkipArchive?: boolean;
 }
 
 const boardQueries = {
@@ -215,7 +218,7 @@ const boardQueries = {
 
       const departmentIds = departments.map(d => d._id);
 
-      if (query !== {} && departmentIds.length > 0) {
+      if (Object.keys(query) && departmentIds.length > 0) {
         query.$or.push({
           $and: [
             { visibility: 'private' },

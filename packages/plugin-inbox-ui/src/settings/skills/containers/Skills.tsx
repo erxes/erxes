@@ -1,19 +1,25 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
+
 import { Alert, confirm } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql, useMutation } from 'react-apollo';
-import Skills from '../components/Skills';
-import mutations from '../graphql/mutations';
-import queries from '../graphql/queries';
-import { ISkillType, SkillTypesQueryResponse, SkillsQueryResponse } from '@erxes/ui-settings/src/skills/types';
+import {
+  ISkillType,
+  SkillTypesQueryResponse,
+  SkillsQueryResponse
+} from '@erxes/ui-inbox/src/settings/skills/types';
 import {
   SkillsRemoveMutationResponse,
-  SkillsTotalCountQueryResponse,
+  SkillsTotalCountQueryResponse
 } from '../types';
+import { graphql, useMutation } from 'react-apollo';
+
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Skills from '../components/Skills';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import mutations from '../graphql/mutations';
+import queries from '../graphql/queries';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   currentUser: IUser;

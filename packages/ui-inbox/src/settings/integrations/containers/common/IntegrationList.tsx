@@ -1,25 +1,27 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import Spinner from "@erxes/ui/src/components/Spinner";
-import { Alert, confirm, withProps } from "@erxes/ui/src/utils";
-import IntegrationList from "../../components/common/IntegrationList";
-import {
-  mutations,
-  queries,
-} from "@erxes/ui-settings/src/integrations/graphql";
-import React from "react";
-import { graphql } from "react-apollo";
-import { ArchiveIntegrationResponse } from "@erxes/ui-settings/src/integrations/types";
+import * as compose from 'lodash.flowright';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   CommonFieldsEditResponse,
   RemoveMutationResponse,
-  RepairMutationResponse,
-} from "../../types";
+  RepairMutationResponse
+} from '../../types';
 import {
-  IntegrationsQueryResponse,
   IntegrationMutationVariables,
-} from "@erxes/ui-settings/src/integrations/types";
-import { integrationsListParams } from "../utils";
+  IntegrationsQueryResponse
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
+
+import { ArchiveIntegrationResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
+import IntegrationList from '../../components/common/IntegrationList';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { integrationsListParams } from '../utils';
 
 type Props = {
   queryParams: any;
@@ -43,7 +45,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     removeMutation,
     archiveIntegration,
     repairIntegration,
-    editCommonFields,
+    editCommonFields
   } = props;
 
   if (integrationsQuery.loading) {
@@ -52,19 +54,19 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const integrations = integrationsQuery.integrations || [];
 
-  const removeIntegration = (integration) => {
+  const removeIntegration = integration => {
     const message =
-      "If you remove an integration, then all related conversations, customers & forms will also be removed. Are you sure?";
+      'If you remove an integration, then all related conversations, customers & forms will also be removed. Are you sure?';
 
     confirm(message).then(() => {
-      Alert.warning("Removing... Please wait!!!");
+      Alert.warning('Removing... Please wait!!!');
 
       removeMutation({ variables: { _id: integration._id } })
         .then(() => {
-          Alert.success("Your integration is no longer in this channel");
+          Alert.success('Your integration is no longer in this channel');
         })
 
-        .catch((error) => {
+        .catch(error => {
           Alert.error(error.message);
         });
     });
@@ -73,11 +75,11 @@ const IntegrationListContainer = (props: FinalProps) => {
   const archive = (id: string, status: boolean) => {
     let message =
       "If you archive an integration, then you won't be able to see customers & conversations related to this integration anymore. Are you sure?";
-    let action = "archived";
+    let action = 'archived';
 
     if (!status) {
-      message = "You are going to unarchive this integration. Are you sure?";
-      action = "unarchived";
+      message = 'You are going to unarchive this integration. Are you sure?';
+      action = 'unarchived';
     }
 
     confirm(message).then(() => {
@@ -110,19 +112,19 @@ const IntegrationListContainer = (props: FinalProps) => {
     { name, brandId, channelIds, data }: IntegrationMutationVariables
   ) => {
     if (!name && !brandId) {
-      Alert.error("Name and brand must be chosen");
+      Alert.error('Name and brand must be chosen');
 
       return;
     }
 
     editCommonFields({
-      variables: { _id: id, name, brandId, channelIds, data },
+      variables: { _id: id, name, brandId, channelIds, data }
     })
-      .then((response) => {
+      .then(response => {
         const result = response.data.integrationsEditCommonFields;
 
         if (result && result._id) {
-          Alert.success("Integration has been edited.");
+          Alert.success('Integration has been edited.');
         }
       })
       .catch((error: Error) => {
@@ -137,7 +139,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     removeIntegration,
     loading: integrationsQuery.loading,
     archive,
-    editIntegration,
+    editIntegration
   };
 
   return <IntegrationList {...updatedProps} />;
@@ -146,7 +148,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 const mutationOptions = ({
   queryParams,
   variables,
-  kind,
+  kind
 }: {
   queryParams?: any;
   variables?: any;
@@ -158,51 +160,51 @@ const mutationOptions = ({
       variables: {
         ...variables,
         ...integrationsListParams(queryParams || {}),
-        kind,
-      },
+        kind
+      }
     },
     {
-      query: gql(queries.integrationTotalCount),
-    },
-  ],
+      query: gql(queries.integrationTotalCount)
+    }
+  ]
 });
 
 export default withProps<Props>(
   compose(
     graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: "integrationsQuery",
+      name: 'integrationsQuery',
       options: ({ queryParams, kind, variables }) => {
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
             ...variables,
             ...integrationsListParams(queryParams || {}),
-            kind,
+            kind
           },
-          fetchPolicy: "network-only",
+          fetchPolicy: 'network-only'
         };
-      },
+      }
     }),
     graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
-      name: "removeMutation",
-      options: mutationOptions,
+      name: 'removeMutation',
+      options: mutationOptions
     }),
     graphql<Props, ArchiveIntegrationResponse>(
       gql(mutations.integrationsArchive),
       {
-        name: "archiveIntegration",
-        options: mutationOptions,
+        name: 'archiveIntegration',
+        options: mutationOptions
       }
     ),
     graphql<Props, RepairMutationResponse>(gql(mutations.integrationsRepair), {
-      name: "repairIntegration",
-      options: mutationOptions,
+      name: 'repairIntegration',
+      options: mutationOptions
     }),
     graphql<Props, CommonFieldsEditResponse>(
       gql(mutations.integrationsEditCommonFields),
       {
-        name: "editCommonFields",
-        options: mutationOptions,
+        name: 'editCommonFields',
+        options: mutationOptions
       }
     )
   )(IntegrationListContainer)

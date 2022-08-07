@@ -10,8 +10,8 @@ import {
 
 export interface ISafeRemainderItemModel
   extends Model<ISafeRemainderItemDocument> {
-  getItemObject(_id: string): Promise<ISafeRemainderItemDocument>;
   getItem(params: IRemainderParams): Promise<Number>;
+  getItemObject(_id: string): Promise<ISafeRemainderItemDocument>;
   createItem(doc: ISafeRemainderItem): Promise<ISafeRemainderItemDocument>;
   updateItem(
     _id: string,
@@ -22,19 +22,6 @@ export interface ISafeRemainderItemModel
 
 export const loadSafeRemainderItemClass = (models: IModels) => {
   class SafeRemainderItem {
-    /**
-     * Get a safe remainder item
-     */
-    public static async getItemObject(_id: string) {
-      const result = await models.SafeRemainderItems.findOne({ _id });
-
-      if (!result) {
-        throw new Error('RemItem not found');
-      }
-
-      return result;
-    }
-
     public static async getItem(params: IRemainderParams) {
       const { productId, departmentId, branchId } = params;
       const filter: any = { productId };
@@ -55,6 +42,18 @@ export const loadSafeRemainderItemClass = (models: IModels) => {
       }
 
       return remainderItem;
+    }
+    /**
+     * Get a safe remainder item
+     */
+    public static async getItemObject(_id: string) {
+      const result = await models.SafeRemainderItems.findOne({ _id });
+
+      if (!result) {
+        return new Error('Remainder Item not found');
+      }
+
+      return result;
     }
 
     /**

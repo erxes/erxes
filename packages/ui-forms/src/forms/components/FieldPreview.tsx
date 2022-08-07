@@ -1,7 +1,8 @@
-import GenerateField from '@erxes/ui-settings/src/properties/components/GenerateField';
 import { IField, ILocationOption } from '@erxes/ui/src/types';
-import React from 'react';
+
 import { FieldItem } from '../styles';
+import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
+import React from 'react';
 
 type Props = {
   field: IField;

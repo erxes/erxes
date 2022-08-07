@@ -39,6 +39,6 @@ export default {
       return null;
     }
 
-    return models.Uoms.getUom({ _id: uomId });
+    return await models.Uoms.findOne({ _id: uomId });
   }
 };

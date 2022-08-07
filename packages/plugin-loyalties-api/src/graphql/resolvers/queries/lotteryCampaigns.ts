@@ -1,5 +1,8 @@
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-import { ICommonCampaignParams } from '../../../models/definitions/common';
+import {
+  ICommonCampaignParams,
+  ICommonParams
+} from '../../../models/definitions/common';
 import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src/core';
 import { CAMPAIGN_STATUS } from '../../../models/definitions/constants';
@@ -57,6 +60,53 @@ const lotteryCampaignQueries = {
 
   lotteryCampaignDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.LotteryCampaigns.getLotteryCampaign(_id);
+  },
+  async lotteryCampaignWinnerList(
+    _root,
+    params: ICommonParams,
+    { models }: IContext
+  ) {
+    const { awardId, campaignId } = params;
+
+    const list = await paginate(
+      models.Lotteries.find({ campaignId, status: 'won', awardId }).sort({
+        usedAt: -1
+      }),
+      params
+    );
+
+    const totalCount = await models.Lotteries.find({
+      campaignId,
+      status: 'won',
+      awardId
+    }).countDocuments();
+
+    return {
+      list,
+      totalCount
+    };
+  },
+  async lotteriesCampaignCustomerList(
+    _root,
+    params: ICommonParams,
+    { models }: IContext
+  ) {
+    const { campaignId } = params;
+
+    const list = await paginate(
+      models.Lotteries.find({ campaignId, status: 'new' }),
+      params
+    );
+
+    const totalCount = await models.Lotteries.find({
+      campaignId,
+      status: 'new'
+    }).countDocuments();
+
+    return {
+      list,
+      totalCount
+    };
   }
 };
 

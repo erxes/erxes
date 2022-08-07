@@ -1,7 +1,8 @@
 import Button from '@erxes/ui/src/components/Button';
+import { readFile } from '@erxes/ui/src/utils/core';
 import GrapesJS from 'grapesjs';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { __ } from '@erxes/ui/src/utils';
+import { uploadHandler, __ } from '@erxes/ui/src/utils';
 import 'grapesjs/dist/css/grapes.min.css';
 import Select from 'react-select-plus';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -20,12 +21,15 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { IContentTypeDoc, IPageDoc } from '../../types';
 import customPlugins from './customPlugins';
+import SelectSite from '../../containers/sites/SelectSite';
+import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   page?: IPageDoc;
   save: (
     name: string,
     description: string,
+    siteId: string,
     html: string,
     css: string,
     jsonData: any
@@ -41,6 +45,7 @@ type State = {
   name: string;
   description: string;
   templateId: string;
+  siteId: string;
 };
 
 class PageForm extends React.Component<Props, State> {
@@ -54,6 +59,7 @@ class PageForm extends React.Component<Props, State> {
     this.state = {
       name: page.name,
       description: page.description,
+      siteId: page.siteId,
       templateId: ''
     };
   }
@@ -75,7 +81,38 @@ class PageForm extends React.Component<Props, State> {
           open: false
         }
       },
-      storageManager: false
+      storageManager: false,
+      assetManager: {
+        uploadFile: e => {
+          const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+
+          uploadHandler({
+            files,
+
+            beforeUpload: () => {
+              Alert.warning(
+                'Upload in progress. Please wait until response shows.'
+              );
+            },
+
+            afterUpload: ({ status, response, fileInfo }) => {
+              if (status !== 'ok') {
+                Alert.error(response.statusText);
+              }
+
+              Alert.info('Success');
+
+              editor.AssetManager.add({
+                type: fileInfo.type,
+                src: readFile(response),
+                height: 350,
+                width: 250,
+                name: fileInfo.name
+              });
+            }
+          });
+        }
+      }
     });
 
     if (page && page.jsonData) {
@@ -105,6 +142,7 @@ class PageForm extends React.Component<Props, State> {
       indentWithTabs: true
     });
 
+    editor.getConfig().allowScripts = 1;
     btnEdit.innerHTML = 'Edit';
     btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
     btnEdit.onclick = () => {
@@ -179,12 +217,17 @@ class PageForm extends React.Component<Props, State> {
     this.grapes.loadProjectData(option.jsonData);
   };
 
+  onSelectSite = (value: any) => {
+    this.setState({ siteId: value });
+  };
+
   save = () => {
     const e = this.grapes;
 
     this.props.save(
       this.state.name,
       this.state.description,
+      this.state.siteId,
       e.getHtml(),
       e.getCss(),
       e.getProjectData()
@@ -199,7 +242,7 @@ class PageForm extends React.Component<Props, State> {
 
   renderPageContent() {
     const imagePath = '/images/icons/erxes-12.svg';
-    const { description, name, templateId } = this.state;
+    const { description, name, templateId, siteId } = this.state;
     const { removeTemplate } = this.props;
 
     return (
@@ -223,6 +266,17 @@ class PageForm extends React.Component<Props, State> {
                   this.onChange('description', e.target.value)
                 }
                 defaultValue={description}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Site:</ControlLabel>
+              <SelectSite
+                label="Choose a site"
+                name="siteId"
+                onSelect={this.onSelectSite}
+                multi={false}
+                initialValue={siteId}
               />
             </FormGroup>
 

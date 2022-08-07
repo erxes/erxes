@@ -2,54 +2,57 @@ import Settings from './containers/Settings';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import queryString from 'query-string';
 
 const GeneralSettings = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './components/GeneralSettings')
-)
+);
 
 const StageSettings = asyncComponent(() =>
   import(/* webpackChunkName: "KnowledgeBase" */ './components/StageSettings')
-)
+);
 
 const ReturnStageSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './components/ReturnStageSettings')
-)
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './components/ReturnStageSettings'
+  )
+);
 
 const PipelineSettings = asyncComponent(() =>
-  import(/* webpackChunkName: "KnowledgeBase" */ './components/PipelineSettings')
-)
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './components/PipelineSettings'
+  )
+);
+
+const CheckSyncedDeals = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './containers/CheckSyncedDeals'
+  )
+);
 
 const GeneralSetting = () => {
-  return (
-    <Settings
-      component={GeneralSettings}
-    />
-  )
-}
+  return <Settings component={GeneralSettings} />;
+};
 
 const StageSetting = () => {
-  return (
-    <Settings
-      component={StageSettings}
-    />
-  )
-}
+  return <Settings component={StageSettings} />;
+};
 
 const ReturnStageSetting = () => {
-  return (
-    <Settings
-      component={ReturnStageSettings}
-    />
-  )
-}
+  return <Settings component={ReturnStageSettings} />;
+};
 
 const PipelineSetting = () => {
+  return <Settings component={PipelineSettings} />;
+};
+const checkSyncedDealList = ({ location, history }) => {
   return (
-    <Settings
-      component={PipelineSettings}
+    <CheckSyncedDeals
+      queryParams={queryString.parse(location.search)}
+      history={history}
     />
-  )
-}
+  );
+};
 
 const routes = () => {
   return (
@@ -81,8 +84,15 @@ const routes = () => {
         path="/erxes-plugin-sync-erkhet/settings/pipeline"
         component={PipelineSetting}
       />
+
+      <Route
+        key="/check-synced-deals"
+        exact={true}
+        path="/check-synced-deals"
+        component={checkSyncedDealList}
+      />
     </React.Fragment>
-  )
+  );
 };
 
 export default routes;

@@ -1,4 +1,4 @@
-import { ISkillType} from '@erxes/ui-settings/src/skills/types';
+import { ISkillType } from '@erxes/ui-inbox/src/settings/skills/types';
 
 export type SkillTypesTotalCountQueryResponse = {
   skillTypesTotalCunt: number;

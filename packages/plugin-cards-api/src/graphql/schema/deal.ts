@@ -29,7 +29,7 @@ export const types = ({ contacts, tags }) => `
     }
 
     ${tags ? `tags: [Tag]` : ''}
-    
+
     products: JSON
     productsData: JSON
     paymentsData: JSON
@@ -46,6 +46,12 @@ export const types = ({ contacts, tags }) => `
     name: String
     currencies: [DealTotalCurrency]
   }
+
+  input ProductField {
+    productId : String
+    quantity: Int
+  }
+
 `;
 
 const dealMutationParams = `
@@ -73,6 +79,9 @@ const commonQueryParams = `
   startDate: String
   endDate: String
   hasStartAndCloseDate: Boolean
+  stageChangedStartDate: Date
+  stageChangedEndDate: Date
+  noSkipArchive: Boolean
   `;
 
 const listQueryParams = `
@@ -100,6 +109,7 @@ const archivedDealsParams = `
 
 export const queries = `
   dealDetail(_id: String!): Deal
+  checkDiscount(_id: String!,products:[ProductField]):JSON
   deals(${listQueryParams}): [DealListItem]
   dealsTotalCount(${listQueryParams}): Int
   archivedDeals(

@@ -1,11 +1,12 @@
 import {
   IActivityLog,
   IActivityLogForMonth
-} from '@erxes/ui/src/activityLogs/types';
+} from '@erxes/ui-log/src/activityLogs/types';
+
+import { IContractTypeDoc } from '../contractTypes/types';
+import { IInsuranceType } from '../insuranceTypes/types';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IInsuranceType } from '../insuranceTypes/types';
-import { IContractTypeDoc } from '../contractTypes/types';
 
 export interface ICollateralData {
   _id: string;

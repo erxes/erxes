@@ -1,5 +1,7 @@
 import { Sidebar } from '@erxes/ui/src';
 import Box from '@erxes/ui/src/components/Box';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import { renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import { List } from '../../styles';
@@ -12,6 +14,14 @@ type Props = {
 };
 
 class LeftSidebar extends React.Component<Props> {
+  renderCustomer() {
+    return renderFullName(this.props.clientPortalUser.customer);
+  }
+
+  renderCompany() {
+    return renderFullName(this.props.clientPortalUser.company);
+  }
+
   render() {
     const { clientPortalUser, history } = this.props;
 
@@ -37,18 +47,11 @@ class LeftSidebar extends React.Component<Props> {
           name="showOthers"
         >
           <List>
-            <li onClick={onClick}>
-              <div>
-                {clientPortalUser.type === 'customer'
-                  ? 'Customer Detail'
-                  : 'Company Detail'}
-                :{' '}
-              </div>{' '}
-              <span>
-                {clientPortalUser.erxesCustomerId ||
-                  clientPortalUser.erxesCompanyId}
-              </span>
-            </li>
+            <LinkButton onClick={onClick}>
+              {clientPortalUser.erxesCustomerId
+                ? this.renderCustomer()
+                : this.renderCompany()}
+            </LinkButton>
           </List>
         </Box>
       </Sidebar>

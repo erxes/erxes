@@ -1,21 +1,23 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Info from '@erxes/ui/src/components/Info';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IFormProps } from '@erxes/ui/src/types';
-import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
-import {
-  mutations,
-  queries
-} from '@erxes/ui-settings/src/integrations/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Accounts from '../components/Accounts';
+
 import {
   AccountsQueryResponse,
   IntegrationTypes,
   RemoveAccountMutationResponse
 } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
+
+import Accounts from '../components/Accounts';
+import { IFormProps } from '@erxes/ui/src/types';
+import Info from '@erxes/ui/src/components/Info';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
   kind: IntegrationTypes;
@@ -48,7 +50,13 @@ class AccountContainer extends React.Component<FinalProps, {}> {
 
     const { REACT_APP_API_URL } = getEnv();
 
-    this.popupWindow(`${REACT_APP_API_URL}/pl:integrations/${addLink}?kind=${kind}`, 'Integration', window, 660, 750);
+    this.popupWindow(
+      `${REACT_APP_API_URL}/pl:integrations/${addLink}?kind=${kind}`,
+      'Integration',
+      window,
+      660,
+      750
+    );
   };
 
   removeAccount = (accountId: string) => {
@@ -65,7 +73,13 @@ class AccountContainer extends React.Component<FinalProps, {}> {
   };
 
   render() {
-    const { kind, renderForm, integrationsAccountsQuery, onSelect, formProps } = this.props;
+    const {
+      kind,
+      renderForm,
+      integrationsAccountsQuery,
+      onSelect,
+      formProps
+    } = this.props;
 
     if (integrationsAccountsQuery.loading) {
       return <Spinner objective={true} />;
@@ -102,13 +116,16 @@ export default withProps<Props>(
         }
       }
     ),
-    graphql<Props, AccountsQueryResponse>(gql(queries.integrationsGetAccounts), {
-      name: 'integrationsAccountsQuery',
-      options: ({ kind }) => ({
-        variables: {
-          kind
-        }
-      })
-    })
+    graphql<Props, AccountsQueryResponse>(
+      gql(queries.integrationsGetAccounts),
+      {
+        name: 'integrationsAccountsQuery',
+        options: ({ kind }) => ({
+          variables: {
+            kind
+          }
+        })
+      }
+    )
   )(AccountContainer)
 );

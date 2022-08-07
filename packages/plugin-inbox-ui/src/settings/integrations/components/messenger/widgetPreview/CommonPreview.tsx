@@ -1,15 +1,16 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { WebPreview } from '@erxes/ui-engage/src/styles';
-import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   IMessagesItem,
   ISkillData
-} from '@erxes/ui-settings/src/integrations/types';
-import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
-import React from 'react';
-import GreetingContent from './GreetingContent';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import { Launcher, WidgetPreviewStyled } from './styles';
+
+import GreetingContent from './GreetingContent';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
 import TopBar from './TopBar';
+import { WebPreview } from '@erxes/ui-engage/src/styles';
 import WidgetContent from './WidgetContent';
 
 type Props = {

@@ -1,6 +1,6 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-
+import { models } from '../../../connectionResolver';
 const productreviewQueries = {
   productreviews: async (
     _root,
@@ -8,7 +8,11 @@ const productreviewQueries = {
     { models: { ProductReview } }: IContext
   ) => {
     const { productId } = params;
-    return ProductReview.getAllProductReview(productId);
+    return ProductReview.getProductReview(productId);
+  },
+  allProductreviews: async (_root, params) => {
+    const { customerId } = params;
+    return models?.ProductReview.getAllProductReview(customerId);
   }
 };
 //requireLogin(productreviewQueries, 'productreviews');

@@ -102,6 +102,7 @@ export const HeaderRow = styled(Flex)`
 
 export const HeaderContent = styled.div`
   flex: 1;
+
   textarea {
     border-bottom: none;
     min-height: auto;

@@ -32,6 +32,7 @@ const CategoryFilter = (props: Props) => {
       extraButtons={extraButtons}
       title={__('Filter by category')}
       name="showFilterByCategory"
+      isOpen={true}
     >
       <SidebarList>
         {categories.map((item: any, index: number) => {

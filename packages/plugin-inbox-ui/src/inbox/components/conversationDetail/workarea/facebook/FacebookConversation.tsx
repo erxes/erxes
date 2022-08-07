@@ -1,11 +1,16 @@
 import * as React from 'react';
 
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import {
+  IFacebookComment,
+  IFacebookPost,
+  IMessage
+} from '@erxes/ui-inbox/src/inbox/types';
+
 import FacebookComment from '../../../../containers/conversationDetail/facebook/FacebookComment';
-import SimpleMessage  from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
-import FacebookPost from './FacebookPost'
+import FacebookPost from './FacebookPost';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { ShowMore } from './styles';
-import { IMessage, IFacebookComment, IFacebookPost } from '@erxes/ui-inbox/src/inbox/types';
+import SimpleMessage from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/SimpleMessage';
 
 type Props = {
   commentCount: number;
