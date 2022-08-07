@@ -4,8 +4,6 @@ title: Architecture
 sidebar_label: Architecture
 ---
 
-## Architecture
-
 erxes’s coding architecture comprises Backend, UI, and Widgets.
 
 **Backend** part is responsible for ensuring all APIs of different plugins work together smoothly.
