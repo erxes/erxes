@@ -6,7 +6,7 @@ sidebar_label: Contribute to codebase
 
 ## Contribute to codebase
 
-Thank you for considering contributing to erxes! This document will outline how to submit changes to this repository and which conventions to follow. If you are ever in doubt about anything, we encourage you to reach out by submitting an issue here or via <a href="https://discord.com/invite/aaGzy3gQK5" target="_blank">Discord</a>. If you're contributing to our documentation, make sure to also check out <a href="https://www.erxes.org/overview/deployment-overview" target="_blank">the contribution guidelines on our documentation website.</a>
+Thank you for considering contributing to erxes! This document will outline how to submit changes to this repository and which conventions to follow. If you are ever in doubt about anything, we encourage you to reach out by submitting an issue here or via <a href="https://discord.com/invite/aaGzy3gQK5" target="_blank">Discord</a>.
 
 :::warning
 
@@ -68,6 +68,12 @@ All PRs should include tests for the changes that are included. We have two type
 - We generally encourage to document your changes through comments in your code.
 - If you alter user-facing behavior, you must provide documentation for such changes.
 - All methods and endpoints should be documented using <a href="https://jsdoc.app/" target="_blank">JSDoc</a> and <a href="https://www.npmjs.com/package/swagger-inline" target="_blank">swagger-inline</a>.
+
+:::tip
+
+Afterwars, if you're contributing to our documentation about changes you made to erxes codebase make sure to also check out <a href="https://www.erxes.org/overview/deployment-overview" target="_blank">the contribution guidelines on our documentation website.</a>
+
+:::
 
 ## Release
 
