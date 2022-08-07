@@ -17,7 +17,7 @@ erxes is a community-oriented project with an emphasis on transparency. We put o
 
 :::info
 
-If you’re interested in contributing to erxes codebase, check out the <a href="https://www.erxes.org/contribute/contribute-to-codebase" target="_blank">guideline to contribute codebase</a>. Then, you can edit or re-write the documentation about the part of the contribution you have made to erxes by following <a href="https://www.erxes.org/contribute/contribute-to-documentation" target="_blank">the guideline to contribute to documentation</a>. 
+If you’re interested in contributing to erxes codebase, check out <a href="https://www.erxes.org/contribute/contribute-to-codebase" target="_blank">the guideline to contribute codebase</a>. Then, you can edit or re-write the documentation about the part of the contribution you have made to erxes by following <a href="https://www.erxes.org/contribute/contribute-to-documentation" target="_blank">the guideline to contribute to documentation</a>. 
 
 :::
 
