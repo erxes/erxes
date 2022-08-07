@@ -10,7 +10,7 @@ Thank you for your interest in contributing to the documentation! You will be he
 
 :::tip
 
-This guide is specific to contributing to the documentation. If you’re interested in contributing to erxes codebase, check out the guideline to contribute codebase.
+This guide is specific to contributing to the documentation. If you’re interested in contributing to erxes codebase, check out <a href="https://www.erxes.org/contribute/contribute-to-codebase" target="_blank">the guideline to contribute codebase</a>.
 
 :::
 
