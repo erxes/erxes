@@ -15,7 +15,7 @@ erxes is a community-oriented project with an emphasis on transparency. We put o
 - We have a <a href="https://erxes.io/marketplace" target="_blank">marketplace</a> that you can place your plugins that you have developed and earn from it. This is <a href="https://www.erxes.org/overview/deployment-overview" target="_blank">the complete guideline</a> to show you how you can make it happen. It’s for anyone who wants to make money doing what they love.
 
 
-:::info
+:::tip
 
 If you’re interested in contributing to erxes codebase, check out <a href="https://www.erxes.org/contribute/contribute-to-codebase" target="_blank">the guideline to contribute codebase</a>. Then, you can edit or re-write the documentation about the part of the contribution you have made to erxes by following <a href="https://www.erxes.org/contribute/contribute-to-documentation" target="_blank">the guideline to contribute to documentation</a>. 
 
