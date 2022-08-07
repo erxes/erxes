@@ -6,7 +6,7 @@ sidebar_label: Overview
 
 ## Welcome to erxes community 👋 
 
-erxes is a community-oriented project with an emphasis on transparency. We put our heart to share our vision and build the future of erxes with the erxes community. erxes the roadmap is open for community members to have an insights and envolve in the project in right direction. You ideas and opinions are the most welcome! 
+erxes is a community-oriented project with an emphasis on transparency. We put our heart to share our vision and build the future of erxes together with our community. erxes the roadmap is open for community members to have an insights and envolve in the project in right direction. You ideas and opinions are the most welcome! 
 
 ## Ways to contribute
 
