@@ -1,5 +1,5 @@
-import { Wrapper, __ } from '@erxes/ui/src';
-
+import { __ } from '@erxes/ui/src/utils/core';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
 import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 import { IProduct } from '../../types';
