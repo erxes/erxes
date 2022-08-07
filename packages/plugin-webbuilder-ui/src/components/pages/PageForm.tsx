@@ -1,7 +1,8 @@
 import Button from '@erxes/ui/src/components/Button';
+import { readFile } from '@erxes/ui/src/utils/core';
 import GrapesJS from 'grapesjs';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { __ } from '@erxes/ui/src/utils';
+import { uploadHandler, __ } from '@erxes/ui/src/utils';
 import 'grapesjs/dist/css/grapes.min.css';
 import Select from 'react-select-plus';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -21,6 +22,7 @@ import { Link } from 'react-router-dom';
 import { IContentTypeDoc, IPageDoc } from '../../types';
 import customPlugins from './customPlugins';
 import SelectSite from '../../containers/sites/SelectSite';
+import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   page?: IPageDoc;
@@ -79,7 +81,38 @@ class PageForm extends React.Component<Props, State> {
           open: false
         }
       },
-      storageManager: false
+      storageManager: false,
+      assetManager: {
+        uploadFile: e => {
+          const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+
+          uploadHandler({
+            files,
+
+            beforeUpload: () => {
+              Alert.warning(
+                'Upload in progress. Please wait until response shows.'
+              );
+            },
+
+            afterUpload: ({ status, response, fileInfo }) => {
+              if (status !== 'ok') {
+                Alert.error(response.statusText);
+              }
+
+              Alert.info('Success');
+
+              editor.AssetManager.add({
+                type: fileInfo.type,
+                src: readFile(response),
+                height: 350,
+                width: 250,
+                name: fileInfo.name
+              });
+            }
+          });
+        }
+      }
     });
 
     if (page && page.jsonData) {
