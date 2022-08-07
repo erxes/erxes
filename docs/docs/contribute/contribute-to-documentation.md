@@ -85,11 +85,19 @@ If the note displays helpful information and tips use the tip admonition.
 
 :::
 
+
+:::warning
+
+If the note is warning something to the developers before going foward, use the warning admonition.
+
+:::
+
 :::note
 
 If the admonition does not match any of the mentioned criteria, always default to the note admonition.
 
 :::
+
 
 
 ## Need Additional Help?
