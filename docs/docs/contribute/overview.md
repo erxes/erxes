@@ -12,7 +12,7 @@ erxes is a community-oriented project with an emphasis on transparency. We put o
 
 - We welcome pull requests, but we do have several guidelines for contributing and for our sanity. Please read our <a href="https://www.erxes.org/getting-started/contributing-guide" target="_blank" >contributing guide</a> before submitting a Pull Request to the project.
 - As part of our effort to grow and invest in the community, we are excited to share this <a href="https://erxes.io/invest" target="_blank">investment</a> opportunity with you. 
-- We have a <a href="https://erxes.io/marketplace" target="_blank">marketplace</a> where plugin creators can share their work and earn from it, no matter their field. It’s for anyone who wants to make money doing what they love.
+- We have a <a href="https://erxes.io/marketplace" target="_blank">marketplace</a> that you can place your plugins that you have developed and earn from it. This is <a href="https://www.erxes.org/overview/deployment-overview" target="_blank">the complete guideline</a> to show you how you can make it happen. It’s for anyone who wants to make money doing what they love.
 
 
 :::info
