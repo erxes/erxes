@@ -24,7 +24,7 @@
   </a>
 
    <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md">
-      <img alt="License Badge" src="https://img.shields.io/badge/license-GNU%20GPL%20v3.0-brightgreen">
+      <img alt="License Badge" src="https://img.shields.io/badge/license-AGPLv3-brightgreen">
   </a>
   <a href="#">
       <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/erxes/erxes">
