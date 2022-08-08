@@ -428,6 +428,7 @@ class PropertyForm extends React.Component<Props, State> {
             <FieldLogics
               fields={this.props.fields}
               currentField={this.props.field || ({} as IField)}
+              type="property"
               onFieldChange={e => {
                 console.log(e);
               }}

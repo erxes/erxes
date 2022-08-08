@@ -3,10 +3,11 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
-import { __ } from '@erxes/ui/src/utils';
-import { IField, IFieldLogic } from '@erxes/ui/src/types';
 import { LinkButton } from '@erxes/ui/src/styles/main';
+import { IField, IFieldLogic } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
+
 import FieldLogic from './FieldLogic';
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
   ) => void;
   fields: IField[];
   currentField: IField;
+  type?: 'form' | 'property';
 };
 
 const showOptions = [
@@ -25,7 +27,7 @@ const showOptions = [
 
 function FieldLogics(props: Props) {
   const { fields, currentField, onFieldChange } = props;
-  console.log(fields);
+
   const [logics, setLogics] = useState(
     (currentField.logics || []).map(
       ({ fieldId, tempFieldId, logicOperator, logicValue }) => {
@@ -106,6 +108,7 @@ function FieldLogics(props: Props) {
               onChangeLogic={onChangeLogic}
               removeLogic={removeLogic}
               index={index}
+              type={props.type}
             />
           ))}
 
