@@ -17,7 +17,7 @@ export interface IPostModel extends Model<PostDocument> {
 }
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId, index: true },
+  categoryId: { type: Types.ObjectId },
   content: { type: String, required: true },
   state: {
     type: String,
@@ -59,11 +59,8 @@ export const generatePostModel = (
         throw new Error(`Post with \`{ _id : "${_id}" doesn't exist } \``);
       }
 
-      const replies = await models.Comment.findById({ replyToId: _id }).lean();
-
       await post.remove();
-
-      models.Comment.deleteComments(replies.map(r => r._id));
+      await models.Comment.deleteMany({ postId: _id });
 
       return post;
     }

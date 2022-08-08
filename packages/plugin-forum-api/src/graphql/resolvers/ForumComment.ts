@@ -9,6 +9,9 @@ const ForumComment: IObjectTypeResolver<IComment, IContext> = {
   },
   async replyTo({ replyToId }, _, { models: { Comment } }) {
     return Comment.findById(replyToId).lean();
+  },
+  async replies({ _id }, _, { models: { Comment } }) {
+    return Comment.find({ replyToId: _id }).lean();
   }
 };
 

@@ -12,13 +12,13 @@ export type CommentDocument = IComment & Document;
 export interface ICommentModel extends Model<CommentDocument> {
   createComment(c: Omit<IComment, '_id'>): Promise<CommentDocument>;
   updateComment(_id: string, content: string): Promise<CommentDocument>;
-  deleteComments(_id: string[]): Promise<void>;
+  deleteComment(_id: string): Promise<CommentDocument>;
 }
 
 export const commentSchema = new Schema<CommentDocument>({
   replyToId: { type: Types.ObjectId, index: true },
   postId: { type: Types.ObjectId, index: true },
-  content: String
+  content: { type: String, required: true }
 });
 
 export const generateCommentModel = (
@@ -46,26 +46,34 @@ export const generateCommentModel = (
       return comment;
     }
 
-    public static async deleteComments(ids: string[]): Promise<void> {
-      const idsToDelete = [...ids];
-      let queue = [...ids];
+    public static async deleteComment(_id: string): Promise<CommentDocument> {
+      const deletedComment = await models.Comment.findById(_id).lean();
 
-      while (queue?.length) {
+      if (!deletedComment) {
+        throw new Error(`Comment with \`{ "_id" : "${_id}"}\` doesn't exist`);
+      }
+
+      const idsToDelete = [_id];
+      let findReplies = [_id];
+
+      while (findReplies?.length) {
         const replies = await models.Comment.find({
-          replyToId: { $in: queue }
+          replyToId: { $in: findReplies }
         }).lean();
         const replyIds = replies.map(reply => reply._id);
         idsToDelete.push(...replyIds);
-        queue = replyIds;
+        findReplies = replyIds;
       }
 
       await models.Comment.deleteMany({ _id: { $in: idsToDelete } });
+
+      return deletedComment;
     }
   }
   commentSchema.loadClass(CommentModel);
 
   models.Comment = con.model<CommentDocument, ICommentModel>(
-    'forum_categories',
+    'forum_comments',
     commentSchema
   );
 };

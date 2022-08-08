@@ -9,7 +9,7 @@ const commentMutations: IObjectTypeResolver<any, IContext> = {
     return await Comment.updateComment(_id, content);
   },
   async forumDeleteComment(_, { _id }, { models: { Comment } }) {
-    return await Comment.deleteComments([_id]);
+    return await Comment.deleteComment(_id);
   }
 };
 
