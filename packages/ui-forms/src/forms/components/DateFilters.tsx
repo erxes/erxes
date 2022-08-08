@@ -3,15 +3,12 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Icon from '@erxes/ui/src/components/Icon';
-import {
-  FieldStyle,
-  SidebarCounter,
-  SidebarList
-} from '@erxes/ui/src/layout/styles';
+import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import queryString from 'query-string';
+import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 
 import { DateInputContainer } from '../styles';
@@ -25,7 +22,16 @@ interface IProps extends IRouterProps {
 
 function DateFilters(props: IProps) {
   const { history, counts, fields, loading, emptyText } = props;
-  const [filterParams, setFilterParams] = useState({});
+
+  const { dateFilters = '{}' } = queryString.parse(props.location.search);
+
+  const [filterParams, setFilterParams] = useState(JSON.parse(dateFilters));
+
+  useEffect(() => {
+    setFilterParams({});
+  }, [dateFilters]);
+
+  console.log('filterParams', filterParams);
 
   const onRemove = () => {
     router.setParams(history, { dateFilters: null });
