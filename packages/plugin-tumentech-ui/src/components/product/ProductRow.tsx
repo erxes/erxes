@@ -1,4 +1,5 @@
-import { FormControl, TextInfo } from '@erxes/ui/src';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
 
 import { ICarCategory, IProduct } from '../../types';

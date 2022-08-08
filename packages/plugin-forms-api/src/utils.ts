@@ -75,7 +75,15 @@ export const fieldsCombinedByContentType = async (
     validation = 'date';
   }
 
-  const customFields = await getCustomFields(models, contentType, validation);
+  const type = [
+    'contacts:visitor',
+    'contacts:lead',
+    'contacts:customer'
+  ].includes(contentType)
+    ? 'contacts:customer'
+    : contentType;
+
+  const customFields = await getCustomFields(models, type, validation);
 
   const generateSelectOptions = options => {
     const selectOptions: Array<{ label: string; value: any }> = [];

@@ -1,19 +1,21 @@
 import {
-  __,
-  Button,
-  CollapseContent,
-  ControlLabel,
   extractAttachment,
-  Form,
-  FormControl,
-  FormGroup,
-  generateCategoryOptions,
-  MainStyleDateContainer as DateContainer,
-  MainStyleFormColumn as FormColumn,
-  MainStyleFormWrapper as FormWrapper,
-  MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
-} from '@erxes/ui/src';
+  generateCategoryOptions
+} from '@erxes/ui/src/utils';
+import {
+  DateContainer,
+  FormColumn,
+  FormWrapper,
+  ScrollWrapper
+} from '@erxes/ui/src/styles/main';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IUser } from '@erxes/ui/src/auth/types';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import Uploader from '@erxes/ui/src/components/Uploader';

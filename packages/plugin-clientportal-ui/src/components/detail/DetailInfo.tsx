@@ -1,4 +1,9 @@
-import { __, FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
+import { __ } from '@erxes/ui/src/utils/core';
+import {
+  SidebarList,
+  SidebarCounter,
+  FieldStyle
+} from '@erxes/ui/src/layout/styles';
 import React from 'react';
 
 import { IClientPortalUser } from '../../types';

@@ -10,15 +10,6 @@ const configs = `
   }
 `;
 
-const unSyncedItems = `
-  query unSyncedItems ($contentType: string, $ids: [String]) {
-    unSyncedItems (contentType: $contentType, ids: $ids) {
-      id
-      isSynced
-    }
-  }
-`;
-
 const commonParams = `
   $skip: Int,
   $limit: Int,
@@ -81,6 +72,5 @@ const checkSyncDealsTotalCount = `
 export default {
   configs,
   checkSyncDeals,
-  checkSyncDealsTotalCount,
-  unSyncedItems
+  checkSyncDealsTotalCount
 };

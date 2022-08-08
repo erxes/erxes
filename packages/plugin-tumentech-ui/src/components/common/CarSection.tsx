@@ -1,13 +1,12 @@
 import GetConformity from '@erxes/ui-cards/src/conformity/containers/GetConformity';
-import {
-  __,
-  Box,
-  EmptyState,
-  Icon,
-  MainStyleButtonRelated as ButtonRelated,
-  ModalTrigger,
-  SectionBodyItem
-} from '@erxes/ui/src';
+import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
+import { ButtonRelated } from '@erxes/ui/src/styles/main';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Box from '@erxes/ui/src/components/Box';
+import { __ } from '@erxes/ui/src/utils/core';
+import { ModalTrigger } from '@erxes/ui/src/components';
+import Icon from '@erxes/ui/src/components/Icon';
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 

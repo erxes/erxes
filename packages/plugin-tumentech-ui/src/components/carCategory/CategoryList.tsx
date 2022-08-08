@@ -1,9 +1,7 @@
-import {
-  __,
-  MainStyleTopHeader as TopHeader,
-  router,
-  Sidebar
-} from '@erxes/ui/src';
+import { router } from '@erxes/ui/src/utils';
+import { TopHeader } from '@erxes/ui/src/styles/main';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { __ } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Icon from '@erxes/ui/src/components/Icon';

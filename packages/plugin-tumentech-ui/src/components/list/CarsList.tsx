@@ -1,18 +1,16 @@
-import {
-  Alert,
-  BarItems,
-  Button,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  SortHandler,
-  Table,
-  Wrapper,
-  __,
-  confirm,
-  router
-} from '@erxes/ui/src';
+import { confirm, router } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Table from '@erxes/ui/src/components/table';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Alert from '@erxes/ui/src/utils/Alert';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalTrigger } from '@erxes/ui/src/components';
+
 import {
   IButtonMutateProps,
   IQueryParams,
