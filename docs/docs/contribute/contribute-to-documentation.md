@@ -15,7 +15,7 @@ This guide is specific to contributing to the documentation. If you’re interes
 
 ## Site Setup
 
-The documentation website is built with <a href="https://github.com/erxes/erxes](https://docusaurus.io/" target="_blank">Docusaurus</a>, a framework that optimizes documentation creation. If you’re not familiar with Docusaurus, it’s recommended to check out the <a href="https://github.com/erxes/erxes](https://docusaurus.io/](https://docusaurus.io/docs/installation)" target="_blank">Installation documentation</a> on their website to understand Docusaurus better, how it works, its structure, and more details.
+The documentation website is built with <a href="https://docusaurus.io/" target="_blank">Docusaurus</a>, a framework that optimizes documentation creation. If you’re not familiar with Docusaurus, it’s recommended to check out the <a href="https://docusaurus.io/docs/installation" target="_blank">Installation documentation</a> on their website to understand Docusaurus better, how it works, its structure, and more details.
 The documentation codebase is hosted as part of the <a href="https://github.com/erxes/erxes" target="_blank">erxes repository</a> on GitHub. You’ll find the code that runs the docusaurus website under the www/docs directory.
 
 
