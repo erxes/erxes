@@ -13,14 +13,12 @@ Docker is an open platform that allows to develop, ship and run applications by 
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
-:::warning Prerequisites
+**Prerequisites**
 
 - <a href="https://github.com/git-guides/install-git" target="_blank">Git</a>
 - [Node.js](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes.
 - [npm](https://docs.npmjs.com/cli/v6/commands/npm-install) (v6 only) or [yarn](https://yarnpkg.com/getting-started/install) to run the CLI installation scripts.
-- <a href="https://docs.docker.com/engine/install/">Docker</a>
-
-:::
+- <a href="https://docs.docker.com/engine/install/">Docker</a> ()
 
 
 ### Installing erxes
