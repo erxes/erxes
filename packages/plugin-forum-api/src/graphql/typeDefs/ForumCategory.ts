@@ -12,5 +12,7 @@ export default `
     children: [ForumCategory!]
     descendants: [ForumCategory!]
     ancestors: [ForumCategory!]
+
+    posts(last: Int): [ForumPost!]
   }
 `;

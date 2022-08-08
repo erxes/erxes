@@ -17,6 +17,12 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
 
   async ancestors({ _id }, _, { models: { Category } }) {
     return Category.getAncestorsOf(_id);
+  },
+  async posts({ _id }, { last }, { models: { Post } }) {
+    if (!last) return [];
+    return Post.find({ categoryId: _id })
+      .limit(last)
+      .lean();
   }
 };
 
