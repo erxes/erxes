@@ -1,5 +1,4 @@
 import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
@@ -58,9 +57,7 @@ class Pages extends React.Component<Props, {}> {
       />
     );
 
-    const ActionBar = <Wrapper.ActionBar right={actionBarRight} />;
-
-    getActionBar(ActionBar);
+    getActionBar(actionBarRight);
     setCount(sitesCount);
 
     let content = (

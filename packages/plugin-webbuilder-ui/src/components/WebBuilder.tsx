@@ -31,7 +31,6 @@ function WebBuilder(props: Props) {
         setComponent(
           <ContentTypeList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
             setCount={setCount}
           />
@@ -43,7 +42,6 @@ function WebBuilder(props: Props) {
         setComponent(
           <EntriesList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
             setCount={setCount}
           />
@@ -57,6 +55,7 @@ function WebBuilder(props: Props) {
             getActionBar={setRightActionBar}
             setCount={setCount}
             queryParams={queryParams}
+            history={history}
           />
         );
 
@@ -107,7 +106,6 @@ function WebBuilder(props: Props) {
         }
         leftSidebar={
           <SideBar
-            history={history}
             queryParams={queryParams}
             type={step}
             contentTypes={contentTypes}
