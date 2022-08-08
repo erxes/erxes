@@ -119,7 +119,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
               <th>{__('Last Name')}</th>
               <th>{__('Type')}</th>
               <th>{__('from')}</th>
-              <th>{__('Registered Date')}</th>
+              <th>{__('Created at')}</th>
             </tr>
           </thead>
           <tbody id="clientPortalUsers">

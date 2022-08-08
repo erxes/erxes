@@ -2,6 +2,7 @@ import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
+import Icon from '@erxes/ui/src/components/Icon';
 import {
   FieldStyle,
   SidebarCounter,
@@ -10,8 +11,9 @@ import {
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
+
 import { DateInputContainer } from '../styles';
 
 interface IProps extends IRouterProps {
@@ -21,67 +23,85 @@ interface IProps extends IRouterProps {
   emptyText?: string;
 }
 
-function DateFilters({ history, counts, fields, loading, emptyText }: IProps) {
-  const onChangeRangeFilter = (field: string, kind: string, date) => {
+function DateFilters(props: IProps) {
+  const { history, counts, fields, loading, emptyText } = props;
+  const [filterParams, setFilterParams] = useState({});
+
+  const onRemove = () => {
+    router.setParams(history, { dateFilters: null });
+  };
+
+  const extraButtons = (
+    <>
+      {router.getParam(history, 'dateFilters') && (
+        <a href="#" tabIndex={0} onClick={onRemove}>
+          <Icon icon="times-circle" />
+        </a>
+      )}
+    </>
+  );
+
+  const onChangeRangeFilter = (key: string, op: 'gte' | 'lte', date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
 
-    const { queryParams } = this.props;
+    const value: any = (filterParams[key] && filterParams[key]) || {
+      gte: '',
+      lte: ''
+    };
 
-    // if (queryParams[`${field}_${kind}`] !== formattedDate) {
-    //   onSelect(formattedDate, kind);
-    // }
+    value[op] = formattedDate;
+
+    filterParams[key] = { ...value };
+
+    setFilterParams({ ...filterParams });
+  };
+
+  const onChangeFilters = () => {
+    for (const key of Object.keys(filterParams)) {
+      router.setParams(history, { dateFilters: JSON.stringify(filterParams) });
+    }
+    router.removeParams(history, 'page');
   };
 
   const data = (
     <>
       <SidebarList>
         {fields.map(field => {
-          const onClick = () => {
-            router.setParams(history, { field: field._id });
-            router.removeParams(history, 'page');
-          };
-
           return (
-            <li key={field._id}>
-              <a
-                href="#filter"
-                tabIndex={0}
-                className={
-                  router.getParam(history, 'brand') === field._id
-                    ? 'active'
-                    : ''
-                }
-                onClick={onClick}
-              >
-                <div style={{ display: 'block' }}>
-                  <FieldStyle>{field.label}</FieldStyle>
-                  <SidebarCounter>{counts[field._id]}</SidebarCounter>
+            <li key={field.name}>
+              <FieldStyle>{field.label}</FieldStyle>
 
-                  <DateInputContainer>
-                    <DateControl
-                      // value={queryParams.startDate}
-                      required={false}
-                      name="startDate"
-                      onChange={date =>
-                        onChangeRangeFilter(field.name, 'startDate', date)
-                      }
-                      placeholder={'Start date'}
-                      dateFormat={'YYYY-MM-DD'}
-                    />
+              <DateInputContainer>
+                <DateControl
+                  value={
+                    (filterParams[`${field.name}`] &&
+                      filterParams[`${field.name}`]['gte']) ||
+                    ''
+                  }
+                  required={false}
+                  name="startDate"
+                  placeholder={'Start date'}
+                  onChange={date =>
+                    onChangeRangeFilter(`${field.name}`, 'gte', date)
+                  }
+                  dateFormat={'YYYY-MM-DD'}
+                />
 
-                    <DateControl
-                      // value={queryParams.endDate}
-                      required={false}
-                      name="endDate"
-                      placeholder={'End date'}
-                      onChange={date =>
-                        onChangeRangeFilter(field.name, 'endDate', date)
-                      }
-                      dateFormat={'YYYY-MM-DD'}
-                    />
-                  </DateInputContainer>
-                </div>
-              </a>
+                <DateControl
+                  value={
+                    (filterParams[`${field.name}`] &&
+                      filterParams[`${field.name}`]['lte']) ||
+                    ''
+                  }
+                  required={false}
+                  name="endDate"
+                  placeholder={'End date'}
+                  onChange={date =>
+                    onChangeRangeFilter(`${field.name}`, 'lte', date)
+                  }
+                  dateFormat={'YYYY-MM-DD'}
+                />
+              </DateInputContainer>
             </li>
           );
         })}
@@ -91,9 +111,7 @@ function DateFilters({ history, counts, fields, loading, emptyText }: IProps) {
         block={true}
         btnStyle="success"
         uppercase={false}
-        onClick={() => {
-          console.log('click');
-        }}
+        onClick={onChangeFilters}
         icon="filter"
       >
         {__('Filter')}
@@ -105,6 +123,7 @@ function DateFilters({ history, counts, fields, loading, emptyText }: IProps) {
     <Box
       title={__('Filter by date')}
       collapsible={fields.length > 5}
+      extraButtons={extraButtons}
       name="showFilterByBrand"
     >
       <DataWithLoader

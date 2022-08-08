@@ -1,14 +1,15 @@
+import DateFilters from '@erxes/ui-forms/src/forms/containers/DateFilters';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
+
 import BrandFilter from '../../containers/filters/BrandFilter';
 import IntegrationFilter from '../../containers/filters/IntegrationFilter';
 import LeadFilter from '../../containers/filters/LeadFilter';
 import LeadStatusFilter from '../../containers/filters/LeadStatusFilter';
 import SegmentFilter from '../../containers/filters/SegmentFilter';
 import TagFilter from '../../containers/filters/TagFilter';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import DateFilters from '@erxes/ui-forms/src/forms/containers/DateFilters';
-// erxes/packages/ui-forms/src/forms/containers/DateFilters.tsx
+
 function Sidebar({
   loadingMainQuery,
   type

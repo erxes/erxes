@@ -55,6 +55,7 @@ export interface IListArgs extends IConformityQueryParams {
   sortField?: string;
   sortDirection?: number;
   popupData?: string;
+  dateFilters?: string;
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
@@ -121,6 +122,64 @@ export class Builder extends CommonBuilder<IListArgs> {
         relatedIntegrationIds: integrations.map(i => i._id)
       }
     });
+  }
+
+  // filter by date fields & properties
+  public async dateFilters(filters: string): Promise<void> {
+    const dateFilters = JSON.parse(filters);
+
+    const operators = ['gte', 'lte'];
+
+    for (const key of Object.keys(dateFilters)) {
+      if (key.includes('customFieldsData')) {
+        const field = key.split('.')[1];
+
+        const nestedQry: any = {
+          nested: {
+            path: 'customFieldsData',
+            query: {
+              bool: {
+                must: [
+                  {
+                    term: {
+                      'customFieldsData.field': field
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        };
+
+        for (const operator of operators) {
+          const value = new Date(dateFilters[key][operator]);
+
+          const rangeQry: any = {
+            range: { 'customFieldsData.dateValue': {} }
+          };
+
+          rangeQry.range['customFieldsData.dateValue'][operator] = value;
+
+          nestedQry.nested.query.bool.must.push(rangeQry);
+
+          this.positiveList.push(nestedQry);
+        }
+      } else {
+        for (const operator of operators) {
+          const value = new Date(dateFilters[key][operator]);
+
+          const qry: any = {
+            range: { [key]: {} }
+          };
+
+          qry.range[key][operator] = value;
+
+          if (value) {
+            this.positiveList.push(qry);
+          }
+        }
+      }
+    }
   }
 
   // filter by form
@@ -238,6 +297,10 @@ export class Builder extends CommonBuilder<IListArgs> {
       } else {
         await this.formFilter(this.subdomain, this.params.form);
       }
+    }
+
+    if (this.params.dateFilters) {
+      await this.dateFilters(this.params.dateFilters);
     }
   }
 }

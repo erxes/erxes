@@ -238,6 +238,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
         : { returnSelector: true }
     );
 
+    console.log('SELECTOR: ', JSON.stringify(selector));
+
     this.positiveList = [...this.positiveList, selector];
   }
 
@@ -523,6 +525,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     if (action === 'count') {
       return response && response.count ? response.count : 0;
     }
+
+    console.log(
+      '******************************************** ',
+      JSON.stringify(queryOptions)
+    );
 
     const list = response.hits.hits.map(hit => {
       return {
