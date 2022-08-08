@@ -331,7 +331,7 @@ class CompaniesList extends React.Component<IProps, State> {
     const actionBar = (
       <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
-
+    console.log('awefew');
     return (
       <Wrapper
         header={
