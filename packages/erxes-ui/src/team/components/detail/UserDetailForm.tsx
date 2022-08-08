@@ -81,7 +81,7 @@ function UserDetails({
     );
   }
 
-  const content = (
+  const content = isEnabled('logs') && (
     <>
       <ActivityInputs
         contentTypeId={user._id}
@@ -89,14 +89,12 @@ function UserDetails({
         showEmail={false}
       />
 
-      {isEnabled('logs') && (
-        <ActivityLogs
-          target={user.details && user.details.fullName}
-          contentId={user._id}
-          contentType="core:user"
-          extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
-        />
-      )}
+      <ActivityLogs
+        target={user.details && user.details.fullName}
+        contentId={user._id}
+        contentType="core:user"
+        extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
+      />
     </>
   );
 
