@@ -1,4 +1,6 @@
 import gql from 'graphql-tag';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withRouter } from 'react-router-dom';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
@@ -17,6 +19,7 @@ type Props = {
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
   queryParams: any;
+  history: any;
 };
 
 type FinalProps = {
@@ -30,7 +33,8 @@ class PagesContainer extends React.Component<FinalProps> {
     const {
       pagesQuery,
       pagesRemoveMutation,
-      pagesTotalCountQuery
+      pagesTotalCountQuery,
+      queryParams
     } = this.props;
 
     if (pagesQuery.loading || pagesTotalCountQuery.loading) {
@@ -39,6 +43,7 @@ class PagesContainer extends React.Component<FinalProps> {
 
     const pages = pagesQuery.webbuilderPages || [];
     const pagesCount = pagesTotalCountQuery.webbuilderPagesTotalCount || 0;
+    const searchValue = queryParams.searchValue || '';
 
     const remove = (_id: string) => {
       confirm().then(() => {
@@ -59,7 +64,8 @@ class PagesContainer extends React.Component<FinalProps> {
       ...this.props,
       pages,
       pagesCount,
-      remove
+      remove,
+      searchValue
     };
 
     return <Pages {...updatedProps} />;
@@ -71,7 +77,8 @@ export default compose(
     name: 'pagesQuery',
     options: ({ queryParams }) => ({
       variables: {
-        ...generatePaginationParams(queryParams)
+        ...generatePaginationParams(queryParams),
+        searchValue: queryParams.searchValue
       },
       fetchPolicy: 'network-only'
     })

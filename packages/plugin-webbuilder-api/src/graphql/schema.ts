@@ -41,7 +41,7 @@ export const types = `
 `;
 
 export const queries = `
-  webbuilderPages(page: Int perPage: Int): [WebbuilderPage]
+  webbuilderPages(page: Int, perPage: Int, searchValue: String): [WebbuilderPage]
   webbuilderPagesTotalCount: Int
   webbuilderPageDetail(_id: String!): WebbuilderPage
 
