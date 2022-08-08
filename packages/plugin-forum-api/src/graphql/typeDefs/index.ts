@@ -9,6 +9,11 @@ export default async function genTypeDefs(serviceDiscovery) {
     scalar JSON
     scalar Date
 
+    enum ForumPostState {
+      DRAFT
+      PUBLISHED
+    }
+
     ${ForumCategory}
     ${ForumPost}
 

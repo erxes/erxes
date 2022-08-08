@@ -45,7 +45,7 @@ export const generateCommentModel = (
     }
 
     public static async deleteComments(ids: string[]): Promise<void> {
-      const idsToDelete = ids;
+      const idsToDelete = [...ids];
       let findRepliesOf = ids;
 
       while (findRepliesOf?.length) {

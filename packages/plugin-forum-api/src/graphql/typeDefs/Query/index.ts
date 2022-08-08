@@ -6,7 +6,7 @@ const Query = `
     forumCategoryQuery(query: JSON!): [ForumCategory!]
 
     forumPost(_id: ID!): ForumPost
-    forumPosts(_id: [ID!], categoryId: [ID!], offset: Int, limit: Int): [ForumPost!]
+    forumPosts(_id: [ID!], categoryId: [ID!], offset: Int, limit: Int, state: [String!]): [ForumPost!]
   }
 `;
 

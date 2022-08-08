@@ -9,14 +9,11 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     return Post.findById(_id);
   },
   forumPosts: (_, params, { models: { Post } }) => {
-    console.log('-------------------------------------------');
-    console.log(params);
-    console.log('-------------------------------------------');
     const query: any = {};
 
     const { limit = 0, offset = 0, ...queryParams } = params;
 
-    const fields = ['_id', 'categoryId'];
+    const fields = ['_id', 'categoryId', 'state'];
 
     for (const field of fields) {
       const param = params[field];

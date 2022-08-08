@@ -11,6 +11,7 @@ export default `
     _id: ID!
     content: String!
     thumbnail: String
+    state: ForumPostState
 
     categoryId: ID!
 
