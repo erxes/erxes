@@ -1,6 +1,4 @@
 import gql from 'graphql-tag';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withRouter } from 'react-router-dom';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
