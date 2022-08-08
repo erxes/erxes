@@ -334,6 +334,9 @@ const SidebarWrapper = styled.div`
   a {
     padding: 12px;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
