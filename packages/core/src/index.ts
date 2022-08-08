@@ -312,7 +312,7 @@ process.stdin.resume(); // so the program will not close instantly
 async function closeMongooose() {
   try {
     await mongoose.connection.close();
-    console.log('Mongoose connection disconnected ');
+    console.log('Mongoose connection disconnected');
   } catch (e) {
     console.error(e);
   }
