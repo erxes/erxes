@@ -2,14 +2,16 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import dayjs from 'dayjs';
-import T from 'i18n-react';
-import React from 'react';
-import { IUser, IUserDoc } from '../auth/types';
-import Tip from '../components/Tip';
-import { Limited } from '../styles/main';
-import { IAttachment } from '../types';
 import * as router from './router';
+
+import { IUser, IUserDoc } from '../auth/types';
+
+import { IAttachment } from '../types';
+import { Limited } from '../styles/main';
+import React from 'react';
+import T from 'i18n-react';
+import Tip from '../components/Tip';
+import dayjs from 'dayjs';
 import urlParser from './urlParser';
 
 export { urlParser, router };
@@ -397,6 +399,14 @@ export const roundToTwo = value => {
   }
 
   return Math.round(value * 100) / 100;
+};
+
+export const calculatePercentage = (total: number, done: number) => {
+  if (total > 0) {
+    return roundToTwo((done * 100) / total);
+  }
+
+  return 0;
 };
 
 function createLinkFromUrl(url) {

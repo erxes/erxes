@@ -15,7 +15,6 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
-  history: any;
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;

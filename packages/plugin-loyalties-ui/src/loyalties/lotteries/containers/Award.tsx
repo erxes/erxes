@@ -1,23 +1,22 @@
-import { Bulk, Spinner } from '@erxes/ui/src/components';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router, withProps } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { queries } from '../../../configs/lotteryCampaign/graphql';
+
+import { Bulk, Spinner } from '@erxes/ui/src/components';
+import { router, withProps } from '@erxes/ui/src/utils';
+
+import { IRouterProps } from '@erxes/ui/src/types';
 import { LotteryCampaignDetailQueryResponse } from '../../../configs/lotteryCampaign/types';
-import { queries as VoucherQuery } from '../../../configs/voucherCampaign/graphql';
-import VoucherAward from '../components/Award';
+import React from 'react';
 import { RemoveMutationResponse } from '../types';
+import VoucherAward from '../components/Award';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '../../../configs/lotteryCampaign/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = { history: any; queryParams: any; voucherCampaignId: string };
 type FinalProps = {
-  voucherCampaignDetail: any;
   doLottery: any;
   lotteryCampaignDetailQuery: LotteryCampaignDetailQueryResponse;
-  // lotteryCampaignWinnerList: any;
   multipledoLottery: any;
 } & Props &
   IRouterProps &
@@ -25,28 +24,15 @@ type FinalProps = {
 
 type State = {
   loading: boolean;
-  voucherDetail: Object;
 };
 class AwardContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      loading: false,
-      voucherDetail: {}
+      loading: false
     };
-    this.voucherDetail = this.voucherDetail.bind(this);
     this.doLotteries = this.doLotteries.bind(this);
-  }
-  voucherDetail(variables: any) {
-    this.props.voucherCampaignDetail
-      .refetch({
-        _id: variables
-      })
-      .then(res => {
-        const { voucherCampaignDetail } = res.data;
-        this.setState({ voucherDetail: voucherCampaignDetail });
-      });
   }
   doLotteries(variables: any) {
     this.props.doLottery({ variables }).then(() => {});
@@ -59,14 +45,13 @@ class AwardContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      voucherDetail: this.state.voucherDetail,
-      lotteryCampaign: this.props.lotteryCampaignDetailQuery.lotteryCampaignDetail,
-      loadVoucherCampaingDetail: this.voucherDetail,
+      lotteryCampaign: this.props.lotteryCampaignDetailQuery
+        .lotteryCampaignDetail,
       doLotteries: this.doLotteries
     };
 
     const refetch = () => {
-      this.props.voucherCampaignDetail.refetch();
+      this.props.lotteryCampaignDetailQuery.refetch();
     };
 
     const list = props => {
@@ -92,22 +77,17 @@ const generateParams = ({ queryParams }) => ({
 
 export default withProps<Props>(
   compose(
-    graphql<Props, LotteryCampaignDetailQueryResponse>(gql(queries.lotteryCampaignDetail), {
-      name: 'lotteryCampaignDetailQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          _id: queryParams.campaignId
-        }
-      }),
-      skip: ({ queryParams }) => !queryParams.campaignId
-    }),
-    graphql<Props, LotteryCampaignDetailQueryResponse>(gql(VoucherQuery.voucherCampaignDetail), {
-      name: 'voucherCampaignDetail',
-      options: ({ voucherCampaignId }) => ({
-        variables: {
-          _id: voucherCampaignId
-        }
-      })
-    })
+    graphql<Props, LotteryCampaignDetailQueryResponse>(
+      gql(queries.lotteryCampaignDetail),
+      {
+        name: 'lotteryCampaignDetailQuery',
+        options: ({ queryParams }) => ({
+          variables: {
+            _id: queryParams.campaignId
+          }
+        }),
+        skip: ({ queryParams }) => !queryParams.campaignId
+      }
+    )
   )(withRouter<IRouterProps>(AwardContainer))
 );

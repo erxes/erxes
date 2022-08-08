@@ -1,22 +1,19 @@
-import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
-import {
-  __,
-  Alert,
-  Button,
-  confirm,
-  DropdownToggle,
-  Icon,
-  ModalTrigger,
-  Tip
-} from '@erxes/ui/src';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { confirm } from '@erxes/ui/src/utils';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalTrigger } from '@erxes/ui/src/components';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
 import { Actions } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
+import Dropdown from 'react-bootstrap/Dropdown';
 import { IClientPortalUser } from '../../types';
+import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
+import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
+import React from 'react';
+import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 
 type Props = {
   clientPortalUser: IClientPortalUser;

@@ -1,16 +1,17 @@
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { respondrates } from '../../../constants';
-import { __ } from '@erxes/ui/src/utils/core';
+import { IOnlineHour } from '@erxes/ui-inbox/src/settings/integrations/types';
+import OnlineHours from './OnlineHours';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IOnlineHour } from '@erxes/ui-settings/src/integrations/types';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
-import OnlineHours from './OnlineHours';
-import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { __ } from 'coreui/utils';
+import { respondrates } from '../../../constants';
 
 type Props = {
   onChange: (

@@ -89,6 +89,8 @@ class PluginDetails extends React.Component<Props, State> {
     const { loading, plugin, tabType } = this.state;
 
     // fake data
+    const pluginCategories = 'Free Marketing'.split(' ');
+
     const dataSlider = [
       'https://wallpaperaccess.com/full/1760844.jpg',
       'https://wallpaperaccess.com/full/1282257.jpg',
@@ -130,7 +132,7 @@ class PluginDetails extends React.Component<Props, State> {
             <DetailInformation>
               <b>{plugin.title}</b>
               <Flex>
-                {[].map(category => (
+                {pluginCategories.map(category => (
                   <Hashtag>
                     {'#'}
                     {category}

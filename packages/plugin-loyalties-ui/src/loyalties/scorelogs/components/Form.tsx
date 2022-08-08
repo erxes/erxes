@@ -1,17 +1,36 @@
+import * as path from 'path';
+
 import {
   Button,
+  Form as CommonForm,
   ControlLabel,
   FormControl,
   FormGroup,
   ModalTrigger,
-  SelectCompanies,
-  SelectCustomers,
-  SelectTeamMembers,
-  Form as CommonForm
+  SelectTeamMembers
 } from '@erxes/ui/src';
 import { ModalFooter, ScrollWrapper } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
+import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -72,7 +91,7 @@ class ScoreForm extends React.Component<Props, State> {
     };
 
     const renderOwner = () => {
-      if (ownerType === 'customer') {
+      if (isEnabled('contacts') && ownerType === 'customer') {
         return (
           <SelectCustomers
             label="Customers"
@@ -83,6 +102,7 @@ class ScoreForm extends React.Component<Props, State> {
           />
         );
       }
+
       if (ownerType === 'user') {
         return (
           <SelectTeamMembers
@@ -94,15 +114,20 @@ class ScoreForm extends React.Component<Props, State> {
           />
         );
       }
-      return (
-        <SelectCompanies
-          label="Compnay"
-          name="ownerId"
-          multi={false}
-          initialValue={ownerId}
-          onSelect={handleOwnerId}
-        />
-      );
+
+      if (isEnabled('contacts')) {
+        return (
+          <SelectCompanies
+            label="Compnay"
+            name="ownerId"
+            multi={false}
+            initialValue={ownerId}
+            onSelect={handleOwnerId}
+          />
+        );
+      }
+
+      return null;
     };
 
     const btnModal = <Button block={true}>Give Score</Button>;

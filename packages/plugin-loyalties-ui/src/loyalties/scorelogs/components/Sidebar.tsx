@@ -1,24 +1,42 @@
+import * as path from 'path';
+
+import {
+  ClearBtnContainer,
+  FilterRowContainer,
+  PaddingTop
+} from '../../../styles';
 import {
   ControlLabel,
   DateControl,
   FormControl,
   FormGroup,
-  Wrapper,
-  router,
-  Tip,
   Icon,
-  SelectCustomers,
   SelectTeamMembers,
-  SelectCompanies
+  Tip,
+  Wrapper,
+  router
 } from '@erxes/ui/src';
 import { DateContainer, ScrollWrapper } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import {
-  ClearBtnContainer,
-  PaddingTop,
-  FilterRowContainer
-} from '../../../styles';
 
+import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
 interface LayoutProps {
   children: React.ReactNode;
   label: string;
@@ -93,7 +111,7 @@ class SideBar extends React.Component<Props, State> {
       refetch(result);
     };
     const renderOwner = () => {
-      if (variables.ownerType === 'customer') {
+      if (isEnabled('contacts') && variables.ownerType === 'customer') {
         return (
           <SelectCustomers
             label="Team Members"
@@ -104,6 +122,7 @@ class SideBar extends React.Component<Props, State> {
           />
         );
       }
+
       if (variables.ownerType === 'user') {
         return (
           <SelectTeamMembers
@@ -115,15 +134,20 @@ class SideBar extends React.Component<Props, State> {
           />
         );
       }
-      return (
-        <SelectCompanies
-          label="Compnay"
-          name="ownerId"
-          multi={false}
-          initialValue={variables?.ownerId}
-          onSelect={handleOwnerId}
-        />
-      );
+
+      if (isEnabled('contacts')) {
+        return (
+          <SelectCompanies
+            label="Compnay"
+            name="ownerId"
+            multi={false}
+            initialValue={variables?.ownerId}
+            onSelect={handleOwnerId}
+          />
+        );
+      }
+
+      return null;
     };
 
     const Form = (props: LayoutProps) => (

@@ -1,21 +1,22 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from '@erxes/ui/src/utils/core';
-import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
-import { ISkillData } from '@erxes/ui-settings/src/integrations/types';
 import {
   ISkillDocument,
   ISkillTypesDocument
-} from '@erxes/ui-settings/src/skills/types';
+} from '@erxes/ui-inbox/src/settings/skills/types';
 import React, { useState } from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ISkillData } from '@erxes/ui-inbox/src/settings/integrations/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import Select from 'react-select-plus';
+import Tip from '@erxes/ui/src/components/Tip';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from 'coreui/utils';
 import styled from 'styled-components';
 
 type Props = {

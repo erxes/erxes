@@ -1,9 +1,9 @@
-import { renderFullName } from '@erxes/ui/src/utils';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IProduct } from '@erxes/ui-products/src/types';
-import React from 'react';
 import { ItemIndicator } from '../styles/stage';
+import React from 'react';
+import { renderFullName } from '@erxes/ui/src/utils';
 
 type Props = {
   items: ICompany[] | ICustomer[] | IProduct[];

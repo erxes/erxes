@@ -1,4 +1,4 @@
-import { Wrapper } from '@erxes/ui/src';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';

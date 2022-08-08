@@ -1,4 +1,9 @@
-import { commonCampaignInputs, commonCampaignTypes, commonFilterTypes, paginateTypes } from './common';
+import {
+  commonCampaignInputs,
+  commonCampaignTypes,
+  commonFilterTypes,
+  paginateTypes
+} from './common';
 
 export const types = `
   type VoucherCampaign @key(fields: "_id") @cacheControl(maxAge: 3) {
@@ -31,7 +36,7 @@ export const types = `
 `;
 
 export const queries = `
-  voucherCampaignDetail(_id: [String]): [VoucherCampaign]
+  voucherCampaignDetail(_id: String): VoucherCampaign
   voucherCampaigns(${commonFilterTypes} ${paginateTypes} equalTypeCampaignId: String voucherType: String): [VoucherCampaign]
   cpVoucherCampaigns: [VoucherCampaign]
   voucherCampaignsCount(${commonFilterTypes}): Int
@@ -60,7 +65,7 @@ const VoucherCampaignDoc = `
 
   lotteryCampaignId: String,
   lotteryCount: Float,
-`
+`;
 
 export const mutations = `
   voucherCampaignsAdd(${VoucherCampaignDoc}): VoucherCampaign

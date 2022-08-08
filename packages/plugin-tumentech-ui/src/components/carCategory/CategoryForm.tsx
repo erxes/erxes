@@ -1,12 +1,11 @@
-import {
-  Button,
-  ControlLabel,
-  Form as CommonForm,
-  FormControl,
-  FormGroup,
-  generateCategoryOptions,
-  MainStyleModalFooter as ModalFooter
-} from '@erxes/ui/src';
+import { generateCategoryOptions } from '@erxes/ui/src/utils';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import Select from 'react-select-plus';

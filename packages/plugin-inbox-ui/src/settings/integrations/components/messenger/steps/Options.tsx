@@ -1,15 +1,16 @@
+import { Alert, __ } from 'coreui/utils';
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import React from 'react';
+import Select from 'react-select-plus';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
-import Select from 'react-select-plus';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __, Alert } from 'coreui/utils';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
-import React from 'react';
-import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   onChange: (
@@ -131,7 +132,7 @@ class Options extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Default Language</ControlLabel>
             <Select
-              id='languageCode'
+              id="languageCode"
               value={this.props.languageCode}
               options={LANGUAGES}
               onChange={languageOnChange}

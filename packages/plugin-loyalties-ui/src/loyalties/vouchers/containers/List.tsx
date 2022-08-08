@@ -72,8 +72,8 @@ class VoucherListContainer extends React.Component<FinalProps, State> {
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } = vouchersMainQuery.vouchersMain || {};
     const currentCampaign =
-      voucherCampaignDetailQuery.voucherCampaignDetail.length &&
-      voucherCampaignDetailQuery.voucherCampaignDetail[0];
+      voucherCampaignDetailQuery &&
+      voucherCampaignDetailQuery.voucherCampaignDetail;
 
     const updatedProps = {
       ...this.props,

@@ -1,18 +1,19 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
-import PageForm from '../../components/scheduler/PageForm';
-import { mutations } from '../../graphql';
 
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
 import {
   EditSchedulePageMutationResponse,
   SchedulePageMutationVariables
 } from '../../types';
+
+import PageForm from '../../components/scheduler/PageForm';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { mutations } from '../../graphql';
+import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   pageId: string;
@@ -74,16 +75,19 @@ class EditPageContainer extends React.Component<FinalProps, {}> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any>(gql(integrationQueries.integrationsNylasGetSchedulePage), {
-      name: 'fetchPageQuery',
-      options: ({ pageId }) => {
-        return {
-          variables: {
-            pageId
-          }
-        };
+    graphql<Props, any>(
+      gql(integrationQueries.integrationsNylasGetSchedulePage),
+      {
+        name: 'fetchPageQuery',
+        options: ({ pageId }) => {
+          return {
+            variables: {
+              pageId
+            }
+          };
+        }
       }
-    }),
+    ),
     graphql<Props, any>(gql(queries.integrationsNylasGetCalendars), {
       name: 'fetchCalendarQuery',
       options: ({ accountId }) => {

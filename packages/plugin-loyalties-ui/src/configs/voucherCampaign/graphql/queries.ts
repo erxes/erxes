@@ -1,4 +1,10 @@
-import { commonFields, commonFilterDefs, commonFilterValues, paginateDefs, paginateValues } from '../../commonTypes';
+import {
+  commonFields,
+  commonFilterDefs,
+  commonFilterValues,
+  paginateDefs,
+  paginateValues
+} from '../../commonTypes';
 
 export const voucherCampaignFields = `
   _id
@@ -37,7 +43,7 @@ const voucherCampaignsCount = `
 `;
 
 const voucherCampaignDetail = `
-  query VoucherCampaignDetail($id: [String]) {
+  query VoucherCampaignDetail($id: String) {
     voucherCampaignDetail(_id: $id) {
       ${voucherCampaignFields}
     }

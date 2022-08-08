@@ -1,26 +1,27 @@
-import { FormControl } from '@erxes/ui/src/components/form';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Table from '@erxes/ui/src/components/table';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
-import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
-import { FilterContainer } from '@erxes/ui-settings/src/styles';
 import * as React from 'react';
-import { withRouter } from 'react-router-dom';
-import List from '@erxes/ui-settings/src/common/components/List';
-import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
-import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
-import Form from '@erxes/ui-settings/src/responseTemplates/components/Form';
-import CategoryList from '@erxes/ui-settings/src/templates/containers/productCategory/CategoryList';
+
+import { FlexItem, FlexRow } from '@erxes/ui-settings/src/styles';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import {
   RESPONSE_TEMPLATE_STATUSES,
   RESPONSE_TEMPLATE_TIPTEXT
 } from '../constants';
-import Tip from '@erxes/ui/src/components/Tip';
-import Icon from '@erxes/ui/src/components/Icon';
+import { __, router } from 'coreui/utils';
+
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FilterContainer } from '@erxes/ui-settings/src/styles';
+import Form from '@erxes/ui-inbox/src/settings/responseTemplates/components/Form';
+import { FormControl } from '@erxes/ui/src/components/form';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { ICommonListProps } from '@erxes/ui-settings/src/common/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import List from '@erxes/ui-settings/src/common/components/List';
+import RowActions from '@erxes/ui-settings/src/common/components/RowActions';
+import SelectBrands from '@erxes/ui/src/brands/containers/SelectBrands';
+import Table from '@erxes/ui/src/components/table';
+import Tip from '@erxes/ui/src/components/Tip';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;

@@ -1,31 +1,4 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ICalendar as IAccountCalendar } from '../../../calendar/types';
-import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Step, Steps } from '@erxes/ui/src/components/step';
-import {
-  ControlWrapper,
-  Indicator,
-  StepWrapper
-} from '@erxes/ui/src/components/step/styles';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __, Alert } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Select from 'react-select-plus';
-import {
-  additionalField,
-  IPage,
-  openingHour,
-  SchedulePageMutationVariables
-} from '../../types';
+import { Alert, __ } from 'coreui/utils';
 import {
   BookingFlow,
   CustomFields,
@@ -33,6 +6,34 @@ import {
   OpeningHours,
   PageStyles
 } from './steps';
+import {
+  Content,
+  LeftContent
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import {
+  ControlWrapper,
+  Indicator,
+  StepWrapper
+} from '@erxes/ui/src/components/step/styles';
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+import {
+  IPage,
+  SchedulePageMutationVariables,
+  additionalField,
+  openingHour
+} from '../../types';
+import { Step, Steps } from '@erxes/ui/src/components/step';
+
+import { AppConsumer } from '@erxes/ui/src/appContext';
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ICalendar as IAccountCalendar } from '../../../calendar/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import Select from 'react-select-plus';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 type Props = {
   page?: IPage;
@@ -173,7 +174,7 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
   renderButtons() {
     const cancelButton = (
       <Link to={`/settings/schedule`}>
-        <Button btnStyle='simple' icon='times-circle'>
+        <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
       </Link>
@@ -182,7 +183,7 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
     return (
       <Button.Group>
         {cancelButton}
-        <Button btnStyle='success' onClick={this.save} icon='check-circle'>
+        <Button btnStyle="success" onClick={this.save} icon="check-circle">
           Save
         </Button>
       </Button.Group>
@@ -234,7 +235,7 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
         <Content>
           <LeftContent>
             <Steps>
-              <Step img='/images/icons/erxes-07.svg' title='Event Info'>
+              <Step img="/images/icons/erxes-07.svg" title="Event Info">
                 <Event
                   onChange={this.onChange}
                   title={title}
@@ -243,7 +244,7 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
                   cancellationPolicy={cancellationPolicy}
                 />
               </Step>
-              <Step img='/images/icons/erxes-21.svg' title='Calendars'>
+              <Step img="/images/icons/erxes-21.svg" title="Calendars">
                 <FlexItem>
                   <LeftItem>
                     <FormGroup>
@@ -264,25 +265,25 @@ class CreateSchedulePage extends React.Component<FinalProps, State> {
                 </FlexItem>
               </Step>
 
-              <Step img='/images/icons/erxes-20.svg' title='Opening Hours'>
+              <Step img="/images/icons/erxes-20.svg" title="Opening Hours">
                 <OpeningHours onChange={this.onChange} timezone={timezone} />
               </Step>
 
-              <Step img='/images/icons/erxes-16.svg' title='Booking flow'>
+              <Step img="/images/icons/erxes-16.svg" title="Booking flow">
                 <BookingFlow
                   onChange={this.onChange}
                   confirmationMethod={confirmationMethod}
                 />
               </Step>
 
-              <Step img='/images/icons/erxes-18.svg' title='Custom fields'>
+              <Step img="/images/icons/erxes-18.svg" title="Custom fields">
                 <CustomFields
                   onChange={this.onChange}
                   additionalFields={additionalFields}
                 />
               </Step>
 
-              <Step img='/images/icons/erxes-12.svg' title='Page Styles'>
+              <Step img="/images/icons/erxes-12.svg" title="Page Styles">
                 <PageStyles
                   onChange={this.onChange}
                   companyName={companyName}

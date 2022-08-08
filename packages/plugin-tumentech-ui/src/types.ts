@@ -1,16 +1,17 @@
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
+import {
+  IActivityLog,
+  IActivityLogForMonth
+} from '@erxes/ui-log/src/activityLogs/types';
 import {
   IProduct as IProductC,
   IProductCategory as IProductCategoryC,
   IProductDoc as IProductDocC
 } from '@erxes/ui-products/src/types';
-import {
-  IActivityLog,
-  IActivityLogForMonth
-} from '@erxes/ui/src/activityLogs/types';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import { ILocationOption } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IRouterProps {
   history: any;

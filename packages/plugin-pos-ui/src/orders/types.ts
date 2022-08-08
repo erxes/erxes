@@ -1,7 +1,8 @@
 import { IOrdersSummary, QueryResponse } from '../types';
+import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
+
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
 
 export type IOrder = {
   _id: string;

@@ -1,13 +1,14 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
-import Tip from '@erxes/ui/src/components/Tip';
-import { renderUserFullName } from '@erxes/ui/src/utils';
+} from '@erxes/ui-log/src/activityLogs/styles';
+
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { renderUserFullName } from '@erxes/ui/src/utils';
 
 class CustomerCreateLog extends React.Component<IActivityLogItemProps> {
   renderContent = () => {

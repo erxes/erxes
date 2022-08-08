@@ -1,14 +1,6 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, withProps } from 'coreui/utils';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import Form from '../../components/messenger/Form';
-import {
-  mutations,
-  queries
-} from '@erxes/ui-settings/src/integrations/graphql';
+
+import { Alert, __, withProps } from 'coreui/utils';
 import {
   EditMessengerMutationResponse,
   EditMessengerMutationVariables,
@@ -22,13 +14,23 @@ import {
 import {
   IMessengerData,
   IUiOptions
-} from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
+
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import Form from '../../components/messenger/Form';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
 import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   integrationId: string;

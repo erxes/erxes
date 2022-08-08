@@ -9,6 +9,7 @@ import Sites from '../containers/sites/List';
 import SideBar from './Sidebar';
 import { IContentTypeDoc } from '../types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import TemplatesList from '../containers/templates/List';
 
 type Props = {
   step: string;
@@ -30,7 +31,6 @@ function WebBuilder(props: Props) {
         setComponent(
           <ContentTypeList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
             setCount={setCount}
           />
@@ -42,7 +42,6 @@ function WebBuilder(props: Props) {
         setComponent(
           <EntriesList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
             setCount={setCount}
           />
@@ -56,8 +55,17 @@ function WebBuilder(props: Props) {
             getActionBar={setRightActionBar}
             setCount={setCount}
             queryParams={queryParams}
+            history={history}
           />
         );
+
+        break;
+
+      case 'templates':
+        setComponent(
+          <TemplatesList setCount={setCount} queryParams={queryParams} />
+        );
+        setRightActionBar(<></>);
 
         break;
 
@@ -98,7 +106,6 @@ function WebBuilder(props: Props) {
         }
         leftSidebar={
           <SideBar
-            history={history}
             queryParams={queryParams}
             type={step}
             contentTypes={contentTypes}

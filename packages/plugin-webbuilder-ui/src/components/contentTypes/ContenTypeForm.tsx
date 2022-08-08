@@ -1,19 +1,22 @@
-import Button from '@erxes/ui/src/components/Button';
-import FullPreview from './step/FullPreview';
+import {
+  Content,
+  LeftContent
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
+
+import { Alert } from '@erxes/ui/src/utils';
+import Button from '@erxes/ui/src/components/Button';
+import ContentTypeStep from './step/ContenTypeStep';
 import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
+import FullPreview from './step/FullPreview';
+import { IContentTypeDoc } from '../../types';
 import { Indicator } from '@erxes/ui/src/components/step/styles';
+import { Link } from 'react-router-dom';
+import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
+import React from 'react';
 import { StepWrapper } from '@erxes/ui/src/components/step/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Content } from '@erxes/ui-settings/src/integrations/styles';
-import { LeftContent } from '@erxes/ui-settings/src/integrations/styles';
-import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import { __ } from '@erxes/ui/src/utils/core';
-import ContentTypeStep from './step/ContenTypeStep';
-import { Alert } from '@erxes/ui/src/utils';
-import { IContentTypeDoc } from '../../types';
 
 type Props = {
   action: (doc: any) => void;

@@ -66,7 +66,7 @@ class LotteryDetail extends React.Component<IProps, State> {
               value={lotteryCampaign?.endDate}
             />
             <RowDiv
-              head="Finish Date of Use"
+              head="End of Use Date"
               isdate={true}
               value={lotteryCampaign?.finishDateOfUse}
             />

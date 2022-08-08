@@ -1,18 +1,20 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import {
   BoardsGetLastQueryResponse,
   IBoard
 } from '@erxes/ui-cards/src/boards/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
 import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
+
 import Home from '../components/Home';
-import { queries } from '@erxes/ui-settings/src/boards/graphql';
 import { IOption } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
+import { withRouter } from 'react-router-dom';
 
 type HomeContainerProps = {
   history?: any;

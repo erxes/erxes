@@ -1,15 +1,10 @@
-import Datetime from '@nateradebaugh/react-datetime';
-import dayjs from 'dayjs';
-import React from 'react';
-import RTG from 'react-transition-group';
-import { IQueryParams } from '@erxes/ui/src/types';
+import * as path from 'path';
+
 import {
-  __,
   Button,
   ControlLabel,
   FormControl,
   Icon,
-  SelectCustomers,
   SelectTeamMembers
 } from '@erxes/ui/src';
 import {
@@ -20,6 +15,23 @@ import {
   RightMenuContainer,
   TabContent
 } from '../../styles';
+
+import Datetime from '@nateradebaugh/react-datetime';
+import { IQueryParams } from '@erxes/ui/src/types';
+import RTG from 'react-transition-group';
+import React from 'react';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import dayjs from 'dayjs';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    path.resolve(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
 
 type Props = {
   onSearch: (search: string) => void;
@@ -36,7 +48,7 @@ type StringState = {
 
 type State = {
   showMenu: boolean;
-  filterParams: IQueryParams
+  filterParams: IQueryParams;
 } & StringState;
 
 export default class RightMenu extends React.Component<Props, State> {
@@ -58,7 +70,7 @@ export default class RightMenu extends React.Component<Props, State> {
   setFilter = () => {
     const { filterParams } = this.state;
     this.props.onFilter(filterParams);
-  }
+  };
 
   setWrapperRef(node) {
     this.wrapperRef = node;
@@ -80,7 +92,7 @@ export default class RightMenu extends React.Component<Props, State> {
     this.setState({ filterParams: { ...filterParams, [key]: String(values) } });
   };
 
-  onChangeInput = (e) => {
+  onChangeInput = e => {
     const target = e.target;
     const name = target.name;
     const value = target.value;
@@ -164,7 +176,7 @@ export default class RightMenu extends React.Component<Props, State> {
           </div>
         </CustomRangeContainer>
       </>
-    )
+    );
   }
 
   renderFilter() {
@@ -181,14 +193,16 @@ export default class RightMenu extends React.Component<Props, State> {
           onChange={this.onChangeInput}
         />
 
-        <SelectCustomers
-          label="Filter by customer"
-          name="customerId"
-          initialValue={filterParams.customerId}
-          onSelect={this.onSelect}
-          customOption={{ value: '', label: '...Clear customer filter' }}
-          multi={false}
-        />
+        {isEnabled('contacts') && (
+          <SelectCustomers
+            label="Filter by customer"
+            name="customerId"
+            initialValue={filterParams.customerId}
+            onSelect={this.onSelect}
+            customOption={{ value: '', label: '...Clear customer filter' }}
+            multi={false}
+          />
+        )}
 
         <SelectTeamMembers
           label="Choose users"
@@ -203,7 +217,6 @@ export default class RightMenu extends React.Component<Props, State> {
         {this.renderRange('paid')}
 
         {this.renderSpecials()}
-
       </FilterBox>
     );
   }
@@ -258,9 +271,7 @@ export default class RightMenu extends React.Component<Props, State> {
           classNames="slide-in-right"
           unmountOnExit={true}
         >
-          <RightMenuContainer>
-            {this.renderTabContent()}
-          </RightMenuContainer>
+          <RightMenuContainer>{this.renderTabContent()}</RightMenuContainer>
         </RTG.CSSTransition>
       </div>
     );

@@ -1,18 +1,19 @@
-import CountsByTag from '@erxes/ui/src/components/CountsByTag';
-import { __, router } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   MESSAGE_KIND_FILTERS,
   statusFilters
 } from '@erxes/ui-engage/src/constants';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { __, router } from 'coreui/utils';
+
+import CountsByTag from '@erxes/ui/src/components/CountsByTag';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const { Section } = Wrapper.Sidebar;

@@ -1,9 +1,9 @@
 import Button from '@erxes/ui/src/components/Button';
+import { readFile } from '@erxes/ui/src/utils/core';
 import GrapesJS from 'grapesjs';
 import gjsPresetWebpage from 'grapesjs-preset-webpage';
-import { __ } from '@erxes/ui/src/utils';
+import { uploadHandler, __ } from '@erxes/ui/src/utils';
 import 'grapesjs/dist/css/grapes.min.css';
-import Select from 'react-select-plus';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
@@ -18,9 +18,10 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IContentTypeDoc, IPageDoc } from '../../types';
+import { IContentTypeDoc, IPageDoc, ITemplateDoc } from '../../types';
 import customPlugins from './customPlugins';
 import SelectSite from '../../containers/sites/SelectSite';
+import Alert from '@erxes/ui/src/utils/Alert';
 
 type Props = {
   page?: IPageDoc;
@@ -32,17 +33,15 @@ type Props = {
     css: string,
     jsonData: any
   ) => void;
-  saveTemplate: (name: string, jsonData: any) => void;
-  templates: any;
-  removeTemplate: (_id: string) => void;
+  saveTemplate: (name: string, jsonData: any, html: string) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
+  template: ITemplateDoc;
 };
 
 type State = {
   name: string;
   description: string;
-  templateId: string;
   siteId: string;
 };
 
@@ -57,13 +56,12 @@ class PageForm extends React.Component<Props, State> {
     this.state = {
       name: page.name,
       description: page.description,
-      siteId: page.siteId,
-      templateId: ''
+      siteId: page.siteId
     };
   }
 
   componentDidMount() {
-    const { page, contentTypes } = this.props;
+    const { page, contentTypes, template } = this.props;
     let { pages } = this.props;
 
     pages = pages.filter(p => p._id !== page?._id);
@@ -79,11 +77,44 @@ class PageForm extends React.Component<Props, State> {
           open: false
         }
       },
-      storageManager: false
+      storageManager: false,
+      assetManager: {
+        uploadFile: e => {
+          const files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+
+          uploadHandler({
+            files,
+
+            beforeUpload: () => {
+              Alert.warning(
+                'Upload in progress. Please wait until response shows.'
+              );
+            },
+
+            afterUpload: ({ status, response, fileInfo }) => {
+              if (status !== 'ok') {
+                Alert.error(response.statusText);
+              }
+
+              Alert.info('Success');
+
+              editor.AssetManager.add({
+                type: fileInfo.type,
+                src: readFile(response),
+                height: 350,
+                width: 250,
+                name: fileInfo.name
+              });
+            }
+          });
+        }
+      }
     });
 
     if (page && page.jsonData) {
       this.grapes.loadProjectData(page.jsonData);
+    } else if (template && template.jsonData) {
+      this.grapes.loadProjectData(template.jsonData);
     }
 
     const editor = this.grapes;
@@ -109,6 +140,7 @@ class PageForm extends React.Component<Props, State> {
       indentWithTabs: true
     });
 
+    editor.getConfig().allowScripts = 1;
     btnEdit.innerHTML = 'Edit';
     btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
     btnEdit.onclick = () => {
@@ -158,29 +190,8 @@ class PageForm extends React.Component<Props, State> {
     ]);
   }
 
-  selectTemplates = () => {
-    const { templates } = this.props;
-    const options: any[] = [{ label: ' . ' }];
-
-    templates.map(template =>
-      options.push({
-        value: template._id,
-        label: template.name,
-        jsonData: template.jsonData
-      })
-    );
-
-    return options;
-  };
-
   onChange = (type: string, value: any) => {
     this.setState({ [type]: value } as any);
-  };
-
-  onSelectTemplate = (option: any) => {
-    this.setState({ templateId: option.value });
-
-    this.grapes.loadProjectData(option.jsonData);
   };
 
   onSelectSite = (value: any) => {
@@ -203,13 +214,16 @@ class PageForm extends React.Component<Props, State> {
   saveTemplate = () => {
     const e = this.grapes;
 
-    this.props.saveTemplate(this.state.name || 'Template', e.getProjectData());
+    this.props.saveTemplate(
+      this.state.name || 'Template',
+      e.getProjectData(),
+      e.getHtml()
+    );
   };
 
   renderPageContent() {
     const imagePath = '/images/icons/erxes-12.svg';
-    const { description, name, templateId, siteId } = this.state;
-    const { removeTemplate } = this.props;
+    const { description, name, siteId } = this.state;
 
     return (
       <Step img={imagePath} title="Manage web builder page" noButton={true}>
@@ -245,30 +259,6 @@ class PageForm extends React.Component<Props, State> {
                 initialValue={siteId}
               />
             </FormGroup>
-
-            <FormGroup>
-              <ControlLabel>Page template:</ControlLabel>
-              <p>{'Choose a page template'}</p>
-
-              <Select
-                onChange={this.onSelectTemplate}
-                value={templateId}
-                options={this.selectTemplates()}
-                clearable={false}
-              />
-            </FormGroup>
-
-            {templateId ? (
-              <Button
-                btnStyle="danger"
-                uppercase={false}
-                icon="times-circle"
-                size="small"
-                onClick={() => removeTemplate(templateId)}
-              >
-                Remove a selected template
-              </Button>
-            ) : null}
           </FlexPad>
 
           <FlexItem overflow="auto" count="7">

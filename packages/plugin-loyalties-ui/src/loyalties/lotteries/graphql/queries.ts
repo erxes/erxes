@@ -1,4 +1,8 @@
-import { commonFields, commonParamsDef, commonParamsValue } from '../../common/graphq';
+import {
+  commonFields,
+  commonParamsDef,
+  commonParamsValue
+} from '../../common/graphq';
 
 export const lotteryFields = `
   ${commonFields}

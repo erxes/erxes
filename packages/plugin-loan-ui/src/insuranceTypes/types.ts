@@ -1,4 +1,4 @@
-import { ICompany } from '@erxes/ui/src/companies/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 
 export interface IInsuranceTypeDoc {
   createdAt?: Date;

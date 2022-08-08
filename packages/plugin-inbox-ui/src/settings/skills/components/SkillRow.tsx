@@ -1,15 +1,16 @@
+import {
+  ISkillDocument,
+  ISkillTypesDocument
+} from '@erxes/ui-inbox/src/settings/skills/types';
+
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import {
-  ISkillDocument,
-  ISkillTypesDocument
-} from '@erxes/ui-settings/src/skills/types';
 import SkillForm from './SkillForm';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'coreui/utils';
 
 type Props = {
   skill: ISkillDocument;

@@ -1,5 +1,5 @@
-import { IItem, IItemParams } from "../boards/types";
-import { IProduct } from "@erxes/ui-products/src/types";
+import { IItem, IItemParams } from '../boards/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 export interface IQueryParams {
   brandIds: string;

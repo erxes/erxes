@@ -158,7 +158,12 @@ class ProductForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { productsData, onChangeProductsData, currentProduct, dealQuery } = this.props;
+    const {
+      productsData,
+      onChangeProductsData,
+      currentProduct,
+      dealQuery
+    } = this.props;
 
     if (productsData.length === 0) {
       return (

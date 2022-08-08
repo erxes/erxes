@@ -1,18 +1,20 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { withProps } from '@erxes/ui/src/utils';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
-import { SystemFieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { IUser } from '@erxes/ui/src/auth/types';
-import CompanyDetails from '../../components/detail/CompanyDetails';
-import { queries } from '../../graphql';
+
 import { DetailQueryResponse, ICompany } from '../../types';
+
+import CompanyDetails from '../../components/detail/CompanyDetails';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { SystemFieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '../../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   id: string;

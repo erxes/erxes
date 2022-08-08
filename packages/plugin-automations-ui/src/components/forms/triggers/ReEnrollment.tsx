@@ -1,13 +1,14 @@
 import { Checkbox, EnrollmentWrapper, StyledToggle } from '../../../styles';
+
 import CommonForm from '@erxes/ui/src/components/form/Form';
-import { ITrigger } from '../../../types';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Toggle from '@erxes/ui/src/components/Toggle';
 import { IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
 import { ISegment } from '@erxes/ui-segments/src/types';
+import { ITrigger } from '../../../types';
 import React from 'react';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from 'coreui/utils';
 
 export type ReEnrollmentRule = {
   property: string;

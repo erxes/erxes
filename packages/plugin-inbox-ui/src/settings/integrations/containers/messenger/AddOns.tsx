@@ -1,20 +1,25 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
-import React from 'react';
-import { graphql, withApollo } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import AddOns from '../../components/messenger/steps/AddOns';
+
 import {
-  IMessengerApps,
+  ILeadMessengerApp,
+  ITopicMessengerApp,
+  IWebsiteMessengerApp,
+  IntegrationsQueryResponse
 } from '@erxes/ui-inbox/src/settings/integrations/types';
-import {ILeadMessengerApp, IWebsiteMessengerApp, IntegrationsQueryResponse, ITopicMessengerApp} from  '@erxes/ui-settings/src/integrations/types';
+import { graphql, withApollo } from 'react-apollo';
+
+import AddOns from '../../components/messenger/steps/AddOns';
+import { IMessengerApps } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { ITopic } from '@erxes/ui-knowledgebase/src/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
+import gql from 'graphql-tag';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
+import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { withProps } from '@erxes/ui/src/utils';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   selectedBrand?: string;
