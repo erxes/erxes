@@ -17,11 +17,11 @@ export interface IPostModel extends Model<PostDocument> {
 
 export const postSchema = new Schema<PostDocument>({
   categoryId: { type: Types.ObjectId, index: true },
-  content: String,
+  content: { type: String, required: true },
   thumbnail: String
 });
 
-export const generateCategoryModel = (
+export const generatePostModel = (
   subdomain: string,
   con: Connection,
   models: IModels
@@ -60,8 +60,5 @@ export const generateCategoryModel = (
   }
   postSchema.loadClass(PostModel);
 
-  models.Post = con.model<PostDocument, IPostModel>(
-    'forum_categories',
-    postSchema
-  );
+  models.Post = con.model<PostDocument, IPostModel>('forum_posts', postSchema);
 };

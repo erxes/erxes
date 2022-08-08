@@ -129,10 +129,6 @@ export const generateCategoryModel = (
         }
       ]);
 
-      console.log('-----------------------------------------');
-      console.log(matchedCategories);
-      console.log('-----------------------------------------');
-
       if (!matchedCategories?.length) {
         throw new Error(`Category with _id=${_id} doesn't exist`);
       }

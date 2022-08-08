@@ -3,7 +3,7 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { Connection } from 'mongoose';
 import { generateCategoryModel, ICategoryModel } from './category';
 import { ICommentModel } from './comment';
-import { IPostModel } from './post';
+import { generatePostModel, IPostModel } from './post';
 export interface IModels {
   Category: ICategoryModel;
   Post: IPostModel;
@@ -17,6 +17,7 @@ export const generateModels = createGenerateModels<IModels>(
   (connection: Connection, subdomain: string): IModels => {
     models = {} as IModels;
     generateCategoryModel(subdomain, connection, models);
+    generatePostModel(subdomain, connection, models);
     return models;
   }
 );

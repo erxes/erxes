@@ -4,15 +4,17 @@ import Mutation from './Mutation';
 import Query from './Query';
 import { IContext } from '..';
 import { IResolvers } from '@graphql-tools/utils';
+import ForumPost from './ForumPost';
 
 export default async function generateResolvers(
   serviceDiscovery
 ): Promise<IResolvers<any, IContext>> {
   const resolvers: IResolvers<any, IContext> = {
     ...customScalars,
-    ForumCategory,
     Query,
-    Mutation
+    Mutation,
+    ForumCategory,
+    ForumPost
   };
 
   return resolvers;

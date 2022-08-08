@@ -1,7 +1,7 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 
-const CategoryMutations: IObjectTypeResolver<any, IContext> = {
+const categoryMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreateCategory(_, args, { models: { Category } }) {
     return await Category.createCategory(args);
   },
@@ -32,4 +32,4 @@ const CategoryMutations: IObjectTypeResolver<any, IContext> = {
   }
 };
 
-export default CategoryMutations;
+export default categoryMutations;

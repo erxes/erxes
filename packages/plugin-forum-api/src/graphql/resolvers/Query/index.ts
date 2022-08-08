@@ -1,9 +1,10 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
-import CategoryQueries from './CategoryQueries';
-
+import categoryQueries from './categoryQueries';
+import postQueries from './postQueries';
 const Query: IObjectTypeResolver<any, IContext> = {
-  ...CategoryQueries
+  ...categoryQueries,
+  ...postQueries
 };
 
 export default Query;

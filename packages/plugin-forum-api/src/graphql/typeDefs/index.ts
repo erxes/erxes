@@ -2,6 +2,7 @@ import { gql } from 'apollo-server-express';
 import Query from './Query';
 import Mutation from './Mutation';
 import ForumCategory from './ForumCategory';
+import ForumPost from './ForumPost';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
@@ -9,6 +10,7 @@ export default async function genTypeDefs(serviceDiscovery) {
     scalar Date
 
     ${ForumCategory}
+    ${ForumPost}
 
     ${Query}
     ${Mutation}
