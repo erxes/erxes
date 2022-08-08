@@ -3,7 +3,7 @@ id: ubuntu
 title: Ubuntu
 sidebar_label: Ubuntu
 ---
----
+
 
 The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">Docker</a> on <a href="https://ubuntu.com/" target="_blank">Ubuntu</a>.
 
