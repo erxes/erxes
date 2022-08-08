@@ -10,6 +10,7 @@ The following documentation will guide you through the installation of an erxes 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
 ## Preparing the installation
+---
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
@@ -29,6 +30,7 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 
 
 ## Installing erxes
+---
 
 1. Create an empty folder.
 
@@ -127,6 +129,7 @@ sudo docker-compose up -d
 ```
 
 ## Running erxes
+---
 
 :::caution
 Please make sure you have to change your directory to erxes/cli. 
