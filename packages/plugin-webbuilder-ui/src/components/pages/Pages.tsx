@@ -1,6 +1,7 @@
 import React from 'react';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { Flex } from '@erxes/ui/src/styles/main';
+import { router } from '@erxes/ui/src/utils';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
@@ -15,9 +16,24 @@ type Props = {
   remove: (_id: string) => void;
   setCount: (count: number) => void;
   pagesCount: number;
+  history: any;
+  queryParams: any;
+  searchValue: string;
 };
 
-class Pages extends React.Component<Props, {}> {
+type State = {
+  searchValue?: string;
+};
+
+class Pages extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      searchValue: this.props.searchValue
+    };
+  }
+
   renderRow = (pages: IPageDoc[]) => {
     const { remove } = this.props;
 
@@ -26,22 +42,37 @@ class Pages extends React.Component<Props, {}> {
     ));
   };
 
+  search = e => {
+    const { history } = this.props;
+    const searchValue = e.target.value;
+
+    this.setState({ searchValue });
+
+    router.removeParams(history, 'page');
+    router.setParams(history, { searchValue });
+  };
+
   render() {
     const { pages, getActionBar, setCount, pagesCount } = this.props;
 
     const actionBarRight = (
-      <Flex>
+      <BarItems>
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={this.search}
+          value={this.state.searchValue}
+          autoFocus={true}
+        />
         <Link to="pages/create">
           <Button btnStyle="success" size="small" icon="plus-circle">
             Add page
           </Button>
         </Link>
-      </Flex>
+      </BarItems>
     );
 
-    const ActionBar = <Wrapper.ActionBar right={actionBarRight} />;
-
-    getActionBar(ActionBar);
+    getActionBar(actionBarRight);
     setCount(pagesCount);
 
     let content = (

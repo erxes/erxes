@@ -1,4 +1,4 @@
-import channels from '@erxes/ui-settings/src/channels/graphql/queries';
+import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
 
 const channelDetail = `
   query channelDetail($_id: String!) {
@@ -59,7 +59,7 @@ const channelsGetLast = `
 
 export default {
   users,
-  channels,
+  channels: channelQueries.channels,
   channelDetail,
   channelsCount,
   channelsGetLast,
