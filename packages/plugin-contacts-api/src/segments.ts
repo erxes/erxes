@@ -9,11 +9,16 @@ const indexesTypeContentType = {
   'cards:deal': 'deals',
   'cards:task': 'tasks',
   'cards:ticket': 'tickets',
-  'inbox:conversation': 'conversations'
+  'inbox:conversation': 'conversations',
+  'tumentech:car': 'cars'
 };
 
 export const getName = type =>
-  type.replace('contacts:', '').replace('cards:', '');
+  type
+    .replace('contacts:', '')
+    .replace('cards:', '')
+    .replace('inbox:', '')
+    .replace('tumentech:', '');
 
 export default {
   indexesTypeContentType,
@@ -25,7 +30,8 @@ export default {
     'cards:ticket',
     'cards:task',
     'inbox:conversation',
-    'forms:form_submission'
+    'forms:form_submission',
+    'tumentech:car'
   ],
 
   contentTypes: ['lead', 'customer', 'company'],
@@ -38,7 +44,8 @@ export default {
     customer: 'Customer',
     company: 'Company',
     conversation: 'Conversation',
-    form_submission: 'Form Submission'
+    form_submission: 'Form Submission',
+    car: 'Cars'
   },
 
   associationFilter: async ({
@@ -52,7 +59,8 @@ export default {
         'contacts:company',
         'cards:deal',
         'cards:ticket',
-        'cards:task'
+        'cards:task',
+        'tumentech:car'
       ];
     }
 
@@ -61,7 +69,8 @@ export default {
         'contacts:customer',
         'cards:deal',
         'cards:ticket',
-        'cards:task'
+        'cards:task',
+        'tumentech:car'
       ];
     }
 
