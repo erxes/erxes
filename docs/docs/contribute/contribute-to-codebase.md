@@ -6,13 +6,11 @@ sidebar_label: Contribute to codebase
 
 Thank you for considering contributing to erxes! This document will outline how to submit changes to this repository and which conventions to follow. If you are ever in doubt about anything, we encourage you to reach out by submitting an issue here or via <a href="https://discord.com/invite/aaGzy3gQK5" target="_blank">Discord</a>.
 
-:::warning Prerequisites
+## Prerequisites
 
 - You have to be familiar with GitHub Issues and Pull Requests
 - You should to read the <a href="https://www.erxes.org/overview/deployment-overview" target="_blank">docs</a>.
 - You make sure you set up a test project with erxes
-
-:::
 
 
 ## Issues before PRs
