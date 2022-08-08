@@ -48,15 +48,15 @@ export const generateCommentModel = (
 
     public static async deleteComments(ids: string[]): Promise<void> {
       const idsToDelete = [...ids];
-      let findRepliesOf = [...ids];
+      let queue = [...ids];
 
-      while (findRepliesOf?.length) {
+      while (queue?.length) {
         const replies = await models.Comment.find({
-          replyToId: { $in: findRepliesOf }
+          replyToId: { $in: queue }
         }).lean();
         const replyIds = replies.map(reply => reply._id);
         idsToDelete.push(...replyIds);
-        findRepliesOf = replyIds;
+        queue = replyIds;
       }
 
       await models.Comment.deleteMany({ _id: { $in: idsToDelete } });

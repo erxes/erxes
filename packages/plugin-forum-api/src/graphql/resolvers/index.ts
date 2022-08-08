@@ -5,6 +5,7 @@ import Query from './Query';
 import { IContext } from '..';
 import { IResolvers } from '@graphql-tools/utils';
 import ForumPost from './ForumPost';
+import ForumComment from './ForumComment';
 
 export default async function generateResolvers(
   serviceDiscovery
@@ -14,7 +15,8 @@ export default async function generateResolvers(
     Query,
     Mutation,
     ForumCategory,
-    ForumPost
+    ForumPost,
+    ForumComment
   };
 
   return resolvers;
