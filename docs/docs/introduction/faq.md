@@ -11,4 +11,4 @@ erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded
 
 ## What kind of licence erxes has?
 
-Please see the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">LICENSE</a> file for licensing information.
+Please see the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">**LICENSE**</a> file for licensing information.
