@@ -34,13 +34,11 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 
 ```
 mkdir example
-
 ```
 2. Change directory path to empty folder
 
 ```
 cd example
-
 ```
 
  Шинээр үүсгэсэн фолдер дотор 2 фолдер байх ба erxes болон dock(optional name) гэсэн.
@@ -49,7 +47,6 @@ cd example
 
 ```
 git clone https://github.com/erxes/erxes.git
-
 ```
 
 ### Installing dependencies using docker
@@ -58,19 +55,21 @@ git clone https://github.com/erxes/erxes.git
 
 ```
 mkdir dock
+```
+5. Үүний дараа дараах коммандаар dock фолдер луугаа орно.
 
 ```
-5. Үүний дараа дараах коммандаар docker фолдер луугаа орно.
-
-```
-cd docker 
-
+dock
 ```
 
 :::tip
 
 sudo nano эсвэл sudo vim коммандаар .yml файлыг үүсгэж болно.
 
+:::
+
+:::note
+Make sure Run “sudo” command when installing on Ubuntu. 
 :::
 
 6. Энэ фолдер дотроо дараах script - ийг docker-compose.yml нэртэй файл үүсгэж хуулж өгнө.
@@ -130,38 +129,36 @@ networks:
 
 ``` 
 sudo docker-compose up -d 
-
 ```
+
+## Running erxes
+
+:::caution
+Please make sure you have to change your directory as erxes/cli. 
+:::
 
 8. Одоо фолдерийн замаа сольж erxes фолдер луугаа орно.
 
 ```
 cd ../erxes
-
 ```
 
 9. Switch a federation branch by using following command
 
 ```
-
 git checkout federation
-
 ```
 
 10. In erxes directory, Install node modules by using following command:
 
 ```
-
 yarn install
-
 ```
 
 11. Install pm2 by using following command:
 
 ```
-
 sudo npm install -g pm2
-
 ```
 
 :::note
@@ -179,32 +176,24 @@ Frequently used **pm2** commands on erxes:
 12. Үүний дараа фолдерийн замаа солих хэрэгтэй.
 
 ```
-
 cd cli
-
 ```
 
 13. erxes/cli фолдер дотроо node modules суулгах
 
 ```
-
 yarn install
-
 ```
 
 14. Copy configs.json.sample, then convert it to configs.json.
 
 ```
-
 cp configs.json.sample configs.json
-
 ```
 
 15. Эцэст нь доорх коммандаар erxes- ээ асаах ба internet browser дээр автоматаар шинэ цонх нээгдэж localhost:3000 дээр  erxes ажиллана.
 
 ```
-
 ./bin/erxes.js dev
-
 ```
 
