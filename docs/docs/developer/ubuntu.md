@@ -13,41 +13,67 @@ Docker is an open platform that allows to develop, ship and run applications by 
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
+:::caution
+
+Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward. 
+
+:::
+
 **Prerequisites**
 
 - <a href="https://github.com/git-guides/install-git" target="_blank">Git</a>
 - [Node.js](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes.
-- [npm](https://docs.npmjs.com/cli/v6/commands/npm-install) (v6 only) or [yarn](https://yarnpkg.com/getting-started/install) to run the CLI installation scripts.
-- <a href="https://docs.docker.com/engine/install/">Docker</a> ()
+- [npm](https://docs.npmjs.com/cli/v6/commands/npm-install) and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable)  (latest version) to run the erxes.
+- <a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a> (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker compose (v2.5.0 and higher)
+
 
 
 ### Installing erxes
 
+1. Create an empty folder.
 
-1. In terminal, run the following command:
 ```
-git clone git@github.com:erxes/erxes.git
-```
+mkdir example
 
-2. Switch a federation branch by using following command:
 ```
-git checkout federation
-```
+2. Change directory path to empty folder
 
-3. Install node modules by using following command:
 ```
-cd erxes
-yarn install
+cd example
+
 ```
 
-4. Install pm2 by using following command:
+ Шинээр үүсгэсэн фолдер дотор 2 фолдер байх ба erxes болон dock(optional name) гэсэн.
+
+3. Erxes фолдер маань дараах коммандаар үүсэх ба github - аас clone хийж бий болно.
+
 ```
-sudo npm install -g pm2
+git clone https://github.com/erxes/erxes.git
+
 ```
 
 ### Installing dependencies using docker
 
-1. Include the below scripts in docker-compose.yml:
+4. Erxes - ээ clone хийж татаж авсан бол dock фолдэр - оо гараар үүсгэж өгнө.
+
+```
+mkdir dock
+
+```
+5. Үүний дараа дараах коммандаар docker фолдер луугаа орно.
+
+```
+cd docker 
+
+```
+
+:::tip
+
+sudo nano эсвэл sudo vim коммандаар .yml файлыг үүсгэж болно.
+
+:::
+
+6. Энэ фолдер дотроо дараах script - ийг docker-compose.yml нэртэй файл үүсгэж хуулж өгнө.
 
 ```
 version: '3.6'
@@ -97,51 +123,88 @@ services:
 networks:
   erxes-net:
     driver: bridge
-```
-
-2. Run the following command in the folder where above file exists:
 
 ```
-docker-compose up -d
+
+7. Run the following command in the folder where above file exists:
+
+``` 
+sudo docker-compose up -d 
+
 ```
 
-### Running erxes
+8. Одоо фолдерийн замаа сольж erxes фолдер луугаа орно.
 
 ```
-cd erxes/cli
+cd ../erxes
+
+```
+
+9. Switch a federation branch by using following command
+
+```
+
+git checkout federation
+
+```
+
+10. In erxes directory, Install node modules by using following command:
+
+```
+
 yarn install
-```
-
-Copy configs.json.sample, then convert it to configs.json.
 
 ```
-{
-	"jwt_token_secret": "token",
-	"client_portal_domains": "",
-	"elasticsearch": {},
-	"redis": {
-		"password": "pass"
-	},
-	"mongo": {
-		"username": "",
-		"password": ""
-	},
-	"rabbitmq": {
-		"cookie": "",
-		"user": "",
-		"pass": "",
-		"vhost": ""
-	},
-	"plugins": [
-		{
-			"name": "logs"
-		}
-	]
-}
-```
 
-To run your erxes project created with Docker, use one of the following commands:
+11. Install pm2 by using following command:
 
 ```
-./bin/erxes.js dev --bash --deps
+
+sudo npm install -g pm2
+
 ```
+
+:::note
+
+Frequently used **pm2** commands on erxes:
+
+- pm2 list - Display all processes status
+- pm2 kill - Will remove all processes from pm2 list
+- pm2 logs -f - Display all processes logs in streaming ( gateway, plugin-name etc. )
+- pm2 restart all - Restart all processes
+
+
+:::
+
+12. Үүний дараа фолдерийн замаа солих хэрэгтэй.
+
+```
+
+cd cli
+
+```
+
+13. erxes/cli фолдер дотроо node modules суулгах
+
+```
+
+yarn install
+
+```
+
+14. Copy configs.json.sample, then convert it to configs.json.
+
+```
+
+cp configs.json.sample configs.json
+
+```
+
+15. Эцэст нь доорх коммандаар erxes- ээ асаах ба internet browser дээр автоматаар шинэ цонх нээгдэж localhost:3000 дээр  erxes ажиллана.
+
+```
+
+./bin/erxes.js dev
+
+```
+
