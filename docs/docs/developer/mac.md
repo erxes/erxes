@@ -3,13 +3,13 @@ id: mac
 title: Mac
 sidebar_label: Mac
 ---
----
 
 The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">Docker</a> on <a href="https://www.apple.com/macos/monterey/" target="_blank">MacOs</a>.
 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
-### Preparing the installation
+## Preparing the installation
+---
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
@@ -19,7 +19,7 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 
 :::
 
-## Prerequisites
+### Prerequisites
 
 - <a href="https://github.com/git-guides/install-git" target="_blank">Git</a>
 - [Node.js](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes.
@@ -29,8 +29,8 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 - [Xcode](https://www.freecodecamp.org/news/install-xcode-command-line-tools/) latest version
 
 
-
-### Installing erxes
+## Installing erxes
+---
 
 1. Create an empty folder.
 
@@ -49,7 +49,7 @@ cd example
 git clone https://github.com/erxes/erxes.git
 ```
 
-## Installing dependencies using docker
+### Installing dependencies using docker
 
 4. In the folder, create dock directory using following command. 
 
@@ -128,7 +128,8 @@ networks:
 sudo docker-compose up -d 
 ```
 
-### Running erxes
+## Running erxes
+---
 
 :::caution
 Please make sure you have to change your directory to erxes/cli. 
