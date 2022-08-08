@@ -3,52 +3,73 @@ id: mac
 title: Mac
 sidebar_label: Mac
 ---
+---
 
-The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">Docker</a> on <a href="https://www.apple.com/macos/monterey/" target="_blank">MacOS</a>.
+The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">Docker</a> on <a href="https://ubuntu.com/" target="_blank">Ubuntu</a>.
 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
-## Preparing the installation
+### Preparing the installation
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
-:::warning Prerequisites
+:::caution
+
+Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward. 
+
+:::
+
+## Prerequisites
 
 - <a href="https://github.com/git-guides/install-git" target="_blank">Git</a>
 - [Node.js](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes.
-- [npm](https://docs.npmjs.com/cli/v6/commands/npm-install) (v6 only) or [yarn](https://yarnpkg.com/getting-started/install) to run the CLI installation scripts.
-- <a href="https://docs.docker.com/engine/install/">Docker</a>
+- [npm](https://docs.npmjs.com/cli/v6/commands/npm-install) and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable)  (latest version) to run the erxes.
+- <a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a> (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker compose (v2.5.0 and higher)
+- [Homebrew](https://brew.sh/) latest version
+- [Xcode](https://www.freecodecamp.org/news/install-xcode-command-line-tools/) latest version
 
-:::
 
 
 ### Installing erxes
 
+1. Create an empty folder.
 
-1. In terminal, run the following command:
 ```
-git clone git@github.com:erxes/erxes.git
+mkdir example
 ```
+2. In your empty folder, where the new erxes project will be created, and it defines the database and erxes plugins to use.
 
-2. Switch a federation branch by using following command:
 ```
-git checkout federation
-```
-
-3. Instal node modules by using following command:
-```
-cd erxes
-yarn install
+cd example
 ```
 
-4. Instal pm2 by using following command:
+3. Run following command in the folder. 
+
 ```
-sudo npm install -g pm2
+git clone https://github.com/erxes/erxes.git
 ```
 
-### Installing dependencies using docker
+## Installing dependencies using docker
 
-Include the below scripts in docker-compose.yml:
+4. In the folder, create dock directory using following command. 
+
+```
+mkdir dock
+```
+
+5. Go to the dock folder using following command.  
+
+```
+cd dock
+```
+
+:::tip
+
+Run sudo nano or sudo vim command to create .yml file. 
+
+:::
+
+6. Create a docker-compose.yaml file, then copy the following script in the newly created file. 
 
 ```
 version: '3.6'
@@ -98,52 +119,81 @@ services:
 networks:
   erxes-net:
     driver: bridge
-```
-
-Run the following command in the folder where above file exist:
 
 ```
-docker-compose up -d
+
+7. Run the following command in the folder where above file exists.
+
+``` 
+sudo docker-compose up -d 
 ```
 
 ### Running erxes
 
+:::caution
+Please make sure you have to change your directory to erxes/cli. 
+:::
+
+8. Go back to erxes folder using following command. 
+
 ```
-cd erxes/cli
+cd ../erxes
+```
+
+9. Switch a federation branch by using following command.
+
+```
+git checkout federation
+```
+
+10. In erxes folder, Install node modules by using following command.
+
+```
 yarn install
 ```
 
-Copy configs.json.sample, then convert it to configs.json.
+11. Install pm2 by using following command.
 
 ```
-{
-	"jwt_token_secret": "token",
-	"client_portal_domains": "",
-	"elasticsearch": {},
-	"redis": {
-		"password": "pass"
-	},
-	"mongo": {
-		"username": "",
-		"password": ""
-	},
-	"rabbitmq": {
-		"cookie": "",
-		"user": "",
-		"pass": "",
-		"vhost": ""
-	},
-	"plugins": [
-		{
-			"name": "logs"
-		}
-	]
-}
+sudo npm install -g pm2
+```
+
+:::note
+
+Frequently used **pm2** commands on erxes:
+
+- pm2 list - Display all processes status
+- pm2 kill - Will remove all processes from pm2 list
+- pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc.)
+- pm2 restart all - Restart all processes
+
+
+:::
+
+12. Run following command to change the folder.
+
+```
+cd cli
+```
+
+13. Install node modules in the erxes/cli directory.
+
+```
+yarn install
+```
+
+14. Copy configs.json.sample, then convert it to configs.json.
+
+```
+cp configs.json.sample configs.json
+```
+
+15. Run following command to start your erxes project. 
+
+```
+./bin/erxes.js dev
 ```
 
 
-To run your erxes project created with Docker, use one of the following commands:
-```
-./bin/erxes.js dev --deps
-```
+**If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
 
