@@ -19,7 +19,7 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 
 :::
 
-**Prerequisites**
+## Prerequisites
 
 - <a href="https://github.com/git-guides/install-git" target="_blank">Git</a>
 - [Node.js](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes.
@@ -35,15 +35,13 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 ```
 mkdir example
 ```
-2. Change directory path to empty folder
+2. In your empty folder, where the new erxes project will be created, and it defines the database and erxes plugins to use.
 
 ```
 cd example
 ```
 
- Шинээр үүсгэсэн фолдер дотор 2 фолдер байх ба erxes болон dock(optional name) гэсэн.
-
-3. Erxes фолдер маань дараах коммандаар үүсэх ба github - аас clone хийж бий болно.
+3. Run following command in the folder. 
 
 ```
 git clone https://github.com/erxes/erxes.git
@@ -51,28 +49,25 @@ git clone https://github.com/erxes/erxes.git
 
 ### Installing dependencies using docker
 
-4. Erxes - ээ clone хийж татаж авсан бол dock фолдэр - оо гараар үүсгэж өгнө.
+4. In the folder, create dock directory using following command. 
 
 ```
 mkdir dock
 ```
-5. Үүний дараа дараах коммандаар dock фолдер луугаа орно.
+
+5. Go to the dock folder using following command.  
 
 ```
-dock
+cd dock
 ```
 
 :::tip
 
-sudo nano эсвэл sudo vim коммандаар .yml файлыг үүсгэж болно.
+Run sudo nano or sudo vim command to create .yml file. 
 
 :::
 
-:::note
-Make sure Run “sudo” command when installing on Ubuntu. 
-:::
-
-6. Энэ фолдер дотроо дараах script - ийг docker-compose.yml нэртэй файл үүсгэж хуулж өгнө.
+6. Create a docker-compose.yaml file, then copy the following script in the newly created file. 
 
 ```
 version: '3.6'
@@ -125,7 +120,7 @@ networks:
 
 ```
 
-7. Run the following command in the folder where above file exists:
+7. Run the following command in the folder where above file exists.
 
 ``` 
 sudo docker-compose up -d 
@@ -134,28 +129,28 @@ sudo docker-compose up -d
 ## Running erxes
 
 :::caution
-Please make sure you have to change your directory as erxes/cli. 
+Please make sure you have to change your directory to erxes/cli. 
 :::
 
-8. Одоо фолдерийн замаа сольж erxes фолдер луугаа орно.
+8. Go back to erxes folder using following command. 
 
 ```
 cd ../erxes
 ```
 
-9. Switch a federation branch by using following command
+9. Switch a federation branch by using following command.
 
 ```
 git checkout federation
 ```
 
-10. In erxes directory, Install node modules by using following command:
+10. In erxes folder, Install node modules by using following command.
 
 ```
 yarn install
 ```
 
-11. Install pm2 by using following command:
+11. Install pm2 by using following command.
 
 ```
 sudo npm install -g pm2
@@ -167,19 +162,19 @@ Frequently used **pm2** commands on erxes:
 
 - pm2 list - Display all processes status
 - pm2 kill - Will remove all processes from pm2 list
-- pm2 logs -f - Display all processes logs in streaming ( gateway, plugin-name etc. )
+- pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc.)
 - pm2 restart all - Restart all processes
 
 
 :::
 
-12. Үүний дараа фолдерийн замаа солих хэрэгтэй.
+12. Run following command to change the folder.
 
 ```
 cd cli
 ```
 
-13. erxes/cli фолдер дотроо node modules суулгах
+13. Install node modules in the erxes/cli directory.
 
 ```
 yarn install
@@ -191,9 +186,12 @@ yarn install
 cp configs.json.sample configs.json
 ```
 
-15. Эцэст нь доорх коммандаар erxes- ээ асаах ба internet browser дээр автоматаар шинэ цонх нээгдэж localhost:3000 дээр  erxes ажиллана.
+15. Run following command to start your erxes project. 
 
 ```
 ./bin/erxes.js dev
 ```
+
+
+**If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
 
