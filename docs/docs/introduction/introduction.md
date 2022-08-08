@@ -25,20 +25,20 @@ Achieving growth and unity within your company is possible. Find more about what
 
 - erxes is an open-source project (see <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" target="_blank">**LICENSE**</a> for more information); everyone (individuals and companies, especially SaaS providers) can use it for free privately to create better experiences for everything they do, such as customer, employee, production, service, and many more experiences.
 - We love open-source and the idea everybody can freely use and extend what we wrote. Digital marketing technology agencies are welcome to add value to their product and services by selling erxes to their clients to use erxes privately.
-- <a href="https://erxes.io/marketplace" target="_blank">**erxes Marketplace**</a> is a great place to add the source of revenue for independent developers and digital marketing technology agencies to earn and distribute your plugins they created on erxes XOS.
+- **<a href="https://erxes.io/marketplace" target="_blank">erxes Marketplace</a>** is a great place to add the source of revenue for independent developers and digital marketing technology agencies to earn and distribute your plugins they created on erxes XOS.
 
 ## Open-source & Contribution
 
 Our community is at the heart of everything we do. We understand that people who contribute to a project are the main drivers who push a project forward. erxes core project, the documentation, and any related tool can be found in the erxes on GitHub.
 
-- <a href="https://github.com/erxes/erxes" target="_blank">**erxes**</a> - erxes codebase
-- <a href="https://www.erxes.org/installation/docker" target="_blank">**erxes Docker**</a> - erxes containerized
-- <a href="https://xosdemo.erxes.io/" target="_blank">**erxes Demo**</a> - erxes official demo
-- <a href="https://www.erxes.org/contribute/overview" target="_blank">**contributing guide**</a> - to contribute
+- **<a href="https://github.com/erxes/erxes" target="_blank">erxes</a>** - erxes codebase
+- **<a href="https://www.erxes.org/installation/docker" target="_blank">erxes Docker</a>** - erxes containerized
+- **<a href="https://xosdemo.erxes.io/" target="_blank">erxes Demo</a>** - erxes official demo
+- **<a href="https://www.erxes.org/contribute/overview" target="_blank">contributing guide</a>** - to contribute
 
 ## Community
 
-<a href="https://www.erxes.org/introduction/introduction/" target="_blank">**erxes documentation**</a> contains instructions for everything you need to know about erxes. For additional information, you can use any of these channels to get the answer you want:
+**<a href="https://www.erxes.org/introduction/introduction/" target="_blank">erxes documentation</a>** contains instructions for everything you need to know about erxes. For additional information, you can use any of these channels to get the answer you want:
 
 :::tip
 
