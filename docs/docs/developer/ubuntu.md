@@ -162,7 +162,7 @@ Frequently used **pm2** commands on erxes:
 
 - pm2 list - Display all processes status
 - pm2 kill - Will remove all processes from pm2 list
-- pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc.)
+- pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc).
 - pm2 restart all - Restart all processes
 
 
