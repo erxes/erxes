@@ -4,7 +4,6 @@ import { generateModels } from './connectionResolver';
 import forms from './forms';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
-import { initMemoryStorage } from './inmemoryStorage';
 import { initBroker } from './messageBroker';
 import segments from './segments';
 
@@ -39,8 +38,6 @@ export default {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
