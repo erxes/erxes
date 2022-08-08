@@ -27,6 +27,7 @@ export interface IListArgs extends IConformityQueryParams {
   brand?: string;
   sortField?: string;
   sortDirection?: number;
+  dateFilters?: string;
 }
 
 export class Builder extends CommonBuilder<IListArgs> {
@@ -52,10 +53,72 @@ export class Builder extends CommonBuilder<IListArgs> {
     };
   }
 
+  // filter by date fields & properties
+  public async dateFilters(filters: string): Promise<void> {
+    const dateFilters = JSON.parse(filters);
+
+    const operators = ['gte', 'lte'];
+
+    for (const key of Object.keys(dateFilters)) {
+      if (key.includes('customFieldsData')) {
+        const field = key.split('.')[1];
+
+        const nestedQry: any = {
+          nested: {
+            path: 'customFieldsData',
+            query: {
+              bool: {
+                must: [
+                  {
+                    term: {
+                      'customFieldsData.field': field
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        };
+
+        for (const operator of operators) {
+          const value = new Date(dateFilters[key][operator]);
+
+          const rangeQry: any = {
+            range: { 'customFieldsData.dateValue': {} }
+          };
+
+          rangeQry.range['customFieldsData.dateValue'][operator] = value;
+
+          nestedQry.nested.query.bool.must.push(rangeQry);
+
+          this.positiveList.push(nestedQry);
+        }
+      } else {
+        for (const operator of operators) {
+          const value = new Date(dateFilters[key][operator]);
+
+          const qry: any = {
+            range: { [key]: {} }
+          };
+
+          qry.range[key][operator] = value;
+
+          if (value) {
+            this.positiveList.push(qry);
+          }
+        }
+      }
+    }
+  }
+
   /*
    * prepare all queries. do not do any action
    */
   public async buildAllQueries(): Promise<void> {
     await super.buildAllQueries();
+
+    if (this.params.dateFilters) {
+      await this.dateFilters(this.params.dateFilters);
+    }
   }
 }

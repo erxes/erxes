@@ -21,17 +21,15 @@ interface IProps extends IRouterProps {
 }
 
 function DateFilters(props: IProps) {
-  const { history, counts, fields, loading, emptyText } = props;
+  const { history, fields, loading, emptyText } = props;
 
   const { dateFilters = '{}' } = queryString.parse(props.location.search);
 
   const [filterParams, setFilterParams] = useState(JSON.parse(dateFilters));
 
   useEffect(() => {
-    setFilterParams({});
+    setFilterParams(JSON.parse(dateFilters));
   }, [dateFilters]);
-
-  console.log('filterParams', filterParams);
 
   const onRemove = () => {
     router.setParams(history, { dateFilters: null });
@@ -63,9 +61,8 @@ function DateFilters(props: IProps) {
   };
 
   const onChangeFilters = () => {
-    for (const key of Object.keys(filterParams)) {
-      router.setParams(history, { dateFilters: JSON.stringify(filterParams) });
-    }
+    router.setParams(history, { dateFilters: JSON.stringify(filterParams) });
+
     router.removeParams(history, 'page');
   };
 

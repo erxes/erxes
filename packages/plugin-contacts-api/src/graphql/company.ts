@@ -68,6 +68,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   brand: String
+  dateFilters: String
   ${conformityQueryFields}
 `;
 
