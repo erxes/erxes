@@ -3,6 +3,7 @@ import Query from './Query';
 import Mutation from './Mutation';
 import ForumCategory from './ForumCategory';
 import ForumPost from './ForumPost';
+import ForumComment from './ForumComment';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
@@ -16,6 +17,7 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     ${ForumCategory}
     ${ForumPost}
+    ${ForumComment}
 
     ${Query}
     ${Mutation}

@@ -4,6 +4,7 @@ import { IModels } from './index';
 export interface IComment {
   _id: any;
   replyToId: string;
+  postId: string;
   content: string;
 }
 
@@ -16,6 +17,7 @@ export interface ICommentModel extends Model<CommentDocument> {
 
 export const commentSchema = new Schema<CommentDocument>({
   replyToId: { type: Types.ObjectId, index: true },
+  postId: { type: Types.ObjectId, index: true },
   content: String
 });
 
@@ -40,13 +42,13 @@ export const generateCommentModel = (
         throw new Error(`Comment with \`{ "_id" : "${_id}"}\` doesn't exist`);
       }
       comment.content = content;
-      comment.save;
+      await comment.save();
       return comment;
     }
 
     public static async deleteComments(ids: string[]): Promise<void> {
       const idsToDelete = [...ids];
-      let findRepliesOf = ids;
+      let findRepliesOf = [...ids];
 
       while (findRepliesOf?.length) {
         const replies = await models.Comment.find({
