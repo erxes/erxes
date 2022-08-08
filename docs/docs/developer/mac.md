@@ -23,7 +23,7 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 
 - **<a href="https://github.com/git-guides/install-git" target="_blank">Git</a>**
 - [**Node.js**](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes.
-- [**npm**](https://docs.npmjs.com/cli/v6/commands/npm-install) and [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable)  (latest version) to run the erxes.
+- [**npm**](https://docs.npmjs.com/cli/v6/commands/npm-install) and [**yarn**](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable)  (latest version) to run the erxes.
 - **<a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a>** (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker compose (v2.5.0 and higher)
 - [**Homebrew**](https://brew.sh/) latest version
 - [**Xcode**](https://www.freecodecamp.org/news/install-xcode-command-line-tools/) latest version
