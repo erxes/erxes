@@ -1,9 +1,3 @@
-// const commentMutations = `
-// forumCreateComment(postId: ID!, replyToId: ID): ForumComment!
-// forumUpdateComment(_id: ID!, content: String): ForumComment!
-// forumDeleteComment(_id: ID!): ForumComment
-// `;
-
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 // forumPatchPost(_id: ID!, categoryId: ID, content: String, thumbnail: String): ForumPost
