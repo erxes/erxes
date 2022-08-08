@@ -5,7 +5,7 @@ sidebar_label: Mac
 ---
 ---
 
-The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">Docker</a> on <a href="https://ubuntu.com/" target="_blank">Ubuntu</a>.
+The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">Docker</a> on <a href="https://www.apple.com/macos/monterey/" target="_blank">MacOs</a>.
 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
@@ -196,4 +196,6 @@ cp configs.json.sample configs.json
 
 
 **If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
+
+
 
