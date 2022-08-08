@@ -48,6 +48,7 @@ export interface IEntryDoc extends IEntry {
 export interface ITemplate {
   name: string;
   jsonData: any;
+  html: string;
 }
 
 export interface ITemplateDoc extends ITemplate {
@@ -107,6 +108,14 @@ export type EntryDetailQueryResponse = {
 // template
 export type TemplatesQueryResponse = {
   webbuilderTemplates: ITemplateDoc[];
+} & QueryResponse;
+
+export type TemplatesDetailQueryResponse = {
+  webbuilderTemplateDetail: ITemplateDoc;
+} & QueryResponse;
+
+export type TemplatesTotalCountQueryResponse = {
+  webbuilderTemplatesTotalCount: number;
 } & QueryResponse;
 
 // site

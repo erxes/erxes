@@ -11,6 +11,10 @@ export const ITEMS = {
     {
       link: 'sites',
       name: 'Sites'
+    },
+    {
+      link: 'templates',
+      name: 'Templates'
     }
   ]
 };
