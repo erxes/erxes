@@ -1,7 +1,6 @@
 import Label from '@erxes/ui/src/components/Label';
+import { __, setBadge } from '@erxes/ui/src/utils/core';
 import React from 'react';
-import { __ } from 'coreui/utils';
-import { setBadge } from '@erxes/ui/src/utils/core';
 
 type Props = {
   unreadConversationsCount?: number;
@@ -18,7 +17,7 @@ class UnreadCount extends React.Component<Props> {
 
   render() {
     const { unreadConversationsCount } = this.props;
-    console.log('i am unrecount');
+
     if (unreadConversationsCount === 0) {
       return null;
     }
