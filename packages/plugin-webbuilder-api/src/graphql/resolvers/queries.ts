@@ -55,8 +55,20 @@ const webbuilderQueries = {
     return models.Entries.findOne({ _id });
   },
 
-  webbuilderTemplates(_root, _args, { models }: IContext) {
-    return models.Templates.find().lean();
+  webbuilderTemplates(_root, args, { models }: IContext) {
+    return paginate(models.Templates.find(), args);
+  },
+
+  webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
+    return models.Templates.find().count();
+  },
+
+  webbuilderTemplateDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.Templates.findOne({ _id });
   },
 
   webbuilderSites(_root, args, { models }: IContext) {

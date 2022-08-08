@@ -9,6 +9,7 @@ import Sites from '../containers/sites/List';
 import SideBar from './Sidebar';
 import { IContentTypeDoc } from '../types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import TemplatesList from '../containers/templates/List';
 
 type Props = {
   step: string;
@@ -58,6 +59,14 @@ function WebBuilder(props: Props) {
             queryParams={queryParams}
           />
         );
+
+        break;
+
+      case 'templates':
+        setComponent(
+          <TemplatesList setCount={setCount} queryParams={queryParams} />
+        );
+        setRightActionBar(<></>);
 
         break;
 
