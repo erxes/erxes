@@ -6,6 +6,7 @@ import { IModels } from '../connectionResolver';
 export interface ITemplate {
   name: string;
   jsonData: any;
+  html: string;
 }
 
 export interface ITemplateDocument extends ITemplate, Document {
@@ -14,7 +15,8 @@ export interface ITemplateDocument extends ITemplate, Document {
 
 export const templateSchema = new Schema({
   name: { type: String, label: 'Name' },
-  jsonData: { type: Object }
+  jsonData: { type: Object, label: 'Json data' },
+  html: { type: String, label: 'Html' }
 });
 
 export interface ITemplateModel extends Model<ITemplateDocument> {

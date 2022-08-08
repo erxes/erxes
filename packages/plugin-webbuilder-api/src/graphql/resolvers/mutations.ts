@@ -2,7 +2,7 @@ import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IPage } from '../../models/pages';
 import { IContentType } from '../../models/contentTypes';
 import { IEntry } from '../../models/entries';
-import { IContext, models } from '../../connectionResolver';
+import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/templates';
 import { ISite } from '../../models/sites';
 

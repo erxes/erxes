@@ -30,6 +30,7 @@ export const types = `
     _id: String!
     name: String
     jsonData: JSON,
+    html: String
   }
 
   type WebbuilderSite {
@@ -40,7 +41,7 @@ export const types = `
 `;
 
 export const queries = `
-  webbuilderPages(page: Int perPage: Int): [WebbuilderPage]
+  webbuilderPages(page: Int, perPage: Int, searchValue: String): [WebbuilderPage]
   webbuilderPagesTotalCount: Int
   webbuilderPageDetail(_id: String!): WebbuilderPage
 
@@ -52,7 +53,9 @@ export const queries = `
   webbuilderEntriesTotalCount(contentTypeId: String! page: Int perPage: Int): Int
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
 
-  webbuilderTemplates: [WebbuilderTemplate]
+  webbuilderTemplates(page: Int, perPage: Int): [WebbuilderTemplate]
+  webbuilderTemplatesTotalCount: Int
+  webbuilderTemplateDetail(_id: String!): WebbuilderTemplate
 
   webbuilderSites(page: Int, perPage: Int): [WebbuilderSite]
   webbuilderSitesTotalCount: Int
@@ -87,7 +90,7 @@ export const mutations = `
   webbuilderEntriesEdit(_id: String!, contentTypeId: String! values: JSON): WebbuilderEntry
   webbuilderEntriesRemove(_id: String!): JSON
 
-  webbuilderTemplatesAdd(name: String, jsonData: JSON): WebbuilderTemplate 
+  webbuilderTemplatesAdd(name: String, jsonData: JSON, html: String): WebbuilderTemplate 
   webbuilderTemplatesRemove(_id: String!): JSON
   
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 

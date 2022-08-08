@@ -1,7 +1,6 @@
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Flex } from '@erxes/ui/src/styles/main';
@@ -9,7 +8,6 @@ import Row from './Row';
 import { IContentTypeDoc } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
   contentTypes: IContentTypeDoc[];
   remove: (contentTypeId: string) => void;
@@ -40,9 +38,7 @@ class ContentTypes extends React.Component<Props, {}> {
       </Flex>
     );
 
-    const ActionBar = <Wrapper.ActionBar right={actionBarRight} />;
-
-    getActionBar(ActionBar);
+    getActionBar(actionBarRight);
     setCount(contentTypesCount);
 
     let content = (

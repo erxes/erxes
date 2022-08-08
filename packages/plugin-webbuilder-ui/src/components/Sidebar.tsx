@@ -10,7 +10,6 @@ import { IContentTypeDoc } from '../types';
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
-  history: any;
   queryParams: any;
   type: string;
   contentTypes: IContentTypeDoc[];
