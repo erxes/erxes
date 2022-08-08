@@ -1,6 +1,6 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as cookieParser from 'cookie-parser';
-
+import forms from './forms';
 import { generateModels } from './connectionResolver';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
@@ -24,7 +24,9 @@ export default {
     };
   },
   hasSubscriptions: false,
-  segment: {},
+  meta: {
+    forms
+  },
 
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);

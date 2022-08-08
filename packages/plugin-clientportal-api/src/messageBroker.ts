@@ -1,11 +1,21 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
+import { debugBase } from '@erxes/api-utils/src/debuggers';
 
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = cl => {
+export const initBroker = async cl => {
   client = cl;
+
+  // const { consumeQueue } = cl;
+
+  // consumeQueue('clientportalsss:fieldssss.getListssss', async ({ subdomain, data }) => {
+  //   debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+
+  //   return [];
+  // });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {
