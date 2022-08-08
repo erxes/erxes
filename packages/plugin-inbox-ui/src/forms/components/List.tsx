@@ -186,7 +186,7 @@ class List extends React.Component<Props, {}> {
         <tbody>{this.renderRow()}</tbody>
       </Table>
     );
-    console.log('awf');
+
     return (
       <Wrapper
         header={
