@@ -1,12 +1,10 @@
 import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
-import {
-  IUser,
-  IUserParams
-} from '../../../models/definitions/clientPortalUser';
+import { IUser } from '../../../models/definitions/clientPortalUser';
 import { sendSms } from '../../../utils';
 
 export interface IVerificationParams {
@@ -72,7 +70,7 @@ const clientPortalUserMutations = {
     return response;
   },
 
-  clientPortalRegister: async (_root, args: IUserParams, context: IContext) => {
+  clientPortalRegister: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
     const clientPortal = await models.ClientPortals.getConfig(
       args.clientPortalId
@@ -118,7 +116,7 @@ const clientPortalUserMutations = {
   clientPortalLogin: async (
     _root,
     args: ILoginParams,
-    { models, res }: IContext
+    { models, requestInfo, res }: IContext
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
@@ -140,7 +138,7 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { res }: IContext) {
+  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {
@@ -249,11 +247,7 @@ const clientPortalUserMutations = {
     return 'sent';
   },
 
-  clientPortalUsersInvite: async (
-    _root,
-    args: IUserParams,
-    context: IContext
-  ) => {
+  clientPortalUsersInvite: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
 
     const user = await models.ClientPortalUsers.invite(subdomain, {
