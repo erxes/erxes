@@ -52,7 +52,7 @@ input TrackingItemInput {
 `;
 
 export const queries = `
-    trips(status: String): TripListResponse
+    trips(status: String, driverId: String, dealId: String, page: Int, perPage: Int): TripListResponse
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
 `;

@@ -10,7 +10,7 @@ import {
 
 export interface IParticipantModel extends Model<IParticipantDocument> {
   getParticipant(doc: any): IParticipantDocument;
-  setWinner(dealId: string, customerId: string): IParticipantDocument;
+  setWinner(dealId: string, tripId: string): IParticipantDocument;
   createParticipant(doc: IParticipant): IParticipantDocument;
   updateParticipant(_id: string, fields: IParticipant): IParticipantDocument;
   removeParticipant(_id: string): IParticipantDocument;
@@ -32,13 +32,13 @@ export const loadParticipantClass = (models: IModels) => {
     }
 
     public static async createParticipant(doc: IParticipant) {
-      if (!doc.customerId || !doc.dealId) {
-        throw new Error('deal and customer are required!');
+      if (!doc.tripId || !doc.dealId) {
+        throw new Error('deal and trip are required!');
       }
 
       const participant = await models.Participants.findOne({
         dealId: doc.dealId,
-        customerId: doc.customerId
+        tripId: doc.tripId
       }).lean();
 
       if (participant) {
@@ -72,16 +72,16 @@ export const loadParticipantClass = (models: IModels) => {
       return participant.remove();
     }
 
-    public static async setWinner(dealId: string, customerId: string) {
+    public static async setWinner(dealId: string, tripId: string) {
       const qry = {
         dealId,
-        customerId,
+        tripId,
         status: PARTICIPATION_STATUSES.PARTICIPATING
       };
       const participant = await models.Participants.findOne(qry);
 
       if (!participant) {
-        throw new Error(`Participant not found with customerId ${customerId}`);
+        throw new Error(`Participant not found with tripId ${tripId}`);
       }
 
       const winner = await models.Participants.updateOne(qry, {

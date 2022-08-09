@@ -1,12 +1,9 @@
-import * as path from 'path';
-
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
-
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import React from 'react';
-import { __ } from 'coreui/utils';
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
+import * as path from 'path';
+import React from 'react';
 
 const CompanySection = asyncComponent(
   () =>
@@ -44,7 +41,6 @@ class DetailInfo extends React.Component<Props> {
     return (
       <SidebarList className="no-link">
         {this.renderRow('Deal name', deal.name)}
-        {/* {this.renderRow(')} */}
         {isEnabled('contacts') && (
           <>
             <CustomerSection
