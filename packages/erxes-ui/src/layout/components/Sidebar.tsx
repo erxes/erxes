@@ -165,7 +165,6 @@ type SidebarProps = {
   wide?: boolean;
   full?: boolean;
   half?: boolean;
-  hasBorder?: boolean;
 };
 
 export default class Sidebar extends React.Component<SidebarProps> {
@@ -174,18 +173,10 @@ export default class Sidebar extends React.Component<SidebarProps> {
   static Footer = Footer;
 
   render() {
-    const {
-      children,
-      wide,
-      header,
-      footer,
-      half,
-      full,
-      hasBorder
-    } = this.props;
+    const { children, wide, header, footer, half, full } = this.props;
 
     return (
-      <SideContent half={half} wide={wide} full={full} hasBorder={hasBorder}>
+      <SideContent half={half} wide={wide} full={full}>
         {header}
         <SidebarMainContent>{children}</SidebarMainContent>
         {footer}

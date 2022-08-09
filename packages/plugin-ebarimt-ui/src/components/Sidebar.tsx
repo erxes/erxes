@@ -23,7 +23,7 @@ class Sidebar extends React.Component {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+      <LeftSidebar header={<SidebarHeader />}>
         <List id="SettingsSidebar">
           {this.renderListItem(
             '/erxes-plugin-ebarimt/settings/general',

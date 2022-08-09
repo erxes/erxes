@@ -132,7 +132,7 @@ function SkillTypes({
   }
 
   return (
-    <Sidebar wide={true} header={renderHeader()} hasBorder={true}>
+    <Sidebar wide={true} header={renderHeader()}>
       <DataWithLoader
         data={renderContent()}
         loading={loading}

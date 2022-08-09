@@ -125,7 +125,7 @@ class SideBar extends React.Component<IProps> {
     return (
       <>
         <SidebarList>
-          <Sidebar wide={true} hasBorder={true}>
+          <Sidebar wide={true}>
             {this.renderOverallWorkHeader()}
             {this.renderOverallWorkList()}
           </Sidebar>

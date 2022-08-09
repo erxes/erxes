@@ -35,7 +35,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={<SidebarHeader />} hasBorder={true}>
+      <LeftSidebar header={<SidebarHeader />}>
         <List>
           {this.props.services.map(service => this.renderListItem(service))}
         </List>

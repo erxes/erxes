@@ -106,7 +106,7 @@ class SideBar extends React.Component<IProps> {
         <InputFilter {...this.props} />
         <OutputFilter {...this.props} />
         <JobFilter {...this.props} />
-        <Sidebar wide={true} hasBorder={true}>
+        <Sidebar wide={true}>
           <Box
             extraButtons={extraButtons}
             title={__('OverallWorks')}

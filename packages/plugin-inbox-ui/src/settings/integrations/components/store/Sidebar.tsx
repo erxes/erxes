@@ -26,7 +26,7 @@ class SideBar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar hasBorder={true}>
+      <LeftSidebar>
         <List id="SettingsSidebar">
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>

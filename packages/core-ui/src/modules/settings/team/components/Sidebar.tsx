@@ -12,10 +12,9 @@ export default function LeftSidebar({
   loadingMainQuery
 }: {
   loadingMainQuery: boolean;
-  hasBorder?: boolean;
 }) {
   return (
-    <Sidebar hasBorder={true}>
+    <Sidebar>
       <Structure />
       <DepartmentList />
       {isEnabled('segments') && (

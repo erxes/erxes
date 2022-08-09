@@ -144,7 +144,6 @@ const SideContent = styledTS<{
   wide?: boolean;
   half?: boolean;
   full?: boolean;
-  hasBorder?: boolean;
 }>(styled.section)`
   box-sizing: border-box;
   display: flex;
@@ -155,8 +154,7 @@ const SideContent = styledTS<{
   flex: ${props => (props.half ? '1' : 'none')};
   background: ${props => (props.full ? colors.colorWhite : 'none')};
   margin: 0;
-  border-right: ${props =>
-    props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-right: 1px solid ${colors.borderPrimary};
   box-shadow: ${props =>
     props.full ? `0 0 6px 1px ${colors.shadowPrimary}` : 'none'};
 

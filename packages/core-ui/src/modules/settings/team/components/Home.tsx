@@ -190,7 +190,7 @@ export default function Home(props: Props) {
           submenu={menuContacts}
         />
       }
-      leftSidebar={<Sidebar hasBorder={true} loadingMainQuery={loading} />}
+      leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
       transparent={true}

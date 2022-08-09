@@ -79,7 +79,7 @@ class KnowledgeList extends React.Component<Props> {
     const { topics, loading } = this.props;
 
     return (
-      <Sidebar hasBorder={true} wide={true} header={this.renderSidebarHeader()}>
+      <Sidebar wide={true} header={this.renderSidebarHeader()}>
         <DataWithLoader
           data={this.renderTopics()}
           loading={loading}
