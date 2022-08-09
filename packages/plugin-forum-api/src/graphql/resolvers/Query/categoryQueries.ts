@@ -8,7 +8,7 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
   forumCategories: (_, params, { models: { Category } }) => {
     const query: any = {};
 
-    const fields = ['_id', 'parentId', 'ancestorIds', 'code'];
+    const fields = ['_id', 'parentId', 'code'];
 
     for (const field of fields) {
       const param = params[field];

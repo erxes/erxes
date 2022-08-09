@@ -1,6 +1,7 @@
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { Transform } from 'stream';
 import { IModels } from './index';
+import * as _ from 'lodash';
 
 export interface ICategory {
   _id: any;
@@ -24,7 +25,7 @@ export interface ICategoryModel extends Model<CategoryDocument> {
     _id: string,
     tranfserChildrenToCategory?: string
   ): Promise<void>;
-  getDescendantsOf(_id: string): Promise<ICategory[] | undefined | null>;
+  getDescendantsOf(_id: string[]): Promise<ICategory[] | undefined | null>;
   getAncestorsOf(_id: string): Promise<ICategory[] | undefined | null>;
 }
 
@@ -110,12 +111,12 @@ export const generateCategoryModel = (
     }
 
     public static async getDescendantsOf(
-      _id: string
+      _ids: string[]
     ): Promise<ICategory[] | undefined | null> {
       const matchedCategories = await models.Category.aggregate([
         {
           $match: {
-            _id
+            _id: { $in: (_ids || []).map(v => Types.ObjectId(v)) }
           }
         },
         {
@@ -130,11 +131,12 @@ export const generateCategoryModel = (
       ]);
 
       if (!matchedCategories?.length) {
-        throw new Error(`Category with _id=${_id} doesn't exist`);
+        throw new Error(
+          `Category with _id=${JSON.stringify(_ids)} doesn't exist`
+        );
       }
 
-      // it should contain only 1 category, since we $match-ed using its _id
-      return matchedCategories[0].descendants;
+      return _.flatten(matchedCategories.map(x => x.descendants));
     }
 
     public static async getAncestorsOf(

@@ -12,7 +12,7 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
   },
 
   async descendants({ _id }, _, { models: { Category } }) {
-    return Category.getDescendantsOf(_id);
+    return Category.getDescendantsOf([_id]);
   },
 
   async ancestors({ _id }, _, { models: { Category } }) {
