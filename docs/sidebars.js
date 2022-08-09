@@ -44,7 +44,7 @@ module.exports = {
       label: '🛠️ Development',
       items: [
         {
-          Installation: [{ Docker: ['development/ubuntu', 'development/mac'] }]
+          Installation: [{ Docker: ['developer/ubuntu', 'developer/mac'] }]
         },
         'development/developing-plugins',
         'development/troubleshooting',
