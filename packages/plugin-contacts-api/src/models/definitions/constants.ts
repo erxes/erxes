@@ -84,8 +84,7 @@ export const CUSTOMER_SELECT_OPTIONS = {
   STATE: [
     { label: 'Visitor', value: 'visitor' },
     { label: 'Lead', value: 'lead' },
-    { label: 'Customer', value: 'customer' },
-    { label: 'Driver', value: 'driver' }
+    { label: 'Customer', value: 'customer' }
   ]
 };
 
