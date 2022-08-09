@@ -4,7 +4,7 @@ title: Developing Plugins
 sidebar_label: Developing Plugins
 ---
 
-With erxes, you can create your own plugins or extend the existing ones. This would help you to enhance your experience as well as increase your revenue by adding the value on your products and services or selling it on <a href="https://erxes.io/marketplace" target="_blank">our marketplace</a>. This guideline will help you to develop your own plugins.
+With erxes, you can create your own plugins or extend the existing ones. This would help you to enhance your experience as well as increase your revenue by adding the value on your products and services or selling it on **<a href="https://erxes.io/marketplace" target="_blank">our marketplace</a>**. This guideline will help you to develop your own plugins.
 
 :::caution
 
@@ -33,12 +33,12 @@ Before running erxes you need several other actions required in order to develop
 
 Plugin development in API part requires the following software prerequisites to be already installed on your computer.
 
-- **[Typescript]**(https://www.typescriptlang.org/)
-- **[GraphQL]**(https://graphql.org/graphql-js/)
-- **[Express.js]**(https://expressjs.com)
-- **[MongoDB]**(https://www.mongodb.com)
-- **[Redis]**(https://redis.io)
-- **[RabbitMQ]**(https://www.rabbitmq.com)
+- **[Typescript](https://www.typescriptlang.org/)**
+- **[GraphQL](https://graphql.org/graphql-js/)**
+- **[Express.js](https://expressjs.com)**
+- **[MongoDB](https://www.mongodb.com)**
+- **[Redis](https://redis.io)**
+- **[RabbitMQ](https://www.rabbitmq.com)**
 
 1. Create new `api` folder using the following command.
 
@@ -51,9 +51,9 @@ yarn create-plugin-api demo
 
 Plugin development in UI part requires the following software prerequisites to be already installed on your computer.
 
-- **[Typescript]**(https://www.typescriptlang.org/)
-- **[Webpack]**(https://webpack.js.org/)
-- **[ReactJS]**(https://reactjs.org)
+- **[Typescript](https://www.typescriptlang.org/)**
+- **[Webpack](https://webpack.js.org/)**
+- **[ReactJS](https://reactjs.org)**
 
 2. Create new `ui` folder.
 
@@ -126,7 +126,7 @@ Or MacOS
 ./bin/erxes.js dev --deps
 ```
 
-### Configuring UI
+## Configuring UI
 ---
 
 ### Placing new menu in UI navigation part 
