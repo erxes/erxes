@@ -100,6 +100,7 @@ const userParams = `
   ownerId: String,
   links: JSON,
   customFieldsData: JSON,
+  
   type: String,
 `;
 
