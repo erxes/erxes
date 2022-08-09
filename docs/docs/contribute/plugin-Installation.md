@@ -6,7 +6,7 @@ sidebar_label: Plugin Installation
 
 erxes has a set of plugins that allow you to create unique customer experiences. Go to our **<a href="https://erxes.io/marketplace" target="_blank">marketplace</a>** to find out what plugins erxes offers you and their use cases.
 
-:::important
+:::info
 
 - Plugin is the feature that can work independently on XOS  to fulfill the particular purpose of enterprises/developers, such as sales pipeline, delivery, etc. 
 - XOS Core plugins developed by the erxes Inc team will play the main role for optional plugins to work together. 
