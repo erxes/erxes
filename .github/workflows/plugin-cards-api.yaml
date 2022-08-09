@@ -45,6 +45,7 @@ jobs:
           ls
           cd ../../dist/plugin-cards-api/.erxes
           cd dist/main/.erxes/src
+          ls
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/image-size'  )
