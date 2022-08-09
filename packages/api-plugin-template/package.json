@@ -31,6 +31,7 @@
     "strip": "^3.0.0",
     "ws": "^8.8.1",
     "xlsx-populate": "^1.20.1",
+    "validator": "^9.0.0",
     "xss": "^1.0.6"
   },
   "peerOptionalDependencies": {
