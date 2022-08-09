@@ -1,26 +1,28 @@
 export const types = `
   type SafeRemainderItem {
     _id: String,
-    modifiedAt: Date,
-    status: String,
-    lastTransactionDate: Date,
-    remainderId: String,
-    productId: String,
-    preCount: Float,
-    count: Float,
-    uomId: String,
     branchId: String,
     departmentId: String,
+    remainderId: String,
+    product: Product,
+    productId: String,
 
-    product: Product
-    uom: Uom_
+    preCount: Float,
+    count: Float,
+    status: String,
+    uom: Uom_,
+    uomId: String,
+    
+    lastTransactionDate: Date,
+    modifiedAt: Date,
+    modifiedBy: String
   }
 `;
 
 const safeRemainderItemsFilterParams = `
   remainderId: String!,
-  status: String,
   productCategoryId: String,
+  status: String,
   searchValue: String,
   diffType: String
 `;
@@ -31,6 +33,10 @@ export const queries = `
 `;
 
 export const mutations = `
-  updateSafeRemainderItem(_id: String, status: String, remainder: Float): SafeRemainderItem
-  removeSafeRemainderItem(_id: String): JSON
+  safeRemainderItemEdit(
+    _id: String,
+    status: String,
+    remainder: Float
+  ): SafeRemainderItem
+  safeRemainderItemRemove(_id: String): JSON
 `;

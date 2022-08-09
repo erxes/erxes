@@ -3,7 +3,7 @@ name: Workers CI
 on:
   push:
     branches:
-      - '**'
+      - 'federation'
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'

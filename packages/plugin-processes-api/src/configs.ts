@@ -6,6 +6,7 @@ import { generateModels, models } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
 import logs from './logUtils';
+import beforeResolvers from './beforeResolvers';
 
 export let debug;
 export let graphqlPubsub;
@@ -48,5 +49,5 @@ export default {
     graphqlPubsub = options.pubsubClient;
     // es = options.elasticsearch;
   },
-  meta: { logs: { consumers: logs } }
+  meta: { logs: { consumers: logs }, beforeResolvers }
 };
