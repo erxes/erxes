@@ -15,6 +15,12 @@ export interface IRemaindersParams {
   productIds?: string[];
 }
 
+export interface IRemainderCount {
+  _id: string;
+  count: number;
+  uomId: string;
+}
+
 export interface IRemainder {
   branchId: string;
   departmentId: string;
@@ -28,21 +34,15 @@ export interface IRemainderDocument extends IRemainder, Document {
   modifiedAt: Date;
 }
 
-export interface IGetRemainder {
-  _id: string;
-  remainder: number;
-  uomId: string;
-}
-
 export const remainderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    branchId: field({ type: String, default: '', label: 'Branch' }),
+    departmentId: field({ type: String, default: '', label: 'Department' }),
+
     status: field({ type: String, label: 'Status' }),
     productId: field({ type: String, index: true }),
     count: field({ type: Number, label: 'Count' }),
-
-    branchId: field({ type: String, default: '', label: 'Branch' }),
-    departmentId: field({ type: String, default: '', label: 'Department' }),
 
     modifiedAt: field({
       type: Date,

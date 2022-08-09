@@ -1,28 +1,31 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
+import { IModels, models } from '../connectionResolver';
 import { sendProductsMessage } from '../messageBroker';
 import {
-  IGetRemainder,
-  IRemainder,
-  IRemainderDocument,
+  IRemainderCount,
   IRemainderParams,
   IRemaindersParams,
+  IRemainder,
+  IRemainderDocument,
   remainderSchema
 } from './definitions/remainders';
 
 export interface IRemainderModel extends Model<IRemainderDocument> {
-  getRemainderObject(_id: string): Promise<IRemainderDocument>;
-  getRemainder(
+  getRemainder(_id: string): Promise<IRemainderDocument>;
+  getRemainderCount(
     subdomain: string,
     params: IRemainderParams
-  ): Promise<IGetRemainder>;
+  ): Promise<IRemainderCount>;
   getRemainders(
     subdomain: string,
     params: IRemaindersParams
   ): Promise<IRemainderDocument[]>;
   createRemainder(doc: IRemainder): Promise<IRemainderDocument>;
-  updateRemainder(_id: string, doc: IRemainder): Promise<IRemainderDocument>;
+  updateRemainder(
+    _id: string,
+    doc: Partial<IRemainder>
+  ): Promise<IRemainderDocument>;
   removeRemainder(_id: string): void;
 }
 
@@ -30,40 +33,39 @@ export const loadRemainderClass = (models: IModels) => {
   class Remainder {
     /**
      * Get a remainder
+     * @param _id Remainder object id
+     * @returns Found remainder object
      */
-    public static async getRemainderObject(_id: string) {
-      const remainder = await models.Remainders.findOne({ _id });
+    public static async getRemainder(_id: string) {
+      const result: any = await models.Remainders.findById(_id);
 
-      if (!remainder) {
-        return new Error('Remainder not found');
-      }
+      if (!result) throw new Error('Remainder not found!');
 
-      return remainder;
+      return result;
     }
 
-    public static async getRemainder(
+    /**
+     * Get remainder count
+     * @param subdomain
+     * @param params Filter to get remainder document
+     * @returns Product's count with uom
+     */
+    public static async getRemainderCount(
       subdomain: string,
       params: IRemainderParams
     ) {
       const { productId, departmentId, branchId, uomId } = params;
       const filter: any = { productId };
 
-      if (departmentId) {
-        filter.departmentId = departmentId;
-      }
+      if (departmentId) filter.departmentId = departmentId;
+      if (branchId) filter.branchId = branchId;
 
-      if (branchId) {
-        filter.branchId = branchId;
-      }
+      const remainders: any = await models.Remainders.find(filter);
 
-      const remainders = await models.Remainders.find(filter);
+      let count = 0;
+      for (const item of remainders) count += item.count;
 
-      let remainder = 0;
-      for (const rem of remainders) {
-        remainder = remainder + rem.count;
-      }
-
-      const product = await sendProductsMessage({
+      const product: any = await sendProductsMessage({
         subdomain,
         action: 'findOne',
         data: {
@@ -72,39 +74,36 @@ export const loadRemainderClass = (models: IModels) => {
         isRPC: true
       });
 
-      let uom = product.uomId;
+      let uom: any = product.uomId;
+      const subUom: any =
+        product.subUom.filter((item: any) => item.uomId === uomId) || [];
 
-      const subUom = product.subUoms.filter(su => su.uomId === uomId) || [];
       if (subUom.length) {
-        remainder = remainder / subUom.ratio || 1;
+        count = count / subUom.ratio || 1;
         uom = subUom.uomId;
       }
-      remainder;
 
-      return { remainder, uomId: uom };
+      return { count, uomId: uom };
     }
 
+    /**
+     * Get Remainders
+     * @param subdomain
+     * @param params Filter to get remainder documents
+     * @returns Array of Remainder
+     */
     public static async getRemainders(
       subdomain: string,
-      {
-        departmentId,
-        branchId,
-        productCategoryId,
-        productIds
-      }: IRemaindersParams
+      params: IRemaindersParams
     ) {
-      const selector: any = {};
+      const { departmentId, branchId, productCategoryId, productIds } = params;
+      const filter: any = {};
 
-      if (departmentId) {
-        selector.departmentId = departmentId;
-      }
-
-      if (branchId) {
-        selector.branchId = branchId;
-      }
+      if (departmentId) filter.departmentId = departmentId;
+      if (branchId) filter.branchId = branchId;
 
       if (productCategoryId) {
-        const products = await sendProductsMessage({
+        const products: any = await sendProductsMessage({
           subdomain,
           action: 'find',
           data: {
@@ -114,47 +113,44 @@ export const loadRemainderClass = (models: IModels) => {
           isRPC: true
         });
 
-        selector.productId = { $in: products.map(p => p._id) };
+        filter.productId = { $in: products.map((item: any) => item._id) };
       }
 
-      if (productIds) {
-        selector.productId = { $in: productIds };
-      }
+      if (productIds) filter.productId = { $in: productIds };
 
-      return models.Remainders.find(selector).lean();
+      return models.Remainders.find(filter).lean();
     }
 
     /**
-     * Create a remainder
+     * Create remainder
+     * @param doc New data to create
+     * @returns Created response
      */
     public static async createRemainder(doc: IRemainder) {
-      const remainder = await models.Remainders.create({
+      return await models.Remainders.create({
         ...doc,
         createdAt: new Date()
       });
-
-      return remainder;
     }
 
     /**
-     * Update Remainder
+     * Update remainder
+     * @param _id Remainder ID
+     * @param doc New data to update
+     * @returns Updated object
      */
     public static async updateRemainder(_id: string, doc: IRemainder) {
-      const remainder = await models.Remainders.getRemainderObject(_id);
-
-      await models.Remainders.updateOne({ _id }, { $set: { ...doc } });
-
-      const updated = await models.Remainders.getRemainderObject(_id);
-
-      return updated;
+      await models.Remainders.findByIdAndUpdate(_id, { $set: { ...doc } });
+      return await this.getRemainder(_id);
     }
 
     /**
-     * Remove Remainder
+     * Delete remainder
+     * @param _id Remainder ID
+     * @returns Deleted response
      */
     public static async removeRemainder(_id: string) {
-      await models.Remainders.getRemainderObject(_id);
-      return models.Remainders.deleteOne({ _id });
+      return await models.Remainders.findByIdAndDelete(_id);
     }
   }
 

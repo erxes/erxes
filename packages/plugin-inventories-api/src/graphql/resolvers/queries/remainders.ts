@@ -10,30 +10,38 @@ import {
 } from '../../../models/definitions/remainders';
 
 const remainderQueries = {
-  async remainders(
-    _root,
+  remainders: async (
+    _root: any,
     params: IRemaindersParams,
     { models, subdomain }: IContext
-  ) {
-    return models.Remainders.getRemainders(subdomain, params);
+  ) => {
+    return await models.Remainders.getRemainders(subdomain, params);
   },
 
   /**
    * Get one tag
    */
-  remainderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.Remainders.findOne({ _id });
+  remainderDetail: async (
+    _root: any,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return await models.Remainders.getRemainder(_id);
   },
 
-  getRemainder(
-    _root,
+  remainderCount: async (
+    _root: any,
     params: IRemainderParams,
     { models, subdomain }: IContext
-  ) {
-    return models.Remainders.getRemainder(subdomain, params);
+  ) => {
+    return await models.Remainders.getRemainderCount(subdomain, params);
   },
 
-  remainderProducts: async (_root, params, { models, subdomain }: IContext) => {
+  remainderProducts: async (
+    _root: any,
+    params: any,
+    { models, subdomain }: IContext
+  ) => {
     const query: any = { status: { $ne: 'deleted' } };
 
     if (params.categoryId) {
@@ -47,7 +55,7 @@ const remainderQueries = {
         defaultValue: []
       });
 
-      const productCategoryIds = productCategories.map(p => p._id);
+      const productCategoryIds = productCategories.map((item: any) => item._id);
 
       query.categoryId = { $in: productCategoryIds };
     }
@@ -92,24 +100,20 @@ const remainderQueries = {
       isRPC: true
     });
 
-    const productIds = products.map(p => p._id);
+    const productIds = products.map((product: any) => product._id);
 
-    const remQuery: any = {
+    const remainderQuery: any = {
       productId: { $in: productIds }
     };
 
-    if (params.departmentId) {
-      remQuery.departmentId = params.departmentId;
-    }
-    if (params.branchId) {
-      remQuery.branchId = params.branchId;
-    }
+    if (params.departmentId) remainderQuery.departmentId = params.departmentId;
+    if (params.branchId) remainderQuery.branchId = params.branchId;
 
-    const remainders = await models.Remainders.find(remQuery).lean();
+    const remainders = await models.Remainders.find(remainderQuery).lean();
 
     for (const product of products) {
       const { count = 0, uomId = '' } =
-        remainders.find(r => r.productId === product._id) || {};
+        remainders.find((item: any) => item.productId === product._id) || {};
 
       product.remainder = count;
     }
