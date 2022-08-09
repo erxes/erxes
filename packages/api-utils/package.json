@@ -22,7 +22,6 @@
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "elasticsearch": "^16.7.2",
-    "faker": "4.1.0",
     "graphql": "^14.0.2",
     "graphql-redis-subscriptions": "^1.4.0",
     "graphql-subscriptions": "^1.1.0",
