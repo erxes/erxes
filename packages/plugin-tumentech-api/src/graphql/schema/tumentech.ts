@@ -175,21 +175,16 @@ type ProductCarCategories {
 
 type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
-  customerId: String!
+  tripId: String!
   dealId: String!
   status: String!
 
   createdAt: Date
   detail: JSON
 
-  ${
-    contacts
-      ? `
-      customer: Customer
-    `
-      : ''
-  }
+  
 
+  trip: Trip
   ${
     cards
       ? `
@@ -201,7 +196,7 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
 
 input ParticipantsRemove {
   dealId: String!
-  customerId: String!
+  tripId: String!
 }
 `;
 
@@ -253,9 +248,9 @@ export const queries = `
   cpCarCategoriesTotalCount: Int
   cpCarCategoryDetail(_id: String): CarCategory
 
-  participants(page: Int, perPage: Int, customerId: String, dealId: String, status: String): [Participant]
+  participants(page: Int, perPage: Int, customerId: String, dealId: String, tripId: String, status: String): [Participant]
   participantDetail(_id: String!): Participant
-  participantsTotalCount(customerId: String, dealId: String, status: String): Int
+  participantsTotalCount(customerId: String, tripId: String, dealId: String, status: String): Int
 
   gererateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 `;
@@ -352,7 +347,7 @@ const carCategoryParams = `
 `;
 
 const participantParams = `
-  customerId: String
+  tripId: String
   dealId: String
   detail: JSON
 `;
@@ -372,10 +367,9 @@ export const mutations = `
   cpCarsEdit(_id: String!, ${tumentechCommonFields}): Car
   cpCarsRemove(carIds: [String]): [String]
 
-  participantsAdd(${participantParams} customerIds: [String]): [Participant]
+  participantsAdd(${participantParams}): [Participant]
   participantsEdit(_id: String! status:String ${participantParams}): Participant
   participantsRemove(_id: String): JSON
-  participantsRemoveFromDeal(dealId: String!, customerIds: [String]): JSON
-  selectWinner(dealId: String!, customerId: String!): Participant
-  
+  participantsRemoveFromDeal(dealId: String!, tripIds: [String]): JSON
+  selectWinner(dealId: String!, tripId: String!): Participant
 `;

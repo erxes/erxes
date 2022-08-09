@@ -4,7 +4,7 @@ import { PARTICIPATION_STATUSES } from '../../constants';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IParticipant {
-  customerId: string;
+  tripId: string;
   dealId: string;
   status?: string;
   detail?: any;
@@ -18,7 +18,7 @@ export interface IParticipantDocument extends IParticipant, Document {
 export const participantSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    customerId: field({ type: String, label: 'Customer Id', required: true }),
+    tripId: field({ type: String, label: 'Trip Id', required: true }),
     dealId: field({ type: String, label: 'Deal Id', required: true }),
     status: field({
       type: String,
