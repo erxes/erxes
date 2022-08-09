@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import { ITripEdit } from '../graphql/resolvers/mutations/trips';
+import { sendCardsMessage } from '../messageBroker';
 import {
   ITrackingItem,
   ITrip,
@@ -15,6 +16,7 @@ export interface ITripModel extends Model<ITripDocument> {
   updateTrip(doc: ITripEdit): ITripDocument;
   updateTracking(_id: string, trackingData: ITrackingItem[]): ITripDocument;
   removeTrip(_id: string): ITripDocument;
+  matchWithDeals(_id: string, subdomain: string): any[];
 }
 
 export const loadTripClass = (models: IModels) => {
@@ -71,6 +73,25 @@ export const loadTripClass = (models: IModels) => {
       );
 
       return models.Trips.findOne({ _id });
+    }
+
+    public static async matchWithDeals(_id: string, subdomain: string) {
+      const trip = await models.Trips.findOne({ _id });
+
+      if (!trip) {
+        throw new Error('trip not found');
+      }
+
+      const deals = await sendCardsMessage({
+        subdomain,
+        action: 'deals.find',
+        data: {
+          name: ''
+        },
+        isRPC: true
+      });
+
+      return trip;
     }
   }
 

@@ -49,6 +49,14 @@ const tripsQuery = {
 
   tripDetail: async (_root, { _id }: { _id: string }, { models }: IContext) => {
     return models.Trips.getTrip({ _id });
+  },
+
+  matchingDealsForTrip: async (
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return models.Trips.getTrip({ _id });
   }
 };
 
