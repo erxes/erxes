@@ -407,7 +407,8 @@ export type CountQueryResponse = {
 
 export interface IParticipant {
   _id: string;
-  customer: ICustomer;
+  tripId: string;
+  trip: ITrip;
   deal: IDeal;
   detail?: {
     price: number;
@@ -420,10 +421,6 @@ export type ParticipantsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
-
-export type AddParticipantsMutation = ({
-  variables: { dealId, customerIds }
-}) => Promise<any>;
 
 export type RemoveParticipantsMutation = ({
   variables: { dealId, customerIds }

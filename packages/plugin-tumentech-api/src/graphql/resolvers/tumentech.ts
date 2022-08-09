@@ -55,13 +55,8 @@ const CarCategory = {
 };
 
 const Participant = {
-  customer(participant: IParticipantDocument) {
-    return (
-      participant.customerId && {
-        __typename: 'Customer',
-        _id: participant.customerId
-      }
-    );
+  trip(participant: IParticipantDocument, {}, { models }: IContext) {
+    return models.Trips.findOne({ _id: participant.tripId });
   },
 
   deal(participant: IParticipantDocument) {
