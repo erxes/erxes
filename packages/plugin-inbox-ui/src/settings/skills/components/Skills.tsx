@@ -76,13 +76,7 @@ function Skills(props: Props) {
       </NotWrappable>
     );
 
-    return (
-      <Wrapper.ActionBar
-        left={title}
-        right={actionBarRight}
-        background="colorWhite"
-      />
-    );
+    return <Wrapper.ActionBar left={title} right={actionBarRight} />;
   }
 
   function renderObjects() {

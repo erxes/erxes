@@ -95,11 +95,7 @@ class Channels extends React.Component<Props, {}> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={leftActionBar}
-            right={rightActionBar}
-            background="colorWhite"
-          />
+          <Wrapper.ActionBar left={leftActionBar} right={rightActionBar} />
         }
         content={
           <DataWithLoader

@@ -224,7 +224,6 @@ class List extends React.Component<Props> {
 
     const actionBar = (
       <Wrapper.ActionBar
-        background="colorWhite"
         left={isEnabled('tags') && this.renderTagger()}
         right={this.renderRightActionBar()}
       />

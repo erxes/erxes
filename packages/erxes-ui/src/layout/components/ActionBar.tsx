@@ -22,7 +22,7 @@ function ActionBar({
 }: Props) {
   return (
     <ContentHeader
-      background={background || 'bgLight'}
+      background={background || 'colorWhite'}
       noBorder={noBorder}
       zIndex={zIndex}
     >

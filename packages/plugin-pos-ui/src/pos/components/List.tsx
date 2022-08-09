@@ -63,11 +63,7 @@ class List extends React.Component<Props, {}> {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar
-        right={actionBarRight}
-        left={actionBarLeft}
-        background="colorWhite"
-      />
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
 
     const content = (

@@ -188,7 +188,6 @@ class CheckSyncedDeals extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>Deals</Title>}
             right={actionBarRight}
-            background="colorWhite"
           />
         }
         content={content}

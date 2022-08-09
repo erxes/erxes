@@ -8,7 +8,10 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import { __, router } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FilterItem, FilterWrapper } from '@erxes/ui-settings/src/permissions/styles';
+import {
+  FilterItem,
+  FilterWrapper
+} from '@erxes/ui-settings/src/permissions/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import * as React from 'react';
 import Select from 'react-select-plus';
@@ -85,8 +88,14 @@ const moduleOptions = [
   { value: 'products:product-category', label: 'Product categories' },
   // knowledgebase service items
   { value: 'knowledgebase:knowledgeBaseTopic', label: 'Knowledgebase topics' },
-  { value: 'knowledgebase:knowledgeBaseCategory', label: 'Knowledgebase categories' },
-  { value: 'knowledgebase:knowledgeBaseArticle', label: 'Knowledgebase articles' },
+  {
+    value: 'knowledgebase:knowledgeBaseCategory',
+    label: 'Knowledgebase categories'
+  },
+  {
+    value: 'knowledgebase:knowledgeBaseArticle',
+    label: 'Knowledgebase articles'
+  },
   // others
   { value: 'engages:engage', label: 'Campaigns' },
   { value: 'internalnotes:internalNote', label: 'Internal notes' },
@@ -95,7 +104,7 @@ const moduleOptions = [
   { value: 'responseTemplate', label: 'Response templates' },
   { value: 'emailTemplate', label: 'Email templates' },
   { value: 'importHistory', label: 'Import histories' },
-  { value: 'script', label: 'Scripts' },
+  { value: 'script', label: 'Scripts' }
 ];
 
 const breadcrumb = [
@@ -270,7 +279,7 @@ class LogList extends React.Component<Props, State> {
       </FilterWrapper>
     );
 
-    return <Wrapper.ActionBar background="colorWhite" left={actionBarLeft} />;
+    return <Wrapper.ActionBar left={actionBarLeft} />;
   }
 
   render() {

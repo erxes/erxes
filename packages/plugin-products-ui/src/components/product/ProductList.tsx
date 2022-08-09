@@ -297,11 +297,7 @@ class List extends React.Component<IProps, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={actionBarLeft}
-            right={actionBarRight}
-            background="colorWhite"
-          />
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />

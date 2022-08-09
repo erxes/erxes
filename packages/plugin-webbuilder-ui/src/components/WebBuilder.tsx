@@ -96,9 +96,7 @@ function WebBuilder(props: Props) {
             breadcrumb={breadcrumb}
           />
         }
-        actionBar={
-          <Wrapper.ActionBar right={RightActionBar} background="colorWhite" />
-        }
+        actionBar={<Wrapper.ActionBar right={RightActionBar} />}
         leftSidebar={
           <SideBar
             queryParams={queryParams}

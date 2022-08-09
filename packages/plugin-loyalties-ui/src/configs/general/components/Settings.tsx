@@ -120,7 +120,6 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{__('Loyalty config')}</Title>}
             right={actionButtons}
-            background="colorWhite"
           />
         }
         content={content}
