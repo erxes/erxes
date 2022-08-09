@@ -77,7 +77,7 @@ const main = async () => {
   }
 
   console.log('Yarn install ....');
-  await execCommand('yarn install --production');
+  await execCommand('yarn install');
 
   process.chdir(folderName);
 
@@ -88,6 +88,13 @@ const main = async () => {
   } else {
     await execCommand('yarn build');
   }
+
+  console.log('Removing node_modules with dev dependencies ....');
+  process.chdir('..');
+  await execCommand('rm -rf node_modules');
+  console.log('Installing production deps ....');
+  await execCommand('yarn install --production');
+  process.chdir(folderName);
 
   console.log('Moving node_modules ....');
 
