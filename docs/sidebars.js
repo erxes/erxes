@@ -2,21 +2,17 @@ module.exports = {
   docs: [
     {
       type: 'category',
-      label: 'What is erxes?',
+      label: '🚀 Getting started',
       items: [
-        {
-          Overview: [
-            'introduction/introduction',
-            'introduction/architecture',
-            'introduction/faq'
-          ]
-        },
+        'introduction/introduction',
+        'introduction/architecture',
+        'introduction/faq',
         'overview/quickstart'
       ]
     },
     {
       type: 'category',
-      label: 'Installation & configuration',
+      label: '⚙️ Setup & Deployment',
       items: [
         {
           'Installation for Production': [
@@ -26,33 +22,33 @@ module.exports = {
           ]
         },
         {
-          Developer: ['developer/ubuntu', 'developer/mac']
-        },
-        {
-          Plugins: [
-            'plugins/choose-your-plugins',
-            'plugins/plugin-api',
-            'plugins/plugin-ui'
+          'XOS & Installation': [
+            { Docker: ['developer/ubuntu', 'developer/mac'] }
           ]
         },
         {
-          Integrations: ['integrations/3rd-party-integration']
+          Configuration: ['integrations/configuration']
         },
         {
-          ' Update erxes': ['other/update']
-        },
-        {
-          Troubleshooting: ['other/troubleshooting']
-        },
-        {
-          Changelog: ['other/changelog']
-        },
-        {
-          'General feedback': ['other/general-feedback']
-        },
-        {
-          'Typescript Support': ['other/typescript']
+          Deployment: ['integrations/3rd-party-integration']
         }
+      ]
+    },
+    {
+      type: 'category',
+      label: '📦 Plugins',
+      items: ['contribute/plugin-Installation', 'contribute/integration']
+    },
+    {
+      type: 'category',
+      label: '🛠️ Development',
+      items: [
+        {
+          Installation: [{ Docker: ['development/ubuntu', 'development/mac'] }]
+        },
+        'development/developing-plugins',
+        'development/troubleshooting',
+        'development/changelog'
       ]
     },
     {
@@ -61,13 +57,14 @@ module.exports = {
       items: [
         'contribute/overview',
         'contribute/contribute-to-codebase',
-        {
-          'Contribute to documentation': [
-            'contribute/contribute-to-documentation',
-            'contribute/documentation-style-guide'
-          ]
-        }
+        'contribute/contribute-to-documentation',
+        'contribute/documentation-style-guide'
       ]
+    },
+    {
+      type: 'category',
+      label: 'Erxes XOS user guide',
+      items: ['development/erxes-xos-user-guide']
     },
     {
       type: 'category',
@@ -102,69 +99,6 @@ module.exports = {
             'getting-started/submitting',
             'getting-started/commit'
           ]
-        }
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Overview',
-      items: ['overview/overview']
-    },
-    {
-      type: 'category',
-      label: "Developer's Guide",
-      items: [
-        'developer/developer',
-        'developer/plugin',
-        'developer/events',
-        'developer/documentation_guide',
-        {
-          "Administrator's Guide": [
-            'administrator/creating-first-user',
-            'administrator/environment-variables',
-            'administrator/system-config',
-            'administrator/migration'
-          ]
-        },
-        {
-          Tutorials: [
-            'developer/graphql-api',
-            'developer/android-sdk',
-            'developer/ios-sdk',
-            'developer/push-notifications',
-            'developer/script-install'
-          ]
-        },
-        {
-          Integrations: [
-            'developer/integrations-overview/facebook',
-            'developer/integrations-overview/twitter',
-            'developer/integrations-overview/gmail',
-            'developer/integrations-overview/google-cloud-storage',
-            'developer/integrations-overview/aws-s3',
-            'developer/integrations-overview/aws-ses',
-            'developer/integrations-overview/nylas-integrations',
-            'developer/integrations-overview/whatsApp-integration',
-            'developer/integrations-overview/sunshine-conversations'
-          ]
-        },
-        'developer/troubleshooting',
-        'developer/webhook',
-        {
-          type: 'link',
-          label: 'GraphQL API references',
-          href: 'pathname:///developers/docs/references'
-        }
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Changelog',
-      items: [
-        {
-          type: 'link',
-          label: 'Release Notes', // The link label
-          href: 'https://github.com/erxes/erxes/releases' // The external URL
         }
       ]
     }
