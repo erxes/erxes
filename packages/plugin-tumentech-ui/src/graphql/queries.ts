@@ -656,6 +656,19 @@ query tripDetail($_id: String!) {
       _id
       name
       customFieldsData
+      customers {
+        _id
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+      companies {
+        _id
+        primaryEmail
+        primaryName
+        primaryPhone
+      }
     }
     driver {
       _id
