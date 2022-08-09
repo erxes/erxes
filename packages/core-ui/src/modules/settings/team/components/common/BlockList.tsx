@@ -38,7 +38,6 @@ export default function BlockList(props: Props) {
       extraButtons={extraButtons}
       collapsible={allDatas.length > 6}
       noMarginBottom={true}
-      noBackground
       noSpacing
     >
       <SidebarList noTextColor noBackground className="no-link">

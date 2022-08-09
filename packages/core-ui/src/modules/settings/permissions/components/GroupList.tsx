@@ -152,7 +152,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title noBackground noSpacing>
+        <Section.Title noSpacing>
           {__('User groups')}
           <Section.QuickButtons>
             {router.getParam(this.props.history, 'groupId') && (

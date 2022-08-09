@@ -24,7 +24,6 @@ export default function ListContainer() {
         title={__('Department')}
         name="showDepartment"
         noMarginBottom
-        noBackground
         noSpacing
       >
         <MenuFooter>

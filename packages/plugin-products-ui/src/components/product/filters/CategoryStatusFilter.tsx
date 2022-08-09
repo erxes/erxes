@@ -39,7 +39,6 @@ class CategoryStatusFilter extends React.Component<IProps> {
         title={__('Filter category by status')}
         name="showFilterByType"
         noMarginBottom
-        noBackground
         noSpacing
       >
         <SidebarList>

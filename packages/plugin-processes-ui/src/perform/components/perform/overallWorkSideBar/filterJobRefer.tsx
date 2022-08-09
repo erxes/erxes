@@ -68,7 +68,6 @@ class JobReferFilter extends React.Component<IProps, State> {
         title={__('Filter by Job')}
         name="showFilterByJob"
         noMarginBottom={true}
-        noBackground={true}
         noSpacing={true}
       >
         <SidebarList>

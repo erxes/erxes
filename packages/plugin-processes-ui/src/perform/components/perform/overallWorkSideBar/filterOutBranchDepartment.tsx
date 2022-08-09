@@ -73,7 +73,6 @@ class BranchDepartmentFilter extends React.Component<IProps, State> {
         title={__('Filter by Output')}
         name="showFilterByType"
         noMarginBottom={true}
-        noBackground={true}
         noSpacing={true}
       >
         <SidebarList>

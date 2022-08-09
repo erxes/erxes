@@ -44,7 +44,6 @@ export default function View({ structure, showEdit }: Props) {
       title={__('Structure')}
       name="showStructure"
       noMarginBottom={true}
-      noBackground
       noSpacing
     >
       <StructureList className="no-link">

@@ -24,7 +24,6 @@ export default function ListContainer() {
         title={__('Branch')}
         name="showBranch"
         noMarginBottom
-        noBackground
         noSpacing
       >
         <MenuFooter>

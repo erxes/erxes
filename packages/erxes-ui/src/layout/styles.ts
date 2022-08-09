@@ -184,7 +184,6 @@ const SidebarHeader = styledTS<{
 
 const SidebarTitle = styledTS<{
   children: any;
-  noBackground?: boolean;
   noSpacing?: boolean;
 }>(styled(SidebarHeader.withComponent('h3')))`
   padding: ${props => (props.noSpacing ? 0 : `0 ${dimensions.coreSpacing}px`)};
@@ -192,7 +191,7 @@ const SidebarTitle = styledTS<{
     !props.noSpacing ? 0 : `0px ${dimensions.coreSpacing}px`};
   text-transform: uppercase;
   position: relative;
-  background-color: ${props => props.noBackground && 'white'};
+  background-color: ${colors.colorWhite};
 `;
 
 const SidebarMainContent = styled.div`

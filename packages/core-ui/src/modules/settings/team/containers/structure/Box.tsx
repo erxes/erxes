@@ -30,7 +30,6 @@ export default function BoxContainer() {
         title={__('Structure')}
         name="showStructure"
         noMarginBottom
-        noBackground
         noSpacing
       >
         <MenuFooter>
