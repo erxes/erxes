@@ -17,6 +17,7 @@
     "babel-preset-gatsby-package": "^0.5.2"
   },
   "dependencies": {
+    "amqplib": "^0.5.5",
     "crypto": "^1.0.1",
     "faker": "4.1.0",
     "graphql": "^14.0.2",
@@ -25,8 +26,13 @@
     "ioredis": "^4.28.2",
     "lodash": "^4.17.21",
     "meteor-random": "^0.0.3",
+    "moment": "^2.18.1",
     "mongoose": "5.7.5",
     "request": "^2.88.0",
-    "requestify": "^0.2.5"
+    "strip": "^3.0.0",
+    "elasticsearch": "^16.7.2",
+    "requestify": "^0.2.5",
+    "dotenv": "^4.0.0",
+    "xlsx-populate": "^1.20.1"
   }
 }
