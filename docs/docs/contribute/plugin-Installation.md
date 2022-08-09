@@ -4,7 +4,7 @@ title: Plugin Installation
 sidebar_label: Plugin Installation
 ---
 
-erxes has a set of plugins that allow you to create unique customer experiences. Go to our <a href="https://erxes.io/marketplace" target="_blank">marketplace</a> to find out what plugins erxes offers you and their use cases.
+erxes has a set of plugins that allow you to create unique customer experiences. Go to our **<a href="https://erxes.io/marketplace" target="_blank">marketplace</a>** to find out what plugins erxes offers you and their use cases.
 
 :::important
 
@@ -17,23 +17,34 @@ erxes has a set of plugins that allow you to create unique customer experiences.
 ## Preparing the installation
 ---
 
-1. Before installing plugins, ensure you have installed and had access to your erxes project.  If you haven’t done it yet, please go to <a href="https://www.erxes.org/developer/ubuntu" target="_blank">the erxes installation guide</a> to install erxes XOS. 
+1. Before installing plugins, ensure you have installed and had access to your erxes project.  If you haven’t done it yet, please go to **<a href="https://www.erxes.org/developer/ubuntu" target="_blank">** the erxes installation guide</a> to install erxes XOS. 
 2. Switch to **the federation branch**.
 3. Copy the plugins in the `erxes/cli/configs.json`.
 
 ## Installing plugins
 ---
 
-1. In the terminal, go to erxes/cli directory by using `Cd erxes/cli` command.  
-            
-2. Ensure if you have configs.json file using `Ls -la` command.
-             
-3. If you don’t have configs.json file, create one by running `Cp configs.json.sample configs.json` command.
+1. In the terminal, go to erxes/cli directory by using the following command.  
 
+```
+Cd erxes/cli
+```
+            
+2. Ensure if you have configs.json file using the following command.
+
+```
+Ls -la
+```
+             
+3. If you don’t have configs.json file, create one by running the command as follows.
+
+```
+Cp configs.json.sample configs.json
+```
  
 :::caution
 
-Open Configs.json file in Editor from the following choices: `vscode`, `sublime`, `atom` etc.
+Open Configs.json file in Editor from the following choices: **vscode**, **sublime**, **atom** etc.
 
 :::
 
@@ -50,7 +61,9 @@ Name the plugins in the following format:   “name”: “products”, “name�
 There are two options of installation within UI part. **Local** is used for development purposes, **Remote** is used for production.
 If you choose **Remote** option to install, please add the following code in your cli.configs.json file. 
 
- ```"ui_remote_url": "https://office.erxes.io/js/plugins/plugin-<name>-ui/remoteEntry.js```
+ ```
+ "ui_remote_url": "https://office.erxes.io/js/plugins/plugin-<name>-ui/remoteEntry.js
+ ```
 
 :::
 
