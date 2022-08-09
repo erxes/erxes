@@ -3,8 +3,22 @@ import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 const webbuilderQueries = {
-  webbuilderPages(_root, args, { models }: IContext) {
-    return paginate(models.Pages.find({}), args);
+  webbuilderPages(
+    _root,
+    {
+      page,
+      perPage,
+      searchValue
+    }: { page: number; perPage: number; searchValue: string },
+    { models }: IContext
+  ) {
+    let filter: any = {};
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    return paginate(models.Pages.find(filter), { page, perPage });
   },
 
   webbuilderPagesTotalCount(_root, _args, { models }: IContext) {

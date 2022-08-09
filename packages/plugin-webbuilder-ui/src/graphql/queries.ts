@@ -9,8 +9,8 @@ const fields = `
 `;
 
 const pages = `
-  query pages($page: Int, $perPage: Int) {
-    webbuilderPages(page: $page, perPage: $perPage) {
+  query pages($page: Int, $perPage: Int, $searchValue: String) {
+    webbuilderPages(page: $page, perPage: $perPage, searchValue: $searchValue) {
       ${fields}
     }
   }

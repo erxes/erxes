@@ -94,6 +94,9 @@ const main = async () => {
     )
   );
 
+  console.log('Removing outside node_modules ....');
+  await execCommand('rm -rf node_modules');
+
   process.chdir('../../dist');
 
   console.log('Yarn install ....');

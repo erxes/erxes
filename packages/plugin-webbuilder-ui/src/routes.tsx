@@ -34,7 +34,7 @@ const webBuilders = history => {
 
   const { step } = match.params;
 
-  return <WebBuilder step={step} queryParams={queryParams} history={history} />;
+  return <WebBuilder step={step} queryParams={queryParams} />;
 };
 
 const typeEdit = ({ match }) => {
