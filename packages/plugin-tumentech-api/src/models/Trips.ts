@@ -82,16 +82,31 @@ export const loadTripClass = (models: IModels) => {
         throw new Error('trip not found');
       }
 
+      const dirs = await models.Routes.findOne({ _id: trip.routeId }).distinct(
+        'directionIds'
+      );
+
+      const placeIds = await models.Directions.find({
+        _id: { $in: dirs }
+      }).distinct('placeIds');
+
+      const dealIds = await models.DealPlaces.find({
+        $or: [
+          { startPlaceId: { $in: placeIds } },
+          { endPlaceId: { $in: placeIds } }
+        ]
+      }).distinct('dealId');
+
       const deals = await sendCardsMessage({
         subdomain,
         action: 'deals.find',
         data: {
-          name: ''
+          _id: { $in: dealIds }
         },
         isRPC: true
       });
 
-      return trip;
+      return deals || [];
     }
   }
 

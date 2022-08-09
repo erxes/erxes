@@ -56,7 +56,6 @@ export const queries = `
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
     matchingDealsForTrip(_id: String!): [Deal]
-    matchingTripsForDeal(_id: String!): [Trip]
 `;
 
 const params = `
