@@ -4,15 +4,15 @@ title: Developing Plugins
 sidebar_label: Developing Plugins
 ---
 
-With erxes, you can create your own plugins or extend the existing ones. This would help you to enhance your experience as well as increase your revenue by adding the value on your products and services or selling it on **<a href="https://erxes.io/marketplace" target="_blank">our marketplace</a>**. This guideline will help you to develop your own plugins.
+With erxes, you can create your own plugins or extend the existing ones, which would help you to enhance your experience and increase your revenue by adding the value on your products/services or selling it on our **<a href="https://erxes.io/marketplace" target="_blank">our marketplace</a>**. This guideline will help you to develop your own plugins.
 
 :::caution
 
-- Before you start developing plugins, please make sure there is no plugins with the same name or similar name that would be not bring any confusion as the name would be used many places starting from your api, graphql query, mutation, etc.
-- Name must be in small letters with no symbols and space.
-- Name of All your graphql type, query, mutation must start with your plugin name. 
+- Before you start developing your own plugins, ensure there is no plugins with the same name or similar name in our marketplace that would bring any confusion as the name would be used many places starting from your `API`, `GraphQL`, query, mutation, etc.
+- Name must be in small letters with no symbols and space in between.
+- Name of All your GraphQL type, query, mutation must start with your plugin name. 
 - Names of your database collection also must start with your plugin name. 
-- Name of UI routes or url-s also must be start with you pluging name. 
+- Name of your UI routes or url-s also must be start with you pluging name. 
 
 :::
 
@@ -24,12 +24,12 @@ Please go to **<a href="https://www.erxes.org/developer/ubuntu" target="_blank">
 
 :::warning
 
-Before running erxes you need several other actions required in order to develop your own plugins at erxes XOS. Please make sure you shoul be back straight after you install erxes XOS using **<a href="https://www.erxes.org/developer/ubuntu" target="_blank">the installation guideline</a>**.
+Before running erxes you need several other actions required to develop your own plugins at erxes XOS. Please make sure you should be back straight after you install erxes XOS using **<a href="https://www.erxes.org/developer/ubuntu" target="_blank">the installation guideline</a>**.
 
 :::
 
 
-### Plugin api
+### Plugin API
 
 Plugin development in API part requires the following software prerequisites to be already installed on your computer.
 
@@ -40,14 +40,14 @@ Plugin development in API part requires the following software prerequisites to 
 - **[Redis](https://redis.io)**
 - **[RabbitMQ](https://www.rabbitmq.com)**
 
-1. Create new `api` folder using the following command.
+1. Create new `API` folder using the following command.
 
 ```
 cd erxes
 yarn create-plugin-api demo
 ```
 
-### Plugin ui
+### Plugin UI
 
 Plugin development in UI part requires the following software prerequisites to be already installed on your computer.
 
@@ -55,7 +55,7 @@ Plugin development in UI part requires the following software prerequisites to b
 - **[Webpack](https://webpack.js.org/)**
 - **[ReactJS](https://reactjs.org)**
 
-2. Create new `ui` folder.
+2. Create new `UI` folder.
 
 ```
 cd erxes
