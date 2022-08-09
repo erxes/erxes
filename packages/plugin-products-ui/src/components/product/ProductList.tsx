@@ -300,8 +300,6 @@ class List extends React.Component<IProps, State> {
           <Wrapper.ActionBar
             left={actionBarLeft}
             right={actionBarRight}
-            withMargin
-            wide
             background="colorWhite"
           />
         }

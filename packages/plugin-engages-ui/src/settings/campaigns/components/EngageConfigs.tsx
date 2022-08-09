@@ -25,8 +25,6 @@ function EngageConfigs() {
       }
       actionBar={
         <Wrapper.ActionBar
-          withMargin
-          wide
           background="colorWhite"
           left={<Title>{__('Campaign config')}</Title>}
         />

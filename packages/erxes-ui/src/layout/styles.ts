@@ -98,19 +98,12 @@ const ContentBox = styledTS<{
 const ContentHeader = styledTS<{
   background: string;
   zIndex?: number;
-  withMargin?: boolean;
-  wide?: boolean;
   noBorder?: boolean;
 }>(styled.div)`
   background: ${props =>
     props.background === 'transparent' ? 'none' : colors[props.background]};
-  padding: ${props =>
-    props.wide
-      ? '0 0 12px 0'
-      : props.background === 'transparent'
-      ? 0
-      : `0 ${dimensions.coreSpacing}px`}
-  margin: ${props => props.withMargin && '12px 20px 0 20px'};
+  padding: ${props => (props.background === 'transparent' ? 0 : '0 0 12px 0')}
+  margin: 12px 20px 0 20px;
   border-bottom: ${props =>
     !props.noBorder && `1px solid ${colors.borderPrimary}`};
   z-index: ${props => props.zIndex || 2};

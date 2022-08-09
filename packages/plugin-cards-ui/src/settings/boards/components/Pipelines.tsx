@@ -276,8 +276,6 @@ class Pipelines extends React.Component<Props, State> {
     return (
       <div id="pipelines-content">
         <Wrapper.ActionBar
-          withMargin
-          wide
           background="colorWhite"
           left={leftActionBar}
           right={this.renderButton()}

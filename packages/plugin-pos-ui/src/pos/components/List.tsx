@@ -66,8 +66,6 @@ class List extends React.Component<Props, {}> {
       <Wrapper.ActionBar
         right={actionBarRight}
         left={actionBarLeft}
-        withMargin
-        wide
         background="colorWhite"
       />
     );

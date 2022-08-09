@@ -233,8 +233,6 @@ class Properties extends React.Component<
       <Wrapper
         actionBar={
           <Wrapper.ActionBar
-            withMargin
-            wide
             background="bgWhite"
             left={title}
             right={this.renderActionBar()}

@@ -97,12 +97,7 @@ function WebBuilder(props: Props) {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            right={RightActionBar}
-            withMargin={true}
-            wide={true}
-            background="colorWhite"
-          />
+          <Wrapper.ActionBar right={RightActionBar} background="colorWhite" />
         }
         leftSidebar={
           <SideBar

@@ -99,8 +99,6 @@ class Channels extends React.Component<Props, {}> {
             left={leftActionBar}
             right={rightActionBar}
             background="colorWhite"
-            withMargin
-            wide
           />
         }
         content={

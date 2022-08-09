@@ -114,8 +114,6 @@ class GeneralSettings extends React.Component<Props, State> {
         actionBar={
           <Wrapper.ActionBar
             background="colorWhite"
-            withMargin
-            wide
             left={<Title>{__('Return Ebarimt configs')}</Title>}
             right={actionButtons}
           />

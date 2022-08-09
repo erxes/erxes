@@ -81,8 +81,6 @@ function Skills(props: Props) {
         left={title}
         right={actionBarRight}
         background="colorWhite"
-        withMargin
-        wide
       />
     );
   }
