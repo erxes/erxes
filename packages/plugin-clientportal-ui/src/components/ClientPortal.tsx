@@ -53,7 +53,6 @@ class ClientPortal extends React.Component<Props, {}> {
             emptyImage="/images/actions/13.svg"
           />
         }
-        hasBorder={true}
         transparent={true}
         noPadding
       />

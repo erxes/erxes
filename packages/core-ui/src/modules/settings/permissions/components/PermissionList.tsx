@@ -262,7 +262,6 @@ class PermissionList extends React.Component<Props> {
         leftSidebar={<GroupList queryParams={queryParams} />}
         footer={<Pagination count={totalCount} />}
         content={this.renderContent()}
-        hasBorder={true}
         center={false}
         noPadding={true}
       />

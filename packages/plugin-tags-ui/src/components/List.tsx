@@ -120,7 +120,6 @@ function List({
         />
       }
       leftSidebar={<Sidebar types={types} type={type} />}
-      hasBorder={true}
       transparent={true}
     />
   );

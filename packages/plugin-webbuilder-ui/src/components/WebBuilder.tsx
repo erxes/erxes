@@ -120,7 +120,6 @@ function WebBuilder(props: Props) {
           />
         }
         footer={<Pagination count={count} />}
-        hasBorder={true}
         transparent={true}
         noPadding={true}
       />

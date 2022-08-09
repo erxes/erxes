@@ -193,7 +193,6 @@ export default function Home(props: Props) {
       leftSidebar={<Sidebar hasBorder={true} loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
-      hasBorder={true}
       transparent={true}
       footer={<Pagination count={totalCount} />}
       noPadding={true}

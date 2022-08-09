@@ -40,7 +40,6 @@ function EngageConfigs() {
         />
       }
       content={<EngageSettingsContent />}
-      hasBorder={true}
       transparent={true}
       noPadding
     />

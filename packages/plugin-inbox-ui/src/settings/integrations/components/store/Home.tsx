@@ -151,7 +151,6 @@ class Home extends React.Component<Props, State> {
             <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
           </Content>
         }
-        hasBorder={true}
         transparent={true}
         noPadding
       />

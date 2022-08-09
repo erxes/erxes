@@ -150,7 +150,6 @@ function Skills(props: Props) {
       leftSidebar={<SkillTypes queryParams={queryParams} />}
       content={renderContent()}
       footer={<Pagination count={totalCount} />}
-      hasBorder={true}
       transparent={true}
       noPadding
     />

@@ -166,7 +166,6 @@ class Histories extends React.Component<Props & IRouterProps> {
             emptyContent={<EmptyContent content={EMPTY_IMPORT_CONTENT} />}
           />
         }
-        hasBorder={true}
         transparent={true}
         noPadding={true}
       />

@@ -22,7 +22,6 @@ type Props = {
   center?: boolean;
   shrink?: boolean;
   mainHead?: React.ReactNode;
-  hasBorder?: boolean;
   noPadding?: boolean;
   initialOverflow?: boolean;
 };
@@ -76,20 +75,14 @@ class Wrapper extends React.Component<Props> {
   }
 
   render() {
-    const {
-      header,
-      leftSidebar,
-      rightSidebar,
-      mainHead,
-      hasBorder
-    } = this.props;
+    const { header, leftSidebar, rightSidebar, mainHead } = this.props;
 
     return (
       <VerticalContent>
         {header}
         <MainHead>{mainHead}</MainHead>
         <HeightedWrapper>
-          <Contents hasBorder={hasBorder}>
+          <Contents>
             {leftSidebar}
             {this.renderContent()}
             {rightSidebar}

@@ -24,7 +24,7 @@ class GeneralSettings extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      configsMap: props.configsMap,
+      configsMap: props.configsMap
     };
   }
 
@@ -33,7 +33,7 @@ class GeneralSettings extends React.Component<Props, State> {
     const { configsMap } = this.state;
 
     if (!configsMap.remainderConfig) {
-      configsMap.remainderConfig = {}
+      configsMap.remainderConfig = {};
     }
 
     // must save prev item saved then new item
@@ -43,10 +43,10 @@ class GeneralSettings extends React.Component<Props, State> {
       pipelineId: '',
       account: '',
       location: ''
-    }
+    };
 
     this.setState({ configsMap });
-  }
+  };
 
   delete = (currentConfigKey: string) => {
     const { configsMap } = this.state;
@@ -56,7 +56,7 @@ class GeneralSettings extends React.Component<Props, State> {
     this.setState({ configsMap });
 
     this.props.save(configsMap);
-  }
+  };
 
   renderConfigs(configs) {
     return Object.keys(configs).map(key => {
@@ -68,8 +68,8 @@ class GeneralSettings extends React.Component<Props, State> {
           save={this.props.save}
           delete={this.delete}
         />
-      )
-    })
+      );
+    });
   }
 
   renderContent() {
@@ -117,7 +117,6 @@ class GeneralSettings extends React.Component<Props, State> {
         }
         leftSidebar={<Sidebar />}
         content={this.renderContent()}
-        hasBorder={true}
         transparent={true}
       />
     );

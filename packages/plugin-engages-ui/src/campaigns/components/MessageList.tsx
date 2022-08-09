@@ -291,7 +291,6 @@ class List extends React.Component<Props> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_ENGAGE} />}
           />
         }
-        hasBorder
         noPadding
       />
     );
