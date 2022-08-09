@@ -12,10 +12,7 @@ import {
   IItemDragCommonFields,
   IStageDocument
 } from '../../../models/definitions/boards';
-import {
-  BOARD_STATUSES,
-  NOTIFICATION_TYPES
-} from '../../../models/definitions/constants';
+import { BOARD_STATUSES } from '../../../models/definitions/constants';
 import { IDeal, IDealDocument } from '../../../models/definitions/deals';
 import {
   IGrowthHack,
@@ -135,7 +132,7 @@ export const itemsAdd = async (
     sendNotifications(models, subdomain, {
       item,
       user,
-      type: NOTIFICATION_TYPES.DEAL_ADD,
+      type: `${type}Add`,
       action: `invited you to the ${type}`,
       content: `'${item.name}'.`,
       contentType: type
@@ -280,7 +277,7 @@ export const itemsEdit = async (
   const notificationDoc: IBoardNotificationParams = {
     item: updatedItem,
     user,
-    type: NOTIFICATION_TYPES.TASK_EDIT,
+    type: `${type}Edit`,
     contentType: type
   };
 
@@ -425,7 +422,7 @@ export const itemsEdit = async (
   await sendNotifications(models, subdomain, {
     item: updatedItem,
     user,
-    type: NOTIFICATION_TYPES.TASK_CHANGE,
+    type: `${type}Change`,
     content,
     action,
     contentType: type
@@ -545,7 +542,7 @@ export const itemsChange = async (
   await sendNotifications(models, subdomain, {
     item,
     user,
-    type: NOTIFICATION_TYPES.DEAL_CHANGE,
+    type: `${type}Change`,
     content,
     action,
     contentType: type
