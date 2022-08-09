@@ -38,10 +38,11 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build plugin ebarimt
-          cd ../../dist/plugin-ebarimt-api/.erxes
+          cd plugin-ebarimt-api/.erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image
