@@ -77,7 +77,7 @@ const main = async () => {
   }
 
   console.log('Yarn install ....');
-  await execCommand('yarn install');
+  await execCommand('yarn install --production');
 
   process.chdir(folderName);
 
