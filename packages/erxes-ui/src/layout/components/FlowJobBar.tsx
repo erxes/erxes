@@ -13,7 +13,7 @@ type Props = {
   noBorder?: boolean;
 };
 
-function ActionBar({
+function FlowJobBar({
   left,
   right,
   background,
@@ -41,4 +41,4 @@ function ActionBar({
   );
 }
 
-export default ActionBar;
+export default FlowJobBar;

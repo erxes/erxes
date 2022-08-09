@@ -21,17 +21,17 @@ import { __, Alert } from '@erxes/ui/src/utils';
 
 import { IFlowDocument, IJob } from '../../../flow/types';
 import { IJobRefer, IProductsData } from '../../../job/types';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import FlowJobsForm from '../../containers/forms/actions/FlowJobsForm';
 import Confirmation from '../../containers/forms/Confirmation';
 import {
-  ActionBarButtonsWrapper,
+  FlowJobBarButtonsWrapper,
   FlowFormContainer,
   BackButton,
   Container,
   RightDrawerContainer,
   Title,
   ToggleWrapper,
-  ZoomActions,
+  ZoomFlowJobs,
   ZoomIcon
 } from '../../styles';
 import {
@@ -65,7 +65,7 @@ type State = {
   activeId: string;
   showDrawer: boolean;
   showTrigger: boolean;
-  showAction: boolean;
+  showFlowJob: boolean;
   isActive: boolean;
   showNoteForm: boolean;
   editNoteForm?: boolean;
@@ -77,11 +77,11 @@ type State = {
   zoomStep: number;
   zoom: number;
   percentage: number;
-  actionEdited: boolean;
+  flowJobEdited: boolean;
   categoryId: string;
   productId?: string;
   product?: IProduct;
-  lastAction?: IJob;
+  lastFlowJob?: IJob;
   flowStatus: boolean;
 };
 
@@ -102,23 +102,23 @@ class AutomationForm extends React.Component<Props, State> {
       name: lenFlow.length ? flow.name : 'Your flow title',
       flowJobs,
       activeId: '',
-      currentTab: 'actions',
+      currentTab: 'flowJobs',
       isActive: lenFlow.length ? flow.status === 'active' : false,
       showNoteForm: false,
       showTemplateForm: false,
       showTrigger: false,
       showDrawer: false,
-      showAction: false,
+      showFlowJob: false,
       isZoomable: false,
       zoomStep: 0.025,
       zoom: 1,
       percentage: 100,
       activeFlowJob: {} as IJob,
-      actionEdited: false,
+      flowJobEdited: false,
       categoryId: '',
       productId: flow.productId || '',
       product: flow.product,
-      lastAction: undefined,
+      lastFlowJob: undefined,
       flowStatus: false
     };
   }
@@ -127,8 +127,6 @@ class AutomationForm extends React.Component<Props, State> {
     const { flowJobs } = this.state;
     const { jobRefers } = this.props;
     const lastFlowJobs: IJob[] = [];
-
-    // const realActions = leftAction || actions;
     const realFlowJobs = leftflowJob.length > 0 ? leftflowJob : flowJobs;
 
     for (const flowJob of realFlowJobs) {
@@ -188,12 +186,12 @@ class AutomationForm extends React.Component<Props, State> {
       console.log('doubleCheckResult boolean: ' + doubleCheckResult);
 
       this.setState({
-        lastAction: justLastFlowJob,
+        lastFlowJob: justLastFlowJob,
         flowStatus: doubleCheckResult ? true : false
       });
     } else {
       this.setState({
-        lastAction: undefined,
+        lastFlowJob: undefined,
         flowStatus: doubleCheckResult ? true : false
       });
     }
@@ -326,7 +324,7 @@ class AutomationForm extends React.Component<Props, State> {
       });
 
       for (const flowJob of flowJobs) {
-        this.renderControl('action', flowJob, this.onClickAction);
+        this.renderControl('flowJob', flowJob, this.onClickFlowJob);
       }
 
       // create connections ===================
@@ -340,7 +338,7 @@ class AutomationForm extends React.Component<Props, State> {
     jquery('#canvas .control').hover(event => {
       event.preventDefault();
 
-      jquery(`div#${event.currentTarget.id}`).toggleClass('show-action-menu');
+      jquery(`div#${event.currentTarget.id}`).toggleClass('show-flowJob-menu');
 
       this.setState({ activeId: event.currentTarget.id });
     });
@@ -362,7 +360,7 @@ class AutomationForm extends React.Component<Props, State> {
 
       this.findLastFlowJob(leftFlowJobs);
 
-      if (type === 'action') {
+      if (type === 'flowJob') {
         return this.setState({
           flowJobs: leftFlowJobs
         });
@@ -375,7 +373,7 @@ class AutomationForm extends React.Component<Props, State> {
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
-      return Alert.error('Enter an Flow title');
+      return Alert.error('Please choose flow product');
     }
 
     const generateValues = () => {
@@ -395,7 +393,7 @@ class AutomationForm extends React.Component<Props, State> {
           inDepartmentId: a.inDepartmentId,
           outBranchId: a.outBranchId,
           outDepartmentId: a.outDepartmentId,
-          style: jquery(`#action-${a.id}`).attr('style')
+          style: jquery(`#flowJob-${a.id}`).attr('style')
         }))
       };
 
@@ -470,11 +468,11 @@ class AutomationForm extends React.Component<Props, State> {
     });
   };
 
-  onClickAction = (flowJob: IJob) => {
+  onClickFlowJob = (flowJob: IJob) => {
     this.setState({
-      showAction: true,
+      showFlowJob: true,
       showDrawer: true,
-      currentTab: 'actions',
+      currentTab: 'flowJobs',
       activeFlowJob: flowJob ? flowJob : ({} as IJob)
     });
   };
@@ -486,17 +484,17 @@ class AutomationForm extends React.Component<Props, State> {
       flowJobs: connection(
         flowJobs,
         info,
-        info.targetId.replace('action-', ''),
+        info.targetId.replace('flowJob-', ''),
         'connect',
         this.findLastFlowJob
       )
     });
 
-    const sourceAction = flowJobs.find(
-      a => a.id.toString() === info.sourceId.replace('action-', '')
+    const sourceFlowJob = flowJobs.find(
+      a => a.id.toString() === info.sourceId.replace('flowJob-', '')
     );
 
-    const idElm = 'action-' + (sourceAction || {}).id;
+    const idElm = 'flowJob-' + (sourceFlowJob || {}).id;
     instance.addEndpoint(idElm, sourceEndpoint, {
       anchor: ['Right']
     });
@@ -510,7 +508,7 @@ class AutomationForm extends React.Component<Props, State> {
       flowJobs: connection(
         flowJobs,
         info,
-        info.targetId.replace('action-', ''),
+        info.targetId.replace('flowJob-', ''),
         'disconnect',
         this.findLastFlowJob
       )
@@ -596,9 +594,9 @@ class AutomationForm extends React.Component<Props, State> {
     return newId;
   };
 
-  addAction = (
+  addFlowJob = (
     data?: IJob,
-    actionId?: string,
+    flowJobId?: string,
     jobReferId?: string,
     description?: string,
     inBranchId?: string,
@@ -613,13 +611,13 @@ class AutomationForm extends React.Component<Props, State> {
       ...(data || {}),
       id: this.getNewId(flowJobs.map(a => a.id))
     };
-    let actionIndex = -1;
+    let flowJobIndex = -1;
 
-    if (actionId) {
-      actionIndex = flowJobs.findIndex(a => a.id === actionId);
+    if (flowJobId) {
+      flowJobIndex = flowJobs.findIndex(a => a.id === flowJobId);
 
-      if (actionIndex !== -1) {
-        flowJob = flowJobs[actionIndex];
+      if (flowJobIndex !== -1) {
+        flowJob = flowJobs[flowJobIndex];
       }
     }
 
@@ -635,17 +633,17 @@ class AutomationForm extends React.Component<Props, State> {
     flowJob.label = jobRefer.name;
     flowJob.description = description || jobRefer.name;
 
-    if (actionIndex !== -1) {
-      flowJobs[actionIndex] = flowJob;
+    if (flowJobIndex !== -1) {
+      flowJobs[flowJobIndex] = flowJob;
     } else {
       flowJobs.push(flowJob);
     }
 
     this.setState(
-      { flowJobs, activeFlowJob: flowJob, actionEdited: true },
+      { flowJobs, activeFlowJob: flowJob, flowJobEdited: true },
       () => {
-        if (!actionId) {
-          this.renderControl('action', flowJob, this.onClickAction);
+        if (!flowJobId) {
+          this.renderControl('flowJob', flowJob, this.onClickFlowJob);
         }
       }
     );
@@ -687,7 +685,7 @@ class AutomationForm extends React.Component<Props, State> {
       onClick(item);
     });
 
-    if (key === 'action') {
+    if (key === 'flowJob') {
       instance.addEndpoint(idElm, targetEndpoint, {
         anchor: ['Left']
       });
@@ -707,7 +705,7 @@ class AutomationForm extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'actions')}
+          onClick={this.toggleDrawer.bind(this, 'flowJobs')}
         >
           Add a Job
         </Button>
@@ -719,7 +717,7 @@ class AutomationForm extends React.Component<Props, State> {
     return <Label lblStyle={style}>{text}</Label>;
   };
 
-  rendeRightActionBar() {
+  rendeRightFlowJobBar() {
     const { isActive } = this.state;
 
     return (
@@ -741,7 +739,7 @@ class AutomationForm extends React.Component<Props, State> {
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
           <span className={!isActive ? 'active' : ''}>{__('Active')}</span>
         </ToggleWrapper>
-        <ActionBarButtonsWrapper>
+        <FlowJobBarButtonsWrapper>
           {this.renderButtons()}
           <Button
             btnStyle="success"
@@ -751,12 +749,12 @@ class AutomationForm extends React.Component<Props, State> {
           >
             {__('Save')}
           </Button>
-        </ActionBarButtonsWrapper>
+        </FlowJobBarButtonsWrapper>
       </BarItems>
     );
   }
 
-  renderLeftActionBar() {
+  renderLeftFlowJobBar() {
     const { name } = this.state;
 
     return (
@@ -784,62 +782,62 @@ class AutomationForm extends React.Component<Props, State> {
     );
   }
 
-  onBackAction = () => this.setState({ showAction: false });
+  onBackFlowJob = () => this.setState({ showFlowJob: false });
 
   onSave = () => {
     const { activeFlowJob } = this.state;
 
-    this.addAction(activeFlowJob);
+    this.addFlowJob(activeFlowJob);
 
-    this.onBackAction();
+    this.onBackFlowJob();
   };
 
   renderTabContent() {
     const {
       currentTab,
-      showAction,
+      showFlowJob,
       activeFlowJob,
       product,
-      lastAction
+      lastFlowJob
     } = this.state;
 
     const { jobRefers } = this.props;
 
-    if (currentTab === 'actions') {
+    if (currentTab === 'flowJobs') {
       const { flowJobs } = this.state;
 
-      if (showAction && activeFlowJob) {
+      if (showFlowJob && activeFlowJob) {
         const checkArray = Object.keys(activeFlowJob);
-        let checkedActiveAction = activeFlowJob;
+        let checkedActiveFlowJob = activeFlowJob;
         if (!checkArray.includes('nextJobIds')) {
-          checkedActiveAction = { ...activeFlowJob, nextJobIds: [] };
+          checkedActiveFlowJob = { ...activeFlowJob, nextJobIds: [] };
         }
 
         return (
           <>
             <NewJobForm
-              activeAction={checkedActiveAction}
-              addAction={this.addAction}
-              closeModal={this.onBackAction}
+              activeFlowJob={checkedActiveFlowJob}
+              addFlowJob={this.addFlowJob}
+              closeModal={this.onBackFlowJob}
               jobRefers={jobRefers}
               flowJobs={flowJobs}
               onSave={this.onSave}
-              lastAction={lastAction}
+              lastFlowJob={lastFlowJob}
               flowProduct={product}
             />
           </>
         );
       }
 
-      return <ActionsForm onClickAction={this.onClickAction} />;
+      return <FlowJobsForm onClickFlowJob={this.onClickFlowJob} />;
     }
 
     return null;
   }
 
-  renderZoomActions() {
+  renderZoomFlowJobs() {
     return (
-      <ZoomActions>
+      <ZoomFlowJobs>
         <div className="icon-wrapper">
           <ZoomIcon
             disabled={this.state.zoom >= 1}
@@ -857,7 +855,7 @@ class AutomationForm extends React.Component<Props, State> {
           </ZoomIcon>
         </div>
         <span>{`${this.state.percentage}%`}</span>
-      </ZoomActions>
+      </ZoomFlowJobs>
     );
   }
 
@@ -869,7 +867,7 @@ class AutomationForm extends React.Component<Props, State> {
         <Container>
           <div
             className="trigger scratch"
-            onClick={this.toggleDrawer.bind(this, 'actions')}
+            onClick={this.toggleDrawer.bind(this, 'flowJobs')}
           >
             <Icon icon="file-plus" size={25} />
             <p>{__('Please add first job')}?</p>
@@ -880,7 +878,7 @@ class AutomationForm extends React.Component<Props, State> {
 
     return (
       <Container>
-        {this.renderZoomActions()}
+        {this.renderZoomFlowJobs()}
         <div id="canvas" />
       </Container>
     );
@@ -927,10 +925,10 @@ class AutomationForm extends React.Component<Props, State> {
               ]}
             />
             <PageContent
-              actionBar={
-                <Wrapper.ActionBar
-                  left={this.renderLeftActionBar()}
-                  right={this.rendeRightActionBar()}
+              flowJobBar={
+                <Wrapper.FlowJobBar
+                  left={this.renderLeftFlowJobBar()}
+                  right={this.rendeRightFlowJobBar()}
                 />
               }
               transparent={false}

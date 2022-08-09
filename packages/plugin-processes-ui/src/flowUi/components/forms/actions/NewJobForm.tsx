@@ -9,7 +9,7 @@ import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 
 import { IJob } from '../../../../flow/types';
 import { IJobRefer } from '../../../../job/types';
-import { DrawerDetail, ActionTabs } from '../../../styles';
+import { DrawerDetail, FlowJobTabs } from '../../../styles';
 import Common from './Common';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
@@ -19,14 +19,14 @@ import { __ } from '@erxes/ui/src/utils';
 type Props = {
   closeModal: () => void;
   onSave: () => void;
-  activeAction?: IJob;
+  activeFlowJob?: IJob;
   jobRefers: IJobRefer[];
   flowJobs: IJob[];
-  lastAction?: IJob;
+  lastFlowJob?: IJob;
   flowProduct?: IProduct;
-  addAction: (
-    action: IJob,
-    actionId?: string,
+  addFlowJob: (
+    data: IJob,
+    flowJobId?: string,
     jobReferId?: string,
     inBranchId?: string,
     inDepartmentId?: string,
@@ -56,7 +56,7 @@ class Delay extends React.Component<Props, State> {
       inDepartmentId,
       outBranchId,
       outDepartmentId
-    } = this.props.activeAction || {};
+    } = this.props.activeFlowJob || {};
 
     this.state = {
       jobReferId: jobReferId || '',
@@ -70,8 +70,8 @@ class Delay extends React.Component<Props, State> {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.activeAction !== this.props.activeAction) {
-      this.setState({ jobReferId: nextProps.activeAction.jobReferId });
+    if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
+      this.setState({ jobReferId: nextProps.activeFlowJob.jobReferId });
     }
   }
 
@@ -116,15 +116,15 @@ class Delay extends React.Component<Props, State> {
     });
   };
 
-  renderActions = (
-    chosenActions: IJob[],
+  renderFlowJobs = (
+    chosenFlowJobs: IJob[],
     jobRefers,
     type,
-    beforeActions: IJob[]
+    beforeFlowJobs: IJob[]
   ) => {
     let beforeResultProducts: any = [];
-    if (beforeActions.length > 0) {
-      for (const before of beforeActions) {
+    if (beforeFlowJobs.length > 0) {
+      for (const before of beforeFlowJobs) {
         const jobRefer = jobRefers.find(job => job._id === before.jobReferId);
         const resultProducts = jobRefer.resultProducts || [];
         const productNames = resultProducts.map(e => e.product.name);
@@ -134,15 +134,15 @@ class Delay extends React.Component<Props, State> {
     }
 
     if (type === 'cur') {
-      console.log('current last product:', this.props.lastAction);
+      console.log('current last product:', this.props.lastFlowJob);
     }
 
-    return chosenActions.map(action => {
-      if (!action.jobReferId) {
+    return chosenFlowJobs.map(flowJob => {
+      if (!flowJob.jobReferId) {
         return [];
       }
 
-      const jobRefer = jobRefers.find(job => job._id === action.jobReferId);
+      const jobRefer = jobRefers.find(job => job._id === flowJob.jobReferId);
       const needProducts = jobRefer.needProducts || [];
       const resultProducts = jobRefer.resultProducts || [];
 
@@ -154,7 +154,7 @@ class Delay extends React.Component<Props, State> {
           {type !== 'last' && (
             <Info type="primary" title="">
               <FormGroup>
-                <ControlLabel key={action.id}>{action.label}</ControlLabel>
+                <ControlLabel key={flowJob.id}>{flowJob.label}</ControlLabel>
               </FormGroup>
               {type === 'next' && this.renderProducts(needProducts, 'need')}
               {type === 'prev' && this.renderProducts(resultProducts, 'result')}
@@ -163,7 +163,7 @@ class Delay extends React.Component<Props, State> {
             </Info>
           )}
 
-          {type === 'last' && action === this.props.lastAction && (
+          {type === 'last' && flowJob === this.props.lastFlowJob && (
             <Info type="primary" title="Статус">
               {type === 'last' &&
                 this.renderProducts(
@@ -188,18 +188,18 @@ class Delay extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { jobRefers, flowJobs, activeAction } = this.props;
-    const activeActionId =
-      activeAction && activeAction.id ? activeAction.id : '';
-    const beforeActions = flowJobs.filter(e =>
-      (e.nextJobIds || []).includes(activeActionId)
+    const { jobRefers, flowJobs, activeFlowJob } = this.props;
+    const activeFlowJobId =
+      activeFlowJob && activeFlowJob.id ? activeFlowJob.id : '';
+    const beforeFlowJobs = flowJobs.filter(e =>
+      (e.nextJobIds || []).includes(activeFlowJobId)
     );
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value } as any);
     };
 
     const findJobRefer = jobRefers.find(
-      job => job._id === (activeAction || {}).jobReferId
+      job => job._id === (activeFlowJob || {}).jobReferId
     );
     const needProducts = (findJobRefer || {}).needProducts || [];
     const resultProducts = (findJobRefer || {}).resultProducts || [];
@@ -243,16 +243,16 @@ class Delay extends React.Component<Props, State> {
         </FormGroup>
 
         <Info type="success" title="">
-          {activeAction &&
-            this.renderActions(
-              [activeAction],
+          {activeFlowJob &&
+            this.renderFlowJobs(
+              [activeFlowJob],
               jobRefers,
               'last',
-              beforeActions
+              beforeFlowJobs
             )}
         </Info>
 
-        <ActionTabs>
+        <FlowJobTabs>
           <Tabs full={true}>
             <TabTitle
               className={currentTab === 'inputs' ? 'active' : ''}
@@ -267,24 +267,24 @@ class Delay extends React.Component<Props, State> {
               {__('Statuses')}
             </TabTitle>
           </Tabs>
-        </ActionTabs>
+        </FlowJobTabs>
 
         {currentTab === 'status' && (
           <FormWrapper>
             <FormColumn>
               <Info type="primary" title="Өмнөх жоб бүтээгдэхүүнүүд">
-                {this.renderActions(beforeActions, jobRefers, 'prev', [])}
+                {this.renderFlowJobs(beforeFlowJobs, jobRefers, 'prev', [])}
               </Info>
             </FormColumn>
 
             <FormColumn>
               <Info type="success" title="Шаардлагатай бүтээгдэхүүнүүд">
-                {activeAction &&
-                  this.renderActions(
-                    [activeAction],
+                {activeFlowJob &&
+                  this.renderFlowJobs(
+                    [activeFlowJob],
                     jobRefers,
                     'cur',
-                    beforeActions
+                    beforeFlowJobs
                   )}
               </Info>
             </FormColumn>
@@ -295,10 +295,10 @@ class Delay extends React.Component<Props, State> {
           please uncomment below.
           */}
 
-            {/* {activeAction.label === this.props.lastActionId &&
+            {/* {activeFlowJob.label === this.props.lastFlowJobId &&
             <FormColumn>
-              <Info type="info" title={this.props.lastActionId}>
-                {this.renderActions(afterActions, jobRefers, 'next', [])}
+              <Info type="info" title={this.props.lastFlowJobId}>
+                {this.renderFlowJobs(afterFlowJobs, jobRefers, 'next', [])}
               </Info>
             </FormColumn>
           } */}
