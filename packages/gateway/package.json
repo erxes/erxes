@@ -4,7 +4,6 @@
   "license": "GNU General Public License v3.0 with Commons Clause",
   "scripts": {
     "dev": "NODE_ENV=development yarn watchTemplate & nodemon src/index.ts",
-    "build": "yarn ts-node src/commands/build.ts",
     "watchTemplate": "nodemon src/commands/watch-template.ts",
     "download:plugins": "yarn ts-node src/subscription/plugins/runDownloadPlugins.ts"
   },

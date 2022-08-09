@@ -1,0 +1,10 @@
+{
+  "name": "builder",
+  "scripts": {
+    "build": "yarn ts-node src/commands/build.ts"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.1",
+    "typescript": "^4.5.4"
+  }
+}
