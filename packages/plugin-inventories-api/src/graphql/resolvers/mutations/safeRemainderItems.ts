@@ -2,54 +2,44 @@ import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
 import { SAFE_REMAINDER_ITEM_STATUSES } from '../../../models/definitions/constants';
 
-export interface IUpdateSafeRemainderItemParams {
-  _id: string;
-  status?: string;
-  remainder: number;
-}
-
 const safeRemainderItemMutations = {
-  async updateSafeRemainderItem(
+  async safeRemainderItemEdit(
     _root: any,
-    params: IUpdateSafeRemainderItemParams,
-    { models }: IContext
+    params: {
+      _id: string;
+      status?: string;
+      remainder: number;
+    },
+    { models, user }: IContext
   ) {
     const { _id, status, remainder } = params;
-    const item = await models.SafeRemainderItems.getItemObject(_id);
 
-    await models.SafeRemainderItems.updateOne(
-      { _id },
-      {
-        $set: {
-          lastTransactionDate: new Date(),
-          count: remainder,
-          status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED
-        }
-      }
-    );
+    const doc = {
+      lastTransactionDate: new Date(),
+      count: remainder,
+      status: status || SAFE_REMAINDER_ITEM_STATUSES.CHECKED
+    };
 
-    return models.SafeRemainderItems.getItemObject(_id);
+    return await models.SafeRemainderItems.updateItem(_id, doc, user._id);
   },
 
-  async removeSafeRemainderItem(
+  async safeRemainderItemRemove(
     _root: any,
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    await models.SafeRemainderItems.getItemObject(_id);
-
-    return models.SafeRemainderItems.deleteOne({ _id });
+    return models.SafeRemainderItems.removeItem(_id);
   }
 };
 
 checkPermission(
   safeRemainderItemMutations,
-  'updateSafeRemainderItem',
+  'safeRemainderItemEdit',
   'manageRemainders'
 );
 checkPermission(
   safeRemainderItemMutations,
-  'removeSafeRemainderItem',
+  'safeRemainderItemRemove',
   'manageRemainders'
 );
 

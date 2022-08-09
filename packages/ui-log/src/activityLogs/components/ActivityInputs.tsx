@@ -1,6 +1,5 @@
 import { TabTitle, Tabs } from '@erxes/ui/src/components/tabs';
 
-import { EmptyContent } from '../styles';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import Icon from '@erxes/ui/src/components/Icon';
 import NoteForm from '@erxes/ui-internalnotes/src/containers/Form';
@@ -64,19 +63,7 @@ class ActivityInputs extends React.PureComponent<Props, State> {
       );
     }
 
-    return (
-      <EmptyContent>
-        <img src="/images/actions/automation.svg" alt="empty-img" />
-
-        <p>
-          <b>{'You don’t have any activity logs yet'}.</b>
-          {__(
-            'Automatically execute repetitive tasks and make sure nothing falls through the cracks'
-          )}
-          .
-        </p>
-      </EmptyContent>
-    );
+    return null;
   }
 
   renderTabTitle(type: string, icon: string, title: string) {

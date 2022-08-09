@@ -6,7 +6,6 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import path from 'path';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -17,7 +16,7 @@ type Props = {
 const Segments = asyncComponent(
   () =>
     isEnabled('segments') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "SegmentFilter" */ '@erxes/ui-segments/src/containers/Filter'
     )
 );

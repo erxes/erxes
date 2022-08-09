@@ -2,7 +2,6 @@ import typeDefs from './graphql/typeDefs';
 import resolvers from './dataloaders/resolvers';
 
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import { generateAllDataLoaders } from './dataloaders';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -46,8 +45,6 @@ export default {
 
   onServerInit: async options => {
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     debug = options.debug;
   }

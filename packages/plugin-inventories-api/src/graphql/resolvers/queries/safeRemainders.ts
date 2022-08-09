@@ -9,11 +9,15 @@ const safeRemainderQueries = {
   /**
    * Get one tag
    */
-  safeRemainderDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.SafeRemainders.findOne({ _id });
+  safeRemainderDetail: async (
+    _root: any,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) => {
+    return await models.SafeRemainders.getRemainder(_id);
   },
 
-  safeRemainders: async (_root, params, { models, subdomain }: IContext) => {
+  safeRemainders: async (_root: any, params: any, { models }: IContext) => {
     const query: any = {};
 
     if (params.departmentId) {
