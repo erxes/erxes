@@ -1,11 +1,18 @@
 {
   "name": "builder",
+  "private": true,
+  "workspaces": [
+    "*"
+  ],
   "scripts": {
-    "build": "yarn ts-node src/commands/build.ts"
+    "build": "yarn ts-node commands/build.ts"
   },
   "dependencies": {
     "fs-extra": "^9.0.1",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.3"
   }
 }
