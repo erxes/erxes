@@ -68,7 +68,7 @@ Run sudo nano or sudo vim command to create .yml file.
 
 :::
 
-6. Create a docker-compose.yaml file, then copy the following script in the newly created file. 
+6. Create a `docker-compose.yaml` file, then copy the following script in the newly created file. 
 
 ```
 version: '3.6'
@@ -152,7 +152,7 @@ git checkout federation
 yarn install
 ```
 
-11. Install pm2 by using following command.
+11. Install `pm2` by using following command.
 
 ```
 sudo npm install -g pm2
@@ -182,7 +182,7 @@ cd cli
 yarn install
 ```
 
-14. Copy configs.json.sample, then convert it to configs.json.
+14. Copy `configs.json.sample`, then convert it to `configs.json`.
 
 ```
 cp configs.json.sample configs.json
