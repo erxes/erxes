@@ -38,7 +38,6 @@ class CategoryStatusFilter extends React.Component<IProps> {
         extraButtons={extraButtons}
         title={__('Filter category by status')}
         name="showFilterByType"
-        noSpacing
       >
         <SidebarList>
           {categoryStatusChoises(__).map(

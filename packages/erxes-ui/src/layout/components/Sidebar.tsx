@@ -14,18 +14,12 @@ import {
 
 function Title({
   children,
-  onClick,
-  noSpacing
+  onClick
 }: {
   children: React.ReactNode;
   onClick?: () => void;
-  noSpacing?: boolean;
 }) {
-  return (
-    <SidebarTitle onClick={onClick} noSpacing={noSpacing}>
-      {children}
-    </SidebarTitle>
-  );
+  return <SidebarTitle onClick={onClick}>{children}</SidebarTitle>;
 }
 
 function QuickButtons({

@@ -72,7 +72,6 @@ class BranchDepartmentFilter extends React.Component<IProps, State> {
         extraButtons={extraButtons}
         title={__('Filter by Output')}
         name="showFilterByType"
-        noSpacing={true}
       >
         <SidebarList>
           <OverallWorkSidebar>
