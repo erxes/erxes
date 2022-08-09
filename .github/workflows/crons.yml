@@ -3,7 +3,7 @@ name: Crons CI
 on:
   push:
     branches:
-      - '**'
+      - 'federation'
     paths:
       - 'packages/api-utils/**'
       - 'packages/crons/**'
