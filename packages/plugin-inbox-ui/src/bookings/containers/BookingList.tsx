@@ -1,20 +1,22 @@
-import React, { useEffect } from 'react';
-import { Alert, confirm } from '@erxes/ui/src/utils';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import BookingList from '../components/BookingList';
 import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { mutations, queries } from '../graphql';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+
+import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
   BookingIntegrationsQueryResponse,
   RemoveMutationResponse
 } from '../types';
-import { MutationVariables as RemoveMutationVariables } from '@erxes/ui/src/types'
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { ArchiveIntegrationResponse } from '@erxes/ui-settings/src/integrations/types';
+import React, { useEffect } from 'react';
+import { mutations, queries } from '../graphql';
+
+import { ArchiveIntegrationResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
+import BookingList from '../components/BookingList';
+import Bulk from '@erxes/ui/src/components/Bulk';
 import { CountQueryResponse } from '@erxes/ui-leads/src/types';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import { MutationVariables as RemoveMutationVariables } from '@erxes/ui/src/types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
   queryParams: any;

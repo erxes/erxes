@@ -1,6 +1,5 @@
-import * as compose from 'lodash.flowright';
 import React from 'react';
-
+import * as compose from 'lodash.flowright';
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
@@ -21,7 +20,7 @@ class Form extends React.Component<Props> {
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
-      const callBack = data => {
+      const callBack = (data: any) => {
         if (callback) {
           callback(data);
         }

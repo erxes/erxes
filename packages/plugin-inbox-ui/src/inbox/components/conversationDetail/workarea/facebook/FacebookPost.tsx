@@ -1,14 +1,15 @@
 import * as React from 'react';
 
-import { FormControl } from '@erxes/ui/src/components/form';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { Counts, User } from './styles';
+
 import Date from './Date';
 import FacebookContent from './FacebookContent';
-import { Counts, User } from './styles';
-import { PostContainer } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';;
-import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IFacebookPost } from '@erxes/ui-inbox/src/inbox/types';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import { PostContainer } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/styles';
+import UserName from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/facebook/UserName';
 
 type Props = {
   post: IFacebookPost;
@@ -26,7 +27,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
         <span>{commentCount} Comments</span>
 
         <FormControl
-          componentClass='checkbox'
+          componentClass="checkbox"
           onChange={this.props.onToggleClick}
           checked={this.props.isResolved}
         >
@@ -54,7 +55,7 @@ export default class FacebookPost extends React.Component<Props, {}> {
           />
           <span>
             <Date
-              type='post'
+              type="post"
               timestamp={post.timestamp}
               permalink_url={post.permalink_url}
             />

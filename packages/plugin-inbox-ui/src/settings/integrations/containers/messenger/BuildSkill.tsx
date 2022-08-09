@@ -1,15 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import {
-  SkillsQueryResponse,
-  SkillTypesQueryResponse
-} from '@erxes/ui-settings/src/skills/types';
+
 import React, { useCallback, useEffect } from 'react';
+import {
+  SkillTypesQueryResponse,
+  SkillsQueryResponse
+} from '@erxes/ui-inbox/src/settings/skills/types';
 import { graphql, useLazyQuery } from 'react-apollo';
-import queries from '../../../skills/graphql/queries';
+
 import BuildSkill from '../../components/messenger/steps/BuildSkill';
-import { ISkillData } from '@erxes/ui-settings/src/integrations/types';
+import { ISkillData } from '@erxes/ui-inbox/src/settings/integrations/types';
+import gql from 'graphql-tag';
+import queries from '../../../skills/graphql/queries';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   skillData?: ISkillData;

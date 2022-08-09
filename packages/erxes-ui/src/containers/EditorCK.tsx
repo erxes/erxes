@@ -1,21 +1,20 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries as segmentQueries } from '@erxes/ui-segments/src/graphql';
-import { LeadIntegrationsQueryResponse } from '@erxes/ui-leads/src/types';
-import {
-  FieldsCombinedByType,
-  FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '../utils';
-import { queries as teamQueries } from '../team/graphql';
+
+import { IEditorProps, IMentionUser } from '../types';
+
 import { AllUsersQueryResponse } from '../auth/types';
 import EditorCK from '../components/EditorCK';
-import { IEditorProps, IMentionUser } from '../types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '../utils/core';
 import { isValidURL } from '../utils/urlParser';
+import segmentQueries from './queries';
+import { queries as teamQueries } from '../team/graphql';
+import { withProps } from '../utils';
 
-const generateAttributes = (combinedFields?: FieldsCombinedByType[]) => {
+const generateAttributes = (combinedFields?: any[]) => {
+  //check - FieldsCombinedByType
   let items: Array<{ name: string; value?: string }> = [
     { name: 'Customer' },
     { value: 'customer.name', name: 'Name' }
@@ -50,18 +49,23 @@ type Props = {
 
 type FinalProps = {
   usersQuery: AllUsersQueryResponse;
-  combinedFieldsQuery: FieldsCombinedByTypeQueryResponse;
-  leadsQuery: LeadIntegrationsQueryResponse;
+  combinedFieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
+  leadsQuery: any; //check - LeadIntegrationsQueryResponse
 } & Props;
 
 const EditorContainer = (props: FinalProps) => {
   const { usersQuery, combinedFieldsQuery } = props;
 
-  if (usersQuery.loading || combinedFieldsQuery.loading) {
+  if (
+    usersQuery.loading ||
+    (combinedFieldsQuery && combinedFieldsQuery.loading)
+  ) {
     return null;
   }
 
-  const combinedFields = combinedFieldsQuery.fieldsCombinedByContentType || [];
+  const combinedFields = combinedFieldsQuery
+    ? combinedFieldsQuery.fieldsCombinedByContentType || []
+    : [];
   const users = usersQuery.allUsers || [];
   const mentionUsers: IMentionUser[] = [];
 
@@ -103,7 +107,8 @@ export default withProps<Props>(
         variables: {
           contentType: 'customer'
         }
-      })
+      }),
+      skip: !isEnabled('segments')
     })
   )(EditorContainer)
 );

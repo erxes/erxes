@@ -1,26 +1,28 @@
-import React from 'react';
+import {
+  Box,
+  Filter,
+  FilterContainer,
+  FilterHeader,
+  MainContainer,
+  PaddingBottom,
+  PaddingLeft,
+  Search,
+  SearchContainer
+} from '../styles';
 
-import Icon from 'modules/common/components/Icon';
 import Button from 'modules/common/components/Button';
-import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-
 import CollapseFilter from './CollapseFilter';
 import FormControl from './FormControl';
+import Icon from 'modules/common/components/Icon';
+import React from 'react';
+import { __ } from 'modules/common/utils';
+import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
 
-import {
-  MainContainer,
-  SearchContainer,
-  Search,
-  FilterContainer,
-  Filter,
-  FilterHeader,
-  Box,
-  PaddingLeft,
-  PaddingBottom
-} from '../styles';
+const FlexContent = styled.div`
+  display: flex;
+  align-items: center;
+`;
 
 type Props = {
   onSearch: (e) => void;

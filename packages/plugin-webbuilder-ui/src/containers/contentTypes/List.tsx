@@ -14,7 +14,6 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
-  history: any;
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
@@ -44,6 +43,7 @@ function ContentTypesContainer(props: FinalProps) {
           Alert.success('Successfully removed a type');
 
           typesQuery.refetch();
+          typesTotalCountQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -55,7 +55,6 @@ function ContentTypesContainer(props: FinalProps) {
     ...props,
     contentTypes,
     remove,
-    loading: typesQuery.loading,
     contentTypesCount
   };
 
@@ -79,6 +78,9 @@ export default compose(
     }
   ),
   graphql<{}, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
-    name: 'typesRemoveMutation'
+    name: 'typesRemoveMutation',
+    options: () => ({
+      refetchQueries: [{ query: gql(queries.contentTypes) }]
+    })
   })
 )(ContentTypesContainer);

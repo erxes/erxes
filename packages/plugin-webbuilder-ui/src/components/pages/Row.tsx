@@ -1,4 +1,5 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { RowTitle } from '@erxes/ui-engage/src/styles';
 import { __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
@@ -9,7 +10,6 @@ import { IPageDoc } from '../../types';
 
 type Props = {
   page: IPageDoc;
-  history: any;
   remove: (_id: string) => void;
 };
 
@@ -40,18 +40,19 @@ class Row extends React.Component<Props> {
     );
   }
   render() {
-    const { page, history } = this.props;
+    const { page } = this.props;
 
-    const onTrClick = () => {
-      history.push(`/webbuilder/pages/edit/${page._id}`);
-    };
-
-    const { name, description } = page;
+    const { name, description, _id, site } = page;
 
     return (
-      <tr onClick={onTrClick}>
-        <td>{name}</td>
+      <tr>
+        <td>
+          <RowTitle>
+            <Link to={`pages/edit/${_id}`}>{name}</Link>
+          </RowTitle>
+        </td>
         <td>{description}</td>
+        <td>{site?.name || ''}</td>
         <td>
           <ActionButtons>
             {this.manageAction(page)}

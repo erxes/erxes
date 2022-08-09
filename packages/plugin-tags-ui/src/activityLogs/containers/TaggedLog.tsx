@@ -1,13 +1,14 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
+
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
 import TaggedLog from '../component/TaggedLog';
 import { TagsQueryResponse } from '../../types';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   tagIds: string[];

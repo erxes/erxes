@@ -9,7 +9,6 @@ import Row from './Row';
 import { IContentTypeDoc, IEntryDoc } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
   entries: IEntryDoc[];
@@ -35,13 +34,7 @@ class List extends React.Component<Props> {
   };
 
   render() {
-    const {
-      contentType,
-      entries,
-      getActionBar,
-      setCount,
-      entriesCount
-    } = this.props;
+    const { contentType, getActionBar, setCount, entriesCount } = this.props;
     const { fields = [] } = contentType;
 
     const actionBarRight = (
@@ -77,7 +70,7 @@ class List extends React.Component<Props> {
       </>
     );
 
-    if (entries.length === 0) {
+    if (entriesCount < 1) {
       content = (
         <EmptyState
           image="/images/actions/8.svg"

@@ -1,6 +1,6 @@
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { IContract } from '../contracts/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { IInvoiceDoc } from '../invoices/types';
 
 export interface ITrDefaultDoc {

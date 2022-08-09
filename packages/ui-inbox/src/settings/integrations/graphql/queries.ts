@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const users = `
   query users {
     users {
@@ -97,15 +99,27 @@ const integrations = `
       leadData
       formId
       tagIds
-      tags {
-        _id
-        colorCode
-        name
+      ${
+        isEnabled('tags')
+          ? `
+        tags {
+          _id
+          colorCode
+          name
+        }
+      `
+          : ``
       }
-      form {
-        _id
-        title
-        code
+      ${
+        isEnabled('forms')
+          ? `
+              form {
+                _id
+                title
+                code
+              }
+            `
+          : ''
       }
       healthStatus
     }
@@ -148,6 +162,82 @@ const integrationsGetIntegrationDetail = `
   }
 `;
 
+const integrationsGetAccounts = `
+  query integrationsGetAccounts($kind: String) {
+    integrationsGetAccounts(kind: $kind)
+  }
+`;
+
+const integrationsGetIntegrations = `
+  query integrationsGetIntegrations($kind: String) {
+    integrationsGetIntegrations(kind: $kind)
+  }
+`;
+
+const integrationsGetNylasEvents = `
+  query integrationsGetNylasEvents($calendarIds: [String] $startTime: Date $endTime: Date) {
+    integrationsGetNylasEvents(calendarIds: $calendarIds startTime: $startTime endTime: $endTime)
+  }
+`;
+
+const integrationsGetTwitterAccount = `
+  query integrationsGetTwitterAccount($accountId: String!) {
+    integrationsGetTwitterAccount(accountId: $accountId)
+  }
+`;
+
+const integrationsGetGmailEmail = `
+  query integrationsGetGmailEmail($accountId: String!) {
+    integrationsGetGmailEmail(accountId: $accountId)
+  }
+`;
+
+const integrationsGetFbPages = `
+  query integrationsGetFbPages($accountId: String!, $kind: String!) {
+    integrationsGetFbPages(accountId: $accountId, kind: $kind)
+  }
+`;
+
+const integrationsVideoCallUsageStatus = `
+  query integrationsVideoCallUsageStatus {
+    integrationsVideoCallUsageStatus
+  }
+`;
+
+const integrationsNylasGetCalendars = `
+  query integrationsNylasGetCalendars($accountId: String!, $show: Boolean) {
+    integrationsNylasGetCalendars(accountId: $accountId, show: $show)
+  }
+`;
+
+const integrationsNylasGetSchedulePage = `
+  query integrationsNylasGetSchedulePage($pageId: String!) {
+    integrationsNylasGetSchedulePage(pageId: $pageId)
+  }
+`;
+
+const integrationsNylasGetSchedulePages = `
+  query integrationsNylasGetSchedulePages($accountId: String!) {
+    integrationsNylasGetSchedulePages(accountId: $accountId)
+  }
+`;
+
+const emailTemplates = `
+  query emailTemplates($page: Int, $perPage: Int) {
+    emailTemplates(page: $page, perPage: $perPage) {
+      _id
+      name
+      content
+    }
+  }
+`;
+
+const templateTotalCount = `
+  query emailTemplatesTotalCount {
+    emailTemplatesTotalCount
+  }
+`;
+
 export default {
   users,
   brands,
@@ -157,5 +247,17 @@ export default {
   integrations,
   integrationGetLineWebhookUrl,
   integrationsGetConfigs,
-  integrationsGetIntegrationDetail
+  integrationsGetIntegrationDetail,
+  emailTemplates,
+  templateTotalCount,
+  integrationsGetAccounts,
+  integrationsGetIntegrations,
+  integrationsGetNylasEvents,
+  integrationsGetTwitterAccount,
+  integrationsGetGmailEmail,
+  integrationsGetFbPages,
+  integrationsVideoCallUsageStatus,
+  integrationsNylasGetCalendars,
+  integrationsNylasGetSchedulePage,
+  integrationsNylasGetSchedulePages
 };

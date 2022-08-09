@@ -15,7 +15,6 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
-  history: any;
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
@@ -47,6 +46,7 @@ function ListContainer(props: FinalProps) {
           Alert.success('Successfully deleted a entry');
 
           entriesQuery.refetch();
+          entriesTotalCountQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);

@@ -1,15 +1,13 @@
-import {
-  __,
-  BarItems,
-  DataWithLoader,
-  EmptyState,
-  FormControl,
-  Pagination,
-  router,
-  Table,
-  Wrapper
-} from '@erxes/ui/src';
+import { router } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Table from '@erxes/ui/src/components/table';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { __ } from '@erxes/ui/src/utils/core';
 import { Count, Title } from '@erxes/ui/src/styles/main';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import React from 'react';
 
 import CategoryList from '../../containers/productCategory/CategoryList';

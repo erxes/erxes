@@ -1,3 +1,4 @@
+import Datetime from '@nateradebaugh/react-datetime';
 import { __ } from '@erxes/ui/src/utils';
 import { IField, ISegmentCondition } from '../../types';
 import React from 'react';
@@ -94,6 +95,21 @@ class PropertyForm extends React.Component<Props, State> {
     );
   }
 
+  renderDate(value: string) {
+    return (
+      <Datetime
+        dateFormat="YYYY/MM/DD"
+        timeFormat="HH:mm"
+        closeOnSelect={false}
+        closeOnTab={true}
+        value={`${new Date(value).toDateString()} ${new Date(
+          value
+        ).toTimeString()}`}
+        onChange={this.onChangeDate}
+      />
+    );
+  }
+
   onChangeSelect = (option: { value: string }) => {
     const value = !option ? '' : option.value.toString();
 
@@ -103,6 +119,12 @@ class PropertyForm extends React.Component<Props, State> {
   onChangeValue = (e: React.FormEvent<HTMLElement>) => {
     this.setState({
       currentValue: (e.currentTarget as HTMLInputElement).value
+    });
+  };
+
+  onChangeDate = date => {
+    this.setState({
+      currentValue: new Date(date).toISOString()
     });
   };
 
@@ -116,6 +138,10 @@ class PropertyForm extends React.Component<Props, State> {
 
     if (['is', 'ins', 'it', 'if'].indexOf(value) >= 0) {
       return null;
+    }
+
+    if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(value)) {
+      return this.renderDate(currentValue);
     }
 
     if (selectOptions.length > 0) {

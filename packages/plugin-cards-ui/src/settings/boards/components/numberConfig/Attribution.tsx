@@ -1,9 +1,9 @@
+import { Attributes } from '@erxes/ui-cards/src/settings/boards/styles';
 import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { Attributes } from '@erxes/ui-settings/src/boards/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+import { __ } from 'coreui/utils';
 
 type Props = {
   config: string;

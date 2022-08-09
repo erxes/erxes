@@ -1,9 +1,11 @@
+import * as activityLogsUtils from '@erxes/ui-log/src/activityLogs/utils';
+
 import { getConfig, setConfig } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
-import queryString from 'query-string';
-import { queries } from './graphql';
+
 import { IConversation } from './types';
-import * as activityLogsUtils from '@erxes/ui/src/activityLogs/utils';
+import gql from 'graphql-tag';
+import { queries } from './graphql';
+import queryString from 'query-string';
 
 export const generateParams = queryParams => ({
   limit: queryParams.limit ? parseInt(queryParams.limit, 10) : 10,
@@ -71,19 +73,6 @@ export const extractEmail = (str?: string) => {
 
 export const linkify = (url: string) => {
   return url.startsWith('http') ? url : `http://${url}`;
-};
-
-export const urlify = (text: string) => {
-  // validate url except html a tag
-  const urlRegex = /(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w-]+)+[\w\-_~:/?#[\]@!&',;=.]+(?![^<>]*>|[^"]*?<\/a)/g;
-
-  return text.replace(urlRegex, url => {
-    if (url.startsWith('http')) {
-      return `<a href="${url}" target="_blank">${url}</a>`;
-    }
-
-    return `<a href="http://${url}" target="_blank">${url}</a>`;
-  });
 };
 
 export const hasAnyActivity = activityLogsUtils.hasAnyActivity;

@@ -35,9 +35,19 @@ class PropertyDetail extends React.Component<Props, {}> {
     const { condition, field } = this.props;
 
     const { selectOptions = [], choiceOptions = [], type } = field;
-    const { propertyValue } = condition;
+    const { propertyValue = '' } = condition;
 
     let text = propertyValue;
+
+    if (
+      ['dateigt', 'dateilt', 'drlt', 'drgt'].includes(
+        condition.propertyOperator || ''
+      )
+    ) {
+      text = `${new Date(propertyValue).toDateString()} ${new Date(
+        propertyValue
+      ).toTimeString()}`;
+    }
 
     if (selectOptions.length > 0) {
       const option = selectOptions.find(selectOption => {

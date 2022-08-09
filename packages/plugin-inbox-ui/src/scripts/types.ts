@@ -1,4 +1,4 @@
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 
 export interface IScript {
   _id: string;

@@ -1,26 +1,27 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
-import React from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
-import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
 import {
   CollapseRow,
   DropIcon,
   FieldType,
   PropertyListTable,
   PropertyTableHeader,
-  RowField,
-  PropertyTableRow
-} from '@erxes/ui-settings/src/properties/styles';
-import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
+  PropertyTableRow,
+  RowField
+} from '@erxes/ui-forms/src/settings/properties/styles';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Collapse from 'react-bootstrap/Collapse';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
+import React from 'react';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import Toggle from '@erxes/ui/src/components/Toggle';
 
 type Props = {
   group: IFieldGroup;

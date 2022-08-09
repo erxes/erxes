@@ -1,8 +1,8 @@
 import { IModels } from './connectionResolver';
-import messageBroker, { sendPosclientMessage } from './messageBroker';
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendPosclientMessage,
   sendProductsMessage
 } from './messageBroker';
 
@@ -281,42 +281,28 @@ export const getBranchesUtil = async (
   const healthyBranchIds = [] as any;
 
   for (const allowPos of allowsPos) {
-    const syncIds = Object.keys(allowPos.syncInfos || {}) || [];
+    const longTask = async () =>
+      await sendPosclientMessage({
+        subdomain,
+        action: 'health_check',
+        data: { token: allowPos.token },
+        pos: allowPos,
+        isRPC: true
+      });
 
-    if (!syncIds.length) {
-      continue;
-    }
+    const timeout = (cb, interval) => () =>
+      new Promise(resolve => setTimeout(() => cb(resolve), interval));
 
-    for (const syncId of syncIds) {
-      const syncDate = allowPos.syncInfos[syncId];
+    const onTimeout = timeout(resolve => resolve({}), 3000);
 
-      // expired sync 72 hour
-      if ((new Date().getTime() - syncDate.getTime()) / (60 * 60 * 1000) > 72) {
-        continue;
-      }
+    let response = { healthy: 'down' };
+    await Promise.race([longTask, onTimeout].map(f => f())).then(
+      result => (response = result as { healthy: string })
+    );
 
-      const longTask = async () =>
-        await messageBroker().sendRPCMessage(
-          `posclient:health_check_${syncId}`,
-          {
-            thirdService: true
-          }
-        );
-
-      const timeout = (cb, interval) => () =>
-        new Promise(resolve => setTimeout(() => cb(resolve), interval));
-
-      const onTimeout = timeout(resolve => resolve({}), 3000);
-
-      let response = { healthy: 'down' };
-      await Promise.race([longTask, onTimeout].map(f => f())).then(
-        result => (response = result as { healthy: string })
-      );
-
-      if (response.healthy === 'ok') {
-        healthyBranchIds.push(allowPos.branchId);
-        break;
-      }
+    if (response.healthy === 'ok') {
+      healthyBranchIds.push(allowPos.branchId);
+      break;
     }
   }
 

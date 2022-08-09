@@ -1,8 +1,9 @@
+import { LeadStateWrapper, StateItem } from '../styles';
+
 import Button from '@erxes/ui/src/components/Button';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { LEAD_CHOICES } from '../constants';
-import { LeadStateWrapper, StateItem } from '../styles';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import React from 'react';
 
 type IProps = {

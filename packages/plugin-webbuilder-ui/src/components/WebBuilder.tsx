@@ -5,9 +5,11 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import ContentTypeList from '../containers/contentTypes/List';
 import EntriesList from '../containers/entries/List';
 import Pages from '../containers/pages/Pages';
+import Sites from '../containers/sites/List';
 import SideBar from './Sidebar';
 import { IContentTypeDoc } from '../types';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import TemplatesList from '../containers/templates/List';
 
 type Props = {
   step: string;
@@ -29,7 +31,6 @@ function WebBuilder(props: Props) {
         setComponent(
           <ContentTypeList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
             setCount={setCount}
           />
@@ -41,7 +42,6 @@ function WebBuilder(props: Props) {
         setComponent(
           <EntriesList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
             setCount={setCount}
           />
@@ -52,6 +52,26 @@ function WebBuilder(props: Props) {
       case 'pages':
         setComponent(
           <Pages
+            getActionBar={setRightActionBar}
+            setCount={setCount}
+            queryParams={queryParams}
+            history={history}
+          />
+        );
+
+        break;
+
+      case 'templates':
+        setComponent(
+          <TemplatesList setCount={setCount} queryParams={queryParams} />
+        );
+        setRightActionBar(<></>);
+
+        break;
+
+      case 'sites':
+        setComponent(
+          <Sites
             getActionBar={setRightActionBar}
             setCount={setCount}
             queryParams={queryParams}
@@ -86,7 +106,6 @@ function WebBuilder(props: Props) {
         }
         leftSidebar={
           <SideBar
-            history={history}
             queryParams={queryParams}
             type={step}
             contentTypes={contentTypes}

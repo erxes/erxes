@@ -1,17 +1,15 @@
 import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
-import {
-  __,
-  Button,
-  DataWithLoader,
-  Icon,
-  MainStyleTopHeader as TopHeader,
-  ModalTrigger,
-  router,
-  Sidebar,
-  SidebarList,
-  Tip,
-  Wrapper
-} from '@erxes/ui/src';
+import { TopHeader } from '@erxes/ui/src/styles/main';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import Tip from '@erxes/ui/src/components/Tip';
+import { router } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalTrigger } from '@erxes/ui/src/components';
+import Icon from '@erxes/ui/src/components/Icon';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
 import { Link } from 'react-router-dom';
 

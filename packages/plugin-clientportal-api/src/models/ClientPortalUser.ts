@@ -98,6 +98,7 @@ export interface IUserModel extends Model<IUserDocument> {
     password: string;
   }): string;
   verifyUser(args: IVerificationParams): string;
+  verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
   sendVerification(
     subdomain: string,
     config?: IOTPConfig,
@@ -768,6 +769,34 @@ export const loadClientPortalUserClass = (models: IModels) => {
       );
 
       return user;
+    }
+
+    public static async verifyUsers(userIds: string[], type: string) {
+      const qryOption =
+        type === 'phone' ? { phone: { $ne: null } } : { email: { $ne: null } };
+
+      const set =
+        type === 'phone'
+          ? { isPhoneVerified: true }
+          : { isEmailVerified: true };
+
+      const users = await models.ClientPortalUsers.find({
+        _id: { $in: userIds },
+        ...qryOption
+      });
+
+      if (!users) {
+        throw new Error('Users not found');
+      }
+
+      await models.ClientPortalUsers.updateMany(
+        { _id: { $in: userIds } },
+        {
+          $set: set
+        }
+      );
+
+      return users;
     }
   }
 

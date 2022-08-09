@@ -8,7 +8,6 @@ import { withRouter } from 'react-router-dom';
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import DumbBrands from '../components/Brands';
 import { mutations, queries } from '../graphql';
-import { queries as queriesInbox } from '@erxes/ui-inbox/src/inbox/graphql';
 import {
   BrandDetailQueryResponse,
   BrandsCountQueryResponse,
@@ -96,7 +95,7 @@ const getRefetchQueries = (queryParams, currentBrandId?: string) => {
       variables: { _id: currentBrandId || '' }
     },
     { query: gql(queries.brandsCount) },
-    { query: gql(queriesInbox.brandList) }
+    { query: gql(queries.brands) }
   ];
 };
 

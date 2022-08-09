@@ -52,7 +52,14 @@ export const fieldsCombinedByContentType = async (
     []
   );
 
-  const customFields = await getCustomFields(models, contentType);
+  const customFields = await getCustomFields(
+    models,
+    ['contacts:visitor', 'contacts:lead', 'contacts:customer'].includes(
+      contentType
+    )
+      ? 'contacts:customer'
+      : contentType
+  );
 
   const generateSelectOptions = options => {
     const selectOptions: Array<{ label: string; value: any }> = [];

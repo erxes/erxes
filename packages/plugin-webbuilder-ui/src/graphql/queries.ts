@@ -2,11 +2,15 @@ const fields = `
       _id
       name
       description
+      site {
+        name
+        domain
+      }
 `;
 
 const pages = `
-  query pages($page: Int, $perPage: Int) {
-    webbuilderPages(page: $page, perPage: $perPage) {
+  query pages($page: Int, $perPage: Int, $searchValue: String) {
+    webbuilderPages(page: $page, perPage: $perPage, searchValue: $searchValue) {
       ${fields}
     }
   }
@@ -25,6 +29,7 @@ const pageDetail = `
       html
       css
       jsonData
+      siteId
     }
   }
 `;
@@ -38,6 +43,10 @@ const contentTypes = `
       fields
       entries {
         _id
+      }
+      site {
+        name
+        domain
       }
     }
   }
@@ -56,6 +65,7 @@ const contentTypeDetail = `
       code
       displayName
       fields
+      siteId
     }
   } 
 `;
@@ -87,12 +97,45 @@ const entryDetail = `
 `;
 
 const templates = `
-  query templates {
-    webbuilderTemplates {
+  query templates($page: Int, $perPage: Int) {
+    webbuilderTemplates(page: $page, perPage: $perPage) {
       _id
       name
       jsonData
+      html
     } 
+  }
+`;
+
+const templatesTotalCount = `
+  query templatesCount {
+    webbuilderTemplatesTotalCount
+  }
+`;
+
+const templateDetail = `
+  query templateDetail($_id: String!) {
+    webbuilderTemplateDetail(_id: $_id) {
+      _id
+      name
+      jsonData
+    }
+  }
+`;
+
+const sites = `
+  query sites($page: Int, $perPage: Int) {
+    webbuilderSites(page: $page, perPage: $perPage) {
+      _id
+      name
+      domain
+    }
+  }
+`;
+
+const sitesTotalCount = `
+  query sitesTotalCount {
+    webbuilderSitesTotalCount
   }
 `;
 
@@ -106,5 +149,9 @@ export default {
   entries,
   entryDetail,
   templates,
-  entriesTotalCount
+  templatesTotalCount,
+  templateDetail,
+  entriesTotalCount,
+  sites,
+  sitesTotalCount
 };

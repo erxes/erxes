@@ -10,7 +10,7 @@ export interface IUpdateSafeRemainderItemParams {
 
 const safeRemainderItemMutations = {
   async updateSafeRemainderItem(
-    _root,
+    _root: any,
     params: IUpdateSafeRemainderItemParams,
     { models }: IContext
   ) {
@@ -32,7 +32,7 @@ const safeRemainderItemMutations = {
   },
 
   async removeSafeRemainderItem(
-    _root,
+    _root: any,
     { _id }: { _id: string },
     { models }: IContext
   ) {

@@ -1,12 +1,14 @@
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import Form from '../../components/mail/Form';
-import { mutations } from '@erxes/ui-settings/src/integrations/graphql';
 import * as React from 'react';
-import { withRouter } from 'react-router-dom';
+
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Form from '../../components/mail/Form';
 import { IntegrationTypes } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { __ } from 'coreui/utils';
 import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
+import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   type?: string;

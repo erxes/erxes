@@ -42,6 +42,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { contentType } = this.props;
+    const { site } = contentType;
 
     return (
       <tr>
@@ -53,6 +54,7 @@ class Row extends React.Component<Props> {
           </RowTitle>
         </td>
         <td>{contentType.code}</td>
+        <td>{site?.name || ''}</td>
         <td>
           <ActionButtons>
             {this.manageAction(contentType)}

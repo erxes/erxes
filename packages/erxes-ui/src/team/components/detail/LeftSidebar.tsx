@@ -1,28 +1,27 @@
-import dayjs from 'dayjs';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from '@erxes/ui/src/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import { ISkillDocument } from '@erxes/ui-settings/src/skills/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { List, SkillList } from './styles';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+
+import Button from '@erxes/ui/src/components/Button';
+import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { EmptyState } from '@erxes/ui/src/components';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   user: IUser;
-  channels: IChannel[];
-  skills: ISkillDocument[];
+  channels: any[]; //check - IChannel
+  skills: any[]; //check - ISkillDocument
   excludeUserSkill: (skillId: string, userId: string) => void;
   renderSkillForm: ({
     closeModal,

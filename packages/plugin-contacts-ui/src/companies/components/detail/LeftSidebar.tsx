@@ -1,12 +1,12 @@
+import BasicInfoSection from '../common/BasicInfoSection';
 import CustomFieldsSection from '../../containers/detail/CustomFieldsSection';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { TrackedDataSection } from '../../../customers/components/common';
-import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
-import BasicInfoSection from '../common/BasicInfoSection';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import TaggerSection from '@erxes/ui-contacts/src/customers/components/common/TaggerSection';
+import { TrackedDataSection } from '../../../customers/components/common';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   company: ICompany;
@@ -37,11 +37,13 @@ class LeftSidebar extends React.Component<Props> {
         <BasicInfoSection company={company} fields={fields} />
         <CustomFieldsSection company={company} />
         {this.renderTrackedData()}
-        {isEnabled("tags") && <TaggerSection
-          data={company}
-          type="contacts:company"
-          refetchQueries={taggerRefetchQueries}
-        />}
+        {isEnabled('tags') && (
+          <TaggerSection
+            data={company}
+            type="contacts:company"
+            refetchQueries={taggerRefetchQueries}
+          />
+        )}
       </Sidebar>
     );
   }

@@ -4,13 +4,14 @@ import React from 'react';
 import * as compose from 'lodash.flowright';
 import { queries } from '../graphql';
 import WebBuilder from '../components/WebBuilder';
+import { withRouter } from 'react-router-dom';
 import { TypesQueryResponse } from '../types';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   step: string;
   queryParams: any;
-  history: any;
-};
+} & IRouterProps;
 
 type FinalProps = {
   contentTypesQuery: TypesQueryResponse;
@@ -34,4 +35,4 @@ export default compose(
   graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
     name: 'contentTypesQuery'
   })
-)(WebBuilderContainer);
+)(withRouter(WebBuilderContainer));

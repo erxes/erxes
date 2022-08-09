@@ -184,7 +184,7 @@ const orderMutations = {
     );
 
     ebarimtConfig.districtName = getDistrictName(
-      config.ebarimtConfig.districtCode
+      (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
     );
 
     try {
@@ -338,7 +338,7 @@ const orderMutations = {
     );
 
     ebarimtConfig.districtName = getDistrictName(
-      config.ebarimtConfig.districtCode
+      (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
     );
 
     try {
@@ -381,7 +381,6 @@ const orderMutations = {
           action: 'createOrUpdateOrders',
           data: {
             posToken: config.token,
-            syncId: (config.syncInfo || {}).id,
             action: 'makePayment',
             response,
             order,

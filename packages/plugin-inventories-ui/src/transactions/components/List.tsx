@@ -21,7 +21,6 @@ const List = (props: Props) => {
             <th>{__('Branch')}</th>
             <th>{__('Department')}</th>
             <th>{__('Content Type')}</th>
-            <th>{__('Status')}</th>
             <th>{__('Created at')}</th>
             <th>{__('Created by')}</th>
           </tr>
@@ -36,13 +35,8 @@ const List = (props: Props) => {
       loading={loading}
       count={data.length}
       data={renderTable()}
-      emptyContent={
-        <EmptyState
-          image="/images/actions/12.svg"
-          text="No transactions"
-          size=""
-        />
-      }
+      emptyText="No transactions"
+      emptyImage="/images/actions/5.svg"
     />
   );
 };

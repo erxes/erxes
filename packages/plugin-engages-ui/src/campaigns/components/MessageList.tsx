@@ -1,23 +1,24 @@
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import { ChooseBox, FlexContainer } from '@erxes/ui-engage/src/styles';
+import PercentItem, { ItemWrapper } from './PercentItem';
+
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import { EMPTY_CONTENT_ENGAGE } from '@erxes/ui-settings/src/constants';
-import Table from '@erxes/ui/src/components/table';
-import colors from '@erxes/ui/src/styles/colors';
-import { __ } from '@erxes/ui/src/utils/core';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IEngageMessage } from '@erxes/ui-engage/src/types';
 import { Link } from 'react-router-dom';
 import MessageListRow from '../containers/MessageListRow';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
 import Sidebar from '../containers/Sidebar';
-import { ChooseBox, FlexContainer } from '@erxes/ui-engage/src/styles';
-import { IEngageMessage } from '@erxes/ui-engage/src/types';
-import PercentItem, { ItemWrapper } from './PercentItem';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import colors from '@erxes/ui/src/styles/colors';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {

@@ -7,8 +7,9 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 
 export interface IProductReviewModel extends Model<IProductreviewDocument> {
-  getProductReview(_id: string): Promise<IProductreviewDocument>;
-  getAllProductReview(productId: string): Promise<IProductreviewDocument>;
+  getProductReviewById(_id: string): Promise<IProductreviewDocument>;
+  getAllProductReview(customerId: string): Promise<IProductreviewDocument>;
+  getProductReview(productId: string): Promise<IProductreviewDocument>;
   createProductReview(doc: IProductreview): Promise<IProductreviewDocument>;
   updateProductReview(
     _id: string,
@@ -19,11 +20,14 @@ export interface IProductReviewModel extends Model<IProductreviewDocument> {
 
 export const loadProductReviewClass = (models: IModels, subdomain: string) => {
   class ProductReview {
-    public static async getProductReview(_id: string) {
+    public static async getProductReviewById(_id: string) {
       return models.ProductReview.findOne({ _id }).lean();
     }
-    public static async getAllProductReview(productId: string) {
+    public static async getProductReview(productId: string) {
       return models.ProductReview.find({ productId }).lean();
+    }
+    public static async getAllProductReview(customerId: string) {
+      return models.ProductReview.find({ customerId }).lean();
     }
     public static async createProductReview(doc: IProductreview) {
       const review = await models.ProductReview.create({
@@ -34,7 +38,7 @@ export const loadProductReviewClass = (models: IModels, subdomain: string) => {
       return review;
     }
     public static async updateProductReview(_id: string, doc: IProductreview) {
-      const current = await models.ProductReview.getProductReview(_id);
+      const current = await models.ProductReview.getProductReviewById(_id);
       if (current) {
         await models.ProductReview.updateOne(
           { _id },

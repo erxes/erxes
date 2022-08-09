@@ -8,12 +8,14 @@ import { FlexColumn, FlexItem } from '@erxes/ui/src/components/step/style';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import FieldChoices from './FieldChoices';
 import FieldForm from '../FieldForm';
+import SelectSite from '../../../containers/sites/SelectSite';
 
 type Props = {
   onChange: (key: string, value: any) => void;
   displayName: string;
   code: string;
   fields: any[];
+  siteId: string;
 };
 
 type State = {
@@ -61,7 +63,7 @@ class Step extends React.Component<Props, State> {
   };
 
   render() {
-    const { onChange, displayName, code } = this.props;
+    const { onChange, displayName, code, siteId } = this.props;
     const { currentField, currentMode } = this.state;
 
     const onFieldFormCancel = () => {
@@ -101,6 +103,17 @@ class Step extends React.Component<Props, State> {
                 name="code"
                 value={code}
                 onChange={(e: any) => onChange('code', e.target.value)}
+              />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>{__('Site')}</ControlLabel>
+              <SelectSite
+                label="Choose a site"
+                name="siteId"
+                multi={false}
+                initialValue={siteId}
+                onSelect={(option: any) => onChange('siteId', option)}
               />
             </FormGroup>
 

@@ -1,6 +1,6 @@
-const fse = require("fs-extra");
-const os = require("os");
-const { execCommand, filePath, log, sleep } = require("./utils");
+const fse = require('fs-extra');
+const os = require('os');
+const { execCommand, filePath, log, sleep } = require('./utils');
 
 module.exports.devOnly = async () => {
   const name = process.argv[3];
@@ -8,13 +8,13 @@ module.exports.devOnly = async () => {
 };
 
 module.exports.devStop = async () => {
-  await execCommand("pm2 delete all");
+  await execCommand('pm2 delete all');
 };
 
 module.exports.devCmd = async program => {
-  const configs = await fse.readJSON(filePath("configs.json"));
+  const configs = await fse.readJSON(filePath('configs.json'));
 
-  const commonOptions = program.bash ? { interpreter: "/bin/bash" } : {};
+  const commonOptions = program.bash ? { interpreter: '/bin/bash' } : {};
 
   const enabledServices = [];
 
@@ -27,26 +27,26 @@ module.exports.devCmd = async program => {
   }
 
   await fse.writeFile(
-    filePath("enabled-services.js"),
+    filePath('enabled-services.js'),
     `
       module.exports = [
-        ${enabledServices.join(",")}
+        ${enabledServices.join(',')}
       ]
     `
   );
 
   const commonEnv = {
-    DEBUG: "erxes*",
-    NODE_ENV: "development",
+    DEBUG: 'erxes*',
+    NODE_ENV: 'development',
     JWT_TOKEN_SECRET: configs.jwt_token_secret,
-    MONGO_URL: "mongodb://localhost/erxes",
+    MONGO_URL: 'mongodb://localhost/erxes',
 
-    REDIS_HOST: "localhost",
+    REDIS_HOST: 'localhost',
     REDIS_PORT: 6379,
     REDIS_PASSWORD: configs.redis.password,
-    RABBITMQ_HOST: "amqp://localhost",
-    ELASTICSEARCH_URL: "http://localhost:9200",
-    ENABLED_SERVICES_PATH: filePath("enabled-services.js"),
+    RABBITMQ_HOST: 'amqp://localhost',
+    ELASTICSEARCH_URL: 'http://localhost:9200',
+    ENABLED_SERVICES_PATH: filePath('enabled-services.js'),
     ALLOWED_ORIGINS: configs.allowed_origins
   };
 
@@ -54,32 +54,32 @@ module.exports.devCmd = async program => {
 
   const apps = [
     {
-      name: "coreui",
-      cwd: filePath("../packages/core-ui/"),
-      script: "yarn",
-      args: "start",
+      name: 'coreui',
+      cwd: filePath('../packages/core-ui/'),
+      script: 'yarn',
+      args: 'start',
       ...commonOptions,
-      ignore_watch: ["node_modules"],
+      ignore_watch: ['node_modules']
     },
     {
-      name: "core",
-      cwd: filePath("../packages/core/"),
-      script: "yarn",
-      args: "dev",
+      name: 'core',
+      cwd: filePath('../packages/core/'),
+      script: 'yarn',
+      args: 'dev',
       ...commonOptions,
-      ignore_watch: ["node_modules"],
+      ignore_watch: ['node_modules'],
       env: {
         PORT: (configs.core || {}).port || port,
-        CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
+        CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
         ...commonEnv,
-        ...((configs.core || {}).envs || {}),
-      },
-    },
+        ...((configs.core || {}).envs || {})
+      }
+    }
   ];
 
-  log("Generated ui coreui .env file ....");
+  log('Generated ui coreui .env file ....');
   await fse.writeFile(
-    filePath("../packages/core-ui/.env"),
+    filePath('../packages/core-ui/.env'),
     `
       PORT=3000
       NODE_ENV="development"
@@ -97,12 +97,12 @@ module.exports.devCmd = async program => {
 
   if (configs.widgets) {
     if (program.deps) {
-      log("Installing dependencies in widgets .........");
+      log('Installing dependencies in widgets .........');
       await execCommand(`cd ${filePath(`../widgets`)} && yarn install`);
     }
 
     await fse.writeFile(
-      filePath("../widgets/.env"),
+      filePath('../widgets/.env'),
       `
         PORT=3200
         ROOT_URL="http://localhost:3200"
@@ -112,12 +112,12 @@ module.exports.devCmd = async program => {
     );
 
     apps.push({
-      name: "widgets",
+      name: 'widgets',
       cwd: filePath(`../widgets`),
-      script: "yarn",
-      args: "dev",
+      script: 'yarn',
+      args: 'dev',
       ...commonOptions,
-      ignore_watch: ["node_modules"],
+      ignore_watch: ['node_modules']
     });
   }
 
@@ -127,7 +127,7 @@ module.exports.devCmd = async program => {
     port++;
 
     if (plugin.ui) {
-      if (program.deps && plugin.ui === "local") {
+      if (program.deps && plugin.ui === 'local') {
         log(`Installing dependencies in ${plugin.name} .........`);
         await execCommand(
           `cd ${filePath(
@@ -140,17 +140,17 @@ module.exports.devCmd = async program => {
         `../packages/plugin-${plugin.name}-ui/src/configs.js`
       ));
 
-      if (plugin.ui === "remote") {
+      if (plugin.ui === 'remote') {
         if (uiConfigs.url) {
-          uiConfigs.url = (configs.ui_remote_url || "").replace(
-            "<name>",
+          uiConfigs.url = (configs.ui_remote_url || '').replace(
+            '<name>',
             plugin.name
           );
         }
 
         if (uiConfigs.routes) {
-          uiConfigs.routes.url = (configs.ui_remote_url || "").replace(
-            "<name>",
+          uiConfigs.routes.url = (configs.ui_remote_url || '').replace(
+            '<name>',
             plugin.name
           );
         }
@@ -158,14 +158,14 @@ module.exports.devCmd = async program => {
 
       uiPlugins.push(uiConfigs);
 
-      if (plugin.ui === "local") {
+      if (plugin.ui === 'local') {
         apps.push({
           name: `${plugin.name}-ui`,
           cwd: filePath(`../packages/plugin-${plugin.name}-ui`),
-          script: "yarn",
-          args: "start",
+          script: 'yarn',
+          args: 'start',
           ...commonOptions,
-          ignore_watch: ["node_modules"],
+          ignore_watch: ['node_modules']
         });
       }
     }
@@ -173,52 +173,52 @@ module.exports.devCmd = async program => {
     apps.push({
       name: `${plugin.name}-api`,
       cwd: filePath(`../packages/plugin-${plugin.name}-api`),
-      script: "yarn",
-      args: "dev",
+      script: 'yarn',
+      args: 'dev',
       ...commonOptions,
-      ignore_watch: ["node_modules"],
+      ignore_watch: ['node_modules'],
       env: {
         PORT: plugin.port || port,
         ...commonEnv,
-        ...(plugin.extra_env || {}),
-      },
+        ...(plugin.extra_env || {})
+      }
     });
   }
 
   if (configs.workers) {
     apps.push({
-      name: "workers",
+      name: 'workers',
       cwd: filePath(`../packages/workers`),
-      script: "yarn",
-      args: "dev",
+      script: 'yarn',
+      args: 'dev',
       ...commonOptions,
-      ignore_watch: ["node_modules"],
+      ignore_watch: ['node_modules'],
       env: {
         PORT: 3700,
         ...commonEnv,
-        ...((configs.workers || {}).envs || {}),
-      },
+        ...((configs.workers || {}).envs || {})
+      }
     });
   }
 
   apps.push({
-    name: "gateway",
+    name: 'gateway',
     cwd: filePath(`../packages/gateway`),
-    script: "yarn",
-    args: "dev",
+    script: 'yarn',
+    args: 'dev',
     ...commonOptions,
-    ignore_watch: ["node_modules"],
+    ignore_watch: ['node_modules'],
     env: {
       PORT: 4000,
-      CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || "",
+      CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
       ...commonEnv,
-      ...((configs.gateway || {}).envs || {}),
-    },
+      ...((configs.gateway || {}).envs || {})
+    }
   });
 
   // replace ui plugins.js
   await fse.writeFile(
-    filePath("ecosystem.config.js"),
+    filePath('ecosystem.config.js'),
     `
       module.exports = {
         apps: ${JSON.stringify(apps)}
@@ -226,23 +226,25 @@ module.exports.devCmd = async program => {
     `
   );
 
-  log("Generated ui plugins.js file ....");
+  log('Generated ui plugins.js file ....');
   await fse.writeFile(
-    filePath("../packages/core-ui/public/js/plugins.js"),
+    filePath('../packages/core-ui/public/js/plugins.js'),
     `
       window.plugins = ${JSON.stringify(uiPlugins)}
     `
   );
 
   if (!program.ignoreRun) {
-    log("starting core ....");
+    log('starting core ....');
 
     if (program.deps) {
       log(`Installing dependencies in core-ui .........`);
-      await execCommand(`cd ${filePath(`../packages/core-ui`)} && yarn install`);
+      await execCommand(
+        `cd ${filePath(`../packages/core-ui`)} && yarn install`
+      );
     }
 
-    await execCommand("pm2 start ecosystem.config.js --only core");
+    await execCommand('pm2 start ecosystem.config.js --only core');
     await sleep(30000);
 
     for (const plugin of configs.plugins) {
@@ -252,7 +254,7 @@ module.exports.devCmd = async program => {
       );
       await sleep(10000);
 
-      if (plugin.ui === "local") {
+      if (plugin.ui === 'local') {
         await execCommand(
           `pm2 start ecosystem.config.js --only ${plugin.name}-ui`
         );
@@ -261,8 +263,8 @@ module.exports.devCmd = async program => {
     }
 
     if (configs.workers) {
-      log("starting workers ....");
-      await execCommand("pm2 start ecosystem.config.js --only workers");
+      log('starting workers ....');
+      await execCommand('pm2 start ecosystem.config.js --only workers');
       await sleep(10000);
     }
 
@@ -270,12 +272,12 @@ module.exports.devCmd = async program => {
     await execCommand(`pm2 start ecosystem.config.js --only gateway`);
     await sleep(10000);
 
-    log("starting coreui ....");
-    await execCommand("pm2 start ecosystem.config.js --only coreui");
+    log('starting coreui ....');
+    await execCommand('pm2 start ecosystem.config.js --only coreui');
 
     if (configs.widgets) {
-      log("starting widgets ....");
-      await execCommand("pm2 start ecosystem.config.js --only widgets");
+      log('starting widgets ....');
+      await execCommand('pm2 start ecosystem.config.js --only widgets');
     }
   }
 };
