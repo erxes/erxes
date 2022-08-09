@@ -26,10 +26,6 @@ export interface IUser {
   registrationTokenExpires?: Date;
 }
 
-export interface IUserParams extends IUser {
-  customerState?: string;
-}
-
 export interface IUserDocument extends IUser, Document {
   _id: string;
   phoneVerificationCode: string;
