@@ -94,13 +94,12 @@ const main = async () => {
   await execCommand('rm -rf node_modules');
   console.log('Installing production deps ....');
   await execCommand('yarn install --production');
-  process.chdir(folderName);
 
   console.log('Moving node_modules ....');
 
   if (type === 'plugin') {
     await execute(() =>
-      fse.move('../node_modules', './.erxes/dist/node_modules')
+      fse.move('./node_modules', './.erxes/dist/node_modules')
     );
   } else {
     await execute(() => fse.move('../node_modules', './dist/node_modules'));
