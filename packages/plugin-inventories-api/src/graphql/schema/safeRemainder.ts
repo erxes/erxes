@@ -17,20 +17,21 @@ export const types = `
 
   type SafeRemainder @key(fields: "_id") {
     _id: String!
+    branch: Branch
+    branchId: String
+    department: Department
+    departmentId: String
+    productCategory: ProductCategory
+    productCategoryId: String
+
+    date: Date
+    description: String
+    status: String    
+
     createdAt: Date
     createdBy: String
     modifiedAt: Date
     modifiedBy: String
-    date: Date
-    description: String
-    status: String
-    branchId: String
-    departmentId: String
-    productCategoryId: String
-
-    department: Department
-    branch: Branch
-    productCategory: ProductCategory
     modifiedUser: User
   }
 
@@ -41,11 +42,28 @@ export const types = `
 `;
 
 export const queries = `
-  safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
+  safeRemainders(
+    departmentId: String,
+    branchId: String
+    productId: String,
+    searchValue: String,
+    beginDate: Date,
+    endDate: Date,
+    page: Int,
+    perPage: Int,
+    sortField: String,
+    sortDirection: Int,
+  ): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
 `;
 
 export const mutations = `
-  createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
-  removeSafeRemainder(_id: String!): JSON
+  safeRemainderAdd(
+    branchId: String,
+    departmentId: String,
+    date: Date,
+    description: String,
+    productCategoryId: String
+  ): SafeRemainder
+  safeRemainderRemove(_id: String!): JSON
 `;

@@ -3,6 +3,7 @@ import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { rf } from './utils/receiveFlow';
+import { beforeResolverHandlers } from './beforeResolvers';
 
 let client;
 
@@ -15,6 +16,15 @@ export const initBroker = async cl => {
     const models = await generateModels(subdomain);
     await rf(models, subdomain, { data });
     return { status: 'success' };
+  });
+
+  consumeRPCQueue('processes:beforeResolver', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      data: await beforeResolverHandlers(models, data),
+      status: 'success'
+    };
+    return;
   });
 
   consumeRPCQueue(
