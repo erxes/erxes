@@ -3,7 +3,7 @@ import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __ } from '@erxes/ui/src/utils';
+import { readFile, __ } from '@erxes/ui/src/utils';
 import { Link } from 'react-router-dom';
 import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import { Indicator } from '@erxes/ui/src/components/step/styles';
@@ -15,6 +15,7 @@ import { StepWrapper } from '@erxes/ui/src/components/step/styles';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import React, { useState, useEffect } from 'react';
 import { IContentTypeDoc, IEntryDoc } from '../../types';
+import { Uploader } from '@erxes/ui/src/components';
 
 type Props = {
   contentType: IContentTypeDoc;
@@ -71,21 +72,55 @@ function Form(props: Props) {
   };
 
   const renderField = (field: any) => {
-    return (
-      <FormGroup key={field.code}>
-        <ControlLabel htmlFor="html">{field.text}:</ControlLabel>
-        {field.type === 'textarea' ? (
+    const value = data[field.code]?.value || '';
+    let input;
+
+    switch (field.type) {
+      case 'textarea':
+        input = (
           <EditorCK
-            content={data[field.code]?.value || ''}
+            content={value}
             onChange={e => onChange(field.code, e.editor.getData())}
             height={250}
           />
-        ) : (
+        );
+
+        break;
+      case 'input':
+        input = (
           <FormControl
-            value={data[field.code]?.value || ''}
+            value={value}
             onChange={(e: any) => onChange(field.code, e.target.value)}
           />
-        )}
+        );
+        break;
+
+      case 'file':
+        input = (
+          <Uploader
+            defaultFileList={
+              value
+                ? [
+                    {
+                      name: field.code,
+                      url: value,
+                      type: 'image'
+                    }
+                  ]
+                : []
+            }
+            onChange={(e: any) => onChange(field.code, readFile(e[0]?.url))}
+            single={true}
+          />
+        );
+
+        break;
+    }
+
+    return (
+      <FormGroup key={field.code}>
+        <ControlLabel htmlFor="html">{field.text}:</ControlLabel>
+        {input}
       </FormGroup>
     );
   };

@@ -5,7 +5,7 @@ import {
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
 
-const generateFilterItems = async (params, subdomain) => {
+const generateFilterItems = async (subdomain: string, params: any) => {
   const { remainderId, productCategoryId, status, diffType } = params;
   const query: any = { remainderId };
 
@@ -52,20 +52,20 @@ const generateFilterItems = async (params, subdomain) => {
 
 const safeRemainderItemsQueries = {
   safeRemainderItems: async (
-    _root,
-    params,
+    _root: any,
+    params: any,
     { models, subdomain }: IContext
   ) => {
-    const query = await generateFilterItems(params, subdomain);
+    const query: any = await generateFilterItems(subdomain, params);
     return models.SafeRemainderItems.find(query);
   },
 
   safeRemainderItemsCount: async (
-    _root,
-    params,
+    _root: any,
+    params: any,
     { models, subdomain }: IContext
   ) => {
-    const query = await generateFilterItems(params, subdomain);
+    const query: any = await generateFilterItems(subdomain, params);
     return models.SafeRemainderItems.find(query).count();
   }
 };
