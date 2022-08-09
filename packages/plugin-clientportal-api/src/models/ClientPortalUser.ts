@@ -14,8 +14,7 @@ import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
   clientPortalUserSchema,
   IUser,
-  IUserDocument,
-  IUserParams
+  IUserDocument
 } from './definitions/clientPortalUser';
 import { handleContacts } from './utils';
 
@@ -41,9 +40,9 @@ export interface IUserModel extends Model<IUserDocument> {
     phone?: string;
     code?: string;
   }): never;
-  invite(subdomain: string, doc: IUserParams): Promise<IUserDocument>;
+  invite(subdomain: string, doc: IUser): Promise<IUserDocument>;
   getUser(doc: any): Promise<IUserDocument>;
-  createUser(subdomain: string, doc: IUserParams): Promise<IUserDocument>;
+  createUser(subdomain: string, doc: IUser): Promise<IUserDocument>;
   updateUser(_id: string, doc: IUser): Promise<IUserDocument>;
   removeUser(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkPassword(password: string): void;
@@ -169,7 +168,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async createUser(
       subdomain: string,
-      { password, clientPortalId, customerState, ...doc }: IUserParams
+      { password, clientPortalId, ...doc }: IUser
     ) {
       if (password) {
         this.checkPassword(password);
@@ -180,8 +179,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         models,
         clientPortalId,
         document: doc,
-        password,
-        customerState
+        password
       });
     }
 
