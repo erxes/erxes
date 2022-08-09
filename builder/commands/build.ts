@@ -99,7 +99,7 @@ const main = async () => {
 
   if (type === 'plugin') {
     await execute(() =>
-      fse.move('./node_modules', './.erxes/dist/node_modules')
+      fse.move('./node_modules', `./${folderName}/.erxes/dist/node_modules`)
     );
   } else {
     await execute(() => fse.move('../node_modules', './dist/node_modules'));
