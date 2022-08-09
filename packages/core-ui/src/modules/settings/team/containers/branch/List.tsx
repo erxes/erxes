@@ -19,13 +19,7 @@ export default function ListContainer() {
 
   if (listQuery.error) {
     return (
-      <Box
-        isOpen={true}
-        title={__('Branch')}
-        name="showBranch"
-        noMarginBottom
-        noSpacing
-      >
+      <Box isOpen={true} title={__('Branch')} name="showBranch" noSpacing>
         <MenuFooter>
           <ErrorMsg>{listQuery.error.message}</ErrorMsg>
         </MenuFooter>

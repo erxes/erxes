@@ -37,7 +37,6 @@ class ProductTypeFilter extends React.Component<IProps> {
         extraButtons={extraButtons}
         title={__('Filter by type')}
         name="showFilterByType"
-        noMarginBottom
         noSpacing
       >
         <SidebarList>

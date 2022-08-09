@@ -67,7 +67,6 @@ class JobReferFilter extends React.Component<IProps, State> {
         extraButtons={extraButtons}
         title={__('Filter by Job')}
         name="showFilterByJob"
-        noMarginBottom={true}
         noSpacing={true}
       >
         <SidebarList>

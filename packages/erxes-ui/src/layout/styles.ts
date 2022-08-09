@@ -388,11 +388,8 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styledTS<{
-  noMarginBottom?: boolean;
-}>(styled.div)`
+const SectionContainer = styled.div`
   position: relative;
-  margin-bottom: ${props => !props.noMarginBottom && '10px'};
 
   > div {
     margin-bottom: 0;
@@ -406,7 +403,7 @@ const SectionContainer = styledTS<{
   ${SidebarTitle} {
     height: 40px;
     cursor: pointer;
-    transition: all ease .3s;
+    transition: all ease 0.3s;
 
     &:hover {
       color: ${colors.colorSecondary};

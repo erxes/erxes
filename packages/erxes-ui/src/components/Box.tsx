@@ -12,7 +12,6 @@ type BoxProps = {
   callback?: () => void;
   collapsible?: boolean;
   isOpen?: boolean;
-  noMarginBottom?: boolean;
   noSpacing?: boolean;
 };
 
@@ -73,16 +72,10 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { Title } = Section;
 
     const { isOpen } = this.state;
-    const {
-      children,
-      title,
-      collapsible,
-      noMarginBottom,
-      noSpacing
-    } = this.props;
+    const { children, title, collapsible, noSpacing } = this.props;
 
     return (
-      <SectionContainer noMarginBottom={noMarginBottom}>
+      <SectionContainer>
         <Title onClick={this.toggle} noSpacing={noSpacing}>
           {title}
         </Title>
