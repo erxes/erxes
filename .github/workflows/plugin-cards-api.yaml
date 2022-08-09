@@ -38,10 +38,11 @@ jobs:
 
       - name: Build
         run: |
-          cp builder dist
+          cp -r builder dist
           cd dist
           yarn install
           yarn build plugin cards
+          ls
           cd ../../dist/plugin-cards-api/.erxes
           cd dist/main/.erxes/src
 
