@@ -33,6 +33,7 @@
     "elasticsearch": "^16.7.2",
     "requestify": "^0.2.5",
     "dotenv": "^4.0.0",
+    "debug": "^4.1.1",
     "xlsx-populate": "^1.20.1"
   }
 }
