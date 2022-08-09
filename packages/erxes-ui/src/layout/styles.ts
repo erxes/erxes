@@ -34,7 +34,7 @@ const PageHeader = styled.div`
   padding-left: ${dimensions.coreSpacing * 1.5}px;
 `;
 
-const Contents = styled.div`
+const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
   margin-left: ${dimensions.unitSpacing}px;
@@ -45,9 +45,9 @@ const Contents = styled.div`
   bottom: 0;
   top: 0;
   overflow-x: auto;
-  border: 1px solid ${colors.borderPrimary};
-  border-radius: ${dimensions.unitSpacing}px;
-  margin: ${dimensions.unitSpacing * 2}px;
+  border: ${props => props.hasBorder && `1px solid ${colors.borderPrimary}`};
+  border-radius: ${props => props.hasBorder && `${dimensions.unitSpacing}px`};
+  margin: ${props => props.hasBorder && dimensions.unitSpacing * 2}px;
 
   @-moz-document url-prefix() {
     overflow: hidden;

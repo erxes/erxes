@@ -115,6 +115,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
           />
         }
         transparent={transparent}
+        hasBorder
       />
     );
   }

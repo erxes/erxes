@@ -255,6 +255,7 @@ class PermissionList extends React.Component<Props> {
         footer={<Pagination count={totalCount} />}
         content={this.renderContent()}
         center={false}
+        hasBorder
       />
     );
   }
