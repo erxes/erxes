@@ -41,7 +41,8 @@ const {
   CLIENT_PORTAL_DOMAINS,
   PORT,
   RABBITMQ_HOST,
-  MESSAGE_BROKER_PREFIX
+  MESSAGE_BROKER_PREFIX,
+  PLUGIN_CORE_API_URL
 } = process.env;
 
 (async () => {
@@ -66,14 +67,19 @@ const {
   };
 
   app.use(cors(corsOptions));
+  
+  let proxyTarget = 'http://plugin_core_api';
+
+  if (PLUGIN_CORE_API_URL && NODE_ENV === 'production') {
+    proxyTarget = PLUGIN_CORE_API_URL;
+  } else if (NODE_ENV === 'development') {
+    proxyTarget = 'http://localhost:3000';
+  }
 
   app.use(
     /\/((?!graphql).)*/,
     createProxyMiddleware({
-      target:
-        process.env.NODE_ENV === 'production'
-          ? 'http://plugin_core_api'
-          : 'http://localhost:3300',
+      target: proxyTarget,
       router: async req => {
         const services = await getServices();
 
