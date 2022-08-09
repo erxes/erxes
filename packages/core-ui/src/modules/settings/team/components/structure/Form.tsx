@@ -140,7 +140,6 @@ export default function StructureForm(props: Props) {
       isOpen={true}
       title={__('Structure')}
       name="showStructure"
-      noShadow={true}
       noMarginBottom={true}
       noBackground
       noSpacing

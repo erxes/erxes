@@ -43,7 +43,6 @@ export default function View({ structure, showEdit }: Props) {
       isOpen={true}
       title={__('Structure')}
       name="showStructure"
-      noShadow={true}
       noMarginBottom={true}
       noBackground
       noSpacing

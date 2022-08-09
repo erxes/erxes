@@ -390,11 +390,9 @@ const CenterContent = styled.div`
 `;
 
 const SectionContainer = styledTS<{
-  noShadow?: boolean;
   noMarginBottom?: boolean;
 }>(styled.div)`
   position: relative;
-  box-shadow: ${props => !props.noShadow && `0 0 6px 0 rgba(0, 0, 0, 0.08)`};
   margin-bottom: ${props => !props.noMarginBottom && '10px'};
 
   > div {

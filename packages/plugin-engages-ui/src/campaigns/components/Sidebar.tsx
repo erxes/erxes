@@ -110,7 +110,6 @@ class Sidebar extends React.Component<Props> {
             loading={false}
             noBackground
             noSpacing
-            noShadow
           />
         )}
       </Wrapper.Sidebar>

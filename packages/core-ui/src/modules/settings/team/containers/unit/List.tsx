@@ -23,7 +23,6 @@ export default function ListContainer() {
         isOpen={true}
         title={__('Unit')}
         name="showUnit"
-        noShadow
         noMarginBottom
         noBackground
         noSpacing

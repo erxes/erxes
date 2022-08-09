@@ -23,7 +23,6 @@ export default function ListContainer() {
         isOpen={true}
         title={__('Branch')}
         name="showBranch"
-        noShadow
         noMarginBottom
         noBackground
         noSpacing

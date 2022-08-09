@@ -23,7 +23,6 @@ export default function ListContainer() {
         isOpen={true}
         title={__('Department')}
         name="showDepartment"
-        noShadow
         noMarginBottom
         noBackground
         noSpacing

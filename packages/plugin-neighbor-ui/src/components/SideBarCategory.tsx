@@ -45,7 +45,6 @@ class SidebarCategories extends React.Component<Props, State> {
           <Box
             noBackground
             noSpacing
-            noShadow
             noMarginBottom
             title={__('Хөрш сургуулиуд')}
             collapsible={false}
@@ -71,7 +70,6 @@ class SidebarCategories extends React.Component<Props, State> {
           <Box
             noBackground
             noSpacing
-            noShadow
             noMarginBottom
             title={__('Ойр хавийн мэдээлэл')}
           >
@@ -101,7 +99,6 @@ class SidebarCategories extends React.Component<Props, State> {
           <Box
             noBackground
             noSpacing
-            noShadow
             noMarginBottom
             title={__('Орчны мэдээлэл')}
           >
@@ -121,7 +118,6 @@ class SidebarCategories extends React.Component<Props, State> {
           <Box
             noBackground
             noSpacing
-            noShadow
             noMarginBottom
             title={__('Дүүргийн байрны мэдээлэл')}
           >

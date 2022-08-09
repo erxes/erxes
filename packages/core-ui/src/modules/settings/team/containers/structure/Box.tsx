@@ -29,7 +29,6 @@ export default function BoxContainer() {
         isOpen={true}
         title={__('Structure')}
         name="showStructure"
-        noShadow
         noMarginBottom
         noBackground
         noSpacing

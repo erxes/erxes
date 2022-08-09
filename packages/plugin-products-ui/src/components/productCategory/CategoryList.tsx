@@ -176,7 +176,6 @@ class List extends React.Component<IProps> {
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}
-          noShadow
           noMargin
         >
           {this.renderCategoryHeader()}

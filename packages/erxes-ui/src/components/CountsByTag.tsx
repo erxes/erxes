@@ -15,7 +15,6 @@ interface IProps extends IRouterProps {
   loading: boolean;
   noBackground?: boolean;
   noSpacing?: boolean;
-  noShadow?: boolean;
 }
 
 function CountsByTag({
@@ -25,8 +24,7 @@ function CountsByTag({
   manageUrl,
   loading,
   noBackground,
-  noSpacing,
-  noShadow
+  noSpacing
 }: IProps) {
   const onClick = () => {
     router.setParams(history, { tag: null });
@@ -54,7 +52,6 @@ function CountsByTag({
       name="showFilterByTags"
       noBackground={noBackground}
       noSpacing={noSpacing}
-      noShadow={noShadow}
     >
       <FilterByParams
         fields={tags}
