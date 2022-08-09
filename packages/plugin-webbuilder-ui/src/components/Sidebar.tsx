@@ -89,7 +89,7 @@ class List extends React.Component<Props> {
     const { contentTypes } = this.props;
 
     return (
-      <Sidebar wide={true} hasBorder={true} noMargin={true}>
+      <Sidebar wide={true} hasBorder={true}>
         <Section
           maxHeight={488}
           noShadow={true}

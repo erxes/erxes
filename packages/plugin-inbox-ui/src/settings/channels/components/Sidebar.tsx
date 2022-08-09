@@ -69,7 +69,6 @@ class Sidebar extends React.Component<Props, {}> {
         wide={false}
         header={this.renderSidebarHeader()}
         hasBorder={true}
-        noMargin
       >
         <SidebarList noTextColor noBackground>
           {this.renderItems()}

@@ -15,7 +15,7 @@ export default function LeftSidebar({
   hasBorder?: boolean;
 }) {
   return (
-    <Sidebar noMargin={true} hasBorder={true}>
+    <Sidebar hasBorder={true}>
       <Structure />
       <DepartmentList />
       {isEnabled('segments') && (

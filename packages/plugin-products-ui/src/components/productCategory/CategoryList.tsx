@@ -172,7 +172,7 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true} hasBorder={true} noMargin>
+      <Sidebar wide={true} hasBorder={true}>
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}
