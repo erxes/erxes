@@ -110,7 +110,6 @@ class Home extends React.Component<Props, State> {
             background="colorWhite"
           />
         }
-        noPadding
       ></Wrapper>
     );
   }

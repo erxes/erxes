@@ -46,7 +46,6 @@ class Home extends React.Component<Props, {}> {
         }
         content={<Pipelines options={options} type={type} boardId={boardId} />}
         transparent={true}
-        noPadding
       />
     );
   }

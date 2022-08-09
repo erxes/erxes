@@ -167,7 +167,6 @@ class Histories extends React.Component<Props & IRouterProps> {
           />
         }
         transparent={true}
-        noPadding={true}
       />
     );
   }

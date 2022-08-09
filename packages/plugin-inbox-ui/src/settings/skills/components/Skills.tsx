@@ -151,7 +151,6 @@ function Skills(props: Props) {
       content={renderContent()}
       footer={<Pagination count={totalCount} />}
       transparent={true}
-      noPadding
     />
   );
 }

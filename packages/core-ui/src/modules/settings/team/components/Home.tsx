@@ -195,7 +195,6 @@ export default function Home(props: Props) {
       content={<UserList history={history} queryParams={queryParams} />}
       transparent={true}
       footer={<Pagination count={totalCount} />}
-      noPadding={true}
     />
   );
 }

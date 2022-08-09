@@ -152,7 +152,6 @@ class Home extends React.Component<Props, State> {
           </Content>
         }
         transparent={true}
-        noPadding
       />
     );
   }

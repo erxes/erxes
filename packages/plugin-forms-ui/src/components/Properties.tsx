@@ -249,7 +249,6 @@ class Properties extends React.Component<
         }
         content={this.renderProperties()}
         transparent={true}
-        noPadding
       />
     );
   }

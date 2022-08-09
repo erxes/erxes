@@ -41,7 +41,6 @@ function EngageConfigs() {
       }
       content={<EngageSettingsContent />}
       transparent={true}
-      noPadding
     />
   );
 }

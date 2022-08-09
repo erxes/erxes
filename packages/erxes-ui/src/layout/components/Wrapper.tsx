@@ -22,7 +22,6 @@ type Props = {
   center?: boolean;
   shrink?: boolean;
   mainHead?: React.ReactNode;
-  noPadding?: boolean;
   initialOverflow?: boolean;
 };
 
@@ -39,7 +38,6 @@ class Wrapper extends React.Component<Props> {
       transparent,
       center,
       shrink,
-      noPadding,
       initialOverflow
     } = this.props;
 
@@ -52,7 +50,6 @@ class Wrapper extends React.Component<Props> {
               footer={footer}
               transparent={transparent || false}
               center={center}
-              noPadding={noPadding}
               initialOverflow={initialOverflow}
             >
               {content}
@@ -67,7 +64,6 @@ class Wrapper extends React.Component<Props> {
         actionBar={actionBar}
         footer={footer}
         transparent={transparent || false}
-        noPadding={noPadding}
       >
         {content}
       </PageContent>

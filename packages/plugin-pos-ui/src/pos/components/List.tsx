@@ -132,7 +132,6 @@ class List extends React.Component<Props, {}> {
           />
         }
         transparent={true}
-        noPadding
       />
     );
   }
