@@ -51,6 +51,7 @@ module.exports = {
             'developer/integrations-overview/sunshine-conversations'
           ]
         },
+        'developer/webhook',
         {
           'GraphQL API': [
             'developer/graphql-api',
