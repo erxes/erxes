@@ -123,15 +123,13 @@ class PageForm extends React.Component<Props, State> {
     const pfx = editor.getConfig().stylePrefix;
     const modal = editor.Modal;
     const cmdm = editor.Commands;
-    var htmlCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
+    const htmlCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
     const cssCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
     const pnm = editor.Panels;
     const container = document.createElement('div');
     const btnEdit = document.createElement('button');
 
-    htmlCodeViewer.set({
-      codeName: 'htmlmixed',
-      readOnly: 0,
+    const codeViewerOptions = {
       theme: 'hopscotch',
       autoBeautify: true,
       autoCloseTags: true,
@@ -139,20 +137,18 @@ class PageForm extends React.Component<Props, State> {
       lineWrapping: true,
       styleActiveLine: true,
       smartIndent: true,
-      indentWithTabs: true
+      indentWithTabs: true,
+      readOnly: 0
+    };
+
+    htmlCodeViewer.set({
+      codeName: 'htmlmixed',
+      ...codeViewerOptions
     });
 
     cssCodeViewer.set({
       codeName: 'css',
-      readOnly: 0,
-      theme: 'hopscotch',
-      autoBeautify: true,
-      autoCloseTags: true,
-      autoCloseBrackets: true,
-      lineWrapping: true,
-      styleActiveLine: true,
-      smartIndent: true,
-      indentWithTabs: true
+      ...codeViewerOptions
     });
 
     editor.getConfig().allowScripts = 1;
@@ -179,15 +175,25 @@ class PageForm extends React.Component<Props, State> {
         modal.setTitle('Edit code');
 
         if (!htmlViewer && !cssViewer) {
-          var txtarea = document.createElement('textarea');
-          var cssarea = document.createElement('textarea');
+          const htmlArea = document.createElement('textarea');
+          const htmlLabel = document.createElement('p');
+          htmlLabel.innerHTML = 'Html';
 
-          container.appendChild(txtarea);
-          container.appendChild(cssarea);
+          const cssArea = document.createElement('textarea');
+          const cssLabel = document.createElement('p');
+          cssLabel.innerHTML = 'Css';
+
+          container.appendChild(htmlLabel);
+          container.appendChild(htmlArea);
+
+          container.appendChild(cssLabel);
+          container.appendChild(cssArea);
+
           container.appendChild(btnEdit);
 
-          htmlCodeViewer.init(txtarea);
-          cssCodeViewer.init(cssarea);
+          htmlCodeViewer.init(htmlArea);
+          cssCodeViewer.init(cssArea);
+
           htmlViewer = htmlCodeViewer.editor;
           cssViewer = cssCodeViewer.editor;
         }
