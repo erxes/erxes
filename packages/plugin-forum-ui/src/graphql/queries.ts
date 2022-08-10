@@ -1,19 +1,10 @@
-const list = `
-  query forumsQuery {
-    forums {
+import gql from 'graphql-tag';
+
+export const CATEGORIES_BY_PARENT_IDS = gql`
+  query ForumCategoriesByParentIds($parentId: [ID]) {
+    forumCategories(parentId: $parentId) {
       _id
       name
     }
   }
 `;
-
-const totalCount = `
-  query forumsTotalCountQuery {
-    forumsTotalCount
-  }
-`;
-
-export default {
-  list,
-  totalCount
-};

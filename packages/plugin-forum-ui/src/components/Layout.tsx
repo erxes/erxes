@@ -1,8 +1,7 @@
 import React from 'react';
 import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
-
-import Categories from '../containers/Categories';
 import Posts from '../containers/Posts';
+import LayoutCategories from './LayoutCategories';
 
 function Layout() {
   // The `path` lets us build <Route> paths that are
@@ -26,7 +25,7 @@ function Layout() {
           <h1>Dashboard</h1>
         </Route>
         <Route path={`${path}/categories`}>
-          <Categories />
+          <LayoutCategories />
         </Route>
         <Route path={`${path}/posts`}>
           <Posts />
