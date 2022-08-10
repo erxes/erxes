@@ -8,11 +8,11 @@ With erxes, you can create your own plugins or extend the existing ones, which w
 
 :::caution
 
-- Before you start developing your own plugins, ensure there is no plugins with the same name or similar name in our marketplace that would bring any confusion as the name would be used many places starting from your `API`, `GraphQL`, query, mutation, etc.
+- Before you start developing your own plugins, ensure there is no plugins with the same name or similar name in our marketplace that would bring any confusion as the name would be used many places starting from your `API`, `GraphQL`, `query`, `mutation`, etc.
 - Name must be in small letters with no symbols and space in between.
-- Name of All your GraphQL type, query, mutation must start with your plugin name. 
+- Name of All your `GraphQL` type, `query`, `mutation` must start with your plugin name. 
 - Names of your database collection also must start with your plugin name. 
-- Name of your UI routes or url-s also must be start with you pluging name. 
+- Name of your **UIroutes** or `url`-s also must be start with you pluging name. 
 
 :::
 
