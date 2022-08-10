@@ -23,7 +23,7 @@ class DealsSection extends React.Component<Props> {
         >
           <Section>
             {deals.map(deal => (
-              <DealInfo deal={deal} />
+              <DealInfo key={deal._id} deal={deal} />
             ))}
           </Section>
         </CollapseContent>

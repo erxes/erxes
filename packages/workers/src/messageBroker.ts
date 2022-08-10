@@ -43,7 +43,7 @@ export const removeTickets = (subdomain, _ids) =>
   });
 
 export const removeDeals = (subdomain, _ids) =>
-  sendRPCMessage('cards:deaks.remove', {
+  sendRPCMessage('cards:deals.remove', {
     subdomain,
     data: { _ids }
   });

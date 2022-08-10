@@ -347,21 +347,53 @@ const carsExport = `
 `;
 
 const participants = `
-query($dealId: String) {
-  participants (dealId: $dealId){
+query participants(
+  $dealId: String
+  $page: Int
+  $perPage: Int
+  $status: String
+  $tripId: String
+) {
+  participants(
+    dealId: $dealId
+    page: $page
+    perPage: $perPage
+    status: $status
+    tripId: $tripId
+  ) {
     _id
+    createdAt
     deal {
       _id
+      name
     }
-  status
-  detail
-    customer {
+    dealId
+    detail
+    status
+    tripId
+    trip {
       _id
-      avatar
-      firstName
-      lastName
-      primaryEmail
-      primaryPhone
+      route {
+        name
+      }
+      car {
+        _id
+        carModel
+        category {
+          _id
+          code
+          name
+        }
+      }
+      status
+      driver {
+        _id
+        avatar
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
     }
   }
 }
@@ -624,6 +656,19 @@ query tripDetail($_id: String!) {
       _id
       name
       customFieldsData
+      customers {
+        _id
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+      companies {
+        _id
+        primaryEmail
+        primaryName
+        primaryPhone
+      }
     }
     driver {
       _id
