@@ -69,7 +69,7 @@ Run sudo nano or sudo vim command to create .yml file.
 
 :::
 
-6. Create a docker-compose.yaml file, then copy the following script in the newly created file. 
+6. Create a `docker-compose.yaml` file, then copy the following script in the newly created file. 
 
 ```
 version: '3.6'
@@ -153,7 +153,7 @@ git checkout federation
 yarn install
 ```
 
-11. Install pm2 by using following command.
+11. Install `pm2` by using following command.
 
 ```
 sudo npm install -g pm2
@@ -161,7 +161,7 @@ sudo npm install -g pm2
 
 :::note
 
-Frequently used **pm2** commands on erxes:
+Frequently used `pm2` commands on erxes:
 
 - pm2 list - Display all processes status
 - pm2 kill - Will remove all processes from pm2 list
@@ -177,13 +177,13 @@ Frequently used **pm2** commands on erxes:
 cd cli
 ```
 
-13. Install node modules in the erxes/cli directory.
+13. Install `node` modules in the `erxes/cli` directory.
 
 ```
 yarn install
 ```
 
-14. Copy configs.json.sample, then convert it to configs.json.
+14. Copy `configs.json.sample`, then convert it to `configs.json`.
 
 ```
 cp configs.json.sample configs.json
