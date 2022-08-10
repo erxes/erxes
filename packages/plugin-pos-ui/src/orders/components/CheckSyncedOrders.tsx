@@ -11,7 +11,7 @@ import { Title } from '@erxes/ui/src/styles/main';
 type Props = {
   totalCount: number;
   loading: boolean;
-  orders: any[];
+  posOrders: any[];
   history: any;
   queryParams: any;
   isAllSelected: boolean;
@@ -43,7 +43,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
 
   renderRow = () => {
     const {
-      orders,
+      posOrders,
       history,
       toggleBulk,
       bulk,
@@ -52,7 +52,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       syncedOrderInfos
     } = this.props;
 
-    return orders.map(order => (
+    return posOrders.map(order => (
       <Row
         history={history}
         key={order._id}
@@ -67,8 +67,8 @@ class CheckSyncedOrders extends React.Component<Props, State> {
   };
 
   onChange = () => {
-    const { toggleAll, orders } = this.props;
-    toggleAll(orders, 'orders');
+    const { toggleAll, posOrders } = this.props;
+    toggleAll(posOrders, 'orders');
   };
 
   checkSynced = async (orders: any) => {

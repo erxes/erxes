@@ -174,7 +174,18 @@ const queries = {
       perPage: params.perPage
     });
   },
-
+  posOrdersTotalCount: async (
+    _root,
+    params,
+    { models, commonQuerySelector, user }: IContext
+  ) => {
+    const query = await generateFilterPosQuery(
+      params,
+      commonQuerySelector,
+      user._id
+    );
+    return models.PosOrders.find(query).count();
+  },
   posOrderDetail: async (_root, { _id }, { models, subdomain }: IContext) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     const productIds = order.items.map(i => i.productId);

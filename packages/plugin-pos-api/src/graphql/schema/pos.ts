@@ -190,6 +190,13 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     products: [PosProduct],
     totalCount: Float,
   }
+
+  type CheckResponse {
+    orderId: String
+    isSynced: Boolean
+    syncedDate: Date
+    syncedBillNumber: String
+  }
 `;
 
 const queryParams = `
@@ -218,6 +225,7 @@ export const queries = `
   productGroups(posId: String!): [ProductGroups]
   posSlots(posId: String!): [PosSlot]
   posOrders(${queryParams}): [PosOrder]
+  posOrdersTotalCount(${queryParams}): JSON 
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
@@ -234,4 +242,6 @@ export const mutations = `
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
+  toCheckSyncedOrders($orderIds: [String]): [CheckResponse] 
+  toSyncOrders($orderIds: [String]): JSON
 `;

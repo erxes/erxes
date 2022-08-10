@@ -109,13 +109,13 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
       return <Spinner />;
     }
 
-    const orders = checkSyncItemsQuery.orders || [];
+    const posOrders = checkSyncItemsQuery.posOrders || [];
     const totalCount = checkSyncedOrdersTotalCountQuery.ordersTotalCount || 0;
 
     const updatedProps = {
       ...this.props,
       loading: checkSyncItemsQuery.loading,
-      orders,
+      posOrders,
       totalCount,
       checkSynced,
       unSyncedOrderIds: this.state.unSyncedOrderIds,
@@ -134,13 +134,13 @@ const generateParams = ({ queryParams }) => {
   const pageInfo = router.generatePaginationParams(queryParams || {});
 
   return {
-    limit: pageInfo.perPage || 10,
-    skip: pageInfo.page > 1 ? (pageInfo.page - 1) * pageInfo.perPage : 0,
+    // limit: pageInfo.perPage || 10,
+    // skip: pageInfo.page > 1 ? (pageInfo.page - 1) * pageInfo.perPage : 0,
     pipelineId: queryParams.pipelineId,
-    noSkipArchive: true,
+    // noSkipArchive: true,
     stageId: queryParams.stageId,
-    stageChangedStartDate: queryParams.stageChangedStartDate,
-    stageChangedEndDate: queryParams.stageChangedEndDate,
+    createdStartDate: queryParams.createdStartDate,
+    createdEndDate: queryParams.createdEndDate,
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined
   };
@@ -153,8 +153,8 @@ export default withProps<Props>(
       {
         name: 'checkSyncItemsQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams }),
-          fetchPolicy: 'network-only'
+          variables: generateParams({ queryParams })
+          // fetchPolicy: 'network-only'
         })
       }
     ),

@@ -108,14 +108,9 @@ export type IConfig = {
   value: any;
 };
 // query types
-export type ConfigsQueryResponse = {
-  configs: IConfig[];
-  loading: boolean;
-  refetch: () => void;
-};
 
 export type CheckSyncedOrdersQueryResponse = {
-  orders: any[];
+  posOrders: any[];
 } & QueryResponse;
 
 export type CheckSyncedOrdersTotalCountQueryResponse = {

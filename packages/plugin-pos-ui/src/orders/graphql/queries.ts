@@ -133,60 +133,24 @@ const posProducts = `
     }
   }
 `;
-const commonParams = `
-  $skip: Int,
-  $limit: Int,
-  $sortField: String,
-  $sortDirection: Int,
-  $userIds: [String],
-  $pipelineId: String
-  $stageId: String
-  $stageChangedStartDate: Date
-  $stageChangedEndDate: Date
-  $noSkipArchive: Boolean
-  $assignedUserIds: [String],
-  $productIds: [String],
-`;
-
-const commonParamDefs = `
-  skip: $skip,
-  limit: $limit,
-  sortField: $sortField
-  sortDirection: $sortDirection
-  userIds: $userIds
-  pipelineId: $pipelineId
-  stageId: $stageId
-  stageChangedStartDate: $stageChangedStartDate
-  stageChangedEndDate: $stageChangedEndDate
-  noSkipArchive: $noSkipArchive
-  assignedUserIds: $assignedUserIds,
-  productIds: $productIds,
-`;
 
 const checkSyncOrdersTotalCount = `
-  query dealsTotalCount (
-    ${commonParams}
+  query ordersTotalCount (
+    ${listParamsDef}
   ) {
-    dealsTotalCount (
-      ${commonParamDefs}
+    posOrdersTotalCount (
+      ${listParamsValue}
     )
   }
 `;
 const checkSyncOrders = `
-  query orders (
-    ${commonParams}
+  query posOrders (
+    ${listParamsDef}
   ) {
-    orders (
-      ${commonParamDefs}
+    posOrders (
+      ${listParamsValue}
     ) {
-      _id
-      name
-      amount
-      assignedUsers
-      modifiedAt
-      number
-      createdAt
-      stageChangedDate
+      ${orderFields}
     }
   }
 `;
