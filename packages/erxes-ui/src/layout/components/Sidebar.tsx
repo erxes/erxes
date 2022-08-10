@@ -117,26 +117,11 @@ type HeaderProps = {
   uppercase?: boolean;
   bold?: boolean;
   spaceBottom?: boolean;
-  noBackground?: boolean;
-  noSpacing?: boolean;
 };
 
-function Header({
-  children,
-  spaceBottom,
-  uppercase,
-  bold,
-  noBackground,
-  noSpacing
-}: HeaderProps) {
+function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
   return (
-    <SidebarHeader
-      noBackground={noBackground}
-      noSpacing={noSpacing}
-      spaceBottom={spaceBottom}
-      uppercase={uppercase}
-      bold={bold}
-    >
+    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
       {children}
     </SidebarHeader>
   );

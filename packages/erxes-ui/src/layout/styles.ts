@@ -162,16 +162,9 @@ const SidebarHeader = styledTS<{
   spaceBottom?: boolean;
   uppercase?: boolean;
   bold?: boolean;
-  noBackground?: boolean;
-  noSpacing?: boolean;
 }>(styled.div)`
-  background-color: ${props => !props.noBackground && colors.bgLight};
   height: ${dimensions.headerSpacing}px;
-  margin-bottom: ${props => !props.noSpacing && props.spaceBottom && '10px'};
   align-items: center;
-  padding: ${props =>
-    !props.noSpacing &&
-    `0 ${dimensions.coreSpacing}px 0 ${dimensions.coreSpacing}px`};
   border-bottom: 1px solid ${colors.borderPrimary};
   text-transform: ${props => props.uppercase && 'uppercase'};
   font-weight: ${props => (props.bold ? 'bold' : '500')};
@@ -179,7 +172,7 @@ const SidebarHeader = styledTS<{
   font-size: ${typography.fontSizeHeading8}px;
   flex-direction: row;
   justify-content: space-between;
-  margin: ${props => props.noSpacing && `0px ${dimensions.coreSpacing}px`};
+  margin: 0px ${dimensions.coreSpacing}px;
 `;
 
 const SidebarTitle = styledTS<{
