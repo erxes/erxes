@@ -42,7 +42,6 @@ jobs:
           cd dist
           yarn install
           yarn build workers
-          ls
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/image-size'  )
