@@ -1,4 +1,9 @@
-import { DataWithLoader, Pagination, SortHandler, Table } from '@erxes/ui/src/components';
+import {
+  DataWithLoader,
+  Pagination,
+  SortHandler,
+  Table
+} from '@erxes/ui/src/components';
 import { router, __ } from '@erxes/ui/src/utils';
 import { Wrapper, BarItems } from '@erxes/ui/src/layout';
 import { IRouterProps, IQueryParams } from '@erxes/ui/src/types';
@@ -15,6 +20,7 @@ interface IProps extends IRouterProps {
   loading: boolean;
   searchValue: string;
   totalCount: number;
+  sumAmount: number;
   bulk: any[];
   isAllSelected: boolean;
   history: any;
@@ -25,7 +31,6 @@ interface IProps extends IRouterProps {
   onSelect: (values: string[] | string, key: string) => void;
   isFiltered: boolean;
   clearFilter: () => void;
-
 }
 
 type State = {
@@ -70,14 +75,14 @@ class PutResponses extends React.Component<IProps, State> {
       history,
       loading,
       totalCount,
+      sumAmount,
       queryParams,
 
       onSearch,
       onFilter,
       onSelect,
       isFiltered,
-      clearFilter,
-
+      clearFilter
     } = this.props;
     const mainContent = (
       <TableWrapper>
@@ -106,11 +111,12 @@ class PutResponses extends React.Component<IProps, State> {
                 <SortHandler sortField={'message'} label={__('Message')} />
               </th>
               <th>
-                <SortHandler sortField={'returnBillId'} label={__('Return BillID')} />
+                <SortHandler
+                  sortField={'returnBillId'}
+                  label={__('Return BillID')}
+                />
               </th>
-              <th>
-                Үйлдлүүд
-              </th>
+              <th>Үйлдлүүд</th>
             </tr>
           </thead>
           <tbody id="putResponses">
@@ -132,7 +138,7 @@ class PutResponses extends React.Component<IProps, State> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams,
+      queryParams
     };
 
     const actionBarRight = (
@@ -142,12 +148,15 @@ class PutResponses extends React.Component<IProps, State> {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={`Total: ${totalCount}`} />
+      <Wrapper.ActionBar
+        right={actionBarRight}
+        left={`Total: ${totalCount} #SumAmount: ${(
+          sumAmount || 0
+        ).toLocaleString()}`}
+      />
     );
 
-    const menuPos = [
-      { title: 'Put Response', link: '/put-responses' },
-    ];
+    const menuPos = [{ title: 'Put Response', link: '/put-responses' }];
 
     return (
       <Wrapper

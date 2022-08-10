@@ -8,7 +8,6 @@ import { __, renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import ParticipantChooser from '../../containers/participants/ParticipantChooser';
 import { IParticipant } from '../../types';
 import ParticipantsForm from './ParticipantsForm';
 
@@ -25,8 +24,6 @@ export default function Component({
   actionSection,
   participants,
   title = '',
-  dealId,
-  participantsChanged,
   renderButton
 }: Props) {
   const renderActionSection = customer => {
@@ -55,25 +52,16 @@ export default function Component({
       <div>
         {participants.map((participant, index) => (
           <SectionBodyItem key={index}>
-            <Link to={`/contacts/details/${participant.customer._id}`}>
-              {renderFullName(participant.customer)}
+            <Link to={`/contacts/details/${participant.trip.driver._id}`}>
+              {renderFullName(participant.trip.driver)}
               {renderStatus(participant)}
             </Link>
-            {renderActionSection(participant.customer)}
+            {renderActionSection(participant.trip.driver)}
           </SectionBodyItem>
         ))}
       </div>
     );
   };
-
-  const chooserContent = props => (
-    <ParticipantChooser
-      {...props}
-      dealId={dealId}
-      participants={participants}
-      onSelect={participantsChanged}
-    />
-  );
 
   const manageContent = props => (
     <ParticipantsForm
@@ -88,7 +76,7 @@ export default function Component({
       {participants.length && (
         <ModalTrigger
           title="Manage"
-          size="lg"
+          size="xl"
           trigger={
             <button>
               <Icon icon="edit-3" />
@@ -97,16 +85,6 @@ export default function Component({
           content={manageContent}
         />
       )}
-      <ModalTrigger
-        title="Participants"
-        size="lg"
-        trigger={
-          <button>
-            <Icon icon="plus-circle" />
-          </button>
-        }
-        content={chooserContent}
-      />
     </>
   );
 
