@@ -1,4 +1,3 @@
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import Button from '@erxes/ui/src/components/Button';
@@ -7,6 +6,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
+import FormControl from '@erxes/ui/src/components/form/Control';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -16,6 +16,7 @@ interface IProps {
 }
 
 interface State {
+  posToken: string;
   createdStartDate: Date;
   createdEndDate: Date;
 }
@@ -26,6 +27,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
 
     const { queryParams } = this.props;
     this.state = {
+      posToken: queryParams.posToken,
       createdStartDate: queryParams.createdStartDate,
       createdEndDate: queryParams.createdEndDate
     };
@@ -35,10 +37,11 @@ class CheckerSidebar extends React.Component<IProps, State> {
   };
 
   onFilter = () => {
-    const { createdStartDate, createdEndDate } = this.state;
+    const { posToken, createdStartDate, createdEndDate } = this.state;
 
     router.setParams(this.props.history, {
       page: 1,
+      posToken,
       createdStartDate,
       createdEndDate
     });
@@ -91,12 +94,26 @@ class CheckerSidebar extends React.Component<IProps, State> {
   }
 
   render() {
+    const { posToken } = this.state;
+    const onChangePosToken = (e: any) => {
+      const token = e.target?.value;
+      this.setState({ posToken: token });
+    };
     return (
       <Wrapper.Sidebar>
         <Sidebar>
           <Section collapsible={false}>
             <Section.Title>{__('Filters')}</Section.Title>
-
+            <FormGroup>
+              <ControlLabel>Type POS token</ControlLabel>
+              <FormControl
+                type="text"
+                placeholder={__('POS token')}
+                onChange={onChangePosToken}
+                defaultValue={posToken}
+                autoFocus={true}
+              />
+            </FormGroup>
             {this.renderRange('created')}
           </Section>
 

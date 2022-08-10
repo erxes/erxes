@@ -56,7 +56,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       <Row
         history={history}
         key={order._id}
-        deal={order}
+        posOrder={order}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(order)}
         isUnsynced={unSyncedOrderIds.includes(order._id)}

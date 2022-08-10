@@ -212,24 +212,21 @@ const queryParams = `
   paidDate: String
   userId: String
   customerId: String
+  posToken: String
 `;
 
 export const queries = `
-  posList(page: Int,
-    perPage: Int,
-    isOnline: String,
-    sortField: String
-    sortDirection: Int): [Pos]
+  posList(page: Int, perPage: Int, isOnline: String, sortField: String, sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
   posEnv: JSON
   productGroups(posId: String!): [ProductGroups]
   posSlots(posId: String!): [PosSlot]
   posOrders(${queryParams}): [PosOrder]
-  posOrdersTotalCount(${queryParams}): JSON 
   posOrderDetail(_id: String): PosOrderDetail
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   ecommerceGetBranches(posToken: String): [JSON]
+  posOrdersTotalCount(${queryParams}): JSON 
 `;
 
 export const mutations = `
@@ -242,6 +239,6 @@ export const mutations = `
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
-  toCheckSyncedOrders($orderIds: [String]): [CheckResponse] 
-  toSyncOrders($orderIds: [String]): JSON
+  toCheckSyncedOrders(orderIds: [String]): [CheckResponse] 
+  toSyncOrders(orderIds: [String]): JSON
 `;

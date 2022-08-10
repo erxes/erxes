@@ -41,7 +41,7 @@ class Row extends React.Component<Props> {
 
     const onTrClick = () => {};
 
-    const { name, amount, createdAt, stageChangedDate, modifiedAt } = posOrder;
+    const { posToken, createdAt, totalAmount, paidDate } = posOrder;
 
     return (
       <tr onClick={onTrClick}>
@@ -52,13 +52,14 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{name}</td>
+        <td>{posToken}</td>
         <td>
-          {Object.keys(amount).map(a => `${amount[a].toLocaleString()} ${a}`)}
+          {Object.keys(totalAmount).map(
+            a => `${totalAmount[a].toLocaleString()} ${a}`
+          )}
         </td>
         <td>{dayjs(createdAt).format('lll')}</td>
-        <td>{dayjs(modifiedAt).format('lll')}</td>
-        <td>{dayjs(stageChangedDate).format('lll')}</td>
+        <td>{dayjs(paidDate).format('lll')}</td>
         <td onClick={onClick}>
           {isUnsynced && (
             <FormControl

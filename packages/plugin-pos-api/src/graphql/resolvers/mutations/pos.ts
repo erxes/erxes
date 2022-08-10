@@ -1,7 +1,4 @@
-import messageBroker, {
-  sendEbarimtMessage,
-  sendCardsMessage
-} from '../../../messageBroker';
+import messageBroker, { sendEbarimtMessage } from '../../../messageBroker';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { getConfig } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
