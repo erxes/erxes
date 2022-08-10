@@ -1,11 +1,11 @@
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import {
+  AccountBox,
+  AccountItem,
+  AccountTitle,
+  ImageWrapper,
+  MessengerPreview,
+  TextWrapper
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ControlWrapper,
   FlexItem,
@@ -15,24 +15,25 @@ import {
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import { Step, Steps } from '@erxes/ui/src/components/step';
+
 import Accounts from '../../containers/Accounts';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
-import { Content } from '@erxes/ui-settings/src/integrations/styles';
-import {
-  AccountBox,
-  AccountItem,
-  AccountTitle,
-  ImageWrapper,
-  MessengerPreview,
-  TextWrapper
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { Content } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import { IPages } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 type Props = {
   kind: string;

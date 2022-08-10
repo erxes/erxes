@@ -1,5 +1,5 @@
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IProductDoc {

@@ -1,10 +1,11 @@
+import { RemoveRow, TypeBox } from '../../styles';
+
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import { IProductData } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-import { RemoveRow, TypeBox } from '../../styles';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import { IProductData } from '../../types';
-import React from 'react';
 
 type Props = {
   productData: IProductData;

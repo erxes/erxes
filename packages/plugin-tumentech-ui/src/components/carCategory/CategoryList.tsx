@@ -1,20 +1,22 @@
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import CategoryForm from '../../containers/carCategory/CategoryForm';
-import MatchCategoryForm from '../../containers/MatchCategoryForm';
-import { ActionButtons, SidebarListItem } from '../../styles';
-import { ICarCategory, IProduct, IProductCategory } from '../../types';
-import { router } from '@erxes/ui/src';
+import { router } from '@erxes/ui/src/utils';
+import { TopHeader } from '@erxes/ui/src/styles/main';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { __ } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Icon from '@erxes/ui/src/components/Icon';
-import { MainStyleTopHeader as TopHeader } from '@erxes/ui/src';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Tip from '@erxes/ui/src/components/Tip';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { __, Sidebar } from '@erxes/ui/src';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+import CategoryForm from '../../containers/carCategory/CategoryForm';
+import MatchCategoryForm from '../../containers/MatchCategoryForm';
+import { ActionButtons, SidebarListItem } from '../../styles';
+import { ICarCategory, IProduct, IProductCategory } from '../../types';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -34,7 +36,7 @@ interface IProps {
 
 class List extends React.Component<IProps> {
   renderFormTrigger(trigger: React.ReactNode, category?: ICarCategory) {
-    const content = (props) => (
+    const content = props => (
       <CategoryForm
         {...props}
         category={category}
@@ -93,7 +95,7 @@ class List extends React.Component<IProps> {
 
     // tslint:disable-next-line:no-shadowed-variable
     const contentWithId = (carCategory: ICarCategory) => {
-      const content = (props) => (
+      const content = props => (
         <MatchCategoryForm {...props} carCategory={carCategory} />
       );
 

@@ -4,7 +4,7 @@ export const SAFE_REMAINDER_STATUSES = {
   ALL: ['draft', 'published']
 };
 
-export const SAFE_REMITEM_STATUSES = {
+export const SAFE_REMAINDER_ITEM_STATUSES = {
   NEW: 'new',
   CHECKED: 'checked',
   DONE: 'done',

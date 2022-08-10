@@ -4,7 +4,7 @@ import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const products = asyncComponent(() =>
   import(
-    /* webpackChunkName: 'Sales Plans - Products' */ './products/containers/Products'
+    /* webpackChunkName: 'Sales Plans - Products' */ './products/components/Products'
   )
 );
 

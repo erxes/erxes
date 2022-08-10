@@ -1,12 +1,10 @@
 import Button from '@erxes/ui/src/components/Button';
 import { Form } from '@erxes/ui/src/components/form';
-import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import SelectCustomers from '@erxes/ui/src/customers/containers/SelectCustomers';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import React, { useState } from 'react';
+
 import { IParticipant } from '../../types';
 import List from './List';
 
@@ -22,7 +20,9 @@ const ParticipantsForm = (props: Props) => {
   const { deal, closeModal, renderButton } = props;
   const object = deal || {};
 
-  const [driver, setDriver] = useState<IParticipant>(undefined);
+  const [selectedParticipant, setSelectedParticipant] = useState<
+    IParticipant | undefined
+  >(undefined);
 
   const onChangeParticipants = (participants: IParticipant[]) => {
     const winner = participants.filter(p => p.status === 'won');
@@ -31,7 +31,7 @@ const ParticipantsForm = (props: Props) => {
       return;
     }
 
-    setDriver(winner[0]);
+    setSelectedParticipant(winner[0]);
   };
 
   const renderFooter = (formProps: IFormProps) => {
@@ -54,9 +54,9 @@ const ParticipantsForm = (props: Props) => {
 
         {renderButton({
           name: 'deal',
-          values: driver && {
-            dealId: driver.deal._id,
-            customerId: driver.customer._id
+          values: selectedParticipant && {
+            dealId: selectedParticipant.deal._id,
+            tripId: selectedParticipant.trip._id
           },
           isSubmitted,
           callback: closeModal,

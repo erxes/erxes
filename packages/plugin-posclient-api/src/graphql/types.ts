@@ -1,8 +1,8 @@
 import * as express from 'express';
 import { IConfigDocument } from './../models/definitions/configs';
-import { IPosUserDocument } from './../models/definitions/posUsers';
-import { IUserDocument } from './../models/definitions';
 import { IModels } from '../connectionResolver';
+import { IPosUserDocument } from './../models/definitions/posUsers';
+import { IUserDocument } from '@erxes/api-utils/src/definitions/users';
 
 export interface IContext {
   res: express.Response;
@@ -46,4 +46,5 @@ export interface IOrderInput {
   branchId?: string;
   deliveryInfo?: any;
   origin?: string;
+  slotCode?: string;
 }

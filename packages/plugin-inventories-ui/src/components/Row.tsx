@@ -1,19 +1,19 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
+import Form from '@erxes/ui-tags/src/components/Form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
+import Modal from 'react-bootstrap/Modal';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Select from 'react-select-plus';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from 'coreui/utils';
-import { ITag } from '@erxes/ui/src/tags/types';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Select from 'react-select-plus';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import Form from '@erxes/ui/src/tags/components/Form';
 
 export const TagWrapper = styledTS<{ space: number }>(styled.div)`
   padding-left: ${props => props.space * 20}px;

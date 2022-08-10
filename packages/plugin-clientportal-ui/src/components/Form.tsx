@@ -1,12 +1,13 @@
+import Button from '@erxes/ui/src/components/Button';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
+
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
+import { ButtonWrap, Content } from '../styles';
 import { ClientPortalConfig } from '../types';
 import Appearance from './forms/Appearance';
 import Config from './forms/Config';
-import { ButtonWrap, Content } from '../styles';
-import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
   configType: string;

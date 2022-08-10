@@ -484,6 +484,17 @@ export const sendSegmentsMessage = async (
   });
 };
 
+export const sendLoyaltiesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'loyalties',
+    ...args
+  });
+};
+
 export const sendCommonMessage = async (
   args: ISendMessageArgs & { serviceName: string }
 ): Promise<any> => {

@@ -1,15 +1,3 @@
-import Icon from '../Icon';
-import { Tabs, TabTitle } from '../tabs';
-import { __ } from '../../utils';
-import FieldForm from '@erxes/ui-forms/src/forms/containers/FieldForm';
-import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
-import { IField } from '../../types';
-import React from 'react';
-import CalloutPreview from './preview/CalloutPreview';
-import FormPreview from './preview/FormPreview';
-import SuccessPreview from './preview/SuccessPreview';
 import {
   CarouselInner,
   CarouselSteps,
@@ -19,9 +7,37 @@ import {
   MobilePreview,
   TabletPreview
 } from './style';
+import { TabTitle, Tabs } from '../tabs';
+
+import CalloutPreview from './preview/CalloutPreview';
+import FormPreview from './preview/FormPreview';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
+import { IField } from '../../types';
+import Icon from '../Icon';
+import React from 'react';
+import SuccessPreview from './preview/SuccessPreview';
+import { __ } from '../../utils';
+import asyncComponent from '../AsyncComponent';
+import { isEnabled } from '../../utils/core';
+
+const FieldForm = asyncComponent(
+  () =>
+    isEnabled('forms') &&
+    import(
+      /* webpackChunkName: "FieldForm" */ '@erxes/ui-forms/src/forms/containers/FieldForm'
+    )
+);
+
+const FieldsPreview = asyncComponent(
+  () =>
+    isEnabled('forms') &&
+    import(
+      /* webpackChunkName: "FieldsPreview" */ '@erxes/ui-forms/src/forms/components/FieldsPreview'
+    )
+);
 
 type Props = {
-  formData: IFormData;
+  formData: any; //check - IFormData
   type: string;
   calloutTitle?: string;
   calloutBtnText?: string;
@@ -31,7 +47,7 @@ type Props = {
   image?: string;
   calloutImgSize?: string;
   onChange: (name: 'carousel', value: string) => void;
-  onDocChange?: (doc: IFormData) => void;
+  onDocChange?: (doc: any) => void; //check - IFormData
   carousel: string;
   thankTitle?: string;
   thankContent?: string;
@@ -186,11 +202,11 @@ class FullPreviewStep extends React.Component<Props, State> {
             {...this.props}
             title={formData.title}
             btnText={formData.buttonText}
-            previewRenderer={previewRenderer}
+            previewRenderer={isEnabled('forms') && previewRenderer}
             currentPage={this.state.currentPage}
             onPageChange={this.onPageChange}
           />
-          {currentField && (
+          {currentField && isEnabled('forms') && (
             <FieldForm
               mode={currentMode || 'create'}
               fields={fields}

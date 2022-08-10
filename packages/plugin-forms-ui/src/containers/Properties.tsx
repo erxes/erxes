@@ -1,29 +1,34 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { router } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import Properties from '../components/Properties';
-import { mutations, queries } from '@erxes/ui-settings/src/properties/graphql';
-import {
-  FieldsGroupsRemoveMutationResponse,
-  FieldsGroupsUpdateVisibleMutationResponse,
-  FieldsRemoveMutationResponse,
-  FieldsUpdateVisibleMutationResponse,
-  FieldsUpdateOrderMutationResponse,
-  FieldsUpdateOrderMutationVariables,
-  GroupsUpdateOrderMutationResponse
-} from '../types';
 import {
   FieldsEditMutationResponse,
   FieldsGroupsQueryResponse,
   FieldsUpdateVisibilityToCreateMutationResponse
-} from '@erxes/ui-settings/src/properties/types';
-import { updateCustomFieldsCache } from '@erxes/ui-settings/src/properties/utils';
+} from '@erxes/ui-forms/src/settings/properties/types';
+import {
+  FieldsGroupsRemoveMutationResponse,
+  FieldsGroupsUpdateVisibleMutationResponse,
+  FieldsRemoveMutationResponse,
+  FieldsUpdateOrderMutationResponse,
+  FieldsUpdateOrderMutationVariables,
+  FieldsUpdateVisibleMutationResponse,
+  GroupsUpdateOrderMutationResponse
+} from '../types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-forms/src/settings/properties/graphql';
+
+import { IRouterProps } from '@erxes/ui/src/types';
+import Properties from '../components/Properties';
+import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { router } from '@erxes/ui/src/utils';
+import { updateCustomFieldsCache } from '@erxes/ui-forms/src/settings/properties/utils';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;

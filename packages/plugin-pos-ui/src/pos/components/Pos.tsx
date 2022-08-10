@@ -1,20 +1,13 @@
-import Appearance, { IUIOptions } from './step/Appearance';
-import ConfigStep from './step/ConfigStep';
-import EbarimtConfig from './step/EbarimtConfig';
-import ErkhetConfig from './step/ErkhetConfig';
-import DeliveryConfig from './step/DeliveryConfig';
-import GeneralStep from './step/GeneralStep';
-import CardsConfig from './step/CardsConfig';
-import React from 'react';
 import {
-  __,
   Alert,
   Button,
   ButtonMutate,
   Step,
   Steps,
-  Wrapper
+  Wrapper,
+  __
 } from '@erxes/ui/src';
+import Appearance, { IUIOptions } from './step/Appearance';
 import { Content, LeftContent } from '../../styles';
 import {
   ControlWrapper,
@@ -22,9 +15,16 @@ import {
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { IPos, IProductGroup, ISlot } from '../../types';
+
+import CardsConfig from './step/CardsConfig';
+import ConfigStep from './step/ConfigStep';
+import DeliveryConfig from './step/DeliveryConfig';
+import EbarimtConfig from './step/EbarimtConfig';
+import ErkhetConfig from './step/ErkhetConfig';
+import GeneralStep from './step/GeneralStep';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import React from 'react';
 
 type Props = {
   pos?: IPos;
@@ -35,6 +35,7 @@ type Props = {
   productCategories: IProductCategory[];
   branches: any[];
   slots: ISlot[];
+  envs: any;
 };
 
 type State = {
@@ -43,7 +44,6 @@ type State = {
   pos: IPos;
   slots: ISlot[];
   groups: IProductGroup[];
-  currentMode?: 'create' | 'update' | undefined;
   logoPreviewStyle?: any;
   logoPreviewUrl?: string;
   uiOptions: IUIOptions;
@@ -68,10 +68,13 @@ class Pos extends React.Component<Props, State> {
         headerColor: '#6569DF',
         footerColor: '#3CCC38'
       },
-      logo: '/images/erxes.png',
+      logo: '',
       bgImage: '',
-      favIcon: '/images/erxes.png',
-      receiptIcon: '/images/erxes.png'
+      favIcon: '',
+      receiptIcon: '',
+      kioskHeaderImage: '',
+      mobileAppImage: '',
+      qrCodeImage: ''
     };
 
     this.state = {
@@ -92,7 +95,7 @@ class Pos extends React.Component<Props, State> {
     e.preventDefault();
 
     const {
-      pos,
+      pos = {} as IPos,
       slots,
       groups,
       uiOptions,
@@ -121,7 +124,7 @@ class Pos extends React.Component<Props, State> {
     }));
 
     const cleanSlot = (slots || []).map(m => ({
-      _id: (m._id || '').includes('temp') ? undefined : m._id,
+      _id: m._id,
       code: m.code,
       name: m.name,
       posId: m.posId
@@ -141,6 +144,7 @@ class Pos extends React.Component<Props, State> {
       catProdMappings: cleanMappings,
       posSlots: cleanSlot,
       isOnline: pos.isOnline,
+      onServer: pos.onServer,
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
       branchId: pos.branchId,
@@ -175,13 +179,13 @@ class Pos extends React.Component<Props, State> {
 
   onChangeAppearance = (key: string, value: any) => {
     let uiOptions = this.state.uiOptions || {};
-    const { pos } = this.state || {};
+    const { pos = {} as IPos } = this.state || {};
     uiOptions[key] = value;
 
     if (uiOptions[key]) {
       uiOptions[key] = value;
     } else {
-      uiOptions = { [key]: value };
+      uiOptions = { [key]: value } as IUIOptions;
     }
 
     if (pos.uiOptions) {
@@ -247,8 +251,8 @@ class Pos extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, slots, groups, currentMode, uiOptions } = this.state;
-    const { productCategories, branches } = this.props;
+    const { pos, slots, groups, uiOptions } = this.state;
+    const { productCategories, branches, envs } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
     const name = pos.name || '';
@@ -268,9 +272,9 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
-                  currentMode={currentMode || 'create'}
                   branches={branches}
                   posSlots={slots}
+                  envs={envs}
                 />
               </Step>
               <Step
@@ -328,7 +332,11 @@ class Pos extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <CardsConfig onChange={this.onChange} pos={pos} />
+                <CardsConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  configsMap={{}}
+                />
               </Step>
             </Steps>
             <ControlWrapper>

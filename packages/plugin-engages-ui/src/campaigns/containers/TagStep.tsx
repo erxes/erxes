@@ -1,16 +1,18 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
+import { mutations, queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
-import { withProps } from '@erxes/ui/src/utils';
-import TagStep from '../components/step/TagStep';
-import { mutations, queries as tagQueries } from '@erxes/ui/src/tags/graphql';
-import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
+import TagStep from '../components/step/TagStep';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui-engage/src/graphql';
 import { sumCounts } from '@erxes/ui-engage/src/utils';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   tagIds: string[];

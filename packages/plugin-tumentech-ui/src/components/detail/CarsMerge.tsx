@@ -1,15 +1,16 @@
 import {
-  Button,
   ChooserColumn as Column,
   ChooserColumns as Columns,
-  ChooserTitle as Title,
-  Icon,
-  MainStyleModalFooter as ModalFooter
+  ChooserTitle as Title
 } from '@erxes/ui/src';
-import { Info, InfoDetail, InfoTitle } from '../../styles';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import Icon from '@erxes/ui/src/components/Icon';
+
 import React from 'react';
 
 import { CAR_DATAS, CAR_INFO } from '../../constants';
+import { Info, InfoDetail, InfoTitle } from '../../styles';
 import { ICar } from '../../types';
 
 type Props = {
@@ -31,7 +32,7 @@ class CarsMerge extends React.Component<Props, State> {
     };
   }
 
-  save = (e) => {
+  save = e => {
     e.preventDefault();
     const { objects } = this.props;
     const selectedValues = { ...this.state.selectedValues };
@@ -51,7 +52,7 @@ class CarsMerge extends React.Component<Props, State> {
     }
 
     this.props.save({
-      ids: objects.map((car) => car._id),
+      ids: objects.map(car => car._id),
       data: { ...selectedValues },
       callback: () => {
         this.props.closeModal();
@@ -86,7 +87,7 @@ class CarsMerge extends React.Component<Props, State> {
       <React.Fragment>
         <Title>{car.primaryName || car.website}</Title>
         <ul>
-          {properties.map((info) => {
+          {properties.map(info => {
             const key = info.field;
 
             if (!car[key]) {

@@ -1,12 +1,13 @@
-import dayjs from 'dayjs';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tip from '@erxes/ui/src/components/Tip';
-import React from 'react';
-import xss from 'xss';
+import { MessageBody, MessageContent, MessageItem } from '../styles';
+
 import FormMessage from './FormMessage';
 import { IMessage } from '../../../../../types';
-import { MessageBody, MessageContent, MessageItem } from '../styles';
-import { urlify } from '../../../../../utils';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { urlify } from '@erxes/ui/src/utils/urlParser';
+import xss from 'xss';
 
 type Props = {
   message: IMessage;

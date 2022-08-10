@@ -1,21 +1,22 @@
+import {
+  ISkillDocument,
+  ISkillTypesDocument
+} from '@erxes/ui-inbox/src/settings/skills/types';
+
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { NotWrappable } from '@erxes/ui-settings/src/permissions/styles';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
-import SkillTypes from '../containers/SkillTypes';
-import {
-  ISkillDocument,
-  ISkillTypesDocument
-} from '@erxes/ui-settings/src/skills/types';
 import SkillForm from './SkillForm';
 import SkillRow from './SkillRow';
+import SkillTypes from '../containers/SkillTypes';
+import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 const breadcrumb = [
   { title: 'Settings', link: '/settings' },

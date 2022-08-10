@@ -53,7 +53,6 @@ export const orderFields = `
   userId
   items
   posToken
-  syncId
 
   syncedErkhet
 
@@ -62,8 +61,9 @@ export const orderFields = `
     _id
     email
   }
-  ${isEnabled("contacts")
-    ? `
+  ${
+    isEnabled('contacts')
+      ? `
         customer {
           _id
           firstName
@@ -73,7 +73,7 @@ export const orderFields = `
           primaryPhone
         }
       `
-    : ``
+      : ``
   }
 
 `;
@@ -99,7 +99,7 @@ const posOrderDetail = `
       putResponses
     }
   }
-`
+`;
 
 const posProducts = `
   query posProducts(
@@ -141,5 +141,5 @@ export default {
   posOrdersSummary,
   posOrderDetail,
   posProducts,
-  productCategories,
+  productCategories
 };

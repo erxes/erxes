@@ -68,13 +68,15 @@ const productQueries = {
   async poscProducts(
     _root,
     { type, categoryId, searchValue, ...paginationArgs }: IProductParams,
-    { models }: IContext
+    { models, config }: IContext
   ) {
-    const filter = await generateFilter(models, {
+    let filter = await generateFilter(models, {
       type,
       categoryId,
       searchValue
     });
+
+    filter.tokens = { $in: [config.token] };
 
     return paginate(
       models.Products.find(filter)
@@ -104,9 +106,12 @@ const productQueries = {
   async poscProductCategories(
     _root,
     { parentId, searchValue, excludeEmpty }: ICategoryParams,
-    { models }: IContext
+    { models, config }: IContext
   ) {
     const filter = generateFilterCat({ parentId, searchValue });
+
+    filter.tokens = { $in: [config.token] };
+
     const categories = await models.ProductCategories.find(filter).sort({
       order: 1
     });

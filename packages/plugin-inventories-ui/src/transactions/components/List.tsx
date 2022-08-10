@@ -1,25 +1,28 @@
 import React from 'react';
-import { __, DataWithLoader, EmptyState, Table } from '@erxes/ui/src';
+import { __, Table, DataWithLoader, EmptyState } from '@erxes/ui/src';
+import Row from './Row';
 
-const List = () => {
-  const loading = false;
-  const data = [];
+type Props = {
+  loading: boolean;
+  data: any[];
+};
+
+const List = (props: Props) => {
+  const { loading = false, data = [] } = props;
 
   const renderRow = () =>
-    data.map((item: any, index: number) => {
-      <></>;
-    });
+    data.map((item: any, index: number) => <Row key={index} data={item} />);
 
   const renderTable = () => {
     return (
       <Table>
         <thead>
           <tr>
-            <th>{__('Name')}</th>
-            <th>{__('Description')}</th>
-            <th>{__('Status')}</th>
-            <th>{__('Created by')}</th>
+            <th>{__('Branch')}</th>
+            <th>{__('Department')}</th>
+            <th>{__('Content Type')}</th>
             <th>{__('Created at')}</th>
+            <th>{__('Created by')}</th>
           </tr>
         </thead>
         <tbody>{renderRow()}</tbody>
@@ -30,15 +33,10 @@ const List = () => {
   return (
     <DataWithLoader
       loading={loading}
-      count={0}
+      count={data.length}
       data={renderTable()}
-      emptyContent={
-        <EmptyState
-          image="/images/actions/12.svg"
-          text="No transactions"
-          size=""
-        />
-      }
+      emptyText="No transactions"
+      emptyImage="/images/actions/5.svg"
     />
   );
 };

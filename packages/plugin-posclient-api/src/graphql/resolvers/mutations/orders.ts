@@ -117,7 +117,8 @@ const orderMutations = {
       type: doc.type,
       totalAmount: getTotalAmount(preparedDoc.items),
       billType: doc.billType || BILL_TYPES.CITIZEN,
-      registerNumber: doc.registerNumber || ''
+      registerNumber: doc.registerNumber || '',
+      slotCode: doc.slotCode
     });
 
     return updatedOrder;
@@ -183,7 +184,7 @@ const orderMutations = {
     );
 
     ebarimtConfig.districtName = getDistrictName(
-      config.ebarimtConfig.districtCode
+      (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
     );
 
     try {
@@ -337,7 +338,7 @@ const orderMutations = {
     );
 
     ebarimtConfig.districtName = getDistrictName(
-      config.ebarimtConfig.districtCode
+      (config.ebarimtConfig && config.ebarimtConfig.districtCode) || ''
     );
 
     try {
@@ -380,7 +381,6 @@ const orderMutations = {
           action: 'createOrUpdateOrders',
           data: {
             posToken: config.token,
-            syncId: (config.syncInfo || {}).id,
             action: 'makePayment',
             response,
             order,

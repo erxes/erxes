@@ -1,31 +1,32 @@
-import React from 'react';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { DURATION_TYPES, JOB_TYPE_CHOISES } from '../../../constants';
 import {
-  ModalFooter,
   FormColumn,
-  FormWrapper
+  FormWrapper,
+  ModalFooter
 } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { JOB_TYPE_CHOISES, DURATION_TYPES } from '../../../constants';
-import CategoryForm from '../../containers/productCategory/CategoryForm';
-import { Row } from '@erxes/ui-settings/src/integrations/styles';
 import {
-  IJobRefer,
-  IJobCategory,
-  IUom,
   IConfigsMap,
+  IJobCategory,
+  IJobRefer,
+  IProduct,
   IProductsDataDocument,
-  IProduct
+  IUom
 } from '../../types';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import { __ } from '@erxes/ui/src/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import CategoryForm from '../../containers/productCategory/CategoryForm';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import React from 'react';
+import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   jobRefer?: IJobRefer;

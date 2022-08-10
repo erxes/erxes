@@ -1,24 +1,25 @@
+import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import TwitterPicker from 'react-color/lib/Twitter';
 import Select from 'react-select-plus';
+
 import { COLORS, FONTS } from '../../constants';
-import { Styles } from '../../types';
 import {
-  ColorPickerWrap,
-  ColorChooserTile,
   Block,
-  LogoWrapper,
-  FlexRow
+  ColorChooserTile,
+  ColorPickerWrap,
+  FlexRow,
+  LogoWrapper
 } from '../../styles';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import AvatarUpload from '@erxes/ui/src/components/AvatarUpload';
-import { __ } from 'coreui/utils';
+import { Styles } from '../../types';
 
 type Props = {
   styles?: Styles;

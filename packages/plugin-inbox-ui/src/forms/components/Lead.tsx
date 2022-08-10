@@ -1,20 +1,3 @@
-import Button from '@erxes/ui/src/components/Button';
-import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
-import { Step, Steps } from '@erxes/ui/src/components/step';
-import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
-import { Indicator } from '@erxes/ui/src/components/step/styles';
-import { StepWrapper } from '@erxes/ui/src/components/step/styles';
-import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
-import { Alert } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ILeadData, ILeadIntegration } from '@erxes/ui-leads/src/types';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
-import { Content } from '@erxes/ui-settings/src/integrations/styles';
-import { LeftContent } from '@erxes/ui-settings/src/integrations/styles';
-import { IField } from '@erxes/ui/src/types';
 import {
   CallOut,
   ChooseType,
@@ -23,9 +6,27 @@ import {
   OptionStep,
   SuccessStep
 } from './step';
-import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
-import StyleSheetStep from './step/StyleSheetStep';
+import { IAttachment, IConditionsRule } from '@erxes/ui/src/types';
+import { ILeadData, ILeadIntegration } from '@erxes/ui-leads/src/types';
+import { Step, Steps } from '@erxes/ui/src/components/step';
+
+import { Alert } from '@erxes/ui/src/utils';
+import Button from '@erxes/ui/src/components/Button';
+import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
+import { Content } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
+import { IField } from '@erxes/ui/src/types';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { Indicator } from '@erxes/ui/src/components/step/styles';
+import { LeftContent } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { Link } from 'react-router-dom';
+import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
+import React from 'react';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import { StepWrapper } from '@erxes/ui/src/components/step/styles';
+import StyleSheetStep from './step/StyleSheetStep';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {

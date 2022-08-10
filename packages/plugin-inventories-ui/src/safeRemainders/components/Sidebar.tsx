@@ -1,127 +1,151 @@
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
+import * as dayjs from 'dayjs';
+import Datetime from '@nateradebaugh/react-datetime';
+import {
+  __,
+  Wrapper,
+  Box,
+  ControlLabel,
+  FormGroup,
+  FormControl,
+  Form as CommonForm,
+  FlexContent
+} from '@erxes/ui/src';
+import { FlexItem } from '@erxes/ui-settings/src/styles';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
-import { PaddingTop } from '../../styles';
-import { router } from '@erxes/ui/src/utils/core';
-import { Wrapper } from '@erxes/ui/src/layout';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
-import Datetime from '@nateradebaugh/react-datetime';
-import * as dayjs from 'dayjs';
-import FormControl from '@erxes/ui/src/components/form/Control';
+import { router } from '@erxes/ui/src/utils/core';
+import { SidebarContent } from '../../styles';
 
-function Sidebar({ history, queryParams }: { history: any; queryParams: any }) {
+type Props = {
+  queryParams: any;
+  history: any;
+};
+
+const Sidebar = (props: Props) => {
   let timer: NodeJS.Timer;
+  const { queryParams, history } = props;
 
-  const setFilter = (name, value) => {
+  const setFilter = (name: string, value: any) => {
     router.removeParams(history, 'page');
     router.setParams(history, { [name]: value });
   };
 
-  const onChangeDate = (lbl, date) => {
+  const onChangeDate = (label: string, date: any) => {
     const cDate = dayjs(date).format('YYYY-MM-DD HH:mm');
-    setFilter(lbl, cDate);
+    setFilter(label, cDate);
   };
 
-  const moveCursorAtTheEnd = e => {
-    const tmpValue = e.target.value;
+  const moveCursorAtTheEnd = (event: any) => {
+    const tempValue = event.target.value;
 
-    e.target.value = '';
-    e.target.value = tmpValue;
+    event.target.value = '';
+    event.target.value = tempValue;
   };
 
-  const search = e => {
+  const search = (event: any) => {
     if (timer) {
       clearTimeout(timer);
     }
 
-    const searchValue = e.target.value;
+    const searchValue = event.target.value;
 
     timer = setTimeout(() => {
       setFilter('searchValue', searchValue);
     }, 500);
   };
 
+  const renderContent = () => (
+    <Box title={'Filters'} isOpen={true} name="showFilters">
+      <SidebarContent>
+        <FlexContent>
+          <FlexItem>
+            <FormGroup>
+              <ControlLabel>{__('Search')}</ControlLabel>
+              <FormControl
+                type="text"
+                placeholder={__('Type to search')}
+                onChange={search}
+                defaultValue={queryParams.searchValue}
+                autoFocus={true}
+                onFocus={moveCursorAtTheEnd}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Begin Date')}</ControlLabel>
+              <Datetime
+                inputProps={{ placeholder: 'Click to select a date' }}
+                dateFormat="YYYY MM DD"
+                timeFormat=""
+                viewMode={'days'}
+                closeOnSelect
+                utc
+                input
+                value={queryParams.beginDate || null}
+                onChange={date => onChangeDate('beginDate', date)}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('End Date')}</ControlLabel>
+              <Datetime
+                inputProps={{ placeholder: 'Click to select a date' }}
+                dateFormat="YYYY MM DD"
+                timeFormat=""
+                viewMode={'days'}
+                closeOnSelect
+                utc
+                input
+                value={queryParams.endDate || null}
+                onChange={date => onChangeDate('endDate', date)}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Branch')}</ControlLabel>
+              <SelectBranches
+                label="Choose branch"
+                name="selectedBranchIds"
+                initialValue={queryParams.branchId}
+                onSelect={branchId => setFilter('branchId', branchId)}
+                multi={false}
+                customOption={{ value: '', label: 'All branches' }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Department')}</ControlLabel>
+              <SelectDepartments
+                label="Choose department"
+                name="selectedDepartmentIds"
+                initialValue={queryParams.departmentId}
+                onSelect={departmentId =>
+                  setFilter('departmentId', departmentId)
+                }
+                multi={false}
+                customOption={{ value: '', label: 'All departments' }}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>{__('Product')}</ControlLabel>
+              <SelectProducts
+                label="Choose product"
+                name="selectedProductId"
+                initialValue={queryParams.productId}
+                onSelect={productId => setFilter('productId', productId)}
+                multi={false}
+                customOption={{ value: '', label: 'All products' }}
+              />
+            </FormGroup>
+          </FlexItem>
+        </FlexContent>
+      </SidebarContent>
+    </Box>
+  );
+
   return (
     <Wrapper.Sidebar>
-      <PaddingTop>
-        <FormGroup>
-          <ControlLabel>{__('Search')}</ControlLabel>
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={search}
-            defaultValue={queryParams.searchValue}
-            autoFocus={true}
-            onFocus={moveCursorAtTheEnd}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Begin Date')}</ControlLabel>
-          <Datetime
-            inputProps={{ placeholder: 'Click to select a date' }}
-            dateFormat="YYYY-MM-DD"
-            timeFormat="HH:mm"
-            value={queryParams.beginDate || null}
-            closeOnSelect={true}
-            utc={true}
-            input={true}
-            onChange={date => onChangeDate('beginDate', date)}
-            viewMode={'days'}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('End Date')}</ControlLabel>
-          <Datetime
-            inputProps={{ placeholder: 'Click to select a date' }}
-            dateFormat="YYYY-MM-DD"
-            timeFormat="HH:mm"
-            value={queryParams.endDate || null}
-            closeOnSelect={true}
-            utc={true}
-            input={true}
-            onChange={date => onChangeDate('endDate', date)}
-            viewMode={'days'}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Branch')}</ControlLabel>
-          <SelectBranches
-            label="Choose branch"
-            name="selectedBranchIds"
-            initialValue={queryParams.branchId}
-            onSelect={branchId => setFilter('branchId', branchId)}
-            multi={false}
-            customOption={{ value: '', label: 'All branches' }}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Department')}</ControlLabel>
-          <SelectDepartments
-            label="Choose department"
-            name="selectedDepartmentIds"
-            initialValue={queryParams.departmentId}
-            onSelect={departmentId => setFilter('departmentId', departmentId)}
-            multi={false}
-            customOption={{ value: '', label: 'All departments' }}
-          />
-        </FormGroup>
-        <FormGroup>
-          <ControlLabel>{__('Product')}</ControlLabel>
-          <SelectProducts
-            label="Choose product"
-            name="selectedProductId"
-            initialValue={queryParams.productId}
-            onSelect={productId => setFilter('productId', productId)}
-            multi={false}
-            customOption={{ value: '', label: 'All products' }}
-          />
-        </FormGroup>
-      </PaddingTop>
+      <CommonForm renderContent={renderContent} />
     </Wrapper.Sidebar>
   );
-}
+};
 
 export default Sidebar;

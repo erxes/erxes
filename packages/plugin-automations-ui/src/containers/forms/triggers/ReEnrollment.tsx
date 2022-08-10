@@ -1,16 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ReEnrollment from '../../../components/forms/triggers/ReEnrollment';
-import { ITrigger } from '../../../types';
+
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-segments/src/graphql';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { SegmentDetailQueryResponse } from '@erxes/ui-segments/src/types';
+import { ITrigger } from '../../../types';
+import ReEnrollment from '../../../components/forms/triggers/ReEnrollment';
 import React from 'react';
+import { SegmentDetailQueryResponse } from '@erxes/ui-segments/src/types';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
+import { queries } from '@erxes/ui-segments/src/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   trigger: ITrigger;

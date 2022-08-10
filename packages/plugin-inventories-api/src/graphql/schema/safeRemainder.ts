@@ -17,20 +17,21 @@ export const types = `
 
   type SafeRemainder @key(fields: "_id") {
     _id: String!
+    branch: Branch
+    branchId: String
+    department: Department
+    departmentId: String
+    productCategory: ProductCategory
+    productCategoryId: String
+
+    date: Date
+    description: String
+    status: String    
+
     createdAt: Date
     createdBy: String
     modifiedAt: Date
     modifiedBy: String
-    date: Date
-    description: String
-    status: String
-    branchId: String
-    departmentId: String
-    productCategoryId: String
-
-    department: Department
-    branch: Branch
-    productCategory: ProductCategory
     modifiedUser: User
   }
 
@@ -38,48 +39,31 @@ export const types = `
     remainders: [SafeRemainder],
     totalCount: Float,
   }
-
-  type SafeRemItem {
-    _id: String,
-    modifiedAt: Date,
-    status: String,
-    lastTrDate: Date,
-    remainderId: String,
-    productId: String,
-    quantity: Float,
-    uomId: String,
-    preCount: Float,
-    count: Float,
-    branchId: String,
-    departmentId: String,
-
-    product: Product
-    uom: Uom_
-  }
-
-  type SafeRemItemCount {
-    count: Int
-  }
-`;
-
-const safeRemItemsFilterParams = `
-  remainderId: String!,
-  status: String,
-  productCategoryId: String,
-  searchValue: String,
-  diffType: String
 `;
 
 export const queries = `
-  safeRemainders(beginDate: Date, endDate: Date, productId: String, searchValue: String, page: Int, perPage: Int, sortField: String, sortDirection: Int, departmentId: String, branchId: String): SafeRemainders
+  safeRemainders(
+    departmentId: String,
+    branchId: String
+    productId: String,
+    searchValue: String,
+    beginDate: Date,
+    endDate: Date,
+    page: Int,
+    perPage: Int,
+    sortField: String,
+    sortDirection: Int,
+  ): SafeRemainders
   safeRemainderDetail(_id: String!): SafeRemainder
-  safeRemItems(${safeRemItemsFilterParams}): [SafeRemItem]
-  safeRemItemsCount(${safeRemItemsFilterParams}): Int
 `;
 
 export const mutations = `
-  createSafeRemainder(branchId: String, departmentId: String, date: Date, description: String, productCategoryId: String): SafeRemainder
-  removeSafeRemainder(_id: String!): JSON
-  updateSafeRemItem(_id: String, status: String, remainder: Float): SafeRemItem
-  removeSafeRemItem(_id: String): JSON
+  safeRemainderAdd(
+    branchId: String,
+    departmentId: String,
+    date: Date,
+    description: String,
+    productCategoryId: String
+  ): SafeRemainder
+  safeRemainderRemove(_id: String!): JSON
 `;

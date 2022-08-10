@@ -104,8 +104,7 @@ export const putResponseSchema = schemaHooksWrapper(
     customerNo: field({ type: String, label: '' }),
     customerName: field({ type: String, label: '' }),
 
-    posToken: field({ type: String, optional: true }),
-    syncId: field({ type: String, optional: true })
+    posToken: field({ type: String, optional: true })
   }),
 
   'erxes_ebarimt'

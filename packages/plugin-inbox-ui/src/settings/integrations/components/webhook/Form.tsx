@@ -1,16 +1,17 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import { WEBHOOK_DOC_URL } from '../../constants';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import { WEBHOOK_DOC_URL } from '../../constants';
+import { __ } from 'coreui/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -49,7 +50,7 @@ class Webhook extends React.Component<Props> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             required={true}
             autoFocus={true}
           />
@@ -64,7 +65,7 @@ class Webhook extends React.Component<Props> {
           </Description>
           <FormControl
             {...formProps}
-            name='Token (otional)'
+            name="Token (otional)"
             placeholder={__('Will be generated automatically when left blank')}
             required={false}
             autoFocus={false}
@@ -80,8 +81,8 @@ class Webhook extends React.Component<Props> {
           </Description>
           <FormControl
             {...formProps}
-            name='origin'
-            placeholder='0.0.0.0 (optional)'
+            name="origin"
+            placeholder="0.0.0.0 (optional)"
             required={false}
             autoFocus={false}
           />
@@ -89,7 +90,7 @@ class Webhook extends React.Component<Props> {
 
         <FormGroup>
           <ControlLabel>Script</ControlLabel>
-          <FormControl {...formProps} name='script' componentClass='textarea' />
+          <FormControl {...formProps} name="script" componentClass="textarea" />
         </FormGroup>
 
         <SelectBrand
@@ -109,7 +110,7 @@ class Webhook extends React.Component<Props> {
         <FormGroup>
           <p>
             {'For more information, please review the '}
-            <a target='_blank' rel='noopener noreferrer' href={WEBHOOK_DOC_URL}>
+            <a target="_blank" rel="noopener noreferrer" href={WEBHOOK_DOC_URL}>
               documentaion.
             </a>
           </p>
@@ -117,10 +118,10 @@ class Webhook extends React.Component<Props> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={callback}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

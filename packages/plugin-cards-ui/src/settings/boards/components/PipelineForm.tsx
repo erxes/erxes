@@ -1,29 +1,30 @@
-import { COLORS } from '@erxes/ui/src/constants/colors';
-import { Flex } from '@erxes/ui/src/styles/main';
+import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
-import { IDepartment } from '@erxes/ui/src/team/types';
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { colors } from '@erxes/ui/src/styles';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, generateTree } from 'coreui/utils';
+
+import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
+import Button from '@erxes/ui/src/components/Button';
+import { COLORS } from '@erxes/ui/src/constants/colors';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ExpandWrapper } from '@erxes/ui-settings/src/styles';
-import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
+import { Flex } from '@erxes/ui/src/styles/main';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IDepartment } from '@erxes/ui/src/team/types';
+import { IOption } from '../types';
 import Modal from 'react-bootstrap/Modal';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import TwitterPicker from 'react-color/lib/Twitter';
+import React from 'react';
 import Select from 'react-select-plus';
-import { SelectMemberStyled } from '@erxes/ui-settings/src/boards/styles';
-import { IOption } from '../types';
-import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
+import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Stages from './Stages';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import TwitterPicker from 'react-color/lib/Twitter';
+import { colors } from '@erxes/ui/src/styles';
 
 type Props = {
   type: string;

@@ -1,18 +1,20 @@
-import { AppConsumer } from '@erxes/ui/src/appContext';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
-import Base from '../../components/scheduler/Base';
-import { mutations, queries } from '../../graphql';
 import {
   CalendarsQueryResponse,
   RemoveSchedulePageMutationResponse
 } from '../../types';
+import { mutations, queries } from '../../graphql';
+
+import { AppConsumer } from '@erxes/ui/src/appContext';
+import Base from '../../components/scheduler/Base';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   queryParams: { accountId?: string };
@@ -64,7 +66,9 @@ class BaseContainer extends React.Component<FinalProps> {
       });
     };
 
-    const pages = (fetchPagesQuery && fetchPagesQuery.integrationsNylasGetSchedulePages) || [];
+    const pages =
+      (fetchPagesQuery && fetchPagesQuery.integrationsNylasGetSchedulePages) ||
+      [];
 
     const updatedProps = {
       calendars: (calendarsQuery && calendarsQuery.calendars) || [],
@@ -80,17 +84,20 @@ class BaseContainer extends React.Component<FinalProps> {
 
 const WithProps = withProps<Props>(
   compose(
-    graphql<Props, any>(gql(integrationQueries.integrationsNylasGetSchedulePages), {
-      name: 'fetchPagesQuery',
-      skip: props => !props.queryParams.accountId,
-      options: ({ queryParams }) => {
-        return {
-          variables: {
-            accountId: queryParams.accountId
-          }
-        };
+    graphql<Props, any>(
+      gql(integrationQueries.integrationsNylasGetSchedulePages),
+      {
+        name: 'fetchPagesQuery',
+        skip: props => !props.queryParams.accountId,
+        options: ({ queryParams }) => {
+          return {
+            variables: {
+              accountId: queryParams.accountId
+            }
+          };
+        }
       }
-    }),
+    ),
     graphql<Props, CalendarsQueryResponse>(gql(queries.calendars), {
       name: 'calendarsQuery',
       skip: props => !props.currentUser,

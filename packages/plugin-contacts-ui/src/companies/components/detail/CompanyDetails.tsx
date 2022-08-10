@@ -1,16 +1,16 @@
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { __ } from 'coreui/utils';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
 import BasicInfo from '../../containers/detail/BasicInfo';
-import { ICompany } from '@erxes/ui/src/companies/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { IField } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import InfoSection from '../common/InfoSection';
+import LeftSidebar from './LeftSidebar';
+import React from 'react';
+import RightSidebar from './RightSidebar';
 import { UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import LeftSidebar from './LeftSidebar';
-import RightSidebar from './RightSidebar';
-import InfoSection from '../common/InfoSection';
+import { __ } from 'coreui/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {

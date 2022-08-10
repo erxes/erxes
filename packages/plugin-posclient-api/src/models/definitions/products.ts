@@ -1,8 +1,16 @@
 import { attachmentSchema, customFieldSchema, ICustomField } from './common';
 import { Document, Schema } from 'mongoose';
-import { getDateFieldDefinition } from './utils';
-import { field, schemaHooksWrapper, schemaWrapper } from './util';
-import { PRODUCT_STATUSES, PRODUCT_TYPES } from './constants';
+import {
+  field,
+  getDateFieldDefinition,
+  schemaHooksWrapper,
+  schemaWrapper
+} from './utils';
+import {
+  PRODUCT_CATEGORY_STATUSES,
+  PRODUCT_STATUSES,
+  PRODUCT_TYPES
+} from './constants';
 
 interface IAttachment {
   url: string;
@@ -35,16 +43,19 @@ export interface IProduct extends IProductCommonFields {
 export interface IProductDocument extends IProduct, Document {
   _id: string;
   createdAt: Date;
+  tokens: string[];
 }
 
 export interface IProductCategory extends IProductCommonFields {
   order: string;
   parentId?: string;
+  status: string;
 }
 
 export interface IProductCategoryDocument extends IProductCategory, Document {
   _id: string;
   createdAt: Date;
+  tokens: string[];
 }
 
 export const productSchema = schemaWrapper(
@@ -95,7 +106,8 @@ export const productSchema = schemaWrapper(
     }),
     vendorId: field({ type: String, optional: true, label: 'Vendor' }),
     mergedIds: field({ type: [String], optional: true }),
-    attachmentMore: field({ type: [attachmentSchema] })
+    attachmentMore: field({ type: [attachmentSchema] }),
+    tokens: field({ type: [String] })
   })
 );
 
@@ -108,7 +120,17 @@ export const productCategorySchema = schemaHooksWrapper(
     code: field({ type: String, label: 'Code' }),
     description: field({ type: String, optional: true, label: 'Description' }),
     attachment: field({ type: attachmentSchema }),
-    createdAt: getDateFieldDefinition('Created at')
+    status: field({
+      type: String,
+      enum: PRODUCT_CATEGORY_STATUSES.ALL,
+      optional: true,
+      label: 'Status',
+      default: 'active',
+      esType: 'keyword',
+      index: true
+    }),
+    createdAt: getDateFieldDefinition('Created at'),
+    tokens: field({ type: [String] })
   }),
   'erxes_productCategorySchema'
 );

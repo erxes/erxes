@@ -1,8 +1,8 @@
 // TODO: check if related stages are selected in client portal config
-
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
+
+import { IContext } from '../../../connectionResolver';
 
 const clientPortalUserQueries = {
   /**
@@ -56,6 +56,11 @@ const clientPortalUserQueries = {
             $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
           }
         },
+        {
+          phone: {
+            $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
+          }
+        },
         { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
       ];
 
@@ -68,7 +73,7 @@ const clientPortalUserQueries = {
 
     return paginate(
       models.ClientPortalUsers.find(filter)
-        .sort('code')
+        .sort({ createdAt: -1 })
         .lean(),
       pagintationArgs
     );

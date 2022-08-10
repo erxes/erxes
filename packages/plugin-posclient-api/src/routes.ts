@@ -57,6 +57,7 @@ export const callBackQpay = async (req, res) => {
   const paidMobileAmount = await models.QPayInvoices.getPaidAmount(orderId);
 
   const config: IConfigDocument =
-    (await models.Configs.findOne().lean()) || ({} as IConfigDocument);
+    (await models.Configs.findOne({ token: invoice.token }).lean()) ||
+    ({} as IConfigDocument);
   await commonCheckPayment(models, orderId, config, paidMobileAmount);
 };

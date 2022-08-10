@@ -1,139 +1,88 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
   ITransaction,
+  ITransactionCreateParams,
   ITransactionDocument,
-  ITrItem,
-  ITrItemDocument,
-  transactionSchema,
-  trItemSchema
+  transactionSchema
 } from './definitions/transactions';
+import { ITransactionItem } from './definitions/transactionItems';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(_id: string): Promise<ITransactionDocument>;
-  createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
-  updateTransaction(
-    _id: string,
-    doc: ITransaction
+  createTransaction(
+    params: ITransactionCreateParams
   ): Promise<ITransactionDocument>;
-  removeTransaction(_id: string): void;
 }
 
 export const loadTransactionClass = (models: IModels) => {
   class Transaction {
-    /*
-     * Get a transaction
+    /**
+     * Get transaction
+     * @param _id Transaction ID
+     * @returns Found object
      */
     public static async getTransaction(_id: string) {
-      const transaction = await models.Transactions.findOne({ _id });
+      const result: any = await models.Transactions.findById(_id);
 
-      if (!transaction) {
-        throw new Error('Transaction not found');
-      }
+      if (!result) throw new Error('Transaction not found!');
 
-      return transaction;
+      return result;
     }
 
     /**
-     * Create a transaction
+     * Create transaction
+     * @param params New data to create
+     * @returns Created response
      */
-    public static async createTransaction(doc: ITransaction) {
+    public static async createTransaction(params: ITransactionCreateParams) {
+      const { status, contentType, contentId, products } = params;
+
       const transaction = await models.Transactions.create({
-        ...doc,
+        status,
+        contentType,
+        contentId,
         createdAt: new Date()
       });
 
+      const bulkOps: any[] = [];
+
+      products.map(async (item: ITransactionItem) => {
+        const filter: any = { productId: item.productId };
+        if (item.departmentId) filter.departmentId = item.departmentId;
+        if (item.branchId) filter.branchId = item.branchId;
+
+        const remainder: any = await models.Remainders.findOne(filter);
+
+        if (!remainder) throw new Error('Remainder not found!');
+
+        const result = await models.Remainders.updateRemainder(remainder._id, {
+          count: item.isDebit ? item.count : -1 * item.count
+        });
+
+        if (!result) throw new Error('Remainder update failed!');
+
+        bulkOps.push({
+          branchId: item.branchId,
+          departmentId: item.departmentId,
+          transactionId: result._id,
+          productId: item.productId,
+          count: item.count,
+          uomId: item.uomId,
+          isDebit: true,
+
+          modifiedAt: new Date()
+        });
+      });
+
+      await models.TransactionItems.insertMany(bulkOps);
+
       return transaction;
-    }
-
-    /**
-     * Update Transaction
-     */
-    public static async updateTransaction(_id: string, doc: ITransaction) {
-      const transaction = await models.Transactions.getTransaction(_id);
-
-      await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
-
-      const updated = await models.Transactions.getTransaction(_id);
-
-      return updated;
-    }
-
-    /**
-     * Remove Transaction
-     */
-    public static async removeTransaction(_id: string) {
-      const transaction = await models.Transactions.getTransaction(_id);
-      await models.TrItems.deleteMany({ transactionId: transaction._id });
-
-      return models.Transactions.deleteOne({ _id });
     }
   }
 
   transactionSchema.loadClass(Transaction);
 
   return transactionSchema;
-};
-
-// ============== items
-export interface ITrItemModel extends Model<ITrItemDocument> {
-  getTrItem(_id: string): Promise<ITrItemDocument>;
-  createTrItem(doc: ITrItem): Promise<ITrItemDocument>;
-  updateTrItem(_id: string, doc: ITrItem): Promise<ITrItemDocument>;
-  removeTrItem(_id: string): void;
-}
-
-export const loadTrItemClass = (models: IModels) => {
-  class TrItem {
-    /*
-     * Get a trItem
-     */
-    public static async getTrItem(_id: string) {
-      const trItem = await models.TrItems.findOne({ _id });
-
-      if (!trItem) {
-        throw new Error('TrItem not found');
-      }
-
-      return trItem;
-    }
-
-    /**
-     * Create a trItem
-     */
-    public static async createTrItem(doc: ITrItem) {
-      const trItem = await models.TrItems.create({
-        ...doc,
-        createdAt: new Date()
-      });
-
-      return trItem;
-    }
-
-    /**
-     * Update TrItem
-     */
-    public static async updateTrItem(_id: string, doc: ITrItem) {
-      const trItem = await models.TrItems.getTrItem(_id);
-
-      await models.TrItems.updateOne({ _id }, { $set: { ...doc } });
-
-      const updated = await models.TrItems.getTrItem(_id);
-
-      return updated;
-    }
-
-    /**
-     * Remove TrItem
-     */
-    public static async removeTrItem(_id: string) {
-      await models.TrItems.getTrItem(_id);
-      return models.TrItems.deleteOne({ _id });
-    }
-  }
-
-  trItemSchema.loadClass(TrItem);
-
-  return trItemSchema;
 };

@@ -8,7 +8,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
@@ -122,9 +122,9 @@ class EditForm extends React.Component<FinalProps, State> {
     const renderAccounts = () => {
       return (
         <Dropdown>
-          <Dropdown.Toggle as={DropdownToggle} id='dropdown-board'>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-board">
             {calendar ? calendar.name : 'Select calendar'}
-            <Icon icon='angle-down' />
+            <Icon icon="angle-down" />
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <ul>
@@ -173,7 +173,7 @@ class EditForm extends React.Component<FinalProps, State> {
 
           <FormControl
             {...formProps}
-            name='title'
+            name="title"
             autoFocus={true}
             required={true}
             defaultValue={event && event.title}
@@ -185,8 +185,8 @@ class EditForm extends React.Component<FinalProps, State> {
 
           <FormControl
             {...formProps}
-            name='description'
-            componentClass='textarea'
+            name="description"
+            componentClass="textarea"
             rows={5}
             defaultValue={event && event.description}
           />
@@ -197,8 +197,8 @@ class EditForm extends React.Component<FinalProps, State> {
 
           <FormControl
             {...formProps}
-            name='start'
-            componentClass='datetime-local'
+            name="start"
+            componentClass="datetime-local"
             defaultValue={this.dateDefaulValue(true)}
           />
         </FormGroup>
@@ -208,8 +208,8 @@ class EditForm extends React.Component<FinalProps, State> {
 
           <FormControl
             {...formProps}
-            name='end'
-            componentClass='datetime-local'
+            name="end"
+            componentClass="datetime-local"
             defaultValue={this.dateDefaulValue()}
           />
         </FormGroup>

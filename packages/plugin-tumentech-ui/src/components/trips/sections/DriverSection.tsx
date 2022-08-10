@@ -1,13 +1,13 @@
 import {
-  Sidebar,
   CollapseContent,
   FieldStyle,
+  Sidebar,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils/core';
 import { ICustomer } from '@erxes/ui/src/customers/types';
+import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
 
 type Props = {
   driver: ICustomer;

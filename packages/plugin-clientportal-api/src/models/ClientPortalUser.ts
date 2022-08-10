@@ -1,20 +1,21 @@
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
+import { Model } from 'mongoose';
 import * as randomize from 'randomatic';
 import * as sha256 from 'sha256';
-import { Model } from 'mongoose';
+
+import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
+import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
+import { sendCoreMessage } from '../messageBroker';
+import { generateRandomPassword, sendSms } from '../utils';
+import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
   clientPortalUserSchema,
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
-import { sendCoreMessage } from '../messageBroker';
-import { generateRandomPassword, sendSms } from '../utils';
-import { createJwtToken } from '../auth/authUtils';
-import { IOTPConfig, IClientPortalDocument } from './definitions/clientPortal';
-import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
 import { handleContacts } from './utils';
 
 const SALT_WORK_FACTOR = 10;
@@ -96,6 +97,7 @@ export interface IUserModel extends Model<IUserDocument> {
     password: string;
   }): string;
   verifyUser(args: IVerificationParams): string;
+  verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
   sendVerification(
     subdomain: string,
     config?: IOTPConfig,
@@ -671,7 +673,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async invite(
       subdomain: string,
-      { password, email, phone, clientPortalId, ...doc }: IUser
+      { password, clientPortalId, ...doc }: IUser
     ) {
       if (!password) {
         password = generateRandomPassword();
@@ -706,7 +708,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         subdomain,
         action: 'sendEmail',
         data: {
-          toEmails: [email],
+          toEmails: [doc.email],
           title: `${clientPortal.name} invitation`,
           template: {
             name: 'base',
@@ -765,6 +767,34 @@ export const loadClientPortalUserClass = (models: IModels) => {
       );
 
       return user;
+    }
+
+    public static async verifyUsers(userIds: string[], type: string) {
+      const qryOption =
+        type === 'phone' ? { phone: { $ne: null } } : { email: { $ne: null } };
+
+      const set =
+        type === 'phone'
+          ? { isPhoneVerified: true }
+          : { isEmailVerified: true };
+
+      const users = await models.ClientPortalUsers.find({
+        _id: { $in: userIds },
+        ...qryOption
+      });
+
+      if (!users) {
+        throw new Error('Users not found');
+      }
+
+      await models.ClientPortalUsers.updateMany(
+        { _id: { $in: userIds } },
+        {
+          $set: set
+        }
+      );
+
+      return users;
     }
   }
 

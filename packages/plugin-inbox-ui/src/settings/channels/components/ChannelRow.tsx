@@ -1,17 +1,18 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import React from 'react';
+
+import Button from '@erxes/ui/src/components/Button';
+import ChannelForm from '@erxes/ui-inbox/src/settings/channels/containers/ChannelForm';
+import { FieldStyle } from '@erxes/ui/src/layout/styles';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
-import ChannelForm from '@erxes/ui-settings/src/channels/containers/ChannelForm';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
+import MemberAvatars from '@erxes/ui/src/components/MemberAvatars';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'coreui/utils';
 
 type Props = {
   channel: IChannel;
@@ -31,9 +32,9 @@ class ChannelRow extends React.Component<Props, {}> {
     const { channel, renderButton } = this.props;
 
     const editTrigger = (
-      <Button btnStyle='link'>
-        <Tip text={__('Edit')} placement='bottom'>
-          <Icon icon='edit' />
+      <Button btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -43,7 +44,7 @@ class ChannelRow extends React.Component<Props, {}> {
     );
 
     return (
-      <ModalTrigger title='Edit' trigger={editTrigger} content={content} />
+      <ModalTrigger title="Edit" trigger={editTrigger} content={content} />
     );
   };
 
@@ -64,8 +65,8 @@ class ChannelRow extends React.Component<Props, {}> {
         </Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text='Delete' placement='bottom'>
-            <Button btnStyle='link' onClick={this.remove} icon='cancel-1' />
+          <Tip text="Delete" placement="bottom">
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </SidebarListItem>

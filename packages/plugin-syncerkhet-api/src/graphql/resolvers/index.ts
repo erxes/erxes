@@ -1,17 +1,16 @@
 import customScalars from '@erxes/api-utils/src/customScalars';
+import checkSyncedMutations from './mutations/checkSynced';
 
-import {
+import {} from './queries';
 
-} from './queries';
+const resolvers: any = async _serviceDiscovery => ({
+  ...customScalars,
 
-const resolvers: any = async (serviceDiscovery) => (
+  Query: {},
 
-  {
-    ...customScalars,
-    Mutation: {
-    },
-    Query: {
-    }
-  });
+  Mutation: {
+    ...checkSyncedMutations
+  }
+});
 
 export default resolvers;

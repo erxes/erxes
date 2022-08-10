@@ -1,19 +1,4 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import Info from '@erxes/ui/src/components/Info';
-import { ModalFooter, LinkButton } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
-import { __, generateTree, Alert } from 'modules/common/utils';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
-import React from 'react';
-import Select from 'react-select-plus';
-import { Description } from '@erxes/ui-settings/src/styles';
+import { Alert, __, generateTree } from 'modules/common/utils';
 import { FormTable, InviteOption, RemoveRow } from '../styles';
 import {
   IBranch,
@@ -21,11 +6,26 @@ import {
   IInvitationEntry,
   IUnit
 } from '@erxes/ui/src/team/types';
+import { IButtonMutateProps, IFormProps, IOption } from '@erxes/ui/src/types';
+import { LinkButton, ModalFooter } from '@erxes/ui/src/styles/main';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-settings/src/styles';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Info from '@erxes/ui/src/components/Info';
+import React from 'react';
+import Select from 'react-select-plus';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   usersGroups: IUserGroup[];
-  channels: IChannel[];
+  channels: any[]; //check - IChannel
   units: IUnit[];
   departments: IDepartment[];
   branches: IBranch[];

@@ -1,18 +1,19 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { Alert } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import {
   ICommonFormProps,
   ICommonListProps
 } from '@erxes/ui-settings/src/common/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import commonListComposer from '@erxes/ui/src/utils/commonListComposer';
-import TemplateList from '../components/TemplateList';
-import { mutations, queries } from '@erxes/ui-settings/src/growthHacks/graphql';
+import { mutations, queries } from '../graphql';
+
+import { Alert } from '@erxes/ui/src/utils';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IPipelineTemplate } from '../types';
+import React from 'react';
+import TemplateList from '../components/TemplateList';
+import client from '@erxes/ui/src/apolloClient';
+import commonListComposer from '@erxes/ui/src/utils/commonListComposer';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 export type PipelineTemplatesQueryResponse = {
   pipelineTemplates: IPipelineTemplate[];

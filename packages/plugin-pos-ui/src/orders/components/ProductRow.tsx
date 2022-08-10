@@ -20,29 +20,25 @@ const hours = [
   ['19'],
   ['20'],
   ['21', '22', '23', '24']
-]
+];
 
 class Row extends React.Component<Props> {
   renderHour = (counts, keys) => {
     const items = Object.keys(counts).filter(c => keys.includes(c));
     if (!items || !items.length) {
-      return (<td key={Math.random()}></td>);
+      return <td key={Math.random()}></td>;
     }
 
-    return (<td key={Math.random()}>{items.map(k => counts[k]).reduce((a, b) => a + b)}</td>)
-  }
+    return (
+      <td key={Math.random()}>
+        {items.map(k => counts[k]).reduce((a, b) => a + b)}
+      </td>
+    );
+  };
 
   render() {
     const { product } = this.props;
-    const {
-      code,
-      name,
-      category,
-      unitPrice,
-      counts,
-      count,
-      amount
-    } = product;
+    const { code, name, category, unitPrice, counts, count, amount } = product;
 
     return (
       <tr>
@@ -50,7 +46,7 @@ class Row extends React.Component<Props> {
         <td>{name}</td>
         <td>{category ? category.name : ''}</td>
         <td>{(unitPrice || 0).toLocaleString()}</td>
-        {hours.map(keys => (this.renderHour(counts, keys)))}
+        {hours.map(keys => this.renderHour(counts, keys))}
         <td>{(count || 0).toLocaleString()}</td>
         <td>{(amount || 0).toLocaleString()}</td>
       </tr>

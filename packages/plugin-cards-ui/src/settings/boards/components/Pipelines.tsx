@@ -1,26 +1,27 @@
-import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Table from '@erxes/ui/src/components/table';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
 import {
   EMPTY_CONTENT_DEAL_PIPELINE,
   EMPTY_CONTENT_TASK_PIPELINE
 } from '@erxes/ui-settings/src/constants';
-import React from 'react';
+import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { Link, withRouter } from 'react-router-dom';
-import PipelineForm from '../containers/PipelineForm';
+import { __, router } from 'coreui/utils';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import Button from '@erxes/ui/src/components/Button';
+import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import { IOption } from '../types';
-import { PipelineCount } from '@erxes/ui-settings/src/boards/styles';
+import { PipelineCount } from '@erxes/ui-cards/src/settings/boards/styles';
+import PipelineForm from '../containers/PipelineForm';
 import PipelineRow from './PipelineRow';
+import React from 'react';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { collectOrders } from '@erxes/ui-cards/src/boards/utils';
 
 type Props = {
   type: string;

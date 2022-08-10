@@ -1,5 +1,4 @@
 import { Document, Schema } from 'mongoose';
-import { IQpayInvoiceModel } from '../QPayInvoices';
 import { field, getDateFieldDefinition } from './utils';
 
 interface IQPayUrl {
@@ -19,6 +18,7 @@ export interface IQPayInvoice {
   createdAt?: Date;
   status?: string;
   urls?: IQPayUrl[];
+  token: string;
 }
 
 const qpayUrlSchema = new Schema({
@@ -57,5 +57,6 @@ export const qpayInvoiceSchema = new Schema({
     label: 'Updated Date for Qpay payment'
   }),
   urls: field({ type: [qpayUrlSchema], label: 'QPay urls' }),
-  createdAt: getDateFieldDefinition('Created at')
+  createdAt: getDateFieldDefinition('Created at'),
+  token: field({ type: String, label: 'config token' })
 });

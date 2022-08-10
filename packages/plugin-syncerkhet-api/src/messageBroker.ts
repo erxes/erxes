@@ -45,6 +45,17 @@ export const sendContactsMessage = async (
   });
 };
 
+export const sendCardsMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'cards',
+    ...args
+  });
+};
+
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,

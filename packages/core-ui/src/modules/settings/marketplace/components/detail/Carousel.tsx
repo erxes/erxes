@@ -37,17 +37,22 @@ class Carousel extends React.Component<Props, State> {
 
     return (
       <Buttons
-        start={slideIndex === dataSlider.length - 1}
-        end={slideIndex === 0}
+        placement={
+          slideIndex === dataSlider.length - 1
+            ? 'start'
+            : slideIndex === 0
+            ? 'end'
+            : 'space-between'
+        }
       >
-        <SliderButton active={slideIndex !== 0} onClick={prevSlide}>
-          <Icon icon="leftarrow-3" size={20} />
+        <SliderButton active={slideIndex !== 0} onClick={prevSlide} left={true}>
+          <Icon icon="leftarrow-3" size={25} />
         </SliderButton>
         <SliderButton
           active={slideIndex !== dataSlider.length - 1}
           onClick={nextSlide}
         >
-          <Icon icon="chevron" size={20} />
+          <Icon icon="chevron" size={25} />
         </SliderButton>
       </Buttons>
     );
@@ -65,6 +70,7 @@ class Carousel extends React.Component<Props, State> {
             {dataSlider.map((url, index) => {
               return (
                 <Dot
+                  key={index}
                   active={slideIndex === index}
                   onClick={() => moveDot(index)}
                 />
@@ -82,9 +88,7 @@ class Carousel extends React.Component<Props, State> {
 
     return (
       <CarouselWrapper>
-        {dataSlider.map((url, index) => {
-          return <>{slideIndex === index && <Image src={url} />}</>;
-        })}
+        <Image image={dataSlider[slideIndex]} />
 
         {this.renderButtons(slideIndex, dataSlider)}
         {this.renderDots(slideIndex, dataSlider)}

@@ -1,7 +1,7 @@
 import { ACTIONS, TRIGGERS } from '../../constants';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { IAutomationHistory } from '../../types';
 import Row from './Row';

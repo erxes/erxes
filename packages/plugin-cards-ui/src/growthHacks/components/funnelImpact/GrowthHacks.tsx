@@ -1,7 +1,7 @@
 import PriorityIndicator from '@erxes/ui-cards/src/boards/components/editForm/PriorityIndicator';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { GrowthRow, TableContainer } from '../../styles';
 import { IGrowthHack } from '../../types';
 import Participators from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators';

@@ -1,13 +1,13 @@
-import _ from 'lodash';
+import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { ICompany } from '../../types';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
+import _ from 'lodash';
 import { formatValue } from '@erxes/ui/src/utils';
-import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
-import React from 'react';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import { ICompany } from '../../types';
 
 type Props = {
   index: number;

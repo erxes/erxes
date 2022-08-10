@@ -1,19 +1,20 @@
-import dayjs from 'dayjs';
-import { capitalize } from '@erxes/ui/src/activityLogs/utils';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IBoard, IGroup } from '../types';
-import React from 'react';
-import { TYPES } from '../constants';
-import Event from '../containers/Event';
+import { extractDate, generateFilters } from '../utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import { ButtonGroup } from '@erxes/ui-cards/src/boards/styles/header';
 import { CalendarController } from '../styles';
+import Event from '../containers/Event';
 import { IAccount } from '../types';
-import { generateFilters, extractDate } from '../utils';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
 import Sidebar from './LeftSidebar';
+import { TYPES } from '../constants';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import { capitalize } from '@erxes/ui-log/src/activityLogs/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   history: any;

@@ -3,7 +3,7 @@ import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Table from '@erxes/ui/src/components/table';
 import { Title } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { router as routerUtils } from '@erxes/ui/src/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
@@ -35,7 +35,7 @@ class Base extends React.Component<Props> {
     }
 
     return (
-      <Button btnStyle='success' icon='plus-circle'>
+      <Button btnStyle="success" icon="plus-circle">
         <Link
           to={`/settings/schedule/create/${this.props.queryParams.accountId}`}
         >
@@ -94,7 +94,7 @@ class Base extends React.Component<Props> {
       ) : (
         <EmptyState
           text={`Get started on your board`}
-          image='/images/actions/16.svg'
+          image="/images/actions/16.svg"
         />
       );
 
@@ -110,7 +110,7 @@ class Base extends React.Component<Props> {
         }
         mainHead={
           <HeaderDescription
-            icon='/images/actions/34.svg'
+            icon="/images/actions/34.svg"
             title={`Calendar & Schedule`}
             description={`${__(
               "Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs"

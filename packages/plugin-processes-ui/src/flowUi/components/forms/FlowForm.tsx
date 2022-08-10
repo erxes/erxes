@@ -1,39 +1,18 @@
-import jquery from 'jquery';
-import { jsPlumb } from 'jsplumb';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import RTG from 'react-transition-group';
-
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
-import { __, Alert } from '@erxes/ui/src/utils';
-
-import { IFlowDocument, IJob } from '../../../flow/types';
-import { IJobRefer, IProductsData } from '../../../job/types';
-import ActionsForm from '../../containers/forms/actions/ActionsForm';
-import Confirmation from '../../containers/forms/Confirmation';
 import {
   ActionBarButtonsWrapper,
-  FlowFormContainer,
   BackButton,
   Container,
+  FlowFormContainer,
   RightDrawerContainer,
   Title,
   ToggleWrapper,
   ZoomActions,
   ZoomIcon
 } from '../../styles';
+import { Alert, __ } from '@erxes/ui/src/utils';
+import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
+import { IFlowDocument, IJob } from '../../../flow/types';
+import { IJobRefer, IProductsData } from '../../../job/types';
 import {
   connection,
   connectorHoverStyle,
@@ -44,7 +23,27 @@ import {
   sourceEndpoint,
   targetEndpoint
 } from '../../utils';
+
+import ActionsForm from '../../containers/forms/actions/ActionsForm';
+import Button from '@erxes/ui/src/components/Button';
+import Confirmation from '../../containers/forms/Confirmation';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IProduct } from '@erxes/ui-products/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NewJobForm from './actions/NewJobForm';
+import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import RTG from 'react-transition-group';
+import React from 'react';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import jquery from 'jquery';
+import { jsPlumb } from 'jsplumb';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -156,17 +155,20 @@ class AutomationForm extends React.Component<Props, State> {
       resultProducts.find(pro => pro.productId === this.state.productId) ||
       ({} as IProductsData);
 
-    const doubleCheckResult = Object.keys(checkResult ? checkResult : {})
-      .length;
+    let doubleCheckResult: number | boolean = Object.keys(
+      checkResult ? checkResult : {}
+    ).length;
 
     if (doubleCheckResult) {
       let justLastJobRefer = {} as IJobRefer;
       for (const lastJobRefer of lastJobRefers) {
-        const lastJobRefersIds = (lastJobRefer.resultProducts || []).map(
+        const lastJobReferProductIds = (lastJobRefer.resultProducts || []).map(
           last => last.productId
         );
 
-        justLastJobRefer = lastJobRefersIds.includes(checkResult.productId)
+        justLastJobRefer = lastJobReferProductIds.includes(
+          checkResult.productId
+        )
           ? lastJobRefer
           : ({} as IJobRefer);
       }
@@ -175,6 +177,14 @@ class AutomationForm extends React.Component<Props, State> {
         .length
         ? lastFlowJobs.find(last => last.jobReferId === justLastJobRefer._id)
         : undefined;
+
+      doubleCheckResult = this.recursiveFlowJobChecker(
+        flowJobs,
+        jobRefers,
+        justLastFlowJob || ({} as IJob)
+      );
+
+      console.log('doubleCheckResult boolean: ' + doubleCheckResult);
 
       this.setState({
         lastAction: justLastFlowJob,
@@ -186,6 +196,73 @@ class AutomationForm extends React.Component<Props, State> {
         flowStatus: doubleCheckResult ? true : false
       });
     }
+  };
+
+  recursiveFlowJobChecker = (
+    flowJobs: IJob[],
+    jobRefers: IJobRefer[],
+    lastFlowJob: IJob
+  ) => {
+    const lastJobRefer = jobRefers.find(
+      jr => jr._id === (lastFlowJob.jobReferId || '')
+    );
+    const boforeFlowJobs = flowJobs.filter(fj =>
+      (fj.nextJobIds || []).includes(lastFlowJob.id)
+    );
+
+    let response = true;
+
+    console.log(
+      ' ---------------------- ' +
+        lastJobRefer?.name +
+        ' ------------------------'
+    );
+
+    const lastNeedProducts = lastJobRefer?.needProducts;
+
+    if (boforeFlowJobs.length === 0 && (lastNeedProducts || []).length > 0) {
+      console.log('false1 ' + lastJobRefer?.name);
+      response = false;
+    }
+
+    let productIds: string[] = [];
+    for (const beforeFlowJob of boforeFlowJobs) {
+      const beforeJobRefer = jobRefers.find(
+        jr => jr._id === (beforeFlowJob.jobReferId || '')
+      );
+      const resultProducts = beforeJobRefer?.resultProducts;
+      const ids = resultProducts?.map(rp => rp.productId);
+
+      productIds =
+        productIds.length === 0 ? ids || [] : productIds.concat(ids || []);
+    }
+
+    console.log(lastJobRefer?.name + ' beforeProductIds: ' + productIds);
+
+    for (const lastNeedProduct of lastNeedProducts || []) {
+      if (!productIds.includes(lastNeedProduct.productId)) {
+        console.log('false2 ' + lastJobRefer?.name);
+        response = false;
+      }
+    }
+
+    if (response) {
+      for (const beforeFlowJob of boforeFlowJobs) {
+        response = this.recursiveFlowJobChecker(
+          flowJobs,
+          jobRefers,
+          beforeFlowJob
+        );
+        if (response) {
+          continue;
+        } else {
+          break;
+        }
+      }
+    }
+
+    console.log('false3 ' + lastJobRefer?.name + ' boolean: ' + response);
+    return response;
   };
 
   setWrapperRef = node => {

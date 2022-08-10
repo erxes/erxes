@@ -1,7 +1,6 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels, IModels } from './connectionResolver';
 import {
-  sendContactsMessage,
   sendCoreMessage,
   sendEbarimtMessage,
   sendProductsMessage
@@ -9,36 +8,19 @@ import {
 import { IPosDocument } from './models/definitions/pos';
 import { getChildCategories, getConfig } from './utils';
 
-const getConfigData = async (subdomain, pos: IPosDocument) => {
+export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   const data: any = { pos };
 
-  const userFields = {
-    email: 1,
-    username: 1,
-    password: 1,
-    isOwner: 1,
-    isActive: 1,
-    details: 1
-  };
-
   // qpay configs
-  const qpayUrl = await getConfig(subdomain, 'qpayUrl', {});
-  const qpayCallbackUrl = await getConfig(subdomain, 'callbackUrl', {});
-  const qpayMerchantUser = await getConfig(subdomain, 'qpayMerchantUser', {});
-  const qpayMerchantPassword = await getConfig(
-    subdomain,
-    'qpayMerchantPassword',
-    {}
-  );
-  const qpayInvoiceCode = await getConfig(subdomain, 'qpayInvoiceCode', {});
+  const qpayConfig = await getConfig(subdomain, 'QPAY', {});
 
-  if (pos) {
+  if (qpayConfig) {
     data.qpayConfig = {
-      url: qpayUrl && qpayUrl.value,
-      callbackUrl: qpayCallbackUrl && qpayCallbackUrl.value,
-      username: qpayMerchantUser && qpayMerchantUser.value,
-      password: qpayMerchantPassword && qpayMerchantPassword.value,
-      invoiceCode: qpayInvoiceCode && qpayInvoiceCode.value
+      url: qpayConfig.qpayUrl,
+      callbackUrl: qpayConfig.callbackUrl,
+      username: qpayConfig.qpayMerchantUser,
+      password: qpayConfig.qpayMerchantPassword,
+      invoiceCode: qpayConfig.qpayInvoiceCode
     };
   }
 
@@ -75,7 +57,7 @@ const getConfigData = async (subdomain, pos: IPosDocument) => {
   return data;
 };
 
-const getProductsData = async (
+export const getProductsData = async (
   subdomain: string,
   models: IModels,
   pos: IPosDocument
@@ -141,63 +123,32 @@ const getProductsData = async (
   return productGroups;
 };
 
-const getCustomersData = async (subdomain: string) => {
-  // consider 'customer' state as valid customers
-  return await sendContactsMessage({
-    subdomain,
-    action: 'customers.findActiveCustomers',
-    data: {
-      selector: {},
-      fields: {
-        state: 1,
-        firstName: 1,
-        lastName: 1,
-        middleName: 1,
-        birthDate: 1,
-        sex: 1,
-        primaryEmail: 1,
-        emails: 1,
-        primaryPhone: 1,
-        phones: 1,
-        profileScore: 1,
-        score: 1,
-        code: 1
-      }
-    },
-    isRPC: true,
-    defaultValue: []
-  });
-};
-
 export const posInit = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
   const token = req.headers['pos-token'];
   const pos = await models.Pos.findOne({ token }).lean();
 
-  const syncId = Math.random().toString();
-  const syncInfo = { [syncId]: new Date() };
+  if (!pos) {
+    return res.send({ error: 'Not found POS by token' });
+  }
 
-  await models.Pos.updateOne(
-    { _id: pos._id },
-    { $set: { syncInfos: { ...pos.syncInfos, ...syncInfo } } }
-  );
-
-  const data: any = await getConfigData(models, {
-    ...pos,
-    syncInfo: { id: syncId, date: syncInfo[syncId] }
+  const data: any = await getConfigData(subdomain, {
+    ...pos
   });
   data.productGroups = await getProductsData(subdomain, models, pos);
+  data.posId = pos._id;
 
   return res.send(data);
 };
 
 export const posSyncConfig = async (req, res) => {
   const subdomain = getSubdomain(req);
+
   const models = await generateModels(subdomain);
 
   const token = req.headers['pos-token'];
-  const { syncId, type } = req.body;
+  const { type } = req.body;
 
   const pos = await models.Pos.findOne({ token }).lean();
 
@@ -205,19 +156,17 @@ export const posSyncConfig = async (req, res) => {
     return res.send({ error: 'not found pos' });
   }
 
-  // pos.syncInfos[syncId] = new Date();
-
-  await models.Pos.updateOne({ _id: pos._id }, { $set: { ...pos } });
-
   switch (type) {
     case 'config':
-      return res.send(await getConfigData(models, pos));
+      return res.send(await getConfigData(subdomain, pos));
     case 'products':
       return res.send({
         productGroups: await getProductsData(subdomain, models, pos)
       });
-    case 'customers':
-      return res.send({ customers: await getCustomersData(subdomain) });
+    case 'slots':
+      return res.send({
+        slots: await models.PosSlots.find({ posId: pos._id }).lean()
+      });
   }
 
   return res.send({ error: 'wrong type' });
@@ -228,18 +177,13 @@ export const posSyncOrders = async (req, res) => {
   const models = await generateModels(subdomain);
 
   const token = req.headers['pos-token'];
-  const { syncId, orders, putResponses } = req.body;
+  const { orders, putResponses } = req.body;
 
   const pos = await models.Pos.findOne({ token }).lean();
 
   if (!pos) {
     return res.send({ error: 'not found pos' });
   }
-
-  await models.Pos.updateOne(
-    { token },
-    { $set: { syncInfo: { ...pos.syncInfos, [syncId]: new Date() } } }
-  );
 
   const resOrderIds: any[] = [];
   const putResponseIds: any[] = [];
@@ -259,7 +203,7 @@ export const posSyncOrders = async (req, res) => {
         updateOne: {
           filter: { _id: order._id },
           update: {
-            $set: { ...order, posToken: token, syncId, branchId: pos.branchId }
+            $set: { ...order, posToken: token, branchId: pos.branchId }
           },
           upsert: true
         }
@@ -283,7 +227,7 @@ export const posSyncOrders = async (req, res) => {
       bulkOps.push({
         updateOne: {
           filter: { _id: putResponse._id },
-          update: { $set: { ...putResponse, posToken: token, syncId } },
+          update: { $set: { ...putResponse, posToken: token } },
           upsert: true
         }
       });

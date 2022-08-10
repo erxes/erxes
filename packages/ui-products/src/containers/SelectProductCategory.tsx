@@ -1,10 +1,9 @@
-import React from 'react';
-
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import { queries } from '../graphql';
+
 import { IProductCategory } from '../types';
-import { generateCategoryOptions } from '@erxes/ui/src/utils/categories';
+import React from 'react';
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
+import { queries } from '../graphql';
 
 // get config options for react-select-plus
 export function generateProductOptions(

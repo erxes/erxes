@@ -1,13 +1,13 @@
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Spinner from '@erxes/ui/src/components/Spinner';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -52,15 +52,15 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
         {this.state.loading && <Spinner />}
         <FormGroup>
           <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl {...formProps} name='name' required={true} />
+          <FormControl {...formProps} name="name" required={true} />
         </FormGroup>
 
         <FormGroup>
           <ControlLabel required={true}>Twilio Account SID</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='accountSid'
+            type="text"
+            name="accountSid"
             required={true}
           />
         </FormGroup>
@@ -69,8 +69,8 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
           <ControlLabel required={true}>Auth Token</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='authToken'
+            type="text"
+            name="authToken"
             required={true}
           />
         </FormGroup>
@@ -79,16 +79,16 @@ class TwilioSms extends React.Component<Props, { loading: boolean }> {
           <ControlLabel required={true}>Phone Number SID</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='phoneNumberSid'
+            type="text"
+            name="phoneNumberSid"
             required={true}
           />
         </FormGroup>
 
         <a
-          href='https://erxes.org/administrator/system-config#twilio-sms'
-          target='_blank'
-          rel='noopener noreferrer'
+          href="https://erxes.org/administrator/system-config#twilio-sms"
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {'Learn more about Twilio'}
         </a>
