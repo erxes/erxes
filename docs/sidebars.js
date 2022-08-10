@@ -41,14 +41,10 @@ module.exports = {
         {
           Integrations: [
             'developer/integrations-overview/facebook',
-            'developer/integrations-overview/twitter',
             'developer/integrations-overview/gmail',
             'developer/integrations-overview/google-cloud-storage',
             'developer/integrations-overview/aws-s3',
-            'developer/integrations-overview/aws-ses',
-            'developer/integrations-overview/nylas-integrations',
-            'developer/integrations-overview/whatsApp-integration',
-            'developer/integrations-overview/sunshine-conversations'
+            'developer/integrations-overview/aws-ses'
           ]
         },
         'developer/webhook',
@@ -62,7 +58,6 @@ module.exports = {
             }
           ]
         },
-        { SDK: ['developer/android-sdk', 'developer/ios-sdk'] },
         'developer/push-notifications',
         'developer/script-install'
       ]
