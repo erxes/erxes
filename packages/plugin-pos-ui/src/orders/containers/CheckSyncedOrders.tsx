@@ -53,8 +53,8 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
     } = this.props;
 
     // remove action
-    const checkSynced = ({ orderIds }, emptyBulk) => {
-      toCheckSyncedOrders({
+    const checkSynced = async ({ orderIds }, emptyBulk) => {
+      await toCheckSyncedOrders({
         variables: { orderIds }
       })
         .then(response => {
@@ -124,6 +124,7 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
     };
 
     const content = props => <CheckSyncedOrders {...props} {...updatedProps} />;
+    // const content = props => <>Hello</>;
 
     return <Bulk content={content} />;
   }

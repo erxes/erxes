@@ -17,7 +17,10 @@ type Props = {
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  checkSynced: (doc: { orderIds: string[] }, emptyBulk: () => void) => void;
+  checkSynced: (
+    doc: { orderIds: string[] },
+    emptyBulk: () => void
+  ) => Promise<any>;
   toggleBulk: () => void;
   toggleAll: (targets: any[], containerId: string) => void;
   unSyncedOrderIds: string[];
@@ -68,14 +71,14 @@ class CheckSyncedOrders extends React.Component<Props, State> {
     toggleAll(orders, 'orders');
   };
 
-  checkSynced = orders => {
+  checkSynced = async (orders: any) => {
     const orderIds: string[] = [];
 
     orders.forEach(order => {
       orderIds.push(order._id);
     });
 
-    this.props.checkSynced({ orderIds }, this.props.emptyBulk);
+    await this.props.checkSynced({ orderIds }, this.props.emptyBulk);
   };
 
   render() {
@@ -132,17 +135,14 @@ class CheckSyncedOrders extends React.Component<Props, State> {
 
     const onClickCheck = () => {
       confirm()
-        .then(() => {
-          this.checkSynced(bulk);
+        .then(async () => {
           this.setState({ contentLoading: true });
-          console.log('w8888');
-          (async () => {
-            await new Promise(f => setTimeout(f, 1000));
-          })();
+          await this.checkSynced(bulk);
           this.setState({ contentLoading: false });
         })
         .catch(error => {
           Alert.error(error.message);
+          this.setState({ contentLoading: false });
         });
     };
 
