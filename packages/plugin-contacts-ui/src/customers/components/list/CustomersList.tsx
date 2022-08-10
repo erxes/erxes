@@ -539,6 +539,7 @@ class CustomersList extends React.Component<IProps, State> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
+        hasBorder
       />
     );
   }

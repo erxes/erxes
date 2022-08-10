@@ -53,6 +53,7 @@ class Home extends React.Component<Props, {}> {
           )
         }
         transparent={true}
+        hasBorder
       />
     );
   }

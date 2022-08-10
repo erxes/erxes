@@ -129,6 +129,7 @@ class SegmentsList extends React.Component<Props> {
           />
         }
         leftSidebar={<Sidebar types={types} contentType={contentType} />}
+        hasBorder
       />
     );
   }
