@@ -102,7 +102,7 @@ const main = async () => {
       fse.move('./node_modules', `./${folderName}/.erxes/dist/node_modules`)
     );
   } else {
-    await execute(() => fse.move('../node_modules', './dist/node_modules'));
+    await execute(() => fse.move('./node_modules', './dist/node_modules'));
   }
 };
 
