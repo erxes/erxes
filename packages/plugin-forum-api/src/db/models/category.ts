@@ -29,14 +29,17 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   getAncestorsOf(_id: string): Promise<ICategory[] | undefined | null>;
 }
 
-/**
- * https://www.mongodb.com/docs/manual/tutorial/model-tree-structures-with-ancestors-array/
- * Array of ancestors pattern
- * This pattern has the best balance between simplicity and speed of descendant/ancestor operations
- *  */
+// true, unique: true, sparse: true,
+
 export const categorySchema = new Schema<CategoryDocument>({
   name: { type: String, required: true },
-  code: { type: String, index: true, unique: true, sparse: true },
+  code: {
+    type: String,
+    index: true,
+    unique: true,
+    sparse: true,
+    partialFilterExpression: { code: { $ne: null } }
+  },
   thumbnail: String,
   parentId: { type: Types.ObjectId, index: true }
 });
@@ -57,6 +60,8 @@ export const generateCategoryModel = (
       input: InputCategoryPatch
     ): Promise<CategoryDocument> {
       const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
+
+      console.log({ patch });
 
       await models.Category.updateOne({ _id }, patch);
 

@@ -1,61 +1,117 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-import CommonForm from '@erxes/ui-settings/src/common/components/Form';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import React, { useState } from 'react';
+import gql from 'graphql-tag';
+import { useQuery } from 'react-apollo';
 
 type Props = {
-  object?;
-} & ICommonFormProps;
+  category?: {
+    _id: string;
+    name: string;
+    code?: string | null;
+    parentId?: string | null;
+    thumbnail?: string | null;
+  };
+  onSubmit?: (val: any) => any;
+  noParent?: boolean;
+};
 
-class Form extends React.Component<Props & ICommonFormProps, {}> {
-  generateDoc = (values: { _id?: string; name: string; content: string }) => {
-    const { object } = this.props;
-    const finalValues = values;
-
-    if (object) {
-      finalValues._id = object._id;
+const allCategories = gql`
+  query ForumCategoriesAll {
+    forumCategories {
+      _id
+      code
+      name
     }
-
-    return {
-      _id: finalValues._id,
-      name: finalValues.name
-    };
-  };
-
-  renderContent = (formProps: IFormProps) => {
-    const object = this.props.object || ({} as any);
-
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel required={true}>Name</ControlLabel>
-          <FormControl
-            {...formProps}
-            name="name"
-            defaultValue={object.name}
-            type="text"
-            required={true}
-            autoFocus={true}
-          />
-        </FormGroup>
-      </>
-    );
-  };
-
-  render() {
-    return (
-      <CommonForm
-        {...this.props}
-        name="name"
-        renderContent={this.renderContent}
-        generateDoc={this.generateDoc}
-        object={this.props.object}
-      />
-    );
   }
-}
+`;
+
+const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
+  const [name, setName] = useState(category?.name || '');
+  const [code, setCode] = useState(category?.code || '');
+  const [parentId, setParentId] = useState(
+    noParent ? '' : category?.parentId || ''
+  );
+  const [thumbnail, setThumbnail] = useState(category?.thumbnail || '');
+
+  const _onSubmit = e => {
+    e.preventDefault();
+    if (onSubmit) {
+      onSubmit({
+        name,
+        code: code || null,
+        parentId: parentId || null,
+        thumbnail: thumbnail || null
+      });
+    }
+  };
+
+  return (
+    <form onSubmit={_onSubmit}>
+      <label>
+        Name:{' '}
+        <input
+          type="text"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          required
+        />
+      </label>
+
+      <label>
+        Code:{' '}
+        <input
+          type="text"
+          value={code}
+          onChange={e => setCode(e.target.value)}
+        />
+      </label>
+
+      {!noParent && (
+        <label>
+          Parent category:
+          <CategorySelect
+            value={parentId}
+            except={category ? [category?._id] : undefined}
+            onChange={setParentId}
+          />
+        </label>
+      )}
+
+      <label>
+        Thumbnail url:{' '}
+        <input
+          type="text"
+          value={thumbnail}
+          onChange={e => setThumbnail(e.target.value)}
+        />
+      </label>
+
+      <input type="submit" value="Submit" />
+    </form>
+  );
+};
+
+const CategorySelect: React.FC<{
+  value: string;
+  except?: string[];
+  onChange: (any) => any;
+}> = ({ value, except, onChange }) => {
+  const { data, loading, error } = useQuery(allCategories);
+
+  if (loading) return null;
+  if (error) <pre>{JSON.stringify(data, null, 2)}</pre>;
+
+  const possibleParents = !except?.length
+    ? data.forumCategories
+    : data.forumCategories.filter(c => !except.includes(c._id));
+
+  return (
+    <select value={value} onChange={e => onChange && onChange(e.target.value)}>
+      <option value="">No parent (root category)</option>
+      {possibleParents.map(p => (
+        <option value={p._id}>{p.name}</option>
+      ))}
+    </select>
+  );
+};
 
 export default Form;

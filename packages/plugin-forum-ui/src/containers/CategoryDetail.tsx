@@ -1,15 +1,55 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import { useQuery, useMutation } from 'react-apollo';
+import Form from '../components/Form';
 
 const CATEGORY = gql`
-  query ForumCategory($id: ID!) {
+  query ForumCategoryDetail($id: ID!) {
     forumCategory(_id: $id) {
       _id
       code
       name
       parentId
+      thumbnail
+    }
+  }
+`;
+
+const UPDATE_CATEGORY = gql`
+  mutation ForumPatchCategory(
+    $id: ID!
+    $code: String
+    $name: String
+    $parentId: String
+    $thumbnail: String
+  ) {
+    forumPatchCategory(
+      _id: $id
+      code: $code
+      name: $name
+      parentId: $parentId
+      thumbnail: $thumbnail
+    ) {
+      _id
+    }
+  }
+`;
+
+const CREATE_CATEGORY = gql`
+  mutation ForumCreateCategory(
+    $name: String!
+    $parentId: String
+    $code: String
+    $thumbnail: String
+  ) {
+    forumCreateCategory(
+      name: $name
+      parentId: $parentId
+      code: $code
+      thumbnail: $thumbnail
+    ) {
+      _id
     }
   }
 `;
@@ -20,8 +60,54 @@ export default function CategoryDetail() {
     variables: { id: categoryId }
   });
 
+  const [updateCategory] = useMutation(UPDATE_CATEGORY, {
+    // onCompleted: () => alert('updated'),
+    onError: e => {
+      console.error(e);
+      alert(JSON.stringify(e, null, 2));
+    },
+    refetchQueries: ['ForumCategoriesByParentIds', 'ForumCategoryDetail']
+  });
+
+  const [addSubCategory] = useMutation(CREATE_CATEGORY, {
+    onError: e => {
+      console.error(e);
+      alert(JSON.stringify(e, null, 2));
+    },
+    refetchQueries: ['ForumCategoriesByParentIds']
+  });
+
   if (loading) return null;
   if (error) return <pre>{JSON.stringify(error, null, 2)}</pre>;
 
-  return <pre>{JSON.stringify(data, null, 2)}</pre>;
+  const { forumCategory } = data;
+
+  const onUpdate = v => {
+    updateCategory({
+      variables: {
+        ...v,
+        id: forumCategory._id
+      }
+    });
+  };
+
+  const onAddSubCategory = v => {
+    addSubCategory({
+      variables: {
+        ...v,
+        parentId: forumCategory._id
+      }
+    });
+  };
+
+  return (
+    <div>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <h2>Edit</h2>
+      <Form category={forumCategory} onSubmit={onUpdate} />
+
+      <h2>Add subcategory</h2>
+      <Form onSubmit={onAddSubCategory} noParent />
+    </div>
+  );
 }

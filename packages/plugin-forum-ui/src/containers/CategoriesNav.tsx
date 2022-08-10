@@ -18,8 +18,8 @@ export default function CategoriesNav() {
     <nav>
       <ul>
         {forumCategories.map(category => (
-          <li>
-            <CategoryNavItem key={category._id} category={category} />
+          <li key={category._id}>
+            <CategoryNavItem category={category} />
           </li>
         ))}
       </ul>

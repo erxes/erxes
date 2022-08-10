@@ -7,6 +7,7 @@ export default function CategoryNavItem({ category }) {
   const { data, loading, error } = useQuery(CATEGORIES_BY_PARENT_IDS, {
     variables: { parentId: [category._id] }
   });
+  const { path, url } = useRouteMatch();
 
   if (loading) return null;
 
@@ -14,18 +15,26 @@ export default function CategoryNavItem({ category }) {
 
   const subCategories = data.forumCategories || [];
 
-  const { path, url } = useRouteMatch();
-
-  console.log(path, url);
+  console.log(subCategories);
 
   return (
     <div style={{ border: '1px solid #e0e0e0', padding: 10, margin: 10 }}>
-      <Link to={`${url}/${category._id}`}>{category.name}</Link>
+      <Link to={`${url}/${category._id}`}>
+        {category.thumbnail && (
+          <img
+            src={category.thumbnail}
+            alt="category thumbnail"
+            style={{ display: 'inline-block', width: 50, height: 50 }}
+          />
+        )}
+
+        {category.name}
+      </Link>
 
       <ul>
         {subCategories.map(c => (
-          <li>
-            <CategoryNavItem key={c._id} category={c} />
+          <li key={c._id}>
+            <CategoryNavItem category={c} />
           </li>
         ))}
       </ul>

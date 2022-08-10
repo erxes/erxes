@@ -5,6 +5,7 @@ export const CATEGORIES_BY_PARENT_IDS = gql`
     forumCategories(parentId: $parentId) {
       _id
       name
+      thumbnail
     }
   }
 `;
