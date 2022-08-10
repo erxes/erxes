@@ -27,10 +27,11 @@ const allCategories = gql`
 const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
   const [name, setName] = useState(category?.name || '');
   const [code, setCode] = useState(category?.code || '');
-  const [parentId, setParentId] = useState(
-    noParent ? '' : category?.parentId || ''
-  );
+  const [parentId, setParentId] = useState(category?.parentId || '');
   const [thumbnail, setThumbnail] = useState(category?.thumbnail || '');
+
+  console.log('child', category);
+  console.log('state', { name, code, parentId, thumbnail });
 
   const _onSubmit = e => {
     e.preventDefault();
@@ -70,7 +71,7 @@ const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
           Parent category:
           <CategorySelect
             value={parentId}
-            except={category ? [category?._id] : undefined}
+            except={category ? category?._id : undefined}
             onChange={setParentId}
           />
         </label>
@@ -92,7 +93,7 @@ const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
 
 const CategorySelect: React.FC<{
   value: string;
-  except?: string[];
+  except?: string;
   onChange: (any) => any;
 }> = ({ value, except, onChange }) => {
   const { data, loading, error } = useQuery(allCategories);
@@ -100,15 +101,19 @@ const CategorySelect: React.FC<{
   if (loading) return null;
   if (error) <pre>{JSON.stringify(data, null, 2)}</pre>;
 
-  const possibleParents = !except?.length
+  const possibleParents = !except
     ? data.forumCategories
-    : data.forumCategories.filter(c => !except.includes(c._id));
+    : data.forumCategories.filter(c => except !== c._id);
 
   return (
     <select value={value} onChange={e => onChange && onChange(e.target.value)}>
-      <option value="">No parent (root category)</option>
+      <option key="null" value="">
+        No parent (root category)
+      </option>
       {possibleParents.map(p => (
-        <option value={p._id}>{p.name}</option>
+        <option key={p._id} value={p._id}>
+          {p.name}
+        </option>
       ))}
     </select>
   );

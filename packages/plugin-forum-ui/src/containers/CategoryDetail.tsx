@@ -82,7 +82,7 @@ export default function CategoryDetail() {
 
   const { forumCategory } = data;
 
-  const onUpdate = v => {
+  const onSubmitUpdate = v => {
     updateCategory({
       variables: {
         ...v,
@@ -102,12 +102,20 @@ export default function CategoryDetail() {
 
   return (
     <div>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <pre>{JSON.stringify(data.forumCategory, null, 2)}</pre>
       <h2>Edit</h2>
-      <Form category={forumCategory} onSubmit={onUpdate} />
+      <Form
+        key={data.forumCategory._id}
+        category={data.forumCategory}
+        onSubmit={onSubmitUpdate}
+      />
 
       <h2>Add subcategory</h2>
-      <Form onSubmit={onAddSubCategory} noParent />
+      <Form
+        key={'addsub' + data.forumCategory._id}
+        onSubmit={onAddSubCategory}
+        noParent
+      />
     </div>
   );
 }

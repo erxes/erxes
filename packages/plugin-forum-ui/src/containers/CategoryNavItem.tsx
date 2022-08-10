@@ -15,8 +15,6 @@ export default function CategoryNavItem({ category }) {
 
   const subCategories = data.forumCategories || [];
 
-  console.log(subCategories);
-
   return (
     <div style={{ border: '1px solid #e0e0e0', padding: 10, margin: 10 }}>
       <Link to={`${url}/${category._id}`}>
