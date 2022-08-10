@@ -11,7 +11,7 @@ function Layout() {
   const { path, url } = useRouteMatch();
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr' }}>
       <ul>
         <li>
           <Link to={`${url}/categories`}>Categories</Link>
