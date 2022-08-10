@@ -38,7 +38,8 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.3",
     "csv-parser": "^3.0.0",
-    "erxes-api-utils": "^0.0.34",
+    "erxes-inmemory-storage": "^1.0.20",
+    "faker": "^4.1.0",
     "file-type": "^10.4.0",
     "helmet": "^3.23.3",
     "json2csv": "^5.0.1",
@@ -48,8 +49,6 @@
     "stream-array": "^1.1.2",
     "ts-node": "^10.7.0",
     "validator": "^9.0.0",
-    "xlsx-populate": "^1.20.1",
-    "erxes-inmemory-storage": "^1.0.20",
-    "faker": "^4.1.0"
+    "xlsx-populate": "^1.20.1"
   }
 }
