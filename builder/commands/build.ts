@@ -76,7 +76,10 @@ const main = async () => {
     );
   }
 
-  console.log('Copying global yarn.lock ...........');
+  // Even though this global yarn.lock contains all node_modules in packages folder
+  // later when we are yarn install. it can compare package.json files in dist folders
+  // and removing non existing modules from yarn.lock. Therefore it can only install nessecesary modules
+  console.log('Replacing yarn.lock with global yarn.lock ...........');
 
   await execute(() =>
     fse.copy(
