@@ -7,7 +7,7 @@ on:
     paths:
       - 'packages/api-utils/**'
       - 'packages/crons/**'
-      - '.github/workflows/crons.yaml'
+      - '.github/workflows/crons.yml'
 
 jobs:
   crons:
