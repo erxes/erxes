@@ -76,6 +76,18 @@ const main = async () => {
     );
   }
 
+  console.log('Copying global yarn.lock ...........');
+
+  await execute(() =>
+    fse.copy(
+      '../yarn.lock',
+      `./yarn.lock`,
+      {
+        overwrite: true
+      }
+    )
+  );
+
   console.log('Yarn install ....');
   await execCommand('yarn install');
 
