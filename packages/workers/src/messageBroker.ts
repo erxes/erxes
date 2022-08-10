@@ -30,6 +30,12 @@ export const removeCustomers = (subdomain, _ids) =>
     data: { customerIds: _ids }
   });
 
+export const removeProducts = (subdomain, _ids) =>
+  sendRPCMessage('products:removeProducts', {
+    subdomain,
+    data: { _ids }
+  });
+
 export const removeTickets = (subdomain, _ids) =>
   sendRPCMessage('cards:tickets.remove', {
     subdomain,
