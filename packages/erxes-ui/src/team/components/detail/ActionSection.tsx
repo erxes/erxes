@@ -18,7 +18,7 @@ import path from 'path';
 const MailForm = asyncComponent(
   () =>
     isEnabled('inbox') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "MailForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm'
     )
 );
@@ -26,7 +26,7 @@ const MailForm = asyncComponent(
 const SmsForm = asyncComponent(
   () =>
     isEnabled('inbox') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "SmsForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm'
     )
 );

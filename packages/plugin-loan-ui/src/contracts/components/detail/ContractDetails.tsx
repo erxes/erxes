@@ -17,7 +17,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 const ActivityInputs = asyncComponent(
   () =>
     isEnabled('logs') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
     )
 );
@@ -25,7 +25,7 @@ const ActivityInputs = asyncComponent(
 const ActivityLogs = asyncComponent(
   () =>
     isEnabled('logs') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "ActivityLogs" */ '@@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
     )
 );
