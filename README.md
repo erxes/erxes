@@ -4,7 +4,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">The open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business
+<p align="center">The open-source Hubspot alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business
 </p>
 
 <p align="center">
