@@ -27,7 +27,7 @@ module.exports = {
       },
       items: [
         {
-          to: 'overview/deployment-overview',
+          to: 'introduction/introduction',
           label: 'Documentation',
           position: 'left'
         },

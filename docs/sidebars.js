@@ -18,16 +18,53 @@ module.exports = {
           'XOS Installation': [
             { Docker: ['developer/ubuntu', 'developer/mac'] }
           ]
-        },
-        {
-          Configuration: ['integrations/configuration']
         }
       ]
     },
     {
       type: 'category',
       label: '📦 Plugins',
-      items: ['contribute/plugin-Installation', 'contribute/integration']
+      items: ['contribute/plugin-Installation']
+    },
+    {
+      type: 'category',
+      label: 'Configuration',
+      items: [
+        {
+          "Administrator's Guide": [
+            'administrator/creating-first-user',
+            'administrator/environment-variables',
+            'administrator/system-config',
+            'administrator/migration'
+          ]
+        },
+        {
+          Integrations: [
+            'developer/integrations-overview/facebook',
+            'developer/integrations-overview/twitter',
+            'developer/integrations-overview/gmail',
+            'developer/integrations-overview/google-cloud-storage',
+            'developer/integrations-overview/aws-s3',
+            'developer/integrations-overview/aws-ses',
+            'developer/integrations-overview/nylas-integrations',
+            'developer/integrations-overview/whatsApp-integration',
+            'developer/integrations-overview/sunshine-conversations'
+          ]
+        },
+        {
+          'GraphQL API': [
+            'developer/graphql-api',
+            {
+              type: 'link',
+              label: 'GraphQL API references',
+              href: 'pathname:///developers/docs/references'
+            }
+          ]
+        },
+        { SDK: ['developer/android-sdk', 'developer/ios-sdk'] },
+        'developer/push-notifications',
+        'developer/script-install'
+      ]
     },
     {
       type: 'category',
@@ -37,8 +74,17 @@ module.exports = {
           Installation: [{ Docker: ['developer/ubuntu', 'developer/mac'] }]
         },
         'development/developing-plugins',
-        'development/troubleshooting',
-        'development/changelog'
+        'installation/upgrade',
+        'developer/troubleshooting',
+        {
+          Changelog: [
+            {
+              type: 'link',
+              label: 'Release Notes', // The link label
+              href: 'https://github.com/erxes/erxes/releases' // The external URL
+            }
+          ]
+        }
       ]
     },
     {
@@ -55,174 +101,6 @@ module.exports = {
       type: 'category',
       label: 'Erxes XOS user guide',
       items: ['development/erxes-xos-user-guide']
-    },
-    {
-      type: 'category',
-      label: 'What is erxes?',
-      items: [
-        {
-          Overview: [
-            'introduction/introduction',
-            'introduction/architecture',
-            'introduction/faq'
-          ]
-        },
-        'overview/quickstart'
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Installation & configuration',
-      items: [
-        {
-          'Installation for Production': [
-            'ubuntu/server',
-            'ubuntu/ubuntu',
-            'mac/mac'
-          ]
-        },
-        {
-          Developer: ['developer/ubuntu', 'developer/mac']
-        },
-        {
-          Plugins: [
-            'plugins/choose-your-plugins',
-            'plugins/plugin-api',
-            'plugins/plugin-ui'
-          ]
-        },
-        {
-          Integrations: ['integrations/3rd-party-integration']
-        },
-        {
-          ' Update erxes': ['other/update']
-        },
-        {
-          Troubleshooting: ['other/troubleshooting']
-        },
-        {
-          Changelog: ['other/changelog']
-        },
-        {
-          'General feedback': ['other/general-feedback']
-        },
-        {
-          'Typescript Support': ['other/typescript']
-        }
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Contributing to open source',
-      items: [
-        'contribute/overview',
-        'contribute/contribute-to-codebase',
-        {
-          'Contribute to documentation': [
-            'contribute/contribute-to-documentation',
-            'contribute/documentation-style-guide'
-          ]
-        }
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Getting Started',
-      items: [
-        {
-          'Deploying on server': [
-            'overview/deployment-overview',
-            {
-              'Installation Guide': [
-                {
-                  Ubuntu: [
-                    'installation/ubuntu',
-                    {
-                      Installation: [
-                        'installation/ubuntu-quickstart',
-                        'installation/ubuntu-step-by-step',
-                        'installation/ubuntu-troubleshooting'
-                      ]
-                    }
-                  ]
-                },
-                'installation/docker',
-                'installation/upgrade'
-              ]
-            }
-          ]
-        },
-        {
-          'Contributing on open source': [
-            'getting-started/contributing-guide',
-            'getting-started/submitting',
-            'getting-started/commit'
-          ]
-        }
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Overview',
-      items: ['overview/overview']
-    },
-    {
-      type: 'category',
-      label: "Developer's Guide",
-      items: [
-        'developer/developer',
-        'developer/plugin',
-        'developer/events',
-        'developer/documentation_guide',
-        {
-          "Administrator's Guide": [
-            'administrator/creating-first-user',
-            'administrator/environment-variables',
-            'administrator/system-config',
-            'administrator/migration'
-          ]
-        },
-        {
-          Tutorials: [
-            'developer/graphql-api',
-            'developer/android-sdk',
-            'developer/ios-sdk',
-            'developer/push-notifications',
-            'developer/script-install'
-          ]
-        },
-        {
-          Integrations: [
-            'developer/integrations-overview/facebook',
-            'developer/integrations-overview/twitter',
-            'developer/integrations-overview/gmail',
-            'developer/integrations-overview/google-cloud-storage',
-            'developer/integrations-overview/aws-s3',
-            'developer/integrations-overview/aws-ses',
-            'developer/integrations-overview/nylas-integrations',
-            'developer/integrations-overview/whatsApp-integration',
-            'developer/integrations-overview/sunshine-conversations'
-          ]
-        },
-        'developer/troubleshooting',
-        'developer/webhook',
-        {
-          type: 'link',
-          label: 'GraphQL API references',
-          href: 'pathname:///developers/docs/references'
-        }
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Changelog',
-      items: [
-        {
-          type: 'link',
-          label: 'Release Notes', // The link label
-          href: 'https://github.com/erxes/erxes/releases' // The external URL
-        }
-      ]
     }
   ],
   components: [
