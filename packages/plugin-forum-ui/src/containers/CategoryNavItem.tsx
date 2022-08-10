@@ -3,7 +3,7 @@ import { useQuery } from 'react-apollo';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { CATEGORIES_BY_PARENT_IDS } from '../graphql/queries';
 
-export default function ForumCategory({ category }) {
+export default function CategoryNavItem({ category }) {
   const { data, loading, error } = useQuery(CATEGORIES_BY_PARENT_IDS, {
     variables: { parentId: [category._id] }
   });
@@ -16,6 +16,8 @@ export default function ForumCategory({ category }) {
 
   const { path, url } = useRouteMatch();
 
+  console.log(path, url);
+
   return (
     <div style={{ border: '1px solid #e0e0e0', padding: 10, margin: 10 }}>
       <Link to={`${url}/${category._id}`}>{category.name}</Link>
@@ -23,7 +25,7 @@ export default function ForumCategory({ category }) {
       <ul>
         {subCategories.map(c => (
           <li>
-            <ForumCategory key={c._id} category={c} />
+            <CategoryNavItem key={c._id} category={c} />
           </li>
         ))}
       </ul>

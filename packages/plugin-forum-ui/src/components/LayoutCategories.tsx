@@ -1,8 +1,9 @@
 import React from 'react';
 import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import CategoriesNav from '../containers/CategoriesNav';
+import CategoryDetail from '../containers/CategoryDetail';
 
-export default function Categories() {
+export default function LayoutCategories() {
   const { path } = useRouteMatch();
 
   return (
@@ -12,8 +13,8 @@ export default function Categories() {
       <CategoriesNav />
       <div>
         <Switch>
-          <Route path={`${path}/:_id`}>
-            <h1>cat</h1>
+          <Route path={`${path}/:categoryId`}>
+            <CategoryDetail />
           </Route>
         </Switch>
       </div>
