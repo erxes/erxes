@@ -124,7 +124,6 @@ type IndexProps = {
   toggleSection: () => void;
   taggerRefetchQueries: any;
   merge?: (doc: { ids: string[]; data: ICustomer }) => void;
-  currentLanguage: string;
 };
 
 type IndexState = {
@@ -278,13 +277,6 @@ class Index extends React.Component<IndexProps, IndexState> {
       const detailsOnClick = () => this.onSubtabClick('details');
       const activityOnClick = () => this.onSubtabClick('activity');
       const relatedOnClick = () => this.onSubtabClick('related');
-
-      let isMongolian = false;
-
-      if (isEnabled('logs') || isEnabled('cards')) {
-        isMongolian =
-          localStorage.getItem('currentLanguage') === 'mn' ? true : false;
-      }
 
       return (
         <>
