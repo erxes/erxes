@@ -5,6 +5,7 @@ import Form from '../components/Form';
 import { allCategoryQueries, CATEGORY_DETAIL } from '../graphql/queries';
 import { UPDATE_CATEGORY, CREATE_CATEGORY } from '../graphql/mutations';
 import CategoryDelete from './CategoryDelete';
+import CategoryForceDelete from './CategoryForceDelete';
 
 export default function CategoryDetail() {
   const { categoryId } = useParams();
@@ -81,6 +82,9 @@ export default function CategoryDetail() {
           key={'delete' + forumCategory._id}
           _id={forumCategory._id}
         />
+
+        <h4>Force delete</h4>
+        <CategoryForceDelete _id={forumCategory._id} />
       </div>
     </div>
   );

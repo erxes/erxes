@@ -45,3 +45,11 @@ export const DELETE_CATEGORY = gql`
     }
   }
 `;
+
+export const FORCE_DELETE_CATEGORY = gql`
+  mutation ForumForceDeleteCategory($id: ID!) {
+    forumForceDeleteCategory(_id: $id) {
+      _id
+    }
+  }
+`;
