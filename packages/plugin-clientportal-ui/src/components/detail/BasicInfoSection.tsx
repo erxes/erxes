@@ -1,14 +1,11 @@
-import {
-  Alert,
-  Button,
-  DropdownToggle,
-  Icon,
-  ModalTrigger,
-  Tip,
-  __,
-  confirm
-} from '@erxes/ui/src';
-
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { confirm } from '@erxes/ui/src/utils';
+import Alert from '@erxes/ui/src/utils/Alert';
+import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalTrigger } from '@erxes/ui/src/components';
+import Icon from '@erxes/ui/src/components/Icon';
+import Tip from '@erxes/ui/src/components/Tip';
 import { Actions } from '@erxes/ui/src/styles/main';
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import Dropdown from 'react-bootstrap/Dropdown';

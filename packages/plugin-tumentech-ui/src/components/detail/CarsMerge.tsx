@@ -1,11 +1,12 @@
 import {
-  Button,
   ChooserColumn as Column,
   ChooserColumns as Columns,
-  ChooserTitle as Title,
-  Icon,
-  MainStyleModalFooter as ModalFooter
+  ChooserTitle as Title
 } from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import Icon from '@erxes/ui/src/components/Icon';
+
 import React from 'react';
 
 import { CAR_DATAS, CAR_INFO } from '../../constants';

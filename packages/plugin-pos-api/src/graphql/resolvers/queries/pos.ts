@@ -118,7 +118,7 @@ const queries = {
   posEnv: async (_root, _args, {}: IContext) => {
     const { ALL_AUTO_INIT } = process.env;
     return {
-      ALL_AUTO_INIT: ['true', 'True', '1'].includes(ALL_AUTO_INIT || '')
+      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')
     };
   },
 

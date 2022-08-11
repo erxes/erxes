@@ -1,4 +1,7 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+import {
+  moduleCheckPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
 import {
   IProduct,
@@ -205,6 +208,7 @@ const productMutations = {
   }
 };
 
+requireLogin(productMutations, 'productsRemove');
 moduleCheckPermission(productMutations, 'manageProducts');
 
 export default productMutations;

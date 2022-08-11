@@ -93,8 +93,8 @@ const entriesRemove = `
 `;
 
 const templatesAdd = `
-  mutation templatesAdd($name: String $jsonData: JSON) {
-    webbuilderTemplatesAdd(name: $name jsonData: $jsonData) {
+  mutation templatesAdd($name: String $jsonData: JSON $html: String) {
+    webbuilderTemplatesAdd(name: $name jsonData: $jsonData html: $html) {
       _id
     }
   }

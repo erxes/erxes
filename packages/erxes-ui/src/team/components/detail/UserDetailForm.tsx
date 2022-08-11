@@ -9,12 +9,11 @@ import { UserHeader } from './styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import path from 'path';
 
 const LeadState = asyncComponent(
   () =>
     isEnabled('contacts') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "LeadState" */ '@erxes/ui-contacts/src/customers/containers/LeadState'
     )
 );
@@ -22,7 +21,7 @@ const LeadState = asyncComponent(
 const ActivityInputs = asyncComponent(
   () =>
     isEnabled('logs') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
     )
 );
@@ -30,8 +29,8 @@ const ActivityInputs = asyncComponent(
 const ActivityLogs = asyncComponent(
   () =>
     isEnabled('logs') &&
-    path.resolve(
-      /* webpackChunkName: "ActivityLogs" */ '@@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
+    import(
+      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
     )
 );
 
@@ -81,7 +80,7 @@ function UserDetails({
     );
   }
 
-  const content = (
+  const content = isEnabled('logs') && (
     <>
       <ActivityInputs
         contentTypeId={user._id}
@@ -89,14 +88,12 @@ function UserDetails({
         showEmail={false}
       />
 
-      {isEnabled('logs') && (
-        <ActivityLogs
-          target={user.details && user.details.fullName}
-          contentId={user._id}
-          contentType="core:user"
-          extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
-        />
-      )}
+      <ActivityLogs
+        target={user.details && user.details.fullName}
+        contentId={user._id}
+        contentType="core:user"
+        extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
+      />
     </>
   );
 

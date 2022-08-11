@@ -9,7 +9,6 @@ import Row from './Row';
 import { IContentTypeDoc, IEntryDoc } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
   entries: IEntryDoc[];

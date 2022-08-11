@@ -138,14 +138,16 @@ export const importProducts = async (
     const categories = group.categories || [];
 
     for (const category of categories) {
-      await models.ProductCategories.updateOne(
-        { _id: category._id },
-        {
-          $set: { ...category, products: undefined },
-          $addToSet: { tokens: token }
-        },
-        { upsert: true }
-      );
+      if (category._id) {
+        await models.ProductCategories.updateOne(
+          { _id: category._id },
+          {
+            $set: { ...category, products: undefined },
+            $addToSet: { tokens: token }
+          },
+          { upsert: true }
+        );
+      }
 
       const bulkOps: {
         updateOne: {
@@ -253,6 +255,7 @@ export const extractConfig = async (subdomain, doc) => {
     posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
+    deliveryConfig: doc.deliveryConfig,
     posId: doc._id
   };
 };

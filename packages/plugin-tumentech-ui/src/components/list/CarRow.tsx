@@ -1,4 +1,7 @@
-import { FormControl, TextInfo, __, formatValue } from '@erxes/ui/src';
+import { formatValue } from '@erxes/ui/src/utils';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { __ } from '@erxes/ui/src/utils/core';
 import { ICar, IProductCategory } from '../../types';
 
 import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';

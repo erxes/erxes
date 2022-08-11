@@ -1,17 +1,16 @@
 import * as path from 'path';
 
 import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
 
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import React from 'react';
-import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const CompanySection = asyncComponent(
   () =>
     isEnabled('contacts') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
     )
 );
@@ -19,7 +18,7 @@ const CompanySection = asyncComponent(
 const CustomerSection = asyncComponent(
   () =>
     isEnabled('contacts') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
     )
 );
@@ -44,7 +43,6 @@ class DetailInfo extends React.Component<Props> {
     return (
       <SidebarList className="no-link">
         {this.renderRow('Deal name', deal.name)}
-        {/* {this.renderRow(')} */}
         {isEnabled('contacts') && (
           <>
             <CustomerSection

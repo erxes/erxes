@@ -17,7 +17,7 @@ import { withProps } from '@erxes/ui/src/utils';
 const GenerateCustomFields = asyncComponent(
   () =>
     isEnabled('forms') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
     )
 );
