@@ -32,10 +32,10 @@ class PagesContainer extends React.Component<FinalProps> {
       return <Spinner objective={true} />;
     }
 
-    const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
-    const searchValue = queryParams.searchValue || '';
+    const { list = [], totalCount = 0 } =
+      pagesMainQuery.webbuilderPagesMain || {};
 
-    const { list = [], totalCount = 0 } = pagesMain;
+    const searchValue = queryParams.searchValue || '';
 
     const remove = (_id: string) => {
       confirm().then(() => {
