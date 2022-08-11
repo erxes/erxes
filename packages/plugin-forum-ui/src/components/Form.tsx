@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import gql from 'graphql-tag';
-import { useQuery } from 'react-apollo';
+import CategorySelect from '../containers/CategorySelect';
 
 type Props = {
   category?: {
@@ -14,24 +13,11 @@ type Props = {
   noParent?: boolean;
 };
 
-const allCategories = gql`
-  query ForumCategoriesAll {
-    forumCategories {
-      _id
-      code
-      name
-    }
-  }
-`;
-
 const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
   const [name, setName] = useState(category?.name || '');
   const [code, setCode] = useState(category?.code || '');
   const [parentId, setParentId] = useState(category?.parentId || '');
   const [thumbnail, setThumbnail] = useState(category?.thumbnail || '');
-
-  console.log('child', category);
-  console.log('state', { name, code, parentId, thumbnail });
 
   const _onSubmit = e => {
     e.preventDefault();
@@ -88,34 +74,6 @@ const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
 
       <input type="submit" value="Submit" />
     </form>
-  );
-};
-
-const CategorySelect: React.FC<{
-  value: string;
-  except?: string;
-  onChange: (any) => any;
-}> = ({ value, except, onChange }) => {
-  const { data, loading, error } = useQuery(allCategories);
-
-  if (loading) return null;
-  if (error) <pre>{JSON.stringify(data, null, 2)}</pre>;
-
-  const possibleParents = !except
-    ? data.forumCategories
-    : data.forumCategories.filter(c => except !== c._id);
-
-  return (
-    <select value={value} onChange={e => onChange && onChange(e.target.value)}>
-      <option key="null" value="">
-        No parent (root category)
-      </option>
-      {possibleParents.map(p => (
-        <option key={p._id} value={p._id}>
-          {p.name}
-        </option>
-      ))}
-    </select>
   );
 };
 

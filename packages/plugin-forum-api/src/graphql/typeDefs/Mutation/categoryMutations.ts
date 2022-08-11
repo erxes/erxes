@@ -44,7 +44,7 @@ const categoryMutations = `
 
   forumDeleteCategory(_id: ID!, adopterCategoryId: ID): ForumCategory
 
-  forumForceDeleteCategory(_id: ID!, deleteRelated: Boolean): ForumCategory
+  forumForceDeleteCategory(_id: ID!): ForumCategory
 `;
 
 export default categoryMutations;
