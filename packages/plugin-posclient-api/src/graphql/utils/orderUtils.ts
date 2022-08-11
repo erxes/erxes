@@ -34,7 +34,7 @@ export const getPureDate = (date?: Date) => {
 
 export const generateOrderNumber = async (
   models: IModels,
-  config?: IConfig
+  config: IConfig
 ): Promise<string> => {
   const todayStr = moment()
     .format('YYYYMMDD')
@@ -48,7 +48,7 @@ export const generateOrderNumber = async (
 
   const latestOrder = ((await models.Orders.find({
     number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
-    posToken: { $in: ['', null] }
+    posToken: config.token
   })
     .sort({ number: -1 })
     .limit(1)
