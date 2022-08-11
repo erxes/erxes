@@ -133,7 +133,7 @@ function FieldLogics(props: Props) {
     <>
       <Info>
         {__(
-          'Create rules to show or hide this element depending on the values of other fields'
+          'Create rules to show or hide this element depending on the values of other properties'
         )}
       </Info>
       {renderContent()}
