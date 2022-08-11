@@ -1,63 +1,13 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import gql from 'graphql-tag';
 import { useQuery, useMutation } from 'react-apollo';
 import Form from '../components/Form';
-import { allCategoryQueries } from '../graphql/queries';
-
-const CATEGORY = gql`
-  query ForumCategoryDetail($id: ID!) {
-    forumCategory(_id: $id) {
-      _id
-      code
-      name
-      parentId
-      thumbnail
-    }
-  }
-`;
-
-const UPDATE_CATEGORY = gql`
-  mutation ForumPatchCategory(
-    $id: ID!
-    $code: String
-    $name: String
-    $parentId: String
-    $thumbnail: String
-  ) {
-    forumPatchCategory(
-      _id: $id
-      code: $code
-      name: $name
-      parentId: $parentId
-      thumbnail: $thumbnail
-    ) {
-      _id
-    }
-  }
-`;
-
-const CREATE_CATEGORY = gql`
-  mutation ForumCreateCategory(
-    $name: String!
-    $parentId: String
-    $code: String
-    $thumbnail: String
-  ) {
-    forumCreateCategory(
-      name: $name
-      parentId: $parentId
-      code: $code
-      thumbnail: $thumbnail
-    ) {
-      _id
-    }
-  }
-`;
+import { allCategoryQueries, CATEGORY_DETAIL } from '../graphql/queries';
+import { UPDATE_CATEGORY, CREATE_CATEGORY } from '../graphql/mutations';
 
 export default function CategoryDetail() {
   const { categoryId } = useParams();
-  const { data, loading, error } = useQuery(CATEGORY, {
+  const { data, loading, error } = useQuery(CATEGORY_DETAIL, {
     variables: { id: categoryId }
   });
 

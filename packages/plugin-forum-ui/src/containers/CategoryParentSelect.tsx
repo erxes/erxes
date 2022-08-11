@@ -1,22 +1,14 @@
 import React from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
-
-const POSSIBLE_PARENTS = gql`
-  query ForumCategoryPossibleParents($id: ID) {
-    forumCategoryPossibleParents(_id: $id) {
-      _id
-      name
-    }
-  }
-`;
+import { CATEGORY_POSSIBLE_PARENTS } from '../graphql/queries';
 
 const CategoryParentSelect: React.FC<{
   value: string;
   parentFor?: string;
   onChange: (any) => any;
 }> = ({ value, parentFor, onChange }) => {
-  const { data, loading, error } = useQuery(POSSIBLE_PARENTS, {
+  const { data, loading, error } = useQuery(CATEGORY_POSSIBLE_PARENTS, {
     variables: {
       id: parentFor
     }
