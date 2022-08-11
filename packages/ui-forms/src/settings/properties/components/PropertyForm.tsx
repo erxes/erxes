@@ -13,6 +13,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   IButtonMutateProps,
   IField,
+  IFieldLogic,
   IFormProps,
   ILocationOption,
   IObjectListConfig
@@ -20,8 +21,8 @@ import {
 import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-import FieldLogics from '../../../forms/components/FieldLogics';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
+import PropertyLogics from '../containers/PropertyLogics';
 import { IFieldGroup } from '../types';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
@@ -30,7 +31,6 @@ type Props = {
   queryParams: any;
   field?: IField;
   groups: IFieldGroup[];
-  fields: IField[];
   type: string;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
@@ -46,6 +46,7 @@ type State = {
   currentLocation: ILocationOption;
   searchable: boolean;
   showInCard: boolean;
+  logic?: IFieldLogic;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -422,21 +423,18 @@ class PropertyForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
 
-        {/* <FormGroup> */}
         {type.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
-            <FieldLogics
-              fields={this.props.fields}
+            <PropertyLogics
               currentField={this.props.field || ({} as IField)}
-              type="property"
               onFieldChange={e => {
                 console.log(e);
               }}
+              contentType={this.props.queryParams.type}
             />
           </CollapseContent>
         )}
 
-        {/* </FormGroup> */}
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
             Close

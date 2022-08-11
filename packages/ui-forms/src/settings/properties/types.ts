@@ -21,6 +21,7 @@ export type FieldsCombinedByType = {
   options?: string[];
   title?: string;
   value?: string;
+  validation?: string;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {

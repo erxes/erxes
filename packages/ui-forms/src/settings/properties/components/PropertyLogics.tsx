@@ -7,15 +7,16 @@ import { LinkButton } from '@erxes/ui/src/styles/main';
 import { IField, IFieldLogic } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
+import { FieldsCombinedByType } from '../types';
 
-import FieldLogic from './FieldLogic';
+import PropertyLogic from './PropertyLogic';
 
 type Props = {
   onFieldChange: (
     name: string,
     value: string | boolean | string[] | IFieldLogic[]
   ) => void;
-  fields: IField[];
+  fields: FieldsCombinedByType[];
   currentField: IField;
 };
 
@@ -100,9 +101,9 @@ function FieldLogics(props: Props) {
             />
           </FormGroup>
           {logics.map((logic, index) => (
-            <FieldLogic
+            <PropertyLogic
               key={index}
-              fields={fields.filter(field => field._id !== currentField._id)}
+              fields={fields.filter(field => field.name !== currentField._id)}
               logic={logic}
               onChangeLogic={onChangeLogic}
               removeLogic={removeLogic}

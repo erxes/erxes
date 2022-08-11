@@ -2,8 +2,8 @@ import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { Column } from '@erxes/ui/src/styles/main';
-import { IField, IFieldLogic } from '@erxes/ui/src/types';
+import { Column, DateWrapper } from '@erxes/ui/src/styles/main';
+import { IFieldLogic } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 
@@ -11,12 +11,13 @@ import {
   dateTypeChoices,
   numberTypeChoices,
   stringTypeChoices
-} from '../constants';
-import { DateWrapper, LogicItem, LogicRow, RowSmall } from '../styles';
+} from '../../../forms/constants';
+import { LogicItem, LogicRow, RowSmall } from '../../../forms/styles';
+import { FieldsCombinedByType } from '../types';
 
 type Props = {
   logic: IFieldLogic;
-  fields: IField[];
+  fields: FieldsCombinedByType[];
   index: number;
   removeLogic: (index: number) => void;
   onChangeLogic: (
@@ -26,15 +27,13 @@ type Props = {
   ) => void;
 };
 
-function FieldLogic(props: Props) {
+function PropertyLogic(props: Props) {
   const { fields, logic, onChangeLogic, removeLogic, index } = props;
 
   console.log(fields);
 
   const getSelectedField = () => {
-    return fields.find(
-      field => field._id === logic.fieldId || field._id === logic.tempFieldId
-    );
+    return fields.find(field => field.name.includes(logic.fieldId || ''));
   };
 
   const getOperatorOptions = () => {
@@ -161,7 +160,7 @@ function FieldLogic(props: Props) {
               <option value="" />
               {fields.map(field => (
                 <option key={field._id} value={field._id}>
-                  {field.text}
+                  {field.label}
                 </option>
               ))}
             </FormControl>
@@ -185,4 +184,4 @@ function FieldLogic(props: Props) {
   );
 }
 
-export default FieldLogic;
+export default PropertyLogic;
