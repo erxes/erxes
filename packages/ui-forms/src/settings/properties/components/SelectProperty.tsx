@@ -1,8 +1,5 @@
 import { IButtonMutateProps, IOption } from '@erxes/ui/src/types';
-import {
-  LeftContent,
-  Row
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { LeftContent, Row } from '@erxes/ui-settings/src/styles';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';

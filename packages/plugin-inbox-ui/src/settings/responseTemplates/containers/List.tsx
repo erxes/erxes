@@ -3,10 +3,7 @@ import {
   ICommonFormProps,
   ICommonListProps
 } from '@erxes/ui-settings/src/common/types';
-import {
-  mutations,
-  queries
-} from '@erxes/ui-inbox/src/settings/responseTemplates/graphql';
+import { mutations, queries } from '../graphql';
 
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import List from '../components/List';

@@ -1,12 +1,15 @@
 import { BoxItem, Content, Reply } from './style';
+import {
+  cleanHtml,
+  isEnabled,
+  loadCustomPlugin
+} from '@erxes/ui/src/utils/core';
 
 import Attachments from './Attachments';
 import Button from '@erxes/ui/src/components/Button';
 import { IMessage } from '../../../../types';
-import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import MailHeader from './MailHeader';
 import React from 'react';
-import { cleanHtml } from '../../../../../settings/integrations/containers/utils';
 
 type Props = {
   message: IMessage;
@@ -97,7 +100,7 @@ class Mail extends React.PureComponent<Props, State> {
   renderMailForm(mailData) {
     const { replyAll, isReply, isForward } = this.state;
 
-    if (!isReply) {
+    if (!isEnabled('inbox') || !isReply) {
       return null;
     }
 
@@ -112,22 +115,22 @@ class Mail extends React.PureComponent<Props, State> {
 
     return (
       <BoxItem>
-        <MailForm
-          replyAll={replyAll}
-          isReply={isReply}
-          isForward={isForward}
-          closeReply={this.closeReply}
-          createdAt={message.createdAt}
-          conversationId={conversationId}
-          customerId={customerId}
-          toggleReply={this.toggleReply}
-          integrationId={integrationId}
-          refetchQueries={['detailQuery']}
-          mailData={mailData}
-          brandId={brandId}
-          mails={mails}
-          messageId={message._id}
-        />
+        {loadCustomPlugin('inbox', 'mailForm', {
+          replyAll,
+          isReply,
+          isForward,
+          closeReply: this.closeReply,
+          createdAt: message.createdAt,
+          conversationId,
+          customerId,
+          toggleReply: this.toggleReply,
+          integrationId,
+          refetchQueries: ['detailQuery'],
+          mailData,
+          brandId,
+          mails,
+          messageId: message._id
+        })}
       </BoxItem>
     );
   }

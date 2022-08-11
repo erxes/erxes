@@ -1,9 +1,8 @@
 import { IEmail } from '@erxes/ui-inbox/src/inbox/types';
+import { cleanHtml } from '@erxes/ui/src/utils/core';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
-import juice from 'juice';
 import { queries } from '../graphql';
-import sanitizeHtml from 'sanitize-html';
 
 export const formatStr = (emailString?: string) => {
   return emailString ? emailString.split(/[ ,]+/) : [];
@@ -101,31 +100,6 @@ export const generatePreviousContents = msgs => {
   });
 
   return cleanHtml(content);
-};
-
-export const cleanHtml = (content: string) => {
-  // all style inlined
-  const inlineStyledContent = juice(content);
-
-  return sanitizeHtml(inlineStyledContent, {
-    allowedTags: false,
-    allowedAttributes: false,
-    transformTags: {
-      html: 'div',
-      body: 'div'
-    },
-
-    // remove some unusual tags
-    exclusiveFilter: n => {
-      return (
-        n.tag === 'meta' ||
-        n.tag === 'head' ||
-        n.tag === 'style' ||
-        n.tag === 'base' ||
-        n.tag === 'script'
-      );
-    }
-  });
 };
 
 export const integrationsListParams = queryParams => ({

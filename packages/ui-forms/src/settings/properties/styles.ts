@@ -1,7 +1,8 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { SortItem } from '@erxes/ui/src/styles/sort';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { SortItem } from '@erxes/ui/src/styles/sort';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 

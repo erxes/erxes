@@ -19,6 +19,7 @@ export const loadCustomPlugin = core.loadCustomPlugin;
 export const renderFullName = core.renderFullName;
 export const renderUserFullName = core.renderUserFullName;
 export const setTitle = core.setTitle;
+export const cleanHtml = core.cleanHtml;
 export const setBadge = core.setBadge;
 export const reorder = core.reorder;
 export const generateRandomColorCode = core.generateRandomColorCode;

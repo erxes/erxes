@@ -13,6 +13,8 @@ import React from 'react';
 import T from 'i18n-react';
 import Tip from '../components/Tip';
 import dayjs from 'dayjs';
+import juice from 'juice';
+import sanitizeHtml from 'sanitize-html';
 import urlParser from './urlParser';
 
 export { urlParser, router };
@@ -211,6 +213,31 @@ export const union = (array1: any[], array2: any[]) => {
 // Similar to without, but returns the values from array that are not present in the other arrays.
 export const difference = (array1: any[], array2: any[]) => {
   return array1.filter(n => !array2.includes(n));
+};
+
+export const cleanHtml = (content: string) => {
+  // all style inlined
+  const inlineStyledContent = juice(content);
+
+  return sanitizeHtml(inlineStyledContent, {
+    allowedTags: false,
+    allowedAttributes: false,
+    transformTags: {
+      html: 'div',
+      body: 'div'
+    },
+
+    // remove some unusual tags
+    exclusiveFilter: n => {
+      return (
+        n.tag === 'meta' ||
+        n.tag === 'head' ||
+        n.tag === 'style' ||
+        n.tag === 'base' ||
+        n.tag === 'script'
+      );
+    }
+  });
 };
 
 export const can = (actionName: string, currentUser: IUser): boolean => {

@@ -24,7 +24,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { Row } from '@erxes/ui-settings/src/styles';
 import Select from 'react-select-plus';
 import SelectCompanies from '@erxes/ui-contacts/src/companies/containers/SelectCompanies';
 import Uploader from '@erxes/ui/src/components/Uploader';

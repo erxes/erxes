@@ -1,5 +1,6 @@
 import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
 import { __, renderFullName } from 'coreui/utils';
+import { isEnabled, loadCustomPlugin } from '@erxes/ui/src/utils/core';
 
 import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
 import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
@@ -11,14 +12,12 @@ import Icon from '@erxes/ui/src/components/Icon';
 import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
 import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import LeftSidebar from './LeftSidebar';
-import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import RightSidebar from './RightSidebar';
 import { TabTitle } from '@erxes/ui/src/components/tabs';
 import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   customer: ICustomer;
@@ -45,11 +44,11 @@ class CustomerDetails extends React.Component<Props> {
 
     const content = props => (
       <MailBox>
-        <MailForm
-          fromEmail={customer.primaryEmail}
-          refetchQueries={['activityLogsCustomer']}
-          closeModal={props.closeModal}
-        />
+        {loadCustomPlugin('inbox', 'mailForm', {
+          fromEmail: customer.primaryEmail,
+          refetchQueries: ['activityLogsCustomer'],
+          closeModal: props.closeModal
+        })}
       </MailBox>
     );
 

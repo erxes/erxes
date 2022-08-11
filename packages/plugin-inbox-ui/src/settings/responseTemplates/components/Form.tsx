@@ -7,7 +7,7 @@ import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { IFormProps } from '@erxes/ui/src/types';
 import { IResponseTemplate } from '../types';
 import React from 'react';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectBrand from '../../integrations/containers/SelectBrand';
 
 type Props = {
   object?: IResponseTemplate;

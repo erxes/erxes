@@ -11,7 +11,7 @@ import { __, router } from 'coreui/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { FilterContainer } from '@erxes/ui-settings/src/styles';
-import Form from '@erxes/ui-inbox/src/settings/responseTemplates/components/Form';
+import Form from './Form';
 import { FormControl } from '@erxes/ui/src/components/form';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { ICommonListProps } from '@erxes/ui-settings/src/common/types';

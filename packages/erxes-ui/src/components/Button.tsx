@@ -1,10 +1,11 @@
-import { __ } from '../utils/core';
-import React from 'react';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
 import { darken, lighten } from '../styles/ecolor';
+import styled, { css } from 'styled-components';
+
 import Icon from './Icon';
+import React from 'react';
+import { __ } from '../utils/core';
+import { colors } from '../styles';
+import styledTS from 'styled-components-ts';
 
 const types = {
   default: {

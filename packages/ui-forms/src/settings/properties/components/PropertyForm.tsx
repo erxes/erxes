@@ -20,7 +20,7 @@ import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import ObjectListConfigs from './ObjectListConfigs';
 import PropertyGroupForm from '../containers/PropertyGroupForm';
 import React from 'react';
-import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { Row } from '@erxes/ui-settings/src/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { __ } from '@erxes/ui/src/utils/core';
 
