@@ -74,7 +74,8 @@ const orderMutations = {
       const order = await models.Orders.createOrder({
         ...doc,
         ...orderDoc,
-        totalAmount: preparedDoc.totalAmount
+        totalAmount: preparedDoc.totalAmount,
+        posToken: config.token
       });
 
       for (const item of preparedDoc.items) {
@@ -118,7 +119,8 @@ const orderMutations = {
       totalAmount: getTotalAmount(preparedDoc.items),
       billType: doc.billType || BILL_TYPES.CITIZEN,
       registerNumber: doc.registerNumber || '',
-      slotCode: doc.slotCode
+      slotCode: doc.slotCode,
+      posToken: config.token
     });
 
     return updatedOrder;

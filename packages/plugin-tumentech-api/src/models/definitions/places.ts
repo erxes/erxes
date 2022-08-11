@@ -1,4 +1,3 @@
-import { ILocationOption } from '@erxes/ui/src/types';
 import { Document, Schema } from 'mongoose';
 
 import { field, schemaHooksWrapper } from './utils';
@@ -7,7 +6,7 @@ export interface IPlace {
   name: string;
   code: string;
   province: string;
-  center: ILocationOption;
+  center: any;
 }
 
 export interface IPlaceDocument extends IPlace, Document {

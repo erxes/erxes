@@ -1,9 +1,11 @@
-import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { __, isEnabled } from '@erxes/ui/src/utils/core';
 import * as path from 'path';
+
+import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src';
+import { __, isEnabled } from '@erxes/ui/src/utils/core';
+
+import { IDeal } from '@erxes/ui-cards/src/deals/types';
 import React from 'react';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
 const CompanySection = asyncComponent(
   () =>
