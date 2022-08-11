@@ -18,7 +18,10 @@ const webbuilderQueries = {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    return paginate(models.Pages.find(filter), { page, perPage });
+    return paginate(models.Pages.find(filter).sort({ name: 1 }), {
+      page,
+      perPage
+    });
   },
 
   webbuilderPagesTotalCount(_root, _args, { models }: IContext) {
@@ -30,7 +33,10 @@ const webbuilderQueries = {
   },
 
   webbuilderContentTypes(_root, args, { models }: IContext) {
-    return paginate(models.ContentTypes.find({}), args);
+    return paginate(
+      models.ContentTypes.find({}).sort({ displayName: 1 }),
+      args
+    );
   },
 
   webbuilderContentTypesTotalCount(_root, _args, { models }: IContext) {
@@ -86,7 +92,7 @@ const webbuilderQueries = {
   },
 
   webbuilderSites(_root, args, { models }: IContext) {
-    return paginate(models.Sites.find({}).lean(), args);
+    return paginate(models.Sites.find({}).sort({ name: 1 }), args);
   },
 
   webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
