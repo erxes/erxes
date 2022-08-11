@@ -113,7 +113,7 @@ class Segments extends React.Component<Props> {
   render() {
     const { segments, loading } = this.props;
     const extraButtons = this.renderQuickBtns();
-    console.log('SEGMENT FILTER');
+
     return (
       <Box
         title={__('Filter by segments')}
