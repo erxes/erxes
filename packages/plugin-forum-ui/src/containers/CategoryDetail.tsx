@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import gql from 'graphql-tag';
 import { useQuery, useMutation } from 'react-apollo';
 import Form from '../components/Form';
+import { allCategoryQueries } from '../graphql/queries';
 
 const CATEGORY = gql`
   query ForumCategoryDetail($id: ID!) {
@@ -66,7 +67,7 @@ export default function CategoryDetail() {
       console.error(e);
       alert(JSON.stringify(e, null, 2));
     },
-    refetchQueries: ['ForumCategoriesByParentIds', 'ForumCategoryDetail']
+    refetchQueries: allCategoryQueries
   });
 
   const [addSubCategory] = useMutation(CREATE_CATEGORY, {
@@ -74,7 +75,7 @@ export default function CategoryDetail() {
       console.error(e);
       alert(JSON.stringify(e, null, 2));
     },
-    refetchQueries: ['ForumCategoriesByParentIds']
+    refetchQueries: allCategoryQueries
   });
 
   if (loading) return null;

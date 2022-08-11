@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import CategorySelect from './CategorySelect';
+import CategoryParentSelect from './CategoryParentSelect';
 
 const CategoryDelete: React.FC<{ _id: string }> = ({ _id }) => {
   const [adopterCategoryId, setAdopterCategoryId] = useState('');
@@ -21,9 +21,9 @@ const CategoryDelete: React.FC<{ _id: string }> = ({ _id }) => {
       <form>
         <label>
           Transfer subdirectories and posts to:
-          <CategorySelect
+          <CategoryParentSelect
             value={adopterCategoryId}
-            except={_id}
+            parentFor={_id}
             onChange={setAdopterCategoryId}
           />
         </label>

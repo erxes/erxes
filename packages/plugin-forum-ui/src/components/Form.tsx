@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import CategorySelect from '../containers/CategorySelect';
+import CategoryParentSelect from '../containers/CategoryParentSelect';
 
 type Props = {
   category?: {
@@ -55,9 +55,9 @@ const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
       {!noParent && (
         <label>
           Parent category:
-          <CategorySelect
+          <CategoryParentSelect
             value={parentId}
-            except={category ? category?._id : undefined}
+            parentFor={category?._id}
             onChange={setParentId}
           />
         </label>

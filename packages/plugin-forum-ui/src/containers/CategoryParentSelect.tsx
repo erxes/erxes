@@ -2,36 +2,37 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 
-const ALL_CATEGORIES = gql`
-  query ForumCategoriesAll {
-    forumCategories {
+const POSSIBLE_PARENTS = gql`
+  query ForumCategoryPossibleParents($id: ID) {
+    forumCategoryPossibleParents(_id: $id) {
       _id
-      code
       name
     }
   }
 `;
 
-const CategorySelect: React.FC<{
+const CategoryParentSelect: React.FC<{
   value: string;
-  except?: string;
+  parentFor?: string;
   onChange: (any) => any;
-}> = ({ value, except, onChange }) => {
-  const { data, loading, error } = useQuery(ALL_CATEGORIES);
+}> = ({ value, parentFor, onChange }) => {
+  const { data, loading, error } = useQuery(POSSIBLE_PARENTS, {
+    variables: {
+      id: parentFor
+    }
+  });
 
   if (loading) return null;
   if (error) <pre>{JSON.stringify(data, null, 2)}</pre>;
 
-  const possibleParents = !except
-    ? data.forumCategories
-    : data.forumCategories.filter(c => except !== c._id);
+  const { forumCategoryPossibleParents } = data;
 
   return (
     <select value={value} onChange={e => onChange && onChange(e.target.value)}>
       <option key="null" value="">
         No parent (root category)
       </option>
-      {possibleParents.map(p => (
+      {forumCategoryPossibleParents.map(p => (
         <option key={p._id} value={p._id}>
           {p.name}
         </option>
@@ -40,4 +41,4 @@ const CategorySelect: React.FC<{
   );
 };
 
-export default CategorySelect;
+export default CategoryParentSelect;

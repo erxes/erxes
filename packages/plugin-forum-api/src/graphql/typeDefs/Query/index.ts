@@ -4,7 +4,7 @@ const Query = `
     forumCategory(_id: ID!): ForumCategory
     forumCategories(_id: [ID!], parentId: [ID], code: [String!]): [ForumCategory!]
     forumCategoryQuery(query: JSON!): [ForumCategory!]
-    forumCategoryPossibleParents(_id: ID!): [ForumCategory!]
+    forumCategoryPossibleParents(_id: ID): [ForumCategory!]
 
     forumPost(_id: ID!): ForumPost
     forumPosts(_id: [ID!], categoryId: [ID!], state: [String!], offset: Int, limit: Int, categoryIncludeDescendants: Boolean): [ForumPost!]
