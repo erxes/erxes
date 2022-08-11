@@ -26,7 +26,7 @@ const ActivityLogs = asyncComponent(
   () =>
     isEnabled('logs') &&
     import(
-      /* webpackChunkName: "ActivityLogs" */ '@@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
+      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
     )
 );
 
