@@ -13,7 +13,7 @@ function Sidebar({
   queryParams: any;
 }) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       <CategoryList queryParams={queryParams} history={history} />
     </Wrapper.Sidebar>
   );

@@ -1,9 +1,17 @@
 import {
-  __, Button, DataWithLoader, Icon, MainStyleTopHeader as TopHeader, ModalTrigger, router,
-  Sidebar, Tip, Wrapper
+  __,
+  Button,
+  DataWithLoader,
+  Icon,
+  ModalTrigger,
+  router,
+  Sidebar,
+  Tip,
+  Wrapper
 } from '@erxes/ui/src';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Header } from '@erxes/ui-settings/src/styles';
 
 import CategoryForm from '../../containers/carCategory/CategoryForm';
 import { ActionButtons, SidebarListItem } from '../../styles';
@@ -90,10 +98,10 @@ class List extends React.Component<IProps> {
       const name = category.isRoot ? (
         `${category.name} (${category.carCount})`
       ) : (
-          <span>
-            {category.name} ({category.carCount})
-          </span>
-        );
+        <span>
+          {category.name} ({category.carCount})
+        </span>
+      );
 
       result.push(
         <SidebarListItem
@@ -129,7 +137,7 @@ class List extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <Header>{this.renderFormTrigger(trigger)}</Header>
         <Section.Title>
           {__('Categories')}
           <Section.QuickButtons>
@@ -163,10 +171,11 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder>
         <Section
           maxHeight={188}
           collapsible={this.props.carCategoriesCount > 9}
+          noShadow
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
