@@ -25,7 +25,7 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ): Promise<CategoryDocument>;
   deleteCategory(
     _id: string,
-    adopterCategoryId?: string
+    adopterCategoryId: string | null
   ): Promise<CategoryDocument>;
   getDescendantsOf(_id: string[]): Promise<ICategory[]>;
   getAncestorsOf(_id: string): Promise<ICategory[]>;
@@ -93,7 +93,7 @@ export const generateCategoryModel = (
 
     public static async deleteCategory(
       _id: string,
-      adopterCategoryId?: string
+      adopterCategoryId: string | null = null
     ): Promise<CategoryDocument> {
       const cat = await models.Category.findByIdOrThrow(_id);
 
@@ -101,16 +101,6 @@ export const generateCategoryModel = (
       session.startTransaction();
 
       try {
-        const childrenCount = await models.Category.countDocuments({
-          parentId: _id
-        });
-
-        if (childrenCount > 0 && !adopterCategoryId) {
-          throw new Error(
-            `Cannot delete a category that has existing subcategories without specifying a different category to transfer its existing subcategories`
-          );
-        }
-
         const postsCount = await models.Post.countDocuments({
           categoryId: _id
         });

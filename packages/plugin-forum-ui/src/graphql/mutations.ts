@@ -37,3 +37,11 @@ export const CREATE_CATEGORY = gql`
     }
   }
 `;
+
+export const DELETE_CATEGORY = gql`
+  mutation ForumDeleteCategory($id: ID!, $adopterCategoryId: ID) {
+    forumDeleteCategory(_id: $id, adopterCategoryId: $adopterCategoryId) {
+      _id
+    }
+  }
+`;

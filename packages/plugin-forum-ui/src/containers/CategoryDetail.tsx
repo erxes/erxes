@@ -4,6 +4,7 @@ import { useQuery, useMutation } from 'react-apollo';
 import Form from '../components/Form';
 import { allCategoryQueries, CATEGORY_DETAIL } from '../graphql/queries';
 import { UPDATE_CATEGORY, CREATE_CATEGORY } from '../graphql/mutations';
+import CategoryDelete from './CategoryDelete';
 
 export default function CategoryDetail() {
   const { categoryId } = useParams();
@@ -54,19 +55,33 @@ export default function CategoryDetail() {
   return (
     <div>
       <pre>{JSON.stringify(data.forumCategory, null, 2)}</pre>
-      <h2>Edit</h2>
-      <Form
-        key={data.forumCategory._id}
-        category={data.forumCategory}
-        onSubmit={onSubmitUpdate}
-      />
 
-      <h2>Add subcategory</h2>
-      <Form
-        key={'addsub' + data.forumCategory._id}
-        onSubmit={onAddSubCategory}
-        noParent
-      />
+      <div style={{ border: '1px solid #e0e0e0', padding: 20 }}>
+        <h4>Edit</h4>
+        <Form
+          key={data.forumCategory._id}
+          category={data.forumCategory}
+          onSubmit={onSubmitUpdate}
+        />
+
+        <hr />
+
+        <h4>Add subcategory</h4>
+        <Form
+          key={'addsub' + data.forumCategory._id}
+          onSubmit={onAddSubCategory}
+          noParent
+        />
+      </div>
+
+      <h2 style={{ color: 'red' }}>Danger zone</h2>
+      <div style={{ border: '1px solid red ' }}>
+        <h4>Delete</h4>
+        <CategoryDelete
+          key={'delete' + forumCategory._id}
+          _id={forumCategory._id}
+        />
+      </div>
     </div>
   );
 }

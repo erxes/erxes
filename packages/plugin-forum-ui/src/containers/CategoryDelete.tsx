@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
 import CategoryParentSelect from './CategoryParentSelect';
+import { useMutation } from 'react-apollo';
+import { DELETE_CATEGORY } from '../graphql/mutations';
+import { useHistory } from 'react-router-dom';
+import { allCategoryQueries } from '../graphql/queries';
 
 const CategoryDelete: React.FC<{ _id: string }> = ({ _id }) => {
   const [adopterCategoryId, setAdopterCategoryId] = useState('');
 
-  const onDelete = () => {
-    if (!adopterCategoryId) {
-      return alert(
-        'Please choose category to transfer all of its subcategories and posts'
-      );
-    }
+  const history = useHistory();
 
+  const [deleteCategoryMutation] = useMutation(DELETE_CATEGORY, {
+    onError: e => alert(JSON.stringify(e, null, 2)),
+    refetchQueries: allCategoryQueries
+  });
+
+  const onDelete = async () => {
     if (!confirm('Are you sure you want to delete this category?')) return;
+
+    try {
+      await deleteCategoryMutation({
+        variables: { id: _id, adopterCategoryId: adopterCategoryId || null },
+        refetchQueries: allCategoryQueries
+      });
+      history.push(`./${adopterCategoryId}`);
+    } catch (e) {}
 
     console.log({ _id, adopterCategoryId });
   };
@@ -27,10 +40,10 @@ const CategoryDelete: React.FC<{ _id: string }> = ({ _id }) => {
             onChange={setAdopterCategoryId}
           />
         </label>
+        <button type="button" onClick={onDelete}>
+          Delete
+        </button>
       </form>
-      <button type="button" onClick={onDelete}>
-        Delete
-      </button>
     </div>
   );
 };

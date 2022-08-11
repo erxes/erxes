@@ -17,7 +17,7 @@ export default function CategoryNavItem({ category }) {
 
   return (
     <div style={{ border: '1px solid #e0e0e0', padding: 10, margin: 5 }}>
-      <Link to={`${url}/${category._id}`}>
+      <Link to={`./${category._id}`}>
         {category.thumbnail && (
           <img
             src={category.thumbnail}
