@@ -68,6 +68,7 @@ export interface IConfig {
   catProdMappings?: ICatProd[];
   initialCategoryIds?: string[];
   kioskExcludeProductIds?: string[];
+  deliveryConfig?: any;
   posId: string;
 }
 
@@ -146,6 +147,9 @@ export const configSchema = new Schema({
   kioskExcludeProductIds: field({
     type: [String],
     label: 'kiosk Exclude Products'
+  }),
+  deliveryConfig: field({
+    type: Object
   }),
   posId: field({ type: String, label: 'Pos id' })
 });

@@ -127,7 +127,9 @@ const mutations = {
       });
     }
 
-    await models.PosSlots.bulkWrite(bulkOps);
+    if (bulkOps && bulkOps.length) {
+      await models.PosSlots.bulkWrite(bulkOps);
+    }
 
     await models.PosSlots.insertMany(slots.filter(s => !s._id));
 
