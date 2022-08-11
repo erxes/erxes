@@ -21,11 +21,14 @@ const entryReplacer = async (
     });
 
     for (const entry of entries) {
-      let entryHtml = p.html.replace('{{entry._id}}', entry._id);
+      let entryHtml = p.html.replace(/{{entry._id}}/g, entry._id);
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
-        entryHtml = entryHtml.replace(`{{entry.${fieldCode}}}`, value);
+
+        const target = `{{entry.${fieldCode}}}`;
+
+        entryHtml = entryHtml.replace(new RegExp(target, 'g'), value);
       }
 
       subHtml += entryHtml + `<style>${p.css}</style>`;
@@ -53,7 +56,10 @@ const pageReplacer = async (
     const holder = `{{${p.name}}}`;
 
     if (html.includes(holder)) {
-      html = html.replace(holder, await entryReplacer(models, siteId, p));
+      html = html.replace(
+        new RegExp(holder, 'g'),
+        await entryReplacer(models, siteId, p)
+      );
     }
   }
 
