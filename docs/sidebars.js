@@ -48,16 +48,6 @@ module.exports = {
           ]
         },
         'developer/webhook',
-        {
-          'GraphQL API': [
-            'developer/graphql-api',
-            {
-              type: 'link',
-              label: 'GraphQL API references',
-              href: 'pathname:///developers/docs/references'
-            }
-          ]
-        },
         'developer/push-notifications',
         'developer/script-install'
       ]
@@ -102,12 +92,13 @@ module.exports = {
       type: 'category',
       label: 'API Reference',
       items: [
-        'api/queries',
-        'api/mutations',
+        'api/introduction',
         'api/objects',
-        'api/enums',
         'api/inputObjects',
-        'api/scalars'
+        'api/enums',
+        'api/scalars',
+        'api/queries',
+        'api/mutations'
       ]
     }
   ],

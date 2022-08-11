@@ -42,11 +42,6 @@ module.exports = {
           position: 'left'
         },
         {
-          to: 'pathname:///developers/docs/references',
-          label: 'API reference',
-          position: 'left'
-        },
-        {
           href: 'https://github.com/erxes/erxes',
           position: 'right',
           label: 'Star',
