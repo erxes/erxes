@@ -23,7 +23,7 @@ const CategoryDelete: React.FC<{ _id: string }> = ({ _id }) => {
         variables: { id: _id, adopterCategoryId: adopterCategoryId || null },
         refetchQueries: allCategoryQueries
       });
-      history.push(`./${adopterCategoryId}`);
+      history.push(`/forums/categories/${adopterCategoryId}`);
     } catch (e) {}
 
     console.log({ _id, adopterCategoryId });

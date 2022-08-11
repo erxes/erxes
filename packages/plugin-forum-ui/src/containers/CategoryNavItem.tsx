@@ -17,7 +17,7 @@ export default function CategoryNavItem({ category }) {
 
   return (
     <div style={{ padding: 0, margin: 0 }}>
-      <Link to={`./${category._id}`}>
+      <Link to={`/forums/categories/${category._id}`}>
         {category.thumbnail && (
           <img
             src={category.thumbnail}

@@ -23,7 +23,7 @@ const CategoryNew: React.FC = () => {
         variables: v
       });
 
-      history.push(`./${_id}`);
+      history.push(`/forums/categories/${_id}`);
     } catch (e) {
       alert(e.message);
     }

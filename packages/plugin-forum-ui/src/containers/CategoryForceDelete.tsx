@@ -10,7 +10,7 @@ const CategoryForceDelete: React.FC<{ _id: string }> = ({ _id }) => {
   const [mutation] = useMutation(FORCE_DELETE_CATEGORY, {
     variables: { id: _id },
     onError: e => alert(JSON.stringify(e, null, 2)),
-    onCompleted: () => history.push('./'),
+    onCompleted: () => history.push('/forums/categories'),
     refetchQueries: allCategoryQueries
   });
 
