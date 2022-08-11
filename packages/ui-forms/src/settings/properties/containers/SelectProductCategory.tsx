@@ -1,5 +1,4 @@
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { IFormProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
