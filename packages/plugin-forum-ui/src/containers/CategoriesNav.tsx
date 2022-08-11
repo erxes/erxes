@@ -16,7 +16,7 @@ export default function CategoriesNav() {
 
   return (
     <nav>
-      <ul>
+      <ul style={{ listStyle: 'none' }}>
         {forumCategories.map(category => (
           <li key={category._id}>
             <CategoryNavItem category={category} />

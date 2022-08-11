@@ -11,7 +11,7 @@ function Layout() {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr' }}>
-      <ul>
+      <ul style={{ listStyle: 'none' }}>
         <li>
           <Link to={`${url}/categories`}>Categories</Link>
         </li>
