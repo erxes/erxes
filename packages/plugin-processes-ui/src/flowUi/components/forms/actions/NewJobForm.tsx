@@ -91,7 +91,7 @@ class Delay extends React.Component<Props, State> {
     const space = '\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0';
 
     return products.map(product => {
-      const name = product.product.name;
+      const name = product.product ? product.product.name : '';
 
       let matchResult: any[] | boolean | undefined =
         matchProducts && matchProducts.length > 0
@@ -127,14 +127,13 @@ class Delay extends React.Component<Props, State> {
       for (const before of beforeFlowJobs) {
         const jobRefer = jobRefers.find(job => job._id === before.jobReferId);
         const resultProducts = jobRefer.resultProducts || [];
-        const productNames = resultProducts.map(e => e.product.name);
+
+        const productNames = resultProducts.map(e =>
+          e.product ? e.product.name : ''
+        );
 
         beforeResultProducts = beforeResultProducts.concat(productNames);
       }
-    }
-
-    if (type === 'cur') {
-      console.log('current last product:', this.props.lastFlowJob);
     }
 
     return chosenFlowJobs.map(flowJob => {

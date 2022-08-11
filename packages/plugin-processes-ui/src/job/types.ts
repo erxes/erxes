@@ -48,10 +48,10 @@ export interface IJobRefer {
 export interface IProductsData {
   _id: string;
   productId: string;
-  product: any;
+  product?: any;
   quantity: number;
   uomId: string;
-  uom: any;
+  uom?: any;
   branchId?: string;
   departmentId?: string;
 }
