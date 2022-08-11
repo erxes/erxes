@@ -48,6 +48,17 @@ module.exports = {
           ]
         },
         'developer/webhook',
+        {
+          'GraphQL API': [
+            'api/introduction',
+            'api/objects',
+            'api/inputObjects',
+            'api/enums',
+            'api/scalars',
+            'api/queries',
+            'api/mutations'
+          ]
+        },
         'developer/push-notifications',
         'developer/script-install'
       ]
@@ -87,19 +98,6 @@ module.exports = {
       type: 'category',
       label: 'Erxes XOS user guide',
       items: ['development/erxes-xos-user-guide']
-    },
-    {
-      type: 'category',
-      label: 'API Reference',
-      items: [
-        'api/introduction',
-        'api/objects',
-        'api/inputObjects',
-        'api/enums',
-        'api/scalars',
-        'api/queries',
-        'api/mutations'
-      ]
     }
   ],
   components: [
