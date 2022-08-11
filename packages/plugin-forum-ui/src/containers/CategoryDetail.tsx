@@ -55,13 +55,35 @@ export default function CategoryDetail() {
 
   return (
     <div>
-      <pre>{JSON.stringify(data.forumCategory, null, 2)}</pre>
+      <div
+        style={{
+          border: '1px solid #e0e0e0',
+          padding: 20,
+          display: 'flex',
+          justifyContent: 'space-around'
+        }}
+      >
+        <div>
+          <h3>Code</h3>
+          <p>{forumCategory.code || 'N/A'}</p>
+        </div>
+        <div>
+          <h3>Name</h3>
+          <p>{forumCategory.name}</p>
+        </div>
+        <div>
+          <h3>Thumbnail</h3>
+          <p>
+            <img src={forumCategory.thumbnail} />
+          </p>
+        </div>
+      </div>
 
       <div style={{ border: '1px solid #e0e0e0', padding: 20 }}>
         <h4>Edit</h4>
         <Form
-          key={data.forumCategory._id}
-          category={data.forumCategory}
+          key={forumCategory._id}
+          category={forumCategory}
           onSubmit={onSubmitUpdate}
         />
 
@@ -69,21 +91,27 @@ export default function CategoryDetail() {
 
         <h4>Add subcategory</h4>
         <Form
-          key={'addsub' + data.forumCategory._id}
+          key={'addsub' + forumCategory._id}
           onSubmit={onAddSubCategory}
           noParent
         />
       </div>
 
       <h2 style={{ color: 'red' }}>Danger zone</h2>
-      <div style={{ border: '1px solid red ' }}>
+      <div style={{ border: '1px solid red', padding: 20 }}>
         <h4>Delete</h4>
         <CategoryDelete
           key={'delete' + forumCategory._id}
           _id={forumCategory._id}
         />
 
+        <hr />
+
         <h4>Force delete</h4>
+        <p>
+          This will delete all descendant categories, their posts and their
+          comments
+        </p>
         <CategoryForceDelete _id={forumCategory._id} />
       </div>
     </div>

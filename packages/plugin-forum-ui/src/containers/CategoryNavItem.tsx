@@ -16,7 +16,7 @@ export default function CategoryNavItem({ category }) {
   const subCategories = data.forumCategories || [];
 
   return (
-    <div style={{ border: '1px solid #e0e0e0', padding: 10, margin: 5 }}>
+    <div style={{ padding: 0, margin: 0 }}>
       <Link to={`./${category._id}`}>
         {category.thumbnail && (
           <img
@@ -29,13 +29,13 @@ export default function CategoryNavItem({ category }) {
         {category.name}
       </Link>
 
-      <ul style={{ listStyle: 'none', padding: 5, marginLeft: 20 }}>
+      <ol style={{ listStyle: 'none', padding: '0 0 0 3em', margin: 0 }}>
         {subCategories.map(c => (
-          <li key={c._id}>
+          <li key={c._id} style={{ margin: '5px 0' }}>
             <CategoryNavItem category={c} />
           </li>
         ))}
-      </ul>
+      </ol>
     </div>
   );
 }

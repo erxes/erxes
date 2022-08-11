@@ -10,7 +10,13 @@ function Layout() {
   const { path, url } = useRouteMatch();
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr' }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'fit-content(20%) 1fr',
+        overflow: 'scroll'
+      }}
+    >
       <ul style={{ listStyle: 'none' }}>
         <li>
           <Link to={`${url}/categories`}>Categories</Link>

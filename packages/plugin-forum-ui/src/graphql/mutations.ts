@@ -53,3 +53,15 @@ export const FORCE_DELETE_CATEGORY = gql`
     }
   }
 `;
+
+export const CREATE_ROOT_CATEGORY = gql`
+  mutation ForumCreateRootCategory(
+    $name: String!
+    $code: String
+    $thumbnail: String
+  ) {
+    forumCreateCategory(name: $name, code: $code, thumbnail: $thumbnail) {
+      _id
+    }
+  }
+`;

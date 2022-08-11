@@ -64,7 +64,7 @@ const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
       )}
 
       <label>
-        Thumbnail url:{' '}
+        Thumbnail url:
         <input
           type="text"
           value={thumbnail}
