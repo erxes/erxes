@@ -55,7 +55,7 @@ export const queries = `
     trips(status: String, driverId: String, dealId: String, page: Int, perPage: Int): TripListResponse
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
-    matchingDealsForTrip(_id: String!): [Deal]
+    matchingDeals(routeId:String, carId: String): [Deal]
 `;
 
 const params = `

@@ -55,8 +55,21 @@ const CarCategory = {
 };
 
 const Participant = {
-  trip(participant: IParticipantDocument, {}, { models }: IContext) {
-    return models.Trips.findOne({ _id: participant.tripId });
+  car(participant: IParticipantDocument, {}, { models }: IContext) {
+    return models.Cars.findOne({ _id: participant.carId });
+  },
+
+  route(participant: IParticipantDocument, {}, { models }: IContext) {
+    return models.Routes.findOne({ _id: participant.routeId });
+  },
+
+  driver(participant: IParticipantDocument) {
+    return (
+      participant.driverId && {
+        __typename: 'Customer',
+        _id: participant.driverId
+      }
+    );
   },
 
   deal(participant: IParticipantDocument) {

@@ -2,13 +2,13 @@ import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import { ITripEdit } from '../graphql/resolvers/mutations/trips';
-import { sendCardsMessage } from '../messageBroker';
 import {
   ITrackingItem,
   ITrip,
   ITripDocument,
   tripSchema
 } from './definitions/trips';
+import { filterDeals, filterDealsByCar, filterDealsByRoute } from './utils';
 
 export interface ITripModel extends Model<ITripDocument> {
   getTrip(doc: any): ITripDocument;
@@ -16,7 +16,7 @@ export interface ITripModel extends Model<ITripDocument> {
   updateTrip(doc: ITripEdit): ITripDocument;
   updateTracking(_id: string, trackingData: ITrackingItem[]): ITripDocument;
   removeTrip(_id: string): ITripDocument;
-  matchWithDeals(_id: string, subdomain: string): any[];
+  matchWithDeals(subdomain: string, carId?: string, routeId?: string): any[];
 }
 
 export const loadTripClass = (models: IModels) => {
@@ -37,10 +37,6 @@ export const loadTripClass = (models: IModels) => {
 
     public static async updateTrip(doc: ITripEdit) {
       const route = await models.Trips.getTrip({ _id: doc._id });
-
-      // const searchText = models.Trips.fillSearchText(
-      //   Object.assign(route, doc)
-      // );
 
       await models.Trips.updateOne({ _id: doc._id }, { $set: { ...doc } });
 
@@ -75,38 +71,26 @@ export const loadTripClass = (models: IModels) => {
       return models.Trips.findOne({ _id });
     }
 
-    public static async matchWithDeals(_id: string, subdomain: string) {
-      const trip = await models.Trips.findOne({ _id });
-
-      if (!trip) {
-        throw new Error('trip not found');
+    public static async matchWithDeals(
+      subdomain: string,
+      carId?: string,
+      routeId?: string
+    ) {
+      if (!carId && !routeId) {
+        throw new Error('carId or routeId is required');
       }
 
-      const dirs = await models.Routes.findOne({ _id: trip.routeId }).distinct(
-        'directionIds'
-      );
+      if (carId && routeId) {
+        return filterDeals(models, subdomain, carId, routeId);
+      }
 
-      const placeIds = await models.Directions.find({
-        _id: { $in: dirs }
-      }).distinct('placeIds');
+      if (routeId) {
+        return filterDealsByRoute(models, subdomain, routeId);
+      }
 
-      const dealIds = await models.DealPlaces.find({
-        $or: [
-          { startPlaceId: { $in: placeIds } },
-          { endPlaceId: { $in: placeIds } }
-        ]
-      }).distinct('dealId');
-
-      const deals = await sendCardsMessage({
-        subdomain,
-        action: 'deals.find',
-        data: {
-          _id: { $in: dealIds }
-        },
-        isRPC: true
-      });
-
-      return deals || [];
+      if (carId) {
+        return filterDealsByCar(models, subdomain, carId);
+      }
     }
   }
 

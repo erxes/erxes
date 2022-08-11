@@ -51,12 +51,12 @@ const tripsQuery = {
     return models.Trips.getTrip({ _id });
   },
 
-  matchingDealsForTrip: async (
+  matchingDeals: async (
     _root,
-    { _id }: { _id: string },
+    { routeId, carId }: { routeId: string; carId: string },
     { models, subdomain }: IContext
   ) => {
-    return models.Trips.matchWithDeals(_id, subdomain);
+    return models.Trips.matchWithDeals(subdomain, carId, routeId);
   }
 };
 

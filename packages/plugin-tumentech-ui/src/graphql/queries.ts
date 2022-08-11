@@ -352,14 +352,14 @@ query participants(
   $page: Int
   $perPage: Int
   $status: String
-  $tripId: String
+  $driverId: String
 ) {
   participants(
     dealId: $dealId
     page: $page
     perPage: $perPage
     status: $status
-    tripId: $tripId
+    driverId: $driverId
   ) {
     _id
     createdAt
@@ -370,30 +370,26 @@ query participants(
     dealId
     detail
     status
-    tripId
-    trip {
+    driver {
       _id
-      route {
+      avatar
+      firstName
+      lastName
+      primaryEmail
+      primaryPhone
+    }
+    car {
+      _id
+      carModel
+      category {
+        _id
+        code
         name
       }
-      car {
-        _id
-        carModel
-        category {
-          _id
-          code
-          name
-        }
-      }
-      status
-      driver {
-        _id
-        avatar
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
+    }
+    route {
+      name
+      _id
     }
   }
 }

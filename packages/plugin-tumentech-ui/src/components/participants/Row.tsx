@@ -40,7 +40,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { participant } = this.props;
-    const { driver } = participant.trip;
+    const { driver } = participant;
     const { detail = { price: 0 } } = participant;
     const labelStyle = participant.status === 'won' ? 'success' : 'warning';
 
@@ -66,14 +66,10 @@ class Row extends React.Component<Props> {
           <strong>{renderFullName(driver)}</strong>
         </td>
         <td>
-          <TextInfo ignoreTrans={true}>
-            {carInfo(participant.trip.car)}
-          </TextInfo>
+          <TextInfo ignoreTrans={true}>{carInfo(participant.car)}</TextInfo>
         </td>
         <td>
-          <TextInfo ignoreTrans={true}>
-            {participant.trip.route.name || ''}
-          </TextInfo>
+          <TextInfo ignoreTrans={true}>{participant.route.name || ''}</TextInfo>
         </td>
         <td>
           <TextInfo ignoreTrans={true}>{detail.price}</TextInfo>

@@ -408,7 +408,9 @@ export type CountQueryResponse = {
 export interface IParticipant {
   _id: string;
   tripId: string;
-  trip: ITrip;
+  driver: ICustomer;
+  route: IRoute;
+  car: ICar;
   deal: IDeal;
   detail?: {
     price: number;
