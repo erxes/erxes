@@ -183,8 +183,6 @@ class GenerateGroup extends React.Component<Props, State> {
 
             const isLogicsFulfilled = checkLogic(logics);
 
-            console.log('isLogicsFulfilled', isLogicsFulfilled);
-
             if (field.logicAction && field.logicAction === 'show') {
               if (!isLogicsFulfilled) {
                 return null;
