@@ -10,6 +10,8 @@ const Query = `
 
     forumComments(_id: [ID!], postId: [ID!], replyToId: [ID], offset: Int, limit: Int): [ForumComment!]
     forumComment(_id: ID!): ForumComment
+
+    forumCateogryIsDescendantRelationship(ancestorId: ID!, descendantId: ID!): Boolean
   }
 `;
 

@@ -29,6 +29,10 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ): Promise<CategoryDocument>;
   getDescendantsOf(_id: string[]): Promise<ICategory[]>;
   getAncestorsOf(_id: string): Promise<ICategory[]>;
+  isDescendantRelationship(
+    ancestorId: string,
+    descendantId: string
+  ): Promise<boolean>;
 }
 
 // true, unique: true, sparse: true,
@@ -72,7 +76,15 @@ export const generateCategoryModel = (
     ): Promise<CategoryDocument> {
       const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
 
-      console.log({ patch });
+      if (patch.parentId) {
+        if (
+          await models.Category.isDescendantRelationship(_id, patch.parentId)
+        ) {
+          throw new Error(
+            `A category cannot be a subcategory of one of its own descendants`
+          );
+        }
+      }
 
       await models.Category.updateOne({ _id }, patch);
 
@@ -202,7 +214,7 @@ export const generateCategoryModel = (
       const results = await models.Category.aggregate([
         {
           $match: {
-            _id
+            _id: Types.ObjectId(_id)
           }
         },
         {
@@ -222,6 +234,17 @@ export const generateCategoryModel = (
 
       // it should contain only 1 category, since we $match-ed using its _id
       return results[0][ancestorsArrayName] || [];
+    }
+
+    public static async isDescendantRelationship(
+      ancestorId: string,
+      descendantId: string
+    ): Promise<boolean> {
+      const ancestors = await models.Category.getAncestorsOf(descendantId);
+      const isInAncestors = ancestors.some(
+        a => a._id.toString() === ancestorId
+      );
+      return isInAncestors;
     }
   }
   categorySchema.loadClass(CategoryModel);

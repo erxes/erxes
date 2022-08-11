@@ -22,6 +22,14 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
   },
   forumCategory: (_, { _id }, { models: { Category } }) => {
     return Category.findById(_id).lean();
+  },
+
+  forumCateogryIsDescendantRelationship: (
+    _,
+    { ancestorId, descendantId },
+    { models: { Category } }
+  ) => {
+    return Category.isDescendantRelationship(ancestorId, descendantId);
   }
 };
 
