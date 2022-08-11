@@ -167,7 +167,7 @@ class PageForm extends React.Component<Props, State> {
     };
 
     cmdm.add('html-edit', {
-      run: function(editr, sender) {
+      run: (editr, sender) => {
         sender && sender.set('active', 0);
         let htmlViewer = htmlCodeViewer.editor;
         let cssViewer = cssCodeViewer.editor;
@@ -199,7 +199,7 @@ class PageForm extends React.Component<Props, State> {
         }
 
         const InnerHtml = editr.getHtml();
-        const Css = editr.getCss();
+        const Css = editr.getCss({ keepUnusedStyles: true });
 
         modal.setContent('');
         modal.setContent(container);

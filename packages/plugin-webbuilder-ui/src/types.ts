@@ -65,14 +65,8 @@ export interface ISiteDoc extends ISite {
 }
 
 // query
-
-// page
-export type PagesQueryResponse = {
-  webbuilderPages: IPageDoc[];
-} & QueryResponse;
-
-export type PagesTotalCountQueryResponse = {
-  webbuilderPagesTotalCount: number;
+export type PagesMainQueryResponse = {
+  webbuilderPagesMain: { list: IPageDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type PageDetailQueryResponse = {
@@ -84,8 +78,8 @@ export type TypesQueryResponse = {
   webbuilderContentTypes: IContentTypeDoc[];
 } & QueryResponse;
 
-export type TypesTotalCountQueryResponse = {
-  webbuilderContentTypesTotalCount: number;
+export type TypesMainQueryResponse = {
+  webbuilderContentTypesMain: { list: IContentTypeDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type TypeDetailQueryResponse = {
@@ -93,12 +87,8 @@ export type TypeDetailQueryResponse = {
 } & QueryResponse;
 
 // entry
-export type EntriesQueryResponse = {
-  webbuilderEntries: IEntryDoc[];
-} & QueryResponse;
-
-export type EntriesTotalCountQueryResponse = {
-  webbuilderEntriesTotalCount: number;
+export type EntriesMainQueryResponse = {
+  webbuilderEntriesMain: { list: IEntryDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type EntryDetailQueryResponse = {

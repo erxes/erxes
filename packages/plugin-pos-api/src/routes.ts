@@ -120,6 +120,28 @@ export const getProductsData = async (
     productGroups.push({ ...group, categories });
   } // end product group for loop
 
+  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+    const deliveryProd = await sendProductsMessage({
+      subdomain,
+      action: 'findOne',
+      data: {
+        _id: pos.deliveryConfig.productId
+      },
+      isRPC: true
+    });
+    productGroups.push({
+      categories: [
+        {
+          products: [
+            {
+              ...deliveryProd
+            }
+          ]
+        }
+      ]
+    });
+  }
+
   return productGroups;
 };
 
