@@ -97,6 +97,18 @@ module.exports = {
       type: 'category',
       label: 'Erxes XOS user guide',
       items: ['development/erxes-xos-user-guide']
+    },
+    {
+      type: 'category',
+      label: 'API Reference',
+      items: [
+        'api/queries',
+        'api/mutations',
+        'api/objects',
+        'api/enums',
+        'api/inputObjects',
+        'api/scalars'
+      ]
     }
   ],
   components: [
