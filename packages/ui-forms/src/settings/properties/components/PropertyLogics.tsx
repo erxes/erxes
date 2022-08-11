@@ -7,16 +7,16 @@ import { LinkButton } from '@erxes/ui/src/styles/main';
 import { IField, IFieldLogic } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
+import { FieldsCombinedByType } from '../types';
 
-import FieldLogic from './FieldLogic';
+import PropertyLogic from './PropertyLogic';
 
 type Props = {
-  onFieldChange: (
-    name: string,
-    value: string | boolean | string[] | IFieldLogic[]
-  ) => void;
-  fields: IField[];
-  currentField: IField;
+  action: string;
+  fields: FieldsCombinedByType[];
+  logics: IFieldLogic[];
+  onActionChange: (value: string) => void;
+  onLogicsChange: (logics: IFieldLogic[]) => void;
 };
 
 const showOptions = [
@@ -25,10 +25,10 @@ const showOptions = [
 ];
 
 function FieldLogics(props: Props) {
-  const { fields, currentField, onFieldChange } = props;
+  const { fields, onLogicsChange, onActionChange } = props;
 
   const [logics, setLogics] = useState(
-    (currentField.logics || []).map(
+    (props.logics || []).map(
       ({ fieldId, tempFieldId, logicOperator, logicValue }) => {
         return {
           fieldId,
@@ -41,18 +41,16 @@ function FieldLogics(props: Props) {
   );
 
   useEffect(() => {
-    onFieldChange('logics', logics);
-  }, [logics, onFieldChange]);
+    onLogicsChange(logics);
+  }, [logics, onLogicsChange]);
 
   const [isEnabled, toggleState] = useState(
-    currentField.logics ? currentField.logics.length > 0 : false
+    props.logics ? props.logics.length > 0 : false
   );
-
-  const onChangeLogicAction = e =>
-    onFieldChange('logicAction', e.currentTarget.value);
 
   const onChangeLogic = (name, value, index) => {
     // find current editing one
+    // console.log('onChangeLogic', name ,'-', value,'-', index);
     const currentLogic = logics.find((l, i) => i === index);
 
     // set new value
@@ -61,7 +59,7 @@ function FieldLogics(props: Props) {
     }
 
     setLogics(logics);
-    onFieldChange('logics', logics);
+    onLogicsChange(logics);
   };
 
   const addLogic = () => {
@@ -78,7 +76,7 @@ function FieldLogics(props: Props) {
 
   const onEnableLogic = () => {
     toggleState(true);
-    onFieldChange('logicAction', 'show');
+    onActionChange('show');
     addLogic();
   };
 
@@ -93,16 +91,18 @@ function FieldLogics(props: Props) {
           <FormGroup>
             <FormControl
               componentClass="select"
-              defaultValue={currentField.logicAction}
+              defaultValue={props.action}
               name="logicAction"
               options={showOptions}
-              onChange={onChangeLogicAction}
+              onChange={(e: any) => {
+                onActionChange(e.currentTarget.value);
+              }}
             />
           </FormGroup>
           {logics.map((logic, index) => (
-            <FieldLogic
+            <PropertyLogic
               key={index}
-              fields={fields.filter(field => field._id !== currentField._id)}
+              fields={fields}
               logic={logic}
               onChangeLogic={onChangeLogic}
               removeLogic={removeLogic}
@@ -133,7 +133,7 @@ function FieldLogics(props: Props) {
     <>
       <Info>
         {__(
-          'Create rules to show or hide this element depending on the values of other fields'
+          'Create rules to show or hide this element depending on the values of other properties'
         )}
       </Info>
       {renderContent()}
