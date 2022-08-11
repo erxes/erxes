@@ -87,12 +87,8 @@ export type TypeDetailQueryResponse = {
 } & QueryResponse;
 
 // entry
-export type EntriesQueryResponse = {
-  webbuilderEntries: IEntryDoc[];
-} & QueryResponse;
-
-export type EntriesTotalCountQueryResponse = {
-  webbuilderEntriesTotalCount: number;
+export type EntriesMainQueryResponse = {
+  webbuilderEntriesMain: { list: IEntryDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type EntryDetailQueryResponse = {

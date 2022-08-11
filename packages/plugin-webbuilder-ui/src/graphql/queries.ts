@@ -77,19 +77,16 @@ const contentTypeDetail = `
   } 
 `;
 
-const entries = `
-  query entries($contentTypeId: String! $page: Int $perPage: Int) {
-    webbuilderEntries(contentTypeId: $contentTypeId page: $page perPage: $perPage) {
-      _id
-      contentTypeId
-      values
+const entriesMain = `
+  query entriesMain($contentTypeId: String! $page: Int $perPage: Int) {
+    webbuilderEntriesMain(contentTypeId: $contentTypeId page: $page perPage: $perPage) {
+      list {
+        _id
+        contentTypeId
+        values
+      }
+      totalCount
     } 
-  }
-`;
-
-const entriesTotalCount = `
-  query entriesTotalCount($contentTypeId: String!) {
-    webbuilderEntriesTotalCount(contentTypeId: $contentTypeId)
   }
 `;
 
@@ -152,12 +149,11 @@ export default {
   contentTypes,
   contentTypesMain,
   contentTypeDetail,
-  entries,
+  entriesMain,
   entryDetail,
   templates,
   templatesTotalCount,
   templateDetail,
-  entriesTotalCount,
   sites,
   sitesTotalCount
 };

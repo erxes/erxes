@@ -36,6 +36,11 @@ export const types = `
     values: JSON
   }
 
+  type WebbuilderEntriesList {
+    list: [WebbuilderEntry]
+    totalCount: Int
+  }
+
   type WebbuilderTemplate {
     _id: String!
     name: String
@@ -58,8 +63,7 @@ export const queries = `
   webbuilderContentTypesMain(page: Int, perPage: Int): WebbuilderContentTypesList 
   webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
 
-  webbuilderEntries(contentTypeId: String! page: Int perPage: Int): [WebbuilderEntry]
-  webbuilderEntriesTotalCount(contentTypeId: String! page: Int perPage: Int): Int
+  webbuilderEntriesMain(contentTypeId: String! page: Int perPage: Int): WebbuilderEntriesList
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
 
   webbuilderTemplates(page: Int, perPage: Int): [WebbuilderTemplate]

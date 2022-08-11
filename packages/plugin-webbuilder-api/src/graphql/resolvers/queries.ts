@@ -57,7 +57,7 @@ const webbuilderQueries = {
     return models.ContentTypes.findOne({ _id });
   },
 
-  webbuilderEntries(
+  webbuilderEntriesMain(
     _root,
     {
       contentTypeId,
@@ -66,15 +66,10 @@ const webbuilderQueries = {
     }: { contentTypeId: string; page: number; perPage: number },
     { models }: IContext
   ) {
-    return paginate(models.Entries.find({ contentTypeId }), { page, perPage });
-  },
-
-  webbuilderEntriesTotalCount(
-    _root,
-    { contentTypeId }: { contentTypeId: string },
-    { models }: IContext
-  ) {
-    return models.Entries.find({ contentTypeId }).count();
+    return {
+      list: paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
+      totalCount: models.Entries.find({ contentTypeId }).count()
+    };
   },
 
   webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {

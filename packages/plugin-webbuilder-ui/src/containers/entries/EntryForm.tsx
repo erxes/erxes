@@ -80,8 +80,7 @@ const FormContainer = (props: FinalProps) => {
 };
 
 const refetchEntryQueries = (contentTypeId: string) => [
-  { query: gql(queries.entries), variables: { contentTypeId } },
-  { query: gql(queries.entriesTotalCount), variables: { contentTypeId } }
+  { query: gql(queries.entriesMain), variables: { contentTypeId } }
 ];
 
 export default compose(
