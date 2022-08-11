@@ -138,6 +138,16 @@ const configs = `
   }
 `;
 
+const productCategories = `
+  query productCategories($status: String) {
+    productCategories(status: $status) {
+      _id
+      code
+      name
+    }
+  }
+`;
+
 export default {
   fieldsGroups,
   fieldsGetTypes,
@@ -145,5 +155,6 @@ export default {
   getSystemFieldsGroup,
   inboxFields,
   cardsFields,
-  configs
+  configs,
+  productCategories
 };
