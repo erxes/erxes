@@ -30,6 +30,12 @@ const CategoryQueries: IObjectTypeResolver<any, IContext> = {
     { models: { Category } }
   ) => {
     return Category.isDescendantRelationship(ancestorId, descendantId);
+  },
+
+  async forumCategoryPossibleParents(_, { _id }, { models: { Category } }) {
+    const descendants = await Category.getDescendantsOf([_id]);
+    const excludeIds = [_id, ...descendants.map(d => d._id)];
+    return Category.find({ _id: { $nin: excludeIds } });
   }
 };
 
