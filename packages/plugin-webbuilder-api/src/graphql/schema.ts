@@ -10,6 +10,11 @@ export const types = `
     site: WebbuilderSite
   }
 
+  type WebbuilderPagesList {
+    list: [WebbuilderPage]
+    totalCount: Int
+  }
+
   type WebbuilderContentType {
     _id: String!
     code: String!
@@ -41,8 +46,7 @@ export const types = `
 `;
 
 export const queries = `
-  webbuilderPages(page: Int, perPage: Int, searchValue: String): [WebbuilderPage]
-  webbuilderPagesTotalCount: Int
+  webbuilderPagesMain(page: Int, perPage: Int, searchValue: String): WebbuilderPagesList
   webbuilderPageDetail(_id: String!): WebbuilderPage
 
   webbuilderContentTypes(page: Int perPage: Int): [WebbuilderContentType ]

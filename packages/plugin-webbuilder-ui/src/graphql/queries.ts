@@ -8,17 +8,14 @@ const fields = `
       }
 `;
 
-const pages = `
-  query pages($page: Int, $perPage: Int, $searchValue: String) {
-    webbuilderPages(page: $page, perPage: $perPage, searchValue: $searchValue) {
-      ${fields}
+const pagesMain = `
+  query pagesMain($page: Int, $perPage: Int, $searchValue: String) {
+    webbuilderPagesMain(page: $page, perPage: $perPage, searchValue: $searchValue) {
+      list {
+        ${fields}
+      }
+      totalCount
     }
-  }
-`;
-
-const pagesTotalCount = `
-  query pagesTotalCount {
-    webbuilderPagesTotalCount
   }
 `;
 
@@ -140,8 +137,7 @@ const sitesTotalCount = `
 `;
 
 export default {
-  pages,
-  pagesTotalCount,
+  pagesMain,
   pageDetail,
   contentTypes,
   contentTypesTotalCount,

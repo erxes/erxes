@@ -3,7 +3,7 @@ import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 const webbuilderQueries = {
-  webbuilderPages(
+  webbuilderPagesMain(
     _root,
     {
       page,
@@ -18,14 +18,13 @@ const webbuilderQueries = {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    return paginate(models.Pages.find(filter).sort({ name: 1 }), {
-      page,
-      perPage
-    });
-  },
-
-  webbuilderPagesTotalCount(_root, _args, { models }: IContext) {
-    return models.Pages.find({}).count();
+    return {
+      list: paginate(models.Pages.find(filter).sort({ name: 1 }), {
+        page,
+        perPage
+      }),
+      totalCount: models.Pages.find({}).count()
+    };
   },
 
   webbuilderPageDetail(_root, { _id }, { models }: IContext) {

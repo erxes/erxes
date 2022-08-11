@@ -65,14 +65,8 @@ export interface ISiteDoc extends ISite {
 }
 
 // query
-
-// page
-export type PagesQueryResponse = {
-  webbuilderPages: IPageDoc[];
-} & QueryResponse;
-
-export type PagesTotalCountQueryResponse = {
-  webbuilderPagesTotalCount: number;
+export type PagesMainQueryResponse = {
+  webbuilderPagesMain: { list: IPageDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type PageDetailQueryResponse = {
