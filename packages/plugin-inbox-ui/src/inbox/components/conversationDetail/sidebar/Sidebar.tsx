@@ -14,8 +14,6 @@ import WebsiteActivity from '@erxes/ui-contacts/src/customers/components/common/
 import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 
 const ActionSection = asyncComponent(() =>
   import(
@@ -112,17 +110,6 @@ const ConversationDetails = asyncComponent(
     ),
   { isBox: true }
 );
-
-const ReduceLineHeight = styledTS<{ isReduced: boolean }>(styled.div)`
-  ${props =>
-    props.isReduced &&
-    `
-  line-height: 1;
-  > span {
-    padding: 11px 20px;
-  }
-  `}
-`;
 
 type IndexProps = {
   currentUser: IUser;
@@ -306,14 +293,12 @@ class Index extends React.Component<IndexProps, IndexState> {
           </BasicInfo>
           <ActionSection customer={customer} />
           <Tabs full={true}>
-            <ReduceLineHeight isReduced={isMongolian}>
-              <TabTitle
-                className={currentSubTab === 'details' ? 'active' : ''}
-                onClick={detailsOnClick}
-              >
-                {__('Details')}
-              </TabTitle>
-            </ReduceLineHeight>
+            <TabTitle
+              className={currentSubTab === 'details' ? 'active' : ''}
+              onClick={detailsOnClick}
+            >
+              {__('Details')}
+            </TabTitle>
             {isEnabled('logs') && (
               <TabTitle
                 className={currentSubTab === 'activity' ? 'active' : ''}

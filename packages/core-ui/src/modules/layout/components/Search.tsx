@@ -8,9 +8,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-const MainContainer = styledTS<{ active?: boolean; isMongolian: boolean }>(
-  styled.div
-)`
+const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
   background-color: ${props =>
     props.active ? colors.colorWhite : colors.bgMain};
   border: 1px solid ${props =>
@@ -24,12 +22,11 @@ const MainContainer = styledTS<{ active?: boolean; isMongolian: boolean }>(
   padding: 0 ${dimensions.unitSpacing}px;
   align-items: center;
   position: relative;
-  font-size: ${props => props.isMongolian && '12px'}; 
+  font-size: 12px;
 
   > span {
     color: ${colors.colorCoreGray};
-    padding-left: ${props =>
-      props.isMongolian ? 3 : dimensions.unitSpacing}px;
+    padding-left: 3px;
   }
   
   i {
@@ -380,18 +377,11 @@ class Search extends React.Component<
   };
 
   render() {
-    let isMongolian = false;
-
-    if (localStorage.getItem('currentLanguage') === 'mn') {
-      isMongolian = true;
-    }
-
     return (
       <MainContainer
         innerRef={this.setWrapperRef}
         active={this.state.showInput}
         onClick={this.openInput}
-        isMongolian={isMongolian}
       >
         {this.renderInput()}
         {this.renderResults()}
