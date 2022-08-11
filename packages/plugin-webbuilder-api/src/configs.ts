@@ -113,23 +113,13 @@ export default {
         return res.status(404).send('Entry not found');
       }
 
-      let html = page.html;
-
-      const pages = await models.Pages.find({
-        siteId: site._id,
-        name: { $ne: 'home' }
-      });
-
-      for (const p of pages) {
-        html = html.replace(
-          `{{${p.name}}}`,
-          `${p.html} <style>${p.css}</style>`
-        );
-      }
+      let html = await pageReplacer(models, page, site._id);
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
-        html = html.replace(`{{entry.${fieldCode}}}`, value);
+        const target = `{{entry.${fieldCode}}}`;
+
+        html = html.replace(new RegExp(target, 'g'), value);
       }
 
       return res.send(
