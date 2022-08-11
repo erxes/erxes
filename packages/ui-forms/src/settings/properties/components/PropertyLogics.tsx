@@ -50,7 +50,6 @@ function FieldLogics(props: Props) {
 
   const onChangeLogic = (name, value, index) => {
     // find current editing one
-    // console.log('onChangeLogic', name ,'-', value,'-', index);
     const currentLogic = logics.find((l, i) => i === index);
 
     // set new value
