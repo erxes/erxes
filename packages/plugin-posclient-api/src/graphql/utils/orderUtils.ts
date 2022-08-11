@@ -7,7 +7,8 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 import {
   DISTRICTS,
   ORDER_STATUSES,
-  BILL_TYPES
+  BILL_TYPES,
+  ORDER_TYPES
 } from '../../models/definitions/constants';
 import {
   IConfigDocument,
@@ -320,6 +321,26 @@ export const prepareOrderDoc = async (
 
         doc.totalAmount += (toAddItem.count || 0) * fixedUnitPrice;
       }
+    }
+  }
+
+  if (
+    doc.type === ORDER_TYPES.DELIVERY &&
+    config.deliveryConfig &&
+    config.deliveryConfig.productId
+  ) {
+    const deliveryProd = await models.Products.findOne({
+      _id: config.deliveryConfig.productId
+    }).lean();
+    if (deliveryProd) {
+      items.push({
+        _id: Math.random().toString(),
+        productId: deliveryProd._id,
+        count: 1,
+        unitPrice: deliveryProd.unitPrice,
+        isPackage: true,
+        isTake: true
+      });
     }
   }
 

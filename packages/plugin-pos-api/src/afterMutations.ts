@@ -28,6 +28,10 @@ const isInProduct = async (
 
   let allProductIds: string[] = [];
 
+  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+    allProductIds.push(pos.deliveryConfig.productId);
+  }
+
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
       subdomain,
