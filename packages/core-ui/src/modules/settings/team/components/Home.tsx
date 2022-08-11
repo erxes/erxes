@@ -175,6 +175,7 @@ export default function Home(props: Props) {
       hasFlex={true}
       right={righActionBar}
       left={renderFilter}
+      wideSpacing
     />
   );
 

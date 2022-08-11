@@ -9,6 +9,7 @@ type Props = {
   zIndex?: number;
   hasFlex?: boolean;
   noBorder?: boolean;
+  wideSpacing?: boolean;
 };
 
 function ActionBar({
@@ -18,13 +19,15 @@ function ActionBar({
   bottom,
   zIndex,
   hasFlex,
-  noBorder
+  noBorder,
+  wideSpacing
 }: Props) {
   return (
     <ContentHeader
       background={background || 'colorWhite'}
       noBorder={noBorder}
       zIndex={zIndex}
+      wideSpacing={wideSpacing}
     >
       <HeaderContent>
         {left && <HeaderItems hasFlex={hasFlex}>{left}</HeaderItems>}

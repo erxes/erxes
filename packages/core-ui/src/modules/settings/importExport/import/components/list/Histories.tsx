@@ -150,6 +150,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
+            wideSpacing
           />
         }
         leftSidebar={<Sidebar history={history} currentType={currentType} />}

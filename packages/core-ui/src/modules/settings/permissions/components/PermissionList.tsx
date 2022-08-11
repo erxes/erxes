@@ -217,7 +217,9 @@ class PermissionList extends React.Component<Props> {
       </NotWrappable>
     );
 
-    return <Wrapper.ActionBar left={title} right={actionBarRight} />;
+    return (
+      <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+    );
   }
 
   renderContent() {
