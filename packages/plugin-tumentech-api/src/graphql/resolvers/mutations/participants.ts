@@ -61,12 +61,20 @@ const participantMutations = {
       { $set: { status: 'won' } }
     );
 
-    // await models.Trips.updateOne(
-    //   { _id: tripId },
-    //   { $push: { dealIds: dealId } }
-    // );
+    const participant = await models.Participants.getParticipant({
+      dealId,
+      driverId
+    });
 
-    return models.Participants.getParticipant({ dealId, driverId });
+    await models.Trips.create({
+      driverId,
+      carId: participant.carId,
+      routeId: participant.routeId,
+      status: 'open',
+      dealIds: [dealId]
+    });
+
+    return participant;
   }
 };
 
