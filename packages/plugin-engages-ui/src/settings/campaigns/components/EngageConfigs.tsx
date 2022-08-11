@@ -36,6 +36,7 @@ function EngageConfigs() {
       }
       content={<EngageSettingsContent />}
       transparent={true}
+      hasBorder
     />
   );
 }

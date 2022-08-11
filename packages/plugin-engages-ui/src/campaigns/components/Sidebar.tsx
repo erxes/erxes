@@ -94,7 +94,7 @@ class Sidebar extends React.Component<Props> {
     const { tags, tagCounts } = this.props;
 
     return (
-      <Wrapper.Sidebar>
+      <Wrapper.Sidebar hasBorder>
         {this.renderKindFilter()}
         {this.renderStatusFilter()}
 

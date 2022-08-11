@@ -231,14 +231,14 @@ class LogList extends React.Component<Props, State> {
     );
   };
 
-  renderActionBar() {
+  renderFilter() {
     const { action, userId, type } = this.state;
 
     const onUserChange = user => {
       this.setFilter('userId', user);
     };
 
-    const actionBarLeft = (
+    return (
       <FilterWrapper style={{ padding: '10px 0px' }}>
         <strong>{__('Filters')}:</strong>
         {this.renderDateFilter('start')}
@@ -278,8 +278,6 @@ class LogList extends React.Component<Props, State> {
         </Button>
       </FilterWrapper>
     );
-
-    return <Wrapper.ActionBar left={actionBarLeft} />;
   }
 
   render() {
@@ -297,17 +295,20 @@ class LogList extends React.Component<Props, State> {
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Logs')} breadcrumb={breadcrumb} />}
-        actionBar={this.renderActionBar()}
         footer={<Pagination count={count} />}
         content={
-          <DataWithLoader
-            data={this.renderContent()}
-            loading={isLoading}
-            count={count}
-            emptyText={__('There are no logs recorded')}
-            emptyImage="/images/actions/21.svg"
-          />
+          <>
+            {this.renderFilter()}
+            <DataWithLoader
+              data={this.renderContent()}
+              loading={isLoading}
+              count={count}
+              emptyText={__('There are no logs recorded')}
+              emptyImage="/images/actions/21.svg"
+            />
+          </>
         }
+        hasBorder
       />
     );
   }

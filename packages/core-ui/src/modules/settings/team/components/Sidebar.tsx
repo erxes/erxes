@@ -14,7 +14,7 @@ export default function LeftSidebar({
   loadingMainQuery: boolean;
 }) {
   return (
-    <Sidebar>
+    <Sidebar hasBorder>
       <Structure />
       <DepartmentList />
       {isEnabled('segments') && (
