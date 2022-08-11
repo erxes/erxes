@@ -1,6 +1,6 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
-// forumPatchPost(_id: ID!, categoryId: ID, content: String, thumbnail: String): ForumPost
+
 const postMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreatePost(_, args, { models: { Post } }) {
     return await Post.create(args);

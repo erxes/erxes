@@ -16,6 +16,8 @@ export type InputCategoryPatch = Partial<Omit<ICategory, '_id'>>;
 
 export type CategoryDocument = ICategory & Document;
 export interface ICategoryModel extends Model<CategoryDocument> {
+  findByIdOrThrow(_id: string): Promise<CategoryDocument>;
+  forceDeleteCategory(_id: string): Promise<CategoryDocument>;
   createCategory(input: InputCategoryInsert): Promise<CategoryDocument>;
   patchCategory(
     _id: string,
@@ -23,10 +25,10 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ): Promise<CategoryDocument>;
   deleteCategory(
     _id: string,
-    tranfserChildrenToCategory?: string
-  ): Promise<void>;
-  getDescendantsOf(_id: string[]): Promise<ICategory[] | undefined | null>;
-  getAncestorsOf(_id: string): Promise<ICategory[] | undefined | null>;
+    adopterCategoryId?: string
+  ): Promise<CategoryDocument>;
+  getDescendantsOf(_id: string[]): Promise<ICategory[]>;
+  getAncestorsOf(_id: string): Promise<ICategory[]>;
 }
 
 // true, unique: true, sparse: true,
@@ -50,6 +52,15 @@ export const generateCategoryModel = (
   models: IModels
 ): void => {
   class CategoryModel {
+    public static async findByIdOrThrow(
+      _id: string
+    ): Promise<CategoryDocument> {
+      const cat = await models.Category.findById(_id);
+      if (!cat) {
+        throw new Error(`Category with \`{ "_id" : "${_id}" doesn't exist.}\``);
+      }
+      return cat;
+    }
     public static async createCategory(
       input: InputCategoryInsert
     ): Promise<CategoryDocument> {
@@ -65,59 +76,98 @@ export const generateCategoryModel = (
 
       await models.Category.updateOne({ _id }, patch);
 
-      const updated = await models.Category.findById(_id);
-
-      if (!updated) {
-        throw new Error(`Category with \`{ "_id" : "${_id}"} doesn't exist\``);
-      }
-
-      return updated;
+      return models.Category.findByIdOrThrow(_id);
     }
 
     public static async deleteCategory(
       _id: string,
-      tranfserDescendantsToCategory?: string
-    ): Promise<void> {
-      const childrenCount = await models.Category.countDocuments({
-        parentId: _id
-      });
-
-      if (childrenCount > 0 && !tranfserDescendantsToCategory) {
-        throw new Error(
-          `Cannot delete a category that has existing subcategories without specifying a different category to transfer its existing subcategories`
-        );
-      }
-
-      const postsCount = await models.Post.countDocuments({ categoryId: _id });
-
-      if (postsCount > 0 && !tranfserDescendantsToCategory) {
-        throw new Error(
-          `Cannot delete a category that has existing posts without specifying a different category to transfer its existing posts`
-        );
-      }
+      adopterCategoryId?: string
+    ): Promise<CategoryDocument> {
+      const cat = await models.Category.findByIdOrThrow(_id);
 
       const session = await con.startSession();
       session.startTransaction();
+
       try {
+        const childrenCount = await models.Category.countDocuments({
+          parentId: _id
+        });
+
+        if (childrenCount > 0 && !adopterCategoryId) {
+          throw new Error(
+            `Cannot delete a category that has existing subcategories without specifying a different category to transfer its existing subcategories`
+          );
+        }
+
+        const postsCount = await models.Post.countDocuments({
+          categoryId: _id
+        });
+
+        if (postsCount > 0 && !adopterCategoryId) {
+          throw new Error(
+            `Cannot delete a category that has existing posts without specifying a different category to transfer its existing posts`
+          );
+        }
+
         await models.Post.updateMany(
           { categoryId: _id },
-          { categoryId: tranfserDescendantsToCategory }
+          { categoryId: adopterCategoryId }
         );
         await models.Category.updateMany(
           { parentId: _id },
-          { parentId: tranfserDescendantsToCategory }
+          { parentId: adopterCategoryId }
         );
         await models.Category.deleteOne({ _id });
       } catch (e) {
         await session.abortTransaction();
         throw e;
       }
+
       await session.commitTransaction();
+      return cat;
     }
 
-    public static async getDescendantsOf(
-      _ids: string[]
-    ): Promise<ICategory[] | undefined | null> {
+    public static async forceDeleteCategory(
+      _id: string
+    ): Promise<CategoryDocument> {
+      const cat = await models.Category.findByIdOrThrow(_id);
+
+      const session = await con.startSession();
+      session.startTransaction();
+
+      try {
+        const allCatIdsToDelete = (
+          await models.Category.getDescendantsOf([_id])
+        ).map(d => d._id);
+        allCatIdsToDelete.push(cat._id);
+
+        const postIdsToDelete = (
+          await models.Post.find({
+            categoryId: { $in: allCatIdsToDelete }
+          }).select({ _id: 1 })
+        ).map(p => p._id);
+        const commentsToDelete = (
+          await models.Comment.find({
+            postId: { $in: postIdsToDelete }
+          }).select({ _id: 1 })
+        ).map(c => c._id);
+
+        await models.Comment.deleteMany({ _id: { $in: commentsToDelete } });
+        await models.Post.deleteMany({ _id: { $in: postIdsToDelete } });
+        await models.Category.deleteMany({ _id: { $in: allCatIdsToDelete } });
+      } catch (e) {
+        await session.abortTransaction();
+        throw e;
+      }
+
+      await session.commitTransaction();
+
+      return cat;
+    }
+
+    public static async getDescendantsOf(_ids: string[]): Promise<ICategory[]> {
+      const descendantsArrayName = 'descendants';
+
       const matchedCategories = await models.Category.aggregate([
         {
           $match: {
@@ -130,7 +180,7 @@ export const generateCategoryModel = (
             startWith: '$_id',
             connectFromField: '_id',
             connectToField: 'parentId',
-            as: 'descendants'
+            as: descendantsArrayName
           }
         }
       ]);
@@ -141,12 +191,14 @@ export const generateCategoryModel = (
         );
       }
 
-      return _.flatten(matchedCategories.map(x => x.descendants));
+      return (
+        _.flatten(matchedCategories.map(x => x[descendantsArrayName])) || []
+      );
     }
 
-    public static async getAncestorsOf(
-      _id: string
-    ): Promise<ICategory[] | undefined | null> {
+    public static async getAncestorsOf(_id: string): Promise<ICategory[]> {
+      const ancestorsArrayName = 'ancestors';
+
       const results = await models.Category.aggregate([
         {
           $match: {
@@ -159,7 +211,7 @@ export const generateCategoryModel = (
             startWith: '$parentId',
             connectFromField: 'parentId',
             connectToField: '_id',
-            as: 'ancestors'
+            as: ancestorsArrayName
           }
         }
       ]);
@@ -169,7 +221,7 @@ export const generateCategoryModel = (
       }
 
       // it should contain only 1 category, since we $match-ed using its _id
-      return results[0].ancestors;
+      return results[0][ancestorsArrayName] || [];
     }
   }
   categorySchema.loadClass(CategoryModel);

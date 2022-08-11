@@ -25,10 +25,20 @@ const categoryMutations: IObjectTypeResolver<any, IContext> = {
   },
   async forumPatchSubCategory(_, args, { models: { Category } }) {
     if (args.parentId === null) {
-      throw new Error(`Cannot set sub category's parentId to \`null\``);
+      throw new Error(`Cannot set subcategory's parentId to \`null\``);
     }
     const { _id, ...rest } = args;
     return await Category.patchCategory(_id, rest);
+  },
+  async forumDeleteCategory(
+    _,
+    { _id, adopterCategoryId },
+    { models: { Category } }
+  ) {
+    return Category.deleteCategory(_id, adopterCategoryId);
+  },
+  async forumForceDeleteCategory(_, { _id }, { models: { Category } }) {
+    return Category.forceDeleteCategory(_id);
   }
 };
 

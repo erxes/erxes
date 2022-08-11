@@ -41,6 +41,10 @@ const categoryMutations = `
     parentId: String
     ${patchParams}
   ): ForumCategory
+
+  forumDeleteCategory(_id: ID!, adopterCategoryId: ID): ForumCategory
+
+  forumForceDeleteCategory(_id: ID!, deleteRelated: Boolean): ForumCategory
 `;
 
 export default categoryMutations;

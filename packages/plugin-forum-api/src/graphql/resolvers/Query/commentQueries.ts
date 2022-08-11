@@ -3,8 +3,6 @@ import { IObjectTypeResolver } from '@graphql-tools/utils';
 
 const CommentQueries: IObjectTypeResolver<any, IContext> = {
   forumComments: (_, params, { models: { Comment } }) => {
-    console.log('paramssssssssssssssssssssss');
-    console.log(params);
     const query: any = {};
 
     const { limit = 0, offset = 0, ...queryParams } = params;
@@ -20,14 +18,6 @@ const CommentQueries: IObjectTypeResolver<any, IContext> = {
         query[field] = { $in: [param] };
       }
     }
-
-    console.log(
-      'queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery'
-    );
-    console.log(query);
-    console.log(
-      'queryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryqueryquery'
-    );
 
     return Comment.find(query)
       .skip(offset)
