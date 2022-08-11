@@ -1,16 +1,17 @@
-import React from 'react';
 import {
   Checkbox,
   FormLabel,
   Input,
+  Progress,
   Radio,
   Select,
-  SelectWrapper,
-  Progress
+  SelectWrapper
 } from './styles';
+
 import { Column } from '@erxes/ui/src/styles/main';
-import Textarea from './Textarea';
 import ProgressBar from '../ProgressBar';
+import React from 'react';
+import Textarea from './Textarea';
 
 type Props = {
   children?: React.ReactNode;

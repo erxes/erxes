@@ -11,7 +11,7 @@ import {
 import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
 
-import { ArchiveIntegrationResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { ArchiveIntegrationResponse } from '../../settings/integrations/types';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import List from '../components/List';
@@ -19,7 +19,7 @@ import React from 'react';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { mutations as integrationMutations } from '@erxes/ui-inbox/src/settings/integrations/graphql/index';
+import { mutations as integrationMutations } from '../../settings/integrations/graphql/index';
 
 type Props = {
   queryParams: any;

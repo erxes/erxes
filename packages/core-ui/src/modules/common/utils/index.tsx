@@ -1,6 +1,6 @@
 import {
-  __,
   Alert,
+  __,
   bustIframe,
   can,
   confirm,
@@ -9,6 +9,7 @@ import {
   formatValue,
   generateRandomColorCode,
   generateRandomString,
+  generateTree,
   getConstantFromStore,
   getCookie,
   getEnv,
@@ -19,6 +20,7 @@ import {
   isTimeStamp,
   isValidDate,
   isValidUsername,
+  loadCustomPlugin,
   range,
   readFile,
   renderFullName,
@@ -36,9 +38,8 @@ import {
   union,
   uploadHandler,
   urlParser,
-  withProps,
-  generateTree,
-} from "@erxes/ui/src/utils";
+  withProps
+} from '@erxes/ui/src/utils';
 
 export {
   Alert,
@@ -48,6 +49,7 @@ export {
   confirm,
   toggleCheckBoxes,
   urlParser,
+  loadCustomPlugin,
   renderFullName,
   renderUserFullName,
   setTitle,
@@ -79,5 +81,5 @@ export {
   renderWithProps,
   formatValue,
   isEmptyContent,
-  generateTree,
+  generateTree
 };
