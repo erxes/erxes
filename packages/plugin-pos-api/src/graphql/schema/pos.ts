@@ -191,7 +191,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     totalCount: Float,
   }
 
-  type CheckResponse {
+  type CheckOrderResponse {
     orderId: String
     isSynced: Boolean
     syncedDate: Date
@@ -239,6 +239,6 @@ export const mutations = `
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
-  toCheckSyncedOrders(orderIds: [String]): [CheckResponse] 
+  toCheckSyncedOrders(orderIds: [String]): [CheckOrderResponse] 
   toSyncOrders(orderIds: [String]): JSON
 `;
