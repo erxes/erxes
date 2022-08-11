@@ -243,7 +243,71 @@ export const initBroker = async cl => {
     const { posToken } = data;
 
     const models = await generateModels(subdomain);
-    return await getBranchesUtil(subdomain, models, posToken);
+    return {
+      status: 'success',
+      data: await getBranchesUtil(subdomain, models, posToken)
+    };
+  });
+
+  consumeRPCQueue('pos:ordersDeliveryInfo', async ({ subdomain, data }) => {
+    const { orderId } = data;
+    const models = await generateModels(subdomain);
+
+    const order = await models.PosOrders.findOne({ _id: orderId }).lean();
+
+    // on kitchen
+    if (!order.deliveryInfo) {
+      return {
+        status: 'success',
+        data: {
+          error: 'Deleted delivery information.'
+        }
+      };
+    }
+
+    if (!order.deliveryInfo.dealId) {
+      return {
+        status: 'success',
+        data: {
+          _id: order._id,
+          status: 'onKitchen',
+          date: order.paidDate
+        }
+      };
+    }
+
+    const dealId = order.deliveryInfo.dealId;
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: { _id: dealId },
+      isRPC: true
+    });
+
+    if (!deal) {
+      return {
+        status: 'success',
+        data: {
+          error: 'Deleted delivery information.'
+        }
+      };
+    }
+
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: { _id: deal.stageId },
+      isRPC: true
+    });
+
+    return {
+      status: 'success',
+      data: {
+        _id: order._id,
+        status: stage.name,
+        date: deal.stageChangedDate || deal.modifiedDate || deal.createdAt
+      }
+    };
   });
 };
 
@@ -311,7 +375,10 @@ export const sendPosclientMessage = async (
 
   const { ALL_AUTO_INIT } = process.env;
 
-  if (!ALL_AUTO_INIT && !pos.onServer) {
+  if (
+    ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
+    !pos.onServer
+  ) {
     lastAction = `posclient:${action}_${pos.token}`;
     serviceName = '';
     args.data.thirdService = true;
@@ -319,7 +386,7 @@ export const sendPosclientMessage = async (
 
   args.data.token = pos.token;
 
-  await sendMessage({
+  return await sendMessage({
     client,
     serviceDiscovery,
     serviceName,
