@@ -54,8 +54,8 @@ const checkLogic = (logics: LogicParams[]) => {
     const {
       fieldId,
       operator,
-      logicValue,
-      fieldValue,
+      logicValue = '',
+      fieldValue = '',
       validation,
       type
     } = logic;
