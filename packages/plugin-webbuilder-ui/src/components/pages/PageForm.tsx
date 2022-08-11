@@ -67,6 +67,7 @@ class PageForm extends React.Component<Props, State> {
     pages = pages.filter(p => p._id !== page?._id);
 
     this.grapes = GrapesJS.init({
+      protectedCss: '',
       container: `#editor`,
       fromElement: true,
       plugins: [gjsPresetWebpage, customPlugins],
@@ -122,14 +123,13 @@ class PageForm extends React.Component<Props, State> {
     const pfx = editor.getConfig().stylePrefix;
     const modal = editor.Modal;
     const cmdm = editor.Commands;
-    const codeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
+    const htmlCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
+    const cssCodeViewer = editor.CodeManager.getViewer('CodeMirror').clone();
     const pnm = editor.Panels;
     const container = document.createElement('div');
     const btnEdit = document.createElement('button');
 
-    codeViewer.set({
-      codeName: 'htmlmixed',
-      readOnly: 0,
+    const codeViewerOptions = {
       theme: 'hopscotch',
       autoBeautify: true,
       autoCloseTags: true,
@@ -137,44 +137,80 @@ class PageForm extends React.Component<Props, State> {
       lineWrapping: true,
       styleActiveLine: true,
       smartIndent: true,
-      indentWithTabs: true
+      indentWithTabs: true,
+      readOnly: 0
+    };
+
+    htmlCodeViewer.set({
+      codeName: 'htmlmixed',
+      ...codeViewerOptions
+    });
+
+    cssCodeViewer.set({
+      codeName: 'css',
+      ...codeViewerOptions
     });
 
     editor.getConfig().allowScripts = 1;
     btnEdit.innerHTML = 'Edit';
     btnEdit.className = pfx + 'btn-prim ' + pfx + 'btn-import';
     btnEdit.onclick = () => {
-      const code = codeViewer.editor.getValue();
+      const html = htmlCodeViewer.editor.getValue();
+      const css = cssCodeViewer.editor.getValue();
+
       editor.DomComponents.getWrapper().set('content', '');
-      editor.setComponents(code.trim());
+
+      editor.setComponents(html.trim());
+      editor.setStyle(css.trim());
+
       modal.close();
     };
 
     cmdm.add('html-edit', {
-      run: (editr, sender) => {
-        if (sender) {
-          sender.set('active', 0);
-        }
-
-        let viewer = codeViewer.editor;
+      run: function(editr, sender) {
+        sender && sender.set('active', 0);
+        let htmlViewer = htmlCodeViewer.editor;
+        let cssViewer = cssCodeViewer.editor;
 
         modal.setTitle('Edit code');
 
-        if (!viewer) {
-          const txtarea = document.createElement('textarea');
-          container.appendChild(txtarea);
+        if (!htmlViewer && !cssViewer) {
+          const htmlArea = document.createElement('textarea');
+          const htmlLabel = document.createElement('p');
+          htmlLabel.innerHTML = 'Html';
+
+          const cssArea = document.createElement('textarea');
+          const cssLabel = document.createElement('p');
+          cssLabel.innerHTML = 'Css';
+
+          container.appendChild(htmlLabel);
+          container.appendChild(htmlArea);
+
+          container.appendChild(cssLabel);
+          container.appendChild(cssArea);
+
           container.appendChild(btnEdit);
-          codeViewer.init(txtarea);
-          viewer = codeViewer.editor;
+
+          htmlCodeViewer.init(htmlArea);
+          cssCodeViewer.init(cssArea);
+
+          htmlViewer = htmlCodeViewer.editor;
+          cssViewer = cssCodeViewer.editor;
         }
 
         const InnerHtml = editr.getHtml();
         const Css = editr.getCss();
+
         modal.setContent('');
         modal.setContent(container);
-        codeViewer.setContent(InnerHtml + '<style>' + Css + '</style>');
+
+        htmlCodeViewer.setContent(InnerHtml);
+        cssCodeViewer.setContent(Css);
+
         modal.open();
-        viewer.refresh();
+
+        htmlViewer.refresh();
+        cssViewer.refresh();
       }
     });
 

@@ -1,4 +1,3 @@
-import { IAttachment } from '@erxes/ui/src/types';
 import * as strip from 'strip';
 import * as _ from 'underscore';
 
@@ -48,6 +47,13 @@ interface IReplyFacebookComment {
   content: string;
 }
 
+interface IAttachment {
+  name: string;
+  type: string;
+  url: string;
+  size?: number;
+  duration?: number;
+}
 interface IConversationConvert {
   _id: string;
   type: string;
