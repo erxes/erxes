@@ -589,6 +589,8 @@ export default class GenerateField extends React.Component<Props, State> {
   render() {
     const { field, hasLogic } = this.props;
 
+    console.log('field', field);
+
     return (
       <FormGroup>
         <ControlLabel ignoreTrans={true} required={field.isRequired}>

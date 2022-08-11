@@ -121,3 +121,12 @@ export type SystemFieldsGroupsQueryResponse = {
   loading: boolean;
   refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
 };
+
+export type LogicParams = {
+  fieldId: string;
+  operator: string;
+  logicValue: any;
+  validation?: string;
+  fieldValue?: any;
+  type?: string;
+};

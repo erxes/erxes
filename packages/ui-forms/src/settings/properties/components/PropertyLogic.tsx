@@ -30,8 +30,6 @@ type Props = {
 function PropertyLogic(props: Props) {
   const { fields, logic, onChangeLogic, removeLogic, index } = props;
 
-  console.log(fields);
-
   const getSelectedField = () => {
     return fields.find(field => field.name.includes(logic.fieldId || ''));
   };
@@ -61,6 +59,8 @@ function PropertyLogic(props: Props) {
       index
     );
 
+    console.log('onChangeFieldId', value);
+
     const operators = getOperatorOptions();
     onChangeLogic('logicOperator', operators[1].value, index);
   };
@@ -84,11 +84,12 @@ function PropertyLogic(props: Props) {
   const renderLogicValue = () => {
     const selectedField = getSelectedField();
 
+    console.log('selectedField', selectedField);
+
     if (selectedField) {
       if (
-        selectedField.type === 'check' ||
-        selectedField.type === 'select' ||
-        selectedField.type === 'radio'
+        selectedField.selectOptions &&
+        selectedField.selectOptions.length > 0
       ) {
         return (
           <FormControl
@@ -98,10 +99,10 @@ function PropertyLogic(props: Props) {
             onChange={onChangeLogicValue}
           >
             <option value="" />
-            {selectedField.options &&
-              selectedField.options.map(option => (
-                <option key={option} value={option}>
-                  {option}
+            {selectedField.selectOptions &&
+              selectedField.selectOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
           </FormControl>
@@ -153,13 +154,13 @@ function PropertyLogic(props: Props) {
           <FormGroup>
             <FormControl
               componentClass="select"
-              value={logic.fieldId || logic.tempFieldId}
+              value={logic.fieldId}
               name="fieldId"
               onChange={onChangeFieldId}
             >
               <option value="" />
               {fields.map(field => (
-                <option key={field._id} value={field._id}>
+                <option key={field.name} value={field.name}>
                   {field.label}
                 </option>
               ))}

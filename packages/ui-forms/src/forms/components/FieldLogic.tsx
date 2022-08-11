@@ -29,8 +29,6 @@ type Props = {
 function FieldLogic(props: Props) {
   const { fields, logic, onChangeLogic, removeLogic, index } = props;
 
-  console.log(fields);
-
   const getSelectedField = () => {
     return fields.find(
       field => field._id === logic.fieldId || field._id === logic.tempFieldId

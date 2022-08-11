@@ -46,7 +46,8 @@ type State = {
   currentLocation: ILocationOption;
   searchable: boolean;
   showInCard: boolean;
-  logic?: IFieldLogic;
+  logics?: IFieldLogic[];
+  logicAction?: string;
 };
 
 class PropertyForm extends React.Component<Props, State> {
@@ -117,7 +118,8 @@ class PropertyForm extends React.Component<Props, State> {
     this.state = {
       ...doc,
       currentLocation: { lat: 0, lng: 0 },
-      add: false
+      add: false,
+      logics: props.field && props.field.logics ? props.field.logics : []
     };
   }
 
@@ -127,6 +129,8 @@ class PropertyForm extends React.Component<Props, State> {
     validation: string;
     text: string;
     description: string;
+    logicAction: string;
+    logics: IFieldLogic[];
   }) => {
     const { field } = this.props;
     const {
@@ -135,7 +139,9 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       objectListConfigs,
       showInCard,
-      searchable
+      searchable,
+      logicAction,
+      logics
     } = this.state;
 
     const finalValues = values;
@@ -152,7 +158,9 @@ class PropertyForm extends React.Component<Props, State> {
       locationOptions,
       objectListConfigs,
       searchable,
-      showInCard
+      showInCard,
+      logicAction,
+      logics
     };
   };
 
@@ -198,6 +206,14 @@ class PropertyForm extends React.Component<Props, State> {
 
   onSwitchChange = e => {
     this.setState({ showInCard: e.target.checked });
+  };
+
+  onChangeLogicAction = value => {
+    this.setState({ logicAction: value });
+  };
+
+  onChangeLogics = logics => {
+    this.setState({ logics });
   };
 
   renderOptions = () => {
@@ -305,8 +321,6 @@ class PropertyForm extends React.Component<Props, State> {
 
     const { values, isSubmitted } = formProps;
     const { type, searchable } = this.state;
-
-    console.log(groups);
 
     return (
       <>
@@ -426,11 +440,11 @@ class PropertyForm extends React.Component<Props, State> {
         {type.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
             <PropertyLogics
-              currentField={this.props.field || ({} as IField)}
-              onFieldChange={e => {
-                console.log(e);
-              }}
               contentType={this.props.queryParams.type}
+              logics={this.state.logics || []}
+              action={this.state.logicAction || 'show'}
+              onLogicsChange={this.onChangeLogics}
+              onActionChange={this.onChangeLogicAction}
             />
           </CollapseContent>
         )}

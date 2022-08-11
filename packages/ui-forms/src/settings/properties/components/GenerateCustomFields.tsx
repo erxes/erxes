@@ -1,12 +1,14 @@
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { ILocationOption } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
+
 import { SidebarContent } from '../styles';
-import { IFieldGroup } from '../types';
+import { IFieldGroup, LogicParams } from '../types';
+import { checkLogic } from '../utils';
 import GenerateField from './GenerateField';
 
 declare const navigator: any;
@@ -15,6 +17,7 @@ type Props = {
   isDetail: boolean;
   fieldGroup: IFieldGroup;
   loading?: boolean;
+  object?: any;
   data: any;
   save: (data: any, callback: (error: Error) => void) => void;
 };
@@ -125,7 +128,7 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { fieldGroup, isDetail } = this.props;
+    const { fieldGroup, isDetail, object = {} } = this.props;
     const { data } = this.state;
     const { fields } = fieldGroup;
 
@@ -150,6 +153,49 @@ class GenerateGroup extends React.Component<Props, State> {
         {fields.map((field, index) => {
           if (!field[isVisibleKey]) {
             return null;
+          }
+
+          if (field.logics && field.logics.length > 0) {
+            const logics: LogicParams[] = field.logics.map(logic => {
+              let { fieldId = '' } = logic;
+
+              if (fieldId.includes('customFieldsData')) {
+                fieldId = fieldId.split('.')[1];
+                return {
+                  fieldId,
+                  operator: logic.logicOperator,
+                  validation: fields.find(e => e._id === fieldId)?.validation,
+                  logicValue: logic.logicValue,
+                  fieldValue: data[fieldId],
+                  type: field.type
+                };
+              }
+
+              return {
+                fieldId,
+                operator: logic.logicOperator,
+                logicValue: logic.logicValue,
+                fieldValue: object[logic.fieldId || ''],
+                validation: fields.find(e => e._id === fieldId)?.validation,
+                type: field.type
+              };
+            });
+
+            const isLogicsFulfilled = checkLogic(logics);
+
+            console.log('isLogicsFulfilled', isLogicsFulfilled);
+
+            if (field.logicAction && field.logicAction === 'show') {
+              if (!isLogicsFulfilled) {
+                return null;
+              }
+            }
+
+            if (field.logicAction && field.logicAction === 'hide') {
+              if (isLogicsFulfilled) {
+                return null;
+              }
+            }
           }
 
           return (
@@ -189,6 +235,7 @@ type GroupsProps = {
   fieldsGroups: IFieldGroup[];
   customFieldsData: any;
   loading?: boolean;
+  object?: any;
   save: (data: { customFieldsData: any }, callback: () => any) => void;
 };
 
@@ -236,6 +283,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
           loading={loading}
           data={data}
           fieldGroup={fieldGroup}
+          object={this.props.object}
           save={this.saveGroup}
         />
       );

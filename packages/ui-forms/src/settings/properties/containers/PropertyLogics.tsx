@@ -1,3 +1,4 @@
+import { IFieldLogic } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -10,8 +11,10 @@ import { FieldsCombinedByTypeQueryResponse } from '../types';
 
 type Props = {
   contentType: string;
-  currentField: any;
-  onFieldChange: (data: any) => void;
+  action: string;
+  logics: IFieldLogic[];
+  onActionChange: (value: string) => void;
+  onLogicsChange: (logics: IFieldLogic[]) => void;
 };
 
 type FinalProps = {
