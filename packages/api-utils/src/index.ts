@@ -35,7 +35,6 @@ import { IContext } from './types';
 import { ruleSchema } from './definitions/common';
 import { field, schemaWrapper } from './definitions/utils';
 
-import { createXlsFile, generateXlsx } from './exporter';
 import { IColumnLabel } from './types';
 import { afterQueryWrapper } from './quiriesWrappers';
 
@@ -97,7 +96,5 @@ export default {
   updateUserScore,
   getScoringConfig,
   generateFieldsFromSchema,
-  createXlsFile,
-  generateXlsx,
   afterQueryWrapper
 };

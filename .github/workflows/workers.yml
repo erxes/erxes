@@ -3,12 +3,12 @@ name: Workers CI
 on:
   push:
     branches:
-      - 'federation'
+      - 'image-size'
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
       - 'packages/workers/**'
-      - '.github/workflows/workers.yaml'
+      - '.github/workflows/workers.yml'
 
 jobs:
   workers:
@@ -38,12 +38,14 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build workers
+          ls
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/image-size'  )
         run: |
           cd dist/workers
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
