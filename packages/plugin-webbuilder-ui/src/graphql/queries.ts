@@ -31,27 +31,37 @@ const pageDetail = `
   }
 `;
 
+const typeFields = `
+  _id
+  code
+  displayName
+  fields
+  entries {
+    _id
+  }
+  site {
+    name
+    domain
+  }
+`;
+
 const contentTypes = `
-  query contentTypes($page: Int $perPage: Int) {
-    webbuilderContentTypes(page: $page perPage: $perPage) {
+  query contentTypes {
+    webbuilderContentTypes {
       _id
-      code
       displayName
-      fields
-      entries {
-        _id
-      }
-      site {
-        name
-        domain
-      }
     }
   }
 `;
 
-const contentTypesTotalCount = `
-  query contentTypesTotalCount {
-    webbuilderContentTypesTotalCount
+const contentTypesMain = `
+  query contentTypesMain($page: Int, $perPage: Int) {
+    webbuilderContentTypesMain(page: $page, perPage: $perPage) {
+      list {
+        ${typeFields}
+      }
+      totalCount
+    }
   }
 `;
 
@@ -140,7 +150,7 @@ export default {
   pagesMain,
   pageDetail,
   contentTypes,
-  contentTypesTotalCount,
+  contentTypesMain,
   contentTypeDetail,
   entries,
   entryDetail,

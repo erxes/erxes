@@ -31,15 +31,22 @@ const webbuilderQueries = {
     return models.Pages.findOne({ _id });
   },
 
-  webbuilderContentTypes(_root, args, { models }: IContext) {
-    return paginate(
-      models.ContentTypes.find({}).sort({ displayName: 1 }),
-      args
-    );
+  webbuilderContentTypes(_root, _args, { models }: IContext) {
+    return models.ContentTypes.find({}).sort({ displayName: 1 });
   },
 
-  webbuilderContentTypesTotalCount(_root, _args, { models }: IContext) {
-    return models.ContentTypes.find({}).count();
+  webbuilderContentTypesMain(
+    _root,
+    args: { page: number; perPage: number },
+    { models }: IContext
+  ) {
+    return {
+      list: paginate(
+        models.ContentTypes.find({}).sort({ displayName: 1 }),
+        args
+      ),
+      totalCount: models.ContentTypes.find().count()
+    };
   },
 
   webbuilderContentTypeDetail(

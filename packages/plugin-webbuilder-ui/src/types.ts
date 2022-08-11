@@ -78,8 +78,8 @@ export type TypesQueryResponse = {
   webbuilderContentTypes: IContentTypeDoc[];
 } & QueryResponse;
 
-export type TypesTotalCountQueryResponse = {
-  webbuilderContentTypesTotalCount: number;
+export type TypesMainQueryResponse = {
+  webbuilderContentTypesMain: { list: IContentTypeDoc[]; totalCount: number };
 } & QueryResponse;
 
 export type TypeDetailQueryResponse = {
