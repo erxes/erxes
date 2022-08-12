@@ -72,7 +72,7 @@ const generateFilter = async (
         const deals = await sendCardsMessage({
           subdomain,
           action: 'deals.find',
-          data: { query: dealsFilter },
+          data: { ...dealsFilter },
           isRPC: true
         });
 

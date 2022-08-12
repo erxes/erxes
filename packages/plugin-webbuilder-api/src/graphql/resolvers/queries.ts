@@ -3,7 +3,7 @@ import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 const webbuilderQueries = {
-  webbuilderPages(
+  webbuilderPagesMain(
     _root,
     {
       page,
@@ -18,29 +18,35 @@ const webbuilderQueries = {
       filter.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
 
-    return paginate(models.Pages.find(filter).sort({ name: 1 }), {
-      page,
-      perPage
-    });
-  },
-
-  webbuilderPagesTotalCount(_root, _args, { models }: IContext) {
-    return models.Pages.find({}).count();
+    return {
+      list: paginate(models.Pages.find(filter).sort({ name: 1 }), {
+        page,
+        perPage
+      }),
+      totalCount: models.Pages.find({}).count()
+    };
   },
 
   webbuilderPageDetail(_root, { _id }, { models }: IContext) {
     return models.Pages.findOne({ _id });
   },
 
-  webbuilderContentTypes(_root, args, { models }: IContext) {
-    return paginate(
-      models.ContentTypes.find({}).sort({ displayName: 1 }),
-      args
-    );
+  webbuilderContentTypes(_root, _args, { models }: IContext) {
+    return models.ContentTypes.find({}).sort({ displayName: 1 });
   },
 
-  webbuilderContentTypesTotalCount(_root, _args, { models }: IContext) {
-    return models.ContentTypes.find({}).count();
+  webbuilderContentTypesMain(
+    _root,
+    args: { page: number; perPage: number },
+    { models }: IContext
+  ) {
+    return {
+      list: paginate(
+        models.ContentTypes.find({}).sort({ displayName: 1 }),
+        args
+      ),
+      totalCount: models.ContentTypes.find().count()
+    };
   },
 
   webbuilderContentTypeDetail(
@@ -51,7 +57,7 @@ const webbuilderQueries = {
     return models.ContentTypes.findOne({ _id });
   },
 
-  webbuilderEntries(
+  webbuilderEntriesMain(
     _root,
     {
       contentTypeId,
@@ -60,15 +66,10 @@ const webbuilderQueries = {
     }: { contentTypeId: string; page: number; perPage: number },
     { models }: IContext
   ) {
-    return paginate(models.Entries.find({ contentTypeId }), { page, perPage });
-  },
-
-  webbuilderEntriesTotalCount(
-    _root,
-    { contentTypeId }: { contentTypeId: string },
-    { models }: IContext
-  ) {
-    return models.Entries.find({ contentTypeId }).count();
+    return {
+      list: paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
+      totalCount: models.Entries.find({ contentTypeId }).count()
+    };
   },
 
   webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
