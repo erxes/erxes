@@ -4,6 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { ITrip } from '../../types';
+import { carInfo } from '../../utils';
 
 type Props = {
   trip: ITrip;
@@ -34,7 +35,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{`${trip.car.plateNumber} - ${trip.car.carModel}`}</RowTitle>
+        <RowTitle>{trip.car ? `${carInfo(trip.car)}` : 'undefined'}</RowTitle>
       </td>
 
       <td key={Math.random()}>
