@@ -467,7 +467,7 @@ export const Description = styled.div`
   }
 `;
 
-export const FlowJobBarButtonsWrapper = styled.div`
+export const ActionBarButtonsWrapper = styled.div`
   @media (max-width: 1450px) {
     max-width: 350px;
     white-space: normal;

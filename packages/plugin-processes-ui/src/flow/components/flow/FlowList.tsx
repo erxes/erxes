@@ -119,7 +119,7 @@ class List extends React.Component<IProps, State> {
       addFlow
     } = this.props;
 
-    let flowJobBarRight = (
+    let actionBarRight = (
       <BarItems>
         <FormControl
           type="text"
@@ -184,7 +184,7 @@ class List extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
-      flowJobBarRight = (
+      actionBarRight = (
         <BarItems>
           <Button
             btnStyle="danger"
@@ -198,7 +198,7 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const flowJobBarLeft = <Title>{currentCategory.name || 'All flows'}</Title>;
+    const actionBarLeft = <Title>{currentCategory.name || 'All flows'}</Title>;
 
     return (
       <Wrapper
@@ -210,8 +210,8 @@ class List extends React.Component<IProps, State> {
         //     description={``}
         //   />
         // }
-        flowJobBar={
-          <Wrapper.FlowJobBar left={flowJobBarLeft} right={flowJobBarRight} />
+        actionBar={
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
