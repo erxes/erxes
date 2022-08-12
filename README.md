@@ -132,12 +132,7 @@ Let’s start growing **<a href="https://erxes.io/partners">together</a>**.
 ## Contributing 
 
 Please read our **<a href="https://www.erxes.org/contribute/overview" >contributing guide<a>** before submitting a Pull Request to the project.
-
- ## Our valuable Contributors
-
-<p align="center"><a href="https://github.com/erxes/erxes/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=erxes/erxes" />
-</a></p>
+We're always greatful for the time and hard work contributed by our **<a href="https://github.com/erxes/erxes/graphs/contributors" > valuable community members</a>**. 
  
 ## Community support
 
