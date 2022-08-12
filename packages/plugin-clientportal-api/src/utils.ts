@@ -25,9 +25,6 @@ export const getConfig = async (
 };
 
 export const generateFields = async ({ subdomain }) => {
-  console.log(
-    ' ****************************** generateFields ******************************'
-  );
   const models = await generateModels(subdomain);
 
   const { ClientPortalUsers } = models;
@@ -46,7 +43,7 @@ export const generateFields = async ({ subdomain }) => {
 
   if (schema) {
     fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
-    console.log('field: ', fields);
+
     for (const name of Object.keys(schema.paths)) {
       const path = schema.paths[name];
 

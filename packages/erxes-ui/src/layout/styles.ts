@@ -330,6 +330,7 @@ const SidebarList = styledTS<{
 }>(styled.ul)`
   margin: 0;
   padding: 0;
+  z-index: 10000;
   list-style: none;
   li.child-segment {
     border-bottom: none;

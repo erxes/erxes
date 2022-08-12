@@ -26,7 +26,7 @@ function Sidebar({ counts, loadingMainQuery }: Props) {
       )}
       {isEnabled('forms') && (
         <DateFilters
-          type="clientportals:user"
+          type="clientportal:user"
           loadingMainQuery={loadingMainQuery}
         />
       )}

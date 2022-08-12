@@ -207,6 +207,7 @@ const DateWrapper = styled.div`
 
 const DateInputContainer = styled.div`
   display: flex;
+  zindex: 100;
 
   > div {
     flex: 1;

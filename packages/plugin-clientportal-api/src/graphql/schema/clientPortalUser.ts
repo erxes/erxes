@@ -73,6 +73,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   cpId: String
+  dateFilters: String
   ${conformityQueryFields}
 `;
 
