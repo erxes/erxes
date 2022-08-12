@@ -1,18 +1,16 @@
-import * as compose from 'lodash.flowright';
-
-import { mutations, queries } from '../graphql';
-
-import { EditMutationResponse } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import React from 'react';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import asyncComponent from '../../components/AsyncComponent';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { isEnabled } from '../../utils/core';
-import path from 'path';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { withProps } from '@erxes/ui/src/utils';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
+import asyncComponent from '../../components/AsyncComponent';
+import { isEnabled } from '../../utils/core';
+import { mutations, queries } from '../graphql';
+import { EditMutationResponse } from '../types';
 
 const GenerateCustomFields = asyncComponent(
   () =>
@@ -64,7 +62,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     customFieldsData: user.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
     isDetail,
-    object: user
+    doc: user
   };
 
   return <GenerateCustomFields {...updatedProps} />;
