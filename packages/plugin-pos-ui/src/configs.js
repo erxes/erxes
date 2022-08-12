@@ -19,7 +19,7 @@ module.exports = {
       permission: "showPos",
     },
     {
-      text: "Check Pos Orders",
+      text: "Check Orders",
       url: "/check-pos-orders",
       icon: "icon-lamp",
       location: "mainNavigation",
