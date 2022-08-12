@@ -145,6 +145,13 @@ For general help using erxes, please refer to the erxes documentation. For addit
 - **<a href="https://github.com/erxes/erxes/issues" > Feedback section</a>** Roadmap, feature requests & bugs
 - **<a href="https://twitter.com/erxesHQ" > Twitter</a>** Get the news fast
  
+ ## Our valuable Contributors
+
+ <p align="center"><a href="https://github.com/erxes/erxes/graphs/contributors">
+   <img src="https://contributors-img.web.app/image?repo=erxes/erxes" />
+ </a></p>
+ 
+ 
 ## Upgrade Guides
 
 Follow our **<a href="https://www.erxes.org/installation/upgrade">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://www.erxes.org/introduction/introduction">documentation here</a>**.
