@@ -1,13 +1,13 @@
-import { IUser } from 'modules/auth/types';
-import asyncComponent from 'modules/common/components/AsyncComponent';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { bustIframe } from 'modules/common/utils';
-
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import Navigation from '../containers/Navigation';
 import { Layout, MainWrapper } from '../styles';
+
 import DetectBrowser from './DetectBrowser';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IUser } from 'modules/auth/types';
+import Navigation from './navigation';
+import React from 'react';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import { bustIframe } from 'modules/common/utils';
+import { withRouter } from 'react-router-dom';
 
 const MainBar = asyncComponent(() =>
   import(/* webpackChunkName: "MainBar" */ 'modules/layout/components/MainBar')
@@ -95,7 +95,7 @@ class MainLayout extends React.Component<IProps, State> {
   };
 
   render() {
-    const { currentUser, children, isShownIndicator, history } = this.props;
+    const { children, isShownIndicator, history } = this.props;
 
     if (history.location.pathname.startsWith('/videoCall')) {
       return children;
@@ -106,13 +106,10 @@ class MainLayout extends React.Component<IProps, State> {
         <div id="anti-clickjack" style={{ display: 'none' }} />
 
         <Layout isSqueezed={isShownIndicator}>
-          {currentUser && (
-            <Navigation
-              currentUser={currentUser}
-              navCollapse={this.state.navCollapse}
-              onClickHandleIcon={this.onClickHandleIcon}
-            />
-          )}
+          <Navigation
+            navCollapse={this.state.navCollapse}
+            onClickHandleIcon={this.onClickHandleIcon}
+          />
 
           <MainWrapper navCollapse={this.state.navCollapse}>
             <MainBar />

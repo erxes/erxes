@@ -1,14 +1,14 @@
+import { ButtonMutate, withProps } from '@erxes/ui/src';
+import { IUser, UsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps, ButtonMutate } from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
 import CarForm from '../components/list/CarForm';
 import { mutations, queries } from '../graphql';
 import { CarCategoriesQueryResponse, ICar } from '../types';
-import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
-import { IUser } from '@erxes/ui/src/auth/types';
 
 type Props = {
   car: ICar;
@@ -38,7 +38,7 @@ class CarFromContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       const { closeModal, getAssociatedCar } = this.props;
 
-      const afterSave = (data) => {
+      const afterSave = data => {
         closeModal();
 
         if (getAssociatedCar) {

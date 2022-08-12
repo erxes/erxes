@@ -20,6 +20,7 @@ const listParamsDef = `
   $success: String
   $billType: String
   $billIdRule: String
+  $isLast: String
   $orderNumber: String
   $dealName: String
   $pipelineId: String
@@ -39,6 +40,7 @@ const listParamsValue = `
   success: $success
   billType: $billType
   billIdRule: $billIdRule
+  isLast: $isLast
   orderNumber: $orderNumber
   dealName: $dealName
   pipelineId: $pipelineId
@@ -94,14 +96,21 @@ const putResponsesCount = `
   }
 `;
 
+const putResponsesAmount = `
+  query putResponsesAmount(${listParamsDef}) {
+    putResponsesAmount(${listParamsValue})
+  }
+`;
+
 const getDealLink = `
   query getDealLink($_id: String) {
     getDealLink(_id: $_id)
   }
-`
+`;
 export default {
   configs,
   putResponses,
   putResponsesCount,
+  putResponsesAmount,
   getDealLink
 };

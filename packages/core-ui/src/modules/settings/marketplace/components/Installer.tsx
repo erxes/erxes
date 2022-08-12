@@ -64,7 +64,9 @@ class Installer extends React.Component<{}, State> {
 
     const pluginsFakeData = plugins.map((plugin, index) => ({
       ...plugin,
-      ...categories[index]
+      ...(categories[index]
+        ? categories[index]
+        : { category: 'Free Marketing' })
     }));
 
     const filteredByCategory = pluginsFakeData.filter(plugin => {

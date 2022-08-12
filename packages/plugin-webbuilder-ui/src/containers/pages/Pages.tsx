@@ -1,25 +1,41 @@
 import gql from 'graphql-tag';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
 import Pages from '../../components/pages/Pages';
 import { queries, mutations } from '../../graphql';
 import React from 'react';
 import { Alert, confirm } from '@erxes/ui/src/utils';
+import {
+  PagesMainQueryResponse,
+  PagesRemoveMutationResponse
+} from '../../types';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
   getActionBar: (actionBar: any) => void;
+  setCount: (count: number) => void;
+  queryParams: any;
+  history: any;
 };
 
 type FinalProps = {
-  pagesQuery: any;
-  pagesRemoveMutation: any;
-} & Props;
+  pagesMainQuery: PagesMainQueryResponse;
+} & Props &
+  PagesRemoveMutationResponse;
 
 class PagesContainer extends React.Component<FinalProps> {
   render() {
-    const { pagesQuery, pagesRemoveMutation } = this.props;
+    const { pagesMainQuery, pagesRemoveMutation, queryParams } = this.props;
 
-    const pages = pagesQuery.webbuilderPages || [];
+    if (pagesMainQuery.loading) {
+      return <Spinner objective={true} />;
+    }
+
+    const { list = [], totalCount = 0 } =
+      pagesMainQuery.webbuilderPagesMain || {};
+
+    const searchValue = queryParams.searchValue || '';
 
     const remove = (_id: string) => {
       confirm().then(() => {
@@ -27,7 +43,7 @@ class PagesContainer extends React.Component<FinalProps> {
           .then(() => {
             Alert.success('You successfully deleted a page.');
 
-            pagesQuery.refetch();
+            pagesMainQuery.refetch();
           })
           .catch(e => {
             Alert.error(e.message);
@@ -37,8 +53,10 @@ class PagesContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      pages,
-      remove
+      pages: list,
+      pagesCount: totalCount,
+      remove,
+      searchValue
     };
 
     return <Pages {...updatedProps} />;
@@ -46,10 +64,17 @@ class PagesContainer extends React.Component<FinalProps> {
 }
 
 export default compose(
-  graphql(gql(queries.pages), {
-    name: 'pagesQuery'
+  graphql<Props, PagesMainQueryResponse>(gql(queries.pagesMain), {
+    name: 'pagesMainQuery',
+    options: ({ queryParams }) => ({
+      variables: {
+        ...generatePaginationParams(queryParams),
+        searchValue: queryParams.searchValue
+      },
+      fetchPolicy: 'network-only'
+    })
   }),
-  graphql(gql(mutations.remove), {
+  graphql<{}, PagesRemoveMutationResponse>(gql(mutations.remove), {
     name: 'pagesRemoveMutation'
   })
 )(PagesContainer);

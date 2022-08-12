@@ -1,8 +1,9 @@
-import { Sidebar, CollapseContent } from '@erxes/ui/src';
-import React from 'react';
 import { IDeal } from '@erxes/ui-cards/src/deals/types';
-import DealInfo from './DealInfo';
+import { CollapseContent, Sidebar } from '@erxes/ui/src';
 import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import DealInfo from './DealInfo';
 
 type Props = {
   deals: IDeal[];
@@ -22,7 +23,7 @@ class DealsSection extends React.Component<Props> {
         >
           <Section>
             {deals.map(deal => (
-              <DealInfo deal={deal} />
+              <DealInfo key={deal._id} deal={deal} />
             ))}
           </Section>
         </CollapseContent>

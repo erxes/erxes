@@ -67,7 +67,17 @@ export const basicFields = `
   code
   email
   phone
+  companyName
+  companyRegistrationNumber
   clientPortalId
+  type
+
+  clientPortal {
+    name
+  }
+
+  erxesCustomerId
+  erxesCompanyId
 
   modifiedAt
   ownerId
@@ -140,6 +150,8 @@ const clientPortalUsers = `
   query clientPortalUsers(${listParamsDef}) {
     clientPortalUsers(${listParamsValue}) {
       ${clientPortalUserFields}
+      isPhoneVerified
+      isEmailVerified
     }
   }
 `;
@@ -166,6 +178,17 @@ const clientPortalUserDetail = `
   query clientPortalUserDetail($_id: String!) {
     clientPortalUserDetail(_id: $_id) {
       ${clientPortalUserFields}
+      customer {
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+      company {
+        primaryName
+        primaryEmail
+        primaryPhone
+      }
     }
   }
 `;

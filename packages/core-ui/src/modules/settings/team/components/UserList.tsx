@@ -1,26 +1,27 @@
-import { AppConsumer } from 'appContext';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Table from '@erxes/ui/src/components/table';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import Tip from '@erxes/ui/src/components/Tip';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   ICommonFormProps,
   ICommonListProps
 } from '@erxes/ui-settings/src/common/types';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import { AppConsumer } from 'appContext';
+import Button from '@erxes/ui/src/components/Button';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import Table from '@erxes/ui/src/components/table';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import Tip from '@erxes/ui/src/components/Tip';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { UserAvatar } from '../styles';
 import UserForm from '@erxes/ui/src/team/containers/UserForm';
 import UserResetPasswordForm from '@erxes/ui/src/team/containers/UserResetPasswordForm';
-import { UserAvatar } from '../styles';
-import { ControlLabel } from '@erxes/ui/src/components/form';
+import { __ } from 'modules/common/utils';
 
 type IProps = {
   changeStatus: (id: string) => void;

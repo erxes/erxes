@@ -7,6 +7,13 @@ import React from 'react';
 import { mutations, queries } from '../../graphql';
 import { withRouter } from 'react-router-dom';
 import { IRouterProps } from '@erxes/ui/src/types';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import {
+  EntriesAddMutationResponse,
+  EntriesEditMutationResponse,
+  EntryDetailQueryResponse,
+  TypeDetailQueryResponse
+} from '../../types';
 
 type Props = {
   _id?: string;
@@ -15,11 +22,10 @@ type Props = {
 } & IRouterProps;
 
 type FinalProps = Props & {
-  entriesAdd: any;
-  entriesEdit: any;
-  entryDetailQuery?: any;
-  contentTypeDetailQuery: any;
-};
+  entryDetailQuery?: EntryDetailQueryResponse;
+  contentTypeDetailQuery: TypeDetailQueryResponse;
+} & EntriesAddMutationResponse &
+  EntriesEditMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
   const { contentTypeDetailQuery, entryDetailQuery, history } = props;
@@ -28,11 +34,11 @@ const FormContainer = (props: FinalProps) => {
     (entryDetailQuery && entryDetailQuery.loading) ||
     contentTypeDetailQuery.loading
   ) {
-    return null;
+    return <Spinner objective={true} />;
   }
 
   const save = (contentTypeId: string, values: any) => {
-    let method = props.entriesAdd;
+    let method: any = props.entriesAddMutation;
 
     const variables: any = {
       contentTypeId,
@@ -40,7 +46,7 @@ const FormContainer = (props: FinalProps) => {
     };
 
     if (props._id) {
-      method = props.entriesEdit;
+      method = props.entriesEditMutation;
       variables._id = props._id;
     }
 
@@ -73,34 +79,34 @@ const FormContainer = (props: FinalProps) => {
   return <EntryForm {...updatedProps} />;
 };
 
+const refetchEntryQueries = (contentTypeId: string) => [
+  { query: gql(queries.entriesMain), variables: { contentTypeId } }
+];
+
 export default compose(
-  graphql<Props>(gql(mutations.entriesAdd), {
-    name: 'entriesAdd',
+  graphql<Props, EntriesAddMutationResponse>(gql(mutations.entriesAdd), {
+    name: 'entriesAddMutation',
     options: ({ contentTypeId }) => ({
-      refetchQueries: [
-        { query: gql(queries.entries), variables: { contentTypeId } }
-      ]
+      refetchQueries: refetchEntryQueries(contentTypeId)
     })
   }),
 
-  graphql<Props>(gql(mutations.entriesEdit), {
-    name: 'entriesEdit',
+  graphql<Props, EntriesEditMutationResponse>(gql(mutations.entriesEdit), {
+    name: 'entriesEditMutation',
     options: ({ contentTypeId }) => ({
-      refetchQueries: [
-        { query: gql(queries.entries), variables: { contentTypeId } }
-      ]
+      refetchQueries: refetchEntryQueries(contentTypeId)
     })
   }),
 
-  graphql(gql(queries.entryDetail), {
+  graphql<Props, EntryDetailQueryResponse>(gql(queries.entryDetail), {
     name: 'entryDetailQuery',
-    skip: (props: Props) => !props._id,
-    options: (props: Props) => ({
-      variables: { _id: props._id }
+    skip: ({ _id }) => !_id,
+    options: ({ _id }) => ({
+      variables: { _id }
     })
   }),
 
-  graphql<FinalProps>(gql(queries.contentTypeDetail), {
+  graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
     name: 'contentTypeDetailQuery',
     options: ({ contentTypeId }) => ({
       variables: {

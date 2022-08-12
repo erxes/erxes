@@ -1,25 +1,31 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import CommonForm from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Info from '@erxes/ui/src/components/Info';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
+import * as React from 'react';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+
 import {
   IButtonMutateProps,
   IFormProps,
   IRouterProps
 } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import * as React from 'react';
-import { withRouter } from 'react-router-dom';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
-import { IExchangeForm, IImapForm, IntegrationTypes } from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  IExchangeForm,
+  IImapForm,
+  IntegrationTypes
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+
+import Button from '@erxes/ui/src/components/Button';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ExchangeForm from './ExchangeForm';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import ImapForm from './ImapForm';
+import Info from '@erxes/ui/src/components/Info';
 import MailAuthForm from './MailAuthForm';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import { __ } from 'coreui/utils';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -96,9 +102,9 @@ class Form extends React.Component<Props, State> {
             <p>{__('Email add account description')}</p>
             <p>
               <a
-                target='_blank'
-                href='https://erxes.io/help/knowledge-base/article/detail?catId=5o5ZRSi5c8NX3fbTA&_id=B7LseAvFdKsiLa3kG'
-                rel='noopener noreferrer'
+                target="_blank"
+                href="https://erxes.io/help/knowledge-base/article/detail?catId=5o5ZRSi5c8NX3fbTA&_id=B7LseAvFdKsiLa3kG"
+                rel="noopener noreferrer"
               >
                 {__('Learn how to connect a Gmail using IMAP')}
               </a>
@@ -110,7 +116,7 @@ class Form extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             required={true}
             autoFocus={true}
           />
@@ -134,10 +140,10 @@ class Form extends React.Component<Props, State> {
 
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={this.props.closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

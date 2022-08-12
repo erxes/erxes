@@ -2,7 +2,7 @@ import { IBoardCount } from '@erxes/ui-cards/src/boards/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { GROWTHHACK_STATES } from '../../constants';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {

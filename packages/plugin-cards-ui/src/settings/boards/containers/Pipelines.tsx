@@ -1,27 +1,32 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
+
+import { Alert, __, confirm, withProps } from 'coreui/utils';
+import {
+  ArchivePipelineMutationResponse,
+  CopiedPipelineMutationResponse,
+  IOption,
+  RemovePipelineMutationResponse,
+  UpdateOrderPipelineMutationResponse,
+  UpdateOrderPipelineMutationVariables
+} from '../types';
 import {
   BoardDetailQueryResponse,
   PipelinesQueryResponse
 } from '@erxes/ui-cards/src/boards/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { IButtonMutateProps, MutationVariables } from '@erxes/ui/src/types';
-import { __, Alert, confirm, withProps } from 'coreui/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import Pipelines from '../components/Pipelines';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { mutations, queries } from '@erxes/ui-settings/src/boards/graphql';
 import {
-  IOption,
-  RemovePipelineMutationResponse,
-  ArchivePipelineMutationResponse,
-  CopiedPipelineMutationResponse,
-  UpdateOrderPipelineMutationResponse,
-  UpdateOrderPipelineMutationVariables
-} from '../types';
+  mutations,
+  queries
+} from '@erxes/ui-cards/src/settings/boards/graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import Pipelines from '../components/Pipelines';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as boardQueries } from '@erxes/ui-cards/src/boards/graphql';
+import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type Props = {
   boardId: string;
@@ -238,27 +243,24 @@ export default withProps<Props>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<
-      Props,
-      RemovePipelineMutationResponse,
-      MutationVariables
-    >(gql(mutations?.pipelineRemove), {
-      name: 'removePipelineMutation'
-    }),
-    graphql<
-      Props,
-      ArchivePipelineMutationResponse,
-      MutationVariables
-    >(gql(mutations?.pipelinesArchive), {
-      name: 'archivePipelineMutation'
-    }),
-    graphql<
-      Props,
-      CopiedPipelineMutationResponse,
-      MutationVariables
-    >(gql(mutations?.pipelinesCopied), {
-      name: 'copiedPipelineMutation'
-    }),
+    graphql<Props, RemovePipelineMutationResponse, MutationVariables>(
+      gql(mutations?.pipelineRemove),
+      {
+        name: 'removePipelineMutation'
+      }
+    ),
+    graphql<Props, ArchivePipelineMutationResponse, MutationVariables>(
+      gql(mutations?.pipelinesArchive),
+      {
+        name: 'archivePipelineMutation'
+      }
+    ),
+    graphql<Props, CopiedPipelineMutationResponse, MutationVariables>(
+      gql(mutations?.pipelinesCopied),
+      {
+        name: 'copiedPipelineMutation'
+      }
+    ),
 
     graphql<
       Props,

@@ -3,7 +3,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 
 type Props = {
   formProps: IFormProps;

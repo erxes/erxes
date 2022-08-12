@@ -1,14 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Form from '@erxes/ui/src/components/form/Form';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Form from '@erxes/ui/src/components/form/Form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import { __ } from 'coreui/utils';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -63,7 +64,7 @@ class Line extends React.Component<Props, State> {
           <ControlLabel required={true}>Name</ControlLabel>
           <FormControl
             {...formProps}
-            name='name'
+            name="name"
             required={true}
             autoFocus={true}
           />
@@ -72,8 +73,8 @@ class Line extends React.Component<Props, State> {
           <ControlLabel required={true}>Line Channel ID</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='channelId'
+            type="text"
+            name="channelId"
             required={true}
           />
         </FormGroup>
@@ -81,8 +82,8 @@ class Line extends React.Component<Props, State> {
           <ControlLabel required={true}>Line Channel Secret</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            name='channelSecret'
+            type="text"
+            name="channelSecret"
             required={true}
           />
         </FormGroup>
@@ -93,9 +94,9 @@ class Line extends React.Component<Props, State> {
             )}
             .
             <a
-              href='https://erxes.org/administrator/system-config#line'
-              target='_blank'
-              rel='noopener noreferrer'
+              href="https://erxes.org/administrator/system-config#line"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               {__('Learn more about LINE')}
             </a>
@@ -103,8 +104,8 @@ class Line extends React.Component<Props, State> {
           <ControlLabel>Webhook url</ControlLabel>
           <FormControl
             {...formProps}
-            type='text'
-            placeholder='Url will appear after save'
+            type="text"
+            placeholder="Url will appear after save"
             value={webhookUrl}
           />
         </FormGroup>
@@ -123,10 +124,10 @@ class Line extends React.Component<Props, State> {
         />
         <ModalFooter>
           <Button
-            btnStyle='simple'
-            type='button'
+            btnStyle="simple"
+            type="button"
             onClick={closeModal}
-            icon='times-circle'
+            icon="times-circle"
           >
             Cancel
           </Button>

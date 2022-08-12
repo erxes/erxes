@@ -5,7 +5,6 @@ import * as permissions from './permissions';
 import { generateModels, models } from './connectionResolver';
 
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import logs from './logUtils';
 import beforeResolvers from './beforeResolvers';
 
@@ -45,8 +44,6 @@ export default {
     await generateModels('os');
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

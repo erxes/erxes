@@ -1,5 +1,5 @@
-import { IDealPlaceDocument } from '../../models/definitions/dealPlaces';
 import { IContext } from '../../connectionResolver';
+import { IDealPlaceDocument } from '../../models/definitions/dealPlaces';
 
 const DealPlace = {
   async startPlace(

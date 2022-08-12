@@ -1,9 +1,9 @@
-import { __ } from "@erxes/ui/src/utils";
-import { COMPANY_INFO } from "@erxes/ui/src/companies/constants";
-import { CUSTOMER_BASIC_INFO } from "@erxes/ui-contacts/src/customers/constants";
-import { PRODUCT_INFO } from "@erxes/ui-products/src/constants";
-import { FIELDS_GROUPS_CONTENT_TYPES } from "@erxes/ui-settings/src/properties/constants";
-import { IField } from "@erxes/ui/src/types";
+import { COMPANY_INFO } from '@erxes/ui-contacts/src/companies/constants';
+import { CUSTOMER_BASIC_INFO } from '@erxes/ui-contacts/src/customers/constants';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
+import { IField } from '@erxes/ui/src/types';
+import { PRODUCT_INFO } from '@erxes/ui-products/src/constants';
+import { __ } from '@erxes/ui/src/utils';
 
 const generateFields = (infos: any[], type: string) => {
   const fields: IField[] = [];
@@ -12,15 +12,15 @@ const generateFields = (infos: any[], type: string) => {
     fields.push({
       _id: `customerBasicInfos${index}`,
       contentType: type,
-      type: "input",
+      type: 'input',
       text: info.label,
       isVisible: true,
-      validation: "",
+      validation: '',
       order: `${index - 1}`,
       options: [],
       groupId: `basicInfosGroup${type}`,
       description: info.label,
-      isDefinedByErxes: true,
+      isDefinedByErxes: true
     });
   });
 
@@ -30,23 +30,23 @@ const generateFields = (infos: any[], type: string) => {
 const generateGroup = (infos: any[], type: string) => {
   return {
     _id: `basicInfosGroup${type}`,
-    name: __("Basic information"),
+    name: __('Basic information'),
     description: __(`Basic information of a ${type}`),
     contentType: type,
     order: -1,
     isVisible: true,
     lastUpdatedUser: {
-      _id: "123",
-      role: "SYSTEM",
-      username: "system",
-      email: "system@erxes.io",
+      _id: '123',
+      role: 'SYSTEM',
+      username: 'system',
+      email: 'system@erxes.io',
       details: {
-        fullName: "SYSTEM",
-      },
+        fullName: 'SYSTEM'
+      }
     },
-    lastUpdatedUserId: "123",
+    lastUpdatedUserId: '123',
     isDefinedByErxes: true,
-    fields: generateFields(infos, type),
+    fields: generateFields(infos, type)
   };
 };
 

@@ -1,4 +1,3 @@
-import { IField, IFieldLogic } from '@erxes/ui/src/types';
 import Button from '@erxes/ui/src/components/Button';
 import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -18,8 +17,8 @@ import {
 import FieldPreview from '@erxes/ui-forms/src/forms/components/FieldPreview';
 
 type Props = {
-  onSubmit: (field: IField) => void;
-  onDelete?: (field: IField) => void;
+  onSubmit: (field: any) => void;
+  onDelete?: (field: any) => void;
   onCancel: () => void;
   mode: 'create' | 'update';
   field: any;
@@ -42,7 +41,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[]
   ) {
     const { field } = this.state;
 
@@ -53,7 +52,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };

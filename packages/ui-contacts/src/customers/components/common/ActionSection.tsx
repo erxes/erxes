@@ -1,23 +1,24 @@
-import Button from '@erxes/ui/src/components/Button';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { ControlLabel } from '@erxes/ui/src/components/form';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
-import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge';
-import CompanyForm from '@erxes/ui/src/companies/containers/CompanyForm';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import TargetMerge from './TargetMerge';
-import CustomersMerge from '../detail/CustomersMerge';
-import CustomerForm from '../../containers/CustomerForm';
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
+import { Box, MailBox, States } from '../../styles';
+
 import { Actions } from '@erxes/ui/src/styles/main';
-import { ICustomer } from '../../types';
-import { Box, States, MailBox } from '../../styles';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
-import React from 'react';
+import Button from '@erxes/ui/src/components/Button';
+import CompaniesMerge from '../../../companies/components/detail/CompaniesMerge';
+import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import CustomerForm from '../../containers/CustomerForm';
+import CustomersMerge from '../detail/CustomersMerge';
 import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '../../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
+import TargetMerge from './TargetMerge';
+import Tip from '@erxes/ui/src/components/Tip';
 
 type Props = {
   coc: ICustomer | ICompany;

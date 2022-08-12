@@ -1,6 +1,8 @@
+import { IModels } from './connectionResolver';
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendPosclientMessage,
   sendProductsMessage
 } from './messageBroker';
 
@@ -258,4 +260,57 @@ export const getChildCategories = async (subdomain: string, categoryIds) => {
   }
 
   return Array.from(new Set(catIds));
+};
+
+export const getBranchesUtil = async (
+  subdomain: string,
+  models: IModels,
+  posToken: string
+) => {
+  const pos = await models.Pos.findOne({ token: posToken }).lean();
+
+  if (!pos) {
+    return { error: 'not found pos' };
+  }
+
+  const allowsPos = await models.Pos.find({
+    isOnline: { $ne: true },
+    branchId: { $in: pos.allowBranchIds }
+  }).lean();
+
+  const healthyBranchIds = [] as any;
+
+  for (const allowPos of allowsPos) {
+    const longTask = async () =>
+      await sendPosclientMessage({
+        subdomain,
+        action: 'health_check',
+        data: { token: allowPos.token },
+        pos: allowPos,
+        isRPC: true
+      });
+
+    const timeout = (cb, interval) => () =>
+      new Promise(resolve => setTimeout(() => cb(resolve), interval));
+
+    const onTimeout = timeout(resolve => resolve({}), 3000);
+
+    let response = { healthy: 'down' };
+    await Promise.race([longTask, onTimeout].map(f => f())).then(
+      result => (response = result as { healthy: string })
+    );
+
+    if (response && response.healthy === 'ok') {
+      healthyBranchIds.push(allowPos.branchId);
+      break;
+    }
+  }
+
+  return await sendCoreMessage({
+    subdomain,
+    action: 'branches.find',
+    data: { query: { _id: { $in: healthyBranchIds } } },
+    isRPC: true,
+    defaultValue: []
+  });
 };

@@ -1,13 +1,13 @@
-import { IStage } from '@erxes/ui-cards/src/boards/types';
-import Icon from '@erxes/ui/src/components/Icon';
-import SortableList from '@erxes/ui/src/components/SortableList';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import { StageList } from '@erxes/ui-settings/src/boards/styles';
 import { IDepartment } from '@erxes/ui/src/team/types';
 import { IOption } from '../types';
+import { IStage } from '@erxes/ui-cards/src/boards/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { LinkButton } from '@erxes/ui/src/styles/main';
+import React from 'react';
+import SortableList from '@erxes/ui/src/components/SortableList';
 import StageItem from './StageItem';
+import { StageList } from '@erxes/ui-cards/src/settings/boards/styles';
+import { __ } from 'coreui/utils';
 
 type Props = {
   onChangeStages: (stages: IStage[]) => void;

@@ -1,13 +1,15 @@
 import * as _ from 'underscore';
-import { CAMPAIGN_STATUS } from './definitions/constants';
-import { Model, model } from 'mongoose';
-import { validCampaign } from './utils';
-import { IModels } from '../connectionResolver';
+
 import {
   IVoucherCampaign,
   IVoucherCampaignDocument,
   voucherCampaignSchema
 } from './definitions/voucherCampaigns';
+import { Model, model } from 'mongoose';
+
+import { CAMPAIGN_STATUS } from './definitions/constants';
+import { IModels } from '../connectionResolver';
+import { validCampaign } from './utils';
 
 export interface IVoucherCampaignModel extends Model<IVoucherCampaignDocument> {
   getVoucherCampaign(_id: string): Promise<IVoucherCampaignDocument>;
@@ -55,7 +57,9 @@ export const loadVoucherCampaignClass = (
 ) => {
   class VoucherCampaign {
     public static async getVoucherCampaign(_id: string) {
-      const voucherCampaign = await models.VoucherCampaigns.findOne({ _id });
+      const voucherCampaign = await models.VoucherCampaigns.findOne({
+        _id
+      }).lean();
 
       if (!voucherCampaign) {
         throw new Error('not found voucher rule');

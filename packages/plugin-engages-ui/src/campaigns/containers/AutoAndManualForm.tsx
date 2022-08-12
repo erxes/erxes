@@ -1,27 +1,27 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "react-apollo";
+import * as compose from 'lodash.flowright';
 
-import { IUser } from "@erxes/ui/src/auth/types";
-import { withProps } from "@erxes/ui/src/utils";
-import { AddMutationResponse } from "@erxes/ui-segments/src/types";
-import { IBrand } from "@erxes/ui/src/brands/types";
-import { IConfig } from "@erxes/ui-settings/src/general/types";
-import { queries as integrationQueries } from "@erxes/ui-settings/src/integrations/graphql";
-import { IntegrationsQueryResponse } from "@erxes/ui-settings/src/integrations/types";
 import {
   EmailTemplatesQueryResponse,
   IEngageMessageDoc,
   IEngageScheduleDate,
-  IIntegrationWithPhone,
-} from "@erxes/ui-engage/src/types";
-import { queries } from "@erxes/ui-engage/src/graphql";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+  IIntegrationWithPhone
+} from '@erxes/ui-engage/src/types';
 
-import AutoAndManualForm from "../components/AutoAndManualForm";
-import FormBase from "../components/FormBase";
-import withFormMutations from "./withFormMutations";
+import { AddMutationResponse } from '@erxes/ui-segments/src/types';
+import AutoAndManualForm from '../components/AutoAndManualForm';
+import FormBase from '../components/FormBase';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IntegrationsQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '@erxes/ui-engage/src/graphql';
+import withFormMutations from './withFormMutations';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   kind?: string;
@@ -48,7 +48,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
     emailTemplatesQuery,
     integrationsConfigsQuery,
     externalIntegrationsQuery,
-    integrationsQuery,
+    integrationsQuery
   } = props;
 
   const configs =
@@ -71,7 +71,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
 
   for (const ext of externalIntegrations) {
     const locals = integrations.filter(
-      (i) => i._id === ext.erxesApiId && i.isActive
+      i => i._id === ext.erxesApiId && i.isActive
     );
 
     for (const local of locals) {
@@ -79,7 +79,7 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
         _id: local._id,
         name: local.name,
         phoneNumber: ext.telnyxPhoneNumber,
-        isActive: local.isActive,
+        isActive: local.isActive
       });
     }
   }
@@ -87,27 +87,27 @@ const AutoAndManualFormContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     templates: emailTemplatesQuery.emailTemplates || [],
-    smsConfig: configs.find((i) => i.code === "TELNYX_API_KEY"),
-    integrations: mappedIntegrations,
+    smsConfig: configs.find(i => i.code === 'TELNYX_API_KEY'),
+    integrations: mappedIntegrations
   };
 
-  const content = (formProps) => (
+  const content = formProps => (
     <AutoAndManualForm {...updatedProps} {...formProps} />
   );
 
-  return <FormBase kind={props.kind || ""} content={content} />;
+  return <FormBase kind={props.kind || ''} content={content} />;
 };
 
 const withTemplatesQuery = withFormMutations<Props>(
   withProps<Props>(
     compose(
       graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
-        name: "emailTemplatesQuery",
+        name: 'emailTemplatesQuery',
         options: ({ totalCountQuery }) => ({
           variables: {
-            perPage: totalCountQuery.emailTemplatesTotalCount,
-          },
-        }),
+            perPage: totalCountQuery.emailTemplatesTotalCount
+          }
+        })
       })
     )(AutoAndManualFormContainer)
   )
@@ -115,36 +115,36 @@ const withTemplatesQuery = withFormMutations<Props>(
 
 let composers: any[] = [
   graphql(gql(queries.totalCount), {
-    name: "totalCountQuery",
-  }),
+    name: 'totalCountQuery'
+  })
 ];
 
 const integrationEnabledQueries = [
   graphql(gql(integrationQueries.integrationsGetConfigs), {
-    name: "integrationsConfigsQuery",
+    name: 'integrationsConfigsQuery'
   }),
   graphql(gql(integrationQueries.integrationsGetIntegrations), {
-    name: "externalIntegrationsQuery",
+    name: 'externalIntegrationsQuery',
     options: () => ({
-      variables: { kind: "telnyx" },
-      fetchPolicy: "network-only",
-    }),
+      variables: { kind: 'telnyx' },
+      fetchPolicy: 'network-only'
+    })
   }),
   graphql<Props, IntegrationsQueryResponse>(
     gql(integrationQueries.integrations),
     {
-      name: "integrationsQuery",
+      name: 'integrationsQuery',
       options: () => {
         return {
-          variables: { kind: "telnyx" },
-          fetchPolicy: "network-only",
+          variables: { kind: 'telnyx' },
+          fetchPolicy: 'network-only'
         };
-      },
+      }
     }
-  ),
+  )
 ];
 
-if (isEnabled("integrations")) {
+if (isEnabled('integrations')) {
   composers = composers.concat(integrationEnabledQueries);
 }
 

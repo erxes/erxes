@@ -18,6 +18,14 @@ module.exports = {
       scope: "syncerkhet",
       action: 'syncErkhetConfig',
       permission: "syncErkhetConfig",
-    }
+    },
+    {
+      text: 'Sync Erkhet',
+      url: '/check-synced-deals',
+      icon: 'icon-file-check-alt',
+      location: "mainNavigation",
+      scope: 'syncerkhet',
+      permission: 'syncErkhetConfig',
+    },
   ]
 };

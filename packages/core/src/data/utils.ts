@@ -784,20 +784,12 @@ export const registerOnboardHistory = ({
     .catch(e => debugBase(e));
 
 export const getConfigs = async models => {
-  const configsCache = await memoryStorage().get('configs_erxes_api');
-
-  if (configsCache && configsCache !== '{}') {
-    return JSON.parse(configsCache);
-  }
-
   const configsMap = {};
   const configs = await models.Configs.find({}).lean();
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
   }
-
-  memoryStorage().set('configs_erxes_api', JSON.stringify(configsMap));
 
   return configsMap;
 };

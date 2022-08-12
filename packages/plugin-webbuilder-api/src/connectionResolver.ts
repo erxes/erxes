@@ -13,8 +13,10 @@ import {
   loadTemplateClass,
   ITemplateDocument
 } from './models/templates';
+import { ISiteDocument, ISiteModel, loadSiteClass } from './models/sites';
 
 export interface IModels {
+  Sites: ISiteModel;
   Pages: IPageModel;
   ContentTypes: IContentTypeModel;
   Entries: IEntryModel;
@@ -30,14 +32,21 @@ export let models: IModels | null = null;
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
+  models.Sites = db.model<ISiteDocument, ISiteModel>(
+    'webbuilder_sites',
+    loadSiteClass(models)
+  );
+
   models.Pages = db.model<IPageDocument, IPageModel>(
     'webbuilder_pages',
     loadPageClass(models)
   );
+
   models.ContentTypes = db.model<IContentTypeDocument, IContentTypeModel>(
     'webbuilder_contenttypes',
     loadTypeClass(models)
   );
+
   models.Entries = db.model<IEntryDocument, IEntryModel>(
     'webbuilder_entries',
     loadEntryClass(models)

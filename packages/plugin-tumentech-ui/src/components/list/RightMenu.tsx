@@ -1,25 +1,17 @@
+import Icon from '@erxes/ui/src/components/Icon';
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import Button from '@erxes/ui/src/components/Button';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import DateControl from '@erxes/ui/src/components/form/DateControl';
+import { IQueryParams } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
 import Datetime from '@nateradebaugh/react-datetime';
 import dayjs from 'dayjs';
 import React from 'react';
 import RTG from 'react-transition-group';
-import {
-  Button,
-  ControlLabel,
-  FormControl,
-  FormGroup,
-  Icon,
-  MainStyleDateContainer as DateContainer
-} from '@erxes/ui/src';
-import { __ } from '@erxes/ui/src/utils';
-import {
-  CustomRangeContainer,
-  FilterBox,
-  FilterButton,
-  MenuFooter,
-  RightMenuContainer,
-  TabContent
-} from '../../styles';
-import { IQueryParams } from '@erxes/ui/src/types';
+
 import {
   BOW_TYPES,
   BRAKE_TYPES,
@@ -28,7 +20,14 @@ import {
   TIRE_LOAD_TYPES,
   TRAILER_TYPES
 } from '../../constants';
-import DateControl from '@erxes/ui/src/components/form/DateControl';
+import {
+  CustomRangeContainer,
+  FilterBox,
+  FilterButton,
+  MenuFooter,
+  RightMenuContainer,
+  TabContent
+} from '../../styles';
 
 type Props = {
   onSearch: (search: string, key?: string) => void;

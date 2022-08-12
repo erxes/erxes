@@ -1,16 +1,20 @@
-import dayjs from 'dayjs';
-import { Icon, __, Alert, Button, confirm, ModalTrigger } from '@erxes/ui/src';
-import { ActivityIcon, ActivityRow } from '@erxes/ui/src/activityLogs/styles';
-import React from 'react';
 import {
+  ActivityIcon,
+  ActivityRow
+} from '@erxes/ui-log/src/activityLogs/styles';
+import { Alert, Button, Icon, ModalTrigger, __, confirm } from '@erxes/ui/src';
+import {
+  ItemDesc,
   ItemLabel,
   ItemValue,
-  ScheduleItem,
-  ItemDesc
+  ScheduleItem
 } from '../../contracts/styles';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import InvoiceForm from '../containers/InvoiceForm';
+import React from 'react';
 import TransactionForm from '../../transactions/containers/TransactionForm';
+import dayjs from 'dayjs';
 
 type Props = {
   activity: IActivityLog;

@@ -2,7 +2,7 @@ import { afterMutationHandlers } from './afterMutations';
 import { generateModels, IModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { orderToErkhet } from './utils';
+import { orderToErkhet, getBranchesUtil } from './utils';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -20,11 +20,8 @@ export const initBroker = async cl => {
   consumeQueue('pos:createOrUpdateOrders', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { action, posToken, syncId, response, order, items } = data;
+    const { action, posToken, response, order, items } = data;
     const pos = await models.Pos.findOne({ token: posToken }).lean();
-    const syncInfos = { ...pos.syncInfos, ...{ [syncId]: new Date() } };
-
-    await models.Pos.updateOne({ _id: pos._id }, { $set: { syncInfos } });
 
     // ====== if (action === 'statusToDone')
     if (action === 'statusToDone') {
@@ -171,7 +168,7 @@ export const initBroker = async cl => {
     await sendEbarimtMessage({
       subdomain,
       action: 'putresponses.createOrUpdate',
-      data: { _id: response._id, doc: { ...response, posToken, syncId } },
+      data: { _id: response._id, doc: { ...response, posToken } },
       isRPC: true
     });
 
@@ -181,7 +178,6 @@ export const initBroker = async cl => {
         $set: {
           ...order,
           posToken,
-          syncId,
           items,
           branchId: order.branchId || pos.branchId
         }
@@ -197,10 +193,8 @@ export const initBroker = async cl => {
       data: {
         status: 'ok',
         posToken,
-        syncId,
         responseId: response._id,
-        orderId: order._id,
-        thirdService: true
+        orderId: order._id
       },
       pos
     });
@@ -235,12 +229,84 @@ export const initBroker = async cl => {
       status: 'success'
     };
   });
+
   consumeRPCQueue('pos:findSlots', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
       data: await models.PosSlots.find({ posId: data.posId }).lean()
+    };
+  });
+
+  consumeRPCQueue('pos:ecommerceGetBranches', async ({ subdomain, data }) => {
+    const { posToken } = data;
+
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await getBranchesUtil(subdomain, models, posToken)
+    };
+  });
+
+  consumeRPCQueue('pos:ordersDeliveryInfo', async ({ subdomain, data }) => {
+    const { orderId } = data;
+    const models = await generateModels(subdomain);
+
+    const order = await models.PosOrders.findOne({ _id: orderId }).lean();
+
+    // on kitchen
+    if (!order.deliveryInfo) {
+      return {
+        status: 'success',
+        data: {
+          error: 'Deleted delivery information.'
+        }
+      };
+    }
+
+    if (!order.deliveryInfo.dealId) {
+      return {
+        status: 'success',
+        data: {
+          _id: order._id,
+          status: 'onKitchen',
+          date: order.paidDate
+        }
+      };
+    }
+
+    const dealId = order.deliveryInfo.dealId;
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: { _id: dealId },
+      isRPC: true
+    });
+
+    if (!deal) {
+      return {
+        status: 'success',
+        data: {
+          error: 'Deleted delivery information.'
+        }
+      };
+    }
+
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: { _id: deal.stageId },
+      isRPC: true
+    });
+
+    return {
+      status: 'success',
+      data: {
+        _id: order._id,
+        status: stage.name,
+        date: deal.stageChangedDate || deal.modifiedDate || deal.createdAt
+      }
     };
   });
 };
@@ -298,62 +364,35 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
-export const getChannels = async (
-  models: IModels,
-  channel: string,
-  pos?: IPosDocument,
-  excludeTokens?: string[]
-) => {
-  const channels: string[] = [];
-  const allPos = pos ? [pos] : await models.Pos.find().lean();
-
-  for (const p of allPos) {
-    if (
-      excludeTokens &&
-      excludeTokens.length &&
-      excludeTokens.includes(p.token)
-    ) {
-      continue;
-    }
-
-    const syncIds = Object.keys(p.syncInfos || {}) || [];
-
-    if (!syncIds.length) {
-      continue;
-    }
-
-    for (const syncId of syncIds) {
-      const syncDate = p.syncInfos[syncId];
-
-      // expired sync 72 hour
-      if ((new Date().getTime() - syncDate.getTime()) / (60 * 60 * 1000) > 72) {
-        continue;
-      }
-      channels.push(`${channel}_${syncId}`);
-    }
-  }
-  return channels;
-};
-
 export const sendPosclientMessage = async (
   args: ISendMessageArgs & {
-    pos?: IPosDocument | undefined;
-    excludeTokens?: string[];
+    pos: IPosDocument;
   }
 ) => {
-  const { subdomain, action, pos, excludeTokens } = args;
-  const models = await generateModels(subdomain);
-  const channels = await getChannels(models, action, pos, excludeTokens);
-  for (const ch of channels) {
-    console.log(ch);
-    await sendMessage({
-      client,
-      serviceDiscovery,
-      serviceName: 'posclient',
-      ...args,
-      action: `${ch}`
-    });
+  const { action, pos } = args;
+  let lastAction = action;
+  let serviceName = 'posclient';
+
+  const { ALL_AUTO_INIT } = process.env;
+
+  if (
+    ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
+    !pos.onServer
+  ) {
+    lastAction = `posclient:${action}_${pos.token}`;
+    serviceName = '';
+    args.data.thirdService = true;
   }
+
+  args.data.token = pos.token;
+
+  return await sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName,
+    ...args,
+    action: lastAction
+  });
 };
 
 export default function() {

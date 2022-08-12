@@ -21,15 +21,9 @@ const EntryForm = asyncComponent(() =>
   )
 );
 
-const CreateContentType = asyncComponent(() =>
+const ContentTypeForm = asyncComponent(() =>
   import(
-    /* webpackChunkName: "CreateContentType -- Webbuilders" */ './containers/contentTypes/CreateContentType'
-  )
-);
-
-const EditContentType = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "EditContentType -- Webbuilders" */ './containers/contentTypes/EditContentType'
+    /* webpackChunkName: "ContentType -- Webbuilders" */ './containers/contentTypes/ContentTypeForm'
   )
 );
 
@@ -40,19 +34,19 @@ const webBuilders = history => {
 
   const { step } = match.params;
 
-  return <WebBuilder step={step} queryParams={queryParams} history={history} />;
+  return <WebBuilder step={step} queryParams={queryParams} />;
 };
 
-const createContentType = () => {
-  return <CreateContentType />;
+const typeEdit = ({ match }) => {
+  const id = match.params.id;
+
+  return <ContentTypeForm contentTypeId={id} />;
 };
 
-const editContentType = ({ match, location }) => {
-  const { id } = match.params;
+const pageWithTemplate = ({ match }) => {
+  const templateId = match.params.templateId;
 
-  const queryParams = queryString.parse(location.search);
-
-  return <EditContentType contentTypeId={id} queryParams={queryParams} />;
+  return <PageForm templateId={templateId} />;
 };
 
 const pageEdit = ({ match }) => {
@@ -90,6 +84,13 @@ const routes = () => {
         exact={true}
         component={PageForm}
       />
+
+      <Route
+        path="/webbuilder/pages/create/:templateId"
+        exact={true}
+        component={pageWithTemplate}
+      />
+
       <Route
         key="/webbuilder/pages/edit/:_id"
         path="/webbuilder/pages/edit/:_id"
@@ -100,13 +101,13 @@ const routes = () => {
       <Route
         path="/webbuilder/contenttypes/create"
         exact={true}
-        component={createContentType}
+        component={ContentTypeForm}
       />
 
       <Route
         path="/webbuilder/contenttypes/edit/:id"
         exact={true}
-        component={editContentType}
+        component={typeEdit}
       />
 
       <Route

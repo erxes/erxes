@@ -1,21 +1,22 @@
-import { formatText } from '@erxes/ui/src/activityLogs/utils';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { __ } from 'coreui/utils';
-import NylasForm from '../../containers/mail/Form';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import IntegrationForm from '../../containers/common/IntegrationForm';
-import LineForm from '../../containers/line/Form';
-import TelnyxForm from '../../containers/telnyx/TelnyxForm';
-import Twitter from '../../containers/twitter/Twitter';
 import {
   Box,
   IntegrationItem,
   Ribbon,
   Type
-} from '@erxes/ui-settings/src/integrations/components/store/styles';
+} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
+
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import Icon from '@erxes/ui/src/components/Icon';
+import IntegrationForm from '../../containers/common/IntegrationForm';
+import LineForm from '../../containers/line/Form';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import NylasForm from '../../containers/mail/Form';
+import React from 'react';
+import TelnyxForm from '../../containers/telnyx/TelnyxForm';
+import Twitter from '../../containers/twitter/Twitter';
+import { __ } from 'coreui/utils';
+import { formatText } from '@erxes/ui-log/src/activityLogs/utils';
 
 type TotalCount = {
   messenger: number;

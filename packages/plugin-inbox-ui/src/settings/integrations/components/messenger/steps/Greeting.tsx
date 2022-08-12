@@ -1,13 +1,14 @@
-import { IUser } from '@erxes/ui/src/auth/types';
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import { __ } from 'coreui/utils';
-import { IMessages } from '@erxes/ui-settings/src/integrations/types';
-import { SubHeading } from '@erxes/ui-settings/src/styles';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { IMessages } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { SubHeading } from '@erxes/ui-settings/src/styles';
+import { __ } from 'coreui/utils';
 
 type Props = {
   onChange: (name: any, value: any) => void;
@@ -107,7 +108,7 @@ class Greeting extends React.Component<Props, State> {
             <ControlLabel>Greeting message</ControlLabel>
 
             <FormControl
-              componentClass='textarea'
+              componentClass="textarea"
               placeholder={__('Write here Greeting message') + '.'}
               rows={3}
               value={message.greetings.message}
@@ -119,8 +120,8 @@ class Greeting extends React.Component<Props, State> {
             <ControlLabel>Supporters</ControlLabel>
 
             <SelectTeamMembers
-              label='Choose users'
-              name='supporterIds'
+              label="Choose users"
+              name="supporterIds"
               initialValue={supporterIds}
               onSelect={usersOnChange}
             />

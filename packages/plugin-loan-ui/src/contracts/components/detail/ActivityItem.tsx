@@ -1,6 +1,6 @@
-import React from 'react';
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import PerInvoice from '../../../invoices/containers/PerInvoice';
+import React from 'react';
 
 const renderInvoices = (activity: IActivityLog) => {
   return <PerInvoice key={Math.random()} activity={activity}></PerInvoice>;

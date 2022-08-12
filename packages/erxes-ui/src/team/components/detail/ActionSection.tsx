@@ -1,17 +1,35 @@
+import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
+
+import { Actions } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
+import { MailBox } from './styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
-import { Actions } from '@erxes/ui/src/styles/main';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
+import Tip from '@erxes/ui/src/components/Tip';
 import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
+import { __ } from '@erxes/ui/src/utils';
+import asyncComponent from '../../../components/AsyncComponent';
+import { isEnabled } from '../../../utils/core';
+import path from 'path';
+
+const MailForm = asyncComponent(
+  () =>
+    isEnabled('inbox') &&
+    import(
+      /* webpackChunkName: "MailForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm'
+    )
+);
+
+const SmsForm = asyncComponent(
+  () =>
+    isEnabled('inbox') &&
+    import(
+      /* webpackChunkName: "SmsForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm'
+    )
+);
 
 type Props = {
   user: IUser;
@@ -53,15 +71,17 @@ class ActionSection extends React.Component<Props> {
           dialogClassName="middle"
           title="Email"
           trigger={
-            <Button
-              disabled={user.email ? false : true}
-              size="small"
-              btnStyle={user.email ? 'primary' : 'simple'}
-            >
-              <Tip text="Send e-mail" placement="top-end">
-                <Icon icon="envelope" />
-              </Tip>
-            </Button>
+            isEnabled('inbox') && (
+              <Button
+                disabled={user.email ? false : true}
+                size="small"
+                btnStyle={user.email ? 'primary' : 'simple'}
+              >
+                <Tip text="Send e-mail" placement="top-end">
+                  <Icon icon="envelope" />
+                </Tip>
+              </Button>
+            )
           }
           size="lg"
           content={content}
@@ -72,15 +92,17 @@ class ActionSection extends React.Component<Props> {
           dialogClassName="middle"
           title={`Send SMS to (${operatorPhone})`}
           trigger={
-            <Button
-              disabled={operatorPhone ? false : true}
-              size="small"
-              btnStyle={operatorPhone ? 'primary' : 'simple'}
-            >
-              <Tip text="Send SMS" placement="top-end">
-                <Icon icon="message" />
-              </Tip>
-            </Button>
+            isEnabled('inbox') && (
+              <Button
+                disabled={operatorPhone ? false : true}
+                size="small"
+                btnStyle={operatorPhone ? 'primary' : 'simple'}
+              >
+                <Tip text="Send SMS" placement="top-end">
+                  <Icon icon="message" />
+                </Tip>
+              </Button>
+            )
           }
           content={smsForm}
         />

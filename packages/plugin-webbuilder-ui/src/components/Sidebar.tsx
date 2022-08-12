@@ -5,14 +5,14 @@ import { SidebarListItem } from '@erxes/ui-settings/src/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ITEMS } from '../constants';
+import { IContentTypeDoc } from '../types';
 
 const { Section } = Wrapper.Sidebar;
 
 type Props = {
-  history: any;
   queryParams: any;
   type: string;
-  contentTypes: any;
+  contentTypes: IContentTypeDoc[];
 };
 
 class List extends React.Component<Props> {

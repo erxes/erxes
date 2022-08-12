@@ -1,39 +1,33 @@
-import jquery from 'jquery';
-import { jsPlumb } from 'jsplumb';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import RTG from 'react-transition-group';
-
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 import Button from '@erxes/ui/src/components/Button';
-import { FormControl } from '@erxes/ui/src/components/form';
+import Confirmation from '../../containers/forms/Confirmation';
+import FlowJobsForm from './actions/FlowJobsForm';
 import Icon from '@erxes/ui/src/components/Icon';
+import jquery from 'jquery';
 import Label from '@erxes/ui/src/components/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Toggle from '@erxes/ui/src/components/Toggle';
+import NewJobForm from './actions/NewJobForm';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import React from 'react';
+import RTG from 'react-transition-group';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 import { __, Alert } from '@erxes/ui/src/utils';
-
-import { IFlowDocument, IJob } from '../../../flow/types';
-import { IJobRefer, IProductsData } from '../../../job/types';
-import FlowJobsForm from '../../containers/forms/actions/FlowJobsForm';
-import Confirmation from '../../containers/forms/Confirmation';
 import {
-  FlowJobBarButtonsWrapper,
-  FlowFormContainer,
   BackButton,
   Container,
+  FlowFormContainer,
   RightDrawerContainer,
   Title,
   ToggleWrapper,
   ZoomFlowJobs,
   ZoomIcon
 } from '../../styles';
+import {
+  BarItems,
+  FlexContent,
+  HeightedWrapper
+} from '@erxes/ui/src/layout/styles';
 import {
   connection,
   connectorHoverStyle,
@@ -44,7 +38,14 @@ import {
   sourceEndpoint,
   targetEndpoint
 } from '../../utils';
-import NewJobForm from './actions/NewJobForm';
+import { FlowJobBarButtonsWrapper } from '../../styles';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IFlowDocument, IJob } from '../../../flow/types';
+import { IJobRefer, IProductsData } from '../../../job/types';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { jsPlumb } from 'jsplumb';
+import { Link } from 'react-router-dom';
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 
 const plumb: any = jsPlumb;
 let instance;

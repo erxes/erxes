@@ -1,19 +1,20 @@
-import { Alert, withProps } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
 
-import { IActivityLog } from '@erxes/ui/src/activityLogs/types';
-import PerInvoice from '../components/PerInvoice';
-import { mutations } from '../graphql';
+import { Alert, withProps } from '@erxes/ui/src';
 import {
   MainQueryResponse,
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
+
+import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import PerInvoice from '../components/PerInvoice';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   activity: IActivityLog;

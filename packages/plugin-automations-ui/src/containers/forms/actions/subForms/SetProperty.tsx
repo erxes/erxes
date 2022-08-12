@@ -1,12 +1,13 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IAction } from '../../../../types';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+
+import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
 import Form from '../../../../components/forms/actions/subForms/SetProperty';
+import { IAction } from '../../../../types';
+import React from 'react';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   contentType: string;

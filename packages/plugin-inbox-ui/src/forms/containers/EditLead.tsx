@@ -1,22 +1,24 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   EditIntegrationMutationResponse,
   EditIntegrationMutationVariables,
   LeadIntegrationDetailQueryResponse
-} from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import Lead from '../components/Lead';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import { mutations, queries } from '@erxes/ui-leads/src/graphql';
+
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
 import { ILeadData } from '@erxes/ui-leads/src/types';
 import { ILeadIntegration } from '@erxes/ui-leads/src/types';
-import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
-import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import Lead from '../components/Lead';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   contentTypeId: string;

@@ -1,15 +1,6 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { IField, IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import Form from '../components/Form';
-import { mutations, queries } from '../graphql';
 import {
   BulkEditAndAddMutationVariables,
   EditFormMutationResponse,
@@ -21,7 +12,18 @@ import {
   RemoveFieldMutationResponse,
   RemoveFieldMutationVariables
 } from '../types';
+import { IField, IRouterProps } from '@erxes/ui/src/types';
+import { mutations, queries } from '../graphql';
+
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import { FieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import Form from '../components/Form';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { queries as settingsQueries } from '@erxes/ui-settings/src/general/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   afterDbSave: (formId: string) => void;

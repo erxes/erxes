@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import React from 'react';
-import { graphql } from 'react-apollo';
 import Bulk from '@erxes/ui/src/components/Bulk';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { mutations, queries } from '../graphql';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+
 import ClientPortalUserList from '../components/list/ClientPortalUserList';
+import { mutations, queries } from '../graphql';
 import {
+  ClientPortalUserRemoveMutationResponse,
   ClientPortalUsersQueryResponse,
   ClientPortalUserTotalCountQueryResponse,
-  ClientPortalUserRemoveMutationResponse
+  ClientPortalVerifyUsersMutationResponse
 } from '../types';
 
 type Props = {
@@ -25,9 +27,22 @@ type FinalProps = {
   clientPortalUserTotalCountQuery: ClientPortalUserTotalCountQueryResponse;
 } & Props &
   ClientPortalUserRemoveMutationResponse &
+  ClientPortalVerifyUsersMutationResponse &
   IRouterProps;
 
-class ClientportalUserListContainer extends React.Component<FinalProps> {
+type State = {
+  loading: boolean;
+};
+
+class ClientportalUserListContainer extends React.Component<FinalProps, State> {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      loading: false
+    };
+  }
+
   render() {
     const {
       clientPortalUsersQuery,
@@ -52,6 +67,22 @@ class ClientportalUserListContainer extends React.Component<FinalProps> {
         });
     };
 
+    const verifyUsers = (type, userIds) => {
+      const { clientPortalUsersVerify } = this.props;
+      clientPortalUsersVerify({
+        variables: {
+          type,
+          userIds
+        }
+      })
+        .then(() => {
+          Alert.success('You successfully verified a client portal user');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const clientPortalUsers = clientPortalUsersQuery.clientPortalUsers || [];
 
     const searchValue = this.props.queryParams.searchValue || '';
@@ -63,16 +94,13 @@ class ClientportalUserListContainer extends React.Component<FinalProps> {
         clientPortalUserTotalCountQuery.clientPortalUserCounts || 0,
       searchValue,
       queryParams,
-      loading: clientPortalUsersQuery.loading,
-      removeUsers
+      loading: clientPortalUsersQuery.loading || this.state.loading,
+      removeUsers,
+      verifyUsers
     };
 
     const content = props => {
       return <ClientPortalUserList {...updatedProps} {...props} />;
-    };
-
-    const refetch = () => {
-      this.props.clientPortalUsersQuery.refetch();
     };
 
     return (
@@ -104,6 +132,7 @@ export default withProps<Props>(
         variables: {
           searchValue: queryParams.searchValue,
           cpId: queryParams.cpId,
+          type: queryParams.type,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'
@@ -124,6 +153,15 @@ export default withProps<Props>(
       { clientPortalUserIds: string[] }
     >(gql(mutations.clientPortalUsersRemove), {
       name: 'clientPortalUsersRemove',
+      options
+    }),
+
+    graphql<
+      Props,
+      ClientPortalUserRemoveMutationResponse,
+      { type: string; userIds: string[] }
+    >(gql(mutations.verifyUsers), {
+      name: 'clientPortalUsersVerify',
       options
     })
   )(ClientportalUserListContainer)

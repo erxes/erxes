@@ -1,21 +1,22 @@
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
-import { ByKindTotalCount } from '@erxes/ui-settings/src/integrations/types';
-import Row from './Row';
-import Sidebar from './Sidebar';
 import {
   Content,
   FullHeight,
   IntegrationWrapper,
   SearchInput
-} from '@erxes/ui-settings/src/integrations/components/store/styles';
+} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
+
+import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import Row from './Row';
+import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 type Props = {
   totalCount: ByKindTotalCount;

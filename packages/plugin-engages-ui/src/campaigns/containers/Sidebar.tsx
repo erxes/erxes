@@ -1,16 +1,18 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps, Counts } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { withProps } from '@erxes/ui/src/utils';
-import Sidebar from '../components/Sidebar';
-import { queries } from '@erxes/ui-engage/src/graphql';
+
+import { Counts, IRouterProps } from '@erxes/ui/src/types';
+
 import { CountQueryResponse } from '@erxes/ui-engage/src/types';
-import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
-import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
+import React from 'react';
+import Sidebar from '../components/Sidebar';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '@erxes/ui-engage/src/graphql';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import { withProps } from '@erxes/ui/src/utils';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   queryParams: any;

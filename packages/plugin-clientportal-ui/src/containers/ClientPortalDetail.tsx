@@ -1,9 +1,10 @@
-import gql from 'graphql-tag';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Alert from '@erxes/ui/src/utils/Alert';
 import * as routerUtils from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
 import React from 'react';
 import { useMutation, useQuery } from 'react-apollo';
+
 import ClientPortalDetail from '../components/ClientPortalDetail';
 import mutations from '../graphql/mutations';
 import queries from '../graphql/queries';

@@ -1,4 +1,4 @@
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 
 export const generateAttributes = (combinedFields?: FieldsCombinedByType[]) => {
   let items: Array<{ name: string; value?: string }> = [];

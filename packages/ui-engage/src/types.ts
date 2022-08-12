@@ -1,12 +1,13 @@
-import { IConditionsRule } from "@erxes/ui/src/types";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { IAttachment } from "@erxes/ui/src/types";
-import { QueryResponse } from "@erxes/ui/src/types";
-import { IBrand } from "@erxes/ui/src/brands/types";
-import { ISegment, ISegmentCondition } from "@erxes/ui-segments/src/types";
-import { ITag } from "@erxes/ui/src/tags/types";
-import { IIntegration } from "@erxes/ui-settings/src/integrations/types";
-import { MutationVariables } from "@erxes/ui/src/types";
+import { ISegment, ISegmentCondition } from '@erxes/ui-segments/src/types';
+
+import { IAttachment } from '@erxes/ui/src/types';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IConditionsRule } from '@erxes/ui/src/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { MutationVariables } from '@erxes/ui/src/types';
+import { QueryResponse } from '@erxes/ui/src/types';
 
 export type IEngageScheduleDate = {
   type: string;
@@ -219,7 +220,7 @@ export type EngageMessageCounts = {
   all: number;
   auto: number;
   manual: number;
-  visitoryAuto: number;
+  visitorAuto: number;
 };
 
 export type CountQueryResponse = {
@@ -238,7 +239,7 @@ export type TagAdd = (params: {
 
 export type IEmailFormProps = {
   onChange: (
-    name: "email" | "content" | "fromUserId" | "scheduleDate",
+    name: 'email' | 'content' | 'fromUserId' | 'scheduleDate',
     value?: IEngageEmail | IEngageScheduleDate | string
   ) => void;
   message?: string;
@@ -266,3 +267,16 @@ export interface IIntegrationWithPhone {
 export type CopyMutationResponse = {
   copyMutation: (params: { variables: MutationVariables }) => Promise<void>;
 };
+
+export interface IEngageLog {
+  _id: string;
+  createdAt: Date;
+  engageMessageId: string;
+  message: string;
+  type: string;
+}
+
+export type EngageLogsQueryResponse = {
+  engageLogs: IEngageLog[];
+  fetchMore: any;
+} & QueryResponse;

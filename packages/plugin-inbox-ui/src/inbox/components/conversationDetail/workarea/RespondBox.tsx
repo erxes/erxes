@@ -1,14 +1,8 @@
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { __, Alert, readFile, uploadHandler } from 'coreui/utils';
-import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
-import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
+import {
+  AddMessageMutationVariables,
+  IConversation
+} from '@erxes/ui-inbox/src/inbox/types';
+import { Alert, __, readFile, uploadHandler } from 'coreui/utils';
 import {
   Attachment,
   AttachmentIndicator,
@@ -22,15 +16,25 @@ import {
   RespondBoxStyled,
   SmallEditor
 } from '@erxes/ui-inbox/src/inbox/styles';
-import ManageVideoRoom from '../../../../videoCall/containers/ManageRoom';
-import React from 'react';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
-import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
-import { AddMessageMutationVariables, IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
+
+import Button from '@erxes/ui/src/components/Button';
 import { FacebookTaggedMessage } from './styles';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import FacebookTaggedMessageModal from './facebook/FacebookTaggedMessageModal';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IAttachmentPreview } from '@erxes/ui/src/types';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IResponseTemplate } from '../../../../settings/responseTemplates/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import ManageVideoRoom from '../../../../videoCall/containers/ManageRoom';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import React from 'react';
+import ResponseTemplate from '../../../containers/conversationDetail/responseTemplate/ResponseTemplate';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import Tip from '@erxes/ui/src/components/Tip';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { deleteHandler } from '@erxes/ui/src/utils/uploadHandler';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const Editor = asyncComponent(
   () => import(/* webpackChunkName: "Editor-in-Inbox" */ './Editor'),
@@ -360,7 +364,7 @@ class RespondBox extends React.Component<Props, State> {
                 <SmallLoader />
               ) : (
                 <Icon
-                  icon='times'
+                  icon="times"
                   onClick={this.handleDeleteFile.bind(this, attachment.url)}
                 />
               )}
@@ -376,7 +380,7 @@ class RespondBox extends React.Component<Props, State> {
   renderMask() {
     if (this.state.isInactive) {
       return (
-        <Mask id='mask' onClick={this.hideMask}>
+        <Mask id="mask" onClick={this.hideMask}>
           {__(
             'Customer is offline Click to hide and send messages and they will receive them the next time they are online'
           )}
@@ -394,7 +398,7 @@ class RespondBox extends React.Component<Props, State> {
 
     if (this.state.isFacebookTaggedMessage) {
       return (
-        <Mask id='mask'>
+        <Mask id="mask">
           <div>
             {__(
               'Your last interaction with this contact was more than 24 hours ago. Only Tagged Messages are allowed outside the standard messaging window'
@@ -457,16 +461,16 @@ class RespondBox extends React.Component<Props, State> {
 
     return (
       <>
-        {isEnabled("internalnotes") && (
+        {isEnabled('internalnotes') && (
           <FormControl
-          id='conversationInternalNote'
-          className='toggle-message'
-          componentClass='checkbox'
+            id="conversationInternalNote"
+            className="toggle-message"
+            componentClass="checkbox"
             checked={isInternal}
             onChange={this.toggleForm}
             disabled={this.props.showInternal}
           >
-            {__("Internal note")}
+            {__('Internal note')}
           </FormControl>
         )}
       </>
@@ -504,9 +508,9 @@ class RespondBox extends React.Component<Props, State> {
 
         <Tip text={__('Attach file')}>
           <label>
-            <Icon icon='paperclip' />
+            <Icon icon="paperclip" />
             <input
-              type='file'
+              type="file"
               onChange={this.handleFileInput}
               multiple={true}
             />
@@ -522,9 +526,9 @@ class RespondBox extends React.Component<Props, State> {
 
         <Button
           onClick={this.onSend}
-          btnStyle='success'
-          size='small'
-          icon='message'
+          btnStyle="success"
+          size="small"
+          icon="message"
         >
           {!disabled && 'Send'}
         </Button>

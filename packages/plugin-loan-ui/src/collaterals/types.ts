@@ -1,5 +1,6 @@
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { IProductCategory, IProduct } from '@erxes/ui-products/src/types';
+import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
+
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
 
 export interface ICollateralDataDoc {
   _id: string;

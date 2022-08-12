@@ -1,11 +1,6 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { __, Alert } from '@erxes/ui/src/utils';
-import { confirm } from '@erxes/ui/src/utils';
-import LeadState from '../components/LeadState';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { mutations } from '@erxes/ui/src/customers/graphql';
+
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
   ChangeStateMutationResponse,
   ChangeStateMutationVariables,
@@ -14,6 +9,13 @@ import {
   ICustomer,
   ICustomerDoc
 } from '../types';
+
+import LeadState from '../components/LeadState';
+import React from 'react';
+import { confirm } from '@erxes/ui/src/utils';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations } from '@erxes/ui-contacts/src/customers/graphql';
 
 type Props = {
   customer: ICustomer;

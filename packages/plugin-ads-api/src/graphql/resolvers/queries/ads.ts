@@ -1,29 +1,31 @@
+import { IContext, models } from '../../../connectionResolver';
+
 const adsQueries = {
   formSubmissionDetail: async (_root, params, { models }) => {
     const { contentTypeId } = params;
     const conversation = await models.Conversations.findOne({
-      _id: contentTypeId,
+      _id: contentTypeId
     }).lean();
 
     if (!conversation) {
-      throw new Error("Form Submission not found");
+      throw new Error('Form Submission not found');
     }
 
     const submissions = await models.FormSubmissions.find({
-      contentTypeId,
+      contentTypeId
     }).lean();
 
     return {
       ...conversation,
       contentTypeId: conversation._id,
-      submissions,
+      submissions
     };
   },
 
   formSubmissionsByCustomer: async (_root, params, { models }) => {
     const { customerId, tagId, page, perPage, filters } = params;
 
-    const integrationsSelector: any = { kind: "lead", isActive: true };
+    const integrationsSelector: any = { kind: 'lead', isActive: true };
     let conversationIds: string[] = [];
 
     if (tagId) {
@@ -37,31 +39,31 @@ const adsQueries = {
         const { formFieldId, value } = filter;
 
         switch (filter.operator) {
-          case "eq":
+          case 'eq':
             submissionFilters.push({
               formFieldId,
-              value: { $eq: value },
+              value: { $eq: value }
             });
             break;
 
-          case "c":
+          case 'c':
             submissionFilters.push({
               formFieldId,
-              value: { $regex: new RegExp(value) },
+              value: { $regex: new RegExp(value) }
             });
             break;
 
-          case "gte":
+          case 'gte':
             submissionFilters.push({
               formFieldId,
-              value: { $gte: value },
+              value: { $gte: value }
             });
             break;
 
-          case "lte":
+          case 'lte':
             submissionFilters.push({
               formFieldId,
-              value: { $lte: value },
+              value: { $lte: value }
             });
             break;
 
@@ -71,9 +73,9 @@ const adsQueries = {
       }
 
       const subs = await models.FormSubmissions.find({
-        $and: submissionFilters,
+        $and: submissionFilters
       }).lean();
-      conversationIds = subs.map((e) => e.contentTypeId);
+      conversationIds = subs.map(e => e.contentTypeId);
     }
 
     const integration = await models.Integrations.findOne(
@@ -86,7 +88,7 @@ const adsQueries = {
 
     let convsSelector: any = {
       integrationId: integration._id,
-      customerId,
+      customerId
     };
 
     if (conversationIds.length > 0) {
@@ -98,24 +100,28 @@ const adsQueries = {
       {
         $project: {
           _id: 0,
-          contentTypeId: "$_id",
+          contentTypeId: '$_id',
           customerId: 1,
           createdAt: 1,
-          customFieldsData: 1,
-        },
+          customFieldsData: 1
+        }
       },
       {
         $lookup: {
-          from: "form_submissions",
-          localField: "contentTypeId",
-          foreignField: "contentTypeId",
-          as: "submissions",
-        },
+          from: 'form_submissions',
+          localField: 'contentTypeId',
+          foreignField: 'contentTypeId',
+          as: 'submissions'
+        }
       },
       { $skip: perPage * (page - 1) },
-      { $limit: perPage },
+      { $limit: perPage }
     ]);
   },
+  adReview: async (_root, params, { models: { AdReview } }: IContext) => {
+    const { adId } = params;
+    return AdReview.getAdReview(adId);
+  }
 };
 
 export default adsQueries;

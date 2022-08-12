@@ -17,6 +17,8 @@ const fieldCommonFields = `
   showInCard: Boolean
   isVisibleToCreate: Boolean
   productCategoryId: String
+  field: String
+  isDefinedByErxes: Boolean
 `;
 
 export const fieldsTypes = ({ products }) => `
@@ -69,11 +71,9 @@ export const fieldsTypes = ({ products }) => `
     contentType: String!
     contentTypeId: String
     name: String
-    field: String
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
-    isDefinedByErxes: Boolean
     groupId: String
     lastUpdatedUser: User
     lastUpdatedUserId: String
@@ -141,7 +141,8 @@ const fieldsCommonFields = `
   isVisible: Boolean
   canHide: Boolean
   associatedFieldId: String
-  logic: LogicInput
+  logicAction: String
+  logics: [LogicInput]
   searchable: Boolean
   showInCard: Boolean
   objectListConfigs: [objectListConfigInput]

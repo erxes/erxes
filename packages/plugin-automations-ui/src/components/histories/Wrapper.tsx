@@ -6,7 +6,7 @@ import { TRIGGERS } from '../../constants';
 import Histories from '../../containers/Histories';
 import { IAutomation } from '../../types';
 import { HistoriesWrapper, FilterWrapper, FilterDateItem } from './styles';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
 import Select from 'react-select-plus';
 

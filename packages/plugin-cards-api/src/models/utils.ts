@@ -527,13 +527,15 @@ export const conversationConvertToCard = async (
       });
     }
 
-    const doc = oldItem;
+    const doc = { ...oldItem, ...args };
 
     if (conversation.assignedUserId) {
       const assignedUserIds = oldItem.assignedUserIds || [];
       assignedUserIds.push(conversation.assignedUserId);
 
-      doc.assignedUserIds = assignedUserIds;
+      doc.assignedUserIds = [
+        ...new Set([...assignedUserIds, ...args.assignedUserIds])
+      ];
     }
 
     const sourceConversationIds: string[] = oldItem.sourceConversationIds || [];
@@ -585,13 +587,12 @@ export const conversationConvertToCard = async (
 
     return item._id;
   } else {
-    const doc: any = {};
+    const doc: any = { ...args };
 
     doc.name = itemName;
     doc.stageId = stageId;
     doc.sourceConversationIds = [_id];
     doc.customerIds = [conversation.customerId];
-    doc.assignedUserIds = [conversation.assignedUserId];
 
     if (bookingProductId) {
       const { product, dealUOM, dealCurrency } = await checkBookingConvert(

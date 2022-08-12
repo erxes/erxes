@@ -1,5 +1,5 @@
+import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
 
 // query types
 

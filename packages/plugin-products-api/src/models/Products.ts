@@ -302,6 +302,10 @@ export const loadProductCategoryClass = (models: IModels) => {
     }
 
     static async checkCodeDuplication(code: string) {
+      if (code.includes('/')) {
+        throw new Error('The "/" character is not allowed in the code');
+      }
+
       const category = await models.ProductCategories.findOne({
         code
       });
@@ -410,8 +414,8 @@ export const loadProductCategoryClass = (models: IModels) => {
       doc: IProductCategory
     ) {
       const order = parentCategory
-        ? `${parentCategory.order}/${doc.name}${doc.code}`
-        : `${doc.name}${doc.code}`;
+        ? `${parentCategory.order}/${doc.code}`
+        : `${doc.code}`;
 
       return order;
     }

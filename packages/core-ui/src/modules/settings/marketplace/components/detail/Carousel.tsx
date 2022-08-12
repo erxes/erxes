@@ -45,14 +45,14 @@ class Carousel extends React.Component<Props, State> {
             : 'space-between'
         }
       >
-        <SliderButton active={slideIndex !== 0} onClick={prevSlide}>
-          <Icon icon="leftarrow-3" size={20} />
+        <SliderButton active={slideIndex !== 0} onClick={prevSlide} left={true}>
+          <Icon icon="leftarrow-3" size={25} />
         </SliderButton>
         <SliderButton
           active={slideIndex !== dataSlider.length - 1}
           onClick={nextSlide}
         >
-          <Icon icon="chevron" size={20} />
+          <Icon icon="chevron" size={25} />
         </SliderButton>
       </Buttons>
     );
@@ -88,9 +88,7 @@ class Carousel extends React.Component<Props, State> {
 
     return (
       <CarouselWrapper>
-        {dataSlider.map((url, index) => {
-          return <>{slideIndex === index && <Image src={url} key={index} />}</>;
-        })}
+        <Image image={dataSlider[slideIndex]} />
 
         {this.renderButtons(slideIndex, dataSlider)}
         {this.renderDots(slideIndex, dataSlider)}

@@ -1,28 +1,29 @@
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
-import { __ } from '@erxes/ui/src/utils';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { Column } from '@erxes/ui/src/styles/main';
 import { IField, IFieldLogic } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
+
 import {
   dateTypeChoices,
   numberTypeChoices,
   stringTypeChoices
 } from '../constants';
 import { DateWrapper, LogicItem, LogicRow, RowSmall } from '../styles';
-import { Column } from '@erxes/ui/src/styles/main';
 
 type Props = {
+  logic: IFieldLogic;
+  fields: IField[];
+  index: number;
+  removeLogic: (index: number) => void;
   onChangeLogic: (
     name: string,
     value: string | number | Date,
     index: number
   ) => void;
-  logic: IFieldLogic;
-  fields: IField[];
-  index: number;
-  removeLogic: (index: number) => void;
 };
 
 function FieldLogic(props: Props) {

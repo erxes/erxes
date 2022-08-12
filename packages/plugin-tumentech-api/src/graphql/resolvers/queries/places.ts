@@ -1,5 +1,6 @@
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+
+import { IContext } from '../../../connectionResolver';
 
 const placesQuery = {
   places: async (

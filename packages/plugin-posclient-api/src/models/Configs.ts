@@ -31,7 +31,8 @@ export const loadConfigClass = models => {
           );
         }
 
-        return models.Configs.create({ token });
+        await models.Configs.create({ token });
+        return await models.Configs.findOne({ token }).lean();
       } catch (e) {
         throw new Error(`Can not create POS config: ${e.message}`);
       }

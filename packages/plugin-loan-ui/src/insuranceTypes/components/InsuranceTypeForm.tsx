@@ -1,20 +1,31 @@
+import * as path from 'path';
+
 import {
-  __,
   Button,
   ControlLabel,
   Form,
+  MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
-  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  SelectCompanies,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import React from 'react';
-
 import { IInsuranceType, IInsuranceTypeDoc } from '../types';
+
+import React from 'react';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -37,7 +48,7 @@ class InsuranceTypeForm extends React.Component<Props, State> {
     this.state = {
       name: insuranceType.name || '',
       description: insuranceType.description || '',
-      companyId: insuranceType.companyId || '',
+      companyId: insuranceType.companyId || ''
     };
   }
 
@@ -59,7 +70,7 @@ class InsuranceTypeForm extends React.Component<Props, State> {
       percent: Number(finalValues.percent),
       description: finalValues.description,
       companyId,
-      yearPercents: finalValues.yearPercents,
+      yearPercents: finalValues.yearPercents
     };
   };
 
@@ -79,7 +90,7 @@ class InsuranceTypeForm extends React.Component<Props, State> {
 
     const { companyId } = this.state;
 
-    const onSelectCompany = (value) => {
+    const onSelectCompany = value => {
       this.setState({ companyId: value });
     };
 
@@ -91,36 +102,38 @@ class InsuranceTypeForm extends React.Component<Props, State> {
               {this.renderFormGroup('Code', {
                 ...formProps,
                 name: 'code',
-                defaultValue: insuranceType.code || '',
+                defaultValue: insuranceType.code || ''
               })}
               {this.renderFormGroup('Name', {
                 ...formProps,
                 name: 'name',
-                defaultValue: insuranceType.name || '',
+                defaultValue: insuranceType.name || ''
               })}
 
-              <FormGroup>
-                <ControlLabel>Company</ControlLabel>
-                <SelectCompanies
-                  label="Choose an company"
-                  name="companyId"
-                  initialValue={companyId}
-                  onSelect={onSelectCompany}
-                  multi={false}
-                />
-              </FormGroup>
+              {isEnabled('contacts') && (
+                <FormGroup>
+                  <ControlLabel>Company</ControlLabel>
+                  <SelectCompanies
+                    label="Choose an company"
+                    name="companyId"
+                    initialValue={companyId}
+                    onSelect={onSelectCompany}
+                    multi={false}
+                  />
+                </FormGroup>
+              )}
 
               {this.renderFormGroup('Percent', {
                 ...formProps,
                 name: 'percent',
                 type: 'number',
-                defaultValue: insuranceType.percent || 0,
+                defaultValue: insuranceType.percent || 0
               })}
 
               {this.renderFormGroup('years percents', {
                 ...formProps,
                 name: 'yearPercents',
-                defaultValue: insuranceType.yearPercents || '',
+                defaultValue: insuranceType.yearPercents || ''
               })}
 
               <FormGroup>
@@ -146,7 +159,7 @@ class InsuranceTypeForm extends React.Component<Props, State> {
             name: 'insuranceType',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.insuranceType,
+            object: this.props.insuranceType
           })}
         </ModalFooter>
       </>

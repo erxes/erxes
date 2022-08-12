@@ -78,6 +78,12 @@ const dealsCopy = `
   }
 `;
 
+const confirmLoyalties = `
+  mutation ConfirmLoyalties($checkInfo: JSON) {
+    confirmLoyalties(checkInfo: $checkInfo)
+  }
+`;
+
 export default {
   dealsAdd,
   dealsEdit,
@@ -85,5 +91,6 @@ export default {
   dealsChange,
   dealsWatch,
   dealsArchive,
-  dealsCopy
+  dealsCopy,
+  confirmLoyalties
 };

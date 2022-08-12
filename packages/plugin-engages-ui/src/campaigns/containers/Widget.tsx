@@ -1,26 +1,28 @@
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import withCurrentUser from "@erxes/ui/src/auth/containers/withCurrentUser";
-import { IUser } from "@erxes/ui/src/auth/types";
-import { Alert, withProps } from "@erxes/ui/src/utils";
-import { ICustomer } from "@erxes/ui/src/customers/types";
+import * as compose from 'lodash.flowright';
+
 import {
   AddMutationResponse,
   EmailTemplatesQueryResponse,
-  IEngageMessageDoc,
-} from "@erxes/ui-engage/src/types";
-import { BrandsQueryResponse } from "@erxes/ui/src/brands/types";
-import React from "react";
-import { graphql } from "react-apollo";
-import Widget from "../components/Widget";
+  IEngageMessageDoc
+} from '@erxes/ui-engage/src/types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   MESSAGE_KINDS,
   MESSENGER_KINDS,
   METHODS,
-  SENT_AS_CHOICES,
-} from "@erxes/ui-engage/src/constants";
-import { mutations, queries } from "@erxes/ui-engage/src/graphql";
-import { crudMutationsOptions } from "@erxes/ui-engage/src/utils";
+  SENT_AS_CHOICES
+} from '@erxes/ui-engage/src/constants';
+import { mutations, queries } from '@erxes/ui-engage/src/graphql';
+
+import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Widget from '../components/Widget';
+import { crudMutationsOptions } from '@erxes/ui-engage/src/utils';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   customers: ICustomer[];
@@ -43,7 +45,7 @@ const WidgetContainer = (props: FinalProps) => {
     emailTemplatesQuery,
     brandsQuery,
     emptyBulk,
-    messagesAddMutation,
+    messagesAddMutation
   } = props;
 
   if (emailTemplatesQuery.loading || brandsQuery.loading) {
@@ -60,15 +62,15 @@ const WidgetContainer = (props: FinalProps) => {
     doc.fromUserId = currentUser._id;
 
     if (doc.method === METHODS.EMAIL && !doc.email.content) {
-      return Alert.warning("Please fill in email content");
+      return Alert.warning('Please fill in email content');
     }
 
     if (doc.method === METHODS.MESSENGER && !doc.messenger.content) {
-      return Alert.warning("Please fill in message content");
+      return Alert.warning('Please fill in message content');
     }
 
     messagesAddMutation({
-      variables: doc,
+      variables: doc
     })
       .then(() => {
         callback();
@@ -79,7 +81,7 @@ const WidgetContainer = (props: FinalProps) => {
           emptyBulk();
         }
       })
-      .catch((error) => {
+      .catch(error => {
         Alert.error(error.message);
       });
   };
@@ -90,7 +92,7 @@ const WidgetContainer = (props: FinalProps) => {
     brands,
     save,
     messengerKinds: MESSENGER_KINDS.SELECT_OPTIONS,
-    sentAsChoices: SENT_AS_CHOICES.SELECT_OPTIONS,
+    sentAsChoices: SENT_AS_CHOICES.SELECT_OPTIONS
   };
 
   return <Widget {...updatedProps} />;
@@ -99,21 +101,21 @@ const WidgetContainer = (props: FinalProps) => {
 const withQueries = withProps<Props>(
   compose(
     graphql<Props, EmailTemplatesQueryResponse>(gql(queries.emailTemplates), {
-      name: "emailTemplatesQuery",
+      name: 'emailTemplatesQuery',
       options: ({ totalCountQuery }) => ({
         variables: {
-          perPage: totalCountQuery.emailTemplatesTotalCount,
-        },
-      }),
+          perPage: totalCountQuery.emailTemplatesTotalCount
+        }
+      })
     }),
     graphql<Props, BrandsQueryResponse>(gql(queries.brands), {
-      name: "brandsQuery",
+      name: 'brandsQuery'
     }),
     graphql<Props, AddMutationResponse, IEngageMessageDoc>(
       gql(mutations.messagesAdd),
       {
-        name: "messagesAddMutation",
-        options: crudMutationsOptions,
+        name: 'messagesAddMutation',
+        options: crudMutationsOptions
       }
     )
   )(withCurrentUser(WidgetContainer))
@@ -122,7 +124,7 @@ const withQueries = withProps<Props>(
 export default withProps<Props>(
   compose(
     graphql(gql(queries.totalCount), {
-      name: "totalCountQuery",
+      name: 'totalCountQuery'
     })
   )(withQueries)
 );

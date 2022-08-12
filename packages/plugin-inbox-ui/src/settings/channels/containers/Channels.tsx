@@ -1,20 +1,22 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
-import queryString from 'query-string';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IntegrationsCountQueryResponse } from '@erxes/ui-settings/src/integrations/types';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
-import DumbChannels from '../components/Channels';
-import Empty from '../components/Empty';
-import { queries } from '../graphql';
+
 import {
   ChannelDetailQueryResponse,
-  ChannelsGetLastQueryResponse,
+  ChannelsGetLastQueryResponse
 } from '../types';
+import { router as routerUtils, withProps } from '@erxes/ui/src/utils';
+
+import DumbChannels from '../components/Channels';
+import Empty from '../components/Empty';
+import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IntegrationsCountQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '../graphql';
+import queryString from 'query-string';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   currentChannelId: string;

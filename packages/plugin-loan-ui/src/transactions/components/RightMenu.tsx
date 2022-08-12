@@ -1,23 +1,36 @@
-import {
-  __,
-  Button,
-  ControlLabel,
-  FormControl,
-  Icon,
-  SelectCompanies,
-  SelectCustomers,
-} from '@erxes/ui/src';
-import React from 'react';
-import RTG from 'react-transition-group';
+import * as path from 'path';
 
+import { Button, ControlLabel, FormControl, Icon } from '@erxes/ui/src';
 import {
   CustomRangeContainer,
   FilterBox,
   FilterButton,
   MenuFooter,
   RightMenuContainer,
-  TabContent,
+  TabContent
 } from '../../styles';
+
+import RTG from 'react-transition-group';
+import React from 'react';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
 
 type Props = {
   onSearch: (search: string) => void;
@@ -43,7 +56,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     this.state = {
       currentTab: 'Filter',
-      showMenu: false,
+      showMenu: false
     };
 
     this.setWrapperRef = this.setWrapperRef.bind(this);
@@ -73,7 +86,7 @@ export default class RightMenu extends React.Component<Props, State> {
 
     const selected = queryParams[key] === value;
 
-    const onClick = (_e) => {
+    const onClick = _e => {
       onSelect(value, key);
     };
 
@@ -110,21 +123,25 @@ export default class RightMenu extends React.Component<Props, State> {
           autoFocus={true}
         />
 
-        <SelectCustomers
-          label="Filter by customer"
-          name="customerId"
-          queryParams={queryParams}
-          onSelect={onSelect}
-          multi={false}
-        />
+        {isEnabled('contacts') && (
+          <>
+            <SelectCustomers
+              label="Filter by customer"
+              name="customerId"
+              queryParams={queryParams}
+              onSelect={onSelect}
+              multi={false}
+            />
 
-        <SelectCompanies
-          label="Filter by company"
-          name="companyId"
-          queryParams={queryParams}
-          onSelect={onSelect}
-          multi={false}
-        />
+            <SelectCompanies
+              label="Filter by company"
+              name="companyId"
+              queryParams={queryParams}
+              onSelect={onSelect}
+              multi={false}
+            />
+          </>
+        )}
 
         <ControlLabel>Date range:</ControlLabel>
 

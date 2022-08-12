@@ -1,15 +1,19 @@
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
-import { ModalFooter, Info, InfoTitle } from '@erxes/ui/src/styles/main';
 import {
   COMPANY_DATAS,
   COMPANY_INFO,
   COMPANY_LINKS
-} from '@erxes/ui/src/companies/constants';
-import { InfoDetail, InfoAvatar } from '../../../customers/styles';
+} from '@erxes/ui-contacts/src/companies/constants';
+import { Column, Columns, Title } from '@erxes/ui/src/styles/chooser';
+import {
+  ICompany,
+  ICompanyLinks
+} from '@erxes/ui-contacts/src/companies/types';
+import { Info, InfoTitle, ModalFooter } from '@erxes/ui/src/styles/main';
+import { InfoAvatar, InfoDetail } from '../../../customers/styles';
+
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
-import { ICompany, ICompanyLinks } from '@erxes/ui/src/companies/types';
 
 type Props = {
   objects: ICompany[];

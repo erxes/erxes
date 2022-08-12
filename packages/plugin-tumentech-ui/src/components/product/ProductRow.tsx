@@ -1,5 +1,7 @@
-import { __, FormControl, TextInfo } from '@erxes/ui/src';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
+
 import { ICarCategory, IProduct } from '../../types';
 
 type Props = {
@@ -15,13 +17,13 @@ class Row extends React.Component<Props> {
   render() {
     const { product, history, toggleBulk, isChecked } = this.props;
 
-    const onChange = (e) => {
+    const onChange = e => {
       if (toggleBulk) {
         toggleBulk(product, e.target.checked);
       }
     };
 
-    const onClick = (e) => {
+    const onClick = e => {
       e.stopPropagation();
     };
 

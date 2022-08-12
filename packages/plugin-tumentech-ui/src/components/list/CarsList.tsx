@@ -1,35 +1,33 @@
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
+import { confirm, router } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Table from '@erxes/ui/src/components/table';
+import SortHandler from '@erxes/ui/src/components/SortHandler';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import Alert from '@erxes/ui/src/utils/Alert';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { __ } from '@erxes/ui/src/utils/core';
+import Button from '@erxes/ui/src/components/Button';
+import { ModalTrigger } from '@erxes/ui/src/components';
+
 import {
-  __,
-  Alert,
-  Button,
-  confirm,
-  DataWithLoader,
-  FormControl,
-  ModalTrigger,
-  Pagination,
-  router,
-  SortHandler,
-  Table,
-  Wrapper,
-  BarItems
-} from '@erxes/ui/src';
-import {
-  IRouterProps,
   IButtonMutateProps,
-  IQueryParams
+  IQueryParams,
+  IRouterProps
 } from '@erxes/ui/src/types';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import { ICar, IProduct, IProductCategory } from '../../types';
 
 import CarForm from '../../containers/CarForm';
-import { CarsTableWrapper } from '../../styles';
-import { ICar, IProduct, IProductCategory } from '../../types';
-import CarsMerge from '../detail/CarsMerge';
 import CarRow from './CarRow';
+import CarsMerge from '../detail/CarsMerge';
+import { CarsTableWrapper } from '../../styles';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import React from 'react';
 import RightMenu from './RightMenu';
 import Sidebar from './Sidebar';
+import { withRouter } from 'react-router-dom';
 
 interface IProps extends IRouterProps {
   cars: ICar[];

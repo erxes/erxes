@@ -47,6 +47,13 @@ interface IReplyFacebookComment {
   content: string;
 }
 
+interface IAttachment {
+  name: string;
+  type: string;
+  url: string;
+  size?: number;
+  duration?: number;
+}
 interface IConversationConvert {
   _id: string;
   type: string;
@@ -54,6 +61,14 @@ interface IConversationConvert {
   stageId: string;
   itemName: string;
   bookingProductId?: string;
+  customFieldsData?: { [key: string]: any };
+  priority?: String;
+  assignedUserIds?: [String];
+  labelIds?: [String];
+  startDate?: Date;
+  closeDate?: Date;
+  attachments?: IAttachment[];
+  description?: String;
 }
 
 /**

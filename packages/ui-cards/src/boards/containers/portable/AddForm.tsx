@@ -81,12 +81,13 @@ class AddFormContainer extends React.Component<FinalProps> {
 
       conversationConvertToCard({
         variables: {
-          _id: sourceConversationId || '',
+          ...doc,
           type: options.type,
           itemId: doc._id,
           itemName: doc.name,
           stageId: doc.stageId,
-          bookingProductId
+          bookingProductId,
+          _id: sourceConversationId || ''
         }
       })
         .then(({ data }) => {

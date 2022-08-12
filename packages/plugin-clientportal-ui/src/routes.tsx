@@ -21,6 +21,12 @@ const ClientPortalUserDetails = asyncComponent(() =>
   )
 );
 
+const ClientPortalCompanyDetails = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "ClientPortalDetails" */ './containers/details/ClientPortalCompanyDetails'
+  )
+);
+
 const ClientPortalUserList = asyncComponent(() =>
   import(
     /* webpackChunkName: "ClientPortalUserList - Settings" */ './containers/ClientPortalUserList'
@@ -39,10 +45,16 @@ const configsForm = ({ location, history }) => {
   return <ClientPortalDetail queryParams={queryParams} history={history} />;
 };
 
-const detail = ({ match }) => {
+const userDetail = ({ match, history }) => {
   const id = match.params.id;
 
-  return <ClientPortalUserDetails id={id} />;
+  return <ClientPortalUserDetails id={id} history={history} />;
+};
+
+const companyDetail = ({ match, history }) => {
+  const id = match.params.id;
+
+  return <ClientPortalCompanyDetails id={id} history={history} />;
 };
 
 const list = ({ location, history }) => {
@@ -68,7 +80,13 @@ const routes = () => (
       key="/settings/client-portal/users/details/:id"
       exact={true}
       path="/settings/client-portal/users/details/:id"
-      component={detail}
+      component={userDetail}
+    />
+    <Route
+      key="/settings/client-portal/companies/details/:id"
+      exact={true}
+      path="/settings/client-portal/companies/details/:id"
+      component={companyDetail}
     />
     <Route
       key="/settings/client-portal/user"

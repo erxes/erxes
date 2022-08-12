@@ -3,7 +3,11 @@ import { sendRequest } from '@erxes/api-utils/src';
 import { IPutResponse } from './definitions/ebarimt';
 
 const format_number = (num: number) => {
-  return num.toFixed(2);
+  try {
+    return num.toFixed(2);
+  } catch (e) {
+    return '0.00';
+  }
 };
 
 export interface IPutDataArgs {

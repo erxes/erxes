@@ -1,8 +1,8 @@
-import * as _ from 'underscore';
-import { debug } from './configs';
-import { sendSegmentsMessage } from './messageBroker';
-import { IModels } from './connectionResolver';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+
+import { debug } from './configs';
+import { IModels } from './connectionResolver';
+import { sendSegmentsMessage } from './messageBroker';
 
 export interface ICountBy {
   [index: string]: number;

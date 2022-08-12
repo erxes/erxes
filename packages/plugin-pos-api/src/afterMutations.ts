@@ -1,6 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import { sendPosclientMessage, sendProductsMessage } from './messageBroker';
-import { IPos, IPosDocument } from './models/definitions/pos';
+import { IPosDocument } from './models/definitions/pos';
 import { getChildCategories } from './utils';
 
 const handler = async (
@@ -8,13 +8,13 @@ const handler = async (
   params: any,
   action: string,
   type: string,
-  pos?: IPos
+  pos: IPosDocument
 ) => {
-  // TODO: check filter
   await sendPosclientMessage({
     subdomain,
     action: 'crudData',
-    data: { ...params, action, type, pos }
+    data: { ...params, action, type },
+    pos
   });
 };
 
@@ -27,6 +27,10 @@ const isInProduct = async (
   const groups = await models.ProductGroups.groups(pos._id);
 
   let allProductIds: string[] = [];
+
+  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+    allProductIds.push(pos.deliveryConfig.productId);
+  }
 
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
@@ -129,14 +133,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
       if (
         await isInProductCategory(subdomain, models, pos, params.object._id)
       ) {
-        await handler(subdomain, params, action, 'product', pos);
+        await handler(subdomain, params, action, 'productCategory', pos);
       }
     }
-    await handler(subdomain, params, action, 'productCategory');
     return;
   }
 
-  if (type === 'core:users') {
+  if (type === 'core:user') {
     for (const pos of poss) {
       if (await isInUser(pos, params.object._id)) {
         await handler(subdomain, params, action, 'user', pos);

@@ -1,25 +1,33 @@
-import dayjs from "dayjs";
-import Attachment from "@erxes/ui/src/components/Attachment";
-import { __ } from "coreui/utils";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import React from "react";
 import {
   AWS_EMAIL_DELIVERY_STATUSES,
   METHODS,
-  SMS_DELIVERY_STATUSES,
-} from "@erxes/ui-engage/src/constants";
+  SMS_DELIVERY_STATUSES
+} from '@erxes/ui-engage/src/constants';
 import {
   FlexContainer,
-  InfoWrapper,
   Half,
+  InfoWrapper,
   PreviewContent,
   RightSection,
-  Shell,
-  Title,
-} from "@erxes/ui-engage/src/styles";
-import { FlexRow, Subject } from '@erxes/ui-settings/src/integrations/components/mail/styles';
-import { IEngageMessage, IEngageSmsStats, IEngageStats } from "@erxes/ui-engage/src/types";
-import StatItem from "./EngageStatItem";
+  Title
+} from '@erxes/ui-engage/src/styles';
+import {
+  FlexRow,
+  Subject
+} from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+import {
+  IEngageMessage,
+  IEngageSmsStats,
+  IEngageStats
+} from '@erxes/ui-engage/src/types';
+
+import Attachment from '@erxes/ui/src/components/Attachment';
+import EngageLogsContainer from '../containers/EngageLogsContainer';
+import React from 'react';
+import StatItem from './EngageStatItem';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   message: IEngageMessage;
@@ -90,7 +98,7 @@ class EmailStatistics extends React.Component<Props> {
       return message.shortMessage && message.shortMessage.content;
     }
 
-    return "";
+    return '';
   }
 
   renderLeft() {
@@ -111,25 +119,25 @@ class EmailStatistics extends React.Component<Props> {
       <Half>
         <Subject>
           <FlexRow>
-            <label>{__("From")}:</label>
+            <label>{__('From')}:</label>
             <strong>{from}</strong>
           </FlexRow>
         </Subject>
         <Subject>
           <FlexRow>
-            <label>{__("Subject")}:</label>
+            <label>{__('Subject')}:</label>
             {this.getSubject()}
           </FlexRow>
         </Subject>
         <Subject noBorder={true}>
           <FlexRow>
-            <label>{__("Content")}:</label>
+            <label>{__('Content')}:</label>
           </FlexRow>
           <PreviewContent
             isFullmessage={false}
             showOverflow={true}
             dangerouslySetInnerHTML={{
-              __html: this.getContent() || "",
+              __html: this.getContent() || ''
             }}
           />
         </Subject>
@@ -242,8 +250,6 @@ class EmailStatistics extends React.Component<Props> {
   render() {
     const { message } = this.props;
 
-    const logs = message.logs || [];
-
     const actionBar = (
       <Wrapper.ActionBar left={<Title>{this.props.message.title}</Title>} />
     );
@@ -258,24 +264,15 @@ class EmailStatistics extends React.Component<Props> {
             </p>
             {message.lastRunAt ? (
               <p>
-                Last run at:{" "}
-                <strong>{dayjs(message.lastRunAt).format("lll")}</strong>
+                Last run at:{' '}
+                <strong>{dayjs(message.lastRunAt).format('lll')}</strong>
               </p>
             ) : null}
           </InfoWrapper>
           <RightSection>
             {this.renderEmailStats()}
             {this.renderSmsStats()}
-            <Shell>
-              <div className="shell-wrap">
-                <p className="shell-top-bar">Log messages</p>
-                <ul className="shell-body">
-                  {logs.map((log, index) => (
-                    <li key={index}>{log.message}</li>
-                  ))}
-                </ul>
-              </div>
-            </Shell>
+            <EngageLogsContainer messageId={message._id} />
           </RightSection>
         </Half>
       </FlexContainer>
@@ -285,10 +282,10 @@ class EmailStatistics extends React.Component<Props> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__("Show statistics")}
+            title={__('Show statistics')}
             breadcrumb={[
-              { title: __("Campaigns"), link: "/campaigns" },
-              { title: __("Show statistics") },
+              { title: __('Campaigns'), link: '/campaigns' },
+              { title: __('Show statistics') }
             ]}
           />
         }

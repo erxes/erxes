@@ -467,6 +467,36 @@ const MapContainer = styled.div<{ fullHeight?: boolean }>`
   height: ${props => (props.fullHeight ? '100%' : '250px')};
 `;
 
+const ImageWrapper = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+`;
+
+const TextWrapper = styled.div`
+  max-width: 400px;
+  h1 {
+    font-weight: 400;
+    font-size: 24px;
+  }
+
+  p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  img {
+    max-width: 100%;
+    max-width: calc(100% + 40px);
+    box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    margin-left: -20px;
+  }
+`;
+
 export {
   Actions,
   PopoverButton,
@@ -507,5 +537,7 @@ export {
   Column,
   Wrapper,
   Pin,
-  MapContainer
+  MapContainer,
+  ImageWrapper,
+  TextWrapper
 };

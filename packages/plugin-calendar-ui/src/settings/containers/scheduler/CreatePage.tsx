@@ -1,18 +1,19 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui-settings/src/integrations/graphql';
-import PageForm from '../../components/scheduler/PageForm';
-import { mutations } from '../../graphql';
 
-import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
 import {
   CreateSchedulePageMutationResponse,
   SchedulePageMutationVariables
 } from '../../types';
+
+import PageForm from '../../components/scheduler/PageForm';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { mutations } from '../../graphql';
+import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   accountId: string;
@@ -26,7 +27,12 @@ type FinalProps = {
 
 class FormContainer extends React.Component<FinalProps, {}> {
   render() {
-    const { fetchCalendarQuery, accountId, createMutation, history } = this.props;
+    const {
+      fetchCalendarQuery,
+      accountId,
+      createMutation,
+      history
+    } = this.props;
 
     if (fetchCalendarQuery.loading) {
       return <Spinner objective={true} />;
@@ -67,7 +73,7 @@ const getRefetchQueries = (accountId: string) => {
     {
       query: gql(integrationQueries.integrationsNylasGetSchedulePages),
       variables: {
-        accountId 
+        accountId
       }
     }
   ];

@@ -1,17 +1,26 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import GenerateCustomFields from '@erxes/ui-settings/src//properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-settings/src/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { mutations } from '../graphql';
+
+import { mutations, queries } from '../graphql';
+
 import { EditMutationResponse } from '../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import asyncComponent from '../../components/AsyncComponent';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '../../utils/core';
+import path from 'path';
+import { withProps } from '@erxes/ui/src/utils';
+
+const GenerateCustomFields = asyncComponent(
+  () =>
+    isEnabled('forms') &&
+    import(
+      /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
+    )
+);
 
 type Props = {
   user: IUser;
@@ -20,7 +29,7 @@ type Props = {
 };
 
 type FinalProps = {
-  fieldsGroupsQuery: FieldsGroupsQueryResponse;
+  fieldsGroupsQuery: any; //check - FieldsGroupsQueryResponse
 } & Props &
   EditMutationResponse;
 
@@ -54,7 +63,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     customFieldsData: user.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
-    isDetail
+    isDetail,
+    object: user
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -62,18 +72,16 @@ const CustomFieldsSection = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, FieldsGroupsQueryResponse, { contentType: string }>(
-      gql(fieldQueries.fieldsGroups),
-      {
-        name: 'fieldsGroupsQuery',
-        options: () => ({
-          variables: {
-            contentType: FIELDS_GROUPS_CONTENT_TYPES.USER,
-            isDefinedByErxes: false
-          }
-        })
-      }
-    ),
+    graphql<Props, any, { contentType: string }>(gql(queries.fieldsGroups), {
+      //check - FieldsGroupsQueryResponse
+      name: 'fieldsGroupsQuery',
+      options: () => ({
+        variables: {
+          contentType: 'core:user',
+          isDefinedByErxes: false
+        }
+      })
+    }),
 
     // mutations
     graphql<Props, EditMutationResponse, IUser>(gql(mutations.usersEdit), {

@@ -1,15 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { BoardItem } from '@erxes/ui-settings/src/boards/styles';
 import { ActionButtons } from '@erxes/ui-settings/src/styles';
-import { IBoard } from '../types';
 import BoardForm from './BoardForm';
+import { BoardItem } from '@erxes/ui-cards/src/settings/boards/styles';
+import Button from '@erxes/ui/src/components/Button';
+import { IBoard } from '../types';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from 'coreui/utils';
 
 type Props = {
   board: IBoard;
@@ -31,9 +31,9 @@ class BoardRow extends React.Component<Props, {}> {
     const { board, renderButton } = this.props;
 
     const editTrigger = (
-      <Button btnStyle='link'>
-        <Tip text='Edit' placement='bottom'>
-          <Icon icon='edit' />
+      <Button btnStyle="link">
+        <Tip text="Edit" placement="bottom">
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -45,7 +45,7 @@ class BoardRow extends React.Component<Props, {}> {
     return (
       <ModalTrigger
         size={this.size}
-        title='Edit'
+        title="Edit"
         trigger={editTrigger}
         content={content}
       />
@@ -60,8 +60,8 @@ class BoardRow extends React.Component<Props, {}> {
         <Link to={`?boardId=${board._id}`}>{board.name}</Link>
         <ActionButtons>
           {this.renderEditAction()}
-          <Tip text={__('Delete')} placement='bottom'>
-            <Button btnStyle='link' onClick={this.remove} icon='cancel-1' />
+          <Tip text={__('Delete')} placement="bottom">
+            <Button btnStyle="link" onClick={this.remove} icon="cancel-1" />
           </Tip>
         </ActionButtons>
       </BoardItem>
