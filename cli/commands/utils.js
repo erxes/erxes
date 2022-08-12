@@ -504,6 +504,19 @@ const generateNginxConf = async ({
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_http_version 1.1;
   `;
+  const rootConfig = `
+     access_log /var/log/nginx/erxes-front.access.log;
+     error_log /var/log/nginx/erxes-front.error.log;
+     proxy_pass http://127.0.0.1:3000;
+     proxy_http_version 1.1;
+     proxy_redirect off;
+     proxy_set_header Host $http_host;
+     proxy_set_header X-Real-IP $remote_addr;
+     proxy_set_header X-Forwarded-Host $host;
+     proxy_set_header X-Forwarded-Server $host;
+     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+     proxy_set_header X-Forwarded-Proto $scheme;
+  `;
 
   let dashboardConfig = ``;
 
@@ -535,17 +548,7 @@ const generateNginxConf = async ({
             access_log /var/log/nginx/erxes.access.log;
             location / {
                     proxy_pass http://127.0.0.1:${PORT_UI}/;
-                    access_log /var/log/nginx/erxes-front.access.log;
-                    error_log /var/log/nginx/erxes-front.error.log;
-                    proxy_pass http://127.0.0.1:3000;
-                    proxy_http_version 1.1;
-                    proxy_redirect off;
-                    proxy_set_header Host $http_host;
-                    proxy_set_header X-Real-IP $remote_addr;
-                    proxy_set_header X-Forwarded-Host $host;
-                    proxy_set_header X-Forwarded-Server $host;
-                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                    proxy_set_header X-Forwarded-Proto $scheme;
+                    ${rootConfig}
             }
             location /widgets/ {
                     proxy_pass http://127.0.0.1:${PORT_WIDGETS}/;
