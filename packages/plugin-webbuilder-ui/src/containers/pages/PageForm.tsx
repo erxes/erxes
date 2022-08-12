@@ -11,49 +11,47 @@ import {
   PageDetailQueryResponse,
   PagesAddMutationResponse,
   PagesEditMutationResponse,
-  PagesQueryResponse,
+  PagesMainQueryResponse,
   TemplatesAddMutationResponse,
-  TemplatesQueryResponse,
-  TemplatesRemoveMutationResponse,
+  TemplatesDetailQueryResponse,
   TypesQueryResponse
 } from '../../types';
 
 type Props = {
   _id?: string;
+  templateId?: string;
 } & IRouterProps;
 
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;
-  templatesQuery: TemplatesQueryResponse;
-  pagesQuery: PagesQueryResponse;
+  pagesMainQuery: PagesMainQueryResponse;
   typesQuery: TypesQueryResponse;
+  templateDetailQuery: TemplatesDetailQueryResponse;
 } & PagesAddMutationResponse &
   PagesEditMutationResponse &
-  TemplatesAddMutationResponse &
-  TemplatesRemoveMutationResponse;
+  TemplatesAddMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
   const {
     pageDetailQuery,
     history,
-    templatesQuery,
     templatesAdd,
-    templatesRemove,
-    pagesQuery,
-    typesQuery
+    pagesMainQuery,
+    typesQuery,
+    templateDetailQuery
   } = props;
 
   if (
     (pageDetailQuery && pageDetailQuery.loading) ||
-    templatesQuery.loading ||
-    pagesQuery.loading ||
-    typesQuery.loading
+    pagesMainQuery.loading ||
+    typesQuery.loading ||
+    (templateDetailQuery && templateDetailQuery.loading)
   ) {
     return null;
   }
 
-  const saveTemplate = (name: string, jsonData: any) => {
-    templatesAdd({ variables: { name, jsonData } })
+  const saveTemplate = (name: string, jsonData: any, html: string) => {
+    templatesAdd({ variables: { name, jsonData, html } })
       .then(() => {
         Alert.success('You successfully added template.');
 
@@ -64,18 +62,6 @@ const FormContainer = (props: FinalProps) => {
       .catch(e => {
         Alert.error(e.message);
       });
-  };
-
-  const removeTemplate = (_id: string) => {
-    confirm().then(() => {
-      templatesRemove({ variables: { _id } })
-        .then(() => {
-          Alert.success('You successfully removed template.');
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    });
   };
 
   const save = (
@@ -121,30 +107,30 @@ const FormContainer = (props: FinalProps) => {
     page = pageDetailQuery.webbuilderPageDetail;
   }
 
-  const templates = templatesQuery.webbuilderTemplates || [];
-  const pages = pagesQuery.webbuilderPages || [];
+  const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
   const contentTypes = typesQuery.webbuilderContentTypes || [];
+  const template =
+    (templateDetailQuery && templateDetailQuery.webbuilderTemplateDetail) || {};
 
   const updatedProps = {
     ...props,
     save,
     page,
-    templates,
     saveTemplate,
-    removeTemplate,
     contentTypes,
-    pages
+    pages: pagesMain.list || [],
+    template
   };
 
   return <PageForm {...updatedProps} />;
 };
 
-const refetchPageQueries = () => [
-  { query: gql(queries.pages) },
-  { query: gql(queries.pagesTotalCount) }
-];
+const refetchPageQueries = () => [{ query: gql(queries.pagesMain) }];
 
-const refetchTemplateQuery = () => [{ query: gql(queries.templates) }];
+const refetchTemplateQuery = () => [
+  { query: gql(queries.templates) },
+  { query: gql(queries.templatesTotalCount) }
+];
 
 export default compose(
   graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
@@ -174,25 +160,25 @@ export default compose(
       })
     }
   ),
-  graphql<{}, TemplatesQueryResponse>(gql(queries.templates), {
-    name: 'templatesQuery'
-  }),
   graphql<{}, TemplatesAddMutationResponse>(gql(mutations.templatesAdd), {
     name: 'templatesAdd',
     options: () => ({
       refetchQueries: refetchTemplateQuery()
     })
   }),
-  graphql<{}, TemplatesRemoveMutationResponse>(gql(mutations.templatesRemove), {
-    name: 'templatesRemove',
-    options: () => ({
-      refetchQueries: refetchTemplateQuery()
+  graphql<Props, TemplatesDetailQueryResponse>(gql(queries.templateDetail), {
+    name: 'templateDetailQuery',
+    skip: ({ templateId }) => !templateId,
+    options: ({ templateId }) => ({
+      variables: {
+        _id: templateId
+      }
     })
   }),
   graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
     name: 'typesQuery'
   }),
-  graphql<{}, PagesQueryResponse>(gql(queries.pages), {
-    name: 'pagesQuery'
+  graphql<{}, PagesMainQueryResponse>(gql(queries.pagesMain), {
+    name: 'pagesMainQuery'
   })
 )(withRouter(FormContainer));

@@ -23,7 +23,10 @@ const mutations = {
     const pos = await models.Pos.posAdd(user, params);
 
     const { ALL_AUTO_INIT } = process.env;
-    if (ALL_AUTO_INIT || pos.isOnline) {
+    if (
+      [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
+      pos.isOnline
+    ) {
       await syncPosToClient(subdomain, pos);
     }
 
@@ -80,7 +83,10 @@ const mutations = {
     const updatedGroups = await models.ProductGroups.groups(posId);
 
     const { ALL_AUTO_INIT } = process.env;
-    if (ALL_AUTO_INIT || pos.isOnline) {
+    if (
+      [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
+      pos.isOnline
+    ) {
       await syncProductGroupsToClient(subdomain, models, pos);
     }
 
@@ -121,14 +127,19 @@ const mutations = {
       });
     }
 
-    await models.PosSlots.bulkWrite(bulkOps);
+    if (bulkOps && bulkOps.length) {
+      await models.PosSlots.bulkWrite(bulkOps);
+    }
 
     await models.PosSlots.insertMany(slots.filter(s => !s._id));
 
     const updatedSlots = await models.PosSlots.find({ posId });
     const { ALL_AUTO_INIT } = process.env;
 
-    if (ALL_AUTO_INIT || pos.isOnline) {
+    if (
+      [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
+      pos.isOnline
+    ) {
       await syncSlotsToClient(subdomain, pos, updatedSlots);
     }
 

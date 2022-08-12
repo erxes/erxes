@@ -1,3 +1,5 @@
+import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
+
 const allUsers = `
   query allUsers($isActive: Boolean) {
     allUsers(isActive: $isActive) {
@@ -182,16 +184,16 @@ const userDetail = `
 const userConversations = `
   query userConversations($_id: String!, $perPage: Int) {
     userConversations(_id: $_id, perPage: $perPage) {
-    list {
-      _id
-      createdAt
-      customer {
+      list {
         _id
-        firstName
-        lastName
-        middleName
-        primaryEmail
-        primaryPhone
+        createdAt
+        customer {
+          _id
+          firstName
+          lastName
+          middleName
+          primaryEmail
+          primaryPhone
         }
       }
       totalCount
@@ -272,26 +274,6 @@ const branchDetail = `
   }
 `;
 
-const channels = `
-  query channels($memberIds: [String]) {
-    channels(memberIds: $memberIds) {
-      _id
-      name
-      description
-      integrationIds
-      memberIds
-      members {
-        _id
-        email
-        details {
-          avatar
-          fullName
-        }
-      }
-    }
-  }
-`;
-
 const skillTypes = `
   query skillTypes {
     skillTypes {
@@ -348,17 +330,17 @@ const fieldsGroups = `
   query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
     fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
       name
-  ${genericFields}
-  config
-
-  lastUpdatedUser {
-    details {
-      fullName
+      ${genericFields}
+      config
+      lastUpdatedUser {
+        details {
+          fullName
+        }
+      }
+      fields  {
+        ${commonFields}
+      }
     }
-  }
-  fields  {
-    ${commonFields}
-  }
   }
 `;
 
@@ -378,7 +360,7 @@ export default {
   branches,
   branchDetail,
   detailFields,
-  channels,
+  channels: channelQueries.channels,
   skillTypes,
   fieldsGroups
 };

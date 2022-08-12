@@ -17,7 +17,7 @@ import { withProps } from '@erxes/ui/src/utils';
 const GenerateCustomFields = asyncComponent(
   () =>
     isEnabled('forms') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
     )
 );
@@ -63,7 +63,8 @@ const CustomFieldsSection = (props: FinalProps) => {
     loading,
     customFieldsData: user.customFieldsData,
     fieldsGroups: fieldsGroupsQuery.fieldsGroups || [],
-    isDetail
+    isDetail,
+    object: user
   };
 
   return <GenerateCustomFields {...updatedProps} />;
@@ -71,7 +72,8 @@ const CustomFieldsSection = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, any, { contentType: string }>(gql(queries.fieldsGroups), { //check - FieldsGroupsQueryResponse
+    graphql<Props, any, { contentType: string }>(gql(queries.fieldsGroups), {
+      //check - FieldsGroupsQueryResponse
       name: 'fieldsGroupsQuery',
       options: () => ({
         variables: {

@@ -81,8 +81,8 @@ class ScoreLogsListComponent extends React.Component<IProps> {
       }
     };
     const name = (type, owner) => {
-      if(!owner){
-        return '-'
+      if (!owner) {
+        return '-';
       }
       switch (type) {
         case 'customer':
@@ -90,9 +90,9 @@ class ScoreLogsListComponent extends React.Component<IProps> {
         case 'user':
           return owner?.details?.fullName;
         case 'company':
-          return owner?.primaryName 
+          return owner?.primaryName;
       }
-    }
+    };
 
     const Content = error ? (
       <Info>{error.message}</Info>
@@ -110,10 +110,10 @@ class ScoreLogsListComponent extends React.Component<IProps> {
             <tr key={i}>
               <td>
                 <Link to={`/${route(p.ownerType)}/details/${p.ownerId}`}>
-                  {email(p.ownerType,p.owner)}
+                  {email(p.ownerType, p.owner)}
                 </Link>
               </td>
-              <td>{name(p.ownerType,p.owner)}</td>
+              <td>{name(p.ownerType, p.owner)}</td>
               <td>{p.ownerType}</td>
               <td>{p.changeScore}</td>
               <td>{p.owner.score}</td>

@@ -6,37 +6,33 @@ import List from '../../components/entries/List';
 import { queries, mutations } from '../../graphql';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
-  EntriesQueryResponse,
+  EntriesMainQueryResponse,
   EntriesRemoveMutationResponse,
-  EntriesTotalCountQueryResponse,
   TypeDetailQueryResponse
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 
 type Props = {
-  history: any;
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
 };
 
 type FinalProps = {
-  entriesQuery: EntriesQueryResponse;
+  entriesMainQuery: EntriesMainQueryResponse;
   contentTypeDetailQuery: TypeDetailQueryResponse;
-  entriesTotalCountQuery: EntriesTotalCountQueryResponse;
 } & Props &
   EntriesRemoveMutationResponse;
 
 function ListContainer(props: FinalProps) {
   const {
-    entriesQuery,
+    entriesMainQuery,
     contentTypeDetailQuery,
-    entriesRemoveMutation,
-    entriesTotalCountQuery
+    entriesRemoveMutation
   } = props;
 
-  if (contentTypeDetailQuery.loading || entriesTotalCountQuery.loading) {
+  if (contentTypeDetailQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -46,8 +42,7 @@ function ListContainer(props: FinalProps) {
         .then(() => {
           Alert.success('Successfully deleted a entry');
 
-          entriesQuery.refetch();
-          entriesTotalCountQuery.refetch();
+          entriesMainQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -55,25 +50,25 @@ function ListContainer(props: FinalProps) {
     });
   };
 
-  const entries = entriesQuery.webbuilderEntries || [];
-  const entriesCount = entriesTotalCountQuery.webbuilderEntriesTotalCount || 0;
+  const { list = [], totalCount = 0 } =
+    entriesMainQuery.webbuilderEntriesMain || {};
   const contentType = contentTypeDetailQuery.webbuilderContentTypeDetail || {};
 
   const updatedProps = {
     ...props,
-    entries,
-    loading: entriesQuery.loading,
+    entries: list,
+    loading: entriesMainQuery.loading,
     contentType,
     remove,
-    entriesCount
+    entriesCount: totalCount
   };
 
   return <List {...updatedProps} />;
 }
 
 export default compose(
-  graphql<Props, EntriesQueryResponse>(gql(queries.entries), {
-    name: 'entriesQuery',
+  graphql<Props, EntriesMainQueryResponse>(gql(queries.entriesMain), {
+    name: 'entriesMainQuery',
     options: ({ queryParams }) => ({
       variables: {
         contentTypeId: queryParams.contentTypeId || '',
@@ -82,17 +77,6 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql<Props, EntriesTotalCountQueryResponse>(
-    gql(queries.entriesTotalCount),
-    {
-      name: 'entriesTotalCountQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          contentTypeId: queryParams.contentTypeId || ''
-        }
-      })
-    }
-  ),
   graphql<Props, TypeDetailQueryResponse>(gql(queries.contentTypeDetail), {
     name: 'contentTypeDetailQuery',
     options: ({ queryParams }) => ({

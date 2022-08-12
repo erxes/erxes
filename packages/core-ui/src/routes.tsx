@@ -33,7 +33,7 @@ const UserConfirmation = asyncComponent(() =>
 const Schedule = asyncComponent(
   () =>
     isEnabled('calendar') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
     )
 );

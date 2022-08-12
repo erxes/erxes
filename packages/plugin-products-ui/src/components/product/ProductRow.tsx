@@ -1,8 +1,12 @@
 import { FormControl } from '@erxes/ui/src/components/form';
+import Icon from '@erxes/ui/src/components/Icon';
 import Tags from '@erxes/ui/src/components/Tags';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import React from 'react';
 import { IProduct } from '../../types';
+import { __ } from '@erxes/ui/src/utils/core';
+import ProductForm from '@erxes/ui-products/src/containers/ProductForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 type Props = {
   product: IProduct;
@@ -31,6 +35,8 @@ class Row extends React.Component<Props> {
       history.push(`/settings/product-service/details/${product._id}`);
     };
 
+    const content = props => <ProductForm {...props} product={product} />;
+
     const {
       code,
       name,
@@ -48,7 +54,7 @@ class Row extends React.Component<Props> {
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}
-            componentClass='checkbox'
+            componentClass="checkbox"
             onChange={onChange}
           />
         </td>
@@ -65,6 +71,14 @@ class Row extends React.Component<Props> {
         <td>{sku}</td>
         <td>
           <Tags tags={tags} limit={2} />
+        </td>
+        <td onClick={onClick}>
+          <ModalTrigger
+            title="Edit basic info"
+            trigger={<Icon icon="edit" />}
+            size="lg"
+            content={content}
+          />
         </td>
       </tr>
     );

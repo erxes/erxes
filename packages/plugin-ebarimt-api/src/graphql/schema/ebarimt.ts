@@ -50,6 +50,7 @@ const queryParams = `
   success: String
   billType: String
   billIdRule: String
+  isLast: String
   orderNumber: String
   dealName: String
   pipelineId: String
@@ -62,5 +63,6 @@ const queryParams = `
 export const queries = `
   putResponses(${queryParams}): [PutResponse]
   putResponsesCount(${queryParams}): Int
+  putResponsesAmount(${queryParams}): Float
   getDealLink(_id: String): String
 `;

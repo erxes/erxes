@@ -54,6 +54,8 @@ class List extends React.Component<Props, State> {
         <thead>
           <tr>
             <th>{__('Participant')}</th>
+            <th>{__('Car')}</th>
+            <th>{__('Route')}</th>
             <th>{__('Price offer')}</th>
             <th>{__('Status')}</th>
             <th>{__('Action')}</th>
