@@ -66,7 +66,7 @@ class Brands extends React.Component<Props, {}> {
   }
 
   render() {
-    const { uomsTotalCount, uoms, loading } = this.props;
+    const { uomsTotalCount, loading } = this.props;
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Uoms'), link: '/settings/uoms-manage' }
@@ -87,7 +87,7 @@ class Brands extends React.Component<Props, {}> {
       <Form {...props} extended={true} renderButton={this.props.renderButton} />
     );
 
-    const righActionBar = (
+    const righFlowJobBar = (
       <ModalTrigger
         size="lg"
         title="New Uom"
@@ -107,7 +107,7 @@ class Brands extends React.Component<Props, {}> {
             description={__('Add uoms ...')}
           />
         }
-        actionBar={<Wrapper.ActionBar right={righActionBar} />}
+        flowJobBar={<Wrapper.FlowJobBar right={righFlowJobBar} />}
         leftSidebar={<Sidebar />}
         content={
           <DataWithLoader

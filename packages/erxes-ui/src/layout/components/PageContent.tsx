@@ -2,7 +2,7 @@ import React from 'react';
 import { ContenFooter, ContentBox, MainContent } from '../styles';
 
 type Props = {
-  actionBar?: React.ReactNode;
+  flowJobBar?: React.ReactNode;
   footer?: React.ReactNode;
   children?: React.ReactNode;
   transparent: boolean;
@@ -12,7 +12,7 @@ type Props = {
 };
 
 function PageContent({
-  actionBar,
+  flowJobBar,
   footer,
   children,
   transparent,
@@ -26,7 +26,7 @@ function PageContent({
       center={center}
       noPadding={noPadding}
     >
-      {actionBar}
+      {flowJobBar}
       <ContentBox transparent={transparent} initialOverflow={initialOverflow}>
         {children}
       </ContentBox>

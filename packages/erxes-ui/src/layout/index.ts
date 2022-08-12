@@ -1,4 +1,4 @@
-import ActionBar from './components/ActionBar';
+import FlowJobBar from './components/FlowJobBar';
 import DetectBrowser from './components/DetectBrowser';
 import Header from './components/Header';
 import NotFound from './components/NotFound';
@@ -32,7 +32,7 @@ import {
 } from './styles';
 
 export {
-  ActionBar,
+  FlowJobBar,
   Header,
   NotFound,
   PageContent,
