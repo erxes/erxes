@@ -22,6 +22,7 @@ export type FieldsCombinedByType = {
   options?: string[];
   title?: string;
   value?: string;
+  validation?: string;
 };
 
 export type FieldsCombinedByTypeQueryResponse = {
@@ -125,3 +126,12 @@ export type SystemFieldsGroupsQueryResponse = {
 export type ProductCategoriesQueryResponse = {
   productCategories: ICategory[];
 } & QueryResponse;
+
+export type LogicParams = {
+  fieldId: string;
+  operator: string;
+  logicValue: any;
+  validation?: string;
+  fieldValue?: any;
+  type?: string;
+};

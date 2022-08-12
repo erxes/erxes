@@ -39,6 +39,12 @@ const commonFields = `
       fullName
     }
   }
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
 `;
 
 const commonFieldsGroups = `
@@ -148,6 +154,12 @@ const productCategories = `
   }
 `;
 
+const fieldsCombinedByContentType = `
+query fieldsCombinedByContentType($contentType: String!) {
+  fieldsCombinedByContentType(contentType: $contentType)
+}
+`;
+
 export default {
   fieldsGroups,
   fieldsGetTypes,
@@ -156,5 +168,6 @@ export default {
   inboxFields,
   cardsFields,
   configs,
-  productCategories
+  productCategories,
+  fieldsCombinedByContentType
 };
