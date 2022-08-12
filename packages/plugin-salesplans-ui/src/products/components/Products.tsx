@@ -21,10 +21,11 @@ const Products = () => {
         }
         content={<ListContainer />}
         leftSidebar={
-          <Wrapper.Sidebar>
+          <Wrapper.Sidebar hasBorder>
             <CategoryFilter />
           </Wrapper.Sidebar>
         }
+        hasBorder
       />
     </WithPermission>
   );

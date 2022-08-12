@@ -208,6 +208,7 @@ class DonateCampaigns extends React.Component<Props, State> {
         }
         leftSidebar={<Sidebar />}
         transparent={true}
+        hasBorder
       />
     );
   }

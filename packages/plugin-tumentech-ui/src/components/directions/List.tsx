@@ -110,6 +110,7 @@ const List = (props: Props) => {
           }
         />
       }
+      hasBorder
     />
   );
 };

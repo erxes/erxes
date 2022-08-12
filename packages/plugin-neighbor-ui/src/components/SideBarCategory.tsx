@@ -36,7 +36,7 @@ class SidebarCategories extends React.Component<Props, State> {
 
     return (
       <>
-        <Sidebar wide={true} header={<SidebarHeader />}>
+        <Sidebar wide={true} header={<SidebarHeader />} hasBorder>
           <Section noShadow noMargin maxHeight={488}>
             {this.renderCategoryHeader()}
           </Section>

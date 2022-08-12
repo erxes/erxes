@@ -1,5 +1,9 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { SimpleButton, FlexCenter, EllipsisContent } from '@erxes/ui/src/styles/main';
+import {
+  SimpleButton,
+  FlexCenter,
+  EllipsisContent
+} from '@erxes/ui/src/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -193,7 +197,6 @@ const LeftContent = styledTS<{ isOpen?: boolean }>(styled.div)`
   flex-direction: row;
   padding-left: ${props => props.isOpen && '200px'};
   transition: padding 0.3s ease;
-  margin: 10px 10px 10px 0;
   box-shadow: 0 0 5px 0 rgba(0,0,0,.08);
 
   > section {

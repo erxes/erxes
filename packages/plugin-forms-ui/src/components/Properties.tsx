@@ -236,6 +236,7 @@ class Properties extends React.Component<
             background="bgWhite"
             left={title}
             right={this.renderActionBar()}
+            wideSpacing
           />
         }
         header={
@@ -247,6 +248,7 @@ class Properties extends React.Component<
         }
         content={this.renderProperties()}
         transparent={true}
+        hasBorder
       />
     );
   }

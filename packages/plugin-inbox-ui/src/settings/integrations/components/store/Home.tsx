@@ -139,6 +139,7 @@ class Home extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{queryParams.type || 'All Add-ons'}</Title>}
             right={this.renderSearch()}
+            wideSpacing
           />
         }
         mainHead={headerDescription}
@@ -149,6 +150,7 @@ class Home extends React.Component<Props, State> {
           </Content>
         }
         transparent={true}
+        hasBorder
       />
     );
   }

@@ -1,5 +1,5 @@
 import { router } from '@erxes/ui/src/utils';
-import { TopHeader } from '@erxes/ui/src/styles/main';
+import { Header } from '@erxes/ui-settings/src/styles';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { __ } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
@@ -174,7 +174,7 @@ class List extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <Header>{this.renderFormTrigger(trigger)}</Header>
         <Section.Title>
           {__('Categories')}
           <Section.QuickButtons>
@@ -210,10 +210,11 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder>
         <Section
           maxHeight={188}
           collapsible={this.props.carCategoriesCount > 30}
+          noShadow
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}

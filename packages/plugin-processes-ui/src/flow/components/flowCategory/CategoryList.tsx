@@ -10,7 +10,7 @@ import Tip from '@erxes/ui/src/components/Tip';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
-import { TopHeader } from '@erxes/ui/src/styles/main';
+import { Header } from '@erxes/ui-settings/src/styles';
 import { __, router } from '@erxes/ui/src/utils';
 
 import CategoryForm from '../../containers/flowCategory/CategoryForm';
@@ -130,7 +130,7 @@ class List extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <Header>{this.renderFormTrigger(trigger)}</Header>
         <Section.Title>
           {__('Categories')}
 
@@ -167,10 +167,11 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true}>
+      <Sidebar wide={true} hasBorder>
         <Section
           maxHeight={488}
           collapsible={this.props.flowCategoriesCount > 9}
+          noShadow
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}

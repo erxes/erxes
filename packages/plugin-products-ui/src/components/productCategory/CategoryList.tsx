@@ -172,11 +172,12 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true}>
+      <Sidebar wide={true} hasBorder>
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}
           noMargin
+          noShadow
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}

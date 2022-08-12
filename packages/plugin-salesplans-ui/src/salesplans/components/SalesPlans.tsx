@@ -27,11 +27,12 @@ const SalesPlans = (props: Props) => {
         content={<List data={data} loading={loading} refetch={refetch} />}
         actionBar={<Actionbar refetch={refetch} />}
         leftSidebar={
-          <Wrapper.Sidebar>
+          <Wrapper.Sidebar hasBorder>
             <TypeFilter />
             <StatusFilter />
           </Wrapper.Sidebar>
         }
+        hasBorder
       />
     </WithPermission>
   );

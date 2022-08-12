@@ -33,14 +33,14 @@ function SidebarContainer(props: FinalProps) {
   const [name, setName] = useState('');
 
   const renderChats = () => {
-    const onAssignedUserSelect = (userId) => {
+    const onAssignedUserSelect = userId => {
       router.removeParams(history, '_id', 'userIds');
 
       setUserId(userId);
       router.setParams(history, { userId });
     };
 
-    const onChangeUsers = (_userIds) => {
+    const onChangeUsers = _userIds => {
       setUserIds(_userIds);
     };
 
@@ -53,17 +53,15 @@ function SidebarContainer(props: FinalProps) {
       setName('');
     };
 
-    const renderChat = (chat) => {
+    const renderChat = chat => {
       const users = chat.participantUsers || [];
 
       const filteredUsers =
-        users.length > 1
-          ? users.filter((u) => u._id !== currentUser._id)
-          : users;
+        users.length > 1 ? users.filter(u => u._id !== currentUser._id) : users;
 
       return (
         <li key={chat._id}>
-          {filteredUsers.map((user) => (
+          {filteredUsers.map(user => (
             <Link key={user._id} to={`/erxes-plugin-chat/home?_id=${chat._id}`}>
               {user.details.fullName || user.email}
             </Link>
@@ -96,7 +94,7 @@ function SidebarContainer(props: FinalProps) {
             </Button>
           </div>
           <ChatListStyle>
-            {groupChats.map((chat) => (
+            {groupChats.map(chat => (
               <li key={chat._id}>
                 <Link to={`/erxes-plugin-chat/home?_id=${chat._id}`}>
                   {chat.name}
@@ -104,7 +102,7 @@ function SidebarContainer(props: FinalProps) {
                 <br />
                 <br />
                 <div style={{ overflow: 'hidden' }}>
-                  {chat.participantUsers.map((user) => (
+                  {chat.participantUsers.map(user => (
                     <div
                       key={user._id}
                       style={{ float: 'left', margin: '0 5px' }}
@@ -131,7 +129,7 @@ function SidebarContainer(props: FinalProps) {
             />
           </div>
           <ChatListStyle>
-            {directChats.map((chat) => renderChat(chat))}
+            {directChats.map(chat => renderChat(chat))}
           </ChatListStyle>
         </Box>
       </>
@@ -139,7 +137,7 @@ function SidebarContainer(props: FinalProps) {
   };
 
   return (
-    <CommonSidebar wide={true} full={true}>
+    <CommonSidebar wide={true} full={true} hasBorder>
       {renderChats()}
     </CommonSidebar>
   );

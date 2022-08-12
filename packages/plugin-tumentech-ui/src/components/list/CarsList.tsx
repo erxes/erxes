@@ -299,7 +299,11 @@ class CarsList extends React.Component<IProps, State> {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
+      <Wrapper.ActionBar
+        right={actionBarRight}
+        left={actionBarLeft}
+        wideSpacing
+      />
     );
 
     return (
@@ -333,6 +337,7 @@ class CarsList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder
       />
     );
   }

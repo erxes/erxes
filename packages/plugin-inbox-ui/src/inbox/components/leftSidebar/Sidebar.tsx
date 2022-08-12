@@ -294,7 +294,12 @@ class LeftSidebar extends React.Component<Props, State> {
             </AdditionalSidebar>
           )}
         </InboxManagementActionConsumer>
-        <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
+        <Sidebar
+          wide={true}
+          full={true}
+          hasBorder
+          header={this.renderSidebarHeader()}
+        >
           <ConversationList
             currentUser={currentUser}
             currentConversationId={currentConversationId}

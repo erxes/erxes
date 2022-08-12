@@ -30,6 +30,7 @@ type Props = {
   history?: any;
   rightActionBar?: any;
   transparent?: boolean;
+  hasBorder?: boolean;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -57,7 +58,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       rightActionBar,
       queryParams,
       transparent,
-      history
+      history,
+      hasBorder
     } = this.props;
 
     const trigger = (
@@ -115,7 +117,7 @@ class List extends React.Component<Props & ICommonListProps, {}> {
           />
         }
         transparent={transparent}
-        hasBorder
+        hasBorder={!hasBorder ? false : true}
       />
     );
   }

@@ -192,6 +192,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
         }
         content={content}
         footer={<Pagination count={totalCount} />}
+        hasBorder
       />
     );
   }

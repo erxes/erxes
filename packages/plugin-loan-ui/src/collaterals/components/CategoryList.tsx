@@ -5,7 +5,7 @@ import {
   router,
   Sidebar,
   Tip,
-  Wrapper,
+  Wrapper
 } from '@erxes/ui/src';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import React from 'react';
@@ -111,7 +111,7 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder>
         <Section
           maxHeight={188}
           collapsible={this.props.collateralCategoriesCount > 9}

@@ -228,6 +228,7 @@ class List extends React.Component<IProps, State> {
           />
         }
         transparent={true}
+        hasBorder
       />
     );
   }

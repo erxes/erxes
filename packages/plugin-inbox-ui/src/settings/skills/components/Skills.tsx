@@ -76,7 +76,9 @@ function Skills(props: Props) {
       </NotWrappable>
     );
 
-    return <Wrapper.ActionBar left={title} right={actionBarRight} />;
+    return (
+      <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+    );
   }
 
   function renderObjects() {
@@ -143,6 +145,7 @@ function Skills(props: Props) {
       content={renderContent()}
       footer={<Pagination count={totalCount} />}
       transparent={true}
+      hasBorder
     />
   );
 }

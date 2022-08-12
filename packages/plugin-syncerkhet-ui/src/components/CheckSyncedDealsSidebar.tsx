@@ -133,8 +133,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
     };
 
     return (
-      <Wrapper.Sidebar>
-        <Sidebar>
+      <Wrapper.Sidebar hasBorder>
+        <Sidebar hasBorder>
           <Section maxHeight={188} collapsible={false}>
             <Section.Title>
               {__('Filters')}

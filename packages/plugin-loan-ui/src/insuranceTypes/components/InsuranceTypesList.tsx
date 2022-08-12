@@ -11,7 +11,7 @@ import {
   router,
   SortHandler,
   Table,
-  Wrapper,
+  Wrapper
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -52,7 +52,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
+      searchValue: this.props.searchValue
     };
   }
 
@@ -61,7 +61,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
     toggleAll(insuranceTypes, 'insuranceTypes');
   };
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -76,17 +76,17 @@ class InsuranceTypesList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeInsuranceTypes = (insuranceTypes) => {
+  removeInsuranceTypes = insuranceTypes => {
     const insuranceTypeIds: string[] = [];
 
-    insuranceTypes.forEach((insuranceType) => {
+    insuranceTypes.forEach(insuranceType => {
       insuranceTypeIds.push(insuranceType._id);
     });
 
     this.props.removeInsuranceTypes({ insuranceTypeIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -101,7 +101,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
       bulk,
       isAllSelected,
       totalCount,
-      queryParams,
+      queryParams
     } = this.props;
 
     const mainContent = (
@@ -136,7 +136,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="insuranceTypes">
-            {insuranceTypes.map((insuranceType) => (
+            {insuranceTypes.map(insuranceType => (
               <InsuranceTypeRow
                 insuranceType={insuranceType}
                 isChecked={bulk.includes(insuranceType)}
@@ -164,7 +164,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
           .then(() => {
             this.removeInsuranceTypes(bulk);
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
 
@@ -182,7 +182,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
       );
     }
 
-    const insuranceTypeForm = (props) => {
+    const insuranceTypeForm = props => {
       return <InsuranceTypeForm {...props} queryParams={queryParams} />;
     };
 
@@ -219,7 +219,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
             queryParams={queryParams}
             breadcrumb={[
               { title: __('Settings'), link: '/settings' },
-              { title: 'Insurance type' },
+              { title: 'Insurance type' }
             ]}
           />
         }
@@ -234,6 +234,7 @@ class InsuranceTypesList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder
       />
     );
   }

@@ -231,6 +231,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
           />
         }
         content={this.renderContent()}
+        hasBorder
       />
     );
   }
