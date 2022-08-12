@@ -310,7 +310,7 @@ class List extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Work')} submenu={menuContacts1} />}
-        flowJobBar={this.renderAboveSide()}
+        actionBar={this.renderAboveSide()}
         leftSidebar={
           <OverallWorkSideBar
             queryParams={queryParams}
