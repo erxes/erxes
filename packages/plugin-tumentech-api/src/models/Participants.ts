@@ -32,7 +32,7 @@ export const loadParticipantClass = (models: IModels) => {
     }
 
     public static async createParticipant(doc: IParticipant) {
-      if (!doc.carId || !doc.dealId || !doc.routeId || !doc.driverId) {
+      if (!doc.carIds.length || !doc.dealId || !doc.routeId || !doc.driverId) {
         throw new Error('Missing required fields');
       }
 

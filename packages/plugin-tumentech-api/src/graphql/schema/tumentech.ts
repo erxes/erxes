@@ -178,13 +178,13 @@ type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   driverId: String!
   dealId: String!
   routeId: String
-  carId : String
+  carIds : [String]
   status: String!
 
   createdAt: Date
   detail: JSON
 
-  car: Car
+  cars: [Car]
   route: Route
   ${cards ? `deal: Deal` : ''}
   ${contacts ? `driver: Customer` : ''}
@@ -345,7 +345,7 @@ const carCategoryParams = `
 const participantParams = `
   driverId: String
   dealId: String
-  carId: String
+  carIds: [String]
   routeId: String
   detail: JSON
 `;

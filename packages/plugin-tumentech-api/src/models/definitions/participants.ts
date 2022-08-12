@@ -5,7 +5,7 @@ import { field, schemaHooksWrapper } from './utils';
 
 export interface IParticipant {
   routeId: string;
-  carId: string;
+  carIds: string[];
   driverId: string;
   dealId: string;
   status?: string;
@@ -22,7 +22,7 @@ export const participantSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     routeId: field({ type: String, label: 'Route Id', required: true }),
     dealId: field({ type: String, label: 'Deal Id', required: true }),
-    carId: field({ type: String, label: 'Car Id', required: true }),
+    carIds: field({ type: [String], label: 'Car Id', required: true }),
     driverId: field({ type: String, label: 'Driver Id', required: true }),
     status: field({
       type: String,
