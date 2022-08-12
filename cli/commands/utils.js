@@ -507,7 +507,6 @@ const generateNginxConf = async ({
   const rootConfig = `
      access_log /var/log/nginx/erxes-front.access.log;
      error_log /var/log/nginx/erxes-front.error.log;
-     proxy_pass http://127.0.0.1:3000;
      proxy_http_version 1.1;
      proxy_redirect off;
      proxy_set_header Host $http_host;
