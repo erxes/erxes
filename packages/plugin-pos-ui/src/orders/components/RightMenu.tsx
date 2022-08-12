@@ -28,7 +28,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 const SelectCustomers = asyncComponent(
   () =>
     isEnabled('contacts') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
     )
 );

@@ -46,7 +46,7 @@ export const Container = styled.div`
       }
     }
 
-    .show-action-menu .custom-menu {
+    .show-flowJob-menu .custom-menu {
       visibility: visible;
       top: -28px;
     }
@@ -107,7 +107,7 @@ export const Container = styled.div`
   }
 
   .trigger,
-  .action {
+  .flowJob {
     max-width: 300px;
     position: absolute;
     padding: 3px;
@@ -179,7 +179,7 @@ export const Container = styled.div`
     }
   }
 
-  .action {
+  .flowJob {
     .trigger-header {
       background: ${rgba(colors.colorCoreOrange, 0.12)};
 
@@ -426,7 +426,7 @@ export const Notes = styled.div`
   }
 `;
 
-export const ActionTabs = styled.div`
+export const FlowJobTabs = styled.div`
   .hxZkUW {
     border: 1px solid ${colors.borderPrimary};
     border-radius: 5px;
@@ -467,7 +467,7 @@ export const Description = styled.div`
   }
 `;
 
-export const ActionBarButtonsWrapper = styled.div`
+export const FlowJobBarButtonsWrapper = styled.div`
   @media (max-width: 1450px) {
     max-width: 350px;
     white-space: normal;
@@ -676,7 +676,7 @@ export const DrawerDetail = styled.div`
   border-radius: 5px;
 `;
 
-export const ZoomActions = styled.div`
+export const ZoomFlowJobs = styled.div`
   position: absolute;
   font-size: 11px;
   z-index: ${dimensions.unitSpacing};

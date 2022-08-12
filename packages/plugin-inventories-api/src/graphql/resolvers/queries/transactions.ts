@@ -1,16 +1,16 @@
 import { IContext } from '../../../connectionResolver';
 
 const transactionQueries = {
-  async transactions(_root: any, params: any, { models, subdomain }: IContext) {
+  transactions: async (_root: any, {}, { models }: IContext) => {
     return models.Transactions.find();
   },
 
-  async transactionDetail(
+  transactionDetail: async (
     _root: any,
     { _id }: { _id: string },
     { models }: IContext
-  ) {
-    return models.Transactions.findOne({ _id });
+  ) => {
+    return models.Transactions.getTransaction(_id);
   }
 };
 

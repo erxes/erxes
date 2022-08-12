@@ -47,6 +47,8 @@ export default {
       };
 
       let colIndex: number = 0;
+      let subUomNames = [];
+      let ratios = [];
 
       // Iterating through detailed properties
       for (const property of properties) {
@@ -105,6 +107,27 @@ export default {
 
             break;
 
+          case 'subUoms.uomId':
+            {
+              subUomNames = value.split(',');
+            }
+            break;
+
+          case 'subUoms.ratio':
+            {
+              ratios = value.split(',');
+            }
+            break;
+
+          case 'uomId':
+            {
+              const uom = await models.Uoms.findOne({
+                $or: [{ name: value }, { code: value }]
+              }).lean();
+              doc.uomId = uom ? uom._id : '';
+            }
+            break;
+
           default:
             {
               doc[property.name] = value;
@@ -126,6 +149,27 @@ export default {
 
         colIndex++;
       }
+
+      let ind = 0;
+      const subUoms: any = [];
+
+      for (const uomVal of subUomNames) {
+        const uom = await models.Uoms.findOne({
+          $or: [{ name: uomVal }, { code: uomVal }]
+        }).lean();
+        if (!uom) {
+          ind += 1;
+          continue;
+        }
+
+        subUoms.push({
+          id: Math.random(),
+          uomId: uom._id,
+          ratio: Number(ratios[ind])
+        });
+        ind += 1;
+      }
+      doc.subUoms = subUoms;
 
       bulkDoc.push(doc);
     }

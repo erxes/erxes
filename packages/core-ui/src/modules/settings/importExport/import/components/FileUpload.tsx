@@ -11,12 +11,11 @@ import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from 'modules/common/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import path from 'path';
 
 const ManageColumns = asyncComponent(
   () =>
     isEnabled('forms') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "ManageColumns" */ '@erxes/ui-forms/src/settings/properties/containers/ManageColumns'
     )
 );

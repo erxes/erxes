@@ -6,9 +6,8 @@ import { queries, mutations } from '../../graphql';
 import React from 'react';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import {
-  TypesQueryResponse,
   TypesRemoveMutationResponse,
-  TypesTotalCountQueryResponse
+  TypesMainQueryResponse
 } from '../../types';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -20,21 +19,19 @@ type Props = {
 };
 
 type FinalProps = {
-  typesQuery: TypesQueryResponse;
-  typesTotalCountQuery: TypesTotalCountQueryResponse;
+  typesMainQuery: TypesMainQueryResponse;
 } & Props &
   TypesRemoveMutationResponse;
 
 function ContentTypesContainer(props: FinalProps) {
-  const { typesQuery, typesRemoveMutation, typesTotalCountQuery } = props;
+  const { typesRemoveMutation, typesMainQuery } = props;
 
-  if (typesTotalCountQuery.loading) {
+  if (typesMainQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const contentTypes = typesQuery.webbuilderContentTypes || [];
-  const contentTypesCount =
-    typesTotalCountQuery.webbuilderContentTypesTotalCount || 0;
+  const { list = [], totalCount } =
+    typesMainQuery.webbuilderContentTypesMain || {};
 
   const remove = (_id: string) => {
     confirm().then(() => {
@@ -42,8 +39,7 @@ function ContentTypesContainer(props: FinalProps) {
         .then(() => {
           Alert.success('Successfully removed a type');
 
-          typesQuery.refetch();
-          typesTotalCountQuery.refetch();
+          typesMainQuery.refetch();
         })
         .catch(e => {
           Alert.error(e.message);
@@ -53,17 +49,17 @@ function ContentTypesContainer(props: FinalProps) {
 
   const updatedProps = {
     ...props,
-    contentTypes,
     remove,
-    contentTypesCount
+    contentTypes: list,
+    contentTypesCount: totalCount
   };
 
   return <List {...updatedProps} />;
 }
 
 export default compose(
-  graphql<Props, TypesQueryResponse>(gql(queries.contentTypes), {
-    name: 'typesQuery',
+  graphql<Props, TypesMainQueryResponse>(gql(queries.contentTypesMain), {
+    name: 'typesMainQuery',
     options: ({ queryParams }) => ({
       variables: {
         ...generatePaginationParams(queryParams)
@@ -71,12 +67,6 @@ export default compose(
       fetchPolicy: 'network-only'
     })
   }),
-  graphql<{}, TypesTotalCountQueryResponse>(
-    gql(queries.contentTypesTotalCount),
-    {
-      name: 'typesTotalCountQuery'
-    }
-  ),
   graphql<{}, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
     name: 'typesRemoveMutation',
     options: () => ({

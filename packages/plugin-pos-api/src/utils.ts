@@ -300,7 +300,7 @@ export const getBranchesUtil = async (
       result => (response = result as { healthy: string })
     );
 
-    if (response.healthy === 'ok') {
+    if (response && response.healthy === 'ok') {
       healthyBranchIds.push(allowPos.branchId);
       break;
     }

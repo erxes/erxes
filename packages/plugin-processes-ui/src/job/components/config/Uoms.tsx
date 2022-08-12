@@ -84,7 +84,7 @@ class Brands extends React.Component<Props, {}> {
       <Form {...props} extended={true} renderButton={this.props.renderButton} />
     );
 
-    const righActionBar = (
+    const righFlowJobBar = (
       <ModalTrigger
         size="lg"
         title="New Uom"
@@ -104,7 +104,7 @@ class Brands extends React.Component<Props, {}> {
             description={__('Add uoms ...')}
           />
         }
-        actionBar={<Wrapper.ActionBar right={righActionBar} />}
+        flowJobBar={<Wrapper.FlowJobBar right={righFlowJobBar} />}
         leftSidebar={<Sidebar />}
         content={
           <DataWithLoader

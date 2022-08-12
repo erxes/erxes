@@ -127,7 +127,7 @@ class List extends React.Component<IProps, State> {
 
     const modalContent = props => <Form {...props} />;
 
-    let actionBarRight = (
+    let flowJobBarRight = (
       <BarItems>
         <FormControl
           type="text"
@@ -192,7 +192,7 @@ class List extends React.Component<IProps, State> {
             Alert.error(error.message);
           });
 
-      actionBarRight = (
+      flowJobBarRight = (
         <BarItems>
           <Button
             btnStyle="danger"
@@ -206,13 +206,13 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{currentCategory.name || 'All jobs'}</Title>;
+    const flowJobBarLeft = <Title>{currentCategory.name || 'All jobs'}</Title>;
 
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Job')} submenu={menuContacts} />}
-        actionBar={
-          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
+        flowJobBar={
+          <Wrapper.FlowJobBar left={flowJobBarLeft} right={flowJobBarRight} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />

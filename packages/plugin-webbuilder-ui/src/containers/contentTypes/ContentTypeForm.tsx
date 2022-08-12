@@ -74,8 +74,8 @@ function ContentTypeFormContainer(props: FinalProps) {
 }
 
 const refetchTypeQueries = () => [
-  { query: gql(queries.contentTypes) },
-  { query: gql(queries.contentTypesTotalCount) }
+  { query: gql(queries.contentTypesMain) },
+  { query: gql(queries.contentTypes) }
 ];
 
 export default compose(

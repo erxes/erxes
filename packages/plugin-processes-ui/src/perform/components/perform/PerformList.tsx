@@ -132,7 +132,7 @@ class List extends React.Component<IProps, State> {
   render() {
     const { performsCount, loading } = this.props;
 
-    const actionBarRight = (
+    const flowJobBarRight = (
       <BarItems>
         <FormControl
           type="text"
@@ -169,7 +169,7 @@ class List extends React.Component<IProps, State> {
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Work')} submenu={menuContacts1} />}
-        actionBar={<Wrapper.ActionBar right={actionBarRight} />}
+        flowJobBar={<Wrapper.FlowJobBar right={flowJobBarRight} />}
         footer={<Pagination count={performsCount || 0} />}
         content={
           <DataWithLoader

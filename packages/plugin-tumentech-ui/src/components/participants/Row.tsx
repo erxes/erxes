@@ -5,7 +5,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-import { IParticipant } from '../../types';
+import { ICar, IParticipant } from '../../types';
 
 type Props = {
   participant: IParticipant;
@@ -40,19 +40,43 @@ class Row extends React.Component<Props> {
 
   render() {
     const { participant } = this.props;
-    const { customer } = participant;
-
+    const { driver } = participant.trip;
+    const { detail = { price: 0 } } = participant;
     const labelStyle = participant.status === 'won' ? 'success' : 'warning';
+
+    const carInfo = (car: ICar) => {
+      if (car.carModel || car.category || car.vinNumber || car.plateNumber) {
+        return (
+          (car.carModel || '') +
+          ' ' +
+          (car.category?.name || '') +
+          ' ' +
+          (car.vinNumber || '') +
+          ' ' +
+          (car.plateNumber || '')
+        );
+      }
+
+      return 'Unknown';
+    };
 
     return (
       <tr>
         <td>
-          <strong>{renderFullName(customer)}</strong>
+          <strong>{renderFullName(driver)}</strong>
         </td>
         <td>
           <TextInfo ignoreTrans={true}>
-            {participant.detail.price || 0}
+            {carInfo(participant.trip.car)}
           </TextInfo>
+        </td>
+        <td>
+          <TextInfo ignoreTrans={true}>
+            {participant.trip.route.name || ''}
+          </TextInfo>
+        </td>
+        <td>
+          <TextInfo ignoreTrans={true}>{detail.price}</TextInfo>
         </td>
         <td>
           <Label lblStyle={labelStyle}>{participant.status}</Label>

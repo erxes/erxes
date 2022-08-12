@@ -7,15 +7,31 @@ const tripsQuery = {
     _root,
     {
       status,
+      dealId,
+      driverId,
       page,
       perPage
-    }: { status?: string; page?: number; perPage?: number },
+    }: {
+      status?: string;
+      dealId?: string;
+      driverId?: string;
+      page?: number;
+      perPage?: number;
+    },
     { models }: IContext
   ) => {
     const filter: any = {};
 
     if (status) {
       filter.status = status;
+    }
+
+    if (driverId) {
+      filter.driverId = driverId;
+    }
+
+    if (dealId) {
+      filter.dealIds = dealId;
     }
 
     return {

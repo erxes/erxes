@@ -13,6 +13,7 @@ export interface ITransactionItem {
 
 export interface ITransactionItemDocument extends ITransactionItem, Document {
   _id: string;
+  modifiedAt: string;
 }
 
 export const transactionItemSchema = schemaHooksWrapper(
@@ -27,8 +28,11 @@ export const transactionItemSchema = schemaHooksWrapper(
     uomId: field({ type: String, label: 'UOM' }),
     isDebit: field({ type: Boolean, default: true, label: 'Is Debit' }),
 
-    createdAt: { type: Date, default: new Date(), label: 'Created date' },
-    createdBy: { type: String, label: 'Created User' }
+    modifiedAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Modified date'
+    })
   }),
   'erxes_transaction_items'
 );

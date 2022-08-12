@@ -105,7 +105,7 @@ class SideBar extends React.Component<IProps> {
   }
 
   renderOverallWorkList() {
-    const { overallWork, loading } = this.props;
+    const { loading } = this.props;
 
     return (
       <SidebarList>

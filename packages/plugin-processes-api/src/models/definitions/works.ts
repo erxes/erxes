@@ -1,9 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import {
-  IProductsData,
-  IProductsDataDocument,
-  productsDataSchema
-} from './jobs';
+import { productsDataSchema } from './jobs';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IWork {

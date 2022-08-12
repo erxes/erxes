@@ -12,6 +12,7 @@ import client from '@erxes/ui/src/apolloClient';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   onChange: (name: 'deliveryConfig', value: any) => void;
@@ -33,7 +34,8 @@ class DeliveryConfig extends React.Component<
             pipelineId: '',
             stageId: '',
             watchedUserIds: [],
-            assignedUserIds: []
+            assignedUserIds: [],
+            productId: ''
           };
 
     let fieldsCombined = [];
@@ -64,6 +66,8 @@ class DeliveryConfig extends React.Component<
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
     config[code] = value;
+
+    console.log(code, value);
 
     this.setState({ config }, () => {
       this.props.onChange('deliveryConfig', config);
@@ -103,6 +107,10 @@ class DeliveryConfig extends React.Component<
     const onMapCustomFieldChange = option => {
       const value = !option ? '' : option.value.toString();
       this.onChangeConfig('mapCustomField', value);
+    };
+
+    const onChangeProduct = option => {
+      this.onChangeConfig('productId', option);
     };
 
     return (
@@ -162,6 +170,18 @@ class DeliveryConfig extends React.Component<
                     name="assignedUserIds"
                     initialValue={config.assignedUserIds}
                     onSelect={onAssignedUsersSelect}
+                  />
+                </FormGroup>
+              </BlockRow>
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>{__('Delivery product')}</ControlLabel>
+                  <SelectProducts
+                    label={__('Choose delivery product')}
+                    name="product"
+                    initialValue={config.productId}
+                    multi={false}
+                    onSelect={onChangeProduct}
                   />
                 </FormGroup>
               </BlockRow>

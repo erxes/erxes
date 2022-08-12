@@ -8,17 +8,14 @@ const fields = `
       }
 `;
 
-const pages = `
-  query pages($page: Int, $perPage: Int, $searchValue: String) {
-    webbuilderPages(page: $page, perPage: $perPage, searchValue: $searchValue) {
-      ${fields}
+const pagesMain = `
+  query pagesMain($page: Int, $perPage: Int, $searchValue: String) {
+    webbuilderPagesMain(page: $page, perPage: $perPage, searchValue: $searchValue) {
+      list {
+        ${fields}
+      }
+      totalCount
     }
-  }
-`;
-
-const pagesTotalCount = `
-  query pagesTotalCount {
-    webbuilderPagesTotalCount
   }
 `;
 
@@ -34,27 +31,37 @@ const pageDetail = `
   }
 `;
 
+const typeFields = `
+  _id
+  code
+  displayName
+  fields
+  entries {
+    _id
+  }
+  site {
+    name
+    domain
+  }
+`;
+
 const contentTypes = `
-  query contentTypes($page: Int $perPage: Int) {
-    webbuilderContentTypes(page: $page perPage: $perPage) {
+  query contentTypes {
+    webbuilderContentTypes {
       _id
-      code
       displayName
-      fields
-      entries {
-        _id
-      }
-      site {
-        name
-        domain
-      }
     }
   }
 `;
 
-const contentTypesTotalCount = `
-  query contentTypesTotalCount {
-    webbuilderContentTypesTotalCount
+const contentTypesMain = `
+  query contentTypesMain($page: Int, $perPage: Int) {
+    webbuilderContentTypesMain(page: $page, perPage: $perPage) {
+      list {
+        ${typeFields}
+      }
+      totalCount
+    }
   }
 `;
 
@@ -70,19 +77,16 @@ const contentTypeDetail = `
   } 
 `;
 
-const entries = `
-  query entries($contentTypeId: String! $page: Int $perPage: Int) {
-    webbuilderEntries(contentTypeId: $contentTypeId page: $page perPage: $perPage) {
-      _id
-      contentTypeId
-      values
+const entriesMain = `
+  query entriesMain($contentTypeId: String! $page: Int $perPage: Int) {
+    webbuilderEntriesMain(contentTypeId: $contentTypeId page: $page perPage: $perPage) {
+      list {
+        _id
+        contentTypeId
+        values
+      }
+      totalCount
     } 
-  }
-`;
-
-const entriesTotalCount = `
-  query entriesTotalCount($contentTypeId: String!) {
-    webbuilderEntriesTotalCount(contentTypeId: $contentTypeId)
   }
 `;
 
@@ -140,18 +144,16 @@ const sitesTotalCount = `
 `;
 
 export default {
-  pages,
-  pagesTotalCount,
+  pagesMain,
   pageDetail,
   contentTypes,
-  contentTypesTotalCount,
+  contentTypesMain,
   contentTypeDetail,
-  entries,
+  entriesMain,
   entryDetail,
   templates,
   templatesTotalCount,
   templateDetail,
-  entriesTotalCount,
   sites,
   sitesTotalCount
 };
