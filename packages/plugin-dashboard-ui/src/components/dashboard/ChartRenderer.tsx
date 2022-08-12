@@ -217,6 +217,7 @@ const ChartRenderer = (props: Props) => {
     if (timeDimensions[0]) {
       dateType = timeDimensions[0].granularity;
     }
+
     return renderChart(component)({
       height: chartHeight,
       ...renderProps,

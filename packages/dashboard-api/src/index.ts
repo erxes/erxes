@@ -4,7 +4,7 @@ import { CubejsServer } from '@cubejs-backend/server';
 
 dotenv.config();
 
-const { CUBEJS_API_SECRET, DB_NAME } = process.env;
+const { CUBEJS_API_SECRET, CUBEJS_DB_NAME } = process.env;
 
 const server = new CubejsServer({});
 
@@ -21,7 +21,9 @@ server
       });
     });
 
-    console.log(`🚀 Cube.js server is listening on ${port} dbname ${DB_NAME}`);
+    console.log(
+      `🚀 Cube.js server is listening on ${port} dbname ${CUBEJS_DB_NAME}`
+    );
   })
   .catch(e => {
     console.error('Fatal error during server start: ');

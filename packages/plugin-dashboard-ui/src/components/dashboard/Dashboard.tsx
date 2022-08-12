@@ -17,7 +17,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
 import { Link } from 'react-router-dom';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import DashboardItem from './DashboardItem';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import ChartFrom from '../explore/ChartForm';
@@ -264,11 +264,7 @@ class Dashboard extends React.Component<Props, State> {
                 </DragField>
               ) : null}
               {this.state.showDrawer ? (
-                <ChartFrom
-                  showDrawer={this.state.showDrawer}
-                  item={dashboardItems[0]}
-                  vizState={dashboardItem[0]}
-                />
+                <ChartFrom showDrawer={this.state.showDrawer} />
               ) : null}
             </PageContent>
           </DashboardFormContainer>

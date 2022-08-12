@@ -1,6 +1,6 @@
 export const schemaTypes = ['Customers', 'Deals', 'Conversations'];
 
-export const chartTypes = [
+export const CHART_TYPES = [
   {
     name: 'line',
     title: 'Line',
@@ -33,10 +33,10 @@ export const chartTypes = [
   }
 ];
 
-export const dateRanges = [
+export const DATE_RANGES = [
   {
     title: 'All time',
-    value: undefined
+    value: 'All time'
   },
   {
     value: 'Today'

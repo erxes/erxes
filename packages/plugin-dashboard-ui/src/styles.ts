@@ -315,7 +315,36 @@ const DragField = styledTS<any>(styled(ReactGridLayout))`
   }
 `;
 
+const Description = styled.div`
+  margin: ${dimensions.coreSpacing}px ${dimensions.unitSpacing}px
+    ${dimensions.unitSpacing}px;
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  > p {
+    margin: ${dimensions.unitSpacing - 5}px 0 0 0;
+    color: ${colors.colorCoreGray};
+  }
+`;
+
+const ScrolledContent = styled.div`
+  flex: 1;
+  overflow: auto;
+`;
+
+const DrawerDetail = styled.div`
+  padding: ${dimensions.coreSpacing}px;
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 5px;
+`;
+
 export {
+  Description,
+  DrawerDetail,
+  ScrolledContent,
   DragField,
   ActionBarButtonsWrapper,
   DashboardFormContainer,
