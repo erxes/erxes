@@ -6,7 +6,7 @@ import {
   MainHead,
   VerticalContent
 } from '../styles';
-import FlowJobBar from './FlowJobBar';
+import ActionBar from './ActionBar';
 import Header from './Header';
 import PageContent from './PageContent';
 import Sidebar from './Sidebar';
@@ -15,7 +15,7 @@ type Props = {
   header?: React.ReactNode;
   leftSidebar?: React.ReactNode;
   rightSidebar?: React.ReactNode;
-  flowJobBar?: React.ReactNode;
+  actionBar?: React.ReactNode;
   content: React.ReactNode;
   footer?: React.ReactNode;
   transparent?: boolean;
@@ -30,11 +30,11 @@ type Props = {
 class Wrapper extends React.Component<Props> {
   static Header = Header;
   static Sidebar = Sidebar;
-  static FlowJobBar = FlowJobBar;
+  static ActionBar = ActionBar;
 
   renderContent() {
     const {
-      flowJobBar,
+      actionBar,
       content,
       footer,
       transparent,
@@ -49,7 +49,7 @@ class Wrapper extends React.Component<Props> {
         <FullContent center={true} align={true}>
           <MiddleContent shrink={shrink} transparent={transparent}>
             <PageContent
-              flowJobBar={flowJobBar}
+              actionBar={actionBar}
               footer={footer}
               transparent={transparent || false}
               center={center}
@@ -65,7 +65,7 @@ class Wrapper extends React.Component<Props> {
 
     return (
       <PageContent
-        flowJobBar={flowJobBar}
+        actionBar={actionBar}
         footer={footer}
         transparent={transparent || false}
         noPadding={noPadding}

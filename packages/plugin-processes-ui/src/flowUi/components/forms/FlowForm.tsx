@@ -1,6 +1,5 @@
 import Button from '@erxes/ui/src/components/Button';
 import Confirmation from '../../containers/forms/Confirmation';
-import FlowJobsForm from './actions/FlowJobsForm';
 import Icon from '@erxes/ui/src/components/Icon';
 import jquery from 'jquery';
 import Label from '@erxes/ui/src/components/Label';
@@ -14,6 +13,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __, Alert } from '@erxes/ui/src/utils';
 import {
+  ActionBarButtonsWrapper,
   BackButton,
   Container,
   FlowFormContainer,
@@ -38,7 +38,6 @@ import {
   sourceEndpoint,
   targetEndpoint
 } from '../../utils';
-import { FlowJobBarButtonsWrapper } from '../../styles';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IFlowDocument, IJob } from '../../../flow/types';
 import { IJobRefer, IProductsData } from '../../../job/types';
@@ -46,6 +45,7 @@ import { IProduct } from '@erxes/ui-products/src/types';
 import { jsPlumb } from 'jsplumb';
 import { Link } from 'react-router-dom';
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import FlowJobsForm from './actions/FlowJobsForm';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -718,7 +718,7 @@ class AutomationForm extends React.Component<Props, State> {
     return <Label lblStyle={style}>{text}</Label>;
   };
 
-  rendeRightFlowJobBar() {
+  rendeRightActionBar() {
     const { isActive } = this.state;
 
     return (
@@ -740,7 +740,7 @@ class AutomationForm extends React.Component<Props, State> {
           <Toggle defaultChecked={isActive} onChange={this.onToggle} />
           <span className={!isActive ? 'active' : ''}>{__('Active')}</span>
         </ToggleWrapper>
-        <FlowJobBarButtonsWrapper>
+        <ActionBarButtonsWrapper>
           {this.renderButtons()}
           <Button
             btnStyle="success"
@@ -750,12 +750,12 @@ class AutomationForm extends React.Component<Props, State> {
           >
             {__('Save')}
           </Button>
-        </FlowJobBarButtonsWrapper>
+        </ActionBarButtonsWrapper>
       </BarItems>
     );
   }
 
-  renderLeftFlowJobBar() {
+  renderLeftActionBar() {
     const { name } = this.state;
 
     return (
@@ -926,10 +926,10 @@ class AutomationForm extends React.Component<Props, State> {
               ]}
             />
             <PageContent
-              flowJobBar={
-                <Wrapper.FlowJobBar
-                  left={this.renderLeftFlowJobBar()}
-                  right={this.rendeRightFlowJobBar()}
+              actionBar={
+                <Wrapper.ActionBar
+                  left={this.renderLeftActionBar()}
+                  right={this.rendeRightActionBar()}
                 />
               }
               transparent={false}

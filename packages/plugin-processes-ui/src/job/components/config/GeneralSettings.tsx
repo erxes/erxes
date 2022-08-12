@@ -139,8 +139,8 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         mainHead={<Header />}
-        flowJobBar={
-          <Wrapper.FlowJobBar
+        actionBar={
+          <Wrapper.ActionBar
             left={<Title>{__('Products configs')}</Title>}
             right={flowJobButtons}
           />
