@@ -18,12 +18,15 @@ const TabContainer = styledTS<{ grayBorder?: boolean; full?: boolean }>(
 
 const TabCaption = styled.span`
   cursor: pointer;
-  display: inline-block;
+  display: flex;
   color: ${colors.textSecondary};
   font-weight: ${typography.fontWeightRegular};
   padding: 15px ${dimensions.coreSpacing}px;
   position: relative;
   transition: all ease 0.3s;
+  line-height: 18px;
+  text-align: center;
+  align-items: center;
 
   &:hover {
     color: ${colors.textPrimary};

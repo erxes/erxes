@@ -78,14 +78,14 @@ export const targetEndpoint = {
   isTarget: true
 };
 
-export const createInitialConnections = (actions: IJob[], instance: any) => {
-  for (const action of actions) {
-    const jobIds = action.nextJobIds || [];
+export const createInitialConnections = (flowJobs: IJob[], instance: any) => {
+  for (const flowJob of flowJobs) {
+    const jobIds = flowJob.nextJobIds || [];
 
     jobIds.map(job =>
       instance.connect({
-        source: `action-${action.id}`,
-        target: `action-${job}`,
+        source: `flowJob-${flowJob.id}`,
+        target: `flowJob-${job}`,
         anchors: ['Right', 'Left']
       })
     );
@@ -93,47 +93,47 @@ export const createInitialConnections = (actions: IJob[], instance: any) => {
 };
 
 export const connection = (
-  actions: IJob[],
+  flowJobs: IJob[],
   info: any,
-  actionId: any,
+  flowJobId: any,
   type: string,
-  findLastAction: any
+  findLastFlowJob: any
 ) => {
   const sourceId = info.sourceId;
 
-  if (sourceId.includes('action')) {
-    let innerActions: IJob[] = [];
+  if (sourceId.includes('flowJob')) {
+    let innerFlowJobs: IJob[] = [];
 
-    const replacedSourceId: string = sourceId.replace('action-', '');
+    const replacedSourceId: string = sourceId.replace('flowJob-', '');
 
-    const sourceAction = actions.find(
+    const sourceFlowJob = flowJobs.find(
       a => a.id.toString() === replacedSourceId
     );
 
-    innerActions = actions.filter(a => a.id.toString() !== replacedSourceId);
+    innerFlowJobs = flowJobs.filter(a => a.id.toString() !== replacedSourceId);
 
-    if (sourceAction && sourceAction.id) {
-      let jobIds = [...(sourceAction.nextJobIds || [])];
+    if (sourceFlowJob && sourceFlowJob.id) {
+      let jobIds = [...(sourceFlowJob.nextJobIds || [])];
 
       if (type === 'connect') {
-        if (!jobIds.includes(actionId)) {
-          jobIds.push(actionId);
+        if (!jobIds.includes(flowJobId)) {
+          jobIds.push(flowJobId);
         }
       } else {
-        const leftJobIds = jobIds.filter(j => j !== actionId);
+        const leftJobIds = jobIds.filter(j => j !== flowJobId);
         jobIds = leftJobIds;
       }
 
-      sourceAction.nextJobIds = jobIds;
+      sourceFlowJob.nextJobIds = jobIds;
 
-      findLastAction();
+      findLastFlowJob();
 
-      innerActions.push(sourceAction);
+      innerFlowJobs.push(sourceFlowJob);
     }
 
-    return innerActions;
+    return innerFlowJobs;
   } else {
-    return actions;
+    return flowJobs;
   }
 };
 
@@ -147,28 +147,4 @@ export const deleteConnection = instance => {
         Alert.error(error.message);
       });
   });
-};
-
-export const getTriggerType = (
-  actions: any,
-  triggers: any,
-  activeActionId: string
-) => {
-  const activeTrigger = triggers.find(t => t.actionId === activeActionId);
-
-  if (activeTrigger) {
-    return activeTrigger.type;
-  }
-
-  const activeAction = actions.find(t => t.nextJobIds[0] === activeActionId);
-
-  if (activeAction) {
-    return getTriggerType(actions, triggers, activeAction.id);
-  }
-
-  if (triggers && triggers.length > 0) {
-    return triggers[0].type;
-  }
-
-  return;
 };

@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
@@ -46,8 +46,6 @@ export const loadJobReferClass = (models: IModels) => {
      * Update JobRefer
      */
     public static async updateJobRefer(_id: string, doc: IJobRefer) {
-      const job = await models.JobRefers.getJobRefer(_id);
-
       await models.JobRefers.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.JobRefers.getJobRefer(_id);

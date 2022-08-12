@@ -90,7 +90,6 @@ export default {
 
     const needProducts = jobRefers?.needProducts || [];
 
-    const resolvedNeedProducts: any[] = [];
     for await (const need of needProducts) {
       const uom =
         (await sendProductsMessage({

@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
@@ -45,8 +45,6 @@ export const loadProcessClass = (models: IModels) => {
      * Update Process
      */
     public static async updateProcess(_id: string, doc: IProcess) {
-      const process = await models.Processes.getProcess(_id);
-
       await models.Processes.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.Processes.getProcess(_id);

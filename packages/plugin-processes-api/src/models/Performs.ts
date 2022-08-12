@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
@@ -45,8 +45,6 @@ export const loadPerformClass = (models: IModels) => {
      * Update Perform
      */
     public static async updatePerform(_id: string, doc: IPerform) {
-      const perform = await models.Performs.getPerform(_id);
-
       await models.Performs.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.Performs.getPerform(_id);
