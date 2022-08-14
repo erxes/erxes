@@ -38,10 +38,11 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build plugin webhooks
-          cd ../../dist/plugin-webhooks-api/.erxes
+          cd plugin-webhooks-api/.erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image
