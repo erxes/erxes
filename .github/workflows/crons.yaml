@@ -1,4 +1,4 @@
-name: Workers CI
+name: Crons CI
 
 on:
   push:
@@ -6,12 +6,11 @@ on:
       - 'federation'
     paths:
       - 'packages/api-utils/**'
-      - 'packages/api-plugin-template.erxes/**'
-      - 'packages/workers/**'
-      - '.github/workflows/workers.yaml'
+      - 'packages/crons/**'
+      - '.github/workflows/crons.yaml'
 
 jobs:
-  workers:
+  crons:
     runs-on: ubuntu-18.04
 
     steps:
@@ -31,21 +30,22 @@ jobs:
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-workers-${{ hashFiles('yarn.lock', 'workers/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-crons-${{ hashFiles('yarn.lock', 'crons/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-workers
+            ${{ runner.os }}-yarn-crons
             ${{ runner.os }}-yarn-
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
-          yarn build workers
+          yarn build crons
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
         run: |
-          cd dist/workers
+          cd dist/crons
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/workers:${GITHUB_REF#refs/heads/} -f Dockerfile .
-          docker push erxes/workers:${GITHUB_REF#refs/heads/}
+          docker build -t erxes/crons:${GITHUB_REF#refs/heads/} -f Dockerfile .
+          docker push erxes/crons:${GITHUB_REF#refs/heads/}
