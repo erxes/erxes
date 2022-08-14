@@ -1,5 +1,4 @@
 import * as fse from 'fs-extra';
-import * as fs from 'fs';
 import { exec } from 'child_process';
 
 const execute = async func => {
@@ -45,23 +44,20 @@ const main = async () => {
     folderName = `plugin-${process.argv[3]}-api`;
   }
 
-  await execute(() => fs.promises.rmdir('../../dist', { recursive: true }));
-  await execute(() => fs.promises.mkdir('../../dist'));
-
   await execute(() =>
-    fse.copy('../api-utils', '../../dist/api-utils', { overwrite: true })
+    fse.copy('../packages/api-utils', './api-utils', { overwrite: true })
   );
 
   if (type !== 'gateway') {
     await execute(() =>
-      fse.copy('../api-plugin-template', '../../dist/api-plugin-template', {
+      fse.copy('../packages/api-plugin-template', './api-plugin-template', {
         overwrite: true
       })
     );
   }
 
   await execute(() =>
-    fse.copy(`../${folderName}`, `../../dist/${folderName}`, {
+    fse.copy(`../packages/${folderName}`, `./${folderName}`, {
       overwrite: true
     })
   );
@@ -71,8 +67,8 @@ const main = async () => {
 
     await execute(() =>
       fse.copy(
-        '../api-plugin-template.erxes',
-        `../../dist/${folderName}/.erxes`,
+        '../packages/api-plugin-template.erxes',
+        `./${folderName}/.erxes`,
         {
           overwrite: true
         }
@@ -80,24 +76,23 @@ const main = async () => {
     );
   }
 
-  console.log('Generating package.json ....');
+  // Even though this global yarn.lock contains all node_modules in packages folder
+  // later when we are yarn install. it can compare package.json files in dist folders
+  // and removing non existing modules from yarn.lock. Therefore it can only install nessecesary modules
+  console.log('Replacing yarn.lock with global yarn.lock ...........');
+
   await execute(() =>
-    fs.promises.writeFile(
-      '../../dist/package.json',
-      `
-    {
-      "name": "erxes",
-      "private": true,
-      "workspaces": ["*"]
-    }
-  `
+    fse.copy(
+      '../yarn.lock',
+      `./yarn.lock`,
+      {
+        overwrite: true
+      }
     )
   );
 
-  process.chdir('../../dist');
-
   console.log('Yarn install ....');
-  await execCommand('yarn install --production');
+  await execCommand('yarn install');
 
   process.chdir(folderName);
 
@@ -109,17 +104,26 @@ const main = async () => {
     await execCommand('yarn build');
   }
 
+  console.log('Removing node_modules with dev dependencies ....');
+  process.chdir('..');
+  await execCommand('rm -rf node_modules');
+  console.log('Installing production deps ....');
+  await execCommand('yarn install --production');
+
   console.log('Moving node_modules ....');
 
   if (type === 'plugin') {
     await execute(() =>
-      fse.move('../node_modules', './.erxes/dist/node_modules')
+      fse.move('./node_modules', `./${folderName}/.erxes/dist/node_modules`)
     );
   } else {
-    await execute(() => fse.move('../node_modules', './dist/node_modules'));
+    await execute(() => fse.move('./node_modules', `./${folderName}/dist/node_modules`));
   }
 };
 
 main()
   .then(() => process.exit())
-  .catch(() => process.exit(1));
+  .catch((e) => {
+    console.log(e)
+    process.exit(1)
+  });
