@@ -1,5 +1,4 @@
 import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
-import { __, loadCustomPlugin } from '@erxes/ui/src/utils';
 
 import { Actions } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
@@ -11,7 +10,25 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
+import { __ } from '@erxes/ui/src/utils';
+import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '../../../utils/core';
+
+const MailForm = asyncComponent(
+  () =>
+    isEnabled('inbox') &&
+    import(
+      /* webpackChunkName: "MailForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm'
+    )
+);
+
+const SmsForm = asyncComponent(
+  () =>
+    isEnabled('inbox') &&
+    import(
+      /* webpackChunkName: "SmsForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm'
+    )
+);
 
 type Props = {
   user: IUser;
@@ -28,84 +45,66 @@ type Props = {
 };
 
 class ActionSection extends React.Component<Props> {
-  renderMailForm(user) {
-    if (!isEnabled('inbox')) {
-      return null;
-    }
-
-    const content = props => (
-      <MailBox>
-        {loadCustomPlugin('inbox', 'mailForm', {
-          fromEmail: user.email,
-          customerId: user._id || undefined,
-          refetchQueries: ['activityLogsUser'],
-          closeModal: props.closeModal
-        })}
-      </MailBox>
-    );
-
-    return (
-      <ModalTrigger
-        dialogClassName="middle"
-        title="Email"
-        trigger={
-          <Button
-            disabled={user.email ? false : true}
-            size="small"
-            btnStyle={user.email ? 'primary' : 'simple'}
-          >
-            <Tip text="Send e-mail" placement="top-end">
-              <Icon icon="envelope" />
-            </Tip>
-          </Button>
-        }
-        size="lg"
-        content={content}
-        paddingContent="less-padding"
-        enforceFocus={false}
-      />
-    );
-  }
-
-  renderSmsForm(operatorPhone) {
-    if (!isEnabled('inbox')) {
-      return null;
-    }
-
-    const smsForm = props =>
-      loadCustomPlugin('inbox', 'smsForm', {
-        ...props,
-        primaryPhone: operatorPhone
-      });
-
-    return (
-      <ModalTrigger
-        dialogClassName="middle"
-        title={`Send SMS to (${operatorPhone})`}
-        trigger={
-          <Button
-            disabled={operatorPhone ? false : true}
-            size="small"
-            btnStyle={operatorPhone ? 'primary' : 'simple'}
-          >
-            <Tip text="Send SMS" placement="top-end">
-              <Icon icon="message" />
-            </Tip>
-          </Button>
-        }
-        content={smsForm}
-      />
-    );
-  }
-
   renderActions() {
     const { user } = this.props;
     const { operatorPhone } = user.details || ({} as IUserDetails);
 
+    const content = props => (
+      <MailBox>
+        <MailForm
+          fromEmail={user.email}
+          customerId={user._id || undefined}
+          refetchQueries={['activityLogsUser']}
+          closeModal={props.closeModal}
+        />
+      </MailBox>
+    );
+
+    const smsForm = props => (
+      <SmsForm {...props} primaryPhone={operatorPhone} />
+    );
+
     return (
       <>
-        {this.renderMailForm(user)}
-        {this.renderSmsForm(operatorPhone)}
+        <ModalTrigger
+          dialogClassName="middle"
+          title="Email"
+          trigger={
+            isEnabled('inbox') && (
+              <Button
+                disabled={user.email ? false : true}
+                size="small"
+                btnStyle={user.email ? 'primary' : 'simple'}
+              >
+                <Tip text="Send e-mail" placement="top-end">
+                  <Icon icon="envelope" />
+                </Tip>
+              </Button>
+            )
+          }
+          size="lg"
+          content={content}
+          paddingContent="less-padding"
+          enforceFocus={false}
+        />
+        <ModalTrigger
+          dialogClassName="middle"
+          title={`Send SMS to (${operatorPhone})`}
+          trigger={
+            isEnabled('inbox') && (
+              <Button
+                disabled={operatorPhone ? false : true}
+                size="small"
+                btnStyle={operatorPhone ? 'primary' : 'simple'}
+              >
+                <Tip text="Send SMS" placement="top-end">
+                  <Icon icon="message" />
+                </Tip>
+              </Button>
+            )
+          }
+          content={smsForm}
+        />
         <Button
           href={operatorPhone && `tel:${operatorPhone}`}
           size="small"
