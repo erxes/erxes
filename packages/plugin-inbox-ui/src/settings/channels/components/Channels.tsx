@@ -8,6 +8,7 @@ import ManageIntegrations from '../containers/ManageIntegrations';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
+import Sidebar from '../containers/Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
@@ -88,11 +89,10 @@ class Channels extends React.Component<Props, {}> {
           />
         }
         leftSidebar={
-          <div>hi</div>
-          // <Sidebar
-          //   currentChannelId={currentChannel._id}
-          //   queryParams={queryParams}
-          // />
+          <Sidebar
+            currentChannelId={currentChannel._id}
+            queryParams={queryParams}
+          />
         }
         actionBar={
           <Wrapper.ActionBar
