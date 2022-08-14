@@ -18,6 +18,10 @@ const CarSection = (props: Props) => {
   const { Section } = Sidebar;
   const { car } = props;
 
+  if (!car) {
+    return null;
+  }
+
   const renderRow = (label, value) => {
     return (
       <li>

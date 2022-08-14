@@ -20,6 +20,9 @@
     "ts-node": "^10.4.0",
     "xlsx-populate": "^1.20.1",
     "cookie-parser": "^1.4.6",
-    "validator": "^9.0.0"
+    "validator": "^9.0.0",
+    "aws-sdk": "^2.151.0",
+    "erxes-inmemory-storage": "^1.0.20",
+    "faker": "^4.1.0"
   }
 }
