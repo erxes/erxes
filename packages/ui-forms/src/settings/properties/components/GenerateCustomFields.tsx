@@ -7,6 +7,7 @@ import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
 import { SidebarContent } from '../styles';
 import { IFieldGroup } from '../types';
+import { applyLogics } from '../utils';
 import GenerateField from './GenerateField';
 
 declare const navigator: any;
@@ -15,6 +16,7 @@ type Props = {
   isDetail: boolean;
   fieldGroup: IFieldGroup;
   loading?: boolean;
+  doc?: any;
   data: any;
   save: (data: any, callback: (error: Error) => void) => void;
 };
@@ -125,7 +127,7 @@ class GenerateGroup extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { fieldGroup, isDetail } = this.props;
+    const { fieldGroup, isDetail, doc = {} } = this.props;
     const { data } = this.state;
     const { fields } = fieldGroup;
 
@@ -152,15 +154,23 @@ class GenerateGroup extends React.Component<Props, State> {
             return null;
           }
 
+          if (field.logics && field.logics.length > 0) {
+            if (!applyLogics(field, fields, doc, data)) {
+              return null;
+            }
+          }
+
           return (
-            <GenerateField
-              field={field}
-              key={index}
-              onValueChange={this.onChange}
-              defaultValue={data[field._id] || ''}
-              currentLocation={this.state.currentLocation}
-              isEditing={this.state.editing}
-            />
+            <>
+              <GenerateField
+                field={field}
+                key={index}
+                onValueChange={this.onChange}
+                defaultValue={data[field._id] || ''}
+                currentLocation={this.state.currentLocation}
+                isEditing={this.state.editing}
+              />
+            </>
           );
         })}
       </SidebarContent>
@@ -189,6 +199,7 @@ type GroupsProps = {
   fieldsGroups: IFieldGroup[];
   customFieldsData: any;
   loading?: boolean;
+  doc?: any;
   save: (data: { customFieldsData: any }, callback: () => any) => void;
 };
 
@@ -236,6 +247,7 @@ class GenerateGroups extends React.Component<GroupsProps> {
           loading={loading}
           data={data}
           fieldGroup={fieldGroup}
+          doc={this.props.doc}
           save={this.saveGroup}
         />
       );

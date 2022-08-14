@@ -5,7 +5,7 @@ import Box from '@erxes/ui/src/components/Box';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils';
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ControlLabel } from '@erxes/ui/src/components/form';
 import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';

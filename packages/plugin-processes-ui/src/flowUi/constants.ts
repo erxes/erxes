@@ -1,4 +1,4 @@
-export const ACTIONS = [
+export const FLOWJOBS = [
   {
     type: 'job',
     label: 'Job',

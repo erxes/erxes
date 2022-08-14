@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 import { IFlowCategory } from '../../../models/definitions/flowCategories';
 import {

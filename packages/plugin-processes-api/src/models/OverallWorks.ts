@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
@@ -48,8 +48,6 @@ export const loadOverallWorkClass = (models: IModels) => {
      * Update OverallWork
      */
     public static async updateOverallWork(_id: string, doc: IOverallWork) {
-      const overallWork = await models.OverallWorks.getOverallWork(_id);
-
       await models.OverallWorks.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.OverallWorks.getOverallWork(_id);

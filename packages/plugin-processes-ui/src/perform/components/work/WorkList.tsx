@@ -77,7 +77,7 @@ class List extends React.Component<IProps, State> {
   }
 
   render() {
-    const { worksCount, loading, queryParams, history } = this.props;
+    const { worksCount, loading } = this.props;
 
     const actionBarRight = (
       <BarItems>
