@@ -2,7 +2,6 @@ import { Counts, QueryResponse } from '@erxes/ui/src/types';
 
 import { IActivityLog } from '@erxes/ui-log/src/activityLogs/types';
 import { ICompany } from '../companies/types';
-import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 

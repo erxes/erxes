@@ -5,7 +5,6 @@ import {
 } from '@erxes/ui-leads/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';
-import { IChannel } from '../channels/types';
 import { IForm } from '@erxes/ui-forms/src/forms/types';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
@@ -284,7 +283,7 @@ export interface IIntegration {
   uiOptions?: IUiOptions;
   leadData: ILeadData;
   brand: IBrand;
-  channels: IChannel[];
+  channels: any[];
   isActive?: boolean;
   healthStatus?: IIntegartionHealthStatus;
   webhookData?: IWebhookData;
