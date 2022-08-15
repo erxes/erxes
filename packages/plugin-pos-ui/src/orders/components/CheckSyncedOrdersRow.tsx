@@ -5,28 +5,26 @@ import React from 'react';
 import Button from '@erxes/ui/src/components/Button';
 
 type Props = {
-  posOrder: any;
+  order: any;
   history: any;
   isChecked: boolean;
   isUnsynced: boolean;
-  toggleBulk: (deal: any, isChecked?: boolean) => void;
-  toSync: (dealIds: string[]) => void;
+  toggleBulk: (order: any, isChecked?: boolean) => void;
+  toSync: (orderIds: string[]) => void;
   syncedInfo: any;
 };
 
 class Row extends React.Component<Props> {
+  constructor(props: Props) {
+    console.log(props);
+    super(props);
+  }
   render() {
-    const {
-      posOrder,
-      toggleBulk,
-      isChecked,
-      isUnsynced,
-      syncedInfo
-    } = this.props;
+    const { order, toggleBulk, isChecked, isUnsynced, syncedInfo } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
-        toggleBulk(posOrder, e.target.checked);
+        toggleBulk(order, e.target.checked);
       }
     };
 
@@ -36,12 +34,11 @@ class Row extends React.Component<Props> {
 
     const onClickSync = e => {
       e.stopPropagation();
-      this.props.toSync([posOrder._id]);
+      this.props.toSync([order._id]);
     };
 
     const onTrClick = () => {};
-
-    const { posToken, createdAt, totalAmount, paidDate } = posOrder;
+    const { posToken, createdAt, totalAmount, paidDate } = order;
 
     return (
       <tr onClick={onTrClick}>

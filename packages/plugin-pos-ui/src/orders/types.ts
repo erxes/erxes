@@ -110,7 +110,7 @@ export type IConfig = {
 // query types
 
 export type CheckSyncedOrdersQueryResponse = {
-  posOrders: any[];
+  orders: any[];
 } & QueryResponse;
 
 export type CheckSyncedOrdersTotalCountQueryResponse = {

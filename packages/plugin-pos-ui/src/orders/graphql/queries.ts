@@ -144,13 +144,10 @@ const checkSyncOrdersTotalCount = `
   }
 `;
 const checkSyncOrders = `
-  query posOrders (
-    ${listParamsDef}
-  ) {
-    posOrders (
-      ${listParamsValue}
-    ) {
-      ${orderFields}
+  query Orders {
+    orders {
+      _id,
+      createdAt
     }
   }
 `;

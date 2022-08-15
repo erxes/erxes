@@ -7,11 +7,12 @@ import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { Title } from '@erxes/ui/src/styles/main';
+import { orderFields } from '../graphql/queries';
 
 type Props = {
   totalCount: number;
   loading: boolean;
-  posOrders: any[];
+  orders: any[];
   history: any;
   queryParams: any;
   isAllSelected: boolean;
@@ -43,7 +44,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
 
   renderRow = () => {
     const {
-      posOrders,
+      orders,
       history,
       toggleBulk,
       bulk,
@@ -52,11 +53,11 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       syncedOrderInfos
     } = this.props;
 
-    return posOrders.map(order => (
+    return orders.map(order => (
       <Row
         history={history}
         key={order._id}
-        posOrder={order}
+        order={order}
         toggleBulk={toggleBulk}
         isChecked={bulk.includes(order)}
         isUnsynced={unSyncedOrderIds.includes(order._id)}
@@ -67,14 +68,14 @@ class CheckSyncedOrders extends React.Component<Props, State> {
   };
 
   onChange = () => {
-    const { toggleAll, posOrders } = this.props;
-    toggleAll(posOrders, 'orders');
+    const { toggleAll, orders } = this.props;
+    toggleAll(orders, 'orders');
   };
 
-  checkSynced = async (orders: any) => {
+  checkSynced = async (_orders: any) => {
     const orderIds: string[] = [];
 
-    orders.forEach(order => {
+    _orders.forEach(order => {
       orderIds.push(order._id);
     });
 
@@ -103,7 +104,6 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       'Synced bill Number',
       'Sync Actions'
     ];
-
     const Content = (
       <Table>
         <thead>
@@ -115,7 +115,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
                 onChange={this.onChange}
               />
             </th>
-            {tablehead.map(p => (
+            {tablehead?.map(p => (
               <th key={p}>{p || ''}</th>
             ))}
           </tr>
@@ -124,7 +124,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       </Table>
     );
 
-    const header = <Wrapper.Header title={__('Check orders') + `(${1})`} />;
+    const header = <Wrapper.Header title={__('Check orders')} />;
 
     const sidebar = (
       <CheckSyncedOrdersSidebar

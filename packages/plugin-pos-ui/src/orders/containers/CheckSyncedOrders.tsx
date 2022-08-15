@@ -108,14 +108,13 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
     ) {
       return <Spinner />;
     }
-
-    const posOrders = checkSyncItemsQuery.posOrders || [];
+    const orders = checkSyncItemsQuery.orders || [];
     const totalCount = checkSyncedOrdersTotalCountQuery.ordersTotalCount || 0;
 
     const updatedProps = {
       ...this.props,
       loading: checkSyncItemsQuery.loading,
-      posOrders,
+      orders,
       totalCount,
       checkSynced,
       unSyncedOrderIds: this.state.unSyncedOrderIds,
@@ -154,8 +153,8 @@ export default withProps<Props>(
       {
         name: 'checkSyncItemsQuery',
         options: ({ queryParams }) => ({
-          variables: generateParams({ queryParams })
-          // fetchPolicy: 'network-only'
+          variables: generateParams({ queryParams }),
+          fetchPolicy: 'network-only'
         })
       }
     ),
