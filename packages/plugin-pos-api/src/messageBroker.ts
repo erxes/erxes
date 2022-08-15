@@ -36,7 +36,7 @@ export const initBroker = async cl => {
 
       const deal = await sendCardsMessage({
         subdomain,
-        action: 'create',
+        action: 'deals.create',
         data: {
           name: `Delivery: ${doneOrder.number}`,
           startDate: doneOrder.createdAt,
