@@ -70,6 +70,7 @@ export interface IConfig {
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   posId: string;
+  branchId: string;
 }
 
 export interface IConfigDocument extends Document, IConfig {

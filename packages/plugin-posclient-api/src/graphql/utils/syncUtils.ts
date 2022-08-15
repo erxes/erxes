@@ -264,7 +264,8 @@ export const extractConfig = async (subdomain, doc) => {
     initialCategoryIds: doc.initialCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
     deliveryConfig: doc.deliveryConfig,
-    posId: doc._id
+    posId: doc._id,
+    branchId: doc.branchId
   };
 };
 

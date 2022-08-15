@@ -52,7 +52,12 @@ const orderQueries = {
     }: IFullOrderParams,
     { models, config }: IContext
   ) {
-    const filter: any = { posToken: config.token };
+    const filter: any = {
+      $or: [
+        { type: { $ne: 'delivery' }, posToken: config.token },
+        { type: 'delivery', branchId: config.branchId }
+      ]
+    };
 
     if (searchValue) {
       filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };

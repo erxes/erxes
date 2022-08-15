@@ -199,11 +199,16 @@ export const initBroker = async cl => {
       pos
     });
 
+    console.log(newOrder.type, newOrder.branchId, '1111111111111111');
     if (newOrder.type === 'delivery' && newOrder.branchId) {
       const toPos = await models.Pos.findOne({ branchId: newOrder.branchId });
 
       // paid order info to offline pos
       // TODO: this message RPC, offline pos has seen by this message check
+      console.log(
+        toPos ? `${toPos.token}, ${toPos._id}` : '',
+        '22222222222222222222222222'
+      );
       if (toPos) {
         console.log(toPos.token, 'dddddddddddddddddddddddddddddd', posToken);
         await sendPosclientMessage({

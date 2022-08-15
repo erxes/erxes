@@ -29,11 +29,8 @@ export default {
   },
   hasSubscriptions: true,
   freeSubscriptions: loadSubscriptions,
-  postHandlers: [{ path: `/pl:posclient/callBackQpay`, method: callBackQpay }],
-  getHandlers: [
-    { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
-  ],
+  postHandlers: [{ path: `/callBackQpay`, method: callBackQpay }],
+  getHandlers: [{ path: `/initial-setup`, method: posInitialSetup }],
 
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
