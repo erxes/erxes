@@ -6,6 +6,7 @@ import * as router from './router';
 
 import { IUser, IUserDoc } from '../auth/types';
 
+import ErrorBoundary from '../components/ErrorBoundary';
 import { IAttachment } from '../types';
 import { Limited } from '../styles/main';
 import React from 'react';
@@ -30,6 +31,30 @@ export const loadComponent = (scope, module) => {
     const Module = factory();
     return Module;
   };
+};
+
+export const loadCustomPlugin = (
+  pluginName: string,
+  componentName: string,
+  injectedProps?: any
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  for (const plugin of plugins) {
+    if (pluginName === plugin.name) {
+      return (
+        <ErrorBoundary>
+          <RenderDynamicComponent
+            scope={plugin.scope}
+            component={plugin[componentName]}
+            injectedProps={injectedProps ? injectedProps : {}}
+          />
+        </ErrorBoundary>
+      );
+    }
+
+    return null;
+  }
 };
 
 export class RenderDynamicComponent extends React.Component<

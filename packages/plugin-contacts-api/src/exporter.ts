@@ -1,9 +1,8 @@
+import * as xlsxPopulate from 'xlsx-populate';
 import * as moment from 'moment';
 
 import {
-  createXlsFile,
   findSchemaLabels,
-  generateXlsx,
   getCustomFieldsData
 } from '@erxes/api-utils/src/exporter';
 import { IColumnLabel, IUserDocument } from '@erxes/api-utils/src/types';
@@ -38,6 +37,20 @@ import {
   IListArgs as ICustomerListArgs
 } from './coc/customers';
 import { IModels } from './connectionResolver';
+
+export const createXlsFile = async () => {
+  // Generating blank workbook
+  const workbook = await xlsxPopulate.fromBlankAsync();
+
+  return { workbook, sheet: workbook.sheet(0) };
+};
+
+/**
+ * Generates downloadable xls file on the url
+ */
+export const generateXlsx = async (workbook: any): Promise<string> => {
+  return workbook.outputAsync();
+};
 
 export const fillHeaders = (itemType: string): IColumnLabel[] => {
   let columnNames: IColumnLabel[] = [];
