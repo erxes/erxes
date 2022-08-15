@@ -194,6 +194,24 @@ cp configs.json.sample configs.json
 ./bin/erxes.js dev
 ```
 
+**If your browser don't automatically jump to localhost:3000, you should check logs by using these commands.**
+
+:::note
+
+Frequently used `pm2` commands on erxes:
+
+- pm2 list - Display all processes status
+- pm2 kill - Will remove all processes from pm2 list
+- pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc.)
+- pm2 restart all - Restart all processes
+
+:::
 
 **If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
 
+<div align="center">
+
+  <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" ></img>
+
+</div>
+  

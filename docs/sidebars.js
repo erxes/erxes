@@ -66,23 +66,7 @@ module.exports = {
     {
       type: 'category',
       label: '🛠️ Development',
-      items: [
-        {
-          Installation: [{ Docker: ['developer/ubuntu', 'developer/mac'] }]
-        },
-        'development/developing-plugins',
-        'installation/upgrade',
-        'developer/troubleshooting',
-        {
-          Changelog: [
-            {
-              type: 'link',
-              label: 'Release Notes', // The link label
-              href: 'https://github.com/erxes/erxes/releases' // The external URL
-            }
-          ]
-        }
-      ]
+      items: ['developer/deployment']
     },
     {
       type: 'category',
