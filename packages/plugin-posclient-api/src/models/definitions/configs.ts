@@ -70,8 +70,8 @@ export interface IConfig {
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   posId: string;
-  branchId: string;
-  allowBranchIds: string[];
+  branchId?: string;
+  allowBranchIds?: string[];
 }
 
 export interface IConfigDocument extends Document, IConfig {
