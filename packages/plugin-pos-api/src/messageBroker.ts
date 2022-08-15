@@ -204,6 +204,7 @@ export const initBroker = async cl => {
 
       // paid order info to offline pos
       // TODO: this message RPC, offline pos has seen by this message check
+      console.log(toPos.token, 'dddddddddddddddddddddddddddddd', posToken);
       if (toPos) {
         await sendPosclientMessage({
           subdomain,
