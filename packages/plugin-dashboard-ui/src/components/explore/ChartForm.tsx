@@ -7,22 +7,21 @@ import {
   FormChart,
   FormContainer,
   RightDrawerContainer,
-  ScrolledContent
+  ScrolledContent,
+  SelectChartType
 } from '../../styles';
+
 import { IDashboardItem } from '../../types';
 import ChartRenderer from '../dashboard/ChartRenderer';
 import { QueryBuilder } from '@cubejs-client/react';
 import stateChangeHeuristics from './stateChangeHeuristics';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
+import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
-import Button from '@erxes/ui/src/components/Button';
-import Icon from '@erxes/ui/src/components/Icon';
+
 import { CHART_TYPES, DATE_RANGES } from '../../constants';
+import DimensionForm from './DimensionForm';
+import MeasureForm from './MeasureForm';
 
 type Props = {
   showDrawer: boolean;
@@ -434,6 +433,24 @@ class ChartFrom extends React.Component<Props, State> {
 
           return (
             <FormContainer>
+              {isQueryPresent ? (
+                <SelectChartType>
+                  <FormGroup>
+                    <ControlLabel>Chart type</ControlLabel>
+
+                    <Select
+                      options={CHART_TYPES.map(type => ({
+                        label: type.title,
+                        value: type.name
+                      }))}
+                      value={chartType}
+                      onChange={m => updateChartType(m.value)}
+                      placeholder={__('Choose chart')}
+                    />
+                  </FormGroup>
+                </SelectChartType>
+              ) : null}
+
               <FormChart>
                 <RTG.CSSTransition
                   in={this.props.showDrawer}
@@ -442,11 +459,13 @@ class ChartFrom extends React.Component<Props, State> {
                   unmountOnExit={true}
                 >
                   {isQueryPresent ? (
-                    <ChartRenderer
-                      query={validatedQuery}
-                      chartType={chartType}
-                      chartHeight={600}
-                    />
+                    <>
+                      <ChartRenderer
+                        query={validatedQuery}
+                        chartType={chartType}
+                        chartHeight={600}
+                      />
+                    </>
                   ) : (
                     <EmptyState
                       text={__('Build your custom query')}
@@ -463,40 +482,17 @@ class ChartFrom extends React.Component<Props, State> {
                   </Description>
                   <ScrolledContent>
                     <DrawerDetail>
-                      <FormGroup>
-                        <ControlLabel>Chart type</ControlLabel>
+                      <MeasureForm
+                        measures={measures}
+                        availableMeasures={availableMeasures}
+                        updateMeasures={updateMeasures}
+                      />
 
-                        <Select
-                          options={CHART_TYPES.map(type => ({
-                            label: type.title,
-                            value: type.name
-                          }))}
-                          value={chartType}
-                          onChange={m => updateChartType(m.value)}
-                          placeholder={__('Choose chart')}
-                        />
-                      </FormGroup>
-                      <FormGroup>
-                        <ControlLabel>Measure</ControlLabel>
-
-                        {this.renderMemberGroup({
-                          members: measures,
-                          availableMembers: availableMeasures,
-                          updateMembers: updateMeasures,
-                          type: 'measure'
-                        })}
-                      </FormGroup>
-
-                      <FormGroup>
-                        <ControlLabel>Dimensions</ControlLabel>
-
-                        {this.renderMemberGroup({
-                          members: dimensions,
-                          availableMembers: availableDimensions,
-                          updateMembers: updateDimensions,
-                          type: 'dimension'
-                        })}
-                      </FormGroup>
+                      <DimensionForm
+                        dimensions={dimensions}
+                        availableDimensions={availableDimensions}
+                        updateDimensions={updateDimensions}
+                      />
 
                       <FormGroup>
                         <ControlLabel>Time</ControlLabel>

@@ -188,6 +188,14 @@ const TypeToChartComponent = {
       );
     }
     return <></>;
+  },
+
+  table: () => {
+    return <div>123</div>;
+  },
+
+  number: () => {
+    return <div>123</div>;
   }
 };
 const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
@@ -214,7 +222,7 @@ const ChartRenderer = (props: Props) => {
   if (renderProps.resultSet) {
     const { timeDimensions } = query;
 
-    if (timeDimensions[0]) {
+    if (timeDimensions && timeDimensions[0]) {
       dateType = timeDimensions[0].granularity;
     }
 

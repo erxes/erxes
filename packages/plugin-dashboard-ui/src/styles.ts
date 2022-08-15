@@ -214,6 +214,13 @@ const FormChart = styled.div`
   padding: 2rem;
 `;
 
+const SelectChartType = styled.div`
+  width: 200px;
+  .Select-clear {
+    display: none;
+  }
+`;
+
 const FormContainer = styled.div`
   background-image: radial-gradient(
     ${colors.bgActive} 20%,
@@ -358,5 +365,6 @@ export {
   SidebarListItem,
   EmptyContent,
   FormChart,
-  FormContainer
+  FormContainer,
+  SelectChartType
 };
