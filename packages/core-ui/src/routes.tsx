@@ -7,7 +7,6 @@ import React from 'react';
 import SettingsRoutes from './modules/settings/routes';
 import WelcomeRoutes from './modules/welcome/routes';
 import asyncComponent from 'modules/common/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 
@@ -29,28 +28,10 @@ const UserConfirmation = asyncComponent(() =>
   )
 );
 
-const Schedule = asyncComponent(
-  () =>
-    isEnabled('calendar') &&
-    import(
-      /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
-    )
-);
-
 export const unsubscribe = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Unsubscribe queryParams={queryParams} />;
-};
-
-const schedule = ({ match }) => {
-  const slug = match.params.slug;
-
-  if (!isEnabled('calendar')) {
-    return null;
-  }
-
-  return <Schedule slug={slug} />;
 };
 
 const renderRoutes = currentUser => {
@@ -64,12 +45,6 @@ const renderRoutes = currentUser => {
 
   if (!sessionStorage.getItem('sessioncode')) {
     sessionStorage.setItem('sessioncode', Math.random().toString());
-  }
-
-  const { pathname } = window.location;
-
-  if (pathname.search('/schedule/') === 0) {
-    return null;
   }
 
   if (currentUser) {
@@ -113,13 +88,6 @@ const Routes = ({ currentUser }: { currentUser: IUser }) => (
         exact={true}
         path="/unsubscribe"
         component={unsubscribe}
-      />
-
-      <Route
-        key="/schedule"
-        exact={true}
-        path="/schedule/:slug"
-        component={schedule}
       />
 
       {renderRoutes(currentUser)}
