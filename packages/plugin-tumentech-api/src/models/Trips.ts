@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 
 import { IModels } from '../connectionResolver';
 import { ITripEdit } from '../graphql/resolvers/mutations/trips';
+import { sendCardsMessage } from '../messageBroker';
 import {
   ITrackingItem,
   ITrip,
@@ -16,7 +17,12 @@ export interface ITripModel extends Model<ITripDocument> {
   updateTrip(doc: ITripEdit): ITripDocument;
   updateTracking(_id: string, trackingData: ITrackingItem[]): ITripDocument;
   removeTrip(_id: string): ITripDocument;
-  matchWithDeals(subdomain: string, carId?: string, routeId?: string): any[];
+  matchWithDeals(
+    subdomain: string,
+    carId?: string,
+    routeId?: string,
+    categoryIds?: string[]
+  ): any[];
 }
 
 export const loadTripClass = (models: IModels) => {
@@ -74,7 +80,8 @@ export const loadTripClass = (models: IModels) => {
     public static async matchWithDeals(
       subdomain: string,
       carId?: string,
-      routeId?: string
+      routeId?: string,
+      categoryIds?: string[]
     ) {
       if (!carId && !routeId) {
         throw new Error('carId or routeId is required');
@@ -90,6 +97,17 @@ export const loadTripClass = (models: IModels) => {
 
       if (carId) {
         return filterDealsByCar(models, subdomain, carId);
+      }
+
+      if (categoryIds) {
+        return sendCardsMessage({
+          subdomain,
+          action: 'deals.find',
+          data: {
+            'customFieldsData.value': { $in: categoryIds }
+          },
+          isRPC: true
+        });
       }
     }
   }

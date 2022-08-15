@@ -5,7 +5,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-import { ICar, IParticipant } from '../../types';
+import { IParticipant } from '../../types';
 import { carInfo } from '../../utils';
 
 type Props = {
@@ -51,7 +51,11 @@ class Row extends React.Component<Props> {
           <strong>{renderFullName(driver)}</strong>
         </td>
         <td>
-          <TextInfo ignoreTrans={true}>{carInfo(participant.car)}</TextInfo>
+          <TextInfo ignoreTrans={true}>
+            {participant.cars.length
+              ? `${participant.cars.map(c => carInfo(c))}`
+              : 'undefined'}
+          </TextInfo>
         </td>
         <td>
           <TextInfo ignoreTrans={true}>{participant.route.name || ''}</TextInfo>

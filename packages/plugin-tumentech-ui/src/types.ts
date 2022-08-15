@@ -410,7 +410,7 @@ export interface IParticipant {
   tripId: string;
   driver: ICustomer;
   route: IRoute;
-  car: ICar;
+  cars: ICar[];
   deal: IDeal;
   detail?: {
     price: number;

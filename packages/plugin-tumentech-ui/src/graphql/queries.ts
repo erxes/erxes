@@ -378,7 +378,7 @@ query participants(
       primaryEmail
       primaryPhone
     }
-    car {
+    cars {
       _id
       carModel
       category {
@@ -634,7 +634,7 @@ const tripDetail = `
 query tripDetail($_id: String!) {
   tripDetail(_id: $_id) {
     _id
-    car {
+    cars {
       _id
       carModel
       category {
@@ -644,7 +644,7 @@ query tripDetail($_id: String!) {
       categoryId
       description
     }
-    carId
+    carIds
     closedDate
     createdAt
     dealIds
