@@ -67,8 +67,6 @@ class DeliveryConfig extends React.Component<
     const { config } = this.state;
     config[code] = value;
 
-    console.log(code, value);
-
     this.setState({ config }, () => {
       this.props.onChange('deliveryConfig', config);
     });
@@ -140,7 +138,7 @@ class DeliveryConfig extends React.Component<
                       value={config.mapCustomField}
                       onChange={onMapCustomFieldChange}
                       options={(fieldsCombined || []).map(f => ({
-                        value: f._id,
+                        value: f.name,
                         label: f.label
                       }))}
                     />
