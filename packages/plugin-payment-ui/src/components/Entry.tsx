@@ -44,44 +44,6 @@ function renderType(type: string) {
   );
 }
 
-// function renderCreate(createUrl, kind, isAvailable) {
-//   if ((!createUrl && !kind) || !isAvailable) {
-//     return null;
-//   }
-
-//   const trigger = <button>+ {__('Add')}</button>;
-
-//   if (kind === INTEGRATION_KINDS.FACEBOOK_MESSENGER) {
-//     return (
-//       <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_MESSENGER}`}>
-//         + {__('Add')}
-//       </Link>
-//     );
-//   }
-
-//   if (kind === INTEGRATION_KINDS.FACEBOOK_POST) {
-//     return (
-//       <Link to={`${createUrl}?kind=${INTEGRATION_KINDS.FACEBOOK_POST}`}>
-//         + {__('Add')}
-//       </Link>
-//     );
-//   }
-
-//   if (kind === INTEGRATION_KINDS.MESSENGER) {
-//     return <Link to={createUrl}>+ {__('Add')}</Link>;
-//   }
-
-//   const formContent: any = "It is form content";
-
-//   return (
-//     <ModalTrigger
-//       title={`Add ${formatText(kind)}`}
-//       trigger={trigger}
-//       content={formContent}
-//     />
-//   );
-// }
-
 function Entry({
   integration,
   getClassName,

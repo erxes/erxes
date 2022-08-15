@@ -33,8 +33,6 @@ class Home extends React.Component<Props, State> {
         integration => integration.category.indexOf('Payment method') !== -1
       )
     };
-
-    console.log('Home constructor ...', INTEGRATIONS);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -61,14 +59,10 @@ class Home extends React.Component<Props, State> {
   };
 
   renderIntegrations() {
-    console.log('Home renderIntegrations ...');
-
     const { integrations, searchValue } = this.state;
     const { totalCount, queryParams, customLink } = this.props;
     const datas = [] as any;
     const rows = [...integrations];
-
-    console.log('Home renderIntegrations1 ...', integrations, rows);
 
     while (rows.length > 0) {
       datas.push(
@@ -102,7 +96,7 @@ class Home extends React.Component<Props, State> {
         <Icon icon="search-1" />
         <FormControl
           type="text"
-          placeholder={__('Type to search for an add-ons') + '...'}
+          placeholder={__('Type to search for an payments') + '...'}
           onChange={this.onSearch}
         />
       </SearchInput>
@@ -111,23 +105,18 @@ class Home extends React.Component<Props, State> {
 
   render() {
     const { queryParams } = this.props;
-
-    console.log('Home render ...');
-
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons') },
-      { title: `${this.props.queryParams.type || __('All add-ons')}` }
+      { title: __('Payments') },
+      { title: `${this.props.queryParams.type || __('All payments')}` }
     ];
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/33.svg"
-        title="Add-ons"
-        description={`${__(
-          'Set up your add-ons and start connecting with your customers'
-        )}.${__(
-          'Now you can reach them on wherever platform they feel most comfortable'
+        title="Paymets"
+        description={`${__('Set up your payment method')}.${__(
+          'Now you can choose payment method'
         )}`}
       />
     );
@@ -135,11 +124,11 @@ class Home extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Add-ons')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Payments')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{queryParams.type || 'All Add-onsss'}</Title>}
+            left={<Title>{queryParams.type || 'All Payments'}</Title>}
             right={this.renderSearch()}
             withMargin={true}
             wide={true}
