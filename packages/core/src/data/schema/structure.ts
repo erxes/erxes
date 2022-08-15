@@ -68,6 +68,7 @@ export const types = `
         children: [Branch]
 
         address: String
+        radius: Int
         ${commonContactInfoTypes}
     }
 
@@ -140,6 +141,7 @@ const commonBranchParams = `
     code: String
     parentId: String
     userIds: [String]
+    radius: Int
 
     ${commonContactInfoParams}
 `;

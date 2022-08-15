@@ -45,7 +45,7 @@ class DeliveryConfig extends React.Component<
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'deal'
+            contentType: 'cards:deal'
           }
         })
         .then(({ data }) => {

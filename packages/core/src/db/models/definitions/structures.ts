@@ -105,6 +105,7 @@ export interface IBranch {
   supervisorId?: string;
   parentId?: string;
   userIds?: string[];
+  radius?: number;
 }
 
 export interface IBranchDocument extends IBranch, Document {
@@ -118,6 +119,7 @@ export const branchSchema = schemaWrapper(
     parentId: field({ type: String, optional: true }),
     userIds: field({ type: [String], label: 'Related users' }),
     ...contactInfoSchema,
-    ...commonSchemaFields
+    ...commonSchemaFields,
+    radius: field({ type: Number, label: 'Coordinate radius /M/' })
   })
 );

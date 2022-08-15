@@ -36,6 +36,7 @@ export type IOrder = {
 
 export type IOrderDet = {
   putResponses: any[];
+  deliveryInfo: any;
 } & IOrder;
 
 export type OrdersQueryResponse = {

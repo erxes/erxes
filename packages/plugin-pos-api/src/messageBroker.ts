@@ -205,9 +205,10 @@ export const initBroker = async cl => {
       // paid order info to offline pos
       // TODO: this message RPC, offline pos has seen by this message check
       if (toPos) {
+        console.log(toPos.token, 'dddddddddddddddddddddddddddddd', posToken);
         await sendPosclientMessage({
           subdomain,
-          action: 'vrpc_queue:erxes-pos-to-pos',
+          action: 'erxes-posclient-to-pos-api',
           data: {
             order: { ...newOrder, posToken }
           },

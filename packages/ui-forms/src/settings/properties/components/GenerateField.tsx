@@ -20,6 +20,7 @@ import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from '@erxes/ui/src/utils/core';
+import SelectProductCategory from '../containers/SelectProductCategory';
 
 type Props = {
   field: IField;
@@ -392,6 +393,21 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderSelectCategory(attrs) {
+    const { field, onValueChange } = this.props;
+    const { value } = attrs;
+
+    const onChangeCategory = values => {
+      if (onValueChange) {
+        onValueChange({ _id: field._id, value: values });
+      }
+    };
+
+    return (
+      <SelectProductCategory defaultValue={value} onChange={onChangeCategory} />
+    );
+  }
+
   /**
    * Handle all types of fields changes
    * @param {Object} e - Event object
@@ -550,6 +566,10 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'map': {
         return this.renderMap(attrs);
+      }
+
+      case 'selectProductCategory': {
+        return this.renderSelectCategory(attrs);
       }
 
       default:

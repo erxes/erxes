@@ -225,7 +225,7 @@ const orderMutations = {
       try {
         sendPosMessage({
           subdomain,
-          action: 'vrpc_queue',
+          action: 'createOrUpdateOrders',
           data: {
             action: 'makePayment',
             response,

@@ -12,8 +12,8 @@ import {
 } from '@erxes/ui/src';
 import { Alert } from '@erxes/ui/src/utils';
 import { DetailRow, FinanceAmount, FlexRow } from '../../styles';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import { IOrderDet } from '../types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   onChangePayments: (
@@ -74,6 +74,16 @@ class PutResponseDetail extends React.Component<Props, State> {
     );
   }
 
+  renderDeliveryInfo() {
+    const { order } = this.props;
+    const { deliveryInfo } = order;
+    if (!deliveryInfo) {
+      return <></>;
+    }
+
+    return this.renderRow('Delivery info', deliveryInfo.description);
+  }
+
   save = () => {
     const { order } = this.props;
     const { totalAmount } = order;
@@ -124,6 +134,7 @@ class PutResponseDetail extends React.Component<Props, State> {
           'Date',
           dayjs(order.paidDate || order.createdAt).format('lll')
         )}
+        {this.renderDeliveryInfo()}
 
         <>
           {(order.putResponses || []).map(p => {

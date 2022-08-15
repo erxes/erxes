@@ -28,6 +28,9 @@ export const posInitialSetup = async (req, res) => {
 
 export const callBackQpay = async (req, res) => {
   const subdomain = getSubdomain(req);
+
+  console.log(subdomain, req.query, 'qqqqqqqqqqqqqqq');
+
   const models = await generateModels(subdomain);
 
   const { payment_id, qpay_payment_id } = req.query;
@@ -59,5 +62,12 @@ export const callBackQpay = async (req, res) => {
   const config: IConfigDocument =
     (await models.Configs.findOne({ token: invoice.token }).lean()) ||
     ({} as IConfigDocument);
-  await commonCheckPayment(models, orderId, config, paidMobileAmount);
+
+  await commonCheckPayment(
+    subdomain,
+    models,
+    orderId,
+    config,
+    paidMobileAmount
+  );
 };
