@@ -54,7 +54,7 @@ const orderQueries = {
   ) {
     const filter: any = {
       $or: [
-        { type: { $ne: 'delivery' }, posToken: config.token },
+        { posToken: config.token },
         { type: 'delivery', branchId: config.branchId }
       ]
     };
