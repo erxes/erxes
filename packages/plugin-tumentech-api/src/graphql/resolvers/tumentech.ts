@@ -56,7 +56,7 @@ const CarCategory = {
 
 const Participant = {
   car(participant: IParticipantDocument, {}, { models }: IContext) {
-    return models.Cars.findOne({ _id: participant.carId });
+    return models.Cars.find({ _id: { $in: participant.carIds } }).lean();
   },
 
   route(participant: IParticipantDocument, {}, { models }: IContext) {

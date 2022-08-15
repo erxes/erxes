@@ -68,7 +68,7 @@ const participantMutations = {
 
     await models.Trips.create({
       driverId,
-      carId: participant.carId,
+      carIds: participant.carIds,
       routeId: participant.routeId,
       status: 'open',
       dealIds: [dealId]

@@ -559,7 +559,7 @@ query trips($status: String) {
   trips(status: $status) {
     list {
       _id
-      carId
+      carIds
       closedDate
       createdAt
       dealIds
@@ -615,7 +615,7 @@ query trips($status: String) {
           primaryPhone
         }
       }
-      car {
+      cars {
         _id
         carModel
         category {

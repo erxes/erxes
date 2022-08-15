@@ -14,8 +14,8 @@ const Trip = {
     return trip.driverId && { __typename: 'Customer', _id: trip.driverId };
   },
 
-  async car(trip: ITripDocument, _params, { models: { Cars } }: IContext) {
-    return Cars.findOne({ _id: trip.carId });
+  async cars(trip: ITripDocument, _params, { models: { Cars } }: IContext) {
+    return Cars.find({ _id: { $in: trip.carIds } }).lean();
   },
 
   async trackingData(

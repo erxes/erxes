@@ -33,7 +33,7 @@ const List = (props: Props) => {
           <th>{__('Route name')}</th>
           <th>{__('Status')}</th>
           <th>{__('Driver')}</th>
-          <th>{__('Car info')}</th>
+          <th>{__('Vehicles')}</th>
           <th>{__('Deals')}</th>
           <th>{__('Created at')}</th>
         </tr>
