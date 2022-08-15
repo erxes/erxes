@@ -35,7 +35,9 @@ export default {
   ],
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup },
+    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
+    { path: `/callBackQpay`, method: callBackQpay }
   ],
 
   apolloServerContext: async (context, req, res) => {
