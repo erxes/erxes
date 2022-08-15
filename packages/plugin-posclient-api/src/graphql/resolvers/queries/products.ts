@@ -110,11 +110,13 @@ const productQueries = {
     { parentId, searchValue, excludeEmpty }: ICategoryParams,
     { models, config }: IContext
   ) {
+    console.log('dddddddddddddddddddddddddd', config.token);
     const filter = generateFilterCat({
       token: config.token,
       parentId,
       searchValue
     });
+    console.log('gffffffffffffff', filter);
 
     const categories = await models.ProductCategories.find(filter).sort({
       order: 1
