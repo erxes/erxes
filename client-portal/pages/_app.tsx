@@ -16,7 +16,7 @@ type Props = {
 
 const { REACT_APP_DOMAIN } = getEnv();
 
-class Messenger extends React.Component<{ brandCode: string }> {
+class Script extends React.Component<{ brandCode: string }> {
   componentDidMount() {
     (window as any).erxesSettings = {
       messenger: {
@@ -43,29 +43,24 @@ class Messenger extends React.Component<{ brandCode: string }> {
   }
 }
 
-function Layout() {
-  return (
-    <AppProvider>
-      <AppConsumer>
-        {({ config }: Store) => {
-          return (
-            <>
-              {config.messengerBrandCode ? (
-                <Messenger brandCode={config.messengerBrandCode} />
-              ) : null}
-            </>
-          );
-        }}
-      </AppConsumer>
-    </AppProvider>
-  );
-}
-
 function MyApp({ Component, pageProps, apolloClient, router }: Props) {
   return (
     <ApolloProvider client={apolloClient}>
       <Component {...pageProps} router={router} />
-      {Layout()}
+      <AppProvider>
+        <AppConsumer>
+          {({ config }: Store) => {
+            console.log("config", config);
+            return (
+              <>
+                {config.messengerBrandCode ? (
+                  <Script brandCode={config.messengerBrandCode} />
+                ) : null}
+              </>
+            );
+          }}
+        </AppConsumer>
+      </AppProvider>
     </ApolloProvider>
   );
 }
