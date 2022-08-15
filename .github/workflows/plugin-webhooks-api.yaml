@@ -3,7 +3,7 @@ name: Plugin webhooks Api CI
 on:
   push:
     branches:
-      - federation
+      - image-size
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -44,9 +44,10 @@ jobs:
           yarn build plugin webhooks
           cd plugin-webhooks-api/.erxes
           cd dist/main/.erxes/src
+          ls
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/image-size'  )
         run: |
           cd dist/plugin-webhooks-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
