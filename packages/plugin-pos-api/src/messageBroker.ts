@@ -33,35 +33,6 @@ export const initBroker = async cl => {
       const { deliveryConfig = {} } = pos;
       const deliveryInfo = doneOrder.deliveryInfo || {};
       const { marker = {} } = deliveryInfo;
-      const { cardsConfig = {} } = pos;
-      const currentCardsConfig = cardsConfig.carsConfig.find(
-        c => c.branchId && c.branchId === doneOrder.branchId
-      );
-
-      if (currentCardsConfig) {
-        const cardDeal = await sendCardsMessage({
-          subdomain,
-          action: 'deals.create',
-          data: {
-            name: `Cards: ${doneOrder.number}`,
-            startDate: doneOrder.createdAt,
-            description: deliveryInfo?.address || '',
-            stageId: currentCardsConfig.stageId,
-            assignedUserIds: currentCardsConfig.assignedUserIds,
-            productsData: doneOrder.items.map(i => ({
-              productId: i.productId,
-              uom: 'PC',
-              currency: 'MNT',
-              quantity: i.count,
-              unitPrice: i.unitPrice,
-              amount: i.count * i.unitPrice,
-              tickUsed: true
-            }))
-          },
-          isRPC: true,
-          defaultValue: {}
-        });
-      }
 
       const deal = await sendCardsMessage({
         subdomain,
@@ -186,6 +157,68 @@ export const initBroker = async cl => {
     );
 
     const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+
+    // ===> sync cards config then
+    const { cardsConfig = [] } = pos;
+    const currentCardsConfig = cardsConfig.find(
+      c => c.branchId && c.branchId === newOrder.branchId
+    );
+
+    if (currentCardsConfig) {
+      const cardDeal = await sendCardsMessage({
+        subdomain,
+        action: 'deals.create',
+        data: {
+          name: `Cards: ${newOrder.number}`,
+          startDate: newOrder.createdAt,
+          description: newOrder.deliveryInfo
+            ? newOrder.deliveryInfo.address
+            : '',
+          stageId: currentCardsConfig.stageId,
+          assignedUserIds: currentCardsConfig.assignedUserIds,
+          productsData: newOrder.items.map(i => ({
+            productId: i.productId,
+            uom: 'PC',
+            currency: 'MNT',
+            quantity: i.count,
+            unitPrice: i.unitPrice,
+            amount: i.count * i.unitPrice,
+            tickUsed: true
+          }))
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      if (newOrder.customerId && cardDeal._id) {
+        await sendCoreMessage({
+          subdomain,
+          action: 'conformities.addConformity',
+          data: {
+            mainType: 'deal',
+            mainTypeId: cardDeal._id,
+            relType: 'customer',
+            relTypeId: newOrder.customerId
+          },
+          isRPC: true
+        });
+      }
+
+      await sendCardsMessage({
+        subdomain,
+        action: 'pipelinesChanged',
+        data: {
+          pipelineId: currentCardsConfig.pipelineId,
+          action: 'itemAdd',
+          data: {
+            item: cardDeal,
+            destinationStageId: currentCardsConfig.stageId
+          }
+        }
+      });
+    }
+    // end sync cards config then <
+
     // return info saved
     sendPosclientMessage({
       subdomain,

@@ -130,7 +130,7 @@ const orderMutations = {
   async orderChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, subdomain }: IContext
+    { models, subdomain, config }: IContext
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
@@ -149,7 +149,7 @@ const orderMutations = {
         sendPosMessage({
           subdomain,
           action: 'createOrUpdateOrders',
-          data: { action: 'statusToDone', order }
+          data: { action: 'statusToDone', order, posToken: config.token }
         });
       } catch (e) {}
     }

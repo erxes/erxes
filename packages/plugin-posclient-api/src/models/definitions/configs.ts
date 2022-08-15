@@ -152,7 +152,8 @@ export const configSchema = new Schema({
   deliveryConfig: field({
     type: Object
   }),
-  posId: field({ type: String, label: 'Pos id' })
+  posId: field({ type: String, label: 'Pos id' }),
+  branchId: field({ type: String, label: 'Branch' })
 });
 
 export const productGroupSchema = new Schema({
