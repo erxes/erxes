@@ -351,7 +351,7 @@ const dashBoardQueries = {
           ]
         };
 
-    return Dashboards.find(dashboardFilter).sort({ order: 1 });
+    return models.Dashboards.find(dashboardFilter).sort({ order: 1 });
   },
 
   dashboardDetails(_root, { _id }: { _id: string }, { models }: IContext) {
