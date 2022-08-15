@@ -1,178 +1,176 @@
 module.exports = {
-  title: "erxes Inc",
+  title: 'erxes Inc',
   tagline:
-    "erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey",
-  url: "https://docs.erxes.io",
-  baseUrl: "/",
-  favicon: "img/favicon.png",
-  organizationName: "erxes", // Usually your GitHub org/user name.
-  projectName: "erxes", // Usually your repo name.
-  onBrokenLinks: "warn",
+    'erxes is a free and open fair-code licensed all-in-one growth marketing and management tool for a smoother customer journey',
+  url: 'https://docs.erxes.io',
+  baseUrl: '/',
+  favicon: 'img/favicon.png',
+  organizationName: 'erxes', // Usually your GitHub org/user name.
+  projectName: 'erxes', // Usually your repo name.
+  onBrokenLinks: 'warn',
   themeConfig: {
     googleAnalytics: {
-      trackingID: "UA-87254317-8",
+      trackingID: 'UA-87254317-8'
     },
     algolia: {
-      apiKey: "807b5401b0a7d39f4b0596cd989bba35",
-      indexName: "erxes",
-      algoliaOptions: {},
+      apiKey: '807b5401b0a7d39f4b0596cd989bba35',
+      indexName: 'erxes',
+      algoliaOptions: {}
     },
     sidebarCollapsible: true,
-    image: "img/erxes.png",
+    image: 'img/erxes.png',
     navbar: {
       logo: {
-        alt: "erxes logo",
-        src: "img/logo_dark.svg",
-        srcDark: "img/logo.svg",
+        alt: 'erxes logo',
+        src: 'img/logo_dark.svg',
+        srcDark: 'img/logo.svg'
       },
       items: [
         {
-          to: "overview/deployment-overview",
-          label: "Documentation",
-          position: "left",
+          to: 'introduction/introduction',
+          label: 'Documentation',
+          position: 'left'
         },
         {
-          to: "/user/subscription-getting-started",
-          label: "User's guide",
-          position: "left",
+          to: '/invest',
+          label: 'Invest',
+          position: 'left'
         },
         {
-          to: "/invest",
-          label: "Invest",
-          position: "left",
+          to: '/components/GettingStarted/Introduction',
+          label: 'Components',
+          position: 'left'
         },
         {
-          to: "/components/GettingStarted/Introduction",
-          label: "Components",
-          position: "left",
+          href: 'https://github.com/erxes/erxes',
+          position: 'right',
+          label: 'Star',
+          className: 'github-button hide-mobile',
+          'data-show-count': 'true',
+          'data-size': 'large',
+          'aria-label': 'Star erxes/erxes on GitHub'
         },
         {
-          href: "https://github.com/erxes/erxes",
-          position: "right",
-          label: "Star",
-          className: "github-button hide-mobile",
-          "data-show-count": "true",
-          "data-size": "large",
-          "aria-label": "Star erxes/erxes on GitHub",
-        },
-        {
-          href: "https://github.com/erxes/erxes",
-          label: "GitHub",
-          position: "right",
-        },
-        {
-          to: "/blog",
-          label: "Blog",
-          position: "right",
-        },
-      ],
+          href: 'https://github.com/erxes/erxes',
+          label: 'GitHub',
+          position: 'right'
+        }
+      ]
     },
     footer: {
-      style: "dark",
+      style: 'dark',
       links: [
         {
-          title: "Docs",
+          title: 'Docs',
           items: [
             {
-              label: "Getting Started",
-              to: "overview/deployment-overview",
+              label: 'Getting Started',
+              to: 'overview/deployment-overview'
             },
             {
-              label: "Installation Guide",
-              to: "/installation/docker/",
+              label: 'Installation Guide',
+              to: '/installation/docker/'
             },
             {
-              label: "Administrator`s Guide",
-              to: "/administrator/creating-first-user",
+              label: 'Administrator`s Guide',
+              to: '/administrator/creating-first-user'
             },
             {
-              label: "Developers Guide",
-              to: "/developer/developer",
+              label: 'Developers Guide',
+              to: '/developer/developer'
             },
-          ],
+            {
+              label: 'Graphql API reference',
+              to: 'pathname:///developers/docs/references'
+            }
+          ]
         },
         {
-          title: "Company",
+          title: 'Company',
           items: [
             {
-              label: "About Us",
-              href: "https://erxes.io/team",
+              label: 'About Us',
+              href: 'https://erxes.io/team'
             },
             {
-              label: "Blog",
-              to: "/blog",
+              label: 'Blog',
+              to: '/blog'
             },
             {
-              label: "Interviews",
-              to: "/interviews",
+              label: 'Interviews',
+              to: '/interviews'
             },
             {
-              label: "Case Studies",
-              to: "/caseStudies",
+              label: 'Case Studies',
+              to: '/caseStudies'
             },
             {
-              label: "Roadmap",
-              href: "https://erxes.io/roadmap",
+              label: 'Roadmap',
+              href: 'https://erxes.io/roadmap'
             },
             {
-              label: "GSoD",
-              href: "/gsod",
-            },
-          ],
+              label: 'GSoD',
+              href: '/gsod'
+            }
+          ]
         },
         {
-          title: "Community",
+          title: 'Community',
           items: [
             {
-              label: "Community Chat",
-              href: "https://github.com/erxes/erxes/discussions ",
+              label: 'Discussions',
+              href: 'https://github.com/erxes/erxes/discussions '
             },
-          ],
-        },
+            {
+              label: 'Discord',
+              href: 'https://discord.gg/CEPj6vPh'
+            }
+          ]
+        }
       ],
       logo: {
-        alt: "erxes Open Source Logo",
-        src: "img/logo.svg",
-        href: "https://erxes.io",
+        alt: 'erxes Open Source Logo',
+        src: 'img/logo.svg',
+        href: 'https://erxes.io'
       },
-      copyright: `Copyright © ${new Date().getFullYear()} erxes Inc.`,
-    },
+      copyright: `Copyright © ${new Date().getFullYear()} erxes Inc.`
+    }
   },
   plugins: [
     [
-      "@docusaurus/plugin-content-blog",
+      '@docusaurus/plugin-content-blog',
       {
-        id: "interviews",
-        routeBasePath: "interviews",
-        path: "./interviews",
-      },
+        id: 'interviews',
+        routeBasePath: 'interviews',
+        path: './interviews'
+      }
     ],
     [
-      "@docusaurus/plugin-content-blog",
+      '@docusaurus/plugin-content-blog',
       {
-        id: "caseStudies",
-        routeBasePath: "caseStudies",
-        path: "./caseStudies",
-      },
-    ],
+        id: 'caseStudies',
+        routeBasePath: 'caseStudies',
+        path: './caseStudies'
+      }
+    ]
   ],
   presets: [
     [
-      "@docusaurus/preset-classic",
+      '@docusaurus/preset-classic',
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
           // homePageId: '/', Deprecated
-          sidebarPath: require.resolve("./sidebars.js"),
-          routeBasePath: "/",
-          editUrl: "https://github.com/erxes/erxes/edit/develop/docs",
+          sidebarPath: require.resolve('./sidebars.js'),
+          routeBasePath: '/',
+          editUrl: 'https://github.com/erxes/erxes/edit/erxes-docs-blog/docs',
           showLastUpdateAuthor: true,
-          showLastUpdateTime: true,
+          showLastUpdateTime: true
         },
         theme: {
-          customCss: require.resolve("./src/css/custom.css"),
-        },
-      },
-    ],
-  ],
+          customCss: require.resolve('./src/css/custom.css')
+        }
+      }
+    ]
+  ]
 };
