@@ -56,7 +56,7 @@ const ParticipantsForm = (props: Props) => {
           name: 'deal',
           values: selectedParticipant && {
             dealId: selectedParticipant.deal._id,
-            tripId: selectedParticipant.trip._id
+            driverId: selectedParticipant.driver._id
           },
           isSubmitted,
           callback: closeModal,

@@ -144,6 +144,16 @@ const configs = `
   }
 `;
 
+const productCategories = `
+  query productCategories($status: String) {
+    productCategories(status: $status) {
+      _id
+      code
+      name
+    }
+  }
+`;
+
 const fieldsCombinedByContentType = `
 query fieldsCombinedByContentType($contentType: String!) {
   fieldsCombinedByContentType(contentType: $contentType)
@@ -158,5 +168,6 @@ export default {
   inboxFields,
   cardsFields,
   configs,
+  productCategories,
   fieldsCombinedByContentType
 };

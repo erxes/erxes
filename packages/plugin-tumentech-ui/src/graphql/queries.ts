@@ -352,14 +352,14 @@ query participants(
   $page: Int
   $perPage: Int
   $status: String
-  $tripId: String
+  $driverId: String
 ) {
   participants(
     dealId: $dealId
     page: $page
     perPage: $perPage
     status: $status
-    tripId: $tripId
+    driverId: $driverId
   ) {
     _id
     createdAt
@@ -370,30 +370,26 @@ query participants(
     dealId
     detail
     status
-    tripId
-    trip {
+    driver {
       _id
-      route {
+      avatar
+      firstName
+      lastName
+      primaryEmail
+      primaryPhone
+    }
+    cars {
+      _id
+      carModel
+      category {
+        _id
+        code
         name
       }
-      car {
-        _id
-        carModel
-        category {
-          _id
-          code
-          name
-        }
-      }
-      status
-      driver {
-        _id
-        avatar
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
+    }
+    route {
+      name
+      _id
     }
   }
 }
@@ -563,7 +559,7 @@ query trips($status: String) {
   trips(status: $status) {
     list {
       _id
-      carId
+      carIds
       closedDate
       createdAt
       dealIds
@@ -619,7 +615,7 @@ query trips($status: String) {
           primaryPhone
         }
       }
-      car {
+      cars {
         _id
         carModel
         category {
@@ -638,7 +634,7 @@ const tripDetail = `
 query tripDetail($_id: String!) {
   tripDetail(_id: $_id) {
     _id
-    car {
+    cars {
       _id
       carModel
       category {
@@ -648,7 +644,7 @@ query tripDetail($_id: String!) {
       categoryId
       description
     }
-    carId
+    carIds
     closedDate
     createdAt
     dealIds

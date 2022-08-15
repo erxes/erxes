@@ -35,7 +35,9 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{trip.car ? `${carInfo(trip.car)}` : 'undefined'}</RowTitle>
+        <RowTitle>
+          {trip.cars.length ? `${trip.cars.map(c => carInfo(c))}` : 'undefined'}
+        </RowTitle>
       </td>
 
       <td key={Math.random()}>
