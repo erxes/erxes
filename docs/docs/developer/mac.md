@@ -69,7 +69,7 @@ Run sudo nano or sudo vim command to create .yml file.
 
 :::
 
-6. Create a `docker-compose.yaml` file, then copy the following script in the newly created file. 
+6. Create a `docker-compose.yml` file, then copy the following script in the newly created file. 
 
 ```
 version: '3.6'
