@@ -32,17 +32,17 @@ export const loadParticipantClass = (models: IModels) => {
     }
 
     public static async createParticipant(doc: IParticipant) {
-      if (!doc.tripId || !doc.dealId) {
-        throw new Error('deal and trip are required!');
+      if (!doc.carIds.length || !doc.dealId || !doc.routeId || !doc.driverId) {
+        throw new Error('Missing required fields');
       }
 
       const participant = await models.Participants.findOne({
         dealId: doc.dealId,
-        tripId: doc.tripId
+        driverId: doc.driverId
       }).lean();
 
       if (participant) {
-        return participant;
+        throw new Error('you are already participating in this deal');
       }
 
       return models.Participants.create({
@@ -72,16 +72,16 @@ export const loadParticipantClass = (models: IModels) => {
       return participant.remove();
     }
 
-    public static async setWinner(dealId: string, tripId: string) {
+    public static async setWinner(dealId: string, driverId: string) {
       const qry = {
         dealId,
-        tripId,
+        driverId,
         status: PARTICIPATION_STATUSES.PARTICIPATING
       };
       const participant = await models.Participants.findOne(qry);
 
       if (!participant) {
-        throw new Error(`Participant not found with tripId ${tripId}`);
+        throw new Error(`Participant not found with driverId ${driverId}`);
       }
 
       const winner = await models.Participants.updateOne(qry, {

@@ -401,6 +401,9 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="file">File</option>
             <option value="customer">Customer</option>
             <option value="map">Location/Map</option>
+            <option value="selectProductCategory">
+              Select Product Category
+            </option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}
