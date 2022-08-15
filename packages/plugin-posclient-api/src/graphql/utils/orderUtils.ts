@@ -17,7 +17,7 @@ import {
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
 import { graphqlPubsub } from '../../configs';
-import messageBroker from '../../messageBroker';
+import { sendPosMessage } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IDetailItem {
@@ -423,6 +423,7 @@ export const checkInvoiceAmount = async ({
 };
 
 export const commonCheckPayment = async (
+  subdomain,
   models,
   orderId,
   config,
@@ -504,12 +505,16 @@ export const commonCheckPayment = async (
     });
 
     try {
-      messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
-        action: 'makePayment',
-        posToken: config.token,
-        response,
-        order,
-        items
+      await sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrders',
+        data: {
+          action: 'makePayment',
+          posToken: order.posToken,
+          response,
+          order,
+          items
+        }
       });
     } catch (e) {
       debugError(`Error occurred while sending data to erxes: ${e.message}`);

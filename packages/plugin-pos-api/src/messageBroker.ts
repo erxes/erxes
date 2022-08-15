@@ -207,7 +207,7 @@ export const initBroker = async cl => {
       if (toPos) {
         await sendPosclientMessage({
           subdomain,
-          action: 'vrpc_queue:erxes-pos-to-pos',
+          action: 'erxes-posclient-to-pos-api',
           data: {
             order: { ...newOrder, posToken }
           },
