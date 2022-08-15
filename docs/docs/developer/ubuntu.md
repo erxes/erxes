@@ -201,6 +201,5 @@ Frequently used `pm2` commands on erxes:
 **If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
 
 <div align="center">
-<a display="flex" justifyContent="center"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" >
-</a>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" ></img>
 </div>
