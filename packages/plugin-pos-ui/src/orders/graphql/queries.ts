@@ -134,28 +134,9 @@ const posProducts = `
   }
 `;
 
-const checkSyncOrdersTotalCount = `
-  query ordersTotalCount (
-    ${listParamsDef}
-  ) {
-    posOrdersTotalCount (
-      ${listParamsValue}
-    )
-  }
-`;
-const checkSyncOrders = `
-  query Orders {
-    orders {
-      _id,
-      createdAt
-    }
-  }
-`;
 const productCategories = productQueries.productCategories;
 
 export default {
-  checkSyncOrdersTotalCount,
-  checkSyncOrders,
   posOrders,
   posOrdersSummary,
   posOrderDetail,

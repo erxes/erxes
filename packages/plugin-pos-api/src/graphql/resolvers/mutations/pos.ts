@@ -262,59 +262,6 @@ const mutations = {
         syncedBillNumber: res.bill_number
       };
     });
-  },
-  toSyncOrders: async (
-    _root,
-    { orderIds }: { orderIds: string[] },
-    { models, subdomain }: IContext
-  ) => {
-    const result: { skipped: string[]; error: string[]; success: string[] } = {
-      skipped: [],
-      error: [],
-      success: []
-    };
-
-    const configs = await getConfig(subdomain, 'ebarimtConfig', {});
-    const mainConfig = await getConfig(subdomain, 'ERKHET', {});
-
-    const orders = await models.PosOrders.find({ _id: { $in: orderIds } });
-
-    for (const order of orders) {
-      if (!Object.keys(configs).includes(order.posToken)) {
-        result.skipped.push(order._id);
-        continue;
-      }
-
-      const config = {
-        ...configs[order.posToken],
-        ...mainConfig
-      };
-      const postData = await messageBroker().getPostData(
-        subdomain,
-        config,
-        order,
-        false
-      );
-
-      const response = await messageBroker().sendRPCMessage(
-        'rpc_queue:erxes-automation-erkhet',
-        {
-          action: 'get-response-send-order-info',
-          isEbarimt: false,
-          payload: JSON.stringify(postData),
-          thirdService: true
-        }
-      );
-
-      if (response.error) {
-        result.error.push(order._id);
-        continue;
-      }
-
-      result.success.push(order._id);
-    }
-
-    return result;
   }
 };
 

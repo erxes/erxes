@@ -23,26 +23,8 @@ const posOrderChangePayments = `
     }
   }
 `;
-const toCheckSyncedOrders = `
-  mutation toCheckSyncedOrders($orderIds: [String]) {
-    toCheckSyncedOrders(orderIds: $orderIds) {
-      orderId
-      isSynced
-      syncedDate
-      syncedBillNumber
-    }
-  }
-`;
-
-const toSyncOrders = `
-  mutation toSyncOrders($orderIds: [String]) {
-    toSyncOrders(dealIds: $orderIds)
-  }
-`;
 export default {
   posOrderSyncErkhet,
   posOrderReturnBill,
-  posOrderChangePayments,
-  toCheckSyncedOrders,
-  toSyncOrders
+  posOrderChangePayments
 };

@@ -7,7 +7,6 @@ import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { Title } from '@erxes/ui/src/styles/main';
-import { orderFields } from '../graphql/queries';
 
 type Props = {
   totalCount: number;
@@ -33,6 +32,11 @@ type State = {
   contentLoading: boolean;
 };
 
+export const menuPos = [
+  { title: 'Check deals', link: '/check-synced-deals' },
+  { title: 'Check orders', link: '/check-pos-orders' }
+];
+
 class CheckSyncedOrders extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -53,7 +57,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       syncedOrderInfos
     } = this.props;
 
-    return orders.map(order => (
+    return orders?.map(order => (
       <Row
         history={history}
         key={order._id}
@@ -124,8 +128,6 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       </Table>
     );
 
-    const header = <Wrapper.Header title={__('Check orders')} />;
-
     const sidebar = (
       <CheckSyncedOrdersSidebar
         queryParams={queryParams}
@@ -192,7 +194,13 @@ class CheckSyncedOrders extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={header}
+        header={
+          <Wrapper.Header
+            title={__(`Check erkhet`)}
+            queryParams={queryParams}
+            submenu={menuPos}
+          />
+        }
         leftSidebar={sidebar}
         actionBar={
           <Wrapper.ActionBar

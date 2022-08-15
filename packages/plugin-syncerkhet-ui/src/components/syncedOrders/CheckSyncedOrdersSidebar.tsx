@@ -105,7 +105,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
           <Section collapsible={false}>
             <Section.Title>{__('Filters')}</Section.Title>
             <FormGroup>
-              <ControlLabel>Type POS token</ControlLabel>
+              <ControlLabel>Enter POS token</ControlLabel>
               <FormControl
                 type="text"
                 placeholder={__('POS token')}

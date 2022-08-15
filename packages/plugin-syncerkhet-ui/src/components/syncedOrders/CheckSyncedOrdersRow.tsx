@@ -16,7 +16,6 @@ type Props = {
 
 class Row extends React.Component<Props> {
   constructor(props: Props) {
-    console.log(props);
     super(props);
   }
   render() {
@@ -67,10 +66,10 @@ class Row extends React.Component<Props> {
           )}
         </td>
         <td>
-          {syncedInfo.syncedDate &&
-            dayjs(syncedInfo.syncedDate || '').format('ll')}
+          {syncedInfo?.syncedDate &&
+            dayjs(syncedInfo?.syncedDate || '').format('ll')}
         </td>
-        <td>{syncedInfo.syncedBillNumber || ''}</td>
+        <td>{syncedInfo?.syncedBillNumber || ''}</td>
         <td>
           {isUnsynced && (
             <Tip text="Sync">

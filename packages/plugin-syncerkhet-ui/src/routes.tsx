@@ -30,6 +30,12 @@ const CheckSyncedDeals = asyncComponent(() =>
   )
 );
 
+const CheckSyncedOrders = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './containers/CheckSyncedOrders'
+  )
+);
+
 const GeneralSetting = () => {
   return <Settings component={GeneralSettings} />;
 };
@@ -54,6 +60,14 @@ const checkSyncedDealList = ({ location, history }) => {
   );
 };
 
+const CheckSyncedOrderList = ({ location, history }) => {
+  return (
+    <CheckSyncedOrders
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
 const routes = () => {
   return (
     <React.Fragment>
@@ -90,6 +104,13 @@ const routes = () => {
         exact={true}
         path="/check-synced-deals"
         component={checkSyncedDealList}
+      />
+
+      <Route
+        key="/check-pos-orders"
+        exact={true}
+        path="/check-pos-orders"
+        component={CheckSyncedOrderList}
       />
     </React.Fragment>
   );

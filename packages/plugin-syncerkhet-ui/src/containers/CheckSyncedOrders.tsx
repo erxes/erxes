@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedOrders from '../components/CheckSyncedOrders';
+import CheckSyncedOrders from '../components/syncedOrders/CheckSyncedOrders';
 import gql from 'graphql-tag';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
@@ -108,8 +108,9 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
     ) {
       return <Spinner />;
     }
-    const orders = checkSyncItemsQuery.orders || [];
-    const totalCount = checkSyncedOrdersTotalCountQuery.ordersTotalCount || 0;
+    const orders = checkSyncItemsQuery.posOrders || [];
+    const totalCount =
+      checkSyncedOrdersTotalCountQuery.posOrdersTotalCount || 0;
 
     const updatedProps = {
       ...this.props,
@@ -123,7 +124,6 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
     };
 
     const content = props => <CheckSyncedOrders {...props} {...updatedProps} />;
-    // const content = props => <>Hello</>;
 
     return <Bulk content={content} />;
   }
@@ -137,7 +137,6 @@ const generateParams = ({ queryParams }) => {
     // skip: pageInfo.page > 1 ? (pageInfo.page - 1) * pageInfo.perPage : 0,
     pipelineId: queryParams.pipelineId,
     // noSkipArchive: true,
-    stageId: queryParams.stageId,
     createdStartDate: queryParams.createdStartDate,
     createdEndDate: queryParams.createdEndDate,
     posToken: queryParams.posToken,

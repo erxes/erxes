@@ -8,6 +8,6 @@ export const types = `
 `;
 
 export const mutations = `
-  toCheckSyncedDeals(dealIds: [String]): [CheckResponse]
+  toCheckSynced(ids: [String]): [CheckResponse]
   toSyncDeals(dealIds: [String]): JSON
 `;

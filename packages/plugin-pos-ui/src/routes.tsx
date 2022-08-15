@@ -21,12 +21,6 @@ const PosProductList = asyncComponent(() =>
   )
 );
 
-const CheckSyncedOrders = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PosProductList" */ './orders/containers/CheckSyncedOrders'
-  )
-);
-
 const settingsComponent = ({ location, history }) => {
   return (
     <List queryParams={queryString.parse(location.search)} history={history} />
@@ -53,14 +47,6 @@ const OrderListComponent = ({ location, history }) => {
 const OrderItemsComponent = ({ location, history }) => {
   return (
     <PosProductList
-      queryParams={queryString.parse(location.search)}
-      history={history}
-    />
-  );
-};
-const CheckSyncedOrderList = ({ location, history }) => {
-  return (
-    <CheckSyncedOrders
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -99,12 +85,6 @@ const routes = () => {
         exact={true}
         path="/pos-order-items"
         component={OrderItemsComponent}
-      />
-      <Route
-        key="/check-pos-orders"
-        exact={true}
-        path="/check-pos-orders"
-        component={CheckSyncedOrderList}
       />
     </>
   );
