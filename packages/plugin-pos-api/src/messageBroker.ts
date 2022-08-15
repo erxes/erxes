@@ -164,11 +164,11 @@ export const initBroker = async cl => {
 
     // ===> sync cards config then
     const { cardsConfig = [] } = pos;
-    const currentCardsConfig = cardsConfig.find(
+    const currentCardsConfig = (cardsConfig || []).find(
       c => c.branchId && c.branchId === newOrder.branchId
     );
 
-    if (currentCardsConfig) {
+    if (currentCardsConfig && currentCardsConfig.stageId) {
       const cardDeal = await sendCardsMessage({
         subdomain,
         action: 'deals.create',
