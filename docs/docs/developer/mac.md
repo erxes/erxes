@@ -71,11 +71,7 @@ Run sudo nano or sudo vim command to create .yml file.
 
 :::
 
-<<<<<<< HEAD
-6. Create a `docker-compose.yaml` file, then copy the following script in the newly created file.
-=======
 6. Create a `docker-compose.yml` file, then copy the following script in the newly created file. 
->>>>>>> 3f65825bb8b9424ad1c2a7a8099cf26d9e6307de
 
 ```
 version: '3.6'
@@ -166,11 +162,8 @@ yarn install
 sudo npm install -g pm2
 ```
 
-<<<<<<< HEAD
-=======
 
 
->>>>>>> 3f65825bb8b9424ad1c2a7a8099cf26d9e6307de
 12. Run following command to change the folder.
 
 ```
@@ -206,24 +199,17 @@ Frequently used `pm2` commands on erxes:
 - pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc.)
 - pm2 restart all - Restart all processes
 
-<<<<<<< HEAD
-:::
-=======
 
 :::
 
->>>>>>> 3f65825bb8b9424ad1c2a7a8099cf26d9e6307de
 
 **If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
 
 <div align="center">
-<<<<<<< HEAD
-=======
 <a display="flex" justifyContent="center"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" >
 </a>
 </div>
 
->>>>>>> 3f65825bb8b9424ad1c2a7a8099cf26d9e6307de
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" ></img>
 

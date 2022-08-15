@@ -194,25 +194,13 @@ Frequently used `pm2` commands on erxes:
 - pm2 logs -f - Display all processes logs in streaming (gateway, plugin-name etc.)
 - pm2 restart all - Restart all processes
 
-<<<<<<< HEAD
-:::
-=======
 
 :::
 
->>>>>>> 3f65825bb8b9424ad1c2a7a8099cf26d9e6307de
 
 **If you see this screen, you have successfully install erxes XOS. Congratulations** 🎉🎉🎉
 
 <div align="center">
-<<<<<<< HEAD
-
-  <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" ></img>
-
-</div>
-  
-=======
 <a display="flex" justifyContent="center"><img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" >
 </a>
 </div>
->>>>>>> 3f65825bb8b9424ad1c2a7a8099cf26d9e6307de
