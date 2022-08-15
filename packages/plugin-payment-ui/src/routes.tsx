@@ -1,17 +1,18 @@
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import queryString from 'query-string';
 
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Payments" */ './containers/List')
+const Store = asyncComponent(() =>
+  import(/* webpackChunkName: "List - Store" */ './containers/Store')
 );
 
-const payments = ({ history }) => {
-  return <List history={history} />;
+const store = ({ location }) => {
+  return <Store queryParams={queryString.parse(location.search)} />;
 };
 
 const routes = () => {
-  return <Route path="/payments/" component={payments} />;
+  return <Route path="/payments/" component={store} />;
 };
 
 export default routes;

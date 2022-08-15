@@ -1,20 +1,20 @@
 import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
 
-import { ByKindTotalCount } from '../../types';
+// import { ByKindTotalCount } from '../../types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
+import { INTEGRATIONS } from './constants/integrations';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import Row from './Row';
-import Sidebar from './Sidebar';
+// import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 
 type Props = {
-  totalCount: ByKindTotalCount;
+  totalCount: any;
   queryParams: any;
   customLink: (kind: string, addLink: string) => void;
 };
@@ -30,9 +30,11 @@ class Home extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('All add-ons') !== -1
+        integration => integration.category.indexOf('Payment method') !== -1
       )
     };
+
+    console.log('Home constructor ...', INTEGRATIONS);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -59,11 +61,14 @@ class Home extends React.Component<Props, State> {
   };
 
   renderIntegrations() {
+    console.log('Home renderIntegrations ...');
+
     const { integrations, searchValue } = this.state;
     const { totalCount, queryParams, customLink } = this.props;
-
     const datas = [] as any;
     const rows = [...integrations];
+
+    console.log('Home renderIntegrations1 ...', integrations, rows);
 
     while (rows.length > 0) {
       datas.push(
@@ -81,7 +86,7 @@ class Home extends React.Component<Props, State> {
       return (
         <FullHeight>
           <EmptyState
-            text={`No results for "${searchValue}"`}
+            text={`No results for1 "${searchValue}"`}
             image="/images/actions/2.svg"
           />
         </FullHeight>
@@ -106,6 +111,8 @@ class Home extends React.Component<Props, State> {
 
   render() {
     const { queryParams } = this.props;
+
+    console.log('Home render ...');
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -140,7 +147,7 @@ class Home extends React.Component<Props, State> {
           />
         }
         mainHead={headerDescription}
-        leftSidebar={<Sidebar currentType={queryParams.type} />}
+        // leftSidebar={<Sidebar currentType={queryParams.type} />}
         content={
           <Content>
             <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
