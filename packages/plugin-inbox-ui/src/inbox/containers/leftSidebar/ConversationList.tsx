@@ -12,6 +12,7 @@ import {
   ConvesationsQueryVariables,
   IConversation
 } from '@erxes/ui-inbox/src/inbox/types';
+import { ConversationsTotalCountQueryResponse } from '@erxes/ui-inbox/src/inbox/types';
 import { InboxManagementActionConsumer } from '../InboxCore';
 
 type Props = {
@@ -26,6 +27,7 @@ type Props = {
 
 type FinalProps = {
   conversationsQuery: ConversationsQueryResponse;
+  totalCountQuery: ConversationsTotalCountQueryResponse;
   updateCountsForNewMessage: () => void;
 } & Props;
 
@@ -34,6 +36,7 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
     const {
       currentUser,
       conversationsQuery,
+      totalCountQuery,
       updateCountsForNewMessage
     } = this.props;
 
@@ -46,39 +49,41 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
         }
 
         conversationsQuery.refetch();
+        totalCountQuery.refetch();
       }
     });
   }
 
   getTotalCount() {
-    const { queryParams, counts } = this.props;
+    const { queryParams, counts, totalCountQuery } = this.props;
 
-    let total = 0;
+    let totalCount = totalCountQuery.conversationsTotalCount || 0;
 
     if (queryParams && counts) {
       if (queryParams.channelId && counts.byChannels) {
-        total += counts.byChannels[queryParams.channelId] || 0;
+        totalCount += counts.byChannels[queryParams.channelId] || 0;
       }
       if (queryParams.segment && counts.bySegment) {
-        total += counts.bySegment[queryParams.segment] || 0;
+        totalCount += counts.bySegment[queryParams.segment] || 0;
       }
       if (queryParams.integrationType && counts.byIntegrationTypes) {
-        total += counts.byIntegrationTypes[queryParams.integrationType] || 0;
+        totalCount +=
+          counts.byIntegrationTypes[queryParams.integrationType] || 0;
       }
       if (queryParams.tag && counts.byTags) {
         const tags = queryParams.tag.split(',');
 
         for (const tag of tags) {
-          total += counts.byTags[tag] || 0;
+          totalCount += counts.byTags[tag] || 0;
         }
       }
     }
 
-    return total;
+    return totalCount;
   }
 
   render() {
-    const { history, conversationsQuery, queryParams } = this.props;
+    const { history, conversationsQuery } = this.props;
 
     const conversations = conversationsQuery.conversations || [];
 
@@ -127,6 +132,16 @@ export default withProps<Props>(
           fetchPolicy: 'network-only',
           // every minute
           pollInterval: 60000
+        })
+      }
+    ),
+    graphql<Props, ConversationsTotalCountQueryResponse>(
+      gql(queries.totalConversationsCount),
+      {
+        name: 'totalCountQuery',
+        options: ({ queryParams }) => ({
+          notifyOnNetworkStatusChange: true,
+          variables: generateOptions(queryParams)
         })
       }
     )
