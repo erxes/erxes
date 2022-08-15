@@ -2,7 +2,7 @@ import { afterMutationHandlers } from './afterMutations';
 import { generateModels, IModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { orderToErkhet, getBranchesUtil } from './utils';
+import { orderToErkhet, getBranchesUtil, getPostData } from './utils';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -307,6 +307,14 @@ export const initBroker = async cl => {
         status: stage.name,
         date: deal.stageChangedDate || deal.modifiedDate || deal.createdAt
       }
+    };
+  });
+
+  consumeRPCQueue('pos:orders.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.PosOrders.find(data)
     };
   });
 };

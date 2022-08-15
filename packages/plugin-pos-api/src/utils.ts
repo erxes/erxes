@@ -35,15 +35,7 @@ export const getFullDate = (date: Date) => {
 export const getTomorrow = (date: Date) => {
   return getFullDate(new Date(date.getTime() + 24 * 60 * 60 * 1000));
 };
-
-export const orderToErkhet = async (
-  subdomain,
-  models,
-  messageBroker,
-  pos,
-  orderId,
-  putRes
-) => {
+export const getPostData = async (subdomain, models, pos, orderId, putRes) => {
   let erkhetConfig = await getConfig(subdomain, 'ERKHET', {});
 
   if (
@@ -154,14 +146,23 @@ export const orderToErkhet = async (
 
   let userEmail = pos.erkhetConfig.userEmail;
 
-  const postData = {
+  return {
     userEmail,
     token: erkhetConfig.apiToken,
     apiKey: erkhetConfig.apiKey,
     apiSecret: erkhetConfig.apiSecret,
     orderInfos: JSON.stringify(orderInfos)
   };
-
+};
+export const orderToErkhet = async (
+  subdomain,
+  models,
+  messageBroker,
+  pos,
+  orderId,
+  putRes
+) => {
+  const postData = await getPostData(subdomain, models, pos, orderId, putRes);
   // TODO: syncerkhet pluginaar
   const apiResponse = await messageBroker().sendRPCMessage(
     'rpc_queue:erxes-automation-erkhet',

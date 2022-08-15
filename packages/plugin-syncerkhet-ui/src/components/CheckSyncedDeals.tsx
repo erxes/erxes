@@ -7,7 +7,6 @@ import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
 import { Title } from '@erxes/ui/src/styles/main';
-import { selectItemRenderer } from '@erxes/ui/src/components/SelectWithSearch';
 
 type Props = {
   totalCount: number;
@@ -32,6 +31,10 @@ type Props = {
 type State = {
   contentLoading: boolean;
 };
+export const menuPos = [
+  { title: 'Check deals', link: '/check-synced-deals' },
+  { title: 'Check orders', link: '/check-pos-orders' }
+];
 
 class CheckSyncedDeals extends React.Component<Props, State> {
   constructor(props: Props) {
@@ -78,6 +81,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     deals.forEach(deal => {
       dealIds.push(deal._id);
     });
+
     await this.props.checkSynced({ dealIds }, this.props.emptyBulk);
   };
 
@@ -125,14 +129,13 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       </Table>
     );
 
-    const header = <Wrapper.Header title={__('Check deals') + `(${1})`} />;
-
     const sidebar = (
       <CheckSyncedDealsSidebar
         queryParams={queryParams}
         history={this.props.history}
       />
     );
+
     const onClickCheck = () => {
       confirm()
         .then(async () => {
@@ -142,6 +145,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
         })
         .catch(error => {
           Alert.error(error.message);
+          this.setState({ contentLoading: false });
         });
     };
 
@@ -182,7 +186,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const content = (
       <DataWithLoader
         data={Content}
-        loading={this.state.contentLoading || loading}
+        loading={loading || this.state.contentLoading}
         count={totalCount}
         emptyText="Empty list"
         emptyImage="/images/actions/1.svg"
@@ -191,7 +195,13 @@ class CheckSyncedDeals extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={header}
+        header={
+          <Wrapper.Header
+            title={__(`Check erkhet`)}
+            queryParams={queryParams}
+            submenu={menuPos}
+          />
+        }
         leftSidebar={sidebar}
         actionBar={
           <Wrapper.ActionBar

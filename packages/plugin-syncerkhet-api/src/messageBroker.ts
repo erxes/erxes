@@ -56,6 +56,15 @@ export const sendCardsMessage = async (
   });
 };
 
+export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'pos',
+    ...args
+  });
+};
+
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
