@@ -32,15 +32,15 @@ export const initBroker = async cl => {
 
       const { deliveryConfig = {} } = pos;
       const deliveryInfo = doneOrder.deliveryInfo || {};
-      const { marker = {} } = deliveryInfo;
+      const { marker = {}, description } = deliveryInfo;
 
       const deal = await sendCardsMessage({
         subdomain,
-        action: '',
+        action: 'create',
         data: {
           name: `Delivery: ${doneOrder.number}`,
           startDate: doneOrder.createdAt,
-          description: deliveryInfo.address,
+          description,
           // {
           //   "locationValue": {
           //     "type": "Point",
@@ -64,14 +64,18 @@ export const initBroker = async cl => {
               ),
               locationValue: {
                 type: 'Point',
-                coordinates: [marker.longitude, marker.latitude]
+                coordinates: [
+                  marker.longitude || marker.lng,
+                  marker.latitude || marker.lat
+                ]
               },
               value: {
-                lat: marker.latitude,
-                lng: marker.longitude,
+                lat: marker.latitude || marker.lat,
+                lng: marker.longitude || marker.lng,
                 description: 'location'
               },
-              stringValue: `${marker.longitude},${marker.latitude}`
+              stringValue: `${marker.longitude ||
+                marker.lng},${marker.latitude || marker.lat}`
             }
           ],
           stageId: deliveryConfig.stageId,
