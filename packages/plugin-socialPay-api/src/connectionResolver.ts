@@ -2,16 +2,16 @@ import * as mongoose from 'mongoose';
 import { mainDb } from './configs';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import {
-  IQpayInvoiceDocument // IQpayInvoiceDocument
-} from './models/definitions/qpay'; // IQpayInvoiceDocument ISocialPayInvoiceDocument
+  ISocialPayInvoiceDocument //  ISocialPayInvoiceDocument,
+} from './models/definitions/socialPay'; // IQpayInvoiceDocument ISocialPayInvoiceDocument
 import {
-  loadQpayInvoiceClass, // loadQpayInvoiceClass
-  IQpayInvoiceModel // IQpayInvoiceModel
-} from './models/Qpay';
+  loadSocialPayInvoiceClass, // loadSocialPayInvoiceClass
+  ISocialPayInvoiceModel // ISocialPayInvoiceModel
+} from './models/socialPay';
 import { MongoClient } from 'mongodb';
 
 export interface IModels {
-  QpayInvoice: IQpayInvoiceModel;
+  SocialPayInvoice: ISocialPayInvoiceModel;
 }
 
 export interface ICoreModels {
@@ -68,10 +68,10 @@ const connectCore = async () => {
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.QpayInvoice = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
-    'qpay_invoices',
-    loadQpayInvoiceClass(models)
-  );
+  models.SocialPayInvoice = db.model<
+    ISocialPayInvoiceDocument,
+    ISocialPayInvoiceModel
+  >('socialpay_invoices', loadSocialPayInvoiceClass(models));
 
   return models;
 };
