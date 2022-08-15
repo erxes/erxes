@@ -27,19 +27,19 @@ erxes comes with plugins that can be installed from the marketplace or the direc
 1. In the terminal, go to erxes/cli directory by using the following command.  
 
 ```
-Cd erxes/cli
+cd erxes/cli
 ```
             
 2. Ensure if you have configs.json file using the following command.
 
 ```
-Ls -la
+ls -la
 ```
              
 3. If you don’t have configs.json file, create one by running the command as follows.
 
 ```
-Cp configs.json.sample configs.json
+cp configs.json.sample configs.json
 ```
  
 :::caution
@@ -129,8 +129,8 @@ All erxes plugins are located in the erxes/packages directory.
 7. To install each plugins, run the following command within the  UI of each plugin.
       
 ```
-      Cd ../packages/plugin-products-ui
-      Yarn install-deps
+      cd ../packages/plugin-products-ui
+      yarn install-deps
 ```
 
 8. Run your erxes project by going to your new erxes/cli directory with the following command.
