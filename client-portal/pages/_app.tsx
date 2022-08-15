@@ -50,7 +50,6 @@ function MyApp({ Component, pageProps, apolloClient, router }: Props) {
       <AppProvider>
         <AppConsumer>
           {({ config }: Store) => {
-            console.log("config", config);
             return (
               <>
                 {config.messengerBrandCode ? (
