@@ -1,0 +1,469 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("MYSQL_URL")
+}
+
+model System {
+    id          Int      @id @default(autoincrement())
+    name        String
+    value       String
+    updateddate DateTime @default(now())
+    updatedby   Int
+}
+
+model Exchange {
+    id        Int       @id @default(autoincrement())
+    name      String
+    name2     String
+    symbol    String
+    opendate  DateTime?
+    closedate DateTime?
+    stock     Stock[]
+}
+
+model Order {
+    txnid            Int               @id @default(autoincrement())
+    ordertype        Int?
+    txntype          Int
+    walletId         Int?
+    wallet           Wallet?           @relation(fields: [walletId], references: [id])
+    orderno          String?
+    stockcode        Int
+    stock            Stock             @relation(fields: [stockcode], references: [stockcode])
+    txndate          DateTime
+    originalCnt      Int               @default(0)
+    cnt              Int
+    price            Decimal           @db.Decimal(30, 4)
+    fee              Decimal           @db.Decimal(30, 4)
+    donedate         DateTime?
+    donecnt          Int?
+    doneprice        Decimal?          @db.Decimal(30, 4)
+    startdate        DateTime?
+    enddate          DateTime?
+    descr            String?
+    descr2           String?
+    txnsource        Int?
+    condid           Int?
+    userId           Int
+    brchno           String?
+    regdate          DateTime          @default(now())
+    status           Int
+    updatedate       DateTime?
+    updateUserId     Int?
+    ostatus          Int               @default(1)
+    oupdatedate      DateTime?
+    oupdateUserId    Int?
+    tradecode        String?
+    yield            Int?
+    msgid            Int?
+    ipo              Int?
+    ipaddress        String?
+    filename         String?
+    mseExecutionId   String?
+    mseOrderId       String?
+    tranOrderId      Int?
+    stockOrderId     Int?
+    andIpoOrderId    String?
+    settlementMSCCId Int?
+    settlementMSCC   SettlementMSCC?   @relation(fields: [settlementMSCCId], references: [id])
+    settlementMCSDId Int?
+    settlementMCSD   SettlementMCSD?   @relation(fields: [settlementMCSDId], references: [id])
+    transactionOrder TransactionOrder? @relation(fields: [tranOrderId], references: [id])
+    stockOrder       StockOrder?       @relation(fields: [stockOrderId], references: [id])
+}
+
+model Stocktype {
+    id        Int       @id @default(autoincrement())
+    name      String
+    name2     String
+    listorder Int
+    status    Int
+    feevalue  Decimal   @db.Decimal(30, 4)
+    custfee   Custfee[]
+    stock     Stock[]
+}
+
+model Custfee {
+    id          Int       @id @default(autoincrement())
+    userId      Int
+    stocktypeId Int
+    name        String?
+    name2       String?
+    descr       String?
+    value       Decimal   @db.Decimal(30, 4)
+    sidetype    Int?
+    updateddate DateTime  @default(now())
+    updatedby   Int?
+    status      Int
+    stocktype   Stocktype @relation(fields: [stocktypeId], references: [id])
+
+    @@index([stocktypeId], map: "Custfee_stocktypeId_fkey")
+}
+
+model Ordertype {
+    id         Int     @id @default(autoincrement())
+    name       String
+    name2      String
+    listorder  Int
+    activeTime String?
+    status     Int
+}
+
+model StockFav {
+    id        Int      @id @default(autoincrement())
+    stockcode Int
+    stock     Stock    @relation(fields: [stockcode], references: [stockcode])
+    userId    Int
+    regdate   DateTime @default(now())
+}
+
+model Stock {
+    id                Int                @id @default(autoincrement())
+    stockcode         Int                @unique
+    symbol            String
+    stocktype         Stocktype          @relation(fields: [stocktypeId], references: [id])
+    stocktypeId       Int //Үнэт цаасны төрөл => 1 - Дотоод хувьцаа 2 - Компанийн бонд 3 - ЗГ бонд 4 - Багц бүтээгдэхүүн 5 - Гадаад хувьцаа 6 - Гадаад бонд
+    stockname         String?
+    stockprice        Decimal            @db.Decimal(30, 4)
+    minprice          Decimal?           @default(0) @db.Decimal(30, 4)
+    maxprice          Decimal?           @default(0) @db.Decimal(30, 4)
+    openprice         Decimal?           @default(0) @db.Decimal(30, 4)
+    closeprice        Decimal?           @default(0) @db.Decimal(30, 4)
+    startdate         DateTime           @default(now())
+    enddate           DateTime           @default(now())
+    intrate           Decimal            @default(0) @db.Decimal(30, 4)
+    userId            Int
+    brchno            String?
+    regdate           DateTime           @default(now())
+    status            String             @default("1")
+    no                String? // Монголын хөрөнгийн биржийн үнэт цаасны гэрээний дугаар MN00
+    cnt               Decimal            @db.Decimal(30, 0)
+    boardname         String? // Монголын хөрөнгийн биржийн самбарын дугаар
+    inducode          String?
+    lsttxndate        DateTime?          @default(now())
+    ipo               Int
+    intrate2          Decimal?           @db.Decimal(30, 4)
+    externalid        String?
+    paytype           String?
+    multiplier        Int?
+    externalid2       String?
+    order_begindate   DateTime?
+    order_enddate     DateTime?
+    notiftype         Int? // Бонд хүү төлөгдөх давтамж; 1 - Сар 2 - Улирал 3 - Жил 4 - Дуусах хугацаанд
+    stockfee          Decimal            @db.Decimal(30, 4)
+    exchangeid        Int // Хөрөнгийн биржийн дугаар
+    ipotype           Int?
+    ipoexecution      Decimal?           @default(0) @db.Decimal(30, 4)
+    url               String?            @db.VarChar(100)
+    image             String?            @db.VarChar(500)
+    currencyCode      String             @default("MNT") @db.VarChar(6)
+    currency          Currency           @relation(fields: [currencyCode], references: [code])
+    exchange          Exchange           @relation(fields: [exchangeid], references: [id])
+    stockBalances     StockBalance[]
+    stockTransactions StockTransaction[]
+    stockOrders       StockOrder[]
+    stockFav          StockFav[]
+    Order             Order[]
+}
+
+model Currency {
+    id            Int       @id @default(autoincrement())
+    code          String    @unique @db.VarChar(6)
+    name          String    @db.VarChar(30)
+    status        Int
+    createdAt     DateTime  @default(now())
+    createdUserId String?
+    updatedAt     DateTime?
+    updatedUserId String?
+    wallets       Wallet[]
+    stock         Stock[]
+}
+
+model Wallet {
+    id                   Int                @id @default(autoincrement())
+    currencyCode         String             @db.VarChar(6)
+    currency             Currency           @relation(fields: [currencyCode], references: [code])
+    userId               String?
+    status               Int
+    name                 String             @db.VarChar(30)
+    type                 Int
+    createdAt            DateTime           @default(now())
+    createUserId         Int?
+    updatedAt            DateTime?
+    updatedUserId        Int?
+    walletNumber         Decimal            @unique @db.Decimal(20, 0)
+    walletBalance        WalletBalance?
+    stockBalances        StockBalance[]
+    stockTransactions    StockTransaction[]
+    stockOrderFrom       StockOrder[]       @relation(name: "walletFrom")
+    stockOrderTo         StockOrder[]       @relation(name: "walletTo")
+    withdraws            Withdraw[]
+    order                Order[]
+    bankTransactions     BankTransaction[]
+    transactions         Transaction[]
+    transactionOrderFrom TransactionOrder[] @relation(name: "walletFromOrder")
+    transactionOrderTo   TransactionOrder[] @relation(name: "walletToOrder")
+}
+
+model WalletBalance {
+    id            Int       @id @default(autoincrement())
+    walletId      Int       @unique
+    wallet        Wallet?   @relation(fields: [walletId], references: [id])
+    balance       Decimal   @db.Decimal(30, 4)
+    holdBalance   Decimal   @db.Decimal(30, 4)
+    createdAt     DateTime  @default(now())
+    createUserId  Int?
+    updatedAt     DateTime?
+    updatedUserId Int?
+}
+
+model StockBalance {
+    id            Int       @id @default(autoincrement())
+    stockCode     Int
+    stock         Stock     @relation(fields: [stockCode], references: [stockcode])
+    walletId      Int
+    wallet        Wallet    @relation(fields: [walletId], references: [id])
+    balance       Int
+    holdBalance   Int
+    createdAt     DateTime  @default(now())
+    createUserId  Int?
+    updatedAt     DateTime?
+    updatedUserId Int?
+}
+
+model StockTransaction {
+    id            Int        @id @default(autoincrement())
+    stockOrderId  Int
+    stockOrder    StockOrder @relation(fields: [stockOrderId], references: [id])
+    walletId      Int
+    wallet        Wallet     @relation(fields: [walletId], references: [id])
+    status        Int
+    type          Int
+    dater         DateTime   @db.Date
+    stockCode     Int
+    stock         Stock      @relation(fields: [stockCode], references: [stockcode])
+    stockCount    Int
+    createdAt     DateTime   @default(now())
+    createUserId  Int?
+    updatedAt     DateTime?
+    updatedUserId Int?
+}
+
+model StockOrder {
+    id                Int                @id @default(autoincrement())
+    walletIdFrom      Int?
+    walletFrom        Wallet?            @relation(name: "walletFrom", fields: [walletIdFrom], references: [id])
+    walletIdTo        Int?
+    walletTo          Wallet?            @relation(name: "walletTo", fields: [walletIdTo], references: [id])
+    status            Int
+    type              Int
+    dater             DateTime           @db.Date
+    stockCount        Int
+    stockCode         Int
+    stock             Stock              @relation(fields: [stockCode], references: [stockcode])
+    parentOrderId     Int?
+    parentOrder       StockOrder?        @relation(name: "parent", fields: [parentOrderId], references: [id])
+    createdAt         DateTime           @default(now())
+    createUserId      Int?
+    updatedAt         DateTime?
+    updatedUserId     Int?
+    stockTransactions StockTransaction[]
+    childOrders       StockOrder[]       @relation(name: "parent")
+    mainOrder         Order[]
+}
+
+model Withdraw {
+    id                Int              @id @default(autoincrement())
+    walletId          Int
+    wallet            Wallet           @relation(fields: [walletId], references: [id])
+    amount            Decimal          @db.Decimal(30, 4)
+    status            Int
+    type              Int
+    feeAmount         Decimal?         @db.Decimal(30, 4)
+    userBankAccountId Int?
+    bankTransactionId Int?             @unique
+    bankTransaction   BankTransaction? @relation(fields: [bankTransactionId], references: [id])
+    description       String           @db.VarChar(400)
+    dater             DateTime         @db.Date
+    createdAt         DateTime         @default(now())
+    createUserId      Int?
+    updatedAt         DateTime?
+    updatedUserId     Int?
+}
+
+model BankTransaction {
+    id             Int               @id @default(autoincrement())
+    type           Int
+    amount         Decimal           @db.Decimal(30, 4)
+    jrno           String            @default("")
+    txnSign        String            @default("") @db.VarChar(1)
+    currencyCode   String            @db.VarChar(6)
+    status         Int
+    orderId        Int?              @unique
+    order          TransactionOrder? @relation(fields: [orderId], references: [id])
+    description    String            @db.VarChar(400)
+    oldDescription String?           @db.VarChar(400)
+    dater          DateTime          @db.Date
+    bank           String            @db.VarChar(50)
+    recAccountNo   String            @default("") @db.VarChar(36)
+    contAccountNo  String            @default("") @db.VarChar(36)
+    accountNo      String            @db.VarChar(36)
+    accountName    String            @db.VarChar(100)
+    message        String?           @db.VarChar(100)
+    createdAt      DateTime          @default(now())
+    createUserId   Int?
+    updatedAt      DateTime?
+    updatedUserId  Int?
+    withdraw       Withdraw?
+    Wallet         Wallet?           @relation(fields: [walletId], references: [id])
+    walletId       Int?
+}
+
+model Transaction {
+    id            Int              @id @default(autoincrement())
+    orderId       Int
+    order         TransactionOrder @relation(fields: [orderId], references: [id])
+    walletId      Int
+    wallet        Wallet           @relation(fields: [walletId], references: [id])
+    type          Int
+    status        Int
+    description   String           @default("") @db.VarChar(400)
+    amount        Decimal          @db.Decimal(30, 4)
+    dater         DateTime         @db.Date
+    createdAt     DateTime         @default(now())
+    createUserId  Int?
+    updatedAt     DateTime?
+    updatedUserId Int?
+}
+
+model TransactionOrder {
+    id              Int                @id @default(autoincrement())
+    walletIdFrom    Int?
+    walletFrom      Wallet?            @relation(name: "walletFromOrder", fields: [walletIdFrom], references: [id])
+    walletIdTo      Int?
+    walletTo        Wallet?            @relation(name: "walletToOrder", fields: [walletIdTo], references: [id])
+    type            Int
+    status          Int
+    amount          Decimal            @db.Decimal(30, 4)
+    feeAmount       Decimal?           @db.Decimal(30, 4)
+    parentOrderId   Int?
+    parentOrder     TransactionOrder?  @relation(name: "parentOrder", fields: [parentOrderId], references: [id])
+    dater           DateTime           @db.Date
+    createdAt       DateTime           @default(now())
+    createUserId    Int?
+    updatedAt       DateTime?
+    updatedUserId   Int?
+    transactions    Transaction[]
+    childOrders     TransactionOrder[] @relation(name: "parentOrder")
+    bankTransaction BankTransaction?
+    mainOrder       Order[]
+}
+
+model Settlement {
+    id             Int       @id @default(autoincrement())
+    walletId       Int
+    type           Int
+    status         Int
+    totalOutAmount Decimal   @db.Decimal(30, 4)
+    totalInAmount  Decimal   @db.Decimal(30, 4)
+    totalFeeAmount Decimal   @db.Decimal(30, 4)
+    startDate      DateTime  @db.Date
+    endDate        DateTime  @db.Date
+    createdAt      DateTime  @default(now())
+    createUserId   Int?
+    updatedAt      DateTime?
+    updatedUserId  Int?
+}
+
+model SettlementMCSD {
+    id                Int       @id @default(autoincrement())
+    userId            Int
+    tradeDate         DateTime
+    settlementDate    DateTime
+    cmId              String    @db.VarChar(100)
+    participantId     String    @db.VarChar(10)
+    participantType   String    @db.VarChar(10)
+    clientPrefix      String    @db.VarChar(150)
+    clientSuffix      String    @db.VarChar(10)
+    clientJointNo     Int?
+    securityMCategory String?   @db.VarChar(10)
+    securityCategory  String?   @db.VarChar(10)
+    issuerCode        String?   @db.VarChar(10)
+    debtType          String?   @db.VarChar(10)
+    securityDesc      String?   @db.VarChar(100)
+    mainType          String?   @db.VarChar(10)
+    subType           String?   @db.VarChar(10)
+    quantity          Int
+    obligation        Decimal   @db.Decimal(30, 4)
+    status            Int
+    statusDescription String?   @db.VarChar(500)
+    settlementStatus  Int
+    executedDate      DateTime?
+    createdAt         DateTime  @default(now())
+    createUserId      Int?
+    updatedAt         DateTime?
+    updatedUserId     Int?
+    orders            Order[]
+}
+
+model SettlementMSCC {
+    id                Int       @id @default(autoincrement())
+    userId            Int
+    tradeDate         DateTime
+    settlementDate    DateTime
+    cmId              String    @db.VarChar(100)
+    participantId     String    @db.VarChar(10)
+    participantType   String    @db.VarChar(10)
+    clientPrefix      String    @db.VarChar(150)
+    clientSuffix      String    @db.VarChar(10)
+    custodianID       String?
+    securityMCategory String?   @db.VarChar(10)
+    securityCategory  String?   @db.VarChar(10)
+    issuerCode        String?   @db.VarChar(10)
+    debtType          String?   @db.VarChar(10)
+    securityDesc      String?   @db.VarChar(100)
+    mainType          String?   @db.VarChar(10)
+    subType           String?   @db.VarChar(10)
+    buyQuantity       Int
+    buyObligation     Decimal   @db.Decimal(30, 4)
+    sellQuantity      Int
+    sellObligation    Decimal   @db.Decimal(30, 4)
+    quantity          Int
+    obligation        Decimal   @db.Decimal(30, 4)
+    minMargin         Decimal   @db.Decimal(30, 4)
+    mseFee            Decimal   @db.Decimal(30, 4)
+    msccFee           Decimal   @db.Decimal(30, 4)
+    frcFee            Decimal   @db.Decimal(30, 4)
+    currency          String?
+    status            Int
+    statusDescription String?   @db.VarChar(500)
+    executedDate      DateTime?
+    createdAt         DateTime  @default(now())
+    createUserId      Int?
+    orders            Order[]
+}
+
+model TransactionMCSD {
+    id                  Int      @id @default(autoincrement())
+    accountId           Int
+    accountNumber       String
+    additional          String?  @db.Text
+    bdcId               Int
+    commission          Decimal  @db.Decimal(30, 4)
+    description         String?
+    mitPrefix           String?
+    perPrice            Decimal  @db.Decimal(30, 4)
+    securitiesCode      String
+    securitiesName      String
+    securitiesQuantity  Decimal  @db.Decimal(30, 4)
+    tradeId             Int
+    transactionDate     DateTime
+    transactionId       Int
+    transactionTypeId   Int
+    transactionTypeName String
+    createdDate         DateTime @default(now())
+}

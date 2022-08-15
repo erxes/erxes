@@ -1,0 +1,14 @@
+{
+  "name": "@erxes/plugin-trading-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-trading-api/.erxes && node src"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.2.1",
+    "prisma": "^4.1.1"
+  }
+}
