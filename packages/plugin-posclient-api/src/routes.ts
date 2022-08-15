@@ -70,4 +70,6 @@ export const callBackQpay = async (req, res) => {
     config,
     paidMobileAmount
   );
+
+  return;
 };
