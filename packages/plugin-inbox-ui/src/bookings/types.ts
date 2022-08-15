@@ -1,7 +1,4 @@
-import {
-  IBookingData,
-  IIntegration
-} from '@erxes/ui-inbox/src/settings/integrations/types';
+import { IBookingData, IIntegration } from '../settings/integrations/types';
 import { MutationVariables, QueryResponse } from '@erxes/ui/src/types';
 
 import { IBrand } from '@erxes/ui/src/brands/types';

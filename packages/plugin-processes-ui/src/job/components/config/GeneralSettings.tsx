@@ -109,7 +109,7 @@ class GeneralSettings extends React.Component<Props, State> {
       { title: __('Products config') }
     ];
 
-    const actionButtons = (
+    const flowJobButtons = (
       <Button
         btnStyle="primary"
         onClick={this.save}
@@ -142,7 +142,7 @@ class GeneralSettings extends React.Component<Props, State> {
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{__('Products configs')}</Title>}
-            right={actionButtons}
+            right={flowJobButtons}
           />
         }
         leftSidebar={<Sidebar />}

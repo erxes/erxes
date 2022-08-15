@@ -58,9 +58,10 @@ const orderMutations = {
     const { totalAmount, type, customerId, branchId } = doc;
 
     await validateOrder(models, doc);
+    const number = await generateOrderNumber(models, config);
 
     const orderDoc = {
-      number: await generateOrderNumber(models, config),
+      number,
       totalAmount,
       type,
       branchId,

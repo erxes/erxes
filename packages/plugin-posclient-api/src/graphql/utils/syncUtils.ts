@@ -115,8 +115,16 @@ export const preImportProducts = async (
     { $or: [{ tokens: { $exists: false } }, { tokens: [] }] },
     { _id: 1 }
   ).lean();
+
   for (const catId of (deleteCategoryIds || []).map(d => d._id) || []) {
-    await models.ProductCategories.removeProductCategory(catId);
+    try {
+      await models.ProductCategories.removeProductCategory(catId);
+    } catch (_e) {
+      await models.ProductCategories.updateOne(
+        { _id: catId },
+        { $set: { status: PRODUCT_CATEGORY_STATUSES.DISABLED } }
+      );
+    }
   }
 };
 
@@ -138,14 +146,16 @@ export const importProducts = async (
     const categories = group.categories || [];
 
     for (const category of categories) {
-      await models.ProductCategories.updateOne(
-        { _id: category._id },
-        {
-          $set: { ...category, products: undefined },
-          $addToSet: { tokens: token }
-        },
-        { upsert: true }
-      );
+      if (category._id) {
+        await models.ProductCategories.updateOne(
+          { _id: category._id },
+          {
+            $set: { ...category, products: undefined },
+            $addToSet: { tokens: token }
+          },
+          { upsert: true }
+        );
+      }
 
       const bulkOps: {
         updateOne: {
@@ -253,6 +263,7 @@ export const extractConfig = async (subdomain, doc) => {
     posSlot: doc.posSlot,
     initialCategoryIds: doc.initialCategoryIds,
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
+    deliveryConfig: doc.deliveryConfig,
     posId: doc._id
   };
 };
@@ -331,6 +342,7 @@ export const receiveProductCategory = async (models: IModels, data) => {
     if (!category || category.status !== PRODUCT_CATEGORY_STATUSES.ACTIVE) {
       return;
     }
+
     await models.ProductCategories.removeProductCategory(category._id);
   }
 };

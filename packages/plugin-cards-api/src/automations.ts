@@ -203,17 +203,31 @@ const actionCreate = async ({
       create
     );
 
-    const mainType = execution.triggerType.split(':')[1];
-    await sendCoreMessage({
-      subdomain,
-      action: 'conformities.addConformity',
-      data: {
-        mainType: mainType.replace('lead', 'customer'),
-        mainTypeId: execution.targetId,
-        relType: `${collectionType}`,
-        relTypeId: item._id
-      }
-    });
+    if (execution.triggerType === 'inbox:conversation') {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'customer',
+          mainTypeId: execution.target.customerId,
+          relType: `${collectionType}`,
+          relTypeId: item._id
+        }
+      });
+    } else {
+      const mainType = execution.triggerType.split(':')[1];
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: mainType.replace('lead', 'customer'),
+          mainTypeId: execution.targetId,
+          relType: `${collectionType}`,
+          relTypeId: item._id
+        }
+      });
+    }
 
     return item;
   } catch (e) {

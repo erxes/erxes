@@ -33,7 +33,7 @@ const usersEditProfile = `
     $username: String!
     $email: String!
     $details: UserDetails
-    $links: JSON 
+    $links: JSON
     $password: String!
   ) {
     usersEditProfile(
@@ -231,6 +231,7 @@ const commonBranchParamsDef = `
   $code: String
   $parentId: String
   $userIds: [String]
+  $radius: Int
   ${commonContactInfoParamsDef}
 `;
 
@@ -241,6 +242,7 @@ const commonBranchParams = `
   code: $code
   supervisorId: $supervisorId
   userIds: $userIds
+  radius: $radius
   ${commonContactInfoParams}
 `;
 

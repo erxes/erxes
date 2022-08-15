@@ -13,7 +13,6 @@ import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
 import { __ } from '@erxes/ui/src/utils';
 import asyncComponent from '../../../components/AsyncComponent';
 import { isEnabled } from '../../../utils/core';
-import path from 'path';
 
 const MailForm = asyncComponent(
   () =>

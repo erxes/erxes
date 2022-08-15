@@ -579,14 +579,18 @@ const up = async ({ uis, fromInstaller }) => {
 
   log('Generating nginx.conf ....');
 
-  const commonConfig = `
-    proxy_set_header Upgrade $http_upgrade;
+  const commonParams = `
     proxy_set_header Connection 'upgrade';
     proxy_set_header Host $host;
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_http_version 1.1;
+  `;
+
+  const commonConfig = `
+    proxy_set_header Upgrade $http_upgrade;
+    ${commonParams}
   `;
 
   await fs.promises.writeFile(
@@ -601,7 +605,7 @@ const up = async ({ uis, fromInstaller }) => {
             access_log /var/log/nginx/erxes.access.log;
             location / {
                     proxy_pass http://127.0.0.1:3000/;
-                    ${commonConfig}
+                    ${commonParams}
             }
             location /widgets/ {
                     proxy_pass http://127.0.0.1:3200/;

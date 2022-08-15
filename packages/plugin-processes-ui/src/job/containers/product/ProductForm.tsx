@@ -1,23 +1,24 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
 
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import From from '../../components/product/ProductForm';
-import { mutations, queries } from '../../graphql';
 import {
   IConfigsMap,
-  JobCategoriesQueryResponse,
+  IJobRefer,
   IProductsData,
-  IJobRefer
+  JobCategoriesQueryResponse
 } from '../../types';
 import {
   ProductsConfigsQueryResponse,
   UomsQueryResponse
 } from '@erxes/ui-products/src/types';
+import { mutations, queries } from '../../graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import From from '../../components/product/ProductForm';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -118,7 +119,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = test => {
-  console.log(test);
   return ['jobRefers', 'jobReferTotalCount', 'jobCategories'];
 };
 

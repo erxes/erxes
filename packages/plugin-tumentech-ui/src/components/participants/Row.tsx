@@ -6,6 +6,7 @@ import { renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import { ICar, IParticipant } from '../../types';
+import { carInfo } from '../../utils';
 
 type Props = {
   participant: IParticipant;
@@ -43,22 +44,6 @@ class Row extends React.Component<Props> {
     const { driver } = participant.trip;
     const { detail = { price: 0 } } = participant;
     const labelStyle = participant.status === 'won' ? 'success' : 'warning';
-
-    const carInfo = (car: ICar) => {
-      if (car.carModel || car.category || car.vinNumber || car.plateNumber) {
-        return (
-          (car.carModel || '') +
-          ' ' +
-          (car.category?.name || '') +
-          ' ' +
-          (car.vinNumber || '') +
-          ' ' +
-          (car.plateNumber || '')
-        );
-      }
-
-      return 'Unknown';
-    };
 
     return (
       <tr>

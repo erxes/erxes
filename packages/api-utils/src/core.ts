@@ -1,12 +1,12 @@
-import * as mongoose from "mongoose";
-import * as strip from "strip";
-import * as Random from "meteor-random";
-import { IUserDocument } from "./types";
-import { IPermissionDocument } from "./definitions/permissions";
+import * as mongoose from 'mongoose';
+import * as strip from 'strip';
+import * as Random from 'meteor-random';
+import { IUserDocument } from './types';
+import { IPermissionDocument } from './definitions/permissions';
 
 export const getEnv = ({
   name,
-  defaultValue,
+  defaultValue
 }: {
   name: string;
   subdomain?: string;
@@ -14,11 +14,11 @@ export const getEnv = ({
 }): string => {
   const value = process.env[name];
 
-  if (!value && typeof defaultValue !== "undefined") {
+  if (!value && typeof defaultValue !== 'undefined') {
     return defaultValue;
   }
 
-  return value || "";
+  return value || '';
 };
 
 /**
@@ -39,8 +39,8 @@ export const paginate = (
 ) => {
   const { page = 0, perPage = 0, ids, excludeIds } = params || { ids: null };
 
-  const _page = Number(page || "1");
-  const _limit = Number(perPage || "20");
+  const _page = Number(page || '1');
+  const _limit = Number(perPage || '20');
 
   if (ids && ids.length > 0) {
     return excludeIds ? collection.limit(_limit) : collection;
@@ -50,7 +50,7 @@ export const paginate = (
 };
 
 export const validSearchText = (values: string[]) => {
-  const value = values.join(" ");
+  const value = values.join(' ');
 
   if (value.length < 512) {
     return value;
@@ -60,28 +60,28 @@ export const validSearchText = (values: string[]) => {
 };
 
 const stringToRegex = (value: string) => {
-  const specialChars = "{}[]\\^$.|?*+()".split("");
-  const val = value.split("");
+  const specialChars = '{}[]\\^$.|?*+()'.split('');
+  const val = value.split('');
 
-  const result = val.map((char) =>
-    specialChars.includes(char) ? ".?\\" + char : ".?" + char
+  const result = val.map(char =>
+    specialChars.includes(char) ? '.?\\' + char : '.?' + char
   );
 
-  return ".*" + result.join("").substring(2) + ".*";
+  return '.*' + result.join('').substring(2) + '.*';
 };
 
 export const regexSearchText = (
   searchValue: string,
-  searchKey = "searchText"
+  searchKey = 'searchText'
 ) => {
   const result: any[] = [];
 
-  searchValue = searchValue.replace(/\s\s+/g, " ");
+  searchValue = searchValue.replace(/\s\s+/g, ' ');
 
-  const words = searchValue.split(" ");
+  const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, "mui") });
+    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
   }
 
   return { $and: result };
@@ -145,9 +145,9 @@ export const checkUserIds = (
   oldUserIds: string[] = [],
   newUserIds: string[] = []
 ) => {
-  const removedUserIds = oldUserIds.filter((e) => !newUserIds.includes(e));
+  const removedUserIds = oldUserIds.filter(e => !newUserIds.includes(e));
 
-  const addedUserIds = newUserIds.filter((e) => !oldUserIds.includes(e));
+  const addedUserIds = newUserIds.filter(e => !oldUserIds.includes(e));
 
   return { addedUserIds, removedUserIds };
 };
@@ -169,7 +169,7 @@ export const chunkArray = (myArray, chunkSize: number) => {
 };
 
 export const cleanHtml = (content?: string) =>
-  strip(content || "").substring(0, 100);
+  strip(content || '').substring(0, 100);
 
 /**
  * Splits text into chunks of strings limited by given character count
@@ -186,26 +186,36 @@ export const cleanHtml = (content?: string) =>
 export const splitStr = (str: string, size: number): string[] => {
   const cleanStr = strip(str);
 
-  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, "g")));
+  return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };
 
 const generateRandomEmail = () => {
-  var chars = "abcdefghijklmnopqrstuvwxyz1234567890";
-  var string = "";
+  var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  var string = '';
   for (var ii = 0; ii < 15; ii++) {
     string += chars[Math.floor(Math.random() * chars.length)];
   }
 
-  return string + "@gmail.com";
+  return string + '@gmail.com';
+};
+
+const generateRandomEmail = () => {
+  var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  var string = '';
+  for (var ii = 0; ii < 15; ii++) {
+    string += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return string + '@gmail.com';
 };
 
 export const getUniqueValue = async (
   collection: any,
-  fieldName: string = "code",
+  fieldName: string = 'code',
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === "email" ? generateRandomEmail() : Random.id();
+    type === 'email' ? generateRandomEmail() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -221,7 +231,7 @@ export const getUniqueValue = async (
 };
 
 export const escapeRegExp = (str: string) => {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
 export interface ISendMessageArgs {
@@ -247,7 +257,7 @@ export const sendMessage = async (
     action,
     data,
     defaultValue,
-    isRPC,
+    isRPC
   } = args;
 
   if (serviceName) {
@@ -256,7 +266,7 @@ export const sendMessage = async (
     }
 
     if (isRPC && !(await serviceDiscovery.isAvailable(serviceName))) {
-      if (process.env.NODE_ENV === "development") {
+      if (process.env.NODE_ENV === 'development') {
         throw new Error(`${serviceName} service is not available`);
       } else {
         return defaultValue;
@@ -264,8 +274,8 @@ export const sendMessage = async (
     }
   }
 
-  return client[isRPC ? "sendRPCMessage" : "sendMessage"](
-    serviceName + (serviceName ? ":" : "") + action,
+  return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
+    serviceName + (serviceName ? ':' : '') + action,
     { subdomain, data, thirdService: data && data.thirdService }
   );
 };
@@ -282,12 +292,12 @@ export const userActionsMap = async (
   const totalPermissions: IPermissionDocument[] = [
     ...userPermissions,
     ...groupPermissions,
-    ...(user.customPermissions || []),
+    ...(user.customPermissions || [])
   ];
   const allowedActions: IActionMap = {};
 
   const check = (name: string, allowed: boolean) => {
-    if (typeof allowedActions[name] === "undefined") {
+    if (typeof allowedActions[name] === 'undefined') {
       allowedActions[name] = allowed;
     }
 
@@ -312,14 +322,14 @@ export const userActionsMap = async (
 
 export const getSubdomain = (req): string => {
   const hostname = req.headers.hostname || req.hostname;
-  return hostname.replace(/(^\w+:|^)\/\//, "").split(".")[0];
+  return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];
 };
 
 const connectionOptions: mongoose.ConnectionOptions = {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
-  family: 4,
+  family: 4
 };
 
 export const createGenerateModels = <IModels>(models, loadClasses) => {
@@ -328,7 +338,7 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
       return models;
     }
 
-    const MONGO_URL = getEnv({ name: "MONGO_URL" });
+    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
 
     const db = await mongoose.connect(MONGO_URL, connectionOptions);
 
@@ -339,15 +349,15 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
 };
 
 export const authCookieOptions = (options = {}) => {
-  const NODE_ENV = getEnv({ name: "NODE_ENV" });
+  const NODE_ENV = getEnv({ name: 'NODE_ENV' });
   const twoWeek = 14 * 24 * 3600 * 1000; // 14 days
 
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + twoWeek),
     maxAge: twoWeek,
-    secure: !["test", "development"].includes(NODE_ENV),
-    ...options,
+    secure: !['test', 'development'].includes(NODE_ENV),
+    ...options
   };
 
   return cookieOptions;

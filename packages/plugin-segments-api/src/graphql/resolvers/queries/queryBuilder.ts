@@ -290,11 +290,11 @@ export const generateQueryBySegment = async (
   const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
-    selectorPositiveList.push({ bool: {} });
+    selector.must.push({ bool: {} });
 
     await generateQueryBySegment(models, subdomain, {
       ...args,
-      selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
+      selector: selector.must[selector.must.length - 1].bool,
       segment: parentSegment,
       isInitialCall: false
     });

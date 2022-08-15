@@ -1,18 +1,21 @@
-import Alert from './Alert';
 import * as animations from './animations';
 import * as calendar from './calendar';
 import * as categories from './categories';
-import confirm from './confirmation/confirm';
 import * as core from './core';
-import parseMD from './parseMd';
 import * as router from './router';
-import toggleCheckBoxes from './toggleCheckBoxes';
+
 import uploadHandler, {
   deleteHandler as uploadDeleteHandler
 } from './uploadHandler';
-import urlParser from './urlParser';
-import commonListComposer from './commonListComposer';
 
+import Alert from './Alert';
+import commonListComposer from './commonListComposer';
+import confirm from './confirmation/confirm';
+import parseMD from './parseMd';
+import toggleCheckBoxes from './toggleCheckBoxes';
+import urlParser from './urlParser';
+
+export const loadCustomPlugin = core.loadCustomPlugin;
 export const renderFullName = core.renderFullName;
 export const renderUserFullName = core.renderUserFullName;
 export const setTitle = core.setTitle;

@@ -1,12 +1,14 @@
-import { AddContent, AddRow } from '../../styles/item';
-
-import AssignedUsers from './AssignedUsers';
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
+import { applyLogics } from '@erxes/ui-forms/src/settings/properties/utils';
 import { IField } from '@erxes/ui/src/types';
-import PipelineLabels from './PipelineLabels';
 import React from 'react';
 
+import { AddContent, AddRow } from '../../styles/item';
+import AssignedUsers from './AssignedUsers';
+import PipelineLabels from './PipelineLabels';
+
 type Props = {
+  object: any;
   fields: IField[];
   customFieldsData: any;
   onChangeField: (name: any, value: any) => void;
@@ -80,6 +82,17 @@ function GenerateAddFormFields(props: Props) {
       })}
 
       {customFields.map((field, index) => {
+        if (field.logics && field.logics.length > 0) {
+          const data = {};
+
+          customFieldsData.forEach(f => {
+            data[f.field] = f.value;
+          });
+
+          if (!applyLogics(field, fields, props.object, data)) {
+            return null;
+          }
+        }
         return (
           <AddRow>
             <AddContent>
