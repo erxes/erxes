@@ -58,6 +58,7 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
         variables: { orderIds }
       })
         .then(response => {
+          console.log(response);
           emptyBulk();
           const statuses = response.data.toCheckSyncedOrders;
 

@@ -98,12 +98,10 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       syncedOrderInfos
     } = this.props;
     const tablehead = [
-      'order name',
-      'Amount',
-      'created At',
-      'modified At',
-      'stage Changed Date',
-      'Un Synced',
+      'Pos Token',
+      'Total Amount',
+      'Created At',
+      'Paid At',
       'Synced Date',
       'Synced bill Number',
       'Sync Actions'

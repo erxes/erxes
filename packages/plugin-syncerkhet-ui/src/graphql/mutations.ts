@@ -8,7 +8,7 @@ const updateConfigs = `
 
 const toCheckSyncedDeals = `
   mutation toCheckSynced($ids: [String]) {
-    toCheckSyncedDeals(ids: $ids) {
+    toCheckSynced(ids: $ids) {
       _id
       isSynced
       syncedDate
@@ -18,8 +18,8 @@ const toCheckSyncedDeals = `
 `;
 
 const toCheckSyncedOrders = `
-  mutation toCheckSyncedOrders($ids: [String]) {
-    toCheckSyncedOrders(ids: $ids) {
+  mutation toCheckSynced($ids: [String]) {
+    toCheckSynced(ids: $ids) {
       _id
       isSynced
       syncedDate

@@ -239,6 +239,4 @@ export const mutations = `
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
   posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
-  toCheckSyncedOrders(orderIds: [String]): [CheckOrderResponse] 
-  toSyncOrders(orderIds: [String]): JSON
 `;

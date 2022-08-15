@@ -227,41 +227,6 @@ const mutations = {
       { $set: { cashAmount, cardAmount, mobileAmount } }
     );
     return models.PosOrders.findOne({ _id }).lean();
-  },
-  toCheckSyncedOrders: async (
-    _root,
-    { orderIds }: { orderIds: string[] },
-    { subdomain }: IContext
-  ) => {
-    const config = await getConfig(subdomain, 'ERKHET', {});
-    const postData = {
-      token: config.apiToken,
-      apiKey: config.apiKey,
-      apiSecret: config.apiSecret,
-      orderIds: JSON.stringify(orderIds)
-    };
-
-    const response = await messageBroker().sendRPCMessage(
-      'rpc_queue:erxes-automation-erkhet',
-      {
-        action: 'check-order-synced',
-        payload: JSON.stringify(postData),
-        thirdService: true
-      }
-    );
-    const result = JSON.parse(response);
-
-    const data = result.data;
-
-    return (Object.keys(data) || []).map(orderId => {
-      const res: any = data[orderId] || {};
-      return {
-        orderId,
-        isSynced: res.isSynced,
-        syncedDate: res.date,
-        syncedBillNumber: res.bill_number
-      };
-    });
   }
 };
 
