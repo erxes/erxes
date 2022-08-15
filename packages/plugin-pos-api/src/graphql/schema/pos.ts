@@ -164,6 +164,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   type PosOrderDetail {
     ${posOrderFields(contactsEnabled)}
     putResponses: JSON
+    deliveryInfo: JSON
   }
 
   type PosProduct {
