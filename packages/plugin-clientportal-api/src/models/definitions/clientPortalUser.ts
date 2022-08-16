@@ -60,10 +60,14 @@ export const clientPortalUserSchema = new Schema({
   username: field({ type: String, optional: true, unique: true, sparse: true }),
   code: field({ type: String, optional: true }),
   password: field({ type: String }),
-  firstName: field({ type: String, optional: true }),
-  lastName: field({ type: String, optional: true }),
-  companyName: field({ type: String, optional: true }),
-  companyRegistrationNumber: field({ type: String, optional: true }),
+  firstName: field({ type: String, optional: true, label: 'First name' }),
+  lastName: field({ type: String, optional: true, label: 'Last name' }),
+  companyName: field({ type: String, optional: true, label: 'Company name' }),
+  companyRegistrationNumber: field({
+    type: String,
+    optional: true,
+    label: 'Company registration number'
+  }),
   clientPortalId: field({ type: String, required: true }),
 
   erxesCompanyId: field({ type: String, optional: true }),
@@ -89,7 +93,8 @@ export const clientPortalUserSchema = new Schema({
   }),
   createdAt: field({
     type: Date,
-    default: Date.now
+    default: Date.now,
+    label: 'Registered at'
   }),
   modifiedAt: field({ type: Date, label: 'Modified at' }),
 

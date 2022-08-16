@@ -69,6 +69,7 @@ const listParamsDef = `
   $brand: String
   $sortField: String
   $sortDirection: Int
+  $dateFilters: String
   ${conformityQueryFields}
 `;
 
@@ -85,6 +86,7 @@ const listParamsValue = `
   brand: $brand
   sortField: $sortField
   sortDirection: $sortDirection
+  dateFilters: $dateFilters
   ${conformityQueryFieldDefs}
 `;
 

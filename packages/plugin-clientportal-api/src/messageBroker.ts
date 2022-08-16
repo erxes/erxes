@@ -5,7 +5,7 @@ import { generateModels } from './connectionResolver';
 
 let client;
 
-export const initBroker = cl => {
+export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = client;

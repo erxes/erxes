@@ -285,6 +285,7 @@ class ClientportalUserList extends React.Component<IProps, State> {
         footer={<Pagination count={clientPortalUserCount} />}
         leftSidebar={
           <Sidebar
+            loadingMainQuery={loading}
             counts={{
               byCP: { byCP: clientPortalUserCount },
               byType: { byType: 0 }

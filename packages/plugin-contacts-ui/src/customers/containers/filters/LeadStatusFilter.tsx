@@ -1,11 +1,12 @@
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import { withProps } from '@erxes/ui/src/utils';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
+
 import LeadStatusFilter from '../../components/list/LeadStatusFilter';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customersCountQuery?: CountQueryResponse;
