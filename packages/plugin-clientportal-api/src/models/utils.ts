@@ -43,12 +43,8 @@ export const handleContacts = async (args: IContactsParams) => {
 
     user = await models.ClientPortalUsers.findOne(qry);
 
-    if (user && (user.isEmailVerified || user.isPhoneVerified)) {
-      throw new Error('user is already exists');
-    }
-
     if (user) {
-      return user;
+      throw new Error('user is already exists');
     }
 
     user = await models.ClientPortalUsers.create({
