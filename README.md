@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.erxes.org/introduction/introduction">Docs</a>
+  <a href="https://docs.erxes.io/introduction/introduction">Docs</a>
   |
   <a href="https://xosdemo.erxes.io/">Demo</a>
   |
@@ -92,11 +92,11 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
  
 ## Getting Started
 
-Read **<a href="https://www.erxes.org/introduction/introduction" >the documentation<a>** to install erxes locally.
+Read **<a href="https://docs.erxes.io/introduction/introduction" >the documentation<a>** to install erxes locally.
 
 **🖐 Requirements**
 
-Complete installation requirements can be found in the documentation under **<a href="https://www.erxes.org/developer/ubuntu/" >installation requirements</a>**.
+Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/developer/ubuntu" >installation requirements</a>**.
 
 Supported operating systems:
 
@@ -147,7 +147,7 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## Upgrade Guides
 
-Follow our **<a href="https://www.erxes.org/installation/upgrade">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://www.erxes.org/introduction/introduction">documentation here</a>**.
+Follow our **<a href="https://www.docs.erxes.io/installation/upgrade">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/introduction/introduction">documentation here</a>**.
 
  
 ## License
