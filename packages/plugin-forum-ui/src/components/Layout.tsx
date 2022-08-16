@@ -2,6 +2,7 @@ import React from 'react';
 import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
 import Posts from '../containers/Posts';
 import LayoutCategories from './LayoutCategories';
+import LayoutPosts from './LayoutPosts';
 
 function Layout() {
   // The `path` lets us build <Route> paths that are
@@ -19,22 +20,22 @@ function Layout() {
     >
       <ul style={{ listStyle: 'none' }}>
         <li>
-          <Link to={`${url}/categories`}>Categories</Link>
+          <Link to={`/forums/categories`}>Categories</Link>
         </li>
         <li>
-          <Link to={`${url}/posts`}>Posts</Link>
+          <Link to={`/forums/posts`}>Posts</Link>
         </li>
       </ul>
 
       <Switch>
-        <Route exact path={path}>
+        <Route exact path={'/forums'}>
           <h1>Dashboard</h1>
         </Route>
-        <Route path={`${path}/categories`}>
+        <Route path={`/forums/categories`}>
           <LayoutCategories />
         </Route>
-        <Route path={`${path}/posts`}>
-          <Posts />
+        <Route path={`/forums/posts`}>
+          <LayoutPosts />
         </Route>
       </Switch>
     </div>
