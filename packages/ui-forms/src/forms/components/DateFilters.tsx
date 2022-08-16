@@ -2,8 +2,9 @@ import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
@@ -11,7 +12,7 @@ import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 
-import { DateInputContainer } from '../styles';
+import { CustomRangeContainer } from '../styles';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -32,7 +33,7 @@ function DateFilters(props: IProps) {
   }, [dateFilters]);
 
   const onRemove = () => {
-    router.setParams(history, { dateFilters: null });
+    router.removeParams(history, 'dateFilters');
   };
 
   const extraButtons = (
@@ -71,10 +72,10 @@ function DateFilters(props: IProps) {
       <SidebarList style={{ zIndex: 1000000 }}>
         {fields.map(field => {
           return (
-            <li key={field.name}>
-              <FieldStyle>{field.label}</FieldStyle>
+            <>
+              <ControlLabel>{field.label} range:</ControlLabel>
 
-              <DateInputContainer>
+              <CustomRangeContainer>
                 <DateControl
                   value={
                     (filterParams[`${field.name}`] &&
@@ -83,10 +84,10 @@ function DateFilters(props: IProps) {
                   }
                   required={false}
                   name="startDate"
-                  placeholder={'Start date'}
                   onChange={date =>
                     onChangeRangeFilter(`${field.name}`, 'gte', date)
                   }
+                  placeholder={'Start date'}
                   dateFormat={'YYYY-MM-DD'}
                 />
 
@@ -104,8 +105,8 @@ function DateFilters(props: IProps) {
                   }
                   dateFormat={'YYYY-MM-DD'}
                 />
-              </DateInputContainer>
-            </li>
+              </CustomRangeContainer>
+            </>
           );
         })}
       </SidebarList>
