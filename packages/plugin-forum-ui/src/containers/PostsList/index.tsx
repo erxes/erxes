@@ -20,7 +20,7 @@ const PostsList: React.FC = () => {
       <CategoriesFilter />
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-          <div>
+          <div style={{ margin: 10, padding: 10 }}>
             <label>
               All{' '}
               <input
@@ -54,9 +54,9 @@ const PostsList: React.FC = () => {
               />
             </label>
           </div>
-          <div>
+          <div style={{ margin: 10, padding: 10 }}>
             <label>
-              Show all descendant category posts
+              Show all descendant categories' posts{' '}
               <input
                 type="checkbox"
                 name="categoryIncludeDescendants"

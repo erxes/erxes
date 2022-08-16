@@ -37,21 +37,12 @@ export const CATEGORY_POSSIBLE_PARENTS = gql`
   }
 `;
 
+const forumPostsParam = `$_id: [ID!], $categoryId: [ID!], $categoryIncludeDescendants: Boolean, $limit: Int, $offset: Int, $state: [String!]`;
+const forumPostsArg = `_id: $_id, categoryId: $categoryId, categoryIncludeDescendants: $categoryIncludeDescendants, limit: $limit, offset: $offset, state: $state`;
+
 export const FORUM_POSTS_QUERY = gql`
-  query ForumPostsQuery(
-    $categoryId: [ID!]
-    $categoryIncludeDescendants: Boolean
-    $limit: Int
-    $offset: Int
-    $state: [String!]
-  ) {
-    forumPosts(
-      categoryId: $categoryId
-      categoryIncludeDescendants: $categoryIncludeDescendants
-      limit: $limit
-      offset: $offset
-      state: $state
-    ) {
+  query ForumPostsQuery(${forumPostsParam}) {
+    forumPosts(${forumPostsArg}) {
       _id
       content
       title
@@ -59,5 +50,11 @@ export const FORUM_POSTS_QUERY = gql`
       thumbnail
       categoryId
     }
+  }
+`;
+
+export const FORUM_POSTS_COUNT = gql`
+  query ForumPostsCount(${forumPostsParam}) {
+    forumPostsCount(${forumPostsArg})
   }
 `;
