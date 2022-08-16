@@ -14,7 +14,6 @@ export const handleContacts = async (args: IContactsParams) => {
   const { type = 'customer' } = document;
 
   let qry: any = {};
-  console.log('qry1', qry);
   let user: any;
 
   const trimmedMail = (document.email || '').toLowerCase().trim();
@@ -43,8 +42,6 @@ export const handleContacts = async (args: IContactsParams) => {
     if (customer) {
       qry = { erxesCustomerId: customer._id, clientPortalId };
     }
-
-    console.log('qry', qry);
 
     user = await models.ClientPortalUsers.findOne(qry);
 
