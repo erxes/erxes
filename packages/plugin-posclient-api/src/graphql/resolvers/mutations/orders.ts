@@ -76,7 +76,8 @@ const orderMutations = {
         ...doc,
         ...orderDoc,
         totalAmount: preparedDoc.totalAmount,
-        posToken: config.token
+        posToken: config.token,
+        departmentId: config.departmentId
       });
 
       for (const item of preparedDoc.items) {
@@ -121,7 +122,8 @@ const orderMutations = {
       billType: doc.billType || BILL_TYPES.CITIZEN,
       registerNumber: doc.registerNumber || '',
       slotCode: doc.slotCode,
-      posToken: config.token
+      posToken: config.token,
+      departmentId: config.departmentId
     });
 
     return updatedOrder;
@@ -130,7 +132,7 @@ const orderMutations = {
   async orderChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
-    { models, subdomain }: IContext
+    { models, subdomain, config }: IContext
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
@@ -149,7 +151,7 @@ const orderMutations = {
         sendPosMessage({
           subdomain,
           action: 'createOrUpdateOrders',
-          data: { action: 'statusToDone', order }
+          data: { action: 'statusToDone', order, posToken: config.token }
         });
       } catch (e) {}
     }
@@ -225,7 +227,7 @@ const orderMutations = {
       try {
         sendPosMessage({
           subdomain,
-          action: 'vrpc_queue',
+          action: 'createOrUpdateOrders',
           data: {
             action: 'makePayment',
             response,

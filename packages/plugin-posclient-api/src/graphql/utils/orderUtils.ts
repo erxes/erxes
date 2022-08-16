@@ -17,7 +17,7 @@ import {
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
 import { graphqlPubsub } from '../../configs';
-import messageBroker from '../../messageBroker';
+import { sendPosMessage } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IDetailItem {
@@ -263,6 +263,31 @@ export const prepareOrderDoc = async (
 
   const items = doc.items.filter(i => !i.isPackage) || [];
 
+  const products = await models.Products.find({
+    _id: { $in: items.map(i => i.productId) }
+  }).lean();
+
+  const productsOfId = {};
+
+  for (const prod of products) {
+    productsOfId[prod._id] = prod;
+  }
+
+  // set unitPrice
+  doc.totalAmount = 0;
+  for (const item of items) {
+    const fixedUnitPrice = Number(
+      (
+        (productsOfId[item.productId] || {}).unitPrice ||
+        item.unitPrice ||
+        0
+      ).toFixed(2)
+    );
+
+    item.unitPrice = fixedUnitPrice;
+    doc.totalAmount += (item.count || 0) * fixedUnitPrice;
+  }
+
   const hasTakeItems = items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
@@ -270,16 +295,6 @@ export const prepareOrderDoc = async (
 
     for (const rel of catProdMappings) {
       packOfCategoryId[rel.categoryId] = rel.productId;
-    }
-
-    const products = await models.Products.find({
-      _id: { $in: items.map(i => i.productId) }
-    }).lean();
-
-    const productsOfId = {};
-
-    for (const prod of products) {
-      productsOfId[prod._id] = prod;
     }
 
     const toAddProducts = {};
@@ -341,6 +356,7 @@ export const prepareOrderDoc = async (
         isPackage: true,
         isTake: true
       });
+      doc.totalAmount += deliveryProd.unitPrice;
     }
   }
 
@@ -407,6 +423,7 @@ export const checkInvoiceAmount = async ({
 };
 
 export const commonCheckPayment = async (
+  subdomain,
   models,
   orderId,
   config,
@@ -488,12 +505,16 @@ export const commonCheckPayment = async (
     });
 
     try {
-      messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
-        action: 'makePayment',
-        posToken: config.token,
-        response,
-        order,
-        items
+      await sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrders',
+        data: {
+          action: 'makePayment',
+          posToken: order.posToken,
+          response,
+          order,
+          items
+        }
       });
     } catch (e) {
       debugError(`Error occurred while sending data to erxes: ${e.message}`);
