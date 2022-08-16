@@ -1,3 +1,12 @@
+const forumPostsQueryParams = `
+  _id: [ID!]
+  categoryId: [ID!]
+  state: [String!]
+  categoryIncludeDescendants: Boolean
+  offset: Int
+  limit: Int
+`;
+
 const Query = ` 
   extend type Query {
     forumCategoryByCode(code: String!): ForumCategory
@@ -7,7 +16,8 @@ const Query = `
     forumCategoryPossibleParents(_id: ID): [ForumCategory!]
 
     forumPost(_id: ID!): ForumPost
-    forumPosts(_id: [ID!], categoryId: [ID!], state: [String!], offset: Int, limit: Int, categoryIncludeDescendants: Boolean): [ForumPost!]
+    forumPosts(${forumPostsQueryParams}): [ForumPost!]
+    forumPostsCount(${forumPostsQueryParams}): Int
 
     forumComments(_id: [ID!], postId: [ID!], replyToId: [ID], offset: Int, limit: Int): [ForumComment!]
     forumComment(_id: ID!): ForumComment
