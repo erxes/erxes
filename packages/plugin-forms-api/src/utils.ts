@@ -2,11 +2,19 @@ import { IModels } from './connectionResolver';
 import { fetchService, sendInboxMessage } from './messageBroker';
 import { IFormSubmissionFilter } from './models/definitions/forms';
 
-export const getCustomFields = async (models: IModels, contentType: string) => {
-  return models.Fields.find({
+export const getCustomFields = async (
+  models: IModels,
+  contentType: string,
+  validation?: string
+) => {
+  const qry: any = {
     contentType,
     isDefinedByErxes: false
-  });
+  };
+
+  validation && (qry.validation = validation);
+
+  return models.Fields.find(qry);
 };
 
 const getFieldGroup = async (models: IModels, _id: string) => {
@@ -19,6 +27,7 @@ interface ICombinedParams {
   excludedNames?: string[];
   segmentId?: string;
   config?: any;
+  onlyDates?: boolean;
 }
 
 /**
@@ -27,7 +36,14 @@ interface ICombinedParams {
 export const fieldsCombinedByContentType = async (
   models: IModels,
   subdomain: string,
-  { contentType, usageType, excludedNames, segmentId, config }: ICombinedParams
+  {
+    contentType,
+    usageType,
+    excludedNames,
+    segmentId,
+    config,
+    onlyDates
+  }: ICombinedParams
 ) => {
   let fields: Array<{
     _id: number;
@@ -52,14 +68,22 @@ export const fieldsCombinedByContentType = async (
     []
   );
 
-  const customFields = await getCustomFields(
-    models,
-    ['contacts:visitor', 'contacts:lead', 'contacts:customer'].includes(
-      contentType
-    )
-      ? 'contacts:customer'
-      : contentType
-  );
+  let validation;
+
+  if (onlyDates) {
+    fields = fields.filter(f => f.type === 'Date');
+    validation = 'date';
+  }
+
+  const type = [
+    'contacts:visitor',
+    'contacts:lead',
+    'contacts:customer'
+  ].includes(contentType)
+    ? 'contacts:customer'
+    : contentType;
+
+  const customFields = await getCustomFields(models, type, validation);
 
   const generateSelectOptions = options => {
     const selectOptions: Array<{ label: string; value: any }> = [];

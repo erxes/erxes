@@ -24,6 +24,9 @@ export interface IUser {
   resetPasswordExpires?: Date;
   registrationToken?: string;
   registrationTokenExpires?: Date;
+  isOnline: boolean;
+  lastSeenAt: Date;
+  sessionCount: number;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -45,7 +48,6 @@ export const clientPortalUserSchema = new Schema({
   }),
   email: field({
     type: String,
-    unique: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
       'Please fill a valid email address'
@@ -54,14 +56,18 @@ export const clientPortalUserSchema = new Schema({
     optional: true,
     sparse: true
   }),
-  phone: field({ type: String, unique: true, optional: true, sparse: true }),
+  phone: field({ type: String, optional: true, sparse: true }),
   username: field({ type: String, optional: true, unique: true, sparse: true }),
   code: field({ type: String, optional: true }),
   password: field({ type: String }),
-  firstName: field({ type: String, optional: true }),
-  lastName: field({ type: String, optional: true }),
-  companyName: field({ type: String, optional: true }),
-  companyRegistrationNumber: field({ type: String, optional: true }),
+  firstName: field({ type: String, optional: true, label: 'First name' }),
+  lastName: field({ type: String, optional: true, label: 'Last name' }),
+  companyName: field({ type: String, optional: true, label: 'Company name' }),
+  companyRegistrationNumber: field({
+    type: String,
+    optional: true,
+    label: 'Company registration number'
+  }),
   clientPortalId: field({ type: String, required: true }),
 
   erxesCompanyId: field({ type: String, optional: true }),
@@ -87,7 +93,8 @@ export const clientPortalUserSchema = new Schema({
   }),
   createdAt: field({
     type: Date,
-    default: Date.now
+    default: Date.now,
+    label: 'Registered at'
   }),
   modifiedAt: field({ type: Date, label: 'Modified at' }),
 
@@ -95,7 +102,22 @@ export const clientPortalUserSchema = new Schema({
   resetPasswordExpires: field({ type: Date, optional: true }),
 
   registrationToken: field({ type: String }),
-  registrationTokenExpires: field({ type: Date })
+  registrationTokenExpires: field({ type: Date }),
+  isOnline: field({
+    type: Boolean,
+    label: 'Is online',
+    optional: true
+  }),
+  lastSeenAt: field({
+    type: Date,
+    label: 'Last seen at',
+    optional: true
+  }),
+  sessionCount: field({
+    type: Number,
+    label: 'Session count',
+    optional: true
+  })
 });
 
 clientPortalUserSchema.index(

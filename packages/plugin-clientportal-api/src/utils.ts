@@ -1,5 +1,7 @@
 import { debugError } from '@erxes/api-utils/src/debuggers';
+import { generateFieldsFromSchema } from '@erxes/api-utils/src/fieldUtils';
 import { sendRequest } from '@erxes/api-utils/src/requests';
+import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 
 export const getConfig = async (
@@ -20,6 +22,42 @@ export const getConfig = async (
   }
 
   return configs[code];
+};
+
+export const generateFields = async ({ subdomain }) => {
+  const models = await generateModels(subdomain);
+
+  const { ClientPortalUsers } = models;
+
+  const schema = ClientPortalUsers.schema as any;
+  let fields: Array<{
+    _id: number;
+    name: string;
+    group?: string;
+    label?: string;
+    type?: string;
+    validation?: string;
+    options?: string[];
+    selectOptions?: Array<{ label: string; value: string }>;
+  }> = [];
+
+  if (schema) {
+    fields = [...fields, ...(await generateFieldsFromSchema(schema, ''))];
+
+    for (const name of Object.keys(schema.paths)) {
+      const path = schema.paths[name];
+
+      // extend fields list using sub schema fields
+      if (path.schema) {
+        fields = [
+          ...fields,
+          ...(await generateFieldsFromSchema(path.schema, `${name}.`))
+        ];
+      }
+    }
+  }
+
+  return fields;
 };
 
 export const sendSms = async (
