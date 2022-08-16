@@ -45,7 +45,6 @@ export const clientPortalUserSchema = new Schema({
   }),
   email: field({
     type: String,
-    unique: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,10})+$/,
       'Please fill a valid email address'
@@ -54,7 +53,7 @@ export const clientPortalUserSchema = new Schema({
     optional: true,
     sparse: true
   }),
-  phone: field({ type: String, unique: true, optional: true, sparse: true }),
+  phone: field({ type: String, optional: true, sparse: true }),
   username: field({ type: String, optional: true, unique: true, sparse: true }),
   code: field({ type: String, optional: true }),
   password: field({ type: String }),
