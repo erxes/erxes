@@ -21,6 +21,7 @@ const posCommonFields = `
   isOnline: Boolean
   onServer: Boolean
   branchId: String
+  departmentId: String
   allowBranchIds: [String]
   beginNumber: String
   maxSkipNumber: Int

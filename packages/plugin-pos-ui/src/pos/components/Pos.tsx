@@ -33,7 +33,6 @@ type Props = {
   groups: IProductGroup[];
   save: (params: any) => void;
   productCategories: IProductCategory[];
-  branches: any[];
   slots: ISlot[];
   envs: any;
 };
@@ -148,6 +147,7 @@ class Pos extends React.Component<Props, State> {
       waitingScreen: pos.waitingScreen,
       kitchenScreen: pos.kitchenScreen,
       branchId: pos.branchId,
+      departmentId: pos.departmentId,
       allowBranchIds: pos.allowBranchIds,
       beginNumber: pos.beginNumber,
       maxSkipNumber: Number(pos.maxSkipNumber) || 0,
@@ -252,7 +252,7 @@ class Pos extends React.Component<Props, State> {
 
   render() {
     const { pos, slots, groups, uiOptions } = this.state;
-    const { productCategories, branches, envs } = this.props;
+    const { productCategories, envs } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
     const name = pos.name || '';
@@ -272,7 +272,6 @@ class Pos extends React.Component<Props, State> {
                 <GeneralStep
                   onChange={this.onChange}
                   pos={pos}
-                  branches={branches}
                   posSlots={slots}
                   envs={envs}
                 />
@@ -332,11 +331,7 @@ class Pos extends React.Component<Props, State> {
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <CardsConfig
-                  onChange={this.onChange}
-                  pos={pos}
-                  configsMap={{}}
-                />
+                <CardsConfig onChange={this.onChange} pos={pos} />
               </Step>
             </Steps>
             <ControlWrapper>

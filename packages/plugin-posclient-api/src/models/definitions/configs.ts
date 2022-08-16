@@ -71,6 +71,7 @@ export interface IConfig {
   deliveryConfig?: any;
   posId: string;
   branchId?: string;
+  departmentId?: string;
   allowBranchIds?: string[];
 }
 
@@ -155,6 +156,7 @@ export const configSchema = new Schema({
   }),
   posId: field({ type: String, label: 'Pos id' }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
+  departmentId: field({ type: String, optional: true, label: 'Department' }),
   allowBranchIds: field({
     type: [String],
     optional: true,

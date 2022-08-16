@@ -104,7 +104,7 @@ const isInProductCategory = async (
 };
 
 const isInUser = (pos: IPosDocument, userId: string) => {
-  const allUserIds = pos.adminIds.concat(pos.cashierIds);
+  const allUserIds = (pos.adminIds || []).concat(pos.cashierIds || []);
   return allUserIds.includes(userId);
 };
 
