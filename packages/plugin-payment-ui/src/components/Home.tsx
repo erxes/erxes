@@ -47,8 +47,9 @@ class Home extends React.Component<Props, State> {
         integrations: INTEGRATIONS.filter(
           integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-            integration.category.indexOf(queryParams.type || 'All add-ons') !==
-              -1
+            integration.category.indexOf(
+              queryParams.type || 'Payment method'
+            ) !== -1
         )
       });
     }

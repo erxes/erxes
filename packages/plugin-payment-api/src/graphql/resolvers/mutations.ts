@@ -1,18 +1,18 @@
 import { IContext } from '../../connectionResolver';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
-import { ITemplate } from '../../models/definitions/template';
+import { IPaymentConfig } from '../../models/definitions/payment';
 
-const templateMutations = {
+const paymentConfigMutations = {
   /**
    * Creates a new template
    */
-  async templatesAdd(_root, doc: ITemplate, { models }: IContext) {
-    const template = await models.Templates.createTemplate(doc);
+  async paymentConfigsAdd(_root, doc: IPaymentConfig, { models }: IContext) {
+    const paymentConfig = await models.PaymentConfigs.createPaymentConfig(doc);
 
-    return template;
+    return paymentConfig;
   }
 };
 
-requireLogin(templateMutations, 'templatesAdd');
+requireLogin(paymentConfigMutations, 'paymentConfigsAdd');
 
-export default templateMutations;
+export default paymentConfigMutations;

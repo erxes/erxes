@@ -1,11 +1,11 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { ITemplateModel, loadTemplateClass } from './models/Template';
-import { ITemplateDocument } from './models/definitions/template';
+import { IPaymentConfigModel, loadPaymentConfigClass } from './models/Payment';
+import { IPaymentConfigDocument } from './models/definitions/payment';
 
 export interface IModels {
-  Templates: ITemplateModel;
+  PaymentConfigs: IPaymentConfigModel;
 }
 
 export interface IContext extends IMainContext {
@@ -18,9 +18,9 @@ export let models: IModels | null = null;
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Templates = db.model<ITemplateDocument, ITemplateModel>(
-    'template',
-    loadTemplateClass(models)
+  models.PaymentConfigs = db.model<IPaymentConfigDocument, IPaymentConfigModel>(
+    'paymentConfig',
+    loadPaymentConfigClass(models)
   );
 
   return models;

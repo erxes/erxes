@@ -1,17 +1,20 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
-const templateQueries = {
-  templates(_root, _args, { models }: IContext) {
-    return models.Templates.find({});
+const paymentConfigQueries = {
+  paymentConfigs(_root, _args, { models }: IContext) {
+    return models.PaymentConfigs.find({ status: 'active' });
   },
 
-  templatesTotalCount(_root, _args, { models }: IContext) {
-    return models.Templates.find({}).countDocuments();
+  paymentConfigsCountByType(_root, params, { models }: IContext) {
+    return models.PaymentConfigs.find({
+      type: params.type,
+      status: 'active'
+    }).countDocuments();
   }
 };
 
-requireLogin(templateQueries, 'templates');
-requireLogin(templateQueries, 'templatesTotalCount');
+requireLogin(paymentConfigQueries, 'paymentConfigs');
+requireLogin(paymentConfigQueries, 'paymentConfigsCountByType');
 
-export default templateQueries;
+export default paymentConfigQueries;

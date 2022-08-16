@@ -1,19 +1,26 @@
 export const types = `
-  type {Name} {
+  type PaymentConfig {
     _id: String!
-    name: String
+    name: String!
+    type: String!
+    status: String
+    config: JSON
+    craetedAt: Date
   }
 `;
 
 export const queries = `
-  {name}s: [{Name}]
-  {name}sTotalCount: Int
+  paymentConfigs: [PaymentConfig]
+  paymentConfigsCountByType(type: String): Int
 `;
 
 const params = `
-  name: String!,
+  name: String!
+  type: String!
+  status: String
+  config: JSON
 `;
 
 export const mutations = `
-  {name}sAdd(${params}): {Name}
+  paymentConfigsAdd(${params}): PaymentConfig
 `;
