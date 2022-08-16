@@ -1,5 +1,5 @@
 import { IModels } from '../connectionResolver';
-import { sendContactsMessage } from '../messageBroker';
+import messageBroker, { sendContactsMessage } from '../messageBroker';
 
 export interface IContactsParams {
   subdomain: string;
@@ -14,6 +14,7 @@ export const handleContacts = async (args: IContactsParams) => {
   const { type = 'customer' } = document;
 
   let qry: any = {};
+  console.log('qry1', qry);
   let user: any;
 
   const trimmedMail = (document.email || '').toLowerCase().trim();
@@ -25,6 +26,8 @@ export const handleContacts = async (args: IContactsParams) => {
   if (document.phone) {
     qry = { phone: document.phone };
   }
+
+  qry.clientPortalId = clientPortalId;
 
   if (type === 'customer') {
     let customer = await sendContactsMessage({
@@ -40,6 +43,8 @@ export const handleContacts = async (args: IContactsParams) => {
     if (customer) {
       qry = { erxesCustomerId: customer._id, clientPortalId };
     }
+
+    console.log('qry', qry);
 
     user = await models.ClientPortalUsers.findOne(qry);
 
@@ -135,4 +140,26 @@ export const handleContacts = async (args: IContactsParams) => {
   }
 
   return user;
+};
+
+export const putActivityLog = async user => {
+  let contentType = 'contacts:customer';
+  let contentId = user.erxesCustomerId;
+
+  if (user.type === 'company') {
+    contentType = 'contacts:company';
+    contentId = user.erxesCompanyId;
+  }
+
+  await messageBroker().sendMessage('putActivityLog', {
+    data: {
+      action: 'putActivityLog',
+      data: {
+        contentType,
+        contentId,
+        createdBy: user.clientPortalId,
+        action: 'registeredToClientPortal'
+      }
+    }
+  });
 };

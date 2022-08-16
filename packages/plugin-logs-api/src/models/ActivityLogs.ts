@@ -52,6 +52,7 @@ export interface IActivityLogModel extends Model<IActivityLogDocument> {
 export const loadClass = (models: IModels, subdomain: string) => {
   class ActivityLog {
     public static addActivityLog(doc: IActivityLogInput) {
+      console.log('doc: ', doc);
       return models.ActivityLogs.create(doc);
     }
 

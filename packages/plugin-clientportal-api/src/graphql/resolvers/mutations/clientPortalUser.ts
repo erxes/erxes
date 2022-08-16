@@ -82,6 +82,7 @@ const clientPortalUserMutations = {
 
     await models.ClientPortalUsers.sendVerification(
       subdomain,
+      args.clientPortalId,
       clientPortal.otpConfig,
       args.phone,
       args.email

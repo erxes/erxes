@@ -8,7 +8,7 @@ import * as sha256 from 'sha256';
 import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
-import { sendCoreMessage } from '../messageBroker';
+import messageBroker, { sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
 import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
@@ -16,7 +16,7 @@ import {
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
-import { handleContacts } from './utils';
+import { handleContacts, putActivityLog } from './utils';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -78,11 +78,13 @@ export interface IUserModel extends Model<IUserDocument> {
   login(args: ILoginParams): { token: string; refreshToken: string };
   imposeVerificationCode({
     codeLength,
+    clientPortalId,
     phone,
     email,
     isRessetting
   }: {
     codeLength: number;
+    clientPortalId: string;
     phone?: string;
     email?: string;
     isRessetting?: boolean;
@@ -100,6 +102,7 @@ export interface IUserModel extends Model<IUserDocument> {
   verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
   sendVerification(
     subdomain: string,
+    clientPortalId: string,
     config?: IOTPConfig,
     phone?: string,
     email?: string
@@ -249,12 +252,14 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async sendVerification(
       subdomain: string,
+      clientPortalId: string,
       config: IOTPConfig,
       phone?: string,
       email?: string
     ) {
       if (phone) {
         const phoneCode = await this.imposeVerificationCode({
+          clientPortalId,
           codeLength: config.codeLength,
           phone
         });
@@ -268,6 +273,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       if (email) {
         const emailCode = await this.imposeVerificationCode({
+          clientPortalId,
           codeLength: config.codeLength,
           email: (email || '').toLowerCase().trim()
         });
@@ -415,6 +421,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         codeLength: clientPortal.otpConfig
           ? clientPortal.otpConfig.codeLength
           : 4,
+        clientPortalId: clientPortal._id,
         phone,
         isRessetting: true
       });
@@ -516,11 +523,13 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
     public static async imposeVerificationCode({
       codeLength,
+      clientPortalId,
       phone,
       email,
       isRessetting
     }: {
       codeLength: number;
+      clientPortalId: string;
       phone?: string;
       email?: string;
       isRessetting?: boolean;
@@ -536,7 +545,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
           phoneVerificationCode: code,
           phoneVerificationCodeExpires: codeExpires
         };
-        userFindQuery = { phone };
+        userFindQuery = { phone, clientPortalId };
       }
 
       if (email) {
@@ -544,7 +553,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
           emailVerificationCode: code,
           emailVerificationCodeExpires: codeExpires
         };
-        userFindQuery = { email };
+        userFindQuery = { email, clientPortalId };
       }
 
       const user = await models.ClientPortalUsers.findOne(userFindQuery);
@@ -615,6 +624,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
       }
 
       await user.save();
+
+      await putActivityLog(user);
 
       return 'verified';
     }
@@ -765,6 +776,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
           $set: doc
         }
       );
+
+      await putActivityLog(user);
 
       return user;
     }
