@@ -21,18 +21,17 @@ import {
   IButtonMutateProps,
   IFormProps
 } from '@erxes/ui/src/types';
-import { IProduct, IProductCategory } from '@erxes/ui-products/src/types';
 import { IVoucherCampaign } from '../types';
 import Select from 'react-select-plus';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import { ISpinCampaign } from '../../spinCampaign/types';
 import { ILotteryCampaign } from '../../lotteryCampaign/types';
 import { VOUCHER_TYPES } from '../../../constants';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
 
 type Props = {
   voucherCampaign?: IVoucherCampaign;
-  productCategories: IProductCategory[];
-  products: IProduct[];
   spinCampaigns: ISpinCampaign[];
   lotteryCampaigns: ILotteryCampaign[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -134,12 +133,7 @@ class Form extends React.Component<Props, State> {
   };
 
   renderVoucherType = formProps => {
-    const {
-      productCategories,
-      products,
-      lotteryCampaigns,
-      spinCampaigns
-    } = this.props;
+    const { lotteryCampaigns, spinCampaigns } = this.props;
     const { voucherCampaign } = this.state;
     const voucherType = voucherCampaign.voucherType || 'discount';
 
@@ -149,16 +143,19 @@ class Form extends React.Component<Props, State> {
           <FormColumn>
             <FormGroup>
               <ControlLabel required={true}>Bonus Product</ControlLabel>
-              <Select
-                placeholder={__('Filter by product')}
-                value={voucherCampaign.bonusProductId}
-                options={products.map(prod => ({
-                  label: prod.name,
-                  value: prod._id
-                }))}
-                name="bonusProductId"
-                onChange={this.onChangeCombo.bind(this, 'bonusProductId')}
-                loadingPlaceholder={__('Loading...')}
+              <SelectProducts
+                label={__('Filter by products')}
+                name="productId"
+                multi={false}
+                initialValue={voucherCampaign.bonusProductId}
+                onSelect={productId =>
+                  this.setState({
+                    voucherCampaign: {
+                      ...this.state.voucherCampaign,
+                      bonusProductId: String(productId)
+                    }
+                  })
+                }
               />
             </FormGroup>
           </FormColumn>
@@ -276,39 +273,38 @@ class Form extends React.Component<Props, State> {
         <FormColumn>
           <FormGroup>
             <ControlLabel required={true}>Product Category</ControlLabel>
-            <Select
-              placeholder={__('Filter by product category')}
-              value={voucherCampaign.productCategoryIds}
-              options={productCategories.map(cat => ({
-                label: `${'\u00A0 '.repeat(
-                  ((cat.order || '').match(/[/]/gi) || []).length
-                )}${cat.name}`,
-                value: cat._id
-              }))}
+            <SelectProductCategory
+              label="Choose product category"
               name="productCategoryIds"
-              onChange={this.onChangeMultiCombo.bind(
-                this,
-                'productCategoryIds'
-              )}
+              initialValue={voucherCampaign.productCategoryIds}
+              onSelect={categoryIds =>
+                this.setState({
+                  voucherCampaign: {
+                    ...this.state.voucherCampaign,
+                    productCategoryIds: categoryIds as string[]
+                  }
+                })
+              }
               multi={true}
-              loadingPlaceholder={__('Loading...')}
             />
           </FormGroup>
         </FormColumn>
         <FormColumn>
           <FormGroup>
             <ControlLabel required={true}>Or Product</ControlLabel>
-            <Select
-              placeholder={__('Filter by product')}
-              value={voucherCampaign.productIds}
-              options={products.map(prod => ({
-                label: prod.name,
-                value: prod._id
-              }))}
+            <SelectProducts
+              label={__('Filter by products')}
               name="productIds"
-              onChange={this.onChangeMultiCombo.bind(this, 'productIds')}
               multi={true}
-              loadingPlaceholder={__('Loading...')}
+              initialValue={voucherCampaign.productIds}
+              onSelect={productIds =>
+                this.setState({
+                  voucherCampaign: {
+                    ...this.state.voucherCampaign,
+                    productIds: productIds as string[]
+                  }
+                })
+              }
             />
           </FormGroup>
         </FormColumn>
@@ -442,7 +438,7 @@ class Form extends React.Component<Props, State> {
           <FormGroup>
             <ControlLabel>Description</ControlLabel>
             <EditorCK
-              content={voucherCampaign.description}
+              content={voucherCampaign.description || ''}
               onChange={this.onChangeDescription}
               height={150}
               isSubmitted={formProps.isSaved}

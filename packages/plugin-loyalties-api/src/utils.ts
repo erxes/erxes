@@ -1,3 +1,4 @@
+import { IModels } from './connectionResolver';
 import { sendProductsMessage } from './messageBroker';
 
 interface IProductD {
@@ -5,7 +6,7 @@ interface IProductD {
   quantity: number;
 }
 export const checkVouchersSale = async (
-  models,
+  models: IModels,
   subdomain: string,
   ownerType: string,
   ownerId: string,
@@ -142,7 +143,7 @@ export const checkVouchersSale = async (
 
   const productIdByCatId = {};
   for (const pr of catProducts) {
-    if (!Object.keys(productCatIds).includes(pr.categoryId)) {
+    if (!Object.keys(productIdByCatId).includes(pr.categoryId)) {
       productIdByCatId[pr.categoryId] = [];
     }
 
@@ -154,7 +155,7 @@ export const checkVouchersSale = async (
     let productIds = discountVoucher.campaign.productIds || [];
 
     for (const catId of catIds) {
-      productIds = productIds.concat(productCatIds[catId]);
+      productIds = productIds.concat(productIdByCatId[catId] || []);
     }
 
     for (const productId of productsIds) {
