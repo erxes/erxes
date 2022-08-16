@@ -19,7 +19,7 @@ export default function CategoriesNav() {
     <nav style={{ padding: '1em 2em' }}>
       <ol style={{ listStyle: 'none' }}>
         <li key="categorynew" style={{ margin: '5px 0' }}>
-          <Link to={`./new`}>Create new root category</Link>
+          <Link to={`/forums/categories/new`}>Create new root category</Link>
         </li>
         {forumCategories.map(category => (
           <li key={category._id} style={{ margin: '5px 0' }}>
