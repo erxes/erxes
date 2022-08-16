@@ -32,6 +32,7 @@ export interface IPosOrder {
   userId: string;
   items: IPosOrderItem[];
   branchId: string;
+  departmentId: string;
   posToken: string;
   syncedErkhet: Boolean;
   deliveryInfo: Object;
@@ -41,32 +42,32 @@ export interface IPosOrderDocument extends IPosOrder, Document {
 }
 export interface IPos {
   name: string;
-  description: string;
+  description?: string;
   userId: string;
   createdAt: Date;
-  productDetails: string;
-  adminIds: string[];
-  cashierIds: string[];
-  isOnline: Boolean;
+  productDetails?: string;
+  adminIds?: string[];
+  cashierIds?: string[];
+  isOnline?: Boolean;
   onServer?: Boolean;
-  branchId: string;
-  allowBranchIds: string;
-  beginNumber: string;
-  maxSkipNumber: number;
-  waitingScreen: any;
-  kioskMachine: any;
-  kitchenScreen: any;
-  uiOptions: any;
+  branchId?: string;
+  departmentId?: string;
+  allowBranchIds?: string[];
+  beginNumber?: string;
+  maxSkipNumber?: number;
+  waitingScreen?: any;
+  kioskMachine?: any;
+  kitchenScreen?: any;
+  uiOptions?: any;
   token: string;
-  ebarimtConfig: any;
-  erkhetConfig: any;
-  syncInfos: any;
-  catProdMappings: any;
-  initialCategoryIds: string;
-  kioskExcludeProductIds: string;
-  deliveryConfig: any;
-  slotCode: string;
-  cardsConfig: any;
+  ebarimtConfig?: any;
+  erkhetConfig?: any;
+  syncInfos?: any;
+  catProdMappings?: any;
+  initialCategoryIds?: string;
+  kioskExcludeProductIds?: string;
+  deliveryConfig?: any;
+  cardsConfig?: any;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -75,9 +76,9 @@ export interface IProductGroup {
   name: string;
   description: string;
   posId: string;
-  categoryIds: string;
-  excludedCategoryIds: string;
-  excludedProductIds: string;
+  categoryIds?: string[];
+  excludedCategoryIds?: string[];
+  excludedProductIds: string[];
 }
 export interface IProductGroupDocument extends IProductGroup, Document {
   _id: string;
@@ -147,6 +148,7 @@ export const posOrderSchema = schemaHooksWrapper(
 
     items: field({ type: [posOrderItemSchema], label: 'items' }),
     branchId: field({ type: String, label: 'Branch' }),
+    departmentId: field({ type: String, label: 'Department' }),
     posToken: field({ type: String, optional: true }),
 
     syncedErkhet: field({ type: Boolean, default: false }),
@@ -176,6 +178,7 @@ export const posSchema = schemaHooksWrapper(
       label: 'On cloud server'
     }),
     branchId: field({ type: String, optional: true, label: 'Branch' }),
+    departmentId: field({ type: String, optional: true, label: 'Branch' }),
     allowBranchIds: field({
       type: [String],
       optional: true,

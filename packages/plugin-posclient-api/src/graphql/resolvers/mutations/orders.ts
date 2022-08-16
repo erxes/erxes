@@ -76,7 +76,8 @@ const orderMutations = {
         ...doc,
         ...orderDoc,
         totalAmount: preparedDoc.totalAmount,
-        posToken: config.token
+        posToken: config.token,
+        departmentId: config.departmentId
       });
 
       for (const item of preparedDoc.items) {
@@ -121,7 +122,8 @@ const orderMutations = {
       billType: doc.billType || BILL_TYPES.CITIZEN,
       registerNumber: doc.registerNumber || '',
       slotCode: doc.slotCode,
-      posToken: config.token
+      posToken: config.token,
+      departmentId: config.departmentId
     });
 
     return updatedOrder;

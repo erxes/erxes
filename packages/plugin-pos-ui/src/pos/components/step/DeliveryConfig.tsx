@@ -1,28 +1,28 @@
-import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
-import { ControlLabel, FormGroup, SelectTeamMembers, __ } from '@erxes/ui/src';
-
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import { IPos } from '../../../types';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
 import React from 'react';
 import Select from 'react-select-plus';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import client from '@erxes/ui/src/apolloClient';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import gql from 'graphql-tag';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { __, ControlLabel, FormGroup, SelectTeamMembers } from '@erxes/ui/src';
+import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import { IPos } from '../../../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 
 type Props = {
   onChange: (name: 'deliveryConfig', value: any) => void;
   pos?: IPos;
 };
 
-class DeliveryConfig extends React.Component<
-  Props,
-  { config: any; fieldsCombined: FieldsCombinedByType[] }
-> {
+type State = {
+  config: any;
+  fieldsCombined: FieldsCombinedByType[];
+};
+
+class DeliveryConfig extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -38,7 +38,10 @@ class DeliveryConfig extends React.Component<
             productId: ''
           };
 
-    let fieldsCombined = [];
+    this.state = {
+      config,
+      fieldsCombined: []
+    };
 
     if (isEnabled('forms')) {
       client
@@ -53,14 +56,7 @@ class DeliveryConfig extends React.Component<
             fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
           });
         });
-
-      this.setState({ fieldsCombined });
     }
-
-    this.state = {
-      config,
-      fieldsCombined: []
-    };
   }
 
   onChangeConfig = (code: string, value) => {
