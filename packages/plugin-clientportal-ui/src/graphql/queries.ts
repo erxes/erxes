@@ -81,6 +81,9 @@ export const basicFields = `
 
   modifiedAt
   ownerId
+  lastSeenAt
+  sessionCount
+  isOnline
 `;
 
 export const clientPortalUserFields = `

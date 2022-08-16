@@ -37,6 +37,10 @@ ${
     isEmailVerified: Boolean
     isPhoneVerified: Boolean
 
+    isOnline: Boolean
+    lastSeenAt: Date
+    sessionCount: Int
+
     clientPortal: ClientPortal
 
     ${

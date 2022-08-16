@@ -1,5 +1,6 @@
 import { FormControl } from '@erxes/ui/src/components/form';
 import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
 import Tip from '@erxes/ui/src/components/Tip';
 import colors from '@erxes/ui/src/styles/colors';
 import { formatValue } from '@erxes/ui/src/utils';
@@ -78,6 +79,8 @@ class Row extends React.Component<Props> {
       type
     } = clientPortalUser;
 
+    const status = clientPortalUser.isOnline ? 'online' : 'offline';
+
     return (
       <tr onClick={onTrClick}>
         <td onClick={onClick}>
@@ -102,7 +105,23 @@ class Row extends React.Component<Props> {
         <td>{lastName}</td>
         <td>{type}</td>
         <td>{clientPortal.name}</td>
+        <td>
+          <Label
+            key={clientPortalUser._id}
+            lblColor={
+              clientPortalUser.isOnline
+                ? colors.colorCoreGreen
+                : colors.colorCoreGray
+            }
+            ignoreTrans={true}
+          >
+            <span>{status}</span>
+          </Label>
+        </td>
+        <td>{formatValue(clientPortalUser.sessionCount || 0)}</td>
+        <td>{formatValue(clientPortalUser.lastSeenAt)}</td>
         <td>{formatValue(createdAt)}</td>
+        <td>{formatValue(clientPortalUser.modifiedAt)}</td>
       </tr>
     );
   }
