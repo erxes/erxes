@@ -175,23 +175,19 @@ type ProductCarCategories {
 
 type Participant @key(fields: "_id") @cacheControl(maxAge: 3) {
   _id: String!
-  tripId: String!
+  driverId: String!
   dealId: String!
+  routeId: String
+  carIds : [String]
   status: String!
 
   createdAt: Date
   detail: JSON
 
-  
-
-  trip: Trip
-  ${
-    cards
-      ? `
-      deal: Deal
-    `
-      : ''
-  }
+  cars: [Car]
+  route: Route
+  ${cards ? `deal: Deal` : ''}
+  ${contacts ? `driver: Customer` : ''}
 }
 
 input ParticipantsRemove {
@@ -248,9 +244,9 @@ export const queries = `
   cpCarCategoriesTotalCount: Int
   cpCarCategoryDetail(_id: String): CarCategory
 
-  participants(page: Int, perPage: Int, customerId: String, dealId: String, tripId: String, status: String): [Participant]
+  participants(page: Int, perPage: Int, driverId: String, dealId: String, status: String): [Participant]
   participantDetail(_id: String!): Participant
-  participantsTotalCount(customerId: String, tripId: String, dealId: String, status: String): Int
+  participantsTotalCount(driverId: String, dealId: String, status: String): Int
 
   gererateRandomName(modelName: String!, prefix: String!, numberOfDigits: Int): String
 `;
@@ -347,8 +343,10 @@ const carCategoryParams = `
 `;
 
 const participantParams = `
-  tripId: String
+  driverId: String
   dealId: String
+  carIds: [String]
+  routeId: String
   detail: JSON
 `;
 
@@ -371,5 +369,5 @@ export const mutations = `
   participantsEdit(_id: String! status:String ${participantParams}): Participant
   participantsRemove(_id: String): JSON
   participantsRemoveFromDeal(dealId: String!, tripIds: [String]): JSON
-  selectWinner(dealId: String!, tripId: String!): Participant
+  selectWinner(dealId: String!, driverId: String!): Participant
 `;

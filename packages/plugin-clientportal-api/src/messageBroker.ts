@@ -1,19 +1,26 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
 import { serviceDiscovery } from './configs';
+import { generateModels } from './connectionResolver';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
 
-  // const { consumeQueue } = cl;
+  const { consumeRPCQueue } = client;
 
-  // consumeQueue('clientportalsss:fieldssss.getListssss', async ({ subdomain, data }) => {
-  //   debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+  consumeRPCQueue(
+    'clientportal:clientPortals.findOne',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
 
-  //   return [];
-  // });
+      return {
+        data: await models.ClientPortals.findOne(data),
+        status: 'success'
+      };
+    }
+  );
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs) => {

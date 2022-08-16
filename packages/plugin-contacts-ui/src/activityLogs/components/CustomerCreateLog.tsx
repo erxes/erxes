@@ -42,6 +42,17 @@ class CustomerCreateLog extends React.Component<IActivityLogItemProps> {
       );
     }
 
+    if (createdByDetail && createdByDetail.type === 'clientPortal') {
+      const { content } = createdByDetail;
+
+      return (
+        <span>
+          This customer registered to erxes by
+          {content ? ` ${content.name} client portal` : ''}
+        </span>
+      );
+    }
+
     return (
       <span>
         This customer <b>registered</b> to erxes

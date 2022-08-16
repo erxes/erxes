@@ -51,8 +51,6 @@ class ChecklistLog extends React.Component<Props, { toggleItems: boolean }> {
 
     let userName = 'Unknown';
 
-    console.log(activity, createdByDetail, 'sadasd');
-
     if (createdByDetail && createdByDetail.type === 'user') {
       const createdByDetailContent = createdByDetail.content
         ? createdByDetail.content

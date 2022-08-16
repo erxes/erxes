@@ -225,7 +225,12 @@ export const posSyncOrders = async (req, res) => {
         updateOne: {
           filter: { _id: order._id },
           update: {
-            $set: { ...order, posToken: token, branchId: pos.branchId }
+            $set: {
+              ...order,
+              posToken: token,
+              branchId: pos.branchId,
+              departmentId: pos.departmentId
+            }
           },
           upsert: true
         }
