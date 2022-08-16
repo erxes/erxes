@@ -133,10 +133,6 @@ const generateParams = ({ queryParams }) => {
   const pageInfo = router.generatePaginationParams(queryParams || {});
 
   return {
-    // limit: pageInfo.perPage || 10,
-    // skip: pageInfo.page > 1 ? (pageInfo.page - 1) * pageInfo.perPage : 0,
-    pipelineId: queryParams.pipelineId,
-    // noSkipArchive: true,
     createdStartDate: queryParams.createdStartDate,
     createdEndDate: queryParams.createdEndDate,
     posToken: queryParams.posToken,

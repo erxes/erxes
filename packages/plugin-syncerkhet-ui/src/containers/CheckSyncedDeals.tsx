@@ -1,6 +1,6 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedDeals from '../components/CheckSyncedDeals';
+import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
 import gql from 'graphql-tag';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';

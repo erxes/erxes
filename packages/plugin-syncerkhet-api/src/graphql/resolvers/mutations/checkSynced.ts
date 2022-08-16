@@ -1,4 +1,4 @@
-import { IContext, models } from '../../../connectionResolver';
+import { IContext } from '../../../connectionResolver';
 import {
   sendCardsMessage,
   sendEbarimtMessage,
@@ -6,7 +6,7 @@ import {
 } from '../../../messageBroker';
 import { sendRPCMessage } from '../../../messageBrokerErkhet';
 import { getPostData } from '../../../utils/ebarimtData';
-import { getConfig, getPosData } from '../../../utils/utils';
+import { getConfig } from '../../../utils/utils';
 
 const checkSyncedMutations = {
   async toCheckSynced(
@@ -99,7 +99,7 @@ const checkSyncedMutations = {
   async toSyncOrders(
     _root,
     { orderIds }: { orderIds: string[] },
-    { subdomain, models }: IContext
+    { subdomain }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
@@ -114,7 +114,6 @@ const checkSyncedMutations = {
       isRPC: true
     });
 
-    // TODO: create post data here
     for (const order of orders) {
       const pos = await sendPosMessage({
         subdomain,
@@ -167,7 +166,5 @@ const checkSyncedMutations = {
     return result;
   }
 };
-
-// moduleCheckPermission(checkSyncedMutations, 'manageProducts');
 
 export default checkSyncedMutations;

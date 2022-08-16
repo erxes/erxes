@@ -134,25 +134,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       <Wrapper.Sidebar>
         <Sidebar>
           <Section collapsible={false}>
-            <Section.Title>
-              {__('Filters')}
-              {/* <Section.QuickButtons>
-                {(router.getParam(history, 'status') ||
-                  router.getParam(history, 'ownerType') ||
-                  router.getParam(history, 'ownerID') ||
-                  router.getParam(history, 'voucherCampaignId')) && (
-                  <a
-                    href="#cancel"
-                    tabIndex={0}
-                    onClick={this.clearCategoryFilter}
-                  >
-                    <Tip text={__('Clear filter')} placement="bottom">
-                      <Icon icon="cancel-1" />
-                    </Tip>
-                  </a>
-                )}
-              </Section.QuickButtons> */}
-            </Section.Title>
+            <Section.Title>{__('Filters')}</Section.Title>
 
             <FormGroup>
               <ControlLabel>Choose Stage</ControlLabel>
