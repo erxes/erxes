@@ -1,13 +1,14 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
-import CategoryNavItem from './CategoryNavItem';
-import { CATEGORIES_BY_PARENT_IDS } from '../graphql/queries';
-import { Link } from 'react-router-dom';
+import CategoryFilterItem from './CategoryFilterItem';
+import { CATEGORIES_BY_PARENT_IDS } from '../../graphql/queries';
+import { useSearchParam } from '../../hooks';
 
-export default function CategoriesNav() {
+export default function CategoriesFilter() {
   const { data, loading, error } = useQuery(CATEGORIES_BY_PARENT_IDS, {
     variables: { parentId: [null] }
   });
+  const [_categoryId, setCategoryId] = useSearchParam('categoryId');
 
   if (loading) return null;
 
@@ -18,12 +19,14 @@ export default function CategoriesNav() {
   return (
     <nav style={{ padding: '1em 2em' }}>
       <ol style={{ listStyle: 'none' }}>
-        <li key="categorynew" style={{ margin: '5px 0' }}>
-          <Link to={`/forums/posts`}>All</Link>
+        <li key="postcategoryall" style={{ margin: '5px 0' }}>
+          <a onClick={() => setCategoryId(null)} style={{ cursor: 'pointer' }}>
+            All
+          </a>
         </li>
         {forumCategories.map(category => (
           <li key={category._id} style={{ margin: '5px 0' }}>
-            <CategoryNavItem category={category} />
+            <CategoryFilterItem category={category} />
           </li>
         ))}
       </ol>

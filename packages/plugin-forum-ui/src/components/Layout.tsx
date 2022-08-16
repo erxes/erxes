@@ -1,8 +1,7 @@
 import React from 'react';
 import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
-import Posts from '../containers/Posts';
 import LayoutCategories from './LayoutCategories';
-import LayoutPosts from './LayoutPosts';
+import PostsList from '../containers/PostsList';
 
 function Layout() {
   // The `path` lets us build <Route> paths that are
@@ -35,7 +34,7 @@ function Layout() {
           <LayoutCategories />
         </Route>
         <Route path={`/forums/posts`}>
-          <LayoutPosts />
+          <PostsList />
         </Route>
       </Switch>
     </div>
