@@ -1,8 +1,7 @@
 import { Contents, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 
 import Header from '@erxes/ui/src/layout/components/Header';
-import { IUser } from '@erxes/ui/src/auth/types';
-import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
+import MailForm from '../../settings/integrations/containers/mail/MailForm';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import { __ } from 'coreui/utils';

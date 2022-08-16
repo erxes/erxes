@@ -12,6 +12,7 @@ import client from '@erxes/ui/src/apolloClient';
 import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   onChange: (name: 'deliveryConfig', value: any) => void;
@@ -33,7 +34,8 @@ class DeliveryConfig extends React.Component<
             pipelineId: '',
             stageId: '',
             watchedUserIds: [],
-            assignedUserIds: []
+            assignedUserIds: [],
+            productId: ''
           };
 
     let fieldsCombined = [];
@@ -43,7 +45,7 @@ class DeliveryConfig extends React.Component<
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'deal'
+            contentType: 'cards:deal'
           }
         })
         .then(({ data }) => {
@@ -105,6 +107,10 @@ class DeliveryConfig extends React.Component<
       this.onChangeConfig('mapCustomField', value);
     };
 
+    const onChangeProduct = option => {
+      this.onChangeConfig('productId', option);
+    };
+
     return (
       <FlexItem>
         <FlexColumn>
@@ -132,7 +138,7 @@ class DeliveryConfig extends React.Component<
                       value={config.mapCustomField}
                       onChange={onMapCustomFieldChange}
                       options={(fieldsCombined || []).map(f => ({
-                        value: f._id,
+                        value: f.name,
                         label: f.label
                       }))}
                     />
@@ -162,6 +168,18 @@ class DeliveryConfig extends React.Component<
                     name="assignedUserIds"
                     initialValue={config.assignedUserIds}
                     onSelect={onAssignedUsersSelect}
+                  />
+                </FormGroup>
+              </BlockRow>
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>{__('Delivery product')}</ControlLabel>
+                  <SelectProducts
+                    label={__('Choose delivery product')}
+                    name="product"
+                    initialValue={config.productId}
+                    multi={false}
+                    onSelect={onChangeProduct}
                   />
                 </FormGroup>
               </BlockRow>

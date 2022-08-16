@@ -13,13 +13,13 @@ import { Step, Steps } from '@erxes/ui/src/components/step';
 import { Alert } from '@erxes/ui/src/utils';
 import Button from '@erxes/ui/src/components/Button';
 import ConditionsRule from '@erxes/ui/src/components/rule/ConditionsRule';
-import { Content } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { Content } from '../../settings/integrations/styles';
 import { ControlWrapper } from '@erxes/ui/src/components/step/styles';
 import { IConfig } from '@erxes/ui-settings/src/general/types';
 import { IField } from '@erxes/ui/src/types';
 import { IFormData } from '@erxes/ui-forms/src/forms/types';
 import { Indicator } from '@erxes/ui/src/components/step/styles';
-import { LeftContent } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { LeftContent } from '../../settings/integrations/styles';
 import { Link } from 'react-router-dom';
 import { PreviewWrapper } from '@erxes/ui/src/components/step/style';
 import React from 'react';
@@ -98,8 +98,8 @@ type State = {
 class Lead extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    const integration = props.integration || ({} as ILeadIntegration);
+    //ILeadIntegration
+    const integration = props.integration || ({} as any);
 
     const { leadData = {} as ILeadData } = integration;
     const callout = leadData.callout || {};
@@ -323,7 +323,7 @@ class Lead extends React.Component<Props, State> {
       visibility
     } = this.state;
 
-    const { integration, emailTemplates, configs } = this.props;
+    const { integration = {} as any, emailTemplates, configs } = this.props;
     const leadData = integration && integration.leadData;
     const brand = integration && integration.brand;
     const breadcrumb = [{ title: __('Forms'), link: '/forms' }];

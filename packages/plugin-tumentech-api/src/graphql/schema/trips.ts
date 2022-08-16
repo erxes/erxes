@@ -14,7 +14,7 @@ input TrackingItemInput {
   type Trip @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     driverId: String
-    carId: String
+    carIds: [String]
     dealIds: [String]
     routeId: String
     routeReversed: Boolean
@@ -25,7 +25,7 @@ input TrackingItemInput {
     status: String
     statusInfo: [JSON]
     trackingData: [TrackingItem]
-    car: Car
+    cars: [Car]
     route: Route
     ${
       cards
@@ -52,9 +52,10 @@ input TrackingItemInput {
 `;
 
 export const queries = `
-    trips(status: String): TripListResponse
+    trips(status: String, driverId: String, dealId: String, page: Int, perPage: Int): TripListResponse
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
+    matchingDeals(routeId:String, carId: String, categoryIds: [String]): [Deal]
 `;
 
 const params = `

@@ -38,10 +38,11 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build plugin salesplans
-          cd ../../dist/plugin-salesplans-api/.erxes
+          cd plugin-salesplans-api/.erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image

@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import * as strip from 'strip';
-import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
@@ -190,13 +189,23 @@ export const splitStr = (str: string, size: number): string[] => {
   return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };
 
+const generateRandomEmail = () => {
+  var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  var string = '';
+  for (var ii = 0; ii < 15; ii++) {
+    string += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return string + '@gmail.com';
+};
+
 export const getUniqueValue = async (
   collection: any,
   fieldName: string = 'code',
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
+    type === 'email' ? generateRandomEmail() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 

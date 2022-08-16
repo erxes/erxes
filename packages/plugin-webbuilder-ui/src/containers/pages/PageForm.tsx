@@ -11,7 +11,7 @@ import {
   PageDetailQueryResponse,
   PagesAddMutationResponse,
   PagesEditMutationResponse,
-  PagesQueryResponse,
+  PagesMainQueryResponse,
   TemplatesAddMutationResponse,
   TemplatesDetailQueryResponse,
   TypesQueryResponse
@@ -24,7 +24,7 @@ type Props = {
 
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;
-  pagesQuery: PagesQueryResponse;
+  pagesMainQuery: PagesMainQueryResponse;
   typesQuery: TypesQueryResponse;
   templateDetailQuery: TemplatesDetailQueryResponse;
 } & PagesAddMutationResponse &
@@ -36,14 +36,14 @@ const FormContainer = (props: FinalProps) => {
     pageDetailQuery,
     history,
     templatesAdd,
-    pagesQuery,
+    pagesMainQuery,
     typesQuery,
     templateDetailQuery
   } = props;
 
   if (
     (pageDetailQuery && pageDetailQuery.loading) ||
-    pagesQuery.loading ||
+    pagesMainQuery.loading ||
     typesQuery.loading ||
     (templateDetailQuery && templateDetailQuery.loading)
   ) {
@@ -107,7 +107,7 @@ const FormContainer = (props: FinalProps) => {
     page = pageDetailQuery.webbuilderPageDetail;
   }
 
-  const pages = pagesQuery.webbuilderPages || [];
+  const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
   const contentTypes = typesQuery.webbuilderContentTypes || [];
   const template =
     (templateDetailQuery && templateDetailQuery.webbuilderTemplateDetail) || {};
@@ -118,17 +118,14 @@ const FormContainer = (props: FinalProps) => {
     page,
     saveTemplate,
     contentTypes,
-    pages,
+    pages: pagesMain.list || [],
     template
   };
 
   return <PageForm {...updatedProps} />;
 };
 
-const refetchPageQueries = () => [
-  { query: gql(queries.pages) },
-  { query: gql(queries.pagesTotalCount) }
-];
+const refetchPageQueries = () => [{ query: gql(queries.pagesMain) }];
 
 const refetchTemplateQuery = () => [
   { query: gql(queries.templates) },
@@ -181,7 +178,7 @@ export default compose(
   graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
     name: 'typesQuery'
   }),
-  graphql<{}, PagesQueryResponse>(gql(queries.pages), {
-    name: 'pagesQuery'
+  graphql<{}, PagesMainQueryResponse>(gql(queries.pagesMain), {
+    name: 'pagesMainQuery'
   })
 )(withRouter(FormContainer));

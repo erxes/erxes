@@ -53,20 +53,20 @@ export interface IPos {
   allowBranchIds: string;
   beginNumber: string;
   maxSkipNumber: number;
-  waitingScreen: Object;
-  kioskMachine: Object;
-  kitchenScreen: Object;
-  uiOptions: Object;
+  waitingScreen: any;
+  kioskMachine: any;
+  kitchenScreen: any;
+  uiOptions: any;
   token: string;
-  ebarimtConfig: Object;
-  erkhetConfig: Object;
-  syncInfos: Object;
-  catProdMappings: Object;
+  ebarimtConfig: any;
+  erkhetConfig: any;
+  syncInfos: any;
+  catProdMappings: any;
   initialCategoryIds: string;
   kioskExcludeProductIds: string;
-  deliveryConfig: Object;
+  deliveryConfig: any;
   slotCode: string;
-  cardsConfig: Object;
+  cardsConfig: any;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;

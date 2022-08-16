@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "moment-timezone": "^0.5.28",
+    "erxes-inmemory-storage": "^1.0.20",
     "uuid-by-string": "^3.0.5"
   }
 }

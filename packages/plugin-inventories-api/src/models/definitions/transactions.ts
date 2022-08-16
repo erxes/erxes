@@ -1,5 +1,10 @@
 import { Document, Schema } from 'mongoose';
+import { ITransactionItem } from './transactionItems';
 import { field, schemaHooksWrapper } from './utils';
+
+export interface ITransactionCreateParams extends ITransaction {
+  products: ITransactionItem[];
+}
 
 export interface ITransaction {
   status: string;
@@ -10,7 +15,6 @@ export interface ITransaction {
 export interface ITransactionDocument extends ITransaction, Document {
   _id: string;
   createdAt: Date;
-  createdBy: string;
 }
 
 export const transactionSchema = schemaHooksWrapper(
@@ -21,8 +25,7 @@ export const transactionSchema = schemaHooksWrapper(
     contentType: field({ type: String, label: 'Content Type' }),
     contentId: field({ type: String, label: 'Content ID' }),
 
-    createdAt: { type: Date, default: new Date(), label: 'Created date' },
-    createdBy: { type: String, label: 'Created User' }
+    createdAt: { type: Date, default: new Date(), label: 'Created date' }
   }),
   'erxes_transactions'
 );

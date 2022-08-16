@@ -3,7 +3,7 @@ name: Gateway CI
 on:
   push:
     branches:
-      - '**'
+      - 'federation'
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -38,7 +38,8 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build gateway
 

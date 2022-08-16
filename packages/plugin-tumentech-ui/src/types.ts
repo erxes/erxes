@@ -407,7 +407,10 @@ export type CountQueryResponse = {
 
 export interface IParticipant {
   _id: string;
-  customer: ICustomer;
+  tripId: string;
+  driver: ICustomer;
+  route: IRoute;
+  cars: ICar[];
   deal: IDeal;
   detail?: {
     price: number;
@@ -420,10 +423,6 @@ export type ParticipantsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
-
-export type AddParticipantsMutation = ({
-  variables: { dealId, customerIds }
-}) => Promise<any>;
 
 export type RemoveParticipantsMutation = ({
   variables: { dealId, customerIds }
@@ -485,7 +484,7 @@ export type ITrackingData = {
 
 export type ITrip = {
   _id: string;
-  carId: string;
+  carIds: string[];
   closedDate: Date;
   createdAt: Date;
   dealIds: string[];
@@ -499,6 +498,6 @@ export type ITrip = {
   route: IRoute;
   driver: ICustomer;
   deals: IDeal[];
-  car: ICar;
+  cars: ICar[];
   trackingData: ITrackingData[];
 };

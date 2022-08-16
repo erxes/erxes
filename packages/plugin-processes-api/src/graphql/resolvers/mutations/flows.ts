@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 import { IFlow } from '../../../models/definitions/flows';
 import {
@@ -8,7 +8,6 @@ import {
   MODULE_NAMES
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IJobCategory } from '../../../models/definitions/jobCategories';
 
 interface IFlowsEdit extends IFlow {
   _id: string;

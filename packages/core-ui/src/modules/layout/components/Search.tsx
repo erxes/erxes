@@ -22,10 +22,11 @@ const MainContainer = styledTS<{ active?: boolean }>(styled.div)`
   padding: 0 ${dimensions.unitSpacing}px;
   align-items: center;
   position: relative;
+  font-size: 12px;
 
   > span {
     color: ${colors.colorCoreGray};
-    padding-left: ${dimensions.unitSpacing}px;
+    padding-left: 3px;
   }
   
   i {

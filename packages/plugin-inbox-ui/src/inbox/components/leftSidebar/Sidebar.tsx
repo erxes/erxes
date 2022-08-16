@@ -72,6 +72,7 @@ type Props = {
 
 type State = {
   isOpen: boolean;
+  counts?: any;
 };
 
 class LeftSidebar extends React.Component<Props, State> {
@@ -79,7 +80,8 @@ class LeftSidebar extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      isOpen: props.config.showAddition
+      isOpen: props.config.showAddition,
+      counts: {}
     };
   }
 
@@ -162,6 +164,12 @@ class LeftSidebar extends React.Component<Props, State> {
       return null;
     }
 
+    const setCounts = (counts: any) => {
+      const current = { ...this.state.counts };
+
+      this.setState({ counts: { ...current, ...counts } });
+    };
+
     return (
       <RTG.CSSTransition
         in={this.state.isOpen}
@@ -187,6 +195,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 paramKey="channelId"
                 queryParams={queryParams}
                 refetchRequired={refetchRequired}
+                setCounts={setCounts}
               />
             </FilterToggler>
 
@@ -210,6 +219,7 @@ class LeftSidebar extends React.Component<Props, State> {
                   icon="tag-alt"
                   refetchRequired={refetchRequired}
                   treeView={true}
+                  setCounts={setCounts}
                 />
               </FilterToggler>
             )}
@@ -225,6 +235,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 queryParams={queryParams}
                 paramKey="brandId"
                 refetchRequired={refetchRequired}
+                setCounts={setCounts}
               />
             </FilterToggler>
 
@@ -242,6 +253,7 @@ class LeftSidebar extends React.Component<Props, State> {
                 counts="byIntegrationTypes"
                 paramKey="integrationType"
                 refetchRequired={refetchRequired}
+                setCounts={setCounts}
               />
             </FilterToggler>
 
@@ -266,6 +278,7 @@ class LeftSidebar extends React.Component<Props, State> {
                   refetchRequired={refetchRequired}
                   multiple={true}
                   treeView={true}
+                  setCounts={setCounts}
                 />
               </FilterToggler>
             )}
@@ -302,6 +315,7 @@ class LeftSidebar extends React.Component<Props, State> {
             queryParams={queryParams}
             toggleRowCheckbox={toggleBulk}
             selectedConversations={bulk}
+            counts={this.state.counts}
           />
         </Sidebar>
       </LeftContent>

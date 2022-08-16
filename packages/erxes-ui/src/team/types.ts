@@ -111,6 +111,7 @@ export interface IBranch extends IStructureCommon, IContactInfo {
   parentId: string;
   userIds: string[] | string;
   users: IUser[];
+  radius: number;
 }
 
 export interface IStructure extends IStructureCommon, IContactInfo {

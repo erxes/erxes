@@ -55,11 +55,19 @@ const CarCategory = {
 };
 
 const Participant = {
-  customer(participant: IParticipantDocument) {
+  cars(participant: IParticipantDocument, {}, { models }: IContext) {
+    return models.Cars.find({ _id: { $in: participant.carIds } }).lean();
+  },
+
+  route(participant: IParticipantDocument, {}, { models }: IContext) {
+    return models.Routes.findOne({ _id: participant.routeId });
+  },
+
+  driver(participant: IParticipantDocument) {
     return (
-      participant.customerId && {
+      participant.driverId && {
         __typename: 'Customer',
-        _id: participant.customerId
+        _id: participant.driverId
       }
     );
   },

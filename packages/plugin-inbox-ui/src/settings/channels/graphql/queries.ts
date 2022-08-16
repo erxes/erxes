@@ -1,5 +1,3 @@
-import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
-
 const channelDetail = `
   query channelDetail($_id: String!) {
     channelDetail(_id: $_id) {
@@ -17,6 +15,26 @@ const channelDetail = `
       }
       integrationIds
       memberIds
+    }
+  }
+`;
+
+const channels = `
+  query channels($memberIds: [String]) {
+    channels(memberIds: $memberIds) {
+      _id
+      name
+      description
+      integrationIds
+      memberIds
+      members {
+        _id
+        email
+        details {
+          avatar
+          fullName
+        }
+      }
     }
   }
 `;
@@ -59,7 +77,7 @@ const channelsGetLast = `
 
 export default {
   users,
-  channels: channelQueries.channels,
+  channels,
   channelDetail,
   channelsCount,
   channelsGetLast,

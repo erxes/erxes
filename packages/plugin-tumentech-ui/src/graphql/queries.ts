@@ -347,21 +347,49 @@ const carsExport = `
 `;
 
 const participants = `
-query($dealId: String) {
-  participants (dealId: $dealId){
+query participants(
+  $dealId: String
+  $page: Int
+  $perPage: Int
+  $status: String
+  $driverId: String
+) {
+  participants(
+    dealId: $dealId
+    page: $page
+    perPage: $perPage
+    status: $status
+    driverId: $driverId
+  ) {
     _id
+    createdAt
     deal {
       _id
+      name
     }
-  status
-  detail
-    customer {
+    dealId
+    detail
+    status
+    driver {
       _id
       avatar
       firstName
       lastName
       primaryEmail
       primaryPhone
+    }
+    cars {
+      _id
+      carModel
+      category {
+        _id
+        code
+        name
+      }
+    }
+    route {
+      name
+      _id
     }
   }
 }
@@ -531,7 +559,7 @@ query trips($status: String) {
   trips(status: $status) {
     list {
       _id
-      carId
+      carIds
       closedDate
       createdAt
       dealIds
@@ -587,7 +615,7 @@ query trips($status: String) {
           primaryPhone
         }
       }
-      car {
+      cars {
         _id
         carModel
         category {
@@ -606,7 +634,7 @@ const tripDetail = `
 query tripDetail($_id: String!) {
   tripDetail(_id: $_id) {
     _id
-    car {
+    cars {
       _id
       carModel
       category {
@@ -616,7 +644,7 @@ query tripDetail($_id: String!) {
       categoryId
       description
     }
-    carId
+    carIds
     closedDate
     createdAt
     dealIds
@@ -624,6 +652,19 @@ query tripDetail($_id: String!) {
       _id
       name
       customFieldsData
+      customers {
+        _id
+        firstName
+        lastName
+        primaryEmail
+        primaryPhone
+      }
+      companies {
+        _id
+        primaryEmail
+        primaryName
+        primaryPhone
+      }
     }
     driver {
       _id
