@@ -65,6 +65,17 @@ export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendEbarimtMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'ebarimt',
+    ...args
+  });
+};
+
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,

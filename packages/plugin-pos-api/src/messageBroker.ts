@@ -317,6 +317,21 @@ export const initBroker = async cl => {
       data: await models.PosOrders.find(data)
     };
   });
+  consumeRPCQueue('pos:find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Pos.findOne(data)
+    };
+  });
+  consumeRPCQueue('pos:ordersPostData', async ({ subdomain, data }) => {
+    const { pos, orderId, putRes } = data;
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await getPostData(subdomain, models, pos, orderId, putRes)
+    };
+  });
 };
 
 export const sendProductsMessage = async (

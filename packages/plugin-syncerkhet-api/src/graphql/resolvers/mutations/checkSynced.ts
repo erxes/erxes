@@ -1,5 +1,9 @@
 import { IContext, models } from '../../../connectionResolver';
-import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
+import {
+  sendCardsMessage,
+  sendEbarimtMessage,
+  sendPosMessage
+} from '../../../messageBroker';
 import { sendRPCMessage } from '../../../messageBrokerErkhet';
 import { getPostData } from '../../../utils/ebarimtData';
 import { getConfig, getPosData } from '../../../utils/utils';
@@ -95,7 +99,7 @@ const checkSyncedMutations = {
   async toSyncOrders(
     _root,
     { orderIds }: { orderIds: string[] },
-    { subdomain }: IContext
+    { subdomain, models }: IContext
   ) {
     const result: { skipped: string[]; error: string[]; success: string[] } = {
       skipped: [],
@@ -112,13 +116,42 @@ const checkSyncedMutations = {
 
     // TODO: create post data here
     for (const order of orders) {
+      const pos = await sendPosMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          posToken: order?.posToken
+        },
+        isRPC: true
+      });
+
+      const putRes = await sendEbarimtMessage({
+        subdomain,
+        action: 'putresponses.putHistories',
+        data: {
+          contentType: 'pos',
+          contentId: order?._id
+        },
+        isRPC: true
+      });
+
+      const postData = await sendPosMessage({
+        subdomain,
+        action: 'ordersPostData',
+        data: {
+          pos: pos,
+          orderId: order._id,
+          putRes: putRes
+        },
+        isRPC: true
+      });
+
       const response = await sendRPCMessage(
         'rpc_queue:erxes-automation-erkhet',
         {
           action: 'get-response-send-order-info',
           isEbarimt: false,
-          // payload: JSON.stringify(postData),
-          payload: JSON.stringify(order),
+          payload: JSON.stringify(postData),
           thirdService: true
         }
       );
