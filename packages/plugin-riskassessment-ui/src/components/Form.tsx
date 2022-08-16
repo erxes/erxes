@@ -5,12 +5,17 @@ import { IFormProps } from '@erxes/ui/src/types';
 import React from 'react';
 import CommonForm from '@erxes/ui-settings/src/common/components/Form';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { Button, CollapseContent, ModifiableList, Toggle } from '@erxes/ui/src';
+import { Button, CollapseContent, ModifiableList, Spinner, Toggle } from '@erxes/ui/src';
 import { FormGroupRow, GridContainer } from '../styles';
+import { RiskAssesmentsType, RiskAssessmentCategory } from '../common/types';
+import { subOption } from '../common/utils';
 
 type Props = {
-  object?;
   generateDoc: (values: any) => any;
+  categories: RiskAssessmentCategory[];
+  loading: boolean;
+  assessmentDetail?: RiskAssesmentsType;
+  detailLoading?: boolean;
 } & ICommonFormProps;
 
 type CustomFromGroupProps = {
@@ -27,15 +32,9 @@ class Form extends React.Component<Props & ICommonFormProps> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { object } = this.props;
+    const { categories, loading, detailLoading, assessmentDetail } = this.props;
 
-    const CustomFormGroup = ({
-      children,
-      label,
-      required,
-      row,
-      spaceBetween,
-    }: CustomFromGroupProps) => {
+    const CustomFormGroup = ({ children, label, required, row, spaceBetween }: CustomFromGroupProps) => {
       return (
         <FormGroupRow horizontal={row} spaceBetween={spaceBetween}>
           <ControlLabel required={required}>{label}</ControlLabel>
@@ -44,51 +43,42 @@ class Form extends React.Component<Props & ICommonFormProps> {
       );
     };
 
+    if (detailLoading) {
+      return <Spinner objective />;
+    }
+
     return (
       <>
         <CustomFormGroup label="Risk Assessment Name" required>
-          <FormControl
-            {...formProps}
-            name="name"
-            type="text"
-            required={true}
-            defaultValue={object?.name}
-          />
+          <FormControl {...formProps} name="name" type="text" required={true} defaultValue={assessmentDetail?.name} />
         </CustomFormGroup>
         <CustomFormGroup label="RiskAssessment Description" required>
-          <FormControl
-            {...formProps}
-            name="description"
-            type="text"
-            required={true}
-            defaultValue={object?.description}
-          />
+          <FormControl {...formProps} name="description" type="text" required={true} defaultValue={assessmentDetail?.description} />
         </CustomFormGroup>
         <CustomFormGroup label="RiskAssessment Category">
-          <FormControl
-            {...formProps}
-            name="categoryId"
-            type="text"
-            defaultValue={object?.categoryId}
-          />
+          {loading ? (
+            <Spinner objective />
+          ) : (
+            <FormControl {...formProps} name="categoryId" componentClass="select" defaultValue={assessmentDetail?.categoryId}>
+              <option />
+              {categories.map((category) => (
+                <option value={category._id} key={category._id}>
+                  {category.parentId && subOption(category)}
+                  {category.name}
+                </option>
+              ))}
+            </FormControl>
+          )}
         </CustomFormGroup>
         <CustomFormGroup label="RiskAssessment Status">
-          <FormControl {...formProps} name="status" type="text" defaultValue={object?.status} />
+          <FormControl {...formProps} name="status" type="text" defaultValue={assessmentDetail?.status} />
         </CustomFormGroup>
       </>
     );
   };
 
   render() {
-    return (
-      <CommonForm
-        {...this.props}
-        name="name"
-        renderContent={this.renderContent}
-        generateDoc={this.props.generateDoc}
-        object={this.props.object}
-      />
-    );
+    return <CommonForm {...this.props} name="name" renderContent={this.renderContent} generateDoc={this.props.generateDoc} object={this.props.object} />;
   }
 }
 

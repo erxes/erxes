@@ -2,11 +2,12 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { ICommonListProps } from '../common/types';
-import Form from './Form';
+import Form from '../containers/Form';
 import { Button, FormControl, ModalTrigger, Table, Wrapper } from '@erxes/ui/src';
 import TableRow from './Row';
 import _loadash from 'lodash';
 import { DefaultWrapper } from '../common/utils';
+import AssessmentCategories from '../assessmentCategories/container/List';
 
 type Props = {
   queryParams: any;
@@ -57,9 +58,7 @@ class ListComp extends React.Component<Props, IState> {
   }
 
   renderForm = (props) => {
-    return (
-      <Form {...props} renderButton={this.props.renderButton} generateDoc={this.generateDoc} />
-    );
+    return <Form {...props} renderButton={this.props.renderButton} generateDoc={this.generateDoc} />;
   };
 
   renderFormContent = (props) => {
@@ -120,15 +119,7 @@ class ListComp extends React.Component<Props, IState> {
         </thead>
         <tbody>
           {list?.map((item, i) => {
-            return (
-              <TableRow
-                key={i}
-                object={item}
-                selectedValue={selectedValue}
-                onchange={this.selectValue}
-                renderButton={this.props.renderButton}
-              />
-            );
+            return <TableRow key={i} object={item} selectedValue={selectedValue} onchange={this.selectValue} renderButton={this.props.renderButton} />;
           })}
         </tbody>
       </Table>
@@ -151,6 +142,7 @@ class ListComp extends React.Component<Props, IState> {
       title: 'Assessment List',
       rightActionBar: rightActionBar,
       content: this.renderContent(list),
+      sidebar: <AssessmentCategories />,
     };
 
     return <DefaultWrapper {...updatedProps} />;

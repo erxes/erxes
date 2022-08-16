@@ -14,7 +14,9 @@ export interface IRiskAssessmentCategoryDocument extends Document {
   _id: String;
   name: String;
   formId: String;
-  parentName: String;
+  parentId: String;
+  order: String;
+  code: String;
 }
 
 export const riskAssessmentSchema = new Schema({
@@ -30,5 +32,7 @@ export const riskAssessmentCategorySchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Category Name' }),
   formId: field({ type: String, label: 'Category Form Id' }),
-  parentName: field({ type: String, label: 'Category Parent Name' }),
+  parentId: field({ type: String, label: 'Category Parent Name' }),
+  order: field({ type: String, label: 'Category Order' }),
+  code: field({ type: String, label: 'Category Code' }),
 });

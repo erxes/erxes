@@ -1,4 +1,4 @@
-type RiskAssesmentsListType = {
+export type RiskAssesmentsType = {
   _id: string;
   categoryId?: string;
   description?: string;
@@ -6,11 +6,17 @@ type RiskAssesmentsListType = {
   status?: string;
 };
 
+export type RiskAssessmentDetailQueryResponse = {
+  loading: boolean;
+  refetch: () => void;
+  riskAssessmentDetail: RiskAssesmentsType;
+};
+
 export type RiskAssesmentsListQueryResponse = {
   loading: boolean;
   refetch: () => void;
   riskAssesments: {
-    list: RiskAssesmentsListType[];
+    list: RiskAssesmentsType[];
     totalCount: number;
   };
 };
@@ -19,14 +25,20 @@ export type RiskAssessmentCategory = {
   _id: string;
   name: string;
   formId: string;
-  parentName: string;
+  parentId: string;
+  code?: string;
+  order?: string;
+  parent?: RiskAssessmentCategory;
+  formName?: string;
 };
 
-export type RiskAssesmentsCategoriesListQueryResponse = {
+export type RiskAssesmentsCategoriesQueryResponse = {
   loading: boolean;
   refetch: () => void;
-  getRiskAssesmentCategory: [RiskAssessmentCategory];
+  getRiskAssesmentCategories: [RiskAssessmentCategory];
 };
+
+export type AddRiskAssesmentCategoryMutationResponse = ({ variables: RiskAssessmentCategory }) => Promise<any>;
 
 export interface ICommonListProps {
   objects: any;

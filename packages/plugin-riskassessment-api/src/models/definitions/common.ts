@@ -10,7 +10,8 @@ export interface IRiskAssessmentCategoryField {
   _id?: string;
   name: string;
   formId: string;
-  parentName: string;
+  parentId: string;
+  code: string;
 }
 
 export interface IRiskAnswerField {

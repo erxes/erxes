@@ -22,6 +22,7 @@ export const types = `
 
 export const queries = `
     riskAssesments:list
+    riskAssessmentDetail(_id: String): RiskAssessment
 `;
 export const mutations = `
     addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes}):JSON

@@ -5,7 +5,7 @@ import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import React from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { ICommonListProps } from '../common/types';
+import { ICommonListProps, RiskAssesmentsCategoriesQueryResponse } from '../common/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { RiskAssesmentsListQueryResponse } from '../common/types';
 
@@ -16,6 +16,7 @@ type Props = ICommonListProps &
     renderButton: (props: IButtonMutateProps) => JSX.Element;
     listQuery: RiskAssesmentsListQueryResponse;
     removeMutation: any;
+    categories: RiskAssesmentsCategoriesQueryResponse;
   };
 
 class ListContainer extends React.Component<Props> {

@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
+import { IModels, models } from '../connectionResolver';
 import { validRiskAssessment } from '../utils';
 import { IRiskAssessmentField } from './definitions/common';
 import { IRiskAssessmentDocument } from './definitions/riskassessment';
@@ -7,12 +7,10 @@ import { riskAssessmentSchema } from './definitions/riskassessment';
 
 export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   riskAssesments(): Promise<IRiskAssessmentDocument>;
+  riskAssessmentDetail(params: { _id: string }): Promise<IRiskAssessmentDocument>;
   riskAssesmentAdd(params: IRiskAssessmentField): Promise<IRiskAssessmentDocument>;
   riskAssesmentRemove(_ids: string[]): void;
-  riskAssessmentUpdate(params: {
-    _id: string;
-    doc: IRiskAssessmentField;
-  }): Promise<IRiskAssessmentDocument>;
+  riskAssessmentUpdate(params: { _id: string; doc: IRiskAssessmentField }): Promise<IRiskAssessmentDocument>;
 }
 
 export const loadRiskAssessment = (model: IModels, subdomain: string) => {
@@ -43,8 +41,6 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
     public static async riskAssessmentUpdate(params: { _id: string; doc: IRiskAssessmentField }) {
       const { _id, doc } = params;
 
-      console.log(params);
-
       if (!_id && !doc) {
         throw new Error('Not found risk assessment');
       }
@@ -54,6 +50,14 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
         throw new Error('Something went wrong');
       }
       return result;
+    }
+
+    public static async riskAssessmentDetail(params: { _id: string }) {
+      if (!params._id) {
+        throw new Error('You must provide a _id parameter');
+      }
+
+      return await models?.RiskAssessment.findOne(params);
     }
   }
   riskAssessmentSchema.loadClass(RiskAssessment);

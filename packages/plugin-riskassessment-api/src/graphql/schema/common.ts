@@ -23,3 +23,10 @@ export const commonRiskConfirmityTypes = `
     cardId: String!,
     riskAssessmentId: String!,
 `;
+
+export const commonAssessmentCategoryTypes = `
+    _id: String
+    name: String
+    formId: String
+    parentId: String
+`;

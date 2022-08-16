@@ -1,21 +1,31 @@
+import { commonAssessmentCategoryTypes } from './common';
+
 export const types = `
     type CategoryField {
-        _id: String
-        name: String
-        formId: String
-        parentName: String
+        ${commonAssessmentCategoryTypes}
     }
+
+    type CategoryMainField {
+        ${commonAssessmentCategoryTypes}
+        code: String
+        order: String
+        parent: CategoryField
+        formName: String
+    }
+
 
     input CategoryFieldInput {
         _id: String
         name: String
         formId: String
-        parentName: String
+        parentId: String
     }
 `;
 export const queries = `
-    getRiskAssesmentCategory:[CategoryField]
+    getRiskAssesmentCategories:[CategoryMainField]
+    getRiskAssesmentCategory(_id: String!): CategoryMainField
 `;
 export const mutations = `
-    addAssessmentCategory (name: String,formId: String,parentName: String):JSON
+    addAssessmentCategory (name: String,formId: String,parentId: String,code: String):JSON
+    removeAssessmentCategory (_id:String):JSON
 `;

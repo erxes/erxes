@@ -12,9 +12,17 @@ const totalCount = `
 `;
 
 const listAssessmentCategories = `
-  query GetRiskAssesmentCategory {
-    getRiskAssesmentCategory {
+  query GetRiskAssesmentCategories {
+    getRiskAssesmentCategories {
       ${riskAssessmentCategoryParams}
+    }
+  }
+`;
+
+const assessmentDetail = `
+  query RiskAssessmentDetail ($id: String) {
+    riskAssessmentDetail (_id: $id) {
+      ${riskAssessmentParams}
     }
   }
 `;
@@ -23,4 +31,5 @@ export default {
   list,
   totalCount,
   listAssessmentCategories,
+  assessmentDetail,
 };

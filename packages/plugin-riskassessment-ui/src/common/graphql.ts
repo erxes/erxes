@@ -19,6 +19,8 @@ export const riskAssessmentParams = `
 export const riskAssessmentCategoryParams = `
 _id
 formId
-parentName
+parentId
 name
+code
+order
 `;
