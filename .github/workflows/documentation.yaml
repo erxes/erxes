@@ -47,6 +47,7 @@ jobs:
           cd docs
           yarn install --frozen-lockfile
           yarn run build
+          ls
 
   gh-release:
     if: github.event_name != 'pull_request'
