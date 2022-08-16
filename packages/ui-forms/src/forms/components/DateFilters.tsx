@@ -69,7 +69,7 @@ function DateFilters(props: IProps) {
 
   const data = (
     <>
-      <SidebarList style={{ zIndex: 1000000 }}>
+      <SidebarList>
         {fields.map(field => {
           return (
             <>
