@@ -48,7 +48,7 @@ jobs:
           yarn install --frozen-lockfile
           yarn run build
 
-  gh-release:
+  deploy:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-18.04
 
@@ -77,28 +77,9 @@ jobs:
             ${{ runner.os }}-yarn-docs-
             ${{ runner.os }}-yarn-
 
-      - name: Add key to allow access to repository
-        env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-          echo "${{ secrets.GH_PAGES_DEPLOY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          cat <<EOT >> ~/.ssh/config
-          Host github.com
-          HostName github.com
-          IdentityFile ~/.ssh/id_rsa
-          EOT
-
-      - name: Release to GitHub Pages
-        env:
-          USE_SSH: true
-          GIT_USER: git
+      - name: build
         run: |
           cd docs
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
           yarn install --frozen-lockfile
           yarn build
 
