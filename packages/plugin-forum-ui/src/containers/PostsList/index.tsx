@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSearchParam } from '../../hooks';
 import CategoriesFilter from './CategoriesFilter';
+import List from './List';
 
 const PostsList: React.FC = () => {
   const [state, setState] = useSearchParam('state');
@@ -69,7 +70,9 @@ const PostsList: React.FC = () => {
             </label>
           </div>
         </div>
-        <h3>posts</h3>
+        <div>
+          <List />
+        </div>
       </div>
     </div>
   );

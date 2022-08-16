@@ -36,3 +36,28 @@ export const CATEGORY_POSSIBLE_PARENTS = gql`
     }
   }
 `;
+
+export const FORUM_POSTS_QUERY = gql`
+  query ForumPostsQuery(
+    $categoryId: [ID!]
+    $categoryIncludeDescendants: Boolean
+    $limit: Int
+    $offset: Int
+    $state: [String!]
+  ) {
+    forumPosts(
+      categoryId: $categoryId
+      categoryIncludeDescendants: $categoryIncludeDescendants
+      limit: $limit
+      offset: $offset
+      state: $state
+    ) {
+      _id
+      content
+      title
+      state
+      thumbnail
+      categoryId
+    }
+  }
+`;
