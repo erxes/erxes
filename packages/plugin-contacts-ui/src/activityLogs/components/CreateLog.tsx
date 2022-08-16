@@ -8,8 +8,6 @@ class CreatedLog extends React.Component<IActivityLogItemProps> {
     const { activity } = this.props;
     const { contentType } = activity;
 
-    console.log('activity', activity);
-
     switch (contentType) {
       case 'contacts:customer':
         return <CustomerCreateLog activity={activity} />;

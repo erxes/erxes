@@ -158,7 +158,7 @@ export const putActivityLog = async user => {
         contentType,
         contentId,
         createdBy: user.clientPortalId,
-        action: 'registeredToClientPortal'
+        action: 'create'
       }
     }
   });

@@ -34,7 +34,7 @@ export default {
       action: 'integrations.findOne',
       data: { _id: activityLog.createdBy },
       isRPC: true,
-      defaultValue: []
+      defaultValue: null
     });
 
     if (integration) {

@@ -24,6 +24,9 @@ export interface IUser {
   resetPasswordExpires?: Date;
   registrationToken?: string;
   registrationTokenExpires?: Date;
+  isOnline: boolean;
+  lastSeenAt: Date;
+  sessionCount: number;
 }
 
 export interface IUserDocument extends IUser, Document {
@@ -94,7 +97,22 @@ export const clientPortalUserSchema = new Schema({
   resetPasswordExpires: field({ type: Date, optional: true }),
 
   registrationToken: field({ type: String }),
-  registrationTokenExpires: field({ type: Date })
+  registrationTokenExpires: field({ type: Date }),
+  isOnline: field({
+    type: Boolean,
+    label: 'Is online',
+    optional: true
+  }),
+  lastSeenAt: field({
+    type: Date,
+    label: 'Last seen at',
+    optional: true
+  }),
+  sessionCount: field({
+    type: Number,
+    label: 'Session count',
+    optional: true
+  })
 });
 
 clientPortalUserSchema.index(

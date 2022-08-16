@@ -108,6 +108,7 @@ export interface IUserModel extends Model<IUserDocument> {
     email?: string
   ): string;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
+  updateSession(_id: string): Promise<IUserDocument>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -679,6 +680,8 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
       }
 
+      this.updateSession(user._id);
+
       return createJwtToken({ userId: user._id });
     }
 
@@ -796,7 +799,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         ...qryOption
       });
 
-      if (!users) {
+      if (!users || !users.length) {
         throw new Error('Users not found');
       }
 
@@ -807,7 +810,32 @@ export const loadClientPortalUserClass = (models: IModels) => {
         }
       );
 
+      for (const user of users) {
+        await putActivityLog(user);
+      }
+
       return users;
+    }
+
+    /*
+     * Update session data
+     */
+    public static async updateSession(_id: string) {
+      const now = new Date();
+
+      const query: any = {
+        $set: {
+          lastSeenAt: now,
+          isOnline: true
+        },
+        $inc: { sessionCount: 1 }
+      };
+
+      // update
+      await models.ClientPortalUsers.findByIdAndUpdate(_id, query);
+
+      // updated customer
+      return models.ClientPortalUsers.findOne({ _id });
     }
   }
 
