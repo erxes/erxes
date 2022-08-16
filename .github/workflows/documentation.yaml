@@ -47,7 +47,6 @@ jobs:
           cd docs
           yarn install --frozen-lockfile
           yarn run build
-          ls
 
   gh-release:
     if: github.event_name != 'pull_request'
@@ -101,4 +100,14 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           yarn install --frozen-lockfile
-          yarn deploy
+          yarn build
+
+      - name: Build docker image
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop')
+        env:
+          BASE_IMAGE: erxes/erxes:base-1.18-alpine
+        run: |
+          cd docs
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} .
+          docker push erxes/erxes:${GITHUB_REF#refs/heads/}
