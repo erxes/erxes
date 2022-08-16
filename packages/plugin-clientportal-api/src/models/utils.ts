@@ -13,8 +13,14 @@ export const handleContacts = async (args: IContactsParams) => {
   const { subdomain, models, clientPortalId, document, password } = args;
   const { type = 'customer' } = document;
 
-  let qry: any = { email: document.email };
+  let qry: any = {};
   let user: any;
+
+  const trimmedMail = (document.email || '').toLowerCase().trim();
+
+  if (document.email) {
+    qry = { email: trimmedMail };
+  }
 
   if (document.phone) {
     qry = { phone: document.phone };
@@ -25,11 +31,15 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'customers.findOne',
       data: {
-        customerPrimaryEmail: document.email,
+        customerPrimaryEmail: trimmedMail,
         customerPrimaryPhone: document.phone
       },
       isRPC: true
     });
+
+    if (customer) {
+      qry = { erxesCustomerId: customer._id, clientPortalId };
+    }
 
     user = await models.ClientPortalUsers.findOne(qry);
 
@@ -56,7 +66,7 @@ export const handleContacts = async (args: IContactsParams) => {
         data: {
           firstName: document.firstName,
           lastName: document.lastName,
-          primaryEmail: document.email,
+          primaryEmail: trimmedMail,
           primaryPhone: document.phone,
           state: 'lead'
         },
@@ -77,12 +87,16 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'companies.findOne',
       data: {
-        companyPrimaryEmail: document.email,
+        companyPrimaryEmail: trimmedMail,
         companyPrimaryPhone: document.phone,
         companyCode: document.companyRegistrationNumber
       },
       isRPC: true
     });
+
+    if (company) {
+      qry = { erxesCompanyId: company._id, clientPortalId };
+    }
 
     user = await models.ClientPortalUsers.findOne(qry);
 
@@ -108,7 +122,7 @@ export const handleContacts = async (args: IContactsParams) => {
         action: 'companies.createCompany',
         data: {
           primaryName: document.companyName,
-          primaryEmail: document.email,
+          primaryEmail: trimmedMail,
           primaryPhone: document.phone,
           code: document.companyRegistrationNumber
         },
