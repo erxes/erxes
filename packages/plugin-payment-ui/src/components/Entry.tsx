@@ -1,12 +1,11 @@
-import { Box, IntegrationItem, Ribbon, Type } from './styles';
-
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { __ } from 'coreui/utils';
-import { formatText } from '@erxes/ui-log/src/activityLogs/utils';
+
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+
+import QpayConfigForm from './form/QpayConfigForm';
+import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type TotalCount = {
   messenger: number;
@@ -44,34 +43,21 @@ function renderType(type: string) {
   );
 }
 
-function Entry({
-  integration,
-  getClassName,
-  toggleBox,
-  totalCount,
-  customLink
-}: Props) {
-  const { kind, isAvailable, createUrl, createModal } = integration;
+function renderCreate(type: string) {
+  const trigger = <button>+ {__('Add')}</button>;
+  const formContent = props => <QpayConfigForm />;
 
-  console.log('Home entry ...', kind, integration);
+  return (
+    <ModalTrigger
+      title={`Add ${type}`}
+      trigger={trigger}
+      content={formContent}
+    />
+  );
+}
 
-  const handleLink = () => {
-    return customLink && customLink(kind, createUrl);
-  };
-
-  function renderCustomLink(isAvailable1) {
-    if (
-      ![
-        INTEGRATION_KINDS.NYLAS_GMAIL,
-        INTEGRATION_KINDS.NYLAS_OFFICE365
-      ].includes(kind) ||
-      !isAvailable1
-    ) {
-      return null;
-    }
-
-    return <button onClick={handleLink}>+{__('Add')}</button>;
-  }
+function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
+  const { kind, isAvailable } = integration;
 
   return (
     <IntegrationItem key={integration.name} className={getClassName(kind)}>
@@ -93,8 +79,7 @@ function Entry({
           </Ribbon>
         )}
       </Box>
-      {renderCustomLink(isAvailable)}
-      {/* {renderCreate(createUrl, createModal, isAvailable)} */}
+      {renderCreate(integration.name)}
     </IntegrationItem>
   );
 }
