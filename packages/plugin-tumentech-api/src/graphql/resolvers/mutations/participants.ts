@@ -43,7 +43,7 @@ const participantMutations = {
 
   selectWinner: async (
     _root,
-    { dealId, tripId }: { dealId: string; tripId: string },
+    { dealId, driverId }: { dealId: string; driverId: string },
     { models }: IContext
   ) => {
     await models.Participants.updateMany(
@@ -56,17 +56,25 @@ const participantMutations = {
     await models.Participants.updateOne(
       {
         dealId,
-        tripId
+        driverId
       },
       { $set: { status: 'won' } }
     );
 
-    await models.Trips.updateOne(
-      { _id: tripId },
-      { $push: { dealIds: dealId } }
-    );
+    const participant = await models.Participants.getParticipant({
+      dealId,
+      driverId
+    });
 
-    return models.Participants.getParticipant({ dealId, tripId });
+    await models.Trips.create({
+      driverId,
+      carIds: participant.carIds,
+      routeId: participant.routeId,
+      status: 'open',
+      dealIds: [dealId]
+    });
+
+    return participant;
   }
 };
 

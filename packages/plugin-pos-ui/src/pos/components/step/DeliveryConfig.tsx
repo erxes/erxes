@@ -45,7 +45,7 @@ class DeliveryConfig extends React.Component<
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'deal'
+            contentType: 'cards:deal'
           }
         })
         .then(({ data }) => {
@@ -66,8 +66,6 @@ class DeliveryConfig extends React.Component<
   onChangeConfig = (code: string, value) => {
     const { config } = this.state;
     config[code] = value;
-
-    console.log(code, value);
 
     this.setState({ config }, () => {
       this.props.onChange('deliveryConfig', config);
@@ -140,7 +138,7 @@ class DeliveryConfig extends React.Component<
                       value={config.mapCustomField}
                       onChange={onMapCustomFieldChange}
                       options={(fieldsCombined || []).map(f => ({
-                        value: f._id,
+                        value: f.name,
                         label: f.label
                       }))}
                     />

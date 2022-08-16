@@ -32,44 +32,15 @@ export const initBroker = async cl => {
 
       const { deliveryConfig = {} } = pos;
       const deliveryInfo = doneOrder.deliveryInfo || {};
-      const { marker = {} } = deliveryInfo;
-      const { cardsConfig = {} } = pos;
-      const currentCardsConfig = cardsConfig.carsConfig.find(
-        c => c.branchId && c.branchId === doneOrder.branchId
-      );
-
-      if (currentCardsConfig) {
-        const cardDeal = await sendCardsMessage({
-          subdomain,
-          action: 'deals.create',
-          data: {
-            name: `Cards: ${doneOrder.number}`,
-            startDate: doneOrder.createdAt,
-            description: deliveryInfo?.address || '',
-            stageId: currentCardsConfig.stageId,
-            assignedUserIds: currentCardsConfig.assignedUserIds,
-            productsData: doneOrder.items.map(i => ({
-              productId: i.productId,
-              uom: 'PC',
-              currency: 'MNT',
-              quantity: i.count,
-              unitPrice: i.unitPrice,
-              amount: i.count * i.unitPrice,
-              tickUsed: true
-            }))
-          },
-          isRPC: true,
-          defaultValue: {}
-        });
-      }
+      const { marker = {}, description } = deliveryInfo;
 
       const deal = await sendCardsMessage({
         subdomain,
-        action: '',
+        action: 'deals.create',
         data: {
           name: `Delivery: ${doneOrder.number}`,
           startDate: doneOrder.createdAt,
-          description: deliveryInfo.address,
+          description,
           // {
           //   "locationValue": {
           //     "type": "Point",
@@ -93,14 +64,18 @@ export const initBroker = async cl => {
               ),
               locationValue: {
                 type: 'Point',
-                coordinates: [marker.longitude, marker.latitude]
+                coordinates: [
+                  marker.longitude || marker.lng,
+                  marker.latitude || marker.lat
+                ]
               },
               value: {
-                lat: marker.latitude,
-                lng: marker.longitude,
+                lat: marker.latitude || marker.lat,
+                lng: marker.longitude || marker.lng,
                 description: 'location'
               },
-              stringValue: `${marker.longitude},${marker.latitude}`
+              stringValue: `${marker.longitude ||
+                marker.lng},${marker.latitude || marker.lat}`
             }
           ],
           stageId: deliveryConfig.stageId,
@@ -186,6 +161,68 @@ export const initBroker = async cl => {
     );
 
     const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+
+    // ===> sync cards config then
+    const { cardsConfig = [] } = pos;
+    const currentCardsConfig = (cardsConfig || []).find(
+      c => c.branchId && c.branchId === newOrder.branchId
+    );
+
+    if (currentCardsConfig && currentCardsConfig.stageId) {
+      const cardDeal = await sendCardsMessage({
+        subdomain,
+        action: 'deals.create',
+        data: {
+          name: `Cards: ${newOrder.number}`,
+          startDate: newOrder.createdAt,
+          description: newOrder.deliveryInfo
+            ? newOrder.deliveryInfo.address
+            : '',
+          stageId: currentCardsConfig.stageId,
+          assignedUserIds: currentCardsConfig.assignedUserIds,
+          productsData: newOrder.items.map(i => ({
+            productId: i.productId,
+            uom: 'PC',
+            currency: 'MNT',
+            quantity: i.count,
+            unitPrice: i.unitPrice,
+            amount: i.count * i.unitPrice,
+            tickUsed: true
+          }))
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      if (newOrder.customerId && cardDeal._id) {
+        await sendCoreMessage({
+          subdomain,
+          action: 'conformities.addConformity',
+          data: {
+            mainType: 'deal',
+            mainTypeId: cardDeal._id,
+            relType: 'customer',
+            relTypeId: newOrder.customerId
+          },
+          isRPC: true
+        });
+      }
+
+      await sendCardsMessage({
+        subdomain,
+        action: 'pipelinesChanged',
+        data: {
+          pipelineId: currentCardsConfig.pipelineId,
+          action: 'itemAdd',
+          data: {
+            item: cardDeal,
+            destinationStageId: currentCardsConfig.stageId
+          }
+        }
+      });
+    }
+    // end sync cards config then <
+
     // return info saved
     sendPosclientMessage({
       subdomain,
@@ -199,15 +236,21 @@ export const initBroker = async cl => {
       pos
     });
 
+    console.log(newOrder.type, newOrder.branchId, '1111111111111111');
     if (newOrder.type === 'delivery' && newOrder.branchId) {
       const toPos = await models.Pos.findOne({ branchId: newOrder.branchId });
 
       // paid order info to offline pos
       // TODO: this message RPC, offline pos has seen by this message check
+      console.log(
+        toPos ? `${toPos.token}, ${toPos._id}` : '',
+        '22222222222222222222222222'
+      );
       if (toPos) {
+        console.log(toPos.token, 'dddddddddddddddddddddddddddddd', posToken);
         await sendPosclientMessage({
           subdomain,
-          action: 'vrpc_queue:erxes-pos-to-pos',
+          action: 'erxes-posclient-to-pos-api',
           data: {
             order: { ...newOrder, posToken }
           },

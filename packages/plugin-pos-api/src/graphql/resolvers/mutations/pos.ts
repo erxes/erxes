@@ -82,13 +82,7 @@ const mutations = {
 
     const updatedGroups = await models.ProductGroups.groups(posId);
 
-    const { ALL_AUTO_INIT } = process.env;
-    if (
-      [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
-      pos.isOnline
-    ) {
-      await syncProductGroupsToClient(subdomain, models, pos);
-    }
+    await syncProductGroupsToClient(subdomain, models, pos);
 
     return updatedGroups;
   },
@@ -134,14 +128,8 @@ const mutations = {
     await models.PosSlots.insertMany(slots.filter(s => !s._id));
 
     const updatedSlots = await models.PosSlots.find({ posId });
-    const { ALL_AUTO_INIT } = process.env;
 
-    if (
-      [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
-      pos.isOnline
-    ) {
-      await syncSlotsToClient(subdomain, pos, updatedSlots);
-    }
+    await syncSlotsToClient(subdomain, pos, updatedSlots);
 
     return updatedSlots;
   },

@@ -70,6 +70,8 @@ export interface IConfig {
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   posId: string;
+  branchId?: string;
+  allowBranchIds?: string[];
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -151,7 +153,13 @@ export const configSchema = new Schema({
   deliveryConfig: field({
     type: Object
   }),
-  posId: field({ type: String, label: 'Pos id' })
+  posId: field({ type: String, label: 'Pos id' }),
+  branchId: field({ type: String, optional: true, label: 'Branch' }),
+  allowBranchIds: field({
+    type: [String],
+    optional: true,
+    label: 'Allow branches'
+  })
 });
 
 export const productGroupSchema = new Schema({

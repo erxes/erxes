@@ -69,12 +69,26 @@ const paymentMutations = {
 
   async qpayCancelInvoice(
     _root,
-    { _id }: IInvoiceParams,
+    { orderId, _id }: IInvoiceParams,
     { models, config }: IContext
   ) {
     try {
       const tokenInfo = await fetchQPayToken(config.qpayConfig!);
-      const invoice = await models.QPayInvoices.getInvoice(_id);
+
+      const order = models.Orders.findOne({ _id: orderId });
+      let invoice;
+
+      if (!order && _id) {
+        invoice = await models.QPayInvoices.findOne({ _id });
+      } else {
+        invoice = await models.QPayInvoices.findOne({
+          senderInvoiceNo: orderId
+        });
+      }
+
+      if (!invoice) {
+        throw new Error('Invoice not found');
+      }
 
       if (invoice.status === INVOICE_STATUSES.PAID) {
         throw new Error('Can not cancel paid invoice');
@@ -101,10 +115,21 @@ const paymentMutations = {
 
   async qpayCheckPayment(
     _root,
-    { _id }: IInvoiceParams,
-    { models, config }: IContext
+    { orderId, _id }: IInvoiceParams,
+    { models, config, subdomain }: IContext
   ) {
-    const invoice = await models.QPayInvoices.getInvoice(_id);
+    let invoice;
+    const order = models.Orders.findOne({ _id: orderId });
+
+    if (!order && _id) {
+      invoice = await models.QPayInvoices.findOne({ _id });
+    } else {
+      invoice = await models.QPayInvoices.findOne({ senderInvoiceNo: orderId });
+    }
+
+    if (!invoice) {
+      throw new Error('Invoice not found');
+    }
 
     if (
       !config.qpayConfig ||
@@ -152,12 +177,14 @@ const paymentMutations = {
           orderId
         );
 
-        return await commonCheckPayment(
+        await commonCheckPayment(
+          subdomain,
           models,
           orderId,
           config,
           paidMobileAmount
         );
+        return models.QPayInvoices.findOne({ _id: invoice._id });
       }
     }
 

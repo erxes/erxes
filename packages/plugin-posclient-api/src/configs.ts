@@ -29,10 +29,15 @@ export default {
   },
   hasSubscriptions: true,
   freeSubscriptions: loadSubscriptions,
-  postHandlers: [{ path: `/pl:posclient/callBackQpay`, method: callBackQpay }],
+  postHandlers: [
+    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
+    { path: `/callBackQpay`, method: callBackQpay }
+  ],
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup },
+    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
+    { path: `/callBackQpay`, method: callBackQpay }
   ],
 
   apolloServerContext: async (context, req, res) => {

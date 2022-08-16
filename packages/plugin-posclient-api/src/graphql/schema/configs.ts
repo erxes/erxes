@@ -67,6 +67,7 @@ export const types = `
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
     deliveryConfig: JSON
+    branchId: String
   }
 `;
 

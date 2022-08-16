@@ -52,11 +52,11 @@ export default function Component({
       <div>
         {participants.map((participant, index) => (
           <SectionBodyItem key={index}>
-            <Link to={`/contacts/details/${participant.trip.driver._id}`}>
-              {renderFullName(participant.trip.driver)}
+            <Link to={`/contacts/details/${participant.driver._id}`}>
+              {renderFullName(participant.driver)}
               {renderStatus(participant)}
             </Link>
-            {renderActionSection(participant.trip.driver)}
+            {renderActionSection(participant.driver)}
           </SectionBodyItem>
         ))}
       </div>
