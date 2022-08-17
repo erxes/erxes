@@ -8,6 +8,7 @@ import {
   TabletPreview
 } from './style';
 import { TabTitle, Tabs } from '../tabs';
+import { isEnabled, loadDynamicComponent } from '../../utils/core';
 
 import CalloutPreview from './preview/CalloutPreview';
 import FormPreview from './preview/FormPreview';
@@ -18,7 +19,6 @@ import React from 'react';
 import SuccessPreview from './preview/SuccessPreview';
 import { __ } from '../../utils';
 import asyncComponent from '../AsyncComponent';
-import { isEnabled } from '../../utils/core';
 
 const FieldForm = asyncComponent(
   () =>
@@ -183,18 +183,15 @@ class FullPreviewStep extends React.Component<Props, State> {
     }
 
     if (carousel === 'form') {
-      const previewRenderer = () => (
-        <>
-          <FieldsPreview
-            fields={fields || []}
-            formDesc={formData.description}
-            onFieldClick={this.onFieldClick}
-            onChangeFieldsOrder={this.onChangeFieldsOrder}
-            currentPage={this.state.currentPage}
-            configs={configs}
-          />
-        </>
-      );
+      const previewRenderer = () =>
+        loadDynamicComponent('fieldPreview', {
+          fields: fields || [],
+          formDesc: formData.description,
+          onFieldClick: this.onFieldClick,
+          onChangeFieldsOrder: this.onChangeFieldsOrder,
+          currentPage: this.state.currentPage,
+          configs: configs
+        });
 
       return (
         <>
@@ -206,17 +203,17 @@ class FullPreviewStep extends React.Component<Props, State> {
             currentPage={this.state.currentPage}
             onPageChange={this.onPageChange}
           />
-          {currentField && isEnabled('forms') && (
-            <FieldForm
-              mode={currentMode || 'create'}
-              fields={fields}
-              field={currentField}
-              numberOfPages={formData.numberOfPages || 1}
-              onSubmit={this.onFieldSubmit}
-              onDelete={this.onFieldDelete}
-              onCancel={this.onFieldFormCancel}
-            />
-          )}
+          {currentField &&
+            isEnabled('forms') &&
+            loadDynamicComponent('formPreview', {
+              mode: currentMode || 'create',
+              fields: fields,
+              field: currentField,
+              numberOfPages: formData.numberOfPages || 1,
+              onSubmit: this.onFieldSubmit,
+              onDelete: this.onFieldDelete,
+              onCancel: this.onFieldFormCancel
+            })}
         </>
       );
     }

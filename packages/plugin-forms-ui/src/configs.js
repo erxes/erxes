@@ -5,7 +5,9 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './segmentForm': './src/segmentForm.tsx',
-    './importExportUploadForm': './src/components/ColumnChooser'
+    './importExportUploadForm': './src/components/ColumnChooser',
+    './fieldPreview': './src/components/FieldsPreview',
+    './formPreview': './src/containers/FieldForm',
   },
   routes: {
     url: 'http://localhost:3005/remoteEntry.js',
@@ -13,6 +15,8 @@ module.exports = {
     module: './routes'
   },
   segmentForm: './segmentForm',
+  formPreview: './formPreview',
+  fieldPreview: './fieldPreview',
   importExportUploadForm: './importExportUploadForm',
   menus: [
     {
