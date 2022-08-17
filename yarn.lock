@@ -5175,7 +5175,7 @@ apollo-server-core@^2.25.3:
     subscriptions-transport-ws "^0.9.19"
     uuid "^8.0.0"
 
-apollo-server-core@^3.5.0, apollo-server-core@^3.6.3:
+apollo-server-core@^3.6.3:
   version "3.6.3"
   resolved "https://registry.yarnpkg.com/apollo-server-core/-/apollo-server-core-3.6.3.tgz#6b12ffa1af8bc8799930f72360090834915033d1"
   integrity sha512-TFJmAlI6vPp1MHOSXqYkE6leAyMekWv/D/3ma11uETkcd3EPjERGmxtTXPJElMVEkOK9BEElYKthCrH7bjYLuw==

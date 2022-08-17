@@ -91,6 +91,7 @@ const listParamsDef = `
   $leadStatus: String,
   $sortField: String,
   $sortDirection: Int,
+  $dateFilters: String,
   ${conformityQueryFields}
 `;
 
@@ -113,6 +114,7 @@ const listParamsValue = `
   leadStatus: $leadStatus,
   sortField: $sortField,
   sortDirection: $sortDirection,
+  dateFilters: $dateFilters,
   ${conformityQueryFieldDefs}
 `;
 

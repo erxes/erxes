@@ -135,7 +135,7 @@ export const sendRPCMessage = async (
 ): Promise<any> => {
   queueName = queueName.concat(queuePrefix);
 
-  if (!message.thirdService) {
+  if (message && !message.thirdService) {
     await checkQueueName(queueName, true);
   }
 
@@ -190,7 +190,7 @@ export const sendRPCMessage = async (
 export const sendMessage = async (queueName: string, data?: any) => {
   queueName = queueName.concat(queuePrefix);
 
-  if (!data.thirdService) {
+  if (data && !data.thirdService) {
     await checkQueueName(queueName, true);
   }
 

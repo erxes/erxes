@@ -11,7 +11,8 @@ import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
 import { __ } from 'coreui/utils';
-import { respondrates } from '../../../constants';
+import { RESPOND_RATES } from '../../../constants';
+import timezones from '@erxes/ui/src/constants/timezones';
 
 type Props = {
   onChange: (
@@ -20,7 +21,8 @@ type Props = {
       | 'isOnline'
       | 'availabilityMethod'
       | 'responseRate'
-      | 'showTimezone',
+      | 'showTimezone'
+      | 'timezone',
     value: string
   ) => void;
   isOnline: boolean;
@@ -91,31 +93,50 @@ class Availability extends React.Component<Props> {
   }
 
   renderShowTimezone() {
+    const { timezone = '' } = this.props;
+
     const onChange = e =>
       this.onChangeFunction('showTimezone', e.target.checked);
 
+    const timezoneOnChange = e => this.onSelectChange(e, 'timezone');
+
     return (
-      <FormGroup>
-        <ControlLabel required={true}>
-          {__('Display Operator Timezone')}
-        </ControlLabel>
-        <Description>
-          {' '}
-          {__(
-            'Display chat operator timezone set in their location in team member profiles'
-          )}
-        </Description>
-        <ToggleWrapper>
-          <Toggle
-            checked={this.props.showTimezone}
-            onChange={onChange}
-            icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
-            }}
+      <React.Fragment>
+        <FormGroup>
+          <ControlLabel>{__('Default Timezone')}</ControlLabel>
+          <Description>
+            {__(
+              "This timezone will be calculated if supporters haven't chosen one."
+            )}
+          </Description>
+          <Select
+            value={timezone}
+            options={timezones}
+            onChange={timezoneOnChange}
           />
-        </ToggleWrapper>
-      </FormGroup>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>
+            {__('Display Operator Timezone')}
+          </ControlLabel>
+          <Description>
+            {' '}
+            {__(
+              'Display chat operator timezone set in their location in team member profiles'
+            )}
+          </Description>
+          <ToggleWrapper>
+            <Toggle
+              checked={this.props.showTimezone}
+              onChange={onChange}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </ToggleWrapper>
+        </FormGroup>
+      </React.Fragment>
     );
   }
 
@@ -180,7 +201,7 @@ class Availability extends React.Component<Props> {
             <Select
               required={true}
               value={this.props.responseRate}
-              options={respondrates}
+              options={RESPOND_RATES}
               onChange={respondTypeOnChange}
               clearable={false}
             />

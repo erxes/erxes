@@ -133,6 +133,7 @@ export default withProps<Props>(
           searchValue: queryParams.searchValue,
           cpId: queryParams.cpId,
           type: queryParams.type,
+          dateFilters: queryParams.dateFilters,
           ...generatePaginationParams(queryParams)
         },
         fetchPolicy: 'network-only'

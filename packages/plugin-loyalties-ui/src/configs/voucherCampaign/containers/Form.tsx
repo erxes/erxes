@@ -1,23 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-
-import { withProps } from '@erxes/ui/src/utils';
-import { ButtonMutate } from '@erxes/ui/src/components';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
 import From from '../components/Form';
+import gql from 'graphql-tag';
+import React from 'react';
+import { ButtonMutate } from '@erxes/ui/src/components';
+import { graphql } from 'react-apollo';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IVoucherCampaign } from '../types';
+import { LotteryCampaignQueryResponse } from '../../lotteryCampaign/types';
 import { mutations } from '../graphql';
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 import { queries as spinCampaignQueries } from '../../spinCampaign/graphql';
 import { queries as lotteryCampaignQueries } from '../../lotteryCampaign/graphql';
-import { IVoucherCampaign } from '../types';
-import {
-  ProductCategoriesQueryResponse,
-  ProductsQueryResponse
-} from '@erxes/ui-products/src/types';
 import { SpinCampaignQueryResponse } from '../../spinCampaign/types';
-import { LotteryCampaignQueryResponse } from '../../lotteryCampaign/types';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   voucherCampaign?: IVoucherCampaign;
@@ -25,27 +19,15 @@ type Props = {
 };
 
 type FinalProps = {
-  productCategoriesQuery: ProductCategoriesQueryResponse;
-  productsQuery: ProductsQueryResponse;
   spinCampaignQuery: SpinCampaignQueryResponse;
   lotteryCampaignQuery: LotteryCampaignQueryResponse;
 } & Props;
 
 class ProductFormContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      productCategoriesQuery,
-      productsQuery,
-      spinCampaignQuery,
-      lotteryCampaignQuery
-    } = this.props;
+    const { spinCampaignQuery, lotteryCampaignQuery } = this.props;
 
-    if (
-      productCategoriesQuery.loading ||
-      productsQuery.loading ||
-      spinCampaignQuery.loading ||
-      lotteryCampaignQuery.loading
-    ) {
+    if (spinCampaignQuery.loading || lotteryCampaignQuery.loading) {
       return null;
     }
 
@@ -89,16 +71,12 @@ class ProductFormContainer extends React.Component<FinalProps> {
       );
     };
 
-    const productCategories = productCategoriesQuery.productCategories || [];
-    const products = productsQuery.products || [];
     const spinCampaigns = spinCampaignQuery.spinCampaigns || [];
     const lotteryCampaigns = lotteryCampaignQuery.lotteryCampaigns || [];
 
     const updatedProps = {
       ...this.props,
       renderButton,
-      productCategories,
-      products,
       spinCampaigns,
       lotteryCampaigns
     };
@@ -113,15 +91,6 @@ const getRefetchQueries = () => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductCategoriesQueryResponse>(
-      gql(productQueries.productCategories),
-      {
-        name: 'productCategoriesQuery'
-      }
-    ),
-    graphql<Props, ProductsQueryResponse>(gql(productQueries.products), {
-      name: 'productsQuery'
-    }),
     graphql<Props, SpinCampaignQueryResponse>(
       gql(spinCampaignQueries.spinCampaigns),
       {

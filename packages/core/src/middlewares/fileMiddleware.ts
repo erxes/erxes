@@ -13,9 +13,10 @@ const DOMAIN = getEnv({ name: 'DOMAIN' });
 
 export const uploader = async (req: any, res, next) => {
   const subdomain = getSubdomain(req);
+  const domain = DOMAIN.replace('<subdomain>', subdomain);
   const models = await generateModels(subdomain);
 
-  const INTEGRATIONS_API_DOMAIN = `${DOMAIN}/gateway/pl:integrations`;
+  const INTEGRATIONS_API_DOMAIN = `${domain}/gateway/pl:integrations`;
 
   if (req.query.kind === 'nylas') {
     debugExternalApi(`Pipeing request to ${INTEGRATIONS_API_DOMAIN}`);
@@ -49,7 +50,7 @@ export const uploader = async (req: any, res, next) => {
     if (status === 'ok') {
       try {
         const result = await uploadFile(
-          `${DOMAIN}/gateway`,
+          `${domain}/gateway`,
           file,
           response.upload ? true : false,
           models

@@ -18,7 +18,7 @@ export default class LeftSidebar extends React.Component<Props> {
       <Sidebar wide={true}>
         <TripSection trip={trip} />
         <DriverSection driver={trip.driver} />
-        <CarSection car={trip.car} />
+        <CarSection cars={trip.cars} />
       </Sidebar>
     );
   }

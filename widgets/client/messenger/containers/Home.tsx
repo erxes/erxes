@@ -7,7 +7,6 @@ type Props = {
   supporters: IUser[];
   color?: string;
   isOnline?: boolean;
-  serverTime?: string;
   activeSupport?: boolean;
 };
 

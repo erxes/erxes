@@ -5,7 +5,7 @@ import Toggle from '@erxes/ui/src/components/Toggle';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
-import { ICar, IParticipant } from '../../types';
+import { IParticipant } from '../../types';
 import { carInfo } from '../../utils';
 
 type Props = {
@@ -41,7 +41,7 @@ class Row extends React.Component<Props> {
 
   render() {
     const { participant } = this.props;
-    const { driver } = participant.trip;
+    const { driver } = participant;
     const { detail = { price: 0 } } = participant;
     const labelStyle = participant.status === 'won' ? 'success' : 'warning';
 
@@ -52,13 +52,13 @@ class Row extends React.Component<Props> {
         </td>
         <td>
           <TextInfo ignoreTrans={true}>
-            {carInfo(participant.trip.car)}
+            {participant.cars.length
+              ? `${participant.cars.map(c => carInfo(c))}`
+              : 'undefined'}
           </TextInfo>
         </td>
         <td>
-          <TextInfo ignoreTrans={true}>
-            {participant.trip.route.name || ''}
-          </TextInfo>
+          <TextInfo ignoreTrans={true}>{participant.route.name || ''}</TextInfo>
         </td>
         <td>
           <TextInfo ignoreTrans={true}>{detail.price}</TextInfo>

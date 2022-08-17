@@ -97,6 +97,7 @@ const posOrderDetail = `
     posOrderDetail(_id: $_id) {
       ${orderFields}
       putResponses
+      deliveryInfo
     }
   }
 `;
