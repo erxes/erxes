@@ -1,14 +1,14 @@
+import { Alert } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
-import React from 'react';
-import Form from '../components/Form';
-import * as compose from 'lodash.flowright';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
+import { RiskAssesmentsCategoriesQueryResponse } from '../../common/types';
+import Form from '../components/Form';
 import { mutations, queries } from '../graphql';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { AddRiskAssesmentCategoryMutationResponse, RiskAssesmentsCategoriesQueryResponse } from '../../common/types';
-import { Alert, Button, ModalTrigger } from '@erxes/ui/src';
 
 type Props = {
   trigger?: JSX.Element;
@@ -49,7 +49,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     const updatedProps = {
       ...this.props,
       categories: categories.getRiskAssesmentCategories,
-      category: categoryDetail?.getRiskAssesmentCategory,
+      detail: categoryDetail?.getRiskAssesmentCategory,
       loading: categoryDetail?.loading,
       addCategory: this.addCategory,
     };
