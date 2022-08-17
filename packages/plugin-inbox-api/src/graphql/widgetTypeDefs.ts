@@ -77,10 +77,13 @@ export const types = ({ products, forms, knowledgeBase }) => `
     text: String
   }
 
+  extend type User {
+    isOnline: Boolean
+  }
+
   type MessengerSupportersResponse {
     supporters: [User]
     isOnline: Boolean
-    serverTime: String
   }
 
   ${

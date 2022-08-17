@@ -41,7 +41,6 @@ type Props = {
   supporters: IUser[];
   loading?: boolean;
   isOnline?: boolean;
-  serverTime?: string;
 };
 
 function Messenger({
@@ -49,7 +48,6 @@ function Messenger({
   isOnline = false,
   supporters,
   loading,
-  serverTime,
 }: Props) {
   const WithSupporters = (Component: any) => {
     return (
@@ -57,7 +55,6 @@ function Messenger({
         supporters={supporters}
         loading={loading}
         isOnline={isOnline}
-        serverTime={serverTime}
       />
     );
   };
@@ -87,7 +84,6 @@ function Messenger({
         <Home
           supporters={supporters}
           isOnline={isOnline}
-          serverTime={serverTime}
           activeSupport={true}
         />
       );
