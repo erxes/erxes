@@ -42,6 +42,9 @@ class MeasureForm extends React.Component<Props, State> {
       }
     };
 
+    if (measures.length === 0) {
+    }
+
     return (
       <FormGroup>
         <ControlLabel>Measure</ControlLabel>
