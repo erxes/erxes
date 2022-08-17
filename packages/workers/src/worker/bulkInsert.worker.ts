@@ -4,6 +4,7 @@ import * as _ from 'underscore';
 import messageBroker from '../messageBroker';
 import { generateModels } from '../connectionResolvers';
 import { connect } from './utils';
+import { WORKER_BULK_LIMIT } from 'src/constants';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -126,8 +127,8 @@ connect().then(async () => {
     let endRow = bulkDoc.length;
 
     if (rowIndex && rowIndex > 1) {
-      startRow = rowIndex * bulkDoc.length - bulkDoc.length;
-      endRow = rowIndex * bulkDoc.length;
+      startRow = rowIndex * WORKER_BULK_LIMIT - WORKER_BULK_LIMIT;
+      endRow = startRow + WORKER_BULK_LIMIT;
     }
 
     const distance = endRow - startRow;
