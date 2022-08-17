@@ -3,6 +3,8 @@ import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
 import LayoutCategories from './LayoutCategories';
 import PostsList from '../containers/PostsList';
 import PostDetail from '../containers/PostDetail';
+import NewPost from '../containers/NewPost';
+
 function Layout() {
   // The `path` lets us build <Route> paths that are
   // relative to the parent route, while the `url` lets
@@ -36,7 +38,7 @@ function Layout() {
           </Route>
 
           <Route exact path={`/forums/posts/new`}>
-            <h3>New post</h3>
+            <NewPost />
           </Route>
 
           <Route exact path={`/forums/posts/:postId`}>
