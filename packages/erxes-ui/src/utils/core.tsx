@@ -33,28 +33,37 @@ export const loadComponent = (scope, module) => {
   };
 };
 
-export const loadCustomPlugin = (
-  pluginName: string,
+export const loadDynamicComponent = (
   componentName: string,
-  injectedProps?: any
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
 
-  for (const plugin of plugins) {
-    if (pluginName === plugin.name) {
-      return (
-        <ErrorBoundary>
-          <RenderDynamicComponent
-            scope={plugin.scope}
-            component={plugin[componentName]}
-            injectedProps={injectedProps ? injectedProps : {}}
-          />
-        </ErrorBoundary>
-      );
+  const renderDynamicComp = (plugin: any) => (
+    <ErrorBoundary>
+      <RenderDynamicComponent
+        scope={plugin.scope}
+        component={plugin[componentName]}
+        injectedProps={injectedProps ? injectedProps : {}}
+      />
+    </ErrorBoundary>
+  );
+
+  return plugins.map(plugin => {
+    if (multi || (pluginName && pluginName === plugin.name)) {
+      return renderDynamicComp(plugin);
+    }
+
+    const pluginKeys = Object.keys(plugin);
+
+    if (pluginKeys.includes(componentName)) {
+      return renderDynamicComp(plugin);
     }
 
     return null;
-  }
+  });
 };
 
 export class RenderDynamicComponent extends React.Component<
@@ -71,7 +80,6 @@ export class RenderDynamicComponent extends React.Component<
     const interval = setInterval(() => {
       if (window[this.props.scope]) {
         window.clearInterval(interval);
-
         this.setState({ showComponent: true });
       }
     }, 500);
