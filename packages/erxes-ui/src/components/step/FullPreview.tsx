@@ -18,23 +18,6 @@ import Icon from '../Icon';
 import React from 'react';
 import SuccessPreview from './preview/SuccessPreview';
 import { __ } from '../../utils';
-import asyncComponent from '../AsyncComponent';
-
-const FieldForm = asyncComponent(
-  () =>
-    isEnabled('forms') &&
-    import(
-      /* webpackChunkName: "FieldForm" */ '@erxes/ui-forms/src/forms/containers/FieldForm'
-    )
-);
-
-const FieldsPreview = asyncComponent(
-  () =>
-    isEnabled('forms') &&
-    import(
-      /* webpackChunkName: "FieldsPreview" */ '@erxes/ui-forms/src/forms/components/FieldsPreview'
-    )
-);
 
 type Props = {
   formData: any; //check - IFormData

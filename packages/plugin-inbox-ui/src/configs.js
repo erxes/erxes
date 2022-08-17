@@ -6,8 +6,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
     './unreadCount': './src/inbox/containers/UnreadCount.tsx',
-    './mailForm': './src/settings/integrations/containers/mail/MailForm',
-    './smsForm': './src/settings/integrations/containers/telnyx/SmsForm',
+    './actionForms': './src/settings/integrations/containers/ActionForms',
   },
   routes: {
     url: 'http://localhost:3009/remoteEntry.js',
@@ -15,8 +14,7 @@ module.exports = {
     module: './routes'
   },
   activityLog: './activityLog',
-  mailForm: './mailForm',
-  smsForm: './smsForm',
+  actionForms: './actionForms',
   menus: [
     {
       text: 'Team Inbox',
