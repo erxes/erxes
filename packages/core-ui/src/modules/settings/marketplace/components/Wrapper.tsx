@@ -21,6 +21,7 @@ const MainContent = styled.div`
   flex: 1;
   overflow: auto;
   padding: 0 ${dimensions.coreSpacing}px;
+  margin-bottom: -${dimensions.unitSpacing}px;
 `;
 
 type Props = {
