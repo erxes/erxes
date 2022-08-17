@@ -49,10 +49,6 @@ const initApp = async app => {
   // init callpro
   initCallPro(app);
 
-  initMemoryStorage();
-
-  initBroker(app);
-
   // Error handling middleware
   app.use((error, _req, res, _next) => {
     console.error(error.stack);

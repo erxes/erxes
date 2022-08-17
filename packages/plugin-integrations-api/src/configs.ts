@@ -40,10 +40,11 @@ export default {
 
     const app = options.app;
 
-    initApp(app);
+    initBroker(options.messageBrokerClient);
+
     initMemoryStorage();
 
-    initBroker(options.messageBrokerClient);
+    initApp(app);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
