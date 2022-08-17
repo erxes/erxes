@@ -4,7 +4,8 @@ module.exports = {
   scope: 'segments',
   exposes: {
     './routes': './src/routes.tsx',
-    './importExportFilterForm': './src/containers/SegmentsForm.tsx'
+    './importExportFilterForm': './src/containers/SegmentsForm.tsx',
+    './teamMemberSidebarComp': './src/containers/SegmentFilter.tsx'
   },
   routes: {
     url: 'http://localhost:3013/remoteEntry.js',
@@ -12,6 +13,7 @@ module.exports = {
     module: './routes'
   },
   importExportFilterForm: './importExportFilterForm',
+  teamMemberSidebarComp: './teamMemberSidebarComp',
   menus: [
     {
       text: 'Segments',

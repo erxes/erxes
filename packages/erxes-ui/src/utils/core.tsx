@@ -42,7 +42,7 @@ export const loadDynamicComponent = (
   const plugins: any[] = (window as any).plugins || [];
 
   const renderDynamicComp = (plugin: any) => (
-    <ErrorBoundary>
+    <ErrorBoundary key={plugin.scope}>
       <RenderDynamicComponent
         scope={plugin.scope}
         component={plugin[componentName]}
@@ -56,9 +56,7 @@ export const loadDynamicComponent = (
       return renderDynamicComp(plugin);
     }
 
-    const pluginKeys = Object.keys(plugin);
-
-    if (pluginKeys.includes(componentName)) {
+    if (Object.keys(plugin).includes(componentName)) {
       return renderDynamicComp(plugin);
     }
 

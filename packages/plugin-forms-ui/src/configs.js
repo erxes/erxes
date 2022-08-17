@@ -4,7 +4,8 @@ module.exports = {
   scope: 'forms',
   exposes: {
     './routes': './src/routes.tsx',
-    './segmentForm': './src/segmentForm.tsx'
+    './segmentForm': './src/segmentForm.tsx',
+    './importExportUploadForm': './src/components/ColumnChooser'
   },
   routes: {
     url: 'http://localhost:3005/remoteEntry.js',
@@ -12,6 +13,7 @@ module.exports = {
     module: './routes'
   },
   segmentForm: './segmentForm',
+  importExportUploadForm: './importExportUploadForm',
   menus: [
     {
       text: 'Properties',
