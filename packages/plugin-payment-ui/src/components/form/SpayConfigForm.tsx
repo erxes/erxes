@@ -5,30 +5,30 @@ import {
   HeaderDescription,
   FormControl
 } from '@erxes/ui/src/components';
+import { __ } from '@erxes/ui/src/utils';
 import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
 import { Wrapper } from '@erxes/ui/src/layout';
-import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { SettingsContent } from './styles';
 // import { IConfigsMap } from '../types';
 // import PaymentSection from './common/PaymentSection';
 
 // type Props = {
-// save: (configsMap: IConfigsMap) => void;
-// configsMap: IConfigsMap;
+//   save: (configsMap: IConfigsMap) => void;
+//   configsMap: IConfigsMap;
 // };
 
 // type State = {
 //   currentMap: IConfigsMap;
 // };
 
-class QpayConfig extends React.Component {
+class SocialPayConfig extends React.Component {
   // constructor(props: Props) {
   //   super(props);
 
-  // this.state = {
-  //   currentMap: props.configsMap.QPAY || {},
-  // };
+  //   this.state = {
+  //     currentMap: props.configsMap.SocialPAY || {},
+  //   };
   // }
 
   // save = e => {
@@ -36,7 +36,7 @@ class QpayConfig extends React.Component {
 
   //   const { currentMap } = this.state;
   //   const { configsMap } = this.props;
-  //   configsMap.QPAY = currentMap;
+  //   configsMap.SocialPAY = currentMap;
   //   this.props.save(configsMap);
   // };
 
@@ -52,15 +52,15 @@ class QpayConfig extends React.Component {
     // const { currentMap } = this.state;
     // let value = currentMap[key] || "";
 
-    const value = 'test';
+    const value = '';
 
-    // if (key === "callbackUrl" && !value) {
-    //   value = 'https://localhost:3000/payments';
+    // if (key === "pushNotification" && !value) {
+    //   value = 'https://localhost:3000/pushNotif';
     //   currentMap[key] = value;
     // }
 
-    // if (key === "qpayUrl" && !value) {
-    //   value = 'https://merchant.qpay.mn';
+    // if (key === "inStoreSPUrl" && !value) {
+    //   value = 'https://instore.golomtbank.com';
     //   currentMap[key] = value;
     // }
 
@@ -79,14 +79,14 @@ class QpayConfig extends React.Component {
   render() {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Qpay') }
+      { title: __('SocialPay') }
     ];
 
     const header = (
       <HeaderDescription
         icon="/images/actions/25.svg"
-        title="Qpay"
-        description="qpay"
+        title="SocialPay"
+        description="SocialPay"
       />
     );
 
@@ -105,38 +105,41 @@ class QpayConfig extends React.Component {
 
     const content = (
       <SettingsContent title={__('General settings')}>
-        {this.renderItem('qpayMerchantUser', 'Username')}
-        {this.renderItem('qpayMerchantPassword', 'Password')}
-        {this.renderItem('qpayInvoiceCode', 'Invoice code')}
-        {this.renderItem('qpayUrl', 'Qpay url')}
-        {this.renderItem('callbackUrl', 'Call back url with /payments')}
+        {this.renderItem('inStoreSPTerminal', 'Terminal')}
+        {this.renderItem('inStoreSPKey', 'Key')}
+        {this.renderItem('inStoreSPUrl', 'InStore SocialPay url')}
+        {this.renderItem(
+          'pushNotification',
+          'Push notification url with /pushNotif'
+        )}
       </SettingsContent>
     );
 
     return (
-      <>
-        <Wrapper
-          header={
-            <Wrapper.Header title={__('Qpay config')} breadcrumb={breadcrumb} />
-          }
-          mainHead={header}
-          actionBar={
-            <>
-              <Wrapper.ActionBar
-                left={<Title> {__('Qpay API configs')}</Title>}
-                right={actionButtons}
-              />
-            </>
-          }
-          // leftSidebar={
-          // <PaymentSection type="qpay" />
-          // }
-          content={content}
-          center={true}
-        />
-      </>
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__('SocialPay config')}
+            breadcrumb={breadcrumb}
+          />
+        }
+        mainHead={header}
+        actionBar={
+          <Wrapper.ActionBar
+            left={<Title> {__('SocialPay API configs')}</Title>}
+            right={actionButtons}
+          />
+        }
+        // leftSidebar={
+        //   <>
+        //     <PaymentSection type="socialPay" />
+        //   </>
+        // }
+        content={content}
+        center={true}
+      />
     );
   }
 }
 
-export default QpayConfig;
+export default SocialPayConfig;

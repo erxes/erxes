@@ -5,6 +5,9 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 import QpayConfigForm from './form/QpayConfigForm';
+import QpayForm from './form/QpayForm';
+import SocialPayForm from './form/SocialPayForm';
+import SpayConfigForm from './form/SpayConfigForm';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
 
 type TotalCount = {
@@ -45,7 +48,12 @@ function renderType(type: string) {
 
 function renderCreate(type: string) {
   const trigger = <button>+ {__('Add')}</button>;
-  const formContent = props => <QpayConfigForm />;
+
+  let formContent = props => <QpayForm />;
+
+  if (type.toLowerCase().includes('social')) {
+    formContent = props => <SocialPayForm />;
+  }
 
   return (
     <ModalTrigger
