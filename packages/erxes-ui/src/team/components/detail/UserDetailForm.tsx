@@ -1,14 +1,14 @@
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
+
 import ActionSection from '../../containers/ActionSection';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IUser } from '@erxes/ui/src/auth/types';
 import InfoSection from './InfoSection';
 import LeftSidebar from './LeftSidebar';
 import React from 'react';
-import RightSidebar from './RightSidebar';
 import { UserHeader } from './styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import asyncComponent from '../../../components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const LeadState = asyncComponent(
   () =>
@@ -122,7 +122,7 @@ function UserDetails({
           renderSkillForm={renderSkillForm}
         />
       }
-      rightSidebar={<RightSidebar user={user} />}
+      rightSidebar={loadDynamicComponent('contactDetailRightSidebar', { user })}
       content={content}
       transparent={true}
     />
