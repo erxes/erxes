@@ -16,21 +16,21 @@ sidebar_label: Installation
 1. Create `Install.sh` file and copy the following script in it. 
 ```
 #!/bin/bash
-echo -e "\e[1mStep 1 $now : Update хийж байна \e[0m"
+echo -e "\e[1mStep 1 $now : Updating \e[0m"
 sudo apt-get update -y
 # nginx install
-echo -e "\e[1mStep 1 $now : Nginx суулгаж байна\e[0m"
+echo -e "\e[1mStep 1 $now : Installing Nginx \e[0m"
 sudo apt install nginx -y
 # docker install
 sudo apt update -y
-echo -e "\e[1mStep 1 $now : docker  суулгаж байна\e[0m"
+echo -e "\e[1mStep 1 $now : Installing docker \e[0m"
 sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
 apt-cache policy docker-ce
 sudo apt install docker-ce -y
 
-echo -e "\e[1mStep 1 $now : certbot суулгаж байна\e[0m"
+echo -e "\e[1mStep 1 $now : Installing certbot \e[0m"
 sudo apt install certbot python3-certbot-nginx
 
 #user config
@@ -40,18 +40,18 @@ sudo apt install certbot python3-certbot-nginx
 #su - ubuntu
 
 #docker-compose install
-echo -e "\e[1mStep 1 $now : docker compose  суулгаж байна\e[0m"
+echo -e "\e[1mStep 1 $now : Installing docker compose \e[0m"
 sudo apt-get update -y
 sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
-echo -e "\e[1mStep 1 $now : nodejs суулгаж байна\e[0m"
+echo -e "\e[1mStep 1 $now : Installing nodejs \e[0m"
 #new directory
 sudo apt-get install nodejs -y
-echo -e "\e[1mStep 1 $now : awscli суулгаж байна\e[0m"
+echo -e "\e[1mStep 1 $now : Installing awscli \e[0m"
 sudo apt-get install awscli -y
-echo -e "\e[1mStep 1 $now : npm суулгаж байна\e[0m"
+echo -e "\e[1mStep 1 $now : Installing npm \e[0m"
 sudo apt install npm -y
-echo -e "\e[1mStep 1 $now : erxes мэдээллээ оруулна уу\e[0m"
+echo -e "\e[1mStep 1 $now : Instert your erxes project\e[0m"
 sudo npm install -g create-erxes-app -y
 create-erxes-app erxes
 ```
