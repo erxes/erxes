@@ -70,8 +70,10 @@ create-erxes-app erxes
 ```
 
 :::Caution
+
 Install.sh ажиллаж байх үед  
 Erxes мэдээллээ оруулна уу хэсэг гарж ирнэ.
+
 :::
 
 4. Please enter your domain (localhost) хэсэг дээр xos deploy хийгдэх домайн- оо бичнэ.

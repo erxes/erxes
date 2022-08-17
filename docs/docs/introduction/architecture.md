@@ -26,4 +26,4 @@ erxes’s coding architecture comprises Backend, UI, and Widgets.
 - RabbitMQ 3.8.x+
 - Elasticsearch
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/structure.svg" width="100%" alt="Architecture"></img>
+<img src="https://imagedelivery.net/5m26Aj-CutMXPPNacMs_yQ/22717d4e-ad66-4d44-6c3b-6b74692b4e00/public" width="100%" alt="Architecture"></img>
