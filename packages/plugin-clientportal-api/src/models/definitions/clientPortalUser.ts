@@ -96,7 +96,7 @@ export const clientPortalUserSchema = new Schema({
     default: Date.now,
     label: 'Registered at'
   }),
-  modifiedAt: field({ type: Date, label: 'Modified at' }),
+  modifiedAt: field({ type: Date }),
 
   resetPasswordToken: field({ type: String, optional: true }),
   resetPasswordExpires: field({ type: Date, optional: true }),
