@@ -14,9 +14,17 @@ module.exports = {
       type: 'category',
       label: '⚙️ Setup & Deployment',
       items: [
+        'developer/deployment',
+        'development/developing-plugins',
+        'installation/upgrade',
+        'developer/troubleshooting',
         {
-          'XOS Installation': [
-            { Docker: ['developer/ubuntu', 'developer/mac'] }
+          Changelog: [
+            {
+              type: 'link',
+              label: 'Release Notes', // The link label
+              href: 'https://github.com/erxes/erxes/releases' // The external URL
+            }
           ]
         }
       ]
@@ -66,7 +74,13 @@ module.exports = {
     {
       type: 'category',
       label: '🛠️ Development',
-      items: ['developer/deployment']
+      items: [
+        {
+          'XOS Installation': [
+            { Docker: ['developer/ubuntu', 'developer/mac'] }
+          ]
+        }
+      ]
     },
     {
       type: 'category',
