@@ -19,7 +19,7 @@ const webbuilderQueries = {
     }
 
     return {
-      list: paginate(models.Pages.find(filter).sort({ name: 1 }), {
+      list: paginate(models.Pages.find(filter), {
         page,
         perPage
       }),
