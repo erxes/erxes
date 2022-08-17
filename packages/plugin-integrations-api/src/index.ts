@@ -4,6 +4,7 @@ import initCallPro from './callpro/controller';
 import { debugIntegrations, debugRequest } from './debuggers';
 import initFacebook from './facebook/controller';
 import { initMemoryStorage } from './inmemoryStorage';
+import { initBroker } from './messageBroker';
 // import { init } from './startup';
 import systemStatus from './systemStatus';
 import userMiddleware from './userMiddleware';
@@ -49,6 +50,8 @@ const initApp = async app => {
   initCallPro(app);
 
   initMemoryStorage();
+
+  initBroker(app);
 
   // Error handling middleware
   app.use((error, _req, res, _next) => {
