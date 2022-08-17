@@ -12,9 +12,9 @@ import { debugWorkers } from './debugger';
 import { getFileUploadConfigs, initBroker } from '../messageBroker';
 import { redis } from '../serviceDiscovery';
 import { IModels } from '../connectionResolvers';
-import { WORKER_BULK_LIMIT } from 'src/constants';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
+const WORKER_BULK_LIMIT = 300;
 
 const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   const properties: any[] = [];

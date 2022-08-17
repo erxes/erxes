@@ -4,11 +4,12 @@ import * as _ from 'underscore';
 import messageBroker from '../messageBroker';
 import { generateModels } from '../connectionResolvers';
 import { connect } from './utils';
-import { WORKER_BULK_LIMIT } from 'src/constants';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
 const { subdomain } = workerData;
+
+const WORKER_BULK_LIMIT = 300;
 
 let cancel = false;
 
