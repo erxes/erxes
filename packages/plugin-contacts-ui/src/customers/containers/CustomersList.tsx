@@ -278,6 +278,7 @@ const generateParams = ({ queryParams, type }) => {
     leadStatus: queryParams.leadStatus,
     sortField: queryParams.sortField,
     type,
+    dateFilters: queryParams.dateFilters,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined

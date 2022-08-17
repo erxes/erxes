@@ -68,6 +68,7 @@ export const types = `
     kioskExcludeProductIds: [String]
     deliveryConfig: JSON
     branchId: String
+    departmentId: String
   }
 `;
 

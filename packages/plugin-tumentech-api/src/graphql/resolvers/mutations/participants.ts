@@ -66,14 +66,6 @@ const participantMutations = {
       driverId
     });
 
-    await models.Trips.create({
-      driverId,
-      carIds: participant.carIds,
-      routeId: participant.routeId,
-      status: 'open',
-      dealIds: [dealId]
-    });
-
     return participant;
   }
 };

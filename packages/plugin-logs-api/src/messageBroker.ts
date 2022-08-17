@@ -268,6 +268,15 @@ export const sendInboxMessage = (args: ISendMessageArgs) => {
   });
 };
 
+export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'clientportal',
+    ...args
+  });
+};
+
 export const fetchService = async (
   subdomain: string,
   contentType: string,

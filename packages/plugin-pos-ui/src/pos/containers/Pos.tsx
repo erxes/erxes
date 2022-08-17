@@ -17,12 +17,7 @@ import {
   SlotsBulkUpdateMutationResponse,
   SlotsQueryResponse
 } from '../../types';
-import {
-  IPos,
-  ProductCategoriesQueryResponse,
-  BranchesQueryResponse,
-  ISlot
-} from '../../types';
+import { IPos, ProductCategoriesQueryResponse, ISlot } from '../../types';
 import { mutations, queries } from '../graphql';
 
 type Props = {
@@ -39,7 +34,6 @@ type FinalProps = {
   posDetailQuery: PosDetailQueryResponse;
   groupsQuery: GroupsQueryResponse;
   productCategoriesQuery: ProductCategoriesQueryResponse;
-  branchesQuery: BranchesQueryResponse;
   slotsQuery: SlotsQueryResponse;
   posEnvQuery: PosEnvQueryResponse;
 } & Props &
@@ -66,7 +60,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       slotsBulkUpdateMutation,
       history,
       productCategoriesQuery,
-      branchesQuery,
       slotsQuery,
       posEnvQuery
     } = this.props;
@@ -75,7 +68,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       (posDetailQuery && posDetailQuery.loading) ||
       (groupsQuery && groupsQuery.loading) ||
       productCategoriesQuery.loading ||
-      branchesQuery.loading ||
       (slotsQuery && slotsQuery.loading)
     ) {
       return <Spinner objective={true} />;
@@ -83,7 +75,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
 
     const pos = (posDetailQuery && posDetailQuery.posDetail) || ({} as IPos);
     const groups = (groupsQuery && groupsQuery.productGroups) || [];
-    const branches = branchesQuery.branches || [];
     const slots = (slotsQuery && slotsQuery.posSlots) || [];
     const productCategories = productCategoriesQuery.productCategories || [];
     const envs = posEnvQuery.posEnv || {};
@@ -143,7 +134,6 @@ class EditPosContainer extends React.Component<FinalProps, State> {
       groups,
       pos,
       save,
-      branches,
       isActionLoading: this.state.isLoading,
       slots,
       productCategories,
@@ -237,12 +227,6 @@ export default withProps<Props>(
           fetchPolicy: 'network-only'
         })
       }
-    ),
-    graphql<Props, BranchesQueryResponse>(gql(queries.branches), {
-      name: 'branchesQuery',
-      options: () => ({
-        fetchPolicy: 'network-only'
-      })
-    })
+    )
   )(EditPosContainer)
 );

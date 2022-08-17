@@ -64,7 +64,8 @@ export const isTimeInBetween = (
   closeTime: string
 ): boolean => {
   // date of given timezone
-  const now = momentTz(date).tz(timezone);
+  const tz = timezone || momentTz.tz.guess();
+  const now = momentTz(date).tz(tz) || momentTz(date);
 
   const start = getHourAndMinute(startTime);
   const startDate: any = momentTz(now);
@@ -521,8 +522,12 @@ export const loadClass = (models: IModels, subdomain: string) => {
       }
 
       const { messengerData } = integration;
-      const { availabilityMethod, onlineHours = [], timezone } = messengerData;
-      const timezoneString = timezone || '';
+      const {
+        availabilityMethod,
+        onlineHours = [],
+        timezone = ''
+      } = messengerData;
+      const timezoneString = timezone || momentTz.tz.guess();
 
       /*
        * Manual: We can determine state from isOnline field value when method is manual

@@ -224,7 +224,7 @@ export default {
         defaultValue: []
       }),
       isOnline: await isMessengerOnline(models, integration),
-      serverTime: momentTz().tz(timezone)
+      serverTime: momentTz().tz(timezone || momentTz.tz.guess())
     };
   },
 

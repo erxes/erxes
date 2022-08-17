@@ -35,6 +35,7 @@ export interface IOrder {
   oldBillId?: string;
   type?: string;
   branchId?: string;
+  departmentId?: string;
   synced?: boolean;
   cardPaymentInfo?: string;
   origin?: string;
@@ -136,6 +137,7 @@ export const orderSchema = schemaHooksWrapper(
       default: ORDER_TYPES.EAT
     }),
     branchId: field({ type: String, label: 'Branch' }),
+    departmentId: field({ type: String, optional: true, label: 'Branch' }),
     userId: field({
       type: String,
       optional: true,

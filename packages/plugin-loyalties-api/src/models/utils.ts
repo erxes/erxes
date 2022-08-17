@@ -1,24 +1,10 @@
 import { sendContactsMessage, sendCoreMessage } from '../messageBroker';
 
-export const getPureDate = (date: Date) => {
-  const ndate = new Date(date);
-  const diffTimeZone = ndate.getTimezoneOffset() * 1000 * 60;
-  return new Date(ndate.getTime() - diffTimeZone);
-};
-
-export const getFullDate = (date: Date) => {
-  const ndate = getPureDate(date);
-  const year = ndate.getFullYear();
-  const month = ndate.getMonth();
-  const day = ndate.getDate();
-
-  const today = new Date(year, month, day);
-  today.setHours(0, 0, 0, 0);
-  return today;
-};
-
 export const validCampaign = doc => {
-  if (!doc.startDate || getFullDate(doc.startDate) < getFullDate(new Date())) {
+  if (
+    !doc.startDate ||
+    doc.startDate.getTime() - new Date().getTime() < -24 * 1000 * 60 * 60
+  ) {
     throw new Error('The start date must be in the future');
   }
 
