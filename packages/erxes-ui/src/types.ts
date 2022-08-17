@@ -164,6 +164,7 @@ export type IEditorProps = {
   onCtrlEnter?: (evt?: any) => void;
   content: string;
   onChange: (evt: any) => void;
+  onInstanceReady?: (e: any) => any;
   height?: number | string;
   insertItems?: any;
   removeButtons?: string;
