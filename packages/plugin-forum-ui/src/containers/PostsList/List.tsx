@@ -2,8 +2,7 @@ import React from 'react';
 import { useSearchParam } from '../../hooks';
 import { useQuery } from 'react-apollo';
 import { FORUM_POSTS_COUNT, FORUM_POSTS_QUERY } from '../../graphql/queries';
-import { prependListener } from 'process';
-import { count } from 'console';
+import { Link } from 'react-router-dom';
 
 const perPageOptions = [5, 10, 25, 50, 100];
 
@@ -39,11 +38,11 @@ const List: React.FC = () => {
         <h5>Total: {countQuery.data?.forumPostsCount || 0}</h5>
       </div>
 
-      <div>
-        {postQuery.data.forumPosts.map(p => (
-          <pre>{JSON.stringify(p)}</pre>
-        ))}
-      </div>
+      {postQuery.data.forumPosts.map(p => (
+        <div key={p._id}>
+          <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
+        </div>
+      ))}
 
       <Pagination total={countQuery.data?.forumPostsCount || 0} />
     </div>

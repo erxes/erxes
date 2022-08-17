@@ -58,3 +58,22 @@ export const FORUM_POSTS_COUNT = gql`
     forumPostsCount(${forumPostsArg})
   }
 `;
+
+export const FORUM_POST_DETAIL = gql`
+  query ForumPostDetail($_id: ID!) {
+    forumPost(_id: $_id) {
+      _id
+      category {
+        _id
+        code
+        name
+        thumbnail
+      }
+      categoryId
+      content
+      state
+      thumbnail
+      title
+    }
+  }
+`;

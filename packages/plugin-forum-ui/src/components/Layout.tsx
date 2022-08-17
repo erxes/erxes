@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
 import LayoutCategories from './LayoutCategories';
 import PostsList from '../containers/PostsList';
-
+import PostDetail from '../containers/PostDetail';
 function Layout() {
   // The `path` lets us build <Route> paths that are
   // relative to the parent route, while the `url` lets
@@ -26,17 +26,32 @@ function Layout() {
         </li>
       </ul>
 
-      <Switch>
-        <Route exact path={'/forums'}>
-          <h1>Dashboard</h1>
-        </Route>
-        <Route path={`/forums/categories`}>
-          <LayoutCategories />
-        </Route>
-        <Route path={`/forums/posts`}>
-          <PostsList />
-        </Route>
-      </Switch>
+      <div style={{ marginLeft: 50 }}>
+        <Switch>
+          <Route exact path={'/forums'}>
+            <h1>Dashboard</h1>
+          </Route>
+          <Route path={`/forums/categories`}>
+            <LayoutCategories />
+          </Route>
+
+          <Route exact path={`/forums/posts/new`}>
+            <h3>New post</h3>
+          </Route>
+
+          <Route exact path={`/forums/posts/:postId`}>
+            <PostDetail />
+          </Route>
+
+          <Route exact path={`/forums/posts/:postId/edit`}>
+            <h3>Edit post</h3>
+          </Route>
+
+          <Route path={`/forums/posts`}>
+            <PostsList />
+          </Route>
+        </Switch>
+      </div>
     </div>
   );
 }
