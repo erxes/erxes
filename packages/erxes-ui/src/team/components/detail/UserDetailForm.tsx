@@ -1,5 +1,3 @@
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
-
 import ActionSection from '../../containers/ActionSection';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IUser } from '@erxes/ui/src/auth/types';
@@ -8,31 +6,7 @@ import LeftSidebar from './LeftSidebar';
 import React from 'react';
 import { UserHeader } from './styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import asyncComponent from '../../../components/AsyncComponent';
-
-const LeadState = asyncComponent(
-  () =>
-    isEnabled('contacts') &&
-    import(
-      /* webpackChunkName: "LeadState" */ '@erxes/ui-contacts/src/customers/containers/LeadState'
-    )
-);
-
-const ActivityInputs = asyncComponent(
-  () =>
-    isEnabled('logs') &&
-    import(
-      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
-    )
-);
-
-const ActivityLogs = asyncComponent(
-  () =>
-    isEnabled('logs') &&
-    import(
-      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
-    )
-);
+import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   user: IUser;
@@ -80,23 +54,6 @@ function UserDetails({
     );
   }
 
-  const content = isEnabled('logs') && (
-    <>
-      <ActivityInputs
-        contentTypeId={user._id}
-        contentType="core:user"
-        showEmail={false}
-      />
-
-      <ActivityLogs
-        target={user.details && user.details.fullName}
-        contentId={user._id}
-        contentType="core:user"
-        extraTabs={[{ name: 'conversation', label: 'Conversations' }]}
-      />
-    </>
-  );
-
   return (
     <Wrapper
       header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
@@ -110,7 +67,7 @@ function UserDetails({
           >
             <ActionSection user={user} renderEditForm={renderEditForm} />
           </InfoSection>
-          {isEnabled('contacts') && <LeadState customer={user} />}
+          {loadDynamicComponent('contactDetailHeader', { customer: user })}
         </UserHeader>
       }
       leftSidebar={
@@ -123,7 +80,7 @@ function UserDetails({
         />
       }
       rightSidebar={loadDynamicComponent('contactDetailRightSidebar', { user })}
-      content={content}
+      content={loadDynamicComponent('contactDetailContent', { contact: user })}
       transparent={true}
     />
   );
