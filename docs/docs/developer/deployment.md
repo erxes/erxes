@@ -13,8 +13,7 @@ sidebar_label: Installation
 
 ### Installing on server
 
-1. Install.sh файл үүсгэн бэлдэж доор script - ийг хуулах
-
+1. Create `Install.sh` file and copy the following script in it. 
 ```
 #!/bin/bash
 echo -e "\e[1mStep 1 $now : Update хийж байна \e[0m"
@@ -57,13 +56,13 @@ sudo npm install -g create-erxes-app -y
 create-erxes-app erxes
 ```
 
-2. Install.sh файлдаа permission өгөх комманд
+2. Run the following command to give a permission to `Install.sh` file. 
 
 ```
  sudo chmod +x install.sh
 ```
 
-3. Install.sh - ээ ажиллуулах
+3. Run `Install.sh` file using the following command. 
 
 ```
  ./install.sh
@@ -71,33 +70,31 @@ create-erxes-app erxes
 
 :::Caution
 
-Install.sh ажиллаж байх үед  
-Erxes мэдээллээ оруулна уу хэсэг гарж ирнэ.
-
+While `Install.sh` is running, the field to insert erxes data will show up.
 :::
 
-4. Please enter your domain (localhost) хэсэг дээр xos deploy хийгдэх домайн- оо бичнэ.
+4. Type the domain to the field says "Please enter your domain (localhost)".
 
 ```
   Example: erxes-test.com
 ```
 
-5. Rabbitmq host (optional) хэсэг дээр hostname оруулах
+5. Insert your hostname on Rabbitmq host (optional).
 
 ```
 Example: erxes
 ```
 
-6. Redis host (optional) хэсэг дээр hostname оруулах
+6. Insert the hostname on Redis host (optional) as well.
 
 ```
 Example: erxes
 ```
 
-7. Redis port (6379) default - аараа байх ба press enter
-8. Redis password (optional) хэсэг дээр дурын password өгөх
-9. Elasticsearch url хэсэг дээр default localhost:9200 - аараа байх ба press enter
-10. Үүний дараа erxes маань амжилттай суух ба erxes directory - луугаа орох хэрэгтэй.
+7. Redis port (6379) will be as default, so press enter.
+8. Set up your password on Redis password (optional).
+9. Elasticsearch url will be as default `localhost:9200`, so just press enter.
+10. Here you have your erxes project successfully installed, then go to your erxes directory with the foloowing command.
 
 ```
  cd erxes
@@ -148,7 +145,7 @@ See the latest version of npm erxes here https://www.npmjs.com/package/erxes
 npm install
 ```
 
-13. User - дээ docker permission өгөх
+13. Provide docker permission to your user.
 
 ```
 su
@@ -157,20 +154,20 @@ su - erxes
 
 ```
 
-14. Үүний дараа erxes directory - луугаа орох хэрэгтэй.
+14. Go back to your erxes directory with the following command.
 
 ```
  cd erxes
 ```
 
-15. Erxes дотроо дараах коммандыг өгөх
-
+15. Run the following command in your erxes directory. 
 ```
 docker swarm init
 ```
 
 :::Note
-Database containers асаах комманд өгөөд бүх container асаж дууссаны дараа дараагын үйлдлээ хийх
+Please note that the following actions can be done once you fully run your Database containers. 
+
 :::
 
 16. Run the following to start database containers
@@ -252,34 +249,34 @@ sudo mv nginx.conf /etc/nginx/sites-enabled/
 
 ```
 
-27. /etc/nginx/sites-enabled зам дээр очих
+27. Go to /etc/nginx/sites-enabled. 
 
 ```
 cd /etc/nginx/sites-enabled
 ```
 
-28. nginx - ээ configure хийх
+28. Configure your nginx.
 
 ```
 sudo nginx -t
 ```
 
-29. Nginx - ээ restart хийх
+29. Restart your Nginx.
 
 ```
 sudo service nginx restart
 ```
 
-30. Free Ssl тохируулж өгөх
+30. Configure your Free Ssl.
 
 ```
 sudo certbot –nginx -d domain_name
 ```
 
-31. Бүртгэлтэй email бичих
-32. Please choose redirect option
+31. Insert your registered email address.
+32. Please choose redirect option.
 
-Одоо тестийн домайн - оо browser дээрээ бичиж орж үзэх.
+Try typing your domain on your browser to see if it's working. 
 
 ### Default ports
 
