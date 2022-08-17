@@ -123,7 +123,6 @@ class ClientportalUserList extends React.Component<IProps, State> {
               <th>{__('Session count')}</th>
               <th>{__('Last seen at')}</th>
               <th>{__('Registered at')}</th>
-              <th>{__('Modified at')}</th>
             </tr>
           </thead>
           <tbody id="clientPortalUsers">
