@@ -4,15 +4,13 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
-import { FilterContainer } from '../styles';
+import { FilterContainer, CustomRangeContainer } from '../styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-
-import { CustomRangeContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
