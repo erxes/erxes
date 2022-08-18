@@ -438,6 +438,23 @@ const up = async ({ uis, fromInstaller }) => {
 
   const pluginsMap = require(filePath('pluginsMap.js'));
 
+  if (configs.private_plugins_map) {
+    log('Downloading private plugins map ....');
+
+    await execCurl(
+      configs.private_plugins_map,
+      'privatePluginsMap.js'
+    );
+
+    log('Merging plugin maps ....');
+
+    const privatePluginsMap = require(filePath('privatePluginsMap.js'));
+
+    for (const key of Object.keys(privatePluginsMap)) {
+      pluginsMap[key] = privatePluginsMap[key];
+    }
+  }
+
   const enabledPlugins = ["'workers'"];
   const uiPlugins = [];
   const essyncerJSON = {
