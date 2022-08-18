@@ -40,6 +40,7 @@ export const loadDynamicComponent = (
   pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
 
   const renderDynamicComp = (plugin: any) => (
     <ErrorBoundary key={plugin.scope}>
@@ -51,17 +52,23 @@ export const loadDynamicComponent = (
     </ErrorBoundary>
   );
 
-  return plugins.map(plugin => {
-    if (multi || (pluginName && pluginName === plugin.name)) {
-      return renderDynamicComp(plugin);
-    }
-
-    if (Object.keys(plugin).includes(componentName)) {
-      return renderDynamicComp(plugin);
-    }
-
+  if (filteredPlugins && filteredPlugins.length === 0) {
     return null;
-  });
+  }
+
+  if (multi) {
+    return filteredPlugins.map(plugin => renderDynamicComp(plugin));
+  }
+
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      plugin => plugin.name === pluginName
+    );
+
+    return renderDynamicComp(withPluginName[0]);
+  }
+
+  return renderDynamicComp(filteredPlugins[0]);
 };
 
 export class RenderDynamicComponent extends React.Component<
