@@ -56,3 +56,11 @@ jobs:
           tar -cf build.tar --directory=packages/plugin-cards-ui/.erxes/dist .
           cp build.tar packages/plugin-cards-ui/.erxes/dist
           aws s3 sync packages/plugin-cards-ui/.erxes/dist s3://erxes-plugins/uis/plugin-cards-ui --delete
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            erxes-cards-ui:federation.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
