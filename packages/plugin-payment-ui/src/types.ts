@@ -2,6 +2,7 @@ export interface IPaymentConfig {
   _id: string;
   name: string;
   type: string;
+  status: string;
   config: any;
 }
 

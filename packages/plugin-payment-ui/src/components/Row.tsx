@@ -2,7 +2,7 @@ import { CollapsibleContent, IntegrationRow } from './styles';
 
 import Collapse from 'react-bootstrap/Collapse';
 import Entry from './Entry';
-// import IntegrationList from '../../containers/common/IntegrationList';
+import IntegrationList from '../containers/IntegrationList';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 
@@ -104,12 +104,11 @@ class Row extends React.Component<Props, State> {
 
     return (
       <>
-        {/* <IntegrationList
-          kind={kind}
+        <IntegrationList
           queryParams={queryParams}
           integrationsCount={totalCount[kind || '']}
         />
-        {this.renderPagination(totalCount[kind || ''])} */}
+        {this.renderPagination(totalCount[kind || ''])}
       </>
     );
   }

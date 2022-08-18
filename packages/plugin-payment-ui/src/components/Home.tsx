@@ -11,7 +11,7 @@ import Row from './Row';
 // import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   totalCount: any;
