@@ -1,23 +1,21 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { withProps } from '@erxes/ui/src/utils';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
+import { mutations, queries } from '@erxes/ui/src/team/graphql';
+
+import { EditMutationResponse } from '@erxes/ui/src/team/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { withProps } from '@erxes/ui/src/utils';
 
-import asyncComponent from '../../components/AsyncComponent';
-import { isEnabled } from '../../utils/core';
-import { mutations, queries } from '../graphql';
-import { EditMutationResponse } from '../types';
-
-const GenerateCustomFields = asyncComponent(
-  () =>
-    isEnabled('forms') &&
-    import(
-      /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
-    )
+const GenerateCustomFields = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "GenerateCustomFields" */ '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields'
+  )
 );
 
 type Props = {

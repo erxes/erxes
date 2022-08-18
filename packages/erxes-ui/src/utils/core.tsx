@@ -33,28 +33,42 @@ export const loadComponent = (scope, module) => {
   };
 };
 
-export const loadCustomPlugin = (
-  pluginName: string,
+export const loadDynamicComponent = (
   componentName: string,
-  injectedProps?: any
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
 ): any => {
   const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
 
-  for (const plugin of plugins) {
-    if (pluginName === plugin.name) {
-      return (
-        <ErrorBoundary>
-          <RenderDynamicComponent
-            scope={plugin.scope}
-            component={plugin[componentName]}
-            injectedProps={injectedProps ? injectedProps : {}}
-          />
-        </ErrorBoundary>
-      );
-    }
+  const renderDynamicComp = (plugin: any) => (
+    <ErrorBoundary key={plugin.scope}>
+      <RenderDynamicComponent
+        scope={plugin.scope}
+        component={plugin[componentName]}
+        injectedProps={injectedProps ? injectedProps : {}}
+      />
+    </ErrorBoundary>
+  );
 
+  if (filteredPlugins && filteredPlugins.length === 0) {
     return null;
   }
+
+  if (multi) {
+    return filteredPlugins.map(plugin => renderDynamicComp(plugin));
+  }
+
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      plugin => plugin.name === pluginName
+    );
+
+    return renderDynamicComp(withPluginName[0]);
+  }
+
+  return renderDynamicComp(filteredPlugins[0]);
 };
 
 export class RenderDynamicComponent extends React.Component<
@@ -71,7 +85,6 @@ export class RenderDynamicComponent extends React.Component<
     const interval = setInterval(() => {
       if (window[this.props.scope]) {
         window.clearInterval(interval);
-
         this.setState({ showComponent: true });
       }
     }, 500);

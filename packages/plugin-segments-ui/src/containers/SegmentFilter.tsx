@@ -5,7 +5,6 @@ import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '@erxes/ui/src/team/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 
@@ -13,12 +12,10 @@ type Props = {
   userCountsQuery?: CountQueryResponse;
 };
 
-const Segments = asyncComponent(
-  () =>
-    isEnabled('segments') &&
-    import(
-      /* webpackChunkName: "SegmentFilter" */ '@erxes/ui-segments/src/containers/Filter'
-    )
+const Segments = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "SegmentFilter" */ '@erxes/ui-segments/src/containers/Filter'
+  )
 );
 
 const SegmentFilterContainer = (props: Props & WrapperProps) => {

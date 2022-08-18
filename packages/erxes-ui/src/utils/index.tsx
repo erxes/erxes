@@ -15,7 +15,7 @@ import parseMD from './parseMd';
 import toggleCheckBoxes from './toggleCheckBoxes';
 import urlParser from './urlParser';
 
-export const loadCustomPlugin = core.loadCustomPlugin;
+export const loadDynamicComponent = core.loadDynamicComponent;
 export const renderFullName = core.renderFullName;
 export const renderUserFullName = core.renderUserFullName;
 export const setTitle = core.setTitle;

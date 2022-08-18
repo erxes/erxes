@@ -1,10 +1,9 @@
-import SortableList from '@erxes/ui/src/components/SortableList';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
+import FieldPreview from './FieldPreview';
+import { FieldsWrapper } from '../styles';
 import { IField } from '@erxes/ui/src/types';
 import React from 'react';
+import SortableList from '@erxes/ui/src/components/SortableList';
 import xss from 'xss';
-import { FieldsWrapper } from '../styles';
-import FieldPreview from './FieldPreview';
 
 type Props = {
   fields: IField[];
