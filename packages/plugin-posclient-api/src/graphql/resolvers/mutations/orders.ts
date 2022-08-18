@@ -22,6 +22,7 @@ import {
   ORDER_STATUSES
 } from '../../../models/definitions/constants';
 import { sendPosMessage } from '../../../messageBroker';
+import { checkLoyalties } from '../../utils/loyalties';
 
 interface IPaymentBase {
   billType: string;
@@ -53,7 +54,7 @@ const orderMutations = {
   async ordersAdd(
     _root,
     doc: IOrderInput,
-    { posUser, config, models }: IContext
+    { posUser, config, models, subdomain }: IContext
   ) {
     const { totalAmount, type, customerId, branchId } = doc;
 
@@ -70,7 +71,8 @@ const orderMutations = {
     };
 
     try {
-      const preparedDoc = await prepareOrderDoc(doc, config, models);
+      let preparedDoc = await prepareOrderDoc(doc, config, models);
+      preparedDoc = await checkLoyalties(subdomain, preparedDoc);
 
       const order = await models.Orders.createOrder({
         ...doc,
@@ -85,6 +87,10 @@ const orderMutations = {
           count: item.count,
           productId: item.productId,
           unitPrice: item.unitPrice,
+          discountPercent: item.discountPercent,
+          discountAmount: item.discountAmount,
+          bonusCount: item.bonusCount,
+          bonusVoucherId: item.bonusVoucherId,
           orderId: order._id,
           isPackage: item.isPackage,
           isTake: item.isTake
@@ -100,7 +106,11 @@ const orderMutations = {
       return e;
     }
   },
-  async ordersEdit(_root, doc: IOrderEditParams, { config, models }: IContext) {
+  async ordersEdit(
+    _root,
+    doc: IOrderEditParams,
+    { config, models, subdomain }: IContext
+  ) {
     const order = await models.Orders.getOrder(doc._id);
 
     checkOrderStatus(order);
@@ -109,7 +119,8 @@ const orderMutations = {
 
     await cleanOrderItems(doc._id, doc.items, models);
 
-    const preparedDoc = await prepareOrderDoc(doc, config, models);
+    let preparedDoc = await prepareOrderDoc(doc, config, models);
+    preparedDoc = await checkLoyalties(subdomain, preparedDoc);
 
     await updateOrderItems(doc._id, preparedDoc.items, models);
 

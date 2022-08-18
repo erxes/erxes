@@ -1,8 +1,8 @@
 import { afterMutationHandlers } from './afterMutations';
-import { generateModels, IModels } from './connectionResolver';
+import { confirmLoyalties, getBranchesUtil, orderToErkhet } from './utils';
+import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { orderToErkhet, getBranchesUtil } from './utils';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -162,6 +162,7 @@ export const initBroker = async cl => {
     );
 
     const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+    await confirmLoyalties(subdomain, newOrder);
 
     // ===> sync cards config then
     const { cardsConfig = [] } = pos;
@@ -366,6 +367,17 @@ export const sendCardsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'cards',
+    ...args
+  });
+};
+
+export const sendLoyaltiesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'loyalties',
     ...args
   });
 };
