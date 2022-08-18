@@ -138,7 +138,11 @@ class FilterableList extends React.Component<Props, State> {
 
     return (
       <FlexRow key={item._id}>
-        <li className={showCheckmark ? item.selectedBy : ''} style={item.style}>
+        <li
+          className={showCheckmark ? item.selectedBy : ''}
+          style={item.style}
+          onClick={!hasChildren && onClick}
+        >
           {this.renderIcons(item, hasChildren, isOpen)}
 
           <i
