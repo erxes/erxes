@@ -10,6 +10,8 @@ import LeadStatusFilter from '../../containers/filters/LeadStatusFilter';
 import SegmentFilter from '../../containers/filters/SegmentFilter';
 import TagFilter from '../../containers/filters/TagFilter';
 
+import { SidebarContainer } from '@erxes/ui-forms/src/forms/styles';
+
 function Sidebar({
   loadingMainQuery,
   type
@@ -18,30 +20,32 @@ function Sidebar({
   type: string;
 }) {
   return (
-    <Wrapper.Sidebar>
-      {isEnabled('segments') && (
-        <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
-      )}
-      {isEnabled('tags') && (
-        <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
-      )}
-      {isEnabled('inbox') && (
-        <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />
-      )}
-      <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
-      {isEnabled('inbox') && (
-        <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />
-      )}
-      {type === 'inbox' && (
-        <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
-      )}
-      {isEnabled('forms') && (
-        <DateFilters
-          type="contacts:customer"
-          loadingMainQuery={loadingMainQuery}
-        />
-      )}
-    </Wrapper.Sidebar>
+    <SidebarContainer>
+      <Wrapper.Sidebar>
+        {isEnabled('segments') && (
+          <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
+        )}
+        {isEnabled('tags') && (
+          <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
+        )}
+        {isEnabled('inbox') && (
+          <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />
+        )}
+        <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
+        {isEnabled('inbox') && (
+          <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />
+        )}
+        {type === 'inbox' && (
+          <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
+        )}
+        {isEnabled('forms') && (
+          <DateFilters
+            type="contacts:customer"
+            loadingMainQuery={loadingMainQuery}
+          />
+        )}
+      </Wrapper.Sidebar>
+    </SidebarContainer>
   );
 }
 

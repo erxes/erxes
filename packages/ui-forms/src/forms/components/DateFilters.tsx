@@ -4,15 +4,13 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
+import { FilterContainer, CustomRangeContainer } from '../styles';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, router } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import queryString from 'query-string';
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
-
-import { CustomRangeContainer } from '../styles';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
@@ -68,49 +66,46 @@ function DateFilters(props: IProps) {
   };
 
   const data = (
-    <>
-      <SidebarList>
-        {fields.map(field => {
-          return (
-            <>
-              <ControlLabel>{field.label} range:</ControlLabel>
+    <FilterContainer>
+      {fields.map(field => {
+        return (
+          <>
+            <ControlLabel>{field.label} range:</ControlLabel>
 
-              <CustomRangeContainer>
-                <DateControl
-                  value={
-                    (filterParams[`${field.name}`] &&
-                      filterParams[`${field.name}`]['gte']) ||
-                    ''
-                  }
-                  required={false}
-                  name="startDate"
-                  onChange={date =>
-                    onChangeRangeFilter(`${field.name}`, 'gte', date)
-                  }
-                  placeholder={'Start date'}
-                  dateFormat={'YYYY-MM-DD'}
-                />
+            <CustomRangeContainer id="CustomRangeContainer">
+              <DateControl
+                value={
+                  (filterParams[`${field.name}`] &&
+                    filterParams[`${field.name}`]['gte']) ||
+                  ''
+                }
+                required={false}
+                name="startDate"
+                onChange={date =>
+                  onChangeRangeFilter(`${field.name}`, 'gte', date)
+                }
+                placeholder={'Start date'}
+                dateFormat={'YYYY-MM-DD'}
+              />
 
-                <DateControl
-                  value={
-                    (filterParams[`${field.name}`] &&
-                      filterParams[`${field.name}`]['lte']) ||
-                    ''
-                  }
-                  required={false}
-                  name="endDate"
-                  placeholder={'End date'}
-                  onChange={date =>
-                    onChangeRangeFilter(`${field.name}`, 'lte', date)
-                  }
-                  dateFormat={'YYYY-MM-DD'}
-                />
-              </CustomRangeContainer>
-            </>
-          );
-        })}
-      </SidebarList>
-
+              <DateControl
+                value={
+                  (filterParams[`${field.name}`] &&
+                    filterParams[`${field.name}`]['lte']) ||
+                  ''
+                }
+                required={false}
+                name="endDate"
+                placeholder={'End date'}
+                onChange={date =>
+                  onChangeRangeFilter(`${field.name}`, 'lte', date)
+                }
+                dateFormat={'YYYY-MM-DD'}
+              />
+            </CustomRangeContainer>
+          </>
+        );
+      })}
       <Button
         block={true}
         btnStyle="success"
@@ -120,7 +115,7 @@ function DateFilters(props: IProps) {
       >
         {__('Filter')}
       </Button>
-    </>
+    </FilterContainer>
   );
 
   return (
