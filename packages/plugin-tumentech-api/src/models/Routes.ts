@@ -27,8 +27,13 @@ export const loadRouteClass = (models: IModels) => {
     }
 
     public static async createRoute(doc: IRoute) {
+      const placeIds = await models.Directions.find({
+        _id: { $in: doc.directionIds }
+      }).distinct('placeIds');
+
       return models.Routes.create({
         ...doc,
+        placeIds,
         searchText: await models.Routes.fillSearchText(doc)
       });
     }
@@ -40,9 +45,13 @@ export const loadRouteClass = (models: IModels) => {
         Object.assign(route, doc)
       );
 
+      const placeIds = await models.Directions.find({
+        _id: { $in: doc.directionIds }
+      }).distinct('placeIds');
+
       await models.Routes.updateOne(
         { _id: doc._id },
-        { $set: { ...doc, searchText } }
+        { $set: { ...doc, placeIds, searchText } }
       );
 
       return models.Routes.findOne({ _id: doc._id });

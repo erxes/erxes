@@ -22,6 +22,13 @@ const BrandName = styled.div`
   color: ${colors.colorCoreGray};
 `;
 
+const MailBox = styled.div`
+  background: ${colors.colorWhite};
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  transition: all ease 0.3s;
+`;
+
 const Script = styled.div`
   padding-top: ${dimensions.coreSpacing}px;
 
@@ -455,5 +462,6 @@ export {
   ShowReplyButtonWrapper,
   ShowReplies,
   PopoverLinkWrapper,
-  SearchInput
+  SearchInput,
+  MailBox
 };

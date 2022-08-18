@@ -1,6 +1,6 @@
-import asyncComponent from 'modules/common/components/AsyncComponent';
 import React from 'react';
 import { Route } from 'react-router-dom';
+import asyncComponent from 'modules/common/components/AsyncComponent';
 
 const GeneralSettings = asyncComponent(() =>
   import(
@@ -10,10 +10,6 @@ const GeneralSettings = asyncComponent(() =>
 
 const Theme = asyncComponent(() =>
   import(/* webpackChunkName: "Theme" */ './containers/Theme')
-);
-
-const Installer = asyncComponent(() =>
-  import(/* webpackChunkName: "Theme" */ './containers/marketplace/Installer')
 );
 
 const routes = () => {

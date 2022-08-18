@@ -34,9 +34,9 @@ class Schedule extends React.Component<
       <ScheduleContainer>
         <iframe
           src={`https://schedule.nylas.com/${slug}`}
-          width='100%'
+          width="100%"
           height={this.state.iFrameHeight}
-          title='Erxes schedule'
+          title="Erxes schedule"
         />
       </ScheduleContainer>
     );

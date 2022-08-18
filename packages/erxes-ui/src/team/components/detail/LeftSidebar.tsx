@@ -4,9 +4,9 @@ import {
   SidebarList
 } from '@erxes/ui/src/layout/styles';
 import { List, SkillList } from './styles';
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 import Button from '@erxes/ui/src/components/Button';
-import CustomFieldsSection from '../../containers/CustomFieldsSection';
 import { EmptyState } from '@erxes/ui/src/components';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -16,7 +16,6 @@ import React from 'react';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { __ } from '@erxes/ui/src/utils';
 import dayjs from 'dayjs';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   user: IUser;
@@ -147,9 +146,11 @@ function LeftSidebar({
       {renderUserInfo()}
       {isEnabled('inbox') && renderChannels()}
       {isEnabled('inbox') && renderSkills()}
-      {isEnabled('forms') && (
-        <CustomFieldsSection user={user} isDetail={true} />
-      )}
+      {isEnabled('forms') &&
+        loadDynamicComponent('contactDetailLeftSidebar', {
+          user: user,
+          isDetail: true
+        })}
     </Sidebar>
   );
 }
