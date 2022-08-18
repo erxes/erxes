@@ -8,6 +8,7 @@ module.exports = {
     './importExportUploadForm': './src/components/ColumnChooser',
     './fieldPreview': './src/components/FieldsPreview',
     './formPreview': './src/containers/FieldForm',
+    './contactDetailLeftSidebar': './src/containers/CustomFieldsSection',
   },
   routes: {
     url: 'http://localhost:3005/remoteEntry.js',
@@ -18,6 +19,7 @@ module.exports = {
   formPreview: './formPreview',
   fieldPreview: './fieldPreview',
   importExportUploadForm: './importExportUploadForm',
+  contactDetailLeftSidebar: './contactDetailLeftSidebar',
   menus: [
     {
       text: 'Properties',
