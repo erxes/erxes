@@ -519,8 +519,6 @@ const up = async ({ uis, fromInstaller }) => {
 
   if (uis) {
     for (const plugin of configs.plugins || []) {
-      const name = `plugin-${plugin.name}-ui`;
-
       if (pluginsMap[plugin.name] && pluginsMap[plugin.name].ui) {
         await syncUI(plugin);
       }
@@ -695,7 +693,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
         const registry = pluginConfig.registry ? `${pluginConfig.registry}/` : '';
 
         await execCommand(
-          `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag}`
+          `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
         );
       } else {
         console.error('No plugin found');
