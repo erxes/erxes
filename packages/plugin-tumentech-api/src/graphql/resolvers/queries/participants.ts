@@ -8,11 +8,11 @@ import { IContext } from '../../../connectionResolver';
 
 const fs = require('fs');
 
-const generateFilterQuery = async ({ customerId, dealId, status }) => {
+const generateFilterQuery = async ({ driverId, dealId, status }) => {
   const query: any = {};
 
-  if (customerId) {
-    query.customerId = customerId;
+  if (driverId) {
+    query.driverId = driverId;
   }
 
   if (dealId) {
