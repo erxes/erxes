@@ -141,6 +141,10 @@ export const getPostData = async (subdomain, pos, order, putRes) => {
 export const orderToErkhet = async (subdomain, pos, orderId, putRes) => {
   const postData = await getPostData(subdomain, pos, orderId, putRes);
 
+  if (!postData) {
+    return;
+  }
+
   sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
     action: 'get-response-send-order-info',
     isJson: true,
