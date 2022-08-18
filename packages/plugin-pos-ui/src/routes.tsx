@@ -8,15 +8,11 @@ const List = asyncComponent(() =>
 );
 
 const PosContainer = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "PosContainer" */ './pos/containers/Pos'
-  )
+  import(/* webpackChunkName: "PosContainer" */ './pos/containers/Pos')
 );
 
 const OrderList = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "OrderList" */ './orders/containers/List'
-  )
+  import(/* webpackChunkName: "OrderList" */ './orders/containers/List')
 );
 
 const PosProductList = asyncComponent(() =>
@@ -35,7 +31,9 @@ const posComponent = ({ match, location, history }) => {
   const { posId } = match.params;
   const queryParams = queryString.parse(location.search);
 
-  return <PosContainer queryParams={queryParams} posId={posId} history={history} />;
+  return (
+    <PosContainer queryParams={queryParams} posId={posId} history={history} />
+  );
 };
 
 const OrderListComponent = ({ location, history }) => {
@@ -44,16 +42,16 @@ const OrderListComponent = ({ location, history }) => {
       queryParams={queryString.parse(location.search)}
       history={history}
     />
-  )
-}
+  );
+};
 const OrderItemsComponent = ({ location, history }) => {
   return (
     <PosProductList
       queryParams={queryString.parse(location.search)}
       history={history}
     />
-  )
-}
+  );
+};
 
 const routes = () => {
   return (

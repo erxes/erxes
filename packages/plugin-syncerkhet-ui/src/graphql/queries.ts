@@ -10,7 +10,7 @@ const configs = `
   }
 `;
 
-const commonParams = `
+const commonDealParams = `
   $skip: Int,
   $limit: Int,
   $sortField: String,
@@ -25,7 +25,7 @@ const commonParams = `
   $productIds: [String],
 `;
 
-const commonParamDefs = `
+const commonDealParamDefs = `
   skip: $skip,
   limit: $limit,
   sortField: $sortField
@@ -40,12 +40,30 @@ const commonParamDefs = `
   productIds: $productIds,
 `;
 
+const commonOrderParams = `
+  $page: Int,
+  $perPage: Int,
+  $sortField: String,
+  $sortDirection: Int,
+  $createdStartDate: Date
+  $createdEndDate: Date
+`;
+
+const commonOrderParamDefs = `
+  page: $page,
+  perPage: $perPage,
+  sortField: $sortField
+  sortDirection: $sortDirection
+  createdStartDate: $createdStartDate
+  createdEndDate: $createdEndDate
+`;
+
 const checkSyncDeals = `
   query deals (
-    ${commonParams}
+    ${commonDealParams}
   ) {
     deals (
-      ${commonParamDefs}
+      ${commonDealParamDefs}
     ) {
       _id
       name
@@ -61,16 +79,42 @@ const checkSyncDeals = `
 
 const checkSyncDealsTotalCount = `
   query dealsTotalCount (
-    ${commonParams}
+    ${commonDealParams}
   ) {
     dealsTotalCount (
-      ${commonParamDefs}
+      ${commonDealParamDefs}
     )
+  }
+`;
+const checkSyncOrdersTotalCount = `
+  query ordersTotalCount (
+    ${commonOrderParams}
+  ) {
+    posOrdersTotalCount (
+      ${commonOrderParamDefs}
+    )
+  }
+`;
+const checkSyncOrders = `
+  query PosOrders(
+    ${commonOrderParams}
+  ) {
+    posOrders (
+      ${commonOrderParamDefs}
+    ) {
+      _id
+      number
+      createdAt
+      paidDate
+      totalAmount
+    }
   }
 `;
 
 export default {
   configs,
   checkSyncDeals,
-  checkSyncDealsTotalCount
+  checkSyncDealsTotalCount,
+  checkSyncOrdersTotalCount,
+  checkSyncOrders
 };

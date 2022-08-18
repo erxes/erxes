@@ -1,7 +1,9 @@
+import { sendCommonMessage } from './messageBrokerErkhet';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { afterMutationHandlers } from './afterMutations';
 import { serviceDiscovery } from './configs';
 import { afterQueryHandlers } from './afterQueries';
+import { getPostData, orderDeleteToErkhet } from './utils/orders';
 
 let client;
 
@@ -19,6 +21,31 @@ export const initBroker = async cl => {
     return {
       status: 'success',
       data: await afterQueryHandlers(subdomain, data)
+    };
+  });
+
+  consumeQueue('syncerkhet:toOrder', async ({ subdomain, data }) => {
+    const { pos, order, putRes } = data;
+
+    const postData = await getPostData(subdomain, pos, order, putRes);
+
+    return {
+      status: 'success',
+      data: await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
+        action: 'get-response-send-order-info',
+        isEbarimt: false,
+        payload: JSON.stringify(postData),
+        thirdService: true
+      })
+    };
+  });
+
+  consumeRPCQueue('syncerkhet:returnOrder', async ({ subdomain, data }) => {
+    const { pos, order } = data;
+
+    return {
+      status: 'success',
+      data: await orderDeleteToErkhet(subdomain, pos, order)
     };
   });
 };
@@ -52,6 +79,26 @@ export const sendCardsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'cards',
+    ...args
+  });
+};
+
+export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'pos',
+    ...args
+  });
+};
+
+export const sendEbarimtMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'ebarimt',
     ...args
   });
 };

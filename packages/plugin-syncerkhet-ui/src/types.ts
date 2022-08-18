@@ -25,12 +25,24 @@ export type CheckSyncedDealsTotalCountQueryResponse = {
   dealsTotalCount: number;
 } & QueryResponse;
 
-export type CheckSyncedDealsMutationResponse = {
-  toCheckSyncedDeals: (mutation: {
-    variables: { dealIds: string[] };
-  }) => Promise<any>;
+export type CheckSyncedMutationResponse = {
+  toCheckSynced: (mutation: { variables: { ids: string[] } }) => Promise<any>;
 };
 
 export type ToSyncDealsMutationResponse = {
   toSyncDeals: (mutation: { variables: { dealIds: string[] } }) => Promise<any>;
+};
+
+export type CheckSyncedOrdersQueryResponse = {
+  posOrders: any[];
+} & QueryResponse;
+
+export type CheckSyncedOrdersTotalCountQueryResponse = {
+  posOrdersTotalCount: number;
+} & QueryResponse;
+
+export type ToSyncOrdersMutationResponse = {
+  toSyncOrders: (mutation: {
+    variables: { orderIds: string[] };
+  }) => Promise<any>;
 };

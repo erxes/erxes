@@ -1,8 +1,8 @@
 import Button from '@erxes/ui/src/components/Button';
-import CheckSyncedDealsSidebar from './CheckSyncedDealsSidebar';
+import CheckSyncedOrdersSidebar from './CheckSyncedOrdersSidebar';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
-import Row from './CheckSyncedDealsRow';
+import Row from './CheckSyncedOrdersRow';
 import { __, DataWithLoader, Pagination, Table } from '@erxes/ui/src';
 import { Alert, confirm } from '@erxes/ui/src/utils';
 import { BarItems, Wrapper } from '@erxes/ui/src/layout';
@@ -11,93 +11,101 @@ import { Title } from '@erxes/ui/src/styles/main';
 type Props = {
   totalCount: number;
   loading: boolean;
-  deals: any[];
+  orders: any[];
   history: any;
   queryParams: any;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  checkSynced: (doc: { dealIds: string[] }, emptyBulk: () => void) => void;
+  checkSynced: (
+    doc: { orderIds: string[] },
+    emptyBulk: () => void
+  ) => Promise<any>;
   toggleBulk: () => void;
   toggleAll: (targets: any[], containerId: string) => void;
-  unSyncedDealIds: string[];
-  syncedDealInfos: any;
-  toSyncDeals: (dealIds: string[]) => void;
+  unSyncedOrderIds: string[];
+  syncedOrderInfos: any;
+  toSyncOrders: (orderIds: string[]) => void;
 };
 
-type State = {};
+type State = {
+  contentLoading: boolean;
+};
 
-class CheckSyncedDeals extends React.Component<Props, State> {
+export const menuPos = [
+  { title: 'Check deals', link: '/check-synced-deals' },
+  { title: 'Check orders', link: '/check-pos-orders' }
+];
+
+class CheckSyncedOrders extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      contentLoading: this.props.loading
+    };
   }
 
   renderRow = () => {
     const {
-      deals,
+      orders,
       history,
       toggleBulk,
       bulk,
-      unSyncedDealIds,
-      toSyncDeals,
-      syncedDealInfos
+      unSyncedOrderIds,
+      toSyncOrders,
+      syncedOrderInfos
     } = this.props;
 
-    return deals.map(deal => (
+    return orders?.map(order => (
       <Row
         history={history}
-        key={deal._id}
-        deal={deal}
+        key={order._id}
+        order={order}
         toggleBulk={toggleBulk}
-        isChecked={bulk.includes(deal)}
-        isUnsynced={unSyncedDealIds.includes(deal._id)}
-        toSync={toSyncDeals}
-        syncedInfo={syncedDealInfos[deal._id] || {}}
+        isChecked={bulk.includes(order)}
+        isUnsynced={unSyncedOrderIds.includes(order._id)}
+        toSync={toSyncOrders}
+        syncedInfo={syncedOrderInfos[order._id] || {}}
       />
     ));
   };
 
   onChange = () => {
-    const { toggleAll, deals } = this.props;
-    toggleAll(deals, 'deals');
+    const { toggleAll, orders } = this.props;
+    toggleAll(orders, 'orders');
   };
 
-  checkSynced = deals => {
-    const dealIds: string[] = [];
+  checkSynced = async (_orders: any) => {
+    const orderIds: string[] = [];
 
-    deals.forEach(deal => {
-      dealIds.push(deal._id);
+    _orders.forEach(order => {
+      orderIds.push(order._id);
     });
 
-    this.props.checkSynced({ dealIds }, this.props.emptyBulk);
+    await this.props.checkSynced({ orderIds }, this.props.emptyBulk);
   };
 
   render() {
     const {
       totalCount,
-      loading,
       queryParams,
       isAllSelected,
       bulk,
-      unSyncedDealIds,
-      toSyncDeals,
-      syncedDealInfos
+      loading,
+      unSyncedOrderIds,
+      toSyncOrders,
+      syncedOrderInfos
     } = this.props;
-    console.log(syncedDealInfos);
     const tablehead = [
-      'deal name',
-      'Amount',
-      'created At',
-      'modified At',
-      'stage Changed Date',
-      'Un Synced',
+      'Number',
+      'Total Amount',
+      'Created At',
+      'Paid At',
       'Synced Date',
       'Synced bill Number',
       'Sync Actions'
     ];
-
     const Content = (
       <Table>
         <thead>
@@ -109,7 +117,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
                 onChange={this.onChange}
               />
             </th>
-            {tablehead.map(p => (
+            {tablehead?.map(p => (
               <th key={p}>{p || ''}</th>
             ))}
           </tr>
@@ -118,28 +126,30 @@ class CheckSyncedDeals extends React.Component<Props, State> {
       </Table>
     );
 
-    const header = <Wrapper.Header title={__('Check deals') + `(${1})`} />;
-
     const sidebar = (
-      <CheckSyncedDealsSidebar
+      <CheckSyncedOrdersSidebar
         queryParams={queryParams}
         history={this.props.history}
       />
     );
 
-    const onClickCheck = () =>
+    const onClickCheck = () => {
       confirm()
-        .then(() => {
-          this.checkSynced(bulk);
+        .then(async () => {
+          this.setState({ contentLoading: true });
+          await this.checkSynced(bulk);
+          this.setState({ contentLoading: false });
         })
         .catch(error => {
           Alert.error(error.message);
+          this.setState({ contentLoading: false });
         });
+    };
 
     const onClickSync = () =>
       confirm()
         .then(() => {
-          toSyncDeals(unSyncedDealIds);
+          toSyncOrders(unSyncedOrderIds);
         })
         .catch(error => {
           Alert.error(error.message);
@@ -157,7 +167,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
             Check
           </Button>
         )}
-        {unSyncedDealIds.length > 0 && (
+        {unSyncedOrderIds.length > 0 && (
           <Button
             btnStyle="warning"
             size="small"
@@ -173,7 +183,7 @@ class CheckSyncedDeals extends React.Component<Props, State> {
     const content = (
       <DataWithLoader
         data={Content}
-        loading={loading}
+        loading={this.state.contentLoading && loading}
         count={totalCount}
         emptyText="Empty list"
         emptyImage="/images/actions/1.svg"
@@ -182,11 +192,17 @@ class CheckSyncedDeals extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        header={header}
+        header={
+          <Wrapper.Header
+            title={__(`Check erkhet`)}
+            queryParams={queryParams}
+            submenu={menuPos}
+          />
+        }
         leftSidebar={sidebar}
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>Deals</Title>}
+            left={<Title>Orders</Title>}
             right={actionBarRight}
             withMargin
             wide
@@ -200,4 +216,4 @@ class CheckSyncedDeals extends React.Component<Props, State> {
   }
 }
 
-export default CheckSyncedDeals;
+export default CheckSyncedOrders;

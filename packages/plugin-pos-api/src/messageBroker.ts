@@ -1,5 +1,5 @@
 import { afterMutationHandlers } from './afterMutations';
-import { confirmLoyalties, getBranchesUtil, orderToErkhet } from './utils';
+import { confirmLoyalties, getBranchesUtil } from './utils';
 import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
@@ -140,7 +140,7 @@ export const initBroker = async cl => {
     }
 
     // ====== if (action === 'makePayment')
-    await sendEbarimtMessage({
+    const putResponse = await sendEbarimtMessage({
       subdomain,
       action: 'putresponses.createOrUpdate',
       data: { _id: response._id, doc: { ...response, posToken } },
@@ -165,9 +165,13 @@ export const initBroker = async cl => {
     await confirmLoyalties(subdomain, newOrder);
 
     // ===> sync cards config then
-    const { cardsConfig = [] } = pos;
-    const currentCardsConfig = (cardsConfig || []).find(
-      c => c.branchId && c.branchId === newOrder.branchId
+    const { cardsConfig } = pos;
+
+    const currentCardsConfig: any = (
+      Object.values(cardsConfig || {}) || []
+    ).find(
+      c =>
+        (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId
     );
 
     if (currentCardsConfig && currentCardsConfig.stageId) {
@@ -254,14 +258,15 @@ export const initBroker = async cl => {
       }
     }
 
-    await orderToErkhet(
+    await sendSyncerkhetMessage({
       subdomain,
-      models,
-      client,
-      pos,
-      order._id,
-      response._id
-    );
+      action: 'toOrder',
+      data: {
+        pos,
+        order: newOrder,
+        putRes: putResponse
+      }
+    });
 
     return {
       status: 'success'
@@ -347,6 +352,22 @@ export const initBroker = async cl => {
       }
     };
   });
+
+  consumeRPCQueue('pos:orders.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.PosOrders.find(data).lean()
+    };
+  });
+
+  consumeRPCQueue('pos:configs.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Pos.find(data).lean()
+    };
+  });
 };
 
 export const sendProductsMessage = async (
@@ -409,6 +430,17 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
+    ...args
+  });
+};
+
+export const sendSyncerkhetMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'syncerkhet',
     ...args
   });
 };
