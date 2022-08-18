@@ -98,7 +98,7 @@ class CheckSyncedOrders extends React.Component<Props, State> {
       syncedOrderInfos
     } = this.props;
     const tablehead = [
-      'Pos Token',
+      'Number',
       'Total Amount',
       'Created At',
       'Paid At',

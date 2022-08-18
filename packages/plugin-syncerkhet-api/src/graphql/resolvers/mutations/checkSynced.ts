@@ -1,12 +1,9 @@
-import { IContext } from '../../../connectionResolver';
-import {
-  sendCardsMessage,
-  sendEbarimtMessage,
-  sendPosMessage
-} from '../../../messageBroker';
-import { sendRPCMessage } from '../../../messageBrokerErkhet';
-import { getPostData } from '../../../utils/ebarimtData';
 import { getConfig } from '../../../utils/utils';
+import { getPostData } from '../../../utils/orders';
+import { IContext } from '../../../connectionResolver';
+import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
+import { sendEbarimtMessage } from '../../../messageBroker';
+import { sendRPCMessage } from '../../../messageBrokerErkhet';
 
 const checkSyncedMutations = {
   async toCheckSynced(
@@ -96,6 +93,7 @@ const checkSyncedMutations = {
 
     return result;
   },
+
   async toSyncOrders(
     _root,
     { orderIds }: { orderIds: string[] },
@@ -111,39 +109,38 @@ const checkSyncedMutations = {
       subdomain,
       action: 'orders.find',
       data: { _id: { $in: orderIds } },
-      isRPC: true
+      isRPC: true,
+      defaultValue: []
     });
 
-    for (const order of orders) {
-      const pos = await sendPosMessage({
-        subdomain,
-        action: 'find',
-        data: {
-          posToken: order?.posToken
-        },
-        isRPC: true
-      });
+    const posTokens = [...new Set((orders || []).map(o => o.posToken))];
 
+    const poss = await sendPosMessage({
+      subdomain,
+      action: 'configs.find',
+      data: { token: { $in: posTokens } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const posByToken = {};
+    for (const pos of poss) {
+      posByToken[pos.token] = pos;
+    }
+
+    for (const order of orders) {
+      const pos = posByToken[order.posToken];
       const putRes = await sendEbarimtMessage({
         subdomain,
         action: 'putresponses.putHistories',
         data: {
           contentType: 'pos',
-          contentId: order?._id
+          contentId: order._id
         },
         isRPC: true
       });
 
-      const postData = await sendPosMessage({
-        subdomain,
-        action: 'ordersPostData',
-        data: {
-          pos: pos,
-          orderId: order._id,
-          putRes: putRes
-        },
-        isRPC: true
-      });
+      const postData = await getPostData(subdomain, pos, order, putRes);
 
       const response = await sendRPCMessage(
         'rpc_queue:erxes-automation-erkhet',

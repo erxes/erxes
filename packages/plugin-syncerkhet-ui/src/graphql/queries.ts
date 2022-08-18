@@ -41,13 +41,17 @@ const commonDealParamDefs = `
 `;
 
 const commonOrderParams = `
+  $page: Int,
+  $perPage: Int,
   $sortField: String,
   $sortDirection: Int,
-  $createdStartDate: Date 
-  $createdEndDate: Date 
+  $createdStartDate: Date
+  $createdEndDate: Date
 `;
 
 const commonOrderParamDefs = `
+  page: $page,
+  perPage: $perPage,
   sortField: $sortField
   sortDirection: $sortDirection
   createdStartDate: $createdStartDate
@@ -99,7 +103,7 @@ const checkSyncOrders = `
       ${commonOrderParamDefs}
     ) {
       _id
-      posToken
+      number
       createdAt
       paidDate
       totalAmount

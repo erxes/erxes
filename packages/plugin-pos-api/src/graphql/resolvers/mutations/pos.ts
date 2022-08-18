@@ -1,9 +1,11 @@
-import messageBroker, { sendEbarimtMessage } from '../../../messageBroker';
+import {
+  sendEbarimtMessage,
+  sendSyncerkhetMessage
+} from '../../../messageBroker';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { getConfig } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
 import { IPos, IPosSlot } from '../../../models/definitions/pos';
-import { orderDeleteToErkhet, orderToErkhet } from '../../../utils';
 import {
   syncPosToClient,
   syncProductGroupsToClient,
@@ -161,7 +163,17 @@ const mutations = {
     if (!putRes) {
       throw new Error('not found put response');
     }
-    await orderToErkhet(models, messageBroker, subdomain, pos, _id, putRes);
+
+    await sendSyncerkhetMessage({
+      subdomain,
+      action: 'toOrder',
+      data: {
+        pos,
+        order,
+        putRes
+      }
+    });
+
     return await models.PosOrders.findOne({ _id }).lean();
   },
 
@@ -191,9 +203,15 @@ const mutations = {
       isRPC: true
     });
 
-    if (order.syncedErkhet) {
-      await orderDeleteToErkhet(models, messageBroker, subdomain, pos, _id);
-    }
+    await sendSyncerkhetMessage({
+      subdomain,
+      action: 'returnOrder',
+      data: {
+        pos,
+        order
+      }
+    });
+
     return await models.PosOrders.deleteOne({ _id });
   },
   posOrderChangePayments: async (

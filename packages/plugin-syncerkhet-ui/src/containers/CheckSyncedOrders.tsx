@@ -6,7 +6,7 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Bulk } from '@erxes/ui/src/components';
 import {
-  CheckSyncedOrdersMutationResponse,
+  CheckSyncedMutationResponse,
   CheckSyncedOrdersQueryResponse,
   CheckSyncedOrdersTotalCountQueryResponse,
   ToSyncOrdersMutationResponse
@@ -27,7 +27,7 @@ type FinalProps = {
   checkSyncedOrdersTotalCountQuery: CheckSyncedOrdersTotalCountQueryResponse;
 } & Props &
   IRouterProps &
-  CheckSyncedOrdersMutationResponse &
+  CheckSyncedMutationResponse &
   ToSyncOrdersMutationResponse;
 
 type State = {
@@ -47,28 +47,28 @@ class CheckSyncedOrdersContainer extends React.Component<FinalProps, State> {
 
   render() {
     const {
-      toCheckSyncedOrders,
+      toCheckSynced,
       checkSyncItemsQuery,
       checkSyncedOrdersTotalCountQuery
     } = this.props;
 
     // remove action
     const checkSynced = async ({ orderIds }, emptyBulk) => {
-      await toCheckSyncedOrders({
-        variables: { orderIds }
+      await toCheckSynced({
+        variables: { ids: orderIds }
       })
         .then(response => {
           emptyBulk();
-          const statuses = response.data.toCheckSyncedOrders;
+          const statuses = response.data.toCheckSynced;
 
           const unSyncedOrderIds = (
             statuses.filter(s => !s.isSynced) || []
-          ).map(s => s.orderId);
+          ).map(s => s._id);
           const syncedOrderInfos = {};
           const syncedOrders = statuses.filter(s => s.isSynced) || [];
 
           syncedOrders.forEach(item => {
-            syncedOrderInfos[item.orderId] = {
+            syncedOrderInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
               syncedDate: item.syncedDate || ''
             };
@@ -137,7 +137,9 @@ const generateParams = ({ queryParams }) => {
     createdEndDate: queryParams.createdEndDate,
     posToken: queryParams.posToken,
     sortField: queryParams.sortField,
-    sortDirection: Number(queryParams.sortDirection) || undefined
+    sortDirection: Number(queryParams.sortDirection) || undefined,
+    page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
+    perPage: queryParams.perPage ? parseInt(queryParams.perPage, 10) : 20
   };
 };
 
@@ -164,10 +166,10 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, CheckSyncedOrdersMutationResponse, { orderIds: string[] }>(
-      gql(mutations.toCheckSyncedOrders),
+    graphql<Props, CheckSyncedMutationResponse, { orderIds: string[] }>(
+      gql(mutations.toCheckSynced),
       {
-        name: 'toCheckSyncedOrders'
+        name: 'toCheckSynced'
       }
     ),
     graphql<Props, ToSyncOrdersMutationResponse, { orderIds: string[] }>(

@@ -37,7 +37,7 @@ class Row extends React.Component<Props> {
     };
 
     const onTrClick = () => {};
-    const { posToken, createdAt, totalAmount, paidDate } = order;
+    const { number, createdAt, totalAmount, paidDate } = order;
 
     return (
       <tr onClick={onTrClick}>
@@ -48,12 +48,8 @@ class Row extends React.Component<Props> {
             onChange={onChange}
           />
         </td>
-        <td>{posToken}</td>
-        <td>
-          {Object.keys(totalAmount).map(
-            a => `${totalAmount[a].toLocaleString()} ${a}`
-          )}
-        </td>
+        <td>{number}</td>
+        <td>{totalAmount.toLocaleString()}</td>
         <td>{dayjs(createdAt).format('lll')}</td>
         <td>{dayjs(paidDate).format('lll')}</td>
         <td onClick={onClick}>
