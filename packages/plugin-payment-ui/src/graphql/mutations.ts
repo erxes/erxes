@@ -1,14 +1,14 @@
-const commonParamDefs = `$name: String!`;
-const commonParams = `name: $name`;
+const commonParamDefs = `$name: String!, $type: String!, $status: String, $config: JSON`;
+const commonParams = `name: $name, type: $type, status: $status, config: $config`;
 
-const add = `
-  mutation paymentsAdd(${commonParamDefs}) {
-    paymentsAdd(${commonParams}) {
-      _id
-    }
+const paymentConfigsAdd = `
+mutation paymentConfigsAdd(${commonParamDefs}) {
+  paymentConfigsAdd(${commonParams}) {
+    _id
   }
+}
 `;
 
 export default {
-  add
+  paymentConfigsAdd
 };

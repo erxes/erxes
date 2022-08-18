@@ -1,19 +1,22 @@
-const list = `
-  query paymentsQuery {
-    payments {
-      _id
-      name
-    }
+const paymentConfigs = `
+query paymentConfigs {
+  paymentConfigs {
+    _id
+    name
+    type
+    status
+    config
   }
+}
 `;
 
-const totalCount = `
-  query paymentsTotalCountQuery {
-    paymentsTotalCount
-  }
+const paymentConfigsCountByType = `
+query Query($type: String) {
+  paymentConfigsCountByType(type: $type)
+}
 `;
 
 export default {
-  list,
-  totalCount
+  paymentConfigs,
+  paymentConfigsCountByType
 };
