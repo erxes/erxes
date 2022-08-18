@@ -138,7 +138,7 @@ export interface IIntegrationModel extends Model<IIntegrationDocument> {
     formId: string,
     get?: boolean
   ): Promise<IIntegrationDocument>;
-  isOnline(integration: IIntegrationDocument, now?: Date): boolean;
+  isOnline(integration: IIntegrationDocument, userTimezone?: string): boolean;
   createBookingIntegration(
     doc: IIntegration,
     userId: string
@@ -491,8 +491,10 @@ export const loadClass = (models: IModels, subdomain: string) => {
 
     public static isOnline(
       integration: IIntegrationDocument,
-      now = new Date()
+      userTimezone?: string
     ) {
+      const now = new Date();
+
       const daysAsString = [
         'sunday',
         'monday',
@@ -527,7 +529,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         onlineHours = [],
         timezone = ''
       } = messengerData;
-      const timezoneString = timezone || momentTz.tz.guess();
+      const timezoneString = userTimezone || timezone || momentTz.tz.guess();
 
       /*
        * Manual: We can determine state from isOnline field value when method is manual

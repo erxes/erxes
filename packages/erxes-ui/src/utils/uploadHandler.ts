@@ -5,6 +5,7 @@ type FileInfo = {
   name: string;
   size: number;
   type: string;
+  duration: number;
 };
 
 type AfterUploadParams = {
@@ -29,6 +30,17 @@ type Params = {
   responseType?: string;
   extraFormData?: Array<{ key: string; value: string }>;
 };
+
+const getVideoDuration = file =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader() as any;
+    reader.onload = () => {
+      const media = new Audio(reader.result);
+      media.onloadedmetadata = () => resolve(media.duration);
+    };
+    reader.readAsDataURL(file);
+    reader.onerror = error => reject(error);
+  });
 
 export const deleteHandler = (params: {
   fileName: string;
@@ -68,7 +80,7 @@ export const deleteHandler = (params: {
   });
 };
 
-const uploadHandler = (params: Params) => {
+const uploadHandler = async (params: Params) => {
   const { REACT_APP_API_URL, REACT_APP_FILE_UPLOAD_MAX_SIZE } = getEnv();
 
   const {
@@ -98,7 +110,18 @@ const uploadHandler = (params: Params) => {
     // initiate upload file reader
     const uploadReader = new FileReader();
 
-    const fileInfo = { name: file.name, size: file.size, type: file.type };
+    let fileInfo = {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      duration: 0
+    };
+
+    if (file.type.includes('audio' || 'mp4')) {
+      const duration = await getVideoDuration(file);
+
+      fileInfo = { ...fileInfo, duration };
+    }
 
     const fileUploadMaxSize =
       REACT_APP_FILE_UPLOAD_MAX_SIZE || 20 * 1024 * 1024;
@@ -106,9 +129,11 @@ const uploadHandler = (params: Params) => {
     // skip file that size is more than REACT_APP_FILE_UPLOAD_MAX_SIZE
     if (fileInfo.size > parseInt(fileUploadMaxSize, 10)) {
       Alert.warning(
-        `Your file ${fileInfo.name} size is too large. Upload files less than ${
-          fileUploadMaxSize / 1024 / 1024
-        }MB of size.`
+        `Your file ${
+          fileInfo.name
+        } size is too large. Upload files less than ${fileUploadMaxSize /
+          1024 /
+          1024}MB of size.`
       );
 
       continue;

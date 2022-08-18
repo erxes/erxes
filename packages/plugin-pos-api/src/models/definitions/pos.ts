@@ -2,12 +2,16 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IPosOrderItem {
-  createdAt: Date;
+  createdAt?: Date;
   productId: string;
   count: number;
-  unitPrice: number;
-  discountAmount: number;
-  discountPercent: number;
+  unitPrice?: number;
+  discountAmount?: number;
+  discountPercent?: number;
+  bonusCount?: number;
+  bonusVoucherId?: string;
+  isPackage?: boolean;
+  isTake?: boolean;
 }
 export interface IPosOrderItemDocument extends IPosOrderItem, Document {
   _id: string;
@@ -97,13 +101,30 @@ export interface IPosSlotDocument extends IPosSlot, Document {
 
 const posOrderItemSchema = schemaHooksWrapper(
   new Schema({
-    _id: field({ type: String }),
-    createdAt: field({ type: Date }),
+    _id: field({ pkey: true }),
+    createdAt: field({ type: Date, label: 'Created at' }),
     productId: field({ type: String, label: 'Product' }),
-    count: field({ type: Number }),
-    unitPrice: field({ type: Number }),
-    discountAmount: field({ type: Number }),
-    discountPercent: field({ type: Number })
+    count: field({ type: Number, label: 'Count' }),
+    unitPrice: field({ type: Number, label: 'Unit price' }),
+    discountAmount: field({
+      type: Number,
+      label: 'Discount price amount',
+      optional: true
+    }),
+    discountPercent: field({
+      type: Number,
+      label: 'Discount percent',
+      optional: true
+    }),
+    bonusCount: field({ type: Number, label: 'Bonus count', optional: true }),
+    bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
+    orderId: field({ type: String, label: 'Order id' }),
+    isPackage: field({ type: Boolean, default: false, label: 'Is Package' }),
+    isTake: field({
+      type: Boolean,
+      label: 'order eat but some take',
+      default: false
+    })
   }),
   'erxes_posOrderItem'
 );

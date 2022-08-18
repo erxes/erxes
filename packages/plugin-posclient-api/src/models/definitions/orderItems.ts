@@ -13,6 +13,8 @@ export interface IOrderItem {
   unitPrice?: number;
   discountAmount?: number;
   discountPercent?: number;
+  bonusCount?: number;
+  bonusVoucherId?: string;
   orderId?: string;
   isPackage?: boolean;
   isTake?: boolean;
@@ -35,13 +37,21 @@ export const orderItemSchema = schemaHooksWrapper(
     }),
     discountAmount: getNumberFieldDefinition({
       label: 'Discount price amount',
-      discount: true
+      positive: true,
+      optional: true
     }),
     discountPercent: getNumberFieldDefinition({
       label: 'Discount percent',
       discount: true,
+      optional: true,
       default: 0
     }),
+    bonusCount: getNumberFieldDefinition({
+      label: 'Bonus count',
+      positive: true,
+      optional: true
+    }),
+    bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
     orderId: field({ type: String, label: 'Order id' }),
     isPackage: field({
       type: Boolean,
