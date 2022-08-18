@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import Select from 'react-select-plus';
 import DateControl from '@erxes/ui/src/components/form/DateControl';
 import { Form, FormControl, Uploader, SelectTeamMembers } from '@erxes/ui/src/';
 import { IFormProps, IButtonMutateProps } from '@erxes/ui/src/types';
 import { UploadItems, CustomRangeContainer } from '../styles';
-import { title, description } from '../utils';
+import { title, description, getDepartmentOptions } from '../utils';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import GenerateFields from './GenerateFields';
 import { __ } from '@erxes/ui/src/utils';
@@ -13,10 +14,11 @@ type Props = {
   closeModal?: () => void;
   renderButton: (props: IButtonMutateProps) => any;
   fields: any[];
+  departments: any[];
 };
 
 export default function EventForm(props: Props) {
-  const { item = {}, fields } = props;
+  const { item = {}, fields, departments } = props;
 
   const [attachments, setAttachment] = useState(item.attachments || []);
   const [images, setImages] = useState(item.images || []);
@@ -30,8 +32,14 @@ export default function EventForm(props: Props) {
     visibility: itemEventData.visibility || 'public',
     where: itemEventData.where || '',
     startDate: itemEventData.startDate,
-    endDate: itemEventData.endDate,
+    endDate: itemEventData.endDate
   });
+
+  const [selectedDepartment, setSelectedDepartment] = useState<any>(null);
+
+  const onChangeDepartment = (option: any) => {
+    setSelectedDepartment(option);
+  };
 
   const onChangeEventData = (key, value) => {
     setEventData({ ...eventData, [key]: value });
@@ -83,7 +91,7 @@ export default function EventForm(props: Props) {
             value={eventData.startDate}
             required={false}
             name="startDate"
-            onChange={(date) => onChangeEventData('startDate', date)}
+            onChange={date => onChangeEventData('startDate', date)}
             placeholder={'Start date'}
             dateFormat={'YYYY-MM-DD HH:mm:ss'}
             timeFormat={true}
@@ -93,7 +101,7 @@ export default function EventForm(props: Props) {
             required={false}
             name="endDate"
             placeholder={'End date'}
-            onChange={(date) => onChangeEventData('endDate', date)}
+            onChange={date => onChangeEventData('endDate', date)}
             dateFormat={'YYYY-MM-DD HH:mm:ss'}
             timeFormat={true}
           />
@@ -107,6 +115,14 @@ export default function EventForm(props: Props) {
           componentClass="textarea"
           value={eventData.where}
           onChange={(e: any) => onChangeEventData('where', e.target.value)}
+        />
+        <Select
+          placeholder="Choose one department"
+          name="departmentId"
+          value={selectedDepartment}
+          onChange={onChangeDepartment}
+          multi={false}
+          options={getDepartmentOptions(departments)}
         />
 
         <GenerateFields
@@ -139,9 +155,10 @@ export default function EventForm(props: Props) {
             recipientIds,
             customFieldsData,
             eventData,
+            department: selectedDepartment ? selectedDepartment.label : null
           },
           isSubmitted,
-          callback: closeModal,
+          callback: closeModal
         })}
       </>
     );

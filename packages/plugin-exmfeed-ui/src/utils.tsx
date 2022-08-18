@@ -32,9 +32,13 @@ export const title = (formProps: IFormProps, item: any) => {
 };
 
 export const getUserOptions = (users: IUser[]) =>
-  users.map((user) => ({
+  users.map(user => ({
     value: user._id,
     label: user.details
       ? user.details.fullName || user.email || 'No name'
-      : user.email || 'No name',
+      : user.email || 'No name'
   }));
+
+export function getDepartmentOptions(array: any[] = []) {
+  return array.map(item => ({ value: item._id, label: item.title }));
+}

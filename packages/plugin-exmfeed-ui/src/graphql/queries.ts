@@ -43,6 +43,7 @@ const commonFeedFields = `
     goingUserIds
   }
   customFieldsData
+  department
 `;
 
 const feed = `
@@ -89,4 +90,22 @@ const fields = `
   }
 `;
 
-export default { feed, thanks, fields, allUsers };
+const departmentField = `
+  _id
+  title
+  description
+  parentId
+  code
+  supervisorId
+  userIds
+`;
+
+const departments = `
+  query departments {
+    departments {
+      ${departmentField}
+    }
+  }
+`;
+
+export default { feed, thanks, fields, allUsers, departments };
