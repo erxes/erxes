@@ -101,14 +101,24 @@ const generatePluginBlock = (configs, plugin) => {
   return conf;
 };
 
-const syncUI = async ({ name }) => {
-  log(`Downloading ${name} ui build.tar`);
-
+const syncUI = async ({ name, ui_location }) => {
   const plName = `plugin-${name}-ui`;
 
-  await execCommand(
-    `aws s3 sync s3://erxes-plugins/uis/${plName} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
-  );
+  if (ui_location) {
+    if (!(await fse.exists(filePath(`plugin-uis/${plName}`)))) {
+      await execCommand(`mkdir plugin-uis/${plName}`);
+    }
+
+    log(`Downloading ${name} ui build.tar from ${ui_location}`);
+
+    await execCurl(ui_location, `plugin-uis/${plName}/build.tar`);
+  } else {
+    log(`Downloading ${name} ui build.tar from s3`);
+
+    await execCommand(
+      `aws s3 sync s3://erxes-plugins/uis/${plName} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
+    );
+  }
 
   log(`Extracting build ......`);
   await execCommand(
