@@ -1,6 +1,10 @@
-import { IActivityLogDocument } from '../../models/ActivityLogs';
-import { sendCoreMessage, sendInboxMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
+import {
+  sendClientPortalMessage,
+  sendCoreMessage,
+  sendInboxMessage
+} from '../../messageBroker';
+import { IActivityLogDocument } from '../../models/ActivityLogs';
 
 export default {
   async createdByDetail(
@@ -30,7 +34,7 @@ export default {
       action: 'integrations.findOne',
       data: { _id: activityLog.createdBy },
       isRPC: true,
-      defaultValue: []
+      defaultValue: null
     });
 
     if (integration) {
@@ -47,6 +51,18 @@ export default {
       });
 
       return { type: 'brand', content: brand };
+    }
+
+    const clientPortal = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortals.findOne',
+      data: { _id: activityLog.createdBy },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    if (clientPortal) {
+      return { type: 'clientPortal', content: clientPortal };
     }
 
     return;

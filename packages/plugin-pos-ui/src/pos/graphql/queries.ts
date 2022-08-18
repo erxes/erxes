@@ -18,6 +18,7 @@ export const posCommonFields = `
   isOnline
   onServer
   branchId
+  departmentId
   allowBranchIds
   beginNumber
   maxSkipNumber
@@ -79,20 +80,6 @@ const productGroups = `
   }
 `;
 
-const branches = `
-  query branches {
-    branches {
-      _id
-      title
-      address
-      parentId
-      supervisorId
-      code
-      userIds
-    }
-  }
-`;
-
 const posSlots = `
   query posSlots($posId: String!) {
     posSlots(posId: $posId) {
@@ -134,6 +121,5 @@ export default {
   posDetail,
   posEnv,
   getDbSchemaLabels,
-  branches,
   posSlots
 };

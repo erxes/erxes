@@ -37,6 +37,10 @@ ${
     isEmailVerified: Boolean
     isPhoneVerified: Boolean
 
+    isOnline: Boolean
+    lastSeenAt: Date
+    sessionCount: Int
+
     clientPortal: ClientPortal
 
     ${
@@ -73,6 +77,7 @@ const queryParams = `
   sortField: String
   sortDirection: Int
   cpId: String
+  dateFilters: String
   ${conformityQueryFields}
 `;
 

@@ -62,7 +62,7 @@ const CustomFieldsSection = (props: FinalProps) => {
     customFieldsData: customer.customFieldsData,
     fieldsGroups: fieldsGroupsQuery ? fieldsGroupsQuery.fieldsGroups : [],
     isDetail,
-    object: customer
+    doc: customer
   };
 
   return <GenerateCustomFields {...updatedProps} />;

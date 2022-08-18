@@ -1,7 +1,8 @@
-import {
-  checkPermission,
-  requireLogin
-} from '@erxes/api-utils/src/permissions';
+// import {
+//   checkPermission,
+//   requireLogin
+// } from '@erxes/api-utils/src/permissions';
+
 import { IContext } from '../../../connectionResolver';
 
 const flowCategoryQueries = {

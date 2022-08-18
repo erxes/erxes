@@ -41,6 +41,7 @@ export type IPos = {
   isOnline: boolean;
   onServer: boolean;
   branchId?: string;
+  departmentId?: string;
   allowBranchIds?: string[];
   beginNumber?: string;
   maxSkipNumber?: number;
@@ -175,10 +176,6 @@ export interface IProductShema {
 
 export type SchemaLabelsQueryResponse = {
   getDbSchemaLabels: IProductShema[];
-} & QueryResponse;
-
-export type BranchesQueryResponse = {
-  branches: any[];
 } & QueryResponse;
 
 export interface IOrdersSummary {

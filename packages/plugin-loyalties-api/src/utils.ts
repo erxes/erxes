@@ -1,11 +1,13 @@
+import { IModels } from './connectionResolver';
 import { sendProductsMessage } from './messageBroker';
+import { VOUCHER_STATUS } from './models/definitions/constants';
 
 interface IProductD {
   productId: string;
   quantity: number;
 }
 export const checkVouchersSale = async (
-  models,
+  models: IModels,
   subdomain: string,
   ownerType: string,
   ownerId: string,
@@ -96,6 +98,7 @@ export const checkVouchersSale = async (
             0
           );
         result[productId].type = 'bonus';
+        result[productId].discount = 100;
         result[productId].bonusName = bonusVoucher.campaign.title;
       }
     }
@@ -142,7 +145,7 @@ export const checkVouchersSale = async (
 
   const productIdByCatId = {};
   for (const pr of catProducts) {
-    if (!Object.keys(productCatIds).includes(pr.categoryId)) {
+    if (!Object.keys(productIdByCatId).includes(pr.categoryId)) {
       productIdByCatId[pr.categoryId] = [];
     }
 
@@ -154,7 +157,7 @@ export const checkVouchersSale = async (
     let productIds = discountVoucher.campaign.productIds || [];
 
     for (const catId of catIds) {
-      productIds = productIds.concat(productCatIds[catId]);
+      productIds = productIds.concat(productIdByCatId[catId] || []);
     }
 
     for (const productId of productsIds) {
@@ -180,7 +183,15 @@ export const checkVouchersSale = async (
   return result;
 };
 
-export const confirmVoucherSale = async (models, checkInfo) => {
+export const confirmVoucherSale = async (
+  models: IModels,
+  checkInfo: {
+    [productId: string]: {
+      voucherId: string;
+      count: number;
+    };
+  }
+) => {
   for (const productId of Object.keys(checkInfo)) {
     const rule = checkInfo[productId];
 
@@ -189,10 +200,33 @@ export const confirmVoucherSale = async (models, checkInfo) => {
     }
 
     if (rule.count) {
-      await models.Vouchers.updateOne(
-        { _id: rule.voucherId },
-        { $push: { bonusInfo: { usedCount: rule.count } } }
+      const voucher = await models.Vouchers.findOne({
+        _id: rule.voucherId
+      }).lean();
+      if (!voucher) {
+        continue;
+      }
+
+      const campaign = await models.VoucherCampaigns.findOne({
+        _id: voucher.campaignId
+      });
+      if (!campaign) {
+        continue;
+      }
+
+      const oldBonusCount = (voucher.bonusInfo || []).reduce(
+        (sum, i) => sum + i.usedCount,
+        0
       );
+
+      const updateInfo: any = {
+        $push: { bonusInfo: { usedCount: rule.count } }
+      };
+      if (campaign.bonusCount - oldBonusCount <= rule.count) {
+        updateInfo.$set = { status: VOUCHER_STATUS.LOSS };
+      }
+
+      await models.Vouchers.updateOne({ _id: rule.voucherId }, updateInfo);
     }
   }
 };

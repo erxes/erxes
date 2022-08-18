@@ -4,7 +4,7 @@ import { dimensions, colors } from '@erxes/ui/src/styles';
 import { TriggerBox, DrawerDetail } from '../../../styles';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 
-export const ActionFooter = styled.div`
+export const FlowJobFooter = styled.div`
   padding: ${dimensions.unitSpacing}px;
   bottom: ${dimensions.coreSpacing}px;
 `;
@@ -41,7 +41,7 @@ export const Attributes = styled.ul`
   }
 `;
 
-export const ActionBox = styledTS<{
+export const FlowJobBox = styledTS<{
   isFavourite: boolean;
   isAvailable: boolean;
 }>(styled(TriggerBox))`
@@ -79,7 +79,7 @@ export const ActionBox = styledTS<{
       }
     }
 
-    .favourite-action {
+    .favourite-flowJob {
       position: absolute;
       width: 30px;
       text-align: right;

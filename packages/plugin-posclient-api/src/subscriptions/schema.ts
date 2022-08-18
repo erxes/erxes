@@ -83,6 +83,7 @@ export const types = `
     oldBillId: String
     type: String
     branchId: String
+    departmentId: String
     deliveryInfo: JSON
     cardPaymentInfo: String
     cardPayments: [CardPayment]

@@ -1,5 +1,19 @@
-import { createXlsFile, generateXlsx } from '@erxes/api-utils/src/exporter';
+import * as xlsxPopulate from 'xlsx-populate';
 import * as json2csv from 'json2csv';
+
+export const createXlsFile = async () => {
+  // Generating blank workbook
+  const workbook = await xlsxPopulate.fromBlankAsync();
+
+  return { workbook, sheet: workbook.sheet(0) };
+};
+
+/**
+ * Generates downloadable xls file on the url
+ */
+export const generateXlsx = async (workbook: any): Promise<string> => {
+  return workbook.outputAsync();
+};
 
 export const templateExport = async (args: any) => {
   const { type, importType } = args;

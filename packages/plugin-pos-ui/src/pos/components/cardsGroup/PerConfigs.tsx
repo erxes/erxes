@@ -37,11 +37,11 @@ class PerConfigs extends React.Component<Props, State> {
     };
   }
 
-  onChangeBranch = (branchId: string) => {
+  onChangeBranch = branchId => {
     this.setState({ config: { ...this.state.config, branchId } });
   };
 
-  onChangeAsssignedUserIds = (assignedUserIds: string) => {
+  onChangeAsssignedUserIds = assignedUserIds => {
     this.setState({ config: { ...this.state.config, assignedUserIds } });
   };
 

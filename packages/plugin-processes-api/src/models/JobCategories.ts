@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { JOB_STATUSES } from './definitions/constants';
@@ -49,8 +49,6 @@ export const loadJobCategoryClass = (models: IModels) => {
      * Update JobCategory
      */
     public static async updateJobCategory(_id: string, doc: IJobCategory) {
-      const job = await models.JobCategories.getJobCategory(_id);
-
       await models.JobCategories.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.JobCategories.getJobCategory(_id);

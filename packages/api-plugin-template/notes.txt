@@ -1,0 +1,2 @@
+1. Do not use big packages since it will be included in all plugins
+2. Do not add packages that are already in api-utils. Otherwise there will be multiple versions of the same package which is unnessary

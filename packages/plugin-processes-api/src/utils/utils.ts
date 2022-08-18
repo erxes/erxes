@@ -8,8 +8,7 @@ import { IModels } from './../connectionResolver';
 import {
   IJobReferDocument,
   IProduct,
-  IProductsData,
-  IUom
+  IProductsData
 } from './../models/definitions/jobs';
 import { IJobDocument } from '../models/definitions/flows';
 import { sendProductsMessage } from '../messageBroker';
@@ -328,19 +327,10 @@ export const recursiveCatchBeforeJobs = async (
     leftJobs.length
   );
 
-  const responseLeftJobs: any[] = [];
   const totalBeforeJobsRecursive: any[] = [];
 
   for (const recursiveJob of recursiveJobs) {
-    const {
-      flow,
-      productId,
-      count,
-      branchId,
-      departmentId,
-      jobRefers,
-      models
-    } = params;
+    const { flow, productId, count, jobRefers, models } = params;
 
     const lastJobRefer = getJobRefers(
       [recursiveJob?.jobReferId || ''],
@@ -357,8 +347,7 @@ export const recursiveCatchBeforeJobs = async (
       intervalId
     );
 
-    const work = await worksAdd(doc, models);
-    // console.log('work:', work);
+    await worksAdd(doc, models);
 
     const beforeJobsRecursive = getBeforeJobs(leftJobs, recursiveJob.id);
 

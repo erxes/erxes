@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { FLOW_STATUSES } from './definitions/constants';
@@ -49,8 +49,6 @@ export const loadFlowCategoryClass = (models: IModels) => {
      * Update FlowCategory
      */
     public static async updateFlowCategory(_id: string, doc: IFlowCategory) {
-      const flowCategory = await models.FlowCategories.getFlowCategory(_id);
-
       await models.FlowCategories.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.FlowCategories.getFlowCategory(_id);

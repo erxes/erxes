@@ -29,7 +29,6 @@ type Props = {
   color?: string;
   messengerData: IIntegrationMessengerData;
   isOnline?: boolean;
-  serverTime?: string;
   activeSupport?: boolean;
 };
 
@@ -120,15 +119,6 @@ class Home extends React.Component<Props, State> {
           <SocialLink url={links.twitter} icon={twitter} />
           <SocialLink url={links.youtube} icon={youtube} />
         </div>
-      </div>
-    );
-  }
-
-  renderServerInfo(timezone?: string, serverTime?: string) {
-    return (
-      <div className="server-info">
-        <time>Server time: {dayjs(serverTime).format("lll")}</time>
-        <p>Timezone: {timezone || "not specified"}</p>
       </div>
     );
   }

@@ -1,4 +1,4 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import { IWork, IWorkDocument, workSchema } from './definitions/works';
@@ -41,8 +41,6 @@ export const loadWorkClass = (models: IModels) => {
      * Update Work
      */
     public static async updateWork(_id: string, doc: IWork) {
-      const work = await models.Works.getWork(_id);
-
       await models.Works.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.Works.getWork(_id);

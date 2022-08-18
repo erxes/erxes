@@ -8,7 +8,6 @@ import SettingsRoutes from './modules/settings/routes';
 import WelcomeRoutes from './modules/welcome/routes';
 import asyncComponent from 'modules/common/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import path from 'path';
 import queryString from 'query-string';
 import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 

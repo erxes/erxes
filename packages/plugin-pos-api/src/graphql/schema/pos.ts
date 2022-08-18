@@ -21,6 +21,7 @@ const posCommonFields = `
   isOnline: Boolean
   onServer: Boolean
   branchId: String
+  departmentId: String
   allowBranchIds: [String]
   beginNumber: String
   maxSkipNumber: Int
@@ -164,6 +165,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   type PosOrderDetail {
     ${posOrderFields(contactsEnabled)}
     putResponses: JSON
+    deliveryInfo: JSON
   }
 
   type PosProduct {

@@ -54,10 +54,6 @@ class InfoSection extends React.Component<Props> {
     );
   }
 
-  renderPosition() {
-    return <p>{this.props.customer.position}</p>;
-  }
-
   renderEditForm = () => {
     if (this.props.hideForm) {
       return null;
@@ -95,7 +91,7 @@ class InfoSection extends React.Component<Props> {
             {renderFullName(customer)}
             {this.renderEditForm()}
           </Name>
-          {this.renderPosition()}
+          <p>{customer.position}</p>
           {this.renderLinks(links)}
         </NameContainer>
         {children}
