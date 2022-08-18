@@ -636,13 +636,15 @@ const up = async ({ uis, fromInstaller }) => {
   );
 };
 
-const update = async ({ pluginNames, noimage, uis }) => {
+const update = async ({ serviceNames, noimage, uis }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
   const image_tag = configs.image_tag || 'federation';
 
-  for (const name of pluginNames.split(',')) {
+  for (const name of serviceNames.split(',')) {
+    const pluginConfig = (configs.plugins || []).find(p => p.name === name);
+
     if (!noimage) {
       log(`Updating image ${name}......`);
 
@@ -688,14 +690,25 @@ const update = async ({ pluginNames, noimage, uis }) => {
         continue;
       }
 
-      await execCommand(
-        `docker service update erxes_plugin_${name}_api --image erxes/plugin-${name}-api:${image_tag}`
-      );
+      if (pluginConfig) {
+        const tag = pluginConfig.image_tag || configs.image_tag || 'federation';
+        const registry = pluginConfig.registry ? `${pluginConfig.registry}/` : '';
+
+        await execCommand(
+          `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag}`
+        );
+      } else {
+        console.error('No plugin found');
+      }
     }
 
-    if (uis) {
-      await execCommand(`rm -rf plugin-uis/${`plugin-${name}-ui`}`, true);
-      await syncUI({ name });
+    if (pluginConfig) {
+      if (uis) {
+        await execCommand(`rm -rf plugin-uis/${`plugin-${name}-ui`}`, true);
+        await syncUI(pluginConfig);
+      }
+    } else {
+      console.error('No plugin found');
     }
   }
 
@@ -770,8 +783,8 @@ module.exports.manageInstallation = async program => {
   }
 
   if (type === 'update') {
-    log('Update date ....');
-    await update({ pluginNames: name, uis: true });
+    log('Update ....');
+    await update({ serviceNames: name, uis: true });
   }
 };
 
@@ -786,9 +799,9 @@ module.exports.update = (program) => {
     return console.log('Pass service names !!!');
   }
 
-  const pluginNames = process.argv[3];
+  const serviceNames = process.argv[3];
 
-  return update({ pluginNames, noimage: program.noimage, uis: program.uis });
+  return update({ serviceNames, noimage: program.noimage, uis: program.uis });
 };
 
 module.exports.restart = () => {
