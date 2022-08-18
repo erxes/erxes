@@ -12,9 +12,10 @@ import {
 } from '../../messageBroker';
 import { IContext, IModels } from '../../connectionResolver';
 
-export const isMessengerOnline = async (
+const isMessengerOnline = async (
   models: IModels,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  userTimezone?: string
 ) => {
   if (!integration.messengerData) {
     return false;
@@ -37,26 +38,34 @@ export const isMessengerOnline = async (
     }
   };
 
-  return models.Integrations.isOnline(modifiedIntegration);
+  return models.Integrations.isOnline(modifiedIntegration, userTimezone);
 };
 
-const messengerSupporters = async (
+const fetchUsers = async (
+  models: IModels,
   subdomain: string,
-  integration: IIntegrationDocument
+  integration: IIntegrationDocument,
+  query: any
 ) => {
-  const messengerData = integration.messengerData || { supporterIds: [] };
-
-  return sendCoreMessage({
+  const users = await sendCoreMessage({
     subdomain,
     action: 'users.find',
-    data: {
-      query: {
-        _id: { $in: messengerData.supporterIds }
-      }
-    },
+    data: { query },
     isRPC: true,
     defaultValue: []
   });
+
+  for (const user of users) {
+    if (user.details && user.details.location) {
+      user.isOnline = await isMessengerOnline(
+        models,
+        integration,
+        user.details.location
+      );
+    }
+  }
+
+  return users;
 };
 
 const getWidgetMessages = (models: IModels, conversationId: string) => {
@@ -122,23 +131,19 @@ export default {
       return null;
     }
 
+    const messengerData = integration.messengerData || { supporterIds: [] };
+
     return {
       _id,
       messages: await getWidgetMessages(models, conversation._id),
       isOnline: await isMessengerOnline(models, integration),
       operatorStatus: conversation.operatorStatus,
-      participatedUsers: await sendCoreMessage({
-        subdomain,
-        action: 'users.find',
-        data: {
-          query: {
-            _id: { $in: conversation.participatedUserIds }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
+      participatedUsers: await fetchUsers(models, subdomain, integration, {
+        _id: { $in: conversation.participatedUserIds }
       }),
-      supporters: await messengerSupporters(subdomain, integration)
+      supporters: await fetchUsers(models, subdomain, integration, {
+        _id: { $in: messengerData.supporterIds }
+      })
     };
   },
 
@@ -195,13 +200,12 @@ export default {
       _id: integrationId
     });
 
-    let timezone = '';
+    let timezone = momentTz.tz.guess();
 
     if (!integration) {
       return {
         supporters: [],
-        isOnline: false,
-        serverTime: momentTz().tz()
+        isOnline: false
       };
     }
 
@@ -212,19 +216,11 @@ export default {
     }
 
     return {
-      supporters: await sendCoreMessage({
-        subdomain,
-        action: 'users.find',
-        data: {
-          query: {
-            _id: { $in: messengerData.supporterIds || [] }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
+      supporters: await fetchUsers(models, subdomain, integration, {
+        _id: { $in: messengerData.supporterIds || [] }
       }),
       isOnline: await isMessengerOnline(models, integration),
-      serverTime: momentTz().tz(timezone || momentTz.tz.guess())
+      timezone
     };
   },
 
@@ -319,7 +315,7 @@ export default {
     });
   },
 
-  /*
+  /**
    * Topic detail
    */
   async widgetsKnowledgeBaseTopicDetail(
@@ -327,25 +323,25 @@ export default {
     { _id }: { _id: string },
     { subdomain }: IContext
   ) {
+    const commonOptions = { subdomain, isRPC: true };
+
     const topic = await sendKnowledgeBaseMessage({
-      subdomain,
+      ...commonOptions,
       action: 'topics.findOne',
       data: {
         query: {
           _id
         }
-      },
-      isRPC: true
+      }
     });
 
     if (topic && topic.createdBy) {
       const user = await sendCoreMessage({
-        subdomain,
+        ...commonOptions,
         action: 'users.findOne',
         data: {
           _id: topic.createdBy
         },
-        isRPC: true,
         defaultValue: {}
       });
 

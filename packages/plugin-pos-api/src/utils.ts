@@ -1,7 +1,9 @@
 import { IModels } from './connectionResolver';
+import { IPosOrder } from './models/definitions/pos';
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendLoyaltiesMessage,
   sendPosclientMessage,
   sendProductsMessage
 } from './messageBroker';
@@ -313,4 +315,32 @@ export const getBranchesUtil = async (
     isRPC: true,
     defaultValue: []
   });
+};
+
+export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
+  const confirmItems = order.items.filter(i => i.bonusCount) || [];
+
+  if (!confirmItems.length) {
+    return;
+  }
+  const checkInfo = {};
+
+  for (const item of confirmItems) {
+    checkInfo[item.productId] = {
+      voucherId: item.bonusVoucherId,
+      count: item.bonusCount
+    };
+  }
+
+  try {
+    await sendLoyaltiesMessage({
+      subdomain,
+      action: 'confirmLoyalties',
+      data: {
+        checkInfo
+      }
+    });
+  } catch (e) {
+    console.log(e.message);
+  }
 };

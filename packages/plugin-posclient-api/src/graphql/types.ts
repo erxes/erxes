@@ -36,6 +36,11 @@ export interface IOrderItemInput {
   unitPrice: number;
   isPackage?: boolean;
   isTake?: boolean;
+
+  discountPercent?: number;
+  discountAmount?: number;
+  bonusCount?: number;
+  bonusVoucherId?: string;
 }
 
 export interface IOrderInput {

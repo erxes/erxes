@@ -14,7 +14,6 @@ type Props = {
   expanded: boolean;
   toggleExpand: () => void;
   showTimezone?: boolean;
-  serverTime?: string;
 };
 
 class ConversationHeadContent extends React.Component<Props> {
@@ -35,7 +34,7 @@ class ConversationHeadContent extends React.Component<Props> {
   }
 
   withComponent(isExpanded: boolean) {
-    const { supporters, isOnline, color, loading, participators, showTimezone, serverTime } = this.props;
+    const { supporters, isOnline, color, loading, participators, showTimezone } = this.props;
 
     let content = (
       <>
@@ -57,7 +56,6 @@ class ConversationHeadContent extends React.Component<Props> {
           isOnline={isOnline}
           isExpanded={isExpanded}
           showTimezone={showTimezone}
-          serverTime={serverTime}
         />
       );
     }

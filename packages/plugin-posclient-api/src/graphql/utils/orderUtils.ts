@@ -137,6 +137,10 @@ export const updateOrderItems = async (
       productId: item.productId,
       count: item.count,
       unitPrice: item.unitPrice,
+      discountPercent: item.discountPercent,
+      discountAmount: item.discountAmount,
+      bonusCount: item.bonusCount,
+      bonusVoucherId: item.bonusVoucherId,
       isPackage: item.isPackage,
       isTake: item.isTake
     };

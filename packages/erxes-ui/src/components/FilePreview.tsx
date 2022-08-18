@@ -4,6 +4,7 @@ import React from 'react';
 import colors from '../styles/colors';
 import { rgba } from '../styles/ecolor';
 import styled from 'styled-components';
+import { readFile } from '../utils/core';
 
 const Wrapper = styled.a`
   border-radius: 4px;
@@ -79,7 +80,7 @@ export default function FilePreview({ fileUrl, fileName }: Props) {
   const renderFile = (icon: string) => {
     const attr = {
       rel: 'noopener noreferrer',
-      href: fileUrl,
+      href: readFile(fileUrl),
       target: '_blank'
     };
 
