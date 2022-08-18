@@ -1,4 +1,4 @@
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { ICommonListProps } from '../common/types';
@@ -11,11 +11,11 @@ import AssessmentCategories from '../assessmentCategories/container/List';
 
 type Props = {
   queryParams: any;
-  history: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   list: object[];
   totalCount: number;
-} & ICommonListProps;
+} & ICommonListProps &
+  IRouterProps;
 
 type IState = {
   selectedValue: string[];
@@ -127,7 +127,7 @@ class ListComp extends React.Component<Props, IState> {
   };
 
   render() {
-    const { list } = this.props;
+    const { list, queryParams } = this.props;
     const { selectedValue } = this.state;
 
     const rightActionBar = (
@@ -142,7 +142,7 @@ class ListComp extends React.Component<Props, IState> {
       title: 'Assessment List',
       rightActionBar: rightActionBar,
       content: this.renderContent(list),
-      sidebar: <AssessmentCategories />,
+      sidebar: <AssessmentCategories {...this.props} queryParams={queryParams} />,
     };
 
     return <DefaultWrapper {...updatedProps} />;

@@ -7,6 +7,7 @@ import { IRiskAssessmentCategoryDocument, riskAssessmentCategorySchema } from '.
 export interface IRiskAssessmentCategoryModel extends Model<IRiskAssessmentCategoryDocument> {
   addAssessmentCategory(params: IRiskAssessmentCategoryField): Promise<IRiskAssessmentCategoryDocument>;
   removeAssessmentCategory(params: { _id: string }): Promise<IRiskAssessmentCategoryDocument>;
+  editAssessmentCategory(params: IRiskAssessmentCategoryField): Promise<IRiskAssessmentCategoryDocument>;
   getAssessmentCategories(): Promise<IRiskAssessmentCategoryDocument>;
   getAssessmentCategory(_id: string): Promise<IRiskAssessmentCategoryDocument>;
 }
@@ -23,9 +24,7 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         throw new Error('Code must be unique');
       }
 
-      const parent = await models.RiskAssessmentCategory.findOne({ _id: parentId });
-
-      const order = parent ? `${parent.order}/${code}` : `${name}${code}`;
+      const order = await this.getOrder(parentId, code, name);
 
       const result = models.RiskAssessmentCategory.create({ ...params, order });
       return result;
@@ -75,18 +74,38 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       return category;
     };
 
-    public static removeAssessmentCategory = (params: { _id: string }) => {
+    public static removeAssessmentCategory = async (params: { _id: string }) => {
       if (!params._id) {
         throw new Error('Not found assessment category');
       }
 
       try {
-        models.RiskAssessmentCategory.deleteOne(params);
-        return 'ok';
+        return await models.RiskAssessmentCategory.findByIdAndDelete(params._id);
       } catch (error) {
         throw new Error(error.message);
       }
     };
+
+    public static editAssessmentCategory = async (params: IRiskAssessmentCategoryField) => {
+      console.log(params);
+
+      const { _id, name, code, parentId, formId } = params;
+
+      const category = await models.RiskAssessmentCategory.findOne({ _id }).lean();
+
+      if (!category) {
+        throw new Error('Not found risk assessment category');
+      }
+
+      const order = await this.getOrder(parentId, code, name);
+
+      return models.RiskAssessmentCategory.updateOne({ _id }, { $set: { ...category, ...params, order } });
+    };
+
+    static async getOrder(_id: string, code: string, name: string) {
+      const parent = await models.RiskAssessmentCategory.findOne({ _id });
+      return parent ? `${parent.order}/${code}` : `${name}${code}`;
+    }
   }
   riskAssessmentCategorySchema.loadClass(AssessmentClass);
   return riskAssessmentCategorySchema;

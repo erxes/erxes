@@ -10,8 +10,7 @@ export const GridContainer = styledTS<{
 }>(styled.div)`
     display:grid;
     gap:${(props) => props.gap || 0}
-    grid-template-columns:${(props) =>
-      props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto'}
+    grid-template-columns:${(props) => (props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto')}
 `;
 
 export const FormGroupRow = styledTS<{
@@ -70,13 +69,8 @@ export const ContentWrapper = styled.div`
   }
 `;
 
-export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean }>(
-  styled.div
-)`
-  padding: ${({ horizontal, vertical }) =>
-    !horizontal && !vertical
-      ? '10px'
-      : `${horizontal ? '10px' : '0px'} ${vertical ? '10px' : '0px'}`}
+export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean }>(styled.div)`
+  padding: ${({ horizontal, vertical }) => (!horizontal && !vertical ? '10px' : `${horizontal ? '10px' : '0px'} ${vertical ? '10px' : '0px'}`)}
 `;
 
 export const FormContainer = styledTS<{
@@ -87,10 +81,31 @@ export const FormContainer = styledTS<{
   gap?: boolean;
 }>(styled.div)`
   display: flex;
-  flex-direction: ${({ row }) => row && 'row'} ${({ column }) =>
-  column && 'column'};
-  justify-content: ${({ spaceBetween }) =>
-    spaceBetween ? 'space-between' : ''} ${({ spaceAround }) =>
-  spaceAround ? 'space-around' : ''};
+  flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
+  justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({ spaceAround }) => (spaceAround ? 'space-around' : '')};
   gap: ${({ gap }) => (gap ? '25px' : '')}
+`;
+
+export const BoxItem = styled.div`
+  flex-basis: 300px;
+  padding: 25px 30px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 6px;
+  box-shadow: 0 0 20px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+
+  h5 {
+    margin: 0 0 5px;
+    line-height: 22px;
+    color: ${colors.colorPrimaryDark};
+  }
+
+  p {
+    margin: 0;
+    color: ${colors.colorCoreGray};
+    word-break: break-word;
+  }
 `;

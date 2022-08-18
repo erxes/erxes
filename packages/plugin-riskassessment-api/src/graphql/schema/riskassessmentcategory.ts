@@ -28,4 +28,5 @@ export const queries = `
 export const mutations = `
     addAssessmentCategory (name: String,formId: String,parentId: String,code: String):JSON
     removeAssessmentCategory (_id:String):JSON
+    editAssessmentCategory(_id:String,name: String,formId: String,parentId: String,code: String):JSON
 `;

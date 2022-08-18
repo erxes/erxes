@@ -124,6 +124,12 @@ function FieldChoices(props: Props) {
       )}
       <FieldChoice
         {...props}
+        type="risk-assessment"
+        text={__('Risk Assessment')}
+        icon="file-plus"
+      />
+      <FieldChoice
+        {...props}
         type="objectList"
         text={__('Object List')}
         icon="sort-amount-down"

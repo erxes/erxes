@@ -21,7 +21,7 @@ export const types = `
 `;
 
 export const queries = `
-    riskAssesments:list
+    riskAssesments (categoryId:String):list
     riskAssessmentDetail(_id: String): RiskAssessment
 `;
 export const mutations = `

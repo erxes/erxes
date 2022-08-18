@@ -1,17 +1,20 @@
-import { SidebarListItem } from '@erxes/ui-settings/src/styles';
-import { ActionButtons, Button, DataWithLoader, Icon, ModalTrigger, Sidebar, SidebarList, Spinner, Tip, Wrapper } from '@erxes/ui/src';
+import { SidebarListItem, ActionButtons } from '@erxes/ui-settings/src/styles';
+import { Button, DataWithLoader, Icon, ModalTrigger, Sidebar, SidebarList, Spinner, Tip, Wrapper } from '@erxes/ui/src';
 import React from 'react';
 import { DefaultWrapper, subOption } from '../../common/utils';
 import FormContainer from '../container/Form';
 import { Link } from 'react-router-dom';
 import { Padding } from '../../styles';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
-  categories: any;
+  queryParams?: any;
+  categories?: any;
   totalCount: number;
   loading: boolean;
   removeCategory: (id: string) => any;
-};
+  refetch: () => any;
+} & IRouterProps;
 const { Section } = Wrapper.Sidebar;
 class AssessmentCategories extends React.Component<Props> {
   addModal = () => {
@@ -22,16 +25,25 @@ class AssessmentCategories extends React.Component<Props> {
     );
 
     const content = () => {
-      return <FormContainer />;
+      return <FormContainer refetch={this.props.refetch} />;
     };
 
-    return <ModalTrigger title="Add New Assessment Category" content={content} trigger={trigger} />;
+    return <ModalTrigger isAnimate title="Add New Assessment Category" content={content} trigger={trigger} />;
   };
 
   rightActionBar = (
     <Padding>
       {this.addModal()}
-      <Section.Title>Categories</Section.Title>
+      <Section.Title>
+        Categories
+        {this.props.queryParams.categoryId && (
+          <Button btnStyle="link">
+            <Tip text="Clear Filter">
+              <Icon icon="cancel-1" />
+            </Tip>
+          </Button>
+        )}
+      </Section.Title>
     </Padding>
   );
 
@@ -40,10 +52,10 @@ class AssessmentCategories extends React.Component<Props> {
 
     return categories.map((category) => (
       <SidebarListItem key={category._id} isActive={false}>
-        <a style={{ margin: 0 }}>
+        <Link to={`?categoryId=${category._id}`}>
           {category.parentId && subOption(category)}
           {category.name}
-        </a>
+        </Link>
         <ActionButtons>
           {this.renderCategoryEditAction(category)}
           {this.renderCategoryRemoveAction(category._id)}
@@ -65,15 +77,15 @@ class AssessmentCategories extends React.Component<Props> {
       return <FormContainer trigger={trigger} categoryId={category._id} formId={category.formId} />;
     };
 
-    return <ModalTrigger title="Edit Assessment Category" content={content} trigger={trigger} />;
+    return <ModalTrigger isAnimate title="Edit Assessment Category" content={content} trigger={trigger} />;
   }
 
   renderCategoryRemoveAction(id: string) {
-    const r = () => {
+    const remove = () => {
       this.props.removeCategory(id);
     };
     return (
-      <Button btnStyle="link" onClick={r}>
+      <Button btnStyle="link" onClick={remove}>
         <Tip text="Remove" placement="bottom">
           <Icon icon="cancel-1" />
         </Tip>

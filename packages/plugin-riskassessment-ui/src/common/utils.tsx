@@ -11,6 +11,7 @@ export const DefaultWrapper = ({
   totalCount,
   content,
   sidebar,
+  isPaginationHide,
 }: {
   title: string;
   rightActionBar?: JSX.Element;
@@ -18,6 +19,7 @@ export const DefaultWrapper = ({
   totalCount?: number;
   content: JSX.Element;
   sidebar?: JSX.Element;
+  isPaginationHide?: boolean;
 }) => {
   if (loading) {
     return <Spinner objective />;
@@ -28,7 +30,7 @@ export const DefaultWrapper = ({
       actionBar={<Wrapper.ActionBar right={rightActionBar} />}
       content={<DataWithLoader loading={loading || false} data={content} count={totalCount} emptyImage="/images/actions/5.svg" emptyText={__('No data of risk assessment')} />}
       leftSidebar={sidebar}
-      footer={<Pagination count={totalCount} />}
+      footer={!isPaginationHide && <Pagination count={totalCount} />}
     />
   );
 };

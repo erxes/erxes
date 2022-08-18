@@ -3,8 +3,8 @@ import { requireLogin } from '@erxes/api-utils/src';
 import { IRiskAssessmentField } from '../../../models/definitions/common';
 
 const RiskAssessmentQueries = {
-  async riskAssesments(_root, params: IRiskAssessmentField, { models }: IContext) {
-    return await models.RiskAssessment.riskAssesments();
+  async riskAssesments(_root, params: { categoryId: string } & IRiskAssessmentField, { models }: IContext) {
+    return await models.RiskAssessment.riskAssesments(params);
   },
 
   async riskAssessmentDetail(_root, params: { _id: string }, { models }: IContext) {

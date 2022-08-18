@@ -7,7 +7,13 @@ const addAssessmentCategory = `
 const removeAssessmentCategory = `
     mutation RemoveAssessmentCategory($id: String) {
         removeAssessmentCategory(_id: $id)
-      }
+    }
 `;
 
-export default { addAssessmentCategory, removeAssessmentCategory };
+const editAssessmentCategory = `
+    mutation EditAssessmentCategory($_id:String,$code: String, $formId: String, $name: String, $parentId: String) {
+        editAssessmentCategory(_id:$_id,code: $code, formId: $formId, name: $name, parentId: $parentId)
+    }
+`;
+
+export default { addAssessmentCategory, removeAssessmentCategory, editAssessmentCategory };

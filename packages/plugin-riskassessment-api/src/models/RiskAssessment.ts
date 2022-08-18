@@ -6,7 +6,7 @@ import { IRiskAssessmentDocument } from './definitions/riskassessment';
 import { riskAssessmentSchema } from './definitions/riskassessment';
 
 export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
-  riskAssesments(): Promise<IRiskAssessmentDocument>;
+  riskAssesments(params: { categoryId: string } & IRiskAssessmentField): Promise<IRiskAssessmentDocument>;
   riskAssessmentDetail(params: { _id: string }): Promise<IRiskAssessmentDocument>;
   riskAssesmentAdd(params: IRiskAssessmentField): Promise<IRiskAssessmentDocument>;
   riskAssesmentRemove(_ids: string[]): void;
@@ -15,9 +15,9 @@ export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
 
 export const loadRiskAssessment = (model: IModels, subdomain: string) => {
   class RiskAssessment {
-    public static async riskAssesments() {
-      const list = model.RiskAssessment.find();
-      const totalCount = model.RiskAssessment.find().countDocuments();
+    public static async riskAssesments(params: { categoryId: string } & IRiskAssessmentField) {
+      const list = model.RiskAssessment.find(params);
+      const totalCount = model.RiskAssessment.find(params).countDocuments();
       return { list, totalCount };
     }
 

@@ -6,10 +6,11 @@ import { mutations, queries } from '../graphql';
 import React from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { ICommonListProps, RiskAssesmentsCategoriesQueryResponse } from '../common/types';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { RiskAssesmentsListQueryResponse } from '../common/types';
 
-type Props = ICommonListProps &
+type Props = IRouterProps &
+  ICommonListProps &
   ICommonFormProps & {
     queryParams: any;
     history: any;
@@ -56,8 +57,11 @@ export default commonListComposer<Props>({
   stringRemoveMutation: mutations.riskAssesmentRemove,
   stringEditMutation: mutations.riskAssessmentUpdate,
 
-  gqlListQuery: graphql(gql(queries.list), {
+  gqlListQuery: graphql<Props>(gql(queries.list), {
     name: 'listQuery',
+    options: ({ queryParams }) => ({
+      variables: queryParams,
+    }),
   }),
 
   gqlTotalCountQuery: graphql(gql(queries.totalCount), {

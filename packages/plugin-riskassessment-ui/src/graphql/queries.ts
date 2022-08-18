@@ -1,7 +1,7 @@
 import { riskAssessmentCategoryParams, riskAssessmentParams } from '../common/graphql';
 const list = `
-  query RiskAssesments {
-    riskAssesments {list{${riskAssessmentParams}},totalCount}
+query RiskAssesments($categoryId: String) {
+  riskAssesments(categoryId: $categoryId) {list{${riskAssessmentParams}},totalCount}
   }
 `;
 

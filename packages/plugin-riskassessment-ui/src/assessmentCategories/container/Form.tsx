@@ -14,12 +14,14 @@ type Props = {
   trigger?: JSX.Element;
   categoryId?: string;
   formId?: string;
+  refetch?: () => void;
 };
 
 type FinalProps = {
   categories: RiskAssesmentsCategoriesQueryResponse;
   categoryDetail: any;
   addCategory: any;
+  editCategory: any;
 } & Props &
   IRouterProps;
 
@@ -32,6 +34,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.addCategory = this.addCategory.bind(this);
+    this.updateCategory = this.updateCategory.bind(this);
   }
 
   addCategory(variables) {
@@ -39,6 +42,19 @@ class FormContainer extends React.Component<FinalProps, State> {
       .addCategory({ variables })
       .then(() => {
         Alert.success('Category added successfully');
+        this.props.refetch && this.props.refetch();
+      })
+      .catch((e) => Alert.error(e.message));
+  }
+
+  updateCategory(variables) {
+    this.props
+      .editCategory({ variables })
+      .then(() => {
+        Alert.success('Category edited successfully');
+        setTimeout(() => {
+          this.props.refetch && this.props.refetch();
+        }, 300);
       })
       .catch((e) => Alert.error(e.message));
   }
@@ -52,6 +68,7 @@ class FormContainer extends React.Component<FinalProps, State> {
       detail: categoryDetail?.getRiskAssesmentCategory,
       loading: categoryDetail?.loading,
       addCategory: this.addCategory,
+      updateCategory: this.updateCategory,
     };
 
     return <Form {...updatedProps} />;
@@ -72,6 +89,9 @@ export default withProps<Props>(
     }),
     graphql<Props>(gql(mutations.addAssessmentCategory), {
       name: 'addCategory',
+    }),
+    graphql<Props>(gql(mutations.editAssessmentCategory), {
+      name: 'editCategory',
     })
   )(withRouter<IRouterProps>(FormContainer))
 );

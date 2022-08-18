@@ -13,6 +13,7 @@ import { Alert, confirm, Spinner } from '@erxes/ui/src';
 type Props = {
   categories?: RiskAssesmentsCategoriesQueryResponse;
   removeCategory?: any;
+  queryParams?: any;
 } & IRouterProps;
 
 class AssessmentCategories extends React.Component<Props> {
@@ -28,6 +29,7 @@ class AssessmentCategories extends React.Component<Props> {
         .removeCategory({ variables: { id } })
         .then(() => {
           Alert.success('Successfully removed category');
+          this.props.categories?.refetch();
         })
         .catch((e) => {
           Alert.error(e.message);
@@ -41,9 +43,10 @@ class AssessmentCategories extends React.Component<Props> {
     const updatedProps = {
       ...this.props,
       categories: categories?.getRiskAssesmentCategories,
-      loading: categories?.loading,
-      totalCount: categories?.getRiskAssesmentCategories?.length,
+      loading: categories?.loading || false,
+      totalCount: categories?.getRiskAssesmentCategories?.length || 0,
       removeCategory: this.removeCategory,
+      refetch: categories?.refetch!,
     };
 
     return <AssessmentCategoriesComponent {...updatedProps} />;
