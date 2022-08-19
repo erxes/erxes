@@ -12,6 +12,18 @@ jobs:
       - name: Get release version
         id: get_release_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - name: erxes
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/erxes:dev 
+
+          docker tag erxes/erxes:dev erxes/erxes:master 
+
+          docker push erxes/erxes:master 
       - name: core
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
@@ -24,3 +36,75 @@ jobs:
           docker tag erxes/core:dev erxes/core:master 
 
           docker push erxes/core:master 
+      - name: gateway
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/gateway:dev 
+
+          docker tag erxes/gateway:dev erxes/gateway:master 
+
+          docker push erxes/gateway:master 
+      - name: crons
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/crons:dev 
+
+          docker tag erxes/crons:dev erxes/crons:master 
+
+          docker push erxes/crons:master 
+      - name: workers
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/workers:dev 
+
+          docker tag erxes/workers:dev erxes/workers:master 
+
+          docker push erxes/workers:master 
+      - name: essyncer
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/essyncer:dev 
+
+          docker tag erxes/essyncer:dev erxes/essyncer:master 
+
+          docker push erxes/essyncer:master 
+      - name: widgets
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/widgets:dev 
+
+          docker tag erxes/widgets:dev erxes/widgets:master 
+
+          docker push erxes/widgets:master 
+      - name: client-portal
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/client-portal:dev 
+
+          docker tag erxes/client-portal:dev erxes/client-portal:master 
+
+          docker push erxes/client-portal:master 
