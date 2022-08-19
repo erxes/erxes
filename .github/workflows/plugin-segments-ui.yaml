@@ -3,7 +3,7 @@ name: Plugin segments UI CI
 on:
   push:
     branches:
-      - federation
+      - dev
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
@@ -55,4 +55,4 @@ jobs:
         run: |
           tar -cf build.tar --directory=packages/plugin-segments-ui/.erxes/dist .
           cp build.tar packages/plugin-segments-ui/.erxes/dist
-          aws s3 sync packages/plugin-segments-ui/.erxes/dist s3://erxes-plugins/uis/plugin-segments-ui --delete
+          aws s3 sync packages/plugin-segments-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-segments-ui --delete
