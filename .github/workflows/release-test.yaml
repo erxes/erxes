@@ -36,6 +36,7 @@ jobs:
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )
         run: |
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           docker image pull erxes/plugin-webhooks-api:dev
           docker tag erxes/plugin-webhooks-api:dev erxes/plugin-webhooks-api:0.1
           docker push erxes/plugin-webhooks-api:0.1
