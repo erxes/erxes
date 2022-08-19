@@ -6,7 +6,7 @@ on:
       - dev
     paths:
       - "client-portal/**"
-      - ".github/workflows/client_portal.yaml"
+      - ".github/workflows/client_portal.yml"
   pull_request:
     branches:
       - master
