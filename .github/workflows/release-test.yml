@@ -1,0 +1,22 @@
+name: Publish Release
+on:
+  push:
+    branches:
+      - dev
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: core
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
+          github.ref == 'refs/heads/dev'  )
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/core:dev 
+
+          docker tag erxes/core:dev erxes/core:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/core:${GITHUB_REF#refs/tags/} 
