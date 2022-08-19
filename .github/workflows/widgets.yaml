@@ -3,15 +3,14 @@ name: Widgets CI
 on:
   push:
     branches:
-      - "**"
+      - 'dev'
     paths:
       - "widgets/**"
       - ".github/workflows/widgets.yaml"
   pull_request:
     branches:
       - master
-      - develop
-      - apm
+      - dev
     paths:
       - "widgets/**"
 
@@ -41,16 +40,6 @@ jobs:
             ${{ runner.os }}-yarn-widgets-
             ${{ runner.os }}-yarn-
 
-      # - name: Install dependencies
-      #   run: |
-      #     yarn install
-      #     cd widgets
-      #     yarn install --frozen-lockfile
-
-      # - name: Lint
-      #   run: |
-      #     yarn lint widgets
-
       - name: Build
         run: |
           cd widgets
@@ -59,7 +48,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/federation' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' )
         run: |
           cd widgets
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

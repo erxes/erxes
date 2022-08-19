@@ -3,7 +3,7 @@ name: Client portal CI
 on:
   push:
     branches:
-      - "**"
+      - dev
     paths:
       - "client-portal/**"
       - ".github/workflows/client_portal.yaml"
@@ -49,7 +49,7 @@ jobs:
           yarn build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/apm' || github.ref == 'refs/heads/federation' )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' )
         run: |
           cd client-portal
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
