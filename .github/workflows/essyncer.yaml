@@ -29,5 +29,5 @@ jobs:
       run: |
         cd essyncer
         echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker build -t erxes/erxes-essyncer:${GITHUB_REF#refs/heads/} -f Dockerfile .
-        docker push erxes/erxes-essyncer:${GITHUB_REF#refs/heads/}
+        docker build -t erxes/essyncer:${GITHUB_REF#refs/heads/} -f Dockerfile .
+        docker push erxes/essyncer:${GITHUB_REF#refs/heads/}
