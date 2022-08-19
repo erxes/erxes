@@ -7,8 +7,6 @@ on:
     paths:
       - 'dashboard-ui/**'
       - '.github/workflows/dashboard_ui.yaml'
-    tags:
-      - '*'
   pull_request:
     branches:
       - master
