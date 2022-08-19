@@ -1,0 +1,149 @@
+.erxes-messenger {
+  border-radius: $border-radius;
+  border-bottom-right-radius: 25px;
+  bottom: 76px;
+  box-shadow: 0 2px 8px 1px rgba($black, .2);
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 95px);
+  max-height: 720px;
+  overflow: hidden;
+  position: absolute;
+  right: 8px;
+  width: calc(100% - 36px);
+  z-index: $z-index-above;
+
+  > div {
+
+    &.visible {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      visibility: visible;
+    }
+
+    &.hide {
+      display: none;
+      visibility: hidden;
+    }
+  }
+
+  @media screen and (max-width: $break-small) {
+    border: none !important;
+    border-radius: 0;
+    bottom: 0;
+    height: 100%;
+    max-height: none;
+    right: 0;
+    width: 100%;
+  }
+}
+
+.accquire-information {
+  display: flex;
+  flex-direction: column;
+  -webkit-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  justify-content: center;
+  padding: 30px;
+  background: $white;
+
+  .type {
+    margin-top: 0;
+
+    span {
+      cursor: pointer;
+      display: inline-block;
+      margin-right: 10px;
+
+      &.current {
+        border-bottom: 1px solid;
+        font-weight: bold;
+      }
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: row;
+    flex-shrink: 0;
+    margin-top: 5px;
+
+    &.invalid {
+      @include animation(0, .8s, shake, cubic-bezier(.36, .07, .19, .97), initial);
+
+      input {
+        border-color: $red !important;
+      }
+    }
+
+    input {
+      -webkit-appearance: none;
+      background: $bg-color;
+      border: 1px solid $border-color;
+      border-bottom-left-radius: calc($border-radius / 2);
+      border-top-left-radius: calc($border-radius / 2);
+      box-shadow: inset 0 1px 3px 0 rgba($black, .07);
+      box-sizing: border-box;
+      flex: 1;
+      font-size: $font-size;
+      height: 40px;
+      margin-right: 0;
+      outline: 0;
+      padding: 10px 15px;
+
+      @media screen and (max-width: $break-small) {
+        font-size: 16px;
+      }
+    }
+
+    button {
+      background-color: $main-color;
+      border: 0;
+      border-radius: 0;
+      border-bottom-right-radius: calc($border-radius / 2);
+      border-top-right-radius: calc($border-radius / 2);
+      height: 40px;
+      margin: 0;
+      outline: 0;
+      padding: 4px;
+      position: relative;
+      width: 40px;
+
+      svg {
+        margin-top: 3px;
+      }
+
+      .loader {
+        border: 2px solid rgba($white, .8);
+        border-top: 2px solid rgba($white, .3);
+        height: 16px;
+        width: 16px;
+      }
+    }
+  }
+
+  @media screen and (max-width: $break-small) {
+    height: 100%;
+  }
+}
+
+.websiteApp {
+  height: 100%;
+  border: none;
+}
+
+.websiteApp-home {
+  padding: 0px 20px 20px;
+
+  p {
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 15px;
+  }
+
+  button:hover {
+    box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.1)
+  }
+}

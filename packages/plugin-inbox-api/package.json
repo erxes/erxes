@@ -1,0 +1,15 @@
+{
+  "name": "@erxes/plugin-inbox-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-inbox-api/.erxes && node src"
+  },
+  "dependencies": {
+    "moment-timezone": "^0.5.28",
+    "erxes-inmemory-storage": "^1.0.20",
+    "uuid-by-string": "^3.0.5"
+  }
+}

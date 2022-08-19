@@ -1,0 +1,991 @@
+---
+id: ubuntu-step-by-step
+title: CE Step by Step Installation
+---
+
+## Installing the Community Edition
+
+The following instructions take you through **step by step** and have you install erxes in the same way as the [Quickstart installation](/installation/ubuntu-quickstart) instructions. For most developers, the **Quick Start Installation** is better.
+
+## First steps: Setting up a server with Ubuntu 18.04
+
+You must have an account with your hosting provider prior to doing these steps.
+
+- Choose a server size that corresponds with the **minimum** requirements for these **Step by Step** instructions:
+  - **Ubuntu 18.04** installed and running
+  - **1 CPU**
+  - **minimum 1GB RAM**
+  - ability to to SSH into the server
+  - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
+
+### Configure your DNS Records to point at your server
+
+Your server will have an **ip address**. You will need to point your domain name to your new server.
+
+- If you are using a **subdomain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
+- If you are NOT using a **subdomain**, then you will need to follow the instructions of your domain name registrar.
+
+:::note Example with a domain called, example.com
+
+If your domain name is **example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
+
+| Type | Name            | Value                  |
+| ---- | --------------- | ---------------------- |
+| A    | www.example.com | points to 44.123.32.12 |
+| A    | example.com     | points to 44.123.32.12 |
+
+:::
+
+:::note Example with a subdomain called, erxes.example.com
+
+You first need to create a subdomain. For example, "erxes.example.com". Then you need to edit the **DNS**.
+
+If your domain name is **erxes.example.com**, and the **ip address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
+
+| Type | Name                  | Value                  |
+| ---- | --------------------- | ---------------------- |
+| A    | erxes.example.com     | points to 44.123.32.12 |
+| A    | www.erxes.example.com | points to 44.123.32.12 |
+
+**Note:** You do not need to create a subdomain called "erxes.example.com", you can use another name of your choice such as "admin.example.com".
+:::
+
+## Log into server as root and create erxes user
+
+Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Type `yes`, when asked if you want to continue connecting.
+
+```bash
+# example ssh root@44.123.32.12
+ssh root@your-ip-address
+```
+
+(**Note**: Some people get an error, **WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!**, please see the solution [here](/installation/ubuntu-troubleshooting).)
+
+You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
+
+Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it.
+
+```bash
+adduser erxes
+```
+
+(Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
+
+Grant the **erxes** user adminstrative rights.
+
+```bash
+usermod -aG sudo erxes
+```
+
+Your next step, still as **root** user, is to set-up a basic firewall for your server.
+
+## Set-up a basic firewall for SSH, nginx 80 and port 443
+
+### Basic Firewall - Port 22
+
+Allow OpenSSH with **ufw**. OpenSSH will use **port 22**.
+
+```bash
+ufw allow OpenSSH
+```
+
+Enable **ufw**
+
+```bash
+ufw enable
+```
+
+- Type `y` when asked, "**Command may disrupt existing ssh connections. Proceed with operation (y|n)?**"
+
+Check the **ufw** status
+
+```bash
+ufw status
+```
+
+You should have an output like below:
+
+```bash
+Status: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+```
+
+### HTTP & HTTPS - Port 80 & Port 443
+
+Allow **HTTP** (port 80) and **HTTPS** (port 443) with **ufw**
+
+```bash
+ufw allow proto tcp from any to any port 80,443
+```
+
+Check the ufw status
+
+```bash
+ufw status
+```
+
+You should have an output like below:
+
+```bash
+Status: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+80,443/tcp                 ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+80,443/tcp (v6)            ALLOW       Anywhere (v6)
+```
+
+## Allow the "erxes" user to **SSH** into server
+
+open the `sshd_config` file to edit
+
+```bash
+nano /etc/ssh/ssh_config
+```
+
+- Scroll down until you see `PasswordAuthentication`. Change it from `PasswordAuthentication no` to `PasswordAuthentication yes`. **NOTE**: Some servers have this line commented out with a `#`, like `# PasswordAuthentication no`. You will need to uncomment it by deleting the `#`.
+
+- The line should look like this:
+
+```bash
+PasswordAuthentication yes
+```
+
+- Save and exit with `ctrl + x` and then `y` to accept the changes.
+
+Reload the SSH config file
+
+```bash
+sudo service sshd reload
+```
+
+Exit from server, so that you can log back in as the **erxes** user
+
+```bash
+exit
+```
+
+You have created a new user called, **erxes** and you set-up a basic firewall to protect your server against malicious attacks.
+
+Please continue with the following steps to log in to your server as the **erxes** user.
+
+## Log in to your server as the "erxes" user.
+
+Before you can log into your new server, we need to **add the SSH key** to your **local** computer.
+
+**NOTE:** You need to use the **IP address** of your server.
+
+- Run the following command and **create a new password**.
+
+```bash
+#ssh-copy-id erxes@44.123.32.12 <--- This is an example. Use your ip address
+ssh-copy-id erxes@your-IP-address
+```
+
+Now you can log into your server as the **erxes** user.
+
+- Log back into the server as the **erxes** user. You will need your IP address. (In this example, **44.123.32.12**). Enter your previously created password, if prompted.
+
+```bash
+# example ssh erxes@44.123.32.12 <--- This is an example. Use your ip address
+ssh erxes@your-ip-address
+```
+
+In the following sections, you will install software dependencies that are needed to run **erxes**.
+
+## Nvm install
+
+**Node Version Manage (nvm)** is a tool that allows you to download and install [Node.js](https://nodejs.org/). You can read more about the installation process here: [How to install NVM](https://gist.github.com/d2s/372b5943bce17b964a79)
+
+Install **nvm** and initialize by reloading the shell configuration. (Run the following commands separately.)
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+source ~/.bashrc
+```
+
+Verify **nvm** is installed by running:
+
+```bash
+nvm --version
+```
+
+You should get a similar output as below:
+
+```bash
+0.35.3
+# your version of nvm may be different
+```
+
+You are ready to continue with installing **Node.js**.
+
+## Install Node.js with nvm
+
+You can read more about installing **Node.js** with **nvm** here: [How to install Node.js with NVM](https://gist.github.com/d2s/372b5943bce17b964a79#install-nodejs-with-nvm)
+
+Install **Node.js**
+
+```bash
+nvm install --lts
+```
+
+Check to see if **Node.js** is installed correctly.
+
+```bash
+node -v
+```
+
+You should get a similar output as below:
+
+```bash
+v12.19.0
+# your version of node.js may be different
+```
+
+With **Node.js** installed, you can continue with installing **Yarn**.
+
+## Yarn install
+
+**Yarn** is a package manager. The alternative is [npm](https://www.npmjs.com/). We recommend [yarn](https://yarnpkg.com/). For additional [yarn installation instructions, read this](https://classic.yarnpkg.com/en/docs/install/#debian-stable).
+
+Install **yarn**. (Run the following commands separately.)
+
+```bash
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt update && sudo apt install --no-install-recommends yarn
+```
+
+Check to see if **yarn** is installed correctly
+
+```bash
+yarn --version
+```
+
+You should get a similar output as below:
+
+```bash
+1.22.5
+# your version of yarn may be different
+```
+
+As long as you received a version response to `yarn --version`, then you can continue and install **MongoDB**.
+
+## Install MongoDB
+
+**MongoDB** is a robust and general purpose document-based database. For additional [MongoDB installation instructions, read this](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/).
+
+Erxes supports MongoDB version 3.6+ is supported. Previous versions are not supported.
+
+Install **MongoDB**. (Run the following commands separately.)
+
+```bash
+wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
+
+Start and enable **MongoDB**. (Run the following commands separately.)
+
+```bash
+sudo systemctl start mongod
+sudo systemctl enable mongod
+
+#Created symlink /etc/systemd/system/multi-user.target.wants/mongod.service → /lib/systemd/system/mongod.service.
+```
+
+- Check to see if **MongoDB** is installed correctly
+
+```bash
+mongod --version
+```
+
+As long as you received a version response to `mongod --version`, then you can continue below.
+
+### Deploy a MongoDB Replica Set
+
+MongoDB [replica sets](https://docs.mongodb.com/manual/reference/glossary/#term-replica-set) add an extra layer of redundancy and help with load balancing. They are a group of **mongod processes** that maintain matching data sets. You can read about **replication** [here](https://docs.mongodb.com/manual/replication/).
+
+Stop the **mongod** processes
+
+```bash
+sudo systemctl stop mongod
+```
+
+Open **mongod.conf**
+
+```bash
+sudo nano /etc/mongod.conf
+```
+
+Enable the **replicaset** settings, by searching for `#replication`. Remove the `#` to activate it and edit to include the set name, as follows:
+
+```bash
+replication:
+  replSetName: "rs0"
+```
+
+- Save and Exit with `ctrl + x` and then `y` to accept the changes.
+
+Restart mongob
+
+```bash
+sudo systemctl start mongod
+```
+
+Connect to mongo shell
+
+```bash
+mongo
+```
+
+Initialize replicaSet
+
+```bash
+rs.initiate()
+```
+
+- You should have an output similar to below. Verify **SECONDARY** changes to **Primary** by pressing enter several times.
+
+```bash
+{
+	"info2" : "no configuration specified. Using a default configuration for the set",
+	"me" : "127.0.0.1:27017",
+	"ok" : 1,
+	"$clusterTime" : {
+		"clusterTime" : Timestamp(1594140533, 1),
+		"signature" : {
+			"hash" : BinData(0,"AAAAAAAAAAAAAAAAAAAAAAAAAAA="),
+			"keyId" : NumberLong(0)
+		}
+	},
+	"operationTime" : Timestamp(1594140533, 1)
+}
+
+rs0:SECONDARY>
+rs0:PRIMARY> # <----- This is what you are looking for
+```
+
+- press `ctrl-c` to quit mongo
+
+```bash
+rs0:PRIMARY>
+bye
+```
+
+If you were able to return to the command line prompt. Then you may continue with installing and configuring NGINX.
+
+## Install and configure NGINX
+
+**NGINX** is a very powerful web server. It is often used as a proxy server for emails. For additional [NGINX installation instructions, read this](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
+
+NGINX is installed from the stable repo https://launchpad.net/~nginx/+archive/ubuntu/stable.
+
+Add the **PPA** for **NGINX**. Press `enter` when prompted to continue. (Run the following commands separately.)
+
+```bash
+sudo add-apt-repository ppa:nginx/stable
+
+This PPA contains the latest Stable Release version of the nginx web server software.
+
+**Only Non-End-of-Life Ubuntu Releases are supported in this PPA**
+
+**Development releases of Ubuntu are not officially supported by this PPA, and uploads for those will not be available until actual final releases for those versions**
+ More info: https://launchpad.net/~nginx/+archive/ubuntu/stable
+Press [ENTER] to continue or Ctrl-c to cancel adding it.
+
+```
+
+- **Press Enter** to continue with the installation. You should be using Ubuntu 18.04.
+
+Install **NGINX** with the following commands.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y nginx
+```
+
+**NGINX** started by default when you installed it. But it is recommended to `enable` and `start` anyway.
+
+Enable and start **NGINX**
+
+```bash
+sudo systemctl enable nginx
+sudo systemctl start nginx
+```
+
+## Configure NGINX
+
+The next step is to configure **NGINX** so that it allows traffic through `Ports 80 and 443`.
+
+Ensure the `ufw` firewall knows about the available applications.
+
+```bash
+sudo ufw app list
+```
+
+You are expecting the following output:
+
+```bash
+Available applications:
+  Nginx Full
+  Nginx HTTP
+  Nginx HTTPS
+  OpenSSH
+```
+
+The output should look something like the `Available applications` output above. `Nginx Full` should be listed.
+
+Enable Port 80 and Port 443 to allow traffic.
+
+```bash
+sudo ufw allow 'Nginx Full'
+```
+
+Verify that `ufw` has been updated.
+
+```bash
+sudo ufw status
+```
+
+You are expecting the following output.
+
+```bash
+Status: active
+
+To                         Action      From
+--                         ------      ----
+OpenSSH                    ALLOW       Anywhere
+80,443/tcp                 ALLOW       Anywhere
+Nginx Full                 ALLOW       Anywhere
+OpenSSH (v6)               ALLOW       Anywhere (v6)
+80,443/tcp (v6)            ALLOW       Anywhere (v6)
+Nginx Full (v6)            ALLOW       Anywhere (v6)
+```
+
+Your output should match the above output. Providing your output matches the above, you may continue to configuring **NGINX**.
+
+### Configure NGINX
+
+The next step is to create a server block with the correct directives to work with the erxes installation.
+
+- Create a new file in the correct directory, and name it your domain name. For example, if your domain name is `erxes.example.com`, name the file, `erxes.example.com`.
+
+```bash
+# example: sudo nano /etc/nginx/sites-available/erxes.example.com
+sudo nano /etc/nginx/sites-available/YOUR-DOMAIN-NAME
+```
+
+- Copy the below **NGINX server block** into the open file. **DO NOT SAVE THE FILE** until you replace the `YOUR_DOMAIN_COM` with your actual `domain name`.
+
+```txt
+server {
+        listen 80;
+
+        # your domain name here
+        # for example, server_name erxes.example.com;
+        server_name YOUR_DOMAIN_COM;
+
+        # erxes build path
+        root /home/erxes/erxes.io/erxes/build;
+        index index.html;
+
+        error_log /var/log/nginx/erxes.error.log;
+        access_log /var/log/nginx/erxes.access.log;
+
+        location / {
+                root /home/erxes/erxes.io/erxes/build;
+                index index.html;
+                try_files $uri /index.html;
+        }
+
+        # widgets is running on 3200 port.
+        location /widgets/ {
+                proxy_pass http://127.0.0.1:3200/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+        }
+
+        # api project is running on 3300 port.
+        location /api/ {
+                proxy_pass http://127.0.0.1:3300/;
+                # proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                # proxy_set_header Connection "Upgrade";
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+        }
+        # erxes integrations project is running on 3400 port.
+        location /integrations/ {
+                proxy_pass http://127.0.0.1:3400/;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_http_version 1.1;
+        }
+}
+```
+
+- After replacing `YOUR_DOMAIN_COM` with your actual domain name. Save with `ctrl + x` and then `y` to accept the changes.
+- Enable the file by creating a link form it to **sites-enabled**. Make sure to **use your domain name** exactly as you created the file above. **Replace** `YOUR_DOMAIN_COM` **with your actual domain name.**
+
+```bash
+sudo ln -s /etc/nginx/sites-available/YOUR_DOMAIN_COM /etc/nginx/sites-enabled/
+```
+
+- Open the **nginx.conf**
+
+```bash
+sudo nano /etc/nginx/nginx.conf
+```
+
+- Uncomment the following line `server_names_hash_bucket_size 64;`
+
+It should look like this:
+
+```txt
+http {
+    * * *
+
+    server_names_hash_bucket_size 64;
+
+    * * *
+}
+```
+
+- Save with `ctrl + x` and then `y` to accept the changes.
+
+- Test the **NGINX** configuration to make sure you don't have any errors
+
+```bash
+sudo nginx -t
+```
+
+You should see the following output:
+
+```bash
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+If you got no errors, reload nginx service.
+
+```bash
+sudo systemctl reload nginx
+```
+
+Now you are ready to install the SSL Certificates using **Let's Encrypt** and **Certbot**.
+
+## Install Let's Encrypt using Certbot
+
+**Let's Encrypt** enables you to use **HTTPS** on your website. It will issue you a certificate which shows that you control your domain. [Let's Encrypt additional information](https://www.nginx.com/resources/wiki/start/topics/tutorials/install/).
+
+You will follow the installation instructions as covered [here](https://certbot.eff.org/lets-encrypt/ubuntubionic-nginx), with [Certbot](https://certbot.eff.org/)
+
+- You will need to add a **Certbot** PPA to the list of repositories on the server. (Run the following commands separately.)
+
+```bash
+sudo apt-get update
+sudo apt-get -y install software-properties-common
+sudo add-apt-repository universe
+sudo add-apt-repository -y ppa:certbot/certbot
+sudo apt-get update
+```
+
+- Install Certbot
+
+```bash
+sudo apt-get install -y certbot python3-certbot-nginx
+```
+
+Execute Certbot.
+
+```bash
+sudo certbot --nginx
+```
+
+You will asked several questions, you can answer as follows:
+
+- Enter your email address
+- Agree with the **Terms of Service**
+- Answer `Yes` or `No`, if you want to share your email address with the Electronic Frontier Foundation
+- Select the corresponding number associated with your domain name, usually `1`
+- Choose `2` to redirect all your traffic to a secure **HTTPS**
+
+- Now run the following to **test and set-up** automatic renewal of your 90 day certbot. This needs to succeed so that your renewals are automatic.
+
+```bash
+sudo certbot renew --dry-run
+```
+
+Check your website in the browser. You should see the **Secure Padlock** next to your URL. You are now ready to move onto the final steps to install **erxes** itself.
+
+## Install erxes
+
+All the dependencies for **erxes** are now installed. You have also configured your server. Follow these remaining steps to complete the installation of **erxes**.
+
+### Download, extract and install each of the erxes components
+
+- Create the empty folder directories for the installation of erxes.
+
+**NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
+
+```bash
+mkdir -p ~/erxes.io/erxes \
+ -p ~/erxes.io/erxes-api\
+ -p ~/erxes.io/erxes-crons \
+ -p ~/erxes.io/erxes-logger \
+ -p ~/erxes.io/erxes-integrations \
+```
+
+- Individually download and extract each of these 8 packages. (These commands place them in the proper installation directories.)
+
+**NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
+
+```bash
+curl -L https://github.com/erxes/erxes/releases/download/0.19.2/erxes-0.19.2.tar.gz | tar -xz -C ~/erxes.io/erxes/ \
+    && curl -L https://github.com/erxes/erxes-api/releases/download/0.19.2/erxes-api-0.19.2.tar.gz | tar -xz -C ~/erxes.io/erxes-api/ \
+    && curl -L https://github.com/erxes/erxes-integrations/releases/download/0.19.2/erxes-integrations-0.19.2.tar.gz | tar -xz -C ~/erxes.io/erxes-integrations/
+```
+
+- Install package dependencies (using `yarn install`) required for the packages that make up **erxes**.
+
+**NOTE:** COPY THE ENTIRE CODE BLOCK AS ONE COMMAND.
+
+**NOTE:** This step can take a few minutes to complete.
+
+```bash
+cd ~/erxes.io/erxes/erxes-widgets && yarn install \
+    && cd ~/erxes.io/erxes-api/erxes-api && yarn install \
+    && cd ~/erxes.io/erxes-api/erxes-email-verifier && yarn install \
+    && cd ~/erxes.io/erxes-api/erxes-engages-email-sender && yarn install \
+    && cd ~/erxes.io/erxes-api/erxes-logger && yarn install \
+    && cd ~/erxes.io/erxes-integrations/erxes-integrations && yarn install \
+    && cd ~
+```
+
+After successfully each of the above packages, you may continue and install **PM2**.
+
+## Install PM2
+
+**PM2** is a tool that helps you manage and keep **erxes** online. It is a process manager. You can read more about the installation process here: [How to install PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)
+
+- Install **PM2**
+
+```bash
+npm install pm2@latest -g
+```
+
+- Check to see if **PM2** is installed correctly.
+
+```bash
+pm2 --version
+```
+
+You should get a similar output as below:
+
+```bash
+4.5.0
+# your version of pm2 may be different
+```
+
+You should receive a response from `pm2 --version`. The version should show as last line. You will need **PM2** later in the installation process. For now, continue on with the next steps to install **Yarn**.
+
+### Configure PM2 `ecosystem.config.js`
+
+In the following steps, you will **copy** and **create** an `ecosystem.config.js` file that **PM2** uses to manage the processes behind **erxes**. **Before it will work, you need to provide your exact URL and a password to encrypt all the communication between your front-end and your server.**
+
+- Create and open a new `ecosystem.config.js` file.
+
+```bash
+cd ~/erxes.io
+nano ecosystem.config.js
+```
+
+- Copy the following content into the file. **SAVE THE FILE AS-IS WITHOUT ANY CHANGES\***.
+
+```js
+module.exports = {
+  apps: [
+    {
+      name: 'erxes-api',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3300,
+        NODE_ENV: 'production',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+        DEBUG: 'erxes-api:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        ELASTICSEARCH_URL: 'http://localhost:9200',
+        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
+        WIDGETS_DOMAIN: 'https://YOUR_DOMAIN_COM/widgets',
+        INTEGRATIONS_API_DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
+      },
+    },
+    {
+      name: 'erxes-cronjobs',
+      script: 'dist/cronJobs',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT_CRONS: 3600,
+        NODE_ENV: 'production',
+        PROCESS_NAME: 'crons',
+        DEBUG: 'erxes-crons:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+      },
+    },
+    {
+      name: 'erxes-workers',
+      script: 'dist/workers',
+      cwd: '/home/erxes/erxes.io/erxes-api',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT_WORKERS: 3700,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-workers:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+      },
+    },
+    {
+      name: 'erxes-widgets',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-widgets',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3200,
+        NODE_ENV: 'production',
+        ROOT_URL: 'https://YOUR_DOMAIN_COM/widgets',
+        API_URL: 'https://YOUR_DOMAIN_COM/api',
+        API_SUBSCRIPTIONS_URL: 'wss://YOUR_DOMAIN_COM/api/subscriptions',
+      },
+    },
+    {
+      name: 'erxes-engages',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-engages-email-sender',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3900,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-engages:*',
+        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
+        MONGO_URL: 'mongodb://localhost/erxes_engages',
+        RABBITMQ_HOST: 'amqp://localhost',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+      },
+    },
+    {
+      name: 'erxes-logger',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-logger',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3800,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-logs:*',
+        MONGO_URL: 'mongodb://localhost/erxes_logger',
+        RABBITMQ_HOST: 'amqp://localhost',
+      },
+    },
+    {
+      name: 'erxes-integrations',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-integrations',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT: 3400,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-integrations:*',
+        DOMAIN: 'https://YOUR_DOMAIN_COM/integrations',
+        MAIN_APP_DOMAIN: 'https://YOUR_DOMAIN_COM',
+        MAIN_API_DOMAIN: 'https://YOUR_DOMAIN_COM/api',
+        MONGO_URL: 'mongodb://localhost/erxes_integrations',
+        RABBITMQ_HOST: 'amqp://localhost',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+      },
+    },
+    {
+      name: 'erxes-elkSyncer',
+      script: 'main.py',
+      cwd: '/home/erxes/erxes.io/erxes-elkSyncer/elkSyncer',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      interpreter: '/usr/bin/python3',
+      env: {
+        MONGO_URL: 'mongodb://localhost/erxes',
+        ELASTICSEARCH_URL: 'http://localhost:9200',
+      },
+    },
+    {
+      name: 'erxes-email-verifier',
+      script: 'dist',
+      cwd: '/home/erxes/erxes.io/erxes-email-verifier',
+      log_date_format: 'YYYY-MM-DD HH:mm Z',
+      node_args: '--max_old_space_size=4096',
+      env: {
+        PORT_WORKERS: 3700,
+        NODE_ENV: 'production',
+        DEBUG: 'erxes-workers:*',
+        MONGO_URL: 'mongodb://localhost/erxes',
+        REDIS_HOST: 'localhost',
+        REDIS_PORT: 6379,
+        REDIS_PASSWORD: '',
+        RABBITMQ_HOST: 'amqp://localhost',
+        JWT_TOKEN_SECRET: 'YOUR_SECRET_TOKEN',
+      },
+    },
+  ],
+};
+```
+
+The next step is to set **environment variables** so that we can easily populate the **ecosystem.config.js** file.
+
+- Run the following command, but replace `YOUR_ACTUAL_DOMAIN_COM` with your actual domain name.
+
+```bash
+#export YOUR_DOMAIN_COM=erxes.example.com
+export YOUR_DOMAIN_COM=YOUR_ACTUAL_DOMAIN_COM
+```
+
+- Run the following command to create a **secret token**.
+
+```bash
+export YOUR_SECRET_TOKEN=`python3 -c 'import os,base64; print(base64.urlsafe_b64encode(os.urandom(16)).decode())'`
+```
+
+- Run each script below, to update your **DOMAIN_NAME_COM\*** in the **ecosystem.config.js**
+
+```bash
+sed -i 's,YOUR_DOMAIN_COM,'"${YOUR_DOMAIN_COM}"',g' ecosystem.config.js
+```
+
+- Run each script below, to update your **SECRET_PASSWORD_TOKEN\*** in the **ecosystem.config.js**
+
+```bash
+sed -i 's,YOUR_SECRET_TOKEN,'"${YOUR_SECRET_TOKEN}"',g' ecosystem.config.js
+```
+
+- Start PM2
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+- Generate a startup script. Copy/paste the script in the terminal and run it.
+
+```bash
+pm2 startup
+```
+
+The above will generate a script like this: **DO NOT USE THIS EXAMPLE - USE YOURS GENERATED IN THE TERMINAL**
+
+```bash
+# DO NOT COPY THIS - USE THE ONE GENERATED IN THE TERMINAL
+# sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+```
+
+- Now copy **your output**. Similar to the below.
+
+```bash
+# THIS IS AN EXAMPLE - USE YOURS
+sudo env PATH=$PATH:/home/erxes/.nvm/versions/node/v12.18.2/bin /home/erxes/.nvm/versions/node/v12.18.2/lib/node_modules/pm2/bin/pm2 startup systemd -u erxes --hp /home/erxes
+```
+
+- Save all the applications that **PM2** is managing.
+
+```bash
+pm2 save
+```
+
+- Verify all process are running.
+
+```bash
+pm2 l
+```
+
+The status of all the processes should say **online**.
+
+### Configure frontend environment variables
+
+In the previous step, you set environment variables using **PM2**, but **PM2** does not have access to the bundled front-end static code. Therefore, you need to set the environment variables needed from the front-end differently.
+
+- Open the appropriate `env.js` file in the nano editor.
+
+```bash
+nano ~/erxes.io/erxes/build/js/env.js
+```
+
+- Copy the following **environment variables** in between the **{ }**, and replace **YOUR_DOMAIN_COM** with your actual domain name.
+
+```bash
+NODE_ENV: "production",
+REACT_APP_API_URL: "https://YOUR_DOMAIN_COM/api",
+REACT_APP_API_SUBSCRIPTION_URL: "wss://YOUR_DOMAIN_COM/api/subscriptions",
+REACT_APP_CDN_HOST: "https://YOUR_DOMAIN_COM/widgets"
+```
+
+It should look like this, but **with your actual domain name**:
+
+```bash
+window.env = {
+    NODE_ENV: "production",
+    REACT_APP_API_URL: "https://erxes.example.com/api",
+    REACT_APP_API_SUBSCRIPTION_URL: "wss://erxes.example.com/api/subscriptions",
+    REACT_APP_CDN_HOST: "https://erxes.example.com/widgets"
+}
+```
+
+- save the file with `ctrl + x` and then `y` to accept all changes.
+
+You are now ready to **initialize** and **load the permissions** in **erxes**.
+
+## export MongoDB URL
+
+- initialize Erxes and generate **login password**.
+
+```bash
+cd ~
+export MONGO_URL="mongodb://localhost/erxes"
+```
+
+## Congratulations, time to log in
+
+You have installed **erxes** and all the dependencies. You may now visit your url, and log in.

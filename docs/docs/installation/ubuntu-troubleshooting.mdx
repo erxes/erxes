@@ -1,0 +1,38 @@
+---
+id: ubuntu-troubleshooting
+title: Troubleshooting Ubuntu Installation
+---
+
+## Known Issues and frequent Questions
+
+1. "Host key verification failed" Error Message
+
+Some users working on existing servers receive the following error message:
+
+```
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+It is also possible that a host key has just been changed.
+The fingerprint for the ECDSA key sent by the remote host is
+SHA256:JWhuzo4SNV8rJNp9-THIS-IS-AN-EXAMPLE-L3N1GIjdM6VENIE.
+Please contact your system administrator.
+Add correct host key in /Users/user/.ssh/known_hosts to get rid of this message.
+Offending ECDSA key in /Users/user/.ssh/known_hosts:30
+ECDSA host key for 55.XX.XXX.46 has changed and you have requested strict checking.
+Host key verification failed.
+
+```
+
+This simply indicates that the key on the server has been changed. One solution is to delete the offending key from your local computer so this error goes away.
+
+You will need your **IP address** and simply run this command using your **IP address**.
+
+```
+# example ssh-keygen -R 55.444.44.111
+ssh-keygen -R your-ip-address-here
+```
+
+Then you should be able to log in to the server correctly.
