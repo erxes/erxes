@@ -258,20 +258,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
       phone?: string,
       email?: string
     ) {
-      if (phone) {
-        const phoneCode = await this.imposeVerificationCode({
-          clientPortalId,
-          codeLength: config.codeLength,
-          phone
-        });
-
-        const body =
-          config.content.replace(/{.*}/, phoneCode) ||
-          `Your verification code is ${phoneCode}`;
-
-        await sendSms(subdomain, config.smsTransporterType, phone, body);
-      }
-
       if (email) {
         const emailCode = await this.imposeVerificationCode({
           clientPortalId,
@@ -297,6 +283,20 @@ export const loadClientPortalUserClass = (models: IModels) => {
             }
           }
         });
+      }
+
+      if (!email && phone) {
+        const phoneCode = await this.imposeVerificationCode({
+          clientPortalId,
+          codeLength: config.codeLength,
+          phone
+        });
+
+        const body =
+          config.content.replace(/{.*}/, phoneCode) ||
+          `Your verification code is ${phoneCode}`;
+
+        await sendSms(subdomain, config.smsTransporterType, phone, body);
       }
 
       return 'sent';
