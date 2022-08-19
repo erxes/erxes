@@ -1,4 +1,4 @@
-name: Plugin automations UI CI
+name: Plugin loyalties UI CI
 
 on:
   push:
@@ -18,9 +18,9 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
-      - "packages/ui-automations/**"
-      - "packages/plugin-automations-ui/**"
-      - ".github/workflows/plugin-automations-ui.yaml"
+      - "packages/ui-loyalties/**"
+      - "packages/plugin-loyalties-ui/**"
+      - ".github/workflows/plugin-loyalties-ui.yaml"
 
 jobs:
   ui:
@@ -37,13 +37,12 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-automations-ui/.erxes
-          cp -r packages/plugin-automations-ui/src packages/plugin-automations-ui/.erxes/plugin-src
-          cd packages/plugin-automations-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-loyalties-ui/.erxes
+          cp -r packages/plugin-loyalties-ui/src packages/plugin-loyalties-ui/.erxes/plugin-src
+          cd packages/plugin-loyalties-ui
           yarn install
           yarn install-deps
           yarn build
-          ls
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -54,7 +53,7 @@ jobs:
 
       - name: Deploy
         run: |
-          tar -cf build.tar --directory=packages/plugin-automations-ui/.erxes/dist .
-          cp build.tar packages/plugin-automations-ui/.erxes/dist
-          rm -rf packages/plugin-automations-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-automations-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-automations-ui --delete
+          tar -cf build.tar --directory=packages/plugin-loyalties-ui/.erxes/dist .
+          cp build.tar packages/plugin-loyalties-ui/.erxes/dist
+          rm -rf packages/plugin-loyalties-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-loyalties-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-loyalties-ui --delete

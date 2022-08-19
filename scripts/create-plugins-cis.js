@@ -31,6 +31,7 @@ var plugins = [
   { name: 'products', ui: true, api: true },
   { name: 'segments', ui: true, api: true },
   { name: 'tags', ui: true, api: true },
+  { name: 'loyalties', ui: true, api: true },
   { name: 'webbuilder', ui: true, api: true },
 ];
 
