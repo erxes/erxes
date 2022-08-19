@@ -38,4 +38,12 @@
       background-color: rgba($transparent-white, .4);
     }
   }
+
+  svg {
+    fill: $black;
+    position: absolute;
+    left: 25px;
+    top: 15px;
+    width: 16px;
+  }
 }

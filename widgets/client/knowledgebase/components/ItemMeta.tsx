@@ -18,7 +18,15 @@ function ItemMeta({ category }: Props) {
   }
 
   function renderAvatars() {
+    const usedIds: string[] = [];
+
     return authors.map(author => {
+      if (usedIds.indexOf(author._id) !== -1) {
+        return null;
+      }
+
+      usedIds.push(author._id);
+
       const details = getAuthorDetails(author);
 
       return (
@@ -31,15 +39,20 @@ function ItemMeta({ category }: Props) {
     });
   }
 
+  const uIds: string[] = [];
+
   if (authors.length >= 1) {
+    uIds.push(authors[0]._id);
     text = getAuthorDetails(authors[0]).fullName;
   }
 
-  if (authors.length >= 2) {
+  if (authors.length >= 2 && uIds.indexOf(authors[1]._id) === -1) {
+    uIds.push(authors[1]._id);
     text += `, ${getAuthorDetails(authors[1]).fullName}`;
   }
 
-  if (authors.length >= 3) {
+  if (authors.length >= 3 && uIds.indexOf(authors[2]._id) === -1) {
+    uIds.push(authors[2]._id);
     text += `, ${getAuthorDetails(authors[2]).fullName}`;
   }
 

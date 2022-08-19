@@ -31,10 +31,10 @@ import { EmptyComponents } from './emptystate.js'
 ## API
 
 <EmptyComponents type="APIempty" table={[
-    ['text', 'string', "", 'Shows your text. If you want to show only text, use it with light prop'],
-    ['icon', 'string', "", 'Shows icon'],
-    ['image', 'string', "", 'Shows image'],
-    ['size', 'string', "", 'Changes the size of icon'],
-    ['extra', 'node', "", 'Adds other components or text'],
-    ['light', 'boolean', "", 'Show only first row']
+['text*', 'string', "", 'Shows your text. If you want to show only text, use it with light prop'],
+['icon', 'string', "", 'Shows icon'],
+['image', 'string', "", 'Shows image'],
+['size', 'string', "", 'Changes the size of icon'],
+['extra', 'React.ReactNode', "", 'Add other components or text'],
+['light', 'boolean', "", 'Shows only first row']
 ]} />

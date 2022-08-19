@@ -1,5 +1,4 @@
 import * as dayjs from 'dayjs';
-import e = require('express');
 import T from 'i18n-react';
 import { FieldValue } from './form/types';
 import { ENV, IBrowserInfo, IRule } from './types';
@@ -59,16 +58,20 @@ export const requestBrowserInfo = ({
 };
 
 const setDayjsLocale = (code: string) => {
-  import(`dayjs/locale/${code}`)
+  import('dayjs/locale/' + code + '.js')
     .then(() => dayjs.locale(code))
     .catch(() => dayjs.locale('en'));
 };
 
-export const setLocale = (code?: string) => {
+export const setLocale = (code?: string, callBack?: () => void) => {
   import(`../locales/${code}.json`)
     .then((translations) => {
       T.setTexts(translations);
       setDayjsLocale(code || 'en');
+
+      if (callBack) {
+        callBack()
+      }
     })
     .catch((e) => console.log(e)); // tslint:disable-line
 };
@@ -439,3 +442,26 @@ export const checkLogicFulfilled = (logics: LogicParams[]) => {
 
   return false;
 }
+
+export const loadMapApi = (apiKey: string, locale?: string) => {
+  if (!apiKey) {
+    return "";
+  }
+
+  const mapsURL = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=geometry,places&language=${locale || 'en'}&v=quarterly`;
+  const scripts: any = document.getElementsByTagName('script');
+  // Go through existing script tags, and return google maps api tag when found.
+  for (const script of scripts) {
+      if (script.src.indexOf(mapsURL) === 0) {
+          return script;
+      }
+  }
+
+  const googleMapScript = document.createElement('script');
+  googleMapScript.src = mapsURL;
+  googleMapScript.async = true;
+  googleMapScript.defer = true;
+  window.document.body.appendChild(googleMapScript);
+
+  return googleMapScript;
+};

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ItemMeta } from "../components";
+import ItemMeta from "../components/ItemMeta";
 import { IKbCategory } from "../types";
 
 type Props = {
@@ -23,7 +23,7 @@ export default class Category extends React.Component<Props> {
       <div className="erxes-kb-item">
         <a className="flex-item" href="" onClick={this.handleOnClick}>
           <div className="topic-icon">
-            <i className={`icon-${category.icon}`} />
+            <i className={`erxes-icon-${category.icon}`} />
           </div>
           <div className="topic-content">
             <h3>{category.title}</h3>

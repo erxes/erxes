@@ -42,7 +42,7 @@ module.exports = {
           position: "left",
         },
         {
-          to: "/components/Button/buttons",
+          to: "/components/AnimatedLoader/animatedLoader",
           label: "Components",
           position: "left",
         },
@@ -89,6 +89,10 @@ module.exports = {
               label: "Developers Guide",
               to: "/developer/developer",
             },
+            {
+              label: "Graphql API reference",
+              to: "pathname:///developers/docs/references"
+            }
           ],
         },
         {

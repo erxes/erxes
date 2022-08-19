@@ -13,7 +13,8 @@ if (script && script instanceof HTMLScriptElement) {
     const id = matches[1];
     const apiUrl = matches[2];
 
-    fetch(`${apiUrl}/script-manager?id=${id}`)
+
+    fetch(`${apiUrl}/pl:inbox/script-manager?id=${id}`)
       .then(res => res.text())
       .then(text => {
         const scrpt = document.createElement("script");

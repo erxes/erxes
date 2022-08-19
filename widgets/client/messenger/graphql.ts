@@ -1,5 +1,10 @@
 import { connection } from "./connection";
 
+const userDetailFields = `
+  avatar
+  fullName
+`;
+
 const messageFields = `
   _id
   conversationId
@@ -7,8 +12,7 @@ const messageFields = `
   user {
     _id
     details {
-      avatar
-      fullName
+      ${userDetailFields}
     }
   }
   content
@@ -41,10 +45,11 @@ const userFields = `
   _id
   isActive
   details {
-    avatar
-    fullName
+    ${userDetailFields}
     shortName
+    location
   }
+  isOnline
 `;
 
 const conversationDetailQuery = `
@@ -60,22 +65,27 @@ const conversationDetailQuery = `
       supporters {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
         }
       }
       participatedUsers {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
           shortName
           description
           position
+          location
         }
         links
       }
     }
+  }
+`;
+
+const widgetExportMessengerDataQuery = `
+  query widgetExportMessengerData($_id: String, $integrationId: String!) {
+    widgetExportMessengerData(_id: $_id, integrationId:$integrationId)
   }
 `;
 
@@ -114,7 +124,6 @@ const messengerSupportersQuery = `
         ${userFields}
       }
       isOnline
-      serverTime
     }
   }
 `;
@@ -141,8 +150,7 @@ const allConversations = `
       createdAt
       participatedUsers {
         details {
-          fullName
-          avatar
+          ${userDetailFields}
         }
       }
     }
@@ -262,6 +270,7 @@ const integrationsFetchApi = `
 export default {
   messageFields,
   conversationDetailQuery,
+  widgetExportMessengerDataQuery,
   unreadCountQuery,
   totalUnreadCountQuery,
   conversationMessageInserted,
@@ -278,5 +287,5 @@ export default {
   faqSearchArticlesQuery,
   integrationsFetchApi,
   conversationBotTypingStatus,
-  getEngageMessage,
+  getEngageMessage
 };

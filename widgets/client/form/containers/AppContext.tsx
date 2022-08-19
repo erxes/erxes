@@ -1,10 +1,16 @@
-import * as React from 'react';
-import { IEmailParams, IIntegration, IIntegrationLeadData } from '../../types';
-import { checkRules } from '../../utils';
-import { connection } from '../connection';
-import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from '../types';
-import { increaseViewCount, postMessage, saveLead, sendEmail } from './utils';
-
+import * as React from "react";
+import { IEmailParams, IIntegration, IIntegrationLeadData } from "../../types";
+import { checkRules } from "../../utils";
+import { connection } from "../connection";
+import { ICurrentStatus, IForm, IFormDoc, ISaveFormResponse } from "../types";
+import {
+  cancelOrder,
+  increaseViewCount,
+  postMessage,
+  saveLead,
+  sendEmail,
+} from "./utils";
+import * as QRCode from "qrcode";
 interface IState {
   isPopupVisible: boolean;
   isFormVisible: boolean;
@@ -13,6 +19,9 @@ interface IState {
   isSubmitting?: boolean;
   extraContent?: string;
   callSubmit: boolean;
+  invoiceResponse?: string;
+  invoiceType?: string;
+  lastMessageId?: string;
 }
 
 interface IStore extends IState {
@@ -30,6 +39,8 @@ interface IStore extends IState {
   getIntegration: () => IIntegration;
   getForm: () => IForm;
   getIntegrationConfigs: () => IIntegrationLeadData;
+  cancelOrder: (customerId: string, messageId: string) => void;
+  onChangeCurrentStatus: (status: string) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -44,9 +55,11 @@ export class AppProvider extends React.Component<{}, IState> {
       isPopupVisible: false,
       isFormVisible: false,
       isCalloutVisible: false,
-      currentStatus: { status: 'INITIAL' },
-      extraContent: '',
-      callSubmit: false
+      currentStatus: { status: "INITIAL" },
+      extraContent: "",
+      callSubmit: false,
+      invoiceResponse: "",
+      invoiceType: "",
     };
   }
 
@@ -70,12 +83,12 @@ export class AppProvider extends React.Component<{}, IState> {
       return this.setState({
         isPopupVisible: false,
         isFormVisible: false,
-        isCalloutVisible: false
+        isCalloutVisible: false,
       });
     }
 
     // if there is popup handler then do not show it initially
-    if (loadType === 'popup' && hasPopupHandlers) {
+    if (loadType === "popup" && hasPopupHandlers) {
       return null;
     }
 
@@ -87,7 +100,7 @@ export class AppProvider extends React.Component<{}, IState> {
     }
 
     // If load type is shoutbox then hide form component initially
-    if (callout.skip && loadType !== 'shoutbox') {
+    if (callout.skip && loadType !== "shoutbox") {
       return this.setState({ isFormVisible: true });
     }
 
@@ -100,7 +113,7 @@ export class AppProvider extends React.Component<{}, IState> {
   showForm = () => {
     this.setState({
       isCalloutVisible: false,
-      isFormVisible: true
+      isFormVisible: true,
     });
   };
 
@@ -115,7 +128,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.setState({
       isCalloutVisible: false,
-      isFormVisible: !isVisible
+      isFormVisible: !isVisible,
     });
   };
 
@@ -148,7 +161,8 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({
       isPopupVisible: false,
       isCalloutVisible: false,
-      isFormVisible: false
+      isFormVisible: false,
+      currentStatus: { status: "INITIAL" },
     });
 
     // Increasing view count
@@ -166,25 +180,51 @@ export class AppProvider extends React.Component<{}, IState> {
       browserInfo: connection.browserInfo,
       integrationId: this.getIntegration()._id,
       formId: this.getForm()._id,
-      saveCallback: (response: ISaveFormResponse) => {
-        const { errors } = response;
+      userId: connection.setting.user_id,
+      saveCallback: async (response: ISaveFormResponse) => {
+        const { errors, invoiceType } = response;
+        let { invoiceResponse } = response;
 
-        const status = response.status === 'ok' ? 'SUCCESS' : 'ERROR';
+        let status = "ERROR";
+
+        switch (response.status) {
+          case "ok":
+            status = "SUCCESS";
+            break;
+          case "pending":
+            status = "PENDING";
+            break;
+          default:
+            status = "ERROR";
+            break;
+        }
 
         postMessage({
-          message: 'submitResponse',
-          status
+          message: "submitResponse",
+          status,
         });
+
+        if (invoiceType === "socialPay") {
+          if (
+            invoiceResponse &&
+            invoiceResponse.includes("socialpay-payment")
+          ) {
+            invoiceResponse = await QRCode.toDataURL(invoiceResponse);
+          }
+        }
 
         this.setState({
           callSubmit: false,
           isSubmitting: false,
+          invoiceResponse,
+          invoiceType,
+          lastMessageId: response.messageId,
           currentStatus: {
             status,
-            errors
-          }
+            errors,
+          },
         });
-      }
+      },
     });
   };
 
@@ -200,11 +240,11 @@ export class AppProvider extends React.Component<{}, IState> {
    * Redisplay form component after submission
    */
   createNew = () => {
-    this.setState({ currentStatus: { status: 'INITIAL' } });
+    this.setState({ currentStatus: { status: "INITIAL" } });
   };
 
   setHeight = () => {
-    const container = document.getElementById('erxes-container');
+    const container = document.getElementById("erxes-container");
 
     if (!container) {
       return;
@@ -213,8 +253,8 @@ export class AppProvider extends React.Component<{}, IState> {
     const elementsHeight = container.clientHeight;
 
     postMessage({
-      message: 'changeContainerStyle',
-      style: `height: ${elementsHeight}px;`
+      message: "changeContainerStyle",
+      style: `height: ${elementsHeight}px;`,
     });
   };
 
@@ -228,6 +268,20 @@ export class AppProvider extends React.Component<{}, IState> {
 
   getIntegrationConfigs = () => {
     return this.getIntegration().leadData;
+  };
+
+  cancelOrder = (customerId: string, messageId: string) => {
+    cancelOrder({
+      customerId,
+      messageId,
+      cancelCallback: (response: string) => {
+        this.setState({ currentStatus: { status: response } });
+      },
+    });
+  };
+
+  onChangeCurrentStatus = (status: string) => {
+    this.setState({ currentStatus: { status } });
   };
 
   render() {
@@ -248,7 +302,9 @@ export class AppProvider extends React.Component<{}, IState> {
           setExtraContent: this.setExtraContent,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
-          getIntegrationConfigs: this.getIntegrationConfigs
+          getIntegrationConfigs: this.getIntegrationConfigs,
+          cancelOrder: this.cancelOrder,
+          onChangeCurrentStatus: this.onChangeCurrentStatus,
         }}
       >
         {this.props.children}

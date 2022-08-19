@@ -1,6 +1,8 @@
 import * as React from "react";
 import { __ } from "../../utils";
-import { Articles, BackButton, ItemMeta } from "../components";
+import Articles from "../components/Articles";
+import BackButton from "../components/BackButton";
+import ItemMeta from "../components/ItemMeta";
 import { IKbCategory } from "../types";
 
 type Props = {
@@ -23,7 +25,7 @@ function CategoryDetail({ category, goToCategories }: Props) {
       <div className="category-container">
         <div className="flex-item spaced">
           <div className="topic-icon">
-            <i className={`icon-${category.icon}`} />
+            <i className={`erxes-icon-${category.icon}`} />
           </div>
           <div className="topic-content">
             <h1>{category.title}</h1>

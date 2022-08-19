@@ -1,4 +1,5 @@
 import * as React from "react";
+import { iconSearch } from "../../icons/Icons";
 
 type Props = {
   searchString: string;
@@ -21,7 +22,7 @@ export default class SearchBar extends React.Component<Props> {
     return (
       <div className="erxes-searchbar" style={{ backgroundColor: color }}>
         <div className="erxes-knowledge-container">
-          <i className="icon-search" />
+            {iconSearch}
           <input value={searchString} onChange={this.handleSearchInput} />
         </div>
       </div>

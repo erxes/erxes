@@ -5,7 +5,7 @@ title: Error message
 
 import { ErrorMsgComponent } from "./errormsg.js"
 
-<p>Provide Error message to indicate an error that occurred.</p>
+<p>Provide error message to indicate an error that occurred.</p>
 
 ## Example
 
@@ -14,5 +14,5 @@ import { ErrorMsgComponent } from "./errormsg.js"
 ## API
 
 <ErrorMsgComponent table={[
-  ['children', 'string', '', 'your error message' ]
+['children*', 'string', '', 'Declare error message' ]
 ]} />

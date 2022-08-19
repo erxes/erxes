@@ -173,7 +173,7 @@
 }
 
 .styled {
-	margin: 15px;
+	margin: 5px;
 }
 
 .styleSpinner {
@@ -189,4 +189,25 @@ code {
 	background-color: #282a36;
 	border: none;
 	color: white;
+}
+
+.sortHandlerContainer {
+	margin: 20px;
+}
+
+.blueP {
+	color: blue;
+}
+
+.TipsContainer {
+	margin: 20px;
+}
+
+.bigContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+.required {
+	color: red;
 }

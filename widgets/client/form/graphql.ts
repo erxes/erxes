@@ -5,6 +5,7 @@ export const formDetailQuery = `
       description
       buttonText
       numberOfPages
+      googleMapApiKey
       code
 
       fields {
@@ -15,12 +16,21 @@ export const formDetailQuery = `
         content
         description
         options
+        locationOptions{
+          lat
+          lng
+          description
+        }
+        objectListConfigs{
+          key
+          label
+          type
+        }
         isRequired
         order
         validation
         associatedFieldId
         column
-        
         groupId
         logicAction
         pageNumber
@@ -28,6 +38,11 @@ export const formDetailQuery = `
           fieldId
           logicOperator
           logicValue
+        }
+        products{
+          _id
+          name
+          unitPrice
         }
       }
     }
@@ -53,8 +68,8 @@ export const formConnectMutation = `
 `;
 
 export const saveFormMutation = `
-  mutation widgetsSaveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String) {
-    widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId) {
+  mutation widgetsSaveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String, $userId: String) {
+    widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId, userId: $userId) {
       status
       messageId
       customerId
@@ -63,6 +78,8 @@ export const saveFormMutation = `
         code
         text
       }
+      invoiceResponse
+      invoiceType
     }
   }
 `;
@@ -76,5 +93,17 @@ export const sendEmailMutation = `
 export const increaseViewCountMutation = `
   mutation widgetsLeadIncreaseViewCount($formId: String!) {
     widgetsLeadIncreaseViewCount(formId: $formId)
+  }
+`;
+
+export const cancelOrderMutation = `
+  mutation widgetsCancelOrder($customerId: String!, $messageId: String!) {
+    widgetsCancelOrder(customerId: $customerId, messageId: $messageId)
+  }
+`;
+
+export const formInvoiceUpdated = `
+  subscription formInvoiceUpdated($messageId: String) {
+    formInvoiceUpdated(messageId: $messageId) 
   }
 `;

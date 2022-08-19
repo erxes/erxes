@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { ConversationList as DumbConversationList } from "../components";
+import DumbConversationList from "../components/ConversationList";
 import { connection } from "../connection";
 import graphqTypes from "../graphql";
 import { IConversation } from "../types";
@@ -31,6 +31,9 @@ class ConversationList extends React.PureComponent<
           const createConversation = () => {
             changeRoute("conversationCreate");
           };
+          const goToHome = () => {
+            changeRoute("home");
+          };
 
           return (
             <DumbConversationList
@@ -39,6 +42,7 @@ class ConversationList extends React.PureComponent<
               conversations={conversations}
               goToConversation={goToConversation}
               createConversation={createConversation}
+              goToHome={goToHome}
             />
           );
         }}

@@ -36,8 +36,8 @@ iframe.onload = async () => {
     sendMessage("identifyCustomer", args);
   });
 
-  setErxesProperty("updateCustomerProperty", (name: string, value: any) => {
-    sendMessage("updateCustomerProperty", { name, value });
+  setErxesProperty("updateCustomerProperties", (data: Array<{ name: string, value: any }>) => {
+    sendMessage("updateCustomerProperties", data);
   });
 
   setErxesProperty("sendEvent", (args: any) => {

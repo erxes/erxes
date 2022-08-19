@@ -1,7 +1,7 @@
 import * as React from "react";
 import { iconLeft } from "../../../icons/Icons";
 import { __ } from "../../../utils";
-import { TopBar } from "../../containers";
+import TopBar from "../../containers/TopBar";
 import { IWebsiteApp } from "../../types";
 
 type Props = {

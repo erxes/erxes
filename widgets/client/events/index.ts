@@ -13,20 +13,19 @@ const Events: any = {
     return this.sendRequest("events-identify-customer", { args });
   },
 
-  updateCustomerProperty({ name, value }: { name: string; value: any }) {
+  updateCustomerProperties(data: Array<{ name: string; value: any }>) {
     const customerId = getLocalStorageItem("customerId");
 
-    return this.sendRequest("events-update-customer-property", {
+    return this.sendRequest("events-update-customer-properties", {
       customerId,
-      name,
-      value
+      data
     });
   },
 
   sendRequest(path: string, data: any) {
     const { API_URL } = getEnv();
 
-    return fetch(`${API_URL}/${path}`, {
+    return fetch(`${API_URL}/pl:inbox/${path}`, {
       method: "post",
       headers: {
         Accept: "application/json",

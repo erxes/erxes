@@ -1,6 +1,10 @@
 {
   "name": "erxes",
-  "version": "0.23.0",
+  "private": true,
+  "version": "0.22.3",
+  "workspaces": [
+    "packages/*"
+  ],
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -14,11 +18,15 @@
   "license": "GNU General Public License v3.0 with Commons Clause",
   "lint-staged": {
     "linters": {
-      "@(ui|widgets)/src/**/*.{ts,tsx,json,css}": [
+      "@(widgets)/src/**/*.{ts,tsx,json,css}": [
         "prettier --single-quote --write",
         "git add"
       ],
-      "@(api|integrations|email-verifier|engages-email-sender|logger)/src/**/*.ts": [
+      "@(email-verifier)/src/**/*.ts": [
+        "prettier --single-quote --write",
+        "git add"
+      ],
+      "packages/*/src/**/*.{ts,tsx,json,css}": [
         "prettier --single-quote --write",
         "git add"
       ]
@@ -27,26 +35,30 @@
     "subTaskConcurrency": 1
   },
   "scripts": {
-    "prepare-plugins": "node scripts/prepare-plugins",
-    "prepare-plugins-api": "node scripts/prepare-plugins-api",
-    "prepare-plugins-ui": "node scripts/prepare-plugins-ui",
-    "format": "prettier --single-quote --write '@(api|integrations|email-verifier|engages-email-sender|logger|automations)/src/**/*.ts' && prettier --single-quote --write '@(ui|widgets)/src/**/*.@(ts|tsx|json|css)'",
+    "create-plugins-cis": "node scripts/create-plugins-cis",
+    "create-plugin-ui": "node scripts/create-plugin-ui",
+    "create-plugin-api": "node scripts/create-plugin-api",
+    "format": "prettier --single-quote --write '@(email-verifier)/src/**/*.ts' && prettier --single-quote --write '@(widgets)/src/**/*.@(ts|tsx|json|css)'",
+    "formatp": "func () { if [ -z \"$1\" ]; then prettier --single-quote --write '@(packages)/gateway/src/**/*.@(ts|tsx|json|css)'; else echo \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\" && \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\"; fi ;}; func",
     "precommit": "lint-staged",
-    "lint": "func () { if [ -z \"$1\" ]; then tslint '@(api|integrations|email-verifier|engages-email-sender|logger|ui|widgets|automations)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
+    "lint": "func () { if [ -z \"$1\" ]; then tslint '@(email-verifier|widgets)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
+    "lintp": "func () { if [ -z \"$1\" ]; then tslint 'packages/gateway/src/**/*.ts?(x)'; else echo \"packages/${1}/src/**/*.ts?(x)\" && tslint \"packages/${1}/src/**/*.ts?(x)\"; fi ;}; func",
     "generateVersion": "node commands/generateVersion.js",
     "release": "release-it"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",
+    "@types/node": "^17.0.8",
     "husky": "^0.13.4",
     "lint-staged": "^3.6.0",
     "prettier": "^1.14.2",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.0.0",
-    "typescript": "^3.0.3"
+    "typescript": "^4.5.4"
   },
   "dependencies": {
-    "fs-extra": "^9.0.1"
+    "fs-extra": "^9.0.1",
+    "mongodb": "3.7.3"
   }
 }

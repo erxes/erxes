@@ -1,5 +1,6 @@
 import * as React from "react";
 import {
+  cancelOrder,
   increaseViewCount,
   saveLead,
   sendEmail
@@ -17,6 +18,8 @@ interface IState {
   currentStatus: ICurrentStatus;
   isCallOutVisible: boolean;
   isSubmitting?: boolean;
+  invoiceResponse?: any;
+  lastMessageId?: string;
 }
 
 interface IStore extends IState {
@@ -26,6 +29,7 @@ interface IStore extends IState {
   getIntegration: (formCode: string) => IIntegration;
   getForm: (formCode: string) => IForm;
   showForm: () => void;
+  cancelOrder: (customerId: string, messageId: string) => void;
 }
 
 const LeadContext = React.createContext({} as IStore);
@@ -94,6 +98,16 @@ export class LeadProvider extends React.Component<{}, IState> {
     this.setState({ isCallOutVisible: false });
   };
 
+  cancelOrder = (customerId: string, messageId: string) => {
+    cancelOrder({
+      customerId,
+      messageId,
+      cancelCallback: (response: string) => {
+        this.setState({ currentStatus: { status: response } });
+      }
+    });
+  };
+
   render() {
     return (
       <LeadContext.Provider
@@ -104,7 +118,8 @@ export class LeadProvider extends React.Component<{}, IState> {
           sendEmail,
           getIntegration: this.getIntegration,
           getForm: this.getForm,
-          showForm: this.showForm
+          showForm: this.showForm,
+          cancelOrder: this.cancelOrder
         }}
       >
         {this.props.children}

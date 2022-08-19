@@ -2,7 +2,9 @@ import * as classNames from 'classnames';
 import * as React from 'react';
 import { IParticipator, IUser } from '../../types';
 import { __ } from '../../utils';
-import { MessageSender, MessagesList, TopBar } from '../containers';
+import MessageSender from '../containers/MessageSender';
+import MessagesList from '../containers/MessagesList';
+import TopBar from '../containers/TopBar';
 import { IMessage } from '../types';
 import ConversationHeadContent from './ConversationHeadContent';
 
@@ -17,6 +19,7 @@ type Props = {
   loading?: boolean;
   refetchConversationDetail?: () => void;
   errorMessage: string;
+  showTimezone?: boolean;
 };
 
 type State = {
@@ -87,7 +90,8 @@ class ConversationDetail extends React.Component<Props, State> {
       isOnline,
       color,
       loading,
-      errorMessage
+      errorMessage,
+      showTimezone,
     } = this.props;
 
     const rootClasses = classNames('erxes-content-wrapper', {
@@ -117,6 +121,7 @@ class ConversationDetail extends React.Component<Props, State> {
             <ConversationHeadContent
               supporters={supporters}
               participators={participators}
+              showTimezone={showTimezone}
               isOnline={isOnline}
               color={color}
               loading={loading}

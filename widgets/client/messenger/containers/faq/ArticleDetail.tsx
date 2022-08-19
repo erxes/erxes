@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArticleDetail } from "../../components/faq";
+import ArticleDetail from "../../components/faq/ArticleDetail";
 import { AppConsumer } from "../AppContext";
 
 const ArticleDetailContainer = () => {

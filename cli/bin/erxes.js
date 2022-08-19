@@ -7,6 +7,8 @@ const program = require('commander');
 const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
+const { manageInstallation, up, update, restart, deployDbs } = require('../commands/docker/utils');
+const { devOnly, devCmd, devStop } = require('../commands/dev');
 
 /**
  * Normalize version argument
@@ -35,16 +37,58 @@ program
     console.log(packageJSON.version);
   });
 
-// `$ start erxes`
+program
+  .command('dev')
+  .description('Run erxes in dev mode using pm2')
+  .option('--bash', 'Add interpreter:/bin/bash')
+  .option('--deps', 'Install ui dependencies')
+  .option('--ignoreRun', 'Ignore pm2 start')
+  .action(devCmd);
+
+program
+  .command('dev-only')
+  .description('Run only given service')
+  .action(devOnly);
+
+program
+  .command('dev-stop')
+  .description('Stop pm2 services')
+  .action(devStop);
+
 program
   .command('start')
-  .option('--ignoreDownload', 'Ingore latest updates download')
+  .option('--ignoreDownload', 'Ignore latest updates download')
   .description('Run erxes')
   .action(startCmd);
 
-// `$ update erxes`
+program
+  .command('deploy-dbs')
+  .description('Delpoy dbs using docker')
+  .action(deployDbs);
+
+program
+  .command('up')
+  .description('Run erxes using docker')
+  .option('--uis', 'Download uis')
+  .action(up);
+
 program
   .command('update')
+  .option('--noimage', 'Skip image pull')
+  .option('--uis', 'Update uis')
+  .action(update);
+
+program
+  .command('restart')
+  .action(restart);
+
+program
+  .command('manage-installation')
+  .action(manageInstallation);
+
+// `$ update erxes`
+program
+  .command('upgrade')
   .description('Download the latest changes of erxes')
   .action(updateCmd);
 

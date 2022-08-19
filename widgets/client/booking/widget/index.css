@@ -1,0 +1,21 @@
+#erxes-booking-container {
+  min-height: 100%;
+  background: #fcfcfc;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+#erxes-booking-iframe {
+  width: 100%;
+  border: none;
+  min-height: 100%;
+  position: absolute;
+}
+
+@media only screen and (max-width: 420px) {
+  #erxes-booking-container {
+    width: 100%;
+    max-height: none;
+  }
+}

@@ -23,6 +23,7 @@ document.getElementsByTagName('head')[0].appendChild(meta);
 type Setting = {
   form_id: string;
   brand_id: string;
+  user_id?: string;
   css?: string;
   onAction?: () => void;
 };
@@ -52,6 +53,7 @@ const createIframe = (setting: Setting) => {
     iframe.style.width = '100%';
     iframe.style.margin = '0 auto';
     iframe.style.height = '100%';
+    iframe.allowFullscreen = true;
   }
 
   iframe.src = generateIntegrationUrl('form');
@@ -151,10 +153,10 @@ const formSettings = window.erxesSettings.forms || [];
 // create iframes and save with index
 const iframesMapping: any = {};
 
- const getMappingKey = (setting: Setting) => 
+const getMappingKey = (setting: Setting) =>
   JSON.stringify({ form_id: setting.form_id, brand_id: setting.brand_id });
 
-const getSetting = (setting: Setting) => 
+const getSetting = (setting: Setting) =>
   formSettings.find(
     (s: Setting) =>
       s.brand_id === setting.brand_id && s.form_id === setting.form_id
@@ -186,7 +188,6 @@ window.addEventListener('message', async (event: MessageEvent) => {
   if (!(fromErxes && source === 'fromForms')) {
     return null;
   }
-
 
   if (message === 'submitResponse' && completeSetting.onAction) {
     completeSetting.onAction(data);
@@ -227,8 +228,6 @@ window.addEventListener('message', async (event: MessageEvent) => {
   if (message === 'changeContainerStyle') {
     container.style = data.style;
   }
-
-  
 
   return null;
 });

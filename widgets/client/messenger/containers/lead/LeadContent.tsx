@@ -1,11 +1,23 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { Callout, Form as DumbForm } from "../../../form/components";
+import asyncComponent from "../../../AsyncComponent";
 import { formDetailQuery } from "../../../form/graphql";
 import { ICurrentStatus, IForm, IFormDoc } from "../../../form/types";
 import { IEmailParams, IIntegration } from "../../../types";
 import { LeadConsumer, LeadProvider } from "./LeadContext";
+
+const Callout = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerLeadCallout" */ '../../../form/components/Callout'
+  )
+);
+
+const DumbForm = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerLeadForm" */ '../../../form/components/Form'
+  )
+);
 
 const LeadContent = (props: ChildProps<IProps, QueryResponse>) => {
   const data = props.data;
@@ -38,6 +50,9 @@ interface IProps {
   onSubmit: (doc: IFormDoc, formCode: string) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
+  invoiceResponse?: any;
+  lastMessageId?: string;
+  onCancelOrder: (customerId: string, messageId: string) => void;
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(gql(formDetailQuery), {
@@ -61,7 +76,10 @@ const WithContext = ({ formCode }: { formCode: string }) => (
         getForm,
         isCallOutVisible,
         isSubmitting,
-        showForm
+        showForm,
+        invoiceResponse,
+        lastMessageId,
+        cancelOrder
       }) => {
         const integration = getIntegration(formCode);
         const form = getForm(formCode);
@@ -83,6 +101,9 @@ const WithContext = ({ formCode }: { formCode: string }) => (
             sendEmail={sendEmail}
             form={form}
             integration={integration}
+            invoiceResponse={invoiceResponse}
+            lastMessageId={lastMessageId}
+            onCancelOrder={cancelOrder}
           />
         );
       }}

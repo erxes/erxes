@@ -1,7 +1,8 @@
 const webpack = require('webpack');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require("terser-webpack-plugin");
 const Merge = require('webpack-merge');
 const CommonConfig = require('./webpack.config');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = Merge(CommonConfig, {
   plugins: [
@@ -10,10 +11,10 @@ module.exports = Merge(CommonConfig, {
       debug: false,
     }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': '"production"',
+      'process.env.NODE_ENV': '"production"'
     }),
-    new UglifyJSPlugin({
-      uglifyOptions: {
+    new TerserPlugin({
+      terserOptions: {
         ie8: false,
         ecma: 8,
         mangle: true,
@@ -28,5 +29,8 @@ module.exports = Merge(CommonConfig, {
         },
       },
     }),
-  ],
-})
+    new CompressionPlugin({
+      algorithm: 'gzip'
+    })
+  ]
+});

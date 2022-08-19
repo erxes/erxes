@@ -2,7 +2,7 @@ import * as React from "react";
 import { AppConsumer } from "../../messenger/containers/AppContext";
 import { readFile } from "../../utils";
 import { ICallout } from "../types";
-import { TopBar } from "./";
+import TopBar from "./TopBar";
 
 type Props = {
   onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;

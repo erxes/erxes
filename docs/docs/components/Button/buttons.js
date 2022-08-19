@@ -40,13 +40,13 @@ export function ButtonComponent(props) {
         </div>
 
         <CodeBlock className="language-jsx">
-          {`<>${
-            defaultBtn ? `\n\t<Button>${defaultBtn}</Button>` : ``
-          }${buttons.map((btn, index) => {
-            return `\n\t<Button ${stringify(
-              propDatas(propName, btn, icon, index)
-            )} >${btn}</Button>`;
-          })}\n</>`}
+          {`<>${defaultBtn ? `\n\t<Button>${defaultBtn}</Button>` : ``}${buttons
+            .map((btn, index) => {
+              return `\n\t<Button ${stringify(
+                propDatas(propName, btn, icon, index)
+              )} >${btn}</Button>`;
+            })
+            .join(" ")}\n</>`}
         </CodeBlock>
       </>
     );

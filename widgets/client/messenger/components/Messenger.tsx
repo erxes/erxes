@@ -1,15 +1,46 @@
 import * as React from "react";
 import { IUser } from "../../types";
-import { AccquireInformation, ConversationDetail, Home } from "../containers";
-import { ArticleDetail, CategoryDetail } from "../containers/faq";
-import WebsiteAppDetail from "../containers/websiteApp/WebsiteAppDetail";
+import asyncComponent from "../../AsyncComponent";
+
+const ConversationDetail = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerConversationDetail" */ "../containers/ConversationDetail")
+);
+
+const AccquireInformation = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerAcquireInformation" */ "../containers/AccquireInformation")
+);
+
+const Home = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerHome" */ "../containers/Home")
+);
+
+const ConversationList = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerConversationList" */ "../containers/ConversationList")
+);
+
+const ArticleDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerArticleDetail" */ '../containers/faq/ArticleDetail'
+  )
+);
+
+const CategoryDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerCategoryDetail" */ '../containers/faq/CategoryDetail'
+  )
+);
+
+const WebsiteAppDetail = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "MessengerWebsiteDetail" */ '../containers/websiteApp/WebsiteAppDetail'
+  )
+);
 
 type Props = {
   activeRoute: string | "";
   supporters: IUser[];
   loading?: boolean;
   isOnline?: boolean;
-  serverTime?: string;
 };
 
 function Messenger({
@@ -17,7 +48,6 @@ function Messenger({
   isOnline = false,
   supporters,
   loading,
-  serverTime,
 }: Props) {
   const WithSupporters = (Component: any) => {
     return (
@@ -30,6 +60,8 @@ function Messenger({
   };
 
   switch (activeRoute) {
+    case "allConversations":
+      return <ConversationList />;
     case "conversationDetail":
     case "conversationCreate":
       return WithSupporters(ConversationDetail);
@@ -52,7 +84,6 @@ function Messenger({
         <Home
           supporters={supporters}
           isOnline={isOnline}
-          serverTime={serverTime}
           activeSupport={true}
         />
       );

@@ -11,6 +11,18 @@ export interface ILogic {
   logicValue: FieldValue;
 }
 
+export interface IProduct {
+  _id: string;
+  name: string;
+  unitPrice: number;
+}
+
+export interface IObjectListConfig {
+  key: string;
+  label: string;
+  type: string;
+}
+
 export interface IField {
   _id: string;
   contentType: string;
@@ -21,6 +33,8 @@ export interface IField {
   content?: string;
   description?: string;
   options?: string[];
+  locationOptions?: ILocationOption[];
+  objectListConfigs?: IObjectListConfig[];
   isRequired: boolean;
   isDefinedByErxes: boolean;
   order: number;
@@ -33,6 +47,8 @@ export interface IField {
   logicAction?: string;
   logics?: ILogic[];
   pageNumber?: number;
+  productCategoryId?: string;
+  products?: IProduct[];
 }
 
 export interface ICallout {
@@ -52,6 +68,7 @@ export interface IForm {
   createdUserId: string;
   fields: IField[];
   numberOfPages?: number;
+  googleMapApiKey?: string;
 }
 
 interface IAttachment {
@@ -61,7 +78,14 @@ interface IAttachment {
   type: string;
 }
 
-export type FieldValue = string | number | Date | string[]| IAttachment[];
+export type FieldValue =
+  | string
+  | number
+  | Date
+  | string[]
+  | IAttachment[]
+  | ILocationOption
+  | IObjectListConfig[];
 
 export interface IFieldError {
   fieldId?: string;
@@ -84,10 +108,20 @@ export interface IFormDoc {
     groupId: string;
     isHidden?: boolean;
     column?: number;
+    productId?: string;
   };
 }
 
 export interface ISaveFormResponse {
   status: string;
   errors?: IFieldError[];
+  invoiceType?: string;
+  invoiceResponse?: string;
+  messageId?: string;
+}
+
+export interface ILocationOption {
+  lat: number;
+  lng: number;
+  description?: string;
 }

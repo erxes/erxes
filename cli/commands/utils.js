@@ -65,10 +65,14 @@ function downloadFile(file_url, targetPath) {
   });
 }
 
-const execCommand = command => {
+const execCommand = (command, ignoreError) => {
   return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
+    exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
       if (error !== null) {
+        if (ignoreError) {
+          return resolve('done');
+        }
+
         return reject(error);
       }
 
@@ -88,9 +92,17 @@ const log = (msg, color = 'green') => {
   console.log(chalk[color](msg));
 };
 
+const sleep = (ms) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
 module.exports.execCommand = execCommand;
 
 module.exports.log = log;
+
+module.exports.sleep = sleep;
 
 module.exports.filePath = filePath;
 
@@ -542,3 +554,7 @@ const generateNginxConf = async ({
   `
   );
 };
+
+module.exports.runCommand = runCommand;
+module.exports.downloadFile = downloadFile;
+module.exports.execCurl = execCurl;

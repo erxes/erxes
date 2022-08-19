@@ -3,7 +3,7 @@ name: Dashboard CI
 on:
   push:
     branches:
-      - '**'
+      - federation
     paths:
       - 'dashboard-ui/**'
       - '.github/workflows/dashboard_ui.yaml'

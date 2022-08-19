@@ -104,7 +104,7 @@ a {
       webkit moz
     );
     background: $white;
-    border-radius: $border-radius / 2;
+    border-radius: calc($border-radius / 2);
     color: lighten($black, 20%);
     content: attr(data-tooltip);
     font-size: 12px;
@@ -142,7 +142,7 @@ a {
   );
   background: $green;
   border: 0;
-  border-radius: $border-radius / 2;
+  border-radius: calc($border-radius / 2);
   color: $white;
   font-size: 12px;
   outline: 0;
@@ -163,6 +163,120 @@ a {
   &.btn-block {
     display: block;
     width: 100%;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &.btn-primary {
+    background: $primary-color;
+
+    &:hover,
+    &:focus {
+      background: darken($primary-color, 5%);
+    }
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border: 1px solid $text-color-light;
+    color: $text-color;
+
+    &:hover,
+    &:focus {
+      background: transparent;
+      opacity: 0.8;
+    }
+  }
+
+  &.hasMargin {
+    margin-right: 20px;
+  }
+}
+
+.erxes-objectlist-button {
+  @include prefix((transition: all 0.3s ease-in-out,
+    ),
+    webkit moz ms o);
+  background: $red;
+  border: 0;
+  border-radius: calc($border-radius / 2);
+  color: $white;
+  font-size: 12px;
+  outline: 0;
+  padding: 10px 20px;
+  position: relative;
+
+  span {
+    color: $white;
+  }
+
+  &:hover,
+  &:focus {
+    background: darken($red, 5%);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  &.btn-block {
+    display: block;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  &.btn-primary {
+    background: $primary-color;
+
+    &:hover,
+    &:focus {
+      background: darken($primary-color, 5%);
+    }
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border: 1px solid $text-color-light;
+    color: $text-color;
+
+    &:hover,
+    &:focus {
+      background: transparent;
+      opacity: 0.8;
+    }
+  }
+}
+
+.erxes-objectlist-cancel-button {
+  @include prefix((transition: all 0.3s ease-in-out,
+    ),
+    webkit moz ms o);
+  background: $grey;
+  border: 0;
+  border-radius: calc($border-radius / 2);
+  color: #888888;
+  font-size: 12px;
+  outline: 0;
+  padding: 10px 20px;
+  position: relative;
+
+  span {
+    color: #888888;
+  }
+
+  &:hover,
+  &:focus {
+    background: darken($grey, 5%);
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  &.btn-block {
+    display: block;
   }
 
   &.disabled {
@@ -218,7 +332,7 @@ a {
   -webkit-appearance: none;
   background: $bg-color;
   border: 1px solid $border-color;
-  border-radius: $border-radius / 2;
+  border-radius: calc($border-radius / 2);
   box-shadow: inset 0 1px 3px 0 rgba($black, 0.07);
   color: lighten($black, 10%);
   display: block;

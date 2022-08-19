@@ -1,18 +1,15 @@
-import * as dayjs from "dayjs";
-import * as localizedFormat from "dayjs/plugin/localizedFormat";
-import * as relativeTime from "dayjs/plugin/relativeTime";
-import "erxes-icon/css/erxes.min.css";
-
 import * as React from "react";
 import { ApolloProvider } from "react-apollo";
 import * as ReactDOM from "react-dom";
 import client from "../apollo-client";
 import { connection } from "./connection";
-import { KnowledgeBase } from "./containers";
-import "./sass/style.scss";
+import asyncComponent from "../AsyncComponent";
 
-dayjs.extend(localizedFormat);
-dayjs.extend(relativeTime);
+const KnowledgeBase = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "knowledgebaseApp" */ './containers/KnowledgeBase'
+  )
+);
 
 const render = () => {
   // render root react component

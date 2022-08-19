@@ -28,6 +28,7 @@ const getKbCategoryQuery = `
       numOfArticles
       icon
       authors {
+        _id
         details {
           fullName
           avatar
@@ -69,6 +70,7 @@ const getKbTopicQuery = `
         icon
         numOfArticles
         authors {
+          _id
           details {
             fullName
             avatar

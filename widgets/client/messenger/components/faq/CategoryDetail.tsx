@@ -1,9 +1,9 @@
 import * as React from "react";
 import { iconLeft } from "../../../icons/Icons";
-import { TopBar } from "../../containers";
-import { Articles } from "../../containers/faq";
+import TopBar from "../../containers/TopBar";
+import Articles from "../../containers/faq/Articles";
 import { IFaqCategory } from "../../types";
-import { SearchBar } from "./";
+import SearchBar from "./SearchBar";
 import { AppConsumer } from "../../containers/AppContext";
 import { __ } from "../../../utils";
 

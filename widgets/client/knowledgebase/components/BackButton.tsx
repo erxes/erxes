@@ -1,4 +1,5 @@
 import * as React from "react";
+import { iconLeft } from "../../icons/Icons";
 import { __ } from "../../utils";
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 function BackButton({ onClickHandler, text }: Props) {
   return (
     <button onClick={onClickHandler} className="back">
-      <i className="icon-leftarrow-2" />
+      {iconLeft('#888')}
       {text}
     </button>
   );

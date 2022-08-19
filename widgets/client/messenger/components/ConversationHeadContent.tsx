@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as RTG from "react-transition-group";
 import { IParticipator, IUser } from "../../types";
-import { BrandInfo } from "../containers/common";
-import { Profile, Supporters } from "./common";
+import BrandInfo from "../containers/common/BrandInfo";
+import Profile from "./common/Profile";
+import Supporters from "./common/Supporters";
 
 type Props = {
   supporters: IUser[];
@@ -12,6 +13,7 @@ type Props = {
   loading?: boolean;
   expanded: boolean;
   toggleExpand: () => void;
+  showTimezone?: boolean;
 };
 
 class ConversationHeadContent extends React.Component<Props> {
@@ -32,7 +34,7 @@ class ConversationHeadContent extends React.Component<Props> {
   }
 
   withComponent(isExpanded: boolean) {
-    const { supporters, isOnline, color, loading, participators } = this.props;
+    const { supporters, isOnline, color, loading, participators, showTimezone } = this.props;
 
     let content = (
       <>
@@ -53,6 +55,7 @@ class ConversationHeadContent extends React.Component<Props> {
           user={participators[0]}
           isOnline={isOnline}
           isExpanded={isExpanded}
+          showTimezone={showTimezone}
         />
       );
     }

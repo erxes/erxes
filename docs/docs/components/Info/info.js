@@ -33,11 +33,13 @@ export function InfoComponent(props) {
         </div>
 
         <CodeBlock className="language-jsx">
-          {`<>\t${types.map((type, index) => {
-            return `\n\t<Info ${stringify(
-              propDatas(type, iconShow, index)
-            )} >${type}</Info>`;
-          })}\n</>`}
+          {`<>\t${types
+            .map((type, index) => {
+              return `\n\t<Info ${stringify(
+                propDatas(type, iconShow, index)
+              )} >${type}</Info>`;
+            })
+            .join(" ")}\n</>`}
         </CodeBlock>
       </>
     );
