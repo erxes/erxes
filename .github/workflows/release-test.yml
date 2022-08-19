@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
+      - name: Get release version
+        id: get_release_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
       - name: core
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
@@ -18,6 +21,6 @@ jobs:
 
           docker image pull erxes/core:dev 
 
-          docker tag erxes/core:dev erxes/core:${GITHUB_REF#refs/tags/} 
+          docker tag erxes/core:dev erxes/core:master 
 
-          docker push erxes/core:${GITHUB_REF#refs/tags/} 
+          docker push erxes/core:master 
