@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 14.20.x
 
-      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      # https://github.com/actions/cache/blob/main/examples.md#node---yarn
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -46,7 +46,7 @@ jobs:
           cd dist/main/.erxes/src
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'  )
         run: |
           cd dist/plugin-clientportal-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
