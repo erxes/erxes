@@ -72,13 +72,12 @@ const reportQueries = {
 
       const productIds = groupedItems.map(g => g._id);
       const products = await models.Products.find(
-        { _id: { $in: productIds }, token: { $in: [config.token] } },
+        { _id: { $in: productIds } },
         { _id: 1, code: 1, name: 1, categoryId: 1 }
       ).lean();
       const productCategories = await models.ProductCategories.find(
         {
-          _id: { $in: products.map(p => p.categoryId) },
-          token: { $in: [config.token] }
+          _id: { $in: products.map(p => p.categoryId) }
         },
         { _id: 1, code: 1, name: 1 }
       )
