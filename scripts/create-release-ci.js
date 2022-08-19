@@ -62,7 +62,6 @@ var main = async () => {
 	for (const service of services) {
 		releaseYaml.jobs.release.steps.push({
 			name: `${service}`,
-			if: "github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )",
 			run: "echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin \n"
 				+ `docker image pull erxes/${service}:dev \n`
 				+ `docker tag erxes/${service}:dev erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
@@ -73,7 +72,6 @@ var main = async () => {
 	for (const plugin of plugins) {
 		releaseYaml.jobs.release.steps.push({
 			name: `${plugin} ui`,
-			if: "github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )",
 			run: `aws s3 sync s3://erxes-dev-plugins/uis/plugin-${plugin}-ui s3://erxes-release-plugins/uis/plugin-${plugin}-ui/\${GITHUB_REF#refs/tags/}/`
 		})
 	}

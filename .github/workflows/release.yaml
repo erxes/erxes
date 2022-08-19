@@ -18,8 +18,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
       - name: erxes
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -30,8 +28,6 @@ jobs:
 
           docker push erxes/erxes:${GITHUB_REF#refs/tags/} 
       - name: core
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -42,8 +38,6 @@ jobs:
 
           docker push erxes/core:${GITHUB_REF#refs/tags/} 
       - name: gateway
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -54,8 +48,6 @@ jobs:
 
           docker push erxes/gateway:${GITHUB_REF#refs/tags/} 
       - name: crons
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -66,8 +58,6 @@ jobs:
 
           docker push erxes/crons:${GITHUB_REF#refs/tags/} 
       - name: workers
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -78,8 +68,6 @@ jobs:
 
           docker push erxes/workers:${GITHUB_REF#refs/tags/} 
       - name: essyncer
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -90,8 +78,6 @@ jobs:
 
           docker push erxes/essyncer:${GITHUB_REF#refs/tags/} 
       - name: widgets
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -102,8 +88,6 @@ jobs:
 
           docker push erxes/widgets:${GITHUB_REF#refs/tags/} 
       - name: client-portal
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -114,8 +98,6 @@ jobs:
 
           docker push erxes/client-portal:${GITHUB_REF#refs/tags/} 
       - name: plugin-inbox-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -126,8 +108,6 @@ jobs:
 
           docker push erxes/plugin-inbox-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-automations-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -138,8 +118,6 @@ jobs:
 
           docker push erxes/plugin-automations-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-cards-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -150,8 +128,6 @@ jobs:
 
           docker push erxes/plugin-cards-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-clientportal-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -162,8 +138,6 @@ jobs:
 
           docker push erxes/plugin-clientportal-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-contacts-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -174,8 +148,6 @@ jobs:
 
           docker push erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-dashboard-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -186,8 +158,6 @@ jobs:
 
           docker push erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-emailtemplates-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -198,8 +168,6 @@ jobs:
 
           docker push erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-engages-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -210,8 +178,6 @@ jobs:
 
           docker push erxes/plugin-engages-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-forms-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -222,8 +188,6 @@ jobs:
 
           docker push erxes/plugin-forms-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-integrations-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -234,8 +198,6 @@ jobs:
 
           docker push erxes/plugin-integrations-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-internalnotes-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -246,8 +208,6 @@ jobs:
 
           docker push erxes/plugin-internalnotes-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-knowledgebase-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -258,8 +218,6 @@ jobs:
 
           docker push erxes/plugin-knowledgebase-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-logs-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -270,8 +228,6 @@ jobs:
 
           docker push erxes/plugin-logs-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-notifications-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -282,8 +238,6 @@ jobs:
 
           docker push erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-webhooks-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -294,8 +248,6 @@ jobs:
 
           docker push erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-products-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -306,8 +258,6 @@ jobs:
 
           docker push erxes/plugin-products-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-segments-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -318,8 +268,6 @@ jobs:
 
           docker push erxes/plugin-segments-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-tags-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -330,8 +278,6 @@ jobs:
 
           docker push erxes/plugin-tags-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-loyalties-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -342,8 +288,6 @@ jobs:
 
           docker push erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/} 
       - name: plugin-webbuilder-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: >
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
           secrets.DOCKERHUB_USERNAME }} --password-stdin 
@@ -354,102 +298,62 @@ jobs:
 
           docker push erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/} 
       - name: inbox ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-inbox-ui
           s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
       - name: automations ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-automations-ui
           s3://erxes-release-plugins/uis/plugin-automations-ui/${GITHUB_REF#refs/tags/}/
       - name: cards ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-cards-ui
           s3://erxes-release-plugins/uis/plugin-cards-ui/${GITHUB_REF#refs/tags/}/
       - name: clientportal ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-clientportal-ui
           s3://erxes-release-plugins/uis/plugin-clientportal-ui/${GITHUB_REF#refs/tags/}/
       - name: contacts ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-contacts-ui
           s3://erxes-release-plugins/uis/plugin-contacts-ui/${GITHUB_REF#refs/tags/}/
       - name: dashboard ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-dashboard-ui
           s3://erxes-release-plugins/uis/plugin-dashboard-ui/${GITHUB_REF#refs/tags/}/
       - name: emailtemplates ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-emailtemplates-ui
           s3://erxes-release-plugins/uis/plugin-emailtemplates-ui/${GITHUB_REF#refs/tags/}/
       - name: engages ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-engages-ui
           s3://erxes-release-plugins/uis/plugin-engages-ui/${GITHUB_REF#refs/tags/}/
       - name: forms ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-forms-ui
           s3://erxes-release-plugins/uis/plugin-forms-ui/${GITHUB_REF#refs/tags/}/
       - name: integrations ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-integrations-ui
           s3://erxes-release-plugins/uis/plugin-integrations-ui/${GITHUB_REF#refs/tags/}/
       - name: internalnotes ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-internalnotes-ui
           s3://erxes-release-plugins/uis/plugin-internalnotes-ui/${GITHUB_REF#refs/tags/}/
       - name: knowledgebase ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-knowledgebase-ui
           s3://erxes-release-plugins/uis/plugin-knowledgebase-ui/${GITHUB_REF#refs/tags/}/
       - name: logs ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-logs-ui
           s3://erxes-release-plugins/uis/plugin-logs-ui/${GITHUB_REF#refs/tags/}/
       - name: notifications ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-notifications-ui
           s3://erxes-release-plugins/uis/plugin-notifications-ui/${GITHUB_REF#refs/tags/}/
       - name: webhooks ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-webhooks-ui
           s3://erxes-release-plugins/uis/plugin-webhooks-ui/${GITHUB_REF#refs/tags/}/
       - name: products ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-products-ui
           s3://erxes-release-plugins/uis/plugin-products-ui/${GITHUB_REF#refs/tags/}/
       - name: segments ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-segments-ui
           s3://erxes-release-plugins/uis/plugin-segments-ui/${GITHUB_REF#refs/tags/}/
       - name: tags ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-tags-ui
           s3://erxes-release-plugins/uis/plugin-tags-ui/${GITHUB_REF#refs/tags/}/
       - name: loyalties ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-loyalties-ui
           s3://erxes-release-plugins/uis/plugin-loyalties-ui/${GITHUB_REF#refs/tags/}/
       - name: webbuilder ui
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-webbuilder-ui
           s3://erxes-release-plugins/uis/plugin-webbuilder-ui/${GITHUB_REF#refs/tags/}/
