@@ -15,8 +15,8 @@ var releaseYaml = {
 
 	on: {
 		push: {
-			// "tags": ['*']
-			branches: ['dev', 'master']
+			"tags": ['*']
+			// branches: ['dev', 'master']
 		}
 	},
 	jobs: {
@@ -31,10 +31,20 @@ var releaseYaml = {
 					"id": "get_release_version",
 					"run": "echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}"
 				},
+				{
+					"name": "Configure AWS credentials",
+					"uses": "aws-actions/configure-aws-credentials@v1",
+					"with": {
+						"aws-access-key-id": "${{ secrets.AWS_ACCESS_KEY_ID }}",
+						"aws-secret-access-key": "${{ secrets.AWS_SECRET_ACCESS_KEY }}",
+						"aws-region": "us-west-2"
+					}
+				},
 			]
 		}
 	}
 }
+
 
 var main = async () => {
 	const services = ['erxes', 'core', 'gateway', 'crons', 'workers', 'essyncer', 'widgets', 'client-portal'];
@@ -55,16 +65,22 @@ var main = async () => {
 			if: "github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )",
 			run: "echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin \n"
 				+ `docker image pull erxes/${service}:dev \n`
-				//      + `docker tag erxes/${service}:dev erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
-				//      + `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
-				+ `docker tag erxes/${service}:dev erxes/${service}:master \n`
-				+ `docker push erxes/${service}:master \n`
+				+ `docker tag erxes/${service}:dev erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
+				+ `docker push erxes/${service}:\${GITHUB_REF#refs/tags/} \n`
+		})
+	}
+
+	for (const plugin of plugins) {
+		releaseYaml.jobs.release.steps.push({
+			name: `${plugin} ui`,
+			if: "github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )",
+			run: `aws s3 sync s3://erxes-dev-plugins/uis/plugin-${plugin}-ui s3://erxes-release-plugins/uis/plugin-${plugin}-ui/\${GITHUB_REF#refs/tags/}/`
 		})
 	}
 
 	const yamlString = yaml.stringify(releaseYaml);
 
-	fs.writeFileSync(filePath('.github/workflows/release-test.yml'), yamlString);
+	fs.writeFileSync(filePath('.github/workflows/release.yaml'), yamlString);
 }
 
 main();
