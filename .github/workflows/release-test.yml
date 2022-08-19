@@ -12,339 +12,109 @@ jobs:
       - name: Get release version
         id: get_release_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
-      - name: erxes
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      - name: inbox ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/erxes:dev 
-
-          docker tag erxes/erxes:dev erxes/erxes:master 
-
-          docker push erxes/erxes:master 
-      - name: core
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-inbox-ui
+          s3://erxes-release-plugins/uis/plugin-inbox-ui/0.1/
+      - name: automations ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/core:dev 
-
-          docker tag erxes/core:dev erxes/core:master 
-
-          docker push erxes/core:master 
-      - name: gateway
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-automations-ui
+          s3://erxes-release-plugins/uis/plugin-automations-ui/0.1/
+      - name: cards ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/gateway:dev 
-
-          docker tag erxes/gateway:dev erxes/gateway:master 
-
-          docker push erxes/gateway:master 
-      - name: crons
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-cards-ui
+          s3://erxes-release-plugins/uis/plugin-cards-ui/0.1/
+      - name: clientportal ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/crons:dev 
-
-          docker tag erxes/crons:dev erxes/crons:master 
-
-          docker push erxes/crons:master 
-      - name: workers
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-clientportal-ui
+          s3://erxes-release-plugins/uis/plugin-clientportal-ui/0.1/
+      - name: contacts ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/workers:dev 
-
-          docker tag erxes/workers:dev erxes/workers:master 
-
-          docker push erxes/workers:master 
-      - name: essyncer
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-contacts-ui
+          s3://erxes-release-plugins/uis/plugin-contacts-ui/0.1/
+      - name: dashboard ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/essyncer:dev 
-
-          docker tag erxes/essyncer:dev erxes/essyncer:master 
-
-          docker push erxes/essyncer:master 
-      - name: widgets
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-dashboard-ui
+          s3://erxes-release-plugins/uis/plugin-dashboard-ui/0.1/
+      - name: emailtemplates ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/widgets:dev 
-
-          docker tag erxes/widgets:dev erxes/widgets:master 
-
-          docker push erxes/widgets:master 
-      - name: client-portal
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-emailtemplates-ui
+          s3://erxes-release-plugins/uis/plugin-emailtemplates-ui/0.1/
+      - name: engages ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/client-portal:dev 
-
-          docker tag erxes/client-portal:dev erxes/client-portal:master 
-
-          docker push erxes/client-portal:master 
-      - name: plugin-inbox-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-engages-ui
+          s3://erxes-release-plugins/uis/plugin-engages-ui/0.1/
+      - name: forms ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-inbox-api:dev 
-
-          docker tag erxes/plugin-inbox-api:dev erxes/plugin-inbox-api:master 
-
-          docker push erxes/plugin-inbox-api:master 
-      - name: plugin-automations-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-forms-ui
+          s3://erxes-release-plugins/uis/plugin-forms-ui/0.1/
+      - name: integrations ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-automations-api:dev 
-
-          docker tag erxes/plugin-automations-api:dev erxes/plugin-automations-api:master 
-
-          docker push erxes/plugin-automations-api:master 
-      - name: plugin-cards-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-integrations-ui
+          s3://erxes-release-plugins/uis/plugin-integrations-ui/0.1/
+      - name: internalnotes ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-cards-api:dev 
-
-          docker tag erxes/plugin-cards-api:dev erxes/plugin-cards-api:master 
-
-          docker push erxes/plugin-cards-api:master 
-      - name: plugin-clientportal-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-internalnotes-ui
+          s3://erxes-release-plugins/uis/plugin-internalnotes-ui/0.1/
+      - name: knowledgebase ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-clientportal-api:dev 
-
-          docker tag erxes/plugin-clientportal-api:dev erxes/plugin-clientportal-api:master 
-
-          docker push erxes/plugin-clientportal-api:master 
-      - name: plugin-contacts-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-knowledgebase-ui
+          s3://erxes-release-plugins/uis/plugin-knowledgebase-ui/0.1/
+      - name: logs ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-contacts-api:dev 
-
-          docker tag erxes/plugin-contacts-api:dev erxes/plugin-contacts-api:master 
-
-          docker push erxes/plugin-contacts-api:master 
-      - name: plugin-dashboard-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-logs-ui
+          s3://erxes-release-plugins/uis/plugin-logs-ui/0.1/
+      - name: notifications ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-dashboard-api:dev 
-
-          docker tag erxes/plugin-dashboard-api:dev erxes/plugin-dashboard-api:master 
-
-          docker push erxes/plugin-dashboard-api:master 
-      - name: plugin-emailtemplates-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-notifications-ui
+          s3://erxes-release-plugins/uis/plugin-notifications-ui/0.1/
+      - name: webhooks ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-emailtemplates-api:dev 
-
-          docker tag erxes/plugin-emailtemplates-api:dev erxes/plugin-emailtemplates-api:master 
-
-          docker push erxes/plugin-emailtemplates-api:master 
-      - name: plugin-engages-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-webhooks-ui
+          s3://erxes-release-plugins/uis/plugin-webhooks-ui/0.1/
+      - name: products ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-engages-api:dev 
-
-          docker tag erxes/plugin-engages-api:dev erxes/plugin-engages-api:master 
-
-          docker push erxes/plugin-engages-api:master 
-      - name: plugin-forms-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-products-ui
+          s3://erxes-release-plugins/uis/plugin-products-ui/0.1/
+      - name: segments ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-forms-api:dev 
-
-          docker tag erxes/plugin-forms-api:dev erxes/plugin-forms-api:master 
-
-          docker push erxes/plugin-forms-api:master 
-      - name: plugin-integrations-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-segments-ui
+          s3://erxes-release-plugins/uis/plugin-segments-ui/0.1/
+      - name: tags ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-integrations-api:dev 
-
-          docker tag erxes/plugin-integrations-api:dev erxes/plugin-integrations-api:master 
-
-          docker push erxes/plugin-integrations-api:master 
-      - name: plugin-internalnotes-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-tags-ui
+          s3://erxes-release-plugins/uis/plugin-tags-ui/0.1/
+      - name: loyalties ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-internalnotes-api:dev 
-
-          docker tag erxes/plugin-internalnotes-api:dev erxes/plugin-internalnotes-api:master 
-
-          docker push erxes/plugin-internalnotes-api:master 
-      - name: plugin-knowledgebase-api
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-loyalties-ui
+          s3://erxes-release-plugins/uis/plugin-loyalties-ui/0.1/
+      - name: webbuilder ui
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
           github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-knowledgebase-api:dev 
-
-          docker tag erxes/plugin-knowledgebase-api:dev erxes/plugin-knowledgebase-api:master 
-
-          docker push erxes/plugin-knowledgebase-api:master 
-      - name: plugin-logs-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-logs-api:dev 
-
-          docker tag erxes/plugin-logs-api:dev erxes/plugin-logs-api:master 
-
-          docker push erxes/plugin-logs-api:master 
-      - name: plugin-notifications-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-notifications-api:dev 
-
-          docker tag erxes/plugin-notifications-api:dev erxes/plugin-notifications-api:master 
-
-          docker push erxes/plugin-notifications-api:master 
-      - name: plugin-webhooks-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-webhooks-api:dev 
-
-          docker tag erxes/plugin-webhooks-api:dev erxes/plugin-webhooks-api:master 
-
-          docker push erxes/plugin-webhooks-api:master 
-      - name: plugin-products-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-products-api:dev 
-
-          docker tag erxes/plugin-products-api:dev erxes/plugin-products-api:master 
-
-          docker push erxes/plugin-products-api:master 
-      - name: plugin-segments-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-segments-api:dev 
-
-          docker tag erxes/plugin-segments-api:dev erxes/plugin-segments-api:master 
-
-          docker push erxes/plugin-segments-api:master 
-      - name: plugin-tags-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-tags-api:dev 
-
-          docker tag erxes/plugin-tags-api:dev erxes/plugin-tags-api:master 
-
-          docker push erxes/plugin-tags-api:master 
-      - name: plugin-loyalties-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-loyalties-api:dev 
-
-          docker tag erxes/plugin-loyalties-api:dev erxes/plugin-loyalties-api:master 
-
-          docker push erxes/plugin-loyalties-api:master 
-      - name: plugin-webbuilder-api
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' ||
-          github.ref == 'refs/heads/dev'  )
-        run: >
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
-          secrets.DOCKERHUB_USERNAME }} --password-stdin 
-
-          docker image pull erxes/plugin-webbuilder-api:dev 
-
-          docker tag erxes/plugin-webbuilder-api:dev erxes/plugin-webbuilder-api:master 
-
-          docker push erxes/plugin-webbuilder-api:master 
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-webbuilder-ui
+          s3://erxes-release-plugins/uis/plugin-webbuilder-ui/0.1/
