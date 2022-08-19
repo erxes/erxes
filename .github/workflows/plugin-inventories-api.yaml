@@ -44,6 +44,7 @@ jobs:
           yarn build plugin inventories
           cd plugin-inventories-api/.erxes
           cd dist/main/.erxes/src
+          ls
 
       - name: Build docker image
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'  )
