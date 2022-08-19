@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - dev
+      - master
 jobs:
   release:
     runs-on: ubuntu-18.04
