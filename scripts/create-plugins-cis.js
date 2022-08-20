@@ -13,12 +13,12 @@ const filePath = (pathName) => {
 var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
-  // { name: 'ads', api: true },
+  { name: 'ads', api: true },
   { name: 'cars', ui: true, api: true },
-  // { name: 'loan', ui: true, api: true },
-  // { name: 'neighbor', ui: true, api: true },
-  // { name: 'rentpay', ui: true, api: true },
-  // { name: 'tumentech', ui: true, api: true }
+  { name: 'loan', ui: true, api: true },
+  { name: 'neighbor', ui: true, api: true },
+  { name: 'rentpay', ui: true, api: true },
+  { name: 'tumentech', ui: true, api: true }
 ];
 
 const pluginsMap = {};
