@@ -324,12 +324,6 @@ jobs:
       - name: forms ui
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-forms-ui
           s3://erxes-release-plugins/uis/plugin-forms-ui/${GITHUB_REF#refs/tags/}/
-      - name: integrations ui
-        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-integrations-ui
-          s3://erxes-release-plugins/uis/plugin-integrations-ui/${GITHUB_REF#refs/tags/}/
-      - name: internalnotes ui
-        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-internalnotes-ui
-          s3://erxes-release-plugins/uis/plugin-internalnotes-ui/${GITHUB_REF#refs/tags/}/
       - name: knowledgebase ui
         run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-knowledgebase-ui
           s3://erxes-release-plugins/uis/plugin-knowledgebase-ui/${GITHUB_REF#refs/tags/}/
