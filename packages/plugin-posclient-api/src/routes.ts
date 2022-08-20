@@ -27,6 +27,11 @@ export const posInitialSetup = async (req, res) => {
 };
 
 export const callBackQpay = async (req, res) => {
+  const { SKIP_REDIS } = process.env;
+  if (SKIP_REDIS) {
+    return;
+  }
+
   const subdomain = getSubdomain(req);
 
   const models = await generateModels(subdomain);

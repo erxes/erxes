@@ -119,12 +119,14 @@ const paymentMutations = {
     { models, config, subdomain }: IContext
   ) {
     let invoice;
-    const order = models.Orders.findOne({ _id: orderId });
+    const order = await models.Orders.findOne({ _id: orderId }).lean();
 
     if (!order && _id) {
-      invoice = await models.QPayInvoices.findOne({ _id });
+      invoice = await models.QPayInvoices.findOne({ _id }).lean();
     } else {
-      invoice = await models.QPayInvoices.findOne({ senderInvoiceNo: orderId });
+      invoice = await models.QPayInvoices.findOne({
+        senderInvoiceNo: orderId
+      }).lean();
     }
 
     if (!invoice) {
@@ -177,18 +179,29 @@ const paymentMutations = {
           orderId
         );
 
-        await commonCheckPayment(
-          subdomain,
-          models,
-          orderId,
-          config,
-          paidMobileAmount
+        await models.Orders.updateOne(
+          { _id: invoice.senderInvoiceNo },
+          {
+            $set: { mobileAmount: paidMobileAmount }
+          }
         );
-        return models.QPayInvoices.findOne({ _id: invoice._id });
+
+        const { SKIP_REDIS } = process.env;
+        if (!SKIP_REDIS) {
+          await commonCheckPayment(
+            subdomain,
+            models,
+            orderId,
+            config,
+            paidMobileAmount
+          );
+        }
+
+        return models.QPayInvoices.findOne({ _id: invoice._id }).lean();
       }
     }
 
-    return models.QPayInvoices.findOne({ _id: invoice._id });
+    return models.QPayInvoices.findOne({ _id: invoice._id }).lean();
   }
 };
 
