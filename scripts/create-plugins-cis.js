@@ -17,7 +17,6 @@ var plugins = [
   { name: 'automations', ui: true, api: true },
   { name: 'calendar', ui: true },
   { name: 'cards', ui: true, api: true },
-  { name: 'cars', ui: true, api: true },
   { name: 'chats', ui: true, api: true },
   { name: 'clientportal', ui: true, api: true },
   { name: 'contacts', ui: true, api: true },

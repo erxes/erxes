@@ -43,7 +43,6 @@ jobs:
           yarn install
           yarn install-deps
           yarn build
-          ls
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
