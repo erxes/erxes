@@ -1,0 +1,59 @@
+name: Plugin logs UI CI
+
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - "packages/erxes-ui/**"
+      - "packages/ui-plugin-template/**"
+      - "packages/ui-cards/**"
+      - "packages/ui-forms/**"
+      - "packages/ui-inbox/**"
+      - "packages/ui-knowledgebase/**"
+      - "packages/ui-leads/**"
+      - "packages/ui-log/**"
+      - "packages/ui-notifications/**"
+      - "packages/ui-products/**"
+      - "packages/ui-segments/**"
+      - "packages/ui-settings/**"
+      - "packages/ui-team/**"
+      - "packages/ui-logs/**"
+      - "packages/plugin-logs-ui/**"
+      - ".github/workflows/plugin-logs-ui.yaml"
+
+jobs:
+  ui:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Use Node.js 14.18.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.18.x
+
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          yarn install --frozen-lockfile
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-logs-ui/.erxes
+          cp -r packages/plugin-logs-ui/src packages/plugin-logs-ui/.erxes/plugin-src
+          cd packages/plugin-logs-ui
+          yarn install
+          yarn install-deps
+          yarn build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Deploy
+        run: |
+          tar -cf build.tar --directory=packages/plugin-logs-ui/.erxes/dist .
+          cp build.tar packages/plugin-logs-ui/.erxes/dist
+          rm -rf packages/plugin-logs-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-logs-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-logs-ui --delete

@@ -1,0 +1,19 @@
+{
+  "name": "@erxes/plugin-logs-ui",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "start": "cd .erxes && yarn start",
+    "build": "cd .erxes && yarn build"
+  },
+  "dependencies": {
+    "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
+    "dayjs": "^1.8.15",
+    "graphql-tag": "^2.6.1",
+    "lodash": "^4.17.15",
+    "lodash.flowright": "^3.5.0",
+    "react": "^16.14.0",
+    "react-apollo": "^3.1.3",
+    "react-select-plus": "^1.0.0-rc.5"
+  }
+}

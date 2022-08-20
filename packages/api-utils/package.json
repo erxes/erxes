@@ -1,0 +1,37 @@
+{
+  "name": "@erxes/api-utils",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-typescript": "^7.10.4",
+    "@babel/runtime": "^7.11.2",
+    "@types/ioredis": "^4.28.7",
+    "@types/lodash": "^4.14.178",
+    "@types/node": "^17.0.7",
+    "babel-preset-gatsby-package": "^0.5.2"
+  },
+  "dependencies": {
+    "amqplib": "^0.5.5",
+    "crypto": "^1.0.1",
+    "debug": "^4.1.1",
+    "dotenv": "^4.0.0",
+    "elasticsearch": "^16.7.2",
+    "graphql": "^15.8.0",
+    "graphql-redis-subscriptions": "^1.4.0",
+    "graphql-subscriptions": "^1.1.0",
+    "ioredis": "^4.28.2",
+    "lodash": "^4.17.21",
+    "meteor-random": "^0.0.3",
+    "moment": "^2.18.1",
+    "mongoose": "5.7.5",
+    "request": "^2.88.0",
+    "requestify": "^0.2.5",
+    "strip": "^3.0.0"
+  }
+}

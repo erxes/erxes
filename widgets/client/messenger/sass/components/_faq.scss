@@ -1,0 +1,124 @@
+.erxes-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: auto;
+  background: $white;
+
+  .erxes-article-content {
+    background: $bg-color;
+    color: darken($text-color, 12%);
+    height: 100%;
+    padding: 30px;
+
+    h2 {
+      margin-top: 0;
+    }
+
+    .date {
+      color: $text-color;
+      font-size: 90%;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 10px;
+    }
+
+    iframe,
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  .scroll-wrapper {
+    flex: 1;
+    overflow: auto;
+  }
+}
+
+.faq-item {
+  background: $white;
+
+  .erxes-right-side {
+    margin-left: 80px;
+  }
+
+  .erxes-left-side {
+    border-radius: 0;
+    margin-right: 10px;
+    background: #f7f6f9;
+    border-radius: 30px;
+
+    i {
+      height: 36px;
+      margin: auto;
+      margin-top: 3px;
+      opacity: 0.7;
+      width: 28px;
+    }
+  }
+
+  .description {
+    color: $text-color;
+    min-height: 20px;
+  }
+}
+
+.back-category-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  border-bottom: 1px solid #ddd;
+  background: #f7f6f9;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all ease 0.3s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  > svg {
+    margin-right: 10px;
+  }
+}
+
+.erxes-faq-searchbar {
+  background: darken($bg-color, 1%);
+  border-bottom: 1px solid $border-color;
+  padding: 10px 25px;
+  position: relative;
+
+  > input {
+    background: $white;
+    margin: 0;
+    padding-right: 40px;
+  }
+
+  > svg {
+    fill: $text-color-light;
+    position: absolute;
+    right: 40px;
+    top: 20px;
+    width: 16px;
+  }
+}
+
+.empty-articles {
+  align-items: center;
+  color: $text-color;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+
+  svg {
+    fill: $text-color;
+    margin-bottom: 10px;
+  }
+}

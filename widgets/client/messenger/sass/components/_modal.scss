@@ -1,0 +1,42 @@
+.erxes-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2147483647;
+}
+
+.erxes-modal {
+  position: absolute;
+  border: none;
+  background: rgb(255, 255, 255);
+  overflow: auto;
+  border-radius: 8px;
+  outline: none;
+  padding: 20px;
+  width: 260px;
+  left: 50%;
+  top: 80px;
+  margin-left: -140px;
+  outline: 0;
+  max-width: 100%;
+  animation-delay: 0;
+  animation-duration: .1s;
+  box-shadow: rgba(66, 66, 66, 0.30) 0px 3px 60px 0px;
+
+  h5 {
+    margin: 0 0 18px;
+    font-weight: 500;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+
+    .erxes-button {
+      margin-left: 8px;
+      padding: 8px 16px;
+    }
+  }
+}

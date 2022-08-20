@@ -1,0 +1,16 @@
+commands
+node_modules
+public
+scripts
+src
+*.yml
+*.yaml
+.env*
+.git*
+.snyk
+*.md
+Dockerfile*
+jest*.js
+*.json
+yarn.lock
+*.tar.gz

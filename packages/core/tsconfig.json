@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "lib": ["es2015", "es6", "es7", "esnext.asynciterable"],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "useUnknownInCatchVariables": false,
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@erxes/api-utils/*": ["../api-utils/*"]
+    },
+  },
+  "exclude": ["node_modules", "dist"]
+}

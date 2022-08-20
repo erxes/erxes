@@ -1,0 +1,13 @@
+{
+  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+  "linterOptions": {
+    "exclude": ["node_modules/**/*.ts"]
+  },
+  "rules": {
+    "object-literal-sort-keys": false,
+    "interface-over-type-literal": false,
+    "member-access": false, // start without having to write public, private modifier
+    "max-classes-per-file": false,
+    "jsx-no-lambda": false
+  }
+}

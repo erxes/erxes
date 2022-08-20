@@ -1,0 +1,65 @@
+{
+  "name": "erxes",
+  "private": true,
+  "version": "0.22.3",
+  "workspaces": [
+    "packages/*"
+  ],
+  "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
+  "homepage": "https://erxes.io",
+  "repository": "https://github.com/erxes/erxes",
+  "bugs": "https://github.com/erxes/erxes/issues",
+  "keywords": [
+    "node",
+    "graphql",
+    "apollo",
+    "react"
+  ],
+  "license": "GNU General Public License v3.0 with Commons Clause",
+  "lint-staged": {
+    "linters": {
+      "@(widgets)/src/**/*.{ts,tsx,json,css}": [
+        "prettier --single-quote --write",
+        "git add"
+      ],
+      "@(email-verifier)/src/**/*.ts": [
+        "prettier --single-quote --write",
+        "git add"
+      ],
+      "packages/*/src/**/*.{ts,tsx,json,css}": [
+        "prettier --single-quote --write",
+        "git add"
+      ]
+    },
+    "concurrent": false,
+    "subTaskConcurrency": 1
+  },
+  "scripts": {
+    "create-plugins-cis": "node scripts/create-plugins-cis",
+    "create-plugin-ui": "node scripts/create-plugin-ui",
+    "create-plugin-api": "node scripts/create-plugin-api",
+    "format": "prettier --single-quote --write '@(email-verifier)/src/**/*.ts' && prettier --single-quote --write '@(widgets)/src/**/*.@(ts|tsx|json|css)'",
+    "formatp": "func () { if [ -z \"$1\" ]; then prettier --single-quote --write '@(packages)/gateway/src/**/*.@(ts|tsx|json|css)'; else echo \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\" && \"prettier --single-quote --write '@(packages)/${1}/src/**/*.@(ts|tsx|json|css)'\"; fi ;}; func",
+    "precommit": "lint-staged",
+    "lint": "func () { if [ -z \"$1\" ]; then tslint '@(email-verifier|widgets)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
+    "lintp": "func () { if [ -z \"$1\" ]; then tslint 'packages/gateway/src/**/*.ts?(x)'; else echo \"packages/${1}/src/**/*.ts?(x)\" && tslint \"packages/${1}/src/**/*.ts?(x)\"; fi ;}; func",
+    "generateVersion": "node commands/generateVersion.js",
+    "release": "release-it",
+    "create-release-ci": "node scripts/create-release-ci"
+  },
+  "devDependencies": {
+    "@release-it/conventional-changelog": "^1.1.0",
+    "@types/node": "^17.0.8",
+    "husky": "^0.13.4",
+    "lint-staged": "^3.6.0",
+    "prettier": "^1.14.2",
+    "tslint": "^5.8.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.0.0",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.1",
+    "mongodb": "3.7.3"
+  }
+}

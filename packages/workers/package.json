@@ -1,0 +1,28 @@
+{
+  "name": "workers",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "node dist",
+    "dev": "ERXES_TELEMETRY_DISABLED=1 DEBUG=erxes-workers* NODE_ENV=development nodemon src/index.ts",
+    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "csv-parser": "^3.0.0",
+    "file-type": "^10.4.0",
+    "helmet": "^3.23.3",
+    "json2csv": "^5.0.1",
+    "server-timing-header": "^1.9.0",
+    "sha256": "^0.2.0",
+    "stream-array": "^1.1.2",
+    "ts-node": "^10.4.0",
+    "xlsx-populate": "^1.20.1",
+    "cookie-parser": "^1.4.6",
+    "validator": "^9.0.0",
+    "aws-sdk": "^2.151.0",
+    "erxes-inmemory-storage": "^1.0.20",
+    "faker": "^4.1.0"
+  }
+}

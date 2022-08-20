@@ -1,0 +1,1221 @@
+[
+	{
+		"inbox": {
+			"name": "inbox",
+			"description": "Inbox",
+			"actions": [
+				{
+					"name": "inboxAll",
+					"description": "All",
+					"use": [
+						"showConversations",
+						"changeConversationStatus",
+						"assignConversation",
+						"conversationMessageAdd",
+						"conversationResolveAll"
+					]
+				},
+				{
+					"name": "showConversations",
+					"description": "Show conversations"
+				},
+				{
+					"name": "changeConversationStatus",
+					"description": "Change conversation status"
+				},
+				{
+					"name": "assignConversation",
+					"description": "Assign conversation"
+				},
+				{
+					"name": "conversationMessageAdd",
+					"description": "Add conversation message"
+				},
+				{
+					"name": "conversationResolveAll",
+					"description": "Resolve all converstaion"
+				}
+			]
+		},
+		"integrations": {
+			"name": "integrations",
+			"description": "Integrations",
+			"actions": [
+				{
+					"name": "integrationsAll",
+					"description": "All",
+					"use": [
+						"showIntegrations",
+						"integrationsCreateMessengerIntegration",
+						"integrationsEditMessengerIntegration",
+						"integrationsSaveMessengerAppearanceData",
+						"integrationsSaveMessengerConfigs",
+						"integrationsCreateLeadIntegration",
+						"integrationsEditLeadIntegration",
+						"integrationsRemove",
+						"integrationsArchive",
+						"integrationsEdit",
+						"integrationsCreateBookingIntegration",
+						"integrationsEditBookingIntegration"
+					]
+				},
+				{
+					"name": "showIntegrations",
+					"description": "Show integrations"
+				},
+				{
+					"name": "integrationsCreateMessengerIntegration",
+					"description": "Create messenger integration"
+				},
+				{
+					"name": "integrationsEditMessengerIntegration",
+					"description": "Edit messenger integration"
+				},
+				{
+					"name": "integrationsSaveMessengerAppearanceData",
+					"description": "Save messenger appearance data"
+				},
+				{
+					"name": "integrationsSaveMessengerConfigs",
+					"description": "Save messenger config"
+				},
+				{
+					"name": "integrationsCreateLeadIntegration",
+					"description": "Create lead integration"
+				},
+				{
+					"name": "integrationsEditLeadIntegration",
+					"description": "Edit lead integration"
+				},
+				{
+					"name": "integrationsRemove",
+					"description": "Remove integration"
+				},
+				{
+					"name": "integrationsArchive",
+					"description": "Archive an integration"
+				},
+				{
+					"name": "integrationsEdit",
+					"description": "Edit common integration fields"
+				},
+				{
+					"name": "integrationsCreateBookingIntegration",
+					"description": "Create booking integration"
+				},
+				{
+					"name": "integrationsEditBookingIntegration",
+					"description": "Edit booking integration"
+				}
+			]
+		},
+		"skillTypes": {
+			"name": "skillTypes",
+			"description": "Skill Types",
+			"actions": [
+				{
+					"name": "skillTypesAll",
+					"description": "All",
+					"use": [
+						"getSkillTypes",
+						"createSkillType",
+						"updateSkillType",
+						"removeSkillType",
+						"manageSkillTypes"
+					]
+				},
+				{
+					"name": "getSkillTypes",
+					"description": "Get skill types"
+				},
+				{
+					"name": "createSkillType",
+					"description": "Create skill type"
+				},
+				{
+					"name": "updateSkillType",
+					"description": "Update skill type"
+				},
+				{
+					"name": "removeSkillType",
+					"description": "Remove skill type"
+				}
+			]
+		},
+		"skills": {
+			"name": "skills",
+			"description": "Skills",
+			"actions": [
+				{
+					"name": "skillsAll",
+					"description": "All",
+					"use": [
+						"getSkill",
+						"getSkills",
+						"createSkill",
+						"updateSkill",
+						"removeSkill"
+					]
+				},
+				{
+					"name": "getSkill",
+					"description": "Get skill"
+				},
+				{
+					"name": "getSkills",
+					"description": "Get skills"
+				},
+				{
+					"name": "createSkill",
+					"description": "Create skill"
+				},
+				{
+					"name": "updateSkill",
+					"description": "Update skill"
+				},
+				{
+					"name": "removeSkill",
+					"description": "Remove skill"
+				}
+			]
+		},
+		"responseTemplates": {
+			"name": "responseTemplates",
+			"description": "Response templates",
+			"actions": [
+				{
+					"name": "responseTemplatesAll",
+					"description": "All",
+					"use": [
+						"manageResponseTemplate",
+						"showResponseTemplates"
+					]
+				},
+				{
+					"name": "manageResponseTemplate",
+					"description": "Manage response template"
+				},
+				{
+					"name": "showResponseTemplates",
+					"description": "Show response templates"
+				}
+			]
+		},
+		"channels": {
+			"name": "channels",
+			"description": "Channels",
+			"actions": [
+				{
+					"name": "channelsAll",
+					"description": "All",
+					"use": [
+						"showChannels",
+						"manageChannels",
+						"exportChannels"
+					]
+				},
+				{
+					"name": "manageChannels",
+					"description": "Manage channels"
+				},
+				{
+					"name": "showChannels",
+					"description": "Show channel"
+				},
+				{
+					"name": "exportChannels",
+					"description": "Export channels"
+				}
+			]
+		}
+	},
+	{
+		"deals": {
+			"name": "deals",
+			"description": "Deals",
+			"actions": [
+				{
+					"name": "dealsAll",
+					"description": "All",
+					"use": [
+						"showDeals",
+						"dealBoardsAdd",
+						"dealBoardsEdit",
+						"dealBoardsRemove",
+						"dealPipelinesAdd",
+						"dealPipelinesEdit",
+						"dealPipelinesUpdateOrder",
+						"dealPipelinesWatch",
+						"dealPipelinesRemove",
+						"dealPipelinesArchive",
+						"dealPipelinesCopied",
+						"dealStagesAdd",
+						"dealStagesEdit",
+						"dealStagesUpdateOrder",
+						"dealStagesRemove",
+						"dealsAdd",
+						"dealsEdit",
+						"dealsRemove",
+						"dealsWatch",
+						"dealsArchive",
+						"dealsSort",
+						"exportDeals",
+						"dealUpdateTimeTracking"
+					]
+				},
+				{
+					"name": "showDeals",
+					"description": "Show deals"
+				},
+				{
+					"name": "dealBoardsAdd",
+					"description": "Add deal board"
+				},
+				{
+					"name": "dealBoardsRemove",
+					"description": "Remove deal board"
+				},
+				{
+					"name": "dealPipelinesAdd",
+					"description": "Add deal pipeline"
+				},
+				{
+					"name": "dealPipelinesEdit",
+					"description": "Edit deal pipeline"
+				},
+				{
+					"name": "dealPipelinesRemove",
+					"description": "Remove deal pipeline"
+				},
+				{
+					"name": "dealPipelinesArchive",
+					"description": "Archive deal pipeline"
+				},
+				{
+					"name": "dealPipelinesCopied",
+					"description": "Duplicate deal pipeline"
+				},
+				{
+					"name": "dealPipelinesUpdateOrder",
+					"description": "Update pipeline order"
+				},
+				{
+					"name": "dealPipelinesWatch",
+					"description": "Deal pipeline watch"
+				},
+				{
+					"name": "dealStagesAdd",
+					"description": "Add deal stage"
+				},
+				{
+					"name": "dealStagesEdit",
+					"description": "Edit deal stage"
+				},
+				{
+					"name": "dealStagesUpdateOrder",
+					"description": "Update stage order"
+				},
+				{
+					"name": "dealStagesRemove",
+					"description": "Remove deal stage"
+				},
+				{
+					"name": "dealsAdd",
+					"description": "Add deal"
+				},
+				{
+					"name": "dealsEdit",
+					"description": "Edit deal"
+				},
+				{
+					"name": "dealsRemove",
+					"description": "Remove deal"
+				},
+				{
+					"name": "dealsWatch",
+					"description": "Watch deal"
+				},
+				{
+					"name": "dealsArchive",
+					"description": "Archive all deals in a specific stage"
+				},
+				{
+					"name": "dealsSort",
+					"description": "Sort all deals in a specific stage"
+				},
+				{
+					"name": "exportDeals",
+					"description": "Export deals"
+				},
+				{
+					"name": "dealUpdateTimeTracking",
+					"description": "Update time tracking"
+				}
+			]
+		},
+		"tickets": {
+			"name": "tickets",
+			"description": "Tickets",
+			"actions": [
+				{
+					"name": "ticketsAll",
+					"description": "All",
+					"use": [
+						"showTickets",
+						"ticketBoardsAdd",
+						"ticketBoardsEdit",
+						"ticketBoardsRemove",
+						"ticketPipelinesAdd",
+						"ticketPipelinesEdit",
+						"ticketPipelinesUpdateOrder",
+						"ticketPipelinesWatch",
+						"ticketPipelinesRemove",
+						"ticketPipelinesArchive",
+						"ticketPipelinesCopied",
+						"ticketStagesAdd",
+						"ticketStagesEdit",
+						"ticketStagesUpdateOrder",
+						"ticketStagesRemove",
+						"ticketsAdd",
+						"ticketsEdit",
+						"ticketsRemove",
+						"ticketsWatch",
+						"ticketsArchive",
+						"ticketsSort",
+						"exportTickets",
+						"ticketUpdateTimeTracking"
+					]
+				},
+				{
+					"name": "showTickets",
+					"description": "Show tickets"
+				},
+				{
+					"name": "ticketBoardsAdd",
+					"description": "Add ticket board"
+				},
+				{
+					"name": "ticketBoardsEdit",
+					"description": "Edit ticket board"
+				},
+				{
+					"name": "ticketBoardsRemove",
+					"description": "Remove ticket board"
+				},
+				{
+					"name": "ticketPipelinesAdd",
+					"description": "Add ticket pipeline"
+				},
+				{
+					"name": "ticketPipelinesEdit",
+					"description": "Edit ticket pipeline"
+				},
+				{
+					"name": "ticketPipelinesRemove",
+					"description": "Remove ticket pipeline"
+				},
+				{
+					"name": "ticketPipelinesArchive",
+					"description": "Archive ticket pipeline"
+				},
+				{
+					"name": "ticketPipelinesCopied",
+					"description": "Duplicate ticket pipeline"
+				},
+				{
+					"name": "ticketPipelinesWatch",
+					"description": "Ticket pipeline watch"
+				},
+				{
+					"name": "ticketPipelinesUpdateOrder",
+					"description": "Update pipeline order"
+				},
+				{
+					"name": "ticketStagesAdd",
+					"description": "Add ticket stage"
+				},
+				{
+					"name": "ticketStagesEdit",
+					"description": "Edit ticket stage"
+				},
+				{
+					"name": "ticketStagesUpdateOrder",
+					"description": "Update stage order"
+				},
+				{
+					"name": "ticketStagesRemove",
+					"description": "Remove ticket stage"
+				},
+				{
+					"name": "ticketsAdd",
+					"description": "Add ticket"
+				},
+				{
+					"name": "ticketsEdit",
+					"description": "Edit ticket"
+				},
+				{
+					"name": "ticketsRemove",
+					"description": "Remove ticket"
+				},
+				{
+					"name": "ticketsWatch",
+					"description": "Watch ticket"
+				},
+				{
+					"name": "ticketsArchive",
+					"description": "Archive all tickets in a specific stage"
+				},
+				{
+					"name": "ticketsSort",
+					"description": "Sort all tickets in a specific stage"
+				},
+				{
+					"name": "exportTickets",
+					"description": "Export tickets"
+				},
+				{
+					"name": "ticketUpdateTimeTracking",
+					"description": "Update time tracking"
+				}
+			]
+		},
+		"growthHacks": {
+			"name": "growthHacks",
+			"description": "Growth hacking",
+			"actions": [
+				{
+					"name": "growthHacksAll",
+					"description": "All",
+					"use": [
+						"showGrowthHacks",
+						"growthHackBoardsAdd",
+						"growthHackBoardsEdit",
+						"growthHackBoardsRemove",
+						"growthHackPipelinesAdd",
+						"growthHackPipelinesEdit",
+						"growthHackPipelinesUpdateOrder",
+						"growthHackPipelinesWatch",
+						"growthHackPipelinesRemove",
+						"growthHackPipelinesArchive",
+						"growthHackPipelinesCopied",
+						"growthHackStagesAdd",
+						"growthHackStagesEdit",
+						"growthHackStagesUpdateOrder",
+						"growthHackStagesRemove",
+						"growthHacksAdd",
+						"growthHacksEdit",
+						"growthHacksRemove",
+						"growthHacksWatch",
+						"growthHacksArchive",
+						"growthHacksSort",
+						"growthHackTemplatesAdd",
+						"growthHackTemplatesEdit",
+						"growthHackTemplatesRemove",
+						"growthHackTemplatesDuplicate",
+						"showGrowthHackTemplates"
+					]
+				},
+				{
+					"name": "showGrowthHacks",
+					"description": "Show growth hacks"
+				},
+				{
+					"name": "growthHackBoardsAdd",
+					"description": "Add growth hacking board"
+				},
+				{
+					"name": "growthHackBoardsRemove",
+					"description": "Remove growth hacking board"
+				},
+				{
+					"name": "growthHackPipelinesAdd",
+					"description": "Add growth hacking pipeline"
+				},
+				{
+					"name": "growthHackPipelinesEdit",
+					"description": "Edit growth hacking pipeline"
+				},
+				{
+					"name": "growthHackPipelinesRemove",
+					"description": "Remove growth hacking pipeline"
+				},
+				{
+					"name": "growthHackPipelinesArchive",
+					"description": "Archive growth hacking pipeline"
+				},
+				{
+					"name": "growthHackPipelinesCopied",
+					"description": "Copied growth hacking pipeline"
+				},
+				{
+					"name": "growthHackPipelinesWatch",
+					"description": "Growth hacking pipeline watch"
+				},
+				{
+					"name": "growthHackPipelinesUpdateOrder",
+					"description": "Update pipeline order"
+				},
+				{
+					"name": "growthHackStagesAdd",
+					"description": "Add growth hacking stage"
+				},
+				{
+					"name": "growthHackStagesEdit",
+					"description": "Edit growth hacking stage"
+				},
+				{
+					"name": "growthHackStagesUpdateOrder",
+					"description": "Update stage order"
+				},
+				{
+					"name": "growthHackStagesRemove",
+					"description": "Remove growth hacking stage"
+				},
+				{
+					"name": "growthHacksAdd",
+					"description": "Add growth hacking"
+				},
+				{
+					"name": "growthHacksEdit",
+					"description": "Edit growth hacking"
+				},
+				{
+					"name": "growthHacksRemove",
+					"description": "Remove growth hacking"
+				},
+				{
+					"name": "growthHacksWatch",
+					"description": "Watch growth hacking"
+				},
+				{
+					"name": "growthHacksArchive",
+					"description": "Archive all growth hacks in a specific stage"
+				},
+				{
+					"name": "growthHacksSort",
+					"description": "Sort all growth hacks in a specific stage"
+				},
+				{
+					"name": "growthHackTemplatesAdd",
+					"description": "Add growth hacking template"
+				},
+				{
+					"name": "growthHackTemplatesEdit",
+					"description": "Edit growth hacking template"
+				},
+				{
+					"name": "growthHackTemplatesRemove",
+					"description": "Remove growth hacking template"
+				},
+				{
+					"name": "growthHackTemplatesDuplicate",
+					"description": "Duplicate growth hacking template"
+				},
+				{
+					"name": "showGrowthHackTemplates",
+					"description": "Show growth hacking template"
+				}
+			]
+		},
+		"tasks": {
+			"name": "tasks",
+			"description": "Tasks",
+			"actions": [
+				{
+					"name": "tasksAll",
+					"description": "All",
+					"use": [
+						"showTasks",
+						"taskBoardsAdd",
+						"taskBoardsEdit",
+						"taskBoardsRemove",
+						"taskPipelinesAdd",
+						"taskPipelinesEdit",
+						"taskPipelinesUpdateOrder",
+						"taskPipelinesWatch",
+						"taskPipelinesRemove",
+						"taskPipelinesArchive",
+						"taskPipelinesCopied",
+						"taskStagesAdd",
+						"taskStagesEdit",
+						"taskStagesUpdateOrder",
+						"taskStagesRemove",
+						"tasksAdd",
+						"tasksEdit",
+						"tasksRemove",
+						"tasksWatch",
+						"tasksArchive",
+						"tasksSort",
+						"taskUpdateTimeTracking",
+						"exportTasks"
+					]
+				},
+				{
+					"name": "showTasks",
+					"description": "Show tasks"
+				},
+				{
+					"name": "taskBoardsAdd",
+					"description": "Add task board"
+				},
+				{
+					"name": "taskBoardsRemove",
+					"description": "Remove task board"
+				},
+				{
+					"name": "taskPipelinesAdd",
+					"description": "Add task pipeline"
+				},
+				{
+					"name": "taskPipelinesEdit",
+					"description": "Edit task pipeline"
+				},
+				{
+					"name": "taskPipelinesRemove",
+					"description": "Remove task pipeline"
+				},
+				{
+					"name": "taskPipelinesArchive",
+					"description": "Archive task pipeline"
+				},
+				{
+					"name": "taskPipelinesCopied",
+					"description": "Duplicate task pipeline"
+				},
+				{
+					"name": "taskPipelinesWatch",
+					"description": "Task pipeline watch"
+				},
+				{
+					"name": "taskPipelinesUpdateOrder",
+					"description": "Update pipeline order"
+				},
+				{
+					"name": "taskStagesAdd",
+					"description": "Add task stage"
+				},
+				{
+					"name": "taskStagesEdit",
+					"description": "Edit task stage"
+				},
+				{
+					"name": "taskStagesUpdateOrder",
+					"description": "Update stage order"
+				},
+				{
+					"name": "taskStagesRemove",
+					"description": "Remove task stage"
+				},
+				{
+					"name": "tasksAdd",
+					"description": "Add task"
+				},
+				{
+					"name": "tasksEdit",
+					"description": "Edit task"
+				},
+				{
+					"name": "tasksRemove",
+					"description": "Remove task"
+				},
+				{
+					"name": "tasksWatch",
+					"description": "Watch task"
+				},
+				{
+					"name": "tasksArchive",
+					"description": "Archive all tasks in a specific stage"
+				},
+				{
+					"name": "tasksSort",
+					"description": "Sort all tasks in a specific stage"
+				},
+				{
+					"name": "taskUpdateTimeTracking",
+					"description": "Update time tracking"
+				},
+				{
+					"name": "exportTasks",
+					"description": "Export tasks"
+				}
+			]
+		}
+	},
+	{
+		"companies": {
+			"name": "companies",
+			"description": "Companies",
+			"actions": [
+				{
+					"name": "companiesAll",
+					"description": "All",
+					"use": [
+						"companiesAdd",
+						"companiesEdit",
+						"companiesRemove",
+						"companiesMerge",
+						"showCompanies",
+						"showCompaniesMain",
+						"exportCompanies"
+					]
+				},
+				{
+					"name": "companiesAdd",
+					"description": "Add companies"
+				},
+				{
+					"name": "companiesEdit",
+					"description": "Edit companies"
+				},
+				{
+					"name": "companiesRemove",
+					"description": "Remove companies"
+				},
+				{
+					"name": "companiesMerge",
+					"description": "Merge companies"
+				},
+				{
+					"name": "showCompanies",
+					"description": "Show companies"
+				},
+				{
+					"name": "showCompaniesMain",
+					"description": "Show companies main"
+				},
+				{
+					"name": "exportCompanies",
+					"description": "Export companies to xls file"
+				}
+			]
+		},
+		"customers": {
+			"name": "customers",
+			"description": "Customers",
+			"actions": [
+				{
+					"name": "customersAll",
+					"description": "All",
+					"use": [
+						"showCustomers",
+						"customersAdd",
+						"customersEdit",
+						"customersMerge",
+						"customersRemove",
+						"exportCustomers",
+						"customersChangeState"
+					]
+				},
+				{
+					"name": "exportCustomers",
+					"description": "Export customers"
+				},
+				{
+					"name": "showCustomers",
+					"description": "Show customers"
+				},
+				{
+					"name": "customersAdd",
+					"description": "Add customer"
+				},
+				{
+					"name": "customersEdit",
+					"description": "Edit customer"
+				},
+				{
+					"name": "customersMerge",
+					"description": "Merge customers"
+				},
+				{
+					"name": "customersRemove",
+					"description": "Remove customers"
+				},
+				{
+					"name": "customersChangeState",
+					"description": "Change customer state"
+				}
+			]
+		}
+	},
+	{
+		"products": {
+			"name": "products",
+			"description": "Products",
+			"actions": [
+				{
+					"name": "productsAll",
+					"description": "All",
+					"use": [
+						"showProducts",
+						"manageProducts",
+						"productsMerge"
+					]
+				},
+				{
+					"name": "manageProducts",
+					"description": "Manage products",
+					"use": [
+						"showProducts"
+					]
+				},
+				{
+					"name": "showProducts",
+					"description": "Show products"
+				},
+				{
+					"name": "productsMerge",
+					"description": "Merge products"
+				}
+			]
+		}
+	},
+	{
+		"forms": {
+			"name": "forms",
+			"description": "Form",
+			"actions": [
+				{
+					"name": "formsAll",
+					"description": "All",
+					"use": [
+						"showForms",
+						"manageForms"
+					]
+				},
+				{
+					"name": "manageForms",
+					"description": "Manage forms"
+				},
+				{
+					"name": "showForms",
+					"description": "Show forms"
+				}
+			]
+		}
+	},
+	{
+		"segments": {
+			"name": "segments",
+			"description": "Segments",
+			"actions": [
+				{
+					"name": "segmentsAll",
+					"description": "All",
+					"use": [
+						"showSegments",
+						"manageSegments"
+					]
+				},
+				{
+					"name": "manageSegments",
+					"description": "Manage segments"
+				},
+				{
+					"name": "showSegments",
+					"description": "Show segments list"
+				}
+			]
+		}
+	},
+	{
+		"exm": {
+			"name": "exm",
+			"description": "Exm core",
+			"actions": [
+				{
+					"name": "showExms",
+					"description": "Show exm"
+				},
+				{
+					"name": "manageExms",
+					"description": "Manage exm"
+				},
+				{
+					"name": "exmsAll",
+					"description": "All",
+					"use": [
+						"showExms",
+						"manageExms"
+					]
+				}
+			]
+		}
+	},
+	{
+		"engages": {
+			"name": "exmfeed",
+			"description": "Exm feed",
+			"actions": [
+				{
+					"name": "showExmActivityFeed",
+					"description": "Show exm activity feed"
+				},
+				{
+					"name": "manageExmActivityFeed",
+					"description": "Manage exm activity feed"
+				},
+				{
+					"name": "exmActivityFeedAll",
+					"description": "All",
+					"use": [
+						"showExmActivityFeed",
+						"manageExmActivityFeed"
+					]
+				}
+			]
+		}
+	},
+	{
+		"chats": {
+			"name": "chats",
+			"description": "Chats",
+			"actions": [
+				{
+					"name": "chatsAll",
+					"description": "All",
+					"use": [
+						"showChats",
+						"manageChats"
+					]
+				},
+				{
+					"name": "showChats",
+					"description": "Show chats"
+				},
+				{
+					"name": "manageChats",
+					"description": "Manage Chats"
+				}
+			]
+		}
+	},
+	{
+		"logs": {
+			"name": "logs",
+			"description": "Logs",
+			"actions": [
+				{
+					"name": "viewLogs",
+					"description": "View logs"
+				}
+			]
+		}
+	},
+	{
+		"clientPortal": {
+			"name": "clientPortal",
+			"description": "Client portal",
+			"actions": [
+				{
+					"name": "manageClientPortal",
+					"description": "Manage client portal"
+				}
+			]
+		}
+	},
+	{
+		"knowledgeBase": {
+			"name": "knowledgeBase",
+			"description": "KnowledgeBase",
+			"actions": [
+				{
+					"name": "knowledgeBaseAll",
+					"description": "All",
+					"use": [
+						"showKnowledgeBase",
+						"manageKnowledgeBase"
+					]
+				},
+				{
+					"name": "manageKnowledgeBase",
+					"description": "Manage knowledge base"
+				},
+				{
+					"name": "showKnowledgeBase",
+					"description": "Show knowledge base"
+				}
+			]
+		}
+	},
+	{
+		"automations": {
+			"name": "automations",
+			"description": "Automations",
+			"actions": [
+				{
+					"name": "automationAll",
+					"description": "All",
+					"use": [
+						"showAutomations",
+						"automationsAdd",
+						"automationsEdit",
+						"automationsRemove"
+					]
+				},
+				{
+					"name": "showAutomations",
+					"description": "Show automations"
+				},
+				{
+					"name": "automationsAdd",
+					"description": "Add automations"
+				},
+				{
+					"name": "automationsEdit",
+					"description": "Edit automations"
+				},
+				{
+					"name": "automationsRemove",
+					"description": "Remove automations"
+				}
+			]
+		}
+	},
+	{
+		"engages": {
+			"name": "engages",
+			"description": "Campaigns",
+			"actions": [
+				{
+					"name": "engagesAll",
+					"description": "All",
+					"use": [
+						"engageMessageSetLiveManual",
+						"engageMessageSetPause",
+						"engageMessageSetLive",
+						"showEngagesMessages",
+						"engageMessageAdd",
+						"engageMessageEdit",
+						"engageMessageRemove"
+					]
+				},
+				{
+					"name": "engageMessageSetLive",
+					"description": "Set an auto campaign live"
+				},
+				{
+					"name": "engageMessageSetPause",
+					"description": "Pause a campaign"
+				},
+				{
+					"name": "engageMessageSetLiveManual",
+					"description": "Set a manual campaign live"
+				},
+				{
+					"name": "engageMessageRemove",
+					"description": "Remove a campaign"
+				},
+				{
+					"name": "engageMessageEdit",
+					"description": "Edit a campaign"
+				},
+				{
+					"name": "engageMessageAdd",
+					"description": "Add a campaign"
+				},
+				{
+					"name": "showEngagesMessages",
+					"description": "See campaign list"
+				}
+			]
+		}
+	},
+	{
+		"dashboards": {
+			"name": "dashboards",
+			"description": "Dashboards",
+			"actions": [
+				{
+					"name": "dashboardsAll",
+					"description": "All",
+					"use": [
+						"showDashboards",
+						"dashboardAdd",
+						"dashboardEdit",
+						"dashboardRemove",
+						"dashboardItemAdd",
+						"dashboardItemEdit",
+						"dashboardItemRemove"
+					]
+				},
+				{
+					"name": "dashboardAdd",
+					"description": "Add dashboard"
+				},
+				{
+					"name": "dashboardEdit",
+					"description": "Edit dashboard"
+				},
+				{
+					"name": "dashboardRemove",
+					"description": "Remove dashboard"
+				},
+				{
+					"name": "dashboardItemAdd",
+					"description": "Add dashboard item"
+				},
+				{
+					"name": "dashboardItemEdit",
+					"description": "Edit dashboard item"
+				},
+				{
+					"name": "dashboardItemRemove",
+					"description": "Remove dashboard item"
+				},
+				{
+					"name": "showDashboards",
+					"description": "Show dashboards"
+				}
+			]
+		}
+	},
+	{
+		"emailTemplates": {
+			"name": "emailTemplates",
+			"description": "Email template",
+			"actions": [
+				{
+					"name": "emailTemplateAll",
+					"description": "All",
+					"use": [
+						"showEmailTemplates",
+						"manageEmailTemplate"
+					]
+				},
+				{
+					"name": "manageEmailTemplate",
+					"description": "Manage email template"
+				},
+				{
+					"name": "showEmailTemplates",
+					"description": "Show email templates"
+				}
+			]
+		}
+	},
+	{
+		"loyalties": {
+			"name": "loyalties",
+			"description": "Loyalties",
+			"actions": [
+				{
+					"name": "loyaltyAll",
+					"description": "All",
+					"use": [
+						"showLoyalties",
+						"manageLoyalties"
+					]
+				},
+				{
+					"name": "showLoyalties",
+					"description": "Show loyalties"
+				},
+				{
+					"name": "manageLoyalties",
+					"description": "Manage loyalties"
+				}
+			]
+		}
+	}
+]

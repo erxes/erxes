@@ -1,0 +1,23 @@
+.skill-content {
+  transition: transform .3s;
+  margin: -5px 0;
+  text-align: right;
+}
+
+.skill-card {
+  margin: 5px 0;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  display: inline-block;
+  text-align: center;
+  line-height: 18px;
+  white-space: nowrap;
+  font-size: 14px;
+  border-radius: 20px;
+  box-shadow: 0 1px 5px 1px rgba($black, .1);
+
+  &:hover {
+    cursor: pointer;
+    box-shadow: 0 1px 10px 2px rgba($black, .15);
+    opacity: 0.9;
+  }
+}

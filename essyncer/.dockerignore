@@ -1,0 +1,10 @@
+*.md
+*.yml
+.env*
+.git*
+.prettierrc
+.snyk
+Dockerfile*
+google_cred.json.sample
+scripts
+*.tar.gz

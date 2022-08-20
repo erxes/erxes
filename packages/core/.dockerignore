@@ -1,0 +1,17 @@
+*.md
+*.yml
+*.yaml
+.env*
+.git*
+.prettierrc
+.snyk
+Dockerfile*
+google_cred.json.sample
+scripts
+*.tar.gz
+automations
+elkSyncer
+email-verifier
+logger
+engages-email-sender
+dashboard

@@ -1,0 +1,14 @@
+{
+  "name": "@erxes/plugin-cards-api",
+  "version": "1.0.0",
+  "scripts": {
+    "install-deps": "cd .erxes && yarn install",
+    "dev": "DEBUG=erxes* cd .erxes && yarn dev",
+    "build": "cd .erxes && yarn build",
+    "start": "cd .erxes/dist/plugin-cards-api/.erxes && node src"
+  },
+  "dependencies": {
+    "server-timing": "3.3.1",
+    "xlsx-populate": "^1.20.1"
+  }
+}

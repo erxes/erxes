@@ -1,0 +1,14 @@
+@media screen and (max-width: 992px) {
+    #root {
+      font-size: 8px;
+    }
+  }
+
+  @media only screen and (max-width: 768px) {
+    #root {
+        font-size: 7px;
+      }
+    .slider{
+        width:100%;
+    }
+}

@@ -1,0 +1,21 @@
+@import '../../sass/variables';
+@import '../../sass/mixin';
+
+@import '../..//sass/base/base';
+
+@import '../../sass/components/launcher';
+@import '../../sass/components/topbar';
+@import '../../sass/components/faq-icons';
+
+@import 'components/topbar';
+@import 'components/home';
+@import 'components/messenger';
+@import 'components/conversations';
+@import 'components/messages';
+@import 'components/faq';
+@import 'components/lead';
+@import 'components/message-sender';
+@import 'components/notification';
+@import 'components/bot';
+@import 'components/skill';
+@import 'components/modal';
