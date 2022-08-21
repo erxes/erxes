@@ -1,7 +1,6 @@
-// const CubejsServer = require('@cubejs-backend/server');
-// const dotenv = require('dotenv');
-// const jwt = require('jsonwebtoken');
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import * as dotenv from 'dotenv';
+import * as jwt from 'jsonwebtoken';
+import { CubejsServer } from '@cubejs-backend/server';
 
 dotenv.config();
 
@@ -11,17 +10,14 @@ const server = new CubejsServer({});
 
 server
   .listen()
-  .then(({ app, port }) => {
-    app.get('/get-token', (_req, res) => {
+  .then(async ({ app, port }) => {
+    app.get('/get-token', async (_req, res) => {
       const dashboardToken = jwt.sign({}, CUBEJS_API_SECRET || 'secret', {
         expiresIn: '10day'
       });
-      const aa = getServices();
-
-      console.log(aa);
 
       return res.send({
-        dashboardToken: dashboardToken
+        dashboardToken
       });
     });
 
