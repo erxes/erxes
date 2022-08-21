@@ -39,6 +39,7 @@ type Props = {
   cubejsApi?: any;
   save: (params: { _id?: string; name: string; vizState: string }) => void;
   toggleDrawer: () => void;
+  schemaTypes: string[];
 };
 
 type State = {
@@ -98,16 +99,22 @@ class ChartForm extends React.Component<Props, State> {
       _id: item ? item._id : '',
       name,
       vizState,
-
       type
     };
 
     this.props.save(doc);
   };
 
+  setType = type => {
+    this.setVizState({
+      query: { dimensions: [], measures: [], timeDimensions: [] }
+    });
+    this.setState({ type });
+  };
+
   render() {
-    const { cubejsApi } = this.props;
-    const { vizState, name } = this.state;
+    const { cubejsApi, schemaTypes } = this.props;
+    const { vizState, name, type } = this.state;
 
     return (
       <QueryBuilder
@@ -144,9 +151,9 @@ class ChartForm extends React.Component<Props, State> {
                     <ControlLabel>Chart type</ControlLabel>
 
                     <Select
-                      options={CHART_TYPES.map(type => ({
-                        label: type.title,
-                        value: type.name
+                      options={CHART_TYPES.map(chartTypeValue => ({
+                        label: chartTypeValue.title,
+                        value: chartTypeValue.name
                       }))}
                       value={chartType}
                       onChange={m => updateChartType(m.value)}
@@ -200,22 +207,48 @@ class ChartForm extends React.Component<Props, State> {
                           value={name}
                         />
                       </FormGroup>
+                      <FormGroup>
+                        <ControlLabel required={true}>
+                          {__('Type')}
+                        </ControlLabel>
+
+                        <FormControl
+                          componentClass="select"
+                          value={type}
+                          onChange={(e: any) => this.setType(e.target.value)}
+                        >
+                          <option key={''} value={''}>
+                            {'Select Type'}
+                          </option>
+                          {schemaTypes.map(schemaType => {
+                            return (
+                              <option key={Math.random()} value={schemaType}>
+                                {schemaType}
+                              </option>
+                            );
+                          })}
+                        </FormControl>
+                      </FormGroup>
                       <MeasureForm
+                        schemaType={type}
                         measures={measures}
                         availableMeasures={availableMeasures}
                         updateMeasures={updateMeasures}
                       />
                       <DimensionForm
+                        schemaType={type}
                         dimensions={dimensions}
                         availableDimensions={availableDimensions}
                         updateDimensions={updateDimensions}
                       />
                       <TimeForm
+                        schemaType={type}
                         timeDimensions={timeDimensions}
                         updateTimeDimensions={updateTimeDimensions}
                         availableTimeDimensions={availableTimeDimensions}
                       />
                       <FilterForm
+                        schemaType={type}
                         filters={filters}
                         availableDimensions={availableDimensions}
                         updateFilters={updateFilters}

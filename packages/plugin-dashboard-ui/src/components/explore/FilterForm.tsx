@@ -12,13 +12,19 @@ type Props = {
   updateFilters: any;
   availableDimensions: any[];
   filters: any;
+  schemaType: string;
 };
 
 type State = {};
 
 class FilterForm extends React.Component<Props, State> {
   render() {
-    const { filters, availableDimensions, updateFilters } = this.props;
+    const {
+      filters,
+      availableDimensions,
+      updateFilters,
+      schemaType
+    } = this.props;
 
     const onChangeFilterDimension = (filterIndex, m) => {
       const filter = filters[filterIndex];
@@ -83,6 +89,25 @@ class FilterForm extends React.Component<Props, State> {
       });
     };
 
+    const generateOptions = () => {
+      const members = availableDimensions;
+
+      const options = [] as any;
+
+      members.map(member => {
+        const name = member.name;
+
+        if (name.startsWith(schemaType)) {
+          options.push({
+            label: member.title,
+            value: JSON.stringify(member)
+          });
+        }
+      });
+
+      return options;
+    };
+
     return (
       <FormGroup>
         <ControlLabel>Filter</ControlLabel>
@@ -92,10 +117,7 @@ class FilterForm extends React.Component<Props, State> {
             <>
               <FormGroup key={Math.random()}>
                 <Select
-                  options={availableDimensions.map(availableDimension => ({
-                    label: availableDimension.title,
-                    value: JSON.stringify(availableDimension)
-                  }))}
+                  options={generateOptions()}
                   value={renderFilterDimensionValue(filter.index)}
                   onChange={m => onChangeFilterDimension(filter.index, m)}
                   placeholder={__('Choose Dimension')}
@@ -131,10 +153,7 @@ class FilterForm extends React.Component<Props, State> {
         })}
 
         <Select
-          options={availableDimensions.map(availableDimension => ({
-            label: availableDimension.title,
-            value: JSON.stringify(availableDimension)
-          }))}
+          options={generateOptions()}
           value={''}
           onChange={m => onChangeFilterDimension(100, m)}
           placeholder={__(`Choose Dimension`)}

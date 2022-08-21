@@ -25,11 +25,13 @@
 //   dynamicCubes.forEach(dynamicCube => {
 //     const dimensions = transformDimensions(dynamicCube.dimensions);
 //     const measures = transformMeasures(dynamicCube.measures);
+//     console.log(dynamicCube.joins);
 
 //     cube(dynamicCube.title, {
 //       sql: dynamicCube.sql,
 //       dimensions,
 //       measures,
+//       joins: dynamicCube.joins,
 //       dataSource: `default`
 //     });
 //   });

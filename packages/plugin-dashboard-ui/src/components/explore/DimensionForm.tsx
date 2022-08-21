@@ -7,13 +7,19 @@ type Props = {
   updateDimensions: any;
   availableDimensions: any[];
   dimensions: any;
+  schemaType: string;
 };
 
 type State = {};
 
 class DimensionForm extends React.Component<Props, State> {
   render() {
-    const { dimensions, availableDimensions, updateDimensions } = this.props;
+    const {
+      dimensions,
+      availableDimensions,
+      updateDimensions,
+      schemaType
+    } = this.props;
 
     const onChangeMeasure = (index, m) => {
       const dimension = dimensions[index];
@@ -40,6 +46,25 @@ class DimensionForm extends React.Component<Props, State> {
       }
     };
 
+    const generateOptions = () => {
+      const members = availableDimensions;
+
+      const options = [] as any;
+
+      members.map(member => {
+        const name = member.name;
+
+        if (name.startsWith(schemaType)) {
+          options.push({
+            label: member.title,
+            value: JSON.stringify(member)
+          });
+        }
+      });
+
+      return options;
+    };
+
     return (
       <FormGroup>
         <ControlLabel>Dimensions</ControlLabel>
@@ -47,10 +72,7 @@ class DimensionForm extends React.Component<Props, State> {
           return (
             <FormGroup key={Math.random()}>
               <Select
-                options={availableDimensions.map(availableMeasure => ({
-                  label: availableMeasure.title,
-                  value: JSON.stringify(availableMeasure)
-                }))}
+                options={generateOptions()}
                 value={renderMeasureValue(dimension.index)}
                 onChange={m => onChangeMeasure(dimension.index, m)}
                 placeholder={__('Choose dimension')}
@@ -60,10 +82,7 @@ class DimensionForm extends React.Component<Props, State> {
         })}
 
         <Select
-          options={availableDimensions.map(availableMeasure => ({
-            label: availableMeasure.title,
-            value: JSON.stringify(availableMeasure)
-          }))}
+          options={generateOptions()}
           value={''}
           onChange={m => onChangeMeasure(100, m)}
           placeholder={__(`Choose Measure`)}

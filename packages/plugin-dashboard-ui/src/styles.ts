@@ -401,7 +401,34 @@ const ActionFooter = styled.div`
   bottom: ${dimensions.coreSpacing}px;
 `;
 
+const Number = styled.div`
+  display: flex;
+  justify-content: center;
+  font-size: 50px;
+  height: 100%;
+  align-items: center;
+`;
+
+const ChartItem = styled.div`
+  overflow-y: auto;
+  height: 100%;
+  width: 100%;
+  display: block;
+`;
+
+const ChartTitle = styled.div`
+  &:first-child {
+    margin-left: auto;
+  }
+  span {
+    margin-left: auto;
+  }
+`;
+
 export {
+  ChartTitle,
+  ChartItem,
+  Number,
   ActionFooter,
   CenterBar,
   ToggleWrapper,

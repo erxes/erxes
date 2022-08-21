@@ -74,6 +74,12 @@ export type DashboardItemsQueryResponse = {
   refetch: () => void;
 };
 
+export type DashboardGetTypesQueryResponse = {
+  dashboardGetTypes: string[];
+  loading: boolean;
+  refetch: () => void;
+};
+
 export type DashboardItemDetailsQueryResponse = {
   dashboardItem: IDashboardItem;
   loading: boolean;

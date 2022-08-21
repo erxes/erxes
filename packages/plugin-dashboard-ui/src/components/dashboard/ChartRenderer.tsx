@@ -1,6 +1,5 @@
 import { useCubeQuery } from '@cubejs-client/react';
 import dayjs from 'dayjs';
-import numeral from 'numeral';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import {
@@ -21,8 +20,8 @@ import {
   YAxis
 } from 'recharts';
 import { chartColors } from '../../constants';
-import { validateQuery } from '@cubejs-client/core';
 import Table from '@erxes/ui/src/components/table';
+import { ChartItem, Number } from '../../styles';
 
 type Props = {
   query?: any;
@@ -212,26 +211,30 @@ const TypeToChartComponent = {
     };
 
     return (
-      <Table whiteSpace="nowrap" hover={true} responsive={true}>
-        <thead>
-          <tr>
-            {columns.map(column => {
-              return <th key={Math.random()}>{column}</th>;
+      <ChartItem>
+        <Table whiteSpace="nowrap" hover={true} responsive={true}>
+          <thead>
+            <tr>
+              {columns.map(column => {
+                return <th key={Math.random()}>{column}</th>;
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {rowValues.map(rowValue => {
+              return (
+                <tr key={Math.random()}>
+                  {Object.values(rowValue).map(value => {
+                    return (
+                      <td key={Math.random()}>{renderTableValue(value)}</td>
+                    );
+                  })}
+                </tr>
+              );
             })}
-          </tr>
-        </thead>
-        <tbody>
-          {rowValues.map(rowValue => {
-            return (
-              <tr key={Math.random()}>
-                {Object.values(rowValue).map(value => {
-                  return <td key={Math.random()}>{renderTableValue(value)}</td>;
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </Table>
+          </tbody>
+        </Table>
+      </ChartItem>
     );
   },
 
@@ -244,7 +247,7 @@ const TypeToChartComponent = {
       result = result[s.key];
     });
 
-    return <div>{result}</div>;
+    return <Number>{result}</Number>;
   }
 };
 const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)

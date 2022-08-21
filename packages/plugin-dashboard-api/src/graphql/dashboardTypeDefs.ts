@@ -59,6 +59,7 @@ export const queries = `
   dashboardsTotalCount: Int
   dashboardItems(dashboardId: String!): [DashboardItem]
   dashboardItemDetail(_id: String!): DashboardItem
+  dashboardGetTypes: [String]
 `;
 
 export const mutations = `

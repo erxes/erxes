@@ -11,9 +11,11 @@
   "dependencies": {
     "@cubejs-backend/mongobi-driver": "^0.30.25",
     "@cubejs-backend/server": "^0.30.28",
+    "@cubejs-backend/server-core": "^0.30.55",
     "@cubejs-client/core": "^0.30.29",
-    "ts-node": "^10.4.0",
+    "express": "^4.18.1",
     "jsonwebtoken": "^8.5.1",
-    "sqlstring": "^2.3.2"
+    "sqlstring": "^2.3.2",
+    "ts-node": "^10.4.0"
   }
 }

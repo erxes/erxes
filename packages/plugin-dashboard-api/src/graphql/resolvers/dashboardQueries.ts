@@ -1,5 +1,6 @@
 import { paginate } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
+import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
 
 interface IListArgs {
@@ -77,6 +78,24 @@ const dashBoardQueries = {
 
   dashboardsTotalCount(_root, args, { models }: IContext) {
     return models.Dashboards.find({}).countDocuments();
+  },
+
+  async dashboardGetTypes() {
+    const services = await serviceDiscovery.getServices();
+    let dashboardTypes: string[] = [];
+
+    for (const serviceName of services) {
+      const service = await serviceDiscovery.getService(serviceName, true);
+      const meta = service.config?.meta || {};
+
+      if (meta && meta.dashboards) {
+        const types = meta.dashboards.types || [];
+
+        dashboardTypes = [...dashboardTypes, ...types];
+      }
+    }
+
+    return dashboardTypes;
   },
 
   async dashboardItems(

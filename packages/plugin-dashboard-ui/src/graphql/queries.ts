@@ -140,11 +140,18 @@ const dashboardItemDetail = `
   }
 `;
 
+const dashboardGetTypes = `
+   query dashboardGetTypes {
+     dashboardGetTypes
+   }
+`;
+
 export default {
   dashboardItemDetail,
   dashboardItems,
   dashboardsMain,
   totalCount,
   dashboards,
-  dashboardDetails
+  dashboardDetails,
+  dashboardGetTypes
 };

@@ -12,7 +12,8 @@ import {
   ActionBarButtonsWrapper,
   DragField,
   CenterBar,
-  SelectMemberStyled
+  SelectMemberStyled,
+  ChartTitle
 } from '../../styles';
 import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
@@ -313,15 +314,16 @@ class Dashboard extends React.Component<Props, State> {
       if (item.layout) {
         return (
           <div key={item._id} data-grid={defaultLayout(item)}>
-            <div>
+            <ChartTitle>
               {item.name}
+
               <span onClick={this.editDashboardItem.bind(this, item)}>
                 edit
               </span>
               <span onClick={this.removeDashboardItem.bind(this, item._id)}>
                 delete
               </span>
-            </div>
+            </ChartTitle>
             <DashboardItem item={item} />
           </div>
         );

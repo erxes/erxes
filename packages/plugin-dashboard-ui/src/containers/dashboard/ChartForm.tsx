@@ -2,13 +2,11 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-import {
-  IDashboardItem,
-  RemoveDashboardItemMutationResponse
-} from '../../types';
+import { DashboardGetTypesQueryResponse, IDashboardItem } from '../../types';
 import { graphql } from 'react-apollo';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import ChartForm from '../../components/explore/ChartForm';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   showDrawer: boolean;
@@ -21,6 +19,7 @@ type Props = {
 type FinalProps = {
   addDashboardItemMutation: (params) => Promise<void>;
   editDashboardItemMutation: (params) => Promise<void>;
+  dashboardGetTypesQuery: DashboardGetTypesQueryResponse;
 } & Props;
 
 type State = {
@@ -42,8 +41,15 @@ class ChartFormContainer extends React.Component<FinalProps, State> {
       item,
       cubejsApi,
       dashboardId,
-      toggleDrawer
+      toggleDrawer,
+      dashboardGetTypesQuery
     } = this.props;
+
+    if (dashboardGetTypesQuery && dashboardGetTypesQuery.loading) {
+      return <Spinner />;
+    }
+
+    const schemaTypes = dashboardGetTypesQuery.dashboardGetTypes || [];
 
     const save = params => {
       this.setState({ isLoading: true });
@@ -71,6 +77,7 @@ class ChartFormContainer extends React.Component<FinalProps, State> {
 
     return (
       <ChartForm
+        schemaTypes={schemaTypes}
         item={item}
         showDrawer={showDrawer}
         cubejsApi={cubejsApi}
@@ -82,6 +89,12 @@ class ChartFormContainer extends React.Component<FinalProps, State> {
 }
 
 export default compose(
+  graphql<Props, DashboardGetTypesQueryResponse, {}>(
+    gql(queries.dashboardGetTypes),
+    {
+      name: 'dashboardGetTypesQuery'
+    }
+  ),
   graphql(gql(mutations.dashboardItemsAdd), {
     name: 'addDashboardItemMutation',
     options: () => ({

@@ -13,6 +13,7 @@ type Props = {
   timeDimensions: any;
   availableTimeDimensions: any;
   updateTimeDimensions: any;
+  schemaType: string;
 };
 
 type State = {};
@@ -22,7 +23,8 @@ class TimeForm extends React.Component<Props, State> {
     const {
       timeDimensions,
       availableTimeDimensions,
-      updateTimeDimensions
+      updateTimeDimensions,
+      schemaType
     } = this.props;
 
     const onChangeTimeDimensions = (index, m) => {
@@ -71,6 +73,25 @@ class TimeForm extends React.Component<Props, State> {
       return value;
     };
 
+    const generateOptions = () => {
+      const members = availableTimeDimensions;
+
+      const options = [] as any;
+
+      members.map(member => {
+        const name = member.name;
+
+        if (name.startsWith(schemaType)) {
+          options.push({
+            label: member.title,
+            value: JSON.stringify(member)
+          });
+        }
+      });
+
+      return options;
+    };
+
     const renderTimeDimensionValue = index => {
       if (timeDimensions.length > 0) {
         if (timeDimensions[index]) {
@@ -87,11 +108,9 @@ class TimeForm extends React.Component<Props, State> {
     if (timeDimensions.length === 0) {
       return (
         <FormGroup key={Math.random()}>
+          <ControlLabel>Time</ControlLabel>
           <Select
-            options={availableTimeDimensions.map(availableTimeDimension => ({
-              label: availableTimeDimension.title,
-              value: JSON.stringify(availableTimeDimension)
-            }))}
+            options={generateOptions()}
             value={renderTimeDimensionValue(100)}
             onChange={value => onChangeTimeDimensions(100, value)}
             placeholder={__('Choose time dimension')}
@@ -157,12 +176,7 @@ class TimeForm extends React.Component<Props, State> {
             <>
               <FormGroup key={Math.random()}>
                 <Select
-                  options={availableTimeDimensions.map(
-                    availableTimeDimension => ({
-                      label: availableTimeDimension.title,
-                      value: JSON.stringify(availableTimeDimension)
-                    })
-                  )}
+                  options={generateOptions()}
                   value={renderTimeDimensionValue(timeDimension.index)}
                   onChange={value =>
                     onChangeTimeDimensions(timeDimension.index, value)

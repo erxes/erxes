@@ -15,7 +15,7 @@ export default {
       Conversations: {
         Customers: {
           relationship: `belongsTo`,
-          sql: `Customers.id = Conversations.id`
+          sql: `Customers.integrationId = Integration.id`
         }
       },
 
@@ -29,6 +29,17 @@ export default {
           sql: `status`,
           type: `string`
         },
+
+        integrationId: {
+          sql: `integrationId`,
+          type: `string`
+        },
+
+        integrationName: {
+          sql: '"Integrations"."name"',
+          type: 'string'
+        },
+
         createdat: {
           sql: `Customers.\`createdAt\``,
           type: `time`
@@ -36,14 +47,14 @@ export default {
       }
     },
     {
-      title: 'Conversations',
+      title: 'Integrations',
 
-      sql: `SELECT * FROM erxes.conversations`,
+      sql: `SELECT * FROM erxes.integrations`,
 
       joins: {
         Customers: {
           relationship: `belongsTo`,
-          sql: `Conversations.id = Customers.id`
+          sql: `Integration.id = Customers.integrationId`
         }
       },
 
@@ -59,15 +70,14 @@ export default {
           type: `string`,
           primaryKey: true
         },
-        Integration: {
-          sql: `integrationId`,
+
+        name: {
+          sql: `name`,
           type: `string`
-        },
-        createdat: {
-          sql: `Conversations.\`createdAt\``,
-          type: `time`
         }
       }
     }
-  ]
+  ],
+
+  types: ['Customers', 'Integrations']
 };
