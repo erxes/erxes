@@ -43,9 +43,9 @@ With erxes, achieving growth and unity within your company is possible. We desig
 
 ## Documentation
 
-- <a href="https://www.erxes.org/">erxes documentation</a> <br>
-- <a href="https://www.erxes.org/overview/getting-started">Install erxes</a> <br>
-- <a href="https://www.erxes.org/developer/contributing">Contributing to erxes</a> <br>
+- <a href="https://docs.erxes.io/">erxes documentation</a> <br>
+- <a href="https://docs.erxes.io/introduction/introduction">Install erxes</a> <br>
+- <a href="https://docs.erxes.io/contribute/overview">Contributing to erxes</a> <br>
 
 ## Deployment
 
