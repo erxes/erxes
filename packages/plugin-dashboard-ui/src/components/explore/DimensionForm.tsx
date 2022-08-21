@@ -9,9 +9,7 @@ type Props = {
   dimensions: any;
 };
 
-type State = {
-  vizState: any;
-};
+type State = {};
 
 class DimensionForm extends React.Component<Props, State> {
   render() {

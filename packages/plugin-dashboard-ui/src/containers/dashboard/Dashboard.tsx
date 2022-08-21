@@ -8,6 +8,8 @@ import {
   DashboardItemsQueryResponse,
   EditDashboardItemMutationResponse,
   EditDashboardItemMutationVariables,
+  EditDashboardMutationResponse,
+  IDashboard,
   RemoveDashboardItemMutationResponse,
   RemoveDashboardItemMutationVariables
 } from '../../types';
@@ -15,6 +17,7 @@ import {
 import Dashboard from '../../components/dashboard/Dashboard';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Alert from '@erxes/ui/src/utils/Alert';
+import { confirm } from '@erxes/ui/src/utils';
 
 type Props = {
   id: string;
@@ -28,7 +31,8 @@ type FinalProps = {
 } & Props &
   EditDashboardItemMutationResponse &
   RemoveDashboardItemMutationResponse &
-  DashboardDetailsQueryResponse;
+  DashboardDetailsQueryResponse &
+  EditDashboardMutationResponse;
 
 class DashboardContainer extends React.Component<FinalProps, {}> {
   render() {
@@ -39,7 +43,8 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
       removeDashboardItemMutation,
       queryParams,
       dashboardDetailsQuery,
-      history
+      history,
+      editDashboardMutation
     } = this.props;
 
     if (dashboardItemsQuery.loading || dashboardDetailsQuery.loading) {
@@ -58,14 +63,33 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
     };
 
     const removeDashboardItem = itemId => {
-      removeDashboardItemMutation({
+      confirm().then(() =>
+        removeDashboardItemMutation({
+          variables: {
+            _id: itemId
+          }
+        })
+          .then(() => {
+            dashboardItemsQuery.refetch();
+          })
+          .catch(error => {
+            Alert.error(error.message);
+          })
+      );
+    };
+
+    const save = (doc: IDashboard) => {
+      editDashboardMutation({
         variables: {
-          _id: itemId
+          ...doc
         }
       })
         .then(() => {
-          dashboardItemsQuery.refetch();
+          Alert.success(
+            `You successfully updated a ${doc.name || 'visibility'}`
+          );
         })
+
         .catch(error => {
           Alert.error(error.message);
         });
@@ -82,6 +106,7 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
         dashboardItems={dashboardItemsQuery.dashboardItems || []}
         dashboardId={id}
         history={history}
+        save={save}
       />
     );
   }
@@ -93,6 +118,7 @@ export default compose(
     {
       name: 'dashboardItemsQuery',
       options: ({ id }: { id: string }) => ({
+        fetchPolicy: 'network-only',
         variables: {
           dashboardId: id
         }
@@ -120,6 +146,13 @@ export default compose(
       refetchQueries: ['dashboardItemsQuery']
     })
   }),
+
+  graphql<{}, EditDashboardMutationResponse, IDashboard>(
+    gql(mutations.dashboardsEdit),
+    {
+      name: 'editDashboardMutation'
+    }
+  ),
 
   graphql<
     Props,

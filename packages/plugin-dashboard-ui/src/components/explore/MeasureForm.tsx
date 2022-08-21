@@ -9,9 +9,7 @@ type Props = {
   measures: any;
 };
 
-type State = {
-  vizState: any;
-};
+type State = {};
 
 class MeasureForm extends React.Component<Props, State> {
   render() {
@@ -41,9 +39,6 @@ class MeasureForm extends React.Component<Props, State> {
         return JSON.stringify(value);
       }
     };
-
-    if (measures.length === 0) {
-    }
 
     return (
       <FormGroup>

@@ -10,8 +10,10 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
 import {
+  AddDashboardMutationResponse,
   DashboardsMainQueryResponse,
   DashboardsTotalCountQueryResponse,
+  IDashboardDoc,
   ListQueryVariables,
   RemoveMutationResponse,
   RemoveMutationVariables
@@ -25,6 +27,7 @@ type FinalProps = {
   dashboardsMainQuery: DashboardsMainQueryResponse;
   dashboardsTotalCountQuery: DashboardsTotalCountQueryResponse;
 } & Props &
+  AddDashboardMutationResponse &
   IRouterProps &
   RemoveMutationResponse;
 
@@ -59,7 +62,9 @@ class ListContainer extends React.Component<FinalProps, State> {
     const {
       dashboardsMainQuery,
       dashboardsTotalCountQuery,
-      dashboardsRemove
+      dashboardsRemove,
+      addDashboardMutation,
+      history
     } = this.props;
 
     const counts = dashboardsTotalCountQuery
@@ -83,6 +88,26 @@ class ListContainer extends React.Component<FinalProps, State> {
       });
     };
 
+    const addDashboard = () => {
+      addDashboardMutation({
+        variables: {
+          name: 'Your dashboard title',
+          visibility: 'public',
+          selectedMemberIds: []
+        }
+      })
+        .then(data => {
+          history.push({
+            pathname: `/dashboards/details/${data.data.dashboardsAdd._id}`,
+            search: '?isCreate=true'
+          });
+        })
+
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
     const { list = [], totalCount = 0 } =
       dashboardsMainQuery.dashboardsMain || {};
@@ -95,7 +120,8 @@ class ListContainer extends React.Component<FinalProps, State> {
       dashboards: list,
       loading: dashboardsMainQuery.loading || this.state.loading,
       refetch: this.refetchWithDelay,
-      removeDashboards
+      removeDashboards,
+      addDashboard
     };
 
     const dashboardList = props => {
@@ -145,9 +171,21 @@ export default withProps<Props>(
         })
       }
     ),
+
+    graphql<{}, AddDashboardMutationResponse, IDashboardDoc>(
+      gql(mutations.dashboardsAdd),
+      {
+        name: 'addDashboardMutation',
+        options: () => ({
+          refetchQueries: ['dashboards', 'dashboardsMain']
+        })
+      }
+    ),
+
     graphql<Props, DashboardsTotalCountQueryResponse>(gql(queries.totalCount), {
       name: 'dashboardsTotalCountQuery'
     }),
+
     graphql<Props, RemoveMutationResponse, RemoveMutationVariables>(
       gql(mutations.dashboardsRemove),
       {

@@ -20,8 +20,14 @@ export default {
     );
   },
 
+  members(dashboard: IDashboardDocument) {
+    return (dashboard.selectedMemberIds || []).map(_id => ({
+      __typename: 'User',
+      _id
+    }));
+  },
+
   itemsCount(dashboard: IDashboardDocument, _args, { models }: IContext) {
-    console.log('aa');
     return models.DashboardItems.find({ dashboardId: dashboard._id }).count();
   }
 };

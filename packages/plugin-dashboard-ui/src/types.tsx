@@ -15,12 +15,9 @@ export interface IDashboard {
   name: string;
   visibility: string;
   selectedMemberIds?: string[];
-  description: string;
+  description?: string;
   parentId?: string;
   order?: string;
-  childsDashboard: [IDashboard];
-  dashboardCount: number;
-  relatedIds: string[];
   updatedAt?: Date;
   createdAt?: Date;
   updatedBy?: string;
@@ -28,7 +25,28 @@ export interface IDashboard {
   updatedUser?: IUser;
   createdUser?: IUser;
   itemsCount?: number;
+  members?: IUser[];
 }
+
+export interface IDashboardDoc {
+  name: string;
+  visibility: string;
+  selectedMemberIds?: string[];
+  updatedAt?: Date;
+  createdAt?: Date;
+  updatedBy?: string;
+  createdBy?: string;
+  updatedUser?: IUser;
+  createdUser?: IUser;
+}
+
+export type AddDashboardMutationResponse = {
+  addDashboardMutation: (params: { variables: IDashboardDoc }) => Promise<any>;
+};
+
+export type EditDashboardMutationResponse = {
+  editDashboardMutation: (params: { variables: IDashboard }) => Promise<any>;
+};
 
 export type DashboardsQueryResponse = {
   dashboards: IDashboard[];

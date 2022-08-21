@@ -8,6 +8,8 @@ export interface IDashboard {
   description?: string;
   parentId?: string;
   childsDashboard?: [IDashboard];
+  createdBy?: string;
+  updatedBy?: string;
 }
 
 export interface IDashboardItemInput {

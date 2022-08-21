@@ -22,8 +22,9 @@ export const types = `
 
     createdUser: User
     updatedUser: User
+    members: [User]
     itemsCount: Int
-  }
+  } 
 
   type DashboardItem {
     _id: String!
@@ -64,7 +65,7 @@ export const queries = `
 
 export const mutations = `
   dashboardsAdd(name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
-  dashboardsEdit(_id: String!, name: String!, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
+  dashboardsEdit(_id: String!, name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
   dashboardsRemove(dashboardIds: [String]): JSON
   dashboardItemsAdd(dashboardId: String, layout: String, vizState: String, name: String, type: String, isDateRange: Boolean): DashboardItem
   dashboardItemsEdit(_id: String!, dashboardId:String, layout: String, vizState: String, name: String, type: String): DashboardItem

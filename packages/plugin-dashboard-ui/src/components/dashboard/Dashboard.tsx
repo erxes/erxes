@@ -2,16 +2,19 @@ import { __ } from 'coreui/utils';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { IDashboard, IDashboardItem } from '../../types';
-import RTG from 'react-transition-group';
+
+import Modal from 'react-bootstrap/Modal';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import {
   BackButton,
   Title,
   DashboardFormContainer,
   ActionBarButtonsWrapper,
   DragField,
-  RightDrawerContainer
+  CenterBar,
+  SelectMemberStyled
 } from '../../styles';
-import { FormControl } from '@erxes/ui/src/components/form';
+import { ControlLabel, FormControl } from '@erxes/ui/src/components/form';
 import { BarItems, HeightedWrapper } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
@@ -20,7 +23,14 @@ import { Link } from 'react-router-dom';
 import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
 import DashboardItem from './DashboardItem';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
-import ChartFrom from '../explore/ChartForm';
+import { Alert } from '@erxes/ui/src/utils';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { Tabs, TabTitle } from '@erxes/ui/src/components/tabs';
+import Participators from './Participators';
+import { IUser } from '@erxes/ui/src/auth/types';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import Form from '@erxes/ui/src/components/form/Form';
+import ChartForm from '../../containers/dashboard/ChartForm';
 
 const deserializeItem = i => ({
   ...i,
@@ -42,7 +52,7 @@ type Props = {
   dashboardItems: IDashboardItem[];
   removeDashboardItem: (itemId: string) => void;
   editDashboardItem: (doc: { _id: string; layout: string }) => void;
-  save?: (params: any) => void;
+  save: (params: any) => void;
   saveLoading?: boolean;
   dashboardId: string;
   history: any;
@@ -54,6 +64,10 @@ type State = {
   name: string;
   showEdit: boolean;
   showDrawer: boolean;
+  isPublic: boolean;
+  showTeamMemberSelect: boolean;
+  selectedMemberIds: string[];
+  item?: IDashboardItem;
 };
 
 class Dashboard extends React.Component<Props, State> {
@@ -64,11 +78,16 @@ class Dashboard extends React.Component<Props, State> {
 
     const { dashboard } = this.props;
 
+    const visibility = dashboard ? dashboard.visibility : 'public';
+
     this.state = {
       isDragging: false,
       name: dashboard.name,
       showEdit: false,
-      showDrawer: false
+      showDrawer: false,
+      isPublic: visibility === 'public' ? true : false,
+      showTeamMemberSelect: false,
+      selectedMemberIds: dashboard.selectedMemberIds || []
     };
   }
 
@@ -101,41 +120,73 @@ class Dashboard extends React.Component<Props, State> {
     });
   };
 
-  // handleSubmit = () => {
-  //   const { name } = this.state;
-  //   const { dashboard, save } = this.props;
+  handleSubmit = () => {
+    const { name } = this.state;
+    const { dashboard, save } = this.props;
 
-  //   if (!name || name === 'Your dashboard title') {
-  //     return Alert.error('Enter an Automation title');
-  //   }
+    if (!name || name === 'Your dashboard title') {
+      return Alert.error('Enter an Dashboard title');
+    }
 
-  //   const generateValues = () => {
-  //     const finalValues = {
-  //       _id: dashboard._id,
-  //       name
-  //     };
+    const generateValues = () => {
+      const finalValues = {
+        _id: dashboard._id,
+        name
+      };
 
-  //     return finalValues;
-  //   };
+      return finalValues;
+    };
 
-  //   return save(generateValues());
-  // };
+    return save(generateValues());
+  };
 
   onNameChange = (e: React.FormEvent<HTMLElement>) => {
     const value = (e.currentTarget as HTMLButtonElement).value;
     this.setState({ name: value });
   };
 
+  switchVisiblitybarTab = visibility => {
+    const { dashboard, save } = this.props;
+
+    this.setState({ isPublic: visibility === 'public' ? true : false });
+
+    save({ _id: dashboard._id, visibility });
+  };
+
   rendeRightActionBar() {
+    const { isPublic } = this.state;
+
+    const { dashboard } = this.props;
+
+    const members = dashboard.members || ([] as IUser[]);
+
+    const onClickButton = () => {
+      this.setState({ showTeamMemberSelect: true });
+    };
+
     return (
       <BarItems>
+        {!isPublic ? (
+          <>
+            <Button
+              btnStyle="link"
+              size="small"
+              icon={'check-circle'}
+              onClick={onClickButton}
+            >
+              {__('Select  members')}
+            </Button>
+            <Participators participatedUsers={members} limit={100} />
+          </>
+        ) : null}
+
         <ActionBarButtonsWrapper>
           {this.renderButtons()}
           <Button
             btnStyle="success"
             size="small"
             icon={'check-circle'}
-            // onClick={this.handleSubmit}
+            onClick={this.handleSubmit}
           >
             {__('Save')}
           </Button>
@@ -145,7 +196,7 @@ class Dashboard extends React.Component<Props, State> {
   }
 
   renderLeftActionBar() {
-    const { name } = this.state;
+    const { name, isPublic } = this.state;
 
     return (
       <FlexContent>
@@ -164,11 +215,28 @@ class Dashboard extends React.Component<Props, State> {
           />
           <Icon icon="edit-alt" size={16} />
         </Title>
+
+        <CenterBar>
+          <Tabs full={true}>
+            <TabTitle
+              className={isPublic ? 'public' : ''}
+              onClick={this.switchVisiblitybarTab.bind(this, 'public')}
+            >
+              {__('Public')}
+            </TabTitle>
+            <TabTitle
+              className={isPublic ? '' : 'public'}
+              onClick={this.switchVisiblitybarTab.bind(this, 'private')}
+            >
+              {__('Private')}
+            </TabTitle>
+          </Tabs>
+        </CenterBar>
       </FlexContent>
     );
   }
 
-  toggleDrawer = (_type: string) => {
+  toggleDrawer = () => {
     const { showDrawer } = this.state;
 
     this.setState({ showDrawer: !showDrawer });
@@ -181,7 +249,7 @@ class Dashboard extends React.Component<Props, State> {
           btnStyle="primary"
           size="small"
           icon="plus-circle"
-          onClick={this.toggleDrawer.bind(this, 'triggers')}
+          onClick={this.toggleDrawer}
         >
           Add a chart
         </Button>
@@ -204,21 +272,56 @@ class Dashboard extends React.Component<Props, State> {
     return;
   };
 
-  onMouseOver = () => {
-    this.setState({ showEdit: true });
+  onChangeMembers = selectedMemberIds => {
+    this.setState({ selectedMemberIds });
   };
 
-  onMouseOut = () => {
-    this.setState({ showEdit: false });
+  onCancel = () => {
+    this.setState({ showTeamMemberSelect: false });
+  };
+
+  onConfirm = () => {
+    const { dashboard, save } = this.props;
+    const { selectedMemberIds } = this.state;
+
+    save({ _id: dashboard._id, selectedMemberIds });
+    this.setState({ showTeamMemberSelect: false });
+  };
+
+  removeDashboardItem = itemId => {
+    return this.props.removeDashboardItem(itemId);
+  };
+
+  editDashboardItem = item => {
+    this.setState(
+      {
+        item
+      },
+      () => {
+        this.setState({ showDrawer: true });
+      }
+    );
   };
 
   render() {
     const { dashboard, dashboardItems, dashboardId } = this.props;
+    const { showTeamMemberSelect, selectedMemberIds } = this.state;
+
+    const haveChart = dashboardItems.length > 0 ? true : false;
 
     const dashboardItem = item => {
       if (item.layout) {
         return (
           <div key={item._id} data-grid={defaultLayout(item)}>
+            <div>
+              {item.name}
+              <span onClick={this.editDashboardItem.bind(this, item)}>
+                edit
+              </span>
+              <span onClick={this.removeDashboardItem.bind(this, item._id)}>
+                delete
+              </span>
+            </div>
             <DashboardItem item={item} />
           </div>
         );
@@ -228,10 +331,54 @@ class Dashboard extends React.Component<Props, State> {
 
     return (
       <>
+        <Modal
+          show={showTeamMemberSelect}
+          onHide={this.onCancel}
+          centered={true}
+          backdrop="static"
+          keyboard={false}
+        >
+          <Modal.Body>
+            <Form
+              renderContent={() => (
+                <FormGroup>
+                  <SelectMemberStyled zIndex={2002}>
+                    <ControlLabel>Members</ControlLabel>
+
+                    <SelectTeamMembers
+                      label="Choose members"
+                      name="selectedMemberIds"
+                      initialValue={selectedMemberIds}
+                      onSelect={this.onChangeMembers}
+                    />
+                  </SelectMemberStyled>
+                </FormGroup>
+              )}
+            />
+            <ModalFooter>
+              <Button
+                btnStyle={'simple'}
+                onClick={this.onCancel}
+                icon="times-circle"
+                uppercase={false}
+              >
+                cancel
+              </Button>
+              <Button
+                btnStyle="success"
+                onClick={this.onConfirm}
+                icon="check-circle"
+                uppercase={false}
+              >
+                Save
+              </Button>
+            </ModalFooter>
+          </Modal.Body>
+        </Modal>
         <HeightedWrapper>
           <DashboardFormContainer>
             <Wrapper.Header
-              title={`${(dashboard && dashboard.name) || 'Automation'}`}
+              title={`${(dashboard && dashboard.name) || 'Dashboard'}`}
               breadcrumb={[
                 { title: __('Dashboar1d'), link: '/dashboards' },
                 { title: `${(dashboard && dashboard.name) || ''}` }
@@ -248,6 +395,7 @@ class Dashboard extends React.Component<Props, State> {
             >
               {!this.state.showDrawer ? (
                 <DragField
+                  haveChart={haveChart}
                   cols={6}
                   margin={[30, 30]}
                   containerPadding={[30, 30]}
@@ -264,7 +412,12 @@ class Dashboard extends React.Component<Props, State> {
                 </DragField>
               ) : null}
               {this.state.showDrawer ? (
-                <ChartFrom showDrawer={this.state.showDrawer} />
+                <ChartForm
+                  item={this.state.item}
+                  showDrawer={this.state.showDrawer}
+                  dashboardId={dashboardId}
+                  toggleDrawer={this.toggleDrawer}
+                />
               ) : null}
             </PageContent>
           </DashboardFormContainer>

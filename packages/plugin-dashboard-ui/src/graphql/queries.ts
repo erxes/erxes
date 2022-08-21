@@ -50,6 +50,9 @@ const dashboards = `
       updatedUser {
         ${userFields}
       }
+      members {
+        ${userFields}
+      }
       itemsCount
 	  }
   }
@@ -67,8 +70,20 @@ export const dashboardsMain = `
         parentId
         order
         createdAt
+        updatedAt
         relatedIds
         itemsCount
+
+        createdUser {
+          ${userFields}
+        }
+
+        updatedUser {
+          ${userFields}
+        }
+        members {
+          ${userFields}
+        }
       }
 
       totalCount
@@ -88,6 +103,9 @@ const dashboardDetails = `
       order
       createdAt
       relatedIds
+      members {
+        ${userFields}
+      }
     }
   }
 `;

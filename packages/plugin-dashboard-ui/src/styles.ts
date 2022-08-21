@@ -231,14 +231,14 @@ const FormContainer = styled.div`
   height: 100% !important;
 `;
 
-const DragField = styledTS<any>(styled(ReactGridLayout))`
+const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
     background-image: radial-gradient(
       ${colors.bgActive} 20%,
       ${colors.colorWhite} 20%
     );
+    ${props => (props.haveChart ? '' : 'height: 100% !important')};
+    
     background-size: 10px 10px
-    height: 100% !important
-
     .react-grid-layout {
       
       position: relative;
@@ -348,7 +348,63 @@ const DrawerDetail = styled.div`
   border-radius: 5px;
 `;
 
+const ToggleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: ${dimensions.coreSpacing}px;
+
+  > div {
+    margin: 0 ${dimensions.unitSpacing}px;
+  }
+
+  > span {
+    font-weight: 500;
+
+    &.active {
+      color: ${colors.colorCoreGray};
+    }
+  }
+`;
+
+const CenterBar = styled.div`
+  position: absolute;
+  left: 40%;
+
+  > div {
+    height: 30px;
+    border: 1px solid ${colors.borderDarker};
+    border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+    span {
+      font-weight: 500;
+      padding: 4px ${dimensions.coreSpacing}px;
+      border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
+
+      &.public {
+        background: ${colors.colorSecondary};
+        color: ${colors.colorWhite};
+
+        &:before {
+          content: none;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 1600px) {
+    left: 30%;
+  }
+`;
+
+const ActionFooter = styled.div`
+  padding: ${dimensions.unitSpacing}px;
+  bottom: ${dimensions.coreSpacing}px;
+`;
+
 export {
+  ActionFooter,
+  CenterBar,
+  ToggleWrapper,
   Description,
   DrawerDetail,
   ScrolledContent,

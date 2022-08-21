@@ -1,83 +1,208 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
+import { DATE_RANGES } from '../../constants';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 
 type Props = {
-  updateDimensions: any;
-  availableDimensions: any[];
-  dimensions: any;
+  timeDimensions: any;
+  availableTimeDimensions: any;
+  updateTimeDimensions: any;
 };
 
-type State = {
-  vizState: any;
-};
+type State = {};
 
-class DimensionForm extends React.Component<Props, State> {
+class TimeForm extends React.Component<Props, State> {
   render() {
-    const { dimensions, availableDimensions, updateDimensions } = this.props;
+    const {
+      timeDimensions,
+      availableTimeDimensions,
+      updateTimeDimensions
+    } = this.props;
 
-    const onChangeMeasure = (index, m) => {
-      const dimension = dimensions[index];
+    const onChangeTimeDimensions = (index, m) => {
+      const dimension = timeDimensions[index];
 
       if (!m) {
-        return updateDimensions.remove(dimension);
+        return updateTimeDimensions.remove(dimension);
       }
 
       const value = JSON.parse(m.value);
 
+      if (timeDimensions.length === 0) {
+        return updateTimeDimensions.add({
+          dimension: value,
+          granularity: 'day',
+          dateRange: 'This month'
+        });
+      }
+
       if (dimension) {
-        return updateDimensions.update(dimension, value);
+        return updateTimeDimensions.update(dimension, {
+          ...dimension,
+          dimension: value
+        });
       }
 
-      updateDimensions.add(value);
+      updateTimeDimensions.add({ dimension: value });
     };
 
-    const renderMeasureValue = index => {
-      if (dimensions.length > 0) {
-        const value = { ...dimensions[index] } as any;
-        delete value.index;
+    const onChangeDateRange = (index, value) => {
+      const dimension = timeDimensions[index];
 
-        return JSON.stringify(value);
+      if (dimension) {
+        return updateTimeDimensions.update(dimension, {
+          ...dimension,
+          dateRange: value.value === 'All time' ? undefined : value.value
+        });
       }
     };
 
-    if (dimensions.length === 0) {
+    const renderDateRangeValue = value => {
+      if (!value) {
+        return 'All time';
+      }
+
+      return value;
+    };
+
+    const renderTimeDimensionValue = index => {
+      if (timeDimensions.length > 0) {
+        if (timeDimensions[index]) {
+          const value = { ...timeDimensions[index].dimension } as any;
+
+          delete value.index;
+          delete value.granularities;
+
+          return JSON.stringify(value);
+        }
+      }
+    };
+
+    if (timeDimensions.length === 0) {
       return (
-        <FormGroup>
-          <ControlLabel>Dimensions</ControlLabel>
-          return (
+        <FormGroup key={Math.random()}>
           <Select
-            options={availableDimensions.map(availableMeasure => ({
-              label: availableMeasure.title,
-              value: JSON.stringify(availableMeasure)
+            options={availableTimeDimensions.map(availableTimeDimension => ({
+              label: availableTimeDimension.title,
+              value: JSON.stringify(availableTimeDimension)
             }))}
-            value={''}
-            onChange={m => onChangeMeasure(100, m)}
-            placeholder={__(`Choose Measure`)}
+            value={renderTimeDimensionValue(100)}
+            onChange={value => onChangeTimeDimensions(100, value)}
+            placeholder={__('Choose time dimension')}
           />
-          );
         </FormGroup>
       );
     }
+
+    const renderGranularitiesOptions = timeDimension => {
+      const dimension = timeDimension.dimension || {};
+
+      const granularities = dimension.granularities || [];
+
+      const updatedGranularities = [] as any;
+
+      for (const granularitie of granularities) {
+        if (!['Second', 'Minute'].includes(granularitie.title)) {
+          updatedGranularities.push(granularitie);
+        }
+      }
+
+      return updatedGranularities.map(granularitie => {
+        return {
+          label: granularitie.title,
+          value: granularitie.name
+        };
+      });
+    };
+
+    const onChangeGranularites = (index, value) => {
+      const dimension = timeDimensions[index];
+
+      if (dimension) {
+        if (value.value === 'hour') {
+          return updateTimeDimensions.update(dimension, {
+            ...dimension,
+            dateRange: 'Today',
+            granularity: value.value
+          });
+        }
+
+        return updateTimeDimensions.update(dimension, {
+          ...dimension,
+          granularity: value.value === 'w/o grouping' ? undefined : value.value
+        });
+      }
+    };
+
+    const renderGranulariteValue = value => {
+      if (!value) {
+        return 'w/o grouping';
+      }
+
+      return value;
+    };
 
     return (
       <FormGroup>
         <ControlLabel>Time</ControlLabel>
 
-        {dimensions.map(dimension => {
+        {timeDimensions.map(timeDimension => {
           return (
-            <FormGroup key={Math.random()}>
-              <Select
-                options={availableDimensions.map(availableMeasure => ({
-                  label: availableMeasure.title,
-                  value: JSON.stringify(availableMeasure)
-                }))}
-                value={renderMeasureValue(dimension.index)}
-                onChange={m => onChangeMeasure(dimension.index, m)}
-                placeholder={__('Choose dimension')}
-              />
-            </FormGroup>
+            <>
+              <FormGroup key={Math.random()}>
+                <Select
+                  options={availableTimeDimensions.map(
+                    availableTimeDimension => ({
+                      label: availableTimeDimension.title,
+                      value: JSON.stringify(availableTimeDimension)
+                    })
+                  )}
+                  value={renderTimeDimensionValue(timeDimension.index)}
+                  onChange={value =>
+                    onChangeTimeDimensions(timeDimension.index, value)
+                  }
+                  placeholder={__('Choose time dimension')}
+                />
+              </FormGroup>
+
+              <FlexContent>
+                <FlexItem count={5}>
+                  <FormGroup>
+                    <ControlLabel>For</ControlLabel>
+                    <Select
+                      options={DATE_RANGES.map(dateRange => ({
+                        label: dateRange.title || dateRange.value,
+                        value: dateRange.value
+                      }))}
+                      value={renderDateRangeValue(timeDimension.dateRange)}
+                      onChange={value =>
+                        onChangeDateRange(timeDimension.index, value)
+                      }
+                      placeholder={__('Choose date range')}
+                    />
+                  </FormGroup>
+                </FlexItem>
+                <FlexItem count={5} hasSpace={true}>
+                  <FormGroup>
+                    <ControlLabel>By</ControlLabel>
+                    <Select
+                      options={renderGranularitiesOptions(timeDimension)}
+                      value={renderGranulariteValue(timeDimension.granularity)}
+                      onChange={value =>
+                        onChangeGranularites(timeDimension.index, value)
+                      }
+                      placeholder={__('Choose date range')}
+                    />
+                  </FormGroup>
+                </FlexItem>
+              </FlexContent>
+            </>
           );
         })}
       </FormGroup>
@@ -85,4 +210,4 @@ class DimensionForm extends React.Component<Props, State> {
   }
 }
 
-export default DimensionForm;
+export default TimeForm;

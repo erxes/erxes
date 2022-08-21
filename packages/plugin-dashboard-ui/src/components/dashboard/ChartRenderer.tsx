@@ -21,11 +21,15 @@ import {
   YAxis
 } from 'recharts';
 import { chartColors } from '../../constants';
+import { validateQuery } from '@cubejs-client/core';
+import Table from '@erxes/ui/src/components/table';
 
 type Props = {
   query?: any;
   chartType?: any;
   chartHeight?: any;
+  filters?: any;
+  validatedQuery?: any;
 };
 
 const nFormatter = num => {
@@ -62,6 +66,7 @@ const dateFormatter = (item, dateType) => {
       return dayjs(item).format('YYYY');
     case 'week':
       return dayjs(item).format('MMM/DD');
+
     default:
       return dayjs(item).format('YYYY');
   }
@@ -121,6 +126,7 @@ const TypeToChartComponent = {
       ))}
     </CartesianChart>
   ),
+
   bar: ({ resultSet, height, dateType }) => {
     return (
       <CartesianChart
@@ -190,12 +196,55 @@ const TypeToChartComponent = {
     return <></>;
   },
 
-  table: () => {
-    return <div>123</div>;
+  table: ({ resultSet }) => {
+    const columns = resultSet
+      .tableColumns()
+      .map(tableColumns => tableColumns.title);
+
+    const rowValues = resultSet.tablePivot();
+
+    const renderTableValue = value => {
+      if (dayjs(value).isValid()) {
+        return dayjs(value).format('YYYY/MM/DD, HH:mm:ss');
+      }
+
+      return value;
+    };
+
+    return (
+      <Table whiteSpace="nowrap" hover={true} responsive={true}>
+        <thead>
+          <tr>
+            {columns.map(column => {
+              return <th key={Math.random()}>{column}</th>;
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {rowValues.map(rowValue => {
+            return (
+              <tr key={Math.random()}>
+                {Object.values(rowValue).map(value => {
+                  return <td key={Math.random()}>{renderTableValue(value)}</td>;
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </Table>
+    );
   },
 
-  number: () => {
-    return <div>123</div>;
+  number: ({ resultSet }) => {
+    let result = 0;
+
+    resultSet.seriesNames().map(s => {
+      result = resultSet.totalRow();
+
+      result = result[s.key];
+    });
+
+    return <div>{result}</div>;
   }
 };
 const TypeToMemoChartComponent = Object.keys(TypeToChartComponent)
@@ -214,9 +263,20 @@ const renderChart = Component => ({ resultSet, dateType, error, height }) => {
 };
 
 const ChartRenderer = (props: Props) => {
-  const { query, chartType, chartHeight } = props;
+  const { query, chartType, chartHeight, filters, validatedQuery } = props;
   const component = TypeToMemoChartComponent[chartType];
-  const renderProps = useCubeQuery(query);
+  let finalQuery = query;
+
+  if (filters && filters.length > 0) {
+    for (const filter of filters) {
+      if (!filter.operator) {
+        finalQuery = validatedQuery;
+      }
+    }
+  }
+
+  const renderProps = useCubeQuery(finalQuery);
+
   let dateType = '';
 
   if (renderProps.resultSet) {

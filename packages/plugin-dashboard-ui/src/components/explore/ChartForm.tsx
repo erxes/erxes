@@ -2,6 +2,7 @@ import { __ } from 'coreui/utils';
 import React from 'react';
 import RTG from 'react-transition-group';
 import {
+  ActionFooter,
   Description,
   DrawerDetail,
   FormChart,
@@ -16,23 +17,28 @@ import ChartRenderer from '../dashboard/ChartRenderer';
 import { QueryBuilder } from '@cubejs-client/react';
 import stateChangeHeuristics from './stateChangeHeuristics';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import {
+  ControlLabel,
+  FormControl,
+  FormGroup
+} from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 
-import { CHART_TYPES, DATE_RANGES } from '../../constants';
+import { CHART_TYPES } from '../../constants';
 import DimensionForm from './DimensionForm';
 import MeasureForm from './MeasureForm';
+import TimeForm from './TimeForm';
+import FilterForm from './FilterForm';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import Button from '@erxes/ui/src/components/Button';
+import { Alert } from '@erxes/ui/src/utils';
 
 type Props = {
   showDrawer: boolean;
   item?: IDashboardItem;
-  vizState?: any;
-  setVizState?: any;
   cubejsApi?: any;
-  type?: string;
-  setType?: any;
-  setIsDateRange?: any;
-  isDateRange?: boolean;
+  save: (params: { _id?: string; name: string; vizState: string }) => void;
+  toggleDrawer: () => void;
 };
 
 type State = {
@@ -42,19 +48,19 @@ type State = {
   isDateRange: boolean;
 };
 
-class ChartFrom extends React.Component<Props, State> {
+class ChartForm extends React.Component<Props, State> {
   private wrapperRef;
   private overlay: any;
 
   constructor(props) {
     super(props);
 
+    console.log(props);
+
     const dashboardItem = props.item || {};
 
     this.state = {
-      vizState: dashboardItem.vizState
-        ? JSON.parse(dashboardItem.vizState)
-        : {},
+      vizState: dashboardItem.vizState ? dashboardItem.vizState : {},
       type: dashboardItem.type,
       name: dashboardItem.name,
       isDateRange: dashboardItem.isDateRange || false
@@ -73,337 +79,37 @@ class ChartFrom extends React.Component<Props, State> {
     this.setState({ vizState });
   };
 
-  renderMemberGroup = ({ members, availableMembers, updateMembers, type }) => {
-    const onChangeMeasure = (index, m) => {
-      const measure = members[index];
+  onChangeName = e => {
+    const name = e.target.value;
 
-      if (!m) {
-        return updateMembers.remove(measure);
-      }
-
-      const value = JSON.parse(m.value);
-
-      if (measure) {
-        return updateMembers.update(measure, value);
-      }
-
-      updateMembers.add(value);
-    };
-
-    const renderMeasureValue = index => {
-      if (members.length > 0) {
-        const value = { ...members[index] } as any;
-        delete value.index;
-
-        return JSON.stringify(value);
-      }
-    };
-
-    return (
-      <>
-        {members.map(member => {
-          return (
-            <FormGroup key={Math.random()}>
-              <Select
-                options={availableMembers.map(availableMember => ({
-                  label: availableMember.title,
-                  value: JSON.stringify(availableMember)
-                }))}
-                value={renderMeasureValue(member.index)}
-                onChange={m => onChangeMeasure(member.index, m)}
-                placeholder={__('Choose measure')}
-              />
-            </FormGroup>
-          );
-        })}
-
-        <Select
-          options={availableMembers.map(availableMember => ({
-            label: availableMember.title,
-            value: JSON.stringify(availableMember)
-          }))}
-          value={''}
-          onChange={m => onChangeMeasure(100, m)}
-          placeholder={__(`Choose ${type}`)}
-        />
-      </>
-    );
+    this.setState({ name });
   };
 
-  renderTimeGroup = (
-    timeDimensions,
-    availableTimeDimensions,
-    updateTimeDimensions
-  ) => {
-    const onChangeTimeDimensions = (index, m) => {
-      const dimension = timeDimensions[index];
+  onSave = () => {
+    const { name, vizState, type } = this.state;
+    const { item } = this.props;
 
-      if (!m) {
-        return updateTimeDimensions.remove(dimension);
-      }
-
-      const value = JSON.parse(m.value);
-
-      if (timeDimensions.length === 0) {
-        return updateTimeDimensions.add({
-          dimension: value,
-          granularity: 'day',
-          dateRange: 'This month'
-        });
-      }
-
-      if (dimension) {
-        return updateTimeDimensions.update(dimension, {
-          ...dimension,
-          dimension: value
-        });
-      }
-
-      updateTimeDimensions.add({ dimension: value });
-    };
-
-    const onChangeDateRange = (index, value) => {
-      const dimension = timeDimensions[index];
-
-      if (dimension) {
-        return updateTimeDimensions.update(dimension, {
-          ...dimension,
-          dateRange: value.value === 'All time' ? undefined : value.value
-        });
-      }
-    };
-
-    const renderDateRangeValue = value => {
-      if (!value) {
-        return 'All time';
-      }
-
-      return value;
-    };
-
-    const renderTimeDimensionValue = index => {
-      if (timeDimensions.length > 0) {
-        if (timeDimensions[index]) {
-          const value = { ...timeDimensions[index].dimension } as any;
-
-          delete value.index;
-          delete value.granularities;
-
-          return JSON.stringify(value);
-        }
-      }
-    };
-
-    if (timeDimensions.length === 0) {
-      return (
-        <FormGroup key={Math.random()}>
-          <Select
-            options={availableTimeDimensions.map(availableTimeDimension => ({
-              label: availableTimeDimension.title,
-              value: JSON.stringify(availableTimeDimension)
-            }))}
-            value={renderTimeDimensionValue(100)}
-            onChange={value => onChangeTimeDimensions(100, value)}
-            placeholder={__('Choose time dimension')}
-          />
-        </FormGroup>
-      );
+    if (!name) {
+      return Alert.success('Enter chart name');
+    }
+    if (!vizState) {
+      return Alert.success('Build your query');
     }
 
-    const renderGranularitiesOptions = timeDimension => {
-      const dimension = timeDimension.dimension || {};
+    const doc = {
+      _id: item ? item._id : '',
+      name,
+      vizState,
 
-      const granularities = dimension.granularities || [];
-
-      const updatedGranularities = [] as any;
-
-      for (const granularitie of granularities) {
-        if (!['Second', 'Minute'].includes(granularitie.title)) {
-          updatedGranularities.push(granularitie);
-        }
-      }
-
-      return updatedGranularities.map(granularitie => {
-        return {
-          label: granularitie.title,
-          value: granularitie.name
-        };
-      });
+      type
     };
 
-    const onChangeGranularites = (index, value) => {
-      const dimension = timeDimensions[index];
-
-      if (dimension) {
-        if (value.value === 'hour') {
-          return updateTimeDimensions.update(dimension, {
-            ...dimension,
-            dateRange: 'Today',
-            granularity: value.value
-          });
-        }
-
-        return updateTimeDimensions.update(dimension, {
-          ...dimension,
-          granularity: value.value === 'w/o grouping' ? undefined : value.value
-        });
-      }
-    };
-
-    const renderGranulariteValue = value => {
-      if (!value) {
-        return 'w/o grouping';
-      }
-
-      return value;
-    };
-
-    return (
-      <>
-        {timeDimensions.map(timeDimension => {
-          return (
-            <>
-              <FormGroup key={Math.random()}>
-                <Select
-                  options={availableTimeDimensions.map(
-                    availableTimeDimension => ({
-                      label: availableTimeDimension.title,
-                      value: JSON.stringify(availableTimeDimension)
-                    })
-                  )}
-                  value={renderTimeDimensionValue(timeDimension.index)}
-                  onChange={value =>
-                    onChangeTimeDimensions(timeDimension.index, value)
-                  }
-                  placeholder={__('Choose time dimension')}
-                />
-              </FormGroup>
-              <FormGroup>
-                <ControlLabel>For</ControlLabel>
-                <Select
-                  options={DATE_RANGES.map(dateRange => ({
-                    label: dateRange.title || dateRange.value,
-                    value: dateRange.value
-                  }))}
-                  value={renderDateRangeValue(timeDimension.dateRange)}
-                  onChange={value =>
-                    onChangeDateRange(timeDimension.index, value)
-                  }
-                  placeholder={__('Choose date range')}
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <ControlLabel>By</ControlLabel>
-                <Select
-                  options={renderGranularitiesOptions(timeDimension)}
-                  value={renderGranulariteValue(timeDimension.granularity)}
-                  onChange={value =>
-                    onChangeGranularites(timeDimension.index, value)
-                  }
-                  placeholder={__('Choose date range')}
-                />
-              </FormGroup>
-            </>
-          );
-        })}
-      </>
-    );
-  };
-
-  renderFilterGroup = (filters, updateFilters, availableDimensions) => {
-    const onChangeFilterDimension = (filterIndex, m) => {
-      const filter = filters[filterIndex];
-
-      if (!m) {
-        return updateFilters.remove(filter);
-      }
-
-      const dimension = JSON.parse(m.value);
-
-      if (filter) {
-        return updateFilters.update(filter, {
-          ...filter,
-          dimension
-        });
-      } else {
-        return updateFilters.add({
-          dimension
-        });
-      }
-    };
-
-    const onChangeOperator = (filterIndex, value) => {
-      const filter = filters[filterIndex];
-
-      updateFilters.update(filter, { ...filter, operator: value.value });
-    };
-
-    const renderFilterDimensionValue = index => {
-      if (filters.length > 0) {
-        const value = { ...filters[index] } as any;
-        delete value.index;
-
-        return JSON.stringify(value.dimension);
-      }
-    };
-
-    const renderFilterOperatorValue = index => {
-      const filter = filters[index];
-
-      return filter.operator;
-    };
-
-    return (
-      <>
-        {filters.map(filter => {
-          return (
-            <>
-              <FormGroup key={Math.random()}>
-                <Select
-                  options={availableDimensions.map(availableDimension => ({
-                    label: availableDimension.title,
-                    value: JSON.stringify(availableDimension)
-                  }))}
-                  value={renderFilterDimensionValue(filter.index)}
-                  onChange={m => onChangeFilterDimension(filter.index, m)}
-                  placeholder={__('Choose Dimension')}
-                />
-              </FormGroup>
-
-              <ControlLabel>For</ControlLabel>
-
-              <FormGroup key={Math.random()}>
-                <Select
-                  options={filter.operators.map(operator => ({
-                    label: operator.title,
-                    value: operator.name
-                  }))}
-                  value={renderFilterOperatorValue(filter.index)}
-                  onChange={m => onChangeOperator(filter.index, m)}
-                  placeholder={__('Choose ')}
-                />
-              </FormGroup>
-            </>
-          );
-        })}
-
-        <Select
-          options={availableDimensions.map(availableDimension => ({
-            label: availableDimension.title,
-            value: JSON.stringify(availableDimension)
-          }))}
-          value={''}
-          onChange={m => onChangeFilterDimension(100, m)}
-          placeholder={__(`Choose Dimension`)}
-        />
-      </>
-    );
+    this.props.save(doc);
   };
 
   render() {
     const { cubejsApi } = this.props;
-    const { vizState } = this.state;
+    const { vizState, name } = this.state;
 
     return (
       <QueryBuilder
@@ -426,6 +132,7 @@ class ChartFrom extends React.Component<Props, State> {
             isQueryPresent,
             chartType,
             updateChartType,
+            query,
             validatedQuery,
             filters,
             updateFilters
@@ -461,9 +168,11 @@ class ChartFrom extends React.Component<Props, State> {
                   {isQueryPresent ? (
                     <>
                       <ChartRenderer
-                        query={validatedQuery}
+                        query={query}
                         chartType={chartType}
                         chartHeight={600}
+                        filters={filters}
+                        validatedQuery={validatedQuery}
                       />
                     </>
                   ) : (
@@ -482,37 +191,58 @@ class ChartFrom extends React.Component<Props, State> {
                   </Description>
                   <ScrolledContent>
                     <DrawerDetail>
+                      <FormGroup>
+                        <ControlLabel required={true}>
+                          {__('Name')}
+                        </ControlLabel>
+
+                        <FormControl
+                          type="input"
+                          onChange={this.onChangeName}
+                          value={name}
+                        />
+                      </FormGroup>
                       <MeasureForm
                         measures={measures}
                         availableMeasures={availableMeasures}
                         updateMeasures={updateMeasures}
                       />
-
                       <DimensionForm
                         dimensions={dimensions}
                         availableDimensions={availableDimensions}
                         updateDimensions={updateDimensions}
                       />
-
-                      <FormGroup>
-                        <ControlLabel>Time</ControlLabel>
-
-                        {this.renderTimeGroup(
-                          timeDimensions,
-                          availableTimeDimensions,
-                          updateTimeDimensions
-                        )}
-                      </FormGroup>
-                      <FormGroup>
-                        <ControlLabel>Filter</ControlLabel>
-
-                        {this.renderFilterGroup(
-                          filters,
-                          updateFilters,
-                          availableDimensions
-                        )}
-                      </FormGroup>
+                      <TimeForm
+                        timeDimensions={timeDimensions}
+                        updateTimeDimensions={updateTimeDimensions}
+                        availableTimeDimensions={availableTimeDimensions}
+                      />
+                      <FilterForm
+                        filters={filters}
+                        availableDimensions={availableDimensions}
+                        updateFilters={updateFilters}
+                      />
                     </DrawerDetail>
+
+                    <ActionFooter>
+                      <ModalFooter>
+                        <Button
+                          btnStyle="simple"
+                          type="button"
+                          onClick={this.props.toggleDrawer}
+                          icon="times-circle"
+                        >
+                          {__('Cancel')}
+                        </Button>
+                        <Button
+                          btnStyle="success"
+                          icon="checked-1"
+                          onClick={this.onSave}
+                        >
+                          Save
+                        </Button>
+                      </ModalFooter>
+                    </ActionFooter>
                   </ScrolledContent>
                 </RightDrawerContainer>
               </div>
@@ -524,4 +254,4 @@ class ChartFrom extends React.Component<Props, State> {
   }
 }
 
-export default ChartFrom;
+export default ChartForm;
