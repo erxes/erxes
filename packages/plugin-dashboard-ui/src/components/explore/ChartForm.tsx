@@ -55,8 +55,6 @@ class ChartForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    console.log(props);
-
     const dashboardItem = props.item || {};
 
     this.state = {

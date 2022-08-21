@@ -69,8 +69,6 @@ class FilterForm extends React.Component<Props, State> {
     const renderFilterValue = index => {
       const filter = filters[index];
 
-      console.log(filter);
-
       return filter.values ? filter.values[0] : '';
     };
 
