@@ -1,5 +1,10 @@
 import { connection } from "./connection";
 
+const userDetailFields = `
+  avatar
+  fullName
+`;
+
 const messageFields = `
   _id
   conversationId
@@ -7,8 +12,7 @@ const messageFields = `
   user {
     _id
     details {
-      avatar
-      fullName
+      ${userDetailFields}
     }
   }
   content
@@ -41,10 +45,11 @@ const userFields = `
   _id
   isActive
   details {
-    avatar
-    fullName
+    ${userDetailFields}
     shortName
+    location
   }
+  isOnline
 `;
 
 const conversationDetailQuery = `
@@ -60,15 +65,13 @@ const conversationDetailQuery = `
       supporters {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
         }
       }
       participatedUsers {
         _id
         details {
-          avatar
-          fullName
+          ${userDetailFields}
           shortName
           description
           position
@@ -121,7 +124,6 @@ const messengerSupportersQuery = `
         ${userFields}
       }
       isOnline
-      serverTime
     }
   }
 `;
@@ -148,8 +150,7 @@ const allConversations = `
       createdAt
       participatedUsers {
         details {
-          fullName
-          avatar
+          ${userDetailFields}
         }
       }
     }

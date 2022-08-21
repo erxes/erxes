@@ -118,7 +118,7 @@ const queries = {
   posEnv: async (_root, _args, {}: IContext) => {
     const { ALL_AUTO_INIT } = process.env;
     return {
-      ALL_AUTO_INIT: ['true', 'True', '1'].includes(ALL_AUTO_INIT || '')
+      ALL_AUTO_INIT: [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '')
     };
   },
 
@@ -174,7 +174,18 @@ const queries = {
       perPage: params.perPage
     });
   },
-
+  posOrdersTotalCount: async (
+    _root,
+    params,
+    { models, commonQuerySelector, user }: IContext
+  ) => {
+    const query = await generateFilterPosQuery(
+      params,
+      commonQuerySelector,
+      user._id
+    );
+    return models.PosOrders.find(query).count();
+  },
   posOrderDetail: async (_root, { _id }, { models, subdomain }: IContext) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
     const productIds = order.items.map(i => i.productId);

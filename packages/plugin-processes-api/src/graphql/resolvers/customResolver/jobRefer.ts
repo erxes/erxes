@@ -1,4 +1,4 @@
-import { IJobReferDocument, IUom } from '../../../models/definitions/jobs';
+import { IJobReferDocument } from '../../../models/definitions/jobs';
 import { IContext } from '../../../connectionResolver';
 import { JOB_CATEGORY_STATUSES } from '../../../models/definitions/constants';
 import { sendProductsMessage } from '../../../messageBroker';
@@ -20,7 +20,6 @@ export default {
 
     const needProducts = jobRefers?.needProducts || [];
 
-    const resolvedNeedProducts: any[] = [];
     for await (const need of needProducts) {
       const uom =
         (await sendProductsMessage({

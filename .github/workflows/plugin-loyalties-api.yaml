@@ -38,10 +38,11 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build plugin loyalties
-          cd ../../dist/plugin-loyalties-api/.erxes
+          cd plugin-loyalties-api/.erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image

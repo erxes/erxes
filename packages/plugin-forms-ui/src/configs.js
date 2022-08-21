@@ -4,7 +4,11 @@ module.exports = {
   scope: 'forms',
   exposes: {
     './routes': './src/routes.tsx',
-    './segmentForm': './src/segmentForm.tsx'
+    './segmentForm': './src/segmentForm.tsx',
+    './importExportUploadForm': './src/components/ColumnChooser',
+    './fieldPreview': './src/components/FieldsPreview',
+    './formPreview': './src/containers/FieldForm',
+    './contactDetailLeftSidebar': './src/containers/CustomFieldsSection',
   },
   routes: {
     url: 'http://localhost:3005/remoteEntry.js',
@@ -12,6 +16,10 @@ module.exports = {
     module: './routes'
   },
   segmentForm: './segmentForm',
+  formPreview: './formPreview',
+  fieldPreview: './fieldPreview',
+  importExportUploadForm: './importExportUploadForm',
+  contactDetailLeftSidebar: './contactDetailLeftSidebar',
   menus: [
     {
       text: 'Properties',

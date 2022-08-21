@@ -10,7 +10,7 @@ import {
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import { ImageWrapper, TextWrapper } from '@erxes/ui/src/styles/main';
 import { Step, Steps } from 'modules/common/components/step';
-import { __, getEnv } from 'modules/common/utils';
+import { __, getEnv, loadDynamicComponent } from 'modules/common/utils';
 
 import Button from 'modules/common/components/Button';
 import ConfigsForm from './ConfigsForm';
@@ -18,17 +18,7 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 import Spinner from 'modules/common/components/Spinner';
 import Wrapper from 'modules/layout/components/Wrapper';
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import queryString from 'query-string';
-
-const SegmentsForm = asyncComponent(
-  () =>
-    isEnabled('segments') &&
-    import(
-      /* webpackChunkName: "SegmentsForm" */ '@erxes/ui-segments/src/containers/form/SegmentsForm'
-    )
-);
 
 type Props = {
   contentType: string;
@@ -158,15 +148,15 @@ class ExportForm extends React.Component<Props, State> {
                     <Description>
                       {__('Skip this step if you wish to export all items')}
                     </Description>
-                    <SegmentsForm
-                      {...this.props}
-                      id={segmentId}
-                      contentType={contentType || 'customer'}
-                      closeModal={this.segmentCloseModal}
-                      addFilter={this.addFilter}
-                      hideDetailForm={true}
-                      usageType={'export'}
-                    />
+                    {loadDynamicComponent('importExportFilterForm', {
+                      ...this.props,
+                      id: segmentId,
+                      contentType: contentType || 'customer',
+                      closeModal: this.segmentCloseModal,
+                      addFilter: this.addFilter,
+                      hideDetailForm: true,
+                      usageType: 'export'
+                    })}
                   </FlexPad>
                 </FlexItem>
               </Step>

@@ -21,8 +21,9 @@ class Supporters extends React.Component<Props> {
     return avatar;
   }
 
-  renderSupporter(user: IUser, isOnline: boolean, color: string) {
+  renderSupporter(user: IUser, color: string) {
     const details = user.details || ({} as IUserDetails);
+
     return (
       <div
         key={user._id}
@@ -36,7 +37,7 @@ class Supporters extends React.Component<Props> {
             style={{ borderColor: color }}
             alt={details.fullName}
           />
-          {this.renderOnlineState(isOnline)}
+          {this.renderOnlineState(user.isOnline)}
         </div>
         <span className="erxes-staff-name">{details.shortName}</span>
       </div>
@@ -54,7 +55,6 @@ class Supporters extends React.Component<Props> {
   renderUsers() {
     const {
       users,
-      isOnline = false,
       isExpanded = false,
       color = "",
     } = this.props;
@@ -62,7 +62,7 @@ class Supporters extends React.Component<Props> {
     const activeUsers = users.filter((user) => user.isActive);
 
     const supporters = activeUsers.map((user) =>
-      this.renderSupporter(user, isOnline, color)
+      this.renderSupporter(user, color)
     );
 
     const wrapperClass = classNames("erxes-supporters", {

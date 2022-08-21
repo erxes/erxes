@@ -28,6 +28,10 @@ const isInProduct = async (
 
   let allProductIds: string[] = [];
 
+  if (pos.deliveryConfig && pos.deliveryConfig.productId) {
+    allProductIds.push(pos.deliveryConfig.productId);
+  }
+
   for (const group of groups) {
     const includeCatIds = await getChildCategories(
       subdomain,
@@ -100,7 +104,7 @@ const isInProductCategory = async (
 };
 
 const isInUser = (pos: IPosDocument, userId: string) => {
-  const allUserIds = pos.adminIds.concat(pos.cashierIds);
+  const allUserIds = (pos.adminIds || []).concat(pos.cashierIds || []);
   return allUserIds.includes(userId);
 };
 

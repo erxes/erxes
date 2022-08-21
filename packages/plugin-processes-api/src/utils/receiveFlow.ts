@@ -1,4 +1,4 @@
-import { IWork, IWorkDocument } from './../models/definitions/works';
+import { IWork } from './../models/definitions/works';
 import { IModels } from '../connectionResolver';
 import { IFlowDocument } from '../models/definitions/flows';
 import {
@@ -82,7 +82,7 @@ export const rf = async (models: IModels, subdomain: string, params) => {
           intervalId
         );
 
-        const work = await worksAdd(doc, models);
+        await worksAdd(doc, models);
         // console.log('work:', work);
 
         // filtering beforeJobs of lastJob on flow

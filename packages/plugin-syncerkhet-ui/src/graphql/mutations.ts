@@ -6,10 +6,10 @@ const updateConfigs = `
   }
 `;
 
-const toCheckSyncedDeals = `
-  mutation toCheckSyncedDeals($dealIds: [String]) {
-    toCheckSyncedDeals(dealIds: $dealIds) {
-      dealId
+const toCheckSynced = `
+  mutation toCheckSynced($ids: [String]) {
+    toCheckSynced(ids: $ids) {
+      _id
       isSynced
       syncedDate
       syncedBillNumber
@@ -23,8 +23,15 @@ const toSyncDeals = `
   }
 `;
 
+const toSyncOrders = `
+  mutation toSyncOrders($orderIds: [String]) {
+    toSyncOrders(orderIds: $orderIds)
+  }
+`;
+
 export default {
   updateConfigs,
-  toCheckSyncedDeals,
-  toSyncDeals
+  toCheckSynced,
+  toSyncDeals,
+  toSyncOrders
 };

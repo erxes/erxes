@@ -33,11 +33,6 @@ class PluginPreview extends React.Component<Props> {
                 <PluginPic src={plugin.image} />
                 <PluginInformation>
                   <b className="title">{plugin.title}</b>
-                  {/* <p>
-                    <span className="gray">by</span> New media group{' '}
-                    <span className="gray">in</span>
-                    <b> EXM</b>
-                  </p> */}
                   <Description
                     dangerouslySetInnerHTML={{
                       __html: plugin.shortDescription

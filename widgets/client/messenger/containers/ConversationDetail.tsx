@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, compose, graphql } from "react-apollo";
 import client from "../../apollo-client";
+import { getLocalStorageItem } from "../../common";
 import { IParticipator, IUser } from "../../types";
 import DumbComponent from "../components/ConversationDetail";
 import { connection } from "../connection";
@@ -124,6 +125,22 @@ class ConversationDetail extends React.Component<
       state = conversationDetail.isOnline;
       operatorStatus = conversationDetail.operatorStatus;
       refetchConversationDetail = data.refetch;
+    }
+
+    const { messengerData }: any = JSON.parse(
+      getLocalStorageItem("messengerDataJson")
+    );
+
+    if (!messengerData.showLauncher) {
+      client.query({
+        query: gql(graphqlTypes.getEngageMessage),
+        variables: {
+          integrationId: connection.data.integrationId,
+          customerId: connection.data.customerId,
+          visitorId: connection.data.visitorId,
+          browserInfo: {}
+        }
+      });
     }
 
     return (

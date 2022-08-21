@@ -26,6 +26,7 @@ export const types = () => {
       description: String
       contentType: String
       visibility: String
+      department : String
       where: String
       startDate: Date
       endDate: Date
@@ -128,6 +129,7 @@ const feedCommonParams = `
   customFieldsData: JSON
   isPinned: Boolean
   createdAt: Date
+  department : String
 `;
 
 const thankCommonParams = `

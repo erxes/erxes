@@ -10,6 +10,11 @@ export const types = `
     site: WebbuilderSite
   }
 
+  type WebbuilderPagesList {
+    list: [WebbuilderPage]
+    totalCount: Int
+  }
+
   type WebbuilderContentType {
     _id: String!
     code: String!
@@ -20,10 +25,20 @@ export const types = `
     site: WebbuilderSite
   }
 
+  type WebbuilderContentTypesList {
+    list: [WebbuilderContentType]
+    totalCount: Int
+  }
+
   type WebbuilderEntry {
     _id: String!
     contentTypeId: String
     values: JSON
+  }
+
+  type WebbuilderEntriesList {
+    list: [WebbuilderEntry]
+    totalCount: Int
   }
 
   type WebbuilderTemplate {
@@ -41,16 +56,14 @@ export const types = `
 `;
 
 export const queries = `
-  webbuilderPages(page: Int, perPage: Int, searchValue: String): [WebbuilderPage]
-  webbuilderPagesTotalCount: Int
+  webbuilderPagesMain(page: Int, perPage: Int, searchValue: String): WebbuilderPagesList
   webbuilderPageDetail(_id: String!): WebbuilderPage
 
-  webbuilderContentTypes(page: Int perPage: Int): [WebbuilderContentType ]
-  webbuilderContentTypesTotalCount: Int
+  webbuilderContentTypes: [WebbuilderContentType]
+  webbuilderContentTypesMain(page: Int, perPage: Int): WebbuilderContentTypesList 
   webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
 
-  webbuilderEntries(contentTypeId: String! page: Int perPage: Int): [WebbuilderEntry]
-  webbuilderEntriesTotalCount(contentTypeId: String! page: Int perPage: Int): Int
+  webbuilderEntriesMain(contentTypeId: String! page: Int perPage: Int): WebbuilderEntriesList
   webbuilderEntryDetail(_id: String!): WebbuilderEntry
 
   webbuilderTemplates(page: Int, perPage: Int): [WebbuilderTemplate]

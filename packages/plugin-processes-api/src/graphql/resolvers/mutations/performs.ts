@@ -1,4 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 import { putCreateLog, MODULE_NAMES } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';

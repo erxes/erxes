@@ -282,8 +282,8 @@ mutation participantsRemoveFromDeal($dealId: String!, $customerIds: [String]){
 }`;
 
 const selectWinner = `
-mutation selectWinner($dealId: String!, $tripId: String!) {
-  selectWinner(dealId: $dealId, tripId: $tripId) {
+mutation selectWinner($dealId: String!, $driverId: String!) {
+  selectWinner(dealId: $dealId, driverId: $driverId) {
     _id
   }
 }

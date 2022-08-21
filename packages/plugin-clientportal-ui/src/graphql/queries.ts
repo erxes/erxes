@@ -81,6 +81,9 @@ export const basicFields = `
 
   modifiedAt
   ownerId
+  lastSeenAt
+  sessionCount
+  isOnline
 `;
 
 export const clientPortalUserFields = `
@@ -100,6 +103,7 @@ export const listParamsDef = `
   $sortField: String,
   $sortDirection: Int,
   $cpId: String,
+  $dateFilters: String,
   ${conformityQueryFields}
 `;
 
@@ -113,6 +117,7 @@ export const listParamsValue = `
   sortField: $sortField,
   sortDirection: $sortDirection,
   cpId: $cpId,
+  dateFilters: $dateFilters,
   ${conformityQueryFieldDefs}
 `;
 

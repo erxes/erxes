@@ -7,7 +7,10 @@ import {
   IEmailSignature,
   IUser
 } from '../../../db/models/definitions/users';
-import { sendIntegrationsMessage } from '../../../messageBroker';
+import {
+  sendInboxMessage,
+  sendIntegrationsMessage
+} from '../../../messageBroker';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
 import { checkPermission, requireLogin } from '../../permissions/wrappers';
@@ -256,6 +259,14 @@ const userMutations = {
     const userOnDb = await models.Users.getUser(_id);
 
     const updatedUser = await models.Users.updateUser(_id, doc);
+
+    if (channelIds) {
+      await sendInboxMessage({
+        subdomain,
+        action: 'updateUserChannels',
+        data: { channelIds, userId: _id }
+      });
+    }
 
     await resetPermissionsCache(models);
 

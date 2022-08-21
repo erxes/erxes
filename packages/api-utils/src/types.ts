@@ -1,4 +1,3 @@
-import * as express from 'express';
 import { Document, Schema } from 'mongoose';
 export interface IEmailSignature {
   brandId?: string;
@@ -53,7 +52,7 @@ export interface IUserDocument extends IUser, Document {
 }
 
 export interface IContext {
-  res: express.Response;
+  res: any;
   requestInfo: any;
   user: IUserDocument;
   docModifier: <T>(doc: T) => any;

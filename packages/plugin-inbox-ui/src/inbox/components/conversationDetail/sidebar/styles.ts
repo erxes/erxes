@@ -39,7 +39,7 @@ import { SectionContainer, SidebarCollapse } from '@erxes/ui/src/layout/styles';
 import {
   SpaceBetweenRow,
   Subject
-} from '@erxes/ui-inbox/src/settings/integrations/components/mail/styles';
+} from '../../../../settings/integrations/components/mail/styles';
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
 
 import { CardItem } from '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/conversation/messages/bot/styles';

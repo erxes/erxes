@@ -22,7 +22,7 @@ export const types = `
 `;
 
 export const queries = `
-    routes(searchValue: String, page: Int, perPage: Int): RouteListResponse
+    routes(searchValue: String, page: Int, perPage: Int, placeIds: [String]): RouteListResponse
     routeDetail(_id: String!): Route
 `;
 

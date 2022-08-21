@@ -1,12 +1,12 @@
 import * as compose from 'lodash.flowright';
 import Alert from '@erxes/ui/src/utils/Alert';
-import CheckSyncedDeals from '../components/CheckSyncedDeals';
+import CheckSyncedDeals from '../components/syncedDeals/CheckSyncedDeals';
 import gql from 'graphql-tag';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Bulk } from '@erxes/ui/src/components';
 import {
-  CheckSyncedDealsMutationResponse,
+  CheckSyncedMutationResponse,
   CheckSyncedDealsQueryResponse,
   CheckSyncedDealsTotalCountQueryResponse,
   ToSyncDealsMutationResponse
@@ -27,7 +27,7 @@ type FinalProps = {
   checkSyncedDealsTotalCountQuery: CheckSyncedDealsTotalCountQueryResponse;
 } & Props &
   IRouterProps &
-  CheckSyncedDealsMutationResponse &
+  CheckSyncedMutationResponse &
   ToSyncDealsMutationResponse;
 
 type State = {
@@ -47,35 +47,33 @@ class CheckSyncedDealsContainer extends React.Component<FinalProps, State> {
 
   render() {
     const {
-      toCheckSyncedDeals,
+      toCheckSynced,
       checkSyncItemsQuery,
       checkSyncedDealsTotalCountQuery
     } = this.props;
 
     // remove action
-    const checkSynced = ({ dealIds }, emptyBulk) => {
-      toCheckSyncedDeals({
-        variables: { dealIds }
+    const checkSynced = async ({ dealIds }, emptyBulk) => {
+      await toCheckSynced({
+        variables: { ids: dealIds }
       })
         .then(response => {
           emptyBulk();
-          const statuses = response.data.toCheckSyncedDeals;
+          const statuses = response.data.toCheckSynced;
 
           const unSyncedDealIds = (statuses.filter(s => !s.isSynced) || []).map(
-            s => s.dealId
+            s => s._id
           );
           const syncedDealInfos = {};
           const syncedDeals = statuses.filter(s => s.isSynced) || [];
 
           syncedDeals.forEach(item => {
-            syncedDealInfos[item.dealId] = {
+            syncedDealInfos[item._id] = {
               syncedBillNumber: item.syncedBillNumber || '',
               syncedDate: item.syncedDate || ''
             };
           });
-
           this.setState({ unSyncedDealIds, syncedDealInfos });
-          Alert.success('Check finished');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -168,10 +166,10 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<Props, CheckSyncedDealsMutationResponse, { dealIds: string[] }>(
-      gql(mutations.toCheckSyncedDeals),
+    graphql<Props, CheckSyncedMutationResponse, { dealIds: string[] }>(
+      gql(mutations.toCheckSynced),
       {
-        name: 'toCheckSyncedDeals'
+        name: 'toCheckSynced'
       }
     ),
     graphql<Props, ToSyncDealsMutationResponse, { dealIds: string[] }>(

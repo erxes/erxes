@@ -1,10 +1,10 @@
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
 
 import Button from '@erxes/ui/src/components/Button';
-import ChannelForm from '@erxes/ui-inbox/src/settings/channels/containers/ChannelForm';
+import ChannelForm from '../containers/ChannelForm';
 import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
+import { IChannel } from '../types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';

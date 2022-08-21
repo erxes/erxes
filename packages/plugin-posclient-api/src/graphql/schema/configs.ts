@@ -66,6 +66,9 @@ export const types = `
     catProdMappings: [CatProd]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
+    deliveryConfig: JSON
+    branchId: String
+    departmentId: String
   }
 `;
 

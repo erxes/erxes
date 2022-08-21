@@ -2,17 +2,19 @@ import Modal from 'react-bootstrap/Modal';
 import PosSlotItem from '../productGroup/PosSlotItem';
 import React from 'react';
 import Select from 'react-select-plus';
+import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   __,
   Button,
   ControlLabel,
   FormControl,
   FormGroup,
-  getEnv,
   ModalTrigger,
   SelectTeamMembers,
   Toggle
 } from '@erxes/ui/src';
+import { IPos, IScreenConfig, ISlot } from '../../../types';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import {
   Block,
   BlockRow,
@@ -20,16 +22,13 @@ import {
   DomainRow,
   FlexColumn,
   FlexItem,
-  PosSlotAddButton,
-  Row
+  PosSlotAddButton
 } from '../../../styles';
-import { IPos, IScreenConfig, ISlot } from '../../../types';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import SelectBranches from '@erxes/ui/src/team/containers/SelectBranches';
 
 type Props = {
   onChange: (name: 'pos' | 'slots', value: any) => void;
   pos: IPos;
-  branches: any[];
   posSlots: ISlot[];
   envs: any;
 };
@@ -75,10 +74,6 @@ class GeneralStep extends React.Component<Props, State> {
     this.setState({}, () => {});
   };
 
-  onChangeCheckbox = (code: string, e) => {
-    this.onChangeConfig(code, e.target.checked);
-  };
-
   renderMapping(slot: ISlot, props) {
     const { slots } = this.state;
 
@@ -99,6 +94,7 @@ class GeneralStep extends React.Component<Props, State> {
 
     return (
       <PosSlotItem
+        key={slot._id || Math.random()}
         {...props}
         onChange={onChange}
         removeItem={removeItem}
@@ -378,14 +374,12 @@ class GeneralStep extends React.Component<Props, State> {
   };
 
   renderCauseOnline() {
-    const { pos, branches } = this.props;
+    const { pos } = this.props;
     if (pos.isOnline) {
-      const onChangeMultiBranches = ops => {
-        const selectedOptionsValues = ops.map(option => option.value);
-
+      const onChangeMultiBranches = branchIds => {
         this.onChangeFunction('pos', {
           ...pos,
-          allowBranchIds: selectedOptionsValues
+          allowBranchIds: branchIds
         });
       };
 
@@ -394,15 +388,11 @@ class GeneralStep extends React.Component<Props, State> {
           <BlockRow>
             <FormGroup>
               <ControlLabel>Allow branches</ControlLabel>
-              <Select
-                placeholder={__('Choose parent')}
-                value={pos.allowBranchIds || []}
-                clearable={true}
-                onChange={onChangeMultiBranches}
-                options={generateTree(branches || [], null, (node, level) => ({
-                  value: node._id,
-                  label: `${'---'.repeat(level)} ${node.title}`
-                }))}
+              <SelectBranches
+                label="Choose branch"
+                name="allowBranchIds"
+                initialValue={pos.allowBranchIds}
+                onSelect={onChangeMultiBranches}
                 multi={true}
               />
             </FormGroup>
@@ -423,8 +413,8 @@ class GeneralStep extends React.Component<Props, State> {
       );
     }
 
-    const onChangeBranches = opt => {
-      this.onChangeFunction('pos', { ...pos, branchId: opt.value });
+    const onChangeBranches = branchId => {
+      this.onChangeFunction('pos', { ...pos, branchId });
     };
 
     return (
@@ -461,15 +451,12 @@ class GeneralStep extends React.Component<Props, State> {
           </FormGroup>
           <FormGroup>
             <ControlLabel>Choose branch</ControlLabel>
-            <Select
-              placeholder={__('Choose parent')}
-              value={pos.branchId}
-              clearable={true}
-              onChange={onChangeBranches}
-              options={generateTree(branches || [], null, (node, level) => ({
-                value: node._id,
-                label: `${'---'.repeat(level)} ${node.title}`
-              }))}
+            <SelectBranches
+              label="Choose branch"
+              name="branchId"
+              initialValue={pos.branchId}
+              onSelect={onChangeBranches}
+              multi={false}
             />
           </FormGroup>
         </BlockRow>
@@ -480,20 +467,6 @@ class GeneralStep extends React.Component<Props, State> {
       </>
     );
   }
-
-  renderCheckbox = (key: string, title?: string, description?: string) => {
-    return (
-      <>
-        {description && <p>{__(description)}</p>}
-
-        <FormControl
-          onChange={this.onChangeCheckbox.bind(this, key)}
-          componentClass="checkbox"
-        />
-        <ControlLabel>{title || key}</ControlLabel>
-      </>
-    );
-  };
 
   render() {
     const { pos, envs } = this.props;
@@ -525,6 +498,10 @@ class GeneralStep extends React.Component<Props, State> {
       cashierIds = pos.cashierIds;
       adminIds = pos.adminIds;
     }
+
+    const onChangeDepartments = departmentId => {
+      this.onChangeFunction('pos', { ...pos, departmentId });
+    };
 
     return (
       <FlexItem>
@@ -571,7 +548,6 @@ class GeneralStep extends React.Component<Props, State> {
                 <FormGroup>
                   <ControlLabel>Slots:</ControlLabel>
                 </FormGroup>
-                <FormGroup>{this.renderCheckbox('Slot Required')}</FormGroup>
                 <FormGroup>{this.renderPosSlotForm(slotTrigger)}</FormGroup>
               </BlockRow>
             </Block>
@@ -629,6 +605,17 @@ class GeneralStep extends React.Component<Props, State> {
                     />
                   </FormGroup>
                 )}
+                <FormGroup>
+                  <ControlLabel>Choose department</ControlLabel>
+                  <SelectDepartments
+                    label="Choose department"
+                    name="departmentId"
+                    initialValue={pos.departmentId}
+                    onSelect={onChangeDepartments}
+                    multi={false}
+                    customOption={{ value: '', label: 'Choose department' }}
+                  />
+                </FormGroup>
               </BlockRow>
               {this.renderCauseOnline()}
             </Block>

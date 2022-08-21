@@ -1,20 +1,21 @@
-import { SelectContainer } from '../../styles/common';
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { IAttachment, IField } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
+
 import BoardSelect from '../../containers/BoardSelect';
+import { SelectContainer } from '../../styles/common';
 import {
+  AddFormWidth,
   FormFooter,
   HeaderContent,
-  HeaderRow,
-  AddFormWidth
+  HeaderRow
 } from '../../styles/item';
 import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
 import CardSelect from './CardSelect';
-import { IAttachment, IField } from '@erxes/ui/src/types';
 import GenerateAddFormFields from './GenerateAddFormFields';
 
 type Props = {
@@ -267,6 +268,7 @@ class AddForm extends React.Component<Props, State> {
             </HeaderContent>
           </HeaderRow>
           <GenerateAddFormFields
+            object={this.state}
             pipelineId={this.state.pipelineId}
             onChangeField={this.onChangeField}
             customFieldsData={this.state.customFieldsData}

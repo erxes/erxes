@@ -3,6 +3,7 @@ import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 import { Formgroup, SelectWrapper } from '@erxes/ui/src/components/form/styles';
+import { SidebarMainContent } from '@erxes/ui/src/layout/styles';
 
 const FlexRow = styled.div`
   display: flex;
@@ -205,6 +206,41 @@ const DateWrapper = styled.div`
   }
 `;
 
+const CustomRangeContainer = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-end;
+  > div {
+    flex: 1;
+    margin-right: 8px;
+    input[type='text'] {
+      border: none;
+      width: 100%;
+      height: 34px;
+      padding: 5px 0;
+      color: #444;
+      border-bottom: 1px solid;
+      border-color: #ddd;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 13px;
+    }
+  }
+`;
+
+const FilterContainer = styled.div`
+  padding: 10px 10px 10px 20px;
+`;
+
+const SidebarContainer = styled.div`
+  ${SidebarMainContent} {
+    overflow-x: unset;
+    overflow-y: unset;
+  }
+`;
+
 export {
   FieldWrapper,
   FieldItem,
@@ -221,5 +257,8 @@ export {
   LogicRow,
   RowSmall,
   DateWrapper,
-  RowFill
+  RowFill,
+  CustomRangeContainer,
+  FilterContainer,
+  SidebarContainer
 };

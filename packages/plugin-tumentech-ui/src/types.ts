@@ -408,7 +408,9 @@ export type CountQueryResponse = {
 export interface IParticipant {
   _id: string;
   tripId: string;
-  trip: ITrip;
+  driver: ICustomer;
+  route: IRoute;
+  cars: ICar[];
   deal: IDeal;
   detail?: {
     price: number;
@@ -482,7 +484,7 @@ export type ITrackingData = {
 
 export type ITrip = {
   _id: string;
-  carId: string;
+  carIds: string[];
   closedDate: Date;
   createdAt: Date;
   dealIds: string[];
@@ -496,6 +498,6 @@ export type ITrip = {
   route: IRoute;
   driver: ICustomer;
   deals: IDeal[];
-  car: ICar;
+  cars: ICar[];
   trackingData: ITrackingData[];
 };

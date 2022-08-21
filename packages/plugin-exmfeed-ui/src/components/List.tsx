@@ -7,7 +7,7 @@ import {
   getUserAvatar,
   LoadMore,
   Icon,
-  __,
+  __
 } from '@erxes/ui/src';
 import FilterableListStyles from '@erxes/ui/src/components/filterableList/styles';
 import dayjs from 'dayjs';
@@ -19,7 +19,7 @@ import {
   LikeCommentShare,
   HeaderFeed,
   TextFeed,
-  FeedActions,
+  FeedActions
 } from '../styles';
 
 const AvatarImg = FilterableListStyles.AvatarImg;
@@ -37,16 +37,16 @@ export default function List({
   deleteItem,
   pinItem,
   totalCount,
-  limit,
+  limit
 }: Props) {
-  const editItem = (item) => {
+  const editItem = item => {
     const trigger = (
       <span>
         <a>Edit</a>
       </span>
     );
 
-    const content = (props) => {
+    const content = props => {
       return (
         <Form
           contentType={item.contentType}
@@ -83,6 +83,12 @@ export default function List({
                     createdUser.username ||
                     createdUser.email)}
               </b>
+              {item.department ? (
+                <p>
+                  <Icon icon="building" size={16} />
+                  {item.department}
+                </p>
+              ) : null}
               <p>
                 {dayjs(item.createdAt).format('lll')} <b>#{item.contentType}</b>
               </p>
@@ -139,11 +145,11 @@ export default function List({
 
   const renderList = () => {
     const datas = list || [];
-    const pinnedList = datas.filter((data) => data.isPinned);
-    const normalList = datas.filter((data) => !data.isPinned);
+    const pinnedList = datas.filter(data => data.isPinned);
+    const normalList = datas.filter(data => !data.isPinned);
 
-    const showList = (items) => {
-      return items.map((filteredItem) => renderItem(filteredItem));
+    const showList = items => {
+      return items.map(filteredItem => renderItem(filteredItem));
     };
 
     return (

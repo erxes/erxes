@@ -10,7 +10,7 @@ export interface ITrackingItem {
 
 export interface ITrip {
   driverId: string;
-  carId: string;
+  carIds: string[];
   dealIds: string[];
   routeId: string;
   routeReversed: boolean;
@@ -31,7 +31,7 @@ export const tripSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     driverId: field({ type: String, label: 'Driver id' }),
-    carId: field({ type: String, label: 'Car id' }),
+    carIds: field({ type: [String], label: 'Car ids' }),
     dealIds: field({ type: [String], label: 'Deal ids' }),
     routeId: field({ type: String, label: 'Route id' }),
     routeReversed: field({ type: Boolean, label: 'Route reversed' }),

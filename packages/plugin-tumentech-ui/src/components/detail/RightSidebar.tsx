@@ -13,7 +13,7 @@ import { isEnabled } from '@erxes/ui/src/utils/core';
 const CompanySection = asyncComponent(
   () =>
     isEnabled('contacts') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
     )
 );
@@ -21,7 +21,7 @@ const CompanySection = asyncComponent(
 const CustomerSection = asyncComponent(
   () =>
     isEnabled('contacts') &&
-    path.resolve(
+    import(
       /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
     )
 );

@@ -2130,5 +2130,9 @@
   "Heading divider & Input focus glow": "Heading divider & Input focus glow",
   "Active tab": "Active tab",
   "More": "More",
-  "Store": "Store"
+  "Store": "Store",
+  "No timezone chosen": "No timezone chosen",
+  "Default Timezone": "Default Timezone",
+  "This timezone will be calculated if supporters haven't chosen one.": "This timezone will be calculated if supporters haven't chosen one.",
+  "Display Operator Timezone": "Display Operator Timezone"
 }

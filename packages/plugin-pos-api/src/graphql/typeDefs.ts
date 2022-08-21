@@ -14,7 +14,7 @@ const typeDefs = async serviceDiscovery => {
     scalar JSON
     scalar Date
 
-    ${await posTypes({ contactsEnabled, productsEnabled })}
+    ${posTypes({ contactsEnabled, productsEnabled })}
 
     extend type Query {
       ${posQueries}

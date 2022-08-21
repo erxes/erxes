@@ -1,18 +1,18 @@
-import React from 'react';
+import * as compose from 'lodash.flowright';
+
+import { AllProductsQueryResponse, IOverallWorkDocument } from '../types';
+import { IJobRefer, IProduct } from '../../job/types';
 
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import * as compose from 'lodash.flowright';
-import { graphql } from 'react-apollo';
-
-import { IFlowDocument } from '../../flow/types';
-import { IJobRefer, IProduct } from '../../job/types';
 import Form from '../components/perform/PerformForm';
-import { mutations } from '../graphql';
-import { AllProductsQueryResponse, IOverallWorkDocument } from '../types';
-import { withProps } from '@erxes/ui/src/utils';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IFlowDocument } from '../../flow/types';
+import React from 'react';
 import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
 import { queries } from '../graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   closeModal: () => void;
@@ -51,15 +51,15 @@ class ProductFormContainer extends React.Component<FinalProps> {
     }: IButtonMutateProps) => {
       const { count, performNeedProducts, performResultProducts } = values;
 
-      for (const need of performNeedProducts) {
-        need.product = '';
-        need.uom = '';
-      }
+      // for (const need of performNeedProducts) {
+      //   need.product = '';
+      //   need.uom = '';
+      // }
 
-      for (const result of performResultProducts) {
-        result.product = '';
-        result.uom = '';
-      }
+      // for (const result of performResultProducts) {
+      //   result.product = '';
+      //   result.uom = '';
+      // }
 
       const doc = {
         startAt: new Date(),
@@ -105,7 +105,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = test => {
-  console.log(test);
   return [
     'performsByOverallWorkId',
     'performsByOverallWorkIdTotalCount',

@@ -1,8 +1,8 @@
 import { afterMutationHandlers } from './afterMutations';
-import { generateModels, IModels } from './connectionResolver';
+import { confirmLoyalties, getBranchesUtil } from './utils';
+import { generateModels } from './connectionResolver';
 import { IPosDocument } from './models/definitions/pos';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { orderToErkhet, getBranchesUtil } from './utils';
 import { serviceDiscovery } from './configs';
 
 let client;
@@ -32,44 +32,15 @@ export const initBroker = async cl => {
 
       const { deliveryConfig = {} } = pos;
       const deliveryInfo = doneOrder.deliveryInfo || {};
-      const { marker = {} } = deliveryInfo;
-      const { cardsConfig = {} } = pos;
-      const currentCardsConfig = cardsConfig.carsConfig.find(
-        c => c.branchId && c.branchId === doneOrder.branchId
-      );
-
-      if (currentCardsConfig) {
-        const cardDeal = await sendCardsMessage({
-          subdomain,
-          action: 'deals.create',
-          data: {
-            name: `Cards: ${doneOrder.number}`,
-            startDate: doneOrder.createdAt,
-            description: deliveryInfo?.address || '',
-            stageId: currentCardsConfig.stageId,
-            assignedUserIds: currentCardsConfig.assignedUserIds,
-            productsData: doneOrder.items.map(i => ({
-              productId: i.productId,
-              uom: 'PC',
-              currency: 'MNT',
-              quantity: i.count,
-              unitPrice: i.unitPrice,
-              amount: i.count * i.unitPrice,
-              tickUsed: true
-            }))
-          },
-          isRPC: true,
-          defaultValue: {}
-        });
-      }
+      const { marker = {}, description } = deliveryInfo;
 
       const deal = await sendCardsMessage({
         subdomain,
-        action: '',
+        action: 'deals.create',
         data: {
           name: `Delivery: ${doneOrder.number}`,
           startDate: doneOrder.createdAt,
-          description: deliveryInfo.address,
+          description,
           // {
           //   "locationValue": {
           //     "type": "Point",
@@ -93,14 +64,18 @@ export const initBroker = async cl => {
               ),
               locationValue: {
                 type: 'Point',
-                coordinates: [marker.longitude, marker.latitude]
+                coordinates: [
+                  marker.longitude || marker.lng,
+                  marker.latitude || marker.lat
+                ]
               },
               value: {
-                lat: marker.latitude,
-                lng: marker.longitude,
+                lat: marker.latitude || marker.lat,
+                lng: marker.longitude || marker.lng,
                 description: 'location'
               },
-              stringValue: `${marker.longitude},${marker.latitude}`
+              stringValue: `${marker.longitude ||
+                marker.lng},${marker.latitude || marker.lat}`
             }
           ],
           stageId: deliveryConfig.stageId,
@@ -165,7 +140,7 @@ export const initBroker = async cl => {
     }
 
     // ====== if (action === 'makePayment')
-    await sendEbarimtMessage({
+    const putResponse = await sendEbarimtMessage({
       subdomain,
       action: 'putresponses.createOrUpdate',
       data: { _id: response._id, doc: { ...response, posToken } },
@@ -179,13 +154,81 @@ export const initBroker = async cl => {
           ...order,
           posToken,
           items,
-          branchId: order.branchId || pos.branchId
+          branchId: order.branchId || pos.branchId,
+          departmentId: order.departmentId || pos.departmentId
         }
       },
       { upsert: true }
     );
 
     const newOrder = await models.PosOrders.findOne({ _id: order._id }).lean();
+    await confirmLoyalties(subdomain, newOrder);
+
+    // ===> sync cards config then
+    const { cardsConfig } = pos;
+
+    const currentCardsConfig: any = (
+      Object.values(cardsConfig || {}) || []
+    ).find(
+      c =>
+        (c || ({} as any)).branchId && (c as any).branchId === newOrder.branchId
+    );
+
+    if (currentCardsConfig && currentCardsConfig.stageId) {
+      const cardDeal = await sendCardsMessage({
+        subdomain,
+        action: 'deals.create',
+        data: {
+          name: `Cards: ${newOrder.number}`,
+          startDate: newOrder.createdAt,
+          description: newOrder.deliveryInfo
+            ? newOrder.deliveryInfo.address
+            : '',
+          stageId: currentCardsConfig.stageId,
+          assignedUserIds: currentCardsConfig.assignedUserIds,
+          productsData: newOrder.items.map(i => ({
+            productId: i.productId,
+            uom: 'PC',
+            currency: 'MNT',
+            quantity: i.count,
+            unitPrice: i.unitPrice,
+            amount: i.count * i.unitPrice,
+            tickUsed: true
+          }))
+        },
+        isRPC: true,
+        defaultValue: {}
+      });
+
+      if (newOrder.customerId && cardDeal._id) {
+        await sendCoreMessage({
+          subdomain,
+          action: 'conformities.addConformity',
+          data: {
+            mainType: 'deal',
+            mainTypeId: cardDeal._id,
+            relType: 'customer',
+            relTypeId: newOrder.customerId
+          },
+          isRPC: true
+        });
+      }
+
+      await sendCardsMessage({
+        subdomain,
+        action: 'pipelinesChanged',
+        data: {
+          pipelineId: currentCardsConfig.pipelineId,
+          action: 'itemAdd',
+          data: {
+            item: cardDeal,
+            destinationStageId: currentCardsConfig.stageId
+          }
+        }
+      });
+    }
+    // end sync cards config then <
+
     // return info saved
     sendPosclientMessage({
       subdomain,
@@ -203,11 +246,10 @@ export const initBroker = async cl => {
       const toPos = await models.Pos.findOne({ branchId: newOrder.branchId });
 
       // paid order info to offline pos
-      // TODO: this message RPC, offline pos has seen by this message check
       if (toPos) {
         await sendPosclientMessage({
           subdomain,
-          action: 'vrpc_queue:erxes-pos-to-pos',
+          action: 'erxes-posclient-to-pos-api',
           data: {
             order: { ...newOrder, posToken }
           },
@@ -216,14 +258,15 @@ export const initBroker = async cl => {
       }
     }
 
-    await orderToErkhet(
+    await sendSyncerkhetMessage({
       subdomain,
-      models,
-      client,
-      pos,
-      order._id,
-      response._id
-    );
+      action: 'toOrder',
+      data: {
+        pos,
+        order: newOrder,
+        putRes: putResponse
+      }
+    });
 
     return {
       status: 'success'
@@ -243,7 +286,87 @@ export const initBroker = async cl => {
     const { posToken } = data;
 
     const models = await generateModels(subdomain);
-    return await getBranchesUtil(subdomain, models, posToken);
+    return {
+      status: 'success',
+      data: await getBranchesUtil(subdomain, models, posToken)
+    };
+  });
+
+  consumeRPCQueue('pos:ordersDeliveryInfo', async ({ subdomain, data }) => {
+    const { orderId } = data;
+    const models = await generateModels(subdomain);
+
+    const order = await models.PosOrders.findOne({ _id: orderId }).lean();
+
+    // on kitchen
+    if (!order.deliveryInfo) {
+      return {
+        status: 'success',
+        data: {
+          error: 'Deleted delivery information.'
+        }
+      };
+    }
+
+    if (!order.deliveryInfo.dealId) {
+      return {
+        status: 'success',
+        data: {
+          _id: order._id,
+          status: 'onKitchen',
+          date: order.paidDate
+        }
+      };
+    }
+
+    const dealId = order.deliveryInfo.dealId;
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: { _id: dealId },
+      isRPC: true
+    });
+
+    if (!deal) {
+      return {
+        status: 'success',
+        data: {
+          error: 'Deleted delivery information.'
+        }
+      };
+    }
+
+    const stage = await sendCardsMessage({
+      subdomain,
+      action: 'stages.findOne',
+      data: { _id: deal.stageId },
+      isRPC: true
+    });
+
+    return {
+      status: 'success',
+      data: {
+        _id: order._id,
+        status: stage.name,
+        date: deal.stageChangedDate || deal.modifiedDate || deal.createdAt
+      }
+    };
+  });
+
+  consumeRPCQueue('pos:orders.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.PosOrders.find(data).lean()
+    };
+  });
+
+  consumeRPCQueue('pos:configs.find', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    return {
+      status: 'success',
+      data: await models.Pos.find(data).lean()
+    };
   });
 };
 
@@ -265,6 +388,17 @@ export const sendCardsMessage = async (
     client,
     serviceDiscovery,
     serviceName: 'cards',
+    ...args
+  });
+};
+
+export const sendLoyaltiesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'loyalties',
     ...args
   });
 };
@@ -300,6 +434,17 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendSyncerkhetMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'syncerkhet',
+    ...args
+  });
+};
+
 export const sendPosclientMessage = async (
   args: ISendMessageArgs & {
     pos: IPosDocument;
@@ -311,7 +456,10 @@ export const sendPosclientMessage = async (
 
   const { ALL_AUTO_INIT } = process.env;
 
-  if (!ALL_AUTO_INIT && !pos.onServer) {
+  if (
+    ![true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') &&
+    !pos.onServer
+  ) {
     lastAction = `posclient:${action}_${pos.token}`;
     serviceName = '';
     args.data.thirdService = true;
@@ -319,7 +467,7 @@ export const sendPosclientMessage = async (
 
   args.data.token = pos.token;
 
-  await sendMessage({
+  return await sendMessage({
     client,
     serviceDiscovery,
     serviceName,

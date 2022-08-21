@@ -50,7 +50,8 @@ export default function BranchForm(props: Props) {
       links,
       coordinate,
       image,
-      ...finalValues
+      ...finalValues,
+      radius: Number(finalValues.radius)
     };
   };
 
@@ -125,6 +126,14 @@ export default function BranchForm(props: Props) {
           setImage={setImage}
           image={image}
         />
+        <FormGroup>
+          <ControlLabel>{__('Radius')}</ControlLabel>
+          <FormControl
+            {...formProps}
+            name="radius"
+            defaultValue={object.radius}
+          />
+        </FormGroup>
         <ModalFooter>
           <Button
             btnStyle="simple"

@@ -1,27 +1,28 @@
-import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
-import { ControlLabel, FormGroup, SelectTeamMembers, __ } from '@erxes/ui/src';
-
 import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
-import { IPos } from '../../../types';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
 import React from 'react';
 import Select from 'react-select-plus';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import client from '@erxes/ui/src/apolloClient';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import gql from 'graphql-tag';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { __, ControlLabel, FormGroup, SelectTeamMembers } from '@erxes/ui/src';
+import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import { IPos } from '../../../types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 
 type Props = {
   onChange: (name: 'deliveryConfig', value: any) => void;
   pos?: IPos;
 };
 
-class DeliveryConfig extends React.Component<
-  Props,
-  { config: any; fieldsCombined: FieldsCombinedByType[] }
-> {
+type State = {
+  config: any;
+  fieldsCombined: FieldsCombinedByType[];
+};
+
+class DeliveryConfig extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -33,17 +34,21 @@ class DeliveryConfig extends React.Component<
             pipelineId: '',
             stageId: '',
             watchedUserIds: [],
-            assignedUserIds: []
+            assignedUserIds: [],
+            productId: ''
           };
 
-    let fieldsCombined = [];
+    this.state = {
+      config,
+      fieldsCombined: []
+    };
 
     if (isEnabled('forms')) {
       client
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'deal'
+            contentType: 'cards:deal'
           }
         })
         .then(({ data }) => {
@@ -51,14 +56,7 @@ class DeliveryConfig extends React.Component<
             fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
           });
         });
-
-      this.setState({ fieldsCombined });
     }
-
-    this.state = {
-      config,
-      fieldsCombined: []
-    };
   }
 
   onChangeConfig = (code: string, value) => {
@@ -105,6 +103,10 @@ class DeliveryConfig extends React.Component<
       this.onChangeConfig('mapCustomField', value);
     };
 
+    const onChangeProduct = option => {
+      this.onChangeConfig('productId', option);
+    };
+
     return (
       <FlexItem>
         <FlexColumn>
@@ -132,7 +134,7 @@ class DeliveryConfig extends React.Component<
                       value={config.mapCustomField}
                       onChange={onMapCustomFieldChange}
                       options={(fieldsCombined || []).map(f => ({
-                        value: f._id,
+                        value: f.name,
                         label: f.label
                       }))}
                     />
@@ -162,6 +164,18 @@ class DeliveryConfig extends React.Component<
                     name="assignedUserIds"
                     initialValue={config.assignedUserIds}
                     onSelect={onAssignedUsersSelect}
+                  />
+                </FormGroup>
+              </BlockRow>
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>{__('Delivery product')}</ControlLabel>
+                  <SelectProducts
+                    label={__('Choose delivery product')}
+                    name="product"
+                    initialValue={config.productId}
+                    multi={false}
+                    onSelect={onChangeProduct}
                   />
                 </FormGroup>
               </BlockRow>
