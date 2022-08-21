@@ -1,20 +1,20 @@
 import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
 
-import { ByKindTotalCount } from '../../types';
+// import { ByKindTotalCount } from '../../types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
+import { INTEGRATIONS } from './constants/integrations';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import Row from './Row';
-import Sidebar from './Sidebar';
+// import Sidebar from './Sidebar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
-  totalCount: ByKindTotalCount;
+  totalCount: any;
   queryParams: any;
   customLink: (kind: string, addLink: string) => void;
 };
@@ -30,7 +30,7 @@ class Home extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('All add-ons') !== -1
+        integration => integration.category.indexOf('Payment method') !== -1
       )
     };
   }
@@ -47,8 +47,9 @@ class Home extends React.Component<Props, State> {
         integrations: INTEGRATIONS.filter(
           integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-            integration.category.indexOf(queryParams.type || 'All add-ons') !==
-              -1
+            integration.category.indexOf(
+              queryParams.type || 'Payment method'
+            ) !== -1
         )
       });
     }
@@ -61,7 +62,6 @@ class Home extends React.Component<Props, State> {
   renderIntegrations() {
     const { integrations, searchValue } = this.state;
     const { totalCount, queryParams, customLink } = this.props;
-
     const datas = [] as any;
     const rows = [...integrations];
 
@@ -81,7 +81,7 @@ class Home extends React.Component<Props, State> {
       return (
         <FullHeight>
           <EmptyState
-            text={`No results for "${searchValue}"`}
+            text={`No results for1 "${searchValue}"`}
             image="/images/actions/2.svg"
           />
         </FullHeight>
@@ -97,7 +97,7 @@ class Home extends React.Component<Props, State> {
         <Icon icon="search-1" />
         <FormControl
           type="text"
-          placeholder={__('Type to search for an add-ons') + '...'}
+          placeholder={__('Type to search for an payments') + '...'}
           onChange={this.onSearch}
         />
       </SearchInput>
@@ -106,21 +106,18 @@ class Home extends React.Component<Props, State> {
 
   render() {
     const { queryParams } = this.props;
-
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons') },
-      { title: `${this.props.queryParams.type || __('All add-ons')}` }
+      { title: __('Payments') },
+      { title: `${this.props.queryParams.type || __('All payments')}` }
     ];
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/33.svg"
-        title="Add-ons"
-        description={`${__(
-          'Set up your add-ons and start connecting with your customers'
-        )}.${__(
-          'Now you can reach them on wherever platform they feel most comfortable'
+        title="Paymets"
+        description={`${__('Set up your payment method')}.${__(
+          'Now you can choose payment method'
         )}`}
       />
     );
@@ -128,11 +125,11 @@ class Home extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Add-ons')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Payments')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{queryParams.type || 'All Add-onsss'}</Title>}
+            left={<Title>{queryParams.type || 'All Payments'}</Title>}
             right={this.renderSearch()}
             withMargin={true}
             wide={true}
@@ -140,7 +137,7 @@ class Home extends React.Component<Props, State> {
           />
         }
         mainHead={headerDescription}
-        leftSidebar={<Sidebar currentType={queryParams.type} />}
+        // leftSidebar={<Sidebar currentType={queryParams.type} />}
         content={
           <Content>
             <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>

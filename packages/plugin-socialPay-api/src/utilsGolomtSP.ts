@@ -1,11 +1,48 @@
-import { fetchUrl } from './utils';
 import * as crypto from 'crypto';
+import fetch from 'node-fetch';
+import { sendCoreMessage } from './messageBroker';
 
 export const configDescriptions = {
   inStoreSPKey: 'InStore SocialPay key for checksum',
   inStoreSPTerminal: 'InStore SocialPay terminal code for checksum',
   inStoreSPUrl: 'InStore SocialPay url for API',
   pushNotification: 'Push notification for catch the payemnt of customer'
+};
+
+export const makeInvoiceNo = length => {
+  let result = '';
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
+export const fetchUrl = async (url, requestOptions) => {
+  let returnData;
+
+  await fetch(`${url}`, requestOptions)
+    .then(response => response.text())
+    .then(result => {
+      try {
+        returnData = JSON.parse(result);
+      } catch (error) {
+        returnData = { error: result };
+      }
+    })
+    .catch(error => console.log('error', error));
+
+  return returnData;
+};
+
+export const getConfig = async (subdomain, code, defaultValue?) => {
+  return await sendCoreMessage({
+    subdomain,
+    action: 'getConfig',
+    data: { code, defaultValue },
+    isRPC: true
+  });
 };
 
 export const hmac256 = (key, message) => {

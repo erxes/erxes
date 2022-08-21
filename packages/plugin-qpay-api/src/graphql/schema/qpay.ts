@@ -1,6 +1,6 @@
 import {
   attachmentType,
-  attachmentInput,
+  attachmentInput
 } from '@erxes/api-utils/src/commonTypeDefs';
 
 export const types = () => `
@@ -20,16 +20,6 @@ export const types = () => `
     qrText: String
     qpayPaymentId: String
     paymentDate: Date
-    status: String
-  }
-
-  type SocialPayInvoice {
-    _id: String!
-    createdAt: Date
-    invoiceNo: String
-    amount: String
-    phone: String
-    qrText: String
     status: String
   }
 `;
@@ -70,33 +60,11 @@ const createSimpleInvoiceParams = `
   amount: String!
 `;
 
-const socialPayInvoicePhoneParams = `
-  amount: String!,
-  invoiceNoAuto: Boolean!,
-  invoice: String,
-  phone: String!
-`;
-
-const socialPayInvoiceQrParams = `
-  amount: String!
-  invoiceNoAuto: Boolean!,
-  invoice: String,
-`;
-
-const socialPayInvoiceCancelParams = `
-  invoiceNo: String!
-`;
-
 export const mutations = `
   createQpaySimpleInvoice(${createSimpleInvoiceParams}): JSON
   createQpayInvoice(${createInvoiceParams}): JSON
   cancelQpayInvoice(invoiceId: String!): JSON
   deleteQpayPayment(paymentId: String!, description: String): JSON
-
-  createSPInvoicePhone(${socialPayInvoicePhoneParams}): JSON
-  createSPInvoiceQr(${socialPayInvoiceQrParams}): JSON
-  cancelSPInvoice(${socialPayInvoiceCancelParams}): JSON
-  cancelPaymentSPInvoice(${socialPayInvoiceCancelParams}): JSON
 `;
 
 const listPaymentParams = `
@@ -120,7 +88,4 @@ export const queries = `
   checkQpayPayments(objectType: String!, objectId: String!, page: Int, limit: Int): JSON
   listQpayPayments(${listPaymentParams}): JSON
   getQpayNuat(paymentId: String!, receiverType: String!): JSON
-
-  socialPayInvoices(${listPageParams}): [SocialPayInvoice]
-  checkSPInvoice(${socialPayInvoiceCancelParams}): JSON
 `;
