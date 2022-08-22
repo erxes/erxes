@@ -1,6 +1,5 @@
-import { sendContactsMessage } from './../../../../../plugin-inbox-api/src/messageBroker';
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage } from '../../../messageBroker';
+import { sendCoreMessage, sendContactsMessage } from '../../../messageBroker';
 import { IParticipant } from './../../../models/definitions/participants';
 
 interface IParticipantEdit extends IParticipant {
