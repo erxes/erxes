@@ -34,7 +34,7 @@ Our community is at the heart of everything we do. We understand that people who
 - **<a href="https://github.com/erxes/erxes" target="_blank">erxes</a>** - erxes codebase
 - **<a href="https://www.erxes.org/installation/docker" target="_blank">erxes Docker</a>** - erxes containerized
 - **<a href="https://xosdemo.erxes.io/" target="_blank">erxes Demo</a>** - erxes official demo
-- **<a href="https://www.erxes.org/contribute/overview" target="_blank">contributing guide</a>** - to contribute
+- **<a href="https://github.com/erxes/erxes/blob/master/CONTRIBUTING.md" target="_blank">contributing guide</a>** - to contribute
 
 ## Community
 
