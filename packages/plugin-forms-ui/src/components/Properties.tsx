@@ -233,11 +233,10 @@ class Properties extends React.Component<
       <Wrapper
         actionBar={
           <Wrapper.ActionBar
-            withMargin
-            wide
             background="bgWhite"
             left={title}
             right={this.renderActionBar()}
+            wideSpacing
           />
         }
         header={
@@ -248,9 +247,8 @@ class Properties extends React.Component<
           <Sidebar currentType={__(currentType)} services={services} />
         }
         content={this.renderProperties()}
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

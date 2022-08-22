@@ -1,7 +1,7 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { TopHeader } from '@erxes/ui/src/styles/main';
+import { Header } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
@@ -63,7 +63,7 @@ class KnowledgeList extends React.Component<Props> {
     );
 
     return (
-      <TopHeader>
+      <Header>
         <ModalTrigger
           title="Add Knowledge Base"
           autoOpenKey="showKBAddModal"
@@ -71,7 +71,7 @@ class KnowledgeList extends React.Component<Props> {
           content={content}
           enforceFocus={false}
         />
-      </TopHeader>
+      </Header>
     );
   }
 
@@ -79,7 +79,7 @@ class KnowledgeList extends React.Component<Props> {
     const { topics, loading } = this.props;
 
     return (
-      <Sidebar hasBorder={true} wide={true} header={this.renderSidebarHeader()}>
+      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder>
         <DataWithLoader
           data={this.renderTopics()}
           loading={loading}

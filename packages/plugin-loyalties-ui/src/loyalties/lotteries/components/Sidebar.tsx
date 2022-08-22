@@ -16,7 +16,7 @@ function Sidebar({
   isAward: boolean;
 }) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       <PaddingTop>
         <CampaignList queryParams={queryParams} history={history} />
         {isAward && (

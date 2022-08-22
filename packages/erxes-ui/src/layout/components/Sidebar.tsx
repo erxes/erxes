@@ -14,24 +14,12 @@ import {
 
 function Title({
   children,
-  onClick,
-  noBackground,
-  noSpacing
+  onClick
 }: {
   children: React.ReactNode;
   onClick?: () => void;
-  noBackground?: boolean;
-  noSpacing?: boolean;
 }) {
-  return (
-    <SidebarTitle
-      onClick={onClick}
-      noBackground={noBackground}
-      noSpacing={noSpacing}
-    >
-      {children}
-    </SidebarTitle>
-  );
+  return <SidebarTitle onClick={onClick}>{children}</SidebarTitle>;
 }
 
 function QuickButtons({
@@ -129,26 +117,11 @@ type HeaderProps = {
   uppercase?: boolean;
   bold?: boolean;
   spaceBottom?: boolean;
-  noBackground?: boolean;
-  noSpacing?: boolean;
 };
 
-function Header({
-  children,
-  spaceBottom,
-  uppercase,
-  bold,
-  noBackground,
-  noSpacing
-}: HeaderProps) {
+function Header({ children, spaceBottom, uppercase, bold }: HeaderProps) {
   return (
-    <SidebarHeader
-      noBackground={noBackground}
-      noSpacing={noSpacing}
-      spaceBottom={spaceBottom}
-      uppercase={uppercase}
-      bold={bold}
-    >
+    <SidebarHeader spaceBottom={spaceBottom} uppercase={uppercase} bold={bold}>
       {children}
     </SidebarHeader>
   );
@@ -166,7 +139,6 @@ type SidebarProps = {
   full?: boolean;
   half?: boolean;
   hasBorder?: boolean;
-  noMargin?: boolean;
 };
 
 export default class Sidebar extends React.Component<SidebarProps> {
@@ -182,18 +154,11 @@ export default class Sidebar extends React.Component<SidebarProps> {
       footer,
       half,
       full,
-      hasBorder,
-      noMargin
+      hasBorder
     } = this.props;
 
     return (
-      <SideContent
-        half={half}
-        wide={wide}
-        full={full}
-        hasBorder={hasBorder}
-        noMargin={noMargin}
-      >
+      <SideContent half={half} wide={wide} full={full} hasBorder={hasBorder}>
         {header}
         <SidebarMainContent>{children}</SidebarMainContent>
         {footer}

@@ -141,6 +141,7 @@ export default class AppList extends React.Component<Props> {
             emptyImage="/images/actions/21.svg"
           />
         }
+        hasBorder
       />
     );
   }

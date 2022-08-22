@@ -57,7 +57,7 @@ class Sidebar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar header={this.renderSidebarHeader()} hasBorder={true}>
+      <LeftSidebar header={this.renderSidebarHeader()} hasBorder>
         <LeftSidebar.Section>{this.renderList()}</LeftSidebar.Section>
       </LeftSidebar>
     );

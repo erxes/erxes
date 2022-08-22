@@ -5,13 +5,12 @@ import FormGroup from 'modules/common/components/form/Group';
 import ControlLabel from 'modules/common/components/form/Label';
 import Info from 'modules/common/components/Info';
 import CURRENCIES from '@erxes/ui/src/constants/currencies';
-import { Title } from 'modules/common/styles/main';
 import { __ } from 'modules/common/utils';
 import Wrapper from 'modules/layout/components/Wrapper';
 import EmailConfigForm from '@erxes/ui-settings/src/general/components/EmailConfigForm';
 import React from 'react';
 import Select from 'react-select-plus';
-import { ContentBox } from '@erxes/ui-settings/src/styles';
+import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
 import {
   DATA_RETENTION_DURATION,
   FILE_MIME_TYPES,
@@ -480,6 +479,7 @@ class GeneralSettings extends React.Component<Props, State> {
           />
         }
         content={content}
+        hasBorder
       />
     );
   }
