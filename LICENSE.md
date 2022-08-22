@@ -2,7 +2,7 @@ Copyright (c) 2022-present erxes Inc.
 
 Portions of this software are licensed as follows:
 
-- All plugins named with "-ee" at the end that resides under https://github.com/erxes/erxes/tree/main/packages/ directory of this repository (Enterprise Edition) is licensed under the license defined in "ee/LICENSE".
+- All plugins named with "-ee" at the end that resides under **https://github.com/erxes/erxes/tree/master/ee** directory of this repository (Enterprise Edition) is licensed under the license defined in "ee/LICENSE".
 - All third party components incorporated into the erxes Inc are licensed under the original license provided by the owner of the applicable component.
 - Content outside of the above mentioned directories or restrictions above is available under the "AGPLv3" license as defined below.
 - erxes is not permitted to be hosted as a SaaS version to compete with erxes Inc.
