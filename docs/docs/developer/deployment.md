@@ -4,7 +4,7 @@ title: Deployment
 sidebar_label: Installation
 ---
 
-The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">**Docker**</a> on <a href="https://ubuntu.com/" target="_blank">**Ubuntu**</a> in order to use erxes. This the guideline will be dedicated to developers who is about to use erxes for their businesses only. If you want to customize or develop additional plugins on erxes, please go to <a href="https://docs.erxes.io/introduction/introduction">the developer installation guideline</a>.
+The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">**Docker**</a> on <a href="https://ubuntu.com/" target="_blank">**Ubuntu**</a> in order to use erxes. This the guideline will be dedicated to developers who is about to use erxes for their businesses only. If you want to customize or develop additional plugins on erxes, please go to **<a href="https://docs.erxes.io/introduction/introduction">the developer installation guideline</a>**.
 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
@@ -13,11 +13,13 @@ Docker is an open platform that allows to develop, ship and run applications by 
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
+
 :::caution
 
 Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward. 
 
 :::
+
 
 ## Preparing the installation
 
