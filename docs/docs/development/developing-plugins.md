@@ -20,11 +20,11 @@ With erxes, you can create your own plugins or extend the existing ones, which w
 ## Installing erxes
 ---
 
-Please go to **<a href="https://www.erxes.org/developer/ubuntu" target="_blank">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction. 
+Please go to **<a href="https://docs.erxes.io/development/developing-plugins">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction. 
 
 :::warning
 
-Before running erxes you need several other actions required to develop your own plugins at erxes XOS. Please make sure you should be back straight after you install erxes XOS using **<a href="https://www.erxes.org/developer/ubuntu" target="_blank">the installation guideline</a>**.
+Before running erxes you need several other actions required to develop your own plugins at erxes XOS. Please make sure you should be back straight after you install erxes XOS using **<a href="https://docs.erxes.io/development/developing-plugins">the installation guideline</a>**.
 
 :::
 
