@@ -452,7 +452,7 @@ export const ArchiveStatus = styled.div`
   }
 `;
 
-export const FullWidth = styled.div`
+export const BoardSelectWrapper = styled.div`
   ${FormContainer} {
     padding: 0;
   }

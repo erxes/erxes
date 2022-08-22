@@ -11,7 +11,7 @@ import {
   FormFooter,
   HeaderContent,
   HeaderRow,
-  FullWidth
+  BoardSelectWrapper
 } from '../../styles/item';
 import { IItem, IItemParams, IOptions } from '../../types';
 import { invalidateCache } from '../../utils';
@@ -203,7 +203,7 @@ class AddForm extends React.Component<Props, State> {
     const brIdOnChange = brId => this.onChangeField('boardId', brId);
 
     return (
-      <FullWidth>
+      <BoardSelectWrapper>
         <BoardSelect
           type={options.type}
           stageId={stageId}
@@ -213,7 +213,7 @@ class AddForm extends React.Component<Props, State> {
           onChangePipeline={plIdOnChange}
           onChangeBoard={brIdOnChange}
         />
-      </FullWidth>
+      </BoardSelectWrapper>
     );
   }
 
@@ -239,33 +239,39 @@ class AddForm extends React.Component<Props, State> {
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
-  render() {
+  renderNameInput = () => {
     const { type } = this.props.options;
 
+    if (this.props.showSelect) {
+      return (
+        <CardSelect
+          placeholder={`Add a new ${type} or select one`}
+          options={this.state.cards}
+          onChange={this.onChangeCardSelect}
+          type={type}
+          additionalValue={this.state.name}
+        />
+      );
+    }
+
+    return (
+      <FormControl
+        value={this.state.name}
+        autoFocus={true}
+        placeholder="Create a new card"
+        onChange={this.onChangeName}
+      />
+    );
+  };
+
+  render() {
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <AddFormWidth>
-              {this.props.showSelect ? (
-                <CardSelect
-                  placeholder={`Add a new ${type} or select one`}
-                  options={this.state.cards}
-                  onChange={this.onChangeCardSelect}
-                  type={type}
-                  additionalValue={this.state.name}
-                />
-              ) : (
-                <FormControl
-                  value={this.state.name}
-                  autoFocus={true}
-                  placeholder="Create a new card"
-                  onChange={this.onChangeName}
-                />
-              )}
-            </AddFormWidth>
+            <AddFormWidth>{this.renderNameInput()}</AddFormWidth>
           </HeaderContent>
         </HeaderRow>
         <GenerateAddFormFields
