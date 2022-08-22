@@ -453,12 +453,18 @@ const up = async ({ uis, fromInstaller }) => {
     }
   }
 
-  log('Downloading pluginsMap.js from s3 ....');
+  let pluginsMapLocation = 'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
 
-  await execCurl(
-    'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js',
-    'pluginsMap.js'
-  );
+  if (configs.image_tag) {
+    if (configs.image_tag === 'dev') {
+      pluginsMapLocation = 'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+    } else {
+      pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
+    }
+  }
+
+  log(`Downloading pluginsMap.js from ${pluginsMapLocation} ....`);
+  await execCurl(pluginsMapLocation, 'pluginsMap.js');
 
   const pluginsMap = require(filePath('pluginsMap.js'));
 
