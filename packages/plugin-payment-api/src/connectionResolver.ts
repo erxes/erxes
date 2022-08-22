@@ -19,7 +19,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
   models.PaymentConfigs = db.model<IPaymentConfigDocument, IPaymentConfigModel>(
-    'paymentConfig',
+    'payment_config',
     loadPaymentConfigClass(models)
   );
 

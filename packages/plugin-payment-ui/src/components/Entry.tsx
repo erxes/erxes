@@ -4,11 +4,14 @@ import React from 'react';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
-import QpayConfigForm from './form/QpayConfigForm';
+// import QpayConfigForm from './form/QpayConfigForm';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
-import SpayConfigForm from './form/SpayConfigForm';
+// import SpayConfigForm from './form/SpayConfigForm';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ButtonMutate } from '@erxes/ui/src/components';
+import { mutations } from '../graphql';
 
 type TotalCount = {
   messenger: number;
@@ -46,13 +49,36 @@ function renderType(type: string) {
   );
 }
 
+const renderButton = ({
+  name,
+  values,
+  isSubmitted,
+  callback
+}: IButtonMutateProps) => {
+  return (
+    <ButtonMutate
+      mutation={mutations.paymentConfigsAdd}
+      variables={values}
+      callback={callback}
+      // refetchQueries={getRefetchQueries(this.props.kind)}
+      isSubmitted={isSubmitted}
+      type="submit"
+      successMessage={__(`You successfully added a`) + `${name}`}
+    />
+  );
+};
+
 function renderCreate(type: string) {
   const trigger = <button>+ {__('Add')}</button>;
 
-  let formContent = props => <QpayForm />;
+  let formContent = props => (
+    <QpayForm {...props} renderButton={renderButton} />
+  );
 
   if (type.toLowerCase().includes('social')) {
-    formContent = props => <SocialPayForm />;
+    formContent = props => (
+      <SocialPayForm {...props} renderButton={renderButton} />
+    );
   }
 
   return (

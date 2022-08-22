@@ -251,7 +251,7 @@ class IntegrationListItem extends React.Component<Props, State> {
       <tr key={paymentConfig._id}>
         <td>{paymentConfig.name}</td>
         <td>
-          <Label lblStyle={labelStyle}>{paymentConfig.status}</Label>
+          <Label lblStyle={labelStyle}>{status}</Label>
         </td>
 
         <td>

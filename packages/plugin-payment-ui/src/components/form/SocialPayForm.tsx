@@ -10,54 +10,76 @@ import React from 'react';
 
 import { __ } from '@erxes/ui/src/utils';
 import { SettingsContent } from './styles';
+import { IPaymentConfig } from 'types';
 
-// type Props = {
-//   renderButton: (props: IButtonMutateProps) => JSX.Element;
-//   callback: () => void;
-//   onChannelChange: () => void;
-//   channelIds: string[];
-// };
+type Props = {
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
+  closeModal: () => void;
+  paymentConfig?: IPaymentConfig;
+};
 
-class SocialPayConfigForm extends React.Component {
+type State = {
+  paymentConfigName: string;
+  inStoreSPTerminal: string;
+  inStoreSPKey: string;
+  inStoreSPUrl: string;
+  pushNotification: string;
+};
+
+class SocialPayConfigForm extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+
+    const { paymentConfig } = this.props;
+
+    this.state = {
+      paymentConfigName: paymentConfig?.name || '',
+      inStoreSPTerminal: paymentConfig?.config.terminal || '',
+      inStoreSPKey: paymentConfig?.config.spKey || '',
+      inStoreSPUrl: paymentConfig?.config.spUrl || '',
+      pushNotification: paymentConfig?.config.spNotif || ''
+    };
+  }
+
   generateDoc = (values: {
-    name: string;
-    phoneNumber: string;
-    recordUrl: string;
-    brandId: string;
+    paymentConfigName: string;
+    inStoreSPTerminal: string;
+    inStoreSPKey: string;
+    inStoreSPUrl: string;
+    pushNotification: string;
   }) => {
+    console.log('generateDoc values:', values);
+
     return {
-      name: `${values.name} - ${values.phoneNumber}`,
-      brandId: values.brandId,
-      kind: 'callpro',
-      data: {
-        recordUrl: values.recordUrl,
-        phoneNumber: values.phoneNumber
+      name: values.paymentConfigName,
+      type: 'socialPay',
+      status: 'active',
+      config: {
+        terminal: values.inStoreSPTerminal,
+        spKey: values.inStoreSPKey,
+        spUrl: values.inStoreSPUrl,
+        spNotif: values.pushNotification
       }
     };
   };
 
+  onChangeConfig = (code: string, e) => {
+    this.setState({ [code]: e.target.value } as any);
+  };
+
   renderItem = (key: string, title: string, description?: string) => {
-    // const { currentMap } = this.state;
-    // let value = currentMap[key] || "";
-
-    const value = '';
-
-    // if (key === "callbackUrl" && !value) {
-    //   value = 'https://localhost:3000/payments';
-    //   currentMap[key] = value;
-    // }
-
-    // if (key === "qpayUrl" && !value) {
-    //   value = 'https://merchant.qpay.mn';
-    //   currentMap[key] = value;
-    // }
+    const value = this.state[key]
+      ? this.state[key]
+      : key === 'inStoreSPUrl'
+      ? 'https://merchant.qpay.mn'
+      : '';
 
     return (
       <FormGroup>
         <ControlLabel>{title}</ControlLabel>
         <FormControl
           defaultValue={value}
-          // onChange={this.onChangeConfig.bind(this, key)}
+          onChange={this.onChangeConfig.bind(this, key)}
           value={value}
         />
       </FormGroup>
@@ -65,12 +87,28 @@ class SocialPayConfigForm extends React.Component {
   };
 
   renderContent = (formProps: IFormProps) => {
-    // const { renderButton, callback, onChannelChange, channelIds } = this.props;
-    const { values, isSubmitted } = formProps;
+    const { renderButton, closeModal } = this.props;
+    const { isSubmitted } = formProps;
+    const {
+      paymentConfigName,
+      inStoreSPTerminal,
+      inStoreSPKey,
+      inStoreSPUrl,
+      pushNotification
+    } = this.state;
+
+    const values = {
+      paymentConfigName,
+      inStoreSPTerminal,
+      inStoreSPKey,
+      inStoreSPUrl,
+      pushNotification
+    };
 
     return (
       <>
         <SettingsContent title={__('General settings')}>
+          {this.renderItem('paymentConfigName', 'Name')}
           {this.renderItem('inStoreSPTerminal', 'Terminal')}
           {this.renderItem('inStoreSPKey', 'Key')}
           {this.renderItem('inStoreSPUrl', 'InStore SocialPay url')}
@@ -84,17 +122,17 @@ class SocialPayConfigForm extends React.Component {
           <Button
             btnStyle="simple"
             type="button"
-            // onClick={callback}
+            onClick={closeModal}
             icon="times-circle"
           >
             Cancel
           </Button>
-          {/* {renderButton({
-            name: 'integration',
+          {renderButton({
+            name: 'socialPay',
             values: this.generateDoc(values),
             isSubmitted,
-            callback
-          })} */}
+            callback: closeModal
+          })}
         </ModalFooter>
       </>
     );
