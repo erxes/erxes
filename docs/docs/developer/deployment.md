@@ -261,7 +261,7 @@ docker logs -f erxes_gateway.1.value
 
 If "plugin_name has no address value" is displayed, it is not connected to the database.
 
-26. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
+26. Move nginx .conf to /etc/nginx/sites-enabled/.
 
 ```
 sudo mv nginx.conf /etc/nginx/sites-enabled/
