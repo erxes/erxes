@@ -7,7 +7,7 @@ import React from 'react';
 
 import BoardSelect from '../../containers/BoardSelect';
 import {
-  AddFormWidth,
+  SelectInput,
   FormFooter,
   HeaderContent,
   HeaderRow,
@@ -271,7 +271,7 @@ class AddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <AddFormWidth>{this.renderNameInput()}</AddFormWidth>
+            <SelectInput>{this.renderNameInput()}</SelectInput>
           </HeaderContent>
         </HeaderRow>
         <GenerateAddFormFields

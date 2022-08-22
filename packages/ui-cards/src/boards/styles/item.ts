@@ -129,7 +129,7 @@ export const AddContent = styled.div`
   }
 `;
 
-export const AddFormWidth = styled.div`
+export const SelectInput = styled.div`
   overflow: hidden;
 
   .Select-input {
