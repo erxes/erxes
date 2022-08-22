@@ -1,5 +1,5 @@
 import { IModels } from '../connectionResolver';
-import { sendContactsMessage } from '../messageBroker';
+import messageBroker, { sendContactsMessage } from '../messageBroker';
 
 export interface IContactsParams {
   subdomain: string;
@@ -13,32 +13,40 @@ export const handleContacts = async (args: IContactsParams) => {
   const { subdomain, models, clientPortalId, document, password } = args;
   const { type = 'customer' } = document;
 
-  let qry: any = { email: document.email };
+  let qry: any = {};
   let user: any;
+
+  const trimmedMail = (document.email || '').toLowerCase().trim();
+
+  if (document.email) {
+    qry = { email: trimmedMail };
+  }
 
   if (document.phone) {
     qry = { phone: document.phone };
   }
+
+  qry.clientPortalId = clientPortalId;
 
   if (type === 'customer') {
     let customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
-        customerPrimaryEmail: document.email,
+        customerPrimaryEmail: trimmedMail,
         customerPrimaryPhone: document.phone
       },
       isRPC: true
     });
 
-    user = await models.ClientPortalUsers.findOne(qry);
-
-    if (user && (user.isEmailVerified || user.isPhoneVerified)) {
-      throw new Error('user is already exists');
+    if (customer) {
+      qry = { erxesCustomerId: customer._id, clientPortalId };
     }
 
+    user = await models.ClientPortalUsers.findOne(qry);
+
     if (user) {
-      return user;
+      throw new Error('user is already exists');
     }
 
     user = await models.ClientPortalUsers.create({
@@ -56,7 +64,7 @@ export const handleContacts = async (args: IContactsParams) => {
         data: {
           firstName: document.firstName,
           lastName: document.lastName,
-          primaryEmail: document.email,
+          primaryEmail: trimmedMail,
           primaryPhone: document.phone,
           state: 'lead'
         },
@@ -77,12 +85,16 @@ export const handleContacts = async (args: IContactsParams) => {
       subdomain,
       action: 'companies.findOne',
       data: {
-        companyPrimaryEmail: document.email,
+        companyPrimaryEmail: trimmedMail,
         companyPrimaryPhone: document.phone,
         companyCode: document.companyRegistrationNumber
       },
       isRPC: true
     });
+
+    if (company) {
+      qry = { erxesCompanyId: company._id, clientPortalId };
+    }
 
     user = await models.ClientPortalUsers.findOne(qry);
 
@@ -108,7 +120,7 @@ export const handleContacts = async (args: IContactsParams) => {
         action: 'companies.createCompany',
         data: {
           primaryName: document.companyName,
-          primaryEmail: document.email,
+          primaryEmail: trimmedMail,
           primaryPhone: document.phone,
           code: document.companyRegistrationNumber
         },
@@ -125,4 +137,26 @@ export const handleContacts = async (args: IContactsParams) => {
   }
 
   return user;
+};
+
+export const putActivityLog = async user => {
+  let contentType = 'contacts:customer';
+  let contentId = user.erxesCustomerId;
+
+  if (user.type === 'company') {
+    contentType = 'contacts:company';
+    contentId = user.erxesCompanyId;
+  }
+
+  await messageBroker().sendMessage('putActivityLog', {
+    data: {
+      action: 'putActivityLog',
+      data: {
+        contentType,
+        contentId,
+        createdBy: user.clientPortalId,
+        action: 'create'
+      }
+    }
+  });
 };

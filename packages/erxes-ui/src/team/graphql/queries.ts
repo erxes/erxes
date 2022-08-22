@@ -148,6 +148,7 @@ const branchField = `
       fullName
     }
   }
+  radius
   ${contactInfoFields}
 `;
 
@@ -297,7 +298,7 @@ const genericFields = `
 const commonFields = `
   type
   text
-  
+
   canHide
   validation
   options

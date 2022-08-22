@@ -21,13 +21,10 @@ type FinalProps = {
 
 class CarListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      voucherCampaignQuery,
-      voucherCampaignsCountQuery,
-    } = this.props;
+    const { voucherCampaignQuery, voucherCampaignsCountQuery } = this.props;
 
     if (voucherCampaignQuery.loading || voucherCampaignsCountQuery.loading) {
-      return <Spinner />
+      return <Spinner />;
     }
     const voucherCampaigns = voucherCampaignQuery.voucherCampaigns || [];
 
@@ -60,6 +57,6 @@ export default withProps<Props>(
       {
         name: 'voucherCampaignsCountQuery'
       }
-    ),
+    )
   )(CarListContainer)
 );

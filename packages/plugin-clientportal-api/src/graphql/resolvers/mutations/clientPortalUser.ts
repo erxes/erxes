@@ -82,6 +82,7 @@ const clientPortalUserMutations = {
 
     await models.ClientPortalUsers.sendVerification(
       subdomain,
+      args.clientPortalId,
       clientPortal.otpConfig,
       args.phone,
       args.email
@@ -138,7 +139,11 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
+  async clientPortalLogout(
+    _root,
+    _args,
+    { requestInfo, res, cpUser, models }: IContext
+  ) {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {
@@ -148,6 +153,13 @@ const clientPortalUserMutations = {
     if (!['test', 'development'].includes(NODE_ENV)) {
       options.sameSite = 'none';
       options.secure = true;
+    }
+
+    if (cpUser) {
+      await models.ClientPortalUsers.updateOne(
+        { _id: cpUser._id || '' },
+        { $set: { lastSeenAt: new Date(), isOnline: false } }
+      );
     }
 
     res.clearCookie('client-auth-token', options);

@@ -1,6 +1,7 @@
+import { ICategory } from '@erxes/ui/src/utils/categories';
+import { IField } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IField } from '@erxes/ui/src/types';
 
 export type FieldsQueryResponse = {
   fields: IField[];
@@ -119,4 +120,17 @@ export type SystemFieldsGroupsQueryResponse = {
   getSystemFieldsGroup: IFieldGroup;
   loading: boolean;
   refetch: ({ contentType }: { contentType?: string }) => Promise<any>;
+};
+
+export type ProductCategoriesQueryResponse = {
+  productCategories: ICategory[];
+} & QueryResponse;
+
+export type LogicParams = {
+  fieldId: string;
+  operator: string;
+  logicValue: any;
+  validation?: string;
+  fieldValue?: any;
+  type?: string;
 };

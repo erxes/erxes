@@ -1,4 +1,4 @@
-import { IUser } from '../auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export type IInternalNote = {
   _id: string;

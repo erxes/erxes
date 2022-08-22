@@ -1,12 +1,16 @@
 module.exports = {
   name: "logs",
   port: 3040,
-  exposes: { "./routes": "./src/routes.tsx" },
+  exposes: { 
+    "./routes": "./src/routes.tsx", 
+    './contactDetailContent': './src/logs/Activities.tsx' 
+  },
   routes: {
     url: "http://localhost:3040/remoteEntry.js",
     scope: "logs",
     module: "./routes",
   },
+  contactDetailContent: './contactDetailContent',
   menus: [
     {
       text: "logs",

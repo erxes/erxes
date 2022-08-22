@@ -24,7 +24,7 @@ export const queries = `
 const LotteryDoc = `
   ${commonInputs}
   status: String
-`
+`;
 
 export const mutations = `
   lotteriesAdd(${LotteryDoc}): Lottery

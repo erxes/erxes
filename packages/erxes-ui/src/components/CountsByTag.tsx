@@ -1,12 +1,13 @@
-import FilterByParams from './FilterByParams';
-import Icon from './Icon';
 import { __, router } from '../utils/core';
+
+import Box from './Box';
+import FilterByParams from './FilterByParams';
+import { IRouterProps } from '../types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import Icon from './Icon';
+import { Link } from 'react-router-dom';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { IRouterProps } from '../types';
-import Box from './Box';
-import { ITag } from '../tags/types';
 
 interface IProps extends IRouterProps {
   tags: ITag[];

@@ -7,9 +7,6 @@ on:
     paths:
       - 'dashboard-api/**'
       - '.github/workflows/dashboard_api.yaml'
-    tags:
-      - '*'
-
 jobs:
   dashboard-api:
     runs-on: ubuntu-18.04

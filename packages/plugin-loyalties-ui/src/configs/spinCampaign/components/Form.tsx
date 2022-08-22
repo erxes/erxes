@@ -6,7 +6,7 @@ import {
   FormControl,
   FormGroup,
   DateControl,
-  Uploader,
+  Uploader
 } from '@erxes/ui/src/components';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import {
@@ -16,7 +16,11 @@ import {
   MainStyleScrollWrapper as ScrollWrapper,
   MainStyleDateContainer as DateContainer
 } from '@erxes/ui/src/styles/eindex';
-import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IAttachment,
+  IButtonMutateProps,
+  IFormProps
+} from '@erxes/ui/src/types';
 import { ISpinCampaign, ISpinCampaignAward } from '../types';
 import Select from 'react-select-plus';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
@@ -30,7 +34,7 @@ type Props = {
 };
 
 type State = {
-  spinCampaign: ISpinCampaign
+  spinCampaign: ISpinCampaign;
 };
 
 class Form extends React.Component<Props, State> {
@@ -38,7 +42,7 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      spinCampaign: this.props.spinCampaign || {},
+      spinCampaign: this.props.spinCampaign || {}
     };
   }
 
@@ -48,16 +52,17 @@ class Form extends React.Component<Props, State> {
     description: string;
   }) => {
     const finalValues = values;
-    const {
-      spinCampaign
-    } = this.state;
+    const { spinCampaign } = this.state;
 
     if (spinCampaign._id) {
       finalValues._id = spinCampaign._id;
     }
 
     spinCampaign.buyScore = Number(spinCampaign.buyScore || 0);
-    spinCampaign.awards = spinCampaign.awards && spinCampaign.awards.sort((a, b) => (a.probability - b.probability)) || []
+    spinCampaign.awards =
+      (spinCampaign.awards &&
+        spinCampaign.awards.sort((a, b) => a.probability - b.probability)) ||
+      [];
 
     return {
       ...finalValues,
@@ -65,12 +70,22 @@ class Form extends React.Component<Props, State> {
     };
   };
 
-  onChangeDescription = (e) => {
-    this.setState({ spinCampaign: { ...this.state.spinCampaign, description: e.editor.getData() } });
+  onChangeDescription = e => {
+    this.setState({
+      spinCampaign: {
+        ...this.state.spinCampaign,
+        description: e.editor.getData()
+      }
+    });
   };
 
   onChangeAttachment = (files: IAttachment[]) => {
-    this.setState({ spinCampaign: { ...this.state.spinCampaign, attachment: files.length ? files[0] : undefined } });
+    this.setState({
+      spinCampaign: {
+        ...this.state.spinCampaign,
+        attachment: files.length ? files[0] : undefined
+      }
+    });
   };
 
   onChangeMultiCombo = (name: string, values) => {
@@ -80,19 +95,25 @@ class Form extends React.Component<Props, State> {
       value = values.map(el => el.value);
     }
 
-    this.setState({ spinCampaign: { ...this.state.spinCampaign, [name]: value } });
+    this.setState({
+      spinCampaign: { ...this.state.spinCampaign, [name]: value }
+    });
   };
 
   onDateInputChange = (type: string, date) => {
-    this.setState({ spinCampaign: { ...this.state.spinCampaign, [type]: date } });
+    this.setState({
+      spinCampaign: { ...this.state.spinCampaign, [type]: date }
+    });
   };
 
   onInputChange = e => {
     e.preventDefault();
-    const value = e.target.value
-    const name = e.target.name
+    const value = e.target.value;
+    const name = e.target.name;
 
-    this.setState({ spinCampaign: { ...this.state.spinCampaign, [name]: value } });
+    this.setState({
+      spinCampaign: { ...this.state.spinCampaign, [name]: value }
+    });
   };
 
   onAddAward = () => {
@@ -103,40 +124,42 @@ class Form extends React.Component<Props, State> {
       name: '',
       probability: 0,
       voucherCampaignId: ''
-    })
+    });
     spinCampaign.awards = awards;
-    this.setState({ spinCampaign })
-  }
+    this.setState({ spinCampaign });
+  };
 
-  onRemoveAward = (awardId) => {
+  onRemoveAward = awardId => {
     const { spinCampaign } = this.state;
     const { awards = [] } = spinCampaign;
-    spinCampaign.awards = awards.filter(a => (a._id !== awardId))
-    this.setState({ spinCampaign })
-  }
+    spinCampaign.awards = awards.filter(a => a._id !== awardId);
+    this.setState({ spinCampaign });
+  };
 
   renderAward = (award: ISpinCampaignAward, formProps) => {
     const changeAward = (key, value) => {
       const { spinCampaign } = this.state;
       award[key] = value;
-      spinCampaign.awards = (spinCampaign.awards || []).map(a => a._id === award._id && award || a)
+      spinCampaign.awards = (spinCampaign.awards || []).map(
+        a => (a._id === award._id && award) || a
+      );
       this.setState({ spinCampaign });
-    }
+    };
     const onChangeName = e => {
       e.preventDefault();
-      const value = e.target.value
-      changeAward('name', value)
+      const value = e.target.value;
+      changeAward('name', value);
     };
     const onChangeProbability = e => {
       e.preventDefault();
-      const value = e.target.value
-      changeAward('probability', value)
+      const value = e.target.value;
+      changeAward('probability', value);
     };
 
     const onChangeVoucherCampaign = selected => {
       const value = (selected || {}).value;
       changeAward('voucherCampaignId', value);
-    }
+    };
 
     return (
       <FormWrapper key={award._id}>
@@ -179,18 +202,18 @@ class Form extends React.Component<Props, State> {
           size="small"
           onClick={this.onRemoveAward.bind(this, award._id)}
           icon="times"
-        >Remove lvl</Button>
+        >
+          Remove lvl
+        </Button>
       </FormWrapper>
-    )
-  }
+    );
+  };
 
   renderAwards = formProps => {
-    return (
-      (this.state.spinCampaign.awards || []).map(award => (
-        this.renderAward(award, formProps)
-      ))
-    )
-  }
+    return (this.state.spinCampaign.awards || []).map(award =>
+      this.renderAward(award, formProps)
+    );
+  };
 
   renderContent = (formProps: IFormProps) => {
     const { renderButton, closeModal } = this.props;
@@ -202,12 +225,12 @@ class Form extends React.Component<Props, State> {
       </Button>
     );
 
-    const {
-      spinCampaign
-    } = this.state;
+    const { spinCampaign } = this.state;
 
     const attachments =
-      (spinCampaign.attachment && extractAttachment([spinCampaign.attachment])) || [];
+      (spinCampaign.attachment &&
+        extractAttachment([spinCampaign.attachment])) ||
+      [];
 
     return (
       <>
@@ -267,7 +290,10 @@ class Form extends React.Component<Props, State> {
                     name="finishDateOfUse"
                     placeholder={__('Finish Date of Use')}
                     value={spinCampaign.finishDateOfUse}
-                    onChange={this.onDateInputChange.bind(this, 'finishDateOfUse')}
+                    onChange={this.onDateInputChange.bind(
+                      this,
+                      'finishDateOfUse'
+                    )}
                   />
                 </DateContainer>
               </FormGroup>
@@ -301,11 +327,7 @@ class Form extends React.Component<Props, State> {
             <FormColumn>
               <ControlLabel required={true}>Probability</ControlLabel>
             </FormColumn>
-            <Button
-              btnStyle='simple'
-              icon="add"
-              onClick={this.onAddAward}
-            >
+            <Button btnStyle="simple" icon="add" onClick={this.onAddAward}>
               {__('Add level')}
             </Button>
           </FormWrapper>
@@ -322,19 +344,19 @@ class Form extends React.Component<Props, State> {
               name={`spinCampaign_description_${spinCampaign.description}`}
               toolbar={[
                 {
-                  name: "basicstyles",
+                  name: 'basicstyles',
                   items: [
-                    "Bold",
-                    "Italic",
-                    "NumberedList",
-                    "BulletedList",
-                    "Link",
-                    "Unlink",
-                    "-",
-                    "Image",
-                    "EmojiPanel",
-                  ],
-                },
+                    'Bold',
+                    'Italic',
+                    'NumberedList',
+                    'BulletedList',
+                    'Link',
+                    'Unlink',
+                    '-',
+                    'Image',
+                    'EmojiPanel'
+                  ]
+                }
               ]}
             />
           </FormGroup>
@@ -361,11 +383,11 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: "spin Campaign",
+            name: 'spin Campaign',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,
-            object: spinCampaign,
+            object: spinCampaign
           })}
         </ModalFooter>
       </>

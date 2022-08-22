@@ -1,35 +1,34 @@
-import { Alert, __, confirm, router } from 'coreui/utils';
-
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
 import CompaniesMerge from '@erxes/ui-contacts/src/companies/components/detail/CompaniesMerge';
 import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
-import CompanyRow from './CompanyRow';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { ICompany } from '../../types';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import gql from 'graphql-tag';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
+import { __, Alert, confirm, router } from 'coreui/utils';
+import gql from 'graphql-tag';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link, withRouter } from 'react-router-dom';
+
 import { queries } from '../../graphql';
-import { withRouter } from 'react-router-dom';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import { ICompany } from '../../types';
+import CompanyRow from './CompanyRow';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   companies: ICompany[];

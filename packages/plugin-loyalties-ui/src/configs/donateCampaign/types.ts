@@ -1,17 +1,17 @@
-import { ICommonTypes } from "../../types";
+import { ICommonTypes } from '../../types';
 
 export type IDonateCampaignAward = {
-  _id: string,
-  minScore?: number,
-  voucherCampaignId?: string
-}
+  _id: string;
+  minScore?: number;
+  voucherCampaignId?: string;
+};
 
 export interface IDonateCampaign extends ICommonTypes {
-  maxScore?: number,
-  awards?: IDonateCampaignAward[],
+  maxScore?: number;
+  awards?: IDonateCampaignAward[];
 
-  donatesCount?: number,
-};
+  donatesCount?: number;
+}
 
 // query types
 export type DonateCampaignQueryResponse = {
@@ -36,4 +36,4 @@ export type DonateCampaignRemoveMutationResponse = {
   donateCampaignsRemove: (mutation: {
     variables: { _ids: string[] };
   }) => Promise<any>;
-}
+};

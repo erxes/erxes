@@ -3,6 +3,8 @@ import * as bodyParser from 'body-parser';
 import initCallPro from './callpro/controller';
 import { debugIntegrations, debugRequest } from './debuggers';
 import initFacebook from './facebook/controller';
+import { initMemoryStorage } from './inmemoryStorage';
+import { initBroker } from './messageBroker';
 // import { init } from './startup';
 import systemStatus from './systemStatus';
 import userMiddleware from './userMiddleware';
@@ -40,7 +42,7 @@ const initApp = async app => {
   app.get('/system-status', async (_req, res) => {
     return res.json(await systemStatus());
   });
-  
+
   // init bots
   initFacebook(app);
 
@@ -52,7 +54,6 @@ const initApp = async app => {
     console.error(error.stack);
     res.status(500).send(error.message);
   });
-
 };
 
 export default initApp;

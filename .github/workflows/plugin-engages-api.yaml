@@ -3,7 +3,7 @@ name: Plugin engages Api CI
 on:
   push:
     branches:
-      - federation
+      - dev
     paths:
       - 'packages/api-utils/**'
       - 'packages/api-plugin-template.erxes/**'
@@ -38,14 +38,15 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build plugin engages
-          cd ../../dist/plugin-engages-api/.erxes
+          cd plugin-engages-api/.erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/federation'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )
         run: |
           cd dist/plugin-engages-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

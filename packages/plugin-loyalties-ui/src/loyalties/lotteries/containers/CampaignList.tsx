@@ -21,13 +21,10 @@ type FinalProps = {
 
 class CarListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      lotteryCampaignQuery,
-      lotteryCampaignsCountQuery,
-    } = this.props;
+    const { lotteryCampaignQuery, lotteryCampaignsCountQuery } = this.props;
 
     if (lotteryCampaignQuery.loading || lotteryCampaignsCountQuery.loading) {
-      return <Spinner />
+      return <Spinner />;
     }
     const lotteryCampaigns = lotteryCampaignQuery.lotteryCampaigns || [];
 
@@ -60,6 +57,6 @@ export default withProps<Props>(
       {
         name: 'lotteryCampaignsCountQuery'
       }
-    ),
+    )
   )(CarListContainer)
 );

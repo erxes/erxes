@@ -3,7 +3,7 @@ name: Plugin automations UI CI
 on:
   push:
     branches:
-      - federation
+      - dev
     paths:
       - "packages/erxes-ui/**"
       - "packages/ui-plugin-template/**"
@@ -43,6 +43,7 @@ jobs:
           yarn install
           yarn install-deps
           yarn build
+          ls
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -55,4 +56,5 @@ jobs:
         run: |
           tar -cf build.tar --directory=packages/plugin-automations-ui/.erxes/dist .
           cp build.tar packages/plugin-automations-ui/.erxes/dist
-          aws s3 sync packages/plugin-automations-ui/.erxes/dist s3://erxes-plugins/uis/plugin-automations-ui --delete
+          rm -rf packages/plugin-automations-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-automations-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-automations-ui --delete

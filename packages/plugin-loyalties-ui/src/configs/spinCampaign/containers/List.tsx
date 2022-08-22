@@ -6,7 +6,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import SpinCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { SpinCampaignQueryResponse, SpinCampaignRemoveMutationResponse } from '../types';
+import {
+  SpinCampaignQueryResponse,
+  SpinCampaignRemoveMutationResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -16,15 +19,12 @@ type Props = {
 
 type FinalProps = {
   spinCampaignQuery: SpinCampaignQueryResponse;
-} & Props & SpinCampaignRemoveMutationResponse;
+} & Props &
+  SpinCampaignRemoveMutationResponse;
 
 class SpinCampaignContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      spinCampaignQuery,
-      queryParams,
-      spinCampaignsRemove
-    } = this.props;
+    const { spinCampaignQuery, queryParams, spinCampaignsRemove } = this.props;
 
     // remove action
     const remove = ({ spinCampaignIds }, emptyBulk) => {
@@ -58,9 +58,7 @@ class SpinCampaignContainer extends React.Component<FinalProps> {
       filterStatus
     };
 
-    const productList = props => (
-      <SpinCampaign {...updatedProps} {...props} />
-    );
+    const productList = props => <SpinCampaign {...updatedProps} {...props} />;
 
     const refetch = () => {
       this.props.spinCampaignQuery.refetch();
@@ -71,9 +69,7 @@ class SpinCampaignContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'spinCampaigns'
-  ];
+  return ['spinCampaigns'];
 };
 
 const options = () => ({
@@ -85,12 +81,13 @@ export default withProps<Props>(
     graphql<{}, SpinCampaignQueryResponse>(gql(queries.spinCampaigns), {
       name: 'spinCampaignQuery'
     }),
-    graphql<Props, SpinCampaignRemoveMutationResponse, { spinCampaignIds: string[] }>(
-      gql(mutations.spinCampaignsRemove),
-      {
-        name: 'spinCampaignsRemove',
-        options
-      }
-    ),
+    graphql<
+      Props,
+      SpinCampaignRemoveMutationResponse,
+      { spinCampaignIds: string[] }
+    >(gql(mutations.spinCampaignsRemove), {
+      name: 'spinCampaignsRemove',
+      options
+    })
   )(SpinCampaignContainer)
 );

@@ -21,13 +21,10 @@ type FinalProps = {
 
 class CarListContainer extends React.Component<FinalProps> {
   render() {
-    const {
-      spinCampaignQuery,
-      spinCampaignsCountQuery,
-    } = this.props;
+    const { spinCampaignQuery, spinCampaignsCountQuery } = this.props;
 
     if (spinCampaignQuery.loading || spinCampaignsCountQuery.loading) {
-      return <Spinner />
+      return <Spinner />;
     }
     const spinCampaigns = spinCampaignQuery.spinCampaigns || [];
 
@@ -36,8 +33,7 @@ class CarListContainer extends React.Component<FinalProps> {
       refetch: spinCampaignQuery.refetch,
       spinCampaigns,
       loading: spinCampaignQuery.loading,
-      spinCampaignsCount:
-        spinCampaignsCountQuery.spinCampaignsCount || 0
+      spinCampaignsCount: spinCampaignsCountQuery.spinCampaignsCount || 0
     };
 
     return <List {...updatedProps} />;
@@ -60,6 +56,6 @@ export default withProps<Props>(
       {
         name: 'spinCampaignsCountQuery'
       }
-    ),
+    )
   )(CarListContainer)
 );

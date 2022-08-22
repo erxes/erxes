@@ -1,18 +1,18 @@
-import { ICommonTypes } from "../../types";
+import { ICommonTypes } from '../../types';
 
 export type ISpinCampaignAward = {
-  _id: string,
-  name?: string,
-  probability?: number,
-  voucherCampaignId?: string
-}
+  _id: string;
+  name?: string;
+  probability?: number;
+  voucherCampaignId?: string;
+};
 
 export interface ISpinCampaign extends ICommonTypes {
-  buyScore?: number,
-  awards?: ISpinCampaignAward[]
+  buyScore?: number;
+  awards?: ISpinCampaignAward[];
 
-  spinsCount?: number
-};
+  spinsCount?: number;
+}
 
 // query types
 export type SpinCampaignQueryResponse = {
@@ -37,4 +37,4 @@ export type SpinCampaignRemoveMutationResponse = {
   spinCampaignsRemove: (mutation: {
     variables: { _ids: string[] };
   }) => Promise<any>;
-}
+};

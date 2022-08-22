@@ -1,17 +1,18 @@
-import Box from '@erxes/ui/src/components/Box';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import React from 'react';
+
+import Box from '@erxes/ui/src/components/Box';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Link } from 'react-router-dom';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { ISegment } from '../types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   currentSegment?: string;
@@ -121,6 +122,10 @@ class Segments extends React.Component<Props> {
         collapsible={segments.length > 7}
         isOpen={true}
         name="showFilterBySegments"
+        noShadow={true}
+        noMarginBottom={true}
+        noBackground
+        noSpacing
       >
         <DataWithLoader
           data={this.renderData()}

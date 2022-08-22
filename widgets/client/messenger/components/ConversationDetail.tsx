@@ -20,7 +20,6 @@ type Props = {
   refetchConversationDetail?: () => void;
   errorMessage: string;
   showTimezone?: boolean;
-  serverTime?: string;
 };
 
 type State = {
@@ -93,7 +92,6 @@ class ConversationDetail extends React.Component<Props, State> {
       loading,
       errorMessage,
       showTimezone,
-      serverTime
     } = this.props;
 
     const rootClasses = classNames('erxes-content-wrapper', {
@@ -129,7 +127,6 @@ class ConversationDetail extends React.Component<Props, State> {
               loading={loading}
               expanded={this.state.isFullHead}
               toggleExpand={this.toggleExpand}
-              serverTime={serverTime}
             />
           }
           toggleHead={this.toggleHead}

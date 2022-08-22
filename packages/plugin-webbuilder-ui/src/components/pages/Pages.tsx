@@ -26,6 +26,8 @@ type State = {
 };
 
 class Pages extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -43,13 +45,19 @@ class Pages extends React.Component<Props, State> {
   };
 
   search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
     const { history } = this.props;
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
 
-    router.removeParams(history, 'page');
-    router.setParams(history, { searchValue });
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
   };
 
   render() {

@@ -1,11 +1,11 @@
-import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
-import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
-import React from 'react';
 import gql from 'graphql-tag';
-import { mutations, queries } from '../../graphql';
-import { IDeal, IProductData } from '../../types';
 import ProductItem from '../../components/product/ProductItem';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { IDeal, IProductData } from '../../types';
+import { isEnabled, withProps } from '@erxes/ui/src/utils/core';
+import { mutations } from '../../graphql';
 
 type Props = {
   uom: string[];
