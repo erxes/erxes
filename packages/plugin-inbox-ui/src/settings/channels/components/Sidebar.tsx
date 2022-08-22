@@ -65,7 +65,11 @@ class Sidebar extends React.Component<Props, {}> {
     const { loading, channelsTotalCount } = this.props;
 
     return (
-      <LeftSidebar wide={false} header={this.renderSidebarHeader()}>
+      <LeftSidebar
+        wide={true}
+        hasBorder={true}
+        header={this.renderSidebarHeader()}
+      >
         <SidebarList noTextColor noBackground>
           {this.renderItems()}
         </SidebarList>

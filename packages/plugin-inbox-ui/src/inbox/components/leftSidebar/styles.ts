@@ -1,10 +1,11 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
 import {
-  SimpleButton,
+  EllipsisContent,
   FlexCenter,
-  EllipsisContent
+  SimpleButton
 } from '@erxes/ui/src/styles/main';
+import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled, { css } from 'styled-components';
+
 import styledTS from 'styled-components-ts';
 
 const ScrollContent = styled.div`
