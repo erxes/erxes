@@ -1,11 +1,19 @@
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 
+import { afterMutationHandlers } from './afterMutations';
 import { serviceDiscovery } from './configs';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeQueue } = client;
+
+  consumeQueue('tumentech:afterMutation', async ({ subdomain, data }) => {
+    await afterMutationHandlers(subdomain, data);
+    return;
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
@@ -111,6 +119,15 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     data: { segmentId, options },
     isRPC: true
   });
+
+export const sendClientPortalMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'clientportal',
+    ...args
+  });
+};
 
 export default function() {
   return client;

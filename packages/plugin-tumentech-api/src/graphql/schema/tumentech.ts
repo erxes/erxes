@@ -365,7 +365,7 @@ export const mutations = `
   cpCarsEdit(_id: String!, ${tumentechCommonFields}): Car
   cpCarsRemove(carIds: [String]): [String]
 
-  participantsAdd(${participantParams}): [Participant]
+  participantsAdd(${participantParams}): Participant
   participantsEdit(_id: String! status:String ${participantParams}): Participant
   participantsRemove(_id: String): JSON
   participantsRemoveFromDeal(dealId: String!, tripIds: [String]): JSON

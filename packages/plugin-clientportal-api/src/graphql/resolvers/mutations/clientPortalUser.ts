@@ -117,7 +117,7 @@ const clientPortalUserMutations = {
   clientPortalLogin: async (
     _root,
     args: ILoginParams,
-    { models, requestInfo, res }: IContext
+    { models, res }: IContext
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
@@ -139,11 +139,7 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(
-    _root,
-    _args,
-    { requestInfo, res, cpUser, models }: IContext
-  ) {
+  async clientPortalLogout(_root, _args, { res, cpUser, models }: IContext) {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {

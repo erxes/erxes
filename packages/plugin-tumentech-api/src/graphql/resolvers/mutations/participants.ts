@@ -1,4 +1,6 @@
+import { sendContactsMessage } from './../../../../../plugin-inbox-api/src/messageBroker';
 import { IContext } from '../../../connectionResolver';
+import { sendCoreMessage } from '../../../messageBroker';
 import { IParticipant } from './../../../models/definitions/participants';
 
 interface IParticipantEdit extends IParticipant {
@@ -9,9 +11,25 @@ const participantMutations = {
   participantsAdd: async (
     _root,
     doc: IParticipant,
-    { models, docModifier }: IContext
+    { models, subdomain, docModifier, cpUser }: IContext
   ) => {
-    return [models.Participants.createParticipant(docModifier(doc))];
+    const participant = await models.Participants.createParticipant(
+      docModifier(doc)
+    );
+
+    if (cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
+      sendCoreMessage({
+        subdomain: subdomain,
+        action: 'sendMobileNotification',
+        data: {
+          title: 'Баяр хүргэе',
+          body: 'Таны үнийн саналыг амжилттай хүлээн авлаа!',
+          deviceTokens: cpUser.deviceTokens
+        }
+      });
+    }
+
+    return participant;
   },
 
   participantsEdit: async (
@@ -44,8 +62,20 @@ const participantMutations = {
   selectWinner: async (
     _root,
     { dealId, driverId }: { dealId: string; driverId: string },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) => {
+    const driver = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: driverId },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!driver) {
+      throw new Error('Driver not found');
+    }
+
     await models.Participants.updateMany(
       {
         dealId
@@ -65,6 +95,18 @@ const participantMutations = {
       dealId,
       driverId
     });
+
+    if (driver.deviceTokens && driver.deviceTokens.length > 0) {
+      sendCoreMessage({
+        subdomain: subdomain,
+        action: 'sendMobileNotification',
+        data: {
+          title: 'Баяр хүргэе',
+          body: 'Таны илгээсэн үнийн санал баталгаажиж, та сонгогдлоо !',
+          deviceTokens: driver.deviceTokens
+        }
+      });
+    }
 
     return participant;
   }
