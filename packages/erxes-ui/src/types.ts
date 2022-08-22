@@ -120,6 +120,8 @@ export interface IField {
   showInCard?: boolean;
   keys?: string[];
   productCategoryId?: string;
+  riskAssessmentValue?: string;
+  riskAssessmentFieldType?: string;
 }
 
 export interface IFormProps {

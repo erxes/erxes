@@ -122,12 +122,14 @@ function FieldChoices(props: Props) {
           icon="shoppingcart"
         />
       )}
-      <FieldChoice
-        {...props}
-        type="risk-assessment"
-        text={__('Risk Assessment')}
-        icon="file-plus"
-      />
+      {isEnabled('riskassessment') && props.type === 'risk-assessment' && (
+        <FieldChoice
+          {...props}
+          type="risk-assessment"
+          text={__('Risk Assessment')}
+          icon="file-plus"
+        />
+      )}
       <FieldChoice
         {...props}
         type="objectList"

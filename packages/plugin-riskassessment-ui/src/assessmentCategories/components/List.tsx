@@ -1,11 +1,22 @@
-import { SidebarListItem, ActionButtons } from '@erxes/ui-settings/src/styles';
-import { Button, DataWithLoader, Icon, ModalTrigger, Sidebar, SidebarList, Spinner, Tip, Wrapper } from '@erxes/ui/src';
-import React from 'react';
-import { DefaultWrapper, subOption } from '../../common/utils';
-import FormContainer from '../container/Form';
-import { Link } from 'react-router-dom';
-import { Padding } from '../../styles';
+import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
+import {
+  Button,
+  DataWithLoader,
+  Icon,
+  ModalTrigger,
+  router,
+  Sidebar,
+  SidebarList,
+  Spinner,
+  Tip,
+  Wrapper
+} from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { subOption } from '../../common/utils';
+import { Padding } from '../../styles';
+import FormContainer from '../container/Form';
 
 type Props = {
   queryParams?: any;
@@ -28,7 +39,18 @@ class AssessmentCategories extends React.Component<Props> {
       return <FormContainer refetch={this.props.refetch} />;
     };
 
-    return <ModalTrigger isAnimate title="Add New Assessment Category" content={content} trigger={trigger} />;
+    return (
+      <ModalTrigger
+        isAnimate
+        title="Add New Assessment Category"
+        content={content}
+        trigger={trigger}
+      />
+    );
+  };
+
+  removeQueryParams = () => {
+    router.removeParams(this.props.history, 'categoryId');
   };
 
   rightActionBar = (
@@ -37,7 +59,7 @@ class AssessmentCategories extends React.Component<Props> {
       <Section.Title>
         Categories
         {this.props.queryParams.categoryId && (
-          <Button btnStyle="link">
+          <Button btnStyle="link" onClick={this.removeQueryParams}>
             <Tip text="Clear Filter">
               <Icon icon="cancel-1" />
             </Tip>
@@ -50,7 +72,7 @@ class AssessmentCategories extends React.Component<Props> {
   renderContent() {
     const { categories } = this.props;
 
-    return categories.map((category) => (
+    return categories.map(category => (
       <SidebarListItem key={category._id} isActive={false}>
         <Link to={`?categoryId=${category._id}`}>
           {category.parentId && subOption(category)}
@@ -74,10 +96,23 @@ class AssessmentCategories extends React.Component<Props> {
     );
 
     const content = () => {
-      return <FormContainer trigger={trigger} categoryId={category._id} formId={category.formId} />;
+      return (
+        <FormContainer
+          trigger={trigger}
+          categoryId={category._id}
+          formId={category.formId}
+        />
+      );
     };
 
-    return <ModalTrigger isAnimate title="Edit Assessment Category" content={content} trigger={trigger} />;
+    return (
+      <ModalTrigger
+        isAnimate
+        title="Edit Assessment Category"
+        content={content}
+        trigger={trigger}
+      />
+    );
   }
 
   renderCategoryRemoveAction(id: string) {
@@ -102,7 +137,14 @@ class AssessmentCategories extends React.Component<Props> {
 
     return (
       <SidebarList>
-        <DataWithLoader data={this.renderContent()} loading={loading} count={totalCount} emptyText="There is no product & service category" emptyIcon="folder-2" size="small" />
+        <DataWithLoader
+          data={this.renderContent()}
+          loading={loading}
+          count={totalCount}
+          emptyText="There is no product & service category"
+          emptyIcon="folder-2"
+          size="small"
+        />
       </SidebarList>
     );
   }
@@ -110,7 +152,12 @@ class AssessmentCategories extends React.Component<Props> {
   render() {
     return (
       <Sidebar wide={true} hasBorder={true} noMargin>
-        <Section maxHeight={500} collapsible={this.props.totalCount > 9} noMargin noShadow>
+        <Section
+          maxHeight={500}
+          collapsible={this.props.totalCount > 9}
+          noMargin
+          noShadow
+        >
           {this.rightActionBar}
           {this.renderCategoryList()}
         </Section>

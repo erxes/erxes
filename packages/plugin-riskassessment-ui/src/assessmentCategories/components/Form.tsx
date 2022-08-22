@@ -1,10 +1,17 @@
 import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
 import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
 import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
-import { Button, FormControl, Icon, ModalTrigger, Spinner, Tip } from '@erxes/ui/src';
+import {
+  Button,
+  FormControl,
+  Icon,
+  ModalTrigger,
+  Spinner,
+  Tip
+} from '@erxes/ui/src';
 import { __ } from '@erxes/ui/src/';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IField } from '@erxes/ui/src/types'
+import { IField } from '@erxes/ui/src/types';
 import React from 'react';
 import { RiskAssessmentCategory } from '../../common/types';
 import { CustomFormGroup, subOption } from '../../common/utils';
@@ -37,7 +44,7 @@ class Form extends React.Component<IProps, IState> {
 
     this.state = {
       isReadyToSave: false,
-      doc: {},
+      doc: {}
     };
 
     this.handleSaveCategory = this.handleSaveCategory.bind(this);
@@ -68,11 +75,21 @@ class Form extends React.Component<IProps, IState> {
           <Icon icon="eye" /> {__('Form preview')}
         </ShowPreview>
         <ModalFooter>
-          <Button btnStyle="simple" type="button" icon="cancel-1" onClick={this.handleCloseForm}>
+          <Button
+            btnStyle="simple"
+            type="button"
+            icon="cancel-1"
+            onClick={this.handleCloseForm}
+          >
             Cancel
           </Button>
 
-          <Button btnStyle="success" type="button" icon="cancel-1" onClick={this.handleSaveForm}>
+          <Button
+            btnStyle="success"
+            type="button"
+            icon="cancel-1"
+            onClick={this.handleSaveForm}
+          >
             Save
           </Button>
         </ModalFooter>
@@ -80,7 +97,7 @@ class Form extends React.Component<IProps, IState> {
     );
   };
 
-  formPreview = (previewRenderer, fields:IField[]) => {
+  formPreview = (previewRenderer, fields: IField[]) => {
     return (
       <PreviewWrapper>
         {previewRenderer()}
@@ -94,18 +111,18 @@ class Form extends React.Component<IProps, IState> {
     const { formId } = this.props;
 
     const afterDbSave = (formId: string) => {
-      this.setState((prev) => ({
+      this.setState(prev => ({
         doc: { ...prev.doc, formId },
-        isReadyToSave: false,
+        isReadyToSave: false
       }));
     };
 
     const formProps = {
       renderPreviewWrapper: this.formPreview,
       afterDbSave,
-      type: 'lead',
+      type: 'risk-assessment',
       isReadyToSave: isReadyToSave,
-      hideOptionalFields: false,
+      hideOptionalFields: false
     };
 
     if (formId) {
@@ -119,7 +136,16 @@ class Form extends React.Component<IProps, IState> {
     return <ContentWrapper>{this.renderFormContent()}</ContentWrapper>;
   };
 
-  form = (<ModalTrigger isAnimate title="Build New Form" size="xl" content={this.renderContent} trigger={this.formTrigger} />);
+  form = (
+    <ModalTrigger
+      isAnimate
+      title="Build New Form"
+      enforceFocus={false}
+      size="xl"
+      content={this.renderContent}
+      trigger={this.formTrigger}
+    />
+  );
 
   modalTrigger = (
     <Button block btnStyle="success">
@@ -127,16 +153,22 @@ class Form extends React.Component<IProps, IState> {
     </Button>
   );
 
-  handleDoc = (e) => {
+  handleDoc = e => {
     const { name, value } = e.target as HTMLInputElement;
-    this.setState((prev) => ({ doc: { ...prev.doc, [name]: value } }));
+    this.setState(prev => ({ doc: { ...prev.doc, [name]: value } }));
   };
 
   handleSaveCategory() {
     const { detail, addCategory, updateCategory } = this.props;
     const variables = { ...this.state.doc };
     if (detail) {
-      const oldVariables = (({ _id, name, formId, parentId, code }) => ({ _id, name, formId, parentId, code }))(detail);
+      const oldVariables = (({ _id, name, formId, parentId, code }) => ({
+        _id,
+        name,
+        formId,
+        parentId,
+        code
+      }))(detail);
       return updateCategory({ ...oldVariables, ...variables });
     }
     addCategory(variables);
@@ -145,7 +177,7 @@ class Form extends React.Component<IProps, IState> {
   render() {
     const { detail, loading } = this.props;
 
-    const getParent = (value) => {
+    const getParent = value => {
       const foundedString = value.match(/[/]/gi);
       let toIndex;
       if (foundedString) {
@@ -166,21 +198,41 @@ class Form extends React.Component<IProps, IState> {
     return (
       <>
         <CustomFormGroup label="Name">
-          <FormControl name="name" type="text" defaultValue={detail?.name} onChange={this.handleDoc} />
+          <FormControl
+            name="name"
+            type="text"
+            defaultValue={detail?.name}
+            onChange={this.handleDoc}
+          />
         </CustomFormGroup>
         <CustomFormGroup label="Build a form">
           <FormContainer gap>
-            <FormControl type="text" name="form" defaultValue={detail?.formName} onChange={this.handleDoc} />
+            <FormControl
+              type="text"
+              name="form"
+              defaultValue={detail?.formName}
+              onChange={this.handleDoc}
+            />
             {this.form}
           </FormContainer>
         </CustomFormGroup>
         <CustomFormGroup label="code">
-          <FormControl name="code" type="text" defaultValue={detail?.code} onChange={this.handleDoc} />
+          <FormControl
+            name="code"
+            type="text"
+            defaultValue={detail?.code}
+            onChange={this.handleDoc}
+          />
         </CustomFormGroup>
         <CustomFormGroup label="Parent" spaceBetween>
-          <FormControl name="parentId" componentClass="select" value={detail?.parent?._id} onChange={this.handleDoc}>
+          <FormControl
+            name="parentId"
+            componentClass="select"
+            value={detail?.parent?._id}
+            onChange={this.handleDoc}
+          >
             <option />
-            {this.props.categories?.map((category) => (
+            {this.props.categories?.map(category => (
               <option value={category._id} key={category._id}>
                 {category.parentId && subOption(category)}
                 {category.name}
@@ -192,7 +244,12 @@ class Form extends React.Component<IProps, IState> {
           <Button btnStyle="simple" icon="times-circle" uppercase={false}>
             Cancel
           </Button>
-          <Button btnStyle="success" icon="check-circle" uppercase={false} onClick={this.handleSaveCategory}>
+          <Button
+            btnStyle="success"
+            icon="check-circle"
+            uppercase={false}
+            onClick={this.handleSaveCategory}
+          >
             Save
           </Button>
         </ModalFooter>

@@ -26,6 +26,7 @@ import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
 import LocationOptions from './LocationOptions';
 import ObjectListConfigs from './ObjectListConfigs';
+import RiskAssessmenOptions from './riskAssessmentConfig';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -446,6 +447,7 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
+          {this.renderRiskAssessment()}
         </CollapseContent>
         {fields.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
@@ -574,6 +576,31 @@ class FieldForm extends React.Component<Props, State> {
           </FormControl>
         </FormGroup>
       </>
+    );
+  }
+
+  renderRiskAssessment() {
+    const { field } = this.state;
+    if (field.type !== 'risk-assessment') {
+      return null;
+    }
+
+    const onChangeRiskAssessment = e => {
+      const { value, name } = e.currentTarget as HTMLInputElement;
+      this.onFieldChange(name, value);
+    };
+
+    const onChangeOptions = (field, options) =>
+      this.onFieldChange(field, options);
+
+    return (
+      <RiskAssessmenOptions
+        onchange={onChangeRiskAssessment}
+        defaultValue={field.riskAssessmentValue || ''}
+        fieldType={field.riskAssessmentFieldType || ''}
+        options={field.options || []}
+        onChangeOptions={onChangeOptions}
+      />
     );
   }
 

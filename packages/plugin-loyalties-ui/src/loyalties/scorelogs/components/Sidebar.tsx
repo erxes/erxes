@@ -1,26 +1,24 @@
-import * as path from 'path';
-
-import {
-  ClearBtnContainer,
-  FilterRowContainer,
-  PaddingTop
-} from '../../../styles';
 import {
   ControlLabel,
   DateControl,
   FormControl,
   FormGroup,
   Icon,
+  router,
   SelectTeamMembers,
   Tip,
-  Wrapper,
-  router
+  Wrapper
 } from '@erxes/ui/src';
 import { DateContainer, ScrollWrapper } from '@erxes/ui/src/styles/main';
+import {
+  ClearBtnContainer,
+  FilterRowContainer,
+  PaddingTop
+} from '../../../styles';
 
-import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from 'react';
 
 const SelectCompanies = asyncComponent(
   () =>
@@ -79,7 +77,6 @@ class SideBar extends React.Component<Props, State> {
       router.removeParams(history, type);
       variables[type] = '';
       refetch(variables);
-      // this.setState({variables:variables})
     };
 
     const handleValue = (e: any) => {
