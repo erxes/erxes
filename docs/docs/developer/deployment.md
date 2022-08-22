@@ -13,13 +13,11 @@ Docker is an open platform that allows to develop, ship and run applications by 
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
-
 :::caution
 
 Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward. 
 
 :::
-
 
 ## Preparing the installation
 
@@ -88,6 +86,7 @@ create-erxes-app erxes
 :::Caution
 
 While `Install.sh` is running, the field to insert erxes data will show up.
+
 :::
 
 4. Type the domain to the field says "Please enter your domain (localhost)".
@@ -118,6 +117,7 @@ Example: erxes
 ```
 
 :::Info
+
 See the latest version of npm erxes here https://www.npmjs.com/package/erxes
 
 :::
@@ -248,7 +248,9 @@ npm run erxes up
 npm run erxes up – –uis
 
 :::Note
+
 Containers are generated one by one, so wait until they finish reading.
+
 :::
 
 25. Check the log file in the erxes_gateway container to make sure the services are working properly.
