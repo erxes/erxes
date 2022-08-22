@@ -25,7 +25,7 @@ The documentation content is written in Markdown format. If you’re not familia
 You’ll also find MDX files. MDX files combine the power of Markdown with React. So, the content of the file can contain JSX components and import statements, among other features. You can learn more about **<a href="https://docusaurus.io/docs/markdown-features/react" target="_blank">MDX in docusaurus’s guide</a>**.
 
 
-## What You Can Contribute To
+## What You Can Contribute
 
 - You can contribute to the Docusaurus codebase to add a new plugin or fix a bug in the documentation website.
 - You can contribute to the documentation content either by fixing errors you find or adding documentation pages.
