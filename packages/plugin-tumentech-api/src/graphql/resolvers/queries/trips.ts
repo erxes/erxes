@@ -56,11 +56,12 @@ const tripsQuery = {
     {
       routeId,
       carId,
-      categoryIds
-    }: { routeId: string; carId: string; categoryIds: string[] },
+      categoryIds,
+      date
+    }: { routeId: string; carId: string; categoryIds: string[]; date: Date},
     { models, subdomain }: IContext
   ) => {
-    return models.Trips.matchWithDeals(subdomain, carId, routeId, categoryIds);
+    return models.Trips.matchWithDeals(subdomain, carId, routeId, categoryIds, date);
   }
 };
 
