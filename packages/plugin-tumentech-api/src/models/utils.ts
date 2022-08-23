@@ -4,7 +4,7 @@ import { sendCardsMessage } from '../messageBroker';
 export const filterDealsByCar = async (
   models: IModels,
   subdomain: string,
-  carId,
+  carId: string,
   date?: date
 ) => {
   const car = await models.Cars.getCar(carId);
