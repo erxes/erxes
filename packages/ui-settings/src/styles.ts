@@ -42,7 +42,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
     border-bottom: 1px solid ${colors.borderPrimary};
 
     margin: 0 20px;
-    padding: 10px 0;
+    padding: 10px 0 !important;
 
     &:hover {
       background: none;

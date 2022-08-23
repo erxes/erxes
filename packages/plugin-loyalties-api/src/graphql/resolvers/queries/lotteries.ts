@@ -10,27 +10,27 @@ const generateFilter = (params: IParams) => {
   const filter: any = {};
 
   if (params.campaignId) {
-    filter.campaignId = params.campaignId
+    filter.campaignId = params.campaignId;
   }
 
   if (params.status) {
-    filter.status = params.status
+    filter.status = params.status;
   }
 
   if (params.ownerType) {
-    filter.ownerType = params.ownerType
+    filter.ownerType = params.ownerType;
   }
 
   if (params.ownerId) {
-    filter.ownerId = params.ownerId
+    filter.ownerId = params.ownerId;
   }
 
   if (params.voucherCampaignId) {
-    filter.voucherCampaignId = params.voucherCampaignId
+    filter.voucherCampaignId = params.voucherCampaignId;
   }
 
   return filter;
-}
+};
 
 const spinQueries = {
   lotteries(_root, params: IParams, { models }: IContext) {
@@ -48,7 +48,7 @@ const spinQueries = {
     return {
       list,
       totalCount
-    }
+    };
   }
 };
 

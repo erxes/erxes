@@ -142,7 +142,7 @@ const Sidebar = (props: Props) => {
   );
 
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       <CommonForm renderContent={renderContent} />
     </Wrapper.Sidebar>
   );

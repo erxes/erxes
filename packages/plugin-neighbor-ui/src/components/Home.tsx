@@ -102,16 +102,8 @@ class Home extends React.Component<Props, State> {
         }
         content={<List type={type} data={data} refetch={refetch} />}
         leftSidebar={this.renderGategory()}
-        actionBar={
-          <Wrapper.ActionBar
-            right={this.renderAdd()}
-            withMargin
-            wide
-            background="colorWhite"
-          />
-        }
+        actionBar={<Wrapper.ActionBar right={this.renderAdd()} wideSpacing />}
         hasBorder
-        noPadding
       ></Wrapper>
     );
   }

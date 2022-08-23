@@ -124,8 +124,8 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true}>
-        <Section maxHeight={488}>
+      <Sidebar wide={true} hasBorder>
+        <Section maxHeight={488} noShadow>
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>

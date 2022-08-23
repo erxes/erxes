@@ -35,9 +35,8 @@ const spinCampaignsRemove = `
   }
 `;
 
-
 export default {
   spinCampaignsAdd,
   spinCampaignsEdit,
-  spinCampaignsRemove,
+  spinCampaignsRemove
 };

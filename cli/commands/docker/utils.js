@@ -102,6 +102,8 @@ const generatePluginBlock = (configs, plugin) => {
 };
 
 const syncUI = async ({ name, ui_location }) => {
+  const configs = await fse.readJSON(filePath('configs.json'));
+
   const plName = `plugin-${name}-ui`;
 
   if (ui_location) {
@@ -115,8 +117,20 @@ const syncUI = async ({ name, ui_location }) => {
   } else {
     log(`Downloading ${name} ui build.tar from s3`);
 
+    let s3_location = '';
+
+    if (!configs.image_tag) {
+      s3_location = `s3://erxes-plugins/uis/${plName}`;
+    } else {
+      if (configs.image_tag === 'dev') {
+        s3_location = `s3://erxes-dev-plugins/uis/${plName}`;
+      } else {
+        s3_location = `s3://erxes-release-plugins/uis/${plName}/${configs.image_tag}`;
+      }
+    }
+
     await execCommand(
-      `aws s3 sync s3://erxes-plugins/uis/${plName} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
+      `aws s3 sync ${s3_location} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
     );
   }
 
@@ -367,7 +381,7 @@ const up = async ({ uis, fromInstaller }) => {
         networks: ['erxes']
       },
       essyncer: {
-        image: `erxes/erxes-essyncer:${image_tag}`,
+        image: `erxes/essyncer:${image_tag}`,
         environment: {
           ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
           MONGO_URL: mongoEnv(configs)
@@ -381,7 +395,7 @@ const up = async ({ uis, fromInstaller }) => {
 
   if (configs.widgets) {
     dockerComposeConfig.services.widgets = {
-      image: `erxes/erxes-widgets:${image_tag}`,
+      image: `erxes/widgets:${image_tag}`,
       environment: {
         PORT: '3200',
         ROOT_URL: widgets_domain,
@@ -426,12 +440,18 @@ const up = async ({ uis, fromInstaller }) => {
     }
   }
 
-  log('Downloading pluginsMap.js from s3 ....');
+  let pluginsMapLocation = 'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
 
-  await execCurl(
-    'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js',
-    'pluginsMap.js'
-  );
+  if (configs.image_tag) {
+    if (configs.image_tag === 'dev') {
+      pluginsMapLocation = 'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+    } else {
+      pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
+    }
+  }
+
+  log(`Downloading pluginsMap.js from ${pluginsMapLocation} ....`);
+  await execCurl(pluginsMapLocation, 'pluginsMap.js');
 
   const pluginsMap = require(filePath('pluginsMap.js'));
 
@@ -668,7 +688,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (name === 'widgets') {
         await execCommand(
-          `docker service update erxes_widgets --image erxes/erxes-widgets:federation`
+          `docker service update erxes_widgets --image erxes/widgets:federation`
         );
         continue;
       }

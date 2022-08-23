@@ -133,8 +133,8 @@ class List extends React.Component<IProps, State> {
             emptyImage="/images/actions/5.svg"
           />
         }
-        hasBorder={true}
         transparent={true}
+        hasBorder
       />
     );
   }

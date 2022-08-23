@@ -140,16 +140,13 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{__('Ebarimt configs')}</Title>}
             right={actionButtons}
-            withMargin
-            wide
-            background="colorWhite"
+            wideSpacing
           />
         }
         leftSidebar={<Sidebar />}
         content={content}
         transparent={true}
-        hasBorder={true}
-        noPadding
+        hasBorder
       />
     );
   }

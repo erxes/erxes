@@ -1,11 +1,10 @@
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { ILocationOption } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
-
 import { SidebarContent } from '../styles';
 import { IFieldGroup } from '../types';
 import { applyLogics } from '../utils';

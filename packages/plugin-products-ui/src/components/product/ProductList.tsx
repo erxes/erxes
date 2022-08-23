@@ -298,13 +298,7 @@ class List extends React.Component<IProps, State> {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            left={actionBarLeft}
-            right={actionBarRight}
-            withMargin
-            wide
-            background="colorWhite"
-          />
+          <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
@@ -319,9 +313,8 @@ class List extends React.Component<IProps, State> {
             emptyImage="/images/actions/5.svg"
           />
         }
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

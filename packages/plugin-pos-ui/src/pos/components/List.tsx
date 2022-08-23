@@ -63,13 +63,7 @@ class List extends React.Component<Props, {}> {
     );
 
     const actionBar = (
-      <Wrapper.ActionBar
-        right={actionBarRight}
-        left={actionBarLeft}
-        withMargin
-        wide
-        background="colorWhite"
-      />
+      <Wrapper.ActionBar right={actionBarRight} left={actionBarLeft} />
     );
 
     const content = (
@@ -131,9 +125,8 @@ class List extends React.Component<Props, {}> {
             }
           />
         }
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

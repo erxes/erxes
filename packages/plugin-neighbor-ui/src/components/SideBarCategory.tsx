@@ -23,9 +23,7 @@ class SidebarCategories extends React.Component<Props, State> {
   renderCategoryHeader() {
     return (
       <>
-        <Section.Title noBackground noSpacing>
-          {__('Type')}
-        </Section.Title>
+        <Section.Title>{__('Type')}</Section.Title>
       </>
     );
   }
@@ -38,18 +36,11 @@ class SidebarCategories extends React.Component<Props, State> {
 
     return (
       <>
-        <Sidebar wide={true} header={<SidebarHeader />} noMargin hasBorder>
+        <Sidebar wide={true} header={<SidebarHeader />} hasBorder>
           <Section noShadow noMargin maxHeight={488}>
             {this.renderCategoryHeader()}
           </Section>
-          <Box
-            noBackground
-            noSpacing
-            noShadow
-            noMarginBottom
-            title={__('Хөрш сургуулиуд')}
-            collapsible={false}
-          >
+          <Box title={__('Хөрш сургуулиуд')} collapsible={false}>
             <SidebarList>
               <li>
                 <a id="kindergarden" onClick={() => onClick('kindergarden')}>
@@ -68,13 +59,7 @@ class SidebarCategories extends React.Component<Props, State> {
               </li>
             </SidebarList>
           </Box>
-          <Box
-            noBackground
-            noSpacing
-            noShadow
-            noMarginBottom
-            title={__('Ойр хавийн мэдээлэл')}
-          >
+          <Box title={__('Ойр хавийн мэдээлэл')}>
             <SidebarList>
               <li>
                 <a id="soh" onClick={() => onClick('soh')}>
@@ -98,13 +83,7 @@ class SidebarCategories extends React.Component<Props, State> {
               </li>
             </SidebarList>
           </Box>
-          <Box
-            noBackground
-            noSpacing
-            noShadow
-            noMarginBottom
-            title={__('Орчны мэдээлэл')}
-          >
+          <Box title={__('Орчны мэдээлэл')}>
             <SidebarList>
               <li>
                 <a id="parking" onClick={() => onClick('parking')}>
@@ -118,13 +97,7 @@ class SidebarCategories extends React.Component<Props, State> {
               </li>
             </SidebarList>
           </Box>
-          <Box
-            noBackground
-            noSpacing
-            noShadow
-            noMarginBottom
-            title={__('Дүүргийн байрны мэдээлэл')}
-          >
+          <Box title={__('Дүүргийн байрны мэдээлэл')}>
             <SidebarList>
               <li>
                 <a

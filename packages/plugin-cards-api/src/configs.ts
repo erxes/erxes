@@ -101,6 +101,8 @@ export default {
 
     initBroker(options.messageBrokerClient);
 
+    console.log('Debug ....');
+
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   }

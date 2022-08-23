@@ -11,7 +11,7 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  BarItems,
+  BarItems
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -56,7 +56,7 @@ class ContractsList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
+      searchValue: this.props.searchValue
     };
   }
 
@@ -65,7 +65,7 @@ class ContractsList extends React.Component<IProps, State> {
     toggleAll(contracts, 'contracts');
   };
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -80,17 +80,17 @@ class ContractsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeContracts = (contracts) => {
+  removeContracts = contracts => {
     const contractIds: string[] = [];
 
-    contracts.forEach((contract) => {
+    contracts.forEach(contract => {
       contractIds.push(contract._id);
     });
 
     this.props.removeContracts({ contractIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -106,7 +106,7 @@ class ContractsList extends React.Component<IProps, State> {
       isAllSelected,
       totalCount,
       // mergeContracts,
-      queryParams,
+      queryParams
     } = this.props;
 
     const mainContent = (
@@ -157,7 +157,7 @@ class ContractsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="contracts">
-            {contracts.map((contract) => (
+            {contracts.map(contract => (
               <ContractRow
                 contract={contract}
                 isChecked={bulk.includes(contract)}
@@ -195,7 +195,7 @@ class ContractsList extends React.Component<IProps, State> {
           .then(() => {
             this.removeContracts(bulk);
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
 
@@ -222,7 +222,7 @@ class ContractsList extends React.Component<IProps, State> {
       );
     }
 
-    const contractForm = (props) => {
+    const contractForm = props => {
       return <ContractForm {...props} queryParams={queryParams} />;
     };
 
@@ -279,6 +279,7 @@ class ContractsList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder
       />
     );
   }

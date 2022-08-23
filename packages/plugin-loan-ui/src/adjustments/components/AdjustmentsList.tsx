@@ -11,7 +11,7 @@ import {
   router,
   SortHandler,
   Table,
-  Wrapper,
+  Wrapper
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -53,7 +53,7 @@ class AdjustmentsList extends React.Component<IProps, State> {
     super(props);
 
     this.state = {
-      searchValue: this.props.searchValue,
+      searchValue: this.props.searchValue
     };
   }
 
@@ -62,7 +62,7 @@ class AdjustmentsList extends React.Component<IProps, State> {
     toggleAll(adjustments, 'adjustments');
   };
 
-  search = (e) => {
+  search = e => {
     if (this.timer) {
       clearTimeout(this.timer);
     }
@@ -77,17 +77,17 @@ class AdjustmentsList extends React.Component<IProps, State> {
     }, 500);
   };
 
-  removeAdjustments = (adjustments) => {
+  removeAdjustments = adjustments => {
     const adjustmentIds: string[] = [];
 
-    adjustments.forEach((adjustment) => {
+    adjustments.forEach(adjustment => {
       adjustmentIds.push(adjustment._id);
     });
 
     this.props.removeAdjustments({ adjustmentIds }, this.props.emptyBulk);
   };
 
-  moveCursorAtTheEnd = (e) => {
+  moveCursorAtTheEnd = e => {
     const tmpValue = e.target.value;
     e.target.value = '';
     e.target.value = tmpValue;
@@ -102,7 +102,7 @@ class AdjustmentsList extends React.Component<IProps, State> {
       bulk,
       isAllSelected,
       totalCount,
-      queryParams,
+      queryParams
     } = this.props;
 
     const mainContent = (
@@ -124,7 +124,7 @@ class AdjustmentsList extends React.Component<IProps, State> {
             </tr>
           </thead>
           <tbody id="adjustments">
-            {adjustments.map((adjustment) => (
+            {adjustments.map(adjustment => (
               <AdjustmentRow
                 adjustment={adjustment}
                 isChecked={bulk.includes(adjustment)}
@@ -152,7 +152,7 @@ class AdjustmentsList extends React.Component<IProps, State> {
           .then(() => {
             this.removeAdjustments(bulk);
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
 
@@ -170,7 +170,7 @@ class AdjustmentsList extends React.Component<IProps, State> {
       );
     }
 
-    const adjustmentForm = (props) => {
+    const adjustmentForm = props => {
       return <AdjustmentForm {...props} queryParams={queryParams} />;
     };
 
@@ -219,6 +219,7 @@ class AdjustmentsList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder
       />
     );
   }

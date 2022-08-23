@@ -29,7 +29,7 @@ function Sidebar({
   contentType: string;
 }) {
   return (
-    <LeftSidebar full={true} header={<SidebarHeader />}>
+    <LeftSidebar full={true} header={<SidebarHeader />} hasBorder>
       <LeftSidebar.Header uppercase={true}>
         {__('Segments type')}
       </LeftSidebar.Header>

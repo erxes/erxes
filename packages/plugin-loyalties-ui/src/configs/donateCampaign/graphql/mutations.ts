@@ -35,9 +35,8 @@ const donateCampaignsRemove = `
   }
 `;
 
-
 export default {
   donateCampaignsAdd,
   donateCampaignsEdit,
-  donateCampaignsRemove,
+  donateCampaignsRemove
 };

@@ -1,5 +1,5 @@
 import CategoryForm from '@erxes/ui-products/src/containers/CategoryForm';
-import { TopHeader } from '@erxes/ui/src/styles/main';
+import { Header } from '@erxes/ui-settings/src/styles';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import Tip from '@erxes/ui/src/components/Tip';
 import { router } from '@erxes/ui/src/utils';
@@ -164,7 +164,7 @@ class CategoryList extends React.Component<IProps> {
 
     return (
       <>
-        <TopHeader>{this.renderFormTrigger(trigger)}</TopHeader>
+        <Header>{this.renderFormTrigger(trigger)}</Header>
         <Section.Title>
           {__('Categories')}
           <Section.QuickButtons>
@@ -200,10 +200,11 @@ class CategoryList extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder>
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}
+          noShadow
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}

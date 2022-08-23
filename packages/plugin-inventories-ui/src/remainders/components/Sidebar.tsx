@@ -19,7 +19,7 @@ const Sidebar = (props: Props) => {
   };
 
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       <Box title={__('Filter')} isOpen={true} name="showFilter">
         <SidebarContent>
           <FormGroup>

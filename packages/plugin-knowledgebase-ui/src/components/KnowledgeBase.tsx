@@ -112,6 +112,7 @@ class KnowledgeBase extends React.Component<Props> {
             }
           />
         }
+        hasBorder
       />
     );
   }

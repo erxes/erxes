@@ -25,7 +25,7 @@ function Sidebar({
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 }) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       {isEnabled('segments') && (
         <SegmentFilter loadingMainQuery={loadingMainQuery} />
       )}

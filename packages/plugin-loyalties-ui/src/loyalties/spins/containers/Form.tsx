@@ -47,15 +47,16 @@ class SpinFromContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };
 
     const updatedProps = {
       ...this.props,
-      renderButton,
+      renderButton
     };
     return <Form {...updatedProps} />;
   }
@@ -73,7 +74,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-  )(SpinFromContainer)
-);
+export default withProps<Props>(compose()(SpinFromContainer));

@@ -1,6 +1,17 @@
 import {
-  __, Alert, Button, confirm, DataWithLoader, FormControl, ModalTrigger, Pagination, router,
-  SortHandler, Table, Wrapper, BarItems
+  __,
+  Alert,
+  Button,
+  confirm,
+  DataWithLoader,
+  FormControl,
+  ModalTrigger,
+  Pagination,
+  router,
+  SortHandler,
+  Table,
+  Wrapper,
+  BarItems
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -107,19 +118,31 @@ class CarsList extends React.Component<IProps, State> {
                 />
               </th>
               <th>
-                <SortHandler sortField={'plateNumber'} label={__('Plate Number')} />
+                <SortHandler
+                  sortField={'plateNumber'}
+                  label={__('Plate Number')}
+                />
               </th>
               <th>
                 <SortHandler sortField={'vinNumber'} label={__('Vin Number')} />
               </th>
               <th>
-                <SortHandler sortField={'vintageYear'} label={__('Vintage Year')} />
+                <SortHandler
+                  sortField={'vintageYear'}
+                  label={__('Vintage Year')}
+                />
               </th>
               <th>
-                <SortHandler sortField={'importYear'} label={__('Import Year')} />
+                <SortHandler
+                  sortField={'importYear'}
+                  label={__('Import Year')}
+                />
               </th>
               <th>
-                <SortHandler sortField={'description'} label={__('Description')} />
+                <SortHandler
+                  sortField={'description'}
+                  label={__('Description')}
+                />
               </th>
             </tr>
           </thead>
@@ -245,6 +268,7 @@ class CarsList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder
       />
     );
   }

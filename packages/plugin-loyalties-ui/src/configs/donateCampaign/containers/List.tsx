@@ -6,7 +6,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import DonateCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { DonateCampaignQueryResponse, DonateCampaignRemoveMutationResponse } from '../types';
+import {
+  DonateCampaignQueryResponse,
+  DonateCampaignRemoveMutationResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -16,7 +19,8 @@ type Props = {
 
 type FinalProps = {
   donateCampaignQuery: DonateCampaignQueryResponse;
-} & Props & DonateCampaignRemoveMutationResponse;
+} & Props &
+  DonateCampaignRemoveMutationResponse;
 
 class DonateCampaignContainer extends React.Component<FinalProps> {
   render() {
@@ -71,9 +75,7 @@ class DonateCampaignContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'donateCampaigns'
-  ];
+  return ['donateCampaigns'];
 };
 
 const options = () => ({
@@ -85,12 +87,13 @@ export default withProps<Props>(
     graphql<{}, DonateCampaignQueryResponse>(gql(queries.donateCampaigns), {
       name: 'donateCampaignQuery'
     }),
-    graphql<Props, DonateCampaignRemoveMutationResponse, { donateCampaignIds: string[] }>(
-      gql(mutations.donateCampaignsRemove),
-      {
-        name: 'donateCampaignsRemove',
-        options
-      }
-    ),
+    graphql<
+      Props,
+      DonateCampaignRemoveMutationResponse,
+      { donateCampaignIds: string[] }
+    >(gql(mutations.donateCampaignsRemove), {
+      name: 'donateCampaignsRemove',
+      options
+    })
   )(DonateCampaignContainer)
 );

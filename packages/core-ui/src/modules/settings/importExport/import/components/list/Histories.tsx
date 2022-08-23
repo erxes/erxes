@@ -150,9 +150,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
-            background="colorWhite"
-            withMargin
-            wide
+            wideSpacing
           />
         }
         leftSidebar={<Sidebar history={history} currentType={currentType} />}
@@ -166,9 +164,8 @@ class Histories extends React.Component<Props & IRouterProps> {
             emptyContent={<EmptyContent content={EMPTY_IMPORT_CONTENT} />}
           />
         }
-        hasBorder={true}
         transparent={true}
-        noPadding={true}
+        hasBorder
       />
     );
   }

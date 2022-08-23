@@ -57,11 +57,10 @@ const FormTop = styled.div`
 
 const FieldItem = styledTS<{
   selectType?: boolean;
-  noPadding?: boolean;
   hasLogic?: boolean;
 }>(styled.div)`
 
-  padding: ${props => !props.noPadding && `10px 10px 0 10px`};
+  padding: 10px 10px 0 10px;
   flex: 1;
   border-radius: 4px;
 

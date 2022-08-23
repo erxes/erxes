@@ -68,10 +68,6 @@ class BranchDepartmentFilter extends React.Component<IProps, State> {
         extraButtons={extraButtons}
         title={__('Filter by Input')}
         name="showFilterByType"
-        noShadow={true}
-        noMarginBottom={true}
-        noBackground={true}
-        noSpacing={true}
       >
         <SidebarList>
           <OverallWorkSidebar>

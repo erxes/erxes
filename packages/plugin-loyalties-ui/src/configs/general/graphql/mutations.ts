@@ -6,7 +6,6 @@ const updateLoyaltyConfigs = `
   }
 `;
 
-
 export default {
   updateLoyaltyConfigs
 };

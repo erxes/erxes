@@ -104,6 +104,7 @@ class List extends React.Component<IProps, {}> {
             emptyImage="/images/actions/5.svg"
           />
         }
+        hasBorder
       />
     );
   }

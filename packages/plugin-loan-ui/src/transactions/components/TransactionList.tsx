@@ -11,7 +11,7 @@ import {
   SortHandler,
   Table,
   Wrapper,
-  BarItems,
+  BarItems
 } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import React from 'react';
@@ -58,10 +58,10 @@ class TransactionsList extends React.Component<IProps> {
     toggleAll(transactions, 'transactions');
   };
 
-  removeTransactions = (transactions) => {
+  removeTransactions = transactions => {
     const transactionIds: string[] = [];
 
-    transactions.forEach((transaction) => {
+    transactions.forEach(transaction => {
       transactionIds.push(transaction._id);
     });
 
@@ -81,7 +81,7 @@ class TransactionsList extends React.Component<IProps> {
       onSelect,
       onSearch,
       isFiltered,
-      clearFilter,
+      clearFilter
     } = this.props;
 
     const mainContent = (
@@ -139,7 +139,7 @@ class TransactionsList extends React.Component<IProps> {
             </tr>
           </thead>
           <tbody id="transactions">
-            {transactions.map((transaction) => (
+            {transactions.map(transaction => (
               <TransactionRow
                 transaction={transaction}
                 isChecked={bulk.includes(transaction)}
@@ -167,7 +167,7 @@ class TransactionsList extends React.Component<IProps> {
           .then(() => {
             this.removeTransactions(bulk);
           })
-          .catch((error) => {
+          .catch(error => {
             Alert.error(error.message);
           });
 
@@ -185,7 +185,7 @@ class TransactionsList extends React.Component<IProps> {
       );
     }
 
-    const transactionForm = (props) => {
+    const transactionForm = props => {
       return <TransactionForm {...props} queryParams={queryParams} />;
     };
 
@@ -194,7 +194,7 @@ class TransactionsList extends React.Component<IProps> {
       onSearch,
       isFiltered,
       clearFilter,
-      queryParams,
+      queryParams
     };
 
     const actionBarRight = (
@@ -236,6 +236,7 @@ class TransactionsList extends React.Component<IProps> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder
       />
     );
   }
