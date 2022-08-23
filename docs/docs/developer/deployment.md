@@ -74,16 +74,16 @@ create-erxes-app erxes
 2. Run the following command to give a permission to `Install.sh` file. 
 
 ```
- sudo chmod +x install.sh
+sudo chmod +x install.sh
 ```
 
 3. Run `Install.sh` file using the following command. 
 
 ```
- ./install.sh
+./install.sh
 ```
 
-:::Caution
+:::caution
 
 While `Install.sh` is running, the field to insert erxes data will show up.
 
@@ -92,7 +92,7 @@ While `Install.sh` is running, the field to insert erxes data will show up.
 4. Type the domain to the field says "Please enter your domain (localhost)".
 
 ```
-  Example: erxes-test.com
+Example: erxes-test.com
 ```
 
 5. Insert your hostname on Rabbitmq host (optional).
@@ -113,10 +113,10 @@ Example: erxes
 10. Here you have your erxes project successfully installed, then go to your erxes directory with the foloowing command.
 
 ```
- cd erxes
+cd erxes
 ```
 
-:::Info
+:::note
 
 See the latest version of npm erxes here https://www.npmjs.com/package/erxes
 
@@ -174,7 +174,7 @@ su - erxes
 14. Go back to your erxes directory with the following command.
 
 ```
- cd erxes
+cd erxes
 ```
 
 15. Run the following command in your erxes directory. 
@@ -182,7 +182,7 @@ su - erxes
 docker swarm init
 ```
 
-:::Note
+:::note
 Please note that the following actions can be done once you fully run your Database containers. 
 
 :::
@@ -196,19 +196,19 @@ sudo npm run erxes deploy-dbs
 17. Run the following to start application containers
 
 ```
-   sudo npm run erxes up
+sudo npm run erxes up
 ```
 
 18. See the generated docker services using the command below.
 
 ```
-   docker service ls
+docker service ls
 ```
 
 19. Use the command below to view the finished docker containers
 
 ```
- docker ps -a
+docker ps -a
 ```
 
 20. Copying below line code from docker-compose.yml
@@ -240,14 +240,15 @@ Many times, it becomes "RS0: primary".
 These commands are given as a replica set, and when done correctly, the mongo shell changes to "RS0: primary".
 
 24. After completing the configuration on the mongo database, delete and restart the services through the docker network. First, do the database services.
-
+```
 docker stack rm erxes
 docker stack rm erxes-dbs
 npm run erxes deploy-dbs
 npm run erxes up
 npm run erxes up – –uis
+```
 
-:::Note
+:::note
 
 Containers are generated one by one, so wait until they finish reading.
 
@@ -265,7 +266,6 @@ If "plugin_name has no address value" is displayed, it is not connected to the d
 
 ```
 sudo mv nginx.conf /etc/nginx/sites-enabled/
-
 ```
 
 27. Go to /etc/nginx/sites-enabled. 
