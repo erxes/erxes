@@ -18,7 +18,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IContentTypeDoc, IPageDoc, ITemplateDoc } from '../../types';
+import { IContentTypeDoc, IPageDoc } from '../../types';
 import customPlugins from './customPlugins';
 import SelectSite from '../../containers/sites/SelectSite';
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -33,10 +33,8 @@ type Props = {
     css: string,
     jsonData: any
   ) => void;
-  saveTemplate: (name: string, jsonData: any, html: string) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
-  template: ITemplateDoc;
 };
 
 type State = {
@@ -61,7 +59,7 @@ class PageForm extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { page, contentTypes, template } = this.props;
+    const { page, contentTypes } = this.props;
     let { pages } = this.props;
 
     pages = pages.filter(p => p._id !== page?._id);
@@ -114,8 +112,6 @@ class PageForm extends React.Component<Props, State> {
 
     if (page && page.jsonData) {
       this.grapes.loadProjectData(page.jsonData);
-    } else if (template && template.jsonData) {
-      this.grapes.loadProjectData(template.jsonData);
     }
 
     const editor = this.grapes;
@@ -247,16 +243,6 @@ class PageForm extends React.Component<Props, State> {
     );
   };
 
-  saveTemplate = () => {
-    const e = this.grapes;
-
-    this.props.saveTemplate(
-      this.state.name || 'Template',
-      e.getProjectData(),
-      e.getHtml()
-    );
-  };
-
   renderPageContent() {
     const imagePath = '/images/icons/erxes-12.svg';
     const { description, name, siteId } = this.state;
@@ -319,14 +305,6 @@ class PageForm extends React.Component<Props, State> {
     return (
       <Button.Group>
         {cancelButton}
-
-        <Button
-          btnStyle="warning"
-          icon={'check-circle'}
-          onClick={this.saveTemplate}
-        >
-          Save as template
-        </Button>
 
         <Button btnStyle="success" icon={'check-circle'} onClick={this.save}>
           Save

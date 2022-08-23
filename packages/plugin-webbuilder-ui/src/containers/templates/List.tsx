@@ -6,8 +6,8 @@ import { graphql } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
 import {
   TemplatesQueryResponse,
-  TemplatesRemoveMutationResponse,
-  TemplatesTotalCountQueryResponse
+  TemplatesTotalCountQueryResponse,
+  TemplatesUseMutationResponse
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -22,23 +22,20 @@ type FinalProps = {
   templatesQuery: TemplatesQueryResponse;
   templatesCountQuery: TemplatesTotalCountQueryResponse;
 } & Props &
-  TemplatesRemoveMutationResponse;
+  TemplatesUseMutationResponse;
 
 function ListContainer(props: FinalProps) {
-  const { templatesQuery, templatesCountQuery, templatesRemove } = props;
+  const { templatesQuery, templatesCountQuery, templatesUse } = props;
 
   if (templatesQuery.loading || templatesCountQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const remove = (_id: string) => {
+  const use = (_id: string, name: string) => {
     confirm().then(() => {
-      templatesRemove({ variables: { _id } })
+      templatesUse({ variables: { _id, name } })
         .then(() => {
-          Alert.success('Successfully deleted a template');
-
-          templatesQuery.refetch();
-          templatesCountQuery.refetch();
+          Alert.success('Successfully use a template');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -53,15 +50,15 @@ function ListContainer(props: FinalProps) {
     ...props,
     templates,
     templatesCount,
-    remove
+    use
   };
 
   return <List {...updatedProps} />;
 }
 
 export default compose(
-  graphql<{}, TemplatesRemoveMutationResponse>(gql(mutations.templatesRemove), {
-    name: 'templatesRemove'
+  graphql<{}, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
+    name: 'templatesUse'
   }),
   graphql<Props, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery',

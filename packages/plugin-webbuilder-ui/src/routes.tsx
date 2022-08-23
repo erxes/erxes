@@ -43,12 +43,6 @@ const typeEdit = ({ match }) => {
   return <ContentTypeForm contentTypeId={id} />;
 };
 
-const pageWithTemplate = ({ match }) => {
-  const templateId = match.params.templateId;
-
-  return <PageForm templateId={templateId} />;
-};
-
 const pageEdit = ({ match }) => {
   const _id = match.params._id;
 
@@ -83,12 +77,6 @@ const routes = () => {
         path="/webbuilder/pages/create"
         exact={true}
         component={PageForm}
-      />
-
-      <Route
-        path="/webbuilder/pages/create/:templateId"
-        exact={true}
-        component={pageWithTemplate}
       />
 
       <Route
