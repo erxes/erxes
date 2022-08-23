@@ -5,7 +5,7 @@ export const filterDealsByCar = async (
   models: IModels,
   subdomain: string,
   carId: string,
-  date?: date
+  date?: Date
 ) => {
   const car = await models.Cars.getCar(carId);
 
@@ -31,7 +31,7 @@ export const filterDealsByRoute = async (
   models: IModels,
   subdomain: string,
   routeId: string,
-  date?: date
+  date?: Date
 ) => {
   const directionIds = await models.Routes.findOne({ _id: routeId })
     .distinct('directionIds')
@@ -69,7 +69,7 @@ export const filterDeals = async (
   subdomain: string,
   carId: string,
   routeId: string,
-  date?: date
+  date?: Date
 ) => {
   const car = await models.Cars.getCar(carId);
 
