@@ -5,7 +5,6 @@ import { IModels } from '../connectionResolver';
 import { field } from './utils';
 
 export interface IEntryValue {
-  fieldId: string;
   fieldCode: string;
   value: any;
 }
@@ -21,7 +20,6 @@ export interface IEntryDocument extends IEntry, Document {
 
 export const valueSchema = new Schema(
   {
-    fieldId: field({ type: String, label: 'Field Id' }),
     fieldCode: field({ type: String, label: 'Field code' }),
     value: field({ type: 'Mixed', label: 'Value' })
   },
