@@ -6,16 +6,34 @@ module.exports = {
       {
         name: 'processesAll',
         description: 'All',
-        use: ['showProcesses', 'manageProcesses']
+        use: [
+          'manageJobRefers',
+          'manageWorks',
+          'showFlows',
+          'showJobRefers',
+          'showWorks'
+        ]
       },
       {
-        name: 'showProcesses',
-        description: 'Show Processes'
+        name: 'manageJobRefers',
+        description: 'Manage Jobs'
       },
       {
-        name: 'manageProcesses',
-        description: 'Manage Processes'
-      }
+        name: 'manageWorks',
+        description: 'Manage Works'
+      },
+      {
+        name: 'showFlows',
+        description: 'Show Flows'
+      },
+      {
+        name: 'showJobRefers',
+        description: 'Show Jobs'
+      },
+      {
+        name: 'showWorks',
+        description: 'Show Works'
+      },
     ]
   }
 };

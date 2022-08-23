@@ -1,5 +1,4 @@
-import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-
+// import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 import { IJobCategory } from '../../../models/definitions/jobCategories';
 import {
   putCreateLog,
@@ -92,6 +91,6 @@ const jobCategoryMutations = {
   }
 };
 
-moduleCheckPermission(jobCategoryMutations, 'manageJobRefers');
+// moduleCheckPermission(jobCategoryMutations, 'manageJobRefers');
 
 export default jobCategoryMutations;
