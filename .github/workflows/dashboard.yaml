@@ -1,4 +1,4 @@
-name: Workers CI
+name: Dashboard CI
 
 on:
   push:

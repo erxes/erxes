@@ -124,7 +124,7 @@ httpServer.listen(PORT, async () => {
     meta: {}
   });
 
-  console.log(`GraphQL Server is now running on ${PORT}`);
+  console.log(`GraphQL Server is now running on1 ${PORT}`);
 });
 
 // If the Node process ends, close the http-server and mongoose.connection and leave service discovery.
