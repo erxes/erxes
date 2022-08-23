@@ -175,9 +175,7 @@ export default function Home(props: Props) {
       hasFlex={true}
       right={righActionBar}
       left={renderFilter}
-      wide
-      withMargin
-      background="colorWhite"
+      wideSpacing
     />
   );
 
@@ -190,13 +188,12 @@ export default function Home(props: Props) {
           submenu={menuContacts}
         />
       }
-      leftSidebar={<Sidebar hasBorder={true} loadingMainQuery={loading} />}
+      leftSidebar={<Sidebar loadingMainQuery={loading} />}
       actionBar={actionBar}
       content={<UserList history={history} queryParams={queryParams} />}
-      hasBorder={true}
       transparent={true}
       footer={<Pagination count={totalCount} />}
-      noPadding={true}
+      hasBorder
     />
   );
 }

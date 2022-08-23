@@ -95,7 +95,7 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder>
         <Section
           maxHeight={188}
           collapsible={this.props.lotteryCampaignsCount > 5}

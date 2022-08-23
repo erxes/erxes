@@ -124,15 +124,15 @@ function EmailDelivery({
         ) : null}
 
         <React.Fragment>
-          { isEnabled("engages") &&
-          <Select
-            placeholder={__('Choose Email type')}
-            value={emailType}
-            options={emailTypeOptions}
-            onChange={handleEmailtype}
-            clearable={false}
-          />
-          }
+          {isEnabled('engages') && (
+            <Select
+              placeholder={__('Choose Email type')}
+              value={emailType}
+              options={emailTypeOptions}
+              onChange={handleEmailtype}
+              clearable={false}
+            />
+          )}
           {isTransaction ? null : (
             <Select
               placeholder={__('Choose status')}
@@ -173,6 +173,7 @@ function EmailDelivery({
           emptyImage="/images/actions/21.svg"
         />
       }
+      hasBorder
     />
   );
 }

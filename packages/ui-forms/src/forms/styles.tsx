@@ -1,9 +1,15 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import {
+  DragHandler,
+  SortItem,
+  SortableWrapper
+} from '@erxes/ui/src/styles/sort';
 import { Formgroup, SelectWrapper } from '@erxes/ui/src/components/form/styles';
+import { colors, dimensions } from '@erxes/ui/src/styles';
+import styled, { css } from 'styled-components';
+
 import { SidebarMainContent } from '@erxes/ui/src/layout/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styledTS from 'styled-components-ts';
 
 const FlexRow = styled.div`
   display: flex;
@@ -46,6 +52,54 @@ const FieldWrapper = styled.div`
 
 const FieldsWrapper = styled.div`
   margin: 0 -10px;
+
+  ${SortableWrapper} {
+    overflow: visible;
+    max-height: 100%;
+
+    ${SortItem} {
+      background: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+
+      > div {
+        width: 100%;
+        flex: 1;
+      }
+
+      ${DragHandler} {
+        position: absolute;
+        background: ${colors.colorWhite};
+        top: 0;
+        right: 0;
+        margin-right: 0;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: ${dimensions.headerSpacing - 20}px;
+        height: ${dimensions.headerSpacing - 20}px;
+        border-radius: 4px;
+        opacity: 0;
+        visibility: visible;
+        border: 1px solid ${colors.borderPrimary};
+        box-shadow: 0 0 4px ${colors.shadowPrimary};
+        transition: all 0.3s ease;
+
+        i {
+          margin: 0;
+          font-size: 16px;
+        }
+      }
+
+      &:hover {
+        ${DragHandler} {
+          opacity: 1;
+        }
+      }
+    }
+  }
 `;
 
 const FormTop = styled.div`
@@ -57,11 +111,10 @@ const FormTop = styled.div`
 
 const FieldItem = styledTS<{
   selectType?: boolean;
-  noPadding?: boolean;
   hasLogic?: boolean;
 }>(styled.div)`
 
-  padding: ${props => !props.noPadding && `10px 10px 0 10px`};
+  padding: 10px 10px 0 10px;
   flex: 1;
   border-radius: 4px;
 

@@ -14,7 +14,7 @@ function Sidebar({
   queryParams: any;
 }) {
   return (
-    <Wrapper.Sidebar>
+    <Wrapper.Sidebar hasBorder>
       <PaddingTop>
         <CampaignList queryParams={queryParams} history={history} />
         <FilterCampaign queryParams={queryParams} history={history} />

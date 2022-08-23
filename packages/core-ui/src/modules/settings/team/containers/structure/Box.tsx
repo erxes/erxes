@@ -25,15 +25,7 @@ export default function BoxContainer() {
 
   if (error) {
     return (
-      <Box
-        isOpen={true}
-        title={__('Structure')}
-        name="showStructure"
-        noShadow
-        noMarginBottom
-        noBackground
-        noSpacing
-      >
+      <Box isOpen={true} title={__('Structure')} name="showStructure">
         <MenuFooter>
           <ErrorMsg>{error.message}</ErrorMsg>
         </MenuFooter>

@@ -3,11 +3,10 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
 import Info from '@erxes/ui/src/components/Info';
-import { LinkButton } from '@erxes/ui/src/styles/main';
-import { IField, IFieldLogic } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
+import { IField, IFieldLogic } from '@erxes/ui/src/types';
+import { LinkButton } from '@erxes/ui/src/styles/main';
 import React, { useEffect, useState } from 'react';
-
 import FieldLogic from './FieldLogic';
 
 type Props = {

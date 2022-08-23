@@ -6,6 +6,7 @@ import { Flex } from '@erxes/ui/src/styles/main';
 import { borderRadius } from './common';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
+import { FormContainer } from '../styles/common';
 
 const buttonColor = '#0a1e3c';
 
@@ -128,9 +129,16 @@ export const AddContent = styled.div`
   }
 `;
 
-export const AddFormWidth = styled.div`
-  max-width: 700px;
+export const SelectInput = styled.div`
   overflow: hidden;
+
+  .Select-input {
+    width: 100%;
+
+    input {
+      width: 100% !important;
+    }
+  }
 `;
 
 export const TitleRow = styled.div`
@@ -441,5 +449,11 @@ export const ArchiveStatus = styled.div`
   }
   i {
     font-size: 16px;
+  }
+`;
+
+export const BoardSelectWrapper = styled.div`
+  ${FormContainer} {
+    padding: 0;
   }
 `;

@@ -92,11 +92,11 @@ const log = (msg, color = 'green') => {
   console.log(chalk[color](msg));
 };
 
-const sleep = (ms) => {
-  return new Promise((resolve) => {
+const sleep = ms => {
+  return new Promise(resolve => {
     setTimeout(resolve, ms);
   });
-}
+};
 
 module.exports.execCommand = execCommand;
 

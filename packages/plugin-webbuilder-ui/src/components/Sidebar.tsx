@@ -40,9 +40,7 @@ class List extends React.Component<Props> {
 
     return (
       <>
-        <Section.Title noBackground={true} noSpacing={true}>
-          {__('Builder')}
-        </Section.Title>
+        <Section.Title>{__('Builder')}</Section.Title>
 
         {result}
       </>
@@ -62,9 +60,7 @@ class List extends React.Component<Props> {
 
     return (
       <>
-        <Section.Title noBackground={true} noSpacing={true}>
-          {__('Entries')}
-        </Section.Title>
+        <Section.Title>{__('Entries')}</Section.Title>
 
         {contentTypes.map(contentType => {
           return (
@@ -89,7 +85,7 @@ class List extends React.Component<Props> {
     const { contentTypes } = this.props;
 
     return (
-      <Sidebar wide={true} hasBorder={true} noMargin={true}>
+      <Sidebar wide={true}>
         <Section
           maxHeight={488}
           noShadow={true}
