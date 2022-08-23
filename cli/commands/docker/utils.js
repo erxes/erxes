@@ -94,8 +94,8 @@ const generatePluginBlock = (configs, plugin) => {
 
   if (plugin.replicas) {
     conf.deploy = {
-      replicas: plugin.replicas,
-    }
+      replicas: plugin.replicas
+    };
   }
 
   return conf;
@@ -271,8 +271,7 @@ const up = async ({ uis, fromInstaller }) => {
   const widgets = configs.widgets || {};
   const dashboard = configs.dashboard;
   const widgets_domain = widgets.domain || `${domain}/widgets`;
-  const dashboard_domain = `${domain}/dashboard/front`;
-  const dashboard_api_domain = `${domain}/dashboard/api`;
+  const dashboard_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
 
   const NGINX_HOST = domain.replace('https://', '');
@@ -409,35 +408,21 @@ const up = async ({ uis, fromInstaller }) => {
   }
 
   if (dashboard) {
-    dockerComposeConfig.services['dashboard-api'] = {
-      image: 'erxes/erxes-dashboard-api:develop',
+    dockerComposeConfig.services.dashboard = {
+      image: `erxes/dashboard:${image_tag}`,
       ports: ['4300:80'],
       environment: {
         PORT: '80',
-        CUBEJS_DB_TYPE: 'elasticsearch',
-        CUBEJS_DB_URL: `http://${db_server_address || 'elasticsearch'}:9200`,
-        CUBEJS_URL: dashboard_api_domain,
+        CUBEJS_DB_TYPE: 'mongobi',
+        CUBEJS_DB_URL: `http://${db_server_address || 'mongosqld'}:3307`,
+        CUBEJS_URL: dashboard_domain,
         CUBEJS_TOKEN: dashboard.api_token,
         CUBEJS_API_SECRET: dashboard.api_secret,
         REDIS_URL: `redis://${db_server_address || 'redis'}:6379`,
-        REDIS_PASSWORD: configs.redis.password || '',
-        DB_NAME: configs.mongo.db_name || 'erxes'
+        REDIS_PASSWORD: configs.redis.password || ''
       },
       volumes: ['./enabled-services.js:/data/enabled-services.js'],
       extra_hosts,
-      networks: ['erxes']
-    };
-
-    dockerComposeConfig.services['dashboard-front'] = {
-      image: 'erxes/erxes-dashboard-front:develop',
-      ports: ['4200:80'],
-      environment: {
-        REACT_APP_API_URL: gateway_url,
-        REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
-        REACT_APP_DASHBOARD_API_URL: `https://${NGINX_HOST}/dashboard/api`,
-        REACT_APP_DASHBOARD_API_TOKEN: configs.dashboard.api_token,
-        NGINX_HOST
-      },
       networks: ['erxes']
     };
   }
@@ -449,7 +434,9 @@ const up = async ({ uis, fromInstaller }) => {
 
     if (!fromInstaller) {
       await execCommand(`cd installer && npm run pm2 delete all`, true);
-      await execCommand(`cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`);
+      await execCommand(
+        `cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`
+      );
     }
   }
 
@@ -471,10 +458,7 @@ const up = async ({ uis, fromInstaller }) => {
   if (configs.private_plugins_map) {
     log('Downloading private plugins map ....');
 
-    await execCurl(
-      configs.private_plugins_map,
-      'privatePluginsMap.js'
-    );
+    await execCurl(configs.private_plugins_map, 'privatePluginsMap.js');
 
     log('Merging plugin maps ....');
 
@@ -665,11 +649,6 @@ const up = async ({ uis, fromInstaller }) => {
                 proxy_pass http://127.0.0.1:4300/;
                 ${commonConfig}
             }
-
-            location /dashboard/front {
-                proxy_pass http://127.0.0.1:4200/;
-                ${commonConfig}
-            }
     }
   `
   );
@@ -693,14 +672,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
     if (!noimage) {
       log(`Updating image ${name}......`);
 
-      if (['crons', 'dashboard-front', 'gateway', 'client-portal'].includes(name)) {
-        await execCommand(
-          `docker service update erxes_${name} --image erxes/${name}:${image_tag}`
-        );
-        continue;
-      }
-
-      if (name === 'dashboard-api') {
+      if (['crons', 'dashboard', 'gateway', 'client-portal'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:${image_tag}`
         );
@@ -737,7 +709,9 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (pluginConfig) {
         const tag = pluginConfig.image_tag || configs.image_tag || 'federation';
-        const registry = pluginConfig.registry ? `${pluginConfig.registry}/` : '';
+        const registry = pluginConfig.registry
+          ? `${pluginConfig.registry}/`
+          : '';
 
         await execCommand(
           `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
@@ -839,7 +813,7 @@ module.exports.up = program => {
 
 module.exports.deployDbs = deployDbs;
 
-module.exports.update = (program) => {
+module.exports.update = program => {
   if (process.argv.length < 4) {
     return console.log('Pass service names !!!');
   }

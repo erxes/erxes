@@ -35,7 +35,7 @@ type IDashboradItem = {
   _id: string;
 };
 
-function DashbaordFormContent(props: FinalProps) {
+function DashboardFormContent(props: FinalProps) {
   const dashboard = props.dashboard;
   const [state, setState] = useState<State>({
     visibility: dashboard ? dashboard.visibility || 'public' : 'public',
@@ -241,7 +241,7 @@ const DashbaordForm = (props: Props) => {
       renderButton
     };
 
-    return <DashbaordFormContent {...updatedProps} />;
+    return <DashboardFormContent {...updatedProps} />;
   };
 
   return (

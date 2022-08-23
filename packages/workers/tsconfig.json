@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "allowJs": true,
-    "target": "es6",
+    "target": "ESNext",
     "moduleResolution": "node",
     "module": "commonjs",
     "lib": ["es2015", "es6", "es7", "esnext.asynciterable"],

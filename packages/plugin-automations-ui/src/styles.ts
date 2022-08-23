@@ -360,7 +360,7 @@ export const CenterBar = styled.div`
       padding: 4px ${dimensions.coreSpacing}px;
       border-radius: ${dimensions.coreSpacing + dimensions.unitSpacing}px;
 
-      &.active {
+      &.isPublic {
         background: ${colors.colorSecondary};
         color: ${colors.colorWhite};
 
