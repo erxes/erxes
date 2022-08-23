@@ -1,7 +1,8 @@
-import { Model, model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { field } from './utils';
 
 export interface IEntryValue {
   fieldId: string;
@@ -20,16 +21,17 @@ export interface IEntryDocument extends IEntry, Document {
 
 export const valueSchema = new Schema(
   {
-    fieldId: { type: String },
-    fieldCode: { type: String },
-    value: { type: 'Mixed' }
+    fieldId: field({ type: String, label: 'Field Id' }),
+    fieldCode: field({ type: String, label: 'Field code' }),
+    value: field({ type: 'Mixed', label: 'Value' })
   },
   { _id: false }
 );
 
 export const entrySchema = new Schema({
-  contentTypeId: { type: String },
-  values: { type: [valueSchema] }
+  _id: field({ pkey: true }),
+  contentTypeId: field({ type: String, label: 'Content type' }),
+  values: field({ type: [valueSchema], label: 'Values' })
 });
 
 export interface IEntryModel extends Model<IEntryDocument> {

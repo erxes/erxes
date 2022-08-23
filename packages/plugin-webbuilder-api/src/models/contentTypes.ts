@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { field } from './utils';
 
 export interface IField {
   code: string;
@@ -23,19 +24,20 @@ export interface IContentTypeDocument extends IContentType, Document {
 
 export const fieldSchema = new Schema(
   {
-    code: { type: String },
-    text: { type: String },
-    type: { type: String },
-    show: { type: Boolean }
+    code: field({ type: String }),
+    text: field({ type: String }),
+    type: field({ type: String }),
+    show: field({ type: Boolean })
   },
   { _id: false }
 );
 
 export const contentTypeSchema = new Schema({
-  siteId: { type: String, label: 'Site Id' },
-  code: { type: String, label: 'Name' },
-  displayName: { type: String, label: 'Description' },
-  fields: { type: [fieldSchema] }
+  _id: field({ pkey: true }),
+  siteId: field({ type: String, label: 'Site Id' }),
+  code: field({ type: String, label: 'Name' }),
+  displayName: field({ type: String, label: 'Description' }),
+  fields: field({ type: [fieldSchema] })
 });
 
 export interface IContentTypeModel extends Model<IContentTypeDocument> {

@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { field } from './utils';
 
 export interface ITemplate {
   name: string;
@@ -14,9 +15,10 @@ export interface ITemplateDocument extends ITemplate, Document {
 }
 
 export const templateSchema = new Schema({
-  name: { type: String, label: 'Name' },
-  jsonData: { type: Object, label: 'Json data' },
-  html: { type: String, label: 'Html' }
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
+  jsonData: field({ type: Object, label: 'Json data' }),
+  html: field({ type: String, label: 'Html' })
 });
 
 export interface ITemplateModel extends Model<ITemplateDocument> {

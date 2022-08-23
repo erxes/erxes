@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { field } from './utils';
 
 export interface ISite {
   name: string;
@@ -13,8 +14,9 @@ export interface ISiteDocument extends ISite, Document {
 }
 
 export const siteschema = new Schema({
-  name: { type: String, label: 'Name' },
-  domain: { type: String }
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
+  domain: field({ type: String, label: 'Domain' })
 });
 
 export interface ISiteModel extends Model<ISiteDocument> {
