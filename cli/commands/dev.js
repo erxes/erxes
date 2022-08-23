@@ -86,7 +86,7 @@ module.exports.devCmd = async program => {
       REACT_APP_PUBLIC_PATH=""
       REACT_APP_CDN_HOST="http://localhost:3200"
       REACT_APP_API_URL="http://localhost:4000"
-      REACT_APP_DASHBOARD_URL="http://localhost:4200"
+      REACT_APP_DASHBOARD_URL="http://localhost:4300"
       REACT_APP_API_SUBSCRIPTION_URL="ws://localhost:4000/graphql"
     `
   );
@@ -202,9 +202,13 @@ module.exports.devCmd = async program => {
   }
 
   if (configs.dashboard) {
+    await execCommand(
+      `cd ${filePath(`../packages/dashboard`)} && yarn install`
+    );
+
     apps.push({
       name: 'dashboard',
-      cwd: filePath(`../packages/dashboard-api`),
+      cwd: filePath(`../packages/dashboard`),
       script: 'yarn',
       args: 'dev',
       ...commonOptions,
@@ -281,6 +285,12 @@ module.exports.devCmd = async program => {
     if (configs.workers) {
       log('starting workers ....');
       await execCommand('pm2 start ecosystem.config.js --only workers');
+      await sleep(10000);
+    }
+
+    if (configs.dashboard) {
+      log('starting workers ....');
+      await execCommand('pm2 start ecosystem.config.js --only dashboard');
       await sleep(10000);
     }
 
