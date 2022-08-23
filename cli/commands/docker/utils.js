@@ -745,7 +745,7 @@ const restart = async name => {
 
   log(`Restarting .... ${name}`);
 
-  if (['gateway', 'coreui', 'workers', 'crons'].includes(name)) {
+  if (['gateway', 'coreui', 'crons'].includes(name)) {
     await execCommand(`docker service update --force erxes_${name}`);
     return;
   }
