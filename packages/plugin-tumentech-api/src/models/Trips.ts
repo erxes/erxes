@@ -21,7 +21,8 @@ export interface ITripModel extends Model<ITripDocument> {
     subdomain: string,
     carId?: string,
     routeId?: string,
-    categoryIds?: string[]
+    categoryIds?: string[],
+    date?: Date
   ): any[];
 }
 
@@ -81,22 +82,23 @@ export const loadTripClass = (models: IModels) => {
       subdomain: string,
       carId?: string,
       routeId?: string,
-      categoryIds?: string[]
+      categoryIds?: string[],
+      date?: Date
     ) {
       if (!carId && !routeId) {
         throw new Error('carId or routeId is required');
       }
 
       if (carId && routeId) {
-        return filterDeals(models, subdomain, carId, routeId);
+        return filterDeals(models, subdomain, carId, routeId, date);
       }
 
       if (routeId) {
-        return filterDealsByRoute(models, subdomain, routeId);
+        return filterDealsByRoute(models, subdomain, routeId, date);
       }
 
       if (carId) {
-        return filterDealsByCar(models, subdomain, carId);
+        return filterDealsByCar(models, subdomain, carId, date);
       }
 
       if (categoryIds) {
