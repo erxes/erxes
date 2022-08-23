@@ -7,11 +7,17 @@ export const types = `
     config: JSON
     craetedAt: Date
   }
+
+  type PaymentTypeCount {
+    qpay: Int
+    socialPay: Int
+    total: Int
+  }
 `;
 
 export const queries = `
   paymentConfigs: [PaymentConfig]
-  paymentConfigsCountByType(type: String): Int
+  paymentConfigsCountByType: PaymentTypeCount
 `;
 
 const params = `

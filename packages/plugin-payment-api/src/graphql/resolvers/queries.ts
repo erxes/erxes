@@ -6,15 +6,14 @@ const paymentConfigQueries = {
     return models.PaymentConfigs.find({ status: 'active' });
   },
 
-  paymentConfigsCountByType(_root, params, { models }: IContext) {
+  paymentConfigsCountByType(_root, _args, { models }: IContext) {
     return models.PaymentConfigs.find({
-      type: params.type,
       status: 'active'
     }).countDocuments();
   }
 };
 
 requireLogin(paymentConfigQueries, 'paymentConfigs');
-requireLogin(paymentConfigQueries, 'paymentConfigsCountByType');
+// requireLogin(paymentConfigQueries, 'paymentConfigsCountByType');
 
 export default paymentConfigQueries;
