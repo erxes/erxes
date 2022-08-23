@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - federation
+      - dev
     paths:
-      - 'dashboard/**'
+      - 'packages/dashboard/**'
       - '.github/workflows/dashboard.yaml'
 jobs:
   dashboard:
