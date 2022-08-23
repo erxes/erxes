@@ -4,7 +4,8 @@ import { sendCardsMessage } from '../messageBroker';
 export const filterDealsByCar = async (
   models: IModels,
   subdomain: string,
-  carId
+  carId,
+  date?: date
 ) => {
   const car = await models.Cars.getCar(carId);
 
@@ -29,7 +30,8 @@ export const filterDealsByCar = async (
 export const filterDealsByRoute = async (
   models: IModels,
   subdomain: string,
-  routeId
+  routeId: string,
+  date?: date
 ) => {
   const directionIds = await models.Routes.findOne({ _id: routeId })
     .distinct('directionIds')
@@ -66,7 +68,8 @@ export const filterDeals = async (
   models: IModels,
   subdomain: string,
   carId: string,
-  routeId: string
+  routeId: string,
+  date?: date
 ) => {
   const car = await models.Cars.getCar(carId);
 
