@@ -65,8 +65,8 @@ class ChartFormContainer extends React.Component<FinalProps, State> {
         variables: { ...params }
       })
         .then(() => {
-          Alert.success('Success');
           toggleDrawer();
+          Alert.success('Success');
         })
 
         .catch(error => {
