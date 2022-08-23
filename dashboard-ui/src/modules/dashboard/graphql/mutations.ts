@@ -22,9 +22,9 @@ const dashboardEdit = `
 	}
 `;
 
-const dashboardRemove = `
-	mutation dashboardRemove($_id: String!) {
-		dashboardRemove(_id: $_id)
+const dashboardsRemove = `
+	mutation dashboardsRemove($_id: String!) {
+		dashboardsRemove(_id: $_id)
 	}
 `;
 
@@ -67,7 +67,7 @@ const dashboardSendEmail = `
 export default {
   dashboardAdd,
   dashboardEdit,
-  dashboardRemove,
+  dashboardsRemove,
   dashboardItemEdit,
   dashboardItemAdd,
   dashboardItemRemove,
