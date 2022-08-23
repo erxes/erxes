@@ -260,6 +260,9 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
         border: 2px solid transparent;
         border-radius: 4px;
         border-color: ${colors.colorPrimary};
+        .db-item-action {
+          display: inline;
+        }
       }
     }
 
@@ -409,25 +412,39 @@ const Number = styled.div`
   align-items: center;
 `;
 
-const ChartItem = styled.div`
+const ChartTable = styled.div`
   overflow-y: auto;
-  height: 100%;
+  height: 90%;
   width: 100%;
   display: block;
 `;
 
 const ChartTitle = styled.div`
-  &:first-child {
-    margin-left: auto;
+  display: flex
+  align-items:center;
+  padding: 0 0.25rem 1.25rem 1.25rem;
+  div {
+    font-weight: 700;
+    font-size: 1rem;
   }
   span {
+    font-weight:500; 
+    display:none;
+    cursor:pointer;
+  }
+  span:first-of-type {
     margin-left: auto;
+    margin-right: 0.5rem;
+    color: ${colors.colorPrimary}
+  }
+  span:last-of-type {
+    color: ${colors.colorCoreRed}
   }
 `;
 
 export {
   ChartTitle,
-  ChartItem,
+  ChartTable,
   Number,
   ActionFooter,
   CenterBar,

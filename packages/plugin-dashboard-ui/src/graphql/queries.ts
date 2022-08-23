@@ -123,6 +123,7 @@ const dashboardItems = `
       layout
       vizState
       name
+      type
     }
   }
 `;

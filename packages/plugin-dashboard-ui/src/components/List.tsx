@@ -214,14 +214,10 @@ class DashboardsList extends React.Component<IProps, State> {
             count={(dashboards || []).length}
             emptyContent={
               <EmptyContent>
-                <img src="/images/actions/dashboard.svg" alt="empty-img" />
+                <img src="/images/actions/31.svg" alt="empty-img" />
 
                 <p>
-                  <b>{__('You don’t have any dashboards yet')}.</b>
-                  {__(
-                    'Automatically execute repetitive tasks and make sure nothing falls through the cracks'
-                  )}
-                  .
+                  <b>{__('You don’t have any dashboards yet')}.</b>.
                 </p>
               </EmptyContent>
             }

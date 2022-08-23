@@ -5,6 +5,9 @@ import { Route } from 'react-router-dom';
 
 import { CubeProvider } from '@cubejs-client/react';
 import cubejs from '@cubejs-client/core';
+import { getEnv } from '@erxes/ui/src/utils';
+
+const { REACT_APP_DASHBOARD_URL } = getEnv();
 
 const DashboardList = asyncComponent(() =>
   import(/* webpackChunkName: "Dashboards" */ './containers/List')
@@ -29,7 +32,7 @@ const dashboardDetail = ({ match, location, history }) => {
   const id = match.params.id;
 
   const cubejsApi = cubejs({
-    apiUrl: `http://localhost:4300/cubejs-api/v1`
+    apiUrl: `${REACT_APP_DASHBOARD_URL}/cubejs-api/v1`
   });
 
   return (

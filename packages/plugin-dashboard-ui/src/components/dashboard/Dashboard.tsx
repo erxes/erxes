@@ -42,8 +42,8 @@ const deserializeItem = i => ({
 const defaultLayout = i => ({
   x: i.layout.x || 0,
   y: i.layout.y || 0,
-  w: i.layout.w || 1,
-  h: i.layout.h || 1,
+  w: i.layout.w || 3,
+  h: i.layout.h || 3,
   minW: 1,
   minH: 1
 });
@@ -315,12 +315,17 @@ class Dashboard extends React.Component<Props, State> {
         return (
           <div key={item._id} data-grid={defaultLayout(item)}>
             <ChartTitle>
-              {item.name}
-
-              <span onClick={this.editDashboardItem.bind(this, item)}>
+              <div>{item.name}</div>
+              <span
+                className="db-item-action"
+                onClick={this.editDashboardItem.bind(this, item)}
+              >
                 edit
               </span>
-              <span onClick={this.removeDashboardItem.bind(this, item._id)}>
+              <span
+                className="db-item-action"
+                onClick={this.removeDashboardItem.bind(this, item._id)}
+              >
                 delete
               </span>
             </ChartTitle>

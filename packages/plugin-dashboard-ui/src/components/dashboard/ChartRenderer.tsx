@@ -21,7 +21,8 @@ import {
 } from 'recharts';
 import { chartColors } from '../../constants';
 import Table from '@erxes/ui/src/components/table';
-import { ChartItem, Number } from '../../styles';
+import { ChartTable, EmptyContent, Number } from '../../styles';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   query?: any;
@@ -203,15 +204,11 @@ const TypeToChartComponent = {
     const rowValues = resultSet.tablePivot();
 
     const renderTableValue = value => {
-      if (dayjs(value).isValid()) {
-        return dayjs(value).format('YYYY/MM/DD, HH:mm:ss');
-      }
-
       return value;
     };
 
     return (
-      <ChartItem>
+      <ChartTable>
         <Table whiteSpace="nowrap" hover={true} responsive={true}>
           <thead>
             <tr>
@@ -234,7 +231,7 @@ const TypeToChartComponent = {
             })}
           </tbody>
         </Table>
-      </ChartItem>
+      </ChartTable>
     );
   },
 
@@ -261,7 +258,14 @@ const renderChart = Component => ({ resultSet, dateType, error, height }) => {
     (resultSet && (
       <Component height={height} resultSet={resultSet} dateType={dateType} />
     )) ||
-    (error && error.toString()) || <Spinner />
+    (error && error.toString()) || (
+      <EmptyContent>
+        {' '}
+        <p>
+          <b> {error.toString()}</b>.
+        </p>
+      </EmptyContent>
+    )
   );
 };
 
@@ -280,6 +284,10 @@ const ChartRenderer = (props: Props) => {
 
   const renderProps = useCubeQuery(finalQuery);
 
+  const resultSet = renderProps.resultSet || ({} as any);
+
+  let result = 0;
+
   let dateType = '';
 
   if (renderProps.resultSet) {
@@ -289,6 +297,22 @@ const ChartRenderer = (props: Props) => {
       dateType = timeDimensions[0].granularity;
     }
 
+    resultSet.seriesNames().map(s => {
+      result = resultSet.totalRow();
+
+      result = result[s.key];
+    });
+
+    if (result === 0) {
+      return (
+        <EmptyContent>
+          <p>
+            <b>{__('No data')}</b>
+          </p>
+        </EmptyContent>
+      );
+    }
+
     return renderChart(component)({
       height: chartHeight,
       ...renderProps,
@@ -296,7 +320,11 @@ const ChartRenderer = (props: Props) => {
     });
   }
 
-  return <Spinner />;
+  return (
+    <EmptyContent>
+      <Spinner />
+    </EmptyContent>
+  );
 };
 
 export default ChartRenderer;

@@ -21,39 +21,18 @@ cube(`Customers`, {
       primaryKey: true
     },
 
-    integName: {
+    integrationName: {
       sql: `${Integrations}.\`name\``,
       type: `string`
     },
 
-    integrationId: {
-      sql: `${CUBE}.\`integrationId\``,
+    integrationKind: {
+      sql: `${Integrations}.\`kind\``,
       type: `string`
     },
 
-    createdat: {
+    createdAt: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
-    },
-
-    birthdate: {
-      sql: `${CUBE}.\`birthDate\``,
-      type: `time`
-    },
-
-    lastseenat: {
-      sql: `${CUBE}.\`lastSeenAt\``,
-      type: `time`
-    },
-
-    messengerdataLastseenat: {
-      sql: `${CUBE}.\`messengerData.lastSeenAt\``,
-      type: `time`,
-      title: `Messengerdata.lastseenat`
-    },
-
-    modifiedat: {
-      sql: `${CUBE}.\`modifiedAt\``,
       type: `time`
     }
   }
