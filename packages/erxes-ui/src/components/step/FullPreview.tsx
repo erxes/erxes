@@ -149,7 +149,7 @@ class FullPreviewStep extends React.Component<Props, State> {
       onDocChange({
         fields,
         title: formData.title,
-        description: formData.desc,
+        description: formData.description,
         buttonText: formData.buttonText,
         type: formData.type,
         numberOfPages: formData.numberOfPages
@@ -169,7 +169,7 @@ class FullPreviewStep extends React.Component<Props, State> {
       const previewRenderer = () =>
         loadDynamicComponent('fieldPreview', {
           fields: fields || [],
-          formDesc: formData.desc,
+          formDesc: formData.description,
           onFieldClick: this.onFieldClick,
           onChangeFieldsOrder: this.onChangeFieldsOrder,
           currentPage: this.state.currentPage,

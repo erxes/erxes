@@ -1,9 +1,9 @@
-import { TabContainer } from '@erxes/ui/src/components/tabs/styles';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
-
 import { colors, dimensions, typography } from '../styles';
 import { lighten, rgba } from '../styles/ecolor';
+import styled, { css } from 'styled-components';
+
+import { TabContainer } from '@erxes/ui/src/components/tabs/styles';
+import styledTS from 'styled-components-ts';
 import { twinkling } from '../utils/animations';
 
 const FlexContent = styled.div`
@@ -37,7 +37,7 @@ const PageHeader = styled.div`
 const Contents = styledTS<{ hasBorder?: boolean }>(styled.div)`
   display: flex;
   flex: 1;
-  margin-top: ${dimensions.unitSpacing}px;
+  margin: ${dimensions.unitSpacing}px 0 0 ${dimensions.unitSpacing}px;
   max-height: 100%;
   position: absolute;
   left: 0;
