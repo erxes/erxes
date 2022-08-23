@@ -263,6 +263,7 @@ class VouchersList extends React.Component<IProps, State> {
             />
           </>
         }
+        hasBorder
       />
     );
   }

@@ -200,6 +200,7 @@ class ResponseTemplateList extends React.Component<FinalProps, States> {
         size="lg"
         {...this.props}
         center={true}
+        hasBorder={false}
       />
     );
   }

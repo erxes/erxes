@@ -98,9 +98,7 @@ class Channels extends React.Component<Props, {}> {
           <Wrapper.ActionBar
             left={leftActionBar}
             right={rightActionBar}
-            background="colorWhite"
-            withMargin
-            wide
+            wideSpacing
           />
         }
         content={
@@ -122,9 +120,8 @@ class Channels extends React.Component<Props, {}> {
           />
         }
         footer={currentChannel._id && <Pagination count={integrationsCount} />}
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

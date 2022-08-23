@@ -96,14 +96,7 @@ function WebBuilder(props: Props) {
             breadcrumb={breadcrumb}
           />
         }
-        actionBar={
-          <Wrapper.ActionBar
-            right={RightActionBar}
-            withMargin={true}
-            wide={true}
-            background="colorWhite"
-          />
-        }
+        actionBar={<Wrapper.ActionBar right={RightActionBar} />}
         leftSidebar={
           <SideBar
             queryParams={queryParams}
@@ -120,9 +113,7 @@ function WebBuilder(props: Props) {
           />
         }
         footer={<Pagination count={count} />}
-        hasBorder={true}
         transparent={true}
-        noPadding={true}
       />
     </>
   );

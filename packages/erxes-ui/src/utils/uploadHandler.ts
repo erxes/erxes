@@ -1,5 +1,5 @@
-import { getEnv } from '../utils/core';
 import Alert from '../utils/Alert';
+import { getEnv } from '../utils/core';
 
 type FileInfo = {
   name: string;
@@ -115,7 +115,7 @@ const uploadHandler = async (params: Params) => {
       size: file.size,
       type: file.type,
       duration: 0
-    };
+    } as any;
 
     if (file.type.includes('audio' || 'mp4')) {
       const duration = await getVideoDuration(file);

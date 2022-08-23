@@ -10,10 +10,9 @@ export default function LeftSidebar({
   loadingMainQuery
 }: {
   loadingMainQuery: boolean;
-  hasBorder?: boolean;
 }) {
   return (
-    <Sidebar noMargin={true} hasBorder={true}>
+    <Sidebar hasBorder>
       <Structure />
       <DepartmentList />
       <UnitList />
