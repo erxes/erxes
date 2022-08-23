@@ -414,7 +414,8 @@ const up = async ({ uis, fromInstaller }) => {
       environment: {
         PORT: '80',
         CUBEJS_DB_TYPE: 'mongobi',
-        CUBEJS_DB_URL: `http://${db_server_address || 'mongosqld'}:3307`,
+        CUBEJS_DB_URL: `http://${configs.dashboard_db_address ||
+          'mongosqld'}:3307`,
         CUBEJS_URL: dashboard_domain,
         CUBEJS_TOKEN: dashboard.api_token,
         CUBEJS_API_SECRET: dashboard.api_secret,
@@ -440,11 +441,13 @@ const up = async ({ uis, fromInstaller }) => {
     }
   }
 
-  let pluginsMapLocation = 'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+  let pluginsMapLocation =
+    'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
 
   if (configs.image_tag) {
     if (configs.image_tag === 'dev') {
-      pluginsMapLocation = 'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+      pluginsMapLocation =
+        'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
     } else {
       pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
     }
