@@ -1,4 +1,4 @@
-import { Alert, confirm } from '@erxes/ui/src';
+import { Alert } from '@erxes/ui/src';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash.flowright';
@@ -12,57 +12,30 @@ import {
   PagesAddMutationResponse,
   PagesEditMutationResponse,
   PagesMainQueryResponse,
-  TemplatesAddMutationResponse,
-  TemplatesDetailQueryResponse,
   TypesQueryResponse
 } from '../../types';
 
 type Props = {
   _id?: string;
-  templateId?: string;
 } & IRouterProps;
 
 type FinalProps = Props & {
   pageDetailQuery?: PageDetailQueryResponse;
   pagesMainQuery: PagesMainQueryResponse;
   typesQuery: TypesQueryResponse;
-  templateDetailQuery: TemplatesDetailQueryResponse;
 } & PagesAddMutationResponse &
-  PagesEditMutationResponse &
-  TemplatesAddMutationResponse;
+  PagesEditMutationResponse;
 
 const FormContainer = (props: FinalProps) => {
-  const {
-    pageDetailQuery,
-    history,
-    templatesAdd,
-    pagesMainQuery,
-    typesQuery,
-    templateDetailQuery
-  } = props;
+  const { pageDetailQuery, history, pagesMainQuery, typesQuery } = props;
 
   if (
     (pageDetailQuery && pageDetailQuery.loading) ||
     pagesMainQuery.loading ||
-    typesQuery.loading ||
-    (templateDetailQuery && templateDetailQuery.loading)
+    typesQuery.loading
   ) {
     return null;
   }
-
-  const saveTemplate = (name: string, jsonData: any, html: string) => {
-    templatesAdd({ variables: { name, jsonData, html } })
-      .then(() => {
-        Alert.success('You successfully added template.');
-
-        history.push({
-          pathname: '/webbuilder/pages'
-        });
-      })
-      .catch(e => {
-        Alert.error(e.message);
-      });
-  };
 
   const save = (
     name: string,
@@ -109,28 +82,19 @@ const FormContainer = (props: FinalProps) => {
 
   const pagesMain = pagesMainQuery.webbuilderPagesMain || {};
   const contentTypes = typesQuery.webbuilderContentTypes || [];
-  const template =
-    (templateDetailQuery && templateDetailQuery.webbuilderTemplateDetail) || {};
 
   const updatedProps = {
     ...props,
     save,
     page,
-    saveTemplate,
     contentTypes,
-    pages: pagesMain.list || [],
-    template
+    pages: pagesMain.list || []
   };
 
   return <PageForm {...updatedProps} />;
 };
 
 const refetchPageQueries = () => [{ query: gql(queries.pagesMain) }];
-
-const refetchTemplateQuery = () => [
-  { query: gql(queries.templates) },
-  { query: gql(queries.templatesTotalCount) }
-];
 
 export default compose(
   graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
@@ -160,21 +124,6 @@ export default compose(
       })
     }
   ),
-  graphql<{}, TemplatesAddMutationResponse>(gql(mutations.templatesAdd), {
-    name: 'templatesAdd',
-    options: () => ({
-      refetchQueries: refetchTemplateQuery()
-    })
-  }),
-  graphql<Props, TemplatesDetailQueryResponse>(gql(queries.templateDetail), {
-    name: 'templateDetailQuery',
-    skip: ({ templateId }) => !templateId,
-    options: ({ templateId }) => ({
-      variables: {
-        _id: templateId
-      }
-    })
-  }),
   graphql<{}, TypesQueryResponse>(gql(queries.contentTypes), {
     name: 'typesQuery'
   }),

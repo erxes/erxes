@@ -216,8 +216,9 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
       .connect(RABBITMQ_HOST, { noDelay: true })
       .then(
         function(conn) {
-          debugInfo('Connected to rabbitmq server');
-          conn.on('error', me.reconnect.bind(me));
+          debugInfo(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
+
+          conn.on('error', me.reconnect.bind(me, RABBITMQ_HOST));
 
           return conn.createChannel().then(function(chan) {
             channel = chan;
@@ -226,7 +227,7 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
         },
         function connectionFailed(err) {
           debugError('Failed to connect to rabbitmq server', err);
-          me.reconnect();
+          me.reconnect(RABBITMQ_HOST);
         }
       )
       .catch(function(error) {
@@ -235,7 +236,7 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
   });
 };
 
-RabbitListener.prototype.reconnect = function() {
+RabbitListener.prototype.reconnect = function(RABBITMQ_HOST) {
   const reconnectTimeout = 1000 * 60;
 
   const me = this;
@@ -244,7 +245,7 @@ RabbitListener.prototype.reconnect = function() {
 
   setTimeout(function() {
     debugInfo(`Now attempting reconnect to rabbitmq ...`);
-    me.connect();
+    me.connect(RABBITMQ_HOST);
   }, reconnectTimeout);
 };
 
@@ -252,7 +253,7 @@ export const init = async ({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }) => {
   redisClient = redis;
 
   const listener = new RabbitListener();
-  await listener.connect(RABBITMQ_HOST);
+  await listener.connect(`${RABBITMQ_HOST}?heartbeat=60`);
 
   queuePrefix = MESSAGE_BROKER_PREFIX || '';
 
