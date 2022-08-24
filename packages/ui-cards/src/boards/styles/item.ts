@@ -127,6 +127,38 @@ export const AddContent = styled.div`
       border-bottom: 1px solid ${colors.colorSecondary};
     }
   }
+
+  input {
+    border: none;
+    width: 100%;
+    height: 34px;
+    padding: 5px 0;
+    color: #444;
+    border-bottom: 1px solid;
+    border-color: #ddd;
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 13px;
+    position: relative;
+
+    &:before {
+      content: '\\ea3f';
+      font-style: normal;
+      font-family: 'erxes';
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      left: 0;
+    }
+  }
+
+  .form-control:focus {
+    border: none;
+    border-bottom: 1px solid;
+    border-color: #ddd;
+    box-shadow: none;
+  }
 `;
 
 export const SelectInput = styled.div`
