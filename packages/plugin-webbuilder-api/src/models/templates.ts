@@ -6,7 +6,6 @@ import { field } from './utils';
 
 export interface ITemplate {
   name: string;
-  jsonData: any;
   html: string;
 }
 
@@ -17,7 +16,6 @@ export interface ITemplateDocument extends ITemplate, Document {
 export const templateSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
-  jsonData: field({ type: Object, label: 'Json data' }),
   html: field({ type: String, label: 'Html' })
 });
 

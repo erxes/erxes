@@ -34,7 +34,7 @@ export const fieldSchema = new Schema(
 
 export const contentTypeSchema = new Schema({
   _id: field({ pkey: true }),
-  siteId: field({ type: String, label: 'Site Id' }),
+  siteId: field({ type: String, optional: true, label: 'Site Id' }),
   code: field({ type: String, label: 'Name' }),
   displayName: field({ type: String, label: 'Description' }),
   fields: field({ type: [fieldSchema] })
@@ -51,9 +51,14 @@ export interface IContentTypeModel extends Model<IContentTypeDocument> {
 
 export const loadTypeClass = (models: IModels) => {
   class ContentType {
-    public static async checkCodeDuplication(code: string, id?: string) {
+    public static async checkDuplication(
+      code: string,
+      siteId: string,
+      id?: string
+    ) {
       const query: { [key: string]: any } = {
-        code
+        code,
+        siteId
       };
 
       if (id) {
@@ -63,18 +68,18 @@ export const loadTypeClass = (models: IModels) => {
       const contentType = await models.ContentTypes.findOne(query);
 
       if (contentType) {
-        throw new Error('Code duplicated!');
+        throw new Error('Site and code duplicated!');
       }
     }
 
     public static async createContentType(doc: IContentType) {
-      await this.checkCodeDuplication(doc.code);
+      await this.checkDuplication(doc.code, doc.siteId);
 
       return models.ContentTypes.create(doc);
     }
 
     public static async updateContentType(_id: string, doc: IContentType) {
-      await this.checkCodeDuplication(doc.code, _id);
+      await this.checkDuplication(doc.code, doc.siteId, _id);
 
       await models.ContentTypes.updateOne({ _id }, { $set: doc });
 
