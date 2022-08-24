@@ -5,7 +5,7 @@ import {
   COUNTRIES
 } from '@erxes/ui-contacts/src/companies/constants';
 import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
-import { LogicIndicator, SelectInput } from '../styles';
+import { LogicIndicator, SelectInput, DateContainer } from '../styles';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Datetime from '@nateradebaugh/react-datetime';
@@ -188,13 +188,15 @@ export default class GenerateField extends React.Component<Props, State> {
       };
 
       return (
-        <Datetime
-          {...attrs}
-          value={value}
-          dateFormat="YYYY/MM/DD"
-          timeFormat={false}
-          closeOnSelect={true}
-        />
+        <DateContainer>
+          <Datetime
+            {...attrs}
+            value={value}
+            dateFormat="YYYY/MM/DD"
+            timeFormat={false}
+            closeOnSelect={true}
+          />
+        </DateContainer>
       );
     }
 

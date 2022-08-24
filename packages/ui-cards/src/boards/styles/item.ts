@@ -7,6 +7,7 @@ import { borderRadius } from './common';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
 import { FormContainer } from '../styles/common';
+import { DateContainer } from '@erxes/ui-forms/src/settings/properties/styles';
 
 const buttonColor = '#0a1e3c';
 
@@ -135,21 +136,27 @@ export const AddContent = styled.div`
     padding: 5px 0;
     color: #444;
     border-bottom: 1px solid;
-    border-color: #ddd;
+    border-color: ${colors.borderDarker};
     background: none;
     border-radius: 0;
     box-shadow: none;
     font-size: 13px;
     position: relative;
+    margin-left: 20px;
+  }
+
+  ${DateContainer} {
+    margin-right: ${dimensions.coreSpacing}px;
 
     &:before {
-      content: '\\ea3f';
+      content: '\\e9a8';
       font-style: normal;
       font-family: 'erxes';
-      width: 20px;
-      height: 20px;
+      font-size: 16px;
       position: absolute;
+      color: #777;
       left: 0;
+      top: 25px;
     }
   }
 
