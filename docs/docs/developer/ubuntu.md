@@ -127,13 +127,6 @@ networks:
 sudo docker-compose up -d 
 ```
 
-## Running erxes
----
-
-:::caution
-Please make sure you have to change your directory to erxes/cli. 
-:::
-
 8. Go back to erxes folder using following command. 
 
 ```
@@ -158,26 +151,34 @@ yarn install
 sudo npm install -g pm2
 ```
 
+## Running erxes
+---
 
-12. Run following command to change the folder.
+
+:::caution
+Run erxes in erxes/cli directory
+:::
+
+
+1. Run following command to change the folder.
 
 ```
 cd cli
 ```
 
-13. Install node modules in the erxes/cli directory.
+2. Install node modules in the erxes/cli directory.
 
 ```
 yarn install
 ```
 
-14. Copy `configs.json.sample`, then convert it to `configs.json`.
+3. Copy `configs.json.sample`, then convert it to `configs.json`.
 
 ```
 cp configs.json.sample configs.json
 ```
 
-15. Run following command to start your erxes project. 
+4. Run following command to start your erxes project. 
 
 ```
 ./bin/erxes.js dev
