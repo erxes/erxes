@@ -273,13 +273,7 @@ class PageForm extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Site:</ControlLabel>
-              <SelectSite
-                label="Choose a site"
-                name="siteId"
-                onSelect={this.onSelectSite}
-                multi={false}
-                initialValue={siteId}
-              />
+              <SelectSite onSelect={this.onSelectSite} initialValue={siteId} />
             </FormGroup>
           </FlexPad>
 
