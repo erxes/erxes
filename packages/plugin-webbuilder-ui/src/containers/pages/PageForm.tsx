@@ -96,11 +96,6 @@ const FormContainer = (props: FinalProps) => {
 
 const refetchPageQueries = () => [{ query: gql(queries.pagesMain) }];
 
-const refetchTemplateQuery = () => [
-  { query: gql(queries.templates) },
-  { query: gql(queries.templatesTotalCount) }
-];
-
 export default compose(
   graphql<{}, PagesAddMutationResponse>(gql(mutations.add), {
     name: 'pagesAdd',
