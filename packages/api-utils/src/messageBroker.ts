@@ -225,7 +225,7 @@ RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
           });
         },
         function connectionFailed(err) {
-          debugError('Failed to connect to rabbitmq server');
+          debugError('Failed to connect to rabbitmq server', err);
           me.reconnect();
         }
       )
