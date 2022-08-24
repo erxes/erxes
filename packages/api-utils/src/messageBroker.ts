@@ -206,12 +206,53 @@ export const sendMessage = async (queueName: string, data?: any) => {
   }
 };
 
+function RabbitListener() {}
+
+RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
+  const me = this;
+
+  return new Promise(function(resolve) {
+    amqplib
+      .connect(RABBITMQ_HOST, { noDelay: true })
+      .then(
+        function(conn) {
+          debugInfo('Connected to rabbitmq server');
+          conn.on('error', me.reconnect.bind(me));
+
+          return conn.createChannel().then(function(chan) {
+            channel = chan;
+            resolve(chan);
+          });
+        },
+        function connectionFailed(err) {
+          debugError('Failed to connect to rabbitmq server', err);
+          me.reconnect();
+        }
+      )
+      .catch(function(error) {
+        debugError('RabbitMQ: ', error);
+      });
+  });
+};
+
+RabbitListener.prototype.reconnect = function() {
+  const reconnectTimeout = 1000 * 60;
+
+  const me = this;
+
+  debugInfo(`Scheduling reconnect to rabbitmq in ${reconnectTimeout / 1000}s`);
+
+  setTimeout(function() {
+    debugInfo(`Now attempting reconnect to rabbitmq ...`);
+    me.connect();
+  }, reconnectTimeout);
+};
+
 export const init = async ({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }) => {
   redisClient = redis;
 
-  const connection = await amqplib.connect(RABBITMQ_HOST, { noDelay: true });
-
-  channel = await connection.createChannel();
+  const listener = new RabbitListener();
+  await listener.connect(RABBITMQ_HOST);
 
   queuePrefix = MESSAGE_BROKER_PREFIX || '';
 
