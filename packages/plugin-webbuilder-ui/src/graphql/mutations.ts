@@ -92,17 +92,9 @@ const entriesRemove = `
   }
 `;
 
-const templatesAdd = `
-  mutation templatesAdd($name: String $jsonData: JSON $html: String) {
-    webbuilderTemplatesAdd(name: $name jsonData: $jsonData html: $html) {
-      _id
-    }
-  }
-`;
-
-const templatesRemove = `
-  mutation templatesRemove($_id: String!) {
-    webbuilderTemplatesRemove(_id: $_id) 
+const templatesUse = `
+  mutation templatesUse($_id: String!, $name: String!) {
+    webbuilderTemplatesUse(_id: $_id, name: $name) 
   }
 `;
 
@@ -138,8 +130,7 @@ export default {
   entriesAdd,
   entriesEdit,
   entriesRemove,
-  templatesAdd,
-  templatesRemove,
+  templatesUse,
   sitesAdd,
   sitesEdit,
   sitesRemove

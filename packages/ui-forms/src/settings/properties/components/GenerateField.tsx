@@ -188,13 +188,15 @@ export default class GenerateField extends React.Component<Props, State> {
       };
 
       return (
-        <Datetime
-          {...attrs}
-          value={value}
-          dateFormat="YYYY/MM/DD"
-          timeFormat={false}
-          closeOnSelect={true}
-        />
+        <div className="dateTime">
+          <Datetime
+            {...attrs}
+            value={value}
+            dateFormat="YYYY/MM/DD"
+            timeFormat={false}
+            closeOnSelect={true}
+          />
+        </div>
       );
     }
 

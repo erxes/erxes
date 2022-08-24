@@ -56,11 +56,11 @@ export const types = `
 `;
 
 export const queries = `
-  webbuilderPagesMain(page: Int, perPage: Int, searchValue: String): WebbuilderPagesList
+  webbuilderPagesMain(page: Int, perPage: Int, searchValue: String, siteId: String): WebbuilderPagesList
   webbuilderPageDetail(_id: String!): WebbuilderPage
 
-  webbuilderContentTypes: [WebbuilderContentType]
-  webbuilderContentTypesMain(page: Int, perPage: Int): WebbuilderContentTypesList 
+  webbuilderContentTypes(siteId: String): [WebbuilderContentType]
+  webbuilderContentTypesMain(page: Int, perPage: Int, siteId: String): WebbuilderContentTypesList 
   webbuilderContentTypeDetail(_id: String!): WebbuilderContentType 
 
   webbuilderEntriesMain(contentTypeId: String! page: Int perPage: Int): WebbuilderEntriesList
@@ -104,6 +104,7 @@ export const mutations = `
   webbuilderEntriesRemove(_id: String!): JSON
 
   webbuilderTemplatesAdd(name: String, jsonData: JSON, html: String): WebbuilderTemplate 
+  webbuilderTemplatesUse(_id: String!, name: String!): JSON
   webbuilderTemplatesRemove(_id: String!): JSON
   
   webbuilderSitesAdd(name: String domain: String): WebbuilderSite 

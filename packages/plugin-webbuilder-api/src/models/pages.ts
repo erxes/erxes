@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { field } from './utils';
 
 export interface IPage {
   siteId: string;
@@ -9,7 +10,7 @@ export interface IPage {
   description: string;
   html: string;
   css: string;
-  jsonData: any;
+  templateId: string;
 }
 
 export interface IPageDocument extends IPage, Document {
@@ -17,12 +18,14 @@ export interface IPageDocument extends IPage, Document {
 }
 
 export const pageSchema = new Schema({
-  siteId: { type: String },
-  name: { type: String, label: 'Name' },
-  description: { type: String, label: 'Description' },
-  html: { type: String },
-  css: { type: String },
-  jsonData: { type: Object }
+  _id: field({ pkey: true }),
+  siteId: field({ type: String, optional: true, label: 'Site' }),
+  name: field({ type: String, label: 'Name' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  html: field({ type: String, optional: true, label: 'Html' }),
+  css: field({ type: String, optional: true, label: 'Css' }),
+  jsonData: field({ type: Object, label: 'Json data' }),
+  templateId: field({ type: String, optional: true, label: 'Template' })
 });
 
 export interface IPageModel extends Model<IPageDocument> {
@@ -34,9 +37,14 @@ export interface IPageModel extends Model<IPageDocument> {
 
 export const loadPageClass = (models: IModels) => {
   class Page {
-    public static async checkDuplication(name: string, id?: string) {
+    public static async checkDuplication(
+      name: string,
+      siteId: string,
+      id?: string
+    ) {
       const query: { [key: string]: any } = {
-        name
+        name,
+        siteId
       };
 
       if (id) {
@@ -46,18 +54,18 @@ export const loadPageClass = (models: IModels) => {
       const page = await models.Pages.findOne(query);
 
       if (page) {
-        throw new Error('Name duplicated');
+        throw new Error('Duplicated! Please change name or site.');
       }
     }
 
     public static async createPage(doc: IPage) {
-      await this.checkDuplication(doc.name);
+      await this.checkDuplication(doc.name, doc.siteId);
 
       return models.Pages.create(doc);
     }
 
     public static async updatePage(_id: string, doc) {
-      await this.checkDuplication(doc.name, _id);
+      await this.checkDuplication(doc.name, doc.siteId, _id);
 
       await models.Pages.updateOne({ _id }, { $set: doc });
 

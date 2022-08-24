@@ -16,6 +16,7 @@ type Props = {
   queryParams: any;
   getActionBar: (actionBar: any) => void;
   setCount: (count: number) => void;
+  selectedSite: string;
 };
 
 type FinalProps = {
@@ -60,17 +61,25 @@ function ContentTypesContainer(props: FinalProps) {
 export default compose(
   graphql<Props, TypesMainQueryResponse>(gql(queries.contentTypesMain), {
     name: 'typesMainQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams, selectedSite }) => ({
       variables: {
-        ...generatePaginationParams(queryParams)
+        ...generatePaginationParams(queryParams),
+        siteId: queryParams.siteId || selectedSite
       },
       fetchPolicy: 'network-only'
     })
   }),
-  graphql<{}, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
+  graphql<Props, TypesRemoveMutationResponse>(gql(mutations.typesRemove), {
     name: 'typesRemoveMutation',
-    options: () => ({
-      refetchQueries: [{ query: gql(queries.contentTypes) }]
+    options: ({ selectedSite }) => ({
+      refetchQueries: [
+        {
+          query: gql(queries.contentTypes),
+          variables: {
+            siteId: selectedSite
+          }
+        }
+      ]
     })
   })
 )(ContentTypesContainer);
