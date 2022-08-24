@@ -20,17 +20,14 @@ import messageBroker, {
   sendIntegrationsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendLogsMessage
+  sendLogsMessage,
+  sendEngagesMessage
 } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
-import { client as msgBrokerClient } from '../../messageBroker';
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext, IModels } from '../../connectionResolver';
 
 interface IEditIntegration extends IIntegration {
@@ -458,6 +455,10 @@ const integrationMutations = {
   async integrationSendMail(_root, args: any, { user, subdomain }: IContext) {
     const { erxesApiId, body, customerId, ...doc } = args;
 
+    if (!user.email) {
+      throw new Error(`Current user email is not set`);
+    }
+
     let kind = doc.kind;
 
     if (kind.includes('nylas')) {
@@ -491,31 +492,25 @@ const integrationMutations = {
       });
     }
 
-    const replacedContent = await new EditorAttributeUtil(
-      msgBrokerClient,
-      `${process.env.DOMAIN}/gateway/pl:core`,
-      await getServices(),
-      subdomain
-    ).replaceAttributes({
-      content: body,
-      user,
-      customer: customer || undefined
-    });
-
-    doc.body = replacedContent || '';
+    doc.body = body || '';
 
     try {
-      await sendIntegrationsMessage({
-        subdomain,
+      await sendEngagesMessage({
         action: 'sendEmail',
+        subdomain,
         data: {
-          kind,
-          doc: {
-            erxesApiId,
-            data: JSON.stringify(doc)
-          }
-        },
-        isRPC: true
+          fromEmail: user.email,
+          email: {
+            content: doc.body,
+            subject: doc.subject,
+            attachments: doc.attachments,
+            sender: user.email
+          },
+          customers: [customer],
+          customer,
+          createdBy: user._id,
+          title: doc.subject
+        }
       });
     } catch (e) {
       debug.error(e);

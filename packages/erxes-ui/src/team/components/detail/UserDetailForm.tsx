@@ -10,9 +10,9 @@ import { loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 type Props = {
   user: IUser;
-  channels: any[]; //check - IChannel
-  skills: any[]; //check - ISkillDocument
-  participatedConversations: any[]; //check - IConversation
+  channels: any[]; // check - IChannel
+  skills: any[]; // check - ISkillDocument
+  participatedConversations: any[]; // check - IConversation
   totalConversationCount: number;
   excludeUserSkill: (skillId: string, userId: string) => void;
   renderSkillForm: ({
