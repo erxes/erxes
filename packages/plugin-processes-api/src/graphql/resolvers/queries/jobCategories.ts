@@ -47,6 +47,6 @@ const jobCategoryQueries = {
 };
 
 // requireLogin(jobCategoryQueries, 'jobsTotalCount');
-// checkPermission(jobCategoryQueries, 'jobCategories', 'showJobRefers');
+// checkPermission(jobCategoryQueries, 'jobCategories', 'showJobs');
 
 export default jobCategoryQueries;

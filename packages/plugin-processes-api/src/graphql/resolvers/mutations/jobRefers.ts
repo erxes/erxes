@@ -100,6 +100,6 @@ const jobReferMutations = {
   }
 };
 
-// moduleCheckPermission(jobReferMutations, 'manageJobRefers');
+// moduleCheckPermission(jobReferMutations, 'manageJobs');
 
 export default jobReferMutations;

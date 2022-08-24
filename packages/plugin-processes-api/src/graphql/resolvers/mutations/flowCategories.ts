@@ -92,6 +92,6 @@ const productMutations = {
   }
 };
 
-// moduleCheckPermission(productMutations, 'manageJobRefers');
+// moduleCheckPermission(productMutations, 'manageJobs');
 
 export default productMutations;

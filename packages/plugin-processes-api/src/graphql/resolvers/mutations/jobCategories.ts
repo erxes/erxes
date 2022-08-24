@@ -91,6 +91,6 @@ const jobCategoryMutations = {
   }
 };
 
-// moduleCheckPermission(jobCategoryMutations, 'manageJobRefers');
+// moduleCheckPermission(jobCategoryMutations, 'manageJobs');
 
 export default jobCategoryMutations;
