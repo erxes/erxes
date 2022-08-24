@@ -184,8 +184,6 @@ const ObjectListItemContainer = styled.div`
   padding-bottom: 10px;
 `;
 
-const DateContainer = styled.div``;
-
 export {
   PropertyList,
   DropIcon,
@@ -200,6 +198,5 @@ export {
   PropertyTableRow,
   RowField,
   FlexRow,
-  ObjectListItemContainer,
-  DateContainer
+  ObjectListItemContainer
 };

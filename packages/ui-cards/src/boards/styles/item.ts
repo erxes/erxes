@@ -145,7 +145,7 @@ export const AddContent = styled.div`
     margin-left: 20px;
   }
 
-  ${DateContainer} {
+  .dateTime {
     margin-right: ${dimensions.coreSpacing}px;
 
     &:before {
