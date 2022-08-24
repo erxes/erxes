@@ -127,6 +127,44 @@ export const AddContent = styled.div`
       border-bottom: 1px solid ${colors.colorSecondary};
     }
   }
+
+  input {
+    border: none;
+    width: 100%;
+    height: 34px;
+    padding: 5px 0;
+    color: #444;
+    border-bottom: 1px solid;
+    border-color: ${colors.borderDarker};
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 13px;
+    position: relative;
+    margin-left: 20px;
+  }
+
+  .dateTime {
+    margin-right: ${dimensions.coreSpacing}px;
+
+    &:before {
+      content: '\\e9a8';
+      font-style: normal;
+      font-family: 'erxes';
+      font-size: 16px;
+      position: absolute;
+      color: #777;
+      left: 0;
+      top: 25px;
+    }
+  }
+
+  .form-control:focus {
+    border: none;
+    border-bottom: 1px solid;
+    border-color: #ddd;
+    box-shadow: none;
+  }
 `;
 
 export const SelectInput = styled.div`
