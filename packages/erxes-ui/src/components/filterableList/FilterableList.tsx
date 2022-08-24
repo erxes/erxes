@@ -148,12 +148,14 @@ class FilterableList extends React.Component<Props, State> {
           <i
             className={item.iconClass}
             style={{ color: item.iconColor }}
-            onClick={onClick}
+            onClick={hasChildren && onClick}
           />
 
           {item.avatar ? <AvatarImg src={item.avatar} /> : null}
 
-          <span onClick={onClick}>{item.title || '[undefined]'}</span>
+          <span onClick={hasChildren && onClick}>
+            {item.title || '[undefined]'}
+          </span>
         </li>
 
         {item.additionalIconClass && (
