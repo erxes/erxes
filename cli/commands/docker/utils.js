@@ -414,8 +414,9 @@ const up = async ({ uis, fromInstaller }) => {
       environment: {
         PORT: '80',
         CUBEJS_DB_TYPE: 'mongobi',
-        CUBEJS_DB_URL: `http://${configs.dashboard_db_address ||
-          'mongosqld'}:3307`,
+        CUBEJS_DB_HOST: `${dashboard.dashboard_db_host || 'mongosqld'}`,
+        CUBEJS_DB_PORT: `${dashboard.dashboard_db_port || '3307'}`,
+
         CUBEJS_URL: dashboard_domain,
         CUBEJS_TOKEN: dashboard.api_token,
         CUBEJS_API_SECRET: dashboard.api_secret,
