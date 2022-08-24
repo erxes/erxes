@@ -65,14 +65,12 @@ function GenerateAddFormFields(props: Props) {
           }
 
           return (
-            <>
-              <GenerateField
-                field={field}
-                key={index}
-                onValueChange={onFieldsDataChange}
-                isEditing={true}
-              />
-            </>
+            <GenerateField
+              field={field}
+              key={index}
+              onValueChange={onFieldsDataChange}
+              isEditing={true}
+            />
           );
         };
 
