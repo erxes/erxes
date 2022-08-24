@@ -7,7 +7,6 @@ import { borderRadius } from './common';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
 import { FormContainer } from '../styles/common';
-import { DateContainer } from '@erxes/ui-forms/src/settings/properties/styles';
 
 const buttonColor = '#0a1e3c';
 
