@@ -9,8 +9,8 @@ const fields = `
 `;
 
 const pagesMain = `
-  query pagesMain($page: Int, $perPage: Int, $searchValue: String) {
-    webbuilderPagesMain(page: $page, perPage: $perPage, searchValue: $searchValue) {
+  query pagesMain($page: Int, $perPage: Int, $searchValue: String, $siteId: String) {
+    webbuilderPagesMain(page: $page, perPage: $perPage, searchValue: $searchValue, siteId: $siteId) {
       list {
         ${fields}
       }
@@ -46,8 +46,8 @@ const typeFields = `
 `;
 
 const contentTypes = `
-  query contentTypes {
-    webbuilderContentTypes {
+  query contentTypes($siteId: String) {
+    webbuilderContentTypes(siteId: $siteId) {
       _id
       displayName
     }
@@ -55,8 +55,8 @@ const contentTypes = `
 `;
 
 const contentTypesMain = `
-  query contentTypesMain($page: Int, $perPage: Int) {
-    webbuilderContentTypesMain(page: $page, perPage: $perPage) {
+  query contentTypesMain($page: Int, $perPage: Int, $siteId: String) {
+    webbuilderContentTypesMain(page: $page, perPage: $perPage, siteId: $siteId) {
       list {
         ${typeFields}
       }

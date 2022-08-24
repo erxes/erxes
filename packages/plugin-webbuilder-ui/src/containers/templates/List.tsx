@@ -16,6 +16,7 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   setCount: (count: number) => void;
   queryParams: any;
+  selectedSite: string;
 };
 
 type FinalProps = {
@@ -32,10 +33,12 @@ function ListContainer(props: FinalProps) {
   }
 
   const use = (_id: string, name: string) => {
-    confirm().then(() => {
+    const message = `Are you sure to create a website using this template? The site will automatically generate!`;
+
+    confirm(message).then(() => {
       templatesUse({ variables: { _id, name } })
         .then(() => {
-          Alert.success('Successfully use a template');
+          Alert.success('Successfully created a website');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -57,8 +60,20 @@ function ListContainer(props: FinalProps) {
 }
 
 export default compose(
-  graphql<{}, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
-    name: 'templatesUse'
+  graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
+    name: 'templatesUse',
+    options: ({ selectedSite }) => ({
+      refetchQueries: [
+        { query: gql(queries.sites) },
+        { query: gql(queries.sitesTotalCount) },
+        {
+          query: gql(queries.contentTypes),
+          variables: {
+            siteId: selectedSite
+          }
+        }
+      ]
+    })
   }),
   graphql<Props, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery',
