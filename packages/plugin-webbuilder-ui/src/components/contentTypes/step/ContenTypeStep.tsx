@@ -109,11 +109,8 @@ class Step extends React.Component<Props, State> {
             <FormGroup>
               <ControlLabel>{__('Site')}</ControlLabel>
               <SelectSite
-                label="Choose a site"
-                name="siteId"
-                multi={false}
                 initialValue={siteId}
-                onSelect={(option: any) => onChange('siteId', option)}
+                onSelect={(value: string) => onChange('siteId', value)}
               />
             </FormGroup>
 

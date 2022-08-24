@@ -5,7 +5,7 @@ import { Route } from 'react-router-dom';
 
 const WebBuilder = asyncComponent(() =>
   import(
-    /* webpackChunkName: "webbuilderHome - Webbuilders" */ './containers/WebBuilder'
+    /* webpackChunkName: "webbuilderHome - Webbuilders" */ './components/WebBuilder'
   )
 );
 
