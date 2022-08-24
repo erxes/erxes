@@ -186,7 +186,6 @@ const SidebarTitle = styledTS<{
   margin: 0px ${dimensions.coreSpacing}px;
   text-transform: uppercase;
   position: relative;
-  background-color: ${colors.colorWhite};
 `;
 
 const SidebarMainContent = styled.div`
@@ -383,8 +382,10 @@ const CenterContent = styled.div`
   }
 `;
 
-const SectionContainer = styled.div`
+const SectionContainer = styledTS<{ hasShadow?: boolean }>(styled.div)`
   position: relative;
+  margin-bottom: ${dimensions.unitSpacing}px;
+  box-shadow: ${props => props.hasShadow && 'rgb(0 0 0 / 8%) 0px 0px 6px 0px'};
 
   > div {
     margin-bottom: 0;

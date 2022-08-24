@@ -1,8 +1,9 @@
-import React from 'react';
-import Sidebar from '../layout/components/Sidebar';
 import { SectionContainer, SidebarCollapse } from '@erxes/ui/src/layout/styles';
 import { getConfig, setConfig } from '../utils/core';
+
 import Icon from './Icon';
+import React from 'react';
+import Sidebar from '../layout/components/Sidebar';
 
 type BoxProps = {
   title: string;
@@ -74,7 +75,7 @@ export default class Box extends React.Component<BoxProps, BoxState> {
     const { children, title, collapsible } = this.props;
 
     return (
-      <SectionContainer>
+      <SectionContainer hasShadow>
         <Title onClick={this.toggle}>{title}</Title>
         {this.renderDropBtn()}
         {isOpen ? (
