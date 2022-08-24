@@ -241,6 +241,8 @@ RabbitListener.prototype.reconnect = function(RABBITMQ_HOST) {
 
   const me = this;
 
+  channel = undefined;
+
   debugInfo(`Scheduling reconnect to rabbitmq in ${reconnectTimeout / 1000}s`);
 
   setTimeout(function() {
