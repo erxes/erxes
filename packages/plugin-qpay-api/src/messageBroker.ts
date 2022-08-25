@@ -12,7 +12,7 @@ export const initBroker = async cl => {
   consumeRPCQueue('qpay:createInvoice', async ({ data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
     console.log(JSON.stringify(data));
-    return { status: 'qpay success' };
+    return { status: 'success', data: { status: 'qpay success' } };
   });
 };
 

@@ -13,7 +13,7 @@ export const initBroker = async cl => {
   consumeRPCQueue('socialPay:createInvoice', async ({ data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
     console.log(JSON.stringify(data));
-    return { status: 'socialPay success' };
+    return { status: 'success', data: { status: 'socialPay success' } };
   });
 };
 
