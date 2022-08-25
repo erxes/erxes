@@ -1,0 +1,17 @@
+[
+  {
+    "_id": "3bYEJRKgeMmctF2s7",
+    "displayName": "blog",
+    "code": "blog",
+    "fields": [
+      {
+        "code": "title",
+        "text": "Title",
+        "type": "input",
+        "show": true
+      }
+    ],
+    "siteId": "BTZdFHaAxoQCKQXaj",
+    "__v": 0
+  }
+]
