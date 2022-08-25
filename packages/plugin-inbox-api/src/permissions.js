@@ -38,7 +38,7 @@ module.exports = {
   },
   integrations: {
     name: 'integrations',
-    description: 'Integrations',
+    description: 'Add-ons',
     actions: [
       {
         name: 'integrationsAll',
