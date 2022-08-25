@@ -13,6 +13,10 @@ const checkSyncedMutations = {
   ) {
     const config = await getConfig(subdomain, 'ERKHET', {});
 
+    if (!config.apiToken || !config.apiKey || !config.apiSecret) {
+      throw new Error('Erkhet config not found');
+    }
+
     const postData = {
       token: config.apiToken,
       apiKey: config.apiKey,
@@ -27,7 +31,7 @@ const checkSyncedMutations = {
     });
     const result = JSON.parse(response);
 
-    const data = result.data;
+    const data = result.data || {};
 
     return (Object.keys(data) || []).map(_id => {
       const res: any = data[_id] || {};

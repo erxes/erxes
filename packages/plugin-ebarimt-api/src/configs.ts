@@ -1,6 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { generateModels, models } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import afterMutations from './afterMutations';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
@@ -26,8 +26,8 @@ export default {
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 
-    context.subdomain = await generateModels(subdomain);
-    context.models = models;
+    context.subdomain = subdomain;
+    context.models = await generateModels(subdomain);
 
     return context;
   },
