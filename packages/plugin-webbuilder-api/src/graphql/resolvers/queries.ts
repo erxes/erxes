@@ -1,6 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
+import { getInitialData, readAndWriteHelpersData } from './utils';
 
 const generateCommonFilter = ({
   searchValue,
@@ -112,8 +113,10 @@ const webbuilderQueries = {
     return models.Entries.findOne({ _id });
   },
 
-  webbuilderTemplates(_root, args, { models }: IContext) {
-    return paginate(models.Templates.find(), args);
+  async webbuilderTemplates(_root, _args) {
+    await readAndWriteHelpersData('templates');
+
+    return getInitialData('templates');
   },
 
   webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {

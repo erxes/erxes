@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 import * as fse from 'fs-extra';
 import { IModels } from '../../connectionResolver';
+const exec = require('child_process').exec;
 
 const filePath = pathName => {
   if (pathName) {
@@ -40,9 +41,9 @@ export const createSiteContentTypes = async (
   const contentTypes = await getInitialData('contentTypes');
 
   for (const type of contentTypes) {
-    type.code === type.code + '_entry';
+    const code = type.code + '_entry';
 
-    if (type.code !== pageName) {
+    if (code !== pageName) {
       continue;
     }
 
@@ -54,4 +55,30 @@ export const createSiteContentTypes = async (
 
     await createSiteEntries(models, type._id, contentType._id);
   }
+};
+
+const execCommand = (command, ignoreError?) => {
+  return new Promise((resolve, reject) => {
+    exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
+      if (error !== null) {
+        if (ignoreError) {
+          return resolve('done');
+        }
+
+        return reject(error);
+      }
+
+      console.log(stdout);
+      console.log(stderr);
+
+      return resolve('done');
+    });
+  });
+};
+
+export const readAndWriteHelpersData = async (fileName: string) => {
+  const url = `https://helper.erxes.io/get-webbuilder-${fileName}`;
+  const output = `../src/initialData/${fileName}.json`;
+
+  return execCommand(`curl -L ${url} --output ${output}`);
 };
