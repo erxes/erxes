@@ -6,6 +6,12 @@ export interface IPaymentConfig {
   config: any;
 }
 
+export interface IPaymentTypeCount {
+  qpay: number;
+  socialPay: number;
+  total: number;
+}
+
 export type PaymentConfigsQueryResponse = {
   paymentConfigs: IPaymentConfig[];
   loading: boolean;
@@ -13,7 +19,7 @@ export type PaymentConfigsQueryResponse = {
 };
 
 export type PaymentConfigsCountByTypeQueryResponse = {
-  paymentConfigsCountByType: number;
+  paymentConfigsCountByType: IPaymentTypeCount;
   loading: boolean;
   refetch: () => void;
 };

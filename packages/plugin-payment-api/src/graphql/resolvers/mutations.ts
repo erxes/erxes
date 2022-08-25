@@ -11,6 +11,15 @@ const paymentConfigMutations = {
 
     return paymentConfig;
   }
+  // ,
+  // /**
+  //  * Creates a new template
+  //  */
+  // async paymentConfigsRemove(_root, doc: IPaymentConfig, { models }: IContext) {
+  //   await models.PaymentConfigs.removePayme;
+
+  //   return 'success';
+  // }
 };
 
 requireLogin(paymentConfigMutations, 'paymentConfigsAdd');

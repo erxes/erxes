@@ -11,8 +11,12 @@ query paymentConfigs {
 `;
 
 const paymentConfigsCountByType = `
-query Query($type: String) {
-  paymentConfigsCountByType(type: $type)
+query PaymentConfigsCountByType {
+  paymentConfigsCountByType {
+    qpay
+    socialPay
+    total
+  }
 }
 `;
 

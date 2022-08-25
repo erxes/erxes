@@ -5,12 +5,12 @@ import Entry from './Entry';
 import IntegrationList from '../containers/IntegrationList';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
+import { IPaymentTypeCount } from 'types';
 
 type Props = {
   integrations: any[];
-  totalCount: any;
   queryParams: any;
-  customLink: (kind: string, addLink: string) => void;
+  paymentConfigsCount?: IPaymentTypeCount;
 };
 
 type State = {
@@ -31,17 +31,17 @@ class Row extends React.Component<Props, State> {
       kind
     };
 
-    console.log('Home row ...');
+    console.log('Home row ...', this.props.paymentConfigsCount);
   }
 
-  getClassName = selectedKind => {
+  getClassName = type => {
     const { kind, isContentVisible } = this.state;
 
     if (!isContentVisible) {
       return '';
     }
 
-    if (selectedKind === kind) {
+    if (type === kind) {
       return 'active';
     }
 
@@ -51,10 +51,6 @@ class Row extends React.Component<Props, State> {
   toggleBox = (selectedKind: string, isAvailable?: boolean) => {
     if (isAvailable && !isAvailable) {
       return null;
-    }
-
-    if (!selectedKind || selectedKind === 'amazon-ses') {
-      return false;
     }
 
     const { isContentVisible, kind } = this.state;
@@ -85,46 +81,53 @@ class Row extends React.Component<Props, State> {
     return <Pagination count={totalCount} />;
   }
 
-  renderEntry(integration, totalCount, queryParams) {
+  renderEntry(integration, paymentConfigsCount, queryParams) {
     const commonProp = {
       key: integration.name,
       integration,
       toggleBox: this.toggleBox,
       getClassName: this.getClassName,
-      totalCount,
+      paymentConfigsCount,
       queryParams
     };
 
-    return <Entry {...commonProp} customLink={this.props.customLink} />;
+    return <Entry {...commonProp} />;
   }
 
   renderList() {
-    const { queryParams, totalCount } = this.props;
+    const { queryParams, paymentConfigsCount } = this.props;
     const { kind } = this.state;
 
     return (
       <>
         <IntegrationList
+          type={kind}
           queryParams={queryParams}
-          integrationsCount={totalCount[kind || '']}
+          integrationsCount={
+            paymentConfigsCount ? paymentConfigsCount.total : 0
+          }
         />
-        {this.renderPagination(totalCount[kind || ''])}
+        {this.renderPagination(
+          paymentConfigsCount ? paymentConfigsCount.total : 0
+        )}
       </>
     );
   }
 
   render() {
-    const { integrations, totalCount, queryParams } = this.props;
+    console.log('render on Row');
+
+    const { integrations, paymentConfigsCount, queryParams } = this.props;
 
     const selected = integrations.find(
-      integration => integration.kind === this.state.kind
+      integration => integration.type === this.state.kind
     );
 
     return (
       <>
         <IntegrationRow>
           {integrations.map(integration =>
-            this.renderEntry(integration, totalCount, queryParams)
+            this.renderEntry(integration, paymentConfigsCount, queryParams)
           )}
         </IntegrationRow>
         <Collapse

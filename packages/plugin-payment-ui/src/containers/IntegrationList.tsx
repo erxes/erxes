@@ -15,6 +15,7 @@ type Props = {
   queryParams: any;
   variables?: { brandId?: string; channelId?: string };
   integrationsCount: number;
+  type: string | null;
 };
 
 type FinalProps = {
@@ -22,23 +23,17 @@ type FinalProps = {
 } & Props;
 
 const IntegrationListContainer = (props: FinalProps) => {
-  const { paymentConfigsQuery } = props;
-
-  console.log('step1 on container list ...');
+  const { paymentConfigsQuery, type } = props;
 
   if (paymentConfigsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  console.log('step2 on container list ...');
-
   const paymentConfigs = paymentConfigsQuery.paymentConfigs || [];
-
-  console.log('step3 on container list ...');
 
   // const removeIntegration = integration => {
   //   const message =
-  //     'If you remove an integration, then all related conversations, customers & forms will also be removed. Are you sure?';
+  //     'Are you sure?';
 
   //   confirm(message).then(() => {
   //     Alert.warning('Removing... Please wait!!!');
@@ -104,43 +99,44 @@ const IntegrationListContainer = (props: FinalProps) => {
   //     });
   // };
 
+  const filteredConfigs = type
+    ? paymentConfigs.filter(pc => pc.type === type)
+    : paymentConfigs;
+
   const updatedProps = {
     ...props,
-    paymentConfigs,
+    paymentConfigs: filteredConfigs,
     loading: paymentConfigsQuery.loading
   };
-
-  console.log('step4 on container list ...');
 
   return <IntegrationList {...updatedProps} />;
 };
 
-// const mutationOptions = ({
-//   queryParams,
-//   variables,
-//   kind
-// }: {
-//   queryParams?: any;
-//   variables?: any;
-//   kind?: any;
-// }) => ({
-//   refetchQueries: [
-//     {
-//       query: gql(queries.integrations),
-//       variables: {
-//         ...variables,
-//         ...integrationsListParams(queryParams || {}),
-//         kind
-//       }
-//     },
-//     {
-//       query: gql(queries.integrationTotalCount)
-//     }
-//   ]
-// });
+const mutationOptions = ({
+  queryParams,
+  variables,
+  type
+}: {
+  queryParams?: any;
+  variables?: any;
+  type?: any;
+}) => ({
+  refetchQueries: [
+    {
+      query: gql(queries.paymentConfigs)
+    },
+    {
+      query: gql(queries.paymentConfigsCountByType)
+    }
+  ]
+});
 
 export default withProps<Props>(
   compose(
+    // graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
+    //   name: 'removeMutation',
+    //   options: mutationOptions
+    // }),
     graphql<Props, PaymentConfigsQueryResponse>(gql(queries.paymentConfigs), {
       name: 'paymentConfigsQuery',
       options: ({ variables }) => {

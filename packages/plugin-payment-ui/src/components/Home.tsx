@@ -12,11 +12,11 @@ import Row from './Row';
 import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
+import { IPaymentTypeCount } from 'types';
 
 type Props = {
-  totalCount: any;
   queryParams: any;
-  customLink: (kind: string, addLink: string) => void;
+  paymentConfigsCount: IPaymentTypeCount;
 };
 
 type State = {
@@ -33,6 +33,11 @@ class Home extends React.Component<Props, State> {
         integration => integration.category.indexOf('Payment method') !== -1
       )
     };
+
+    console.log(
+      'renderIntegrations on Constructor:',
+      this.props.paymentConfigsCount
+    );
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -61,17 +66,19 @@ class Home extends React.Component<Props, State> {
 
   renderIntegrations() {
     const { integrations, searchValue } = this.state;
-    const { totalCount, queryParams, customLink } = this.props;
+    const { paymentConfigsCount, queryParams } = this.props;
     const datas = [] as any;
     const rows = [...integrations];
 
+    console.log('renderIntegrations on Home:', paymentConfigsCount);
+
     while (rows.length > 0) {
+      // console.log("rows.splice(0, 4)", rows.splice(0, 4));
       datas.push(
         <Row
           key={rows.length}
           integrations={rows.splice(0, 4)}
-          totalCount={totalCount}
-          customLink={customLink}
+          paymentConfigsCount={paymentConfigsCount}
           queryParams={queryParams}
         />
       );

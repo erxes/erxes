@@ -1,39 +1,51 @@
 import * as compose from 'lodash.flowright';
 
-// import { ByKindTotalCount, IntegrationsCountQueryResponse } from '../types';
-import { getEnv, withProps } from '@erxes/ui/src/utils';
-
+import { withProps } from '@erxes/ui/src/utils';
 import Home from '../components/Home';
 import React from 'react';
-import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
+import { PaymentConfigsCountByTypeQueryResponse } from '../types';
 
 type Props = {
   queryParams: any;
   history?: any;
 };
 
-type FinalProps = { totalCountQuery: any } & Props;
+type FinalProps = {
+  paymentConfigsCountByTypeQuery: PaymentConfigsCountByTypeQueryResponse;
+} & Props;
 
 const Store = (props: FinalProps) => {
-  const customLink = (kind: string, addLink: string) => {
-    const { REACT_APP_API_URL } = getEnv();
-    const url = `${REACT_APP_API_URL}/connect-integration?link=${addLink}&kind=${kind}`;
+  const { paymentConfigsCountByTypeQuery } = props;
 
-    window.location.replace(url);
-  };
+  if (paymentConfigsCountByTypeQuery.loading) {
+    return null;
+  }
 
-  const totalCount = 1;
+  const paymentConfigsCount =
+    paymentConfigsCountByTypeQuery.paymentConfigsCountByType;
+
+  console.log('store container:', paymentConfigsCount);
 
   const updatedProps = {
     ...props,
-    customLink,
-    totalCount
+    paymentConfigsCount
   };
 
   return <Home {...updatedProps} />;
 };
 
-export default Store;
+// export default Store;
+
+export default withProps<Props>(
+  compose(
+    graphql<Props, PaymentConfigsCountByTypeQueryResponse, {}>(
+      gql(queries.paymentConfigsCountByType),
+      {
+        name: 'paymentConfigsCountByTypeQuery'
+      }
+    )
+  )(Store)
+);

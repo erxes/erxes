@@ -3,38 +3,33 @@ import React from 'react';
 
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-
-// import QpayConfigForm from './form/QpayConfigForm';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
-// import SpayConfigForm from './form/SpayConfigForm';
 import { Box, IntegrationItem, Ribbon, Type } from './styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { mutations } from '../graphql';
-
-type TotalCount = {
-  messenger: number;
-  facebook: number;
-};
+import { IPaymentTypeCount } from 'types';
 
 type Props = {
   integration: any;
-  getClassName: (selectedKind: string) => string;
+  getClassName: (type: string) => string;
   toggleBox: (kind: string) => void;
-  customLink?: (kind: string, addLink: string) => void;
   queryParams: any;
-  totalCount: TotalCount;
+  paymentConfigsCount?: IPaymentTypeCount;
 };
 
-function getCount(kind: string, totalCount: TotalCount) {
-  const countByKind = totalCount[kind];
+function getCount(type: string, paymentConfigsCount?: IPaymentTypeCount) {
+  const countByType = paymentConfigsCount
+    ? type.toLowerCase().includes('social')
+      ? paymentConfigsCount.socialPay
+      : paymentConfigsCount.qpay
+    : 0;
 
-  if (typeof countByKind === 'undefined') {
+  if (typeof countByType === 'undefined') {
     return null;
   }
-
-  return <span>({countByKind})</span>;
+  return <span>({countByType})</span>;
 }
 
 function renderType(type: string) {
@@ -90,22 +85,41 @@ function renderCreate(type: string) {
   );
 }
 
-function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
-  const { kind, isAvailable } = integration;
+function Entry({
+  integration,
+  getClassName,
+  toggleBox,
+  paymentConfigsCount
+}: Props) {
+  const {
+    type,
+    isAvailable,
+    name,
+    description,
+    logo,
+    inMessenger
+  } = integration;
+
+  console.log(
+    'On entry: ',
+    type,
+    isAvailable,
+    name,
+    description,
+    logo,
+    inMessenger
+  );
 
   return (
-    <IntegrationItem key={integration.name} className={getClassName(kind)}>
-      <Box
-        onClick={() => toggleBox(kind)}
-        isInMessenger={integration.inMessenger}
-      >
-        <img alt="logo" src={integration.logo} />
+    <IntegrationItem key={name} className={getClassName(type)}>
+      <Box onClick={() => toggleBox(type)} isInMessenger={inMessenger}>
+        <img alt="logo" src={logo} />
         <h5>
-          {integration.name} {getCount(kind, totalCount)}
+          {name} {getCount(name, paymentConfigsCount)}
         </h5>
         <p>
-          {__(integration.description)}
-          {renderType(integration.inMessenger)}
+          {__(description)}
+          {renderType(inMessenger)}
         </p>
         {!isAvailable && (
           <Ribbon>
@@ -113,7 +127,7 @@ function Entry({ integration, getClassName, toggleBox, totalCount }: Props) {
           </Ribbon>
         )}
       </Box>
-      {renderCreate(integration.name)}
+      {renderCreate(name)}
     </IntegrationItem>
   );
 }

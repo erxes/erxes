@@ -4,10 +4,10 @@ export const INTEGRATIONS = [
     description: 'Qpay payment method',
     inMessenger: false,
     isAvailable: true,
-    kind: 'qpay',
+    type: 'qpay',
     logo: '/images/payments/qpay.png',
     createModal: 'qpay',
-    createUrl: '/settings/add-ons/createQpay',
+    createUrl: '/settings/payments/createQpay',
     category: 'Payment method'
   },
   {
@@ -15,10 +15,10 @@ export const INTEGRATIONS = [
     description: 'SocialPay payment method',
     inMessenger: false,
     isAvailable: true,
-    kind: 'socialPay',
+    type: 'socialPay',
     logo: '/images/payments/socialPay.png',
     createModal: 'socialPay',
-    createUrl: '/settings/add-ons/createSocialPay',
+    createUrl: '/settings/payments/createSocialPay',
     category: 'Payment method'
   }
 ];

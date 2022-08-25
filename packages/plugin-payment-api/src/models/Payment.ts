@@ -16,6 +16,10 @@ export const loadPaymentConfigClass = (models: IModels) => {
     public static async createPaymentConfig(doc: IPaymentConfig) {
       return models.PaymentConfigs.create(doc);
     }
+
+    // public static async removePaymentConfig(doc: IPaymentConfig) {
+    //   return models.PaymentConfigs.create(doc);
+    // }
   }
 
   paymentConfigSchema.loadClass(PaymentConfig);
