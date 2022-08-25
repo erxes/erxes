@@ -23,7 +23,6 @@ export const pageSchema = new Schema({
   description: field({ type: String, optional: true, label: 'Description' }),
   html: field({ type: String, optional: true, label: 'Html' }),
   css: field({ type: String, optional: true, label: 'Css' }),
-  jsonData: field({ type: Object, label: 'Json data' }),
   templateId: field({ type: String, optional: true, label: 'Template' })
 });
 
