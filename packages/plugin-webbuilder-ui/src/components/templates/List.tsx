@@ -1,6 +1,6 @@
 import React from 'react';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import {
   Actions,
   IframePreview,
