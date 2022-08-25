@@ -22,8 +22,8 @@ const createSiteEntries = async (
   const entries = await getInitialData('entries');
 
   for (const entry of entries) {
-    if (entry.contentTypeId !== oldContentTypeId) {
-      return;
+    if (entry.contentTypeId !== oldContentTypeId['$oid']) {
+      continue;
     }
 
     models.Entries.createEntry({

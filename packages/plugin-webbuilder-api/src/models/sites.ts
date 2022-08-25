@@ -14,7 +14,6 @@ export interface ISiteDocument extends ISite, Document {
 }
 
 export const siteSchema = new Schema({
-  _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name', unique: true }),
   domain: field({ type: String, optional: true, label: 'Domain' })
 });
