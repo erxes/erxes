@@ -25,7 +25,6 @@ const pageDetail = `
       ${fields}
       html
       css
-      jsonData
       siteId
     }
   }
@@ -105,7 +104,6 @@ const templates = `
     webbuilderTemplates(page: $page, perPage: $perPage) {
       _id
       name
-      jsonData
       html
     } 
   }
@@ -122,7 +120,6 @@ const templateDetail = `
     webbuilderTemplateDetail(_id: $_id) {
       _id
       name
-      jsonData
     }
   }
 `;

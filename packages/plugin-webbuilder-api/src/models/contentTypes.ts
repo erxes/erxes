@@ -33,7 +33,6 @@ export const fieldSchema = new Schema(
 );
 
 export const contentTypeSchema = new Schema({
-  _id: field({ pkey: true }),
   siteId: field({ type: String, optional: true, label: 'Site Id' }),
   code: field({ type: String, label: 'Name' }),
   displayName: field({ type: String, label: 'Description' }),

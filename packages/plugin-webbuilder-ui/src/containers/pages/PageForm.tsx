@@ -42,8 +42,7 @@ const FormContainer = (props: FinalProps) => {
     description: string,
     siteId: string,
     html: string,
-    css: string,
-    jsonData
+    css: string
   ) => {
     let method: any = props.pagesAdd;
 
@@ -52,8 +51,7 @@ const FormContainer = (props: FinalProps) => {
       description,
       siteId,
       html,
-      css,
-      jsonData
+      css
     };
 
     if (props._id) {

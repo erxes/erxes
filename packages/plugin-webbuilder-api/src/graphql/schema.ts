@@ -5,7 +5,6 @@ export const types = `
     description: String
     html: String
     css: String
-    jsonData: JSON
     siteId: String
     site: WebbuilderSite
   }
@@ -44,7 +43,6 @@ export const types = `
   type WebbuilderTemplate {
     _id: String!
     name: String
-    jsonData: JSON,
     html: String
   }
 
@@ -79,7 +77,6 @@ const params = `
   description: String,
   html: String,
   css: String,
-  jsonData: JSON,
   siteId: String
 `;
 
@@ -103,7 +100,7 @@ export const mutations = `
   webbuilderEntriesEdit(_id: String!, contentTypeId: String! values: JSON): WebbuilderEntry
   webbuilderEntriesRemove(_id: String!): JSON
 
-  webbuilderTemplatesAdd(name: String, jsonData: JSON, html: String): WebbuilderTemplate 
+  webbuilderTemplatesAdd(name: String, html: String): WebbuilderTemplate 
   webbuilderTemplatesUse(_id: String!, name: String!): JSON
   webbuilderTemplatesRemove(_id: String!): JSON
   
