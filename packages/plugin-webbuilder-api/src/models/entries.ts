@@ -27,7 +27,6 @@ export const valueSchema = new Schema(
 );
 
 export const entrySchema = new Schema({
-  _id: field({ pkey: true }),
   contentTypeId: field({ type: String, label: 'Content type' }),
   values: field({ type: [valueSchema], label: 'Values' })
 });
