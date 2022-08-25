@@ -1,7 +1,11 @@
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { PaymentConfigsQueryResponse } from '../types';
+import {
+  PaymentConfigsRemoveMutationResponse,
+  PaymentConfigsQueryResponse,
+  IPaymentConfig
+} from '../types';
 import { mutations, queries } from '../graphql';
 
 import IntegrationList from '../components/IntegrationList';
@@ -20,10 +24,11 @@ type Props = {
 
 type FinalProps = {
   paymentConfigsQuery: PaymentConfigsQueryResponse;
-} & Props;
+} & Props &
+  PaymentConfigsRemoveMutationResponse;
 
 const IntegrationListContainer = (props: FinalProps) => {
-  const { paymentConfigsQuery, type } = props;
+  const { paymentConfigsQuery, type, paymentConfigsRemove } = props;
 
   if (paymentConfigsQuery.loading) {
     return <Spinner objective={true} />;
@@ -31,23 +36,22 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const paymentConfigs = paymentConfigsQuery.paymentConfigs || [];
 
-  // const removeIntegration = integration => {
-  //   const message =
-  //     'Are you sure?';
+  const removePaymentConfig = (paymentConfig: IPaymentConfig) => {
+    const message = 'Are you sure?';
 
-  //   confirm(message).then(() => {
-  //     Alert.warning('Removing... Please wait!!!');
+    confirm(message).then(() => {
+      Alert.warning('Removing... Please wait!!!');
 
-  //     removeMutation({ variables: { _id: integration._id } })
-  //       .then(() => {
-  //         Alert.success('Your integration is no longer in this channel');
-  //       })
+      paymentConfigsRemove({ variables: { id: paymentConfig._id } })
+        .then(() => {
+          Alert.success('Your integration is no longer in this channel');
+        })
 
-  //       .catch(error => {
-  //         Alert.error(error.message);
-  //       });
-  //   });
-  // };
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    });
+  };
 
   // const archive = (id: string, status: boolean) => {
   //   let message =
@@ -106,21 +110,14 @@ const IntegrationListContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     paymentConfigs: filteredConfigs,
-    loading: paymentConfigsQuery.loading
+    loading: paymentConfigsQuery.loading,
+    removePaymentConfig
   };
 
   return <IntegrationList {...updatedProps} />;
 };
 
-const mutationOptions = ({
-  queryParams,
-  variables,
-  type
-}: {
-  queryParams?: any;
-  variables?: any;
-  type?: any;
-}) => ({
+const mutationOptions = () => ({
   refetchQueries: [
     {
       query: gql(queries.paymentConfigs)
@@ -133,10 +130,13 @@ const mutationOptions = ({
 
 export default withProps<Props>(
   compose(
-    // graphql<Props, RemoveMutationResponse>(gql(mutations.integrationsRemove), {
-    //   name: 'removeMutation',
-    //   options: mutationOptions
-    // }),
+    graphql<Props, PaymentConfigsRemoveMutationResponse>(
+      gql(mutations.PaymentConfigRemove),
+      {
+        name: 'paymentConfigsRemove',
+        options: mutationOptions
+      }
+    ),
     graphql<Props, PaymentConfigsQueryResponse>(gql(queries.paymentConfigs), {
       name: 'paymentConfigsQuery',
       options: ({ variables }) => {

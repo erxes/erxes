@@ -9,6 +9,7 @@ import {
 
 export interface IPaymentConfigModel extends Model<IPaymentConfigDocument> {
   createPaymentConfig(doc: IPaymentConfig): Promise<IPaymentConfigDocument>;
+  removePaymentConfig(_id: string): void;
 }
 
 export const loadPaymentConfigClass = (models: IModels) => {
@@ -17,9 +18,9 @@ export const loadPaymentConfigClass = (models: IModels) => {
       return models.PaymentConfigs.create(doc);
     }
 
-    // public static async removePaymentConfig(doc: IPaymentConfig) {
-    //   return models.PaymentConfigs.create(doc);
-    // }
+    public static async removePaymentConfig(_id: string) {
+      return models.PaymentConfigs.deleteOne({ _id });
+    }
   }
 
   paymentConfigSchema.loadClass(PaymentConfig);

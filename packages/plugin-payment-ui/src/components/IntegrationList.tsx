@@ -16,7 +16,7 @@ import { IPaymentConfig } from '../types';
 
 type Props = {
   paymentConfigs: IPaymentConfig[];
-  // removeIntegration: (integration: IIntegration, callback?: any) => void;
+  removePaymentConfig: (paymentConfig: IPaymentConfig, callback?: any) => void;
   // archive: (id: string, status: boolean) => void;
   // editIntegration: (
   //   id: string,
@@ -36,7 +36,8 @@ class IntegrationList extends React.Component<Props> {
   renderRows() {
     const {
       paymentConfigs,
-      queryParams: { _id }
+      queryParams: { _id },
+      removePaymentConfig
     } = this.props;
 
     return paymentConfigs.map(i => (
@@ -44,7 +45,7 @@ class IntegrationList extends React.Component<Props> {
         key={i._id}
         _id={_id}
         paymentConfig={i}
-        // removeIntegration={removeIntegration}
+        removePaymentConfig={removePaymentConfig}
         // archive={archive}
         // disableAction={disableAction}
         // editIntegration={editIntegration}

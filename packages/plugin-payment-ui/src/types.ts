@@ -12,6 +12,10 @@ export interface IPaymentTypeCount {
   total: number;
 }
 
+export type PaymentConfigsRemoveMutationResponse = {
+  paymentConfigsRemove: (params: { variables: { id: string } }) => Promise<any>;
+};
+
 export type PaymentConfigsQueryResponse = {
   paymentConfigs: IPaymentConfig[];
   loading: boolean;

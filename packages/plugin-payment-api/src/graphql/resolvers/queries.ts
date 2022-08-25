@@ -13,7 +13,7 @@ const paymentConfigQueries = {
   }
 };
 
-requireLogin(paymentConfigQueries, 'paymentConfigs');
-// requireLogin(paymentConfigQueries, 'paymentConfigsCountByType');
+// requireLogin(paymentConfigQueries, 'paymentConfigs');
+requireLogin(paymentConfigQueries, 'paymentConfigsCountByType');
 
 export default paymentConfigQueries;

@@ -9,6 +9,12 @@ mutation paymentConfigsAdd(${commonParamDefs}) {
 }
 `;
 
+const PaymentConfigRemove = `
+mutation paymentConfigRemove($id: String!) {
+  paymentConfigRemove(id: $id)
+}`;
+
 export default {
-  paymentConfigsAdd
+  paymentConfigsAdd,
+  PaymentConfigRemove
 };

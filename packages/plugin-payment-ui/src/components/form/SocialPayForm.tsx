@@ -71,7 +71,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     const value = this.state[key]
       ? this.state[key]
       : key === 'inStoreSPUrl'
-      ? 'https://merchant.qpay.mn'
+      ? 'https://instore.golomtbank.com/'
       : '';
 
     return (

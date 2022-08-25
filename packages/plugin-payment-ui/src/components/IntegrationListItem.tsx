@@ -19,12 +19,13 @@ import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 import { IPaymentConfig } from '../types';
+import { WithPermission } from '@erxes/ui/src/components';
 
 type Props = {
   _id?: string;
   paymentConfig: IPaymentConfig;
+  removePaymentConfig: (paymentConfig: IPaymentConfig) => void;
   // archive: (id: string, status: boolean) => void;
-  // removeIntegration: (integration: IIntegration) => void;
   // disableAction?: boolean;
   // editIntegration: (
   //   id: string,
@@ -43,6 +44,26 @@ class IntegrationListItem extends React.Component<Props, State> {
     this.state = {
       externalData: null
     };
+  }
+
+  renderRemoveAction() {
+    const { paymentConfig, removePaymentConfig } = this.props;
+
+    console.log('renderRemoveAction: ', paymentConfig, removePaymentConfig);
+
+    if (!removePaymentConfig) {
+      return null;
+    }
+
+    const onClick = () => removePaymentConfig(paymentConfig);
+
+    return (
+      // <WithPermission action="paymentConfigRemove">
+      <Tip text={__('Delete')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="times-circle" />
+      </Tip>
+      // </WithPermission>
+    );
   }
 
   // renderArchiveAction() {
@@ -118,24 +139,6 @@ class IntegrationListItem extends React.Component<Props, State> {
   //           content={content}
   //         />
   //       </ActionButtons>
-  //     </WithPermission>
-  //   );
-  // }
-
-  // renderRemoveAction() {
-  //   const { integration, removeIntegration, disableAction } = this.props;
-
-  //   if (!removeIntegration || disableAction) {
-  //     return null;
-  //   }
-
-  //   const onClick = () => removeIntegration(integration);
-
-  //   return (
-  //     <WithPermission action="integrationsRemove">
-  //       <Tip text={__('Delete')} placement="top">
-  //         <Button btnStyle="link" onClick={onClick} icon="times-circle" />
-  //       </Tip>
   //     </WithPermission>
   //   );
   // }
@@ -256,10 +259,10 @@ class IntegrationListItem extends React.Component<Props, State> {
 
         <td>
           <ActionButtons>
+            {this.renderRemoveAction()}
             {/* {this.renderEditAction()} */}
             {/* {this.renderArchiveAction()} */}
             {/* {this.renderUnarchiveAction()} */}
-            {/* {this.renderRemoveAction()} */}
           </ActionButtons>
         </td>
       </tr>

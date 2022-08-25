@@ -1,11 +1,20 @@
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
+import { debugBase } from '@erxes/api-utils/src/debuggers';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
+
+  const { consumeRPCQueue } = cl;
+
+  consumeRPCQueue('socialPay:createInvoice', async ({ data }) => {
+    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+    console.log(JSON.stringify(data));
+    return { status: 'socialPay success' };
+  });
 };
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
