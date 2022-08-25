@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { field } from './utils';
 
 export interface IField {
   code: string;
@@ -23,19 +24,20 @@ export interface IContentTypeDocument extends IContentType, Document {
 
 export const fieldSchema = new Schema(
   {
-    code: { type: String },
-    text: { type: String },
-    type: { type: String },
-    show: { type: Boolean }
+    code: field({ type: String }),
+    text: field({ type: String }),
+    type: field({ type: String }),
+    show: field({ type: Boolean })
   },
   { _id: false }
 );
 
 export const contentTypeSchema = new Schema({
-  siteId: { type: String, label: 'Site Id' },
-  code: { type: String, label: 'Name' },
-  displayName: { type: String, label: 'Description' },
-  fields: { type: [fieldSchema] }
+  _id: field({ pkey: true }),
+  siteId: field({ type: String, optional: true, label: 'Site Id' }),
+  code: field({ type: String, label: 'Name' }),
+  displayName: field({ type: String, label: 'Description' }),
+  fields: field({ type: [fieldSchema] })
 });
 
 export interface IContentTypeModel extends Model<IContentTypeDocument> {
@@ -49,9 +51,14 @@ export interface IContentTypeModel extends Model<IContentTypeDocument> {
 
 export const loadTypeClass = (models: IModels) => {
   class ContentType {
-    public static async checkCodeDuplication(code: string, id?: string) {
+    public static async checkDuplication(
+      code: string,
+      siteId: string,
+      id?: string
+    ) {
       const query: { [key: string]: any } = {
-        code
+        code,
+        siteId
       };
 
       if (id) {
@@ -61,18 +68,18 @@ export const loadTypeClass = (models: IModels) => {
       const contentType = await models.ContentTypes.findOne(query);
 
       if (contentType) {
-        throw new Error('Code duplicated!');
+        throw new Error('Site and code duplicated!');
       }
     }
 
     public static async createContentType(doc: IContentType) {
-      await this.checkCodeDuplication(doc.code);
+      await this.checkDuplication(doc.code, doc.siteId);
 
       return models.ContentTypes.create(doc);
     }
 
     public static async updateContentType(_id: string, doc: IContentType) {
-      await this.checkCodeDuplication(doc.code, _id);
+      await this.checkDuplication(doc.code, doc.siteId, _id);
 
       await models.ContentTypes.updateOne({ _id }, { $set: doc });
 

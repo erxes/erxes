@@ -2,28 +2,45 @@ import { paginate } from '@erxes/api-utils/src';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
+const generateCommonFilter = ({
+  searchValue,
+  siteId
+}: {
+  searchValue?: string;
+  siteId?: string;
+}) => {
+  let filter: any = {};
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  if (siteId) {
+    filter.siteId = siteId;
+  }
+
+  return filter;
+};
+
 const webbuilderQueries = {
   webbuilderPagesMain(
     _root,
     {
       page,
       perPage,
-      searchValue
-    }: { page: number; perPage: number; searchValue: string },
+      searchValue,
+      siteId
+    }: { page: number; perPage: number; searchValue: string; siteId: string },
     { models }: IContext
   ) {
-    let filter: any = {};
-
-    if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
-    }
+    const filter = generateCommonFilter({ searchValue, siteId });
 
     return {
       list: paginate(models.Pages.find(filter), {
         page,
         perPage
       }),
-      totalCount: models.Pages.find({}).count()
+      totalCount: models.Pages.find(filter).count()
     };
   },
 
@@ -31,21 +48,40 @@ const webbuilderQueries = {
     return models.Pages.findOne({ _id });
   },
 
-  webbuilderContentTypes(_root, _args, { models }: IContext) {
-    return models.ContentTypes.find({}).sort({ displayName: 1 });
+  webbuilderContentTypes(
+    _root,
+    { siteId }: { siteId: string },
+    { models }: IContext
+  ) {
+    let filter: any = {};
+
+    if (siteId) {
+      filter.siteId = siteId;
+    }
+
+    return models.ContentTypes.find(filter).sort({ displayName: 1 });
   },
 
   webbuilderContentTypesMain(
     _root,
-    args: { page: number; perPage: number },
+    {
+      page,
+      perPage,
+      siteId
+    }: { page: number; perPage: number; siteId: string },
     { models }: IContext
   ) {
+    const filter = generateCommonFilter({ siteId });
+
     return {
       list: paginate(
-        models.ContentTypes.find({}).sort({ displayName: 1 }),
-        args
+        models.ContentTypes.find(filter).sort({ displayName: 1 }),
+        {
+          page,
+          perPage
+        }
       ),
-      totalCount: models.ContentTypes.find().count()
+      totalCount: models.ContentTypes.find(filter).count()
     };
   },
 

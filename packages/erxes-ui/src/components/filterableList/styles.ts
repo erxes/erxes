@@ -22,6 +22,7 @@ const FlexRow = styled.div`
 
   > li {
     flex: 1;
+    display: flex !important;
   }
 `;
 
@@ -65,7 +66,7 @@ const PopoverList = styledTS<{ selectable?: boolean; isIndented?: boolean }>(
 
     i {
       &.icon-tag-alt{
-        margin-right: ${dimensions.unitSpacing / 5}px;
+        margin-right: ${dimensions.unitSpacing}px;
       }
     }
 
@@ -156,6 +157,7 @@ const ToggleIcon = styledTS<{ isIndented?: boolean; type?: string }>(
   ${props =>
     props.type === 'list' &&
     `
+  top: 8px;
   left:${
     props.isIndented
       ? `${dimensions.unitSpacing * 0.5}px`
@@ -186,6 +188,11 @@ const PopoverContent = styled.div`
   }
 `;
 
+const ItemText = styled.span`
+  flex: 1;
+  width: 100%;
+`;
+
 export {
   PopoverHeader,
   PopoverBody,
@@ -196,7 +203,8 @@ export {
   AvatarImg,
   IconWrapper,
   ChildList,
-  ToggleIcon
+  ToggleIcon,
+  ItemText
 };
 
 export default {
@@ -209,5 +217,6 @@ export default {
   AvatarImg,
   IconWrapper,
   ChildList,
-  ToggleIcon
+  ToggleIcon,
+  ItemText
 };
