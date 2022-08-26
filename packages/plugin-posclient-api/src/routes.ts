@@ -19,14 +19,14 @@ export const posInitialSetup = async (req, res) => {
 
   const envMaps = JSON.parse(req.query.envs || '{}');
 
+  const cookieOptions: any = authCookieOptions();
+
+  if (cookieOptions.secure) {
+    cookieOptions.sameSite = 'none';
+  }
+
   for (const key of Object.keys(envMaps)) {
-    res.cookie(
-      key,
-      envMaps[key],
-      authCookieOptions({
-        sameSite: 'none'
-      })
-    );
+    res.cookie(key, envMaps[key], cookieOptions);
   }
 
   return res.end('success');

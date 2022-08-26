@@ -48,23 +48,19 @@ const posUserMutations = {
     const response = await models.PosUsers.posLogin(args, config);
 
     const { token } = response;
+    const cookieOptions: any = authCookieOptions();
 
-    res.cookie(
-      'pos-auth-token',
-      token,
-      authCookieOptions({
-        sameSite: 'none'
-      })
-    );
+    if (cookieOptions.secure) {
+      cookieOptions.sameSite = 'none';
+    }
+
+    res.cookie('pos-auth-token', token, cookieOptions);
 
     return 'loggedIn';
   },
 
   async posLogout(_root, _args, { res }: IContext) {
-    res.cookie('pos-auth-token', '1', {
-      maxAge: 0,
-      sameSite: 'none'
-    });
+    res.clearCookie('pos-auth-token');
 
     return 'loggedout';
   }

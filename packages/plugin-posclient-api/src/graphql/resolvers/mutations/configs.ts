@@ -229,13 +229,13 @@ const configMutations = {
       throw new Error('token not found');
     }
 
-    res.cookie(
-      'pos-config-token',
-      token,
-      authCookieOptions({
-        sameSite: 'none'
-      })
-    );
+    const cookieOptions: any = authCookieOptions();
+
+    if (cookieOptions.secure) {
+      cookieOptions.sameSite = 'none';
+    }
+
+    res.cookie('pos-config-token', token, cookieOptions);
 
     return 'chosen';
   }
