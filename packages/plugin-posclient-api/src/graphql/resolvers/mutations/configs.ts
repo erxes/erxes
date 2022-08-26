@@ -1,3 +1,4 @@
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   extractConfig,
@@ -220,7 +221,7 @@ const configMutations = {
   posChooseConfig: async (
     _root,
     { token }: { token: string },
-    { res, models }: IContext
+    { res, models, requestInfo }: IContext
   ) => {
     const config = await models.Configs.findOne({ token });
 
@@ -228,7 +229,14 @@ const configMutations = {
       throw new Error('token not found');
     }
 
-    res.cookie('pos-config-token', token);
+    res.cookie(
+      'pos-config-token',
+      token,
+      authCookieOptions({
+        secure: requestInfo.secure,
+        sameSite: 'none'
+      })
+    );
 
     return 'chosen';
   }
