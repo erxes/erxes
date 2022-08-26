@@ -1,6 +1,3 @@
-import * as dotenv from 'dotenv';
-import * as Random from 'meteor-random';
-
 import { IModels } from './connectionResolver';
 import {
   ACTIVITY_CONTENT_TYPES,
@@ -8,6 +5,7 @@ import {
   CAMPAIGN_KINDS
 } from './constants';
 import { debugEngages, debugError } from './debuggers';
+import { prepareEmailParams } from './emailUtils';
 import messageBroker from './messageBroker';
 import {
   getTelnyxInfo,
@@ -20,27 +18,16 @@ import {
   createTransporter,
   getConfig,
   getConfigs,
-  getEnv,
   setCampaignCount
 } from './utils';
-
-dotenv.config();
 
 export const start = async (
   models: IModels,
   subdomain: string,
   data: IEmailParams
 ) => {
-  const {
-    fromEmail,
-    email,
-    engageMessageId,
-    customers = [],
-    createdBy,
-    title
-  } = data;
+  const { engageMessageId, customers = [], createdBy, title } = data;
 
-  const { content, subject, attachments, sender, replyTo } = email;
   const configs = await getConfigs(models);
 
   await models.Stats.findOneAndUpdate(
@@ -51,53 +38,11 @@ export const start = async (
 
   const transporter = await createTransporter(models);
 
-  const sendEmail = async (customer: ICustomer) => {
-    const mailMessageId = Random.id();
-
-    let mailAttachment = [];
-
-    if (attachments.length > 0) {
-      mailAttachment = attachments.map(file => {
-        return {
-          filename: file.name || '',
-          path: file.url || ''
-        };
-      });
-    }
-
-    const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-    const unsubscribeUrl = `${DOMAIN}/pl:core/unsubscribe/?cid=${customer._id}`;
-
-    // replace customer attributes =====
-    let replacedContent = content;
-    let replacedSubject = subject;
-
-    if (customer.replacers) {
-      for (const replacer of customer.replacers) {
-        const regex = new RegExp(replacer.key, 'gi');
-        replacedContent = replacedContent.replace(regex, replacer.value);
-        replacedSubject = replacedSubject.replace(regex, replacer.value);
-      }
-    }
-
-    replacedContent += `<div style="padding: 10px; color: #ccc; text-align: center; font-size:12px;">You are receiving this email because you have signed up for our services. <br /> <a style="text-decoration: underline;color: #ccc;" rel="noopener" target="_blank" href="${unsubscribeUrl}">Unsubscribe</a> </div>`;
-
+  const sendCampaignEmail = async (customer: ICustomer) => {
     try {
-      await transporter.sendMail({
-        from: `${sender || ''} <${fromEmail}>`,
-        to: customer.primaryEmail,
-        replyTo,
-        subject: replacedSubject,
-        attachments: mailAttachment,
-        html: replacedContent,
-        headers: {
-          'X-SES-CONFIGURATION-SET': configs.configSet || 'erxes',
-          EngageMessageId: engageMessageId,
-          CustomerId: customer._id,
-          MailMessageId: mailMessageId
-        }
-      });
+      await transporter.sendMail(
+        prepareEmailParams(customer, data, configs.configSet)
+      );
 
       const msg = `Sent email to: ${customer.primaryEmail}`;
 
@@ -183,7 +128,7 @@ export const start = async (
       setTimeout(resolve, 1000);
     });
 
-    await sendEmail(customer);
+    await sendCampaignEmail(customer);
 
     try {
       await messageBroker().sendMessage('putActivityLog', {
@@ -323,3 +268,21 @@ export const sendBulkSms = async (
     }
   } // end customers loop
 }; // end sendBuklSms()
+
+export const sendEmail = async (models: IModels, data: any) => {
+  const transporter = await createTransporter(models);
+  const { customer } = data;
+  const configs = await getConfigs(models);
+
+  try {
+    await transporter.sendMail(
+      prepareEmailParams(customer, data, configs.configSet)
+    );
+
+    debugEngages(`Sent email to: ${customer.primaryEmail}`);
+  } catch (e) {
+    debugError(
+      `Error occurred while sending email to ${customer.primaryEmail}: ${e.message}`
+    );
+  }
+};

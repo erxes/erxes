@@ -5,6 +5,7 @@ import { IEntry } from '../../models/entries';
 import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/templates';
 import { ISite } from '../../models/sites';
+import { createSiteContentTypes, getInitialData } from './utils';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -81,6 +82,44 @@ const webbuilderMutations = {
 
   async webbuilderTemplatesAdd(_root, doc: ITemplate, { models }: IContext) {
     return models.Templates.createTemplate(doc);
+  },
+
+  async webbuilderTemplatesUse(
+    _root,
+    { _id, name }: { _id: string; name: string },
+    { models }: IContext
+  ) {
+    const siteName = await models.Sites.createSite(
+      {
+        name
+      },
+      true
+    );
+
+    const site = await models.Sites.findOne({ name: siteName });
+
+    if (!site) {
+      return;
+    }
+
+    const pages = await getInitialData('pages');
+
+    for (const page of pages) {
+      if (page.templateId !== _id) {
+        continue;
+      }
+
+      await models.Pages.createPage({
+        ...page,
+        _id: undefined,
+        siteId: site._id
+      });
+
+      await createSiteContentTypes(models, {
+        pageName: page.name,
+        siteId: site._id
+      });
+    }
   },
 
   async webbuilderTemplatesRemove(

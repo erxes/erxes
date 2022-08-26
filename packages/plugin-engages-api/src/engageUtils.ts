@@ -77,19 +77,21 @@ export const generateCustomerSelector = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
+      const options: any = { perPage: 5000, scroll: true };
+
+      if (!segment.contentType.includes('contacts')) {
+        options.returnAssociated = {
+          mainType: segment.contentType,
+          relType: 'contacts:customer'
+        };
+      }
+
       const cIds = await sendSegmentsMessage({
         ...commonParams,
         action: 'fetchSegment',
         data: {
           segmentId: segment._id,
-          options: {
-            perPage: 5000,
-            scroll: true,
-            returnAssociated: {
-              mainType: segment.contentType,
-              relType: 'contacts:customer'
-            }
-          }
+          options
         }
       });
 

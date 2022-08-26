@@ -4,7 +4,6 @@ export interface IPage {
   description: string;
   html: string;
   css: string;
-  jsonData: any;
   siteId: string;
 }
 
@@ -31,7 +30,6 @@ export interface IContentTypeDoc extends IContentType {
 }
 
 export interface IEntryValue {
-  fieldId: string;
   fieldCode: string;
   value: any;
 }
@@ -47,7 +45,6 @@ export interface IEntryDoc extends IEntry {
 
 export interface ITemplate {
   name: string;
-  jsonData: any;
   html: string;
 }
 
@@ -167,12 +164,10 @@ export type EntriesRemoveMutationResponse = {
 };
 
 // template
-export type TemplatesAddMutationResponse = {
-  templatesAdd: (doc: { variables: ITemplate }) => Promise<any>;
-};
-
-export type TemplatesRemoveMutationResponse = {
-  templatesRemove: (doc: { variables: { _id: string } }) => Promise<any>;
+export type TemplatesUseMutationResponse = {
+  templatesUse: (doc: {
+    variables: { _id: string; name: string };
+  }) => Promise<any>;
 };
 
 // site

@@ -271,6 +271,7 @@ async function startServer() {
   try {
     // connect to mongo database
     const db = await connect(mongoUrl);
+
     const messageBrokerClient = await initBroker({
       RABBITMQ_HOST,
       MESSAGE_BROKER_PREFIX,

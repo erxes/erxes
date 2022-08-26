@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import {
   Actions,
   IframePreview,
@@ -15,11 +14,11 @@ type Props = {
   templates: ITemplateDoc[];
   templatesCount: number;
   setCount: (count: number) => void;
-  remove: (_id: string) => void;
+  use: (_id: string, name: string) => void;
 };
 
 function List(props: Props) {
-  const { templates, templatesCount, setCount, remove } = props;
+  const { templates, templatesCount, setCount, use } = props;
 
   const renderRow = () => {
     return templates.map((template, index) => {
@@ -28,11 +27,8 @@ function List(props: Props) {
           <h5>{template.name}</h5>
           <TemplateBox>
             <Actions>
-              <Link to={`/webbuilder/pages/create/${template._id}`}>
+              <div onClick={() => use(template._id, template.name)}>
                 <Icon icon="play" /> Use
-              </Link>
-              <div onClick={() => remove(template._id)}>
-                <Icon icon="cancel-1" /> Delete
               </div>
             </Actions>
             <IframePreview>
@@ -47,7 +43,7 @@ function List(props: Props) {
   let content = <Templates>{renderRow()}</Templates>;
   setCount(templatesCount);
 
-  if (templatesCount < 1) {
+  if (templates.length < 1) {
     content = (
       <EmptyState
         image="/images/actions/8.svg"
