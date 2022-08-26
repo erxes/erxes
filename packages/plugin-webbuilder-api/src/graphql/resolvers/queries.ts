@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
-import { getInitialData, readAndWriteHelpersData } from './utils';
+import { getInitialData } from './utils';
 
 const generateCommonFilter = ({
   searchValue,
@@ -129,8 +129,20 @@ const webbuilderQueries = {
     return models.Templates.findOne({ _id });
   },
 
-  webbuilderSites(_root, args, { models }: IContext) {
-    return paginate(models.Sites.find({}).sort({ name: 1 }), args);
+  webbuilderSites(
+    _root,
+    {
+      page,
+      perPage,
+      fromSelect
+    }: { page: number; perPage: number; fromSelect: boolean },
+    { models }: IContext
+  ) {
+    if (fromSelect) {
+      return models.Sites.find().lean();
+    }
+
+    return paginate(models.Sites.find({}).sort({ name: 1 }), { page, perPage });
   },
 
   webbuilderSitesTotalCount(_root, _args, { models }: IContext) {

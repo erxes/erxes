@@ -53,6 +53,9 @@ export default compose(
   graphql(gql(queries.sites), {
     name: 'sitesQuery',
     options: () => ({
+      variables: {
+        fromSelect: true
+      },
       fetchPolicy: 'network-only'
     })
   })

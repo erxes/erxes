@@ -68,7 +68,7 @@ export const queries = `
   webbuilderTemplatesTotalCount: Int
   webbuilderTemplateDetail(_id: String!): WebbuilderTemplate
 
-  webbuilderSites(page: Int, perPage: Int): [WebbuilderSite]
+  webbuilderSites(page: Int, perPage: Int, fromSelect: Boolean): [WebbuilderSite]
   webbuilderSitesTotalCount: Int
 `;
 
