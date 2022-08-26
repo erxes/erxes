@@ -24,7 +24,6 @@ export const posInitialSetup = async (req, res) => {
       key,
       envMaps[key],
       authCookieOptions({
-        secure: req.secure,
         sameSite: 'none'
       })
     );

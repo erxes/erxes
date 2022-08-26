@@ -221,7 +221,7 @@ const configMutations = {
   posChooseConfig: async (
     _root,
     { token }: { token: string },
-    { res, models, requestInfo }: IContext
+    { res, models }: IContext
   ) => {
     const config = await models.Configs.findOne({ token });
 
@@ -233,7 +233,6 @@ const configMutations = {
       'pos-config-token',
       token,
       authCookieOptions({
-        secure: requestInfo.secure,
         sameSite: 'none'
       })
     );

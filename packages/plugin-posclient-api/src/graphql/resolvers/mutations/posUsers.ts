@@ -44,11 +44,7 @@ const posUserMutations = {
   /*
    * Login
    */
-  async posLogin(
-    _root,
-    args: IPosLogin,
-    { res, requestInfo, models, config }: IContext
-  ) {
+  async posLogin(_root, args: IPosLogin, { res, models, config }: IContext) {
     const response = await models.PosUsers.posLogin(args, config);
 
     const { token } = response;
@@ -57,7 +53,6 @@ const posUserMutations = {
       'pos-auth-token',
       token,
       authCookieOptions({
-        secure: requestInfo.secure,
         sameSite: 'none'
       })
     );
@@ -65,10 +60,9 @@ const posUserMutations = {
     return 'loggedIn';
   },
 
-  async posLogout(_root, _args, { res, requestInfo }: IContext) {
+  async posLogout(_root, _args, { res }: IContext) {
     res.cookie('pos-auth-token', '1', {
       maxAge: 0,
-      secure: requestInfo.secure,
       sameSite: 'none'
     });
 
