@@ -25,6 +25,7 @@ const pageDetail = `
       ${fields}
       html
       css
+      jsonData
       siteId
     }
   }
