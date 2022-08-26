@@ -5,7 +5,6 @@ export interface IPage {
   html: string;
   css: string;
   siteId: string;
-  jsonData: any;
 }
 
 export interface IPageDoc extends IPage {

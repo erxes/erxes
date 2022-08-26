@@ -30,8 +30,7 @@ type Props = {
     description: string,
     siteId: string,
     html: string,
-    css: string,
-    jsonData: any
+    css: string
   ) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
@@ -110,10 +109,6 @@ class PageForm extends React.Component<Props, State> {
       }
     });
 
-    if (page && page.jsonData) {
-      this.grapes.loadProjectData(page.jsonData);
-    }
-
     const editor = this.grapes;
 
     const pfx = editor.getConfig().stylePrefix;
@@ -161,6 +156,14 @@ class PageForm extends React.Component<Props, State> {
 
       modal.close();
     };
+
+    // don't move this block
+    if (page && page.html) {
+      const { html, css } = page;
+
+      editor.setComponents(html);
+      editor.setStyle(css.trim());
+    }
 
     cmdm.add('html-edit', {
       run: (editr, sender) => {
@@ -238,8 +241,7 @@ class PageForm extends React.Component<Props, State> {
       this.state.description,
       this.state.siteId,
       e.getHtml(),
-      e.getCss(),
-      e.getProjectData()
+      e.getCss()
     );
   };
 

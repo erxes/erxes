@@ -5,7 +5,6 @@ export const types = `
     description: String
     html: String
     css: String
-    jsonData: JSON
     siteId: String
     site: WebbuilderSite
   }
@@ -79,7 +78,6 @@ const params = `
   html: String,
   css: String,
   siteId: String,
-  jsonData: JSON
 `;
 
 const contentTypeParams = `
