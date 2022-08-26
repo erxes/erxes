@@ -114,8 +114,6 @@ const webbuilderQueries = {
   },
 
   async webbuilderTemplates(_root, _args) {
-    await readAndWriteHelpersData('templates');
-
     return getInitialData('templates');
   },
 
