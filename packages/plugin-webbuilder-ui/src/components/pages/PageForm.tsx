@@ -30,8 +30,7 @@ type Props = {
     description: string,
     siteId: string,
     html: string,
-    css: string,
-    jsonData: any
+    css: string
   ) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
@@ -110,8 +109,11 @@ class PageForm extends React.Component<Props, State> {
       }
     });
 
-    if (page && page.jsonData) {
-      this.grapes.loadProjectData(page.jsonData);
+    if (page) {
+      const { html = '', css = '' } = page;
+
+      this.grapes.setComponents(html.trim());
+      this.grapes.setStyle(css.trim());
     }
 
     const editor = this.grapes;
@@ -238,8 +240,7 @@ class PageForm extends React.Component<Props, State> {
       this.state.description,
       this.state.siteId,
       e.getHtml(),
-      e.getCss(),
-      e.getProjectData()
+      e.getCss()
     );
   };
 

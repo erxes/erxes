@@ -14,7 +14,6 @@ export interface ITemplateDocument extends ITemplate, Document {
 }
 
 export const templateSchema = new Schema({
-  _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   html: field({ type: String, label: 'Html' })
 });

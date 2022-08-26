@@ -274,7 +274,7 @@ const init = async app => {
             debugFacebook(
               `Error occurred while processing activity: ${e.message}`
             );
-            res.end('success');
+            return res.end('success');
           });
       }
 
@@ -290,10 +290,10 @@ const init = async app => {
               debugFacebook(
                 `Successfully saved  ${JSON.stringify(event.value)}`
               );
-              res.end('success');
+              return res.end('success');
             } catch (e) {
               debugError(`Error processing comment: ${e.message}`);
-              res.end('success');
+              return res.end('success');
             }
           }
 
@@ -306,13 +306,13 @@ const init = async app => {
               debugFacebook(
                 `Successfully saved post ${JSON.stringify(event.value)}`
               );
-              res.end('success');
+              return res.end('success');
             } catch (e) {
               debugError(`Error processing comment: ${e.message}`);
-              res.end('success');
+              return res.end('success');
             }
           } else {
-            res.end('success');
+            return res.end('success');
           }
         }
       }

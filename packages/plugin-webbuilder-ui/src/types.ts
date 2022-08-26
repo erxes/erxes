@@ -4,7 +4,6 @@ export interface IPage {
   description: string;
   html: string;
   css: string;
-  jsonData: any;
   siteId: string;
 }
 
@@ -46,7 +45,6 @@ export interface IEntryDoc extends IEntry {
 
 export interface ITemplate {
   name: string;
-  jsonData: any;
   html: string;
 }
 

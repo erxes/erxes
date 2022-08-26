@@ -44,6 +44,7 @@ const SelectSite = (props: FinalProps) => {
       onChange={option => (option ? onSelect(option.value) : onSelect(''))}
       multi={false}
       clearable={true}
+      placeholder={'Select a site'}
     />
   );
 };

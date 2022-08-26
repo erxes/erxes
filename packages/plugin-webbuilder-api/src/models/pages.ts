@@ -18,13 +18,11 @@ export interface IPageDocument extends IPage, Document {
 }
 
 export const pageSchema = new Schema({
-  _id: field({ pkey: true }),
   siteId: field({ type: String, optional: true, label: 'Site' }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, optional: true, label: 'Description' }),
   html: field({ type: String, optional: true, label: 'Html' }),
   css: field({ type: String, optional: true, label: 'Css' }),
-  jsonData: field({ type: Object, label: 'Json data' }),
   templateId: field({ type: String, optional: true, label: 'Template' })
 });
 
