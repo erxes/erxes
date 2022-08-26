@@ -22,7 +22,10 @@ const login = async (
 
   const { token } = response;
 
-  res.cookie('pos-auth-token', token, authCookieOptions(secure));
+  res.cookie('pos-auth-token', token, {
+    ...authCookieOptions(secure),
+    sameSite: 'none'
+  });
 
   return 'loggedIn';
 };
