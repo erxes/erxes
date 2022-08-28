@@ -20,14 +20,7 @@ export const posInitialSetup = async (req, res) => {
   const envMaps = JSON.parse(req.query.envs || '{}');
 
   for (const key of Object.keys(envMaps)) {
-    res.cookie(
-      key,
-      envMaps[key],
-      authCookieOptions({
-        secure: req.secure,
-        sameSite: 'none'
-      })
-    );
+    res.cookie(key, envMaps[key], authCookieOptions(req.secure));
   }
 
   return res.end('success');
