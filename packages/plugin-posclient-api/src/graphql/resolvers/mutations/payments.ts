@@ -75,12 +75,12 @@ const paymentMutations = {
     try {
       const tokenInfo = await fetchQPayToken(config.qpayConfig!);
 
-      const order = models.Orders.findOne({ _id: orderId });
       let invoice;
 
-      if (!order && _id) {
+      if (!orderId && _id) {
         invoice = await models.QPayInvoices.findOne({ _id });
       } else {
+        const order = await models.Orders.findOne({ _id: orderId });
         invoice = await models.QPayInvoices.findOne({
           senderInvoiceNo: orderId
         });
