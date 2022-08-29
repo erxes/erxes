@@ -22,7 +22,7 @@ module.exports = {
     {
       text: "Configs of Products",
       to: "/settings/products-config/",
-      image: "/images/icons/erxes-24.svg",
+      image: "/images/icons/erxes-07.svg",
       location: "settings",
       scope: "products",
       action: "productsAll",
