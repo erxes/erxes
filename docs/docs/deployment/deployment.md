@@ -9,26 +9,28 @@ The following documentation will guide you through the installation of an erxes 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
 ## Preparing the installation
+
 ---
 
 erxes installation requires at least four software prerequisites to be already installed on your computer:
 
 :::caution
 
-Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward. 
+Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward.
 
 :::
 
 ## Preparing the installation
 
 ### Prerequisites
+
 - **Docker**
 - **<a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a>** (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker compose (v2.5.0 and higher)
 
-
 ### Installing on server
 
-1. Create `Install.sh` file and copy the following script in it. 
+1. Create `Install.sh` file and copy the following script in it.
+
 ```
 #!/bin/bash
 echo -e "\e[1mStep 1 $now : Updating \e[0m"
@@ -71,19 +73,19 @@ sudo npm install -g create-erxes-app -y
 create-erxes-app erxes
 ```
 
-2. Run the following command to give a permission to `Install.sh` file. 
+2. Run the following command to give a permission to `Install.sh` file.
 
 ```
- sudo chmod +x install.sh
+sudo chmod +x install.sh
 ```
 
-3. Run `Install.sh` file using the following command. 
+3. Run `Install.sh` file using the following command.
 
 ```
- ./install.sh
+./install.sh
 ```
 
-:::Caution
+:::caution
 
 While `Install.sh` is running, the field to insert erxes data will show up.
 :::
@@ -91,7 +93,7 @@ While `Install.sh` is running, the field to insert erxes data will show up.
 4. Type the domain to the field says "Please enter your domain (localhost)".
 
 ```
-  Example: erxes-test.com
+Example: erxes-test.com
 ```
 
 5. Insert your hostname on Rabbitmq host (optional).
@@ -112,10 +114,11 @@ Example: erxes
 10. Here you have your erxes project successfully installed, then go to your erxes directory with the foloowing command.
 
 ```
- cd erxes
+cd erxes
 ```
 
-:::Info
+:::note
+
 See the latest version of npm erxes here https://www.npmjs.com/package/erxes
 
 :::
@@ -172,16 +175,17 @@ su - erxes
 14. Go back to your erxes directory with the following command.
 
 ```
- cd erxes
+cd erxes
 ```
 
-15. Run the following command in your erxes directory. 
+15. Run the following command in your erxes directory.
+
 ```
 docker swarm init
 ```
 
-:::Note
-Please note that the following actions can be done once you fully run your Database containers. 
+:::note
+Please note that the following actions can be done once you fully run your Database containers.
 
 :::
 
@@ -194,19 +198,19 @@ sudo npm run erxes deploy-dbs
 17. Run the following to start application containers
 
 ```
-   sudo npm run erxes up
+sudo npm run erxes up
 ```
 
 18. See the generated docker services using the command below.
 
 ```
-   docker service ls
+docker service ls
 ```
 
 19. Use the command below to view the finished docker containers
 
 ```
- docker ps -a
+docker ps -a
 ```
 
 20. Copying below line code from docker-compose.yml
@@ -239,13 +243,16 @@ These commands are given as a replica set, and when done correctly, the mongo sh
 
 24. After completing the configuration on the mongo database, delete and restart the services through the docker network. First, do the database services.
 
+```
 docker stack rm erxes
 docker stack rm erxes-dbs
 npm run erxes deploy-dbs
 npm run erxes up
 npm run erxes up – –uis
+```
 
-:::Note
+:::note
+
 Containers are generated one by one, so wait until they finish reading.
 :::
 
@@ -261,10 +268,9 @@ If "plugin_name has no address value" is displayed, it is not connected to the d
 
 ```
 sudo mv nginx.conf /etc/nginx/sites-enabled/
-
 ```
 
-27. Go to /etc/nginx/sites-enabled. 
+27. Go to /etc/nginx/sites-enabled.
 
 ```
 cd /etc/nginx/sites-enabled
@@ -291,7 +297,7 @@ sudo certbot –nginx -d domain_name
 31. Insert your registered email address.
 32. Please choose redirect option.
 
-Try typing your domain on your browser to see if it's working. 
+Try typing your domain on your browser to see if it's working.
 
 ### Default ports
 
