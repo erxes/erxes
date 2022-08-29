@@ -75,10 +75,7 @@ const execCommand = (command, ignoreError?) => {
   });
 };
 
-export const writeAndReadHelpersData = async (
-  fileName: string,
-  query?: string
-) => {
+export const writeAndReadHelpersData = async (fileName: string, query = '') => {
   const HELPERS_DOMAIN = `https://helper.erxes.io`;
 
   const url = `${HELPERS_DOMAIN}/get-webbuilder-${fileName}?${query}`;
