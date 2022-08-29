@@ -39,7 +39,7 @@
   --ifm-color-primary-lightest: #784bd7;
 }
 
-html[data-theme="dark"] {
+html[data-theme='dark'] {
   --ifm-font-base-color: #dee0f2;
   --ifm-navbar-link-hover-color: #8b9dff;
   --ifm-link-color: #8b9dff;
@@ -60,7 +60,7 @@ html[data-theme="dark"] {
   );
 }
 
-html[data-theme="dark"] .react-toggle-track {
+html[data-theme='dark'] .react-toggle-track {
   background-color: var(--ifm-footer-background-color);
 }
 
@@ -196,7 +196,7 @@ html[data-theme="dark"] .react-toggle-track {
   padding: 15px 40px;
   border: 0;
   border-radius: 2px;
-  background: #673FBD;
+  background: #673fbd;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   display: flex;
@@ -302,16 +302,16 @@ button.close {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0,0,0,0);
+  clip: rect(0, 0, 0, 0);
   border: 0;
 }
 
 .fade {
-  transition: opacity .15s linear;
+  transition: opacity 0.15s linear;
 }
 
 .modal.fade.modal-dialog {
-  transition: transform .3s ease-out;
+  transition: transform 0.3s ease-out;
 }
 
 .modal.show.modal-dialog {

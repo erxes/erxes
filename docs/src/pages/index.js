@@ -1,28 +1,30 @@
-import React from "react";
-import classnames from "classnames";
-import Layout from "@theme/Layout";
-import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import { Clients } from "../components/clients";
-import { Features } from "../components/features";
-import { Buttons } from "../components/buttons";
-import { Dedication } from "../components/dedication";
-import styles from "./styles.module.css";
-import Head from "@docusaurus/Head";
+import React from 'react';
+import classnames from 'classnames';
+import Layout from '@theme/Layout';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import { Clients } from '../components/clients';
+import { Features } from '../components/features';
+import { Buttons } from '../components/buttons';
+import { Dedication } from '../components/dedication';
+import styles from './styles.module.css';
+import Head from '@docusaurus/Head';
 
 const Header = () => {
   return (
     <div className={styles.header}>
       <h1 className={styles.headingOne}>
-        Single experience operating system (XOS) <br/> to align your entire business
+        Single experience operating system (XOS) <br /> to align your entire
+        business
       </h1>
       <p className={styles.description}>
-        Combine all your business tools into one <b>streamlined</b> and integrated &nbsp;<b>open-source</b> framework
+        Combine all your business tools into one <b>streamlined</b> and
+        integrated &nbsp;<b>open-source</b> framework
       </p>
       <Buttons />
       <p className={styles.suggestion}>
         Explore our alternative no set-up and scalable hosted version.
         <a href="https://erxes.io/" target="_blank">
-          {" "}
+          {' '}
           Try <b>Erxes Cloud</b>
         </a>
         <i>
@@ -55,7 +57,7 @@ function Home() {
       </Head>
       <header
         id="hero"
-        className={classnames("hero hero--primary", styles.heroBanner)}
+        className={classnames('hero hero--primary', styles.heroBanner)}
       >
         <div className="container">
           <Header />
