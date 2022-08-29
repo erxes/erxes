@@ -255,6 +255,7 @@ class LotteriesList extends React.Component<IProps, State> {
             />
           </>
         }
+        hasBorder
       />
     );
   }

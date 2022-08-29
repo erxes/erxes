@@ -5,7 +5,7 @@ import {
   FormControl,
   FormGroup
 } from '@erxes/ui/src/components';
-import { MainStyleTitle as Title } from '@erxes/ui/src/styles/eindex';
+import { Title } from '@erxes/ui-settings/src/styles';
 import { __ } from '@erxes/ui/src/utils';
 import { Wrapper } from '@erxes/ui/src/layout';
 import React from 'react';
@@ -143,12 +143,13 @@ class GeneralSettings extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{__('Products configs')}</Title>}
             right={actionButtons}
+            wideSpacing
           />
         }
         leftSidebar={<Sidebar />}
         content={content}
         transparent={true}
-        hasBorder={true}
+        hasBorder
       />
     );
   }

@@ -18,7 +18,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { IContentTypeDoc, IPageDoc, ITemplateDoc } from '../../types';
+import { IContentTypeDoc, IPageDoc } from '../../types';
 import customPlugins from './customPlugins';
 import SelectSite from '../../containers/sites/SelectSite';
 import Alert from '@erxes/ui/src/utils/Alert';
@@ -30,13 +30,10 @@ type Props = {
     description: string,
     siteId: string,
     html: string,
-    css: string,
-    jsonData: any
+    css: string
   ) => void;
-  saveTemplate: (name: string, jsonData: any, html: string) => void;
   contentTypes: IContentTypeDoc[];
   pages: IPageDoc[];
-  template: ITemplateDoc;
 };
 
 type State = {
@@ -61,7 +58,7 @@ class PageForm extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    const { page, contentTypes, template } = this.props;
+    const { page, contentTypes } = this.props;
     let { pages } = this.props;
 
     pages = pages.filter(p => p._id !== page?._id);
@@ -112,10 +109,11 @@ class PageForm extends React.Component<Props, State> {
       }
     });
 
-    if (page && page.jsonData) {
-      this.grapes.loadProjectData(page.jsonData);
-    } else if (template && template.jsonData) {
-      this.grapes.loadProjectData(template.jsonData);
+    if (page) {
+      const { html = '', css = '' } = page;
+
+      this.grapes.setComponents(html.trim());
+      this.grapes.setStyle(css.trim());
     }
 
     const editor = this.grapes;
@@ -242,18 +240,7 @@ class PageForm extends React.Component<Props, State> {
       this.state.description,
       this.state.siteId,
       e.getHtml(),
-      e.getCss(),
-      e.getProjectData()
-    );
-  };
-
-  saveTemplate = () => {
-    const e = this.grapes;
-
-    this.props.saveTemplate(
-      this.state.name || 'Template',
-      e.getProjectData(),
-      e.getHtml()
+      e.getCss()
     );
   };
 
@@ -287,13 +274,7 @@ class PageForm extends React.Component<Props, State> {
 
             <FormGroup>
               <ControlLabel>Site:</ControlLabel>
-              <SelectSite
-                label="Choose a site"
-                name="siteId"
-                onSelect={this.onSelectSite}
-                multi={false}
-                initialValue={siteId}
-              />
+              <SelectSite onSelect={this.onSelectSite} initialValue={siteId} />
             </FormGroup>
           </FlexPad>
 
@@ -319,14 +300,6 @@ class PageForm extends React.Component<Props, State> {
     return (
       <Button.Group>
         {cancelButton}
-
-        <Button
-          btnStyle="warning"
-          icon={'check-circle'}
-          onClick={this.saveTemplate}
-        >
-          Save as template
-        </Button>
 
         <Button btnStyle="success" icon={'check-circle'} onClick={this.save}>
           Save

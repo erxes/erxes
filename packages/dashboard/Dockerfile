@@ -1,8 +1,8 @@
-FROM node:12.16-slim
+FROM node:14.20-alpine
 RUN npm install -g cubejs-cli
-WORKDIR /erxes-dashboard-api
-RUN chown -R node:node /erxes-dashboard-api
-COPY --chown=node:node . /erxes-dashboard-api
+WORKDIR /dashboard
+RUN chown -R node:node /dashboard \
+ && apk add --no-cache tzdata
+COPY --chown=node:node . /dashboard
 USER node
-EXPOSE 4300
-ENTRYPOINT ["node", "--max_old_space_size=8192", "index.js"]
+ENTRYPOINT ["node", "--max_old_space_size=8192", "dist/dashboard/src"]

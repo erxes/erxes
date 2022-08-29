@@ -21,7 +21,6 @@ const Queries = {
     const { inStoreSPTerminal, inStoreSPKey } = config;
 
     const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
-      models,
       invoiceNo
     );
     const amount = invoice.amount;
@@ -45,7 +44,6 @@ const Queries = {
       response.body.response.resp_desc === 'Амжилттай'
     ) {
       await models.SocialPayInvoice.socialPayInvoiceStatusUpdate(
-        models,
         invoice,
         'paid'
       );

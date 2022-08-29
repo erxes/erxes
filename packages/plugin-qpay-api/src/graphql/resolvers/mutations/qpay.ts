@@ -26,7 +26,6 @@ const Mutations = {
     const config = await getConfig(subdomain, 'SocialPAY', {});
     const { inStoreSPTerminal, inStoreSPKey } = config;
     const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
-      models,
       invoiceNo
     );
     const amount = invoice.amount;
@@ -49,7 +48,6 @@ const Mutations = {
 
     if (response === 200) {
       await models.SocialPayInvoice.socialPayInvoiceStatusUpdate(
-        models,
         invoice,
         'canceled payment'
       );
@@ -67,7 +65,6 @@ const Mutations = {
     const invoiceNo = params.invoiceNo;
     const { inStoreSPTerminal, inStoreSPKey } = config;
     const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
-      models,
       invoiceNo
     );
     const amount = invoice.amount;
@@ -96,7 +93,6 @@ const Mutations = {
 
     if (response === 200 && responseDesc === 'SUCCESS') {
       await models.SocialPayInvoice.socialPayInvoiceStatusUpdate(
-        models,
         invoice,
         'canceled'
       );
@@ -112,7 +108,6 @@ const Mutations = {
   createSPInvoiceQr: async (_root, params, { subdomain, models }) => {
     const { amount } = params;
     const config = await getConfig(subdomain, 'SocialPAY', {});
-    console.log(config, 'cccccccccccccc');
 
     const invoiceNo = params.invoiceNoAuto
       ? await makeInvoiceNo(32)
@@ -125,7 +120,6 @@ const Mutations = {
     );
     const doc = { amount, invoiceNo };
     const invoiceLog = await models.SocialPayInvoice.socialPayInvoiceCreate(
-      models,
       doc
     );
 
@@ -145,11 +139,7 @@ const Mutations = {
         : '';
 
     if (qrText) {
-      await models.SocialPayInvoice.socialPayInvoiceUpdate(
-        models,
-        invoiceLog,
-        qrText
-      );
+      await models.SocialPayInvoice.socialPayInvoiceUpdate(invoiceLog, qrText);
     }
 
     return invoiceQrData;
@@ -172,7 +162,7 @@ const Mutations = {
       inStoreSPTerminal + invoiceNo + amount + phone
     );
     const doc = { amount, invoiceNo, phone };
-    await models.SocialPayInvoice.socialPayInvoiceCreate(models, doc);
+    await models.SocialPayInvoice.socialPayInvoiceCreate(doc);
 
     const requestBody = {
       amount,

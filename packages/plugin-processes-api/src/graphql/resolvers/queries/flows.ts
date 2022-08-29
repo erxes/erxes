@@ -103,7 +103,7 @@ const flowQueries = {
   }
 };
 
-// checkPermission(flowQueries, 'flowDetail', 'showFlows');
-// checkPermission(flowQueries, 'flows', 'showFlows');
+// checkPermission(flowQueries, 'flowDetail', 'showJobs');
+// checkPermission(flowQueries, 'flows', 'showJobs');
 
 export default flowQueries;

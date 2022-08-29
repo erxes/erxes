@@ -1,18 +1,19 @@
-import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
-import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
-import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
-import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import { withProps } from '@erxes/ui/src/utils';
-import { isEnabled } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
 
+import { EditMutationResponse } from '../types';
+import { FIELDS_GROUPS_CONTENT_TYPES } from '@erxes/ui-forms/src/settings/properties/constants';
+import { FieldsGroupsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import GenerateCustomFields from '@erxes/ui-forms/src/settings/properties/components/GenerateCustomFields';
+import { ICustomer } from '../types';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { mutations } from '../graphql';
-import { EditMutationResponse, ICustomer } from '../types';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   customer: ICustomer;

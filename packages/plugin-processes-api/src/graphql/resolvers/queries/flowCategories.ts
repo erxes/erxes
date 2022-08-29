@@ -46,6 +46,6 @@ const flowCategoryQueries = {
 };
 
 // requireLogin(flowCategoryQueries, 'flowsTotalCount');
-// checkPermission(flowCategoryQueries, 'flowCategories', 'showJobRefers');
+// checkPermission(flowCategoryQueries, 'flowCategories', 'showJobs');
 
 export default flowCategoryQueries;

@@ -25,7 +25,6 @@ export const loadQpayInvoiceClass = models => {
     }
 
     public static async qpayInvoiceCreate(doc) {
-      console.log(doc, 'mmmmmmmmmmmmmmmmm');
       const invoice = await models.QpayInvoice.findOne({
         senderInvoiceNo: doc.senderInvoiceNo
       });
@@ -65,7 +64,7 @@ export interface ISocialPayInvoiceModel
 
 export const loadSocialPayInvoiceClass = models => {
   class SocialPayInvoice {
-    public static async getSocialPayInvoice(models, invoiceNo: string) {
+    public static async getSocialPayInvoice(invoiceNo: string) {
       const invoice = await models.SocialPayInvoice.findOne({ invoiceNo });
 
       if (!invoice) {
@@ -75,7 +74,7 @@ export const loadSocialPayInvoiceClass = models => {
       return invoice;
     }
 
-    public static async socialPayInvoiceCreate(models, doc) {
+    public static async socialPayInvoiceCreate(doc) {
       const invoice = await models.SocialPayInvoice.create({
         ...doc
       });
@@ -87,7 +86,7 @@ export const loadSocialPayInvoiceClass = models => {
       return invoice;
     }
 
-    public static async socialPayInvoiceUpdate(models, invoice, qrText) {
+    public static async socialPayInvoiceUpdate(invoice, qrText) {
       console.log('invoiceQrData');
       console.log(qrText);
 
@@ -97,7 +96,7 @@ export const loadSocialPayInvoiceClass = models => {
       );
     }
 
-    public static async socialPayInvoiceStatusUpdate(models, invoice, status) {
+    public static async socialPayInvoiceStatusUpdate(invoice, status) {
       const invoiceOne = await models.SocialPayInvoice.findOne({
         _id: invoice._id
       });

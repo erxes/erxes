@@ -1,3 +1,4 @@
+import { authCookieOptions } from '@erxes/api-utils/src/core';
 import { debugError, debugInfo } from '@erxes/api-utils/src/debuggers';
 import {
   extractConfig,

@@ -25,6 +25,7 @@ export const types = `
     unitPrice: Float
     discountAmount: Float
     discountPercent: Float
+    bonusCount: Float
     productName: String
     isPackage: Boolean
     isTake: Boolean
@@ -90,6 +91,7 @@ export const types = `
     origin: String
     items: [PosOrderItem]
     putResponses: [PosPutResponse]
+    slotCode: String
   }
 `;
 

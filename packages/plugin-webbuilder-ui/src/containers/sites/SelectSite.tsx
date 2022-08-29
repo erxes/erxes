@@ -1,10 +1,23 @@
 import React from 'react';
 import { queries } from '../../graphql';
-import { IOption, IQueryParams } from '@erxes/ui/src/types';
-import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
-import { ISiteDoc } from '../../types';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
+import Select from 'react-select-plus';
+import * as compose from 'lodash.flowright';
 
-export function generateSiteOptions(array: ISiteDoc[] = []): IOption[] {
+import { IOption } from '@erxes/ui/src/types';
+import { ISiteDoc, SitesQueryResponse } from '../../types';
+
+type Props = {
+  onSelect: (value: string) => void;
+  initialValue?: string | string[];
+};
+
+type FinalProps = {
+  sitesQuery: SitesQueryResponse;
+} & Props;
+
+const generateSiteOptions = (array: ISiteDoc[] = []): IOption[] => {
   return array.map(item => {
     const site = item || {};
 
@@ -13,44 +26,34 @@ export function generateSiteOptions(array: ISiteDoc[] = []): IOption[] {
       label: site.name
     };
   });
-}
+};
 
-export default (props: {
-  queryParams?: IQueryParams;
-  filterParams?: { status: string };
-  label: string;
-  onSelect: (value: string[] | string, name: string) => void;
-  multi?: boolean;
-  customOption?: IOption;
+const SelectSite = (props: FinalProps) => {
+  const { onSelect, initialValue, sitesQuery } = props;
 
-  initialValue?: string | string[];
+  if (sitesQuery.loading) {
+    return null;
+  }
 
-  name: string;
-}) => {
-  const {
-    queryParams,
-    onSelect,
-    customOption,
-    initialValue,
-    multi = true,
-    label,
-    filterParams,
-    name
-  } = props;
-  const defaultValue = queryParams ? queryParams[name] : initialValue;
+  const sites = sitesQuery.webbuilderSites || [];
 
   return (
-    <SelectWithSearch
-      label={label}
-      queryName="webbuilderSites"
-      name={name}
-      filterParams={filterParams}
-      initialValue={defaultValue}
-      generateOptions={generateSiteOptions}
-      onSelect={onSelect}
-      customQuery={queries.sites}
-      customOption={customOption}
-      multi={multi}
+    <Select
+      value={initialValue}
+      options={generateSiteOptions(sites)}
+      onChange={option => (option ? onSelect(option.value) : onSelect(''))}
+      multi={false}
+      clearable={true}
+      placeholder={'Select a site'}
     />
   );
 };
+
+export default compose(
+  graphql(gql(queries.sites), {
+    name: 'sitesQuery',
+    options: () => ({
+      fetchPolicy: 'network-only'
+    })
+  })
+)(SelectSite);

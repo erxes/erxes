@@ -65,7 +65,6 @@ class MessageTypeStep extends React.Component<Props, State> {
             value={this.state.segmentType}
             componentClass="select"
             options={[
-              { value: 'contacts:visitor', label: 'Visitors' },
               { value: 'contacts:lead', label: 'Leads' },
               { value: 'contacts:customer', label: 'Customers' },
               { value: 'contacts:company', label: 'Company contacts' },

@@ -136,15 +136,7 @@ export default function StructureForm(props: Props) {
   };
 
   return (
-    <Box
-      isOpen={true}
-      title={__('Structure')}
-      name="showStructure"
-      noShadow={true}
-      noMarginBottom={true}
-      noBackground
-      noSpacing
-    >
+    <Box isOpen={true} title={__('Structure')} name="showStructure">
       <Form renderContent={renderContent} />
     </Box>
   );

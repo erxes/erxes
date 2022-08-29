@@ -141,8 +141,7 @@ const fieldsCommonFields = `
   isVisible: Boolean
   canHide: Boolean
   associatedFieldId: String
-  logicAction: String
-  logics: [LogicInput]
+  logic: LogicInput
   searchable: Boolean
   showInCard: Boolean
   objectListConfigs: [objectListConfigInput]

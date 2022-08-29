@@ -1,6 +1,6 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { coreModels, generateModels } from './connectionResolver';
+import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
@@ -26,7 +26,6 @@ export default {
 
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
-    context.coreModels = coreModels;
 
     return context;
   },
