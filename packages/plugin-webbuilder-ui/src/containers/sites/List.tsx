@@ -88,7 +88,7 @@ export default compose(
     name: 'sitesRemoveMutation',
     options: ({ selectedSite }) => ({
       refetchQueries: [
-        { query: gql(queries.sites) },
+        { query: gql(queries.sites), variables: { fromSelect: true } },
         {
           query: gql(queries.sitesTotalCount)
         },

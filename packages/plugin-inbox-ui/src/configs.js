@@ -102,7 +102,7 @@ module.exports = {
     {
       text: 'Widget Script Manager',
       to: '/settings/scripts',
-      image: '/images/icons/erxes-30.png',
+      image: '/images/icons/erxes-34.png',
       location: 'settings',
       scope: 'inbox',
       action: 'scriptsAll',
