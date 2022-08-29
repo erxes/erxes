@@ -8,9 +8,8 @@ const commonEnvs = configs => {
   const widgets = configs.widgets || {};
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
-  const rabbitmq_host = `amqp://${rabbitmq.user}:${
-    rabbitmq.pass
-  }@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
+  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass
+    }@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
 
   return {
     ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
@@ -87,8 +86,8 @@ const generatePluginBlock = (configs, plugin) => {
     networks: ['erxes'],
     extra_hosts: [
       `mongo:${plugin.db_server_address ||
-        configs.db_server_address ||
-        '127.0.0.1'}`
+      configs.db_server_address ||
+      '127.0.0.1'}`
     ]
   };
 
@@ -817,7 +816,38 @@ module.exports.up = program => {
   return up({ uis: program.uis });
 };
 
+const dumpDb = async program => {
+  if (process.argv.length < 4) {
+    return console.log('Pass db name !!!');
+  }
+
+  const dbName = process.argv[3];
+
+  const configs = await fse.readJSON(filePath('configs.json'));
+
+  await execCommand(`docker ps --format "{{.Names}}" | grep mongo > docker-mongo-name.txt`);
+  const dockerMongoName = fs.readFileSync('docker-mongo-name.txt').toString().replace('\n', '');
+
+  log('Running mongodump ....');
+  await execCommand(`docker exec ${dockerMongoName} mongodump -u ${configs.mongo.username} -p ${configs.mongo.password} --authenticationDatabase admin --db ${dbName}`);
+
+  if (program.copydump) {
+    log('Copying dump ....');
+    await execCommand(`docker cp ${dockerMongoName}:/dump .`);
+
+    log('Compressing dump ....');
+    await execCommand(`tar -cf dump.tar dump`);
+
+    log('Removing dump from container ....');
+    await execCommand(`docker exec ${dockerMongoName} rm -rf dump`);
+
+    log('Removing uncompressed dump folder ....');
+    await execCommand(`rm -rf dump`);
+  }
+};
+
 module.exports.deployDbs = deployDbs;
+module.exports.dumpDb = dumpDb;
 
 module.exports.update = program => {
   if (process.argv.length < 4) {
