@@ -1,5 +1,6 @@
 import { getConfig } from '../../../utils/utils';
-import { getPostData } from '../../../utils/orders';
+import { getPostData as getPostDataOrders } from '../../../utils/orders';
+import { getPostData } from '../../../utils/ebarimtData';
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
 import { sendEbarimtMessage } from '../../../messageBroker';
@@ -144,7 +145,7 @@ const checkSyncedMutations = {
         isRPC: true
       });
 
-      const postData = await getPostData(subdomain, pos, order, putRes);
+      const postData = await getPostDataOrders(subdomain, pos, order, putRes);
 
       const response = await sendRPCMessage(
         'rpc_queue:erxes-automation-erkhet',
