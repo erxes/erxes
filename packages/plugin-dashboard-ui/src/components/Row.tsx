@@ -107,12 +107,10 @@ function ActionRow({
         </FlexCenter>
       </td>
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
+        <Icon icon="calender" /> <DateWrapper>{updatedAt}</DateWrapper>
       </td>
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(createdAt || new Date()).format('ll')}</DateWrapper>
+        <Icon icon="calender" /> <DateWrapper>{createdAt}</DateWrapper>
       </td>
       <td>
         <ActionButtons>
