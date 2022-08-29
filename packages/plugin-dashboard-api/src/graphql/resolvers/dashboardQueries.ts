@@ -14,42 +14,37 @@ interface IListArgs {
 }
 
 const generateFilter = (params: IListArgs, user: IUserDocument) => {
-  const { status, searchValue } = params;
+  const { searchValue } = params;
 
-  const filter: any = {};
-
-  if (status) {
-    filter.status = status;
-  } else {
-    filter.status = { $ne: 'template' };
-  }
+  const filter: any = user.isOwner
+    ? {}
+    : {
+        $or: [
+          { visibility: { $exists: null } },
+          { visibility: 'public' },
+          {
+            $and: [
+              { visibility: 'private' },
+              {
+                $or: [{ selectedMemberIds: user._id }, { createdBy: user._id }]
+              }
+            ]
+          }
+        ]
+      };
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
-  if (!user.isOwner) {
-    filter.$or = {
-      $or: [
-        { visibility: { $exists: null } },
-        { visibility: 'public' },
-        {
-          $and: [
-            { visibility: 'private' },
-            {
-              $or: [{ selectedMemberIds: user._id }]
-            }
-          ]
-        }
-      ]
-    };
-  }
+
+  return filter;
 };
 
 const dashBoardQueries = {
   async dashboards(_root, params: IListArgs, { models, user }: IContext) {
     const filter = generateFilter(params, user);
 
-    return models.Dashboards.find(filter).lean();
+    return models.Dashboards.find(filter);
   },
 
   async dashboardsMain(_root, params: IListArgs, { models, user }: IContext) {
@@ -58,9 +53,7 @@ const dashBoardQueries = {
     const filter = generateFilter(params, user);
 
     const dashboards = paginate(
-      models.Dashboards.find(filter)
-        .sort({ createdAt: -1 })
-        .lean(),
+      models.Dashboards.find(filter).sort({ createdAt: -1 }),
       { perPage, page }
     );
 

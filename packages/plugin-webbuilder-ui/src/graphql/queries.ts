@@ -125,8 +125,8 @@ const templateDetail = `
 `;
 
 const sites = `
-  query sites($page: Int, $perPage: Int) {
-    webbuilderSites(page: $page, perPage: $perPage) {
+  query sites($page: Int, $perPage: Int, $fromSelect: Boolean) {
+    webbuilderSites(page: $page, perPage: $perPage, fromSelect: $fromSelect) {
       _id
       name
       domain

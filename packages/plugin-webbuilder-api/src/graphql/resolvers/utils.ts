@@ -1,6 +1,8 @@
 import { resolve } from 'path';
+import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import { IModels } from '../../connectionResolver';
+const exec = require('child_process').exec;
 
 const filePath = pathName => {
   if (pathName) {
@@ -10,22 +12,20 @@ const filePath = pathName => {
   return resolve(process.cwd());
 };
 
-export const getInitialData = async (fileName: string) => {
-  return fse.readJSON(filePath(`../src/initialData/${fileName}.json`));
+export const makeDirs = () => {
+  const dir = `${__dirname}/../../initialData`;
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
 };
 
 const createSiteEntries = async (
   models: IModels,
-  oldContentTypeId: string,
+  entries: any,
   contentTypeId: string
 ) => {
-  const entries = await getInitialData('entries');
-
   for (const entry of entries) {
-    if (entry.contentTypeId !== oldContentTypeId['$oid']) {
-      continue;
-    }
-
     models.Entries.createEntry({
       values: entry.values,
       contentTypeId
@@ -35,23 +35,67 @@ const createSiteEntries = async (
 
 export const createSiteContentTypes = async (
   models: IModels,
-  { pageName, siteId }: { pageName; siteId }
+  {
+    siteId,
+    contentTypes,
+    entriesAll
+  }: {
+    siteId: string;
+    contentTypes: any;
+    entriesAll: any;
+  }
 ) => {
-  const contentTypes = await getInitialData('contentTypes');
-
   for (const type of contentTypes) {
-    type.code === type.code + '_entry';
-
-    if (type.code !== pageName) {
-      continue;
-    }
-
     const contentType = await models.ContentTypes.createContentType({
       ...type,
       _id: undefined,
       siteId: siteId
     });
 
-    await createSiteEntries(models, type._id, contentType._id);
+    // find entries related to contentType
+    const entries = entriesAll.filter(
+      entry => entry.contentTypeId === type._id['$oid']
+    );
+
+    if (!entries.length) {
+      continue;
+    }
+
+    await createSiteEntries(models, entries, contentType._id);
   }
+};
+
+const execCommand = (command, ignoreError?) => {
+  return new Promise((resolve, reject) => {
+    exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
+      if (error !== null) {
+        if (ignoreError) {
+          return resolve('done');
+        }
+
+        return reject(error);
+      }
+
+      console.log(stdout);
+      console.log(stderr);
+
+      return resolve('done');
+    });
+  });
+};
+
+export const writeAndReadHelpersData = async (
+  fileName: string,
+  query: string = ''
+) => {
+  makeDirs();
+
+  const HELPERS_DOMAIN = `https://helper.erxes.io`;
+
+  const url = `${HELPERS_DOMAIN}/get-webbuilder-${fileName}?${query}`;
+  const output = `${__dirname}/../../initialData/${fileName}.json`;
+
+  await execCommand(`curl -L ${url} --output ${output}`);
+
+  return fse.readJSON(filePath(output));
 };

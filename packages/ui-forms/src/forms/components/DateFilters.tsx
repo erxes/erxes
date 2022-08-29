@@ -1,4 +1,8 @@
-import { CustomRangeContainer, FilterContainer } from '../styles';
+import {
+  CustomRangeContainer,
+  FilterContainer,
+  EndDateContainer
+} from '../styles';
 import React, { useEffect, useState } from 'react';
 import { __, router } from '@erxes/ui/src/utils/core';
 
@@ -89,20 +93,22 @@ function DateFilters(props: IProps) {
                 dateFormat={'YYYY-MM-DD'}
               />
 
-              <DateControl
-                value={
-                  (filterParams[`${field.name}`] &&
-                    filterParams[`${field.name}`]['lte']) ||
-                  ''
-                }
-                required={false}
-                name="endDate"
-                placeholder={'End date'}
-                onChange={date =>
-                  onChangeRangeFilter(`${field.name}`, 'lte', date)
-                }
-                dateFormat={'YYYY-MM-DD'}
-              />
+              <EndDateContainer>
+                <DateControl
+                  value={
+                    (filterParams[`${field.name}`] &&
+                      filterParams[`${field.name}`]['lte']) ||
+                    ''
+                  }
+                  required={false}
+                  name="endDate"
+                  placeholder={'End date'}
+                  onChange={date =>
+                    onChangeRangeFilter(`${field.name}`, 'lte', date)
+                  }
+                  dateFormat={'YYYY-MM-DD'}
+                />
+              </EndDateContainer>
             </CustomRangeContainer>
           </React.Fragment>
         );

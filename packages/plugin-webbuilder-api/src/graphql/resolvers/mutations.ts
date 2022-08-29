@@ -5,7 +5,7 @@ import { IEntry } from '../../models/entries';
 import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/templates';
 import { ISite } from '../../models/sites';
-import { createSiteContentTypes, getInitialData } from './utils';
+import { createSiteContentTypes, writeAndReadHelpersData } from './utils';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -102,22 +102,39 @@ const webbuilderMutations = {
       return;
     }
 
-    const pages = await getInitialData('pages');
+    const pages = await writeAndReadHelpersData('pages', `templateId=${_id}`);
+
+    if (!pages.length) {
+      return;
+    }
+
+    // read and write all content types from erxes-helper
+    const contentTypesAll = await writeAndReadHelpersData('contentTypes');
+
+    // read and write all entries from erxes-helper
+    const entriesAll = await writeAndReadHelpersData('entries');
 
     for (const page of pages) {
-      if (page.templateId !== _id) {
-        continue;
-      }
-
       await models.Pages.createPage({
         ...page,
         _id: undefined,
         siteId: site._id
       });
 
+      // find contentTypes related with page
+      const contentTypes = contentTypesAll.filter(
+        type => type.code + '_entry' === page.name
+      );
+
+      if (!contentTypes.length) {
+        continue;
+      }
+
+      // create content types and entries
       await createSiteContentTypes(models, {
-        pageName: page.name,
-        siteId: site._id
+        siteId: site._id,
+        contentTypes,
+        entriesAll
       });
     }
   },
