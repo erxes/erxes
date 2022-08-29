@@ -11,7 +11,7 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Dashboards',
+      text: 'Reports',
       url: '/dashboards',
       icon: 'icon-dashboard',
       location: 'mainNavigation',
