@@ -11,22 +11,12 @@ const filePath = pathName => {
   return resolve(process.cwd());
 };
 
-export const getInitialData = async (fileName: string) => {
-  return fse.readJSON(filePath(`../src/initialData/${fileName}.json`));
-};
-
 const createSiteEntries = async (
   models: IModels,
-  oldContentTypeId: string,
+  entries: any,
   contentTypeId: string
 ) => {
-  const entries = await getInitialData('entries');
-
   for (const entry of entries) {
-    if (entry.contentTypeId !== oldContentTypeId['$oid']) {
-      continue;
-    }
-
     models.Entries.createEntry({
       values: entry.values,
       contentTypeId
@@ -36,24 +26,33 @@ const createSiteEntries = async (
 
 export const createSiteContentTypes = async (
   models: IModels,
-  { pageName, siteId }: { pageName; siteId }
+  {
+    siteId,
+    contentTypes,
+    entriesAll
+  }: {
+    siteId: string;
+    contentTypes: any;
+    entriesAll: any;
+  }
 ) => {
-  const contentTypes = await getInitialData('contentTypes');
-
   for (const type of contentTypes) {
-    const code = type.code + '_entry';
-
-    if (code !== pageName) {
-      continue;
-    }
-
     const contentType = await models.ContentTypes.createContentType({
       ...type,
       _id: undefined,
       siteId: siteId
     });
 
-    await createSiteEntries(models, type._id, contentType._id);
+    // find entries related to contentType
+    const entries = entriesAll.filter(
+      entry => entry.contentTypeId === type._id['$oid']
+    );
+
+    if (!entries.length) {
+      continue;
+    }
+
+    await createSiteEntries(models, entries, contentType._id);
   }
 };
 
@@ -76,9 +75,16 @@ const execCommand = (command, ignoreError?) => {
   });
 };
 
-export const readAndWriteHelpersData = async (fileName: string) => {
-  const url = `https://helper.erxes.io/get-webbuilder-${fileName}`;
+export const writeAndReadHelpersData = async (
+  fileName: string,
+  query?: string
+) => {
+  const HELPERS_DOMAIN = `https://helper.erxes.io`;
+
+  const url = `${HELPERS_DOMAIN}/get-webbuilder-${fileName}?${query}`;
   const output = `../src/initialData/${fileName}.json`;
 
-  return execCommand(`curl -L ${url} --output ${output}`);
+  await execCommand(`curl -L ${url} --output ${output}`);
+
+  return fse.readJSON(filePath(output));
 };
