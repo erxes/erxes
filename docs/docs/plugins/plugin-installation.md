@@ -4,7 +4,7 @@ title: Plugin Installation
 sidebar_label: Plugin Installation
 ---
 
-erxes comes with plugins that can be installed from the marketplace or the directory. This guidelines will help you to install plugins from the erxess directory. You can also **<a href="http://www.erxes.org/development/developing-plugins" target="_blank">create your own plugins</a>** or extend the existing ones. Go to our **<a href="https://erxes.io/marketplace" target="_blank">marketplace</a>** to find out what plugins erxes offers and their use cases.
+erxes comes with plugins that can be installed from the marketplace or the directory. This guidelines will help you to install plugins from the erxess directory. You can also **<a href="http://docs.erxes.io/docs/developer/developing-plugins" target="_blank">create your own plugins</a>** or extend the existing ones. Go to our **<a href="https://erxes.io/marketplace" target="_blank">marketplace</a>** to find out what plugins erxes offers and their use cases.
 
 :::info
 
@@ -18,7 +18,7 @@ erxes comes with plugins that can be installed from the marketplace or the direc
 
 ---
 
-1. Before installing plugins, ensure you have installed and had access to your erxes project. If you haven’t done it yet, please go to **<a href="https://www.erxes.org/developer/ubuntu" target="_blank"> the erxes installation guide</a>** to install erxes XOS.
+1. Before installing plugins, ensure you have installed and had access to your erxes project. If you haven’t done it yet, please go to **<a href="https://docs.erxes.io/docs/developer/ubuntu" target="_blank"> the erxes installation guide</a>** to install erxes XOS.
 2. Switch to **the federation branch**.
 3. Copy the plugins in the `erxes/cli/configs.json`.
 

@@ -1,25 +1,25 @@
-import React from "react";
-import useBaseUrl from "@docusaurus/useBaseUrl";
-import Link from "@docusaurus/Link";
-import styles from "./styles.module.css";
-import classnames from "classnames";
+import React from 'react';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import Link from '@docusaurus/Link';
+import styles from './styles.module.css';
+import classnames from 'classnames';
 
 export const Buttons = () => {
   return (
     <div className={styles.buttons}>
       <Link
         className={classnames(
-          "button button--primary button--lg",
+          'button button--primary button--lg',
           styles.getStarted
         )}
-        to={useBaseUrl("overview/getting-started/")}
+        to={useBaseUrl('docs/intro/')}
       >
         Get Started
       </Link>
       <Link
         href="https://github.com/erxes/erxes/discussions "
         className={classnames(
-          "button button--outline button--primary button--lg",
+          'button button--outline button--primary button--lg',
           styles.getStarted
         )}
       >

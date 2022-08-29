@@ -10,7 +10,7 @@ First things first, The Firebase is part of the Google product so we will need a
 
 #### Configuration
 
-- Create the Google Cloud Project [click here](/administrator/system-config#google)
+- Create the Google Cloud Project [click here](/docs/administrator/system-config#google)
 - Enable Firebase Cloud Messaging API [click here](https://console.cloud.google.com/apis/library)
 
 ![](https://erxes-docs.s3-us-west-2.amazonaws.com/integration/google-project-4.png)
