@@ -5,7 +5,6 @@ import LeadFilter from '../../containers/filters/LeadFilter';
 import LeadStatusFilter from '../../containers/filters/LeadStatusFilter';
 import React from 'react';
 import SegmentFilter from '../../containers/filters/SegmentFilter';
-import { SidebarContainer } from '@erxes/ui-forms/src/forms/styles';
 import TagFilter from '../../containers/filters/TagFilter';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';

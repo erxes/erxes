@@ -287,6 +287,12 @@ const FilterContainer = styled.div`
   padding: 10px 10px 10px 20px;
 `;
 
+const EndDateContainer = styled.div`
+  .rdtPicker {
+    left: -98px !important;
+  }
+`;
+
 export {
   FieldWrapper,
   FieldItem,
@@ -305,5 +311,6 @@ export {
   DateWrapper,
   RowFill,
   CustomRangeContainer,
-  FilterContainer
+  FilterContainer,
+  EndDateContainer
 };
