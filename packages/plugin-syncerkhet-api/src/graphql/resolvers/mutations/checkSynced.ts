@@ -1,5 +1,6 @@
 import { getConfig } from '../../../utils/utils';
-import { getPostData } from '../../../utils/orders';
+import { getPostData as getPostDataOrders } from '../../../utils/orders';
+import { getPostData } from '../../../utils/ebarimtData';
 import { IContext } from '../../../connectionResolver';
 import { sendCardsMessage, sendPosMessage } from '../../../messageBroker';
 import { sendEbarimtMessage } from '../../../messageBroker';
@@ -12,6 +13,10 @@ const checkSyncedMutations = {
     { subdomain }: IContext
   ) {
     const config = await getConfig(subdomain, 'ERKHET', {});
+
+    if (!config.apiToken || !config.apiKey || !config.apiSecret) {
+      throw new Error('Erkhet config not found');
+    }
 
     const postData = {
       token: config.apiToken,
@@ -27,7 +32,7 @@ const checkSyncedMutations = {
     });
     const result = JSON.parse(response);
 
-    const data = result.data;
+    const data = result.data || {};
 
     return (Object.keys(data) || []).map(_id => {
       const res: any = data[_id] || {};
@@ -140,7 +145,7 @@ const checkSyncedMutations = {
         isRPC: true
       });
 
-      const postData = await getPostData(subdomain, pos, order, putRes);
+      const postData = await getPostDataOrders(subdomain, pos, order, putRes);
 
       const response = await sendRPCMessage(
         'rpc_queue:erxes-automation-erkhet',
