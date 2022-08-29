@@ -288,6 +288,8 @@ const FilterContainer = styled.div`
 `;
 
 const SidebarContainer = styled.div`
+  overflow: auto;
+
   ${SidebarMainContent} {
     overflow-x: unset;
     overflow-y: unset;
