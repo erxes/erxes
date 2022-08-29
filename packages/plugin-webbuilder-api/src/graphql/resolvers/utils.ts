@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import * as fs from 'fs';
 import * as fse from 'fs-extra';
 import { IModels } from '../../connectionResolver';
 const exec = require('child_process').exec;
@@ -9,6 +10,14 @@ const filePath = pathName => {
   }
 
   return resolve(process.cwd());
+};
+
+export const makeDirs = () => {
+  const dir = `${__dirname}/../../initialData`;
+
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir);
+  }
 };
 
 const createSiteEntries = async (
@@ -79,10 +88,12 @@ export const writeAndReadHelpersData = async (
   fileName: string,
   query: string = ''
 ) => {
+  makeDirs();
+
   const HELPERS_DOMAIN = `https://helper.erxes.io`;
 
   const url = `${HELPERS_DOMAIN}/get-webbuilder-${fileName}?${query}`;
-  const output = `../src/initialData/${fileName}.json`;
+  const output = `${__dirname}/../../initialData/${fileName}.json`;
 
   await execCommand(`curl -L ${url} --output ${output}`);
 
