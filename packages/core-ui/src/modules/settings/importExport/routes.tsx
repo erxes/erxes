@@ -18,6 +18,11 @@ const Histories = asyncComponent(() =>
     /* webpackChunkName: "Settings Histories" */ './import/containers/list/Histories'
   )
 );
+const Menu = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings Menu" */ './import/containers/list/SelectMenu'
+  )
+);
 
 const exportForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
@@ -36,6 +41,12 @@ const importHistories = ({ location }) => {
   return <Histories queryParams={queryParams} />;
 };
 
+const selectMenu = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Menu queryParams={queryParams} />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
@@ -51,6 +62,7 @@ const routes = () => {
       />
 
       <Route path="/settings/importHistories/" component={importHistories} />
+      <Route path="/settings/selectMenu/" component={selectMenu} />
     </React.Fragment>
   );
 };
