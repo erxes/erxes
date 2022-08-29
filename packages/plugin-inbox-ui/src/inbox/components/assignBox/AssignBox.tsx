@@ -110,11 +110,13 @@ class AssignBox extends React.Component<Props, State> {
 
   assign = (items: IAssignee[], id: string) => {
     const { assign, targets, afterSave } = this.props;
-    if (!items.find(arr => arr.selectedBy === 'all')) {
+    const isAssigned = items.find(arr => arr.selectedBy === 'all');
+
+    if (!isAssigned) {
       this.removeAssignee();
     }
 
-    if (items.find(arr => arr.selectedBy === 'all')) {
+    if (isAssigned) {
       assign(
         {
           conversationIds: targets.map(a => a._id),
