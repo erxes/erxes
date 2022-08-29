@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-
 import Icon from '@erxes/ui/src/components/Icon';
 import { colors } from '@erxes/ui/src/styles';
 import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
+import { Link } from 'react-router-dom';
 
 const Box = styled(BoxRoot)`
   width: 320px;
@@ -39,14 +39,14 @@ type Props = {
 };
 
 class SelectMenu extends React.Component<Props> {
-  renderBox(name, icon, desc) {
-    const onClick = () => this.props.onChange('method', name);
-
+  renderBox(name, icon, desc, path) {
     return (
-      <Box selected={this.props.method === name} onClick={onClick}>
-        <Icon icon={icon} />
-        <span>{__(name)}</span>
-        <p>{__(desc)}</p>
+      <Box selected={this.props.method === name}>
+        <Link to={path}>
+          <Icon icon={icon} />
+          <span>{__(name)}</span>
+          <p>{__(desc)}</p>
+        </Link>
       </Box>
     );
   }
@@ -57,12 +57,14 @@ class SelectMenu extends React.Component<Props> {
         {this.renderBox(
           'Import',
           'envelope-edit',
-          `Lorem Ipsum is simply dummy text of the printing and typesetting industry. `
+          `Lorem Ipsum is simply dummy text of the printing and typesetting industry. `,
+          `/settings/importHistories`
         )}
         {this.renderBox(
           'Export',
           'comment-edit',
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. '
+          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
+          `/settings/exportHistories`
         )}
       </FullContent>
     );
