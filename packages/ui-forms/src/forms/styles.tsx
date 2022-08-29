@@ -287,15 +287,6 @@ const FilterContainer = styled.div`
   padding: 10px 10px 10px 20px;
 `;
 
-const SidebarContainer = styled.div`
-  overflow: auto;
-
-  ${SidebarMainContent} {
-    overflow-x: unset;
-    overflow-y: unset;
-  }
-`;
-
 export {
   FieldWrapper,
   FieldItem,
@@ -314,6 +305,5 @@ export {
   DateWrapper,
   RowFill,
   CustomRangeContainer,
-  FilterContainer,
-  SidebarContainer
+  FilterContainer
 };

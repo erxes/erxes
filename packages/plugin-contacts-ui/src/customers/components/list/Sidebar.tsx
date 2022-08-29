@@ -18,32 +18,30 @@ function Sidebar({
   type: string;
 }) {
   return (
-    <SidebarContainer>
-      <Wrapper.Sidebar hasBorder>
-        {isEnabled('segments') && (
-          <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
-        )}
-        {isEnabled('tags') && (
-          <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
-        )}
-        {isEnabled('inbox') && (
-          <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />
-        )}
-        <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
-        {isEnabled('inbox') && (
-          <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />
-        )}
-        {type === 'inbox' && (
-          <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
-        )}
-        {isEnabled('forms') && (
-          <DateFilters
-            type="contacts:customer"
-            loadingMainQuery={loadingMainQuery}
-          />
-        )}
-      </Wrapper.Sidebar>
-    </SidebarContainer>
+    <Wrapper.Sidebar hasBorder>
+      {isEnabled('segments') && (
+        <SegmentFilter type={type} loadingMainQuery={loadingMainQuery} />
+      )}
+      {isEnabled('tags') && (
+        <TagFilter type={type} loadingMainQuery={loadingMainQuery} />
+      )}
+      {isEnabled('inbox') && (
+        <IntegrationFilter type={type} loadingMainQuery={loadingMainQuery} />
+      )}
+      <BrandFilter type={type} loadingMainQuery={loadingMainQuery} />
+      {isEnabled('inbox') && (
+        <LeadFilter type={type} loadingMainQuery={loadingMainQuery} />
+      )}
+      {type === 'inbox' && (
+        <LeadStatusFilter type={type} loadingMainQuery={loadingMainQuery} />
+      )}
+      {isEnabled('forms') && (
+        <DateFilters
+          type="contacts:customer"
+          loadingMainQuery={loadingMainQuery}
+        />
+      )}
+    </Wrapper.Sidebar>
   );
 }
 
