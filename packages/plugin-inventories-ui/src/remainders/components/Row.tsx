@@ -1,32 +1,35 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
 import React from 'react';
+// erxes
+import FormControl from '@erxes/ui/src/components/form/Control';
+// local
 import { IRemainderProduct } from '../types';
 
 type Props = {
   product: IRemainderProduct;
-  history: any;
   isChecked: boolean;
   toggleBulk: (product: IRemainderProduct, isChecked?: boolean) => void;
 };
 
-const Row = (props: Props) => {
-  const { product, toggleBulk, isChecked } = props;
+export default function Row(props: Props) {
+  const {
+    product = {} as IRemainderProduct,
+    isChecked = false,
+    toggleBulk
+  } = props;
 
   const { code, name, category, unitPrice, remainder, uom } = product;
 
-  const onChange = (event: any) => {
-    if (toggleBulk) {
-      toggleBulk(product, event.target.checked);
-    }
+  const handleChange = () => {
+    if (toggleBulk) toggleBulk(product, !isChecked);
   };
 
   return (
     <tr>
       <td>
         <FormControl
-          checked={isChecked}
           componentClass="checkbox"
-          onChange={onChange}
+          checked={isChecked}
+          onChange={handleChange}
         />
       </td>
       <td>{code}</td>
@@ -37,6 +40,4 @@ const Row = (props: Props) => {
       <td>{(uom && uom.name) || ''}</td>
     </tr>
   );
-};
-
-export default Row;
+}

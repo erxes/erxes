@@ -2,8 +2,6 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface ITransactionItem {
-  branchId: string;
-  departmentId: string;
   transactionId: string;
   productId: string;
   count: number;
@@ -20,8 +18,6 @@ export const transactionItemSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
 
-    branchId: field({ type: String, default: '', label: 'Branch' }),
-    departmentId: field({ type: String, default: '', label: 'Department' }),
     transactionId: field({ type: String, label: 'Transaction ID' }),
     productId: { type: String, index: true },
     count: field({ type: Number, label: 'Count' }),

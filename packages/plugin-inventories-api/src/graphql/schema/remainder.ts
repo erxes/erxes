@@ -16,10 +16,6 @@ export const types = `
     uom: JSON
   }
 
-  extend type ProductCategory @key(fields: "_id") {
-    _id: String! @external
-  }
-
   type Uom_ {
     _id: String!
     code: String

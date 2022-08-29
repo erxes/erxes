@@ -1,18 +1,28 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { __, ActionButtons, Button, Icon, Label, Tip } from '@erxes/ui/src';
+// erxes
+import { __ } from '@erxes/ui/src/utils';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
+import Label from '@erxes/ui/src/components/Label';
+import Tip from '@erxes/ui/src/components/Tip';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { renderUserFullName } from '@erxes/ui/src/utils/core';
+// local
 import { ISafeRemainder } from '../types';
 
 type Props = {
   remainder: ISafeRemainder;
-  history: any;
-  removeRemainder: (remainder: ISafeRemainder) => void;
+  removeItem: (remainder: ISafeRemainder) => void;
 };
 
-const Row = (props: Props) => {
-  const { remainder, history, removeRemainder } = props;
+export default function Row(props: Props) {
+  const { remainder = {} as ISafeRemainder, removeItem } = props;
+
+  // Hooks
+  const history = useHistory();
 
   const {
     date,
@@ -67,7 +77,7 @@ const Row = (props: Props) => {
           <Tip text="Delete" placement="top">
             <Button
               btnStyle="link"
-              onClick={() => removeRemainder(remainder)}
+              onClick={() => removeItem(remainder)}
               icon="times-circle"
             />
           </Tip>
@@ -75,6 +85,4 @@ const Row = (props: Props) => {
       </td>
     </tr>
   );
-};
-
-export default Row;
+}

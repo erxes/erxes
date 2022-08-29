@@ -1,6 +1,15 @@
 import React from 'react';
-import { __, Table, DataWithLoader, EmptyState } from '@erxes/ui/src';
+// erxes
+import { __ } from '@erxes/ui/src/utils/core';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Table from '@erxes/ui/src/components/table';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
+// local
 import Row from './Row';
+import Actionbar from './Actionbar';
+import { SUBMENU } from '../../constants';
 
 type Props = {
   loading: boolean;
@@ -13,30 +22,40 @@ const List = (props: Props) => {
   const renderRow = () =>
     data.map((item: any, index: number) => <Row key={index} data={item} />);
 
-  const renderTable = () => {
-    return (
-      <Table>
-        <thead>
-          <tr>
-            <th>{__('Branch')}</th>
-            <th>{__('Department')}</th>
-            <th>{__('Content Type')}</th>
-            <th>{__('Created at')}</th>
-            <th>{__('Created by')}</th>
-          </tr>
-        </thead>
-        <tbody>{renderRow()}</tbody>
-      </Table>
-    );
-  };
+  const content = (
+    <Table>
+      <thead>
+        <tr>
+          <th>{__('Branch')}</th>
+          <th>{__('Department')}</th>
+          <th>{__('Content Type')}</th>
+          <th>{__('Created at')}</th>
+          <th>{__('Actions')}</th>
+        </tr>
+      </thead>
+      <tbody>{renderRow()}</tbody>
+    </Table>
+  );
 
   return (
-    <DataWithLoader
-      loading={loading}
-      count={data.length}
-      data={renderTable()}
-      emptyText="No transactions"
-      emptyImage="/images/actions/5.svg"
+    <Wrapper
+      header={<Wrapper.Header title={__('Transactions')} submenu={SUBMENU} />}
+      actionBar={<Actionbar />}
+      footer={<Pagination count={data.length || 0} />}
+      content={
+        <DataWithLoader
+          data={content}
+          loading={loading}
+          count={data.length}
+          emptyContent={
+            <EmptyState
+              image="/images/actions/5.svg"
+              text="No transactions"
+              size=""
+            />
+          }
+        />
+      }
     />
   );
 };

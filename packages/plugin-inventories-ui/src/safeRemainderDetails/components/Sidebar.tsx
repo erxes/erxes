@@ -1,22 +1,28 @@
 import React from 'react';
+import { useLocation, useHistory } from 'react-router-dom';
+import queryString from 'query-string';
 import Select from 'react-select-plus';
-import { __, Wrapper, Box, ControlLabel, FormGroup } from '@erxes/ui/src';
+// erxes
+import { __, router } from '@erxes/ui/src/utils/core';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Box from '@erxes/ui/src/components/Box';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import SelectProductCategory from '@erxes/ui-products/src/containers/SelectProductCategory';
-import { router } from '@erxes/ui/src/utils/core';
-import { ISafeRemainder } from '../types';
+// local
 import { SidebarContent } from '../../styles';
 
 type Props = {
-  safeRemainder: ISafeRemainder;
-  history: any;
-  queryParams: any;
+  safeRemainder: any;
 };
 
-const DetailSidebar = (props: Props) => {
-  let timer: NodeJS.Timer;
-  const { history, queryParams, safeRemainder } = props;
+export default function Sidebar(props: Props) {
+  const { safeRemainder } = props;
+  const history = useHistory();
+  const location = useLocation();
+  const queryParams = queryString.parse(location.search);
 
-  const setFilter = (name, value) => {
+  const setFilter = (name: string, value: string) => {
     router.removeParams(history, 'page');
     router.setParams(history, { [name]: value });
   };
@@ -56,7 +62,7 @@ const DetailSidebar = (props: Props) => {
               label="Choose product category"
               name="selectedProductCategoryId"
               initialValue={queryParams.productCategoryId}
-              onSelect={catId => setFilter('productCategoryId', catId)}
+              onSelect={(catId: any) => setFilter('productCategoryId', catId)}
               multi={false}
               customOption={{ value: '', label: 'All products' }}
             />
@@ -95,6 +101,4 @@ const DetailSidebar = (props: Props) => {
       </Box>
     </Wrapper.Sidebar>
   );
-};
-
-export default DetailSidebar;
+}

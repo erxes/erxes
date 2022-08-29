@@ -1,5 +1,9 @@
 import React from 'react';
-import { __, Wrapper, Button, ModalTrigger } from '@erxes/ui/src';
+// erxes
+import { __ } from '@erxes/ui/src/utils';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import Button from '@erxes/ui/src/components/Button';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 
 const Actionbar = () => {
   const createTransactionTrigger = (

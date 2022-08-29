@@ -65,31 +65,6 @@ export const safeRemainderFields = `
 
 `;
 
-export const safeRemainderItemFields = `
-  _id
-  modifiedAt
-  status
-  lastTransactionDate
-  remainderId
-  productId
-  uomId
-  preCount
-  count
-  branchId
-  departmentId
-
-  product {
-    _id
-    code
-    name
-  }
-  uom {
-    _id
-    code
-    name
-  }
-`;
-
 const safeRemainders = `
   query safeRemainders (
     ${listParamsDef}
@@ -106,59 +81,6 @@ const safeRemainders = `
   }
 `;
 
-const safeRemainderDetail = `
-  query safeRemainderDetail (
-    $_id: String!
-  ) {
-    safeRemainderDetail (
-      _id: $_id
-    ) {
-      ${safeRemainderFields}
-    }
-  }
-`;
-
-const safeRemainderItems = `
-  query safeRemainderItems (
-    $remainderId: String!
-    $status: String
-    $productCategoryId: String
-    $diffType: String
-    $searchValue: String
-  ) {
-    safeRemainderItems (
-      remainderId: $remainderId,
-      status: $status,
-      productCategoryId: $productCategoryId,
-      diffType: $diffType,
-      searchValue: $searchValue
-    ) {
-      ${safeRemainderItemFields}
-    }
-  }
-`;
-
-const safeRemainderItemsCount = `
-  query safeRemainderItemsCount (
-    $remainderId: String!
-    $status: String
-    $productCategoryId: String
-    $diffType: String
-    $searchValue: String
-  ) {
-    safeRemainderItemsCount (
-      remainderId: $remainderId,
-      status: $status,
-      productCategoryId: $productCategoryId,
-      diffType: $diffType,
-      searchValue: $searchValue
-    )
-  }
-`;
-
 export default {
-  safeRemainders,
-  safeRemainderDetail,
-  safeRemainderItems,
-  safeRemainderItemsCount
+  safeRemainders
 };

@@ -14,11 +14,11 @@ export const updateLiveRemainders = async ({
 }: IUpdateRemaindersParams & { subdomain: string }) => {
   const models = await generateModels(subdomain);
 
-  const selector: any = {
-    departmentId,
-    branchId
-  };
+  const selector: any = {};
   let allProductIds: string[] = [];
+
+  if (departmentId) selector.departmentId = departmentId;
+  if (branchId) selector.branchId = branchId;
 
   if (productCategoryId) {
     // Find all products in category by categoryId
@@ -87,8 +87,6 @@ export const updateLiveRemainders = async ({
       )
         return item;
     });
-
-    console.log(realRemainder, remainderCount);
 
     if (realRemainder && realRemainder._id) {
       if (realRemainder.count === remainderCount) {

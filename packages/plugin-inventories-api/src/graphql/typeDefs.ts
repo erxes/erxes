@@ -1,4 +1,5 @@
 import { gql } from 'apollo-server-express';
+import extendTypes from './schema/extendTypes';
 import {
   mutations as RemainderMutations,
   queries as RemainderQueries,
@@ -36,6 +37,7 @@ const typeDefs = async _serviceDiscovery => {
       inheritMaxAge: Boolean
     ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
 
+    ${extendTypes}
     ${RemainderTypes}
     ${SafeRemainderTypes}
     ${SafeRemainderItemTypes}

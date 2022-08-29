@@ -1,10 +1,12 @@
-import { IUserDocument } from '@erxes/api-utils/src/types';
+import { paginate } from '@erxes/api-utils/src';
 import { Model } from 'mongoose';
 import * as _ from 'underscore';
-import { IModels, IContext } from '../connectionResolver';
-import { sendProductsMessage } from '../messageBroker';
+import { IModels } from '../connectionResolver';
+import { sendProductsMessage, sendInventoriesMessage } from '../messageBroker';
 import { SAFE_REMAINDER_STATUSES } from './definitions/constants';
 import {
+  ISafeRemaindersParams,
+  ISafeRemainderSubmitParams,
   ISafeRemainder,
   ISafeRemainderDocument,
   safeRemainderSchema
@@ -12,6 +14,8 @@ import {
 
 export interface ISafeRemainderModel extends Model<ISafeRemainderDocument> {
   getRemainder(_id: string): Promise<ISafeRemainderDocument>;
+  getRemainders(params: ISafeRemaindersParams): Promise<JSON>;
+  submitRemainder(subdomain: string, params: any): Promise<JSON>;
   createRemainder(
     subdomain: string,
     params: ISafeRemainder,
@@ -41,6 +45,91 @@ export const loadSafeRemainderClass = (models: IModels) => {
     }
 
     /**
+     * Get all remainders
+     * @param params many things
+     * @returns Found object
+     */
+    public static async getRemainders(params: ISafeRemaindersParams) {
+      const query: any = {};
+
+      if (params.departmentId) {
+        query.departmentId = params.departmentId;
+      }
+
+      if (params.branchId) {
+        query.branchId = params.branchId;
+      }
+
+      if (params.searchValue) {
+        const regexOption = {
+          $regex: `.*${params.searchValue}.*`,
+          $options: 'i'
+        };
+
+        query.$or = [
+          {
+            name: regexOption
+          },
+          {
+            code: regexOption
+          }
+        ];
+      }
+
+      const dateQuery: any = {};
+      if (params.beginDate) {
+        dateQuery.$gte = new Date(params.beginDate);
+      }
+      if (params.endDate) {
+        dateQuery.$lte = new Date(params.endDate);
+      }
+
+      if (Object.keys(dateQuery).length) {
+        query.date = dateQuery;
+      }
+
+      if (params.productId) {
+        let allRemainders = await models.SafeRemainders.find(query).lean();
+        const remIds = allRemainders.map(r => r._id);
+
+        const items = await models.SafeRemainderItems.find({
+          remainderId: { $in: remIds },
+          productId: params.productId
+        }).lean();
+
+        const lastRemIds = new Set(items.map(i => i.remainderId) || []);
+        query._id = { $in: lastRemIds };
+      }
+
+      return {
+        totalCount: await models.SafeRemainders.find(query).count(),
+        remainders: await paginate(models.SafeRemainders.find(query), {
+          ...params
+        })
+      };
+    }
+
+    /**
+     * Submit remainder and create transaction
+     * @param subdomain
+     * @param params Data to create transaction
+     * @returns Created response
+     */
+    public static async submitRemainder(
+      subdomain: string,
+      params: ISafeRemainderSubmitParams
+    ) {
+      const result = await sendInventoriesMessage({
+        subdomain,
+        action: 'transactionAdd',
+        data: params,
+        isRPC: true
+      });
+
+      return result;
+    }
+
+    /**
      * Create safe remainder
      * @param subdomain
      * @param params New data to create
@@ -49,14 +138,14 @@ export const loadSafeRemainderClass = (models: IModels) => {
      */
     public static async createRemainder(
       subdomain: string,
-      params: ISafeRemainder,
+      params: any,
       userId: string
     ) {
       const {
+        branchId,
+        departmentId,
         date,
         description,
-        departmentId,
-        branchId,
         productCategoryId
       } = params;
 
@@ -86,7 +175,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
       });
 
       // Create remainder items for every product
-      const defaultUomId = '';
+      const defaultUomId = '465';
       const productIds = products.map((item: any) => item._id);
       const liveRemainders = await models.Remainders.find({
         departmentId,
@@ -99,7 +188,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
       for (const product of products) {
         const live =
           liveRemainders.find((remainder: any) => {
-            remainder.productId === product._id;
+            return remainder.productId === product._id;
           }) || {};
 
         bulkOps.push({
@@ -141,6 +230,7 @@ export const loadSafeRemainderClass = (models: IModels) => {
           modifiedBy: userId
         }
       });
+
       return await this.getRemainder(_id);
     }
 

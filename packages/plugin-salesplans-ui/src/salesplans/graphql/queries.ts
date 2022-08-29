@@ -65,6 +65,7 @@ const salesLogs = `
         _id,
         title
       },
+      createdAt,
       createdUser {
         _id,
         username
@@ -83,11 +84,11 @@ const salesLogDetail = `
       date,
       departmentId,
       branchId,
+      createdAt,
       createdUser {
         _id,
         username
       },
-      createdAt
     }
   }
 `;
