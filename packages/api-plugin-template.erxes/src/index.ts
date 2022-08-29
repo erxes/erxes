@@ -54,6 +54,8 @@ const {
 
 export const app = express();
 
+console.log('------------------');
+
 app.use(bodyParser.json({ limit: '15mb' }));
 app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 
