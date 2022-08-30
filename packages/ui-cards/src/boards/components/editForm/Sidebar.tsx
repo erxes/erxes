@@ -1,11 +1,11 @@
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import React from 'react';
-import { RightContent } from '../../styles/item';
-import { IItem, IOptions } from '../../types';
-import SidebarConformity from './SidebarConformity';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import FormGroup from '@erxes/ui/src/components/form/Group'
+import ControlLabel from '@erxes/ui/src/components/form/Label'
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers'
+import { isEnabled } from '@erxes/ui/src/utils/core'
+import React from 'react'
+import { RightContent } from '../../styles/item'
+import { IItem, IOptions } from '../../types'
+import SidebarConformity from './SidebarConformity'
 
 type Props = {
   item: IItem;
@@ -45,7 +45,6 @@ class Sidebar extends React.Component<Props> {
         </FormGroup>
 
         {isEnabled('products') && sidebar && sidebar(saveItem)}
-
         <SidebarConformity {...this.props} />
       </RightContent>
     );

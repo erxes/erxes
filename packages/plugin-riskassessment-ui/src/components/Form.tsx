@@ -54,32 +54,32 @@ class Form extends React.Component<Props & ICommonFormProps> {
 
     return (
       <>
-        <CustomFormGroup label='Risk Assessment Name' required>
+        <CustomFormGroup label="Risk Assessment Name" required>
           <FormControl
             {...formProps}
-            name='name'
-            type='text'
+            name="name"
+            type="text"
             required={true}
             defaultValue={assessmentDetail?.name}
           />
         </CustomFormGroup>
-        <CustomFormGroup label='RiskAssessment Description' required>
+        <CustomFormGroup label="RiskAssessment Description" required>
           <FormControl
             {...formProps}
-            name='description'
-            componentClass='textarea'
+            name="description"
+            componentClass="textarea"
             required={true}
             defaultValue={assessmentDetail?.description}
           />
         </CustomFormGroup>
-        <CustomFormGroup label='RiskAssessment Category'>
+        <CustomFormGroup label="RiskAssessment Category">
           {loading ? (
             <Spinner objective />
           ) : (
             <FormControl
               {...formProps}
-              name='categoryId'
-              componentClass='select'
+              name="categoryId"
+              componentClass="select"
               defaultValue={assessmentDetail?.categoryId}
             >
               <option />
@@ -92,11 +92,11 @@ class Form extends React.Component<Props & ICommonFormProps> {
             </FormControl>
           )}
         </CustomFormGroup>
-        <CustomFormGroup label='RiskAssessment Status'>
+        <CustomFormGroup label="RiskAssessment Status">
           <FormControl
             {...formProps}
-            name='status'
-            type='text'
+            name="status"
+            type="text"
             defaultValue={assessmentDetail?.status}
           />
         </CustomFormGroup>
@@ -108,7 +108,7 @@ class Form extends React.Component<Props & ICommonFormProps> {
     return (
       <CommonForm
         {...this.props}
-        name='name'
+        name="name"
         renderContent={this.renderContent}
         generateDoc={this.props.generateDoc}
         object={this.props.object}

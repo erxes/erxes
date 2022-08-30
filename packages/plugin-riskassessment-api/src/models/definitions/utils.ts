@@ -3,7 +3,7 @@ import * as Random from 'meteor-random';
 /*
  * Mongoose field options wrapper
  */
-export const field = options => {
+export const field = (options) => {
   const { pkey, type, optional } = options;
 
   if (type === String && !pkey && !optional) {

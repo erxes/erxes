@@ -8,6 +8,9 @@ export const commonPaginateTypes = `
     perPage:Int
     sortField: String,
     sortDirection: Int,
+    searchValue: String,
+    sortFromDate: String,
+    sortToDate: String
 `;
 
 export const commonRiskAssessmentTypes = `

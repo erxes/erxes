@@ -83,3 +83,30 @@ export type DealsTotalCountQueryResponse = {
   refetch: () => void;
   fetchMore: any;
 };
+
+export interface IDealRiskAssements {
+  _id: string;
+  cardId: string;
+  riskAssessmentId: string;
+  name?: string;
+}
+
+export type IDealRiskConfirmitiesQueryResponse = {
+  riskConfirmities: IDealRiskAssements[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type IDealRiskAssessmentsQueryResponse = {
+  riskAssesments: {
+    list: IDealRiskAssements[];
+    totalCount: number;
+  };
+  loading: boolean;
+  refetch: (params:{searchValue: string,perPage: number}) => void;
+};
+export type IDealRiskAssessmentDetailQueryResponse = {
+  riskConfirmityDetails: IDealRiskAssements[];
+  loading: boolean;
+  refetch: () => void;
+};

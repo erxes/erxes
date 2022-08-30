@@ -1,8 +1,12 @@
-import { riskAssessmentCategoryParams } from '../../common/graphql';
+import {
+  commonPaginateDef,
+  commonPaginateValue,
+  riskAssessmentCategoryParams,
+} from '../../common/graphql';
 
 const listAssessmentCategories = `
-  query GetRiskAssesmentCategories {
-    getRiskAssesmentCategories {
+  query GetRiskAssesmentCategories(${commonPaginateDef}) {
+    getRiskAssesmentCategories (${commonPaginateValue}) {
       ${riskAssessmentCategoryParams}
     }
   }

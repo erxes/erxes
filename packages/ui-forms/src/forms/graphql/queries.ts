@@ -39,6 +39,12 @@ const fields = `
       pageNumber
       productCategoryId
       isDefinedByErxes
+      optionsObj {
+        key
+        label
+        value
+      },
+      riskAssessmentFieldType
     }
   }
 `;

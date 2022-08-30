@@ -1,23 +1,93 @@
-import { Model } from 'mongoose';
-import { IModels, models } from '../connectionResolver';
-import { validRiskAssessment } from '../utils';
-import { IRiskAssessmentField } from './definitions/common';
-import { IRiskAssessmentDocument } from './definitions/riskassessment';
-import { riskAssessmentSchema } from './definitions/riskassessment';
+import { paginate } from '@erxes/api-utils/src'
+import { escapeRegExp } from '@erxes/api-utils/src/core'
+import { Model } from 'mongoose'
+import { IModels } from '../connectionResolver'
+import { validRiskAssessment } from '../utils'
+import { IRiskAssessmentField, PaginateField } from './definitions/common'
+import { IRiskAssessmentDocument, riskAssessmentSchema } from './definitions/riskassessment'
 
 export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
-  riskAssesments(params: { categoryId: string } & IRiskAssessmentField): Promise<IRiskAssessmentDocument>;
+  riskAssesments(
+    params: { categoryId: string } & IRiskAssessmentField & PaginateField
+  ): Promise<IRiskAssessmentDocument>;
   riskAssessmentDetail(params: { _id: string }): Promise<IRiskAssessmentDocument>;
   riskAssesmentAdd(params: IRiskAssessmentField): Promise<IRiskAssessmentDocument>;
   riskAssesmentRemove(_ids: string[]): void;
-  riskAssessmentUpdate(params: { _id: string; doc: IRiskAssessmentField }): Promise<IRiskAssessmentDocument>;
+  riskAssessmentUpdate(params: {
+    _id: string;
+    doc: IRiskAssessmentField;
+  }): Promise<IRiskAssessmentDocument>;
 }
+
+const generateFilter = (params: { _id?: string;categoryId?: string } & IRiskAssessmentField & PaginateField) => {
+  let filter: any = {};
+
+  if(params._id){
+    filter._id = params._id;
+  }
+
+  if (params.categoryId) {
+    filter.categoryId = params.categoryId;
+  }
+
+  if (params.sortFromDate) {
+    if (parseInt(params.sortFromDate)) {
+      params.sortFromDate = new Date(parseInt(params.sortFromDate)).toString();
+    }
+    filter.createdAt = { $gte: new Date(params.sortFromDate) };
+  }
+
+  if (params.sortToDate) {
+    if (parseInt(params.sortToDate)) {
+      params.sortToDate = new Date(parseInt(params.sortToDate)).toString();
+    }
+    filter.createdAt = { ...filter.createdAt, $lte: new Date(params.sortToDate) };
+  }
+
+  if (params.status) {
+    filter.status = params.status;
+  }
+  if (params.searchValue) {
+    filter.name = { $regex: new RegExp(escapeRegExp(params.searchValue), 'i') };
+  }
+
+  return filter;
+};
+
+const generateOrderFilters = (params: IRiskAssessmentField & PaginateField) => {
+  const filter: any = {};
+
+  filter.createdAt = -1;
+
+  if (params.sortDirection) {
+    filter.createdAt = params.sortDirection;
+  }
+
+  return filter;
+};
 
 export const loadRiskAssessment = (model: IModels, subdomain: string) => {
   class RiskAssessment {
-    public static async riskAssesments(params: { categoryId: string } & IRiskAssessmentField) {
-      const list = model.RiskAssessment.find(params);
-      const totalCount = model.RiskAssessment.find(params).countDocuments();
+    public static async riskAssesments(
+      params: { categoryId: string } & IRiskAssessmentField & PaginateField
+    ) {
+      const lookup = {
+        $lookup: {
+          from: 'risk_assessment_categories',
+          localField: 'categoryId',
+          foreignField: '_id',
+          as: 'category',
+        },
+      };
+      const filter = generateFilter(params);
+
+      const match = { $match: filter };
+      const sort = { $sort: generateOrderFilters(params) };
+      const set = { $unwind: '$category'  };
+      const list = paginate(model.RiskAssessment.aggregate([match, lookup, set, sort]), params);
+
+      const totalCount = model.RiskAssessment.find(filter).countDocuments();
+
       return { list, totalCount };
     }
 
@@ -53,11 +123,28 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
     }
 
     public static async riskAssessmentDetail(params: { _id: string }) {
-      if (!params._id) {
+      const filter = generateFilter(params)
+      if (!filter._id) {
         throw new Error('You must provide a _id parameter');
       }
 
-      return await models?.RiskAssessment.findOne(params);
+      const match = { $match: filter }
+
+      const lookup = {
+        $lookup: {
+          from: 'risk_assessment_categories',
+          localField: 'categoryId',
+          foreignField: '_id',
+          as: 'category',
+        },
+      }
+      const unwind = {
+        $unwind: '$category',
+      }
+
+      const [first] = await model.RiskAssessment.aggregate([match,lookup,unwind])
+
+      return first;
     }
   }
   riskAssessmentSchema.loadClass(RiskAssessment);

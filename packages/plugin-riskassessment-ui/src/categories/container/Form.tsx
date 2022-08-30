@@ -1,20 +1,21 @@
-import { Alert } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { RiskAssesmentsCategoriesQueryResponse } from '../../common/types';
-import Form from '../components/Form';
-import { mutations, queries } from '../graphql';
+import { Alert } from '@erxes/ui/src'
+import { IRouterProps } from '@erxes/ui/src/types'
+import { withProps } from '@erxes/ui/src/utils/core'
+import gql from 'graphql-tag'
+import * as compose from 'lodash.flowright'
+import React from 'react'
+import { graphql } from 'react-apollo'
+import { withRouter } from 'react-router-dom'
+import { commonRefetchType, RiskAssesmentsCategoriesQueryResponse } from '../../common/types'
+import Form from '../components/Form'
+import { mutations, queries } from '../graphql'
 
 type Props = {
   trigger?: JSX.Element;
   categoryId?: string;
   formId?: string;
-  refetch?: () => void;
+  refetch?: (prop?:commonRefetchType) => void;
+  closeModal: () => void;
 };
 
 type FinalProps = {
@@ -43,6 +44,7 @@ class FormContainer extends React.Component<FinalProps, State> {
       .then(() => {
         Alert.success('Category added successfully');
         this.props.refetch && this.props.refetch();
+        this.props.closeModal();
       })
       .catch((e) => Alert.error(e.message));
   }
@@ -54,6 +56,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         Alert.success('Category edited successfully');
         setTimeout(() => {
           this.props.refetch && this.props.refetch();
+          this.props.closeModal();
         }, 300);
       })
       .catch((e) => Alert.error(e.message));

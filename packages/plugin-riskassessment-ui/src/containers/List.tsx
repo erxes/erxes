@@ -1,13 +1,16 @@
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { Alert, commonListComposer, confirm } from '@erxes/ui/src/utils';
-import List from '../components/List';
-import { mutations, queries } from '../graphql';
-import React from 'react';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { ICommonListProps, RiskAssesmentsCategoriesQueryResponse } from '../common/types';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { RiskAssesmentsListQueryResponse } from '../common/types';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types'
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types'
+import { Alert, commonListComposer, confirm, router } from '@erxes/ui/src/utils'
+import gql from 'graphql-tag'
+import React from 'react'
+import { graphql } from 'react-apollo'
+import {
+  ICommonListProps,
+  RiskAssesmentsCategoriesQueryResponse,
+  RiskAssesmentsListQueryResponse
+} from '../common/types'
+import List from '../components/List'
+import { mutations, queries } from '../graphql'
 
 type Props = IRouterProps &
   ICommonListProps &
@@ -42,6 +45,7 @@ class ListContainer extends React.Component<Props> {
       ...this.props,
       list: riskAssesments?.list,
       totalCount: riskAssesments?.totalCount,
+      refetch: listQuery.refetch,
       loading,
       remove,
     };
@@ -49,6 +53,21 @@ class ListContainer extends React.Component<Props> {
     return <List {...updatedProps} />;
   }
 }
+
+const generateParams = ({ queryParams }) => ({
+  ...router.generatePaginationParams(queryParams || {}),
+  ids: queryParams.ids,
+  campaignId: queryParams.campaignId,
+  status: queryParams.status,
+  ownerId: queryParams.ownerId,
+  ownerType: queryParams.ownerType,
+  searchValue: queryParams.searchValue,
+  sortField: queryParams.sortField,
+  sortDirection: Number(queryParams.sortDirection) || undefined,
+  sortFromDate: queryParams.From || undefined,
+  sortToDate: queryParams.To || undefined,
+  categoryId:queryParams.categoryId
+});
 
 export default commonListComposer<Props>({
   text: 'list',
@@ -60,7 +79,7 @@ export default commonListComposer<Props>({
   gqlListQuery: graphql<Props>(gql(queries.list), {
     name: 'listQuery',
     options: ({ queryParams }) => ({
-      variables: queryParams,
+      variables: generateParams({ queryParams }),
     }),
   }),
 

@@ -4,10 +4,11 @@ import {
   FormControl,
   FormGroup,
   __
-} from '@erxes/ui/src';
-import { Column } from '@erxes/ui/src/styles/main';
-import React from 'react';
-import { LogicItem, LogicRow, RowSmall } from '../styles';
+} from '@erxes/ui/src'
+import { Column } from '@erxes/ui/src/styles/main'
+import { IObjectObjType } from '@erxes/ui/src/types'
+import React from 'react'
+import { LogicItem, LogicRow, RowSmall } from '../styles'
 
 type Props = {
   defaultValue: string;
@@ -18,6 +19,8 @@ type Props = {
     options: string[] | string | object[]
   ) => any;
   fieldType: string;
+  optionsObj?:IObjectObjType[];
+  riskAssessmentFieldType?:string;
 };
 
 type State = {
@@ -30,7 +33,7 @@ class RiskAssessmenOptions extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      optionsObj: [],
+      optionsObj: this.props.optionsObj || [],
       value: ''
     };
 
@@ -131,7 +134,7 @@ class RiskAssessmenOptions extends React.Component<Props, State> {
   }
 
   render() {
-    const { onchange, fieldType } = this.props;
+    const { onchange, fieldType,riskAssessmentFieldType } = this.props;
 
     return (
       <>
@@ -140,9 +143,10 @@ class RiskAssessmenOptions extends React.Component<Props, State> {
           <FormControl
             componentClass="select"
             name="riskAssessmentFieldType"
-            defaultValue={'text'}
+            defaultValue={riskAssessmentFieldType}
             onChange={onchange}
           >
+            <option/>
             <option key="text" value="text">
               {__('Text')}
             </option>

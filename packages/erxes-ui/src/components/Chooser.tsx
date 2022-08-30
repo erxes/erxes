@@ -22,7 +22,7 @@ export type CommonProps = {
   resetAssociatedItem?: () => void;
   closeModal: () => void;
   onSelect: (datas: any[]) => void;
-  renderExtra?: () => any;
+  renderExtra?: (selectedItem?:any) => any;
   handleExtra?: (data: any) => void;
 };
 
@@ -132,7 +132,7 @@ class CommonChooser extends React.Component<Props, State> {
       return (
         <ul>
           {selectedDatas.map(data => this.renderRow(data, 'times'))}
-          {this.props.renderExtra && this.props.renderExtra()}
+          {this.props.renderExtra && this.props.renderExtra(selectedDatas)}
         </ul>
       );
     }

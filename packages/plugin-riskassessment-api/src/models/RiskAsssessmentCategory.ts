@@ -1,16 +1,45 @@
-import { Model } from 'mongoose';
-import { IModels } from '../connectionResolver';
-import { sendFormsMessage } from '../messageBroker';
-import { IRiskAssessmentCategoryField } from './definitions/common';
-import { IRiskAssessmentCategoryDocument, riskAssessmentCategorySchema } from './definitions/riskassessment';
+import { paginate } from '@erxes/api-utils/src'
+import { escapeRegExp } from '@erxes/api-utils/src/core'
+import { Model } from 'mongoose'
+import { IModels } from '../connectionResolver'
+import { sendFormsMessage } from '../messageBroker'
+import { IRiskAssessmentCategoryField, PaginateField } from './definitions/common'
+import {
+  IRiskAssessmentCategoryDocument,
+  riskAssessmentCategorySchema
+} from './definitions/riskassessment'
 
 export interface IRiskAssessmentCategoryModel extends Model<IRiskAssessmentCategoryDocument> {
-  addAssessmentCategory(params: IRiskAssessmentCategoryField): Promise<IRiskAssessmentCategoryDocument>;
+  addAssessmentCategory(
+    params: IRiskAssessmentCategoryField
+  ): Promise<IRiskAssessmentCategoryDocument>;
   removeAssessmentCategory(params: { _id: string }): Promise<IRiskAssessmentCategoryDocument>;
-  editAssessmentCategory(params: IRiskAssessmentCategoryField): Promise<IRiskAssessmentCategoryDocument>;
-  getAssessmentCategories(): Promise<IRiskAssessmentCategoryDocument>;
+  editAssessmentCategory(
+    params: IRiskAssessmentCategoryField
+  ): Promise<IRiskAssessmentCategoryDocument>;
+  getAssessmentCategories(
+    params: IRiskAssessmentCategoryField
+  ): Promise<IRiskAssessmentCategoryDocument>;
   getAssessmentCategory(_id: string): Promise<IRiskAssessmentCategoryDocument>;
+  getFormDetail(_id: string): Promise<IRiskAssessmentCategoryDocument>;
 }
+
+const generateFilter = (params: IRiskAssessmentCategoryField & PaginateField) => {
+  let filter: any = {};
+
+  if (params.formId) {
+    filter.formId = params.formId;
+  }
+
+  if (params.code) {
+    filter.code = params.code;
+  }
+  if (params.searchValue) {
+    filter.name = { $regex: new RegExp(escapeRegExp(params.searchValue), 'i') };
+  }
+
+  return filter;
+};
 
 export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
   class AssessmentClass {
@@ -20,8 +49,10 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         throw new Error('please type the assessment category fields');
       }
 
-      if (await models.RiskAssessmentCategory.findOne({ code })) {
-        throw new Error('Code must be unique');
+      const isParamsHasError = await this.checkParams(params,true);
+
+      if (isParamsHasError) {
+        throw new Error(isParamsHasError);
       }
 
       const order = await this.getOrder(parentId, code, name);
@@ -30,12 +61,20 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       return result;
     };
 
-    public static getAssessmentCategories = () => {
-      return models.RiskAssessmentCategory.find();
+    public static getAssessmentCategories = (params: IRiskAssessmentCategoryField) => {
+      console.log(params);
+
+      const filter = generateFilter(params);
+
+      return paginate(models.RiskAssessmentCategory.find(filter), params);
     };
 
     public static getAssessmentCategory = async (_id: string) => {
       const category = await models.RiskAssessmentCategory.findOne({ _id }).lean();
+
+      if (!category) {
+        throw new Error('Not found assessment category');
+      }
 
       const parent = await models.RiskAssessmentCategory.findOne({ _id: category.parentId });
 
@@ -67,16 +106,12 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         category.formName = form.title;
       }
 
-      if (!category) {
-        throw new Error('Not found assessment category');
-      }
-
       return category;
     };
 
     public static removeAssessmentCategory = async (params: { _id: string }) => {
       if (!params._id) {
-        throw new Error('Not found assessment category');
+        throw new Error('Not found risk assessment category');
       }
 
       try {
@@ -87,8 +122,6 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
     };
 
     public static editAssessmentCategory = async (params: IRiskAssessmentCategoryField) => {
-      console.log(params);
-
       const { _id, name, code, parentId, formId } = params;
 
       const category = await models.RiskAssessmentCategory.findOne({ _id }).lean();
@@ -97,14 +130,53 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         throw new Error('Not found risk assessment category');
       }
 
+      const isParamsHasError = await this.checkParams(params);
+
+      if (isParamsHasError) {
+        throw new Error(isParamsHasError);
+      }
+
       const order = await this.getOrder(parentId, code, name);
 
-      return models.RiskAssessmentCategory.updateOne({ _id }, { $set: { ...category, ...params, order } });
+      return models.RiskAssessmentCategory.updateOne(
+        { _id },
+        { $set: { ...category, ...params, order } }
+      );
     };
+
+    public static async getFormDetail(_id) {
+      const form = await sendFormsMessage({
+        subdomain,
+        action: 'findOne',
+        data: { _id },
+        isRPC: true,
+        defaultValue: {},
+      });
+
+      return form;
+    }
 
     static async getOrder(_id: string, code: string, name: string) {
       const parent = await models.RiskAssessmentCategory.findOne({ _id });
       return parent ? `${parent.order}/${code}` : `${name}${code}`;
+    }
+
+    static async checkParams(params: IRiskAssessmentCategoryField,checkCode?:boolean) {
+      if (!params.formId) {
+        return 'You must a build form';
+      }
+
+      if (!params.name) {
+        return 'You must a provide category name';
+      }
+
+      if (!params.code) {
+        return 'You must provide code';
+      }
+
+      if (checkCode&&await models.RiskAssessmentCategory.findOne({ code: params.code })) {
+        return 'Code must be unique';
+      }
     }
   }
   riskAssessmentCategorySchema.loadClass(AssessmentClass);

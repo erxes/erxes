@@ -1,19 +1,20 @@
-import React from 'react';
-import AssessmentCategoriesComponent from '../components/List';
-import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { mutations, queries } from '../graphql';
+import { Alert } from '@erxes/ui/src';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
-import { RiskAssesmentsCategoriesQueryResponse } from '../../common/types';
-import { Alert, confirm, Spinner } from '@erxes/ui/src';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { commonRefetchType, RiskAssesmentsCategoriesQueryResponse } from '../../common/types';
+import AssessmentCategoriesComponent from '../components/List';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   categories?: RiskAssesmentsCategoriesQueryResponse;
   removeCategory?: any;
   queryParams?: any;
+  riskAssesmentsRefetch?: (params: commonRefetchType) => void;
 } & IRouterProps;
 
 class AssessmentCategories extends React.Component<Props> {
@@ -24,17 +25,16 @@ class AssessmentCategories extends React.Component<Props> {
   }
 
   removeCategory(id: string) {
-    confirm().then(() => {
-      this.props
-        .removeCategory({ variables: { id } })
-        .then(() => {
-          Alert.success('Successfully removed category');
-          this.props.categories?.refetch();
-        })
-        .catch((e) => {
-          Alert.error(e.message);
-        });
-    });
+    const { removeCategory, categories } = this.props;
+
+    removeCategory({ variables: { id } })
+      .then(() => {
+        Alert.success('Successfully removed category');
+        categories?.refetch();
+      })
+      .catch((e) => {
+        Alert.error(e.message);
+      });
   }
 
   render() {

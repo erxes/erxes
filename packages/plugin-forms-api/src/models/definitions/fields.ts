@@ -1,7 +1,7 @@
-import { ILocationOption } from '@erxes/api-utils/src/types';
-import { Document, Schema } from 'mongoose';
-import { INPUT_TYPE } from './constants';
-import { field, schemaWrapper } from './utils';
+import { ILocationOption } from '@erxes/api-utils/src/types'
+import { Document, Schema } from 'mongoose'
+import { INPUT_TYPE } from './constants'
+import { field, schemaWrapper } from './utils'
 
 export interface ISubmission {
   _id: string;
@@ -48,6 +48,12 @@ const ObjectListSchema = new Schema({
   })
 });
 
+const optionsObjSchema = new Schema({
+  key:field({type: String,label:'Risk Assessment Field Options Key'}),
+  label: field({ type: String, label: 'Risk Assessment Field Options Label' }),
+  value:field({type:String,label: 'Risk Assessment Field Options Value'})
+})
+
 interface IVisibility {
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
@@ -58,7 +64,11 @@ interface IObjectListConfig {
   label: string;
   type: string;
 }
-
+interface ObjectOptions{
+  key: number;
+  value: string;
+  label: string;
+}
 export interface IField extends IVisibility {
   contentType?: string;
   contentTypeId?: string;
@@ -70,6 +80,8 @@ export interface IField extends IVisibility {
   options?: string[];
   locationOptions?: ILocationOption[];
   objectListConfigs?: IObjectListConfig[];
+  optionsObj?:ObjectOptions[];
+  riskAssessmentFieldType?:string;
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   isVisibleToCreate?: boolean;
@@ -152,6 +164,14 @@ export const fieldSchema = schemaWrapper(
       type: [ObjectListSchema],
       optional: true,
       label: 'object list config'
+    }),
+    optionsObj: field({
+      type:[optionsObjSchema],
+      label: 'Risk Assessment Field Options object'
+    }),
+    riskAssessmentFieldType:field({
+      type:String,
+      label:'Risk Assessment Field Type'
     }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),

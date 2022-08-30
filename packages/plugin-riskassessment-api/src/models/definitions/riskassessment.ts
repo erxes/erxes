@@ -1,6 +1,5 @@
-import { Schema } from 'mongoose';
+import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { Document } from 'mongoose';
 export interface IRiskAssessmentDocument extends Document {
   _id: string;
   createdAt: Date;
@@ -19,15 +18,6 @@ export interface IRiskAssessmentCategoryDocument extends Document {
   code: String;
 }
 
-export const riskAssessmentSchema = new Schema({
-  _id: field({ pkey: true }),
-  name: field({ type: String, label: 'Name' }),
-  description: field({ type: String, label: 'Description' }),
-  createdAt: field({ type: Date, default: new Date(), label: 'Created At' }),
-  categoryId: field({ type: String, label: 'Risk Assessment Category Id' }),
-  status: field({ type: String, label: 'Status' }),
-});
-
 export const riskAssessmentCategorySchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Category Name' }),
@@ -35,4 +25,13 @@ export const riskAssessmentCategorySchema = new Schema({
   parentId: field({ type: String, label: 'Category Parent Name' }),
   order: field({ type: String, label: 'Category Order' }),
   code: field({ type: String, label: 'Category Code' }),
+});
+
+export const riskAssessmentSchema = new Schema({
+  _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
+  description: field({ type: String, label: 'Description' }),
+  createdAt: field({ type: Date, default: new Date(), label: 'Created At' }),
+  categoryId: field({ type: String, label: 'Risk Assessment Category Id' }),
+  status: field({ type: String, label: 'Status' }),
 });

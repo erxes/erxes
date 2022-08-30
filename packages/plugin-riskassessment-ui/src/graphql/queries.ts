@@ -1,7 +1,12 @@
-import { riskAssessmentCategoryParams, riskAssessmentParams } from '../common/graphql';
+import {
+  commonPaginateDef,
+  commonPaginateValue,
+  riskAssessmentCategoryParams,
+  riskAssessmentParams,
+} from '../common/graphql';
 const list = `
-query RiskAssesments($categoryId: String) {
-  riskAssesments(categoryId: $categoryId) {list{${riskAssessmentParams}},totalCount}
+query RiskAssesments($categoryId: String,${commonPaginateDef}) {
+  riskAssesments(categoryId: $categoryId , ${commonPaginateValue}) {list{${riskAssessmentParams}},totalCount}
   }
 `;
 
@@ -12,8 +17,8 @@ const totalCount = `
 `;
 
 const listAssessmentCategories = `
-  query GetRiskAssesmentCategories {
-    getRiskAssesmentCategories {
+  query GetRiskAssesmentCategories (${commonPaginateDef}) {
+    getRiskAssesmentCategories (${commonPaginateValue}) {
       ${riskAssessmentCategoryParams}
     }
   }

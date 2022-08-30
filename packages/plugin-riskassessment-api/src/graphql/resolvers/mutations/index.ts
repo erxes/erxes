@@ -3,4 +3,9 @@ import RiskAnswerMutations from './riskAnswer';
 import RiskConfimityMutations from './riskConfimity';
 import RiskAssessmentCategoryMutation from './riskAssessmentCategory';
 
-export default { ...RiskAssessmentMutations, ...RiskAnswerMutations, ...RiskConfimityMutations, ...RiskAssessmentCategoryMutation };
+export default {
+  ...RiskAssessmentMutations,
+  ...RiskAnswerMutations,
+  ...RiskConfimityMutations,
+  ...RiskAssessmentCategoryMutation,
+};

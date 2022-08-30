@@ -1,24 +1,27 @@
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import React from 'react';
-import FormCompnent from '../components/Form';
-import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils/core';
-import { queries } from '../graphql';
-import { RiskAssesmentsCategoriesQueryResponse, RiskAssessmentDetailQueryResponse } from '../common/types';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types'
+import { IRouterProps } from '@erxes/ui/src/types'
+import { withProps } from '@erxes/ui/src/utils/core'
+import gql from 'graphql-tag'
+import * as compose from 'lodash.flowright'
+import React from 'react'
+import { graphql } from 'react-apollo'
+import { withRouter } from 'react-router-dom'
+import {
+  RiskAssesmentsCategoriesQueryResponse,
+  RiskAssessmentDetailQueryResponse
+} from '../common/types'
+import FormCompnent from '../components/Form'
+import { queries } from '../graphql'
 
 type Props = {
   asssessmentId?: string;
-  categories: RiskAssesmentsCategoriesQueryResponse;
   assessmentDetail?: RiskAssessmentDetailQueryResponse;
 };
 
 type FinalProps = {
   object;
   generateDoc: (values: any) => any;
+  categories: RiskAssesmentsCategoriesQueryResponse;
 } & ICommonFormProps &
   IRouterProps &
   Props;

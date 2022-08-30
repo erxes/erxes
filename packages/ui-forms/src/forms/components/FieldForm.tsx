@@ -1,19 +1,19 @@
-import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/SelectProperty';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Select from 'react-select-plus';
+import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/SelectProperty'
+import { IProductCategory } from '@erxes/ui-products/src/types'
+import Button from '@erxes/ui/src/components/Button'
+import CollapseContent from '@erxes/ui/src/components/CollapseContent'
+import EditorCK from '@erxes/ui/src/components/EditorCK'
+import FormControl from '@erxes/ui/src/components/form/Control'
+import FormGroup from '@erxes/ui/src/components/form/Group'
+import ControlLabel from '@erxes/ui/src/components/form/Label'
+import Icon from '@erxes/ui/src/components/Icon'
+import { FlexItem } from '@erxes/ui/src/components/step/styles'
+import Toggle from '@erxes/ui/src/components/Toggle'
+import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types'
+import { __ } from '@erxes/ui/src/utils'
+import React from 'react'
+import Modal from 'react-bootstrap/Modal'
+import Select from 'react-select-plus'
 
 import {
   FlexRow,
@@ -21,12 +21,12 @@ import {
   Preview,
   PreviewSection,
   ShowPreview
-} from '../styles';
-import FieldLogics from './FieldLogics';
-import FieldPreview from './FieldPreview';
-import LocationOptions from './LocationOptions';
-import ObjectListConfigs from './ObjectListConfigs';
-import RiskAssessmenOptions from './riskAssessmentConfig';
+} from '../styles'
+import FieldLogics from './FieldLogics'
+import FieldPreview from './FieldPreview'
+import LocationOptions from './LocationOptions'
+import ObjectListConfigs from './ObjectListConfigs'
+import RiskAssessmenOptions from './riskAssessmentConfig'
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -600,6 +600,8 @@ class FieldForm extends React.Component<Props, State> {
         fieldType={field.riskAssessmentFieldType || ''}
         options={field.options || []}
         onChangeOptions={onChangeOptions}
+        optionsObj={field.optionsObj}
+        riskAssessmentFieldType={field.riskAssessmentFieldType}
       />
     );
   }

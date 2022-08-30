@@ -3,7 +3,8 @@ module.exports = {
   port: 3012,
   scope: 'riskassessment',
   exposes: {
-    './routes': './src/routes.tsx'
+    './routes': './src/routes.tsx',
+    './riskAssessmentSection': './src/section/container/List.tsx'
   },
   routes: {
     url: 'http://localhost:3012/remoteEntry.js',
@@ -12,11 +13,18 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Riskassessments',
+      text: 'Risk Assessments',
       to: '/riskassessments',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
       scope: 'riskassessment'
     }
-  ]
+  ],
+  dealRightSidebarSection: [
+    {
+      text: "riskAssessmentSection",
+      component: './riskAssessmentSection',
+      scope: "riskassessment",
+    },
+  ],
 };

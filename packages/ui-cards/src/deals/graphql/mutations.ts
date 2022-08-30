@@ -4,8 +4,8 @@ import {
   commonFields,
   commonMutationParams,
   commonMutationVariables
-} from '../../boards/graphql/mutations';
-import { dealFields } from './queries';
+} from '../../boards/graphql/mutations'
+import { dealFields } from './queries'
 
 const dealMutationVariables = `
   $productsData: JSON,
@@ -84,6 +84,7 @@ const confirmLoyalties = `
   }
 `;
 
+
 export default {
   dealsAdd,
   dealsEdit,
@@ -92,5 +93,5 @@ export default {
   dealsWatch,
   dealsArchive,
   dealsCopy,
-  confirmLoyalties
+  confirmLoyalties,
 };

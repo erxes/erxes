@@ -1,4 +1,4 @@
-import { commonAssessmentCategoryTypes } from './common';
+import { commonAssessmentCategoryTypes, commonPaginateTypes } from './common';
 
 export const types = `
     type CategoryField {
@@ -22,8 +22,9 @@ export const types = `
     }
 `;
 export const queries = `
-    getRiskAssesmentCategories:[CategoryMainField]
+    getRiskAssesmentCategories(${commonPaginateTypes}):[CategoryMainField]
     getRiskAssesmentCategory(_id: String!): CategoryMainField
+    getRiskAssessmentFormDetail(_id : String):JSON
 `;
 export const mutations = `
     addAssessmentCategory (name: String,formId: String,parentId: String,code: String):JSON

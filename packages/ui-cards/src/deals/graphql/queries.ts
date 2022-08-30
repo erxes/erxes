@@ -1,9 +1,9 @@
-import { commonFields, commonListFields } from '../../boards/graphql/mutations';
+import { isEnabled } from '@erxes/ui/src/utils/core'
+import { commonFields, commonListFields } from '../../boards/graphql/mutations'
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '../../conformity/graphql/queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+} from '../../conformity/graphql/queries'
 
 const commonParams = `
   $companyIds: [String],
@@ -200,6 +200,7 @@ const checkDiscount = `
   }
 `;
 
+
 export default {
   deals,
   dealsTotalCount,
@@ -208,5 +209,5 @@ export default {
   dealsTotalAmounts,
   archivedDeals,
   archivedDealsCount,
-  checkDiscount
+  checkDiscount,
 };

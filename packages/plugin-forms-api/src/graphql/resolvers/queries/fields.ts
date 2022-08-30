@@ -1,11 +1,11 @@
 import {
   checkPermission,
   requireLogin
-} from '@erxes/api-utils/src/permissions';
-import { fieldsCombinedByContentType } from '../../../utils';
-import { serviceDiscovery } from '../../../configs';
-import { fetchService } from '../../../messageBroker';
-import { IContext } from '../../../connectionResolver';
+} from '@erxes/api-utils/src/permissions'
+import { serviceDiscovery } from '../../../configs'
+import { IContext } from '../../../connectionResolver'
+import { fetchService } from '../../../messageBroker'
+import { fieldsCombinedByContentType } from '../../../utils'
 interface IFieldsDefaultColmns {
   [index: number]: { name: string; label: string; order: number } | {};
 }
@@ -220,4 +220,5 @@ const fieldsGroupQueries = {
 
 checkPermission(fieldsGroupQueries, 'fieldsGroups', 'showForms', []);
 
-export { fieldQueries, fieldsGroupQueries };
+export { fieldQueries, fieldsGroupQueries }
+

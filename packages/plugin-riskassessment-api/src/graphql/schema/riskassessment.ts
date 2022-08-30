@@ -1,4 +1,9 @@
-import { commonRiskAssessmentTypes, commonTypes } from './common';
+import {
+  commonAssessmentCategoryTypes,
+  commonPaginateTypes,
+  commonRiskAssessmentTypes,
+  commonTypes,
+} from './common';
 
 export const types = `
     input RiskAssessmentInput {
@@ -7,12 +12,19 @@ export const types = `
         categoryId: String
         status: String
     }
+
+    type RiskAssessmentCategoryInput {
+        ${commonAssessmentCategoryTypes}
+    }
+
     type RiskAssessment {
         _id: String
         name: String
         description: String
         categoryId: String
         status: String
+        createdAt:Date
+        category:RiskAssessmentCategoryInput
     }
     type list {
         list: [RiskAssessment]
@@ -21,7 +33,7 @@ export const types = `
 `;
 
 export const queries = `
-    riskAssesments (categoryId:String):list
+    riskAssesments (categoryId:String,${commonPaginateTypes}):list
     riskAssessmentDetail(_id: String): RiskAssessment
 `;
 export const mutations = `

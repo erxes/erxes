@@ -1,10 +1,12 @@
-import { FormControl, ModalTrigger } from '@erxes/ui/src';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import React from 'react';
-import Form from '../containers/Form';
+import { FormControl, ModalTrigger, Tip } from '@erxes/ui/src'
+import { IButtonMutateProps } from '@erxes/ui/src/types'
+import moment from 'moment'
+import React from 'react'
+import { RiskAssesmentsType } from '../common/types'
+import Form from '../containers/Form'
 
 type IProps = {
-  object: any;
+  object: RiskAssesmentsType;
   selectedValue: string[];
   onchange: (id: string) => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -25,11 +27,18 @@ class TableRow extends React.Component<IProps> {
     const trigger = (
       <tr key={object._id}>
         <td onClick={onclick}>
-          <FormControl componentClass="checkbox" checked={selectedValue.includes(object._id)} onChange={() => onchange(object._id)} />
+          <FormControl
+            componentClass="checkbox"
+            checked={selectedValue.includes(object._id)}
+            onChange={() => onchange(object._id)}
+          />
         </td>
         <td>{object.name}</td>
-        <td>{object.categoryId}</td>
+        <td>{object.category?.name || '-'}</td>
         <td>{object.status}</td>
+        <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
+        <td>{moment(object.createdAt).fromNow()}</td>
+        </Tip>
       </tr>
     );
 
@@ -42,7 +51,16 @@ class TableRow extends React.Component<IProps> {
       return <Form {...updatedProps} asssessmentId={object._id} />;
     };
 
-    return <ModalTrigger title="Edit Risk Assessment" enforceFocus={false} trigger={trigger} autoOpenKey="showListFormModal" content={contentForm} dialogClassName="transform" />;
+    return (
+      <ModalTrigger
+        title="Edit Risk Assessment"
+        enforceFocus={false}
+        trigger={trigger}
+        autoOpenKey="showListFormModal"
+        content={contentForm}
+        dialogClassName="transform"
+      />
+    );
   }
 }
 

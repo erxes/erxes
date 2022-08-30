@@ -1,9 +1,19 @@
+export type commonRefetchType = {
+  searchValue?: string;
+  perPage?: number;
+  sortDirection?: number;
+  sortFromDate?: string;
+  sortToDate?: string;
+};
+
 export type RiskAssesmentsType = {
   _id: string;
   categoryId?: string;
   description?: string;
   name?: string;
   status?: string;
+  createdAt?: string;
+  category?: RiskAssessmentCategory
 };
 
 export type RiskAssessmentDetailQueryResponse = {
@@ -38,7 +48,9 @@ export type RiskAssesmentsCategoriesQueryResponse = {
   getRiskAssesmentCategories: [RiskAssessmentCategory];
 };
 
-export type AddRiskAssesmentCategoryMutationResponse = ({ variables: RiskAssessmentCategory }) => Promise<any>;
+export type AddRiskAssesmentCategoryMutationResponse = ({
+  variables: RiskAssessmentCategory,
+}) => Promise<any>;
 
 export interface ICommonListProps {
   objects: any;
@@ -56,4 +68,31 @@ export type CustomFormGroupProps = {
   required?: boolean;
   row?: boolean;
   spaceBetween?: boolean;
+};
+
+export interface IDealRiskAssements {
+  _id: string;
+  cardId: string;
+  riskAssessmentId: string;
+  name?: string;
+}
+
+export type IDealRiskConfirmitiesQueryResponse = {
+  riskConfirmities: IDealRiskAssements[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type IDealRiskAssessmentsQueryResponse = {
+  riskAssesments: {
+    list: IDealRiskAssements[];
+    totalCount: number;
+  };
+  loading: boolean;
+  refetch: (params:{searchValue: string,perPage: number}) => void;
+};
+export type IDealRiskAssessmentDetailQueryResponse = {
+  riskConfirmityDetails: IDealRiskAssements[];
+  loading: boolean;
+  refetch: () => void;
 };

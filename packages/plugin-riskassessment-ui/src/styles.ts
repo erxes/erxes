@@ -1,7 +1,7 @@
-import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src'
+import { LeftItem } from '@erxes/ui/src/components/step/styles'
+import styled, { css } from 'styled-components'
+import styledTS from 'styled-components-ts'
 
 export const GridContainer = styledTS<{
   horizontal?: boolean;
@@ -10,7 +10,8 @@ export const GridContainer = styledTS<{
 }>(styled.div)`
     display:grid;
     gap:${(props) => props.gap || 0}
-    grid-template-columns:${(props) => (props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto')}
+    grid-template-columns:${(props) =>
+      props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto'}
 `;
 
 export const FormGroupRow = styledTS<{
@@ -70,7 +71,10 @@ export const ContentWrapper = styled.div`
 `;
 
 export const Padding = styledTS<{ horizontal?: boolean; vertical?: boolean }>(styled.div)`
-  padding: ${({ horizontal, vertical }) => (!horizontal && !vertical ? '10px' : `${horizontal ? '10px' : '0px'} ${vertical ? '10px' : '0px'}`)}
+  padding: ${({ horizontal, vertical }) =>
+    !horizontal && !vertical
+      ? '10px'
+      : `${horizontal ? '10px' : '0px'} ${vertical ? '10px' : '0px'}`}
 `;
 
 export const FormContainer = styledTS<{
@@ -79,11 +83,15 @@ export const FormContainer = styledTS<{
   spaceBetween?: boolean;
   spaceAround?: boolean;
   gap?: boolean;
+  align?: string;
 }>(styled.div)`
   display: flex;
   flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
-  justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({ spaceAround }) => (spaceAround ? 'space-around' : '')};
-  gap: ${({ gap }) => (gap ? '25px' : '')}
+  justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({
+  spaceAround,
+}) => (spaceAround ? 'space-around' : '')};
+  gap: ${({ gap }) => (gap ? '25px' : '')};
+  align-items:${({ align }) => (align ? align : '')}
 `;
 
 export const BoxItem = styled.div`
@@ -107,5 +115,30 @@ export const BoxItem = styled.div`
     margin: 0;
     color: ${colors.colorCoreGray};
     word-break: break-word;
+  }
+`;
+
+export const BarItem = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+`;
+
+export const ClearableBtn = styled.a`
+  cursor: pointer;
+`;
+
+export const ProductName = styled.a`
+  cursor: pointer;
+  color: ${colors.textSecondary};
+  display: flex;
+  justify-content: space-between;
+
+  > i {
+    visibility: hidden;
+  }
+
+  &:hover i {
+    visibility: visible;
   }
 `;

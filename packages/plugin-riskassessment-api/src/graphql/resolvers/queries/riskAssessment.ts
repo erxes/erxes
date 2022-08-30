@@ -1,9 +1,12 @@
 import { IContext } from '../../../connectionResolver';
-import { requireLogin } from '@erxes/api-utils/src';
-import { IRiskAssessmentField } from '../../../models/definitions/common';
+import { IRiskAssessmentField, PaginateField } from '../../../models/definitions/common';
 
 const RiskAssessmentQueries = {
-  async riskAssesments(_root, params: { categoryId: string } & IRiskAssessmentField, { models }: IContext) {
+  async riskAssesments(
+    _root,
+    params: { categoryId: string } & IRiskAssessmentField & PaginateField,
+    { models }: IContext
+  ) {
     return await models.RiskAssessment.riskAssesments(params);
   },
 

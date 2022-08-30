@@ -1,23 +1,20 @@
-import { gql } from 'apollo-server-express';
+import { gql } from 'apollo-server-express'
 
 import {
-  fieldsTypes,
-  fieldsQueries,
-  fieldsMutations,
-  fieldsGroupsTypes,
-  fieldsGroupsQueries,
-  fieldsGroupsMutations
-} from './schema/field';
+  fieldsGroupsMutations, fieldsGroupsQueries, fieldsGroupsTypes, fieldsMutations, fieldsQueries, fieldsTypes
+} from './schema/field'
 
-import { types, queries, mutations } from './schema/form';
+import { mutations, queries, types } from './schema/form'
 
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
+  const isRiskAssessmentEnabled = await serviceDiscovery.isEnabled('riskassessment');
 
   const isEnabled = {
     contacts: isContactsEnabled,
-    products: isProductsEnabled
+    products: isProductsEnabled,
+    riskAssessment:isRiskAssessmentEnabled
   };
 
   return gql`
