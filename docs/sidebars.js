@@ -3,21 +3,37 @@ module.exports = {
     {
       type: 'category',
       label: '🚀 Getting started',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
       items: ['intro', 'introduction/architecture', 'introduction/faq']
     },
     {
       type: 'category',
       label: '⚙️ Setup & Deployment',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
       items: ['deployment/deployment']
     },
     {
       type: 'category',
       label: '📦 Plugins',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
       items: ['plugins/plugin-installation']
     },
     {
       type: 'category',
       label: 'Configuration',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
       items: [
         {
           "Administrator's Guide": [
@@ -37,6 +53,7 @@ module.exports = {
           ]
         },
         'developer/webhook',
+
         {
           'GraphQL API': [
             'api/introduction',
@@ -55,6 +72,10 @@ module.exports = {
     {
       type: 'category',
       label: '🛠️ Development',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
       items: [
         {
           'XOS Installation': [
@@ -78,6 +99,10 @@ module.exports = {
     {
       type: 'category',
       label: 'Contributing to open source',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
       items: [
         'contribute/overview',
         'contribute/contribute-to-codebase',
@@ -88,6 +113,10 @@ module.exports = {
     {
       type: 'category',
       label: 'Erxes XOS user guide',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
       items: ['developer/erxes-xos-user-guide']
     }
   ]
