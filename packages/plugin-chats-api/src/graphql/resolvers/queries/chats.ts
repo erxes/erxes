@@ -202,6 +202,36 @@ const chatQueries = {
     }
 
     return unreadCount;
+  },
+
+  isChatUserOnline: async (_root, { userIds }, { models, user }) => {
+    const userstatus = await models.UserStatus.find({
+      userId: { $in: userIds }
+    });
+    return userstatus;
+  },
+  activeMe: async (_root, { userId }, { models, user }) => {
+    let userstatus = await models.UserStatus.findOne({
+      userId: userId
+    });
+    if (!userstatus) {
+      userstatus = await models.UserStatus.createUserStatus({
+        onlineDate: new Date(),
+        userId: userId
+      });
+    } else {
+      await models.UserStatus.updateOne(
+        { userId: userId },
+        {
+          onlineDate: new Date()
+        }
+      );
+      userstatus = await models.UserStatus.findOne({
+        userId: userId
+      });
+    }
+
+    return userstatus;
   }
 };
 checkPermission(chatQueries, 'chats', 'showChats');
