@@ -26,7 +26,10 @@ const List: React.FC = () => {
     variables
   });
 
-  const countQuery = useQuery(FORUM_POSTS_COUNT, { variables });
+  const countQuery = useQuery(FORUM_POSTS_COUNT, {
+    variables,
+    fetchPolicy: 'network-only'
+  });
 
   if (postQuery.loading) return null;
   if (postQuery.error)
@@ -43,22 +46,8 @@ const List: React.FC = () => {
           <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
         </div>
       ))}
-
-      <Pagination total={countQuery.data?.forumPostsCount || 0} />
     </div>
   );
-};
-
-const Pagination: React.FC<{ total: number }> = ({ total }) => {
-  const [_perPage] = useSearchParam('perPage');
-  const [_page] = useSearchParam('page');
-
-  const perPage = _perPage || 10;
-  const page = _page || 1;
-
-  if (!total) return null;
-
-  return null;
 };
 
 export default List;
