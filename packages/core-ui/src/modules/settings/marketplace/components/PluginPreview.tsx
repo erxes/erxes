@@ -8,9 +8,11 @@ import {
   PluginContainer,
   PluginPic,
   PluginInformation,
-  Description
+  Description,
+  CreatorImage
 } from '../styles';
 import { Link } from 'react-router-dom';
+import Tip from 'modules/common/components/Tip';
 
 type Props = {
   plugins: any[];
@@ -32,7 +34,14 @@ class PluginPreview extends React.Component<Props> {
               <Card>
                 <PluginPic src={plugin.image} />
                 <PluginInformation>
-                  <b className="title">{plugin.title}</b>
+                  <b className="title">
+                    {plugin.title}
+                    {plugin.creator === 'erxes' && (
+                      <Tip text="Made by erxes" placement="top">
+                        <CreatorImage src="https://erxes.io/static/images/logo/glyph.png" />
+                      </Tip>
+                    )}
+                  </b>
                   <Description
                     dangerouslySetInnerHTML={{
                       __html: plugin.shortDescription

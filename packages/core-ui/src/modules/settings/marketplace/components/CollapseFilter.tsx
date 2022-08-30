@@ -38,7 +38,7 @@ const FlexContent = styled.div`
 
 const Container = styledTS<{ open: boolean; border?: boolean }>(styled.div)`
   background: ${colors.colorWhite};
-  padding: ${dimensions.unitSpacing};
+  padding: 0 ${dimensions.unitSpacing}px;
   border-top: 1px solid ${props =>
     props.border ? colors.borderPrimary : colors.colorWhite};
 

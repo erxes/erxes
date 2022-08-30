@@ -11,6 +11,7 @@ import {
 } from '../styles';
 
 import Button from 'modules/common/components/Button';
+import Tip from 'modules/common/components/Tip';
 import CollapseFilter from './CollapseFilter';
 import FormControl from './FormControl';
 import Icon from 'modules/common/components/Icon';
@@ -114,14 +115,20 @@ class Leftbar extends React.Component<Props, State> {
                 <Icon icon="list-ul" size={20} />
                 <PaddingLeft>Filter</PaddingLeft>
               </FlexContent>
-              <Button btnStyle="simple" size="small" onClick={this.closeInput}>
-                <Icon
-                  style={{ cursor: 'pointer' }}
-                  icon="arrow-up-left"
-                  size={15}
-                  color={colors.colorPrimary}
-                />
-              </Button>
+              <Tip text="Shrink" placement="left">
+                <Button
+                  btnStyle="simple"
+                  size="small"
+                  onClick={this.closeInput}
+                >
+                  <Icon
+                    style={{ cursor: 'pointer' }}
+                    icon="merge"
+                    size={15}
+                    color={colors.colorPrimary}
+                  />
+                </Button>
+              </Tip>
             </FilterHeader>
             <CollapseFilter title="License" open hasBorder={true}>
               {this.renderCheckbox('All')}
@@ -156,7 +163,7 @@ class Leftbar extends React.Component<Props, State> {
 
   render() {
     return (
-      <MainContainer>
+      <MainContainer active={this.state.showInput}>
         <SearchContainer active={this.state.showInput}>
           {this.renderSearch()}
         </SearchContainer>

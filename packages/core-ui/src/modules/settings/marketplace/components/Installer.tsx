@@ -3,8 +3,10 @@ import React from 'react';
 import Leftbar from './Leftbar';
 import PluginPreview from './PluginPreview';
 import Wrapper from './Wrapper';
+import Icon from 'modules/common/components/Icon';
+import Button from 'modules/common/components/Button';
 
-import { ImageWrapper } from '../styles';
+import { ImageWrapper, TextWrapper } from '../styles';
 
 type State = {
   plugins: any[];
@@ -64,10 +66,39 @@ class Installer extends React.Component<{}, State> {
         .includes(searchField && searchField.toLowerCase());
     });
 
+    const combinations = [
+      [
+        { icon: 'chat', text: 'Team inbox' },
+        { icon: 'users', text: 'Contacts' }
+      ],
+      [
+        { icon: 'circular', text: 'Automation' },
+        { icon: 'paste', text: 'Booking' },
+        { text: '+12 plugins combination' }
+      ]
+    ];
+
     return (
       <>
         <ImageWrapper>
-          <span>Product Experience management template</span>
+          <TextWrapper>
+            <p>
+              Product Experience <br /> management template
+            </p>
+            {combinations.map(combination => (
+              <div>
+                {combination.map(item => (
+                  <span>
+                    {item.icon && <Icon icon={item.icon} />}
+                    &nbsp; {item.text}
+                  </span>
+                ))}
+              </div>
+            ))}
+            <Button btnStyle="white">
+              Read more <Icon icon="arrow-right" />
+            </Button>
+          </TextWrapper>
           <img src="/images/marketplace.png" alt="installer" />
         </ImageWrapper>
         <PluginPreview plugins={finalFilteredPlugins} />

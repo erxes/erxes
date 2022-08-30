@@ -9,15 +9,12 @@ const ImageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.coreSpacing * 2}px;
   height: 250px;
-  background-color: ${colors.colorPrimary};
+  background-color: #4f33af;
   border-radius: 8px;
   position: relative;
-  color: ${colors.colorWhite};
-  font-weight: 700;
-  font-size: 20px;
-  background-image: url('/images/stars.png');
+  background-image: url('/images/shootingStars.png');
 
   img {
     position: absolute;
@@ -26,11 +23,34 @@ const ImageWrapper = styled.div`
   }
 `;
 
+const TextWrapper = styled.div`
+  span {
+    margin-right: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+  }
+
+  p {
+    color: ${colors.colorWhite};
+    font-weight: 800;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
+  div {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  button {
+    margin-top: 20px;
+  }
+`;
+
 // Leftbar
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
   height: 100%;
-  max-width: 20%;
+  width: ${props => (props.active ? '290px' : 'unset')};
   display: flex;
   flex-direction: column;
 `;
@@ -74,7 +94,7 @@ const FilterHeader = styled.div`
   display: flex;
   height: 40px;
   justify-content: space-between;
-  padding: 9px;
+  padding: 9px 20px;
   align-items: center;
 `;
 
@@ -119,21 +139,37 @@ const PluginContainer = styled.div`
   b {
     font-size: 12px;
   }
+
+  > div {
+    display: flex;
+    flex-shrink: 0;
+    flex-basis: 20%;
+
+    @media (min-width: 480px) {
+      flex-basis: 100%;
+    }
+
+    @media (min-width: 920px) {
+      flex-basis: 46%;
+    }
+
+    @media (min-width: 1210px) {
+      flex-basis: 30%;
+    }
+
+    @media (min-width: 1500px) {
+      flex-basis: 23.2%;
+    }
+  }
 `;
 
 const CardWrapper = styled.div`
-  margin-right: ${dimensions.unitSpacing}px;
-  margin-bottom: ${dimensions.unitSpacing}px;
+  margin-right: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.coreSpacing}px;
   width: 23%;
   min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
-  border-radius: 8px;
-`;
-
-const Card = styled.div`
-  width: inherit;
-  padding: ${dimensions.unitSpacing}px;
-  color: ${colors.textPrimary};
+  padding: 20px;
   border-radius: 8px;
 
   &:hover {
@@ -143,13 +179,20 @@ const Card = styled.div`
   }
 `;
 
+const Card = styled.div`
+  width: inherit;
+  padding: ${dimensions.unitSpacing}px;
+  color: ${colors.textPrimary};
+  border-radius: 8px;
+`;
+
 const PluginPic = styled.img`
   width: 60px;
   height: 60px;
 `;
 
 const PluginInformation = styled.div`
-  margin-top: ${dimensions.unitSpacing}px;
+  margin-top: ${dimensions.coreSpacing}px;
 
   .title {
     font-size: 14px;
@@ -160,10 +203,10 @@ const PluginInformation = styled.div`
   }
 
   p {
-    margin: 0;
+    margin-top: ${dimensions.unitSpacing}px;
 
-    .gray {
-      color: ${colors.textSecondary};
+    span {
+      color: ${colors.colorCoreGray};
       line-height: 25px;
     }
   }
@@ -174,6 +217,7 @@ const Description = styled.p`
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden !important;
+  color: ${colors.colorCoreGray};
 `;
 
 // Detail main content
@@ -553,6 +597,14 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
+const CreatorImage = styled.img`
+  height: 14px;
+  width: 14px;
+  margin-left: 10px;
+  border-radius: 2px;
+  background: #4f33af;
+`;
+
 export {
   ImageWrapper,
   MainContainer,
@@ -594,5 +646,7 @@ export {
   SmallText,
   WidgetApperance,
   FormLabel,
-  Checkbox
+  Checkbox,
+  CreatorImage,
+  TextWrapper
 };
