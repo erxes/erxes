@@ -5,6 +5,8 @@ import { colors } from '@erxes/ui/src/styles';
 import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { Link } from 'react-router-dom';
+import { IImportHistory } from '../../../types';
+import Wrapper from 'modules/layout/components/Wrapper';
 
 const Box = styled(BoxRoot)`
   width: 320px;
@@ -36,6 +38,13 @@ const Box = styled(BoxRoot)`
 type Props = {
   onChange: (name: 'method', value: string) => void;
   method: string;
+  queryParams: any;
+  history: any;
+  histories: IImportHistory[];
+  loading: boolean;
+  totalCount: number;
+  currentType: string;
+  removeHistory: (historyId: string, contentType: string) => void;
 };
 
 class SelectMenu extends React.Component<Props> {
@@ -52,21 +61,34 @@ class SelectMenu extends React.Component<Props> {
   }
 
   render() {
+    const breadcrumb = [
+      { title: __('Settings'), link: '/settings' },
+      { title: __('Import & Export'), link: '/settings/selectMenu' }
+    ];
     return (
-      <FullContent center={true}>
-        {this.renderBox(
-          'Import',
-          'envelope-edit',
-          `Lorem Ipsum is simply dummy text of the printing and typesetting industry. `,
-          `/settings/importHistories`
-        )}
-        {this.renderBox(
-          'Export',
-          'comment-edit',
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
-          `/settings/exportHistories`
-        )}
-      </FullContent>
+      <>
+        <Wrapper
+          header={
+            <Wrapper.Header title={__('Exports')} breadcrumb={breadcrumb} />
+          }
+          content={''}
+          transparent={true}
+        />
+        <FullContent center={true}>
+          {this.renderBox(
+            'Import',
+            'envelope-edit',
+            `Lorem Ipsum is simply dummy text of the printing and typesetting industry. `,
+            `/settings/importHistories`
+          )}
+          {this.renderBox(
+            'Export',
+            'comment-edit',
+            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
+            `/settings/exportHistories`
+          )}
+        </FullContent>
+      </>
     );
   }
 }
