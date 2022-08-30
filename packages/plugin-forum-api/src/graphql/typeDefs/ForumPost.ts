@@ -10,7 +10,13 @@ export default `
     updatedAt: Date
 
     categoryId: ID!
+    createdById: ID
+    updatedById: ID
+    stateChangedById: ID
 
     category: ForumCategory
+    createdBy: User
+    updatedBy: User
+    stateChangedBy: User
   }
 `;

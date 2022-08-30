@@ -10,6 +10,9 @@ export interface IPost {
   thumbnail?: string | null;
   createdAt: Date;
   updatedAt: Date;
+  createdById: string;
+  updatedById?: string;
+  stateChangedById?: string;
 }
 
 export type PostDocument = IPost & Document;
@@ -30,7 +33,10 @@ export const postSchema = new Schema<PostDocument>(
       enum: ['DRAFT', 'PUBLISHED'],
       default: 'DRAFT'
     },
-    thumbnail: String
+    thumbnail: String,
+    createdById: { type: String, required: true },
+    updatedById: String,
+    stateChangedById: String
   },
   {
     timestamps: true

@@ -8,6 +8,7 @@ export interface IComment {
   content: string;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: string;
 }
 
 export type CommentDocument = IComment & Document;

@@ -2,9 +2,6 @@ import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IModels } from '../../../db/models';
 
-// forumPost(_id: ID!): ForumPost
-// forumPosts(_id: [ID!], categoryId: [ID!], offset: Int, limit: Int): [ForumPost!]
-
 const buildPostsQuery = async ({ Category }: IModels, params: any) => {
   const query: any = {};
 
@@ -20,8 +17,7 @@ const buildPostsQuery = async ({ Category }: IModels, params: any) => {
     if (params.categoryIncludeDescendants) {
       const descendants =
         (await Category.getDescendantsOf(params.categoryId)) || [];
-      const allIds = descendants.map(d => d._id);
-      allIds.push(...params.categoryId);
+      const allIds = [...params.categoryId, ...descendants.map(d => d._id)];
       query.categoryId = { $in: allIds };
     } else {
       query.categoryId = { $in: params.categoryId };

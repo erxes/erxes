@@ -15,6 +15,10 @@ export default async function genTypeDefs(serviceDiscovery) {
       PUBLISHED
     }
 
+    extend type User @key(fields: "_id") {
+      _id: String! @external
+    }
+
     ${ForumCategory}
     ${ForumPost}
     ${ForumComment}

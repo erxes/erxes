@@ -10,7 +10,7 @@ const PostContentEditor: React.FC<{
 }> = ({ editorRef, data }) => {
   return (
     <div>
-      <CKEditor ref={editorRef} data={data} />,
+      <CKEditor ref={editorRef} data={data} />
     </div>
   );
 };

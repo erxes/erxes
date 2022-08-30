@@ -62,6 +62,20 @@ export const FORUM_POSTS_QUERY = gql`
       categoryId
       createdAt
       updatedAt
+
+      createdBy {
+        _id
+        username
+      }
+      updatedBy {
+        _id
+        username
+      }
+
+      stateChangedBy {
+        _id
+        username
+      }
     }
   }
 `;
@@ -89,6 +103,21 @@ export const FORUM_POST_DETAIL = gql`
       title
       createdAt
       updatedAt
+      createdBy {
+        _id
+        username
+        email
+      }
+      updatedBy {
+        _id
+        username
+        email
+      }
+      stateChangedBy {
+        _id
+        username
+        email
+      }
     }
   }
 `;
