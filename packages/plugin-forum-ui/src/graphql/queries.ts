@@ -40,9 +40,15 @@ export const CATEGORY_POSSIBLE_PARENTS = gql`
 const forumPostsParam = `$_id: [ID!], $categoryId: [ID!], $categoryIncludeDescendants: Boolean, $limit: Int, $offset: Int, $state: [String!]`;
 const forumPostsArg = `_id: $_id, categoryId: $categoryId, categoryIncludeDescendants: $categoryIncludeDescendants, limit: $limit, offset: $offset, state: $state`;
 
-export const REFETCH_AFTER_CREATE_DELETE = [
+export const POST_REFETCH_AFTER_CREATE_DELETE = [
   'ForumPostsQuery',
   'ForumPostsCount'
+];
+
+export const POST_REFETCH_AFTER_EDIT = [
+  'ForumPostsQuery',
+  'ForumPostDetail',
+  'forumPost'
 ];
 
 export const FORUM_POSTS_QUERY = gql`

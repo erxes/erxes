@@ -4,6 +4,7 @@ import LayoutCategories from './LayoutCategories';
 import PostsList from '../containers/PostsList';
 import PostDetail from '../containers/PostDetail';
 import PostNew from '../containers/PostNew';
+import PostEdit from '../containers/PostEdit';
 
 function Layout() {
   // The `path` lets us build <Route> paths that are
@@ -46,7 +47,7 @@ function Layout() {
           </Route>
 
           <Route exact path={`/forums/posts/:postId/edit`}>
-            <h3>Edit post</h3>
+            <PostEdit />
           </Route>
 
           <Route path={`/forums/posts`}>
