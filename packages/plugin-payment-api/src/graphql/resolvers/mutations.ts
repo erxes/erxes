@@ -29,13 +29,21 @@ const paymentConfigMutations = {
    *  create an invoice
    */
   async createInvoice(_root, params, { subdomain, models }: IContext) {
-    const { paymentId, amount, description, customerId, companyId } = params;
+    const {
+      paymentId,
+      amount,
+      description,
+      phone,
+      customerId,
+      companyId
+    } = params;
     console.log(params);
     const paymentConfig = await models.PaymentConfigs.findOne({
       _id: paymentId
     });
 
     if (!paymentConfig) {
+      console.log(`/pl:posclient/callBackQpay`);
       throw new Error(`Not found payment config`);
     }
 
@@ -45,6 +53,7 @@ const paymentConfigMutations = {
       config,
       amount,
       invoice_description: description,
+      phone,
       customerId,
       companyId
     };

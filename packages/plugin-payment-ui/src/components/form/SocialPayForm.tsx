@@ -55,10 +55,10 @@ class SocialPayConfigForm extends React.Component<Props, State> {
       type: 'socialPay',
       status: 'active',
       config: {
-        terminal: values.inStoreSPTerminal,
-        spKey: values.inStoreSPKey,
-        spUrl: values.inStoreSPUrl,
-        spNotif: values.pushNotification
+        inStoreSPTerminal: values.inStoreSPTerminal,
+        inStoreSPKey: values.inStoreSPKey,
+        inStoreSPUrl: values.inStoreSPUrl,
+        pushNotification: values.pushNotification
       }
     };
   };
