@@ -11,7 +11,7 @@ export let mainDb;
 export let serviceDiscovery;
 
 export default {
-  name: 'qpay',
+  name: 'socialpay',
   permissions,
   graphql: async sd => {
     serviceDiscovery = sd;

@@ -29,7 +29,7 @@ const paymentConfigMutations = {
    *  create an invoice
    */
   async createInvoice(_root, params, { subdomain, models }: IContext) {
-    const { paymentId, amount } = params;
+    const { paymentId, amount, description, customerId, companyId } = params;
     console.log(params);
     const paymentConfig = await models.PaymentConfigs.findOne({
       _id: paymentId
@@ -41,24 +41,32 @@ const paymentConfigMutations = {
 
     const { config, type } = paymentConfig;
 
+    const data = {
+      config,
+      amount,
+      invoice_description: description,
+      customerId,
+      companyId
+    };
+
     const messageBrokerResponse =
       type.toLowerCase() === 'qpay'
         ? await sendQpayMessage({
             subdomain,
             action: 'createInvoice',
-            data: config,
+            data,
             isRPC: true
           })
         : await sendSocialPayMessage({
             subdomain,
             action: 'createInvoice',
-            data: config,
+            data,
             isRPC: true
           });
 
     console.log('messageBrokerResponse:', messageBrokerResponse);
 
-    return [config, messageBrokerResponse];
+    return [messageBrokerResponse];
   }
 };
 

@@ -66,11 +66,11 @@ class QpayConfigForm extends React.Component<Props, State> {
       type: 'qpay',
       status: 'active',
       config: {
-        user: values.qpayMerchantUser,
-        password: values.qpayMerchantPassword,
-        invoiceCode: values.qpayInvoiceCode,
-        qpUrl: values.qpayUrl,
-        qpCallBack: values.callbackUrl
+        qpayMerchantUser: values.qpayMerchantUser,
+        qpayMerchantPassword: values.qpayMerchantPassword,
+        qpayInvoiceCode: values.qpayInvoiceCode,
+        qpayUrl: values.qpayUrl,
+        callbackUrl: values.callbackUrl
       }
     };
   };

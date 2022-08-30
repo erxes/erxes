@@ -2,6 +2,7 @@ import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
+import { createInvoice, makeInvoiceNo, qpayToken } from './utils';
 
 let client;
 
@@ -9,10 +10,39 @@ export const initBroker = async cl => {
   client = cl;
   const { consumeRPCQueue } = cl;
 
-  consumeRPCQueue('qpay:createInvoice', async ({ data }) => {
+  consumeRPCQueue('qpay:createInvoice', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
-    console.log(JSON.stringify(data));
-    return { status: 'success', data: { status: 'qpay success' } };
+
+    const models = await generateModels(subdomain);
+    const { config, invoice_description, amount } = data;
+    const { qpayInvoiceCode, callbackUrl } = config;
+    const invoice_receiver_code = 'terminal';
+    const token = await qpayToken(config);
+    const sender_invoice_no = await makeInvoiceNo(16);
+
+    const invoiceDoc = {
+      senderInvoiceNo: sender_invoice_no,
+      amount
+    };
+
+    const invoice = await models.QpayInvoice.qpayInvoiceCreate(invoiceDoc);
+
+    const varData = {
+      invoice_code: qpayInvoiceCode,
+      sender_invoice_no,
+      invoice_receiver_code,
+      invoice_description,
+      amount,
+      callback_url: `${callbackUrl}?payment_id=${sender_invoice_no}`
+    };
+
+    const invoiceData = await createInvoice(varData, token, config);
+    await models.QpayInvoice.qpayInvoiceUpdate(invoice, invoiceData);
+
+    return {
+      status: 'success',
+      data: { status: 'qpay success', response: invoiceData }
+    };
   });
 };
 
