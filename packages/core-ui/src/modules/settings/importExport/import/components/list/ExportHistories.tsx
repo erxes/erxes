@@ -82,40 +82,40 @@ class Histories extends React.Component<Props & IRouterProps> {
     return buttonText;
   }
 
-  // renderExportButton = () => {
-  //   const { currentType } = this.props;
+  renderExportButton = () => {
+    const { currentType } = this.props;
 
-  //   if (currentType)
+    if (currentType)
+      return (
+        <Link to={`/settings/export?type=${currentType}`}>
+          <Button icon="export" btnStyle="primary">
+            {__(`Export ${this.getButtonText()}`)}
+          </Button>
+        </Link>
+      );
+
+    return (
+      <Button icon="export" btnStyle="primary" disabled>
+        {__('Export')}
+      </Button>
+    );
+  };
+
+  //   renderDataImporter() {
   //     return (
-  //       <Link to={`/settings/export?type=${currentType}`}>
-  //         <Button icon="export" btnStyle="primary">
-  //           {__(`Export ${this.getButtonText()}`)}
+  //       <Link to={`/settings/import`}>
+  //         <Button icon="import" btnStyle="success">
+  //           {__(`Import data`)}
   //         </Button>
   //       </Link>
   //     );
-
-  //   return (
-  //     <Button icon="export" btnStyle="primary" disabled>
-  //       {__('Export')}
-  //     </Button>
-  //   );
-  // };
-
-  renderDataImporter() {
-    return (
-      <Link to={`/settings/import`}>
-        <Button icon="import" btnStyle="success">
-          {__(`Import data`)}
-        </Button>
-      </Link>
-    );
-  }
+  //   }
 
   renderImportButton = () => {
     return (
       <BarItems>
-        {this.renderDataImporter()}
-        {/* {this.renderExportButton()} */}
+        {/* {this.renderDataImporter()} */}
+        {this.renderExportButton()}
       </BarItems>
     );
   };
@@ -126,13 +126,13 @@ class Histories extends React.Component<Props & IRouterProps> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Import & Export'), link: '/settings/importHistories' },
-      { title: __('Imports') }
+      { title: __('Exports') }
     ];
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/27.svg"
-        title={__('Import')}
+        title={__('Export')}
         description={`${__(
           'Here you can find data of all your previous imports of companies and customers'
         )}.${__('Find out when they joined and their current status')}.${__(
@@ -144,11 +144,11 @@ class Histories extends React.Component<Props & IRouterProps> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Imports')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Exports')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title capitalize={true}>{__('Imports')}</Title>}
+            left={<Title capitalize={true}>{__('Exports')}</Title>}
             right={this.renderImportButton()}
             wideSpacing
           />
