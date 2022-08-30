@@ -22,13 +22,13 @@ const PostForm: React.FC<{ post?: any }> = ({ post }) => {
         />
         <input
           value={thumbnail}
-          placeholder="Thumbnail of your post"
+          placeholder="Thumbnail url of your post"
           type="text"
           name="thumbnail"
           onChange={e => setThumbnail(e.target.value)}
         />
 
-        <PostContentEditor editorRef={editorRef} />
+        <PostContentEditor editorRef={editorRef} data={post?.content} />
 
         <button>Submit</button>
       </form>

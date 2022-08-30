@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
-import Form from '../components/Form';
+import CategoryForm from '../components/CategoryForm';
 import { allCategoryQueries, CATEGORY_DETAIL } from '../graphql/queries';
 import { UPDATE_CATEGORY, CREATE_CATEGORY } from '../graphql/mutations';
 import CategoryDelete from './CategoryDelete';
@@ -81,7 +81,7 @@ export default function CategoryDetail() {
 
       <div style={{ border: '1px solid #e0e0e0', padding: 20 }}>
         <h4>Edit</h4>
-        <Form
+        <CategoryForm
           key={forumCategory._id}
           category={forumCategory}
           onSubmit={onSubmitUpdate}
@@ -90,7 +90,7 @@ export default function CategoryDetail() {
         <hr />
 
         <h4>Add subcategory</h4>
-        <Form
+        <CategoryForm
           key={'addsub' + forumCategory._id}
           onSubmit={onAddSubCategory}
           noParent

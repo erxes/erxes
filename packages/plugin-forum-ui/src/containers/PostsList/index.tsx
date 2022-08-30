@@ -2,6 +2,7 @@ import React from 'react';
 import { useSearchParam } from '../../hooks';
 import CategoriesFilter from './CategoriesFilter';
 import List from './List';
+import { Link } from 'react-router-dom';
 
 const PostsList: React.FC = () => {
   const [state, setState] = useSearchParam('state');
@@ -17,7 +18,10 @@ const PostsList: React.FC = () => {
         gridTemplateColumns: 'fit-content(20%) 1fr'
       }}
     >
-      <CategoriesFilter />
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <Link to={`/forums/posts/new`}>Create new post</Link>
+        <CategoriesFilter />
+      </div>
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
           <div style={{ margin: 10, padding: 10 }}>

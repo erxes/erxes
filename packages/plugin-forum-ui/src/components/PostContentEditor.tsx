@@ -6,14 +6,11 @@ CKEditor.editorUrl = publicUrl('/ckeditor/ckeditor.js');
 
 const PostContentEditor: React.FC<{
   editorRef?: React.MutableRefObject<any>;
-}> = ({ editorRef }) => {
+  data?: string;
+}> = ({ editorRef, data }) => {
   return (
     <div>
-      <CKEditor
-        ref={editorRef}
-        data="<p>This is a CKEditor 4 WYSIWYG editor instance created by ️⚛️ React.</p>"
-      />
-      ,
+      <CKEditor ref={editorRef} data={data} />,
     </div>
   );
 };

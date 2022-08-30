@@ -1,5 +1,5 @@
 import React from 'react';
-import Form from '../components/Form';
+import CategoryForm from '../components/CategoryForm';
 import { useMutation } from 'react-apollo';
 import { CREATE_ROOT_CATEGORY } from '../graphql/mutations';
 import { useHistory } from 'react-router-dom';
@@ -32,7 +32,7 @@ const CategoryNew: React.FC = () => {
   return (
     <div>
       <h2>Create new root category</h2>
-      <Form noParent onSubmit={onSubmit} />
+      <CategoryForm noParent onSubmit={onSubmit} />
     </div>
   );
 };

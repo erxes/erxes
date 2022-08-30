@@ -13,7 +13,11 @@ type Props = {
   noParent?: boolean;
 };
 
-const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
+const CategoryForm: React.FC<Props> = ({
+  category,
+  noParent = false,
+  onSubmit
+}) => {
   const [name, setName] = useState(category?.name || '');
   const [code, setCode] = useState(category?.code || '');
   const [parentId, setParentId] = useState(category?.parentId || '');
@@ -77,4 +81,4 @@ const Form: React.FC<Props> = ({ category, noParent = false, onSubmit }) => {
   );
 };
 
-export default Form;
+export default CategoryForm;
