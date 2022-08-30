@@ -9,7 +9,6 @@ import ProfileRoutes from './profile/routes';
 import TeamRoutes from './team/routes';
 import AppRoutes from './apps/routes';
 import StoreRoutes from './marketplace/routes';
-import SelectMenu from './importExport/routes';
 
 const routes = () => (
   <React.Fragment>
@@ -19,7 +18,6 @@ const routes = () => (
     <General key="General" />
     <TeamRoutes key="team" />
     <ImportHistory key="ImportHistory" />
-    <SelectMenu key="SelectMenu" />
     <PermissionRoutes key="PermissionRoutes" />
     <AppRoutes key="AppRoutes" />
     <StoreRoutes key="Store" />

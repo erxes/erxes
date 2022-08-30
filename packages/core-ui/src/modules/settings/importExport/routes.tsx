@@ -42,7 +42,9 @@ const importHistories = ({ location }) => {
 };
 
 const selectMenu = ({ location }) => {
-  return <Menu />;
+  const queryParams = queryString.parse(location.search);
+
+  return <Menu queryParams={queryParams} />;
 };
 
 const routes = () => {
