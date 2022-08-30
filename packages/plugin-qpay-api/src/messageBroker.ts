@@ -10,6 +10,28 @@ export const initBroker = async cl => {
   client = cl;
   const { consumeRPCQueue } = cl;
 
+  consumeRPCQueue('qpay:updateInvoice', async ({ subdomain, data }) => {
+    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+    const models = await generateModels(subdomain);
+    const { payment_id, qpay_payment_id } = data;
+
+    await models.QpayInvoice.updateOne(
+      { senderInvoiceNo: payment_id },
+      {
+        $set: {
+          qpayPaymentId: qpay_payment_id,
+          paymentDate: new Date(),
+          status: 'paid'
+        }
+      }
+    );
+
+    return {
+      status: 'success',
+      data: { status: 'qpay invoice updated' }
+    };
+  });
+
   consumeRPCQueue('qpay:createInvoice', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
@@ -33,7 +55,7 @@ export const initBroker = async cl => {
       invoice_receiver_code,
       invoice_description,
       amount,
-      callback_url: `${callbackUrl}?payment_id=${sender_invoice_no}`
+      callback_url: `${callbackUrl}/callBackQpay?payment_id=${sender_invoice_no}`
     };
 
     const invoiceData = await createInvoice(varData, token, config);
