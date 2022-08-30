@@ -1,18 +1,37 @@
 import React, { useState, useRef } from 'react';
 import PostContentEditor from './PostContentEditor';
+import CategorySelect from '../containers/CategorySelect';
 
-const PostForm: React.FC<{ post?: any }> = ({ post }) => {
+const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
+  post,
+  onSubmit
+}) => {
   const [title, setTitle] = useState(post?.title || '');
   const [thumbnail, setThumbnail] = useState(post?.thumbnail || '');
+  const [categoryId, setCategoryId] = useState(post?.categoryId || '');
+
   const editorRef = useRef<any>(null);
   const preSubmit = e => {
     e.preventDefault();
-    console.log(editorRef.current?.editor?.getData());
+    const content = editorRef.current?.editor?.getData();
+    if (onSubmit) {
+      onSubmit({
+        title,
+        thumbnail,
+        content,
+        categoryId: categoryId || null
+      });
+    }
   };
 
   return (
     <div>
       <form onSubmit={preSubmit}>
+        <label>
+          Category:
+          <CategorySelect value={categoryId} onChange={setCategoryId} />
+        </label>
+
         <input
           value={title}
           placeholder="Title of your post"

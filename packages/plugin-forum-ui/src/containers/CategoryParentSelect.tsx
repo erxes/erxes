@@ -1,5 +1,4 @@
 import React from 'react';
-import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo';
 import { CATEGORY_POSSIBLE_PARENTS } from '../graphql/queries';
 
