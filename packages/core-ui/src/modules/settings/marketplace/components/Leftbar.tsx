@@ -1,6 +1,5 @@
 import {
   Box,
-  Filter,
   FilterContainer,
   FilterHeader,
   MainContainer,
@@ -109,7 +108,7 @@ class Leftbar extends React.Component<Props, State> {
     return (
       <>
         {showInput ? (
-          <Filter>
+          <>
             <FilterHeader>
               <FlexContent>
                 <Icon icon="list-ul" size={20} />
@@ -151,7 +150,7 @@ class Leftbar extends React.Component<Props, State> {
               {this.renderCheckbox('Analytics')}
               {this.renderCheckbox('Reporting')}
             </CollapseFilter>
-          </Filter>
+          </>
         ) : (
           <Box onClick={this.openInput}>
             <Icon icon="list-ul" size={20} />

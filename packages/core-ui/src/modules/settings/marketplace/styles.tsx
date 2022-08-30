@@ -82,12 +82,9 @@ const FilterContainer = styledTS<{ active?: boolean }>(styled.div)`
   transition: .s all;
   flex: 1;
   overflow: auto;
-`;
-
-const Filter = styled.div`
   border-radius: 8px;
-  height: 100%;
   border: 1px solid ${colors.borderPrimary};
+  height: 100%;
 `;
 
 const FilterHeader = styled.div`
@@ -611,7 +608,6 @@ export {
   SearchContainer,
   Search,
   FilterContainer,
-  Filter,
   FilterHeader,
   Box,
   PaddingLeft,
