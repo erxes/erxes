@@ -45,11 +45,7 @@ export const POST_REFETCH_AFTER_CREATE_DELETE = [
   'ForumPostsCount'
 ];
 
-export const POST_REFETCH_AFTER_EDIT = [
-  'ForumPostsQuery',
-  'ForumPostDetail',
-  'forumPost'
-];
+export const POST_REFETCH_AFTER_EDIT = ['ForumPostsQuery', 'ForumPostDetail'];
 
 export const FORUM_POSTS_QUERY = gql`
   query ForumPostsQuery(${forumPostsParam}) {
@@ -66,15 +62,18 @@ export const FORUM_POSTS_QUERY = gql`
       createdBy {
         _id
         username
+        email
       }
       updatedBy {
         _id
         username
+        email
       }
 
       stateChangedBy {
         _id
         username
+        email
       }
     }
   }
@@ -103,6 +102,7 @@ export const FORUM_POST_DETAIL = gql`
       title
       createdAt
       updatedAt
+      stateChangedAt
       createdBy {
         _id
         username

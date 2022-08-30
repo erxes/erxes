@@ -1,12 +1,28 @@
 import React from 'react';
 import { useParams, Link, useHistory } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
-import { FORUM_POST_DETAIL } from '../graphql/queries';
+import { FORUM_POST_DETAIL, POST_REFETCH_AFTER_EDIT } from '../graphql/queries';
 import gql from 'graphql-tag';
 
 const DELETE_POST = gql`
   mutation ForumDeletePost($_id: ID!) {
     forumDeletePost(_id: $_id) {
+      _id
+    }
+  }
+`;
+
+const MUT_DRAFT = gql`
+  mutation ForumPostDraft($_id: ID!) {
+    forumPostDraft(_id: $_id) {
+      _id
+    }
+  }
+`;
+
+const MUT_PUBLISH = gql`
+  mutation ForumPostDraft($_id: ID!) {
+    forumPostPublish(_id: $_id) {
       _id
     }
   }
@@ -30,6 +46,16 @@ const PostDetail: React.FC = () => {
     onError: e => alert(e.message)
   });
 
+  const [mutDraft] = useMutation(MUT_DRAFT, {
+    variables: { _id: postId },
+    refetchQueries: POST_REFETCH_AFTER_EDIT
+  });
+
+  const [mutPublish] = useMutation(MUT_PUBLISH, {
+    variables: { _id: postId },
+    refetchQueries: POST_REFETCH_AFTER_EDIT
+  });
+
   if (loading) return null;
 
   if (error) return <pre>{error.message}</pre>;
@@ -39,6 +65,16 @@ const PostDetail: React.FC = () => {
   const onClickDelete = async () => {
     if (!confirm('Are you sure you want to delete this post?')) return;
     await deleteMutation();
+  };
+
+  const onDraft = async () => {
+    if (!confirm('Are you sure you want to save as draft')) return;
+    await mutDraft();
+  };
+
+  const onPublish = async () => {
+    if (!confirm('Are you sure you want to publish?')) return;
+    await mutPublish();
   };
 
   return (
@@ -99,6 +135,12 @@ const PostDetail: React.FC = () => {
       </table>
       <hr />
       <div>
+        {forumPost.state !== 'DRAFT' && (
+          <button onClick={onDraft}>Turn into draft</button>
+        )}
+        {forumPost.state !== 'PUBLISHED' && (
+          <button onClick={onPublish}>Publish</button>
+        )}
         <Link to={`/forums/posts/${postId}/edit`}>Edit</Link>
         <button onClick={onClickDelete}>Delete</button>
       </div>

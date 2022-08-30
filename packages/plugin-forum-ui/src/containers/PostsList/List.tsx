@@ -47,8 +47,12 @@ const List: React.FC = () => {
           <tr>
             <th>Title</th>
             <th>State</th>
+            <th>State changed at</th>
+            <th>State changed by</th>
             <th>Created At</th>
+            <th>Created By</th>
             <th>Updated At</th>
+            <th>Updated By</th>
           </tr>
         </thead>
         <tbody>
@@ -58,8 +62,25 @@ const List: React.FC = () => {
                 <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
               </td>
               <td>{p.state}</td>
+              <td>{p.stateChangedAt}</td>
+              <td>
+                {' '}
+                {p.stateChangedBy?.username ||
+                  p.stateChangedBy?.email ||
+                  p.stateChangedBy?._id}
+              </td>
               <td>{p.createdAt}</td>
+              <td>
+                {p.createdBy?.username ||
+                  p.createdBy?.email ||
+                  p.createdBy?._id}
+              </td>
               <td>{p.updatedAt}</td>
+              <td>
+                {p.updatedBy?.username ||
+                  p.updatedBy?.email ||
+                  p.updatedBy?._id}
+              </td>
             </tr>
           ))}
         </tbody>

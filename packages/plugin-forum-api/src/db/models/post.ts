@@ -1,12 +1,14 @@
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { IModels } from './index';
 
+export const POSSIBLE_STATES = ['DRAFT', 'PUBLISHED'] as const;
+
 export interface IPost {
   _id: any;
   categoryId: string;
   content: string;
   title: string;
-  state: string;
+  state: typeof POSSIBLE_STATES[number];
   thumbnail?: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +20,7 @@ export interface IPost {
 
 export type PostDocument = IPost & Document;
 export interface IPostModel extends Model<PostDocument> {
+  findByIdOrThrow(_id: string): Promise<PostDocument>;
   createPost(c: Omit<IPost, '_id'>): Promise<PostDocument>;
   patchPost(_id: string, c: Partial<Omit<IPost, '_id'>>): Promise<PostDocument>;
   deletePost(_id: string): Promise<PostDocument>;
@@ -31,8 +34,8 @@ export const postSchema = new Schema<PostDocument>(
     state: {
       type: String,
       required: true,
-      enum: ['DRAFT', 'PUBLISHED'],
-      default: 'DRAFT'
+      enum: POSSIBLE_STATES,
+      default: POSSIBLE_STATES[0]
     },
     thumbnail: String,
     createdById: { type: String, required: true },
@@ -52,6 +55,13 @@ export const generatePostModel = (
   models: IModels
 ): void => {
   class PostModel {
+    public static async findByIdOrThrow(_id: string): Promise<PostDocument> {
+      const post = await models.Post.findById(_id);
+      if (!post) {
+        throw new Error(`Post with \`{ "_id" : "${_id}"}\` doesn't exist`);
+      }
+      return post;
+    }
     public static async createPost(
       input: Omit<IPost, '_id'>
     ): Promise<PostDocument> {
@@ -71,11 +81,7 @@ export const generatePostModel = (
     }
 
     public static async deletePost(_id: string): Promise<PostDocument> {
-      const post = await models.Post.findById(_id);
-      if (!post) {
-        throw new Error(`Post with \`{ _id : "${_id}" doesn't exist } \``);
-      }
-
+      const post = await models.Post.findByIdOrThrow(_id);
       await post.remove();
       await models.Comment.deleteMany({ postId: _id });
 
