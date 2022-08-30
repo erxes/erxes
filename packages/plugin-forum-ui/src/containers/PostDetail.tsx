@@ -54,6 +54,14 @@ const PostDetail: React.FC = () => {
             <td>{forumPost.thumbnail && <img src={forumPost.thumbnail} />}</td>
           </tr>
           <tr>
+            <td>Created At:</td>
+            <td>{forumPost.createdAt}</td>
+          </tr>
+          <tr>
+            <td>Updated At:</td>
+            <td>{forumPost.updatedAt}</td>
+          </tr>
+          <tr>
             <td>Title: </td>
             <td>{forumPost.title}</td>
           </tr>

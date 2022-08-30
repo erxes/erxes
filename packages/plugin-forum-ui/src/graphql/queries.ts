@@ -60,6 +60,8 @@ export const FORUM_POSTS_QUERY = gql`
       state
       thumbnail
       categoryId
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -85,6 +87,8 @@ export const FORUM_POST_DETAIL = gql`
       state
       thumbnail
       title
+      createdAt
+      updatedAt
     }
   }
 `;

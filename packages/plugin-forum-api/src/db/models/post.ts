@@ -8,6 +8,8 @@ export interface IPost {
   title: string;
   state: string;
   thumbnail?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type PostDocument = IPost & Document;
@@ -17,18 +19,23 @@ export interface IPostModel extends Model<PostDocument> {
   deletePost(_id: string): Promise<PostDocument>;
 }
 
-export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId },
-  title: String,
-  content: { type: String, required: true },
-  state: {
-    type: String,
-    required: true,
-    enum: ['DRAFT', 'PUBLISHED'],
-    default: 'DRAFT'
+export const postSchema = new Schema<PostDocument>(
+  {
+    categoryId: { type: Types.ObjectId },
+    title: String,
+    content: { type: String, required: true },
+    state: {
+      type: String,
+      required: true,
+      enum: ['DRAFT', 'PUBLISHED'],
+      default: 'DRAFT'
+    },
+    thumbnail: String
   },
-  thumbnail: String
-});
+  {
+    timestamps: true
+  }
+);
 postSchema.index({ categoryId: 1, state: 1 });
 
 export const generatePostModel = (

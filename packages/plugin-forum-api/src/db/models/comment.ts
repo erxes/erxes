@@ -6,6 +6,8 @@ export interface IComment {
   replyToId: string;
   postId: string;
   content: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type CommentDocument = IComment & Document;
@@ -15,11 +17,16 @@ export interface ICommentModel extends Model<CommentDocument> {
   deleteComment(_id: string): Promise<CommentDocument>;
 }
 
-export const commentSchema = new Schema<CommentDocument>({
-  replyToId: { type: Types.ObjectId, index: true },
-  postId: { type: Types.ObjectId, index: true },
-  content: { type: String, required: true }
-});
+export const commentSchema = new Schema<CommentDocument>(
+  {
+    replyToId: { type: Types.ObjectId, index: true },
+    postId: { type: Types.ObjectId, index: true },
+    content: { type: String, required: true }
+  },
+  {
+    timestamps: true
+  }
+);
 
 export const generateCommentModel = (
   subdomain: string,

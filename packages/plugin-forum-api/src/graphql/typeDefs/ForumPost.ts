@@ -1,11 +1,3 @@
-/*
-export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId, index: true },
-  content: { type: String, required: true },
-  thumbnail: String
-});
-*/
-
 export default `
   type ForumPost @key(fields: "_id") {
     _id: ID!
@@ -13,6 +5,9 @@ export default `
     title: String!
     thumbnail: String
     state: ForumPostState
+
+    createdAt: Date
+    updatedAt: Date
 
     categoryId: ID!
 

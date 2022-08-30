@@ -1,10 +1,13 @@
 export default `
   type ForumComment @key(fields: "_id") {
     _id: ID!
+    content: String!
+
+    createdAt: Date
+    updatedAt: Date
+    
     postId: String!
     replyToId: String
-
-    content: String!
     
     post: ForumPost!
     replyTo: ForumComment

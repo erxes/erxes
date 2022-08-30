@@ -23,7 +23,8 @@ const List: React.FC = () => {
   };
 
   const postQuery = useQuery(FORUM_POSTS_QUERY, {
-    variables
+    variables,
+    fetchPolicy: 'network-only'
   });
 
   const countQuery = useQuery(FORUM_POSTS_COUNT, {
@@ -41,11 +42,28 @@ const List: React.FC = () => {
         <h5>Total: {countQuery.data?.forumPostsCount || 0}</h5>
       </div>
 
-      {postQuery.data.forumPosts.map(p => (
-        <div key={p._id}>
-          <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
-        </div>
-      ))}
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>State</th>
+            <th>Created At</th>
+            <th>Updated At</th>
+          </tr>
+        </thead>
+        <tbody>
+          {postQuery.data.forumPosts.map(p => (
+            <tr key={p._id}>
+              <td>
+                <Link to={`/forums/posts/${p._id}`}>{p.title}</Link>
+              </td>
+              <td>{p.state}</td>
+              <td>{p.createdAt}</td>
+              <td>{p.updatedAt}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
