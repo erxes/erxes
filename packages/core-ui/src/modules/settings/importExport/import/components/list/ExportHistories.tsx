@@ -125,7 +125,7 @@ class Histories extends React.Component<Props & IRouterProps> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Import & Export'), link: '/settings/importHistories' },
+      { title: __('Import & Export'), link: '/settings/selectMenu' },
       { title: __('Exports') }
     ];
 
