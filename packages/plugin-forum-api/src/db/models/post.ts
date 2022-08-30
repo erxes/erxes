@@ -12,6 +12,7 @@ export interface IPost {
   updatedAt: Date;
   createdById: string;
   updatedById?: string;
+  stateChangedAt?: Date;
   stateChangedById?: string;
 }
 
@@ -36,6 +37,7 @@ export const postSchema = new Schema<PostDocument>(
     thumbnail: String,
     createdById: { type: String, required: true },
     updatedById: String,
+    stateChangedAt: Date,
     stateChangedById: String
   },
   {

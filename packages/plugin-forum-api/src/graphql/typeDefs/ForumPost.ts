@@ -8,6 +8,7 @@ export default `
 
     createdAt: Date
     updatedAt: Date
+    stateChangedAt: Date
 
     categoryId: ID!
     createdById: ID

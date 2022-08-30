@@ -75,7 +75,7 @@ const PostDetail: React.FC = () => {
           </tr>
           <tr>
             <td>State changed at: </td>
-            <td>{forumPost.updatedAt}</td>
+            <td>{forumPost.stateChangedAt}</td>
             <td>State changed by: </td>
             <td>
               {forumPost.stateChangedBy?.username ||
