@@ -232,7 +232,13 @@ erxes-dbs_mongo.1.value bash
 docker exec -it erxes-dbs_mongo.1.value bash
 ```
 
-23. After trying running following command
+23. Login using the mongo url generated in the docker-compose.yml file. Copying below line code from docker-compose.yml
+
+```
+mongo "mongodb://username:password/erxes?authSource=admin"
+```
+
+24. After trying running following command
 
 ```
 rs.initiate()
@@ -241,7 +247,7 @@ rs.initiate()
 Many times, it becomes "RS0: primary".
 These commands are given as a replica set, and when done correctly, the mongo shell changes to "RS0: primary".
 
-24. After completing the configuration on the mongo database, delete and restart the services through the docker network. First, do the database services.
+25. After completing the configuration on the mongo database, delete and restart the services through the docker network. First, do the database services.
 
 ```
 docker stack rm erxes
@@ -256,7 +262,7 @@ npm run erxes up – –uis
 Containers are generated one by one, so wait until they finish reading.
 :::
 
-25. Check the log file in the erxes_gateway container to make sure the services are working properly.
+26. Check the log file in the erxes_gateway container to make sure the services are working properly.
 
 ```
 docker logs -f erxes_gateway.1.value
@@ -264,38 +270,38 @@ docker logs -f erxes_gateway.1.value
 
 If "plugin_name has no address value" is displayed, it is not connected to the database.
 
-26. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
+27. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
 
 ```
 sudo mv nginx.conf /etc/nginx/sites-enabled/
 ```
 
-27. Go to /etc/nginx/sites-enabled.
+28. Go to /etc/nginx/sites-enabled.
 
 ```
 cd /etc/nginx/sites-enabled
 ```
 
-28. Configure your nginx.
+29. Configure your nginx.
 
 ```
 sudo nginx -t
 ```
 
-29. Restart your Nginx.
+30. Restart your Nginx.
 
 ```
 sudo service nginx restart
 ```
 
-30. Configure your Free Ssl.
+31. Configure your Free Ssl.
 
 ```
 sudo certbot –nginx -d domain_name
 ```
 
-31. Insert your registered email address.
-32. Please choose redirect option.
+32. Insert your registered email address.
+33. Please choose redirect option.
 
 Try typing your domain on your browser to see if it's working.
 
