@@ -1,5 +1,9 @@
 import { IContext } from '../../../connectionResolver';
-import { sendCoreMessage, sendContactsMessage } from '../../../messageBroker';
+import {
+  sendCoreMessage,
+  sendContactsMessage,
+  sendClientPortalMessage
+} from '../../../messageBroker';
 import { IParticipant } from './../../../models/definitions/participants';
 
 interface IParticipantEdit extends IParticipant {
@@ -10,13 +14,21 @@ const participantMutations = {
   participantsAdd: async (
     _root,
     doc: IParticipant,
-    { models, subdomain, docModifier, cpUser }: IContext
+    { models, subdomain, docModifier }: IContext
   ) => {
     const participant = await models.Participants.createParticipant(
       docModifier(doc)
     );
 
-    if (cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
+    const cpUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: { _id: participant.driverId },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (cpUser && cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
       sendCoreMessage({
         subdomain: subdomain,
         action: 'sendMobileNotification',
@@ -95,14 +107,22 @@ const participantMutations = {
       driverId
     });
 
-    if (driver.deviceTokens && driver.deviceTokens.length > 0) {
+    const cpUser = await sendClientPortalMessage({
+      subdomain,
+      action: 'clientPortalUsers.findOne',
+      data: { erxesCustomerId: driverId },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (cpUser && cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
       sendCoreMessage({
         subdomain: subdomain,
         action: 'sendMobileNotification',
         data: {
           title: 'Баяр хүргэе',
           body: 'Таны илгээсэн үнийн санал баталгаажиж, та сонгогдлоо !',
-          deviceTokens: driver.deviceTokens
+          deviceTokens: cpUser.deviceTokens
         }
       });
     }
