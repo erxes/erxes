@@ -1,7 +1,6 @@
 import * as compose from 'lodash.flowright';
 
 import { mutations, queries as tagQueries } from '@erxes/ui-tags/src/graphql';
-
 import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { CountQueryResponse } from '@erxes/ui-contacts/src/customers/types';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
@@ -67,7 +66,8 @@ const TagStepContianer = (props: FinalProps) => {
     tags: tagsQuery.tags || [],
     targetCount: countValues,
     customersCount,
-    renderButton
+    renderButton,
+    loadingCount: customerCountsQuery.loading
   };
 
   return <TagStep {...updatedProps} />;
