@@ -19,6 +19,7 @@ type Props = {
   successCallback?: () => void;
   className?: string;
   refetchQueries?: any[];
+  parentTagId?: string;
 };
 
 type FinalProps = {
@@ -66,8 +67,8 @@ const TaggerContainer = (props: FinalProps) => {
 };
 
 const query = gql`
-  query($type: String!) {
-    tags(type: $type) {
+  query($type: String!, $tagIds: [String], $parentId: String) {
+    tags(type: $type, tagIds: $tagIds, parentId: $parentId) {
       _id
       name
       colorCode
@@ -91,7 +92,10 @@ export default withProps<Props>(
     graphql<Props, TagsQueryResponse, { type: string }>(query, {
       name: 'tagsQuery',
       options: (props: Props) => ({
-        variables: { type: props.type }
+        variables: {
+          type: props.type,
+          parentId: props.parentTagId
+        }
       })
     }),
     graphql<Props, TagMutationResponse, TagMutationVariables>(mutation, {

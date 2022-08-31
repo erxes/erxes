@@ -4,7 +4,6 @@ import {
   BOARD_TYPES,
   VISIBLITIES
 } from '../../../models/definitions/constants';
-import { ITaskDocument } from '../../../models/definitions/tasks';
 import {
   generateDealCommonFilters,
   generateGrowthHackCommonFilters,
@@ -118,7 +117,10 @@ export default {
     }
   },
 
-  async tags(pipeline: ITaskDocument) {
-    return (pipeline.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+  async tag(pipeline: IPipelineDocument) {
+    return {
+      __typename: 'Tag',
+      _id: pipeline.tagId
+    };
   }
 };

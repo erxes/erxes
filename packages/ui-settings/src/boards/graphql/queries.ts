@@ -26,7 +26,7 @@ const pipelines = `
       _id
       name
       status
-      tagIds
+      tagId
       boardId
       visibility
       memberIds

@@ -55,6 +55,7 @@ class Actions extends React.Component<Props> {
     const onLabelChange = labels => saveItem({ labels });
 
     const tags = item.tags || [];
+    const pipelineTagId = item.pipeline.tagId || '';
 
     const priorityTrigger = (
       <ColorButton>
@@ -126,6 +127,7 @@ class Actions extends React.Component<Props> {
             trigger={tagTrigger}
             refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
             targets={[item]}
+            parentTagId={pipelineTagId}
           />
         )}
       </ActionContainer>

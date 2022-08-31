@@ -49,7 +49,7 @@ const commonPipelineParamsDef = `
   $numberConfig: String
   $numberSize: String
   $departmentIds: [String],
-  $tagIds: [String]
+  $tagId: String
 `;
 
 const commonPipelineParams = `
@@ -71,7 +71,7 @@ const commonPipelineParams = `
   numberConfig: $numberConfig
   numberSize: $numberSize
   departmentIds: $departmentIds
-  tagIds: $tagIds
+  tagId: $tagId
 `;
 
 const pipelineAdd = `

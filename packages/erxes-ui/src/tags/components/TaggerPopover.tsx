@@ -11,17 +11,25 @@ type Props = {
   targets?: any[];
   container?: Element | Node | React.Component<any, {}, any>;
   refetchQueries?: any[];
+  parentTagId?: string;
 };
 
 function TaggerPopover(props: Props) {
-  const { trigger, container, refetchQueries, ...taggerProps } = props;
+  const {
+    trigger,
+    container,
+    refetchQueries,
+    parentTagId,
+    ...taggerProps
+  } = props;
 
   const popover = (
-    <Popover id='tags-popover'>
-      <Popover.Title as='h3'>{__('Choose your tags')}</Popover.Title>
+    <Popover id="tags-popover">
+      <Popover.Title as="h3">{__('Choose your tags')}</Popover.Title>
       <Popover.Content>
         <Tagger
-          event='onExit'
+          parentTagId={parentTagId}
+          event="onExit"
           {...taggerProps}
           refetchQueries={refetchQueries}
         />
@@ -31,8 +39,8 @@ function TaggerPopover(props: Props) {
 
   return (
     <OverlayTrigger
-      trigger='click'
-      placement='bottom'
+      trigger="click"
+      placement="bottom"
       overlay={popover}
       container={container}
       rootClose={true}

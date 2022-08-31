@@ -63,7 +63,7 @@ export interface IPipeline {
   _id: string;
   name: string;
   boardId: string;
-  tagIds: string[];
+  tagId?: string;
   visibility: string;
   status: string;
   createdAt: Date;
@@ -208,6 +208,7 @@ export interface IItem {
   number?: string;
   relations: any[];
   tags: ITag[];
+  tagIds: string[];
 }
 
 export interface IDraggableLocation {
@@ -385,6 +386,7 @@ export interface IFilterParams extends ISavedConformity {
   startDate?: string;
   endDate?: string;
   pipelineId?: string;
+  tagIds?: string[];
 }
 
 export interface INonFilterParams {

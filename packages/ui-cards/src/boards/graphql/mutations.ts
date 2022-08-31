@@ -85,6 +85,7 @@ export const commonListFields = `
   hasNotified
   score
   number
+  tagIds
 `;
 
 export const commonFields = `
@@ -95,6 +96,10 @@ export const commonFields = `
   pipeline {
     _id
     name
+    tagId
+    tag {
+      order
+    }
   }
   boardId
   ${

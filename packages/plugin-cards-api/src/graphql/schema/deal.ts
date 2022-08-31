@@ -73,6 +73,7 @@ const commonQueryParams = `
   startDate: String
   endDate: String
   hasStartAndCloseDate: Boolean
+  tagIds: [String]
   `;
 
 const listQueryParams = `

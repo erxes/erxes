@@ -44,6 +44,7 @@ export interface IListParams extends IConformityQueryParams {
   labelIds?: string[];
   userIds?: string[];
   segment?: string;
+  tagIds?: string[];
 }
 
 const boardQueries = {

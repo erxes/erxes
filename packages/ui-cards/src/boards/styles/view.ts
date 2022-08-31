@@ -123,3 +123,7 @@ export const TextStyle = styled.div`
   padding-top: 3px;
   text-align: left !important;
 `;
+
+export const CalendarContainer = styled.div`
+  background: white;
+`;

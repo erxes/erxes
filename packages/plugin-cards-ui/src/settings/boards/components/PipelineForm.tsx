@@ -51,7 +51,7 @@ type State = {
   isCheckDepartment: boolean;
   excludeCheckUserIds: string[];
   boardId: string;
-  tagIds?: string[];
+  tagId?: string;
   numberConfig?: string;
   numberSize?: string;
   departmentIds?: string[];
@@ -73,7 +73,7 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckDepartment: pipeline ? pipeline.isCheckDepartment || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
       boardId: props.boardId || '',
-      tagIds: pipeline ? pipeline.tagIds || [] : [],
+      tagId: pipeline ? pipeline.tagId : '',
       numberConfig: (pipeline && pipeline.numberConfig) || '',
       numberSize: (pipeline && pipeline.numberSize) || '',
       departmentIds: pipeline ? pipeline.departmentIds || [] : []
@@ -96,10 +96,6 @@ class PipelineForm extends React.Component<Props, State> {
 
   onChangeDepartments = options => {
     this.setState({ departmentIds: (options || []).map(o => o.value) });
-  };
-
-  onChangeTags = options => {
-    this.setState({ tagIds: (options || []).map(o => o.value) });
   };
 
   onChangeDominantUsers = items => {
@@ -135,7 +131,7 @@ class PipelineForm extends React.Component<Props, State> {
       numberConfig,
       numberSize,
       departmentIds,
-      tagIds
+      tagId
     } = this.state;
 
     const finalValues = values;
@@ -158,7 +154,7 @@ class PipelineForm extends React.Component<Props, State> {
       numberConfig,
       numberSize,
       departmentIds,
-      tagIds
+      tagId
     };
   };
 
@@ -282,25 +278,32 @@ class PipelineForm extends React.Component<Props, State> {
   renderTags() {
     const { tags } = this.props;
 
-    const tagOptions =
-      tags &&
-      tags.map(tag => {
+    const filteredTags = tags && tags.filter(tag => !tag.parentId);
+
+    const generateOptions = items => {
+      if (!items || items.length === 0) {
+        return null;
+      }
+
+      return items.map(item => {
         return {
-          value: tag._id,
-          label: tag.name
+          value: item._id,
+          label: item.name
         };
       });
+    };
+
+    const onChange = item => this.setState({ tagId: item.value });
 
     return (
       <FormGroup>
         <ControlLabel>Tags</ControlLabel>
         <Select
-          placeholder={__('Choose tags')}
-          value={this.state.tagIds}
-          options={tagOptions}
+          placeholder={__('Choose a tag')}
+          value={this.state.tagId}
+          options={generateOptions(filteredTags)}
           clearable={false}
-          onChange={this.onChangeTags.bind(this)}
-          multi={true}
+          onChange={onChange}
         />
       </FormGroup>
     );
