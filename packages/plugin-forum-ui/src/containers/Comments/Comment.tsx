@@ -26,7 +26,10 @@ const Comment: React.FC<{ comment: any }> = ({ comment }) => {
             key={'form' + comment._id}
             replyToId={comment._id}
             postId={comment.postId}
-            onCommentCreated={() => replyQuery.refetch()}
+            onCommentCreated={() => {
+              replyQuery.refetch();
+              setShowReplyForm(false);
+            }}
           />
         )}
 

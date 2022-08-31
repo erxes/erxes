@@ -10,6 +10,7 @@ const CommentForm: React.FC<{
   const [content, setContent] = useState('');
   const [createComment] = useMutation(CREATE_COMMENT, {
     onCompleted: () => {
+      setContent('');
       if (onCommentCreated) {
         onCommentCreated();
       }
