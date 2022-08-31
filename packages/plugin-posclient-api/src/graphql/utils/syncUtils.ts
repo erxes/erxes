@@ -210,37 +210,39 @@ export const extractConfig = async (subdomain, doc) => {
 
   try {
     uiOptions.favIcon =
-      (uiOptions.favIcon || '').indexOf('http') === -1
+      uiOptions.favIcon && uiOptions.favIcon.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.favIcon}`
         : uiOptions.favIcon;
 
     uiOptions.logo =
-      (uiOptions.logo || '').indexOf('http') === -1
+      uiOptions.logo && uiOptions.logo.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.logo}`
         : uiOptions.logo;
 
     uiOptions.bgImage =
-      (uiOptions.bgImage || '').indexOf('http') === -1
+      uiOptions.bgImage && uiOptions.bgImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.bgImage}`
         : uiOptions.bgImage;
 
     uiOptions.receiptIcon =
-      (uiOptions.receiptIcon || '').indexOf('http') === -1
+      uiOptions.receiptIcon && uiOptions.receiptIcon.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.receiptIcon}`
         : uiOptions.receiptIcon;
 
     uiOptions.kioskHeaderImage =
-      (uiOptions.kioskHeaderImage || '').indexOf('http') === -1
+      uiOptions.kioskHeaderImage &&
+      uiOptions.kioskHeaderImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
         : uiOptions.kioskHeaderImage;
 
     uiOptions.mobileAppImage =
-      (uiOptions.mobileAppImage || '').indexOf('http') === -1
+      uiOptions.mobileAppImage &&
+      uiOptions.mobileAppImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
         : uiOptions.mobileAppImage;
 
     uiOptions.qrCodeImage =
-      (uiOptions.qrCodeImage || '').indexOf('http') === -1
+      uiOptions.qrCodeImage && uiOptions.qrCodeImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
         : uiOptions.qrCodeImage;
   } catch (e) {
@@ -265,6 +267,8 @@ export const extractConfig = async (subdomain, doc) => {
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
     deliveryConfig: doc.deliveryConfig,
     posId: doc._id,
+    isOnline: doc.isOnline,
+    onServer: doc.onServer,
     branchId: doc.branchId,
     departmentId: doc.departmentId,
     allowBranchIds: doc.allowBranchIds

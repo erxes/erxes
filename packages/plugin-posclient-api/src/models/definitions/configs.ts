@@ -17,7 +17,7 @@ export interface IEbarimtConfig {
 
 export interface IQPayConfig {
   url: string;
-  callbackUrl: string;
+  callbackUrl?: string;
   username: string;
   password: string;
   invoiceCode: string;
@@ -70,6 +70,8 @@ export interface IConfig {
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   posId: string;
+  isOnline?: boolean;
+  onServer?: boolean;
   branchId?: string;
   departmentId?: string;
   allowBranchIds?: string[];
@@ -109,7 +111,7 @@ const ebarimtConfigSchema = new Schema(
 const qpayConfigSchema = new Schema(
   {
     url: field({ type: String, label: 'QPay url' }),
-    callbackUrl: field({ type: String, label: 'Callback url' }),
+    callbackUrl: field({ type: String, optional: true, label: 'Callback url' }),
     username: field({ type: String, label: 'QPay username' }),
     password: field({ type: String, label: 'QPay password' }),
     invoiceCode: field({ type: String, label: 'QPay invoice' })
@@ -123,7 +125,6 @@ export const configSchema = new Schema({
   description: field({ type: String, label: 'Description' }),
   userId: field({ type: String, optional: true, label: 'Created by' }),
   createdAt: getDateFieldDefinition('Created at'),
-  integrationId: field({ type: String, label: 'Erxes integration' }),
   productDetails: field({ type: [String] }),
   adminIds: field({ type: [String] }),
   cashierIds: field({ type: [String] }),
@@ -132,9 +133,6 @@ export const configSchema = new Schema({
   waitingScreen: field({ type: Object }),
   kioskMachine: field({ type: Object, optional: true }),
   kitchenScreen: field({ type: Object }),
-  formSectionTitle: field({ type: String }),
-  formIntegrationIds: field({ type: [String] }),
-  brandId: field({ type: String }),
   token: field({ type: String, label: 'Token generated at erxes-api' }),
   uiOptions: field({ type: Object, label: 'Logo & color configs' }),
   ebarimtConfig: field({ type: ebarimtConfigSchema }),
@@ -155,6 +153,8 @@ export const configSchema = new Schema({
     type: Object
   }),
   posId: field({ type: String, label: 'Pos id' }),
+  isOnline: field({ type: Boolean, optional: true }),
+  onServer: field({ type: Boolean, optional: true }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
   departmentId: field({ type: String, optional: true, label: 'Department' }),
   allowBranchIds: field({
