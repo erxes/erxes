@@ -29,8 +29,6 @@ export interface IImportHistoryContentType {
 export interface IExportHistory {
   _id: string;
   success: string;
-  updated: string;
-  failed: string;
   total: string;
   contentTypes: string;
   date: Date;
@@ -50,6 +48,11 @@ export interface IExportHistoryItem {
 
 export type ImportHistoriesQueryResponse = {
   importHistories: IImportHistoryItem;
+  stopPolling: () => any;
+} & QueryResponse;
+
+export type ExportHistoriesQueryResponse = {
+  exportHistories: IExportHistoryItem;
   stopPolling: () => any;
 } & QueryResponse;
 

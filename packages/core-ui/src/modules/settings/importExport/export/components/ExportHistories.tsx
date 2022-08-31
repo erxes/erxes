@@ -10,7 +10,7 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 
 import React from 'react';
-import { IImportHistory } from '../../types';
+import { IExportHistory } from '../../types';
 import HistoryRow from '../../import/components/list/HistoryRow';
 import Sidebar from '../../import/containers/list/SideBar';
 import { Title } from '@erxes/ui-settings/src/styles';
@@ -21,7 +21,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 type Props = {
   queryParams: any;
   history: any;
-  histories: IImportHistory[];
+  histories: IExportHistory[];
   loading: boolean;
   totalCount: number;
   currentType: string;
@@ -38,8 +38,6 @@ class Histories extends React.Component<Props & IRouterProps> {
           <tr>
             <th>{__('Name')}</th>
             <th>{__('Records')}</th>
-            <th>{__('Updated records')}</th>
-            <th>{__('Error Count')}</th>
             <th>{__('User')}</th>
             <th>{__('Date')}</th>
             <th>{__('Action')}</th>

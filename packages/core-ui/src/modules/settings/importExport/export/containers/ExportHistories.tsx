@@ -9,6 +9,7 @@ import { withRouter } from 'react-router-dom';
 import Histories from '../components/ExportHistories';
 import { mutations, queries } from '../../import/graphql';
 import {
+  ExportHistoriesQueryResponse,
   ImportHistoriesQueryResponse,
   RemoveMutationResponse
 } from '../../types';
@@ -23,7 +24,7 @@ type Props = {
 };
 
 type FinalProps = {
-  historiesQuery: ImportHistoriesQueryResponse;
+  historiesQuery: ExportHistoriesQueryResponse;
 } & Props &
   IRouterProps &
   RemoveMutationResponse;
@@ -44,7 +45,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
   render() {
     const { historiesQuery, importHistoriesRemove, history } = this.props;
 
-    const histories = historiesQuery.importHistories || {};
+    const histories = historiesQuery.exportHistories || {};
     const list = histories.list || [];
 
     if (historiesQuery.loading) {
