@@ -138,6 +138,17 @@ export type ChangeStatusMutationResponse = {
   }) => Promise<any>;
 };
 
+export type ChangeStateBulkMutationVariables = {
+  _ids: string[];
+  value: string;
+};
+
+export type ChangeStateBulkMutationResponse = {
+  customersChangeStateBulk: (doc: {
+    variables: ChangeStateBulkMutationVariables;
+  }) => Promise<any>;
+};
+
 // query types
 export type ListQueryVariables = {
   page?: number;

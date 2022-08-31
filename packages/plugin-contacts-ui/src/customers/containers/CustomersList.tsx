@@ -23,7 +23,9 @@ import {
   VerifyMutationVariables,
   VerifyMutationResponse,
   ChangeStatusMutationResponse,
-  ChangeStatusMutationVariables
+  ChangeStatusMutationVariables,
+  ChangeStateBulkMutationResponse,
+  ChangeStateBulkMutationVariables
 } from '@erxes/ui-contacts/src/customers/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
@@ -41,7 +43,8 @@ type FinalProps = {
   MergeMutationResponse &
   VerifyMutationResponse &
   ChangeStatusMutationResponse &
-  IRouterProps;
+  IRouterProps &
+  ChangeStateBulkMutationResponse;
 
 type State = {
   loading: boolean;
@@ -89,7 +92,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       customersVerify,
       customersChangeVerificationStatus,
       type,
-      history
+      history,
+      customersChangeStateBulk
     } = this.props;
 
     let columnsConfig = (customersListConfigQuery &&
@@ -225,6 +229,16 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       );
     };
 
+    const changeStateBulk = (_ids: string[], value: string) => {
+      customersChangeStateBulk({ variables: { _ids, value } })
+        .then(() => {
+          Alert.success('Customer state has been changed');
+        })
+        .catch(e => {
+          Alert.error(e.message);
+        });
+    };
+
     const searchValue = this.props.queryParams.searchValue || '';
 
     const { list = [], totalCount = 0 } =
@@ -244,7 +258,8 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       verifyCustomers,
       changeVerificationStatus,
       mergeCustomerLoading: this.state.mergeCustomerLoading,
-      refetch: this.refetchWithDelay
+      refetch: this.refetchWithDelay,
+      changeStateBulk
     };
 
     const content = props => {
@@ -366,6 +381,16 @@ export default withProps<Props>(
       {
         name: 'customersChangeVerificationStatus'
       }
-    )
+    ),
+    graphql<
+      Props,
+      ChangeStateBulkMutationResponse,
+      ChangeStateBulkMutationVariables
+    >(gql(mutations.customersChangeStateBulk), {
+      name: 'customersChangeStateBulk',
+      options: ({ queryParams, type }) => ({
+        refetchQueries: getRefetchQueries(queryParams, type)
+      })
+    })
   )(withRouter<IRouterProps>(CustomerListContainer))
 );
