@@ -17,7 +17,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (qpayConfig) {
     data.qpayConfig = {
       url: qpayConfig.qpayUrl,
-      callbackUrl: qpayConfig.callbackUrl,
+      callbackUrl: pos.isOnline ? qpayConfig.callbackUrl : '',
       username: qpayConfig.qpayMerchantUser,
       password: qpayConfig.qpayMerchantPassword,
       invoiceCode: qpayConfig.qpayInvoiceCode

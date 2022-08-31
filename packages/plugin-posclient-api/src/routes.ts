@@ -1,6 +1,7 @@
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { commonCheckPayment } from './graphql/utils/orderUtils';
+import { sendPosMessage } from './messageBroker';
 import { IConfigDocument } from './models/definitions/configs';
 
 export const posInitialSetup = async (req, res) => {
@@ -42,6 +43,20 @@ export const callBackQpay = async (req, res) => {
   }
 
   const orderId = payment_id;
+  const order = await models.Orders.findOne({ _id: orderId }).lean();
+
+  const pos = await sendPosMessage({
+    subdomain,
+    action: 'configs.find',
+    data: { token: order.posToken },
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  if (!pos.isOnline) {
+    return;
+  }
+
   const paymentId = qpay_payment_id;
   const invoice = await models.QPayInvoices.findOne({
     senderInvoiceNo: orderId
