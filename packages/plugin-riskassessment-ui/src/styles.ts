@@ -1,7 +1,7 @@
-import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src'
-import { LeftItem } from '@erxes/ui/src/components/step/styles'
-import styled, { css } from 'styled-components'
-import styledTS from 'styled-components-ts'
+import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import styled, { css } from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const GridContainer = styledTS<{
   horizontal?: boolean;
@@ -128,12 +128,11 @@ export const ClearableBtn = styled.a`
   cursor: pointer;
 `;
 
-export const ProductName = styled.a`
+export const ProductName = styledTS<{ pointer?:boolean,underline?:boolean }>(styled.a)`
   cursor: pointer;
   color: ${colors.textSecondary};
   display: flex;
   justify-content: space-between;
-
   > i {
     visibility: hidden;
   }

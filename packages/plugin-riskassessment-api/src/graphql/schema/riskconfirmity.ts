@@ -1,4 +1,3 @@
-
 export const types = `
     type RiskConfirmity {
         _id: String,
@@ -11,6 +10,7 @@ export const types = `
 export const queries = `
     riskConfirmities(cardId:String,riskAssessmentId:String):[RiskConfirmity]
     riskConfirmityDetails(cardId:String) :JSON
+    riskConfirmitySubmissions(dealId:String) :JSON
 `;
 
 export const mutations = `

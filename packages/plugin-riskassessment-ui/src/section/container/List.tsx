@@ -12,6 +12,7 @@ type Props = {
 
 type FinalProps = {
   lists: IDealRiskConfirmitiesQueryResponse;
+  submissions:any
 } & Props;
 
 class RiskAssessmentSection extends React.Component<FinalProps> {
@@ -20,12 +21,13 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
   }
 
   render() {
-    const { lists } = this.props;
+    const { lists ,submissions} = this.props;
 
     const updatedProps = {
       ...this.props,
       list: lists?.riskConfirmities || [],
       refetch: lists?.refetch,
+      submissions:submissions.riskConfirmitySubmissions
     };
 
     return <SectionComponent {...updatedProps} />;
@@ -38,6 +40,11 @@ export default withProps<Props>(
       name: 'lists',
       skip: ({ id }) => !isEnabled('riskassessment') || !id,
       options: ({ id }) => ({ variables: { cardId: id } }),
+    }),
+    graphql<Props>(gql(queries.riskConfirmitySubmissions), {
+      name: 'submissions',
+      skip: ({ id }) => !id,
+      options: ({ id }) => ({ variables: { dealId: id } }),
     })
   )(RiskAssessmentSection)
 );

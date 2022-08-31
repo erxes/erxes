@@ -1,13 +1,31 @@
-import { Model } from 'mongoose'
-import { IModels } from '../connectionResolver'
-import { IRiskConfirmityField, IRiskConfirmityParams } from './definitions/common'
-import { IRiskConfirmityDocument, riskConfirmitySchema } from './definitions/riskConfimity'
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { sendCardsMessage, sendCoreMessage } from '../messageBroker';
+import {
+  IRiskConfirmityField,
+  IRiskConfirmityParams
+} from './definitions/common';
+import {
+  IRiskConfirmityDocument,
+  riskConfirmitySchema
+} from './definitions/riskConfimity';
 
 export interface IRiskConfirmityModel extends Model<IRiskConfirmityDocument> {
-  riskConfirmities(params: IRiskConfirmityParams): Promise<IRiskConfirmityDocument>;
-  riskConfirmityDetails(params: IRiskConfirmityParams): Promise<IRiskConfirmityDocument>;
-  riskConfirmityAdd(params: IRiskConfirmityField): Promise<IRiskConfirmityDocument>;
-  riskConfirmityUpdate(params: IRiskConfirmityParams): Promise<IRiskConfirmityDocument>;
+  riskConfirmities(
+    params: IRiskConfirmityParams
+  ): Promise<IRiskConfirmityDocument>;
+  riskConfirmitySubmissions(params: {
+    dealId: string;
+  }): Promise<IRiskConfirmityDocument>;
+  riskConfirmityDetails(
+    params: IRiskConfirmityParams
+  ): Promise<IRiskConfirmityDocument>;
+  riskConfirmityAdd(
+    params: IRiskConfirmityField
+  ): Promise<IRiskConfirmityDocument>;
+  riskConfirmityUpdate(
+    params: IRiskConfirmityParams
+  ): Promise<IRiskConfirmityDocument>;
   riskConfirmityRemove(cardId: string): Promise<IRiskConfirmityDocument>;
 }
 
@@ -91,6 +109,44 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
 
       await model.RiskConfimity.deleteOne({ cardId });
       return 'success';
+    }
+
+    public static async riskConfirmitySubmissions(params) {
+      const { dealId } = params;
+
+      if (!dealId) {
+        throw new Error('deal Id is required');
+      }
+
+      let assignedUsers
+
+      const deal = await sendCardsMessage({
+        subdomain,
+        action: 'deals.findOne',
+        data: {
+          _id: dealId,
+        },
+        isRPC: true,
+        defaultValue: [],
+      });
+
+      if(deal){
+
+        const { assignedUserIds } = deal
+
+        assignedUsers = await sendCoreMessage({
+          subdomain,
+          action: 'users.find',
+          data:{
+            query:{_id: { $in:assignedUserIds }},
+            
+          },
+          isRPC: true,
+          defaultValue: []
+        })
+      }
+
+      return assignedUsers;
     }
   }
   riskConfirmitySchema.loadClass(RiskConfimity);

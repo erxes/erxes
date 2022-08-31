@@ -4,7 +4,7 @@ const riskAssessments = `
       list{_id,name,description,status,categoryId},totalCount
     }
   }
-  `
+  `;
 const riskConfirmities = `
   query RiskConfirmities($cardId: String) {
     riskConfirmities(cardId: $cardId) {
@@ -14,13 +14,22 @@ const riskConfirmities = `
       name
     }
   }
-`
+`;
 
 const riskConfimityDetails = `
   query RiskConfirmityDetails($cardId: String) {
     riskConfirmityDetails(cardId: $cardId)
-  }`
+  }`;
 
-export default {riskAssessments,
-    riskConfirmities,
-    riskConfimityDetails}
+const riskConfirmitySubmissions = `
+  query Query($dealId: String) {
+    riskConfirmitySubmissions(dealId: $dealId)
+  }
+`;
+
+export default {
+  riskAssessments,
+  riskConfirmities,
+  riskConfimityDetails,
+  riskConfirmitySubmissions,
+};
