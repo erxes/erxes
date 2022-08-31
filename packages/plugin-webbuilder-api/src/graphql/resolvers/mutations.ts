@@ -12,18 +12,18 @@ interface IContentTypeEdit extends IContentType {
 }
 
 const webbuilderMutations = {
-  async webbuilderPagesAdd(_root, doc: IPage, { models }: IContext) {
-    return models.Pages.createPage(doc);
+  async webbuilderPagesAdd(_root, doc: IPage, { models, user }: IContext) {
+    return models.Pages.createPage(doc, user._id);
   },
 
   async webbuilderPagesEdit(
     _root,
     args: { _id: string } & IPage,
-    { models }: IContext
+    { models, user }: IContext
   ) {
     const { _id, ...doc } = args;
 
-    return models.Pages.updatePage(_id, doc);
+    return models.Pages.updatePage(_id, doc, user._id);
   },
 
   async webbuilderPagesRemove(
@@ -87,10 +87,11 @@ const webbuilderMutations = {
   async webbuilderTemplatesUse(
     _root,
     { _id, name }: { _id: string; name: string },
-    { models }: IContext
+    { models, user }: IContext
   ) {
     const siteName = await models.Sites.createSite(
       {
+        templateId: _id,
         name
       },
       true
@@ -115,11 +116,14 @@ const webbuilderMutations = {
     const entriesAll = await writeAndReadHelpersData('entries');
 
     for (const page of pages) {
-      await models.Pages.createPage({
-        ...page,
-        _id: undefined,
-        siteId: site._id
-      });
+      await models.Pages.createPage(
+        {
+          ...page,
+          _id: undefined,
+          siteId: site._id
+        },
+        user._id
+      );
 
       // find contentTypes related with page
       const contentTypes = contentTypesAll.filter(

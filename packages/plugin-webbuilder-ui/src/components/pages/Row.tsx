@@ -7,6 +7,7 @@ import Button from '@erxes/ui/src/components/Button';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { IPageDoc } from '../../types';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 
 type Props = {
   page: IPageDoc;
@@ -59,7 +60,7 @@ class Row extends React.Component<Props> {
   render() {
     const { page } = this.props;
 
-    const { name, description, _id, site } = page;
+    const { name, description, _id, site, createdUser, updatedUser } = page;
 
     return (
       <tr>
@@ -70,6 +71,14 @@ class Row extends React.Component<Props> {
         </td>
         <td>{description}</td>
         <td>{site?.name || ''}</td>
+
+        <td>
+          <NameCard user={createdUser} avatarSize={30} />
+        </td>
+        <td>
+          <NameCard user={updatedUser} avatarSize={30} />
+        </td>
+
         <td>
           <ActionButtons>
             {this.manageAction(page)}
