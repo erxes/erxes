@@ -195,19 +195,19 @@ class PluginDetails extends React.Component<Props, State> {
         <Tabs>
           <TabTitle
             onClick={() => handleSelect('Description')}
-            active={tabType === 'Description'}
+            className={tabType === 'Description' ? 'active' : ''}
           >
             Description
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Guide')}
-            active={tabType === 'Guide'}
+            className={tabType === 'Guide' ? 'active' : ''}
           >
             Guide
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Changelog')}
-            active={tabType === 'Changelog'}
+            className={tabType === 'Changelog' ? 'active' : ''}
           >
             Changelog
           </TabTitle>
