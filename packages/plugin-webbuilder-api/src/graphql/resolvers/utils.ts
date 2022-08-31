@@ -23,13 +23,17 @@ export const makeDirs = () => {
 const createSiteEntries = async (
   models: IModels,
   entries: any,
-  contentTypeId: string
+  contentTypeId: string,
+  userId: string
 ) => {
   for (const entry of entries) {
-    models.Entries.createEntry({
-      values: entry.values,
-      contentTypeId
-    });
+    models.Entries.createEntry(
+      {
+        values: entry.values,
+        contentTypeId
+      },
+      userId
+    );
   }
 };
 
@@ -38,19 +42,24 @@ export const createSiteContentTypes = async (
   {
     siteId,
     contentTypes,
-    entriesAll
+    entriesAll,
+    userId
   }: {
     siteId: string;
     contentTypes: any;
     entriesAll: any;
+    userId: string;
   }
 ) => {
   for (const type of contentTypes) {
-    const contentType = await models.ContentTypes.createContentType({
-      ...type,
-      _id: undefined,
-      siteId: siteId
-    });
+    const contentType = await models.ContentTypes.createContentType(
+      {
+        ...type,
+        _id: undefined,
+        siteId: siteId
+      },
+      userId
+    );
 
     // find entries related to contentType
     const entries = entriesAll.filter(
@@ -61,7 +70,7 @@ export const createSiteContentTypes = async (
       continue;
     }
 
-    await createSiteEntries(models, entries, contentType._id);
+    await createSiteEntries(models, entries, contentType._id, userId);
   }
 };
 

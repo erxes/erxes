@@ -11,6 +11,10 @@ interface IContentTypeEdit extends IContentType {
   _id: string;
 }
 
+interface IEntryEdit extends IEntry {
+  _id: string;
+}
+
 const webbuilderMutations = {
   async webbuilderPagesAdd(_root, doc: IPage, { models, user }: IContext) {
     return models.Pages.createPage(doc, user._id);
@@ -37,17 +41,17 @@ const webbuilderMutations = {
   async webbuilderContentTypesAdd(
     _root,
     doc: IContentType,
-    { models }: IContext
+    { models, user }: IContext
   ) {
-    return models.ContentTypes.createContentType(doc);
+    return models.ContentTypes.createContentType(doc, user._id);
   },
 
   async webbuilderContentTypesEdit(
     _root,
     { _id, ...doc }: IContentTypeEdit,
-    { models }: IContext
+    { models, user }: IContext
   ) {
-    return models.ContentTypes.updateContentType(_id, doc);
+    return models.ContentTypes.updateContentType(_id, doc, user._id);
   },
 
   async webbuilderContentTypesRemove(
@@ -58,18 +62,16 @@ const webbuilderMutations = {
     return models.ContentTypes.removeContentType(_id);
   },
 
-  async webbuilderEntriesAdd(_root, doc: IEntry, { models }: IContext) {
-    return models.Entries.create(doc);
+  async webbuilderEntriesAdd(_root, doc: IEntry, { models, user }: IContext) {
+    return models.Entries.createEntry(doc, user._id);
   },
 
   async webbuilderEntriesEdit(
     _root,
-    { _id, ...doc }: { _id: string & IEntry },
-    { models }: IContext
+    { _id, ...doc }: IEntryEdit,
+    { models, user }: IContext
   ) {
-    await models.Entries.updateOne({ _id }, { $set: doc });
-
-    return models.Entries.findOne({ _id });
+    return models.Entries.updateEntry(_id, doc, user._id);
   },
 
   async webbuilderEntriesRemove(
@@ -77,7 +79,7 @@ const webbuilderMutations = {
     { _id }: { _id: string },
     { models }: IContext
   ) {
-    return models.Entries.deleteOne({ _id });
+    return models.Entries.removeEntry(_id);
   },
 
   async webbuilderTemplatesAdd(_root, doc: ITemplate, { models }: IContext) {
@@ -94,6 +96,7 @@ const webbuilderMutations = {
         templateId: _id,
         name
       },
+      user._id,
       true
     );
 
@@ -138,7 +141,8 @@ const webbuilderMutations = {
       await createSiteContentTypes(models, {
         siteId: site._id,
         contentTypes,
-        entriesAll
+        entriesAll,
+        userId: user._id
       });
     }
   },
@@ -151,18 +155,18 @@ const webbuilderMutations = {
     return models.Templates.deleteOne({ _id });
   },
 
-  async webbuilderSitesAdd(_root, doc: ISite, { models }: IContext) {
-    return models.Sites.createSite(doc);
+  async webbuilderSitesAdd(_root, doc: ISite, { models, user }: IContext) {
+    return models.Sites.createSite(doc, user._id);
   },
 
   async webbuilderSitesEdit(
     _root,
     args: { _id: string } & ISite,
-    { models }: IContext
+    { models, user }: IContext
   ) {
     const { _id, ...doc } = args;
 
-    return models.Sites.updateSite(_id, doc);
+    return models.Sites.updateSite(_id, doc, user._id);
   },
 
   async webbuilderSitesRemove(
