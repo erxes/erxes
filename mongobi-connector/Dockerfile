@@ -20,4 +20,4 @@ ENV LISTEN_PORT 3307
 # Start Everything
 # note: we need to use sh -c "command" to make rsyslog running as deamon too
 RUN service rsyslog start
-CMD sh -c "/mongosqld/bin/mongosqld --logPath /var/log/mongosqld.log --mongo-uri mongodb://$MONGODB_HOST:$MONGODB_PORT/?connect=direct&readPreference=secondary --mongo-username $MONGO_USERNAME --mongo-password $MONGO_PASSWORD --auth  --addr 0.0.0.0:3307  --sslMode requireSSL --sslPEMKeyFile /mongosqld/mongo.pem"
+CMD sh -c '/mongosqld/bin/mongosqld --logPath /var/log/mongosqld.log --mongo-uri "mongodb://$MONGODB_HOST:$MONGODB_PORT/?connect=direct&readPreference=secondary" --mongo-username $MONGO_USERNAME --mongo-password $MONGO_PASSWORD --auth  --addr 0.0.0.0:3307  --sslMode requireSSL --sslPEMKeyFile /mongosqld/mongo.pem'
