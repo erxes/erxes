@@ -9,6 +9,14 @@ on:
       - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-ebarimt-api/**'
       - '.github/workflows/plugin-ebarimt-api.yaml'
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-ebarimt-api/**'
+      - '.github/workflows/plugin-ebarimt-api.yaml'
 
 jobs:
   api:
