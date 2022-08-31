@@ -7,21 +7,39 @@ import { field } from './utils';
 export interface ISite {
   name: string;
   domain?: string;
+  templateId?: string;
+
+  createdBy?: string;
+  modifiedBy?: string;
 }
 
 export interface ISiteDocument extends ISite, Document {
   _id: string;
+
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export const siteSchema = new Schema({
   name: field({ type: String, label: 'Name', unique: true }),
-  domain: field({ type: String, optional: true, label: 'Domain' })
+  domain: field({ type: String, optional: true, label: 'Domain' }),
+  templateId: field({ type: String, optional: true, label: 'Template id' }),
+
+  createdBy: field({ type: String, optional: true, label: 'Created by' }),
+  modifiedBy: field({ type: String, optional: true, label: 'Modified by' }),
+
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' })
 });
 
 export interface ISiteModel extends Model<ISiteDocument> {
   checkDuplication(doc: ISite, _id?: string): void;
-  createSite(doc: ISite, fromTemplate?: boolean): Promise<ISiteDocument>;
-  updateSite(_id: string, doc: ISite): Promise<ISiteDocument>;
+  createSite(
+    doc: ISite,
+    userId: string,
+    fromTemplate?: boolean
+  ): Promise<ISiteDocument>;
+  updateSite(_id: string, doc: ISite, userId: string): Promise<ISiteDocument>;
   removeSite(_id: string): Promise<ISiteDocument>;
 }
 
@@ -45,16 +63,24 @@ export const loadSiteClass = (models: IModels) => {
       }
     }
 
-    public static async createSite(doc, fromTemplate?: boolean) {
+    public static async createSite(
+      doc,
+      userId: string,
+      fromTemplate?: boolean
+    ) {
       // creating a site using a template
       if (fromTemplate) {
         doc.name = doc.name + '1';
 
         try {
-          await models.Sites.create(doc);
+          await models.Sites.create({
+            ...doc,
+            createdAt: new Date(),
+            createdBy: userId
+          });
         } catch ({ message }) {
           if (message.includes(`E11000 duplicate key error`)) {
-            await this.createSite(doc, true);
+            await this.createSite(doc, userId, true);
           }
         }
 
@@ -63,13 +89,21 @@ export const loadSiteClass = (models: IModels) => {
 
       await this.checkDuplication(doc);
 
-      return models.Sites.create(doc);
+      return models.Sites.create({
+        ...doc,
+
+        createdAt: new Date(),
+        createdBy: userId
+      });
     }
 
-    public static async updateSite(_id: string, doc) {
+    public static async updateSite(_id: string, doc: ISite, userId: string) {
       await this.checkDuplication(doc, _id);
 
-      await models.Sites.updateOne({ _id }, { $set: doc });
+      await models.Sites.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedAt: new Date(), modifiedBy: userId } }
+      );
 
       return models.Sites.findOne({ _id });
     }
