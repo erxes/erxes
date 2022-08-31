@@ -121,3 +121,28 @@ export const FORUM_POST_DETAIL = gql`
     }
   }
 `;
+
+export const FORUM_COMMENTS = gql`
+  query ForumComments(
+    $id: [ID!]
+    $limit: Int
+    $offset: Int
+    $postId: [ID!]
+    $replyToId: [ID]
+  ) {
+    forumComments(
+      _id: $id
+      limit: $limit
+      offset: $offset
+      postId: $postId
+      replyToId: $replyToId
+    ) {
+      _id
+      content
+      createdAt
+      postId
+      replyToId
+      updatedAt
+    }
+  }
+`;

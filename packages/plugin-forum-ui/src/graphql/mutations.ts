@@ -65,3 +65,15 @@ export const CREATE_ROOT_CATEGORY = gql`
     }
   }
 `;
+
+export const CREATE_COMMENT = gql`
+  mutation ForumCreateComment($content: String!, $replyToId: ID, $postId: ID!) {
+    forumCreateComment(
+      content: $content
+      replyToId: $replyToId
+      postId: $postId
+    ) {
+      _id
+    }
+  }
+`;

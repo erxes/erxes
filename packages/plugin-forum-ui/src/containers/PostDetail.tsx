@@ -3,6 +3,7 @@ import { useParams, Link, useHistory } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-apollo';
 import { FORUM_POST_DETAIL, POST_REFETCH_AFTER_EDIT } from '../graphql/queries';
 import gql from 'graphql-tag';
+import Comments from './Comments';
 
 const DELETE_POST = gql`
   mutation ForumDeletePost($_id: ID!) {
@@ -144,6 +145,9 @@ const PostDetail: React.FC = () => {
         <Link to={`/forums/posts/${postId}/edit`}>Edit</Link>
         <button onClick={onClickDelete}>Delete</button>
       </div>
+      <hr />
+      <h1>Comments: </h1>
+      <Comments postId={postId} />
     </div>
   );
 };
