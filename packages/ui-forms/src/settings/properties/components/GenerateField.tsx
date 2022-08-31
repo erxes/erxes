@@ -332,8 +332,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
       return (
         <>
-          {objectListConfigs.map(o => (
-            <>
+          {objectListConfigs.map((o, index) => (
+            <React.Fragment key={index}>
               <p>
                 <b>{o.label}</b>
               </p>
@@ -342,7 +342,7 @@ export default class GenerateField extends React.Component<Props, State> {
                 componentClass={`${o.type}`}
                 placeholder={`${o.label}`}
               />
-            </>
+            </React.Fragment>
           ))}
         </>
       );
