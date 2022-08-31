@@ -1,4 +1,6 @@
-import { authCookieOptions } from '../../../auth/authUtils';
+import { authCookieOptions, getEnv } from '@erxes/api-utils/src/core';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
+
 import { IContext } from '../../../connectionResolver';
 import { sendCoreMessage } from '../../../messageBroker';
 import { ILoginParams } from '../../../models/ClientPortalUser';
@@ -45,7 +47,7 @@ const clientPortalUserMutations = {
   async clientPortalUsersEdit(
     _root,
     { _id, ...doc }: IClientPortalUserEdit,
-    { models, subdomain }: IContext
+    { models }: IContext
   ) {
     const updated = await models.ClientPortalUsers.updateUser(_id, doc);
 
@@ -80,6 +82,7 @@ const clientPortalUserMutations = {
 
     await models.ClientPortalUsers.sendVerification(
       subdomain,
+      args.clientPortalId,
       clientPortal.otpConfig,
       args.phone,
       args.email
@@ -98,6 +101,16 @@ const clientPortalUserMutations = {
     return models.ClientPortalUsers.verifyUser(args);
   },
 
+  clientPortalUsersVerify: async (
+    _root,
+    { userIds, type }: { userIds: string[]; type: string },
+    context: IContext
+  ) => {
+    const { models } = context;
+
+    return models.ClientPortalUsers.verifyUsers(userIds, type);
+  },
+
   /*
    * Login
    */
@@ -108,11 +121,17 @@ const clientPortalUserMutations = {
   ) => {
     const { token } = await models.ClientPortalUsers.login(args);
 
-    res.cookie(
-      'client-auth-token',
-      token,
-      authCookieOptions(requestInfo.secure)
-    );
+    const cookieOptions: any = {};
+
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      cookieOptions.sameSite = 'none';
+    }
+
+    const options = authCookieOptions(cookieOptions);
+
+    res.cookie('client-auth-token', token, options);
 
     return 'loggedin';
   },
@@ -120,9 +139,30 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { res }: IContext) {
-    res.cookie('client-auth-token', '1', { maxAge: 0 });
+  async clientPortalLogout(
+    _root,
+    _args,
+    { requestInfo, res, cpUser, models }: IContext
+  ) {
+    const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
+    const options: any = {
+      httpOnly: true
+    };
+
+    if (!['test', 'development'].includes(NODE_ENV)) {
+      options.sameSite = 'none';
+      options.secure = true;
+    }
+
+    if (cpUser) {
+      await models.ClientPortalUsers.updateOne(
+        { _id: cpUser._id || '' },
+        { $set: { lastSeenAt: new Date(), isOnline: false } }
+      );
+    }
+
+    res.clearCookie('client-auth-token', options);
     return 'loggedout';
   },
 

@@ -15,7 +15,10 @@ const fieldCommonFields = `
   code: String
   searchable: Boolean
   showInCard: Boolean
+  isVisibleToCreate: Boolean
   productCategoryId: String
+  field: String
+  isDefinedByErxes: Boolean
 `;
 
 export const fieldsTypes = ({ products }) => `
@@ -71,7 +74,6 @@ export const fieldsTypes = ({ products }) => `
     isVisible: Boolean
     isVisibleInDetail: Boolean
     canHide: Boolean
-    isDefinedByErxes: Boolean
     groupId: String
     lastUpdatedUser: User
     lastUpdatedUserId: String
@@ -120,8 +122,8 @@ export const fieldsTypes = ({ products }) => `
 
 export const fieldsQueries = `
   fieldsGetTypes: [JSON]
-  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean): [Field]
-  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON): JSON
+  fields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean, pipelineId: String): [Field]
+  fieldsCombinedByContentType(contentType: String!, usageType: String, excludedNames: [String], segmentId: String, config: JSON, onlyDates: Boolean): JSON
   fieldsDefaultColumnsConfig(contentType: String!): [ColumnConfigItem]
 `;
 
@@ -143,6 +145,7 @@ const fieldsCommonFields = `
   searchable: Boolean
   showInCard: Boolean
   objectListConfigs: [objectListConfigInput]
+  isVisibleToCreate: Boolean
 `;
 
 export const fieldsMutations = `
@@ -152,6 +155,7 @@ export const fieldsMutations = `
   fieldsRemove(_id: String!): Field
   fieldsUpdateOrder(orders: [OrderItem]): [Field]
   fieldsUpdateVisible(_id: String!, isVisible: Boolean, isVisibleInDetail: Boolean) : Field
+  fieldsUpdateSystemFields(_id: String!, isVisibleToCreate: Boolean, isRequired: Boolean) : Field
 `;
 
 export const fieldsGroupsTypes = `

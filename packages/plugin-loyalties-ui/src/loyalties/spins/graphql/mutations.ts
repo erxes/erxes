@@ -1,5 +1,5 @@
-import { commonDefs, commonVariables } from "../../common/graphq";
-import { spinFields } from "./queries";
+import { commonDefs, commonVariables } from '../../common/graphq';
+import { spinFields } from './queries';
 
 const spinsAdd = `
   mutation spinsAdd(${commonDefs}, $status: String) {
@@ -26,5 +26,5 @@ const spinsRemove = `
 export default {
   spinsAdd,
   spinsEdit,
-  spinsRemove,
-}
+  spinsRemove
+};

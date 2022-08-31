@@ -1,28 +1,22 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
-import {
-  IUserGroup,
-  UsersGroupsQueryResponse
-} from '@erxes/ui-settings/src/permissions/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import {
-  ChannelsQueryResponse,
-  IChannel
-} from '@erxes/ui-settings/src/channels/types';
-import { queries as usersGroupsQueries } from '@erxes/ui-settings/src/permissions/graphql';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
 import UserForm from '../components/UserForm';
+import { queries as generalQueries } from '@erxes/ui-settings/src/general/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { isEnabled } from '../../utils/core';
+import { queries } from '../graphql';
+import { queries as usersGroupsQueries } from '@erxes/ui-settings/src/permissions/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
-  channelsQuery: ChannelsQueryResponse;
-  groupsQuery: UsersGroupsQueryResponse;
+  channelsQuery: any; //check - ChannelsQueryResponse
+  groupsQuery: any; //check - UsersGroupsQueryResponse
   getEnvQuery: any;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
@@ -33,15 +27,15 @@ const UserFormContainer = (props: Props & ICommonFormProps) => {
   const config = getEnvQuery.configsGetEnv || {};
   const object = props.object || ({} as IUser);
 
-  if (channelsQuery.loading || groupsQuery.loading) {
+  if ((channelsQuery && channelsQuery.loading) || groupsQuery.loading) {
     return <Spinner />;
   }
 
-  const channels = channelsQuery.channels || [];
+  const channels = channelsQuery ? channelsQuery.channels || [] : [];
   const groups = groupsQuery.usersGroups || [];
 
-  let selectedChannels: IChannel[] = [];
-  let selectedGroups: IUserGroup[] = [];
+  let selectedChannels: any[] = []; //check - IChannel
+  let selectedGroups: any[] = []; //check - IUserGroup
 
   if (object._id) {
     selectedChannels = channels.filter(c =>
@@ -73,11 +67,14 @@ export default withProps<ICommonFormProps>(
         fetchPolicy: 'network-only'
       })
     }),
-    graphql<{}, ChannelsQueryResponse>(gql(channelQueries.channels), {
+    graphql<{}, any>(gql(queries.channels), {
+      //check - ChannelsQueryResponse
       name: 'channelsQuery',
-      options: () => ({ fetchPolicy: 'network-only' })
+      options: () => ({ fetchPolicy: 'network-only' }),
+      skip: !isEnabled('inbox')
     }),
-    graphql<{}, UsersGroupsQueryResponse>(gql(usersGroupsQueries.usersGroups), {
+    graphql<{}, any>(gql(usersGroupsQueries.usersGroups), {
+      //check - UsersGroupsQueryResponse
       name: 'groupsQuery',
       options: () => ({ fetchPolicy: 'network-only' })
     })

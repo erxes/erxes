@@ -1,28 +1,22 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IUser } from '@erxes/ui/src/auth/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import {
-  SkillsExcludeUserMutationResponse,
-  SkillsQueryResponse,
-  SkillTypesQueryResponse
-} from '@erxes/ui-settings/src/skills/types';
-import React from 'react';
-import { graphql, useLazyQuery } from 'react-apollo';
+
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
-import skillQueries from '@erxes/ui-settings/src/skills/graphql/queries';
-import UserDetailForm from '../components/detail/UserDetailForm';
-import UserSkillForm from '../components/detail/UserSkillForm';
-import { mutations, queries } from '../graphql';
 import {
   UserConverationsQueryResponse,
   UserDetailQueryResponse
 } from '../types';
+import { graphql, useLazyQuery } from 'react-apollo';
+import { mutations, queries } from '../graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import UserDetailForm from '../components/detail/UserDetailForm';
 import UserForm from './UserForm';
+import UserSkillForm from '../components/detail/UserSkillForm';
+import gql from 'graphql-tag';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
@@ -39,10 +33,10 @@ type Props = {
 
 type FinalProps = {
   userDetailQuery: UserDetailQueryResponse;
-  channelsQuery: ChannelsQueryResponse;
+  channelsQuery: any; //check - ChannelsQueryResponse
   userConversationsQuery: UserConverationsQueryResponse;
-  skillsQuery: SkillsQueryResponse;
-  skillTypesQuery: SkillTypesQueryResponse;
+  skillsQuery: any; //check - SkillsQueryResponse
+  skillTypesQuery: any; //check - SkillTypesQueryResponse
   userExcludeSkill: (params: {
     variables: { _id: string; memberIds: string[] };
   }) => Promise<void>;
@@ -51,16 +45,16 @@ type FinalProps = {
 const UserDetailFormContainer = (props: Props & FinalProps) => {
   const {
     userDetailQuery,
-    channelsQuery = {} as ChannelsQueryResponse,
+    channelsQuery = {} as any, //check - ChannelsQueryResponse
     userConversationsQuery,
-    skillsQuery = {} as SkillsQueryResponse,
-    skillTypesQuery = {} as SkillTypesQueryResponse,
+    skillsQuery = {} as any, // check - SkillsQueryResponse
+    skillTypesQuery = {} as any, //check - SkillTypesQueryResponse
     userExcludeSkill,
     renderEditForm
   } = props;
   const [
     getSkills,
-    { loading, data = {} as SkillsQueryResponse }
+    { loading, data = {} as any } //check - SkillsQueryResponse
   ] = useLazyQuery(gql(queries.userSkills), {
     fetchPolicy: 'network-only'
   } as any);
@@ -193,27 +187,27 @@ export default withProps<Props>(
       }),
       skip: !isEnabled('inbox')
     }),
-    graphql(gql(channelQueries.channels), {
+    graphql(gql(queries.channels), {
       name: 'channelsQuery',
       options: commonOptions,
       skip: !isEnabled('inbox')
     }),
-    graphql<Props, SkillsQueryResponse>(gql(queries.userSkills), {
+    graphql<Props, any>(gql(queries.userSkills), {
+      //check - SkillsQueryResponse
       name: 'skillsQuery',
       options: ({ _id }: { _id: string }) => ({
         variables: { memberIds: [_id] }
       }),
       skip: !isEnabled('inbox')
     }),
-    graphql<Props, SkillTypesQueryResponse>(gql(skillQueries.skillTypes), {
+    graphql<Props, any>(gql(queries.skillTypes), {
+      //check - SkillTypesQueryResponse
       name: 'skillTypesQuery',
       skip: !isEnabled('inbox')
     }),
-    graphql<Props, SkillsExcludeUserMutationResponse>(
-      gql(mutations.userExcludeSkill),
-      {
-        name: 'userExcludeSkill'
-      }
-    )
+    graphql<Props, any>(gql(mutations.userExcludeSkill), {
+      //check - SkillsExcludeUserMutationResponse
+      name: 'userExcludeSkill'
+    })
   )(UserDetailFormContainer)
 );

@@ -1,26 +1,27 @@
-import ActionButtons from '@erxes/ui/src/components/ActionButtons';
-import Button from '@erxes/ui/src/components/Button';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __, Alert, confirm } from '@erxes/ui/src/utils';
-import React from 'react';
-import Collapse from 'react-bootstrap/Collapse';
-import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
-import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Alert, __, confirm } from '@erxes/ui/src/utils';
 import {
   CollapseRow,
   DropIcon,
   FieldType,
   PropertyListTable,
   PropertyTableHeader,
-  RowField,
-  PropertyTableRow
-} from '@erxes/ui-settings/src/properties/styles';
-import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
+  PropertyTableRow,
+  RowField
+} from '@erxes/ui-forms/src/settings/properties/styles';
+
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Collapse from 'react-bootstrap/Collapse';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
+import React from 'react';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import Toggle from '@erxes/ui/src/components/Toggle';
 
 type Props = {
   group: IFieldGroup;
@@ -31,6 +32,11 @@ type Props = {
   updatePropertyDetailVisible: (params: {
     _id: string;
     isVisibleInDetail: boolean;
+  }) => void;
+  updatePropertySystemFields: (data: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
   }) => void;
   updateFieldOrder: (fields: IField[]) => any;
 };
@@ -89,6 +95,13 @@ class PropertyRow extends React.Component<Props, State> {
     const isVisible = e.target.checked;
 
     return this.props.updatePropertyVisible({ _id: property._id, isVisible });
+  };
+
+  updateSystemFieldsHandler = (e, property) => {
+    return this.props.updatePropertySystemFields({
+      _id: property._id,
+      [e.target.id]: e.target.checked
+    });
   };
 
   renderActionButtons = (data, remove, content, isGroup) => {
@@ -174,6 +187,32 @@ class PropertyRow extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+        {contentType.startsWith('cards:') && (
+          <>
+            <RowField>
+              <Toggle
+                id="isVisibleToCreate"
+                defaultChecked={field.isVisibleToCreate}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={e => this.updateSystemFieldsHandler(e, field)}
+              />
+            </RowField>
+            <RowField>
+              <Toggle
+                id="isRequired"
+                defaultChecked={field.isRequired}
+                icons={{
+                  checked: <span>Yes</span>,
+                  unchecked: <span>No</span>
+                }}
+                onChange={e => this.updateSystemFieldsHandler(e, field)}
+              />
+            </RowField>
+          </>
+        )}
         <RowField>
           {this.renderActionButtons(
             field,
@@ -230,6 +269,12 @@ class PropertyRow extends React.Component<Props, State> {
             <ControlLabel>{__('Visible in Team Inbox')}</ControlLabel>
           ) : (
             <ControlLabel>{__('Visible')}</ControlLabel>
+          )}
+          {contentType.startsWith('cards:') && (
+            <>
+              <ControlLabel>{__('Visible to create')}</ControlLabel>
+              <ControlLabel>{__('Required')}</ControlLabel>
+            </>
           )}
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>

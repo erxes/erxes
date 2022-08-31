@@ -1,16 +1,14 @@
-import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/properties/constants';
-import { FieldsCombinedByTypeQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from 'modules/common/components/Spinner';
-import { IAttachment } from 'modules/common/types';
 
-import { withProps } from 'modules/common/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src//forms/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
+import { IAttachment } from 'modules/common/types';
 import MapColumn from '../components/MapColumn';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
+import { withProps } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
@@ -23,7 +21,7 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  fieldsQuery: FieldsCombinedByTypeQueryResponse;
+  fieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
   importHistoryGetColumns: any;
 } & Props;
 
@@ -74,7 +72,7 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(formQueries.fieldsCombinedByContentType), {
+    graphql<Props>(gql(queries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
       options: ({ contentType }) => {
         return {

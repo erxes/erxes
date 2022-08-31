@@ -7,7 +7,7 @@ import { AddNew } from '@erxes/ui-cards/src/boards/styles/stage';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
 import { IDateColumn } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import options from '@erxes/ui-cards/src/tasks/options';
 import { ITask } from '@erxes/ui-cards/src/tasks/types';

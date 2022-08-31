@@ -1,5 +1,5 @@
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Boards from '../containers/Boards';
@@ -45,9 +45,8 @@ class Home extends React.Component<Props, {}> {
           <Boards options={options} type={type} currentBoardId={boardId} />
         }
         content={<Pipelines options={options} type={type} boardId={boardId} />}
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

@@ -1,4 +1,4 @@
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
@@ -56,7 +56,10 @@ class FormSubmit extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({ formId: (form || {} as any).formId, activeIntegrationId: option.value });
+    this.setState({
+      formId: (form || ({} as any)).formId,
+      activeIntegrationId: option.value
+    });
   };
 
   render() {
@@ -67,7 +70,7 @@ class FormSubmit extends React.Component<Props, State> {
     };
 
     const selectedValue = formIntegrations.find(
-      item => (item || {} as any).formId === this.state.activeIntegrationId
+      item => (item || ({} as any)).formId === this.state.activeIntegrationId
     );
 
     const value = selectedValue

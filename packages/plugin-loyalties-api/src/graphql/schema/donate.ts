@@ -23,7 +23,7 @@ export const queries = `
 const DonateDoc = `
   ${commonInputs}
   donateScore: Float
-`
+`;
 
 export const mutations = `
   donatesAdd(${DonateDoc}): Donate

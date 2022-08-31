@@ -1,56 +1,63 @@
-import React from 'react';
-
-import Icon from 'modules/common/components/Icon';
-import Button from 'modules/common/components/Button';
-import { colors } from 'modules/common/styles';
-import { __ } from 'modules/common/utils';
-
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-
-import CollapseFilter from './CollapseFilter';
-import FormControl from './FormControl';
-
 import {
-  MainContainer,
-  SearchContainer,
-  Search,
-  FilterContainer,
-  Filter,
-  FilterHeader,
   Box,
+  Filter,
+  FilterContainer,
+  FilterHeader,
+  MainContainer,
+  PaddingBottom,
   PaddingLeft,
-  PaddingBottom
+  Search,
+  SearchContainer
 } from '../styles';
 
+import Button from 'modules/common/components/Button';
+import CollapseFilter from './CollapseFilter';
+import FormControl from './FormControl';
+import Icon from 'modules/common/components/Icon';
+import React from 'react';
+import { __ } from 'modules/common/utils';
+import { colors } from 'modules/common/styles';
+import styled from 'styled-components';
+
+const FlexContent = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 type Props = {
-  onSearch?: (e) => void;
-  clearSearch?: () => void;
-  results?;
+  onSearch: (e) => void;
+  onFilter: (cat) => void;
   loading?: boolean;
 };
 
-class Leftbar extends React.Component<
-  Props,
-  { showInput: boolean; searchValue: string }
-> {
+type State = {
+  showInput: boolean;
+  category: string;
+  searchValue: string;
+};
+
+class Leftbar extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    this.state = { showInput: true, searchValue: '' };
+    this.state = { showInput: true, category: 'All', searchValue: '' };
   }
 
   openInput = () => {
     this.setState({ showInput: true });
   };
 
-  closeInput = e => {
-    e.stopPropagation();
-    this.setState({ showInput: false, searchValue: '' });
-    // this.props.clearSearch();
+  closeInput = () => {
+    this.setState({ showInput: false });
   };
 
   handleInput = e => {
     this.setState({ searchValue: e.target.value });
+  };
+
+  handleCategory = (cat: string) => {
+    this.setState({ category: cat });
+    this.props.onFilter(cat === 'All' ? '' : cat);
   };
 
   renderSearch = () => {
@@ -65,10 +72,9 @@ class Leftbar extends React.Component<
               placeholder={__('Search results')}
               value={searchValue}
               autoFocus={true}
-              onKeyDown={onSearch}
+              onKeyUp={onSearch}
               onChange={this.handleInput}
             />
-            <Button size="small">Search</Button>
           </Search>
         ) : (
           <Box onClick={this.openInput}>
@@ -79,14 +85,16 @@ class Leftbar extends React.Component<
     );
   };
 
-  renderCheckbox(text: string, checked?: boolean) {
+  renderCheckbox(text: string) {
     return (
       <PaddingBottom>
         <FormControl
           componentClass="checkbox"
-          onChange={() => {}}
+          onChange={() => {
+            this.handleCategory(text);
+          }}
           color={colors.colorPrimary}
-          defaultChecked={checked}
+          checked={text === this.state.category}
         >
           {text}
         </FormControl>
@@ -116,12 +124,12 @@ class Leftbar extends React.Component<
               </Button>
             </FilterHeader>
             <CollapseFilter title="License" open hasBorder={true}>
-              {this.renderCheckbox('All', true)}
+              {this.renderCheckbox('All')}
               {this.renderCheckbox('Free')}
               {this.renderCheckbox('Premium')}
             </CollapseFilter>
             <CollapseFilter title="Categories" open hasBorder={true}>
-              {this.renderCheckbox('Marketing', true)}
+              {this.renderCheckbox('Marketing')}
               {this.renderCheckbox('Sales')}
               {this.renderCheckbox('Services')}
               {this.renderCheckbox('Operations')}

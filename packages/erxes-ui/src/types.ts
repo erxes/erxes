@@ -1,5 +1,5 @@
+import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
 import { IUser } from './auth/types';
-import { IActivityLogForMonth } from './activityLogs/types';
 
 export interface IRouterProps {
   history: any;
@@ -71,6 +71,7 @@ export interface ILocationOption {
   lat: number;
   lng: number;
   description?: string;
+  marker?: string;
 }
 
 export interface IObjectListConfig {
@@ -86,6 +87,7 @@ export interface IField {
   contentTypeId?: string;
   type: string;
   validation?: string;
+  field?: string;
   text?: string;
   code?: string;
   content?: string;
@@ -98,6 +100,7 @@ export interface IField {
   canHide?: boolean;
   isVisible?: boolean;
   isVisibleInDetail?: boolean;
+  isVisibleToCreate?: boolean;
   isDefinedByErxes?: boolean;
   groupId?: string;
   lastUpdatedUser?: IUser;

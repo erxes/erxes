@@ -1,5 +1,14 @@
+import * as apm from 'elastic-apm-node';
 import * as dotenv from 'dotenv';
+
 dotenv.config();
+
+if (process.env.ELASTIC_APM_HOST_NAME) {
+  apm.start({
+    serviceName: `${process.env.ELASTIC_APM_HOST_NAME}-gateway`,
+    serverUrl: 'http://172.104.115.19:8200'
+  });
+}
 
 import { ApolloServer } from 'apollo-server-express';
 import { ApolloGateway } from '@apollo/gateway';
@@ -7,7 +16,6 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import * as ws from 'ws';
 import * as express from 'express';
-import * as fs from 'fs';
 import * as http from 'http';
 import * as cookieParser from 'cookie-parser';
 import { loadSubscriptions } from './subscription';
@@ -19,11 +27,11 @@ import {
   getService,
   getServices,
   redis,
-  setAfterMutations
+  setAfterMutations,
+  setBeforeResolvers,
+  setAfterQueries
 } from './redis';
 import { initBroker } from './messageBroker';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { handleUnsubscription } from './util/handleUnsubscription';
 import * as cors from 'cors';
 
 const {
@@ -44,24 +52,6 @@ const {
   app.use(cookieParser());
 
   app.use(userMiddleware);
-
-  // unsubscribe
-  app.get(
-    '/unsubscribe',
-    routeErrorHandling(async (req: any, res) => {
-      const subdomain = 'os';
-
-      await handleUnsubscription(subdomain, req.query);
-
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-
-      const template = fs.readFileSync(
-        __dirname + '/private/emailTemplates/unsubscribe.html'
-      );
-
-      return res.send(template);
-    })
-  );
 
   // TODO: Find some solution so that we can stop forwarding /read-file, /initialSetup etc.
   const corsOptions = {
@@ -195,7 +185,9 @@ const {
 
   await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis });
 
+  await setBeforeResolvers();
   await setAfterMutations();
+  await setAfterQueries();
 
   console.log(
     `Erxes gateway ready at http://localhost:${port}${apolloServer.graphqlPath}`

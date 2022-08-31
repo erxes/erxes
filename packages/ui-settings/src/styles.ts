@@ -1,9 +1,10 @@
 import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { DateContainer } from '@erxes/ui/src/styles/main';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { lighten } from '@erxes/ui/src/styles/ecolor';
 
 const coreSpace = `${dimensions.coreSpacing}px`;
 
@@ -41,7 +42,7 @@ const SidebarListItem = styledTS<{ isActive: boolean }>(styled.li)`
     border-bottom: 1px solid ${colors.borderPrimary};
 
     margin: 0 20px;
-    padding: 10px 0;
+    padding: 10px 0 !important;
 
     &:hover {
       background: none;
@@ -325,10 +326,6 @@ const Title = styledTS<{ capitalize?: boolean }>(styled.div)`
   }
   `;
 
-const MarginRight = styled.div`
-  margin-right: ${dimensions.unitSpacing}px;
-`;
-
 const CreatedDate = styled.div`
   float: left;
   font-size: 10px;
@@ -337,6 +334,26 @@ const CreatedDate = styled.div`
   > p {
     color: #000;
     margin-right: 5px;
+  }
+`;
+
+const LeftContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const Row = styled.div`
+  display: flex;
+
+  .Select {
+    flex: 1;
+  }
+
+  button {
+    flex-shrink: 0;
+    margin-left: 10px;
+    align-self: baseline;
   }
 `;
 
@@ -359,6 +376,7 @@ export {
   InputBar,
   Header,
   Title,
-  MarginRight,
-  CreatedDate
+  CreatedDate,
+  LeftContent,
+  Row
 };

@@ -1,10 +1,9 @@
-import ApolloClient, { ApolloError, SubscriptionOptions } from "apollo-client";
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
 import client from "../../apollo-client";
 import { IEmailParams, IIntegration } from "../../types";
-import { Form as DumbForm } from "../components";
+import DumbForm from "../components/Form";
 import { formDetailQuery, formInvoiceUpdated } from "../graphql";
 import { ICurrentStatus, IForm, IFormDoc } from "../types";
 import { AppConsumer } from "./AppContext";

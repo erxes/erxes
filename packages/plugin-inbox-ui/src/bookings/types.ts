@@ -1,12 +1,10 @@
-import { IUser } from '@erxes/ui/src/auth/types';
-import { QueryResponse, MutationVariables } from '@erxes/ui/src/types';
-import { ILeadData } from '@erxes/ui-leads/src/types';
+import { IBookingData, IIntegration } from '../settings/integrations/types';
+import { MutationVariables, QueryResponse } from '@erxes/ui/src/types';
+
 import { IBrand } from '@erxes/ui/src/brands/types';
-import {
-  IIntegration,
-  IBookingData
-} from '@erxes/ui-settings/src/integrations/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ILeadData } from '@erxes/ui-leads/src/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 
 export interface IBookingIntegration extends IIntegration {
   brand: IBrand;
@@ -44,9 +42,7 @@ export type BookingIntegrationDetailQueryResponse = {
 
 // mutation types
 export type RemoveMutationResponse = {
-  removeMutation: (params: {
-    variables: MutationVariables;
-  }) => Promise<any>;
+  removeMutation: (params: { variables: MutationVariables }) => Promise<any>;
 };
 
 export type IntegrationMutationVariables = {

@@ -1,19 +1,24 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { STORAGE_BOARD_KEY } from '@erxes/ui-cards/src/boards/constants';
-import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import * as routerUtils from '@erxes/ui/src/utils/router';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import { IOption, RemoveBoardMutationResponse } from '../types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-cards/src/settings/boards/graphql';
+
+import Boards from '../components/Boards';
+import { BoardsQueryResponse } from '@erxes/ui-cards/src/boards/types';
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import React from 'react';
+import { STORAGE_BOARD_KEY } from '@erxes/ui-cards/src/boards/constants';
+import { getDefaultBoardAndPipelines } from '@erxes/ui-cards/src/boards/utils';
+import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Boards from '../components/Boards';
-import { getWarningMessage } from '@erxes/ui-cards/src/boards/utils';
-import { mutations, queries } from '@erxes/ui-settings/src/boards/graphql';
-import { IOption, RemoveBoardMutationResponse } from '../types';
 
 type Props = {
   history?: any;

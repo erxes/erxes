@@ -1,16 +1,17 @@
-import Select from 'react-select-plus';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IField, ISegmentCondition, ISegmentMap } from '../../types';
+
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils';
-import { IField, ISegmentCondition, ISegmentMap } from '../../types';
-import React from 'react';
-import PropertyForm from './PropertyForm';
-import { SegmentBackIcon } from '../styles';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
+import PropertyForm from './PropertyForm';
 import PropertyList from '../../containers/form/PropertyList';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
+import React from 'react';
 import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
+import { SegmentBackIcon } from '../styles';
+import Select from 'react-select-plus';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   contentType: string;

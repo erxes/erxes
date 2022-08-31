@@ -1,12 +1,13 @@
-import { AvatarWrapper } from '@erxes/ui/src/activityLogs/styles';
+import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
+import { Name, NameContainer } from '@erxes/ui-contacts/src/customers/styles';
+
+import { AvatarWrapper } from '@erxes/ui-log/src/activityLogs/styles';
+import CompanyForm from '@erxes/ui-contacts/src/companies/containers/CompanyForm';
+import { ICompany } from '../../types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import { InfoWrapper, Links } from '@erxes/ui/src/styles/main';
-import { Name, NameContainer } from '@erxes/ui-contacts/src/customers/styles';
 import React from 'react';
-import CompanyForm from '@erxes/ui/src/companies/containers/CompanyForm';
-import { ICompany } from '../../types';
 
 type Props = {
   company: ICompany;

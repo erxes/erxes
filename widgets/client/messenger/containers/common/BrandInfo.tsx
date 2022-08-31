@@ -1,5 +1,5 @@
 import * as React from "react";
-import { BrandInfo } from "../../components/common";
+import BrandInfo from "../../components/common/BrandInfo";
 import { AppConsumer } from "../AppContext";
 
 const container = () => (

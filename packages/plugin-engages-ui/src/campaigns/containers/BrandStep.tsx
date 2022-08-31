@@ -69,7 +69,8 @@ const BrandStepContianer = (props: FinalProps) => {
     brands: brandsQuery.brands || [],
     targetCount: countValues,
     customersCount,
-    renderButton
+    renderButton,
+    loadingCount: customerCountsQuery.loading
   };
 
   return <BrandStep {...updatedProps} />;

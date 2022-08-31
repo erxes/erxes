@@ -1,4 +1,3 @@
-import e = require("express");
 import * as React from "react";
 import { AppConsumer } from "../../messenger/containers/AppContext";
 import { IEmailParams, IIntegration } from "../../types";
@@ -19,7 +18,7 @@ import {
   IFormDoc,
   ILocationOption,
 } from "../types";
-import { TopBar } from "./";
+import TopBar from "./TopBar";
 import Field from "./Field";
 
 type Props = {

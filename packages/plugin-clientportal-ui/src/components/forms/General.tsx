@@ -1,27 +1,27 @@
+import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { IBoard, IPipeline } from '@erxes/ui-cards/src/boards/types';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
-import { ITopic } from '@erxes/ui-knowledgeBase/src/types';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { FlexContent } from '@erxes/ui/src/layout/styles';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils/core';
 import React, { useState } from 'react';
 import { OverlayTrigger } from 'react-bootstrap';
 import Select from 'react-select-plus';
-import { ClientPortalConfig } from '../../types';
+
 import {
-  IconWrap,
   Block,
   BlockRow,
   BlockRowTitle,
-  ToggleWrap,
-  Features
+  Features,
+  IconWrap,
+  ToggleWrap
 } from '../../styles';
-import { FlexContent } from '@erxes/ui/src/layout/styles';
-import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
-import { __ } from 'coreui/utils';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { ISelectedOption } from '@erxes/ui/src/types';
+import { ClientPortalConfig } from '../../types';
 
 type Props = {
   topics: ITopic[];
@@ -316,13 +316,13 @@ function General({
             </FormGroup>
           </>,
           'kbToggle',
-          kbToggle
+          kbToggle || false
         )}
         {renderFeatureBlock(
           'publicTask',
           renderTaskPipelines(),
           'publicTaskToggle',
-          publicTaskToggle
+          publicTaskToggle || false
         )}
 
         {renderFeatureBlock(
@@ -343,7 +343,7 @@ function General({
             })}
           </>,
           'ticketToggle',
-          ticketToggle
+          ticketToggle || false
         )}
 
         {renderFeatureBlock(
@@ -364,7 +364,7 @@ function General({
             })}
           </>,
           'taskToggle',
-          taskToggle
+          taskToggle || false
         )}
         {renderControl({
           label: 'Messenger brand code',

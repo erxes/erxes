@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import * as React from "react";
 import { ChildProps, graphql } from "react-apollo";
-import { Messenger as DumbMessenger } from "../components";
+import DumbMessenger from "../components/Messenger";
 import { connection } from "../connection";
 import graphqTypes from "../graphql";
 import { IMessengerSupporters } from "../types";

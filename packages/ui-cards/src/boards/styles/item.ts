@@ -1,10 +1,12 @@
-import Button from '@erxes/ui/src/components/Button';
 import { colors, dimensions } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled, { css } from 'styled-components';
-import styledTS from 'styled-components-ts';
+
+import Button from '@erxes/ui/src/components/Button';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { borderRadius } from './common';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import styledTS from 'styled-components-ts';
+import { FormContainer } from '../styles/common';
 
 const buttonColor = '#0a1e3c';
 
@@ -101,6 +103,7 @@ export const HeaderRow = styled(Flex)`
 
 export const HeaderContent = styled.div`
   flex: 1;
+
   textarea {
     border-bottom: none;
     min-height: auto;
@@ -111,9 +114,69 @@ export const HeaderContent = styled.div`
   }
 `;
 
-export const AddFormWidth = styled.div`
-  max-width: 700px;
+export const AddRow = styled(Flex)`
+  margin-bottom: 10px;
+`;
+
+export const AddContent = styled.div`
+  flex: 1;
+  textarea {
+    min-height: 60px;
+    padding: 5px 0;
+    &:focus {
+      border-bottom: 1px solid ${colors.colorSecondary};
+    }
+  }
+
+  input {
+    border: none;
+    width: 100%;
+    height: 34px;
+    padding: 5px 0;
+    color: #444;
+    border-bottom: 1px solid;
+    border-color: ${colors.borderDarker};
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 13px;
+    position: relative;
+    margin-left: 20px;
+  }
+
+  .dateTime {
+    margin-right: ${dimensions.coreSpacing}px;
+
+    &:before {
+      content: '\\e9a8';
+      font-style: normal;
+      font-family: 'erxes';
+      font-size: 16px;
+      position: absolute;
+      color: #777;
+      left: 0;
+      top: 25px;
+    }
+  }
+
+  .form-control:focus {
+    border: none;
+    border-bottom: 1px solid;
+    border-color: #ddd;
+    box-shadow: none;
+  }
+`;
+
+export const SelectInput = styled.div`
   overflow: hidden;
+
+  .Select-input {
+    width: 100%;
+
+    input {
+      width: 100% !important;
+    }
+  }
 `;
 
 export const TitleRow = styled.div`
@@ -308,18 +371,19 @@ export const Stages = styled.ul`
   flex: 1;
   list-style: none;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-wrap: wrap;
   margin: 0;
   padding: 0;
-  overflow: auto;
 `;
 
 export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
-  flex: 1;
   text-align: right;
   position: relative;
   margin-left: 10px;
+  line-height: 35px;
+  height: 35px;
+  flex: 1;
+
   &:first-child {
     flex: unset;
     &:before {
@@ -329,9 +393,11 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
       margin-left: 0;
     }
   }
+
   &:last-child i {
     margin-right: 0;
   }
+
   &:before {
     content: '';
     height: 2px;
@@ -344,6 +410,7 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     position: absolute;
     margin-left: -10px;
   }
+
   span {
     position: relative;
     z-index: 10;
@@ -351,6 +418,7 @@ export const StageItem = styledTS<{ isPass: boolean }>(styled.li)`
     background: ${colors.bgLight};
     display: inline-block;
   }
+  
   i {
     font-size: 30px;
     margin: 0 -3px;
@@ -419,5 +487,11 @@ export const ArchiveStatus = styled.div`
   }
   i {
     font-size: 16px;
+  }
+`;
+
+export const BoardSelectWrapper = styled.div`
+  ${FormContainer} {
+    padding: 0;
   }
 `;

@@ -21,6 +21,6 @@ export const uomSchema = schemaWrapper(
       type: Date,
       default: new Date(),
       label: 'Created at'
-    }),
+    })
   })
 );

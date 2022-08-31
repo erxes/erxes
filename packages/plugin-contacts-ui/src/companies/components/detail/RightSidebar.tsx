@@ -1,17 +1,15 @@
-import dayjs from 'dayjs';
 import Box from '@erxes/ui/src/components/Box';
-import { __ } from 'coreui/utils';
-import { ICompany } from '@erxes/ui/src/companies/types';
 import CustomerSection from '../../../customers/components/common/CustomerSection';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { List } from '../../styles';
 import PortableDeals from '@erxes/ui-cards/src/deals/components/PortableDeals';
 import PortableTasks from '@erxes/ui-cards/src/tasks/components/PortableTasks';
 import PortableTickets from '@erxes/ui-cards/src/tickets/components/PortableTickets';
-
 import React from 'react';
-import { List } from '../../styles';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { __ } from 'coreui/utils';
+import dayjs from 'dayjs';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-
 import { pluginsOfCompanySidebar } from 'coreui/pluginUtils';
 
 type Props = {

@@ -476,7 +476,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
           customerId,
           visitorId,
           integrationId,
-          replacedContent,
+          content: replacedContent,
           engageData
         }
       });

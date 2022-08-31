@@ -88,6 +88,7 @@ const queryParams = `
   sortDirection: Int
   sex:Int
   birthDate: Date
+  dateFilters: String
   ${conformityQueryFields}
 `;
 

@@ -1,17 +1,19 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import ManageIntegrations from '@erxes/ui-inbox/src/settings/integrations/containers/common/ManageIntegrations';
-import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
-import { queries as integQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { mutations, queries } from '../graphql';
 import {
   EditChannelMutationResponse,
-  EditChannelMutationVariables,
+  EditChannelMutationVariables
 } from '../types';
-import { IChannelDoc } from '@erxes/ui-settings/src/channels/types';
+import { mutations, queries } from '../graphql';
+
+import { IChannelDoc } from '../types';
+import ManageIntegrations from '../../integrations/containers/common/ManageIntegrations';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integQueries } from '../../integrations/graphql';
+import { integrationsListParams } from '../../integrations/containers/utils';
 
 type Props = {
   currentChannel: IChannelDoc;

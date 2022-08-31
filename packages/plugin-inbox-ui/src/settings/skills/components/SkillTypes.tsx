@@ -1,23 +1,24 @@
-import Button from '@erxes/ui/src/components/Button';
-import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import Icon from '@erxes/ui/src/components/Icon';
-import LoadMore from '@erxes/ui/src/components/LoadMore';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 import { ActionButtons, SidebarListItem } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { Link, withRouter } from 'react-router-dom';
+import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import {
   ISkillType,
   ISkillTypesDocument
-} from '@erxes/ui-settings/src/skills/types';
-import SkillTypeForm from './SkillTypeForm';
+} from '@erxes/ui-inbox/src/settings/skills/types';
+import { Link, withRouter } from 'react-router-dom';
+
+import Button from '@erxes/ui/src/components/Button';
+import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { Header } from '@erxes/ui-settings/src/styles';
+import Icon from '@erxes/ui/src/components/Icon';
+import LoadMore from '@erxes/ui/src/components/LoadMore';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import SkillTypeForm from './SkillTypeForm';
+import Tip from '@erxes/ui/src/components/Tip';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 type Props = {
   queryParams: any;
@@ -105,9 +106,7 @@ function SkillTypes({
     return (
       <>
         <Header>{renderFormTrigger(trigger)}</Header>
-        <Section.Title noBackground noSpacing>
-          {__('Skill types')}
-        </Section.Title>
+        <Section.Title>{__('Skill types')}</Section.Title>
       </>
     );
   }
@@ -131,7 +130,7 @@ function SkillTypes({
   }
 
   return (
-    <Sidebar wide={true} header={renderHeader()} hasBorder={true} noMargin>
+    <Sidebar wide={true} header={renderHeader()} hasBorder>
       <DataWithLoader
         data={renderContent()}
         loading={loading}

@@ -1,16 +1,16 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-import * as permissions from './permissions';
-import { initBroker } from './messageBroker';
-import { generateModels } from './connectionResolver';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import * as cookieParser from 'cookie-parser';
+import forms from './forms';
+import { generateModels } from './connectionResolver';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
+import { initBroker } from './messageBroker';
+import cpUserMiddleware from './middlewares/cpUserMiddleware';
+import * as permissions from './permissions';
 
 export let graphqlPubsub;
 export let mainDb;
 export let serviceDiscovery;
-
 export let debug;
 
 export default {
@@ -24,7 +24,9 @@ export default {
     };
   },
   hasSubscriptions: false,
-  segment: {},
+  meta: {
+    forms
+  },
 
   apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);

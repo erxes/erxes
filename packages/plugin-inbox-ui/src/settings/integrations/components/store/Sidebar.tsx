@@ -1,4 +1,4 @@
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { INTEGRATION_FILTERS } from '@erxes/ui/src/constants/integrations';
@@ -26,11 +26,11 @@ class SideBar extends React.Component<Props> {
 
   render() {
     return (
-      <LeftSidebar hasBorder={true} noMargin>
+      <LeftSidebar hasBorder>
         <List id="SettingsSidebar">
           {INTEGRATION_FILTERS.map((data, index) => (
             <SidebarList key={index}>
-              <LeftSidebar.Header uppercase={true} noSpacing noBackground>
+              <LeftSidebar.Header uppercase={true}>
                 {__(data.name)}
               </LeftSidebar.Header>
               {data.items.map(item => this.renderCategory(__(item)))}

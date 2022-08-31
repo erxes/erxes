@@ -1,13 +1,14 @@
-import withCurrentUser from 'modules/auth/containers/withCurrentUser';
-import asyncComponent from 'modules/common/components/AsyncComponent';
+import { Route, BrowserRouter as Router, Switch } from 'react-router-dom';
 import { pluginLayouts, pluginRouters } from './pluginUtils';
-import queryString from 'query-string';
-import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+
 import AuthRoutes from './modules/auth/routes';
 import { IUser } from './modules/auth/types';
+import React from 'react';
 import SettingsRoutes from './modules/settings/routes';
 import WelcomeRoutes from './modules/welcome/routes';
+import asyncComponent from 'modules/common/components/AsyncComponent';
+import queryString from 'query-string';
+import withCurrentUser from 'modules/auth/containers/withCurrentUser';
 
 const MainLayout = asyncComponent(() =>
   import(
@@ -27,22 +28,10 @@ const UserConfirmation = asyncComponent(() =>
   )
 );
 
-const Schedule = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Calendar - Schedule" */ '@erxes/ui-calendar/src/components/scheduler/Index'
-  )
-);
-
 export const unsubscribe = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Unsubscribe queryParams={queryParams} />;
-};
-
-const schedule = ({ match }) => {
-  const slug = match.params.slug;
-
-  return <Schedule slug={slug} />;
 };
 
 const renderRoutes = currentUser => {
@@ -56,12 +45,6 @@ const renderRoutes = currentUser => {
 
   if (!sessionStorage.getItem('sessioncode')) {
     sessionStorage.setItem('sessioncode', Math.random().toString());
-  }
-
-  const { pathname } = window.location;
-
-  if (pathname.search('/schedule/') === 0) {
-    return null;
   }
 
   if (currentUser) {
@@ -105,13 +88,6 @@ const Routes = ({ currentUser }: { currentUser: IUser }) => (
         exact={true}
         path="/unsubscribe"
         component={unsubscribe}
-      />
-
-      <Route
-        key="/schedule"
-        exact={true}
-        path="/schedule/:slug"
-        component={schedule}
       />
 
       {renderRoutes(currentUser)}

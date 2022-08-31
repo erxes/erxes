@@ -2,14 +2,17 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import dayjs from 'dayjs';
-import T from 'i18n-react';
-import React from 'react';
-import { IUser, IUserDoc } from '../auth/types';
-import Tip from '../components/Tip';
-import { Limited } from '../styles/main';
-import { IAttachment } from '../types';
 import * as router from './router';
+
+import { IUser, IUserDoc } from '../auth/types';
+
+import ErrorBoundary from '../components/ErrorBoundary';
+import { IAttachment } from '../types';
+import { Limited } from '../styles/main';
+import React from 'react';
+import T from 'i18n-react';
+import Tip from '../components/Tip';
+import dayjs from 'dayjs';
 import urlParser from './urlParser';
 
 export { urlParser, router };
@@ -30,6 +33,44 @@ export const loadComponent = (scope, module) => {
   };
 };
 
+export const loadDynamicComponent = (
+  componentName: string,
+  injectedProps?: any,
+  multi?: boolean,
+  pluginName?: string
+): any => {
+  const plugins: any[] = (window as any).plugins || [];
+  const filteredPlugins = plugins.filter(plugin => plugin[componentName]);
+
+  const renderDynamicComp = (plugin: any) => (
+    <ErrorBoundary key={plugin.scope}>
+      <RenderDynamicComponent
+        scope={plugin.scope}
+        component={plugin[componentName]}
+        injectedProps={injectedProps ? injectedProps : {}}
+      />
+    </ErrorBoundary>
+  );
+
+  if (filteredPlugins && filteredPlugins.length === 0) {
+    return null;
+  }
+
+  if (multi) {
+    return filteredPlugins.map(plugin => renderDynamicComp(plugin));
+  }
+
+  if (pluginName) {
+    const withPluginName = filteredPlugins.filter(
+      plugin => plugin.name === pluginName
+    );
+
+    return renderDynamicComp(withPluginName[0]);
+  }
+
+  return renderDynamicComp(filteredPlugins[0]);
+};
+
 export class RenderDynamicComponent extends React.Component<
   { scope: string; component: any; injectedProps: any },
   { showComponent: boolean }
@@ -44,7 +85,6 @@ export class RenderDynamicComponent extends React.Component<
     const interval = setInterval(() => {
       if (window[this.props.scope]) {
         window.clearInterval(interval);
-
         this.setState({ showComponent: true });
       }
     }, 500);
@@ -397,6 +437,14 @@ export const roundToTwo = value => {
   }
 
   return Math.round(value * 100) / 100;
+};
+
+export const calculatePercentage = (total: number, done: number) => {
+  if (total > 0) {
+    return roundToTwo((done * 100) / total);
+  }
+
+  return 0;
 };
 
 function createLinkFromUrl(url) {

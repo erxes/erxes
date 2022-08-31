@@ -1,16 +1,18 @@
+import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '../../../styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { respondrates } from '../../../constants';
-import { __ } from 'coreui/utils';
+import { IOnlineHour } from '../../../types';
+import OnlineHours from './OnlineHours';
 import React from 'react';
 import Select from 'react-select-plus';
-import { IOnlineHour } from '@erxes/ui-settings/src/integrations/types';
+import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
-import OnlineHours from './OnlineHours';
-import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { __ } from 'coreui/utils';
+import { RESPOND_RATES } from '../../../constants';
+import timezones from '@erxes/ui/src/constants/timezones';
 
 type Props = {
   onChange: (
@@ -19,7 +21,8 @@ type Props = {
       | 'isOnline'
       | 'availabilityMethod'
       | 'responseRate'
-      | 'showTimezone',
+      | 'showTimezone'
+      | 'timezone',
     value: string
   ) => void;
   isOnline: boolean;
@@ -90,31 +93,50 @@ class Availability extends React.Component<Props> {
   }
 
   renderShowTimezone() {
+    const { timezone = '' } = this.props;
+
     const onChange = e =>
       this.onChangeFunction('showTimezone', e.target.checked);
 
+    const timezoneOnChange = e => this.onSelectChange(e, 'timezone');
+
     return (
-      <FormGroup>
-        <ControlLabel required={true}>
-          {__('Display Operator Timezone')}
-        </ControlLabel>
-        <Description>
-          {' '}
-          {__(
-            'Display chat operator timezone set in their location in team member profiles'
-          )}
-        </Description>
-        <ToggleWrapper>
-          <Toggle
-            checked={this.props.showTimezone}
-            onChange={onChange}
-            icons={{
-              checked: <span>Yes</span>,
-              unchecked: <span>No</span>
-            }}
+      <React.Fragment>
+        <FormGroup>
+          <ControlLabel>{__('Default Timezone')}</ControlLabel>
+          <Description>
+            {__(
+              "This timezone will be calculated if supporters haven't chosen one."
+            )}
+          </Description>
+          <Select
+            value={timezone}
+            options={timezones}
+            onChange={timezoneOnChange}
           />
-        </ToggleWrapper>
-      </FormGroup>
+        </FormGroup>
+        <FormGroup>
+          <ControlLabel required={true}>
+            {__('Display Operator Timezone')}
+          </ControlLabel>
+          <Description>
+            {' '}
+            {__(
+              'Display chat operator timezone set in their location in team member profiles'
+            )}
+          </Description>
+          <ToggleWrapper>
+            <Toggle
+              checked={this.props.showTimezone}
+              onChange={onChange}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
+            />
+          </ToggleWrapper>
+        </FormGroup>
+      </React.Fragment>
     );
   }
 
@@ -132,8 +154,8 @@ class Availability extends React.Component<Props> {
         <LeftItem>
           <FormGroup>
             <FormControl
-              value='manual'
-              componentClass='radio'
+              value="manual"
+              componentClass="radio"
               checked={this.props.availabilityMethod === 'manual'}
               onChange={onChange}
               inline={true}
@@ -142,8 +164,8 @@ class Availability extends React.Component<Props> {
             </FormControl>
 
             <FormControl
-              value='auto'
-              componentClass='radio'
+              value="auto"
+              componentClass="radio"
               checked={this.props.availabilityMethod === 'auto'}
               onChange={onChange}
               inline={true}
@@ -158,8 +180,8 @@ class Availability extends React.Component<Props> {
           <FormGroup>
             <ControlLabel required={true}>Response rate</ControlLabel>
             <FormControl
-              value='auto'
-              componentClass='radio'
+              value="auto"
+              componentClass="radio"
               checked={false}
               inline={true}
               disabled={true}
@@ -169,8 +191,8 @@ class Availability extends React.Component<Props> {
               )}
             </FormControl>
             <FormControl
-              value='manual'
-              componentClass='radio'
+              value="manual"
+              componentClass="radio"
               checked={true}
               inline={true}
             >
@@ -179,7 +201,7 @@ class Availability extends React.Component<Props> {
             <Select
               required={true}
               value={this.props.responseRate}
-              options={respondrates}
+              options={RESPOND_RATES}
               onChange={respondTypeOnChange}
               clearable={false}
             />

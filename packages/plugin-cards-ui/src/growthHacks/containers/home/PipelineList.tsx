@@ -1,15 +1,17 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { queries } from '@erxes/ui-cards/src/boards/graphql';
-import { PipelinesQueryResponse } from '@erxes/ui-cards/src/boards/types';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
+
 import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import mutations from '@erxes/ui-settings/src/boards/graphql/mutations';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import PipelineList from '../../components/home/PipelineList';
+import { PipelinesQueryResponse } from '@erxes/ui-cards/src/boards/types';
+import React from 'react';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import mutations from '@erxes/ui-cards/src/settings/boards/graphql/mutations';
+import { queries } from '@erxes/ui-cards/src/boards/graphql';
+import { withProps } from '@erxes/ui/src/utils';
+import { withRouter } from 'react-router-dom';
 
 type Props = { queryParams: any } & IRouterProps;
 

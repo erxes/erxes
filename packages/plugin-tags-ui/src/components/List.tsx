@@ -1,16 +1,16 @@
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Table from '@erxes/ui/src/components/table';
-import { Title } from '@erxes/ui-settings/src/styles';
+import FormComponent from '@erxes/ui-tags/src/components/Form';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import FormComponent from '@erxes/ui/src/tags/components/Form';
 import Row from './Row';
 import Sidebar from './Sidebar';
+import Table from '@erxes/ui/src/components/table';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 type Props = {
   types: any[];
@@ -63,7 +63,9 @@ function List({
       {contentType} {__('tags')}
     </Title>
   );
-  const actionBar = <Wrapper.ActionBar left={title} right={actionBarRight} />;
+  const actionBar = (
+    <Wrapper.ActionBar left={title} right={actionBarRight} wideSpacing />
+  );
 
   const content = (
     <Table>
@@ -103,6 +105,7 @@ function List({
     { title: __('Tags'), link: '/tags' },
     { title: __(contentType) }
   ];
+
   return (
     <Wrapper
       header={
@@ -119,8 +122,8 @@ function List({
         />
       }
       leftSidebar={<Sidebar types={types} type={type} />}
-      hasBorder={true}
       transparent={true}
+      hasBorder
     />
   );
 }

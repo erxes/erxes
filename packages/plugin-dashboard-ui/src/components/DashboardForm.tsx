@@ -6,7 +6,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import { SelectMemberStyled } from '../styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import React, { useState } from 'react';
@@ -35,7 +35,7 @@ type IDashboradItem = {
   _id: string;
 };
 
-function DashbaordFormContent(props: FinalProps) {
+function DashboardFormContent(props: FinalProps) {
   const dashboard = props.dashboard;
   const [state, setState] = useState<State>({
     visibility: dashboard ? dashboard.visibility || 'public' : 'public',
@@ -241,7 +241,7 @@ const DashbaordForm = (props: Props) => {
       renderButton
     };
 
-    return <DashbaordFormContent {...updatedProps} />;
+    return <DashboardFormContent {...updatedProps} />;
   };
 
   return (

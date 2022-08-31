@@ -1,4 +1,4 @@
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
@@ -29,7 +29,7 @@ function Sidebar({
   contentType: string;
 }) {
   return (
-    <LeftSidebar full={true} header={<SidebarHeader />}>
+    <LeftSidebar full={true} header={<SidebarHeader />} hasBorder>
       <LeftSidebar.Header uppercase={true}>
         {__('Segments type')}
       </LeftSidebar.Header>

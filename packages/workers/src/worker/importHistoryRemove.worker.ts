@@ -8,6 +8,7 @@ import {
 } from '../messageBroker';
 
 import { connect } from './utils';
+import { removeProducts } from '../messageBroker';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -38,6 +39,8 @@ connect()
       case 'ticket':
         await removeTickets(subdomain, result);
         break;
+      case 'product':
+        await removeProducts(subdomain, result);
       default:
         break;
     }

@@ -1,4 +1,4 @@
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import { SidebarList } from '@erxes/ui/src/layout/styles';
 import React from 'react';
@@ -19,7 +19,7 @@ function ListItem(value, type) {
 
 function TagsSidebar({ types, type }: { types: any[]; type: string }) {
   return (
-    <LeftSidebar hasBorder={true} header={<SidebarHeader />}>
+    <LeftSidebar header={<SidebarHeader />} hasBorder>
       <LeftSidebar.Header uppercase={true}>
         {__('Tags type')}
       </LeftSidebar.Header>

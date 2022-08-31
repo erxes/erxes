@@ -1,9 +1,6 @@
 import React from 'react';
 import queryString from 'query-string';
-import {
-  DataWithLoader,
-  Icon,
-  Tip} from '@erxes/ui/src/components';
+import { DataWithLoader, Icon, Tip } from '@erxes/ui/src/components';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
 import { IDonateCampaign } from '../../../configs/donateCampaign/types';
@@ -38,22 +35,19 @@ class List extends React.Component<IProps> {
 
     const otherParams = { ...queryParams };
     delete otherParams.campaignId;
-    const qryString = queryString.stringify(otherParams)
+    const qryString = queryString.stringify(otherParams);
 
     const result: React.ReactNode[] = [];
 
     for (const campaign of donateCampaigns || []) {
-
-      const name = `${campaign.title} (${campaign.donatesCount})`
+      const name = `${campaign.title} (${campaign.donatesCount})`;
 
       result.push(
         <SidebarListItem
           key={campaign._id}
           isActive={this.isActive(campaign._id)}
         >
-          <Link to={`?${qryString}&campaignId=${campaign._id}`}>
-            {name}
-          </Link>
+          <Link to={`?${qryString}&campaignId=${campaign._id}`}>{name}</Link>
         </SidebarListItem>
       );
     }
@@ -65,9 +59,7 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Section.Title>
-          <Link
-            to={`/erxes-plugin-loyalty/settings/donate`}
-          >
+          <Link to={`/erxes-plugin-loyalty/settings/donate`}>
             <Icon icon="cog" />
             {__('Manage Donate Campaigns')}
           </Link>
@@ -86,10 +78,7 @@ class List extends React.Component<IProps> {
   }
 
   renderCategoryList() {
-    const {
-      donateCampaignsCount,
-      loading
-    } = this.props;
+    const { donateCampaignsCount, loading } = this.props;
 
     return (
       <DataWithLoader
@@ -105,7 +94,7 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar>
+      <Sidebar hasBorder>
         <Section
           maxHeight={188}
           collapsible={this.props.donateCampaignsCount > 5}

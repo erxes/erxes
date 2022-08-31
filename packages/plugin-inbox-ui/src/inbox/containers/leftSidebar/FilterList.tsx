@@ -18,6 +18,7 @@ type Props = {
   refetchRequired: string;
   multiple?: boolean;
   treeView?: boolean;
+  setCounts?: (counts: any) => void;
 };
 
 type State = {
@@ -48,7 +49,7 @@ export default class FilterList extends React.PureComponent<Props, State> {
   }
 
   fetchData(ignoreCache = false) {
-    const { query, counts, queryParams } = this.props;
+    const { query, counts, queryParams, setCounts } = this.props;
 
     this.mounted = true;
 
@@ -80,6 +81,10 @@ export default class FilterList extends React.PureComponent<Props, State> {
       .then(({ data, loading }: { data: any; loading: boolean }) => {
         if (this.mounted) {
           this.setState({ counts: data.conversationCounts[counts], loading });
+
+          if (setCounts) {
+            setCounts({ [counts]: data.conversationCounts[counts] });
+          }
         }
       })
       .catch(e => {

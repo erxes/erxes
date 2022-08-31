@@ -77,19 +77,21 @@ export const generateCustomerSelector = async (
     let customerIdsBySegments: string[] = [];
 
     for (const segment of segments) {
+      const options: any = { perPage: 5000, scroll: true };
+
+      if (!segment.contentType.includes('contacts')) {
+        options.returnAssociated = {
+          mainType: segment.contentType,
+          relType: 'contacts:customer'
+        };
+      }
+
       const cIds = await sendSegmentsMessage({
         ...commonParams,
         action: 'fetchSegment',
         data: {
           segmentId: segment._id,
-          options: {
-            perPage: 5000,
-            scroll: true,
-            returnAssociated: {
-              mainType: segment.contentType,
-              relType: 'contacts:customer'
-            }
-          }
+          options
         }
       });
 
@@ -140,7 +142,10 @@ export const send = async (
     brandIds,
     fromUserId,
     scheduleDate,
-    _id
+    _id,
+    kind,
+    runCount,
+    title
   } = engageMessage;
 
   // Check for pre scheduled engages
@@ -166,6 +171,16 @@ export const send = async (
   }
 
   if (!engageMessage.isLive) {
+    return;
+  }
+
+  if (kind === CAMPAIGN_KINDS.MANUAL && runCount && runCount > 0) {
+    await models.Logs.createLog(
+      _id,
+      'regular',
+      `Manual campaign "${title}" has already run before`
+    );
+
     return;
   }
 

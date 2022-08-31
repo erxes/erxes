@@ -8,6 +8,7 @@
     "start": "cd .erxes/dist/plugin-cards-api/.erxes && node src"
   },
   "dependencies": {
-    "server-timing": "3.3.1"
+    "server-timing": "3.3.1",
+    "xlsx-populate": "^1.20.1"
   }
 }

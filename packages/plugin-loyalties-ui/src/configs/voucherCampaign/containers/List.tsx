@@ -6,7 +6,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import VoucherCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { VoucherCampaignQueryResponse, VoucherCampaignRemoveMutationResponse } from '../types';
+import {
+  VoucherCampaignQueryResponse,
+  VoucherCampaignRemoveMutationResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -16,7 +19,8 @@ type Props = {
 
 type FinalProps = {
   voucherCampaignQuery: VoucherCampaignQueryResponse;
-} & Props & VoucherCampaignRemoveMutationResponse;
+} & Props &
+  VoucherCampaignRemoveMutationResponse;
 
 class VoucherCampaignContainer extends React.Component<FinalProps> {
   render() {
@@ -71,9 +75,7 @@ class VoucherCampaignContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'voucherCampaigns'
-  ];
+  return ['voucherCampaigns'];
 };
 
 const options = () => ({
@@ -85,12 +87,13 @@ export default withProps<Props>(
     graphql<{}, VoucherCampaignQueryResponse>(gql(queries.voucherCampaigns), {
       name: 'voucherCampaignQuery'
     }),
-    graphql<Props, VoucherCampaignRemoveMutationResponse, { voucherCampaignIds: string[] }>(
-      gql(mutations.voucherCampaignsRemove),
-      {
-        name: 'voucherCampaignsRemove',
-        options
-      }
-    ),
+    graphql<
+      Props,
+      VoucherCampaignRemoveMutationResponse,
+      { voucherCampaignIds: string[] }
+    >(gql(mutations.voucherCampaignsRemove), {
+      name: 'voucherCampaignsRemove',
+      options
+    })
   )(VoucherCampaignContainer)
 );

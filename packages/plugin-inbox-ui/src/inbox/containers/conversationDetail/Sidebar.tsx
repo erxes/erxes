@@ -1,22 +1,24 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
-import DumbSidebar from '../../components/conversationDetail/sidebar/Sidebar';
-import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
-import { CustomerDetailQueryResponse } from '@erxes/ui-contacts/src/customers/types';
-import { getConfig } from '@erxes/ui-inbox/src/inbox/utils';
+
 import {
   PropertyConsumer,
   PropertyProvider
 } from '@erxes/ui-contacts/src/customers/propertyContext';
+
+import { CustomerDetailQueryResponse } from '@erxes/ui-contacts/src/customers/types';
+import DumbSidebar from '../../components/conversationDetail/sidebar/Sidebar';
+import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import { IField } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import React from 'react';
+import client from '@erxes/ui/src/apolloClient';
+import { getConfig } from '@erxes/ui-inbox/src/inbox/utils';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui-inbox/src/inbox/graphql';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   conversation: IConversation;

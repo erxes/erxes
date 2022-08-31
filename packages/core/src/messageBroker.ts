@@ -237,10 +237,12 @@ export const initBroker = async options => {
 
   consumeRPCQueue(
     'core:getConfig',
-    async ({ data: { code, defaultValue } }) => {
+    async ({ subdomain, data: { code, defaultValue } }) => {
+      const models = await generateModels(subdomain);
+
       return {
         status: 'success',
-        data: await getConfig(code, defaultValue)
+        data: await getConfig(code, defaultValue, models)
       };
     }
   );
@@ -470,6 +472,24 @@ export const sendLogsMessage = (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'logs',
+    ...args
+  });
+};
+
+export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'contacts',
+    ...args
+  });
+};
+
+export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inbox',
     ...args
   });
 };

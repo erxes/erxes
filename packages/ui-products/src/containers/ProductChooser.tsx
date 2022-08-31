@@ -1,24 +1,25 @@
-import queryString from "query-string";
-import gql from "graphql-tag";
-import * as compose from "lodash.flowright";
-import React from "react";
-import { graphql } from "react-apollo";
+import queryString from 'query-string';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
 
-import Chooser from "@erxes/ui/src/components/Chooser";
-import { Alert, withProps } from "@erxes/ui/src/utils";
-import ProductCategoryChooser from "../components/ProductCategoryChooser";
+import Chooser from '@erxes/ui/src/components/Chooser';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import ProductCategoryChooser from '../components/ProductCategoryChooser';
 import {
   mutations as productMutations,
-  queries as productQueries,
-} from "../graphql";
+  queries as productQueries
+} from '../graphql';
 import {
   IProduct,
   IProductDoc,
   ProductAddMutationResponse,
-  ProductsQueryResponse,
-} from "../types";
-import ProductForm from "./ProductForm";
-import { ProductCategoriesQueryResponse } from "@erxes/ui-products/src/types";
+  ProductsQueryResponse
+} from '../types';
+import ProductForm from './ProductForm';
+import { ProductCategoriesQueryResponse } from '@erxes/ui-products/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   data: { name: string; products: IProduct[] };
@@ -26,6 +27,7 @@ type Props = {
   onChangeCategory: (catgeoryId: string) => void;
   closeModal: () => void;
   onSelect: (products: IProduct[]) => void;
+  loadDiscountPercent?: (productsData: any) => void;
 };
 
 type FinalProps = {
@@ -49,7 +51,7 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
     this.setState({ perPage: this.state.perPage + 20 }, () =>
       this.props.productsQuery.refetch({
         searchValue: value,
-        perPage: this.state.perPage,
+        perPage: this.state.perPage
       })
     );
   };
@@ -58,16 +60,16 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
   addProduct = (doc: IProductDoc, callback: () => void) => {
     this.props
       .productAdd({
-        variables: doc,
+        variables: doc
       })
       .then(() => {
         this.props.productsQuery.refetch();
 
-        Alert.success("You successfully added a product or service");
+        Alert.success('You successfully added a product or service');
 
         callback();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   };
@@ -83,6 +85,19 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
     );
   };
 
+  renderDiscount = data => {
+    const { loadDiscountPercent } = this.props;
+    if (isEnabled('loyalties') && loadDiscountPercent && data) {
+      const productData = {
+        product: {
+          _id: data._id
+        },
+        quantity: 1
+      };
+      loadDiscountPercent(productData);
+    }
+  };
+
   render() {
     const { data, productsQuery, onSelect } = this.props;
 
@@ -90,10 +105,10 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       ...this.props,
       data: { name: data.name, datas: data.products },
       search: this.search,
-      title: "Product",
+      title: 'Product',
       renderName: (product: IProduct) => {
         if (product.code) {
-          return product.code.concat(" - ", product.name);
+          return product.code.concat(' - ', product.name);
         }
 
         return product.name;
@@ -103,15 +118,16 @@ class ProductChooser extends React.Component<FinalProps, { perPage: number }> {
       ),
       perPage: this.state.perPage,
       add: this.addProduct,
-      clearState: () => this.search("", true),
+      clearState: () => this.search('', true),
       datas: productsQuery.products || [],
-      onSelect,
+      onSelect
     };
 
     return (
       <Chooser
         {...updatedProps}
         renderFilter={this.renderProductCategoryChooser}
+        handleExtra={this.renderDiscount}
       />
     );
   }
@@ -124,36 +140,36 @@ export default withProps<Props>(
       ProductsQueryResponse,
       { perPage: number; categoryId: string }
     >(gql(productQueries.products), {
-      name: "productsQuery",
-      options: (props) => ({
+      name: 'productsQuery',
+      options: props => ({
         variables: {
           perPage: 20,
           categoryId: props.categoryId,
           pipelineId: queryString.parse(location.search).pipelineId,
-          boardId: queryString.parse(location.search).boardId,
+          boardId: queryString.parse(location.search).boardId
         },
-        fetchPolicy: "network-only",
-      }),
+        fetchPolicy: 'network-only'
+      })
     }),
     graphql<{}, ProductCategoriesQueryResponse, {}>(
       gql(productQueries.productCategories),
       {
-        name: "productCategoriesQuery",
+        name: 'productCategoriesQuery'
       }
     ),
     // mutations
     graphql<{}, ProductAddMutationResponse, IProduct>(
       gql(productMutations.productAdd),
       {
-        name: "productAdd",
+        name: 'productAdd',
         options: () => ({
           refetchQueries: [
             {
               query: gql(productQueries.products),
-              variables: { perPage: 20 },
-            },
-          ],
-        }),
+              variables: { perPage: 20 }
+            }
+          ]
+        })
       }
     )
   )(ProductChooser)

@@ -10,9 +10,18 @@ import {
   IUser,
 } from "../../types";
 import { __ } from "../../utils";
-import { Integrations, TopBar } from "../containers";
-import { SocialLink, Supporters } from "./common";
-import { FaqCategories } from "./faq";
+import TopBar from "../containers/TopBar";
+import SocialLink from "./common/SocialLink";
+import Supporters from "./common/Supporters";
+import asyncComponent from "../../AsyncComponent";
+
+const Integrations = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerIntegrations" */ "../containers/Integrations")
+);
+
+const FaqCategories = asyncComponent(() => 
+  import(/* webpackChunkName: "MessengerFaq" */ "./faq/FaqCategories")
+);
 
 type Props = {
   supporters: IUser[];
@@ -20,7 +29,6 @@ type Props = {
   color?: string;
   messengerData: IIntegrationMessengerData;
   isOnline?: boolean;
-  serverTime?: string;
   activeSupport?: boolean;
 };
 
@@ -111,15 +119,6 @@ class Home extends React.Component<Props, State> {
           <SocialLink url={links.twitter} icon={twitter} />
           <SocialLink url={links.youtube} icon={youtube} />
         </div>
-      </div>
-    );
-  }
-
-  renderServerInfo(timezone?: string, serverTime?: string) {
-    return (
-      <div className="server-info">
-        <time>Server time: {dayjs(serverTime).format("lll")}</time>
-        <p>Timezone: {timezone || "not specified"}</p>
       </div>
     );
   }

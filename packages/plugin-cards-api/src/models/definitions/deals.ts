@@ -194,6 +194,7 @@ export const productDataSchema = new Schema(
     uom: field({ type: String, esType: 'keyword' }), // Units of measurement
     currency: field({ type: String, esType: 'keyword' }), // Currency
     quantity: field({ type: Number, label: 'Quantity' }), // Quantity
+    maxQuantity: field({ type: Number, label: 'Max' }), // Max quantity when selected bonus voucher
     unitPrice: field({ type: Number, label: 'Unit price' }), // Unit price
     taxPercent: field({ type: Number, label: 'Tax percent' }), // Tax percent
     tax: field({ type: Number, label: 'Tax' }), // Tax
@@ -206,11 +207,9 @@ export const productDataSchema = new Schema(
   { _id: false }
 );
 
-export const dealSchema = schemaWrapper(
-  new Schema({
-    ...commonItemFieldsSchema,
+export const dealSchema = new Schema({
+  ...commonItemFieldsSchema,
 
-    productsData: field({ type: [productDataSchema], label: 'Products' }),
-    paymentsData: field({ type: Object, optional: true, label: 'Payments' })
-  })
-);
+  productsData: field({ type: [productDataSchema], label: 'Products' }),
+  paymentsData: field({ type: Object, optional: true, label: 'Payments' })
+});

@@ -52,11 +52,13 @@ export const paginateValues = `
 `;
 
 export const commonFilterDefs = `
+  $_ids:[String],
   $searchValue: String,
   $filterStatus: String,
 `;
 
 export const commonFilterValues = `
+  _ids: $_ids,
   searchValue: $searchValue,
   filterStatus: $filterStatus,
 `;

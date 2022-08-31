@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { TopBar } from '../components';
+import TopBar from '../components/TopBar';
 import { connection } from '../connection';
 import { AppConsumer } from './AppContext';
 

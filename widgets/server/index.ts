@@ -3,6 +3,7 @@ import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import * as path from 'path';
+const compression = require('compression');
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
+app.use(compression());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

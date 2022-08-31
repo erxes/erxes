@@ -1,5 +1,4 @@
-import Button from 'modules/common/components/Button';
-import { Step, Steps } from 'modules/common/components/step';
+import { Content, LeftContent, MessengerPreview } from '../../styles';
 import {
   ControlWrapper,
   FlexItem,
@@ -8,31 +7,22 @@ import {
   Preview,
   StepWrapper
 } from 'modules/common/components/step/styles';
-import { getEnv, __ } from 'modules/common/utils';
-import Wrapper from 'modules/layout/components/Wrapper';
-
-import React from 'react';
-import { Link } from 'react-router-dom';
-import ConfigsForm from './ConfigsForm';
-import queryString from 'query-string';
-
-import Spinner from 'modules/common/components/Spinner';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import SegmentsForm from '@erxes/ui-segments/src/containers/form/SegmentsForm';
-import {
-  Content,
-  LeftContent
-} from '@erxes/ui-settings/src/integrations/styles';
-import {
-  ImageWrapper,
-  MessengerPreview,
-  TextWrapper
-} from '@erxes/ui-inbox/src/settings/integrations/styles';
+import { ImageWrapper, TextWrapper } from '@erxes/ui/src/styles/main';
+import { Step, Steps } from 'modules/common/components/step';
+import { __, getEnv, loadDynamicComponent } from 'modules/common/utils';
+
+import Button from 'modules/common/components/Button';
+import ConfigsForm from './ConfigsForm';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import Spinner from 'modules/common/components/Spinner';
+import Wrapper from 'modules/layout/components/Wrapper';
+import queryString from 'query-string';
 
 type Props = {
   contentType: string;
-  columns: IConfigColumn[];
+  columns: any[]; //check
   count: string;
   loading: boolean;
   previewCount: (segmentId?: string) => void;
@@ -42,9 +32,9 @@ type State = {
   segmentId: string;
   configs: string[];
   searchValue: string;
-  columns: IConfigColumn[];
+  columns: any[]; //check
   importType: string;
-  columnsConfig: IConfigColumn[];
+  columnsConfig: any[]; //check
 };
 
 const { REACT_APP_API_URL } = getEnv();
@@ -158,15 +148,15 @@ class ExportForm extends React.Component<Props, State> {
                     <Description>
                       {__('Skip this step if you wish to export all items')}
                     </Description>
-                    <SegmentsForm
-                      {...this.props}
-                      id={segmentId}
-                      contentType={contentType || 'customer'}
-                      closeModal={this.segmentCloseModal}
-                      addFilter={this.addFilter}
-                      hideDetailForm={true}
-                      usageType={'export'}
-                    />
+                    {loadDynamicComponent('importExportFilterForm', {
+                      ...this.props,
+                      id: segmentId,
+                      contentType: contentType || 'customer',
+                      closeModal: this.segmentCloseModal,
+                      addFilter: this.addFilter,
+                      hideDetailForm: true,
+                      usageType: 'export'
+                    })}
                   </FlexPad>
                 </FlexItem>
               </Step>

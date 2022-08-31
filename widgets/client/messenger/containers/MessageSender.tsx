@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MessageSender } from '../components';
+import MessageSender from '../components/MessageSender';
 import { AppConsumer, MESSAGE_TYPES } from './AppContext';
 
 type Props = {

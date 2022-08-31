@@ -1,17 +1,19 @@
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { withProps } from '@erxes/ui/src/utils';
 import * as compose from 'lodash.flowright';
-import gql from 'graphql-tag';
-import React from 'react';
-import { IEditorProps } from '@erxes/ui/src/types';
+
 import {
   FieldsCombinedByType,
   FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui-settings/src/properties/types';
+} from '@erxes/ui-forms/src/settings/properties/types';
+
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import { IEditorProps } from '@erxes/ui/src/types';
+import React from 'react';
+import { queries as fieldQueries } from '@erxes/ui-forms/src/settings/properties/graphql';
+import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries } from '@erxes/ui-forms/src/forms/graphql';
-import { queries as fieldQueries } from '@erxes/ui-settings/src/properties/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '@erxes/ui-forms/src/forms/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 const generateItemCustomFields = items =>
   (items || []).map(item => ({

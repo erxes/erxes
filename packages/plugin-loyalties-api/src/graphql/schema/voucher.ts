@@ -22,7 +22,7 @@ export const queries = `
 const VoucherDoc = `
   ${commonInputs}
   status: String
-`
+`;
 
 export const mutations = `
   vouchersAdd(${VoucherDoc}): Voucher

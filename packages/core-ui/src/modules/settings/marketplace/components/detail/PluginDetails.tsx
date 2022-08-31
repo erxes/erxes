@@ -11,12 +11,12 @@ import {
   DetailMainContainer,
   PluginTitle,
   Center,
-  Carousel,
   DetailInformation,
   Hashtag,
   Detail,
   ColorHeader
 } from '../../styles';
+import Carousel from './Carousel';
 
 type Props = {
   id: string;
@@ -51,13 +51,51 @@ class PluginDetails extends React.Component<Props, State> {
       .catch(e => {
         console.log(e);
       });
-
-    // console.log("hiiiiiii", this.state.plugin);
   }
+
+  renderContent = () => {
+    const { plugin, tabType } = this.state;
+
+    if (tabType === 'Description') {
+      return (
+        <>
+          <span dangerouslySetInnerHTML={{ __html: plugin.shortDescription }} />
+          <Detail>
+            <ListHeader>
+              <ColorHeader>
+                <b>📝 DESCRIPTION</b>
+              </ColorHeader>
+            </ListHeader>
+            <p dangerouslySetInnerHTML={{ __html: plugin.description }} />
+          </Detail>
+          <Detail>
+            <ListHeader>
+              <ColorHeader>
+                <b>✨ FEATURES</b>
+              </ColorHeader>
+            </ListHeader>
+            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
+          </Detail>
+        </>
+      );
+    } else if (tabType === 'Guide') {
+      return <div dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />;
+    }
+    return null;
+  };
 
   render() {
     const { enabledServicesQuery } = this.props;
-    const { loading, plugin } = this.state;
+    const { loading, plugin, tabType } = this.state;
+
+    // fake data
+    const pluginCategories = 'Free Marketing'.split(' ');
+
+    const dataSlider = [
+      'https://wallpaperaccess.com/full/1760844.jpg',
+      'https://wallpaperaccess.com/full/1282257.jpg',
+      'https://wallpaperaccess.com/full/124624.jpg'
+    ];
 
     const breadcrumb = [
       { title: __('Store'), link: '/settings/installer' },
@@ -82,43 +120,9 @@ class PluginDetails extends React.Component<Props, State> {
         });
     };
 
-    const tabContent = this.state.tabType === 'Description' && (
-      <>
-        <span>{plugin.shortDescription}</span>
-        <Detail>
-          <ListHeader>
-            <ColorHeader>
-              <b>📝 DESCRIPTION</b>
-            </ColorHeader>
-          </ListHeader>
-          <p>{plugin.description}</p>
-        </Detail>
-        <Detail>
-          <ListHeader>
-            <ColorHeader>
-              <b>✨ FEATURES</b>
-            </ColorHeader>
-          </ListHeader>
-          {([] as any).map(feature => (
-            <>
-              <b>{feature.name}</b>
-              <p>{feature.text}</p>
-              <ul>
-                {feature.list.map(listItem => (
-                  <li>{listItem}</li>
-                ))}
-              </ul>
-            </>
-          ))}
-        </Detail>
-      </>
-    );
-
     const handleSelect = tab => {
       this.setState({ tabType: tab });
     };
-
-    console.log(plugin, 'jjjjj');
 
     const content = (
       <DetailMainContainer>
@@ -128,7 +132,7 @@ class PluginDetails extends React.Component<Props, State> {
             <DetailInformation>
               <b>{plugin.title}</b>
               <Flex>
-                {[].map(category => (
+                {pluginCategories.map(category => (
                   <Hashtag>
                     {'#'}
                     {category}
@@ -186,30 +190,30 @@ class PluginDetails extends React.Component<Props, State> {
           )}
         </PluginTitle>
 
-        <Carousel />
+        {dataSlider.length !== 0 && <Carousel dataSlider={dataSlider} />}
 
         <Tabs>
           <TabTitle
             onClick={() => handleSelect('Description')}
-            active={this.state.tabType === 'Description'}
+            active={tabType === 'Description'}
           >
             Description
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Guide')}
-            active={this.state.tabType === 'Guide'}
+            active={tabType === 'Guide'}
           >
             Guide
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Changelog')}
-            active={this.state.tabType === 'Changelog'}
+            active={tabType === 'Changelog'}
           >
             Changelog
           </TabTitle>
         </Tabs>
 
-        {tabContent}
+        {this.renderContent()}
       </DetailMainContainer>
     );
 

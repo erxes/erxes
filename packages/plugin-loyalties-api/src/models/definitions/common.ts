@@ -49,6 +49,18 @@ export interface ICommonParams {
   ownerId?: string;
   status?: string;
   statuses?: string[];
+  awardId?: string;
+}
+
+export interface IScoreParams {
+  ownerType: String;
+  ownerId: String;
+  orderType: string;
+  order: String;
+  fromDate: String;
+  toDate: String;
+  page?: number;
+  perPage?: number;
 }
 
 export const attachmentSchema = new Schema(

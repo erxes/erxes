@@ -16,6 +16,7 @@ import { sendLogsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
 import { USER_ROLES } from '@erxes/api-utils/src/constants';
 import { redis } from '../serviceDiscovery';
+import { sendContactsMessage } from '../messageBroker';
 
 export interface IEmailParams {
   toEmails?: string[];
@@ -783,20 +784,12 @@ export const registerOnboardHistory = ({
     .catch(e => debugBase(e));
 
 export const getConfigs = async models => {
-  const configsCache = await memoryStorage().get('configs_erxes_api');
-
-  if (configsCache && configsCache !== '{}') {
-    return JSON.parse(configsCache);
-  }
-
   const configsMap = {};
   const configs = await models.Configs.find({}).lean();
 
   for (const config of configs) {
     configsMap[config.code] = config.value;
   }
-
-  memoryStorage().set('configs_erxes_api', JSON.stringify(configsMap));
 
   return configsMap;
 };
@@ -908,11 +901,13 @@ export const sendMobileNotification = async (
     receivers,
     title,
     body,
+    deviceTokens,
     data
   }: {
     receivers: string[];
     title: string;
     body: string;
+    deviceTokens?: string[];
     data?: any;
   }
 ): Promise<void> => {
@@ -930,6 +925,10 @@ export const sendMobileNotification = async (
         role: { $ne: USER_ROLES.SYSTEM }
       }).distinct('deviceTokens'))
     );
+  }
+
+  if (deviceTokens && deviceTokens.length) {
+    tokens.push(...deviceTokens);
   }
 
   //   if (customerId) {
@@ -993,6 +992,46 @@ export const getFileUploadConfigs = async (models: IModels) => {
 
 export const saveValidatedToken = (token: string, user: IUserDocument) => {
   return redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
+};
+
+/*
+ * Handle engage unsubscribe request
+ */
+export const handleUnsubscription = async (
+  models: IModels,
+  subdomain: string,
+  query: {
+    cid: string;
+    uid: string;
+  }
+) => {
+  const { cid, uid } = query;
+
+  if (cid) {
+    await sendContactsMessage({
+      subdomain,
+      action: 'customers.updateOne',
+      data: {
+        selector: {
+          _id: cid
+        },
+        modifier: {
+          $set: { isSubscribed: 'No' }
+        }
+      },
+      isRPC: true,
+      defaultValue: {}
+    });
+  }
+
+  if (uid) {
+    await models.Users.updateOne(
+      {
+        _id: uid
+      },
+      { $set: { isSubscribed: 'No' } }
+    );
+  }
 };
 
 export const getEnv = utils.getEnv;

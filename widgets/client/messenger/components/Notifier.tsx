@@ -3,8 +3,8 @@ import * as React from "react";
 import * as RTG from "react-transition-group";
 import { iconClose } from "../../icons/Icons";
 import { striptags } from "../../utils";
-import { EngageMessage } from "../components";
-import { User } from "../components/common";
+import EngageMessage from "../components/EngageMessage";
+import User from "../components/common/User";
 import { IEngageData, IMessage } from "../types";
 
 type Props = {

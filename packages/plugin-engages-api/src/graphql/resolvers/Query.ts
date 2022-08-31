@@ -34,11 +34,7 @@ interface IStatusQueryBuilder {
   [index: string]: boolean | string;
 }
 
-interface ICountsByStatus {
-  [index: string]: number;
-}
-
-interface ICountsByTag {
+interface ICount {
   [index: string]: number;
 }
 
@@ -95,7 +91,7 @@ const countsByStatus = async (
   models: IModels,
   commonSelector,
   { kind, user }: { kind: string; user }
-): Promise<ICountsByStatus> => {
+): Promise<ICount> => {
   const query: IQuery = commonSelector;
 
   if (kind) {
@@ -127,7 +123,7 @@ const countsByTag = async (
     status: string;
     user;
   }
-): Promise<ICountsByTag> => {
+): Promise<ICount> => {
   let query: any = commonSelector;
 
   if (kind) {
@@ -146,7 +142,7 @@ const countsByTag = async (
   });
 
   // const response: {[name: string]: number} = {};
-  const response: ICountsByTag = {};
+  const response: ICount = {};
 
   for (const tag of tags) {
     response[tag._id] = await count(models, {

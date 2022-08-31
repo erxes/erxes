@@ -1,20 +1,21 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
-import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
-import { queries } from '@erxes/ui/src/team/graphql';
-import { ChannelsQueryResponse } from '@erxes/ui-settings/src/channels/types';
-import UserInvitationForm from '../components/UserInvitationForm';
+
 import {
   BranchesQueryResponse,
   DepartmentsQueryResponse,
   UnitsQueryResponse
 } from '@erxes/ui/src/team/types';
+
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
+import React from 'react';
+import UserInvitationForm from '../components/UserInvitationForm';
+import { queries as channelQueries } from '@erxes/ui-settings/src/channels/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries } from '@erxes/ui/src/team/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type WrapperProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -22,7 +23,7 @@ type WrapperProps = {
 } & ICommonFormProps;
 
 type Props = {
-  channelsQuery: ChannelsQueryResponse;
+  channelsQuery: any; //check - ChannelsQueryResponse
   unitsQuery: UnitsQueryResponse;
   departmentsQuery: DepartmentsQueryResponse;
   branchesQuery: BranchesQueryResponse;
@@ -48,7 +49,8 @@ const UserInviteFormContainer = (props: Props & ICommonFormProps) => {
 
 export default withProps<WrapperProps>(
   compose(
-    graphql<{}, ChannelsQueryResponse>(gql(channelQueries.channels), {
+    graphql<{}, any>(gql(channelQueries.channels), {
+      //check - ChannelsQueryResponse
       name: 'channelsQuery'
     }),
     graphql<{}, UnitsQueryResponse>(gql(queries.units), {

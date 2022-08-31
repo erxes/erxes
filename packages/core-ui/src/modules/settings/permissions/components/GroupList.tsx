@@ -1,24 +1,25 @@
+import { ActionButtons, Header } from '@erxes/ui-settings/src/styles';
+import { FieldStyle, SidebarList } from 'modules/layout/styles';
+import { __, router } from 'modules/common/utils';
+
 import Button from 'modules/common/components/Button';
 import DataWithLoader from 'modules/common/components/DataWithLoader';
-import Icon from 'modules/common/components/Icon';
-import LoadMore from 'modules/common/components/LoadMore';
-import ModalTrigger from 'modules/common/components/ModalTrigger';
-import Tip from 'modules/common/components/Tip';
+import GroupForm from './GroupForm';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'modules/common/utils';
-import Sidebar from 'modules/layout/components/Sidebar';
-import Wrapper from 'modules/layout/components/Wrapper';
-import { FieldStyle, SidebarList } from 'modules/layout/styles';
-import MemberAvatars from '@erxes/ui-inbox/src/settings/channels/components/MemberAvatars';
-import { ActionButtons, Header } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { SidebarItem } from '../styles';
-import { IUserGroupDocument } from '../types';
 import { IUserGroup } from '@erxes/ui-settings/src/permissions/types';
-import GroupForm from './GroupForm';
+import { IUserGroupDocument } from '../types';
+import Icon from 'modules/common/components/Icon';
+import { Link } from 'react-router-dom';
+import LoadMore from 'modules/common/components/LoadMore';
+import MemberAvatars from '@erxes/ui/src/components/MemberAvatars';
+import ModalTrigger from 'modules/common/components/ModalTrigger';
+import React from 'react';
+import Sidebar from 'modules/layout/components/Sidebar';
+import { SidebarItem } from '../styles';
+import Tip from 'modules/common/components/Tip';
+import Wrapper from 'modules/layout/components/Wrapper';
+import { withRouter } from 'react-router-dom';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -40,7 +41,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <ModalTrigger
         title="New Group"
-        autoOpenKey="showUserGroupAddModal"
+        autoOpenKey={object ? 'newUserGroup' : 'showUserGroupAddModal'}
         trigger={trigger}
         content={content}
       />
@@ -151,7 +152,7 @@ class GroupList extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title noBackground noSpacing>
+        <Section.Title>
           {__('User groups')}
           <Section.QuickButtons>
             {router.getParam(this.props.history, 'groupId') && (
@@ -171,12 +172,7 @@ class GroupList extends React.Component<IProps> {
     const { totalCount, loading } = this.props;
 
     return (
-      <Sidebar
-        hasBorder={true}
-        wide={true}
-        header={this.renderSidebarHeader()}
-        noMargin
-      >
+      <Sidebar wide={true} header={this.renderSidebarHeader()} hasBorder>
         <DataWithLoader
           data={this.renderContent()}
           loading={loading}

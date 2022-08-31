@@ -1,12 +1,13 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import { IButtonMutateProps, Counts } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { Counts, IButtonMutateProps } from '@erxes/ui/src/types';
 import { CustomerCounts, RadioContainer } from '@erxes/ui-engage/src/styles';
+
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { ISegmentDoc } from '@erxes/ui-segments/src/types';
+import { ITag } from '@erxes/ui-tags/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import Targets from '../Targets';
-import { ISegmentDoc } from '@erxes/ui-segments/src/types';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { __ } from 'coreui/utils';
 
 type Props<Target, OnSubmit> = {
   name: string;
@@ -36,6 +37,7 @@ type Props<Target, OnSubmit> = {
     customerCounts: React.ReactNode;
   }) => React.ReactNode;
   icons?: React.ReactNode[];
+  loadingCount: boolean;
 };
 
 type State = {
@@ -137,7 +139,8 @@ class Common<Target, OnSubmit> extends React.Component<
       Form,
       formProps,
       onSubmit,
-      icons
+      icons,
+      loadingCount
     } = this.props;
 
     if (this.state.show) {
@@ -161,6 +164,7 @@ class Common<Target, OnSubmit> extends React.Component<
         defaultValues={targetIds}
         onChangeStep={this.onChangeStep}
         icons={icons}
+        loadingCount={loadingCount}
       />
     );
   }

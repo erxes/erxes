@@ -1,17 +1,18 @@
+import { Alert, withProps } from '@erxes/ui/src';
+import { IUser } from '@erxes/ui/src/auth/types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src';
-import { mutations, queries } from '../../graphql';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IRouterProps } from '@erxes/ui/src/types';
+
+import BasicInfoSection from '../../components/detail/BasicInfoSection';
+import { mutations } from '../../graphql';
 import {
   ClientPortalUserRemoveMutationResponse,
   IClientPortalUser
 } from '../../types';
-import BasicInfoSection from '../../components/detail/BasicInfoSection';
 
 type Props = {
   clientPortalUser: IClientPortalUser;

@@ -1,10 +1,11 @@
-import Icon from '@erxes/ui/src/components/Icon';
-import { IButtonMutateProps,Counts } from '@erxes/ui/src/types';
-import { TagAdd } from '@erxes/ui-engage/src/types';
-import React from 'react';
+import { Counts, IButtonMutateProps } from '@erxes/ui/src/types';
+
 import Common from './Common';
+import { ITag } from '@erxes/ui-tags/src/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import { TagAdd } from '@erxes/ui-engage/src/types';
 import TagsForm from './forms/TagsForm';
-import { ITag } from '@erxes/ui/src/tags/types';
 
 type Props = {
   tagIds: string[];
@@ -23,6 +24,7 @@ type Props = {
     selectedComponent: React.ReactNode;
     customerCounts: React.ReactNode;
   }) => React.ReactNode;
+  loadingCount: boolean;
 };
 
 const TagStep = (props: Props) => {
@@ -34,7 +36,8 @@ const TagStep = (props: Props) => {
     customersCount,
     messageType,
     renderContent,
-    renderButton
+    renderButton,
+    loadingCount
   } = props;
 
   const icons: React.ReactNode[] = [];
@@ -58,6 +61,7 @@ const TagStep = (props: Props) => {
       renderButton={renderButton}
       icons={icons}
       formProps={{ tags }}
+      loadingCount={loadingCount}
     />
   );
 };

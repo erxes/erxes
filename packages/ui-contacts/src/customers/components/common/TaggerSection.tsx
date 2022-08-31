@@ -1,11 +1,11 @@
 import Box from '@erxes/ui/src/components/Box';
+import Collapse from 'react-bootstrap/Collapse';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from '@erxes/ui/src/utils';
-import { SidebarList } from '@erxes/ui/src/layout/styles';
-import Tagger from '@erxes/ui/src/tags/containers/Tagger';
 import React from 'react';
-import Collapse from 'react-bootstrap/Collapse';
+import { SidebarList } from '@erxes/ui/src/layout/styles';
+import Tagger from '@erxes/ui-tags/src/containers/Tagger';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   data: any;

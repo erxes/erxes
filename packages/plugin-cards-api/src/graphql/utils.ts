@@ -10,11 +10,19 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
 
-export interface IConformityAdd {
+interface IMainType {
   mainType: string;
   mainTypeId: string;
+}
+
+export interface IConformityAdd extends IMainType {
   relType: string;
   relTypeId: string;
+}
+
+interface IConformityCreate extends IMainType {
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
 /**
@@ -247,17 +255,7 @@ export const checkPermission = async (
 
 export const createConformity = async (
   subdomain: string,
-  {
-    companyIds,
-    customerIds,
-    mainType,
-    mainTypeId
-  }: {
-    companyIds?: string[];
-    customerIds?: string[];
-    mainType: string;
-    mainTypeId: string;
-  }
+  { companyIds, customerIds, mainType, mainTypeId }: IConformityCreate
 ) => {
   const companyConformities: IConformityAdd[] = (companyIds || []).map(
     companyId => ({
@@ -408,11 +406,11 @@ export const copyChecklists = async (
     );
   }
 
-  const originalChecklistItems = await models.Checklists.find({
+  const originalChecklistItems = await models.ChecklistItems.find({
     checklistId: { $in: originalChecklists.map(x => x._id) }
   }).lean();
 
-  await models.Checklists.insertMany(
+  await models.ChecklistItems.insertMany(
     originalChecklistItems.map(({ content, order, checklistId }) => ({
       checklistId: originalChecklistIdToClonedId.get(checklistId),
       isChecked: false,

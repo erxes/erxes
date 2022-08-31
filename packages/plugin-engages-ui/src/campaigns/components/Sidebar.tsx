@@ -1,18 +1,19 @@
-import CountsByTag from '@erxes/ui/src/components/CountsByTag';
-import { __, router } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import {
   FieldStyle,
   SidebarCounter,
   SidebarList
 } from '@erxes/ui/src/layout/styles';
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   MESSAGE_KIND_FILTERS,
   statusFilters
 } from '@erxes/ui-engage/src/constants';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { __, router } from 'coreui/utils';
+
+import CountsByTag from '@erxes/ui/src/components/CountsByTag';
+import { ITag } from '@erxes/ui-tags/src/types';
+import { Link } from 'react-router-dom';
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const { Section } = Wrapper.Sidebar;
@@ -31,9 +32,7 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Section noShadow noMargin>
-        <Section.Title noBackground noSpacing>
-          {__('Kind')}
-        </Section.Title>
+        <Section.Title>{__('Kind')}</Section.Title>
 
         <SidebarList>
           <li>
@@ -67,9 +66,7 @@ class Sidebar extends React.Component<Props> {
 
     return (
       <Section noShadow noMargin>
-        <Section.Title noBackground noSpacing>
-          {__('Status')}
-        </Section.Title>
+        <Section.Title>{__('Status')}</Section.Title>
 
         <SidebarList>
           {statusFilters.map((status, index) => (
@@ -97,7 +94,7 @@ class Sidebar extends React.Component<Props> {
     const { tags, tagCounts } = this.props;
 
     return (
-      <Wrapper.Sidebar noMargin={true} hasBorder={true}>
+      <Wrapper.Sidebar hasBorder>
         {this.renderKindFilter()}
         {this.renderStatusFilter()}
 
@@ -107,9 +104,6 @@ class Sidebar extends React.Component<Props> {
             manageUrl="/tags?type=engages:engageMessage"
             counts={tagCounts}
             loading={false}
-            noBackground
-            noSpacing
-            noShadow
           />
         )}
       </Wrapper.Sidebar>

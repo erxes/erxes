@@ -25,9 +25,16 @@ const taskMutations = {
   async tasksAdd(
     _root,
     doc: ITask & { proccessId: string; aboveItemId: string },
-    { user, docModifier, models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
-    return itemsAdd(models, subdomain, doc, 'task', models.Tasks.createTask, user, docModifier);
+    return itemsAdd(
+      models,
+      subdomain,
+      doc,
+      'task',
+      models.Tasks.createTask,
+      user
+    );
   },
 
   /**
@@ -69,14 +76,29 @@ const taskMutations = {
   /**
    * Change task
    */
-  async tasksChange(_root, doc: IItemDragCommonFields, { user, models, subdomain }: IContext) {
-    return itemsChange(models, subdomain, doc, 'task', user, models.Tasks.updateTask);
+  async tasksChange(
+    _root,
+    doc: IItemDragCommonFields,
+    { user, models, subdomain }: IContext
+  ) {
+    return itemsChange(
+      models,
+      subdomain,
+      doc,
+      'task',
+      user,
+      models.Tasks.updateTask
+    );
   },
 
   /**
    * Remove task
    */
-  async tasksRemove(_root, { _id }: { _id: string }, { user, models, subdomain }: IContext) {
+  async tasksRemove(
+    _root,
+    { _id }: { _id: string },
+    { user, models, subdomain }: IContext
+  ) {
     return itemsRemove(models, subdomain, _id, 'task', user);
   },
 
@@ -96,7 +118,16 @@ const taskMutations = {
     { _id, proccessId }: { _id: string; proccessId: string },
     { user, models, subdomain }: IContext
   ) {
-    return itemsCopy(models, subdomain, _id, proccessId, 'task', user, [], models.Tasks.createTask);
+    return itemsCopy(
+      models,
+      subdomain,
+      _id,
+      proccessId,
+      'task',
+      user,
+      [],
+      models.Tasks.createTask
+    );
   },
 
   async tasksArchive(

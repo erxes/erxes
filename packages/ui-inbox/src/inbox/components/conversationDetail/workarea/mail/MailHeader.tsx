@@ -1,12 +1,5 @@
 import * as React from 'react';
-import dayjs from 'dayjs';
-import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import Dropdown from 'react-bootstrap/Dropdown';
+
 import {
   ActionButton,
   AddressContainer,
@@ -18,8 +11,17 @@ import {
   RightSide,
   Title
 } from './style';
-import { IMessage, IMail } from '../../../../types';
+import { IMail, IMessage } from '../../../../types';
+
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import { Flex } from '@erxes/ui/src/styles/main';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import dayjs from 'dayjs';
 
 type Props = {
   message: IMessage;
@@ -87,30 +89,30 @@ class MailHeader extends React.Component<Props, State> {
 
     return (
       <>
-        <Tip text={__('Reply')} placement='bottom'>
+        <Tip text={__('Reply')} placement="bottom">
           <ActionButton onClick={onToggleReply}>
-            <Icon icon='reply' />
+            <Icon icon="reply" />
           </ActionButton>
         </Tip>
         <Dropdown alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id='dropdown-engage'>
+          <Dropdown.Toggle as={DropdownToggle} id="dropdown-engage">
             <ActionButton>
-              <Icon icon='ellipsis-v' />
+              <Icon icon="ellipsis-v" />
             </ActionButton>
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <li>
-              <a href='#action' onClick={onToggleReply}>
+              <a href="#action" onClick={onToggleReply}>
                 Reply
               </a>
             </li>
             <li>
-              <a href='#action' onClick={onToggleReplyAll}>
+              <a href="#action" onClick={onToggleReplyAll}>
                 Reply all
               </a>
             </li>
             <li>
-              <a href='#action' onClick={onToggleForward}>
+              <a href="#action" onClick={onToggleForward}>
                 Forward
               </a>
             </li>
@@ -126,7 +128,7 @@ class MailHeader extends React.Component<Props, State> {
         <Date onClick={this.toggleDateFormat}>
           {dayjs(createdAt).format(this.state.dateFormat)}
         </Date>
-        {hasAttachments && <Icon icon='paperclip' />}
+        {hasAttachments && <Icon icon="paperclip" />}
         {this.renderTopButton()}
       </RightSide>
     );

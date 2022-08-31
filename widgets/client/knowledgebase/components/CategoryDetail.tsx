@@ -1,6 +1,8 @@
 import * as React from "react";
 import { __ } from "../../utils";
-import { Articles, BackButton, ItemMeta } from "../components";
+import Articles from "../components/Articles";
+import BackButton from "../components/BackButton";
+import ItemMeta from "../components/ItemMeta";
 import { IKbCategory } from "../types";
 
 type Props = {

@@ -1,16 +1,14 @@
+import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
+
+import { Actions } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Tip from '@erxes/ui/src/components/Tip';
-import { __ } from '@erxes/ui/src/utils';
-import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
-import { Actions } from '@erxes/ui/src/styles/main';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import SmsForm from '@erxes/ui-settings/src/integrations/containers/telnyx/SmsForm';
 import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
+import Tip from '@erxes/ui/src/components/Tip';
 import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
 
 type Props = {
@@ -32,58 +30,9 @@ class ActionSection extends React.Component<Props> {
     const { user } = this.props;
     const { operatorPhone } = user.details || ({} as IUserDetails);
 
-    const content = props => (
-      <MailBox>
-        <MailForm
-          fromEmail={user.email}
-          customerId={user._id || undefined}
-          refetchQueries={['activityLogsUser']}
-          closeModal={props.closeModal}
-        />
-      </MailBox>
-    );
-
-    const smsForm = props => (
-      <SmsForm {...props} primaryPhone={operatorPhone} />
-    );
-
     return (
       <>
-        <ModalTrigger
-          dialogClassName="middle"
-          title="Email"
-          trigger={
-            <Button
-              disabled={user.email ? false : true}
-              size="small"
-              btnStyle={user.email ? 'primary' : 'simple'}
-            >
-              <Tip text="Send e-mail" placement="top-end">
-                <Icon icon="envelope" />
-              </Tip>
-            </Button>
-          }
-          size="lg"
-          content={content}
-          paddingContent="less-padding"
-          enforceFocus={false}
-        />
-        <ModalTrigger
-          dialogClassName="middle"
-          title={`Send SMS to (${operatorPhone})`}
-          trigger={
-            <Button
-              disabled={operatorPhone ? false : true}
-              size="small"
-              btnStyle={operatorPhone ? 'primary' : 'simple'}
-            >
-              <Tip text="Send SMS" placement="top-end">
-                <Icon icon="message" />
-              </Tip>
-            </Button>
-          }
-          content={smsForm}
-        />
+        {loadDynamicComponent('actionForms', { user })}
         <Button
           href={operatorPhone && `tel:${operatorPhone}`}
           size="small"

@@ -1,23 +1,24 @@
 import Button from '@erxes/ui/src/components/Button';
+import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import PropertyForm from '@erxes/ui-settings/src/properties/containers/PropertyForm';
-import PropertyGroupForm from '@erxes/ui-settings/src/properties/containers/PropertyGroupForm';
-import { PropertyList } from '@erxes/ui-settings/src/properties/styles';
-import { IFieldGroup } from '@erxes/ui-settings/src/properties/types';
-import { IField } from '@erxes/ui/src/types';
+import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
+import { PropertyList } from '@erxes/ui-forms/src/settings/properties/styles';
 import PropertyRow from './PropertyRow';
+import React from 'react';
 import Sidebar from './Sidebar';
 import SortableList from '@erxes/ui/src/components/SortableList';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from '@erxes/ui/src/utils';
 
+// Props
 type Props = {
   queryParams: any;
   refetch?: () => void;
@@ -29,6 +30,11 @@ type Props = {
   updatePropertyDetailVisible: (data: {
     _id: string;
     isVisibleInDetail: boolean;
+  }) => void;
+  updatePropertySystemFields: (data: {
+    _id: string;
+    isVisibleToCreate?: boolean;
+    isRequired?: boolean;
   }) => void;
   updatePropertyGroupVisible: (data: {
     _id: string;
@@ -76,6 +82,7 @@ class Properties extends React.Component<
       removeProperty,
       updatePropertyVisible,
       updatePropertyDetailVisible,
+      updatePropertySystemFields,
       updateFieldOrder
     } = this.props;
 
@@ -89,6 +96,7 @@ class Properties extends React.Component<
         updatePropertyVisible={updatePropertyVisible}
         updateFieldOrder={updateFieldOrder}
         updatePropertyDetailVisible={updatePropertyDetailVisible}
+        updatePropertySystemFields={updatePropertySystemFields}
       />
     );
   };
@@ -225,11 +233,10 @@ class Properties extends React.Component<
       <Wrapper
         actionBar={
           <Wrapper.ActionBar
-            withMargin
-            wide
             background="bgWhite"
             left={title}
             right={this.renderActionBar()}
+            wideSpacing
           />
         }
         header={
@@ -240,9 +247,8 @@ class Properties extends React.Component<
           <Sidebar currentType={__(currentType)} services={services} />
         }
         content={this.renderProperties()}
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

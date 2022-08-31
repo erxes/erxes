@@ -91,9 +91,9 @@ function FieldLogics(props: Props) {
         <>
           <FormGroup>
             <FormControl
-              componentClass='select'
+              componentClass="select"
               defaultValue={currentField.logicAction}
-              name='logicAction'
+              name="logicAction"
               options={showOptions}
               onChange={onChangeLogicAction}
             />
@@ -110,7 +110,7 @@ function FieldLogics(props: Props) {
           ))}
 
           <LinkButton onClick={addLogic}>
-            <Icon icon='plus-1' /> Add Logic Rule
+            <Icon icon="plus-1" /> Add Logic Rule
           </LinkButton>
         </>
       );
@@ -119,8 +119,8 @@ function FieldLogics(props: Props) {
     return (
       <Button
         block={true}
-        btnStyle='success'
-        icon='check-circle'
+        btnStyle="success"
+        icon="check-circle"
         onClick={onEnableLogic}
       >
         Enable Logic

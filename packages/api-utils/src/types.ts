@@ -1,5 +1,5 @@
-import * as express from 'express';
 import { Document, Schema } from 'mongoose';
+
 export interface IEmailSignature {
   brandId?: string;
   signature?: string;
@@ -53,7 +53,7 @@ export interface IUserDocument extends IUser, Document {
 }
 
 export interface IContext {
-  res: express.Response;
+  res: any;
   requestInfo: any;
   user: IUserDocument;
   docModifier: <T>(doc: T) => any;
@@ -161,4 +161,11 @@ export interface ILocationOption {
   lat: number;
   lng: number;
   description?: string;
+}
+
+export interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
 }

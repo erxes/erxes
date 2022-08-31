@@ -11,19 +11,17 @@ import {
 } from "../../../icons/Icons";
 import { IParticipator, IUserDetails, IUserLinks } from "../../../types";
 import { readFile } from "../../../utils";
-import { SocialLink } from "./";
-import * as dayjs from "dayjs";
+import SocialLink from "./SocialLink";
 
 type Props = {
   user?: IParticipator;
   isOnline: boolean;
   isExpanded: boolean;
   showTimezone?: boolean;
-  serverTime?: string;
 };
 
 function Profile(props: Props) {
-  const { isOnline, isExpanded, showTimezone, serverTime } = props;
+  const { isOnline, isExpanded, showTimezone } = props;
   const user = props.user || ({} as IParticipator);
   const userDetail = user.details || ({} as IUserDetails);
   const links = user.links || ({} as IUserLinks);
@@ -64,7 +62,7 @@ function Profile(props: Props) {
         </div>
         <div className="user-name">
           <h5>{userDetail.fullName}</h5>
-          {!showTimezone ? <span>{userDetail.position}</span> : <span>{dayjs(serverTime).format("lll")} {userDetail.location}</span>}
+          {!showTimezone ? <span>{userDetail.position}</span> : <span>{userDetail.location}</span>}
         </div>
       </div>
       {isExpanded && bottomContent()}

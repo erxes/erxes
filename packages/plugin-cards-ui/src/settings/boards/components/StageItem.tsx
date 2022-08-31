@@ -1,13 +1,14 @@
-import { IStage } from '@erxes/ui-cards/src/boards/types';
+import { __, generateTree } from 'coreui/utils';
+
 import Button from '@erxes/ui/src/components/Button';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
-import { __, generateTree } from 'coreui/utils';
-import React from 'react';
-import { PROBABILITY } from '../constants';
-import { StageItemContainer } from '@erxes/ui-settings/src/boards/styles';
 import { IDepartment } from '@erxes/ui/src/team/types';
+import { IStage } from '@erxes/ui-cards/src/boards/types';
+import { PROBABILITY } from '../constants';
+import React from 'react';
 import Select from 'react-select-plus';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
+import { StageItemContainer } from '@erxes/ui-cards/src/settings/boards/styles';
 
 type Props = {
   stage: IStage;

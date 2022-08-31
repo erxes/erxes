@@ -184,6 +184,12 @@ const productDetail = `
   }
 `;
 
+const checkDiscount = `
+  query checkDiscount($_id: String!, $products: [ProductField]) {
+    checkDiscount(_id: $_id, products: $products)
+  }
+`;
+
 export default {
   deals,
   dealsTotalCount,
@@ -191,5 +197,6 @@ export default {
   productDetail,
   dealsTotalAmounts,
   archivedDeals,
-  archivedDealsCount
+  archivedDealsCount,
+  checkDiscount
 };

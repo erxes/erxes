@@ -6,7 +6,10 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import LotteryCampaign from '../components/List';
 import { mutations, queries } from '../graphql';
-import { LotteryCampaignQueryResponse, LotteryCampaignRemoveMutationResponse } from '../types';
+import {
+  LotteryCampaignQueryResponse,
+  LotteryCampaignRemoveMutationResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -16,7 +19,8 @@ type Props = {
 
 type FinalProps = {
   lotteryCampaignQuery: LotteryCampaignQueryResponse;
-} & Props & LotteryCampaignRemoveMutationResponse;
+} & Props &
+  LotteryCampaignRemoveMutationResponse;
 
 class LotteryCampaignContainer extends React.Component<FinalProps> {
   render() {
@@ -71,9 +75,7 @@ class LotteryCampaignContainer extends React.Component<FinalProps> {
 }
 
 const getRefetchQueries = () => {
-  return [
-    'lotteryCampaigns'
-  ];
+  return ['lotteryCampaigns'];
 };
 
 const options = () => ({
@@ -85,12 +87,13 @@ export default withProps<Props>(
     graphql<{}, LotteryCampaignQueryResponse>(gql(queries.lotteryCampaigns), {
       name: 'lotteryCampaignQuery'
     }),
-    graphql<Props, LotteryCampaignRemoveMutationResponse, { lotteryCampaignIds: string[] }>(
-      gql(mutations.lotteryCampaignsRemove),
-      {
-        name: 'lotteryCampaignsRemove',
-        options
-      }
-    ),
+    graphql<
+      Props,
+      LotteryCampaignRemoveMutationResponse,
+      { lotteryCampaignIds: string[] }
+    >(gql(mutations.lotteryCampaignsRemove), {
+      name: 'lotteryCampaignsRemove',
+      options
+    })
   )(LotteryCampaignContainer)
 );

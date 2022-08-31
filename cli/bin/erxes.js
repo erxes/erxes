@@ -7,7 +7,7 @@ const program = require('commander');
 const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
-const { manageInstallation, up, update, restart, deployDbs } = require('../commands/docker/utils');
+const { manageInstallation, up, update, restart, deployDbs, dumpDb } = require('../commands/docker/utils');
 const { devOnly, devCmd, devStop } = require('../commands/dev');
 
 /**
@@ -65,6 +65,12 @@ program
   .command('deploy-dbs')
   .description('Delpoy dbs using docker')
   .action(deployDbs);
+
+program
+  .command('dump-db')
+  .description('Dump database')
+  .option('--copydump', 'Copy dump folder')
+  .action(dumpDb);
 
 program
   .command('up')

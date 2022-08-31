@@ -1,3 +1,4 @@
+import { sendRPCMessage } from './messageBroker';
 import redis from './redis';
 
 export interface IUser {
@@ -23,6 +24,30 @@ export const checkLogin = (user?: IUser) => {
 
 export const getKey = (user: IUser) => `user_permissions_${user._id}`;
 
+const resolverWrapper = async (methodName, args, context) => {
+  const value = await redis.get('beforeResolvers');
+  const beforeResolvers = JSON.parse(value || '{}');
+
+  let results = {};
+
+  if (beforeResolvers[methodName] && beforeResolvers[methodName].length) {
+    for (const service of beforeResolvers[methodName]) {
+      results = {
+        ...results,
+        ...(await sendRPCMessage(`${service}:beforeResolver`, {
+          subdomain: context.subdomain,
+          data: {
+            resolver: methodName,
+            args
+          }
+        }))
+      };
+    }
+  }
+
+  return { ...args, ...results };
+};
+
 export const permissionWrapper = (
   cls: any,
   methodName: string,
@@ -30,7 +55,7 @@ export const permissionWrapper = (
 ) => {
   const oldMethod = cls[methodName];
 
-  cls[methodName] = (
+  cls[methodName] = async (
     root: any,
     args: any,
     context: IPermissionContext,
@@ -41,6 +66,8 @@ export const permissionWrapper = (
     for (const checker of checkers) {
       checker(user);
     }
+
+    args = await resolverWrapper(methodName, args, context);
 
     return oldMethod(root, args, context, info);
   };
@@ -103,6 +130,8 @@ export const checkPermission = async (
 
       throw new Error('Permission required');
     }
+
+    args = await resolverWrapper(methodName, args, context);
 
     return oldMethod(root, args, context, info);
   };

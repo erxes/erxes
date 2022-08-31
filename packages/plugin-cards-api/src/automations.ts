@@ -61,7 +61,8 @@ const getRelatedValue = async (
       subdomain,
       serviceName: 'tags',
       action: 'find',
-      data: { _id: { $in: target[targetKey] } }
+      data: { _id: { $in: target[targetKey] } },
+      isRPC: true
     });
 
     return (tags.map(tag => tag.name) || []).join(', ');
@@ -88,7 +89,8 @@ const getRelatedValue = async (
       subdomain,
       serviceName: 'inbox',
       action: 'conversations.find',
-      data: { _id: { $in: target[targetKey] } }
+      data: { _id: { $in: target[targetKey] } },
+      isRPC: true
     });
 
     return (conversations.map(c => c.content) || []).join(', ');
@@ -163,7 +165,7 @@ const actionCreate = async ({
     newData.userId = execution.target.userId;
   }
 
-  if (execution.triggerType === 'conversation') {
+  if (execution.triggerType === 'inbox:conversation') {
     newData.sourceConversationIds = [execution.targetId];
   }
 
@@ -201,17 +203,31 @@ const actionCreate = async ({
       create
     );
 
-    const mainType = execution.triggerType.split(':')[1];
-    await sendCoreMessage({
-      subdomain,
-      action: 'conformities.addConformity',
-      data: {
-        mainType: mainType.replace('lead', 'customer'),
-        mainTypeId: execution.targetId,
-        relType: `${collectionType}`,
-        relTypeId: item._id
-      }
-    });
+    if (execution.triggerType === 'inbox:conversation') {
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: 'customer',
+          mainTypeId: execution.target.customerId,
+          relType: `${collectionType}`,
+          relTypeId: item._id
+        }
+      });
+    } else {
+      const mainType = execution.triggerType.split(':')[1];
+
+      await sendCoreMessage({
+        subdomain,
+        action: 'conformities.addConformity',
+        data: {
+          mainType: mainType.replace('lead', 'customer'),
+          mainTypeId: execution.targetId,
+          relType: `${collectionType}`,
+          relTypeId: item._id
+        }
+      });
+    }
 
     return item;
   } catch (e) {

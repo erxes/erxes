@@ -1,8 +1,3 @@
-import CollapseContent from 'modules/common/components/CollapseContent';
-import { __ } from 'modules/common/utils';
-import { ROLE_SETUP } from 'modules/robot/constants';
-import { IFeature, IRoleValue } from 'modules/robot/types';
-import React from 'react';
 import {
   Container,
   Greeting,
@@ -12,13 +7,19 @@ import {
   SubContent,
   Text
 } from './styles';
-import { getCurrentUserName } from 'modules/robot/utils';
-import { calculatePercentage } from '@erxes/ui/src/customers/utils';
+import { IFeature, IRoleValue } from 'modules/robot/types';
+
+import CollapseContent from 'modules/common/components/CollapseContent';
+import { Description } from '@erxes/ui-settings/src/styles';
 import { IUser } from 'modules/auth/types';
 import Icon from 'modules/common/components/Icon';
-import SetupDetail from '../containers/SetupDetail';
 import ProgressBar from 'modules/common/components/ProgressBar';
-import { Description } from '@erxes/ui-settings/src/styles';
+import { ROLE_SETUP } from 'modules/robot/constants';
+import React from 'react';
+import SetupDetail from '../containers/SetupDetail';
+import { __ } from 'modules/common/utils';
+import { calculatePercentage } from '@erxes/ui/src/utils/core';
+import { getCurrentUserName } from 'modules/robot/utils';
 
 type Props = {
   currentRoute?: string;

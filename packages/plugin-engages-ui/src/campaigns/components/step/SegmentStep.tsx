@@ -1,6 +1,6 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import { IButtonMutateProps, Counts } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 import Common from './Common';
 import SegmentsForm from './forms/SegmentsForm';
@@ -24,6 +24,7 @@ type Props = {
   }) => React.ReactNode;
   segmentType: string;
   afterSave?: () => void;
+  loadingCount: boolean;
 };
 
 const SegmentStep = (props: Props) => {
@@ -36,7 +37,8 @@ const SegmentStep = (props: Props) => {
     messageType,
     renderContent,
     segmentType,
-    afterSave
+    afterSave,
+    loadingCount
   } = props;
 
   const formProps = {
@@ -76,6 +78,7 @@ const SegmentStep = (props: Props) => {
       content={renderContent}
       formProps={formProps}
       icons={icons}
+      loadingCount={loadingCount}
     />
   );
 };

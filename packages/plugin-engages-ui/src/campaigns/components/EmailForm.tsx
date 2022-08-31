@@ -1,33 +1,34 @@
-import Select from 'react-select-plus';
-import Button from '@erxes/ui/src/components/Button';
-import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import HelpPopover from '@erxes/ui/src/components/HelpPopover';
-import Icon from '@erxes/ui/src/components/Icon';
-import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
-import Tip from '@erxes/ui/src/components/Tip';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import { ISelectedOption } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 import {
   EditorContainer,
   TestEmailWrapper,
   VerifyCancel,
   VerifyCheck
 } from '@erxes/ui-engage/src/styles';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import React from 'react';
+import { FlexItem, FlexPad } from '@erxes/ui/src/components/step/styles';
 import {
   IEmailFormProps,
   IEngageEmail,
   IEngageScheduleDate
 } from '@erxes/ui-engage/src/types';
-import Scheduler from './Scheduler';
+
+import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EditorCK from '../containers/EditorCK';
+import ErrorMsg from '@erxes/ui/src/components/ErrorMsg';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import HelpPopover from '@erxes/ui/src/components/HelpPopover';
+import { ISelectedOption } from '@erxes/ui/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import React from 'react';
+import Scheduler from './Scheduler';
+import Select from 'react-select-plus';
+import Tip from '@erxes/ui/src/components/Tip';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from 'coreui/utils';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 
 type EmailParams = {
   content: string;

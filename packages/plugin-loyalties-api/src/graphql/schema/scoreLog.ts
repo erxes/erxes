@@ -1,3 +1,5 @@
+import { commonFilters } from './common';
+
 export const types = `
   type ScoreLog {
     ownerId: String
@@ -9,8 +11,16 @@ export const types = `
 
     owner: JSON
   }
+  type List {
+    list : [ScoreLog],
+    total: Int
+  }
 `;
 
 export const queries = `
-  scoreLogs(ownerType: String, ownerId: String, searchValue: String): [ScoreLog]
+  scoreLogs(${commonFilters}): [ScoreLog]
+  scoreLogList(${commonFilters},orderType:String,order:String,fromDate:String,toDate:String):List
+`;
+export const mutation = `
+changeScore( ownerType: String, ownerId: String, changeScore: Int, description: String, createdBy: String ):JSON
 `;
