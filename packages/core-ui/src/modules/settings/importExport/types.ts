@@ -25,6 +25,27 @@ export interface IImportHistoryContentType {
   type: 'core' | 'plugin';
   contentType: string;
 }
+
+export interface IExportHistory {
+  _id: string;
+  success: string;
+  updated: string;
+  failed: string;
+  total: string;
+  contentTypes: string;
+  date: Date;
+  user: IUser;
+  status: string;
+  percentage: number;
+  errorMsgs: string[];
+  error: string;
+}
+
+export interface IExportHistoryItem {
+  list: IExportHistory[];
+  count: number;
+}
+
 // query types
 
 export type ImportHistoriesQueryResponse = {

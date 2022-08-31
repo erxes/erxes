@@ -20,12 +20,12 @@ const Histories = asyncComponent(() =>
 );
 const ExportHistories = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings Histories" */ './import/containers/list/ExportHistories'
+    /* webpackChunkName: "Settings Histories" */ './export/containers/ExportHistories'
   )
 );
 const Menu = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings Menu" */ './import/containers/list/SelectMenu'
+    /* webpackChunkName: "Settings Menu" */ './import/containers/SelectMenu'
   )
 );
 

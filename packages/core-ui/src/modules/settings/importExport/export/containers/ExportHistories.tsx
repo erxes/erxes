@@ -6,12 +6,12 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Histories from '../../components/list/ExportHistories';
-import { mutations, queries } from '../../graphql';
+import Histories from '../components/ExportHistories';
+import { mutations, queries } from '../../import/graphql';
 import {
   ImportHistoriesQueryResponse,
   RemoveMutationResponse
-} from '../../../types';
+} from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
