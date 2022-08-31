@@ -24,7 +24,7 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
       {!loading &&
         !error &&
         (data.forumComments || []).map(c => (
-          <Comment key={c._id} comment={c} />
+          <Comment key={c._id} comment={c} onDeleted={refetch} />
         ))}
     </div>
   );

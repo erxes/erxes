@@ -1,15 +1,36 @@
 import React, { useState } from 'react';
 import CommentForm from './CommentForm';
-import { useQuery } from 'react-apollo';
+import { useQuery, useMutation } from 'react-apollo';
 import { FORUM_COMMENTS } from '../../graphql/queries';
+import { DELETE_COMMENT } from '../../graphql/mutations';
 
-const Comment: React.FC<{ comment: any }> = ({ comment }) => {
+const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
+  comment,
+  onDeleted
+}) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
-  const replyQuery = useQuery(FORUM_COMMENTS, {
+  const repliesQuery = useQuery(FORUM_COMMENTS, {
     variables: {
       replyToId: [comment._id]
     }
   });
+
+  const [deleteMut] = useMutation(DELETE_COMMENT, {
+    variables: {
+      _id: comment._id
+    }
+  });
+
+  const onDelete = async () => {
+    if (
+      !confirm(
+        `Are you sure you want to delete this comment: "${comment.content}"`
+      )
+    )
+      return;
+    await deleteMut();
+    if (onDeleted) onDeleted(comment._id);
+  };
 
   return (
     <div style={{ border: '1px solid grey', padding: 10 }}>
@@ -25,6 +46,9 @@ const Comment: React.FC<{ comment: any }> = ({ comment }) => {
       <button type="button" onClick={() => setShowReplyForm(true)}>
         Reply
       </button>
+      <button type="button" onClick={onDelete}>
+        Delete
+      </button>
       <div style={{ marginLeft: 40 }}>
         {showReplyForm && (
           <CommentForm
@@ -32,19 +56,23 @@ const Comment: React.FC<{ comment: any }> = ({ comment }) => {
             replyToId={comment._id}
             postId={comment.postId}
             onCommentCreated={() => {
-              replyQuery.refetch();
+              repliesQuery.refetch();
               setShowReplyForm(false);
             }}
           />
         )}
 
-        {!replyQuery.loading &&
-          !replyQuery.error &&
-          replyQuery.data?.forumComments.length > 0 && (
+        {!repliesQuery.loading &&
+          !repliesQuery.error &&
+          repliesQuery.data?.forumComments.length > 0 && (
             <>
-              <p>Replies:</p>
-              {(replyQuery.data?.forumComments || []).map(r => (
-                <Comment comment={r} key={r._id} />
+              <p>Replies: {(repliesQuery.data?.forumComments || []).length}</p>
+              {(repliesQuery.data?.forumComments || []).map(r => (
+                <Comment
+                  comment={r}
+                  key={r._id}
+                  onDeleted={repliesQuery.refetch}
+                />
               ))}
             </>
           )}

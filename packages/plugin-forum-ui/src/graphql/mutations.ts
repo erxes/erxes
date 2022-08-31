@@ -77,3 +77,11 @@ export const CREATE_COMMENT = gql`
     }
   }
 `;
+
+export const DELETE_COMMENT = gql`
+  mutation ForumDeleteComment($_id: ID!) {
+    forumDeleteComment(_id: $_id) {
+      _id
+    }
+  }
+`;
