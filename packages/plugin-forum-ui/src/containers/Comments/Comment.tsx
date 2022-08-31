@@ -13,6 +13,11 @@ const Comment: React.FC<{ comment: any }> = ({ comment }) => {
 
   return (
     <div style={{ border: '1px solid grey', padding: 10 }}>
+      <b>
+        {comment.createdBy.username ||
+          comment.createdBy.email ||
+          comment.createdBy._id}
+      </b>
       <p style={{ whiteSpace: 'pre' }}>{comment.content}</p>
       {showReplyForm && (
         <button onClick={() => setShowReplyForm(false)}>Cancel</button>

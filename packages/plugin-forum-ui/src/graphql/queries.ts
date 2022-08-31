@@ -143,6 +143,11 @@ export const FORUM_COMMENTS = gql`
       postId
       replyToId
       updatedAt
+      createdBy {
+        _id
+        username
+        email
+      }
     }
   }
 `;

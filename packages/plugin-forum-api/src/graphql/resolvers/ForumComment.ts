@@ -12,6 +12,9 @@ const ForumComment: IObjectTypeResolver<IComment, IContext> = {
   },
   async replies({ _id }, _, { models: { Comment } }) {
     return Comment.find({ replyToId: _id }).lean();
+  },
+  async createdBy({ createdById }) {
+    return { __typename: 'User', _id: createdById };
   }
 };
 

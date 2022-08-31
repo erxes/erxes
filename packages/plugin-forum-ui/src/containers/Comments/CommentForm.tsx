@@ -32,8 +32,8 @@ const CommentForm: React.FC<{
       <textarea
         value={content}
         onChange={e => setContent(e.target.value)}
-        cols={30}
-        rows={10}
+        cols={100}
+        rows={3}
       />
       <button type="button" onClick={onSubmitComment}>
         Leave a {replyToId ? 'reply' : 'comment'}

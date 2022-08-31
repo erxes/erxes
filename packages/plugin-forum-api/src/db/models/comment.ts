@@ -24,7 +24,7 @@ export const commentSchema = new Schema<CommentDocument>(
     replyToId: { type: Types.ObjectId, index: true },
     postId: { type: Types.ObjectId, index: true },
     content: { type: String, required: true },
-    createdById: String
+    createdById: { type: String, required: true }
   },
   {
     timestamps: true
