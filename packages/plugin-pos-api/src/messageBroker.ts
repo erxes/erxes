@@ -243,7 +243,9 @@ export const initBroker = async cl => {
     });
 
     if (newOrder.type === 'delivery' && newOrder.branchId) {
-      const toPos = await models.Pos.findOne({ branchId: newOrder.branchId });
+      const toPos = await models.Pos.findOne({
+        branchId: newOrder.branchId
+      }).lean();
 
       // paid order info to offline pos
       if (toPos) {
