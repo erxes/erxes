@@ -2,6 +2,17 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { sendQpayMessage } from './messageBroker';
 
+export const callBackSocialPay = async (req, res) => {
+  const subdomain = getSubdomain(req);
+
+  console.log('call back socialPay url ...');
+  console.log(req.query);
+
+  const models = await generateModels(subdomain);
+
+  return;
+};
+
 export const callBackQpay = async (req, res) => {
   const subdomain = getSubdomain(req);
 

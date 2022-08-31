@@ -4,7 +4,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
-import { callBackQpay } from './utils';
+import { callBackQpay, callBackSocialPay } from './utils';
 
 export let mainDb;
 export let debug;
@@ -23,7 +23,9 @@ export default {
   },
   getHandlers: [
     { path: `/pl:payment/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay }
+    { path: `/callBackQpay`, method: callBackQpay },
+    { path: `/pl:payment/callBackSocialPay`, method: callBackSocialPay },
+    { path: `/callBackSocialPay`, method: callBackSocialPay }
   ],
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
