@@ -12,3 +12,9 @@ chmod 999:999 <path-to-keyfile>
 5. login to mongodb. run rs.add('mongo-secondary:<secondary_server_address>')
 6. check for rs.status(). secondary node status must change from STARTUP2 to SECONDARY
 5. check for firewall config in db server
+
+6. when primary becomes secondary
+
+conf = rs.config()
+conf.members = [{ _id: 0, host: "mongo:27017" }]
+rs.reconfig(conf, { force: true })

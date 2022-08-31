@@ -189,11 +189,11 @@ const deployDbs = async program => {
     if (!(await fse.exists(filePath(`mongo-key`)))) {
       log('mongo-key file not found ....', 'red');
 
-      return log(```Create this file using
+      return log(`Create this file using
           openssl rand -base64 756 > <path-to-keyfile>
           chmod 400 <path-to-keyfile>
           chmod 999:999 <path-to-keyfile>
-      ```, 'red');
+      `, 'red');
     }
 
     dockerComposeConfig.services.mongo.volumes.push('./mongo-key:/etc/mongodb/keys/mongo-key');
@@ -891,12 +891,12 @@ const deployMongoBi = async program => {
   if (!(await fse.exists(filePath(`mongo-key`)))) {
     log('mongo-key file not found ....', 'red');
 
-    return log(```Create this file using
+    return log(`Create this file using
         openssl rand -base64 756 > <path-to-keyfile>
         chmod 400 <path-to-keyfile>
         chmod 999:999 <path-to-keyfile>
         on primary mongo server then it here
-    ```, 'red');
+    `, 'red');
   }
 
   const dockerComposeConfig = {
