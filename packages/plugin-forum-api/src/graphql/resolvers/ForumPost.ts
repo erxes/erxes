@@ -14,6 +14,9 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   },
   async stateChangedBy({ stateChangedById }) {
     return stateChangedById && { __typename: 'User', _id: stateChangedById };
+  },
+  async totalCommentCount({ _id }, _, { models: { Comment } }) {
+    return Comment.find({ postId: _id }).countDocuments();
   }
 };
 

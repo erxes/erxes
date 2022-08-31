@@ -18,7 +18,8 @@ const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
   const [deleteMut] = useMutation(DELETE_COMMENT, {
     variables: {
       _id: comment._id
-    }
+    },
+    refetchQueries: ['ForumPostDetail']
   });
 
   const onDelete = async () => {

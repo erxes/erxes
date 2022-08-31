@@ -103,6 +103,7 @@ export const FORUM_POST_DETAIL = gql`
       createdAt
       updatedAt
       stateChangedAt
+      totalCommentCount
       createdBy {
         _id
         username

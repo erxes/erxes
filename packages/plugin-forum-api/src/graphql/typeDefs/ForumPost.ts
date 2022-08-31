@@ -19,5 +19,7 @@ export default `
     createdBy: User
     updatedBy: User
     stateChangedBy: User
+
+    totalCommentCount: Int
   }
 `;

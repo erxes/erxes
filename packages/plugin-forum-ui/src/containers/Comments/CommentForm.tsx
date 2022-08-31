@@ -14,7 +14,8 @@ const CommentForm: React.FC<{
       if (onCommentCreated) {
         onCommentCreated();
       }
-    }
+    },
+    refetchQueries: ['ForumPostDetail']
   });
 
   const onSubmitComment = () => {
