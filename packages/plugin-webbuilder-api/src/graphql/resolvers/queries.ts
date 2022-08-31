@@ -37,10 +37,15 @@ const webbuilderQueries = {
     const filter = generateCommonFilter({ searchValue, siteId });
 
     return {
-      list: paginate(models.Pages.find(filter), {
-        page,
-        perPage
-      }),
+      list: paginate(
+        models.Pages.find(filter)
+          .collation({ locale: 'en' })
+          .sort({ name: 1 }),
+        {
+          page,
+          perPage
+        }
+      ),
       totalCount: models.Pages.find(filter).count()
     };
   },
