@@ -173,7 +173,7 @@ const deployDbs = async program => {
     dockerComposeConfig.services.mongo = {
       hostname: 'mongo',
       image: 'mongo:4.0.20',
-      ports: ['27017:27017'],
+      ports: ['0.0.0.0:27017:27017'],
       environment: {
         MONGO_INITDB_ROOT_USERNAME: configs.mongo.username,
         MONGO_INITDB_ROOT_PASSWORD: configs.mongo.password
@@ -183,6 +183,23 @@ const deployDbs = async program => {
       command: ['--replSet', 'rs0', '--bind_ip_all'],
       extra_hosts: ['mongo:127.0.0.1']
     };
+  }
+
+  if (configs.mongo.replication) {
+    if (!(await fse.exists(filePath(`mongo-key`)))) {
+      log('mongo-key file not found ....', 'red');
+
+      return log(```Create this file using
+          openssl rand -base64 756 > <path-to-keyfile>
+          chmod 400 <path-to-keyfile>
+          chmod 999:999 <path-to-keyfile>
+      ```, 'red');
+    }
+
+    dockerComposeConfig.services.mongo.volumes.push('./mongo-key:/etc/mongodb/keys/mongo-key');
+    dockerComposeConfig.services.mongo.command.push('--keyFile');
+    dockerComposeConfig.services.mongo.command.push('/etc/mongodb/keys/mongo-key');
+    dockerComposeConfig.services.mongo.extra_hosts = [`mongo:${configs.db_server_address}`, `mongo-secondary:${configs.secondary_server_address}`];
   }
 
   if (configs.elasticsearch) {

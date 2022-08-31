@@ -1,0 +1,14 @@
+Replicaset configuration note.
+
+1. Create keyfile using
+
+openssl rand -base64 756 > <path-to-keyfile>
+chmod 400 <path-to-keyfile>
+chmod 999:999 <path-to-keyfile>
+
+2. add replication: true in mongo section of the configs.json
+3. add db_server_address, secondary_server_address configs in configs.json
+4. npm run erxes deploy-dbs. It will start mongodb with keyfile authentication
+5. login to mongodb. run rs.add('mongo-secondary:<secondary_server_address>')
+6. check for rs.status(). secondary node status must change from STARTUP2 to SECONDARY
+5. check for firewall config in db server
