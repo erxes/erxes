@@ -13,14 +13,14 @@ import {
   RemoveStageMutation,
   SaveItemMutation
 } from '../../types';
-import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 import { queries } from '../../../deals/graphql';
 import {
   DealsQueryResponse,
   DealsTotalCountQueryResponse
 } from '../../../deals/types';
 import { getFilterParams } from '../../utils';
-import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 
 type Props = {
   options: IOptions;

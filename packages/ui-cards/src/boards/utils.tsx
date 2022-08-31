@@ -330,8 +330,8 @@ export const getFilterParams = (
     endDate: queryParams.endDate,
     pipelineId: queryParams.pipelineId,
     hasStartAndCloseDate: true,
-    limit: 100,
     tagIds: queryParams.tagIds,
+    limit: 100,
     ...getExtraParams(queryParams)
   };
 

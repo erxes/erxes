@@ -16,8 +16,8 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '@erxes/ui-cards/src/settings/boards/graphql';
 import { queries as teamQueries } from '@erxes/ui/src/team/graphql';
-import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
-import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
