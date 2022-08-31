@@ -161,16 +161,14 @@ class GenerateGroup extends React.Component<Props, State> {
           }
 
           return (
-            <>
-              <GenerateField
-                field={field}
-                key={index}
-                onValueChange={this.onChange}
-                defaultValue={data[field._id] || ''}
-                currentLocation={this.state.currentLocation}
-                isEditing={this.state.editing}
-              />
-            </>
+            <GenerateField
+              field={field}
+              key={index}
+              onValueChange={this.onChange}
+              defaultValue={data[field._id] || ''}
+              currentLocation={this.state.currentLocation}
+              isEditing={this.state.editing}
+            />
           );
         })}
       </SidebarContent>

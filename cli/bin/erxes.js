@@ -7,7 +7,7 @@ const program = require('commander');
 const packageJSON = require('../package.json');
 const startCmd = require('../commands/start');
 const updateCmd = require('../commands/update');
-const { manageInstallation, up, update, restart, deployDbs, dumpDb } = require('../commands/docker/utils');
+const { manageInstallation, up, update, restart, deployDbs, dumpDb, deployMongoBi } = require('../commands/docker/utils');
 const { devOnly, devCmd, devStop } = require('../commands/dev');
 
 /**
@@ -91,6 +91,10 @@ program
 program
   .command('manage-installation')
   .action(manageInstallation);
+
+program
+  .command('deploy-mongobi')
+  .action(deployMongoBi);
 
 // `$ update erxes`
 program
