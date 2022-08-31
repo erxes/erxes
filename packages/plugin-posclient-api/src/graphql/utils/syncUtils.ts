@@ -394,7 +394,7 @@ export const receivePosConfig = async (
   models: IModels,
   data
 ) => {
-  const { token, pos = {}, adminUsers = [], cashiers = [] } = data;
+  const { token, pos = {}, adminUsers = [], cashiers = [], qpayConfig } = data;
 
   let config: IConfigDocument | null = await models.Configs.findOne({
     token
@@ -416,6 +416,7 @@ export const receivePosConfig = async (
   await models.Configs.updateConfig(config._id, {
     ...config,
     ...(await extractConfig(subdomain, pos)),
+    qpayConfig,
     token
   });
 
