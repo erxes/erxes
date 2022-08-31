@@ -24,7 +24,7 @@ const generateCommonFilter = ({
 };
 
 const webbuilderQueries = {
-  webbuilderPagesMain(
+  async webbuilderPagesMain(
     _root,
     {
       page,
@@ -36,16 +36,13 @@ const webbuilderQueries = {
   ) {
     const filter = generateCommonFilter({ searchValue, siteId });
 
+    const list = paginate(models.Pages.find(filter), {
+      page,
+      perPage
+    });
+
     return {
-      list: paginate(
-        models.Pages.find(filter)
-          .collation({ locale: 'en' })
-          .sort({ name: 1 }),
-        {
-          page,
-          perPage
-        }
-      ).lean(),
+      list: list.collation({ locale: 'en' }).sort({ name: 1 }),
       totalCount: models.Pages.find(filter).count()
     };
   },
