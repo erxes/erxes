@@ -45,7 +45,7 @@ const webbuilderQueries = {
           page,
           perPage
         }
-      ),
+      ).lean(),
       totalCount: models.Pages.find(filter).count()
     };
   },
