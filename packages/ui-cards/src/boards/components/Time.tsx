@@ -1,7 +1,7 @@
 import React from 'react';
 import FullCalendar from '@fullcalendar/react'; // must go before plugins
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
-import { ITag } from '@erxes/ui/src/tags/types';
+import { ITag } from '@erxes/ui-tags/src/types';
 import { IOptions, IPipeline, IItem } from '../types';
 import { CalendarContainer } from '../styles/view';
 import EditForm from '../containers/editForm/EditForm';
