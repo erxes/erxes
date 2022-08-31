@@ -4,6 +4,7 @@ import Mutation from './Mutation';
 import ForumCategory from './ForumCategory';
 import ForumPost from './ForumPost';
 import ForumComment from './ForumComment';
+import { POSSIBLE_STATES } from '../../db/models/post';
 
 export default async function genTypeDefs(serviceDiscovery) {
   return gql`
@@ -11,8 +12,7 @@ export default async function genTypeDefs(serviceDiscovery) {
     scalar Date
 
     enum ForumPostState {
-      DRAFT
-      PUBLISHED
+      ${POSSIBLE_STATES.join('\n')}
     }
 
     extend type User @key(fields: "_id") {

@@ -48,6 +48,7 @@ export const generateCommentModel = (
       c: Omit<IComment, '_id'>
     ): Promise<CommentDocument> {
       const res = await models.Comment.create(c);
+      await models.Post.reCalculateCommentCount(c.postId);
       return res;
     }
     public static async updateComment(
@@ -76,7 +77,7 @@ export const generateCommentModel = (
       }
 
       await models.Comment.deleteMany({ _id: { $in: idsToDelete } });
-
+      await models.Post.reCalculateCommentCount(deletedComment.postId);
       return deletedComment;
     }
   }

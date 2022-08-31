@@ -53,6 +53,7 @@ const List: React.FC = () => {
             <th>Created By</th>
             <th>Updated At</th>
             <th>Updated By</th>
+            <th>Comment(s) count</th>
           </tr>
         </thead>
         <tbody>
@@ -81,6 +82,7 @@ const List: React.FC = () => {
                   p.updatedBy?.email ||
                   p.updatedBy?._id}
               </td>
+              <td>{p.commentCount}</td>
             </tr>
           ))}
         </tbody>

@@ -58,6 +58,7 @@ export const FORUM_POSTS_QUERY = gql`
       categoryId
       createdAt
       updatedAt
+      commentCount
 
       createdBy {
         _id
@@ -103,7 +104,7 @@ export const FORUM_POST_DETAIL = gql`
       createdAt
       updatedAt
       stateChangedAt
-      totalCommentCount
+      commentCount
       createdBy {
         _id
         username

@@ -5,6 +5,7 @@ export default `
     title: String!
     thumbnail: String
     state: ForumPostState
+    commentCount: Int
 
     createdAt: Date
     updatedAt: Date
@@ -19,7 +20,5 @@ export default `
     createdBy: User
     updatedBy: User
     stateChangedBy: User
-
-    totalCommentCount: Int
   }
 `;
