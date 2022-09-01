@@ -14,7 +14,6 @@ import {
 } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
-// import ExportHistories from '../components/ExportHistories';
 
 type Props = {
   queryParams: any;

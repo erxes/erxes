@@ -85,7 +85,7 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
 
     if (currentType)
       return (
-        <Link to={`/settings/export?type=${currentType}`}>
+        <Link to={`/settings/import`}>
           <Button icon="export" btnStyle="primary">
             {__(`Export ${this.getButtonText()}`)}
           </Button>
