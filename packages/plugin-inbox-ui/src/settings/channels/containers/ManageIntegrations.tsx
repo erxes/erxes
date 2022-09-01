@@ -7,13 +7,13 @@ import {
 } from '../types';
 import { mutations, queries } from '../graphql';
 
-import { IChannelDoc } from '../types';
-import ManageIntegrations from '../../integrations/containers/common/ManageIntegrations';
+import { IChannelDoc } from '@erxes/ui-inbox/src/settings/channels/types';
+import ManageIntegrations from '@erxes/ui-inbox/src/settings/integrations/containers/common/ManageIntegrations';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries as integQueries } from '../../integrations/graphql';
-import { integrationsListParams } from '../../integrations/containers/utils';
+import { queries as integQueries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
+import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 
 type Props = {
   currentChannel: IChannelDoc;
