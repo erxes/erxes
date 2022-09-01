@@ -90,6 +90,8 @@ const PostDetail: React.FC = () => {
           <tr>
             <th>Thumbnail: </th>
             <td>{forumPost.thumbnail && <img src={forumPost.thumbnail} />}</td>
+            <th>Thumbnail url:</th>
+            <td>{forumPost.thumbnail}</td>
           </tr>
           <tr>
             <th>Created at: </th>

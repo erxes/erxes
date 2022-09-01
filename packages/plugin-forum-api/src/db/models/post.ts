@@ -1,8 +1,9 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
-import { stringify } from 'querystring';
 import { USER_TYPES, UserTypes } from '../../consts';
+import { ICpUser } from '../../graphql';
 import { IModels } from './index';
+import * as _ from 'lodash';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
@@ -64,6 +65,7 @@ export interface IPostModel extends Model<PostDocument> {
   reCalculateCommentCount(_id: string): Promise<void>;
   incCommentCount(_id: string, value: number): Promise<PostDocument>;
   findByIdOrThrow(_id: string): Promise<PostDocument>;
+
   createPost(c: PostCreateInput, user: IUserDocument): Promise<PostDocument>;
   patchPost(
     _id: string,
@@ -80,6 +82,26 @@ export interface IPostModel extends Model<PostDocument> {
 
   draft(_id: string, user: IUserDocument): Promise<PostDocument>;
   publish(_id: string, user: IUserDocument): Promise<PostDocument>;
+
+  /* <<< Client portal */
+  findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
+  createPostCp(c: PostCreateInput, user?: ICpUser): Promise<PostDocument>;
+  patchPostCp(
+    _id: string,
+    c: PostPatchInput,
+    user?: ICpUser
+  ): Promise<PostDocument>;
+  deletePostCp(_id: string, user?: ICpUser): Promise<PostDocument>;
+
+  changeStateCp(
+    _id: string,
+    state: PostStates,
+    user?: ICpUser
+  ): Promise<PostDocument>;
+
+  draftCp(_id: string, user?: ICpUser): Promise<PostDocument>;
+  publishCp(_id: string, user?: ICpUser): Promise<PostDocument>;
+  /* >>> Client portal */
 }
 
 export const postSchema = new Schema<PostDocument>({
@@ -156,17 +178,15 @@ export const generatePostModel = (
       patch: PostPatchInput,
       user: IUserDocument
     ): Promise<PostDocument> {
-      await models.Post.updateOne(
-        { _id },
-        {
-          ...patch,
-          updatedUserType: USER_TYPES[0],
-          updatedById: user._id,
-          updatedAt: new Date()
-        }
-      );
-      const updated = await models.Post.findByIdOrThrow(_id);
-      return updated;
+      const post = await models.Post.findByIdOrThrow(_id);
+      _.extend(post, {
+        ...patch,
+        updatedUserType: USER_TYPES[0],
+        updatedById: user._id,
+        updatedAt: new Date()
+      });
+      await post.save();
+      return post;
     }
 
     public static async deletePost(_id: string): Promise<PostDocument> {
@@ -210,6 +230,98 @@ export const generatePostModel = (
       await models.Post.updateOne({ _id }, { $inc: { commentCount: value } });
       return models.Post.findByIdOrThrow(_id);
     }
+
+    /* <<< Client portal */
+    public static async findByIdOrThrowCp(
+      _id: string,
+      cpUser: ICpUser
+    ): Promise<PostDocument> {
+      const post = await models.Post.findByIdOrThrow(_id);
+
+      if (post.createdByCpId !== cpUser.userId) {
+        throw new Error(`This post doesn't belong to the current user`);
+      }
+
+      return post;
+    }
+    public static async createPostCp(
+      input: PostCreateInput,
+      cpUser?: ICpUser
+    ): Promise<PostDocument> {
+      if (!cpUser) throw new Error(`Unauthorized`);
+      const res = await models.Post.create({
+        ...input,
+        commentCount: 0,
+
+        createdUserType: USER_TYPES[1],
+        createdByCpId: cpUser.userId,
+
+        updatedUserType: USER_TYPES[1],
+        updatedByCpId: cpUser.userId,
+
+        stateChangedUserType: USER_TYPES[1],
+        stateChangedByCpId: cpUser.userId
+      });
+      return res;
+    }
+    public static async patchPostCp(
+      _id: string,
+      patch: PostPatchInput,
+      cpUser?: ICpUser
+    ): Promise<PostDocument> {
+      if (!cpUser) throw new Error(`Unauthorized`);
+      const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
+      _.extend(post, {
+        ...patch,
+        updatedUserType: USER_TYPES[1],
+        updatedByCpId: cpUser.userId,
+        updatedAt: new Date()
+      });
+      await post.save();
+      return post;
+    }
+
+    public static async deletePostCp(
+      _id: string,
+      cpUser?: ICpUser
+    ): Promise<PostDocument> {
+      if (!cpUser) throw new Error(`Unauthorized`);
+      const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
+      await post.remove();
+      await models.Comment.deleteMany({ postId: _id });
+      return post;
+    }
+
+    public static async changeStateCp(
+      _id: string,
+      state: PostStates,
+      cpUser?: ICpUser
+    ): Promise<PostDocument> {
+      if (!cpUser) throw new Error(`Unauthorized`);
+      const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
+      post.state = state;
+      post.stateChangedAt = new Date();
+      post.stateChangedById = cpUser.userId;
+      post.stateChangedUserType = USER_TYPES[1];
+      await post.save();
+      return post;
+    }
+
+    public static async draftCp(
+      _id: string,
+      cpUser?: ICpUser
+    ): Promise<PostDocument> {
+      if (!cpUser) throw new Error(`Unauthorized`);
+      return models.Post.changeStateCp(_id, POST_STATES[0], cpUser);
+    }
+    public static async publishCp(
+      _id: string,
+      cpUser?: ICpUser
+    ): Promise<PostDocument> {
+      if (!cpUser) throw new Error(`Unauthorized`);
+      return models.Post.changeStateCp(_id, POST_STATES[1], cpUser);
+    }
+    /* >>> Client portal */
   }
   postSchema.loadClass(PostModel);
 
