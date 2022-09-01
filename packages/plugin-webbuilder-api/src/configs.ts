@@ -1,4 +1,5 @@
 import typeDefs from './graphql/typeDefs';
+import { sendRequest } from '@erxes/api-utils/src';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
@@ -158,6 +159,28 @@ export default {
             ${page.css}
           </style>
           ${html}
+        `
+      );
+    });
+
+    app.get('/demo/:templateId', async (req, res) => {
+      const HELPERS_DOMAIN = `https://helper.erxes.io`;
+
+      const { templateId } = req.params;
+
+      const url = `${HELPERS_DOMAIN}/get-webbuilder-demo-page?templateId=${templateId}`;
+
+      const page = await sendRequest({
+        url,
+        method: 'get'
+      });
+
+      return res.send(
+        `
+          <style>
+            ${page.css}
+          </style>
+          ${page.html}
         `
       );
     });
