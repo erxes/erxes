@@ -86,6 +86,8 @@ const PostDetail: React.FC = () => {
           <tr>
             <th>State: </th>
             <td>{forumPost.state}</td>
+            <th>Category: </th>
+            <td>{forumPost.category.name}</td>
           </tr>
           <tr>
             <th>Thumbnail: </th>

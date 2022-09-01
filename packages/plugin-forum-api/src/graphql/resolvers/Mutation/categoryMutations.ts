@@ -1,5 +1,6 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
 const categoryMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreateCategory(_, args, { models: { Category } }) {
@@ -20,5 +21,7 @@ const categoryMutations: IObjectTypeResolver<any, IContext> = {
     return Category.forceDeleteCategory(_id);
   }
 };
+
+moduleRequireLogin(categoryMutations);
 
 export default categoryMutations;

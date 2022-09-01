@@ -1,7 +1,8 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
-const postMutations: IObjectTypeResolver<any, IContext> = {
+const crmPostMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreatePost(_, args, { models: { Post }, user }) {
     return Post.createPost(args, user);
   },
@@ -17,9 +18,12 @@ const postMutations: IObjectTypeResolver<any, IContext> = {
   },
   async forumPostPublish(_, { _id }, { models: { Post }, user }) {
     return Post.publish(_id, user);
-  },
+  }
+};
 
-  /* <<< Client portal */
+moduleRequireLogin(crmPostMutations);
+
+const cpPostMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreatePostCp(_, args, { models: { Post }, cpUser }) {
     return Post.createPostCp(args, cpUser);
   },
@@ -36,7 +40,9 @@ const postMutations: IObjectTypeResolver<any, IContext> = {
   async forumPostPublishCp(_, { _id }, { models: { Post }, cpUser }) {
     return Post.publishCp(_id, cpUser);
   }
-  /* >>> Client portal */
 };
 
-export default postMutations;
+export default {
+  ...crmPostMutations,
+  ...cpPostMutations
+};

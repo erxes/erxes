@@ -1,13 +1,8 @@
 import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
-/*
-  forumCreateCommentCp(postId: ID!, replyToId: ID, content: String!): ForumComment!
-  forumUpdateCommentCp(_id: ID!, content: String): ForumComment!
-  forumDeleteCommentCp(_id: ID!): ForumComment
-  */
-
-const commentMutations: IObjectTypeResolver<any, IContext> = {
+const crmCommentMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreateComment(_, args, { models: { Comment }, user }) {
     return Comment.createComment(args, user);
   },
@@ -16,8 +11,12 @@ const commentMutations: IObjectTypeResolver<any, IContext> = {
   },
   async forumDeleteComment(_, { _id }, { models: { Comment } }) {
     return await Comment.deleteComment(_id);
-  },
-  /* <<< Client portal */
+  }
+};
+
+moduleRequireLogin(crmCommentMutations);
+
+const cpCommentMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreateCommentCp(_, args, { models: { Comment }, cpUser }) {
     return Comment.createCommentCp(args, cpUser);
   },
@@ -31,7 +30,6 @@ const commentMutations: IObjectTypeResolver<any, IContext> = {
   async forumDeleteCommentCp(_, { _id }, { models: { Comment }, cpUser }) {
     return await Comment.deleteCommentCp(_id, cpUser);
   }
-  /* >>> Client portal */
 };
 
-export default commentMutations;
+export default { ...crmCommentMutations, ...cpCommentMutations };
