@@ -17,7 +17,7 @@ import {
   ColorHeader,
   AttachmentContainer
 } from '../../styles';
-import AttachmentWithPreview from '@erxes/ui/src/components/AttachmentWithPreview';
+import { Attachment } from '@erxes/ui/src/components';
 
 type Props = {
   id: string;
@@ -200,7 +200,16 @@ class PluginDetails extends React.Component<Props, State> {
 
         <AttachmentContainer>
           {dataSlider.length !== 0 &&
-            dataSlider.map(data => <AttachmentWithPreview attachment={data} />)}
+            dataSlider.map(data =>
+              data.type === 'video' ? (
+                <video controls={true} loop={true}>
+                  <source src={data.url} type="video/mp4" />
+                  {__('Your browser does not support the video tag')}.
+                </video>
+              ) : (
+                <Attachment simple={true} attachment={data} />
+              )
+            )}
         </AttachmentContainer>
 
         <Tabs>
