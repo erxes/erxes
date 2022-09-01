@@ -33,13 +33,17 @@ const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
     if (onDeleted) onDeleted(comment._id);
   };
 
+  const createdByDisplayName =
+    comment.createdBy?.username ||
+    comment.createdBy?.email ||
+    comment.createdBy?._id ||
+    comment.createdByCp?.username ||
+    comment.createdByCp?.email ||
+    comment.createdByCp?._id;
+
   return (
     <div style={{ border: '1px solid grey', padding: 10 }}>
-      <b>
-        {comment.createdBy.username ||
-          comment.createdBy.email ||
-          comment.createdBy._id}
-      </b>
+      <b>{createdByDisplayName}</b>
       <p style={{ whiteSpace: 'pre' }}>{comment.content}</p>
       {showReplyForm && (
         <button onClick={() => setShowReplyForm(false)}>Cancel</button>

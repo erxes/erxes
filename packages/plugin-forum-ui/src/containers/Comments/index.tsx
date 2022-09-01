@@ -11,7 +11,6 @@ const Comments: React.FC<{ postId: string }> = ({ postId }) => {
       replyToId: [null]
     }
   });
-  const comments: any[] = [];
 
   return (
     <div>

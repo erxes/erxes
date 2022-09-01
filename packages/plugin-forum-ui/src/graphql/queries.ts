@@ -50,6 +50,7 @@ export const POST_REFETCH_AFTER_EDIT = ['ForumPostsQuery', 'ForumPostDetail'];
 export const FORUM_POSTS_QUERY = gql`
   query ForumPostsQuery(${forumPostsParam}) {
     forumPosts(${forumPostsArg}) {
+      
       _id
       content
       title
@@ -65,16 +66,30 @@ export const FORUM_POSTS_QUERY = gql`
         username
         email
       }
+      createdByCp {
+        _id
+        email
+        username
+      }
       updatedBy {
         _id
         username
         email
       }
-
+      updatedByCp {
+        _id
+        email
+        username
+      }
       stateChangedBy {
         _id
         username
         email
+      }
+      stateChangedByCp {
+        _id
+        email
+        username
       }
     }
   }
@@ -105,20 +120,36 @@ export const FORUM_POST_DETAIL = gql`
       updatedAt
       stateChangedAt
       commentCount
+
       createdBy {
         _id
         username
         email
+      }
+      createdByCp {
+        _id
+        email
+        username
       }
       updatedBy {
         _id
         username
         email
       }
+      updatedByCp {
+        _id
+        email
+        username
+      }
       stateChangedBy {
         _id
         username
         email
+      }
+      stateChangedByCp {
+        _id
+        email
+        username
       }
     }
   }
@@ -145,10 +176,16 @@ export const FORUM_COMMENTS = gql`
       postId
       replyToId
       updatedAt
+
       createdBy {
         _id
         username
         email
+      }
+      createdByCp {
+        _id
+        email
+        username
       }
     }
   }

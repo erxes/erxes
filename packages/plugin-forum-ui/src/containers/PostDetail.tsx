@@ -83,49 +83,68 @@ const PostDetail: React.FC = () => {
       <table>
         <tbody>
           <tr>
-            <td>State: </td>
+            <th>State: </th>
             <td>{forumPost.state}</td>
           </tr>
           <tr>
-            <td>Thumbnail: </td>
+            <th>Thumbnail: </th>
             <td>{forumPost.thumbnail && <img src={forumPost.thumbnail} />}</td>
           </tr>
           <tr>
-            <td>Created at: </td>
+            <th>Created at: </th>
             <td>{forumPost.createdAt}</td>
-            <td>Created by: </td>
+            <th>Created by: </th>
             <td>
               {forumPost.createdBy?.username ||
                 forumPost.createdBy?.email ||
                 forumPost.createdBy?._id}
             </td>
+
+            <th>Created by CP: </th>
+            <td>
+              {forumPost.createdByCp?.username ||
+                forumPost.createdByCp?.email ||
+                forumPost.createdByCp?._id}
+            </td>
           </tr>
           <tr>
-            <td>Updated at: </td>
+            <th>Updated at: </th>
             <td>{forumPost.updatedAt}</td>
-            <td>Updated by: </td>
+            <th>Updated by: </th>
             <td>
               {forumPost.updatedBy?.username ||
                 forumPost.updatedBy?.email ||
                 forumPost.updatedBy?._id}
             </td>
+            <th>Updated by CP: </th>
+            <td>
+              {forumPost.updatedByCp?.username ||
+                forumPost.updatedByCp?.email ||
+                forumPost.updatedByCp?._id}
+            </td>
           </tr>
           <tr>
-            <td>State changed at: </td>
+            <th>State changed at: </th>
             <td>{forumPost.stateChangedAt}</td>
-            <td>State changed by: </td>
+            <th>State changed by: </th>
             <td>
               {forumPost.stateChangedBy?.username ||
                 forumPost.stateChangedBy?.email ||
                 forumPost.stateChangedBy?._id}
             </td>
+            <th>State changed by Cp: </th>
+            <td>
+              {forumPost.stateChangedByCp?.username ||
+                forumPost.stateChangedByCp?.email ||
+                forumPost.stateChangedByCp?._id}
+            </td>
           </tr>
           <tr>
-            <td>Title: </td>
+            <th>Title: </th>
             <td>{forumPost.title}</td>
           </tr>
           <tr>
-            <td>Content: </td>
+            <th>Content: </th>
             <td>
               <div
                 dangerouslySetInnerHTML={{ __html: forumPost.content }}
