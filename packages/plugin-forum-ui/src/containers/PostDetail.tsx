@@ -162,7 +162,7 @@ const PostDetail: React.FC = () => {
       <hr />
       <div>
         {forumPost.state !== 'DRAFT' && (
-          <button onClick={onDraft}>Turn into draft</button>
+          <button onClick={onDraft}>Turn into a draft</button>
         )}
         {forumPost.state !== 'PUBLISHED' && (
           <button onClick={onPublish}>Publish</button>

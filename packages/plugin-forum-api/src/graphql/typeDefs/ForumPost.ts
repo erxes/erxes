@@ -5,32 +5,40 @@ export default `
     title: String!
     thumbnail: String
     state: ForumPostState
-    commentCount: Int
+    commentCount: Int!
 
-    createdAt: Date
-    updatedAt: Date
-    stateChangedAt: Date
+    
+    createdUserType: ForumUserType!
+    createdAt: Date!
 
-    categoryId: ID!
-
-    createdUserType: ForumUserType
     createdById: ID
-    createdByCpId: ID
-
-    updatedUserType: ForumUserType
-    updatedById: ID
-    updatedByCpId: ID
-
-    stateChangedUserType: ForumUserType
-    stateChangedById: ID
-    stateChangedByCpId: ID
-
-    category: ForumCategory
     createdBy: User
+
+    createdByCpId: ID
     createdByCp: ClientPortalUser
+    
+
+    updatedUserType: ForumUserType!
+    updatedAt: Date!
+
+    updatedById: ID
     updatedBy: User
+
+    updatedByCpId: ID
     updatedByCp: ClientPortalUser
+
+    
+    stateChangedUserType: ForumUserType!
+    stateChangedAt: Date!
+
+    stateChangedById: ID
     stateChangedBy: User
+
+    stateChangedByCpId: ID
     stateChangedByCp: ClientPortalUser
+
+    
+    categoryId: ID!
+    category: ForumCategory
   }
 `;

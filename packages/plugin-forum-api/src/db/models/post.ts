@@ -21,13 +21,13 @@ export interface IPost {
   createdById?: string;
   createdByCpId?: string;
 
-  updatedAt?: Date;
-  updatedUserType?: UserTypes;
+  updatedAt: Date;
+  updatedUserType: UserTypes;
   updatedById?: string;
   updatedByCpId?: string;
 
-  stateChangedAt?: Date;
-  stateChangedUserType?: UserTypes;
+  stateChangedAt: Date;
+  stateChangedUserType: UserTypes;
   stateChangedById?: string;
   stateChangedByCpId?: string;
 
@@ -41,14 +41,17 @@ const OmitFromInput = [
 
   'commentCount',
 
+  'createdUserType',
   'createdAt',
   'createdById',
   'createdByCpId',
 
+  'updatedUserType',
   'updatedAt',
   'updatedById',
   'updatedByCpId',
 
+  'stateChangedUserType',
   'stateChangedAt',
   'stateChangedById',
   'stateChangedByCpId'
@@ -59,7 +62,7 @@ export type PostPatchInput = Partial<Omit<PostCreateInput, 'state'>>;
 
 export interface IPostModel extends Model<PostDocument> {
   reCalculateCommentCount(_id: string): Promise<void>;
-  incCommentCount(_id: string): Promise<void>;
+  incCommentCount(_id: string, value: number): Promise<PostDocument>;
   findByIdOrThrow(_id: string): Promise<PostDocument>;
   createPost(c: PostCreateInput, user: IUserDocument): Promise<PostDocument>;
   patchPost(
@@ -91,18 +94,18 @@ export const postSchema = new Schema<PostDocument>({
   },
   thumbnail: String,
 
-  createdAt: { type: Date, required: true },
+  createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
   createdById: String,
   createdByCpId: String,
 
-  updatedAt: Date,
-  updatedUserType: { type: String, enum: USER_TYPES },
+  updatedAt: { type: Date, required: true, default: () => new Date() },
+  updatedUserType: { type: String, required: true, enum: USER_TYPES },
   updatedById: String,
   updatedByCpId: String,
 
-  stateChangedAt: Date,
-  stateChangedUserType: { type: String, enum: USER_TYPES },
+  stateChangedAt: { type: Date, required: true, default: () => new Date() },
+  stateChangedUserType: { type: String, required: true, enum: USER_TYPES },
   stateChangedById: String,
   stateChangedByCpId: String,
 
@@ -136,9 +139,15 @@ export const generatePostModel = (
       const res = await models.Post.create({
         ...input,
         commentCount: 0,
+
         createdUserType: USER_TYPES[0],
         createdById: user._id,
-        createdAt: new Date()
+
+        updatedUserType: USER_TYPES[0],
+        updatedById: user._id,
+
+        stateChangedUserType: USER_TYPES[0],
+        stateChangedById: user._id
       });
       return res;
     }
@@ -194,8 +203,11 @@ export const generatePostModel = (
       return models.Post.changeState(_id, 'PUBLISHED', user);
     }
 
-    public static async incCommentCount(_id: string): Promise<PostDocument> {
-      await models.Post.updateOne({ _id }, { $inc: { commentCount: 1 } });
+    public static async incCommentCount(
+      _id: string,
+      value: number
+    ): Promise<PostDocument> {
+      await models.Post.updateOne({ _id }, { $inc: { commentCount: value } });
       return models.Post.findByIdOrThrow(_id);
     }
   }
