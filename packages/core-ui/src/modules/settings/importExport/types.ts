@@ -63,10 +63,23 @@ export type ImportHistoryDetailQueryResponse = {
   stopPolling: () => any;
 } & QueryResponse;
 
+export type ExportHistoryDetailQueryResponse = {
+  importHistoryDetail: IExportHistory;
+  subscribeToMore: any;
+  error: any;
+  stopPolling: () => any;
+} & QueryResponse;
+
 // mutation types
 
 export type RemoveMutationResponse = {
   importHistoriesRemove: (params: {
+    variables: { _id: string; contentType: string };
+  }) => Promise<any>;
+};
+
+export type RemoveExportMutationResponse = {
+  exportHistoriesRemove: (params: {
     variables: { _id: string; contentType: string };
   }) => Promise<any>;
 };

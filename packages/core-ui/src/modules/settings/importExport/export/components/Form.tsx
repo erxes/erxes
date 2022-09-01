@@ -89,7 +89,7 @@ class ExportForm extends React.Component<Props, State> {
       '_blank'
     );
 
-    window.location.href = `/settings/importHistories?type=${contentType}`;
+    window.location.href = `/settings/exportHistories?type=${contentType}`;
   };
 
   onClickField = (checked, field) => {

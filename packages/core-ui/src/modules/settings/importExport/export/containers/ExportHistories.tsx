@@ -6,15 +6,15 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import Histories from '../components/ExportHistories';
-import { mutations, queries } from '../../import/graphql';
+import ExportHistories from '../components/ExportHistories';
+import { mutations, queries } from '../graphql';
 import {
   ExportHistoriesQueryResponse,
-  ImportHistoriesQueryResponse,
   RemoveMutationResponse
 } from '../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import Spinner from '@erxes/ui/src/components/Spinner';
+// import ExportHistories from '../components/ExportHistories';
 
 type Props = {
   queryParams: any;
@@ -86,7 +86,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       currentType
     };
 
-    return <Histories {...updatedProps} />;
+    return <ExportHistories {...updatedProps} />;
   }
 }
 
@@ -97,8 +97,8 @@ const historiesListParams = queryParams => ({
 
 const HistoriesWithProps = withProps<Props>(
   compose(
-    graphql<Props, ImportHistoriesQueryResponse, { type: string }>(
-      gql(queries.importHistories),
+    graphql<Props, ExportHistoriesQueryResponse, { type: string }>(
+      gql(queries.exportHistories),
       {
         name: 'historiesQuery',
         options: ({ queryParams }) => ({
@@ -112,7 +112,7 @@ const HistoriesWithProps = withProps<Props>(
       Props,
       RemoveMutationResponse,
       { _id: string; contentType: string }
-    >(gql(mutations.importHistoriesRemove), {
+    >(gql(mutations.exportHistoriesRemove), {
       name: 'importHistoriesRemove'
     })
   )(withRouter<FinalProps>(HistoriesContainer))
