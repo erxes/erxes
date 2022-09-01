@@ -4,6 +4,7 @@ import { useQuery, useMutation } from 'react-apollo';
 import { FORUM_POST_DETAIL, POST_REFETCH_AFTER_EDIT } from '../graphql/queries';
 import gql from 'graphql-tag';
 import Comments from './Comments';
+import { postUsername } from '../utils';
 
 const DELETE_POST = gql`
   mutation ForumDeletePost($_id: ID!) {
@@ -95,55 +96,39 @@ const PostDetail: React.FC = () => {
             <td>{forumPost.createdAt}</td>
             <th>Created by: </th>
             <td>
-              {forumPost.createdBy?.username ||
-                forumPost.createdBy?.email ||
-                forumPost.createdBy?._id}
+              {postUsername({
+                post: forumPost,
+                typeKey: 'createdUserType',
+                crmKey: 'createdBy',
+                cpKey: 'createdByCp'
+              })}
             </td>
-
-            <th>Created by CP: </th>
-            <td>
-              {forumPost.createdByCp?.username ||
-                forumPost.createdByCp?.email ||
-                forumPost.createdByCp?._id}
-            </td>
-            <th>Created user type: </th>
-            <td>{forumPost.createdUserType}</td>
           </tr>
           <tr>
             <th>Updated at: </th>
             <td>{forumPost.updatedAt}</td>
             <th>Updated by: </th>
             <td>
-              {forumPost.updatedBy?.username ||
-                forumPost.updatedBy?.email ||
-                forumPost.updatedBy?._id}
+              {postUsername({
+                post: forumPost,
+                typeKey: 'updatedUserType',
+                crmKey: 'updatedBy',
+                cpKey: 'updatedByCp'
+              })}
             </td>
-            <th>Updated by CP: </th>
-            <td>
-              {forumPost.updatedByCp?.username ||
-                forumPost.updatedByCp?.email ||
-                forumPost.updatedByCp?._id}
-            </td>
-            <th>Updated user type: </th>
-            <td>{forumPost.updatedUserType}</td>
           </tr>
           <tr>
             <th>State changed at: </th>
             <td>{forumPost.stateChangedAt}</td>
             <th>State changed by: </th>
             <td>
-              {forumPost.stateChangedBy?.username ||
-                forumPost.stateChangedBy?.email ||
-                forumPost.stateChangedBy?._id}
+              {postUsername({
+                post: forumPost,
+                typeKey: 'stateChangedUserType',
+                crmKey: 'stateChangedBy',
+                cpKey: 'stateChangedByCp'
+              })}
             </td>
-            <th>State changed by Cp: </th>
-            <td>
-              {forumPost.stateChangedByCp?.username ||
-                forumPost.stateChangedByCp?.email ||
-                forumPost.stateChangedByCp?._id}
-            </td>
-            <th>State changed user type: </th>
-            <td>{forumPost.stateChangedUserType}</td>
           </tr>
           <tr>
             <th>Title: </th>
@@ -153,6 +138,7 @@ const PostDetail: React.FC = () => {
             <th>Content: </th>
             <td>
               <div
+                style={{ border: '1px solid black', padding: 10 }}
                 dangerouslySetInnerHTML={{ __html: forumPost.content }}
               ></div>
             </td>

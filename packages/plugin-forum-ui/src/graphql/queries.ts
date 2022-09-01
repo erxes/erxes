@@ -86,6 +86,7 @@ export const FORUM_POSTS_QUERY = gql`
       }
 
       stateChangedUserType
+      stateChangedAt
       stateChangedBy {
         _id
         username

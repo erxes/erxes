@@ -3,8 +3,7 @@ import { useSearchParam } from '../../hooks';
 import { useQuery } from 'react-apollo';
 import { FORUM_POSTS_COUNT, FORUM_POSTS_QUERY } from '../../graphql/queries';
 import { Link } from 'react-router-dom';
-
-const perPageOptions = [5, 10, 25, 50, 100];
+import { postUsername } from '../../utils';
 
 const List: React.FC = () => {
   const [categoryId] = useSearchParam('categoryId');
@@ -65,24 +64,32 @@ const List: React.FC = () => {
               <td>{p.state}</td>
               <td>{p.stateChangedAt}</td>
               <td>
-                {' '}
-                {p.stateChangedBy?.username ||
-                  p.stateChangedBy?.email ||
-                  p.stateChangedBy?._id}
+                {postUsername({
+                  post: p,
+                  typeKey: 'stateChangedUserType',
+                  crmKey: 'stateChangedBy',
+                  cpKey: 'stateChangedByCp'
+                })}
               </td>
               <td>{p.createdAt}</td>
               <td>
-                {p.createdBy?.username ||
-                  p.createdBy?.email ||
-                  p.createdBy?._id}
+                {postUsername({
+                  post: p,
+                  typeKey: 'createdUserType',
+                  crmKey: 'createdBy',
+                  cpKey: 'createdByCp'
+                })}
               </td>
               <td>{p.updatedAt}</td>
               <td>
-                {p.updatedBy?.username ||
-                  p.updatedBy?.email ||
-                  p.updatedBy?._id}
+                {postUsername({
+                  post: p,
+                  typeKey: 'updatedUserType',
+                  crmKey: 'updatedBy',
+                  cpKey: 'updatedByCp'
+                })}
               </td>
-              <td>{p.commentCount}</td>
+              <td style={{ textAlign: 'right' }}>{p.commentCount}</td>
             </tr>
           ))}
         </tbody>
