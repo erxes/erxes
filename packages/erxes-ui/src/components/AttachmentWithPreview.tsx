@@ -302,15 +302,6 @@ class AttachmentWithPreview extends React.Component<Props, State> {
   renderAttachmentPreview() {
     const { onLoad, attachment, icon } = this.props;
 
-    if (attachment.type === 'video') {
-      return (
-        <video controls={true} loop={true}>
-          <source src={attachment.url} type="video/mp4" />
-          {__('Your browser does not support the video tag')}.
-        </video>
-      );
-    }
-
     if (icon) {
       return <Icon icon={icon} onClick={this.onToggle} />;
     }
