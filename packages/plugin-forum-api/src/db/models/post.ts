@@ -12,10 +12,13 @@ export interface IPost {
   thumbnail?: string | null;
   createdAt: Date;
   updatedAt: Date;
-  createdById: string;
+  createdById?: string;
+  createdByIdCP?: string;
   updatedById?: string;
+  updatedByIdCP?: string;
   stateChangedAt?: Date;
   stateChangedById?: string;
+  stateChangedByIdCP?: string;
   commentCount: Number;
 }
 
@@ -44,10 +47,13 @@ export const postSchema = new Schema<PostDocument>(
       default: POSSIBLE_STATES[0]
     },
     thumbnail: String,
-    createdById: { type: String, required: true },
+    createdById: String,
+    createdByIdCP: String,
     updatedById: String,
+    updatedByIdCP: String,
     stateChangedAt: Date,
     stateChangedById: String,
+    stateChangedByIdCP: String,
     commentCount: { type: Number, required: true, default: 0 }
   },
   {

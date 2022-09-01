@@ -8,7 +8,8 @@ export interface IComment {
   content: string;
   createdAt: Date;
   updatedAt?: Date;
-  createdById: string;
+  createdById?: string;
+  createdByIdCP?: string;
 }
 
 export type CommentDocument = IComment & Document;
@@ -24,7 +25,8 @@ export const commentSchema = new Schema<CommentDocument>(
     replyToId: { type: Types.ObjectId, index: true },
     postId: { type: Types.ObjectId, index: true },
     content: { type: String, required: true },
-    createdById: { type: String, required: true }
+    createdById: String,
+    createdByIdCP: String
   },
   {
     timestamps: true
