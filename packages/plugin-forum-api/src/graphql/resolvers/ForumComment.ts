@@ -14,7 +14,12 @@ const ForumComment: IObjectTypeResolver<IComment, IContext> = {
     return Comment.find({ replyToId: _id }).lean();
   },
   async createdBy({ createdById }) {
-    return { __typename: 'User', _id: createdById };
+    return createdById && { __typename: 'User', _id: createdById };
+  },
+  async createdByCp({ createdByCpId }) {
+    return (
+      createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }
+    );
   }
 };
 

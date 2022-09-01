@@ -8,9 +8,11 @@ export default `
     
     postId: String!
     replyToId: String
-    createdById: String!
+    createdById: String
+    createdByCpId: String
 
-    createdBy: User!
+    createdBy: User
+    createdByCp: ClientPortalUser
     post: ForumPost!
     replyTo: ForumComment
     replies: [ForumComment!]

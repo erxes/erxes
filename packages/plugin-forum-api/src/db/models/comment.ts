@@ -9,7 +9,7 @@ export interface IComment {
   createdAt: Date;
   updatedAt?: Date;
   createdById?: string;
-  createdByIdCP?: string;
+  createdByCpId?: string;
 }
 
 export type CommentDocument = IComment & Document;
@@ -26,7 +26,7 @@ export const commentSchema = new Schema<CommentDocument>(
     postId: { type: Types.ObjectId, index: true },
     content: { type: String, required: true },
     createdById: String,
-    createdByIdCP: String
+    createdByCpId: String
   },
   {
     timestamps: true

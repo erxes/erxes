@@ -14,6 +14,24 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   },
   async stateChangedBy({ stateChangedById }) {
     return stateChangedById && { __typename: 'User', _id: stateChangedById };
+  },
+  async createdByCp({ createdByCpId }) {
+    return (
+      createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }
+    );
+  },
+  async updatedByCp({ updatedByCpId }) {
+    return (
+      updatedByCpId && { __typename: 'ClientPortalUser', _id: updatedByCpId }
+    );
+  },
+  async stateChangedByCp({ stateChangedByCpId }) {
+    return (
+      stateChangedByCpId && {
+        __typename: 'ClientPortalUser',
+        _id: stateChangedByCpId
+      }
+    );
   }
 };
 

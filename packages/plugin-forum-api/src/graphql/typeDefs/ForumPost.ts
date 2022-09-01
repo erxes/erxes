@@ -13,12 +13,18 @@ export default `
 
     categoryId: ID!
     createdById: ID
+    createdByCpId: ID
     updatedById: ID
+    updatedByCpId: ID
     stateChangedById: ID
+    stateChangedByCpId: ID
 
     category: ForumCategory
     createdBy: User
+    createdByCp: ClientPortalUser
     updatedBy: User
+    updatedByCp: ClientPortalUser
     stateChangedBy: User
+    stateChangedByCp: ClientPortalUser
   }
 `;
