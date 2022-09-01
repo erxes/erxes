@@ -20,7 +20,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tickets.create(data),
+      data: await models.Tickets.create(data)
     };
   });
 
@@ -29,7 +29,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tasks.create(data),
+      data: await models.Tasks.create(data)
     };
   });
 
@@ -38,7 +38,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tasks.removeTasks(_ids),
+      data: await models.Tasks.removeTasks(_ids)
     };
   });
 
@@ -47,7 +47,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Deals.create(data),
+      data: await models.Deals.create(data)
     };
   });
 
@@ -56,7 +56,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Deals.removeDeals(_ids),
+      data: await models.Deals.removeDeals(_ids)
     };
   });
 
@@ -65,7 +65,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tickets.find(data).lean(),
+      data: await models.Tickets.find(data).lean()
     };
   });
 
@@ -74,7 +74,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tickets.findOne(data).lean(),
+      data: await models.Tickets.findOne(data).lean()
     };
   });
 
@@ -83,7 +83,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tickets.removeTickets(_ids),
+      data: await models.Tickets.removeTickets(_ids)
     };
   });
 
@@ -92,7 +92,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Stages.find(data).lean(),
+      data: await models.Stages.find(data).lean()
     };
   });
 
@@ -101,7 +101,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Stages.findOne(data).lean(),
+      data: await models.Stages.findOne(data).lean()
     };
   });
 
@@ -110,7 +110,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tasks.find(data).lean(),
+      data: await models.Tasks.find(data).lean()
     };
   });
 
@@ -119,7 +119,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Tasks.findOne(data).lean(),
+      data: await models.Tasks.findOne(data).lean()
     };
   });
 
@@ -128,7 +128,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Pipelines.find(data).lean(),
+      data: await models.Pipelines.find(data).lean()
     };
   });
 
@@ -137,7 +137,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Boards.find(data).lean(),
+      data: await models.Boards.find(data).lean()
     };
   });
 
@@ -148,7 +148,7 @@ export const initBroker = async (cl) => {
 
       return {
         status: 'success',
-        data: await models.Checklists.removeChecklists(type, itemIds),
+        data: await models.Checklists.removeChecklists(type, itemIds)
       };
     }
   );
@@ -158,7 +158,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await conversationConvertToCard(models, subdomain, data),
+      data: await conversationConvertToCard(models, subdomain, data)
     };
   });
 
@@ -168,7 +168,7 @@ export const initBroker = async (cl) => {
     if (!data.query) {
       return {
         status: 'success',
-        data: await models.Deals.find(data).lean(),
+        data: await models.Deals.find(data).lean()
       };
     }
 
@@ -180,7 +180,7 @@ export const initBroker = async (cl) => {
         .skip(skip || 0)
         .limit(limit || 20)
         .sort(sort)
-        .lean(),
+        .lean()
     };
   });
 
@@ -189,7 +189,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Deals.find(data).count(),
+      data: await models.Deals.find(data).count()
     };
   });
 
@@ -198,7 +198,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await models.Deals.findOne(data).lean(),
+      data: await models.Deals.findOne(data).lean()
     };
   });
 
@@ -209,7 +209,7 @@ export const initBroker = async (cl) => {
   consumeRPCQueue('cards:deals.generateProducts', async ({ subdomain, data }) => {
     return {
       data: await generateProducts(subdomain, data),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -223,7 +223,7 @@ export const initBroker = async (cl) => {
     const models = await generateModels(subdomain);
 
     const dealProductIds = await await models.Deals.find({
-      'productsData.productId': { $in: _ids },
+      'productsData.productId': { $in: _ids }
     }).distinct('productsData.productId');
 
     return { data: dealProductIds, status: 'success' };
@@ -236,7 +236,7 @@ export const initBroker = async (cl) => {
 
       return {
         data: await models.Tickets.updateMany(selector, modifier),
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -246,7 +246,7 @@ export const initBroker = async (cl) => {
 
     return {
       data: await models.Tasks.updateMany(selector, modifier),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -255,7 +255,7 @@ export const initBroker = async (cl) => {
 
     return {
       data: await models.Deals.updateMany(selector, modifier),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -264,7 +264,7 @@ export const initBroker = async (cl) => {
 
     return {
       data: await models.Deals.updateOne(selector, modifier),
-      status: 'success',
+      status: 'success'
     };
   });
 
@@ -273,7 +273,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: await notifiedUserIds(models, data),
+      data: await notifiedUserIds(models, data)
     };
   });
 
@@ -282,7 +282,7 @@ export const initBroker = async (cl) => {
 
     const item = await getCardItem(models, {
       contentTypeId: _id,
-      contentType: type,
+      contentType: type
     });
 
     if (!item) {
@@ -295,7 +295,7 @@ export const initBroker = async (cl) => {
 
     return {
       status: 'success',
-      data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`,
+      data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
     };
   });
 
@@ -309,12 +309,12 @@ export const initBroker = async (cl) => {
           _id: pipelineId,
           proccessId: Math.random(),
           action,
-          data,
-        },
+          data
+        }
       });
 
       return {
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -336,7 +336,7 @@ export const initBroker = async (cl) => {
       }
 
       return {
-        status: 'success',
+        status: 'success'
       };
     }
   );
@@ -347,7 +347,7 @@ export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> 
     client,
     serviceDiscovery,
     serviceName: 'contacts',
-    ...args,
+    ...args
   });
 };
 
@@ -356,7 +356,7 @@ export const sendInternalNotesMessage = async (args: ISendMessageArgs): Promise<
     client,
     serviceDiscovery,
     serviceName: 'internalNotes',
-    ...args,
+    ...args
   });
 };
 
@@ -365,7 +365,7 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
-    ...args,
+    ...args
   });
 };
 
@@ -374,7 +374,7 @@ export const sendFormsMessage = async (args: ISendMessageArgs): Promise<any> => 
     client,
     serviceDiscovery,
     serviceName: 'forms',
-    ...args,
+    ...args
   });
 };
 
@@ -383,7 +383,7 @@ export const sendEngagesMessage = async (args: ISendMessageArgs): Promise<any> =
     client,
     serviceDiscovery,
     serviceName: 'engages',
-    ...args,
+    ...args
   });
 };
 
@@ -392,7 +392,7 @@ export const sendInboxMessage = async (args: ISendMessageArgs): Promise<any> => 
     client,
     serviceDiscovery,
     serviceName: 'inbox',
-    ...args,
+    ...args
   });
 };
 
@@ -401,7 +401,7 @@ export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> 
     client,
     serviceDiscovery,
     serviceName: 'products',
-    ...args,
+    ...args
   });
 };
 
@@ -410,7 +410,7 @@ export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<
     client,
     serviceDiscovery,
     serviceName: 'notifications',
-    ...args,
+    ...args
   });
 };
 
@@ -419,7 +419,7 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'logs',
-    ...args,
+    ...args
   });
 };
 
@@ -428,7 +428,7 @@ export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> 
     client,
     serviceDiscovery,
     serviceName: 'segments',
-    ...args,
+    ...args
   });
 };
 
@@ -437,7 +437,7 @@ export const sendLoyaltiesMessage = async (args: ISendMessageArgs): Promise<any>
     client,
     serviceDiscovery,
     serviceName: 'loyalties',
-    ...args,
+    ...args
   });
 };
 
@@ -447,7 +447,7 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args,
+    ...args
   });
 };
 
@@ -456,7 +456,7 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options },
-    isRPC: true,
+    isRPC: true
   });
 
 export const sendToWebhook = ({ subdomain, data }) => {
