@@ -91,6 +91,8 @@ class Pages extends React.Component<Props, State> {
               <th>{__('Name')}</th>
               <th>{__('Description')}</th>
               <th>{__('Site')}</th>
+              <th>{__('Created By')}</th>
+              <th>{__('Last updated By')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
