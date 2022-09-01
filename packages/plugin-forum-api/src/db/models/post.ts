@@ -37,7 +37,7 @@ export interface IPost {
 
 export type PostDocument = IPost & Document;
 
-const OmitFromInput = [
+const OMIT_FROM_INPUT = [
   '_id',
 
   'commentCount',
@@ -58,7 +58,7 @@ const OmitFromInput = [
   'stateChangedByCpId'
 ] as const;
 
-export type PostCreateInput = Omit<IPost, typeof OmitFromInput[number]>;
+export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]>;
 export type PostPatchInput = Partial<Omit<PostCreateInput, 'state'>>;
 
 export interface IPostModel extends Model<PostDocument> {

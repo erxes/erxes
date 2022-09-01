@@ -1,6 +1,8 @@
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
+import { cpus } from 'os';
 import { UserTypes, USER_TYPES } from '../../consts';
+import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 
 export interface IComment {
@@ -20,11 +22,25 @@ export interface IComment {
   updatedByCpId?: string;
 }
 
+const OMIT_FROM_INPUT = [
+  '_id',
+  'createdUserType',
+  'createdAt',
+  'createdById',
+  'createdByCpId',
+  'updatedUserType',
+  'updatedAt',
+  'updatedById',
+  'updatedByCpId'
+] as const;
+
+type CommentCreateInput = Omit<IComment, typeof OMIT_FROM_INPUT[number]>;
+
 export type CommentDocument = IComment & Document;
 export interface ICommentModel extends Model<CommentDocument> {
   findByIdOrThrow(_id: string): Promise<CommentDocument>;
   createComment(
-    c: Omit<IComment, '_id'>,
+    c: CommentCreateInput,
     user: IUserDocument
   ): Promise<CommentDocument>;
   updateComment(
@@ -33,6 +49,20 @@ export interface ICommentModel extends Model<CommentDocument> {
     user: IUserDocument
   ): Promise<CommentDocument>;
   deleteComment(_id: string): Promise<CommentDocument>;
+
+  /* <<< Client portal */
+  findByIdOrThrowCp(_id: string, cpUser: ICpUser): Promise<CommentDocument>;
+  createCommentCp(
+    c: CommentCreateInput,
+    cpUser?: ICpUser
+  ): Promise<CommentDocument>;
+  updateCommentCp(
+    _id: string,
+    content: string,
+    cpUser?: ICpUser
+  ): Promise<CommentDocument>;
+  deleteCommentCp(_id: string, cpUser?: ICpUser): Promise<CommentDocument>;
+  /* >>> Client portal */
 }
 
 export const commentSchema = new Schema<CommentDocument>(
@@ -119,6 +149,83 @@ export const generateCommentModel = (
 
       return deletedComment;
     }
+
+    /* <<< Client portal */
+    public static async findByIdOrThrowCp(
+      _id: string,
+      cpUser: ICpUser
+    ): Promise<CommentDocument> {
+      const comment = await models.Comment.findByIdOrThrow(_id);
+      if (comment.createdByCpId !== cpUser.userId)
+        throw new Error(`This comment doesn't belong to the current user`);
+      return comment;
+    }
+    public static async createCommentCp(
+      c: Omit<IComment, '_id'>,
+      cpUser?: ICpUser
+    ): Promise<CommentDocument> {
+      if (!cpUser) throw new Error('Unauthorized');
+
+      const res = await models.Comment.create({
+        ...c,
+        createdByCpId: cpUser.userId,
+        createdUserType: USER_TYPES[1],
+        updatedByCpId: cpUser.userId,
+        updatedUserType: USER_TYPES[1]
+      });
+
+      await models.Post.incCommentCount(c.postId, 1);
+      return res;
+    }
+    public static async updateCommentCp(
+      _id: string,
+      content: string,
+      cpUser?: ICpUser
+    ): Promise<CommentDocument> {
+      if (!cpUser) throw new Error('Unauthorized');
+
+      const comment = await models.Comment.findByIdOrThrowCp(_id, cpUser);
+      comment.content = content;
+      comment.updatedUserType = USER_TYPES[1];
+      comment.updatedByCpId = cpUser.userId;
+      await comment.save();
+      return comment;
+    }
+
+    public static async deleteCommentCp(
+      _id: string,
+      cpUser?: ICpUser
+    ): Promise<CommentDocument> {
+      if (!cpUser) throw new Error('Unauthorized');
+
+      const deletedComment = await models.Comment.findByIdOrThrowCp(
+        _id,
+        cpUser
+      );
+
+      const idsToDelete = [_id];
+      let findReplies = [_id];
+
+      while (findReplies?.length) {
+        const replies = await models.Comment.find({
+          replyToId: { $in: findReplies }
+        }).lean();
+        const replyIds = replies.map(reply => reply._id);
+        idsToDelete.push(...replyIds);
+        findReplies = replyIds;
+      }
+
+      const res = await models.Comment.deleteMany({
+        _id: { $in: idsToDelete }
+      });
+      await models.Post.incCommentCount(
+        deletedComment.postId,
+        -1 * (res.deletedCount || 0)
+      );
+
+      return deletedComment;
+    }
+    /* >>> Client portal */
   }
   commentSchema.loadClass(CommentModel);
 
