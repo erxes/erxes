@@ -1,15 +1,15 @@
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { graphqlPubsub, serviceDiscovery } from './configs';
-import { generateModels } from './connectionResolver';
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src'
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core'
+import { graphqlPubsub, serviceDiscovery } from './configs'
+import { generateModels } from './connectionResolver'
 import {
   generateAmounts,
   generateProducts
-} from './graphql/resolvers/customResolvers/deal';
-import { publishHelper } from './graphql/resolvers/mutations/utils';
-import { notifiedUserIds } from './graphql/utils';
-import { conversationConvertToCard } from './models/utils';
-import { getCardItem } from './utils';
+} from './graphql/resolvers/customResolvers/deal'
+import { publishHelper } from './graphql/resolvers/mutations/utils'
+import { notifiedUserIds } from './graphql/utils'
+import { conversationConvertToCard } from './models/utils'
+import { getCardItem } from './utils'
 
 let client;
 
@@ -215,10 +215,7 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
-    return {
-      data: generateAmounts(productsData),
-      status: 'success'
-    };
+    return { data: generateAmounts(productsData), status: 'success' };
   });
 
   consumeRPCQueue(
@@ -234,10 +231,7 @@ export const initBroker = async cl => {
   consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    return {
-      data: await getCardItem(models, data),
-      status: 'success'
-    };
+    return { data: await getCardItem(models, data), status: 'success' };
   });
 
   consumeRPCQueue(
@@ -249,10 +243,7 @@ export const initBroker = async cl => {
         'productsData.productId': { $in: _ids }
       }).distinct('productsData.productId');
 
-      return {
-        data: dealProductIds,
-        status: 'success'
-      };
+      return { data: dealProductIds, status: 'success' };
     }
   );
 
