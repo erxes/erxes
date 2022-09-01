@@ -12,10 +12,16 @@ export default `
     stateChangedAt: Date
 
     categoryId: ID!
+
+    createdUserType: ForumUserType
     createdById: ID
     createdByCpId: ID
+
+    updatedUserType: ForumUserType
     updatedById: ID
     updatedByCpId: ID
+
+    stateChangedUserType: ForumUserType
     stateChangedById: ID
     stateChangedByCpId: ID
 

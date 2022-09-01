@@ -61,6 +61,7 @@ export const FORUM_POSTS_QUERY = gql`
       updatedAt
       commentCount
 
+      createdUserType
       createdBy {
         _id
         username
@@ -71,6 +72,8 @@ export const FORUM_POSTS_QUERY = gql`
         email
         username
       }
+
+      updatedUserType
       updatedBy {
         _id
         username
@@ -81,6 +84,8 @@ export const FORUM_POSTS_QUERY = gql`
         email
         username
       }
+
+      stateChangedUserType
       stateChangedBy {
         _id
         username
@@ -121,6 +126,7 @@ export const FORUM_POST_DETAIL = gql`
       stateChangedAt
       commentCount
 
+      createdUserType
       createdBy {
         _id
         username
@@ -131,6 +137,8 @@ export const FORUM_POST_DETAIL = gql`
         email
         username
       }
+
+      updatedUserType
       updatedBy {
         _id
         username
@@ -141,6 +149,8 @@ export const FORUM_POST_DETAIL = gql`
         email
         username
       }
+
+      stateChangedUserType
       stateChangedBy {
         _id
         username

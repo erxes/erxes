@@ -106,6 +106,8 @@ const PostDetail: React.FC = () => {
                 forumPost.createdByCp?.email ||
                 forumPost.createdByCp?._id}
             </td>
+            <th>Created user type: </th>
+            <td>{forumPost.createdUserType}</td>
           </tr>
           <tr>
             <th>Updated at: </th>
@@ -122,6 +124,8 @@ const PostDetail: React.FC = () => {
                 forumPost.updatedByCp?.email ||
                 forumPost.updatedByCp?._id}
             </td>
+            <th>Updated user type: </th>
+            <td>{forumPost.updatedUserType}</td>
           </tr>
           <tr>
             <th>State changed at: </th>
@@ -138,6 +142,8 @@ const PostDetail: React.FC = () => {
                 forumPost.stateChangedByCp?.email ||
                 forumPost.stateChangedByCp?._id}
             </td>
+            <th>State changed user type: </th>
+            <td>{forumPost.stateChangedUserType}</td>
           </tr>
           <tr>
             <th>Title: </th>
