@@ -1,5 +1,6 @@
 import { IModels } from './connectionResolver';
 import { IPageDocument } from './models/pages';
+import { ISiteDocument } from './models/sites';
 
 const entryReplacer = async (
   models: IModels,
@@ -47,12 +48,17 @@ const entryReplacer = async (
 const pageReplacer = async (
   models: IModels,
   page: IPageDocument,
-  siteId: string
+  site: ISiteDocument
 ) => {
   let html = page.html;
+  const siteHolder = `{{sitename}}`;
+
+  if (html.includes(siteHolder)) {
+    html = html.replace(new RegExp(siteHolder, 'g'), site.name);
+  }
 
   const pages = await models.Pages.find({
-    siteId,
+    siteId: site._id,
     name: { $ne: page.name }
   });
 
@@ -83,7 +89,7 @@ const pageReplacer = async (
 
       html = html.replace(
         new RegExp(holder, 'g'),
-        await entryReplacer(models, siteId, p, limit, skip)
+        await entryReplacer(models, site._id, p, limit, skip)
       );
     }
   }
