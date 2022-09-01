@@ -1,15 +1,15 @@
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src'
-import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core'
 import { graphqlPubsub, serviceDiscovery } from './configs'
-import { generateModels } from './connectionResolver'
 import {
   generateAmounts,
   generateProducts
 } from './graphql/resolvers/customResolvers/deal'
-import { publishHelper } from './graphql/resolvers/mutations/utils'
-import { notifiedUserIds } from './graphql/utils'
 import { conversationConvertToCard } from './models/utils'
 import { getCardItem } from './utils'
+import { notifiedUserIds } from './graphql/utils'
+import { generateModels } from './connectionResolver'
+import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core'
+import { publishHelper } from './graphql/resolvers/mutations/utils'
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src'
 
 let client;
 
