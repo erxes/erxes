@@ -2,55 +2,7 @@ import { IModels } from './connectionResolver';
 import { IPageDocument } from './models/pages';
 import { ISiteDocument } from './models/sites';
 
-const entryReplacer = async (
-  models: IModels,
-  siteId: string,
-  page: IPageDocument,
-  limit: any,
-  skip: any
-) => {
-  let subHtml = '';
-
-  if (page.name.includes('_entry')) {
-    const contentTypeCode = page.name.replace('_entry', '');
-
-    const contentType = await models.ContentTypes.findOne({
-      siteId,
-      code: contentTypeCode
-    });
-
-    const entries = await models.Entries.find({
-      contentTypeId: contentType?._id
-    })
-      .limit(limit)
-      .skip(skip);
-
-    for (const entry of entries) {
-      let entryHtml = page.html.replace(/{{entry._id}}/g, entry._id);
-
-      for (const evalue of entry.values) {
-        const { fieldCode, value } = evalue;
-
-        const target = `{{entry.${fieldCode}}}`;
-
-        entryHtml = entryHtml.replace(new RegExp(target, 'g'), value);
-      }
-
-      subHtml += entryHtml + `<style>${page.css}</style>`;
-    }
-  } else {
-    subHtml = `${page.html} <style>${page.css}</style>`;
-  }
-
-  return subHtml;
-};
-
-const pageReplacer = async (
-  models: IModels,
-  page: IPageDocument,
-  site: ISiteDocument
-) => {
-  let html = page.html;
+const pathReplacer = (html: any, site: ISiteDocument) => {
   const siteHolder = `{{sitename}}`;
   const path = `{{pl:webbuilder}}/`;
 
@@ -65,6 +17,60 @@ const pageReplacer = async (
 
     html = html.replace(new RegExp(path, 'g'), 'pl:webbuilder/');
   }
+
+  return html;
+};
+
+const entryReplacer = async (
+  models: IModels,
+  site: ISiteDocument,
+  page: IPageDocument,
+  limit: any,
+  skip: any
+) => {
+  let subHtml = '';
+  const html = pathReplacer(page.html, site);
+
+  if (page.name.includes('_entry')) {
+    const contentTypeCode = page.name.replace('_entry', '');
+
+    const contentType = await models.ContentTypes.findOne({
+      siteId: site._id,
+      code: contentTypeCode
+    });
+
+    const entries = await models.Entries.find({
+      contentTypeId: contentType?._id
+    })
+      .limit(limit)
+      .skip(skip);
+
+    for (const entry of entries) {
+      let entryHtml = html.replace(/{{entry._id}}/g, entry._id);
+
+      for (const evalue of entry.values) {
+        const { fieldCode, value } = evalue;
+
+        const target = `{{entry.${fieldCode}}}`;
+
+        entryHtml = entryHtml.replace(new RegExp(target, 'g'), value);
+      }
+
+      subHtml += entryHtml + `<style>${page.css}</style>`;
+    }
+  } else {
+    subHtml = `${html} <style>${page.css}</style>`;
+  }
+
+  return subHtml;
+};
+
+const pageReplacer = async (
+  models: IModels,
+  page: IPageDocument,
+  site: ISiteDocument
+) => {
+  let html = pathReplacer(page.html, site);
 
   const pages = await models.Pages.find({
     siteId: site._id,
@@ -98,7 +104,7 @@ const pageReplacer = async (
 
       html = html.replace(
         new RegExp(holder, 'g'),
-        await entryReplacer(models, site._id, p, limit, skip)
+        await entryReplacer(models, site, p, limit, skip)
       );
     }
   }
