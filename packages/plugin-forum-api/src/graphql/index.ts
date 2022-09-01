@@ -5,4 +5,7 @@ export interface IContext extends IBaseContext {
   subdomain: string;
   models: IModels;
   serverTiming: any;
+  cpUser?: {
+    userId: string;
+  };
 }
