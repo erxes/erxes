@@ -4,7 +4,7 @@ export const UPDATE_CATEGORY = gql`
   mutation ForumPatchCategory(
     $id: ID!
     $code: String
-    $name: String
+    $name: String!
     $parentId: String
     $thumbnail: String
   ) {
