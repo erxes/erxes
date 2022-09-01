@@ -2,15 +2,17 @@
 //     checkPermission,
 //     requireLogin
 //   } from '@erxes/api-utils/src/permissions';
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+
+import { IContext } from '../../../connectionResolver';
+
 const fs = require('fs');
 
-const generateFilterQuery = async ({ customerId, dealId, status }) => {
+const generateFilterQuery = async ({ driverId, dealId, status }) => {
   const query: any = {};
 
-  if (customerId) {
-    query.customerId = customerId;
+  if (driverId) {
+    query.driverId = driverId;
   }
 
   if (dealId) {

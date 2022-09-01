@@ -8,9 +8,9 @@ interface IParams extends ICommonParams {
 }
 
 const loyaltyQueries = {
-  async checkLoyalties(_root, params, { models }: IContext) {
+  async checkLoyalties(_root, params, { models, subdomain }: IContext) {
     const { ownerType, ownerId, products } = params;
-    return checkVouchersSale(models, ownerType, ownerId, products);
+    return checkVouchersSale(models, subdomain, ownerType, ownerId, products);
   },
 
   async loyalties(_root, params: IParams, { models }: IContext) {

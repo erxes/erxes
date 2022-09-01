@@ -23,7 +23,7 @@ const paymentQueries = {
       senderInvoiceNo: order._id
     });
 
-    if (!invoice) {
+    if (!config.qpayConfig || !invoice) {
       throw new Error(`Invoice not found for order: ${order._id}`);
     }
 

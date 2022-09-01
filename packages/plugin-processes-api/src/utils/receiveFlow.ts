@@ -1,4 +1,4 @@
-import { IWork, IWorkDocument } from './../models/definitions/works';
+import { IWork } from './../models/definitions/works';
 import { IModels } from '../connectionResolver';
 import { IFlowDocument } from '../models/definitions/flows';
 import {
@@ -72,16 +72,17 @@ export const rf = async (models: IModels, subdomain: string, params) => {
 
         console.log('lastJobRefer: ', lastJobRefer[0].name);
 
-        const doc: IWork = initDocWork(
+        const doc: IWork = await initDocWork(
           flow,
           lastJobRefer[0],
           productId,
           count,
+          subdomain,
           lastJob,
           intervalId
         );
 
-        const work = await worksAdd(doc, models);
+        await worksAdd(doc, models);
         // console.log('work:', work);
 
         // filtering beforeJobs of lastJob on flow
@@ -112,7 +113,8 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             jobRefers,
             models
           },
-          intervalId
+          intervalId,
+          subdomain
         );
 
         for await (const responseleftjob of responseleftjobs) {
@@ -121,11 +123,12 @@ export const rf = async (models: IModels, subdomain: string, params) => {
             jobRefers
           );
 
-          const docLeft: IWork = initDocWork(
+          const docLeft: IWork = await initDocWork(
             flow,
             leftJobRefer[0],
             productId,
             count,
+            subdomain,
             responseleftjob,
             intervalId
           );

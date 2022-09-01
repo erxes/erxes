@@ -1,19 +1,19 @@
 import Button from '@erxes/ui/src/components/Button';
-import SortHandler from '@erxes/ui/src/components/SortHandler';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Flex } from '@erxes/ui/src/styles/main';
 import Row from './Row';
+import { IContentTypeDoc } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
-  contentTypes: any[];
+  contentTypes: IContentTypeDoc[];
   remove: (contentTypeId: string) => void;
-  loading: boolean;
   getActionBar: (actionBar: any) => void;
+  setCount: (count: number) => void;
+  contentTypesCount: number;
 };
 
 class ContentTypes extends React.Component<Props, {}> {
@@ -26,7 +26,7 @@ class ContentTypes extends React.Component<Props, {}> {
   }
 
   render() {
-    const { getActionBar } = this.props;
+    const { getActionBar, setCount, contentTypesCount } = this.props;
 
     const actionBarRight = (
       <Flex>
@@ -38,25 +38,32 @@ class ContentTypes extends React.Component<Props, {}> {
       </Flex>
     );
 
-    const ActionBar = <Wrapper.ActionBar right={actionBarRight} />;
+    getActionBar(actionBarRight);
+    setCount(contentTypesCount);
 
-    getActionBar(ActionBar);
-
-    const content = (
+    let content = (
       <Table whiteSpace="nowrap" hover={true}>
         <thead>
           <tr>
             <th>Display name</th>
             <th>Code</th>
-            <th>
-              <SortHandler sortField={'createdDate'} label={'Created at'} />
-            </th>
+            <th>Site</th>
             <th>{'Actions'}</th>
           </tr>
         </thead>
         <tbody>{this.renderRow()}</tbody>
       </Table>
     );
+
+    if (contentTypesCount < 1) {
+      content = (
+        <EmptyState
+          image="/images/actions/8.svg"
+          text="No Content types"
+          size="small"
+        />
+      );
+    }
 
     return <>{content}</>;
   }

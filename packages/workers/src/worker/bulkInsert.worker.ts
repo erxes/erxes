@@ -9,6 +9,8 @@ import { connect } from './utils';
 const { parentPort, workerData } = require('worker_threads');
 const { subdomain } = workerData;
 
+const WORKER_BULK_LIMIT = 300;
+
 let cancel = false;
 
 parentPort.once('message', message => {
@@ -126,8 +128,8 @@ connect().then(async () => {
     let endRow = bulkDoc.length;
 
     if (rowIndex && rowIndex > 1) {
-      startRow = rowIndex * bulkDoc.length - bulkDoc.length;
-      endRow = rowIndex * bulkDoc.length;
+      startRow = rowIndex * WORKER_BULK_LIMIT - WORKER_BULK_LIMIT;
+      endRow = startRow + WORKER_BULK_LIMIT;
     }
 
     const distance = endRow - startRow;

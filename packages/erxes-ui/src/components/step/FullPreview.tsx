@@ -1,15 +1,3 @@
-import Icon from '../Icon';
-import { Tabs, TabTitle } from '../tabs';
-import { __ } from '../../utils';
-import FieldForm from '@erxes/ui-forms/src/forms/containers/FieldForm';
-import FieldsPreview from '@erxes/ui-forms/src/forms/components/FieldsPreview';
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
-import { IField } from '../../types';
-import React from 'react';
-import CalloutPreview from './preview/CalloutPreview';
-import FormPreview from './preview/FormPreview';
-import SuccessPreview from './preview/SuccessPreview';
 import {
   CarouselInner,
   CarouselSteps,
@@ -19,9 +7,20 @@ import {
   MobilePreview,
   TabletPreview
 } from './style';
+import { TabTitle, Tabs } from '../tabs';
+import { isEnabled, loadDynamicComponent } from '../../utils/core';
+
+import CalloutPreview from './preview/CalloutPreview';
+import FormPreview from './preview/FormPreview';
+import { IConfig } from '@erxes/ui-settings/src/general/types';
+import { IField } from '../../types';
+import Icon from '../Icon';
+import React from 'react';
+import SuccessPreview from './preview/SuccessPreview';
+import { __ } from '../../utils';
 
 type Props = {
-  formData: IFormData;
+  formData: any; //check - IFormData
   type: string;
   calloutTitle?: string;
   calloutBtnText?: string;
@@ -31,7 +30,7 @@ type Props = {
   image?: string;
   calloutImgSize?: string;
   onChange: (name: 'carousel', value: string) => void;
-  onDocChange?: (doc: IFormData) => void;
+  onDocChange?: (doc: any) => void; //check - IFormData
   carousel: string;
   thankTitle?: string;
   thankContent?: string;
@@ -167,18 +166,15 @@ class FullPreviewStep extends React.Component<Props, State> {
     }
 
     if (carousel === 'form') {
-      const previewRenderer = () => (
-        <>
-          <FieldsPreview
-            fields={fields || []}
-            formDesc={formData.description}
-            onFieldClick={this.onFieldClick}
-            onChangeFieldsOrder={this.onChangeFieldsOrder}
-            currentPage={this.state.currentPage}
-            configs={configs}
-          />
-        </>
-      );
+      const previewRenderer = () =>
+        loadDynamicComponent('fieldPreview', {
+          fields: fields || [],
+          formDesc: formData.description,
+          onFieldClick: this.onFieldClick,
+          onChangeFieldsOrder: this.onChangeFieldsOrder,
+          currentPage: this.state.currentPage,
+          configs: configs
+        });
 
       return (
         <>
@@ -186,21 +182,21 @@ class FullPreviewStep extends React.Component<Props, State> {
             {...this.props}
             title={formData.title}
             btnText={formData.buttonText}
-            previewRenderer={previewRenderer}
+            previewRenderer={isEnabled('forms') && previewRenderer}
             currentPage={this.state.currentPage}
             onPageChange={this.onPageChange}
           />
-          {currentField && (
-            <FieldForm
-              mode={currentMode || 'create'}
-              fields={fields}
-              field={currentField}
-              numberOfPages={formData.numberOfPages || 1}
-              onSubmit={this.onFieldSubmit}
-              onDelete={this.onFieldDelete}
-              onCancel={this.onFieldFormCancel}
-            />
-          )}
+          {currentField &&
+            isEnabled('forms') &&
+            loadDynamicComponent('formPreview', {
+              mode: currentMode || 'create',
+              fields: fields,
+              field: currentField,
+              numberOfPages: formData.numberOfPages || 1,
+              onSubmit: this.onFieldSubmit,
+              onDelete: this.onFieldDelete,
+              onCancel: this.onFieldFormCancel
+            })}
         </>
       );
     }

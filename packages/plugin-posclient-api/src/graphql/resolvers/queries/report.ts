@@ -6,14 +6,14 @@ const reportQueries = {
   async dailyReport(
     _root,
     { posUserIds, posNumber }: { posUserIds: string[]; posNumber?: string },
-    { models }: IContext
+    { models, config }: IContext
   ) {
     const report: any = {};
 
     let beginNumber: any = posNumber;
 
     if (!beginNumber) {
-      const tempNumber = await generateOrderNumber(models);
+      const tempNumber = await generateOrderNumber(models, config);
       beginNumber = tempNumber.split('_')[0];
     }
 
@@ -21,7 +21,7 @@ const reportQueries = {
       paidDate: { $ne: null },
       status: { $in: ORDER_STATUSES.FULL },
       number: { $regex: new RegExp(beginNumber) },
-      posToken: { $in: ['', null] }
+      posToken: config.token
     };
     const users = await models.PosUsers.find({
       _id: { $in: posUserIds }
@@ -76,7 +76,9 @@ const reportQueries = {
         { _id: 1, code: 1, name: 1, categoryId: 1 }
       ).lean();
       const productCategories = await models.ProductCategories.find(
-        { _id: { $in: products.map(p => p.categoryId) } },
+        {
+          _id: { $in: products.map(p => p.categoryId) }
+        },
         { _id: 1, code: 1, name: 1 }
       )
         .sort({ order: 1 })

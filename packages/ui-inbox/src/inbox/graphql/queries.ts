@@ -1,6 +1,6 @@
-import { queries as customerQueries } from '@erxes/ui/src/customers/graphql';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import conversationFields from './conversationFields';
+import { queries as customerQueries } from '@erxes/ui-contacts/src/customers/graphql';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import messageFields from './messageFields';
 
 export const paramsDef = `
@@ -115,7 +115,7 @@ const sidebarConversations = `
   }
 `;
 
-const conversationDetail = `
+export const conversationDetail = `
   query conversationDetail($_id: String!) {
     conversationDetail(_id: $_id) {
       ${conversationFields}
@@ -132,7 +132,7 @@ const conversationDetailMarkAsRead = `
   }
 `;
 
-const conversationMessages = `
+export const conversationMessages = `
   query conversationMessages($conversationId: String!, $skip: Int, $limit: Int, $getFirst: Boolean) {
     conversationMessages(conversationId: $conversationId, skip: $skip, limit: $limit, getFirst: $getFirst) {
       ${messageFields}
@@ -424,7 +424,7 @@ const integrationsConversationFbComments = `
   }
 `;
 
-const integrationsConversationFbCommentsCount = `
+export const integrationsConversationFbCommentsCount = `
   query integrationsConversationFbCommentsCount($postId: String!, $isResolved: Boolean) {
     integrationsConversationFbCommentsCount(postId: $postId, isResolved:$isResolved) 
   }

@@ -1,5 +1,4 @@
 import * as jwt from 'jsonwebtoken';
-import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NextFunction, Request, Response } from 'express';
 
 export default async function posUserMiddleware(

@@ -1,12 +1,13 @@
+import { colors, dimensions } from '@erxes/ui/src/styles';
+
+import { Contents } from '@erxes/ui/src/layout/styles';
+import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
+import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { RightMenuContainer } from '@erxes/ui-cards/src/boards/styles/rightMenu';
-import { Contents } from '@erxes/ui/src/layout/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
-import { DateWrapper } from '@erxes/ui-forms/src/forms/styles';
-import { HeaderContent } from '@erxes/ui-cards/src/boards/styles/item';
-import { dimensions, colors } from '@erxes/ui/src/styles';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
 
 export const Container = styled.div`
   padding: ${dimensions.coreSpacing}px;
@@ -45,7 +46,7 @@ export const Container = styled.div`
       }
     }
 
-    .show-action-menu .custom-menu {
+    .show-flowJob-menu .custom-menu {
       visibility: visible;
       top: -28px;
     }
@@ -106,7 +107,7 @@ export const Container = styled.div`
   }
 
   .trigger,
-  .action {
+  .flowJob {
     max-width: 300px;
     position: absolute;
     padding: 3px;
@@ -178,7 +179,7 @@ export const Container = styled.div`
     }
   }
 
-  .action {
+  .flowJob {
     .trigger-header {
       background: ${rgba(colors.colorCoreOrange, 0.12)};
 
@@ -425,7 +426,7 @@ export const Notes = styled.div`
   }
 `;
 
-export const ActionTabs = styled.div`
+export const FlowJobTabs = styled.div`
   .hxZkUW {
     border: 1px solid ${colors.borderPrimary};
     border-radius: 5px;
@@ -675,7 +676,7 @@ export const DrawerDetail = styled.div`
   border-radius: 5px;
 `;
 
-export const ZoomActions = styled.div`
+export const ZoomFlowJobs = styled.div`
   position: absolute;
   font-size: 11px;
   z-index: ${dimensions.unitSpacing};

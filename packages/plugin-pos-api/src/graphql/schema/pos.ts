@@ -19,7 +19,9 @@ const posCommonFields = `
   adminIds: [String]
   cashierIds: [String]
   isOnline: Boolean
+  onServer: Boolean
   branchId: String
+  departmentId: String
   allowBranchIds: [String]
   beginNumber: String
   maxSkipNumber: Int
@@ -64,7 +66,6 @@ const posOrderFields = contactsEnabled => `
   userId: String,
   items: JSON,
   posToken: String,
-  syncId: String,
   posName: String,
   user: User,
   ${
@@ -164,6 +165,7 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
   type PosOrderDetail {
     ${posOrderFields(contactsEnabled)}
     putResponses: JSON
+    deliveryInfo: JSON
   }
 
   type PosProduct {
@@ -190,6 +192,13 @@ export const types = ({ contactsEnabled, productsEnabled }) => `
     products: [PosProduct],
     totalCount: Float,
   }
+
+  type CheckOrderResponse {
+    orderId: String
+    isSynced: Boolean
+    syncedDate: Date
+    syncedBillNumber: String
+  }
 `;
 
 const queryParams = `
@@ -205,15 +214,13 @@ const queryParams = `
   paidDate: String
   userId: String
   customerId: String
+  posToken: String
 `;
 
 export const queries = `
-  posList(page: Int,
-    perPage: Int,
-    isOnline: String,
-    sortField: String
-    sortDirection: Int): [Pos]
+  posList(page: Int, perPage: Int, isOnline: String, sortField: String, sortDirection: Int): [Pos]
   posDetail(_id: String!): Pos
+  posEnv: JSON
   productGroups(posId: String!): [ProductGroups]
   posSlots(posId: String!): [PosSlot]
   posOrders(${queryParams}): [PosOrder]
@@ -221,6 +228,7 @@ export const queries = `
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   ecommerceGetBranches(posToken: String): [JSON]
+  posOrdersTotalCount(${queryParams}): JSON 
 `;
 
 export const mutations = `

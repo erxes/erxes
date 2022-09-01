@@ -2,9 +2,9 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface IRemainderParams {
-  productId: string;
   departmentId?: string;
   branchId?: string;
+  productId: string;
   uomId?: string;
 }
 
@@ -15,13 +15,18 @@ export interface IRemaindersParams {
   productIds?: string[];
 }
 
-export interface IRemainder {
-  productId: string;
-  quantity: number;
-  uomId: string;
+export interface IRemainderCount {
+  _id: string;
   count: number;
+  uomId: string;
+}
+
+export interface IRemainder {
   branchId: string;
   departmentId: string;
+  productId: string;
+  count: number;
+  uomId: string;
 }
 
 export interface IRemainderDocument extends IRemainder, Document {
@@ -29,27 +34,21 @@ export interface IRemainderDocument extends IRemainder, Document {
   modifiedAt: Date;
 }
 
-export interface IGetRemainder {
-  _id: string;
-  remainder: number;
-  uomId: string;
-}
-
 export const remainderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    branchId: field({ type: String, default: '', label: 'Branch' }),
+    departmentId: field({ type: String, default: '', label: 'Department' }),
+
     status: field({ type: String, label: 'Status' }),
+    productId: field({ type: String, index: true }),
+    count: field({ type: Number, label: 'Count' }),
+
     modifiedAt: field({
       type: Date,
       default: new Date(),
       label: 'Modified date'
-    }),
-
-    productId: field({ type: String, index: true }),
-    count: field({ type: Number, label: 'Remainder count' }),
-
-    branchId: field({ type: String, default: '', label: 'Branch' }),
-    departmentId: field({ type: String, default: '', label: 'Department' })
+    })
   }),
   'erxes_remainders'
 );

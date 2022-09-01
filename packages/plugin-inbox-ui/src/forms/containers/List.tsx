@@ -1,23 +1,25 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
-import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { mutations as integrationMutations } from '@erxes/ui-settings/src/integrations/graphql/index';
-import { ArchiveIntegrationResponse } from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
 import * as routerUtils from '@erxes/ui/src/utils/router';
-import List from '../components/List';
-import { mutations, queries } from '@erxes/ui-leads/src/graphql';
+
+import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   CopyMutationResponse,
   CountQueryResponse,
   LeadIntegrationsQueryResponse,
   RemoveMutationResponse
 } from '@erxes/ui-leads/src/types';
+import { IRouterProps, MutationVariables } from '@erxes/ui/src/types';
+import { mutations, queries } from '@erxes/ui-leads/src/graphql';
+
+import { ArchiveIntegrationResponse } from '../../settings/integrations/types';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
+import List from '../components/List';
+import React from 'react';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations as integrationMutations } from '../../settings/integrations/graphql/index';
 
 type Props = {
   queryParams: any;

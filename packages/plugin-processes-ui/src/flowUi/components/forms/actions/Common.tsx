@@ -6,14 +6,14 @@ import { Alert, __ } from '@erxes/ui/src/utils';
 
 import { IJob } from '../../../../flow/types';
 import { ScrolledContent } from '../../../styles';
-import { ActionFooter } from './styles';
+import { FlowJobFooter } from './styles';
 
 type Props = {
   closeModal: () => void;
-  activeAction?: IJob;
-  addAction: (
-    action: IJob,
-    actionId?: string,
+  activeFlowJob?: IJob;
+  addFlowJob: (
+    data: IJob,
+    FlowJobId?: string,
     jobReferId?: string,
     description?: string,
     inBranchId?: string,
@@ -32,8 +32,8 @@ type Props = {
 
 function Common(props: Props) {
   const {
-    addAction,
-    activeAction,
+    addFlowJob,
+    activeFlowJob,
     closeModal,
     jobReferId,
     children,
@@ -45,13 +45,13 @@ function Common(props: Props) {
   } = props;
 
   const onSave = () => {
-    if (!activeAction) {
-      return Alert.error('has not active Action');
+    if (!activeFlowJob) {
+      return Alert.error('has not active FlowJob');
     }
 
-    addAction(
-      activeAction,
-      activeAction.id,
+    addFlowJob(
+      activeFlowJob,
+      activeFlowJob.id,
       jobReferId,
       description,
       inBranchId,
@@ -67,7 +67,7 @@ function Common(props: Props) {
     <ScrolledContent>
       {children}
 
-      <ActionFooter>
+      <FlowJobFooter>
         <ModalFooter>
           <Button
             btnStyle="simple"
@@ -82,7 +82,7 @@ function Common(props: Props) {
             Save
           </Button>
         </ModalFooter>
-      </ActionFooter>
+      </FlowJobFooter>
     </ScrolledContent>
   );
 }

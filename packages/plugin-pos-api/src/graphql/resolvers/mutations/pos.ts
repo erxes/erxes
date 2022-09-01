@@ -1,21 +1,38 @@
-import messageBroker, {
-  sendCoreMessage,
+import {
   sendEbarimtMessage,
-  sendPosclientMessage
+  sendSyncerkhetMessage
 } from '../../../messageBroker';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { getConfig } from '../../../utils';
 import { IContext } from '../../../connectionResolver';
 import { IPos, IPosSlot } from '../../../models/definitions/pos';
-import { orderDeleteToErkhet, orderToErkhet } from '../../../utils';
+import {
+  syncPosToClient,
+  syncProductGroupsToClient,
+  syncSlotsToClient
+} from './utils';
 
 interface IPOSEdit extends IPos {
   _id: string;
 }
 
 const mutations = {
-  posAdd: async (_root, params: IPos, { models, user }: IContext) => {
-    return await models.Pos.posAdd(user, params);
+  posAdd: async (
+    _root,
+    params: IPos,
+    { models, user, subdomain }: IContext
+  ) => {
+    const pos = await models.Pos.posAdd(user, params);
+
+    const { ALL_AUTO_INIT } = process.env;
+    if (
+      [true, 'true', 'True', '1'].includes(ALL_AUTO_INIT || '') ||
+      pos.isOnline
+    ) {
+      await syncPosToClient(subdomain, pos);
+    }
+
+    return pos;
   },
 
   posEdit: async (
@@ -23,59 +40,25 @@ const mutations = {
     { _id, ...doc }: IPOSEdit,
     { models, subdomain }: IContext
   ) => {
-    const object = await models.Pos.getPos({ _id });
+    await models.Pos.getPos({ _id });
     const updatedDocument = await models.Pos.posEdit(_id, { ...doc });
 
-    const adminUsers = await sendCoreMessage({
-      subdomain,
-      action: 'users.find',
-      data: {
-        query: {
-          _id: { $in: updatedDocument.adminIds }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    const cashierUsers = await sendCoreMessage({
-      subdomain,
-      action: 'users.find',
-      data: {
-        query: {
-          _id: { $in: updatedDocument.cashierIds }
-        }
-      },
-      isRPC: true,
-      defaultValue: []
-    });
-
-    await sendPosclientMessage({
-      subdomain,
-      action: 'crudData',
-      data: {
-        type: 'pos',
-        action: 'update',
-        object,
-        updatedDocument,
-        adminUsers,
-        cashierUsers
-      },
-      pos: object
-    });
+    await syncPosToClient(subdomain, updatedDocument);
 
     return updatedDocument;
   },
 
-  posRemove: async (_root, { _id }: { _id: string }, { models }) => {
+  posRemove: async (_root, { _id }: { _id: string }, { models }: IContext) => {
     return await models.Pos.posRemove(_id);
   },
 
   productGroupsBulkInsert: async (
     _root,
     { posId, groups }: { posId: string; groups: any[] },
-    { models }
+    { models, subdomain }: IContext
   ) => {
+    const pos = await models.Pos.getPos({ _id: posId });
+
     const dbGroups = await models.ProductGroups.groups(posId);
     const groupsToAdd = [] as any;
     const groupsToUpdate = [] as any;
@@ -98,14 +81,21 @@ const mutations = {
       await models.ProductGroups.deleteMany({ _id: { $in: groupsToRemove } });
     }
     await models.ProductGroups.insertMany(groupsToAdd);
-    return models.ProductGroups.groups(posId);
+
+    const updatedGroups = await models.ProductGroups.groups(posId);
+
+    await syncProductGroupsToClient(subdomain, models, pos);
+
+    return updatedGroups;
   },
 
   posSlotBulkUpdate: async (
     _root,
     { posId, slots }: { posId: string; slots: IPosSlot[] },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) => {
+    const pos = await models.Pos.getPos({ _id: posId });
+
     const oldPosSlots = await models.PosSlots.find({ posId });
 
     const slotIds = slots.map(s => s._id);
@@ -133,10 +123,17 @@ const mutations = {
       });
     }
 
-    await models.PosSlots.bulkWrite(bulkOps);
+    if (bulkOps && bulkOps.length) {
+      await models.PosSlots.bulkWrite(bulkOps);
+    }
 
     await models.PosSlots.insertMany(slots.filter(s => !s._id));
-    return models.PosSlots.find({ posId });
+
+    const updatedSlots = await models.PosSlots.find({ posId });
+
+    await syncSlotsToClient(subdomain, pos, updatedSlots);
+
+    return updatedSlots;
   },
 
   posOrderSyncErkhet: async (
@@ -166,7 +163,17 @@ const mutations = {
     if (!putRes) {
       throw new Error('not found put response');
     }
-    await orderToErkhet(models, messageBroker, subdomain, pos, _id, putRes);
+
+    await sendSyncerkhetMessage({
+      subdomain,
+      action: 'toOrder',
+      data: {
+        pos,
+        order,
+        putRes
+      }
+    });
+
     return await models.PosOrders.findOne({ _id }).lean();
   },
 
@@ -196,9 +203,15 @@ const mutations = {
       isRPC: true
     });
 
-    if (order.syncedErkhet) {
-      await orderDeleteToErkhet(models, messageBroker, subdomain, pos, _id);
-    }
+    await sendSyncerkhetMessage({
+      subdomain,
+      action: 'returnOrder',
+      data: {
+        pos,
+        order
+      }
+    });
+
     return await models.PosOrders.deleteOne({ _id });
   },
   posOrderChangePayments: async (

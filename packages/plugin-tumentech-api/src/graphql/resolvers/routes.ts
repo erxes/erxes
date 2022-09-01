@@ -1,5 +1,5 @@
-import { IRouteDocument } from './../../models/definitions/routes';
 import { IContext } from '../../connectionResolver';
+import { IRouteDocument } from './../../models/definitions/routes';
 
 const Route = {
   async directions(

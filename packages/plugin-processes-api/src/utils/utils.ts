@@ -5,8 +5,13 @@ import {
 import { IFlowDocument } from './../models/definitions/flows';
 import { IWork } from './../models/definitions/works';
 import { IModels } from './../connectionResolver';
-import { IJobReferDocument, IProductsData } from './../models/definitions/jobs';
+import {
+  IJobReferDocument,
+  IProduct,
+  IProductsData
+} from './../models/definitions/jobs';
 import { IJobDocument } from '../models/definitions/flows';
+import { sendProductsMessage } from '../messageBroker';
 
 export const findLastJob = (
   jobs: IJobDocument[],
@@ -127,11 +132,12 @@ export const initDocOverallWork = (work: IWork) => {
   return doc;
 };
 
-export const initDocWork = (
+export const initDocWork = async (
   flow: IFlowDocument,
   jobRefer: IJobReferDocument,
   productId: string,
   count: string,
+  subdomain: string,
   job?: IJobDocument,
   intervalId?: string
 ) => {
@@ -150,19 +156,65 @@ export const initDocWork = (
     inDepartmentId: job?.inDepartmentId,
     outBranchId: job?.outBranchId,
     outDepartmentId: job?.outDepartmentId,
-    needProducts: initProducts(parseInt(count, 10), jobRefer.needProducts),
-    resultProducts: initProducts(parseInt(count, 10), jobRefer.resultProducts)
+    needProducts: await initProducts(
+      parseInt(count, 10),
+      jobRefer.needProducts,
+      subdomain
+    ),
+    resultProducts: await initProducts(
+      parseInt(count, 10),
+      jobRefer.resultProducts,
+      subdomain
+    )
   };
 
   return doc;
 };
 
-export const initProducts = (count: number, products: IProductsData[]) => {
+export const initProducts = async (
+  count: number,
+  inputProducts: IProductsData[],
+  subdomain: string
+) => {
+  const productsCount =
+    (await sendProductsMessage({
+      subdomain,
+      action: 'count',
+      data: {},
+      isRPC: true
+    })) || null;
+
+  const productsData =
+    (await sendProductsMessage({
+      subdomain,
+      action: 'find',
+      data: { limit: productsCount },
+      isRPC: true
+    })) || [];
+
   const response: IProductsData[] = [];
-  for (const product of products) {
-    const changedProduct = product;
-    changedProduct.quantity = (changedProduct.quantity || 1) * count;
-    response.push(changedProduct);
+  for (const inputProduct of inputProducts) {
+    const changedIProduct = inputProduct;
+    const { quantity, uomId } = changedIProduct;
+    const product: IProduct = productsData.find(
+      p => p._id === changedIProduct.productId
+    );
+
+    if (
+      Object.keys(product).includes('uomId') &&
+      product.uomId &&
+      product.uomId !== changedIProduct.uomId
+    ) {
+      const { subUoms } = product;
+      const subUom = (subUoms || []).find(sub => sub.uomId === uomId);
+      const { ratio } = subUom;
+
+      changedIProduct.uomId = product.uomId || '';
+      changedIProduct.quantity = quantity / ratio;
+    }
+
+    changedIProduct.quantity = (changedIProduct.quantity || 1) * count;
+    response.push(changedIProduct);
   }
 
   return response;
@@ -256,7 +308,8 @@ export const recursiveCatchBeforeJobs = async (
   leftJobs,
   level,
   params,
-  intervalId
+  intervalId,
+  subdomain: string
 ) => {
   console.log('Starting recursive ...');
 
@@ -274,36 +327,27 @@ export const recursiveCatchBeforeJobs = async (
     leftJobs.length
   );
 
-  const responseLeftJobs: any[] = [];
   const totalBeforeJobsRecursive: any[] = [];
 
   for (const recursiveJob of recursiveJobs) {
-    const {
-      flow,
-      productId,
-      count,
-      branchId,
-      departmentId,
-      jobRefers,
-      models
-    } = params;
+    const { flow, productId, count, jobRefers, models } = params;
 
     const lastJobRefer = getJobRefers(
       [recursiveJob?.jobReferId || ''],
       jobRefers
     );
 
-    const doc: IWork = initDocWork(
+    const doc: IWork = await initDocWork(
       flow,
       lastJobRefer[0],
       productId,
       count,
+      subdomain,
       recursiveJob,
       intervalId
     );
 
-    const work = await worksAdd(doc, models);
-    // console.log('work:', work);
+    await worksAdd(doc, models);
 
     const beforeJobsRecursive = getBeforeJobs(leftJobs, recursiveJob.id);
 
@@ -350,7 +394,8 @@ export const recursiveCatchBeforeJobs = async (
           leftJobs,
           level + levelCounter++,
           params,
-          intervalId
+          intervalId,
+          subdomain
         );
       }
     }

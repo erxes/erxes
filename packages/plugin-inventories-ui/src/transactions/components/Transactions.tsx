@@ -1,11 +1,13 @@
 import React from 'react';
 import { __, Wrapper } from '@erxes/ui/src';
 import Actionbar from './Actionbar';
-import List from './List';
+import List from '../containers/List';
 import { SUBMENU } from '../../constants';
 
 type Props = {
   data: any[];
+  queryParams: any;
+  history: any;
 };
 
 const Transactions = (props: Props) => {

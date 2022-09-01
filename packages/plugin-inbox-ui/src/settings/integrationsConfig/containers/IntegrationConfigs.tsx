@@ -1,15 +1,14 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import {
-  mutations,
-  queries
-} from '@erxes/ui-inbox/src/settings/integrations/graphql';
-import IntegrationsConfig from '../components/IntegrationConfigs';
+import { mutations, queries } from '../../integrations/graphql';
+
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
+import IntegrationsConfig from '../components/IntegrationConfigs';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 
 type FinalProps = {
   integrationsConfigsQuery;
@@ -56,7 +55,7 @@ class ConfigContainer extends React.Component<FinalProps> {
 export default withProps<{}>(
   compose(
     graphql<{}>(gql(queries.integrationsGetConfigs), {
-      name: 'integrationsConfigsQuery',
+      name: 'integrationsConfigsQuery'
     }),
     graphql<{}>(gql(mutations.integrationsUpdateConfigs), {
       name: 'updateConfigs'

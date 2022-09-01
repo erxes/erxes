@@ -1,23 +1,24 @@
-import ActivityInputs from '@erxes/ui/src/activityLogs/components/ActivityInputs';
-import ActivityLogs from '@erxes/ui/src/activityLogs/containers/ActivityLogs';
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { TabTitle } from '@erxes/ui/src/components/tabs';
-import { __, renderFullName } from 'coreui/utils';
-import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
-import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
 import { MailBox, UserHeader } from '@erxes/ui-contacts/src/customers/styles';
+import { __, renderFullName } from 'coreui/utils';
+
+import ActionSection from '@erxes/ui-contacts/src/customers/containers/ActionSection';
+import ActivityInputs from '@erxes/ui-log/src/activityLogs/components/ActivityInputs';
+import ActivityLogs from '@erxes/ui-log/src/activityLogs/containers/ActivityLogs';
+import { ICustomer } from '../../types';
+import { IField } from '@erxes/ui/src/types';
+import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
+import LeadState from '@erxes/ui-contacts/src/customers/containers/LeadState';
+import LeftSidebar from './LeftSidebar';
+import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import RightSidebar from './RightSidebar';
+import { TabTitle } from '@erxes/ui/src/components/tabs';
 import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import MailForm from '@erxes/ui-settings/src/integrations/containers/mail/MailForm';
-import { IField } from '@erxes/ui/src/types';
-import React from 'react';
-import { ICustomer } from '../../types';
-import InfoSection from '@erxes/ui-contacts/src/customers/components/common/InfoSection';
-import LeftSidebar from './LeftSidebar';
-import RightSidebar from './RightSidebar';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import { IFieldsVisibility } from '@erxes/ui-contacts/src/customers/types';
 
 type Props = {
   customer: ICustomer;
@@ -139,12 +140,7 @@ class CustomerDetails extends React.Component<Props> {
         }
         mainHead={
           <UserHeader>
-            <InfoSection
-              nameSize={10}
-              avatarSize={40}
-              customer={customer}
-              hideForm={true}
-            >
+            <InfoSection avatarSize={40} customer={customer}>
               <ActionSection customer={customer} />
             </InfoSection>
             <LeadState customer={customer} />

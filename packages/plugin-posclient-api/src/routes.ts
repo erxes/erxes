@@ -19,15 +19,27 @@ export const posInitialSetup = async (req, res) => {
 
   const envMaps = JSON.parse(req.query.envs || '{}');
 
+  const cookieOptions: any = authCookieOptions();
+
+  if (cookieOptions.secure) {
+    cookieOptions.sameSite = 'none';
+  }
+
   for (const key of Object.keys(envMaps)) {
-    res.cookie(key, envMaps[key], authCookieOptions(req.secure));
+    res.cookie(key, envMaps[key], cookieOptions);
   }
 
   return res.end('success');
 };
 
 export const callBackQpay = async (req, res) => {
+  const { SKIP_REDIS } = process.env;
+  if (SKIP_REDIS) {
+    return;
+  }
+
   const subdomain = getSubdomain(req);
+
   const models = await generateModels(subdomain);
 
   const { payment_id, qpay_payment_id } = req.query;
@@ -57,6 +69,16 @@ export const callBackQpay = async (req, res) => {
   const paidMobileAmount = await models.QPayInvoices.getPaidAmount(orderId);
 
   const config: IConfigDocument =
-    (await models.Configs.findOne().lean()) || ({} as IConfigDocument);
-  await commonCheckPayment(models, orderId, config, paidMobileAmount);
+    (await models.Configs.findOne({ token: invoice.token }).lean()) ||
+    ({} as IConfigDocument);
+
+  await commonCheckPayment(
+    subdomain,
+    models,
+    orderId,
+    config,
+    paidMobileAmount
+  );
+
+  return;
 };

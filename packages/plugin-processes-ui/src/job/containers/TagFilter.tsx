@@ -1,14 +1,15 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import CountsByTag from '@erxes/ui/src/components/CountsByTag';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import { queries as tagQueries } from '@erxes/ui/src/tags/graphql';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { TagsQueryResponse } from '@erxes/ui/src/tags/types';
-import { queries } from '../graphql';
+
 import { CountByTagsQueryResponse } from '../types';
+import CountsByTag from '@erxes/ui/src/components/CountsByTag';
+import React from 'react';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '../graphql';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 
 const TagFilterContainer = (props: {
   countByTagsQuery: CountByTagsQueryResponse;

@@ -1,8 +1,10 @@
-import React from 'react';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { ITrip } from '../../types';
-import { formatValue, renderFullName, __ } from '@erxes/ui/src/utils/core';
+import { formatValue, renderFullName } from '@erxes/ui/src/utils/core';
+import React from 'react';
 import { useHistory } from 'react-router-dom';
+
+import { ITrip } from '../../types';
+import { carInfo } from '../../utils';
 
 type Props = {
   trip: ITrip;
@@ -33,7 +35,9 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{`${trip.car.plateNumber} - ${trip.car.carModel}`}</RowTitle>
+        <RowTitle>
+          {trip.cars.length ? `${trip.cars.map(c => carInfo(c))}` : 'undefined'}
+        </RowTitle>
       </td>
 
       <td key={Math.random()}>

@@ -32,7 +32,7 @@ class PluginPreview extends React.Component<Props> {
               <Card>
                 <PluginPic src={plugin.image} />
                 <PluginInformation>
-                  <b>{plugin.title}</b>
+                  <b className="title">{plugin.title}</b>
                   <Description
                     dangerouslySetInnerHTML={{
                       __html: plugin.shortDescription

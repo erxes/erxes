@@ -1,9 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import {
-  sendCoreMessage,
-  sendContactsMessage,
-  sendCardsMessage
-} from '../../messageBroker';
+import { sendCoreMessage } from '../../messageBroker';
 import { IParticipantDocument } from '../../models/definitions/participants';
 import { ICarCategoryDocument } from '../../models/definitions/tumentech';
 
@@ -59,11 +55,19 @@ const CarCategory = {
 };
 
 const Participant = {
-  customer(participant: IParticipantDocument) {
+  cars(participant: IParticipantDocument, {}, { models }: IContext) {
+    return models.Cars.find({ _id: { $in: participant.carIds } }).lean();
+  },
+
+  route(participant: IParticipantDocument, {}, { models }: IContext) {
+    return models.Routes.findOne({ _id: participant.routeId });
+  },
+
+  driver(participant: IParticipantDocument) {
     return (
-      participant.customerId && {
+      participant.driverId && {
         __typename: 'Customer',
-        _id: participant.customerId
+        _id: participant.driverId
       }
     );
   },

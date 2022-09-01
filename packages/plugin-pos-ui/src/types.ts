@@ -39,7 +39,9 @@ export type IPos = {
   cashierIds: [string];
   user: IUser;
   isOnline: boolean;
+  onServer: boolean;
   branchId?: string;
+  departmentId?: string;
   allowBranchIds?: string[];
   beginNumber?: string;
   maxSkipNumber?: number;
@@ -109,6 +111,10 @@ export type PosDetailQueryResponse = {
   posDetail: IPos;
 } & QueryResponse;
 
+export type PosEnvQueryResponse = {
+  posEnv: any;
+} & QueryResponse;
+
 export type AddPosMutationResponse = {
   addPosMutation: (params: { variables: IPos }) => Promise<any>;
 };
@@ -170,10 +176,6 @@ export interface IProductShema {
 
 export type SchemaLabelsQueryResponse = {
   getDbSchemaLabels: IProductShema[];
-} & QueryResponse;
-
-export type BranchesQueryResponse = {
-  branches: any[];
 } & QueryResponse;
 
 export interface IOrdersSummary {

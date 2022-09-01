@@ -1,3 +1,5 @@
+import channelQueries from '@erxes/ui-settings/src/channels/graphql/queries';
+
 const allUsers = `
   query allUsers($isActive: Boolean) {
     allUsers(isActive: $isActive) {
@@ -146,6 +148,7 @@ const branchField = `
       fullName
     }
   }
+  radius
   ${contactInfoFields}
 `;
 
@@ -182,16 +185,16 @@ const userDetail = `
 const userConversations = `
   query userConversations($_id: String!, $perPage: Int) {
     userConversations(_id: $_id, perPage: $perPage) {
-    list {
-      _id
-      createdAt
-      customer {
+      list {
         _id
-        firstName
-        lastName
-        middleName
-        primaryEmail
-        primaryPhone
+        createdAt
+        customer {
+          _id
+          firstName
+          lastName
+          middleName
+          primaryEmail
+          primaryPhone
         }
       }
       totalCount
@@ -272,6 +275,76 @@ const branchDetail = `
   }
 `;
 
+const skillTypes = `
+  query skillTypes {
+    skillTypes {
+      _id
+      name
+    }
+  }
+`;
+
+const genericFields = `
+  _id
+  description
+  code
+  order
+  isVisible
+  isVisibleInDetail
+  contentType
+  isDefinedByErxes
+`;
+
+const commonFields = `
+  type
+  text
+
+  canHide
+  validation
+  options
+  isVisibleToCreate
+  locationOptions{
+    lat
+    lng
+    description
+  }
+  objectListConfigs{
+    key
+    label
+    type
+  }
+  groupId
+  searchable
+  showInCard
+  isRequired
+
+  ${genericFields}
+
+  lastUpdatedUser {
+    details {
+      fullName
+    }
+  }
+`;
+
+const fieldsGroups = `
+  query fieldsGroups($contentType: String!, $isDefinedByErxes: Boolean, $config: JSON) {
+    fieldsGroups(contentType: $contentType, isDefinedByErxes: $isDefinedByErxes, config: $config) {
+      name
+      ${genericFields}
+      config
+      lastUpdatedUser {
+        details {
+          fullName
+        }
+      }
+      fields  {
+        ${commonFields}
+      }
+    }
+  }
+`;
+
 export default {
   userSkills,
   userDetail,
@@ -287,5 +360,8 @@ export default {
   noDepartmentUsers,
   branches,
   branchDetail,
-  detailFields
+  detailFields,
+  channels: channelQueries.channels,
+  skillTypes,
+  fieldsGroups
 };

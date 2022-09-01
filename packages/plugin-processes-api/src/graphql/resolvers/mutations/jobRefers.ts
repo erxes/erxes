@@ -1,6 +1,6 @@
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
-import { IJobRefer, IJobReferDocument } from '../../../models/definitions/jobs';
+import { IJobRefer } from '../../../models/definitions/jobs';
 import {
   putCreateLog,
   putDeleteLog,
@@ -8,7 +8,6 @@ import {
   MODULE_NAMES
 } from '../../../logUtils';
 import { IContext } from '../../../connectionResolver';
-import { IJobCategory } from '../../../models/definitions/jobCategories';
 
 interface IJobRefersEdit extends IJobRefer {
   _id: string;

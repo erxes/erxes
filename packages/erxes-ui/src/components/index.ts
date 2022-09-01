@@ -24,7 +24,7 @@ import { Step, Steps } from './step';
 import Submenu from './subMenu/Submenu';
 import Table from './table';
 import withTableWrapper from './table/withTableWrapper';
-import { Tabs, TabTitle } from './tabs'
+import { Tabs, TabTitle } from './tabs';
 import ActionButtons from './ActionButtons';
 import AnimatedLoader from './AnimatedLoader';
 import AsyncComponent from './AsyncComponent';
@@ -67,6 +67,7 @@ import Uploader from './Uploader';
 import WithPermission from './WithPermission';
 import HelpPopover from './HelpPopover';
 import Drawer from './Drawer';
+import MemberAvatars from './MemberAvatars';
 
 export {
   HelpPopover,
@@ -94,6 +95,7 @@ export {
   FilePreview,
   HeaderDescription,
   ErrorMsg,
+  MemberAvatars,
   DropdownToggle,
   DataWithLoader,
   CountsByTag,
@@ -110,7 +112,6 @@ export {
   Box,
   Calendar,
   Chip,
-
   // common components
   BreadCrumb,
   Bulk,
@@ -141,5 +142,5 @@ export {
   withTableWrapper,
   Tabs,
   TabTitle,
-  Drawer,
-}
+  Drawer
+};

@@ -53,7 +53,6 @@ export const orderFields = `
   userId
   items
   posToken
-  syncId
 
   syncedErkhet
 
@@ -98,6 +97,7 @@ const posOrderDetail = `
     posOrderDetail(_id: $_id) {
       ${orderFields}
       putResponses
+      deliveryInfo
     }
   }
 `;

@@ -4,7 +4,9 @@ module.exports = {
   scope: 'inbox',
   exposes: {
     './routes': './src/routes.tsx',
-    './activityLog': './src/activityLogs/activityLog.tsx'
+    './activityLog': './src/activityLogs/activityLog.tsx',
+    './unreadCount': './src/inbox/containers/UnreadCount.tsx',
+    './actionForms': './src/settings/integrations/containers/ActionForms',
   },
   routes: {
     url: 'http://localhost:3009/remoteEntry.js',
@@ -12,6 +14,7 @@ module.exports = {
     module: './routes'
   },
   activityLog: './activityLog',
+  actionForms: './actionForms',
   menus: [
     {
       text: 'Team Inbox',
@@ -105,5 +108,12 @@ module.exports = {
       action: 'scriptsAll',
       permissions: ['manageScripts', 'showScripts']
     }
-  ]
+  ],
+  customNavigationLabel: [
+    {
+      text: "unreadCount",
+      component: "./unreadCount",
+      scope: "inbox",
+    }
+  ],
 };

@@ -1,11 +1,12 @@
+import { IItem, IOptions } from '../../types';
 import TaskTimer, { STATUS_TYPES } from '@erxes/ui/src/components/Timer';
-import CompanySection from '@erxes/ui/src/companies/components/CompanySection';
-import CustomerSection from '@erxes/ui/src/customers/components/CustomerSection';
+
+import CompanySection from '@erxes/ui-contacts/src/companies/components/CompanySection';
+import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
+import CustomerSection from '@erxes/ui-contacts/src/customers/components/CustomerSection';
 import React from 'react';
 import { RightContent } from '../../styles/item';
-import { IItem, IOptions } from '../../types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-import CustomFieldsSection from '../../containers/editForm/CustomFieldsSection';
 
 type Props = {
   item: IItem;

@@ -290,11 +290,11 @@ export const generateQueryBySegment = async (
   const parentSegment = await models.Segments.findOne({ _id: segment.subOf });
 
   if (parentSegment && (!segment._id || segment._id !== parentSegment._id)) {
-    selectorPositiveList.push({ bool: {} });
+    selector.must.push({ bool: {} });
 
     await generateQueryBySegment(models, subdomain, {
       ...args,
-      selector: selectorPositiveList[selectorPositiveList.length - 1].bool,
+      selector: selector.must[selector.must.length - 1].bool,
       segment: parentSegment,
       isInitialCall: false
     });
@@ -610,9 +610,13 @@ export function elkConvertConditionToQuery(args: {
 }) {
   const { field, type, operator, value } = args;
 
-  const fixedValue = (value || '').includes('now')
+  let fixedValue: any = (value || '').includes('now')
     ? value
     : value.toLocaleLowerCase();
+
+  if (['dateigt', 'dateilt', 'drlt', 'drgt'].includes(operator || '')) {
+    fixedValue = new Date(value);
+  }
 
   let positiveQuery;
   let negativeQuery;

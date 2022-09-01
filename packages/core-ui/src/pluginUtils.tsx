@@ -2,14 +2,11 @@ declare var __webpack_init_sharing__;
 declare var __webpack_share_scopes__;
 declare var window;
 
-import { IUser } from 'modules/auth/types';
-import { IItem } from '@erxes/ui-cards/src/boards/types';
-import { __ } from 'modules/common/utils';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
-import React from 'react';
+import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
+import React from 'react';
+import { __ } from 'modules/common/utils';
 
 const PLUGIN_LABEL_COLORS: string[] = [
   '',
@@ -28,6 +25,51 @@ const PLUGIN_LABEL_COLORS: string[] = [
   '#FF9800', // ORANGE
   '#FF5722' // DEEP ORANGE
 ];
+
+class CustomComponent extends React.Component<
+  { scope: string; component: any; isTopNav?: boolean },
+  { showComponent: boolean }
+> {
+  constructor(props) {
+    super(props);
+
+    this.state = { showComponent: false };
+  }
+
+  componentDidMount() {
+    const interval = setInterval(() => {
+      if (window[this.props.scope]) {
+        window.clearInterval(interval);
+
+        this.setState({ showComponent: true });
+      }
+    }, 500);
+  }
+
+  renderComponent = () => {
+    if (!this.state.showComponent) {
+      return null;
+    }
+
+    const { scope, component } = this.props;
+
+    const Component = React.lazy(loadComponent(scope, component));
+
+    return (
+      <React.Suspense fallback="">
+        <Component />
+      </React.Suspense>
+    );
+  };
+
+  render() {
+    if (this.props.isTopNav) {
+      return <NavItem>{this.renderComponent()}</NavItem>;
+    }
+
+    return this.renderComponent();
+  }
+}
 
 const PluginsWrapper = ({
   itemName,
@@ -98,7 +140,6 @@ export const loadComponent = (scope, module) => {
     await __webpack_init_sharing__('default');
 
     const container = window[scope]; // or get the container somewhere else
-
     // Initialize the container, it may provide shared modules
     await container.init(__webpack_share_scopes__.default);
     const factory = await window[scope].get(module);
@@ -257,44 +298,6 @@ export const pluginsSettingsNavigations = (
   return navigationMenus;
 };
 
-class TopNavigation extends React.Component<any, any> {
-  constructor(props) {
-    super(props);
-
-    this.state = { showComponent: false };
-  }
-
-  componentDidMount() {
-    const interval = setInterval(() => {
-      if (window[this.props.topNav.scope]) {
-        window.clearInterval(interval);
-
-        this.setState({ showComponent: true });
-      }
-    }, 500);
-  }
-
-  renderComponent = () => {
-    if (!this.state.showComponent) {
-      return null;
-    }
-
-    const { topNav } = this.props;
-
-    const Component = React.lazy(loadComponent(topNav.scope, topNav.component));
-
-    return (
-      <React.Suspense fallback="">
-        <Component />
-      </React.Suspense>
-    );
-  };
-
-  render() {
-    return <NavItem>{this.renderComponent()}</NavItem>;
-  }
-}
-
 export const pluginsOfTopNavigations = () => {
   const plugins: any[] = (window as any).plugins || [];
   const topNavigationMenus: any[] = [];
@@ -304,7 +307,11 @@ export const pluginsOfTopNavigations = () => {
       if (menu.location === 'topNavigation') {
         topNavigationMenus.push(
           <React.Fragment key={menu.text}>
-            <TopNavigation topNav={menu} />
+            <CustomComponent
+              scope={menu.scope}
+              component={menu.component}
+              isTopNav
+            />
           </React.Fragment>
         );
       }
@@ -355,7 +362,8 @@ export const pluginRouters = () => {
   return pluginRoutes;
 };
 
-export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
+export const pluginsOfCustomerSidebar = (customer: any) => {
+  //check - ICustomer
   return renderPluginSidebar(
     'customerRightSidebarSection',
     'customer',
@@ -363,11 +371,12 @@ export const pluginsOfCustomerSidebar = (customer: ICustomer) => {
   );
 };
 
-export const pluginsOfCompanySidebar = (company: ICompany) => {
+export const pluginsOfCompanySidebar = (company: any) => {
+  //check - ICompany
   return renderPluginSidebar('companyRightSidebarSection', 'company', company);
 };
 
-export const pluginsOfItemSidebar = (item: IItem, type: string) => {
+export const pluginsOfItemSidebar = (item: any, type: string) => {
   return renderPluginSidebar(`${type}RightSidebarSection`, type, item);
 };
 
@@ -409,6 +418,48 @@ export const pluginsOfProductCategoryActions = (category: any) => {
           );
 
           return <Component key={Math.random()} productCategory={category} />;
+        });
+      }}
+    />
+  );
+};
+
+export const customNavigationLabel = () => {
+  const plugins: any[] = (window as any).plugins || [];
+  const customLabels: any[] = [];
+
+  for (const plugin of plugins) {
+    for (const lbl of plugin.customNavigationLabel || []) {
+      customLabels.push(
+        <React.Fragment key={lbl.text}>
+          <CustomComponent scope={lbl.scope} component={lbl.component} />
+        </React.Fragment>
+      );
+    }
+  }
+
+  return customLabels;
+};
+
+export const pluginsOfJobCategoryActions = (productCategoryId: string) => {
+  const plugins: any[] = (window as any).plugins || [];
+
+  return (
+    <PluginsWrapper
+      plugins={plugins}
+      itemName={'jobCategoryActions'}
+      callBack={(_plugin, actions) => {
+        return actions.map(action => {
+          const Component = React.lazy(
+            loadComponent(action.scope, action.component)
+          );
+
+          return (
+            <Component
+              key={Math.random()}
+              productCategoryId={productCategoryId}
+            />
+          );
         });
       }}
     />

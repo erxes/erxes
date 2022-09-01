@@ -8,6 +8,7 @@ const commonVariables = `
   $customFieldsData: JSON
   $eventData: ExmEventDataInput
   $createdAt: Date
+  $department : String
 `;
 
 const commonParams = `
@@ -20,6 +21,7 @@ const commonParams = `
   customFieldsData: $customFieldsData
   eventData: $eventData
   createdAt: $createdAt
+  department : $department
 `;
 
 const addFeed = `
@@ -89,5 +91,5 @@ export default {
   addThank,
   editThank,
   deleteThank,
-  pinFeed,
+  pinFeed
 };

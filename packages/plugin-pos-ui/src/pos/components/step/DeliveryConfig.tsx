@@ -1,65 +1,62 @@
-import React from 'react';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from 'react';
 import Select from 'react-select-plus';
-import {
-  __,
-  ControlLabel,
-  FormGroup,
-  SelectTeamMembers
-} from '@erxes/ui/src';
-import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSelect'
-import {
-  Block,
-  BlockRow,
-  FlexColumn,
-  FlexItem
-} from '../../../styles';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
+import { __, ControlLabel, FormGroup, SelectTeamMembers } from '@erxes/ui/src';
+import { Block, BlockRow, FlexColumn, FlexItem } from '../../../styles';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
 import { IPos } from '../../../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
 
 type Props = {
-  onChange: (name: "deliveryConfig", value: any) => void;
+  onChange: (name: 'deliveryConfig', value: any) => void;
   pos?: IPos;
 };
 
-class DeliveryConfig extends React.Component<Props, { config: any, fieldsCombined: FieldsCombinedByType[] }> {
+type State = {
+  config: any;
+  fieldsCombined: FieldsCombinedByType[];
+};
+
+class DeliveryConfig extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const config = props.pos && props.pos.deliveryConfig ? props.pos.deliveryConfig : {
-      boardId: '',
-      pipelineId: '',
-      stageId: '',
-      watchedUserIds: [],
-      assignedUserIds: [],
-    }
+    const config =
+      props.pos && props.pos.deliveryConfig
+        ? props.pos.deliveryConfig
+        : {
+            boardId: '',
+            pipelineId: '',
+            stageId: '',
+            watchedUserIds: [],
+            assignedUserIds: [],
+            productId: ''
+          };
 
-    let fieldsCombined = [];
+    this.state = {
+      config,
+      fieldsCombined: []
+    };
 
     if (isEnabled('forms')) {
       client
         .query({
           query: gql(formQueries.fieldsCombinedByContentType),
           variables: {
-            contentType: 'deal'
+            contentType: 'cards:deal'
           }
         })
         .then(({ data }) => {
-          this.setState({ fieldsCombined: data ? data.fieldsCombinedByContentType : [] || [] });
+          this.setState({
+            fieldsCombined: data ? data.fieldsCombinedByContentType : [] || []
+          });
         });
-
-      this.setState({ fieldsCombined });
     }
-
-    this.state = {
-      config,
-      fieldsCombined: []
-    };
   }
 
   onChangeConfig = (code: string, value) => {
@@ -76,8 +73,7 @@ class DeliveryConfig extends React.Component<Props, { config: any, fieldsCombine
       value: item,
       label: CONSTANT.find(el => el.value === item).label
     }));
-  }
-
+  };
 
   render() {
     const { config, fieldsCombined } = this.state;
@@ -94,29 +90,33 @@ class DeliveryConfig extends React.Component<Props, { config: any, fieldsCombine
       this.onChangeConfig('stageId', stageId);
     };
 
-    const onWatchedUsersSelect = (users) => {
+    const onWatchedUsersSelect = users => {
       this.onChangeConfig('watchedUserIds', users);
     };
 
-    const onAssignedUsersSelect = (users) => {
+    const onAssignedUsersSelect = users => {
       this.onChangeConfig('assignedUserIds', users);
     };
 
-    const onMapCustomFieldChange = (option) => {
+    const onMapCustomFieldChange = option => {
       const value = !option ? '' : option.value.toString();
-      this.onChangeConfig('mapCustomField', value)
-    }
+      this.onChangeConfig('mapCustomField', value);
+    };
+
+    const onChangeProduct = option => {
+      this.onChangeConfig('productId', option);
+    };
 
     return (
       <FlexItem>
         <FlexColumn>
           <LeftItem>
-            {isEnabled('cards') && (
+            {(isEnabled('cards') && (
               <Block>
-                <h4>{__("Stage")}</h4>
+                <h4>{__('Stage')}</h4>
                 <BlockRow>
                   <BoardSelectContainer
-                    type='deal'
+                    type="deal"
                     autoSelectStage={false}
                     boardId={config.boardId}
                     pipelineId={config.pipelineId}
@@ -124,7 +124,6 @@ class DeliveryConfig extends React.Component<Props, { config: any, fieldsCombine
                     onChangeBoard={onChangeBoard}
                     onChangePipeline={onChangePipeline}
                     onChangeStage={onChangeStage}
-
                   />
                 </BlockRow>
                 <BlockRow>
@@ -135,22 +134,22 @@ class DeliveryConfig extends React.Component<Props, { config: any, fieldsCombine
                       value={config.mapCustomField}
                       onChange={onMapCustomFieldChange}
                       options={(fieldsCombined || []).map(f => ({
-                        value: f._id,
+                        value: f.name,
                         label: f.label
                       }))}
                     />
                   </FormGroup>
-
                 </BlockRow>
               </Block>
-            ) || ("Please, enabled cards plugin")}
+            )) ||
+              'Please, enabled cards plugin'}
             <Block>
-              <h4>{__("Deal users")}</h4>
+              <h4>{__('Deal users')}</h4>
               <BlockRow>
                 <FormGroup>
                   <ControlLabel>{__('Watched Users')}</ControlLabel>
                   <SelectTeamMembers
-                    label={__("Choose team member")}
+                    label={__('Choose team member')}
                     name="watchedUserIds"
                     initialValue={config.watchedUserIds}
                     onSelect={onWatchedUsersSelect}
@@ -161,19 +160,30 @@ class DeliveryConfig extends React.Component<Props, { config: any, fieldsCombine
                 <FormGroup>
                   <ControlLabel>{__('Assigned Users')}</ControlLabel>
                   <SelectTeamMembers
-                    label={__("Choose team member")}
+                    label={__('Choose team member')}
                     name="assignedUserIds"
                     initialValue={config.assignedUserIds}
                     onSelect={onAssignedUsersSelect}
                   />
                 </FormGroup>
-
+              </BlockRow>
+              <BlockRow>
+                <FormGroup>
+                  <ControlLabel>{__('Delivery product')}</ControlLabel>
+                  <SelectProducts
+                    label={__('Choose delivery product')}
+                    name="product"
+                    initialValue={config.productId}
+                    multi={false}
+                    onSelect={onChangeProduct}
+                  />
+                </FormGroup>
               </BlockRow>
             </Block>
           </LeftItem>
         </FlexColumn>
       </FlexItem>
-    )
+    );
   }
 }
 

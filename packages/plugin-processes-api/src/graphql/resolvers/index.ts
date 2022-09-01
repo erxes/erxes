@@ -27,7 +27,7 @@ import {
   Performs as PerformQueries
 } from './queries';
 
-const resolvers: any = async serviceDiscovery => ({
+const resolvers: any = async () => ({
   ...customScalars,
   JobCategory,
   FlowCategory,

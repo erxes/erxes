@@ -8,6 +8,7 @@ import Spins from './spins';
 import VoucherCampaigns from './voucherCampaigns';
 import Vouchers from './vouchers';
 import Loyalties from './loyalties';
+import ScoreLogs from './scoreLogs';
 
 export {
   Configs,
@@ -20,4 +21,5 @@ export {
   LotteryCampaigns,
   Lotteries,
   Loyalties,
+  ScoreLogs
 };

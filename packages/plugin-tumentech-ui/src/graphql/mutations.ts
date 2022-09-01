@@ -1,4 +1,5 @@
 import { carFields } from './queries';
+
 const commonFields = `
   $description: String,
 
@@ -281,8 +282,8 @@ mutation participantsRemoveFromDeal($dealId: String!, $customerIds: [String]){
 }`;
 
 const selectWinner = `
-mutation selectWinner($customerId: String!, $dealId: String!){
-  selectWinner(customerId: $customerId,dealId: $dealId) {
+mutation selectWinner($dealId: String!, $driverId: String!) {
+  selectWinner(dealId: $dealId, driverId: $driverId) {
     _id
   }
 }

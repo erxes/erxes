@@ -18,11 +18,20 @@ export const initBroker = async cl => {
     };
   });
 
-  consumeRPCQueue('inventories:remainder', async ({ subdomain, data }) => {
+  consumeRPCQueue('inventories:remainderCount', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
-      data: await models.Remainders.getRemainder(subdomain, data),
+      data: await models.Remainders.getRemainderCount(subdomain, data),
+      status: 'success'
+    };
+  });
+
+  consumeRPCQueue('inventories:transactionAdd', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+
+    return {
+      data: await models.Transactions.createTransaction(data),
       status: 'success'
     };
   });

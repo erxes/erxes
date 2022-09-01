@@ -1,17 +1,18 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
-import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
-import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
-import { IntegrationsQueryResponse } from '@erxes/ui-settings/src/integrations/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+
 import Form from '../components/Form';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { IntegrationsQueryResponse } from '../../settings/integrations/types';
+import React from 'react';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import { TopicsQueryResponse } from '@erxes/ui-knowledgebase/src/types';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationQueries } from '../../settings/integrations/graphql';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   integrationsQuery: IntegrationsQueryResponse;

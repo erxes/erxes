@@ -25,6 +25,7 @@ export const types = `
     unitPrice: Float
     discountAmount: Float
     discountPercent: Float
+    bonusCount: Float
     productName: String
     isPackage: Boolean
     isTake: Boolean
@@ -83,12 +84,14 @@ export const types = `
     oldBillId: String
     type: String
     branchId: String
+    departmentId: String
     deliveryInfo: JSON
     cardPaymentInfo: String
     cardPayments: [CardPayment]
     origin: String
     items: [PosOrderItem]
     putResponses: [PosPutResponse]
+    slotCode: String
   }
 `;
 

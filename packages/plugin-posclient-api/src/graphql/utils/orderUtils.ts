@@ -7,7 +7,8 @@ import { sendRequest } from '@erxes/api-utils/src/requests';
 import {
   DISTRICTS,
   ORDER_STATUSES,
-  BILL_TYPES
+  BILL_TYPES,
+  ORDER_TYPES
 } from '../../models/definitions/constants';
 import {
   IConfigDocument,
@@ -16,7 +17,7 @@ import {
 } from '../../models/definitions/configs';
 import * as moment from 'moment';
 import { graphqlPubsub } from '../../configs';
-import messageBroker from '../../messageBroker';
+import { sendPosMessage } from '../../messageBroker';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IDetailItem {
@@ -34,7 +35,7 @@ export const getPureDate = (date?: Date) => {
 
 export const generateOrderNumber = async (
   models: IModels,
-  config?: IConfig
+  config: IConfig
 ): Promise<string> => {
   const todayStr = moment()
     .format('YYYYMMDD')
@@ -48,7 +49,7 @@ export const generateOrderNumber = async (
 
   const latestOrder = ((await models.Orders.find({
     number: { $regex: new RegExp(`^${todayStr}_${beginNumber}*`) },
-    posToken: { $in: ['', null] }
+    posToken: config.token
   })
     .sort({ number: -1 })
     .limit(1)
@@ -136,6 +137,10 @@ export const updateOrderItems = async (
       productId: item.productId,
       count: item.count,
       unitPrice: item.unitPrice,
+      discountPercent: item.discountPercent,
+      discountAmount: item.discountAmount,
+      bonusCount: item.bonusCount,
+      bonusVoucherId: item.bonusVoucherId,
       isPackage: item.isPackage,
       isTake: item.isTake
     };
@@ -262,6 +267,31 @@ export const prepareOrderDoc = async (
 
   const items = doc.items.filter(i => !i.isPackage) || [];
 
+  const products = await models.Products.find({
+    _id: { $in: items.map(i => i.productId) }
+  }).lean();
+
+  const productsOfId = {};
+
+  for (const prod of products) {
+    productsOfId[prod._id] = prod;
+  }
+
+  // set unitPrice
+  doc.totalAmount = 0;
+  for (const item of items) {
+    const fixedUnitPrice = Number(
+      (
+        (productsOfId[item.productId] || {}).unitPrice ||
+        item.unitPrice ||
+        0
+      ).toFixed(2)
+    );
+
+    item.unitPrice = fixedUnitPrice;
+    doc.totalAmount += (item.count || 0) * fixedUnitPrice;
+  }
+
   const hasTakeItems = items.filter(i => i.isTake);
 
   if (hasTakeItems.length > 0 && catProdMappings.length > 0) {
@@ -269,16 +299,6 @@ export const prepareOrderDoc = async (
 
     for (const rel of catProdMappings) {
       packOfCategoryId[rel.categoryId] = rel.productId;
-    }
-
-    const products = await models.Products.find({
-      _id: { $in: items.map(i => i.productId) }
-    }).lean();
-
-    const productsOfId = {};
-
-    for (const prod of products) {
-      productsOfId[prod._id] = prod;
     }
 
     const toAddProducts = {};
@@ -320,6 +340,27 @@ export const prepareOrderDoc = async (
 
         doc.totalAmount += (toAddItem.count || 0) * fixedUnitPrice;
       }
+    }
+  }
+
+  if (
+    doc.type === ORDER_TYPES.DELIVERY &&
+    config.deliveryConfig &&
+    config.deliveryConfig.productId
+  ) {
+    const deliveryProd = await models.Products.findOne({
+      _id: config.deliveryConfig.productId
+    }).lean();
+    if (deliveryProd) {
+      items.push({
+        _id: Math.random().toString(),
+        productId: deliveryProd._id,
+        count: 1,
+        unitPrice: deliveryProd.unitPrice,
+        isPackage: true,
+        isTake: true
+      });
+      doc.totalAmount += deliveryProd.unitPrice;
     }
   }
 
@@ -386,6 +427,7 @@ export const checkInvoiceAmount = async ({
 };
 
 export const commonCheckPayment = async (
+  subdomain,
   models,
   orderId,
   config,
@@ -467,13 +509,16 @@ export const commonCheckPayment = async (
     });
 
     try {
-      messageBroker().sendMessage('vrpc_queue:erxes-pos-to-api', {
-        action: 'makePayment',
-        posToken: config.token,
-        syncId: config.syncInfo.id,
-        response,
-        order,
-        items
+      await sendPosMessage({
+        subdomain,
+        action: 'createOrUpdateOrders',
+        data: {
+          action: 'makePayment',
+          posToken: order.posToken,
+          response,
+          order,
+          items
+        }
       });
     } catch (e) {
       debugError(`Error occurred while sending data to erxes: ${e.message}`);

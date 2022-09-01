@@ -1,11 +1,11 @@
-import { Wrapper } from '@erxes/ui/src';
-import React from 'react';
-
-import SegmentFilter from '../../containers/SegmentFilter';
-import CategoryList from '../../containers/carCategory/CategoryList';
-import { IProduct, IProductCategory } from '../../types';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import CategoryList from '../../containers/carCategory/CategoryList';
+import SegmentFilter from '../../containers/SegmentFilter';
+import { IProduct, IProductCategory } from '../../types';
 
 function Sidebar({
   loadingMainQuery,

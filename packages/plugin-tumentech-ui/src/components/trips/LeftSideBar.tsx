@@ -1,5 +1,6 @@
 import { Sidebar } from '@erxes/ui/src';
 import React from 'react';
+
 import { ITrip } from '../../types';
 import CarSection from './sections/CarSection';
 import DriverSection from './sections/DriverSection';
@@ -17,7 +18,7 @@ export default class LeftSidebar extends React.Component<Props> {
       <Sidebar wide={true}>
         <TripSection trip={trip} />
         <DriverSection driver={trip.driver} />
-        <CarSection car={trip.car} />
+        <CarSection cars={trip.cars} />
       </Sidebar>
     );
   }

@@ -563,7 +563,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
   onRemoveItem = (itemId: string, stageId: string) => {
     const { itemMap } = this.state;
 
-    const items = itemMap[stageId].filter(item => item._id !== itemId);
+    const items = (itemMap[stageId] || []).filter(item => item._id !== itemId);
 
     this.setState({
       itemMap: { ...itemMap, [stageId]: items }
@@ -586,7 +586,7 @@ class PipelineProviderInner extends React.Component<Props, State> {
     // Moved between stages
     if (prevStageId && stageId !== prevStageId) {
       // remove from old stage
-      const prevStageItems = itemMap[prevStageId].filter(
+      const prevStageItems = (itemMap[prevStageId] || []).filter(
         (d: IItem) => d._id !== item._id
       );
 

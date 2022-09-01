@@ -1,5 +1,5 @@
-import { Schema, Document } from "mongoose";
-import { field, schemaHooksWrapper } from "./utils";
+import { Schema, Document } from 'mongoose';
+import { field, schemaHooksWrapper } from './utils';
 export type TExmThank = {
   description: string;
   recipientIds: string[];
@@ -22,6 +22,7 @@ export interface IFeed {
   createdAt: Date;
   updatedBy: String;
   updatedAt: Date;
+  department: String;
 }
 export interface IFeedDocument extends IFeed, Document {
   _id: String;
@@ -46,27 +47,27 @@ const attachmentSchema = schemaHooksWrapper(
     name: field({ type: String }),
     url: field({ type: String }),
     type: field({ type: String }),
-    size: field({ type: Number, optional: true }),
+    size: field({ type: Number, optional: true })
   }),
-  "erxes_attachmentSchema"
+  'erxes_attachmentSchema'
 );
 
 const customFieldSchema = schemaHooksWrapper(
   new Schema({
     field: field({ type: String }),
-    value: field({ type: JSON }),
+    value: field({ type: JSON })
   }),
-  "erxes_customFieldSchema"
+  'erxes_customFieldSchema'
 );
 
 const ceremonyDataSchema = schemaHooksWrapper(
   new Schema({
-    startedDate: field({ type: Date, label: "Date to start working" }),
-    willDate: field({ type: Date, label: "Ceremony date" }),
-    howManyYear: field({ type: Number, label: "How many years" }),
-    year: field({ type: Number, label: "Ceremony year" }),
+    startedDate: field({ type: Date, label: 'Date to start working' }),
+    willDate: field({ type: Date, label: 'Ceremony date' }),
+    howManyYear: field({ type: Number, label: 'How many years' }),
+    year: field({ type: Number, label: 'Ceremony year' })
   }),
-  "erxes_ceremonyDataSchema"
+  'erxes_ceremonyDataSchema'
 );
 
 const eventDataSchema = schemaHooksWrapper(
@@ -76,64 +77,65 @@ const eventDataSchema = schemaHooksWrapper(
     startDate: field({ type: Date }),
     endDate: field({ type: Date }),
     interestedUserIds: field({ type: [String] }),
-    goingUserIds: field({ type: [String] }),
+    goingUserIds: field({ type: [String] })
   }),
-  "erxes_eventDataSchema"
+  'erxes_eventDataSchema'
 );
 
 export const FEED_CONTENT_TYPES = {
-  POST: "post",
-  EVENT: "event",
-  BRAVO: "bravo",
-  BIRTHDAY: "birthday",
-  WORK_ANNIVARSARY: "workAnniversary",
-  PUBLIC_HOLIDAY: "publicHoliday",
+  POST: 'post',
+  EVENT: 'event',
+  BRAVO: 'bravo',
+  BIRTHDAY: 'birthday',
+  WORK_ANNIVARSARY: 'workAnniversary',
+  PUBLIC_HOLIDAY: 'publicHoliday',
   ALL: [
-    "post",
-    "event",
-    "bravo",
-    "birthday",
-    "workAnniversary",
-    "publicHoliday",
-  ],
+    'post',
+    'event',
+    'bravo',
+    'birthday',
+    'workAnniversary',
+    'publicHoliday'
+  ]
 };
 
 export const feedSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    title: field({ type: String, label: "Title" }),
-    description: field({ type: String, label: "Description" }),
-    images: field({ type: [attachmentSchema], label: "Images" }),
-    attachments: field({ type: [attachmentSchema], label: "Attachments" }),
+    title: field({ type: String, label: 'Title' }),
+    description: field({ type: String, label: 'Description' }),
+    images: field({ type: [attachmentSchema], label: 'Images' }),
+    attachments: field({ type: [attachmentSchema], label: 'Attachments' }),
     isPinned: field({ type: Boolean }),
     contentType: field({ type: String, enum: FEED_CONTENT_TYPES.ALL }),
     recipientIds: field({ type: [String] }),
     customFieldsData: field({
       type: [customFieldSchema],
       optional: true,
-      label: "Custom fields data",
+      label: 'Custom fields data'
     }),
+    department: field({ type: String, label: 'Department' }),
     ceremonyData: field({ type: ceremonyDataSchema }),
     eventData: field({ type: eventDataSchema }),
     startDate: field({ type: Date }),
     endDate: field({ type: Date }),
-    createdBy: field({ type: String, label: "Created by" }),
-    createdAt: field({ type: Date, label: "Created at" }),
-    updatedBy: field({ type: String, label: "Updated by" }),
-    updatedAt: field({ type: Date, label: "Updated at" }),
+    createdBy: field({ type: String, label: 'Created by' }),
+    createdAt: field({ type: Date, label: 'Created at' }),
+    updatedBy: field({ type: String, label: 'Updated by' }),
+    updatedAt: field({ type: Date, label: 'Updated at' })
   }),
-  "erxes_feedSchema"
+  'erxes_feedSchema'
 );
 
 export const thankSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    description: field({ type: String, label: "Description" }),
+    description: field({ type: String, label: 'Description' }),
     recipientIds: field({ type: [String] }),
-    createdBy: field({ type: String, label: "Created by" }),
-    createdAt: field({ type: Date, label: "Created at" }),
-    updatedBy: field({ type: String, label: "Updated by" }),
-    updatedAt: field({ type: Date, label: "Updated at" }),
+    createdBy: field({ type: String, label: 'Created by' }),
+    createdAt: field({ type: Date, label: 'Created at' }),
+    updatedBy: field({ type: String, label: 'Updated by' }),
+    updatedAt: field({ type: Date, label: 'Updated at' })
   }),
-  "erxes_thankSchema"
+  'erxes_thankSchema'
 );

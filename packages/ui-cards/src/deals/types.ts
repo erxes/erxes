@@ -1,5 +1,5 @@
-import { IItem, IItemParams } from "../boards/types";
-import { IProduct } from "@erxes/ui-products/src/types";
+import { IItem, IItemParams } from '../boards/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 export interface IQueryParams {
   brandIds: string;
@@ -20,6 +20,16 @@ export interface IDealTotalAmount {
   ];
 }
 
+export interface IDiscountValue {
+  bonusName: string;
+  discount: number;
+  potentialBonus: number;
+  sumDiscount: number;
+  type: string;
+  voucherCampaignId: string;
+  voucherId: string;
+  voucherName: string;
+}
 export interface IProductData {
   _id: string;
   productId?: string;
@@ -35,6 +45,7 @@ export interface IProductData {
   amount: number;
   tickUsed: boolean;
   assignUserId?: string;
+  maxQuantity: number;
 }
 
 export interface IPaymentsData {

@@ -1,9 +1,30 @@
-import { requireLogin } from '@erxes/api-utils/src/permissions';
+import { paginate } from '@erxes/api-utils/src';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 const webbuilderQueries = {
-  webbuilderPages(_root, _args, { models }: IContext) {
-    return models.Pages.find({});
+  webbuilderPagesMain(
+    _root,
+    {
+      page,
+      perPage,
+      searchValue
+    }: { page: number; perPage: number; searchValue: string },
+    { models }: IContext
+  ) {
+    let filter: any = {};
+
+    if (searchValue) {
+      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+    }
+
+    return {
+      list: paginate(models.Pages.find(filter), {
+        page,
+        perPage
+      }),
+      totalCount: models.Pages.find({}).count()
+    };
   },
 
   webbuilderPageDetail(_root, { _id }, { models }: IContext) {
@@ -11,7 +32,21 @@ const webbuilderQueries = {
   },
 
   webbuilderContentTypes(_root, _args, { models }: IContext) {
-    return models.ContentTypes.find({});
+    return models.ContentTypes.find({}).sort({ displayName: 1 });
+  },
+
+  webbuilderContentTypesMain(
+    _root,
+    args: { page: number; perPage: number },
+    { models }: IContext
+  ) {
+    return {
+      list: paginate(
+        models.ContentTypes.find({}).sort({ displayName: 1 }),
+        args
+      ),
+      totalCount: models.ContentTypes.find().count()
+    };
   },
 
   webbuilderContentTypeDetail(
@@ -21,23 +56,51 @@ const webbuilderQueries = {
   ) {
     return models.ContentTypes.findOne({ _id });
   },
-  webbuilderEntries(
+
+  webbuilderEntriesMain(
     _root,
-    { contentTypeId }: { contentTypeId: string },
+    {
+      contentTypeId,
+      page,
+      perPage
+    }: { contentTypeId: string; page: number; perPage: number },
     { models }: IContext
   ) {
-    return models.Entries.find({ contentTypeId });
+    return {
+      list: paginate(models.Entries.find({ contentTypeId }), { page, perPage }),
+      totalCount: models.Entries.find({ contentTypeId }).count()
+    };
   },
+
   webbuilderEntryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
     return models.Entries.findOne({ _id });
   },
 
-  webbuilderTemplates(_root, _args, { models }: IContext) {
-    return models.Templates.find().lean();
+  webbuilderTemplates(_root, args, { models }: IContext) {
+    return paginate(models.Templates.find(), args);
+  },
+
+  webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {
+    return models.Templates.find().count();
+  },
+
+  webbuilderTemplateDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.Templates.findOne({ _id });
+  },
+
+  webbuilderSites(_root, args, { models }: IContext) {
+    return paginate(models.Sites.find({}).sort({ name: 1 }), args);
+  },
+
+  webbuilderSitesTotalCount(_root, _args, { models }: IContext) {
+    return models.Sites.find().count();
   }
 };
 
-requireLogin(webbuilderQueries, 'webbuilderPages');
-requireLogin(webbuilderQueries, 'webbuilderPageDetail');
+moduleRequireLogin(webbuilderQueries);
 
 export default webbuilderQueries;

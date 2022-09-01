@@ -1,26 +1,27 @@
-import _ from 'lodash';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import Icon from '@erxes/ui/src/components/Icon';
-import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
-import Tags from '@erxes/ui/src/components/Tags';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import { formatValue } from '@erxes/ui/src/utils';
-import { FlexContent } from '@erxes/ui/src/activityLogs/styles';
-import {
-  GENDER_TYPES,
-  LEAD_STATUS_TYPES
-} from '@erxes/ui/src/customers/constants';
 import {
   BooleanStatus,
   ClickableRow
 } from '@erxes/ui-contacts/src/customers/styles';
+import {
+  GENDER_TYPES,
+  LEAD_STATUS_TYPES
+} from '@erxes/ui-contacts/src/customers/constants';
 import { ICustomer, IVisitorContact } from '../../types';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import parse from 'ua-parser-js';
-import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
+
+import { FlexContent } from '@erxes/ui-log/src/activityLogs/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 import PrimaryEmail from '@erxes/ui-contacts/src/customers/components/common/PrimaryEmail';
 import PrimaryPhone from '@erxes/ui-contacts/src/customers/components/common/PrimaryPhone';
+import React from 'react';
+import Tags from '@erxes/ui/src/components/Tags';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import _ from 'lodash';
+import { formatValue } from '@erxes/ui/src/utils';
+import parse from 'ua-parser-js';
+import { renderFlag } from '@erxes/ui-contacts/src/customers/components/common//DevicePropertiesSection';
 
 type Props = {
   index: number;

@@ -220,6 +220,16 @@ export const initBroker = cl => {
   consumeQueue('inbox:visitor.convertResponse', async ({ subdomain, data }) => {
     await receiveVisitorDetail(subdomain, data);
   });
+
+  consumeRPCQueue('inbox:updateUserChannels', async ({ subdomain, data }) => {
+    const models = await generateModels(subdomain);
+    const { channelIds, userId } = data;
+
+    return {
+      status: 'success',
+      data: await models.Channels.updateUserChannels(channelIds, userId)
+    };
+  });
 };
 
 export const sendContactsMessage = async (

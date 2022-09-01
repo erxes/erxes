@@ -1,3 +1,5 @@
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type OTPConfig = {
@@ -22,6 +24,16 @@ export interface IClientPortalUserDoc {
   clientPortalId: string;
   type: string;
   clientPortal: ClientPortalConfig;
+
+  customer: ICustomer;
+  company: ICompany;
+
+  isPhoneVerified: boolean;
+  isEmailVerified: boolean;
+
+  lastSeenAt: Date;
+  sessionCount: number;
+  isOnline: boolean;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {
@@ -48,6 +60,12 @@ export type ClientPoratlUserDetailQueryResponse = {
 export type ClientPortalUserRemoveMutationResponse = {
   clientPortalUsersRemove: (mutation: {
     variables: { clientPortalUserIds: string[] };
+  }) => Promise<any>;
+};
+
+export type ClientPortalVerifyUsersMutationResponse = {
+  clientPortalUsersVerify: (mutation: {
+    variables: { type: string; userIds: string[] };
   }) => Promise<any>;
 };
 

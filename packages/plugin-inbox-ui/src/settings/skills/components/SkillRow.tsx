@@ -1,12 +1,16 @@
+import {
+  ISkillDocument,
+  ISkillTypesDocument
+} from '@erxes/ui-inbox/src/settings/skills/types';
+
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
+import SkillForm from './SkillForm';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
-import React from 'react';
-import { ISkillDocument, ISkillTypesDocument } from '@erxes/ui-settings/src/skills/types';
-import SkillForm from './SkillForm';
 
 type Props = {
   skill: ISkillDocument;
@@ -40,9 +44,9 @@ function SkillRow({ skill, skillTypes, refetchQueries, removeItem }: Props) {
 
   function renderActions() {
     const trigger = (
-      <Button id='skill-edit-skill' btnStyle='link'>
-        <Tip text={__('Edit')} placement='bottom'>
-          <Icon icon='edit-3' />
+      <Button id="skill-edit-skill" btnStyle="link">
+        <Tip text={__('Edit')} placement="bottom">
+          <Icon icon="edit-3" />
         </Tip>
       </Button>
     );
@@ -50,13 +54,13 @@ function SkillRow({ skill, skillTypes, refetchQueries, removeItem }: Props) {
     return (
       <ActionButtons>
         <ModalTrigger
-          title='Edit skill'
+          title="Edit skill"
           trigger={trigger}
           content={renderForm}
         />
-        <Tip text={__('Delete')} placement='top'>
-          <Button btnStyle='link' onClick={handleRemove}>
-            <Icon icon='times-circle' />
+        <Tip text={__('Delete')} placement="top">
+          <Button btnStyle="link" onClick={handleRemove}>
+            <Icon icon="times-circle" />
           </Button>
         </Tip>
       </ActionButtons>

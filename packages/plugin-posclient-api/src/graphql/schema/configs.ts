@@ -63,10 +63,12 @@ export const types = `
     uiOptions: UIOptions
     ebarimtConfig: EbarimtConfig
     qpayConfig: QPayConfig
-    syncInfo: JSON
     catProdMappings: [CatProd]
     initialCategoryIds: [String]
     kioskExcludeProductIds: [String]
+    deliveryConfig: JSON
+    branchId: String
+    departmentId: String
   }
 `;
 
@@ -75,10 +77,12 @@ export const mutations = `
   syncConfig(type: String!): JSON
   syncOrders: JSON
   deleteOrders: JSON
+  posChooseConfig(token: String!): String
 `;
 
 export const queries = `
   currentConfig: PosConfig
   getBranches: JSON
   poscSlots: [PosclientSlot]
+  posclientConfigs: [PosConfig]
 `;

@@ -1,7 +1,8 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { NextFunction, Request, Response } from 'express';
-import { generateModels } from '../connectionResolver';
 import * as jwt from 'jsonwebtoken';
+
+import { generateModels } from '../connectionResolver';
 
 export default async function cpUserMiddleware(
   req: Request & { cpUser?: any },

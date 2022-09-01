@@ -2,39 +2,37 @@ import { Document, Schema } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
 export interface ITransactionItem {
-  transactionId: string;
-  productId: string;
   branchId: string;
   departmentId: string;
-  quantity: string;
-  uomId: string;
+  transactionId: string;
+  productId: string;
   count: number;
+  uomId: string;
   isDebit: boolean;
-  amount: number;
 }
 
 export interface ITransactionItemDocument extends ITransactionItem, Document {
   _id: string;
+  modifiedAt: string;
 }
 
 export const transactionItemSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
-    status: field({ type: String, label: 'Status' }),
-    transactionId: field({ type: String, label: 'transaction' }),
-    createdAt: { type: Date, default: new Date(), label: 'Created date' },
-    createdBy: { type: String, label: 'Created User' },
 
-    productId: { type: String, index: true },
     branchId: field({ type: String, default: '', label: 'Branch' }),
     departmentId: field({ type: String, default: '', label: 'Department' }),
-
-    quantity: field({ type: Number, label: 'Quantity' }),
+    transactionId: field({ type: String, label: 'Transaction ID' }),
+    productId: { type: String, index: true },
+    count: field({ type: Number, label: 'Count' }),
     uomId: field({ type: String, label: 'UOM' }),
-    count: field({ type: Number, label: 'Main count' }),
-
     isDebit: field({ type: Boolean, default: true, label: 'Is Debit' }),
-    amount: field({ type: Number, label: 'Amount' })
+
+    modifiedAt: field({
+      type: Date,
+      default: new Date(),
+      label: 'Modified date'
+    })
   }),
   'erxes_transaction_items'
 );
@@ -43,6 +41,5 @@ export const transactionItemSchema = schemaHooksWrapper(
 transactionItemSchema.index({
   isDebit: 1,
   productId: 1,
-  branchId: 1,
-  departmentId: 1
+  transactionId: 1
 });

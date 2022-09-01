@@ -1,15 +1,16 @@
-import dayjs from 'dayjs';
 import {
   ActivityDate,
   FlexBody,
   FlexCenterContent
-} from '@erxes/ui/src/activityLogs/styles';
-import { IActivityLogItemProps } from '@erxes/ui/src/activityLogs/types';
+} from '@erxes/ui-log/src/activityLogs/styles';
+
+import { IActivityLogItemProps } from '@erxes/ui-log/src/activityLogs/types';
+import { ITag } from '../../types';
+import React from 'react';
 import Tags from '@erxes/ui/src/components/Tags';
 import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
 import { renderUserFullName } from '@erxes/ui/src/utils';
-import React from 'react';
-import { ITag } from '../../types';
 
 class TaggedLog extends React.Component<any> {
   renderContent = () => {

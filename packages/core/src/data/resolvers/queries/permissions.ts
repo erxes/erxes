@@ -15,13 +15,10 @@ interface IListArgs {
   searchValue?: string;
 }
 
-const generateSelector = async (models: IModels, {
-  module,
-  action,
-  userId,
-  groupId,
-  allowed
-}) => {
+const generateSelector = async (
+  models: IModels,
+  { module, action, userId, groupId, allowed }
+) => {
   const filter: any = {};
 
   if (module) {
@@ -133,7 +130,10 @@ const usersGroupQueries = {
    * @return {Promise} sorted and filtered users objects
    */
   usersGroups(_root, args: IListArgs, { models }: IContext) {
-    const users = paginate(models.UsersGroups.find({}), args);
+    const users = paginate(models.UsersGroups.find({}), {
+      ...args,
+      perPage: args.perPage || 50
+    });
 
     return users.sort({ name: 1 });
   },

@@ -1,25 +1,26 @@
+import { Alert, __, confirm, router } from '@erxes/ui/src/utils';
+import { Count, Title } from '@erxes/ui/src/styles/main';
+import { IProduct, IProductCategory } from '../../types';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
+import CategoryList from '../../containers/productCategory/CategoryList';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
+import Form from '@erxes/ui-products/src/containers/ProductForm';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Link } from 'react-router-dom';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { Count, Title } from '@erxes/ui/src/styles/main';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Form from '@erxes/ui-products/src/containers/ProductForm';
-import CategoryList from '../../containers/productCategory/CategoryList';
-import { IProduct, IProductCategory } from '../../types';
 import ProductsMerge from './detail/ProductsMerge';
+import React from 'react';
 import Row from './ProductRow';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
@@ -190,6 +191,7 @@ class List extends React.Component<IProps, State> {
               <th>{__('Unit Price')}</th>
               <th>{__('SKU')}</th>
               <th>{__('Tags')}</th>
+              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody>{this.renderRow()}</tbody>

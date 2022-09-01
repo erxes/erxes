@@ -1,14 +1,18 @@
 import Button from '@erxes/ui/src/components/Button';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import DealConvertTrigger from '@erxes/ui-cards/src/deals/components/DealConvertTrigger';
 import TaskConvertTrigger from '@erxes/ui-cards/src/tasks/components/TaskConvertTrigger';
 import TicketConvertTrigger from '@erxes/ui-cards/src/tickets/components/TicketConvertTrigger';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import styled from 'styled-components';
-import { IMessage, IConversation, IMail } from '@erxes/ui-inbox/src/inbox/types';
+import {
+  IMessage,
+  IConversation,
+  IMail
+} from '@erxes/ui-inbox/src/inbox/types';
 
 const Container = styled.div`
   display: inline-block;
@@ -58,26 +62,26 @@ export default function ConvertTo(props: Props) {
   return (
     <Container>
       <Dropdown>
-        <Dropdown.Toggle as={DropdownToggle} id='dropdown-convert-to'>
+        <Dropdown.Toggle as={DropdownToggle} id="dropdown-convert-to">
           <Button>
-            {__('Convert')} <Icon icon='angle-down' />
+            {__('Convert')} <Icon icon="angle-down" />
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          <li key='ticket'>
+          <li key="ticket">
             <TicketConvertTrigger
               {...triggerProps}
               url={convertToInfo.ticketUrl}
             />
           </li>
-          <li key='deal'>
+          <li key="deal">
             <DealConvertTrigger
               {...triggerProps}
               bookingProductId={conversation.bookingProductId}
               url={convertToInfo.dealUrl}
             />
           </li>
-          <li key='task'>
+          <li key="task">
             <TaskConvertTrigger {...triggerProps} url={convertToInfo.taskUrl} />
           </li>
         </Dropdown.Menu>

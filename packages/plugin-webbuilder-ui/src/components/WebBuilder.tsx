@@ -5,19 +5,24 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import ContentTypeList from '../containers/contentTypes/List';
 import EntriesList from '../containers/entries/List';
 import Pages from '../containers/pages/Pages';
+import Sites from '../containers/sites/List';
 import SideBar from './Sidebar';
+import { IContentTypeDoc } from '../types';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import TemplatesList from '../containers/templates/List';
 
 type Props = {
   step: string;
   queryParams: any;
   history: any;
-  contentTypes: any;
+  contentTypes: IContentTypeDoc[];
   loading: boolean;
 };
 
 function WebBuilder(props: Props) {
   const [Component, setComponent] = useState(<div />);
   const [RightActionBar, setRightActionBar] = useState(<div />);
+  const [count, setCount] = useState(1);
   const { step, queryParams, history, contentTypes, loading } = props;
 
   useEffect(() => {
@@ -26,8 +31,8 @@ function WebBuilder(props: Props) {
         setComponent(
           <ContentTypeList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
+            setCount={setCount}
           />
         );
 
@@ -37,15 +42,41 @@ function WebBuilder(props: Props) {
         setComponent(
           <EntriesList
             queryParams={queryParams}
-            history={history}
             getActionBar={setRightActionBar}
+            setCount={setCount}
           />
         );
 
         break;
 
       case 'pages':
-        setComponent(<Pages getActionBar={setRightActionBar} />);
+        setComponent(
+          <Pages
+            getActionBar={setRightActionBar}
+            setCount={setCount}
+            queryParams={queryParams}
+            history={history}
+          />
+        );
+
+        break;
+
+      case 'templates':
+        setComponent(
+          <TemplatesList setCount={setCount} queryParams={queryParams} />
+        );
+        setRightActionBar(<></>);
+
+        break;
+
+      case 'sites':
+        setComponent(
+          <Sites
+            getActionBar={setRightActionBar}
+            setCount={setCount}
+            queryParams={queryParams}
+          />
+        );
 
         break;
 
@@ -75,7 +106,6 @@ function WebBuilder(props: Props) {
         }
         leftSidebar={
           <SideBar
-            history={history}
             queryParams={queryParams}
             type={step}
             contentTypes={contentTypes}
@@ -89,6 +119,7 @@ function WebBuilder(props: Props) {
             emptyImage="/images/actions/5.svg"
           />
         }
+        footer={<Pagination count={count} />}
         hasBorder={true}
         transparent={true}
         noPadding={true}

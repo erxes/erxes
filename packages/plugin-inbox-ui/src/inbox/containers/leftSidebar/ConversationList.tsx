@@ -22,6 +22,7 @@ type Props = {
   toggleRowCheckbox: (conversation: IConversation[], checked: boolean) => void;
   selectedConversations: IConversation[];
   queryParams: any;
+  counts?: any;
 };
 
 type FinalProps = {
@@ -53,8 +54,36 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
     });
   }
 
+  getTotalCount() {
+    const { queryParams, counts, totalCountQuery } = this.props;
+
+    let totalCount = totalCountQuery.conversationsTotalCount || 0;
+
+    if (queryParams && counts) {
+      if (queryParams.channelId && counts.byChannels) {
+        totalCount += counts.byChannels[queryParams.channelId] || 0;
+      }
+      if (queryParams.segment && counts.bySegment) {
+        totalCount += counts.bySegment[queryParams.segment] || 0;
+      }
+      if (queryParams.integrationType && counts.byIntegrationTypes) {
+        totalCount +=
+          counts.byIntegrationTypes[queryParams.integrationType] || 0;
+      }
+      if (queryParams.tag && counts.byTags) {
+        const tags = queryParams.tag.split(',');
+
+        for (const tag of tags) {
+          totalCount += counts.byTags[tag] || 0;
+        }
+      }
+    }
+
+    return totalCount;
+  }
+
   render() {
-    const { history, conversationsQuery, totalCountQuery } = this.props;
+    const { history, conversationsQuery } = this.props;
 
     const conversations = conversationsQuery.conversations || [];
 
@@ -63,14 +92,12 @@ class ConversationListContainer extends React.PureComponent<FinalProps> {
       routerUtils.setParams(history, { _id: conversation._id });
     };
 
-    const totalCount = totalCountQuery.conversationsTotalCount || 0;
-
     const updatedProps = {
       ...this.props,
       conversations,
       onChangeConversation,
-      totalCount,
-      loading: conversationsQuery.loading
+      loading: conversationsQuery.loading,
+      totalCount: this.getTotalCount()
     };
 
     return <ConversationList {...updatedProps} />;

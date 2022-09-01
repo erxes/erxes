@@ -1,5 +1,5 @@
 module.exports = {
-  chats: {
+  webbuilder: {
     name: 'webbuilder',
     description: 'Webbuilder',
     actions: [

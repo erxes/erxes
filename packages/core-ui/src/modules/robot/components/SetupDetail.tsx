@@ -1,14 +1,14 @@
-import ProgressBar from 'modules/common/components/ProgressBar';
-import colors from 'modules/common/styles/colors';
-import { __ } from 'modules/common/utils';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import styledTS from 'styled-components-ts';
 import { IFeature } from '../types';
-import { calculatePercentage } from '@erxes/ui/src/customers/utils';
+import { Link } from 'react-router-dom';
+import ProgressBar from 'modules/common/components/ProgressBar';
+import React from 'react';
 import { Title } from './styles';
 import VideoPopup from './VideoPopup';
+import { __ } from 'modules/common/utils';
+import { calculatePercentage } from '@erxes/ui/src/utils/core';
+import colors from 'modules/common/styles/colors';
+import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const Checklist = styled.ul`
   padding: 0;

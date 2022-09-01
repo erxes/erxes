@@ -1,21 +1,21 @@
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { EMPTY_CONTENT_BOOKINGS } from '../constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import Table from '@erxes/ui/src/components/table';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { EMPTY_CONTENT_BOOKINGS } from '../constants';
-import React from 'react';
 import { IBookingIntegration } from '../types';
-import Sidebar from './Sidebar';
-import Row from './BookingRow';
-import { Link } from 'react-router-dom';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
 import { IntegrationsCount } from '@erxes/ui-leads/src/types';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
+import { Link } from 'react-router-dom';
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Row from './BookingRow';
+import Sidebar from './Sidebar';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Table from '@erxes/ui/src/components/table';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {

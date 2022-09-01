@@ -1,24 +1,24 @@
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __ } from 'coreui/utils';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import Sidebar from './Sidebar';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import Button from '@erxes/ui/src/components/Button';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import { __ } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import React from 'react';
+
 import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
 import { IClientPortalUser } from '../../types';
 import ClientPortalUserRow from './ClientPortalUserRow';
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -37,6 +37,7 @@ interface IProps extends IRouterProps {
     doc: { clientPortalUserIds: string[] },
     emptyBulk: () => void
   ) => void;
+  verifyUsers: (type: string, userIds: string[]) => void;
 }
 
 type State = {
@@ -72,14 +73,24 @@ class ClientportalUserList extends React.Component<IProps, State> {
     removeUsers({ clientPortalUserIds }, emptyBulk);
   };
 
+  verifyUsers = (type, clientPortalUsers) => {
+    this.props.verifyUsers(
+      type,
+      clientPortalUsers.map(cpUser => cpUser._id)
+    );
+  };
+
   renderContent() {
     const {
       isAllSelected,
       clientPortalUsers,
       toggleBulk,
       bulk,
-      history
+      history,
+      queryParams
     } = this.props;
+
+    const { page = 1, perPage = 20 } = queryParams;
 
     return (
       <withTableWrapper.Wrapper>
@@ -99,16 +110,25 @@ class ClientportalUserList extends React.Component<IProps, State> {
                   onChange={this.onChange}
                 />
               </th>
+              <th>#</th>
+              <th>{__('Email')}</th>
+              <th>{__('Phone')}</th>
+              <th>{__('User Name')}</th>
+              <th>{__('Code')}</th>
               <th>{__('First Name')}</th>
               <th>{__('Last Name')}</th>
-              <th>{__('User Name')}</th>
-              <th>{__('Email')}</th>
-              <th>{__('Code')}</th>
+              <th>{__('Type')}</th>
+              <th>{__('from')}</th>
+              <th>{__('Status')}</th>
+              <th>{__('Session count')}</th>
+              <th>{__('Last seen at')}</th>
+              <th>{__('Registered at')}</th>
             </tr>
           </thead>
           <tbody id="clientPortalUsers">
             {(clientPortalUsers || []).map((clientPortalUser, i) => (
               <ClientPortalUserRow
+                index={(page - 1) * perPage + i + 1}
                 clientPortalUser={clientPortalUser}
                 key={clientPortalUser._id}
                 isChecked={bulk.includes(clientPortalUser)}
@@ -199,6 +219,21 @@ class ClientportalUserList extends React.Component<IProps, State> {
             Alert.error(e.message);
           });
 
+      const onClickConfirm = e => {
+        const type = e.currentTarget.id;
+        confirm(
+          `This action forces the ${
+            bulk.length > 1 ? "users'" : "user's"
+          }  ${type} to be verified. Do you want to continue?`
+        )
+          .then(() => {
+            this.verifyUsers(type, bulk);
+          })
+          .catch(e => {
+            Alert.error(e.message);
+          });
+      };
+
       actionBarLeft = (
         <BarItems>
           <Button
@@ -208,6 +243,25 @@ class ClientportalUserList extends React.Component<IProps, State> {
             onClick={onClick}
           >
             Remove
+          </Button>
+          <Button
+            id="phone"
+            btnStyle="default"
+            size="small"
+            icon="check-circle"
+            onClick={onClickConfirm}
+          >
+            Verify user phone
+          </Button>
+
+          <Button
+            id="email"
+            btnStyle="default"
+            size="small"
+            icon="check-circle"
+            onClick={onClickConfirm}
+          >
+            Verify user email
           </Button>
         </BarItems>
       );
@@ -231,7 +285,10 @@ class ClientportalUserList extends React.Component<IProps, State> {
         leftSidebar={
           <Sidebar
             loadingMainQuery={loading}
-            clientPortalUsers={clientPortalUsers}
+            counts={{
+              byCP: { byCP: clientPortalUserCount },
+              byType: { byType: 0 }
+            }}
           />
         }
         content={

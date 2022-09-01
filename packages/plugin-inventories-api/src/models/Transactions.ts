@@ -3,70 +3,82 @@ import * as _ from 'underscore';
 import { IModels } from '../connectionResolver';
 import {
   ITransaction,
+  ITransactionCreateParams,
   ITransactionDocument,
   transactionSchema
 } from './definitions/transactions';
+import { ITransactionItem } from './definitions/transactionItems';
 
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(_id: string): Promise<ITransactionDocument>;
-  createTransaction(doc: ITransaction): Promise<ITransactionDocument>;
-  updateTransaction(
-    _id: string,
-    doc: ITransaction
+  createTransaction(
+    params: ITransactionCreateParams
   ): Promise<ITransactionDocument>;
-  removeTransaction(_id: string): void;
 }
 
 export const loadTransactionClass = (models: IModels) => {
   class Transaction {
     /**
-     * Get a transaction
+     * Get transaction
+     * @param _id Transaction ID
+     * @returns Found object
      */
     public static async getTransaction(_id: string) {
-      const transaction = await models.Transactions.findOne({ _id });
+      const result: any = await models.Transactions.findById(_id);
 
-      if (!transaction) {
-        throw new Error('Transaction not found');
-      }
+      if (!result) throw new Error('Transaction not found!');
 
-      return transaction;
+      return result;
     }
 
     /**
-     * Create a transaction
+     * Create transaction
+     * @param params New data to create
+     * @returns Created response
      */
-    public static async createTransaction(doc: ITransaction) {
+    public static async createTransaction(params: ITransactionCreateParams) {
+      const { status, contentType, contentId, products } = params;
+
       const transaction = await models.Transactions.create({
-        ...doc,
+        status,
+        contentType,
+        contentId,
         createdAt: new Date()
       });
 
-      return transaction;
-    }
+      const bulkOps: any[] = [];
 
-    /**
-     * Update Transaction
-     */
-    public static async updateTransaction(_id: string, doc: ITransaction) {
-      const transaction = await models.Transactions.getTransaction(_id);
+      products.map(async (item: ITransactionItem) => {
+        const filter: any = { productId: item.productId };
+        if (item.departmentId) filter.departmentId = item.departmentId;
+        if (item.branchId) filter.branchId = item.branchId;
 
-      await models.Transactions.updateOne({ _id }, { $set: { ...doc } });
+        const remainder: any = await models.Remainders.findOne(filter);
 
-      const updated = await models.Transactions.getTransaction(_id);
+        if (!remainder) throw new Error('Remainder not found!');
 
-      return updated;
-    }
+        const result = await models.Remainders.updateRemainder(remainder._id, {
+          count: item.isDebit ? item.count : -1 * item.count
+        });
 
-    /**
-     * Remove Transaction
-     */
-    public static async removeTransaction(_id: string) {
-      const transaction = await models.Transactions.getTransaction(_id);
-      await models.TransactionItems.deleteMany({
-        transactionId: transaction._id
+        if (!result) throw new Error('Remainder update failed!');
+
+        bulkOps.push({
+          branchId: item.branchId,
+          departmentId: item.departmentId,
+          transactionId: result._id,
+          productId: item.productId,
+          count: item.count,
+          uomId: item.uomId,
+          isDebit: true,
+
+          modifiedAt: new Date()
+        });
       });
 
-      return models.Transactions.deleteOne({ _id });
+      await models.TransactionItems.insertMany(bulkOps);
+
+      return transaction;
     }
   }
 

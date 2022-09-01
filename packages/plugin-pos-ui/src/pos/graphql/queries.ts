@@ -16,7 +16,9 @@ export const posCommonFields = `
   }
 
   isOnline
+  onServer
   branchId
+  departmentId
   allowBranchIds
   beginNumber
   maxSkipNumber
@@ -32,7 +34,7 @@ export const posCommonFields = `
     categoryId
     productId
   }
-  
+
   initialCategoryIds
   kioskExcludeProductIds
   deliveryConfig
@@ -64,17 +66,6 @@ const posList = `
   }
 `;
 
-const configs = `
-  query posConfigs($posId: String!) {
-    posConfigs(posId: $posId) {
-      _id
-      posId
-      code
-      value
-    }
-  }
-`;
-
 const productGroups = `
   query productGroups($posId: String!) {
     productGroups(posId: $posId) {
@@ -85,20 +76,6 @@ const productGroups = `
       categoryIds
       excludedCategoryIds
       excludedProductIds
-    }
-  }
-`;
-
-const branches = `
-  query branches {
-    branches {
-      _id
-      title
-      address
-      parentId
-      supervisorId
-      code
-      userIds
     }
   }
 `;
@@ -132,12 +109,17 @@ const getDbSchemaLabels = `
   }
 `;
 
+const posEnv = `
+  query posEnv {
+    posEnv
+  }
+`;
+
 export default {
   posList,
-  configs,
   productGroups,
   posDetail,
+  posEnv,
   getDbSchemaLabels,
-  branches,
   posSlots
 };

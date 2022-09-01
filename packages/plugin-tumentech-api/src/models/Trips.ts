@@ -1,12 +1,15 @@
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import { ITripEdit } from '../graphql/resolvers/mutations/trips';
+import { sendCardsMessage } from '../messageBroker';
 import {
-  tripSchema,
+  ITrackingItem,
   ITrip,
   ITripDocument,
-  ITrackingItem
+  tripSchema
 } from './definitions/trips';
+import { filterDeals, filterDealsByCar, filterDealsByRoute } from './utils';
 
 export interface ITripModel extends Model<ITripDocument> {
   getTrip(doc: any): ITripDocument;
@@ -14,6 +17,12 @@ export interface ITripModel extends Model<ITripDocument> {
   updateTrip(doc: ITripEdit): ITripDocument;
   updateTracking(_id: string, trackingData: ITrackingItem[]): ITripDocument;
   removeTrip(_id: string): ITripDocument;
+  matchWithDeals(
+    subdomain: string,
+    carId?: string,
+    routeId?: string,
+    categoryIds?: string[]
+  ): any[];
 }
 
 export const loadTripClass = (models: IModels) => {
@@ -34,10 +43,6 @@ export const loadTripClass = (models: IModels) => {
 
     public static async updateTrip(doc: ITripEdit) {
       const route = await models.Trips.getTrip({ _id: doc._id });
-
-      // const searchText = models.Trips.fillSearchText(
-      //   Object.assign(route, doc)
-      // );
 
       await models.Trips.updateOne({ _id: doc._id }, { $set: { ...doc } });
 
@@ -70,6 +75,40 @@ export const loadTripClass = (models: IModels) => {
       );
 
       return models.Trips.findOne({ _id });
+    }
+
+    public static async matchWithDeals(
+      subdomain: string,
+      carId?: string,
+      routeId?: string,
+      categoryIds?: string[]
+    ) {
+      if (!carId && !routeId) {
+        throw new Error('carId or routeId is required');
+      }
+
+      if (carId && routeId) {
+        return filterDeals(models, subdomain, carId, routeId);
+      }
+
+      if (routeId) {
+        return filterDealsByRoute(models, subdomain, routeId);
+      }
+
+      if (carId) {
+        return filterDealsByCar(models, subdomain, carId);
+      }
+
+      if (categoryIds) {
+        return sendCardsMessage({
+          subdomain,
+          action: 'deals.find',
+          data: {
+            'customFieldsData.value': { $in: categoryIds }
+          },
+          isRPC: true
+        });
+      }
     }
   }
 

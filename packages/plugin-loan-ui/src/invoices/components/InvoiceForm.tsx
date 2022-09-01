@@ -1,29 +1,47 @@
-import client from '@erxes/ui/src/apolloClient';
+import * as path from 'path';
+
 import {
-  __,
   Button,
   ControlLabel,
   DateControl,
   Form,
+  MainStyleFormColumn as FormColumn,
   FormControl,
   FormGroup,
-  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper,
-  SelectCompanies,
-  SelectCustomers,
+  MainStyleScrollWrapper as ScrollWrapper
 } from '@erxes/ui/src';
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import gql from 'graphql-tag';
+import { IInvoice, IInvoiceDoc } from '../types';
+
+import { DateContainer } from '@erxes/ui/src/styles/main';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import React from 'react';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { queries } from '../graphql';
 import { setTimeout } from 'timers';
 
-import { queries } from '../graphql';
-import { IInvoice, IInvoiceDoc } from '../types';
+const SelectCompanies = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCompanies" */ '@erxes/ui-contacts/src/companies/containers/SelectCompanies'
+    )
+);
+
+const SelectCustomers = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "SelectCustomers" */ '@erxes/ui-contacts/src/customers/containers/SelectCustomers'
+    )
+);
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -69,7 +87,7 @@ class InvoiceForm extends React.Component<Props, State> {
         (companies && companies.length ? companies[0]._id : ''),
       customerId:
         invoice.customerId ||
-        (customers && customers.length ? customers[0]._id : ''),
+        (customers && customers.length ? customers[0]._id : '')
     };
   }
 
@@ -94,7 +112,7 @@ class InvoiceForm extends React.Component<Props, State> {
       undue: Number(this.state.undue),
       insurance: Number(this.state.insurance),
       debt: Number(this.state.debt),
-      total: Number(this.state.total),
+      total: Number(this.state.total)
     };
   };
 
@@ -116,10 +134,10 @@ class InvoiceForm extends React.Component<Props, State> {
       this.setState({ [name]: value } as any);
     };
 
-    const onChangeField = (e) => {
+    const onChangeField = e => {
       this.setState({
         [(e.target as HTMLInputElement).name]: (e.target as HTMLInputElement)
-          .value,
+          .value
       } as any);
 
       setTimeout(() => {
@@ -128,7 +146,7 @@ class InvoiceForm extends React.Component<Props, State> {
           interestEve,
           interestNonce,
           undue,
-          insurance,
+          insurance
         } = this.state;
         const total =
           Number(payment) +
@@ -140,12 +158,12 @@ class InvoiceForm extends React.Component<Props, State> {
       }, 100);
     };
 
-    const onChangePayDate = (value) => {
+    const onChangePayDate = value => {
       client
         .query({
           query: gql(queries.getInvoicePreInfo),
           fetchPolicy: 'network-only',
-          variables: { contractId: invoice.contractId, payDate: value },
+          variables: { contractId: invoice.contractId, payDate: value }
         })
         .then(({ data }) => {
           const invoiceInfo = data.getInvoicePreInfo;
@@ -157,7 +175,7 @@ class InvoiceForm extends React.Component<Props, State> {
             undue: invoiceInfo.undue,
             insurance: invoiceInfo.insurance,
             debt: invoiceInfo.debt,
-            total: invoiceInfo.total,
+            total: invoiceInfo.total
           });
         });
       this.setState({ payDate: value });
@@ -172,7 +190,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 ...formProps,
                 name: 'number',
                 onChange: onChangeField,
-                value: this.state.number || '',
+                value: this.state.number || ''
               })}
 
               <FormGroup>
@@ -188,27 +206,31 @@ class InvoiceForm extends React.Component<Props, State> {
                 </DateContainer>
               </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>Company</ControlLabel>
-                <SelectCompanies
-                  label="Choose an company"
-                  name="companyId"
-                  initialValue={this.state.companyId}
-                  onSelect={onSelect}
-                  multi={false}
-                />
-              </FormGroup>
+              {isEnabled('contacts') && (
+                <>
+                  <FormGroup>
+                    <ControlLabel>Company</ControlLabel>
+                    <SelectCompanies
+                      label="Choose an company"
+                      name="companyId"
+                      initialValue={this.state.companyId}
+                      onSelect={onSelect}
+                      multi={false}
+                    />
+                  </FormGroup>
 
-              <FormGroup>
-                <ControlLabel>Customer</ControlLabel>
-                <SelectCustomers
-                  label="Choose an customer"
-                  name="customerId"
-                  initialValue={this.state.customerId}
-                  onSelect={onSelect}
-                  multi={false}
-                />
-              </FormGroup>
+                  <FormGroup>
+                    <ControlLabel>Customer</ControlLabel>
+                    <SelectCustomers
+                      label="Choose an customer"
+                      name="customerId"
+                      initialValue={this.state.customerId}
+                      onSelect={onSelect}
+                      multi={false}
+                    />
+                  </FormGroup>
+                </>
+              )}
             </FormColumn>
             <FormColumn>
               {this.renderFormGroup('payment', {
@@ -216,7 +238,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 name: 'payment',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.payment || 0,
+                value: this.state.payment || 0
               })}
 
               {this.renderFormGroup('interest eve', {
@@ -224,7 +246,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 name: 'interestEve',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.interestEve || 0,
+                value: this.state.interestEve || 0
               })}
 
               {this.renderFormGroup('interest nonce', {
@@ -232,7 +254,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 name: 'interestNonce',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.interestNonce || 0,
+                value: this.state.interestNonce || 0
               })}
 
               {this.renderFormGroup('undue', {
@@ -240,7 +262,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 name: 'undue',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.undue || 0,
+                value: this.state.undue || 0
               })}
 
               {this.renderFormGroup('insurance', {
@@ -248,7 +270,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 name: 'insurance',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.insurance || 0,
+                value: this.state.insurance || 0
               })}
 
               {this.renderFormGroup('debt', {
@@ -256,7 +278,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 name: 'debt',
                 type: 'number',
                 onChange: onChangeField,
-                value: this.state.debt || 0,
+                value: this.state.debt || 0
               })}
 
               {this.renderFormGroup('total', {
@@ -264,7 +286,7 @@ class InvoiceForm extends React.Component<Props, State> {
                 name: 'total',
                 type: 'number',
                 value: this.state.total || 0,
-                required: true,
+                required: true
               })}
             </FormColumn>
           </FormWrapper>
@@ -279,7 +301,7 @@ class InvoiceForm extends React.Component<Props, State> {
             name: 'invoice',
             values: this.generateDoc(values),
             isSubmitted,
-            object: this.props.invoice,
+            object: this.props.invoice
           })}
         </ModalFooter>
       </>

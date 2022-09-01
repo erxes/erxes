@@ -2,6 +2,9 @@ import { generateModels } from './connectionResolver';
 import { graphqlPubsub, serviceDiscovery } from './configs';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import {
+  importProducts,
+  importSlots,
+  preImportProducts,
   receivePosConfig,
   receiveProduct,
   receiveProductCategory,
@@ -11,52 +14,69 @@ import {
 let client;
 
 export const initBroker = async cl => {
-  const models = await generateModels('OS');
-  if (!models) {
-    throw new Error('not yet message broker, cause: cant connect models');
-  }
+  const { SKIP_REDIS } = process.env;
 
-  const config = await models.Configs.findOne().lean();
-  if (!config) {
-    return;
+  let channelToken = '';
+  if (SKIP_REDIS) {
+    const models = await generateModels('OS');
+
+    if (!models) {
+      throw new Error('not yet message broker, cause: cant connect models');
+    }
+
+    const config = await models.Configs.findOne().lean();
+    if (!config || !config.token) {
+      return;
+    }
+
+    channelToken = `_${config.token}`;
   }
-  const syncId =
-    config && config.syncInfo && config.syncInfo.id ? config.syncInfo.id : '';
 
   client = cl;
   const { consumeQueue, consumeRPCQueue } = client;
 
-  consumeQueue(`posclient:crudData_${syncId}`, async ({ subdomain, data }) => {
-    const models = await generateModels(subdomain);
-    if (data) {
-      switch (data.type) {
-        case 'product':
-          await receiveProduct(models, data);
-          break;
-        case 'productCategory':
-          await receiveProductCategory(models, data);
-          break;
-        case 'user':
-          await receiveUser(models, data);
-          break;
-        case 'pos':
-          await receivePosConfig(models, data);
-          break;
-        default:
-          break;
+  consumeQueue(
+    `posclient:crudData${channelToken}`,
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+      const { token } = data;
+
+      if (data) {
+        switch (data.type) {
+          case 'product':
+            await receiveProduct(models, data);
+            break;
+          case 'productCategory':
+            await receiveProductCategory(models, data);
+            break;
+          case 'user':
+            await receiveUser(models, data);
+            break;
+          case 'pos':
+            await receivePosConfig(subdomain, models, data);
+            break;
+          case 'productGroups':
+            const { productGroups = [] } = data;
+            await preImportProducts(models, token, productGroups);
+            await importProducts(subdomain, models, token, productGroups);
+            break;
+          case 'slots':
+            const { slots = [] } = data;
+            await importSlots(models, slots);
+            break;
+          default:
+            break;
+        }
       }
     }
-  });
+  );
 
   consumeQueue(
-    `posclient:updateSynced_${syncId}`,
+    `posclient:updateSynced${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const { responseId, orderId } = data;
-      await models.Configs.updateOne(
-        {},
-        { $set: { 'syncInfo.date': new Date() } }
-      );
+
       await models.Orders.updateOne(
         { _id: orderId },
         { $set: { synced: true } }
@@ -69,7 +89,7 @@ export const initBroker = async cl => {
   );
 
   consumeQueue(
-    `posclient:erxes-posclient-to-pos-api_${syncId}`,
+    `posclient:erxes-posclient-to-pos-api${channelToken}`,
     async ({ subdomain, data }) => {
       const models = await generateModels(subdomain);
       const { order } = data;
@@ -111,8 +131,25 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
-    `posclient:health_check_${syncId}`,
+    `posclient:health_check${channelToken}`,
     async ({ subdomain, data }) => {
+      if (channelToken) {
+        return {
+          status: 'success',
+          data: { healthy: 'ok' }
+        };
+      }
+
+      const models = await generateModels(subdomain);
+      const conf = await models.Configs.findOne({ token: data.token });
+
+      if (!conf) {
+        return {
+          status: 'success',
+          data: { healthy: 'no' }
+        };
+      }
+
       return {
         status: 'success',
         data: { healthy: 'ok' }
@@ -157,6 +194,12 @@ export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessageWrapper('contacts', args);
+};
+
+export const sendLoyaltiesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('loyalties', args);
 };
 
 export default function() {

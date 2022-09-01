@@ -1,14 +1,16 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+
 import {
   FieldsCombinedByType,
   FieldsCombinedByTypeQueryResponse
-} from '@erxes/ui-settings/src/properties/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
+} from '@erxes/ui-forms/src/settings/properties/types';
+
 import Form from '../../../components/forms/actions/placeHolder/Attribution';
+import React from 'react';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   config: any;

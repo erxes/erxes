@@ -1,15 +1,16 @@
 import { Model } from 'mongoose';
+
 import { IModels } from '../connectionResolver';
 import { PARTICIPATION_STATUSES } from '../constants';
 import {
-  participantSchema,
   IParticipant,
-  IParticipantDocument
+  IParticipantDocument,
+  participantSchema
 } from './definitions/participants';
 
 export interface IParticipantModel extends Model<IParticipantDocument> {
   getParticipant(doc: any): IParticipantDocument;
-  setWinner(dealId: string, customerId: string): IParticipantDocument;
+  setWinner(dealId: string, tripId: string): IParticipantDocument;
   createParticipant(doc: IParticipant): IParticipantDocument;
   updateParticipant(_id: string, fields: IParticipant): IParticipantDocument;
   removeParticipant(_id: string): IParticipantDocument;
@@ -31,17 +32,17 @@ export const loadParticipantClass = (models: IModels) => {
     }
 
     public static async createParticipant(doc: IParticipant) {
-      if (!doc.customerId || !doc.dealId) {
-        throw new Error('deal and customer are required!');
+      if (!doc.carIds.length || !doc.dealId || !doc.routeId || !doc.driverId) {
+        throw new Error('Missing required fields');
       }
 
       const participant = await models.Participants.findOne({
         dealId: doc.dealId,
-        customerId: doc.customerId
+        driverId: doc.driverId
       }).lean();
 
       if (participant) {
-        return participant;
+        throw new Error('you are already participating in this deal');
       }
 
       return models.Participants.create({
@@ -71,16 +72,16 @@ export const loadParticipantClass = (models: IModels) => {
       return participant.remove();
     }
 
-    public static async setWinner(dealId: string, customerId: string) {
+    public static async setWinner(dealId: string, driverId: string) {
       const qry = {
         dealId,
-        customerId,
+        driverId,
         status: PARTICIPATION_STATUSES.PARTICIPATING
       };
       const participant = await models.Participants.findOne(qry);
 
       if (!participant) {
-        throw new Error(`Participant not found with customerId ${customerId}`);
+        throw new Error(`Participant not found with driverId ${driverId}`);
       }
 
       const winner = await models.Participants.updateOne(qry, {

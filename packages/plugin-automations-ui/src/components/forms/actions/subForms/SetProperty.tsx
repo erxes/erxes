@@ -1,22 +1,22 @@
-import client from '@erxes/ui/src/apolloClient';
-import gql from 'graphql-tag';
-import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
-import { DrawerDetail } from '../../../../styles';
-import { IAction } from '../../../../types';
+import { Alert, __ } from 'coreui/utils';
+import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
+
 import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
+import Common from '../Common';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { __, Alert } from 'coreui/utils';
-import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
-import { FieldsCombinedByType } from '@erxes/ui-settings/src/properties/types';
+import { DrawerDetail } from '../../../../styles';
+import { FieldsCombinedByType } from '@erxes/ui-forms/src/settings/properties/types';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { GroupWrapper } from '@erxes/ui-segments/src/styles';
+import { IAction } from '../../../../types';
+import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
 import React from 'react';
 import Select from 'react-select-plus';
-
-import Common from '../Common';
-import { PROPERTY_OPERATOR, PROPERTY_TYPES } from '../constants';
-import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
-import { GroupWrapper } from '@erxes/ui-segments/src/styles';
 import Tip from '@erxes/ui/src/components/Tip';
+import client from '@erxes/ui/src/apolloClient';
+import { excludedNames } from '../../../../containers/forms/actions/subForms/SetProperty';
+import { queries as formQueries } from '@erxes/ui-forms/src/forms/graphql';
+import gql from 'graphql-tag';
 
 type Props = {
   closeModal: () => void;

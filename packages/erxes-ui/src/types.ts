@@ -1,5 +1,5 @@
+import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
 import { IUser } from './auth/types';
-import { IActivityLogForMonth } from './activityLogs/types';
 
 export interface IRouterProps {
   history: any;

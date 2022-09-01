@@ -1,4 +1,16 @@
-import gql from 'graphql-tag';
+import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
+import {
+  EMAIL_VALIDATION_STATUSES,
+  PHONE_VALIDATION_STATUSES
+} from '@erxes/ui-contacts/src/customers/constants';
+import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateFilter from '@erxes/ui/src/components/DateFilter';
@@ -11,33 +23,21 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
 import Table from '@erxes/ui/src/components/table';
 import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
-import { menuContacts } from '@erxes/ui/src/utils/menus';
-import * as routerUtils from '@erxes/ui/src/utils/router';
-import {
-  EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES
-} from '@erxes/ui/src/customers/constants';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { withRouter } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { __, Alert, confirm, router } from 'coreui/utils';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
-import ManageColumns from '@erxes/ui-settings/src/properties/containers/ManageColumns';
-import { IConfigColumn } from '@erxes/ui-settings/src/properties/types';
-import TaggerPopover from '@erxes/ui/src/tags/components/TaggerPopover';
-import CustomerForm from '@erxes/ui/src/customers/containers/CustomerForm';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { menuContacts } from '@erxes/ui/src/utils/menus';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import { __, Alert, confirm, router } from 'coreui/utils';
+import gql from 'graphql-tag';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link, withRouter } from 'react-router-dom';
+
 import { ICustomer } from '../../types';
-import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
 import CustomerRow from './CustomerRow';
 import Sidebar from './Sidebar';
-import { TAG_TYPES } from '@erxes/ui/src/tags/constants';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 interface IProps extends IRouterProps {
   type: string;

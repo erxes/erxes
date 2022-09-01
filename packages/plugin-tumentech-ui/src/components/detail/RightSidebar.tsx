@@ -1,15 +1,30 @@
-import dayjs from 'dayjs';
-import {
-  __,
-  Box,
-  CompanySection,
-  CustomerSection,
-  Sidebar
-} from '@erxes/ui/src';
-import React from 'react';
+import * as path from 'path';
 
-import { List } from '../../styles';
+import Box from '@erxes/ui/src/components/Box';
 import { ICar } from '../../types';
+import { List } from '../../styles';
+import React from 'react';
+import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import dayjs from 'dayjs';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const CompanySection = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "CompanySection" */ '@erxes/ui-contacts/src/companies/components/CompanySection'
+    )
+);
+
+const CustomerSection = asyncComponent(
+  () =>
+    isEnabled('contacts') &&
+    import(
+      /* webpackChunkName: "CustomerSection" */ '@erxes/ui-contacts/src/customers/components/CustomerSection'
+    )
+);
 
 type Props = {
   car: ICar;
@@ -34,8 +49,12 @@ export default class RightSidebar extends React.Component<Props> {
 
     return (
       <Sidebar>
-        <CustomerSection mainType="car" mainTypeId={car._id} />
-        <CompanySection mainType="car" mainTypeId={car._id} />
+        {isEnabled('contacts') && (
+          <>
+            <CustomerSection mainType="car" mainTypeId={car._id} />
+            <CompanySection mainType="car" mainTypeId={car._id} />
+          </>
+        )}
 
         <Box title={__('Other')} name="showOthers">
           <List>

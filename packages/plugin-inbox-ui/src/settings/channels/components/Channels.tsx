@@ -2,16 +2,16 @@ import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
+import { IChannel } from '../types';
+import IntegrationList from '../../integrations/containers/common/IntegrationList';
+import ManageIntegrations from '../containers/ManageIntegrations';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import { Title } from '@erxes/ui-settings/src/styles';
-import { __ } from 'coreui/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import IntegrationList from '@erxes/ui-inbox/src/settings/integrations/containers/common/IntegrationList';
 import React from 'react';
-import ManageIntegrations from '../containers/ManageIntegrations';
 import Sidebar from '../containers/Sidebar';
-import { IChannel } from '@erxes/ui-settings/src/channels/types';
+import { Title } from '@erxes/ui-settings/src/styles';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
 
 type Props = {
   integrationsCount: number;

@@ -1,19 +1,22 @@
-import { SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { __, router } from '@erxes/ui/src/utils';
 import Box from '@erxes/ui/src/components/Box';
-import { FieldStyle } from '@erxes/ui/src/layout/styles';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import Icon from '@erxes/ui/src/components/Icon';
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
 import { IRouterProps } from '@erxes/ui/src/types';
+import { __, router } from '@erxes/ui/src/utils';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { ClientPortalConfig, IClientPortalUser } from '../../types';
-import Icon from '@erxes/ui/src/components/Icon';
+
+import { ClientPortalConfig } from '../../types';
 
 interface IProps extends IRouterProps {
   counts: { [key: string]: number };
   loading: boolean;
   emptyText?: string;
-  clientPortalUsers: IClientPortalUser[];
   clientPortalGetConfigs: ClientPortalConfig[];
 }
 
@@ -25,13 +28,13 @@ function ClientPortalUser({
   clientPortalGetConfigs
 }: IProps) {
   const onRemove = () => {
-    router.setParams(history, { cpId: null });
+    router.removeParams(history, 'cpId');
   };
 
   const extraButtons = (
     <>
       {router.getParam(history, 'cpId') && (
-        <a href="#cancel" tabIndex={0} onClick={onRemove}>
+        <a href="#" tabIndex={0} onClick={onRemove}>
           <Icon icon="times-circle" />
         </a>
       )}
@@ -59,7 +62,7 @@ function ClientPortalUser({
               onClick={onClick}
             >
               <FieldStyle>{cp.name}</FieldStyle>
-              <SidebarCounter>{counts[cp._id]}</SidebarCounter>
+              <SidebarCounter>{counts[cp._id || '']}</SidebarCounter>
             </a>
           </li>
         );
@@ -69,7 +72,7 @@ function ClientPortalUser({
 
   return (
     <Box
-      title={__('Filter by clientPortalId')}
+      title={__('Filter by Client Portal')}
       collapsible={clientPortalGetConfigs.length > 5}
       extraButtons={extraButtons}
       name="showFilterByClientPortalId"

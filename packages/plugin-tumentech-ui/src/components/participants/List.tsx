@@ -1,8 +1,9 @@
 import Table from '@erxes/ui/src/components/table';
-import React from 'react';
-import Row from './Row';
-import { IParticipant } from '../../types';
 import { __ } from '@erxes/ui/src/utils/core';
+import React from 'react';
+
+import { IParticipant } from '../../types';
+import Row from './Row';
 
 type Props = {
   participants: IParticipant[];
@@ -53,6 +54,8 @@ class List extends React.Component<Props, State> {
         <thead>
           <tr>
             <th>{__('Participant')}</th>
+            <th>{__('Vehicles')}</th>
+            <th>{__('Route')}</th>
             <th>{__('Price offer')}</th>
             <th>{__('Status')}</th>
             <th>{__('Action')}</th>

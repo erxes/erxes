@@ -154,14 +154,19 @@ export const generateCommonFilters = async (
     assignedToMe,
     startDate,
     endDate,
-    hasStartAndCloseDate
+    hasStartAndCloseDate,
+    stageChangedStartDate,
+    stageChangedEndDate,
+    noSkipArchive
   } = args;
 
   const isListEmpty = value => {
     return value.length === 1 && value[0].length === 0;
   };
 
-  const filter: any = { status: { $ne: BOARD_STATUSES.ARCHIVED } };
+  const filter: any = noSkipArchive
+    ? {}
+    : { status: { $ne: BOARD_STATUSES.ARCHIVED } };
 
   let filterIds: string[] = [];
 
@@ -270,6 +275,17 @@ export const generateCommonFilters = async (
         $lte: new Date(endDate)
       };
     }
+  }
+
+  const stageChangedDateFilter: any = {};
+  if (stageChangedStartDate) {
+    stageChangedDateFilter.$gte = new Date(stageChangedStartDate);
+  }
+  if (stageChangedEndDate) {
+    stageChangedDateFilter.$lte = new Date(stageChangedEndDate);
+  }
+  if (Object.keys(stageChangedDateFilter).length) {
+    filter.stageChangedDate = stageChangedDateFilter;
   }
 
   if (search) {
@@ -741,6 +757,7 @@ export const getItemList = async (
         number: 1,
         watchedUserIds: 1,
         customFieldsData: 1,
+        stageChangedDate: 1,
         ...(extraFields || {})
       }
     }

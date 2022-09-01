@@ -112,7 +112,7 @@ export const saveLead = (params: {
       isHidden,
       column,
       productId
-    } = doc[fieldId];
+    } = doc[fieldId] || {};
 
     if (isHidden) {
       return;

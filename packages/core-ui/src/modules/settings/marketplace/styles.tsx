@@ -30,6 +30,7 @@ const ImageWrapper = styled.div`
 
 const MainContainer = styledTS<{ active?: boolean }>(styled.section)`
   height: 100%;
+  max-width: 20%;
   display: flex;
   flex-direction: column;
 `;
@@ -60,6 +61,7 @@ const Search = styled.div`
 const FilterContainer = styledTS<{ active?: boolean }>(styled.div)`
   transition: .s all;
   flex: 1;
+  overflow: auto;
 `;
 
 const Filter = styled.div`
@@ -99,11 +101,11 @@ const PaddingBottom = styled.div`
 // Plugin Preview
 
 const ListHeader = styled.div`
-  padding: ${dimensions.coreSpacing}px 0px;
+  padding: 15px 0px;
 `;
 
 const ListTitle = styled.b`
-  height: ${typography.lineHeightHeading5};
+  font-size: ${typography.fontSizeHeading6}px;
 `;
 
 const ColorText = styled.b`
@@ -113,11 +115,15 @@ const ColorText = styled.b`
 const PluginContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+
+  b {
+    font-size: 12px;
+  }
 `;
 
 const CardWrapper = styled.div`
-  margin-right: ${dimensions.coreSpacing}px;
-  margin-bottom: ${dimensions.coreSpacing}px;
+  margin-right: ${dimensions.unitSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
   width: 23%;
   min-width: 250px;
   border: 1px solid ${colors.borderPrimary};
@@ -128,10 +134,12 @@ const Card = styled.div`
   width: inherit;
   padding: ${dimensions.unitSpacing}px;
   color: ${colors.textPrimary};
+  border-radius: 8px;
 
   &:hover {
-    box-shadow: 0 10px 20px ${rgba(colors.colorCoreDarkGray, 0.12)};
+    box-shadow: 0 5px 15px ${rgba(colors.colorCoreDarkGray, 0.12)};
     cursor: pointer;
+    transition: 0.3s;
   }
 `;
 
@@ -143,12 +151,21 @@ const PluginPic = styled.img`
 const PluginInformation = styled.div`
   margin-top: ${dimensions.unitSpacing}px;
 
+  .title {
+    font-size: 14px;
+  }
+
   b {
     text-transform: capitalize;
   }
 
   p {
     margin: 0;
+
+    .gray {
+      color: ${colors.textSecondary};
+      line-height: 25px;
+    }
   }
 `;
 
@@ -165,8 +182,14 @@ const DetailMainContainer = styled.div`
   height: 100%;
   border-radius: 8px;
   border: 1px solid ${colors.borderPrimary};
-  padding: ${dimensions.coreSpacing}px;
+  padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow-x: hidden;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  p {
+    margin: 0;
+  }
 `;
 
 const PluginTitle = styled.div`
@@ -175,9 +198,9 @@ const PluginTitle = styled.div`
   align-items: center;
 
   img {
-    width: 80px;
-    height: 80px;
-    margin: ${dimensions.coreSpacing}px;
+    max-width: 70px;
+    max-height: 70px;
+    margin-right: ${dimensions.coreSpacing}px;
   }
 
   b {
@@ -214,12 +237,15 @@ const Center = styled.div`
 const DetailInformation = styled.div`
   display: flex;
   flex-direction: column;
+  b {
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
 `;
 
 const Hashtag = styled.div`
   border-radius: 4px;
   color: ${colors.colorWhite};
-  background: ${colors.colorBlack};
+  background: ${colors.colorPrimary};
   padding: 2px 6px;
   margin-right: 5px;
   font-size: 11px;
@@ -231,14 +257,19 @@ const Hashtag = styled.div`
 
 const Detail = styled.div`
   padding-bottom: ${dimensions.unitSpacing}px;
+
+  p {
+    margin: 0;
+  }
 `;
 
 // Carousel
 
 const CarouselWrapper = styled.div`
-  height: 250px;
+  height: 300px;
   width: 100%;
   padding-bottom: ${dimensions.coreSpacing}px;
+  margin: ${dimensions.coreSpacing}px 0;
 
   display: flex;
   justify-content: center;
@@ -249,20 +280,26 @@ const CarouselWrapper = styled.div`
 const Buttons = styledTS<{ placement?: string }>(styled.div)`
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 280px;
   display: flex;
   justify-content: ${props => props.placement};
   align-items: center;
 `;
 
-const SliderButton = styledTS<{ active?: boolean }>(styled.div)`
-  display: ${props => !props.active && 'none'};
+const SliderButton = styledTS<{ active?: boolean; left?: boolean }>(styled.div)`
+  display: ${props => (!props.active ? 'none' : 'flex')};
+  color: ${colors.colorWhite};
+  height: 100%;
+  width: 100px;
+  justify-content:center;
+  align-items: center;
 
   &:hover {
     cursor: pointer;
-    i {
-      color: ${colors.colorPrimary};
-    }
+    background-image: ${props =>
+      props.left
+        ? 'linear-gradient(to left, rgba(0,0,0,0), rgba(0,0,0,0.3));'
+        : 'linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.3))'};
   }
 `;
 
@@ -288,9 +325,13 @@ const Dot = styledTS<{ active: boolean }>(styled.div)`
   }
 `;
 
-const Image = styled.img`
-  height: 230px;
-  max-width: calc(100% - 50px);
+const Image = styledTS<{ image?: string }>(styled.div)`
+  height: 280px;
+  width: 100%;
+  background-image: url(${props => props.image});
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 `;
 
 // Detail right sidebar
@@ -302,6 +343,9 @@ const SidebarWrapper = styled.div`
   a {
     padding: 12px;
     font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 `;
 
@@ -337,6 +381,7 @@ const ColorHeader = styled.p`
 const DetailCard = styled.div`
   display: flex;
   margin-top: ${dimensions.unitSpacing}px;
+  align-items: center;
 `;
 
 const MemberPic = styled.div`
@@ -358,7 +403,7 @@ const CardInformation = styled.div`
 
 const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
   font-size: 11px;
-  margin-top: ${props => props.withMargin && dimensions.unitSpacing}px;
+  margin-top: ${props => props.withMargin && '5'}px;
 `;
 
 //**************

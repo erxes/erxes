@@ -1,11 +1,10 @@
-import { QueryResponse, IAttachment } from '@erxes/ui/src/types';
+import { IAttachment, QueryResponse } from '@erxes/ui/src/types';
 import {
   IUser,
   IUserDetails,
   IUserDoc,
   IUserLinks
 } from '@erxes/ui/src/auth/types';
-import { IConversation } from '@erxes/ui-inbox/src/inbox/types';
 
 export type IInvitationEntry = {
   email: string;
@@ -53,7 +52,7 @@ export type EditMutationResponse = {
 
 export type UserConverationsQueryResponse = {
   userConversations: {
-    list: IConversation[];
+    list: any[]; //check - IConversation
     totalCount: number;
   };
 } & QueryResponse;
@@ -112,6 +111,7 @@ export interface IBranch extends IStructureCommon, IContactInfo {
   parentId: string;
   userIds: string[] | string;
   users: IUser[];
+  radius: number;
 }
 
 export interface IStructure extends IStructureCommon, IContactInfo {

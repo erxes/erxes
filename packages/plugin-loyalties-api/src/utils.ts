@@ -1,14 +1,23 @@
+import { IModels } from './connectionResolver';
+import { sendProductsMessage } from './messageBroker';
+import { VOUCHER_STATUS } from './models/definitions/constants';
+
 interface IProductD {
   productId: string;
   quantity: number;
 }
 export const checkVouchersSale = async (
-  models,
+  models: IModels,
+  subdomain: string,
   ownerType: string,
   ownerId: string,
   products: IProductD[]
 ) => {
   const result = {};
+
+  if (!ownerId && !ownerId && !products) {
+    return 'No Data';
+  }
 
   const now = new Date();
   const productsIds = products.map(p => p.productId);
@@ -37,16 +46,15 @@ export const checkVouchersSale = async (
     campaign: { $arrayElemAt: ['$campaign_doc', 0] }
   };
   const lookup = {
-    $lookup: {
-      from: 'voucher_campaigns',
-      localField: 'campaignId',
-      foreignField: '_id',
-      as: 'campaign_doc'
-    }
+    from: 'voucher_campaigns',
+    localField: 'campaignId',
+    foreignField: '_id',
+    as: 'campaign_doc'
   };
   const voucherFilter = { ownerType, ownerId, status: { $in: ['new'] } };
 
   const activeVouchers = await models.Vouchers.find(voucherFilter).lean();
+
   const activeCampaignIds = activeVouchers.map(v => v.campaignId);
 
   const campaignFilter = {
@@ -89,6 +97,9 @@ export const checkVouchersSale = async (
             (sum, i) => sum + i.usedCount,
             0
           );
+        result[productId].type = 'bonus';
+        result[productId].discount = 100;
+        result[productId].bonusName = bonusVoucher.campaign.title;
       }
     }
   }
@@ -120,13 +131,21 @@ export const checkVouchersSale = async (
     (catIds, c) => catIds.concat(c.productCategoryIds),
     []
   );
-  const catProducts = await models.Products.find(
-    { categoryId: { $in: [...new Set(productCatIds)] } },
-    { _id: 1, categoryId: 1 }
-  ).lean();
+
+  const catProducts = await sendProductsMessage({
+    subdomain,
+    action: 'find',
+    data: {
+      query: { categoryId: { $in: [...new Set(productCatIds)] } },
+      sort: { _id: 1, categoryId: 1 }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
   const productIdByCatId = {};
   for (const pr of catProducts) {
-    if (!Object.keys(productCatIds).includes(pr.categoryId)) {
+    if (!Object.keys(productIdByCatId).includes(pr.categoryId)) {
       productIdByCatId[pr.categoryId] = [];
     }
 
@@ -138,15 +157,22 @@ export const checkVouchersSale = async (
     let productIds = discountVoucher.campaign.productIds || [];
 
     for (const catId of catIds) {
-      productIds = productIds.concat(productCatIds[catId]);
+      productIds = productIds.concat(productIdByCatId[catId] || []);
     }
 
     for (const productId of productsIds) {
       if (productIds.includes(productId)) {
-        if (result[productId].discount < discountVoucher.discountPercent) {
-          result[productId].voucherCampaignId = discountVoucher.campaignId;
-          result[productId].voucherId = discountVoucher._id;
-          result[productId].discount = discountVoucher.discountPercent;
+        if (
+          result[productId].discount < discountVoucher.campaign.discountPercent
+        ) {
+          result[productId] = {
+            ...result[productId],
+            voucherCampaignId: discountVoucher.campaignId,
+            voucherId: discountVoucher._id,
+            discount: discountVoucher.campaign.discountPercent,
+            voucherName: discountVoucher.campaign.title,
+            type: 'discount'
+          };
         }
         result[productId].sumDiscount +=
           discountVoucher.campaign.discountPercent;
@@ -157,7 +183,15 @@ export const checkVouchersSale = async (
   return result;
 };
 
-export const confirmVoucherSale = async (models, checkInfo) => {
+export const confirmVoucherSale = async (
+  models: IModels,
+  checkInfo: {
+    [productId: string]: {
+      voucherId: string;
+      count: number;
+    };
+  }
+) => {
   for (const productId of Object.keys(checkInfo)) {
     const rule = checkInfo[productId];
 
@@ -166,10 +200,33 @@ export const confirmVoucherSale = async (models, checkInfo) => {
     }
 
     if (rule.count) {
-      await models.Vouchers.updateOne(
-        { _id: rule.voucherId },
-        { $push: { bonusInfo: { usedCount: rule.count } } }
+      const voucher = await models.Vouchers.findOne({
+        _id: rule.voucherId
+      }).lean();
+      if (!voucher) {
+        continue;
+      }
+
+      const campaign = await models.VoucherCampaigns.findOne({
+        _id: voucher.campaignId
+      });
+      if (!campaign) {
+        continue;
+      }
+
+      const oldBonusCount = (voucher.bonusInfo || []).reduce(
+        (sum, i) => sum + i.usedCount,
+        0
       );
+
+      const updateInfo: any = {
+        $push: { bonusInfo: { usedCount: rule.count } }
+      };
+      if (campaign.bonusCount - oldBonusCount <= rule.count) {
+        updateInfo.$set = { status: VOUCHER_STATUS.LOSS };
+      }
+
+      await models.Vouchers.updateOne({ _id: rule.voucherId }, updateInfo);
     }
   }
 };

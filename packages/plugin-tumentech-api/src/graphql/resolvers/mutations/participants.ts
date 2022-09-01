@@ -1,43 +1,16 @@
-import {
-  IParticipant,
-  IParticipantDocument
-} from './../../../models/definitions/participants';
 import { IContext } from '../../../connectionResolver';
+import { IParticipant } from './../../../models/definitions/participants';
 
 interface IParticipantEdit extends IParticipant {
   _id: string;
 }
 
-interface IParticipantAdd extends IParticipant {
-  customerIds?: string[];
-}
-
 const participantMutations = {
   participantsAdd: async (
     _root,
-    doc: IParticipantAdd,
+    doc: IParticipant,
     { models, docModifier }: IContext
   ) => {
-    const { customerIds = [], customerId, dealId } = doc;
-
-    if (customerIds && customerIds.length) {
-      const participants: IParticipantDocument[] = [];
-
-      for (const customerId of customerIds) {
-        doc.customerId = customerId;
-        const participant = await models.Participants.createParticipant(
-          docModifier(doc)
-        );
-        participants.push(participant);
-      }
-
-      return participants;
-    }
-
-    if (!customerId && customerIds && !customerIds.length) {
-      return models.Participants.remove({ dealId });
-    }
-
     return [models.Participants.createParticipant(docModifier(doc))];
   },
 
@@ -70,7 +43,7 @@ const participantMutations = {
 
   selectWinner: async (
     _root,
-    { dealId, customerId }: { dealId: string; customerId: string },
+    { dealId, driverId }: { dealId: string; driverId: string },
     { models }: IContext
   ) => {
     await models.Participants.updateMany(
@@ -83,12 +56,17 @@ const participantMutations = {
     await models.Participants.updateOne(
       {
         dealId,
-        customerId
+        driverId
       },
       { $set: { status: 'won' } }
     );
 
-    return models.Participants.getParticipant({ dealId, customerId });
+    const participant = await models.Participants.getParticipant({
+      dealId,
+      driverId
+    });
+
+    return participant;
   }
 };
 

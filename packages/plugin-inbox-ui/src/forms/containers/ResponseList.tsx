@@ -1,20 +1,22 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { withProps } from '@erxes/ui/src/utils';
-import { queries } from '@erxes/ui-forms/src/forms/graphql';
+
 import {
   FormSubmissionsQueryResponse,
   FormSubmissionsTotalCountQueryResponse
 } from '@erxes/ui-forms/src/forms/types';
-import { IntegrationDetailQueryResponse } from '@erxes/ui-inbox/src/settings/integrations/types';
-import { LeadIntegrationDetailQueryResponse } from '@erxes/ui-settings/src/integrations/types';
+
+import { FieldsQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { IntegrationDetailQueryResponse } from '../../settings/integrations/types';
+import { LeadIntegrationDetailQueryResponse } from '../../settings/integrations/types';
 import React from 'react';
-import { graphql } from 'react-apollo';
 import ResponseList from '../components/ResponseList';
-import { FieldsQueryResponse } from '@erxes/ui-settings/src/properties/types';
-import { queries as integrationQueries } from '@erxes/ui-settings/src/integrations/graphql';
 import { generatePaginationParams } from '@erxes/ui/src/utils/router';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as integrationQueries } from '../../settings/integrations/graphql';
+import { queries } from '@erxes/ui-forms/src/forms/graphql';
+import { withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   queryParams: any;

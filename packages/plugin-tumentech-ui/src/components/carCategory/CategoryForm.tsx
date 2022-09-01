@@ -1,17 +1,16 @@
-import {
-  generateCategoryOptions,
-  MainStyleModalFooter as ModalFooter,
-  Button,
-  Form as CommonForm,
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '@erxes/ui/src';
+import Button from '@erxes/ui/src/components/Button';
+import { ControlLabel } from '@erxes/ui/src/components/form';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import CommonForm from '@erxes/ui/src/components/form/Form';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { generateCategoryOptions } from '@erxes/ui/src/utils';
 import React from 'react';
-import { ICarCategory } from '../../types';
 import Select from 'react-select-plus';
+
 import { COLLAPSE_CONTENT_SELECTOR } from '../../constants';
+import { ICarCategory } from '../../types';
 
 type Props = {
   category?: ICarCategory;
@@ -35,8 +34,8 @@ class CategoryForm extends React.Component<Props, State> {
     };
   }
 
-  onCollapseContentChange = (options) => {
-    const collapseContent = options.map((option) => option.value);
+  onCollapseContentChange = options => {
+    const collapseContent = options.map(option => option.value);
     this.setState({ collapseContent });
   };
 

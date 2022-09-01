@@ -66,7 +66,7 @@ class Brands extends React.Component<Props, {}> {
   }
 
   render() {
-    const { uomsTotalCount, uoms, loading } = this.props;
+    const { uomsTotalCount, loading } = this.props;
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Uoms'), link: '/settings/uoms-manage' }

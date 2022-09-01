@@ -3,7 +3,6 @@ import resolvers from './graphql/resolvers';
 import { generateModels, models } from './connectionResolver';
 import afterMutations from './afterMutations';
 import { initBroker } from './messageBroker';
-import { initMemoryStorage } from './inmemoryStorage';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
 import beforeResolvers from './beforeResolvers';
@@ -36,8 +35,6 @@ export default {
     mainDb = options.db;
 
     initBroker(options.messageBrokerClient);
-
-    initMemoryStorage();
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

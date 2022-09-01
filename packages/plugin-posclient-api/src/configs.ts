@@ -7,6 +7,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { callBackQpay, posInitialSetup } from './routes';
 import * as cookieParser from 'cookie-parser';
 import posUserMiddleware from './userMiddleware';
+import posConfigMiddleware from './configMiddleware';
 import * as dotenv from 'dotenv';
 import { loadSubscriptions } from './subscriptions';
 
@@ -28,10 +29,15 @@ export default {
   },
   hasSubscriptions: true,
   freeSubscriptions: loadSubscriptions,
-  postHandlers: [{ path: `/pl:posclient/callBackQpay`, method: callBackQpay }],
+  postHandlers: [
+    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
+    { path: `/callBackQpay`, method: callBackQpay }
+  ],
   getHandlers: [
     { path: `/initial-setup`, method: posInitialSetup },
-    { path: `/pl:posclient/initial-setup`, method: posInitialSetup }
+    { path: `/pl:posclient/initial-setup`, method: posInitialSetup },
+    { path: `/pl:posclient/callBackQpay`, method: callBackQpay },
+    { path: `/callBackQpay`, method: callBackQpay }
   ],
 
   apolloServerContext: async (context, req, res) => {
@@ -47,9 +53,16 @@ export default {
 
     context.subdomain = subdomain;
     context.models = models;
-    context.config = await models.Configs.findOne({}).lean();
+
     context.requestInfo = requestInfo;
     context.res = res;
+
+    context.config =
+      req.posConfig && req.posConfig._id
+        ? req.posConfig
+        : await models.Configs.findOne({})
+            .sort({ createdAt: 1 })
+            .lean();
 
     if (req.posUser) {
       context.posUser = req.posUser;
@@ -66,6 +79,7 @@ export default {
   middlewares: [
     cookieParser(),
     posUserMiddleware,
+    posConfigMiddleware,
     cors({
       credentials: true,
       origin: [

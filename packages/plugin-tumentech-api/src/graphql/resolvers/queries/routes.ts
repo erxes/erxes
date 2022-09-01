@@ -1,5 +1,6 @@
-import { IContext } from '../../../connectionResolver';
 import { paginate } from '@erxes/api-utils/src';
+
+import { IContext } from '../../../connectionResolver';
 
 const routesQuery = {
   routes: async (
@@ -7,14 +8,24 @@ const routesQuery = {
     {
       searchValue,
       page,
-      perPage
-    }: { searchValue?: string; page?: number; perPage?: number },
+      perPage,
+      placeIds
+    }: {
+      searchValue?: string;
+      page?: number;
+      perPage?: number;
+      placeIds?: string[];
+    },
     { models }: IContext
   ) => {
-    const filter: any = {};
+    let filter: any = {};
 
     if (searchValue) {
       filter.searchText = { $in: [new RegExp(`.*${searchValue}.*`, 'i')] };
+    }
+
+    if (placeIds && placeIds.length) {
+      filter = { placeIds: { $all: placeIds } };
     }
 
     return {

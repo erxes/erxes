@@ -1,23 +1,24 @@
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { LeftItem } from '@erxes/ui/src/components/step/styles';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
-import SelectBrand from '@erxes/ui-settings/src/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-settings/src/integrations/containers/SelectChannels';
-import Select from 'react-select-plus';
-import { IField } from '@erxes/ui/src/types';
-import { Description } from '@erxes/ui-settings/src/styles';
-import React from 'react';
-import { IBrand } from '@erxes/ui/src/brands/types';
 import {
   BackgroundSelector,
   FlexItem
 } from '@erxes/ui/src/components/step/style';
-import { __ } from 'coreui/utils';
+
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import { Description } from '@erxes/ui-settings/src/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IField } from '@erxes/ui/src/types';
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import React from 'react';
+import Select from 'react-select-plus';
+import SelectBrand from '../../../settings/integrations/containers/SelectBrand';
+import SelectChannels from '../../../settings/integrations/containers/SelectChannels';
 import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { __ } from 'coreui/utils';
 
 type Props = {
   onChange: (

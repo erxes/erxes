@@ -11,6 +11,7 @@ export interface IField {
 }
 
 export interface IContentType {
+  siteId: string;
   code: string;
   displayName: string;
   fields: IField[];
@@ -31,6 +32,7 @@ export const fieldSchema = new Schema(
 );
 
 export const contentTypeSchema = new Schema({
+  siteId: { type: String, label: 'Site Id' },
   code: { type: String, label: 'Name' },
   displayName: { type: String, label: 'Description' },
   fields: { type: [fieldSchema] }

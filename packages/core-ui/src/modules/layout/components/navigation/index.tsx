@@ -1,38 +1,22 @@
-import React from 'react';
+import { BottomMenu, FlexBox, LeftNavigation, NavImage } from '../../styles';
+import { __, readFile } from 'modules/common/utils';
+
 import { NavLink } from 'react-router-dom';
-
-import { LeftNavigation, FlexBox, BottomMenu, NavImage } from '../../styles';
-
-import { __, readFile, setBadge } from 'modules/common/utils';
-
-import NavigationToggler from './NavigationToggler';
-import NavigationList from './NavigationList';
-import NavigationItem from './NavigationItem';
 import NavigationGoto from './NavigationGoto';
-
+import NavigationItem from './NavigationItem';
+import NavigationList from './NavigationList';
+import NavigationToggler from './NavigationToggler';
+import React from 'react';
 import { getThemeItem } from 'utils';
 
 type Props = {
-  unreadConversationsCount?: number;
   navCollapse: number;
   onClickHandleIcon: (event: any) => void;
 };
 
 export default class Navigation extends React.Component<Props> {
-  componentWillReceiveProps(nextProps: any) {
-    const unreadCount = nextProps.unreadConversationsCount;
-
-    if (unreadCount !== this.props.unreadConversationsCount) {
-      setBadge(unreadCount, __('Team Inbox').toString());
-    }
-  }
-
   render() {
-    const {
-      unreadConversationsCount,
-      navCollapse,
-      onClickHandleIcon
-    } = this.props;
+    const { navCollapse, onClickHandleIcon } = this.props;
 
     const generateLogoSource = (): string => {
       const logo =
@@ -61,10 +45,7 @@ export default class Navigation extends React.Component<Props> {
 
         <NavigationGoto navCollapse={navCollapse} />
 
-        <NavigationList
-          navCollapse={navCollapse}
-          unreadConversationsCount={unreadConversationsCount}
-        />
+        <NavigationList navCollapse={navCollapse} />
 
         <BottomMenu>
           <NavigationItem

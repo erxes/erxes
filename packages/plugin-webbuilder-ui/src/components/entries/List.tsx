@@ -6,15 +6,17 @@ import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Row from './Row';
+import { IContentTypeDoc, IEntryDoc } from '../../types';
 
 type Props = {
-  history: any;
   queryParams: any;
   loading: boolean;
-  entries: any[];
-  contentType: any;
+  entries: IEntryDoc[];
+  contentType: IContentTypeDoc;
   getActionBar: (actionBar: any) => void;
   remove: (_id: string) => void;
+  setCount: (count: number) => void;
+  entriesCount: number;
 };
 
 class List extends React.Component<Props> {
@@ -32,7 +34,7 @@ class List extends React.Component<Props> {
   };
 
   render() {
-    const { contentType, entries, getActionBar } = this.props;
+    const { contentType, getActionBar, setCount, entriesCount } = this.props;
     const { fields = [] } = contentType;
 
     const actionBarRight = (
@@ -46,6 +48,7 @@ class List extends React.Component<Props> {
     );
 
     getActionBar(actionBarRight);
+    setCount(entriesCount);
 
     let content = (
       <>
@@ -67,7 +70,7 @@ class List extends React.Component<Props> {
       </>
     );
 
-    if (entries.length === 0) {
+    if (entriesCount < 1) {
       content = (
         <EmptyState
           image="/images/actions/8.svg"

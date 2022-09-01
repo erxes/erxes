@@ -1,14 +1,16 @@
+import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-forms/src/settings/properties/types';
+import Bulk from '@erxes/ui/src/components/Bulk';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import Bulk from '@erxes/ui/src/components/Bulk';
-import { Alert, getEnv, withProps } from '@erxes/ui/src/utils';
-import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 import queryString from 'query-string';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { DefaultColumnsConfigQueryResponse } from '@erxes/ui-settings/src/properties/types';
+
 import CompaniesList from '../components/list/CompaniesList';
 import { mutations, queries } from '../graphql';
 import {
@@ -20,7 +22,6 @@ import {
   RemoveMutationResponse,
   RemoveMutationVariables
 } from '../types';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type Props = {
   queryParams?: any;
@@ -205,6 +206,7 @@ const generateParams = ({ queryParams }) => {
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
     sortField: queryParams.sortField,
+    dateFilters: queryParams.dateFilters,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
       : undefined

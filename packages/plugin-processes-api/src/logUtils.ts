@@ -3,7 +3,6 @@ import {
   putUpdateLog as commonPutUpdateLog,
   putDeleteLog as commonPutDeleteLog,
   LogDesc,
-  gatherNames,
   IDescriptions,
   getSchemaLabels
 } from '@erxes/api-utils/src/logUtils';
@@ -32,11 +31,11 @@ export const MODULE_NAMES = {
 };
 
 const gatherDescriptions = async (
-  models: IModels,
-  subdomain: string,
+  _args,
+  _args1,
   params: any
 ): Promise<IDescriptions> => {
-  const { action, type, object, updatedDocument } = params;
+  const { action, object } = params;
 
   const extraDesc: LogDesc[] = [];
   const description = `"${object.name}" has been ${action}d`;

@@ -20,9 +20,13 @@ interface ICategoryParams {
 
 const generateFilter = async (
   models: IModels,
+  token: string,
   { type, categoryId, searchValue }: IProductParams
 ) => {
-  const filter: any = { status: { $ne: PRODUCT_STATUSES.DELETED } };
+  const filter: any = {
+    status: { $ne: PRODUCT_STATUSES.DELETED },
+    tokens: { $in: [token] }
+  };
 
   if (type) {
     filter.type = type;
@@ -50,8 +54,8 @@ const generateFilter = async (
   return filter;
 };
 
-const generateFilterCat = ({ parentId, searchValue }) => {
-  const filter: any = {};
+const generateFilterCat = ({ token, parentId, searchValue }) => {
+  const filter: any = { tokens: { $in: [token] } };
 
   if (parentId) {
     filter.parentId = parentId;
@@ -68,9 +72,9 @@ const productQueries = {
   async poscProducts(
     _root,
     { type, categoryId, searchValue, ...paginationArgs }: IProductParams,
-    { models }: IContext
+    { models, config }: IContext
   ) {
-    const filter = await generateFilter(models, {
+    let filter = await generateFilter(models, config.token, {
       type,
       categoryId,
       searchValue
@@ -90,9 +94,9 @@ const productQueries = {
   async poscProductsTotalCount(
     _root,
     { type, categoryId, searchValue }: IProductParams,
-    { models }: IContext
+    { models, config }: IContext
   ) {
-    const filter = await generateFilter(models, {
+    const filter = await generateFilter(models, config.token, {
       type,
       categoryId,
       searchValue
@@ -104,9 +108,14 @@ const productQueries = {
   async poscProductCategories(
     _root,
     { parentId, searchValue, excludeEmpty }: ICategoryParams,
-    { models }: IContext
+    { models, config }: IContext
   ) {
-    const filter = generateFilterCat({ parentId, searchValue });
+    const filter = generateFilterCat({
+      token: config.token,
+      parentId,
+      searchValue
+    });
+
     const categories = await models.ProductCategories.find(filter).sort({
       order: 1
     });
@@ -133,9 +142,13 @@ const productQueries = {
   async poscProductCategoriesTotalCount(
     _root,
     { parentId, searchValue }: { parentId: string; searchValue: string },
-    { models }: IContext
+    { models, config }: IContext
   ) {
-    const filter = await generateFilterCat({ parentId, searchValue });
+    const filter = await generateFilterCat({
+      token: config.token,
+      parentId,
+      searchValue
+    });
     return models.ProductCategories.find(filter).countDocuments();
   },
 

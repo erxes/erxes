@@ -1,7 +1,7 @@
-import { sendGraphQLRequest } from './utils';
 import { IContext } from '../../types';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { sendRequest } from '@erxes/api-utils/src/requests';
+import { sendPosMessage } from '../../../messageBroker';
 
 interface ISearchParams {
   searchValue?: string;
@@ -20,9 +20,9 @@ const orderQueries = {
   orders(
     _root,
     { searchValue, page, perPage }: ISearchParams,
-    { models }: IContext
+    { models, config }: IContext
   ) {
-    const filter: any = {};
+    const filter: any = { posToken: config.token };
 
     if (searchValue) {
       filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };
@@ -50,9 +50,14 @@ const orderQueries = {
       sortDirection,
       customerId
     }: IFullOrderParams,
-    { models }: IContext
+    { models, config }: IContext
   ) {
-    const filter: any = {};
+    const filter: any = {
+      $or: [
+        { posToken: config.token },
+        { type: 'delivery', branchId: config.branchId }
+      ]
+    };
 
     if (searchValue) {
       filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };
@@ -79,16 +84,20 @@ const orderQueries = {
     );
   },
 
-  async orderDetail(_root, { _id }, { posUser, user, models }: IContext) {
+  async orderDetail(
+    _root,
+    { _id, customerId }: { _id: string; customerId?: string },
+    { posUser, models, config }: IContext
+  ) {
     if (posUser) {
       return models.Orders.findOne({ _id });
     }
 
-    if (!user.erxesCustomerId) {
+    if (!customerId) {
       throw new Error('Not found');
     }
 
-    return models.Orders.findOne({ _id, customerId: user.erxesCustomerId });
+    return models.Orders.findOne({ _id, customerId, posToken: config.token });
   },
 
   async ordersCheckCompany(_root, { registerNumber }, { config }: IContext) {
@@ -114,20 +123,21 @@ const orderQueries = {
     };
   },
 
-  async ordersDeliveryInfo(_root, { orderId }) {
-    return sendGraphQLRequest({
-      query: `
-        query ordersDeliveryInfo($orderId: String!) {
-          ordersDeliveryInfo(orderId: $orderId) {
-            _id
-            status
-            date
-          }
-        }
-      `,
-      name: 'ordersDeliveryInfo',
-      variables: { orderId }
+  async ordersDeliveryInfo(_root, { orderId }, { subdomain }: IContext) {
+    const info = await sendPosMessage({
+      subdomain,
+      action: 'ordersDeliveryInfo',
+      data: {
+        orderId: orderId
+      },
+      isRPC: true
     });
+
+    if (info.error) {
+      throw new Error(info.error);
+    }
+
+    return info;
   }
 };
 

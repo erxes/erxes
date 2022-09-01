@@ -1,14 +1,14 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
+import { EmptyState, Spinner } from '@erxes/ui/src';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
+
 import ProductDetails from '../../components/detail/ProductDetails';
 import { queries } from '../../graphql';
-import { __, Spinner, EmptyState } from '@erxes/ui/src';
-import { DetailQueryResponse } from '../../types';
-import { IProduct } from '../../types';
+import { DetailQueryResponse, IProduct } from '../../types';
 
 type Props = {
   id: string;

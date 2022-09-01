@@ -17,10 +17,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Node.js 12.20.x
+      - name: Use Node.js 14.20.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12.20.x
+          node-version: 14.20.x
 
       # https://github.com/actions/cache/blob/master/examples.md#node---yarn
       - name: Get yarn cache directory path
@@ -38,10 +38,11 @@ jobs:
 
       - name: Build
         run: |
-          cd packages/gateway
+          cp -r builder dist
+          cd dist
           yarn install
           yarn build plugin tags
-          cd ../../dist/plugin-tags-api/.erxes
+          cd plugin-tags-api/.erxes
           cd dist/main/.erxes/src
 
       - name: Build docker image

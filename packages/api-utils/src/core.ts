@@ -1,6 +1,5 @@
 import * as mongoose from 'mongoose';
 import * as strip from 'strip';
-import * as faker from 'faker';
 import * as Random from 'meteor-random';
 import { IUserDocument } from './types';
 import { IPermissionDocument } from './definitions/permissions';
@@ -190,13 +189,23 @@ export const splitStr = (str: string, size: number): string[] => {
   return cleanStr.match(new RegExp(new RegExp(`.{1,${size}}(\s|$)`, 'g')));
 };
 
+const generateRandomEmail = () => {
+  var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+  var string = '';
+  for (var ii = 0; ii < 15; ii++) {
+    string += chars[Math.floor(Math.random() * chars.length)];
+  }
+
+  return string + '@gmail.com';
+};
+
 export const getUniqueValue = async (
   collection: any,
   fieldName: string = 'code',
   defaultValue?: string
 ) => {
   const getRandomValue = (type: string) =>
-    type === 'email' ? faker.internet.email().toLowerCase() : Random.id();
+    type === 'email' ? generateRandomEmail() : Random.id();
 
   let uniqueValue = defaultValue || getRandomValue(fieldName);
 
@@ -257,7 +266,7 @@ export const sendMessage = async (
 
   return client[isRPC ? 'sendRPCMessage' : 'sendMessage'](
     serviceName + (serviceName ? ':' : '') + action,
-    { subdomain, data }
+    { subdomain, data, thirdService: data && data.thirdService }
   );
 };
 
@@ -331,12 +340,12 @@ export const createGenerateModels = <IModels>(models, loadClasses) => {
 
 export const authCookieOptions = (options = {}) => {
   const NODE_ENV = getEnv({ name: 'NODE_ENV' });
-  const sevenDay = 14 * 24 * 3600 * 1000; // 14 days
+  const twoWeek = 14 * 24 * 3600 * 1000; // 14 days
 
   const cookieOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + sevenDay),
-    maxAge: sevenDay,
+    expires: new Date(Date.now() + twoWeek),
+    maxAge: twoWeek,
     secure: !['test', 'development'].includes(NODE_ENV),
     ...options
   };

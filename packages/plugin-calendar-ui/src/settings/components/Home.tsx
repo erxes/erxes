@@ -1,6 +1,6 @@
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import Boards from '../containers/Boards';
@@ -28,7 +28,7 @@ class Home extends React.Component<Props, {}> {
         }
         mainHead={
           <HeaderDescription
-            icon='/images/actions/34.svg'
+            icon="/images/actions/34.svg"
             title={__(`Group & Calendar`)}
             description={`${__(
               `Manage your boards and calendars so that its easy to manage incoming pop ups or requests that is adaptable to your team's needs`
@@ -48,7 +48,7 @@ class Home extends React.Component<Props, {}> {
           ) : (
             <EmptyState
               text={`Get started on your board`}
-              image='/images/actions/16.svg'
+              image="/images/actions/16.svg"
             />
           )
         }

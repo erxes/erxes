@@ -1,19 +1,34 @@
-import {
-  __,
-  ActivityInputs,
-  ActivityLogsContainer as ActivityLogs,
-  Wrapper
-} from '@erxes/ui/src';
-import { IUser } from '@erxes/ui/src/auth/types';
-import { IProduct } from '@erxes/ui-products/src/types';
-import React from 'react';
+import * as path from 'path';
 
-import { IContractDoc } from '../../types';
-import ScheduleSection from '../schedules/ScheduleSection';
 import ActivityItem from './ActivityItem';
 import CollateralsSection from './CollateralsSection';
+import { IContractDoc } from '../../types';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { IUser } from '@erxes/ui/src/auth/types';
 import LeftSidebar from './LeftSidebar';
+import React from 'react';
 import RightSidebar from './RightSidebar';
+import ScheduleSection from '../schedules/ScheduleSection';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { __ } from 'coreui/utils';
+import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
+const ActivityInputs = asyncComponent(
+  () =>
+    isEnabled('logs') &&
+    import(
+      /* webpackChunkName: "ActivityInputs" */ '@erxes/ui-log/src/activityLogs/components/ActivityInputs'
+    )
+);
+
+const ActivityLogs = asyncComponent(
+  () =>
+    isEnabled('logs') &&
+    import(
+      /* webpackChunkName: "ActivityLogs" */ '@erxes/ui-log/src/activityLogs/containers/ActivityLogs'
+    )
+);
 
 type Props = {
   contract: IContractDoc;
@@ -119,20 +134,24 @@ class ContractDetails extends React.Component<Props, State> {
           regenSchedules={regenSchedules}
         ></ScheduleSection>
 
-        <ActivityInputs
-          contentTypeId={contract._id}
-          contentType="contract"
-          showEmail={false}
-        />
-        <ActivityLogs
-          target={contract.number || ''}
-          contentId={contract._id}
-          contentType="contract"
-          extraTabs={[
-            { name: 'plugin_invoices', label: 'Invoices / Transaction' }
-          ]}
-          activityRenderItem={ActivityItem}
-        />
+        {isEnabled('logs') && (
+          <>
+            <ActivityInputs
+              contentTypeId={contract._id}
+              contentType="contract"
+              showEmail={false}
+            />
+            <ActivityLogs
+              target={contract.number || ''}
+              contentId={contract._id}
+              contentType="contract"
+              extraTabs={[
+                { name: 'plugin_invoices', label: 'Invoices / Transaction' }
+              ]}
+              activityRenderItem={ActivityItem}
+            />
+          </>
+        )}
       </>
     );
 

@@ -1,20 +1,31 @@
 import { gql } from 'apollo-server-express';
-
-import { types, queries, mutations } from './schema';
+import {
+  types as productreviewTypes,
+  queries as productreviewQueries,
+  mutations as productreviewMutations
+} from './schema/productreview';
+import {
+  types as wishlistTypes,
+  queries as wishlistQueries,
+  mutations as wishlistMutations
+} from './schema/wishlist';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${types}
-    
+    ${productreviewTypes}
+    ${wishlistTypes}
+
     extend type Query {
-      ${queries}
+      ${productreviewQueries}
+      ${wishlistQueries}
     }
-    
+
     extend type Mutation {
-      ${mutations}
+      ${productreviewMutations}
+      ${wishlistMutations}
     }
   `;
 };

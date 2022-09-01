@@ -1,8 +1,7 @@
+import * as xlsxPopulate from 'xlsx-populate';
 import { IColumnLabel } from '@erxes/api-utils/src';
 import {
-  createXlsFile,
   findSchemaLabels,
-  generateXlsx,
   getCustomFieldsData
 } from '@erxes/api-utils/src/exporter';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -21,6 +20,20 @@ import {
 } from './models/definitions/boards';
 import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
 import { ticketSchema } from './models/definitions/tickets';
+
+export const createXlsFile = async () => {
+  // Generating blank workbook
+  const workbook = await xlsxPopulate.fromBlankAsync();
+
+  return { workbook, sheet: workbook.sheet(0) };
+};
+
+/**
+ * Generates downloadable xls file on the url
+ */
+export const generateXlsx = async (workbook: any): Promise<string> => {
+  return workbook.outputAsync();
+};
 
 const filterHeaders = headers => {
   const first = [] as any;

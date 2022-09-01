@@ -1,10 +1,15 @@
+import {
+  FieldStyle,
+  SidebarCounter,
+  SidebarList
+} from '@erxes/ui/src/layout/styles';
+import { __, router } from 'coreui/utils';
+
 import Box from '@erxes/ui/src/components/Box';
 import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { IIntegration } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IRouterProps } from '@erxes/ui/src/types';
-import { __, router } from 'coreui/utils';
-import { FieldStyle, SidebarCounter, SidebarList } from '@erxes/ui/src/layout/styles';
-import { IIntegration } from '@erxes/ui-settings/src/integrations/types';
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -32,7 +37,7 @@ function Leads({
   const data = (
     <SidebarList>
       {integrations.map(integration => {
-        const form = integration.form || {} as any;
+        const form = integration.form || ({} as any);
 
         return (
           <li key={integration._id}>
