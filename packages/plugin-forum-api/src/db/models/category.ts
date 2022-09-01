@@ -1,5 +1,4 @@
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
-import { Transform } from 'stream';
 import { IModels } from './index';
 import * as _ from 'lodash';
 
@@ -12,7 +11,7 @@ export interface ICategory {
 }
 
 export type InputCategoryInsert = Omit<ICategory, '_id'>;
-export type InputCategoryPatch = Partial<Omit<ICategory, '_id'>>;
+export type InputCategoryPatch = Partial<InputCategoryInsert>;
 
 export type CategoryDocument = ICategory & Document;
 export interface ICategoryModel extends Model<CategoryDocument> {
