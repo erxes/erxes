@@ -15,7 +15,7 @@ const pathReplacer = (html: any, site: ISiteDocument) => {
       html = html.replace(new RegExp(path, 'g'), '');
     }
 
-    html = html.replace(new RegExp(path, 'g'), 'pl:webbuilder/');
+    html = html.replace(new RegExp(path, 'g'), 'gateway/pl:webbuilder/');
   }
 
   return html;
