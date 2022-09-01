@@ -1,5 +1,5 @@
-import { IContext } from '../../connectionResolver';
 import { IPageDocument } from '../../models/pages';
+import { IContext } from '../../connectionResolver';
 
 export default {
   site(page: IPageDocument, _args, { models }: IContext) {
