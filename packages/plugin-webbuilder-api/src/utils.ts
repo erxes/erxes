@@ -52,9 +52,18 @@ const pageReplacer = async (
 ) => {
   let html = page.html;
   const siteHolder = `{{sitename}}`;
+  const path = `{{pl:webbuilder}}/`;
 
   if (html.includes(siteHolder)) {
     html = html.replace(new RegExp(siteHolder, 'g'), site.name);
+  }
+
+  if (html.includes(path)) {
+    if (site.domain && site.domain.includes('http')) {
+      html = html.replace(new RegExp(path, 'g'), '');
+    }
+
+    html = html.replace(new RegExp(path, 'g'), 'pl:webbuilder/');
   }
 
   const pages = await models.Pages.find({
