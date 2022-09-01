@@ -1,12 +1,18 @@
 import { Alert, __ } from 'coreui/utils';
-import { Content, LeftContent } from '../../settings/integrations/styles';
+import {
+  Content,
+  LeftContent
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ControlWrapper,
   Indicator,
   StepWrapper
 } from '@erxes/ui/src/components/step/styles';
 import { IBooking, IBookingIntegration } from '../types';
-import { IBookingData, IStyle } from '../../settings/integrations/types';
+import {
+  IBookingData,
+  IStyle
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import { IForm, IFormData } from '@erxes/ui-forms/src/forms/types';
 import React, { useState } from 'react';
 import { Step, Steps } from '@erxes/ui/src/components/step';

@@ -1,29 +1,4 @@
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { __, Alert, uploadHandler } from '@erxes/ui/src/utils';
-import { Meta } from './styles';
-import { FileName } from '@erxes/ui-inbox/src/inbox/styles';
-import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import { IEmailSignature } from '@erxes/ui/src/auth/types';
-import React, { ReactNode } from 'react';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
-import {
-  formatObj,
-  formatStr,
-  generateForwardMailContent,
-  generatePreviousContents
-} from '../../containers/utils';
-
-import { IUser } from '@erxes/ui/src/auth/types';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import EmailTemplate from './emailTemplate/EmailTemplate';
-import MailChooser from './MailChooser';
+import { Alert, __, uploadHandler } from '@erxes/ui/src/utils';
 import {
   AttachmentContainer,
   Attachments,
@@ -39,11 +14,40 @@ import {
   Uploading
 } from './styles';
 import { FlexRow, Subject } from './styles';
+import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import React, { ReactNode } from 'react';
+import {
+  formatObj,
+  formatStr,
+  generateForwardMailContent,
+  generatePreviousContents
+} from '../../containers/utils';
+
+import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import EmailTemplate from './emailTemplate/EmailTemplate';
+import { FileName } from '@erxes/ui-inbox/src/inbox/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import { IEmailSignature } from '@erxes/ui/src/auth/types';
+import { IIntegration } from '../../types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Label } from '@erxes/ui/src/components/form/styles';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
+import MailChooser from './MailChooser';
+import { Meta } from './styles';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
   currentUser: IUser;
+  integrationId?: string;
+  integrations: IIntegration[];
   fromEmail?: string;
   mailData?: IMail;
   clearOnSubmit?: boolean;
@@ -66,7 +70,6 @@ type Props = {
     variables: any;
     callback: () => void;
   }) => void;
-  verifiedEmails: string[];
 };
 
 type State = {
@@ -84,6 +87,7 @@ type State = {
   kind: string;
   content: string;
   isLoading: boolean;
+  integrations: IIntegration[];
   attachments: any[];
   fileIds: string[];
   totalFileSize: number;
@@ -106,6 +110,12 @@ class MailForm extends React.Component<Props, State> {
     const [from] = mailData.from || ([{}] as IEmail[]);
     const sender = this.getEmailSender(from.email || props.fromEmail);
 
+    const fromId = this.getIntegrationId(
+      props.integrations,
+      props.integrationId
+    );
+
+    const emailSignature = this.getEmailSignature(props.brandId);
     const to = isForward ? '' : sender;
     const mailKey = `mail_${to || this.props.currentUser._id}`;
     const showPrevEmails =
@@ -129,19 +139,20 @@ class MailForm extends React.Component<Props, State> {
       showPrevEmails,
 
       fromEmail: sender,
-      from: '',
+      from: fromId,
       subject: mailData.subject || '',
-      emailSignature: '',
-      content: this.getContent(mailData, ''),
+      emailSignature,
+      content: this.getContent(mailData, emailSignature),
 
       status: 'draft',
       isUploading: false,
-      kind: '',
+      kind: this.getSelectedIntegration(fromId).kind || '',
 
       attachments,
       fileIds: [],
       totalFileSize: 0,
 
+      integrations: props.integrations,
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`
     };
@@ -284,6 +295,7 @@ class MailForm extends React.Component<Props, State> {
       isReply,
       closeModal,
       toggleReply,
+      integrationId,
       sendMail,
       isForward,
       clearOnSubmit,
@@ -330,7 +342,7 @@ class MailForm extends React.Component<Props, State> {
       to: formatStr(to),
       cc: formatStr(cc),
       bcc: formatStr(bcc),
-      from,
+      from: integrationId ? integrationId : from,
       subject:
         isForward && !subjectValue.includes('Fw:')
           ? `Fw: ${subjectValue}`
@@ -355,10 +367,76 @@ class MailForm extends React.Component<Props, State> {
     });
   };
 
+  getSelectedIntegration = (selectedId: string) => {
+    const integration = this.props.integrations.find(
+      obj => obj._id === selectedId
+    );
+
+    return integration || ({} as IIntegration);
+  };
+
   changeEditorContent = (content: string, emailSignature: string) => {
     this.setState({ content }, () => {
       this.setState({ emailSignature });
     });
+  };
+
+  changeEmailSignature = (selectedIntegrationId: string) => {
+    // find selected brand
+    const brand = this.getSelectedIntegration(selectedIntegrationId).brand;
+    const brandId = brand._id;
+
+    // email signature of selected brand
+    const emailSignatureToChange = this.getEmailSignature(brandId);
+
+    // email signature, content before change
+    const { emailSignature, content } = this.state;
+
+    if (emailSignature === emailSignatureToChange) {
+      return;
+    }
+
+    if (content.includes(emailSignature)) {
+      return this.changeEditorContent(
+        content.replace(emailSignature, emailSignatureToChange),
+        emailSignatureToChange
+      );
+    }
+
+    return this.changeEditorContent(
+      content.concat(emailSignatureToChange),
+      emailSignatureToChange
+    );
+  };
+
+  getEmailSignature = (brandId?: string) => {
+    if (!brandId) {
+      const integrations = this.props.integrations;
+      const brand =
+        integrations.length > 0 ? integrations[0].brand : ({} as IBrand);
+
+      return this.findEmailSignature(brand && brand._id);
+    }
+
+    return this.findEmailSignature(brandId);
+  };
+
+  findEmailSignature = (brandId: string) => {
+    const found = this.props.emailSignatures.find(
+      obj => obj.brandId === brandId
+    );
+
+    const signatureContent = (found && found.signature) || '';
+
+    return signatureContent;
+  };
+
+  getIntegrationId = (integrations, integrationId?: string) => {
+    if (integrationId) {
+      return integrationId;
+    }
+
+    return integrations.length > 0 ? integrations[0]._id : '';
   };
 
   onEditorChange = e => {
@@ -450,10 +528,12 @@ class MailForm extends React.Component<Props, State> {
     const { from } = this.state;
 
     uploadHandler({
-      kind: 'main',
+      kind: 'nylas',
       files,
       userId: this.props.currentUser._id,
-      extraFormData: [{ key: 'erxesApiId', value: from || '' }],
+      extraFormData: [
+        { key: 'erxesApiId', value: this.props.integrationId || from || '' }
+      ],
       beforeUpload: () => {
         this.setState({ isUploading: true });
       },
@@ -539,28 +619,35 @@ class MailForm extends React.Component<Props, State> {
   };
 
   renderFromValue = () => {
-    const { verifiedEmails } = this.props;
+    const { integrations = [], integrationId } = this.props;
+
+    if (integrationId && integrationId.length > 0) {
+      const integration = integrations.find(obj => obj._id === integrationId);
+
+      return integration && integration.name;
+    }
 
     const onChangeMail = (from: string) => {
-      this.setState({ from });
+      this.setState({ from, kind: this.getSelectedIntegration(from).kind });
+
+      this.changeEmailSignature(from);
     };
 
     return (
       <MailChooser
         onChange={onChangeMail}
-        integrations={[]}
+        integrations={integrations}
         selectedItem={this.state.from}
-        verifiedEmails={verifiedEmails}
       />
     );
   };
 
   renderFrom() {
     return (
-      <>
+      <FlexRow>
         <label>From:</label>
         {this.renderFromValue()}
-      </>
+      </FlexRow>
     );
   }
 
