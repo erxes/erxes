@@ -1,5 +1,5 @@
-import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types'
-import { IUser } from './auth/types'
+import { IActivityLogForMonth } from '@erxes/ui-log/src/activityLogs/types';
+import { IUser } from './auth/types';
 
 export interface IRouterProps {
   history: any;
@@ -82,7 +82,7 @@ export interface IObjectListConfig {
 
 export interface IObjectObjType {
   key: number;
-  label:string;
+  label: string;
   value: string;
 }
 export interface IField {
@@ -125,8 +125,8 @@ export interface IField {
   showInCard?: boolean;
   keys?: string[];
   productCategoryId?: string;
-  optionsObj?:IObjectObjType[];
-  riskAssessmentValue?: string;
+  optionsObj?: IObjectObjType[];
+  riskAssessmentFieldValue?: string;
   riskAssessmentFieldType?: string;
 }
 

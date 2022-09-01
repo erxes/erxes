@@ -2,10 +2,7 @@ import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { graphqlPubsub, serviceDiscovery } from './configs';
 import { generateModels } from './connectionResolver';
-import {
-  generateAmounts,
-  generateProducts
-} from './graphql/resolvers/customResolvers/deal';
+import { generateAmounts, generateProducts } from './graphql/resolvers/customResolvers/deal';
 import { publishHelper } from './graphql/resolvers/mutations/utils';
 import { notifiedUserIds } from './graphql/utils';
 import { conversationConvertToCard } from './models/utils';
@@ -13,7 +10,7 @@ import { getCardItem } from './utils';
 
 let client;
 
-export const initBroker = async cl => {
+export const initBroker = async (cl) => {
   client = cl;
 
   const { consumeQueue, consumeRPCQueue } = client;
@@ -23,7 +20,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tickets.create(data)
+      data: await models.Tickets.create(data),
     };
   });
 
@@ -32,49 +29,43 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tasks.create(data)
+      data: await models.Tasks.create(data),
     };
   });
 
-  consumeRPCQueue(
-    'cards:tasks.remove',
-    async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:tasks.remove', async ({ subdomain, data: { _ids } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Tasks.removeTasks(_ids)
-      };
-    }
-  );
+    return {
+      status: 'success',
+      data: await models.Tasks.removeTasks(_ids),
+    };
+  });
 
   consumeRPCQueue('cards:deals.create', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Deals.create(data)
+      data: await models.Deals.create(data),
     };
   });
 
-  consumeRPCQueue(
-    'cards:deals.remove',
-    async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:deals.remove', async ({ subdomain, data: { _ids } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Deals.removeDeals(_ids)
-      };
-    }
-  );
+    return {
+      status: 'success',
+      data: await models.Deals.removeDeals(_ids),
+    };
+  });
 
   consumeRPCQueue('cards:tickets.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Tickets.find(data).lean()
+      data: await models.Tickets.find(data).lean(),
     };
   });
 
@@ -83,28 +74,25 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tickets.findOne(data).lean()
+      data: await models.Tickets.findOne(data).lean(),
     };
   });
 
-  consumeRPCQueue(
-    'cards:tickets.remove',
-    async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:tickets.remove', async ({ subdomain, data: { _ids } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        status: 'success',
-        data: await models.Tickets.removeTickets(_ids)
-      };
-    }
-  );
+    return {
+      status: 'success',
+      data: await models.Tickets.removeTickets(_ids),
+    };
+  });
 
   consumeRPCQueue('cards:stages.find', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await models.Stages.find(data).lean()
+      data: await models.Stages.find(data).lean(),
     };
   });
 
@@ -113,7 +101,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Stages.findOne(data).lean()
+      data: await models.Stages.findOne(data).lean(),
     };
   });
 
@@ -122,7 +110,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tasks.find(data).lean()
+      data: await models.Tasks.find(data).lean(),
     };
   });
 
@@ -131,7 +119,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Tasks.findOne(data).lean()
+      data: await models.Tasks.findOne(data).lean(),
     };
   });
 
@@ -140,7 +128,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Pipelines.find(data).lean()
+      data: await models.Pipelines.find(data).lean(),
     };
   });
 
@@ -149,7 +137,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Boards.find(data).lean()
+      data: await models.Boards.find(data).lean(),
     };
   });
 
@@ -160,7 +148,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Checklists.removeChecklists(type, itemIds)
+        data: await models.Checklists.removeChecklists(type, itemIds),
       };
     }
   );
@@ -170,7 +158,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await conversationConvertToCard(models, subdomain, data)
+      data: await conversationConvertToCard(models, subdomain, data),
     };
   });
 
@@ -180,7 +168,7 @@ export const initBroker = async cl => {
     if (!data.query) {
       return {
         status: 'success',
-        data: await models.Deals.find(data).lean()
+        data: await models.Deals.find(data).lean(),
       };
     }
 
@@ -192,7 +180,7 @@ export const initBroker = async cl => {
         .skip(skip || 0)
         .limit(limit || 20)
         .sort(sort)
-        .lean()
+        .lean(),
     };
   });
 
@@ -201,7 +189,7 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Deals.find(data).count()
+      data: await models.Deals.find(data).count(),
     };
   });
 
@@ -210,23 +198,20 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: await models.Deals.findOne(data).lean()
+      data: await models.Deals.findOne(data).lean(),
     };
   });
 
-  consumeRPCQueue('cards:deals.generateAmounts', async productsData => {
+  consumeRPCQueue('cards:deals.generateAmounts', async (productsData) => {
     return { data: generateAmounts(productsData), status: 'success' };
   });
 
-  consumeRPCQueue(
-    'cards:deals.generateProducts',
-    async ({ subdomain, data }) => {
-      return {
-        data: await generateProducts(subdomain, data),
-        status: 'success'
-      };
-    }
-  );
+  consumeRPCQueue('cards:deals.generateProducts', async ({ subdomain, data }) => {
+    return {
+      data: await generateProducts(subdomain, data),
+      status: 'success',
+    };
+  });
 
   consumeRPCQueue('cards:findItem', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -234,18 +219,15 @@ export const initBroker = async cl => {
     return { data: await getCardItem(models, data), status: 'success' };
   });
 
-  consumeRPCQueue(
-    'cards:findDealProductIds',
-    async ({ subdomain, data: { _ids } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:findDealProductIds', async ({ subdomain, data: { _ids } }) => {
+    const models = await generateModels(subdomain);
 
-      const dealProductIds = await await models.Deals.find({
-        'productsData.productId': { $in: _ids }
-      }).distinct('productsData.productId');
+    const dealProductIds = await await models.Deals.find({
+      'productsData.productId': { $in: _ids },
+    }).distinct('productsData.productId');
 
-      return { data: dealProductIds, status: 'success' };
-    }
-  );
+    return { data: dealProductIds, status: 'success' };
+  });
 
   consumeRPCQueue(
     'cards:tickets.updateMany',
@@ -254,80 +236,68 @@ export const initBroker = async cl => {
 
       return {
         data: await models.Tickets.updateMany(selector, modifier),
-        status: 'success'
+        status: 'success',
       };
     }
   );
 
-  consumeRPCQueue(
-    'cards:tasks.updateMany',
-    async ({ subdomain, data: { selector, modifier } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:tasks.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        data: await models.Tasks.updateMany(selector, modifier),
-        status: 'success'
-      };
-    }
-  );
+    return {
+      data: await models.Tasks.updateMany(selector, modifier),
+      status: 'success',
+    };
+  });
 
-  consumeRPCQueue(
-    'cards:deals.updateMany',
-    async ({ subdomain, data: { selector, modifier } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:deals.updateMany', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        data: await models.Deals.updateMany(selector, modifier),
-        status: 'success'
-      };
-    }
-  );
+    return {
+      data: await models.Deals.updateMany(selector, modifier),
+      status: 'success',
+    };
+  });
 
-  consumeRPCQueue(
-    'cards:deals.updateOne',
-    async ({ subdomain, data: { selector, modifier } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:deals.updateOne', async ({ subdomain, data: { selector, modifier } }) => {
+    const models = await generateModels(subdomain);
 
-      return {
-        data: await models.Deals.updateOne(selector, modifier),
-        status: 'success'
-      };
-    }
-  );
+    return {
+      data: await models.Deals.updateOne(selector, modifier),
+      status: 'success',
+    };
+  });
 
   consumeRPCQueue('cards:notifiedUserIds', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
     return {
       status: 'success',
-      data: await notifiedUserIds(models, data)
+      data: await notifiedUserIds(models, data),
     };
   });
 
-  consumeRPCQueue(
-    'cards:getLink',
-    async ({ subdomain, data: { _id, type } }) => {
-      const models = await generateModels(subdomain);
+  consumeRPCQueue('cards:getLink', async ({ subdomain, data: { _id, type } }) => {
+    const models = await generateModels(subdomain);
 
-      const item = await getCardItem(models, {
-        contentTypeId: _id,
-        contentType: type
-      });
+    const item = await getCardItem(models, {
+      contentTypeId: _id,
+      contentType: type,
+    });
 
-      if (!item) {
-        return '';
-      }
-
-      const stage = await models.Stages.getStage(item.stageId);
-      const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
-      const board = await models.Boards.getBoard(pipeline.boardId);
-
-      return {
-        status: 'success',
-        data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`
-      };
+    if (!item) {
+      return '';
     }
-  );
+
+    const stage = await models.Stages.getStage(item.stageId);
+    const pipeline = await models.Pipelines.getPipeline(stage.pipelineId);
+    const board = await models.Boards.getBoard(pipeline.boardId);
+
+    return {
+      status: 'success',
+      data: `/${stage.type}/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${_id}`,
+    };
+  });
 
   consumeQueue(
     'cards:pipelinesChanged',
@@ -339,12 +309,12 @@ export const initBroker = async cl => {
           _id: pipelineId,
           proccessId: Math.random(),
           action,
-          data
-        }
+          data,
+        },
       });
 
       return {
-        status: 'success'
+        status: 'success',
       };
     }
   );
@@ -355,48 +325,38 @@ export const initBroker = async cl => {
       const targetTypes = ['deal', 'task', 'ticket'];
       const targetRelTypes = ['company', 'customer'];
 
-      if (
-        targetTypes.includes(doc.mainType) &&
-        targetRelTypes.includes(doc.relType)
-      ) {
+      if (targetTypes.includes(doc.mainType) && targetRelTypes.includes(doc.relType)) {
         await publishHelper(subdomain, doc.mainType, doc.mainTypeId);
       }
 
-      if (
-        targetTypes.includes(doc.relType) &&
-        targetRelTypes.includes(doc.mainType)
-      ) {
+      if (targetTypes.includes(doc.relType) && targetRelTypes.includes(doc.mainType)) {
         for (const typeId of addedTypeIds.concat(removedTypeIds)) {
           await publishHelper(subdomain, doc.relType, typeId);
         }
       }
 
       return {
-        status: 'success'
+        status: 'success',
       };
     }
   );
 };
 
-export const sendContactsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendContactsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'contacts',
-    ...args
+    ...args,
   });
 };
 
-export const sendInternalNotesMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendInternalNotesMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'internalNotes',
-    ...args
+    ...args,
   });
 };
 
@@ -405,62 +365,52 @@ export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'core',
-    ...args
+    ...args,
   });
 };
 
-export const sendFormsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendFormsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'forms',
-    ...args
+    ...args,
   });
 };
 
-export const sendEngagesMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendEngagesMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'engages',
-    ...args
+    ...args,
   });
 };
 
-export const sendInboxMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendInboxMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'inbox',
-    ...args
+    ...args,
   });
 };
 
-export const sendProductsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendProductsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'products',
-    ...args
+    ...args,
   });
 };
 
-export const sendNotificationsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendNotificationsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'notifications',
-    ...args
+    ...args,
   });
 };
 
@@ -469,29 +419,25 @@ export const sendLogsMessage = async (args: ISendMessageArgs): Promise<any> => {
     client,
     serviceDiscovery,
     serviceName: 'logs',
-    ...args
+    ...args,
   });
 };
 
-export const sendSegmentsMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendSegmentsMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'segments',
-    ...args
+    ...args,
   });
 };
 
-export const sendLoyaltiesMessage = async (
-  args: ISendMessageArgs
-): Promise<any> => {
+export const sendLoyaltiesMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
     serviceName: 'loyalties',
-    ...args
+    ...args,
   });
 };
 
@@ -501,7 +447,7 @@ export const sendCommonMessage = async (
   return sendMessage({
     serviceDiscovery,
     client,
-    ...args
+    ...args,
   });
 };
 
@@ -510,7 +456,7 @@ export const fetchSegment = (subdomain: string, segmentId: string, options?) =>
     subdomain,
     action: 'fetchSegment',
     data: { segmentId, options },
-    isRPC: true
+    isRPC: true,
   });
 
 export const sendToWebhook = ({ subdomain, data }) => {
