@@ -1,3 +1,4 @@
+import { IUser } from '@erxes/ui/src/auth/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 export interface IPage {
   name: string;
@@ -5,6 +6,8 @@ export interface IPage {
   html: string;
   css: string;
   siteId: string;
+  createdUser?: IUser;
+  updatedUser?: IUser;
 }
 
 export interface IPageDoc extends IPage {

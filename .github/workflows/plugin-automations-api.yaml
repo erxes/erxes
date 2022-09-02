@@ -9,6 +9,14 @@ on:
       - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-automations-api/**'
       - '.github/workflows/plugin-automations-api.yaml'
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-automations-api/**'
+      - '.github/workflows/plugin-automations-api.yaml'
 
 jobs:
   api:
@@ -46,7 +54,7 @@ jobs:
           cd dist/main/.erxes/src
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev'  )
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' )
         run: |
           cd dist/plugin-automations-api/.erxes
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin

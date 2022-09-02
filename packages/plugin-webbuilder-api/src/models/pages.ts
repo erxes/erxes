@@ -11,10 +11,16 @@ export interface IPage {
   html: string;
   css: string;
   templateId: string;
+
+  createdBy: string;
+  modifiedBy: string;
 }
 
 export interface IPageDocument extends IPage, Document {
   _id: string;
+
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export const pageSchema = new Schema({
@@ -23,13 +29,19 @@ export const pageSchema = new Schema({
   description: field({ type: String, optional: true, label: 'Description' }),
   html: field({ type: String, optional: true, label: 'Html' }),
   css: field({ type: String, optional: true, label: 'Css' }),
-  templateId: field({ type: String, optional: true, label: 'Template' })
+  templateId: field({ type: String, optional: true, label: 'Template' }),
+
+  createdBy: field({ type: String, optional: true, label: 'Created by' }),
+  modifiedBy: field({ type: String, optional: true, label: 'Modified by' }),
+
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' })
 });
 
 export interface IPageModel extends Model<IPageDocument> {
   checkDuplication(name: string): void;
-  createPage(doc: IPage): Promise<IPageDocument>;
-  updatePage(_id: string, doc: IPage): Promise<IPageDocument>;
+  createPage(doc: IPage, userId: string): Promise<IPageDocument>;
+  updatePage(_id: string, doc: IPage, userId: string): Promise<IPageDocument>;
   removePage(_id: string): Promise<IPageDocument>;
 }
 
@@ -56,16 +68,23 @@ export const loadPageClass = (models: IModels) => {
       }
     }
 
-    public static async createPage(doc: IPage) {
+    public static async createPage(doc: IPage, userId: string) {
       await this.checkDuplication(doc.name, doc.siteId);
 
-      return models.Pages.create(doc);
+      return models.Pages.create({
+        ...doc,
+        createdBy: userId,
+        createdAt: new Date()
+      });
     }
 
-    public static async updatePage(_id: string, doc) {
+    public static async updatePage(_id: string, doc: IPage, userId: string) {
       await this.checkDuplication(doc.name, doc.siteId, _id);
 
-      await models.Pages.updateOne({ _id }, { $set: doc });
+      await models.Pages.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedBy: userId, modifiedAt: new Date() } }
+      );
 
       return models.Pages.findOne({ _id });
     }

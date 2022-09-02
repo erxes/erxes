@@ -1,4 +1,8 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type WebbuilderPage {
     _id: String!
     name: String
@@ -7,6 +11,9 @@ export const types = `
     css: String
     siteId: String
     site: WebbuilderSite
+    
+    createdUser: User
+    updatedUser: User
   }
 
   type WebbuilderPagesList {

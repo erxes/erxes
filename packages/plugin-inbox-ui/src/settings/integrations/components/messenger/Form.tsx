@@ -1,6 +1,10 @@
 import { Alert, __ } from 'coreui/utils';
 import { Appearance, Availability, Greeting, Intro, Options } from './steps';
-import { Content, LeftContent, MessengerPreview } from '../../styles';
+import {
+  Content,
+  LeftContent,
+  MessengerPreview
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ControlWrapper,
   Indicator,
@@ -14,7 +18,7 @@ import {
   IMessengerData,
   ISkillData,
   IUiOptions
-} from '../../types';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 
 import AddOns from '../../containers/messenger/AddOns';

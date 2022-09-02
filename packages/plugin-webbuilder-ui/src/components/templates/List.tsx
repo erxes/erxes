@@ -9,6 +9,7 @@ import {
   Templates
 } from './styles';
 import { ITemplateDoc } from '../../types';
+import { getEnv } from '@erxes/ui/src/utils/core';
 
 type Props = {
   templates: ITemplateDoc[];
@@ -20,6 +21,20 @@ type Props = {
 function List(props: Props) {
   const { templates, templatesCount, setCount, use } = props;
 
+  const renderDemoAction = (template: ITemplateDoc) => {
+    const { REACT_APP_API_URL } = getEnv();
+
+    const url = `${REACT_APP_API_URL}/pl:webbuilder/demo/${template._id}`;
+
+    const onClick = () => window.open(`${url}`, '_blank');
+
+    return (
+      <div onClick={onClick}>
+        <Icon icon="eye" /> Show demo
+      </div>
+    );
+  };
+
   const renderRow = () => {
     return templates.map((template, index) => {
       return (
@@ -30,6 +45,8 @@ function List(props: Props) {
               <div onClick={() => use(template._id, template.name)}>
                 <Icon icon="play" /> Use
               </div>
+
+              {renderDemoAction(template)}
             </Actions>
             <IframePreview>
               <iframe title="content-iframe" srcDoc={template.html} />

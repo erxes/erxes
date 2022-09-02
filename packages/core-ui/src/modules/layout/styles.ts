@@ -300,7 +300,7 @@ const NavMenuItem = styledTS<{ navCollapse?: number; isMoreItem?: boolean }>(
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.04);
+      background: rgb(245, 245, 246);
 
       > i, label {
         opacity: .8;
@@ -566,6 +566,10 @@ const MoreMenuWrapper = styledTS<{ visible: boolean; navCollapse: number }>(
     0px 0px 1px rgba(0, 0, 0, 0.04);
     cursor : default
 
+  @media (max-height: 760px) {
+    top: unset;
+    bottom: 0;
+  }
 `;
 
 const MoreSearch = styled.div`

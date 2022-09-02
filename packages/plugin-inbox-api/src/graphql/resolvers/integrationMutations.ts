@@ -532,7 +532,9 @@ const integrationMutations = {
         action: 'emailDeliveries.create',
         data: {
           ...doc,
-          customerId: cusId
+          customerId: cusId,
+          kind: 'transaction',
+          status: 'pending'
         },
         isRPC: true
       });
