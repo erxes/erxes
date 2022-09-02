@@ -3,13 +3,21 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-const Export = asyncComponent(() =>
-  import(/* webpackChunkName: "Export" */ './export/containers/Form')
-);
+// const Export = asyncComponent(() =>
+//   import(
+//     /* webpackChunkName: "Export" */ './export/containers/ExportFormContainer'
+//   )
+// );
 
 const Import = asyncComponent(() =>
   import(
     /* webpackChunkName: "Form container" */ './import/containers/FormContainer'
+  )
+);
+
+const Export = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Form container" */ './export/containers/FormContainer'
   )
 );
 
@@ -29,15 +37,21 @@ const Menu = asyncComponent(() =>
   )
 );
 
-const exportForm = ({ location }) => {
-  const queryParams = queryString.parse(location.search);
-  return <Export contentType={queryParams.type} />;
-};
+// const exportForm = ({ location }) => {
+//   const queryParams = queryString.parse(location.search);
+//   return <Export contentType={queryParams.type} />;
+// };
 
 const importForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
   return <Import contentType={queryParams.type} />;
+};
+
+const exportForm = ({ location }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <Export contentType={queryParams.type} />;
 };
 
 const importHistories = ({ location }) => {
@@ -60,15 +74,20 @@ const selectMenu = ({ location }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route
+      {/* <Route
         key="/settings/export"
         path="/settings/export"
         component={exportForm}
-      />
+      /> */}
       <Route
         key="/settings/import"
         path="/settings/import"
         component={importForm}
+      />
+      <Route
+        key="/settings/export"
+        path="/settings/export"
+        component={exportForm}
       />
 
       <Route path="/settings/importHistories/" component={importHistories} />

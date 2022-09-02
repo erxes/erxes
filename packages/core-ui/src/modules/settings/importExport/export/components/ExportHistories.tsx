@@ -85,7 +85,7 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
 
     if (currentType)
       return (
-        <Link to={`/settings/import`}>
+        <Link to={`/settings/export`}>
           <Button icon="export" btnStyle="primary">
             {__(`Export ${this.getButtonText()}`)}
           </Button>
@@ -99,23 +99,8 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
     );
   };
 
-  //   renderDataImporter() {
-  //     return (
-  //       <Link to={`/settings/import`}>
-  //         <Button icon="import" btnStyle="success">
-  //           {__(`Import data`)}
-  //         </Button>
-  //       </Link>
-  //     );
-  //   }
-
   renderImportButton = () => {
-    return (
-      <BarItems>
-        {/* {this.renderDataImporter()} */}
-        {this.renderExportButton()}
-      </BarItems>
-    );
+    return <BarItems>{this.renderExportButton()}</BarItems>;
   };
 
   render() {

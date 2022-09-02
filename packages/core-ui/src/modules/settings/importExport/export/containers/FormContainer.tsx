@@ -13,17 +13,17 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  importHistoriesCreate: any;
+  exportHistoriesCreate: any;
 } & Props;
 
 class FormContainer extends React.Component<FinalProps, State> {
   render() {
-    const { importHistoriesCreate } = this.props;
+    const { exportHistoriesCreate } = this.props;
 
-    const addImportHistory = doc => {
+    const addExportHistory = doc => {
       const { contentTypes } = doc;
 
-      importHistoriesCreate({
+      exportHistoriesCreate({
         variables: doc
       }).then(() => {
         window.location.href = `/settings/importHistories?type=${contentTypes[0].contentType}`;
@@ -33,7 +33,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     return (
       <Form
         contentType={this.props.contentType}
-        addImportHistory={addImportHistory}
+        addExportHistory={addExportHistory}
       />
     );
   }
@@ -42,10 +42,10 @@ class FormContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.exportHistoriesCreate), {
-      name: 'importHistoriesCreate'
+      name: 'exportHistoriesCreate'
     }),
     graphql<Props>(gql(queries.exportHistoryGetTypes), {
-      name: 'importHistoryGetTypes'
+      name: 'exportHistoryGetTypes'
     })
   )(FormContainer)
 );

@@ -4,7 +4,7 @@ import { paginate, getImportCsvInfo, getCsvHeadersInfo } from '../../utils';
 import { IContext } from '../../../connectionResolvers';
 
 const exportHistoryQueries = {
-  async importHistoryGetTypes() {
+  async exportHistoryGetTypes() {
     // return servicesImportTypes;
 
     const services = await getServices();

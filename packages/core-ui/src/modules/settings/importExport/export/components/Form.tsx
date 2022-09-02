@@ -1,120 +1,226 @@
-import { Content, LeftContent, MessengerPreview } from '../../styles';
-import {
-  ControlWrapper,
-  FlexItem,
-  FlexPad,
-  Indicator,
-  Preview,
-  StepWrapper
-} from 'modules/common/components/step/styles';
-import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import { ImageWrapper, TextWrapper } from '@erxes/ui/src/styles/main';
-import { Step, Steps } from 'modules/common/components/step';
-import { __, getEnv, loadDynamicComponent } from 'modules/common/utils';
+import { Content, LeftContent } from '../../styles';
+import { Step, Steps } from '@erxes/ui/src/components/step';
 
-import Button from 'modules/common/components/Button';
-import ConfigsForm from './ConfigsForm';
-import { Link } from 'react-router-dom';
+import AccociateForm from '../containers/AccociateForm';
+import Details from './Details';
+import FileUpload from './FileUpload';
+import { IImportHistoryContentType } from '../../types';
+import MapColumn from '../containers/MapColumn';
 import React from 'react';
-import Spinner from 'modules/common/components/Spinner';
+import { StepButton } from '@erxes/ui/src/components/step/styles';
+import TypeForm from '../containers/TypeForm';
 import Wrapper from 'modules/layout/components/Wrapper';
-import queryString from 'query-string';
+import { __ } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  columns: any[]; //check
-  count: string;
-  loading: boolean;
-  previewCount: (segmentId?: string) => void;
+  addImportHistory: (doc: any) => void;
 };
 
 type State = {
-  segmentId: string;
-  configs: string[];
-  searchValue: string;
-  columns: any[]; //check
-  importType: string;
-  columnsConfig: any[]; //check
+  attachments: any;
+
+  columnWithChosenField: any;
+  importName: string;
+  disclaimer: boolean;
+  type: string;
+  contentTypes: IImportHistoryContentType[];
+
+  associatedField: string;
+  associatedContentType: string;
 };
 
-const { REACT_APP_API_URL } = getEnv();
-
-class ExportForm extends React.Component<Props, State> {
+class Form extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      segmentId: '',
-      configs: [],
-      searchValue: '',
-      columns: props.columns,
-      columnsConfig: [],
-      importType: 'csv'
+      attachments: {},
+      columnWithChosenField: {},
+      importName: '',
+      disclaimer: false,
+      type: 'single',
+      contentTypes: [],
+      associatedField: '',
+      associatedContentType: ''
     };
   }
 
-  addFilter = segmentId => {
-    this.setState({ segmentId });
+  onChangeAttachment = (files, contentType) => {
+    const { attachments } = this.state;
 
-    this.props.previewCount(segmentId);
+    const temp = { ...attachments };
+
+    if (files[0]) {
+      temp[contentType] = files;
+    }
+
+    this.setState({ attachments: temp });
   };
 
-  onSearch = e => {
-    const value = e.target.value;
+  onChangeColumn = (column, value, contentType) => {
+    const { columnWithChosenField } = this.state;
 
-    this.setState({ searchValue: value });
+    const temp = columnWithChosenField[contentType] || {};
+
+    temp[column] = {};
+    temp[column].value = value;
+
+    const temp2 = columnWithChosenField || {};
+
+    temp2[contentType] = temp;
+
+    this.setState({ columnWithChosenField: temp2 });
+  };
+
+  onChangeImportName = value => {
+    this.setState({ importName: value });
+  };
+
+  onChangeDisclaimer = value => {
+    this.setState({ disclaimer: value });
+  };
+
+  onChangeType = value => {
+    this.setState({ type: value, contentTypes: [] });
+  };
+
+  onChangeAssociateHeader = value => {
+    this.setState({ associatedField: value });
+  };
+
+  onChangeAssociateContentType = value => {
+    this.setState({ associatedContentType: value });
+  };
+
+  onChangeContentType = (contentType: IImportHistoryContentType) => {
+    const { type, contentTypes } = this.state;
+
+    if (type === 'single') {
+      return this.setState({ contentTypes: [contentType] });
+    }
+
+    let temp: IImportHistoryContentType[] = [];
+
+    if (contentTypes.length === 2) {
+      temp = [...contentTypes];
+
+      temp[0] = contentTypes[1];
+
+      temp[1] = contentType;
+
+      return this.setState({ contentTypes: temp });
+    }
+
+    temp = [...contentTypes];
+
+    temp.push(contentType);
+
+    return this.setState({ contentTypes: temp });
   };
 
   onSubmit = () => {
-    const { contentType } = this.props;
-    const { columns, segmentId } = this.state;
+    const {
+      importName,
+      columnWithChosenField,
+      attachments,
+      contentTypes,
+      associatedField,
+      associatedContentType
+    } = this.state;
 
-    const serviceType = contentType.split(':')[0];
+    const files = [] as any;
 
-    let columnsConfig = columns.filter(conf => conf.checked) as any;
+    for (const contentType of contentTypes) {
+      if (attachments[contentType.contentType]) {
+        const attachment = attachments[contentType.contentType];
 
-    columnsConfig = columnsConfig.map(conf => {
-      return conf.name;
-    });
-
-    const stringified = queryString.stringify({
-      configs: JSON.stringify(columnsConfig),
-      type: contentType.split(':')[1],
-      segment: segmentId,
-      unlimited: true
-    });
-
-    window.open(
-      `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
-      '_blank'
-    );
-
-    window.location.href = `/settings/exportHistories?type=${contentType}`;
-  };
-
-  onClickField = (checked, field) => {
-    const { columns } = this.state;
-
-    for (const column of columns) {
-      if (column._id === field._id) {
-        column.checked = checked;
+        files.push(attachment[0]);
       }
     }
 
-    this.setState({ columns });
+    const doc = {
+      contentTypes,
+      importName,
+      files: attachments,
+      columnsConfig: columnWithChosenField,
+      associatedField,
+      associatedContentType
+    };
+
+    return this.props.addImportHistory(doc);
   };
 
-  segmentCloseModal = () => {
-    this.setState({ segmentId: '' });
+  renderImportButton = () => {
+    const { disclaimer, importName } = this.state;
+    if (disclaimer && importName) {
+      return (
+        <StepButton next={true} onClick={this.onSubmit}>
+          Import
+        </StepButton>
+      );
+    }
 
-    this.props.previewCount();
+    return <></>;
+  };
+
+  renderAssociateForm = () => {
+    if (this.state.type === 'multi') {
+      const { attachments, contentTypes } = this.state;
+      const attachmentNames: string[] = [];
+
+      for (const contentType of contentTypes) {
+        if (attachments[contentType.contentType]) {
+          const attachment = attachments[contentType.contentType];
+
+          attachmentNames.push(attachment[0].url);
+        }
+      }
+
+      return (
+        <Step title="Accociate">
+          <AccociateForm
+            attachmentNames={attachmentNames}
+            contentTypes={contentTypes}
+            onChangeAssociateHeader={this.onChangeAssociateHeader}
+            onChangeAssociateContentType={this.onChangeAssociateContentType}
+          />
+        </Step>
+      );
+    }
+
+    return;
+  };
+
+  renderMapColumn = () => {
+    const { contentTypes, attachments, columnWithChosenField } = this.state;
+
+    const result = [] as any;
+
+    for (const contentType of contentTypes) {
+      if (attachments[contentType.contentType]) {
+        const attachment = attachments[contentType.contentType];
+
+        result.push(
+          <Step title={`Mapping  `} key={Math.random()}>
+            <MapColumn
+              contentType={contentType.contentType}
+              attachments={attachment}
+              columnWithChosenField={columnWithChosenField}
+              onChangeColumn={this.onChangeColumn}
+            />
+          </Step>
+        );
+      }
+    }
+
+    return result;
   };
 
   render() {
-    const { contentType, count, loading } = this.props;
-    const { segmentId, searchValue, columns } = this.state;
+    const { importName, disclaimer, type, contentTypes } = this.state;
 
-    const title = __('Export');
+    const title = __('Import');
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
@@ -122,84 +228,50 @@ class ExportForm extends React.Component<Props, State> {
       { title }
     ];
 
+    const content = (
+      <Content>
+        <LeftContent>
+          <Steps active={1} direction="horizontal">
+            <Step title="Type" link="importHistories">
+              <TypeForm
+                type={type}
+                onChangeContentType={this.onChangeContentType}
+                contentTypes={contentTypes}
+              />
+            </Step>
+            <Step title="Upload">
+              <FileUpload
+                onChangeAttachment={this.onChangeAttachment}
+                contentTypes={contentTypes}
+                type={type}
+              />
+            </Step>
+
+            {/* {this.renderAssociateForm()} */}
+            {this.renderMapColumn()}
+
+            <Step title="Detail" additionalButton={this.renderImportButton()}>
+              <Details
+                type="stepper"
+                disclaimer={disclaimer}
+                importName={importName}
+                onChangeImportName={this.onChangeImportName}
+                onChangeDisclaimer={this.onChangeDisclaimer}
+              />
+            </Step>
+          </Steps>
+        </LeftContent>
+      </Content>
+    );
+
     return (
-      <StepWrapper>
-        <Wrapper.Header title={title} breadcrumb={breadcrumb} />
-        <Content>
-          <LeftContent>
-            <Steps active={1}>
-              <Step img="/images/icons/erxes-10.svg" title="Content">
-                <ConfigsForm
-                  columns={columns}
-                  onClickField={this.onClickField}
-                  onSearch={this.onSearch}
-                  searchValue={searchValue}
-                />
-              </Step>
-
-              <Step
-                img="/images/icons/erxes-14.svg"
-                title="Filter"
-                noButton={true}
-              >
-                <FlexItem>
-                  <FlexPad direction="column" overflow="auto">
-                    <SubHeading>{__('Filter')}</SubHeading>
-                    <Description>
-                      {__('Skip this step if you wish to export all items')}
-                    </Description>
-                    {loadDynamicComponent('importExportFilterForm', {
-                      ...this.props,
-                      id: segmentId,
-                      contentType: contentType || 'customer',
-                      closeModal: this.segmentCloseModal,
-                      addFilter: this.addFilter,
-                      hideDetailForm: true,
-                      usageType: 'export'
-                    })}
-                  </FlexPad>
-                </FlexItem>
-              </Step>
-            </Steps>
-
-            <ControlWrapper>
-              <Indicator>
-                {__('You are exporting')}
-                <strong> {this.props.contentType} </strong>
-                {__('data')}
-              </Indicator>
-              <Button.Group>
-                <Link to="settings/importHistories">
-                  <Button btnStyle="simple" icon="times-circle">
-                    Cancel
-                  </Button>
-                </Link>
-
-                <Button btnStyle="success" onClick={this.onSubmit}>
-                  Export
-                </Button>
-              </Button.Group>
-            </ControlWrapper>
-          </LeftContent>
-          <MessengerPreview>
-            <Preview fullHeight={true}>
-              <ImageWrapper>
-                <TextWrapper>
-                  {loading ? (
-                    <Spinner objective={true} />
-                  ) : (
-                    <h1>
-                      {__('Items found:')} {count}
-                    </h1>
-                  )}
-                </TextWrapper>
-              </ImageWrapper>
-            </Preview>
-          </MessengerPreview>
-        </Content>
-      </StepWrapper>
+      <Wrapper
+        header={<Wrapper.Header title={__('')} breadcrumb={breadcrumb} />}
+        content={content}
+        transparent={true}
+      />
     );
   }
 }
 
-export default ExportForm;
+export default Form;
