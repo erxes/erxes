@@ -60,7 +60,7 @@ module.exports = {
       },
       {
         name: 'forumPostDraft',
-        description: 'Turn forum posts into drafts'
+        description: 'Turn published forum posts into drafts'
       },
       {
         name: 'forumPostPublish',
