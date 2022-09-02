@@ -8,7 +8,7 @@ import * as sha256 from 'sha256';
 import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
-import messageBroker, { sendCoreMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
 import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {

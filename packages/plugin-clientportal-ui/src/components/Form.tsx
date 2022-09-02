@@ -55,7 +55,6 @@ class Form extends React.Component<Props, State> {
   cleanValues = (values: ClientPortalConfig) => {
     const { __typename = '', ...otp }: any = values.otpConfig || {
       smsTransporterType: '',
-      emailTransporterType: '',
       codeLength: 4,
       content: 'Your verification code is {{code}}'
     };

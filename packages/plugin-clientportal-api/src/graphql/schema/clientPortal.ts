@@ -32,18 +32,26 @@ ${
     : ''
 }
 
-  type OTPConfig{
+  type OTPConfig {
     content: String
     codeLength: Int
     smsTransporterType: String
-    emailTransporterType: String
+  }
+
+  type MailConfig {
+    subject: String
+    content: String
   }
 
   input OTPConfigInput {
     content: String
     codeLength: Int
     smsTransporterType: String
-    emailTransporterType: String
+  }
+
+  input MailConfigInput {
+    subject: String
+    content: String
   }
 
   type ClientPortal {
@@ -76,6 +84,7 @@ ${
     mobileResponsive: Boolean
   
     otpConfig: OTPConfig
+    mailConfig: MailConfig
 
     kbToggle: Boolean,
     publicTaskToggle: Boolean,
@@ -181,6 +190,7 @@ export const mutations = cardAvailable => `
     taskToggle: Boolean,
 
     otpConfig: OTPConfigInput
+    mailConfig: MailConfigInput
   ): ClientPortal
 
   clientPortalRemove (_id: String!): JSON

@@ -6,7 +6,11 @@ export interface IOTPConfig {
   content: string;
   codeLength: number;
   smsTransporterType: '' | 'messagePro' | 'telnyx';
-  emailTransporterType: '' | 'ses';
+}
+
+export interface IMailConfig {
+  subject: string;
+  content: string;
 }
 
 export interface IClientPortal {
@@ -22,6 +26,7 @@ export interface IClientPortal {
   mobileResponsive?: boolean;
 
   otpConfig?: IOTPConfig;
+  mailConfig?: IMailConfig;
   googleCredentials?: string;
 
   messengerBrandCode?: string;
@@ -97,12 +102,15 @@ const otpConfigSchema = new Schema(
       type: String,
       enum: ['', 'messagePro', 'telnyx'],
       optional: true
-    }),
-    emailTransporterType: field({
-      type: String,
-      enum: ['', 'ses'],
-      optional: true
     })
+  },
+  { _id: false }
+);
+
+const mailConfigSchema = new Schema(
+  {
+    subject: field({ type: String, optional: true }),
+    content: field({ type: String, optional: true })
   },
   { _id: false }
 );
@@ -122,6 +130,7 @@ export const clientPortalSchema = new Schema({
   styles: field({ type: stylesSchema, optional: true }),
   mobileResponsive: field({ type: Boolean, optional: true }),
   otpConfig: field({ type: otpConfigSchema, optional: true }),
+  mailConfig: field({ type: mailConfigSchema, optional: true }),
   googleCredentials: field({ type: Object, optional: true }),
 
   messengerBrandCode: field({ type: String, optional: true }),
