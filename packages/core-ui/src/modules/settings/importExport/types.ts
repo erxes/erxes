@@ -43,6 +43,10 @@ export interface IExportHistoryItem {
   list: IExportHistory[];
   count: number;
 }
+export interface IExportHistoryContentType {
+  type: 'core' | 'plugin';
+  contentType: string;
+}
 
 // query types
 

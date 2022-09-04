@@ -8,12 +8,14 @@ import { FlexItem, FlexPad } from 'modules/common/components/step/styles';
 import { SubHeading } from '@erxes/ui-settings/src/styles';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { OperatorList } from '../../styles';
+import { IExportHistoryContentType } from '../../types';
 
 type Props = {
   columns: any[];
   searchValue: string;
   onSearch: (e) => void;
   onClickField: (checked, field) => void;
+  contentTypes: IExportHistoryContentType[];
 };
 
 class ConfigsForm extends React.Component<Props, {}> {

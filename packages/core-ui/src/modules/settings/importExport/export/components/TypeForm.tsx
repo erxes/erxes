@@ -3,11 +3,11 @@ import { __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
 import { Box, TypeContent, ImportHeader } from '../../styles';
-import { IImportHistoryContentType } from '../../types';
+import { IExportHistoryContentType } from '../../types';
 
 type Props = {
-  onChangeContentType: (value: IImportHistoryContentType) => void;
-  contentTypes: IImportHistoryContentType[];
+  onChangeContentType: (value: IExportHistoryContentType) => void;
+  contentTypes: IExportHistoryContentType[];
   type: string;
   typeOptions: any[];
 };

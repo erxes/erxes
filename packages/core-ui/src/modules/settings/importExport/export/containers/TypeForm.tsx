@@ -4,13 +4,13 @@ import * as compose from 'lodash.flowright';
 import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import { IImportHistoryContentType } from '../../types';
+import { IExportHistoryContentType } from '../../types';
 import TypeForm from '../components/TypeForm';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  onChangeContentType: (value: IImportHistoryContentType) => void;
-  contentTypes: IImportHistoryContentType[];
+  onChangeContentType: (value: IExportHistoryContentType) => void;
+  contentTypes: IExportHistoryContentType[];
   type: string;
 };
 

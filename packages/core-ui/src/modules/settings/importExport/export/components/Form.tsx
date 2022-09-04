@@ -1,9 +1,9 @@
 import { Content, LeftContent } from '../../styles';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import { Step, Steps, ExportStep } from '@erxes/ui/src/components/step';
 
 import AccociateForm from '../containers/AccociateForm';
 import ConfigsForm from './ConfigsForm';
-import { IImportHistoryContentType } from '../../types';
+import { IExportHistoryContentType } from '../../types';
 import React from 'react';
 import TypeForm from '../containers/TypeForm';
 import Wrapper from 'modules/layout/components/Wrapper';
@@ -23,7 +23,7 @@ type State = {
   importName: string;
   disclaimer: boolean;
   type: string;
-  contentTypes: IImportHistoryContentType[];
+  contentTypes: IExportHistoryContentType[];
   segmentId: string;
 
   associatedField: string;
@@ -84,14 +84,14 @@ class Form extends React.Component<Props, State> {
     this.setState({ associatedContentType: value });
   };
 
-  onChangeContentType = (contentType: IImportHistoryContentType) => {
+  onChangeContentType = (contentType: IExportHistoryContentType) => {
     const { type, contentTypes } = this.state;
 
     if (type === 'single') {
       return this.setState({ contentTypes: [contentType] });
     }
 
-    let temp: IImportHistoryContentType[] = [];
+    let temp: IExportHistoryContentType[] = [];
 
     if (contentTypes.length === 2) {
       temp = [...contentTypes];
@@ -182,13 +182,13 @@ class Form extends React.Component<Props, State> {
       <Content>
         <LeftContent>
           <Steps active={1} direction="horizontal">
-            <Step title="Type" link="exportHistories">
+            <ExportStep title="Type" link="exportHistories">
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
                 contentTypes={contentTypes}
               />
-            </Step>
+            </ExportStep>
             {
               <Step title="Content">
                 <ConfigsForm
@@ -196,6 +196,7 @@ class Form extends React.Component<Props, State> {
                   onClickField={this.onClickField}
                   onSearch={this.onSearch}
                   searchValue={searchValue}
+                  contentTypes={contentTypes}
                 />
               </Step>
             }
