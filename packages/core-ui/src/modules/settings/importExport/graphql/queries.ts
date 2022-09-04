@@ -3,6 +3,11 @@ const importHistoryPreviewExportCount = `
     importHistoryPreviewExportCount(segmentId: $segmentId, contentType: $contentType)
   }
 `;
+const exportHistoryPreviewExportCount = `
+  query exportHistoryPreviewExportCount($segmentId: String, $contentType: String!) {
+    exportHistoryPreviewExportCount(segmentId: $segmentId, contentType: $contentType)
+  }
+`;
 
 const fieldsCombinedByContentType = `
   query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $config: JSON) {
@@ -12,5 +17,6 @@ const fieldsCombinedByContentType = `
 
 export default {
   importHistoryPreviewExportCount,
+  exportHistoryPreviewExportCount,
   fieldsCombinedByContentType
 };

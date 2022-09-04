@@ -12,6 +12,7 @@ import { withProps } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
+  addExportHistory: (doc: any) => void;
 };
 
 type FinalProps = {
@@ -38,7 +39,7 @@ class FormContainer extends React.Component<
 
     client
       .query({
-        query: gql(queries.importHistoryPreviewExportCount),
+        query: gql(queries.exportHistoryPreviewExportCount),
         variables: {
           contentType,
           segmentId
@@ -47,7 +48,7 @@ class FormContainer extends React.Component<
       })
       .then(({ data }) => {
         this.setState({
-          count: data.importHistoryPreviewExportCount,
+          count: data.exportHistoryPreviewExportCount,
           loading: false
         });
       });

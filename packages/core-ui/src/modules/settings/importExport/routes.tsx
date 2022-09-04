@@ -16,9 +16,7 @@ const Import = asyncComponent(() =>
 );
 
 const Export = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Form container" */ './export/containers/FormContainer'
-  )
+  import(/* webpackChunkName: "Form container" */ './export/containers/Form')
 );
 
 const Histories = asyncComponent(() =>

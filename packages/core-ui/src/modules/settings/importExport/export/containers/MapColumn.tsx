@@ -22,14 +22,14 @@ type State = {};
 
 type FinalProps = {
   fieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
-  importHistoryGetColumns: any;
+  exportHistoryGetColumns: any;
 } & Props;
 
 class MapColumnContainer extends React.Component<FinalProps, State> {
   render() {
     const {
       fieldsQuery,
-      importHistoryGetColumns,
+      exportHistoryGetColumns,
       onChangeColumn,
       columnWithChosenField,
       contentType
@@ -40,8 +40,8 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
     }
 
     if (
-      !importHistoryGetColumns ||
-      (importHistoryGetColumns && importHistoryGetColumns.loading)
+      !exportHistoryGetColumns ||
+      (exportHistoryGetColumns && exportHistoryGetColumns.loading)
     ) {
       return <Spinner />;
     }
@@ -56,7 +56,7 @@ class MapColumnContainer extends React.Component<FinalProps, State> {
       })
     ];
 
-    const columns = importHistoryGetColumns.importHistoryGetColumns;
+    const columns = exportHistoryGetColumns.exportHistoryGetColumns;
 
     return (
       <MapColumn
@@ -85,7 +85,7 @@ export default withProps<Props>(
       }
     }),
     graphql<Props>(gql(queries.exportHistoryGetColumns), {
-      name: 'importHistoryGetColumns',
+      name: 'exportHistoryGetColumns',
       skip: ({ attachments }) => attachments.length === 0,
       options: ({ attachments }) => {
         return {

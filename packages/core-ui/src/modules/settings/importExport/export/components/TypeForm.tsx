@@ -42,15 +42,14 @@ class TypeForm extends React.Component<Props> {
     const { type } = this.props;
 
     if (type === 'single') {
-      return 'Select an object you would like to import';
+      return 'Select an object you would like to export';
     }
 
-    return 'Select an two  objects you would like to import';
+    return 'Select an two  objects you would like to export';
   };
 
   renderOptions = () => {
     const { typeOptions } = this.props;
-    // console.log(typeOptions, '<====================typeOptions');
 
     return typeOptions.map(option => {
       return this.renderBox(option.text, option.icon, option);

@@ -2,32 +2,33 @@ import { Content, LeftContent } from '../../styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 
 import AccociateForm from '../containers/AccociateForm';
-import Details from './Details';
-import FileUpload from './FileUpload';
+import ConfigsForm from './ConfigsForm';
 import { IImportHistoryContentType } from '../../types';
-import MapColumn from '../containers/MapColumn';
 import React from 'react';
-import { StepButton } from '@erxes/ui/src/components/step/styles';
 import TypeForm from '../containers/TypeForm';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  addImportHistory: (doc: any) => void;
+  columns: any[];
+  count: string;
+  loading: boolean;
+  previewCount: (segmentId?: string) => void;
 };
 
 type State = {
-  attachments: any;
-
+  searchValue: string;
   columnWithChosenField: any;
   importName: string;
   disclaimer: boolean;
   type: string;
   contentTypes: IImportHistoryContentType[];
+  segmentId: string;
 
   associatedField: string;
   associatedContentType: string;
+  columns: any[];
 };
 
 class Form extends React.Component<Props, State> {
@@ -35,28 +36,18 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      attachments: {},
+      segmentId: '',
       columnWithChosenField: {},
       importName: '',
       disclaimer: false,
       type: 'single',
       contentTypes: [],
       associatedField: '',
-      associatedContentType: ''
+      associatedContentType: '',
+      columns: props.columns,
+      searchValue: ''
     };
   }
-
-  onChangeAttachment = (files, contentType) => {
-    const { attachments } = this.state;
-
-    const temp = { ...attachments };
-
-    if (files[0]) {
-      temp[contentType] = files;
-    }
-
-    this.setState({ attachments: temp });
-  };
 
   onChangeColumn = (column, value, contentType) => {
     const { columnWithChosenField } = this.state;
@@ -119,63 +110,10 @@ class Form extends React.Component<Props, State> {
     return this.setState({ contentTypes: temp });
   };
 
-  onSubmit = () => {
-    const {
-      importName,
-      columnWithChosenField,
-      attachments,
-      contentTypes,
-      associatedField,
-      associatedContentType
-    } = this.state;
-
-    const files = [] as any;
-
-    for (const contentType of contentTypes) {
-      if (attachments[contentType.contentType]) {
-        const attachment = attachments[contentType.contentType];
-
-        files.push(attachment[0]);
-      }
-    }
-
-    const doc = {
-      contentTypes,
-      importName,
-      files: attachments,
-      columnsConfig: columnWithChosenField,
-      associatedField,
-      associatedContentType
-    };
-
-    return this.props.addImportHistory(doc);
-  };
-
-  renderImportButton = () => {
-    const { disclaimer, importName } = this.state;
-    if (disclaimer && importName) {
-      return (
-        <StepButton next={true} onClick={this.onSubmit}>
-          Import
-        </StepButton>
-      );
-    }
-
-    return <></>;
-  };
-
   renderAssociateForm = () => {
     if (this.state.type === 'multi') {
-      const { attachments, contentTypes } = this.state;
+      const { contentTypes } = this.state;
       const attachmentNames: string[] = [];
-
-      for (const contentType of contentTypes) {
-        if (attachments[contentType.contentType]) {
-          const attachment = attachments[contentType.contentType];
-
-          attachmentNames.push(attachment[0].url);
-        }
-      }
 
       return (
         <Step title="Accociate">
@@ -192,33 +130,45 @@ class Form extends React.Component<Props, State> {
     return;
   };
 
-  renderMapColumn = () => {
-    const { contentTypes, attachments, columnWithChosenField } = this.state;
+  onClickField = (checked, field) => {
+    const { columns } = this.state;
 
-    const result = [] as any;
-
-    for (const contentType of contentTypes) {
-      if (attachments[contentType.contentType]) {
-        const attachment = attachments[contentType.contentType];
-
-        result.push(
-          <Step title={`Mapping  `} key={Math.random()}>
-            <MapColumn
-              contentType={contentType.contentType}
-              attachments={attachment}
-              columnWithChosenField={columnWithChosenField}
-              onChangeColumn={this.onChangeColumn}
-            />
-          </Step>
-        );
+    for (const column of columns) {
+      if (column._id === field._id) {
+        column.checked = checked;
       }
     }
 
-    return result;
+    this.setState({ columns });
+  };
+  onSearch = e => {
+    const value = e.target.value;
+
+    this.setState({ searchValue: value });
   };
 
+  // renderExportButton = () => {
+  //   const { currentType } = this.props;
+
+  //   if (currentType)
+  //     return (
+  //       <Link to={`/settings/export?type=${currentType}`}>
+  //         <Button icon="export" btnStyle="primary">
+  //           {__(`Export ${this.getButtonText()}`)}
+  //         </Button>
+  //       </Link>
+  //     );
+
+  //   return (
+  //     <Button icon="export" btnStyle="primary" disabled>
+  //       {__('Export')}
+  //     </Button>
+  //   );
+  // };
   render() {
-    const { importName, disclaimer, type, contentTypes } = this.state;
+    const { type, contentTypes, columns, searchValue } = this.state;
+
+    console.log('columns:::::::::::', this.props.columns);
 
     const title = __('Import');
 
@@ -232,37 +182,37 @@ class Form extends React.Component<Props, State> {
       <Content>
         <LeftContent>
           <Steps active={1} direction="horizontal">
-            <Step title="Type" link="importHistories">
+            <Step title="Type" link="exportHistories">
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
                 contentTypes={contentTypes}
               />
             </Step>
-            <Step title="Upload">
-              <FileUpload
-                onChangeAttachment={this.onChangeAttachment}
-                contentTypes={contentTypes}
-                type={type}
-              />
-            </Step>
-
-            {/* {this.renderAssociateForm()} */}
-            {this.renderMapColumn()}
-
-            <Step title="Detail" additionalButton={this.renderImportButton()}>
-              <Details
-                type="stepper"
-                disclaimer={disclaimer}
-                importName={importName}
-                onChangeImportName={this.onChangeImportName}
-                onChangeDisclaimer={this.onChangeDisclaimer}
-              />
+            {
+              <Step title="Content">
+                <ConfigsForm
+                  columns={columns}
+                  onClickField={this.onClickField}
+                  onSearch={this.onSearch}
+                  searchValue={searchValue}
+                />
+              </Step>
+            }
+            <Step title="Filter">
+              {/* <ConfigsForm
+                  columns={columns}
+                  onClickField={this.onClickField}
+                  onSearch={this.onSearch}
+                  searchValue={searchValue}
+                /> */}
             </Step>
           </Steps>
         </LeftContent>
       </Content>
     );
+
+    console.log(columns, 'columns:::::::');
 
     return (
       <Wrapper
