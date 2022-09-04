@@ -4,8 +4,6 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   PaymentConfigsRemoveMutationResponse,
   PaymentConfigsQueryResponse,
-  IPaymentConfig,
-  PaymentConfigsEditMutationResponse,
   IPaymentConfigDocument
 } from '../types';
 import { mutations, queries } from '../graphql';

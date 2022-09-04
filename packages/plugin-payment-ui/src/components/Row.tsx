@@ -97,19 +97,21 @@ class Row extends React.Component<Props, State> {
   renderList() {
     const { queryParams, paymentConfigsCount } = this.props;
     const { kind } = this.state;
+    const count =
+      paymentConfigsCount && kind
+        ? kind.toLowerCase().includes('social')
+          ? paymentConfigsCount.socialPay
+          : paymentConfigsCount.qpay
+        : 0;
 
     return (
       <>
         <IntegrationList
           type={kind}
           queryParams={queryParams}
-          integrationsCount={
-            paymentConfigsCount ? paymentConfigsCount.total : 0
-          }
+          integrationsCount={count}
         />
-        {this.renderPagination(
-          paymentConfigsCount ? paymentConfigsCount.total : 0
-        )}
+        {this.renderPagination(count)}
       </>
     );
   }
