@@ -1,9 +1,12 @@
 export interface IPaymentConfig {
-  _id: string;
   name: string;
   type: string;
   status: string;
   config: any;
+}
+
+export interface IPaymentConfigDocument extends IPaymentConfig, Document {
+  _id: string;
 }
 
 export interface IPaymentTypeCount {
@@ -16,8 +19,14 @@ export type PaymentConfigsRemoveMutationResponse = {
   paymentConfigsRemove: (params: { variables: { id: string } }) => Promise<any>;
 };
 
+export type PaymentConfigsEditMutationResponse = {
+  paymentConfigsEdit: (params: {
+    variables: { id: string; doc: IPaymentConfig };
+  }) => Promise<any>;
+};
+
 export type PaymentConfigsQueryResponse = {
-  paymentConfigs: IPaymentConfig[];
+  paymentConfigs: IPaymentConfigDocument[];
   loading: boolean;
   refetch: () => void;
 };

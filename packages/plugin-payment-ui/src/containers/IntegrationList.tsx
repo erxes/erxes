@@ -4,7 +4,9 @@ import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
 import {
   PaymentConfigsRemoveMutationResponse,
   PaymentConfigsQueryResponse,
-  IPaymentConfig
+  IPaymentConfig,
+  PaymentConfigsEditMutationResponse,
+  IPaymentConfigDocument
 } from '../types';
 import { mutations, queries } from '../graphql';
 
@@ -36,7 +38,7 @@ const IntegrationListContainer = (props: FinalProps) => {
 
   const paymentConfigs = paymentConfigsQuery.paymentConfigs || [];
 
-  const removePaymentConfig = (paymentConfig: IPaymentConfig) => {
+  const removePaymentConfig = (paymentConfig: IPaymentConfigDocument) => {
     const message = 'Are you sure?';
 
     confirm(message).then(() => {
@@ -52,6 +54,36 @@ const IntegrationListContainer = (props: FinalProps) => {
         });
     });
   };
+
+  // const editPaymentConfig = (
+  //   id: string,
+  //   { name, config }: IPaymentConfig
+  // ) => {
+  //   // if (!name && !brandId) {
+  //   //   Alert.error('Name and brand must be chosen');
+
+  //   //   return;
+  //   // }
+
+  //   const doc: IPaymentConfigVariables = {
+  //     name,
+  //     config
+  //   }
+
+  //   paymentConfigsEdit({
+  //     variables: { id, doc }
+  //   })
+  //     .then(response => {
+  //       const result = response.data.integrationsEditCommonFields;
+
+  //       if (result && result._id) {
+  //         Alert.success('Integration has been edited.');
+  //       }
+  //     })
+  //     .catch((error: Error) => {
+  //       Alert.error(error.message);
+  //     });
+  // };
 
   // const archive = (id: string, status: boolean) => {
   //   let message =
@@ -76,31 +108,6 @@ const IntegrationListContainer = (props: FinalProps) => {
   //         Alert.error(error.message);
   //       });
   //   });
-  // };
-
-  // const editIntegration = (
-  //   id: string,
-  //   { name, brandId, channelIds, data }: IntegrationMutationVariables
-  // ) => {
-  //   if (!name && !brandId) {
-  //     Alert.error('Name and brand must be chosen');
-
-  //     return;
-  //   }
-
-  //   editCommonFields({
-  //     variables: { _id: id, name, brandId, channelIds, data }
-  //   })
-  //     .then(response => {
-  //       const result = response.data.integrationsEditCommonFields;
-
-  //       if (result && result._id) {
-  //         Alert.success('Integration has been edited.');
-  //       }
-  //     })
-  //     .catch((error: Error) => {
-  //       Alert.error(error.message);
-  //     });
   // };
 
   const filteredConfigs = type
@@ -131,7 +138,7 @@ const mutationOptions = () => ({
 export default withProps<Props>(
   compose(
     graphql<Props, PaymentConfigsRemoveMutationResponse>(
-      gql(mutations.PaymentConfigRemove),
+      gql(mutations.paymentConfigRemove),
       {
         name: 'paymentConfigsRemove',
         options: mutationOptions

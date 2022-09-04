@@ -26,6 +26,30 @@ const paymentConfigMutations = {
   },
 
   /**
+   * remove a template
+   */
+  async paymentConfigsEdit(
+    _root,
+    {
+      id,
+      name,
+      status,
+      type,
+      config
+    }: { id: string; name: string; status: string; type: string; config: any },
+    { models }: IContext
+  ) {
+    console.log('paymentConfigsEdit: ', id, name, status, type, config);
+
+    return await models.PaymentConfigs.updatePaymentConfig(id, {
+      name,
+      status,
+      type,
+      config
+    });
+  },
+
+  /**
    *  create an invoice
    */
   async createInvoice(_root, params, { subdomain, models }: IContext) {

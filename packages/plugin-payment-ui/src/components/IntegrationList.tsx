@@ -12,15 +12,19 @@ import IntegrationListItem from './IntegrationListItem';
 import React from 'react';
 import Table from '@erxes/ui/src/components/table';
 import { __ } from '@erxes/ui/src/utils';
-import { IPaymentConfig } from '../types';
+import { IPaymentConfig, IPaymentConfigDocument } from '../types';
 
 type Props = {
-  paymentConfigs: IPaymentConfig[];
-  removePaymentConfig: (paymentConfig: IPaymentConfig, callback?: any) => void;
+  paymentConfigs: IPaymentConfigDocument[];
+  removePaymentConfig: (
+    paymentConfig: IPaymentConfigDocument,
+    callback?: any
+  ) => void;
+
   // archive: (id: string, status: boolean) => void;
-  // editIntegration: (
+  // editPaymentConfig: (
   //   id: string,
-  //   { name, brandId, channelIds }: IntegrationMutationVariables
+  //   { name, config }: IPaymentConfigVariables
   // ) => void;
   queryParams: any;
   integrationsCount: number;
@@ -46,6 +50,7 @@ class IntegrationList extends React.Component<Props> {
         _id={_id}
         paymentConfig={i}
         removePaymentConfig={removePaymentConfig}
+        // editPaymentConfig={editPaymentConfig}
         // archive={archive}
         // disableAction={disableAction}
         // editIntegration={editIntegration}

@@ -18,18 +18,22 @@ import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
-import { IPaymentConfig } from '../types';
-import { WithPermission } from '@erxes/ui/src/components';
+import { IPaymentConfig, IPaymentConfigDocument } from '../types';
+import { ButtonMutate, WithPermission } from '@erxes/ui/src/components';
+import QpayForm from './form/QpayForm';
+import SocialPayForm from './form/SocialPayForm';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import { mutations } from '../graphql';
 
 type Props = {
   _id?: string;
-  paymentConfig: IPaymentConfig;
-  removePaymentConfig: (paymentConfig: IPaymentConfig) => void;
+  paymentConfig: IPaymentConfigDocument;
+  removePaymentConfig: (paymentConfig: IPaymentConfigDocument) => void;
   // archive: (id: string, status: boolean) => void;
   // disableAction?: boolean;
-  // editIntegration: (
+  // editPaymentConfig: (
   //   id: string,
-  //   { name, brandId, channelIds }: IntegrationMutationVariables
+  //   { name, config }: IPaymentConfigVariables
   // ) => void;
 };
 
@@ -66,6 +70,68 @@ class IntegrationListItem extends React.Component<Props, State> {
     );
   }
 
+  renderEditAction() {
+    const { paymentConfig } = this.props;
+    const { type } = paymentConfig;
+
+    const renderButton = ({
+      name,
+      values,
+      isSubmitted,
+      callback
+    }: IButtonMutateProps) => {
+      return (
+        <ButtonMutate
+          mutation={mutations.paymentConfigsEdit}
+          variables={values}
+          callback={callback}
+          // refetchQueries={getRefetchQueries(this.props.kind)}
+          isSubmitted={isSubmitted}
+          type="submit"
+          successMessage={__(`You successfully edited a`) + `${name}`}
+        />
+      );
+    };
+
+    const editTrigger = (
+      <Button btnStyle="link">
+        <Tip text="Edit" placement="top">
+          <Icon icon="edit-3" />
+        </Tip>
+      </Button>
+    );
+
+    let content = props => (
+      <QpayForm
+        {...props}
+        paymentConfig={paymentConfig}
+        renderButton={renderButton}
+      />
+    );
+
+    if (type.toLowerCase().includes('social')) {
+      content = props => (
+        <SocialPayForm
+          {...props}
+          paymentConfig={paymentConfig}
+          renderButton={renderButton}
+        />
+      );
+    }
+
+    return (
+      // <WithPermission action="integrationsEdit">
+      <ActionButtons>
+        <ModalTrigger
+          title="Edit config"
+          trigger={editTrigger}
+          content={content}
+        />
+      </ActionButtons>
+      // </WithPermission>
+    );
+  }
+
   // renderArchiveAction() {
   //   const { paymentConfig } = this.props;
 
@@ -98,47 +164,6 @@ class IntegrationListItem extends React.Component<Props, State> {
   //       <Tip text={__('Unarchive')} placement="top">
   //         <Button btnStyle="link" onClick={onClick} icon="redo" />
   //       </Tip>
-  //     </WithPermission>
-  //   );
-  // }
-
-  // renderEditAction() {
-  //   const { integration, editIntegration } = this.props;
-
-  //   if (integration.kind === INTEGRATION_KINDS.MESSENGER) {
-  //     return null;
-  //   }
-
-  //   const editTrigger = (
-  //     <Button btnStyle="link">
-  //       <Tip text="Edit" placement="top">
-  //         <Icon icon="edit-3" />
-  //       </Tip>
-  //     </Button>
-  //   );
-
-  //   const content = props => (
-  //     <CommonFieldForm
-  //       {...props}
-  //       onSubmit={editIntegration}
-  //       name={integration.name}
-  //       brandId={integration.brandId}
-  //       channelIds={integration.channels.map(item => item._id) || []}
-  //       integrationId={integration._id}
-  //       integrationKind={integration.kind}
-  //       webhookData={integration.webhookData}
-  //     />
-  //   );
-
-  //   return (
-  //     <WithPermission action="integrationsEdit">
-  //       <ActionButtons>
-  //         <ModalTrigger
-  //           title="Edit integration"
-  //           trigger={editTrigger}
-  //           content={content}
-  //         />
-  //       </ActionButtons>
   //     </WithPermission>
   //   );
   // }
@@ -259,8 +284,8 @@ class IntegrationListItem extends React.Component<Props, State> {
 
         <td>
           <ActionButtons>
+            {this.renderEditAction()}
             {this.renderRemoveAction()}
-            {/* {this.renderEditAction()} */}
             {/* {this.renderArchiveAction()} */}
             {/* {this.renderUnarchiveAction()} */}
           </ActionButtons>

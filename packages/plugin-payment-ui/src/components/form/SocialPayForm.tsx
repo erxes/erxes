@@ -10,12 +10,12 @@ import React from 'react';
 
 import { __ } from '@erxes/ui/src/utils';
 import { SettingsContent } from './styles';
-import { IPaymentConfig } from 'types';
+import { IPaymentConfig, IPaymentConfigDocument } from 'types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
-  paymentConfig?: IPaymentConfig;
+  paymentConfig?: IPaymentConfigDocument;
 };
 
 type State = {
@@ -34,10 +34,10 @@ class SocialPayConfigForm extends React.Component<Props, State> {
 
     this.state = {
       paymentConfigName: paymentConfig?.name || '',
-      inStoreSPTerminal: paymentConfig?.config.terminal || '',
-      inStoreSPKey: paymentConfig?.config.spKey || '',
-      inStoreSPUrl: paymentConfig?.config.spUrl || '',
-      pushNotification: paymentConfig?.config.spNotif || ''
+      inStoreSPTerminal: paymentConfig?.config.inStoreSPTerminal || '',
+      inStoreSPKey: paymentConfig?.config.inStoreSPKey || '',
+      inStoreSPUrl: paymentConfig?.config.inStoreSPUrl || '',
+      pushNotification: paymentConfig?.config.pushNotification || ''
     };
   }
 
@@ -48,9 +48,8 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     inStoreSPUrl: string;
     pushNotification: string;
   }) => {
-    console.log('generateDoc values:', values);
-
-    return {
+    const { paymentConfig } = this.props;
+    const generatedValues = {
       name: values.paymentConfigName,
       type: 'socialPay',
       status: 'active',
@@ -61,6 +60,10 @@ class SocialPayConfigForm extends React.Component<Props, State> {
         pushNotification: values.pushNotification
       }
     };
+
+    return paymentConfig
+      ? { ...generatedValues, id: paymentConfig._id }
+      : generatedValues;
   };
 
   onChangeConfig = (code: string, e) => {

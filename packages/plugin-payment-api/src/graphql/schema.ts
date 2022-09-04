@@ -29,6 +29,7 @@ const params = `
 
 export const mutations = `
   paymentConfigsAdd(${params}): PaymentConfig
+  paymentConfigsEdit(id: String!,${params}): PaymentConfig
   paymentConfigRemove(id: String!): String
   createInvoice(paymentId: String!, amount: Float!, description: String!,phone: String, customerId: String, companyId: String): JSON
 `;
