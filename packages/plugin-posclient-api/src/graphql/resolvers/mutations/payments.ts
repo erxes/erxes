@@ -40,17 +40,17 @@ const paymentMutations = {
 
       const invoiceData = await requestQPayInvoice(
         {
-          invoice_code: config.qpayConfig.invoiceCode,
+          invoice_code: tokenInfo.invoiceCode,
           sender_invoice_no: order._id,
           invoice_receiver_code: 'terminal',
           invoice_description: order.number,
           amount: amount ? amount : order.totalAmount,
-          callback_url: config.qpayConfig.callbackUrl
+          callback_url: tokenInfo.callbackUrl
             ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
             : ''
         },
         tokenInfo.access_token,
-        config.qpayConfig
+        tokenInfo
       );
 
       const invoice = await models.QPayInvoices.createInvoice({
