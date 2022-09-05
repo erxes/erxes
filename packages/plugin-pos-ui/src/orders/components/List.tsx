@@ -100,10 +100,10 @@ class Orders extends React.Component<IProps, {}> {
           <thead>
             <tr>
               <th>
-                <SortHandler sortField={'billId'} label={__('Bill number')} />
+                <SortHandler sortField={'number'} label={__('Bill number')} />
               </th>
               <th>
-                <SortHandler sortField={'date'} label={__('Date')} />
+                <SortHandler sortField={'paidDate'} label={__('Date')} />
               </th>
               <th>
                 <SortHandler
@@ -127,13 +127,13 @@ class Orders extends React.Component<IProps, {}> {
                 <SortHandler sortField={'totalAmount'} label={__('Amount')} />
               </th>
               <th>
-                <SortHandler sortField={'Customer'} label={__('Customer')} />
+                <SortHandler sortField={'customerId'} label={__('Customer')} />
               </th>
               <th>
-                <SortHandler sortField={'Pos'} label={__('Pos')} />
+                <SortHandler sortField={'posToken'} label={__('Pos')} />
               </th>
               <th>
-                <SortHandler sortField={'User'} label={__('User')} />
+                <SortHandler sortField={'userId'} label={__('User')} />
               </th>
               <th>Үйлдлүүд</th>
             </tr>

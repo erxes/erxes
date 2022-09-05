@@ -169,11 +169,19 @@ const queries = {
       user._id
     );
 
-    return paginate(models.PosOrders.find(query), {
+    let sort: any = { number: 1 };
+    if (params.sortField && params.sortDirection) {
+      sort = {
+        [params.sortField]: params.sortDirection
+      };
+    }
+
+    return paginate(models.PosOrders.find(query).sort({ ...sort }), {
       page: params.page,
       perPage: params.perPage
     });
   },
+
   posOrdersTotalCount: async (
     _root,
     params,
