@@ -1,5 +1,5 @@
 import { Content, LeftContent } from '../../styles';
-import { Step, Steps, ExportStep } from '@erxes/ui/src/components/step';
+import { Step, Steps } from '@erxes/ui/src/components/step';
 
 import AccociateForm from '../containers/AccociateForm';
 import ConfigsForm from './ConfigsForm';
@@ -182,13 +182,13 @@ class Form extends React.Component<Props, State> {
       <Content>
         <LeftContent>
           <Steps active={1} direction="horizontal">
-            <ExportStep title="Type" link="exportHistories">
+            <Step title="Type" link="exportHistories">
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
                 contentTypes={contentTypes}
               />
-            </ExportStep>
+            </Step>
             {
               <Step title="Content">
                 <ConfigsForm
