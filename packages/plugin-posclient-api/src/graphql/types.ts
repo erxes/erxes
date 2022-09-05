@@ -36,7 +36,7 @@ export interface IOrderItemInput {
   unitPrice: number;
   isPackage?: boolean;
   isTake?: boolean;
-
+  status?: string;
   discountPercent?: number;
   discountAmount?: number;
   bonusCount?: number;

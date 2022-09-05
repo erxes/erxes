@@ -15,7 +15,7 @@ export interface IOrderItemModel extends Model<IOrderItemDocument> {
 export const loadOrderItemClass = models => {
   class OrderItem {
     public static async getOrderItem(_id: string) {
-      const item = await models.OrderItems.findOne({ _id });
+      const item = await models.OrderItems.findOne({ _id }).lean();
 
       if (!item) {
         throw new Error(`Order item not found with id: ${_id}`);
@@ -29,7 +29,7 @@ export const loadOrderItemClass = models => {
     }
 
     public static updateOrderItem(_id: string, doc: IOrderItem) {
-      return models.OrderItems.updateOne({ _id }, { $set: doc });
+      return models.OrderItems.updateOne({ _id }, { $set: doc }).lean();
     }
 
     public static async deleteOrderItem(_id: string) {

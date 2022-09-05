@@ -43,6 +43,7 @@ export const types = `
     isPackage: Boolean
     isTake: Boolean
     productImgUrl: String
+    status: String
   }
 
   type PosPutResponse {
@@ -133,6 +134,7 @@ export const mutations = `
   ordersAddPayment(_id: String!, cashAmount: Float, cardAmount: Float, cardInfo: JSON): Order
   ordersCancel(_id: String!): JSON
   ordersSettlePayment(_id: String!, billType: String!, registerNumber: String): PosPutResponse
+  orderItemChangeStatus(_id: String!, status: String): PosOrderItem
 `;
 
 export const queries = `
@@ -141,4 +143,5 @@ export const queries = `
   orderDetail(_id: String, customerId: String): Order
   ordersCheckCompany(registerNumber: String!): JSON
   ordersDeliveryInfo(orderId: String!): JSON
+  fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
 `;

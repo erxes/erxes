@@ -8,7 +8,8 @@ import {
   DISTRICTS,
   ORDER_STATUSES,
   BILL_TYPES,
-  ORDER_TYPES
+  ORDER_TYPES,
+  ORDER_ITEM_STATUSES
 } from '../../models/definitions/constants';
 import {
   IConfigDocument,
@@ -528,6 +529,37 @@ export const commonCheckPayment = async (
   } catch (e) {
     debugError(e);
 
+    return e;
+  }
+};
+export const reverseItemStatus = async (
+  models: IModels,
+  items: IOrderItemInput[]
+) => {
+  let newPreparedDocItems: IOrderItemInput[] = [...items];
+  try {
+    const oldOrderItems = await models.OrderItems.find({
+      _id: { $in: items.map(item => item._id) }
+    }).lean();
+    if (oldOrderItems) {
+      newPreparedDocItems.forEach(async (newItem, index) => {
+        const foundItem = oldOrderItems.find(
+          oldItem =>
+            oldItem._id === newItem._id && oldItem.count < newItem.count
+        );
+        if (foundItem && foundItem._id) {
+          newPreparedDocItems[index].status = ORDER_ITEM_STATUSES.CONFIRM;
+
+          await models.OrderItems.updateOrderItem(foundItem._id, {
+            ...foundItem,
+            status: ORDER_ITEM_STATUSES.CONFIRM
+          });
+        }
+      });
+    }
+    return newPreparedDocItems;
+  } catch (e) {
+    debugError(e);
     return e;
   }
 };

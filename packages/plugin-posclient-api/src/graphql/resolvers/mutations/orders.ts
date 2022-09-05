@@ -11,7 +11,8 @@ import {
   prepareOrderDoc,
   updateOrderItems,
   validateOrder,
-  validateOrderPayment
+  validateOrderPayment,
+  reverseItemStatus
 } from '../../utils/orderUtils';
 import { debugError } from '@erxes/api-utils/src/debuggers';
 import { graphqlPubsub } from '../../../configs';
@@ -19,7 +20,8 @@ import { IContext } from '../../types';
 import { IOrderInput } from '../../types';
 import {
   BILL_TYPES,
-  ORDER_STATUSES
+  ORDER_STATUSES,
+  ORDER_ITEM_STATUSES
 } from '../../../models/definitions/constants';
 import { sendPosMessage } from '../../../messageBroker';
 import { checkLoyalties } from '../../utils/loyalties';
@@ -93,7 +95,8 @@ const orderMutations = {
           bonusVoucherId: item.bonusVoucherId,
           orderId: order._id,
           isPackage: item.isPackage,
-          isTake: item.isTake
+          isTake: item.isTake,
+          status: ORDER_ITEM_STATUSES.CONFIRM
         });
       }
 
@@ -121,6 +124,8 @@ const orderMutations = {
 
     let preparedDoc = await prepareOrderDoc(doc, config, models);
     preparedDoc = await checkLoyalties(subdomain, preparedDoc);
+
+    preparedDoc.items = await reverseItemStatus(models, preparedDoc.items);
 
     await updateOrderItems(doc._id, preparedDoc.items, models);
 
@@ -167,7 +172,24 @@ const orderMutations = {
       } catch (e) {}
     }
   },
+  async orderItemChangeStatus(
+    _root,
+    { _id, status }: { _id: string; status: string },
+    { models, subdomain }: IContext
+  ) {
+    const oldOrderItem = await models.OrderItems.getOrderItem(_id);
 
+    await models.OrderItems.updateOrderItem(_id, { ...oldOrderItem, status });
+
+    await graphqlPubsub.publish('orderItemsOrdered', {
+      orderItemsOrdered: {
+        _id,
+        status: status
+      }
+    });
+
+    return await models.OrderItems.getOrderItem(_id);
+  },
   /**
    * Веб болон мобайл дээр хэрэглээгүй бол устгана.
    */
