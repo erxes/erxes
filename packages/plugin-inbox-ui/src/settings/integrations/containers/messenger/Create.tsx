@@ -10,8 +10,11 @@ import {
   SaveMessengerConfigsMutationResponse,
   SaveMessengerMutationResponse,
   SaveMessengerMutationVariables
-} from '../../types';
-import { mutations, queries } from '../../graphql';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import Form from '../../components/messenger/Form';
@@ -23,7 +26,7 @@ import { UsersQueryResponse } from '@erxes/ui/src/auth/types';
 import { queries as brandQueries } from '@erxes/ui/src/brands/graphql';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { integrationsListParams } from '../utils';
+import { integrationsListParams } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
 import { queries as kbQueries } from '@erxes/ui-knowledgebase/src/graphql';
 import { withRouter } from 'react-router-dom';
 

@@ -6,7 +6,7 @@ import {
   ImageWrapper,
   MessengerPreview,
   TextWrapper
-} from '../../styles';
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ControlWrapper,
   FlexItem,
@@ -26,11 +26,11 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import { IPages } from '../../types';
+import { IPages } from '@erxes/ui-inbox/src/settings/integrations/types';
 import { Link } from 'react-router-dom';
 import React from 'react';
-import SelectBrand from '../../containers/SelectBrand';
-import SelectChannels from '../../containers/SelectChannels';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';

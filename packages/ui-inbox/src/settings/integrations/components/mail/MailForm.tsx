@@ -1,29 +1,4 @@
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { __, Alert, uploadHandler } from '@erxes/ui/src/utils';
-import { Meta } from './styles';
-import { FileName } from '@erxes/ui-inbox/src/inbox/styles';
-import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import { IEmailSignature } from '@erxes/ui/src/auth/types';
-import React, { ReactNode } from 'react';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
-import {
-  formatObj,
-  formatStr,
-  generateForwardMailContent,
-  generatePreviousContents
-} from '../../containers/utils';
-
-import { IUser } from '@erxes/ui/src/auth/types';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import EmailTemplate from './emailTemplate/EmailTemplate';
-import MailChooser from './MailChooser';
+import { Alert, __, uploadHandler } from '@erxes/ui/src/utils';
 import {
   AttachmentContainer,
   Attachments,
@@ -39,7 +14,32 @@ import {
   Uploading
 } from './styles';
 import { FlexRow, Subject } from './styles';
+import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import React, { ReactNode } from 'react';
+import {
+  formatObj,
+  formatStr,
+  generateForwardMailContent,
+  generatePreviousContents
+} from '../../containers/utils';
+
+import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import EmailTemplate from './emailTemplate/EmailTemplate';
+import { FileName } from '@erxes/ui-inbox/src/inbox/styles';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IEmailSignature } from '@erxes/ui/src/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Label } from '@erxes/ui/src/components/form/styles';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
+import MailChooser from './MailChooser';
+import { Meta } from './styles';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -557,10 +557,10 @@ class MailForm extends React.Component<Props, State> {
 
   renderFrom() {
     return (
-      <>
+      <FlexRow>
         <label>From:</label>
         {this.renderFromValue()}
-      </>
+      </FlexRow>
     );
   }
 
