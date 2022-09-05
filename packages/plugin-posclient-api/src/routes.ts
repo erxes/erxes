@@ -44,6 +44,7 @@ export const callBackQpay = async (req, res) => {
 
   const { payment_id, qpay_payment_id } = req.query;
   if (!payment_id || !qpay_payment_id) {
+    console.log('!payment_id || !qpay_payment_id');
     return res.send();
   }
 
@@ -59,6 +60,7 @@ export const callBackQpay = async (req, res) => {
   });
 
   if (!pos.isOnline) {
+    console.log('!pos.isOnline');
     return res.send();
   }
 
@@ -67,6 +69,7 @@ export const callBackQpay = async (req, res) => {
     senderInvoiceNo: orderId
   }).lean();
   if (!invoice) {
+    console.log('!invoice');
     return res.send();
   }
 
@@ -86,6 +89,16 @@ export const callBackQpay = async (req, res) => {
     (await models.Configs.findOne({ token: invoice.token }).lean()) ||
     ({} as IConfigDocument);
 
+  console.log(
+    '11111111111',
+    {
+      subdomain,
+      orderId,
+      config,
+      paidMobileAmount
+    },
+    '111111111111'
+  );
   await commonCheckPayment(
     subdomain,
     models,
