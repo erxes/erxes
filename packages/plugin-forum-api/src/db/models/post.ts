@@ -31,16 +31,12 @@ export interface IPost {
   stateChangedUserType: UserTypes;
   stateChangedById?: string;
   stateChangedByCpId?: string;
-
-  commentCount: Number;
 }
 
 export type PostDocument = IPost & Document;
 
 const OMIT_FROM_INPUT = [
   '_id',
-
-  'commentCount',
 
   'createdUserType',
   'createdAt',
@@ -62,8 +58,6 @@ export type PostCreateInput = Omit<IPost, typeof OMIT_FROM_INPUT[number]>;
 export type PostPatchInput = Partial<Omit<PostCreateInput, 'state'>>;
 
 export interface IPostModel extends Model<PostDocument> {
-  reCalculateCommentCount(_id: string): Promise<void>;
-  incCommentCount(_id: string, value: number): Promise<PostDocument>;
   findByIdOrThrow(_id: string): Promise<PostDocument>;
 
   createPost(c: PostCreateInput, user: IUserDocument): Promise<PostDocument>;
@@ -129,9 +123,7 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedAt: { type: Date, required: true, default: () => new Date() },
   stateChangedUserType: { type: String, required: true, enum: USER_TYPES },
   stateChangedById: String,
-  stateChangedByCpId: String,
-
-  commentCount: { type: Number, required: true, default: 0 }
+  stateChangedByCpId: String
 });
 postSchema.index({ categoryId: 1, state: 1 });
 
@@ -141,12 +133,6 @@ export const generatePostModel = (
   models: IModels
 ): void => {
   class PostModel {
-    public static async reCalculateCommentCount(_id: string): Promise<void> {
-      const post = await models.Post.findByIdOrThrow(_id);
-      const count = await models.Comment.find({ postId: _id }).countDocuments();
-      post.commentCount = count;
-      await post.save();
-    }
     public static async findByIdOrThrow(_id: string): Promise<PostDocument> {
       const post = await models.Post.findById(_id);
       if (!post) {
@@ -160,7 +146,6 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       const res = await models.Post.create({
         ...input,
-        commentCount: 0,
 
         createdUserType: USER_TYPES[0],
         createdById: user._id,
@@ -223,14 +208,6 @@ export const generatePostModel = (
       return models.Post.changeState(_id, 'PUBLISHED', user);
     }
 
-    public static async incCommentCount(
-      _id: string,
-      value: number
-    ): Promise<PostDocument> {
-      await models.Post.updateOne({ _id }, { $inc: { commentCount: value } });
-      return models.Post.findByIdOrThrow(_id);
-    }
-
     /* <<< Client portal */
     public static async findByIdOrThrowCp(
       _id: string,
@@ -251,7 +228,6 @@ export const generatePostModel = (
       if (!cpUser) throw new Error(`Unauthorized`);
       const res = await models.Post.create({
         ...input,
-        commentCount: 0,
 
         createdUserType: USER_TYPES[1],
         createdByCpId: cpUser.userId,

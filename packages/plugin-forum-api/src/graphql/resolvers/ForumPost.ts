@@ -32,6 +32,9 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
         _id: stateChangedByCpId
       }
     );
+  },
+  async commentCount({ _id }, _, { models: { Comment } }) {
+    return (await Comment.countDocuments({ postId: _id })) || 0;
   }
 };
 

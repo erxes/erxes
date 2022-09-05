@@ -108,7 +108,6 @@ export const generateCommentModel = (
         updatedById: user._id,
         updatedUserType: USER_TYPES[0]
       });
-      await models.Post.incCommentCount(c.postId, 1);
       return res;
     }
     public static async updateComment(
@@ -142,11 +141,6 @@ export const generateCommentModel = (
       const res = await models.Comment.deleteMany({
         _id: { $in: idsToDelete }
       });
-      await models.Post.incCommentCount(
-        deletedComment.postId,
-        -1 * (res.deletedCount || 0)
-      );
-
       return deletedComment;
     }
 
@@ -173,8 +167,6 @@ export const generateCommentModel = (
         updatedByCpId: cpUser.userId,
         updatedUserType: USER_TYPES[1]
       });
-
-      await models.Post.incCommentCount(c.postId, 1);
       return res;
     }
     public static async updateCommentCp(
@@ -218,10 +210,6 @@ export const generateCommentModel = (
       const res = await models.Comment.deleteMany({
         _id: { $in: idsToDelete }
       });
-      await models.Post.incCommentCount(
-        deletedComment.postId,
-        -1 * (res.deletedCount || 0)
-      );
 
       return deletedComment;
     }
