@@ -2,13 +2,58 @@ import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
 import { serviceDiscovery } from './configs';
 import { debugBase } from '@erxes/api-utils/src/debuggers';
-import { createInvoice, makeInvoiceNo, qpayToken } from './utils';
+import {
+  createInvoice,
+  getQpayInvoice,
+  makeInvoiceNo,
+  qpayToken
+} from './utils';
 
 let client;
 
 export const initBroker = async cl => {
   client = cl;
   const { consumeRPCQueue } = cl;
+
+  consumeRPCQueue('qpay:checkInvoice', async ({ subdomain, data }) => {
+    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+    const models = await generateModels(subdomain);
+    const { config, invoiceId } = data;
+    const token = await qpayToken(config);
+    const invoice = await models.QpayInvoice.findOne({
+      qpayInvoiceId: invoiceId
+    });
+
+    const detail = await getQpayInvoice(invoiceId, token, config);
+
+    if (
+      invoice &&
+      !invoice.qpayPaymentId &&
+      detail.invoice_status === 'CLOSED'
+    ) {
+      const payments = detail.payments;
+
+      payments.map(async e => {
+        const paymentId = e.payment_id;
+
+        await models.QpayInvoice.updateOne(
+          { qpayInvoiceId: invoiceId },
+          {
+            $set: {
+              paymentDate: new Date(),
+              qpayPaymentId: paymentId,
+              status: 'PAID'
+            }
+          }
+        );
+      });
+    }
+
+    return {
+      status: 'success',
+      data: detail
+    };
+  });
 
   consumeRPCQueue('qpay:updateInvoice', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);

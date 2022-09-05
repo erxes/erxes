@@ -73,7 +73,7 @@ class IntegrationList extends React.Component<Props> {
     return (
       <>
         <Count>
-          {integrationsCount} payment config{integrationsCount > 1 && 's'}
+          {integrationsCount} config{integrationsCount > 1 && 's'}
         </Count>
         <Table>
           <thead>

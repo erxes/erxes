@@ -6,6 +6,22 @@ import styledTS from 'styled-components-ts';
 
 const collapsibleBackground = '#f8f8f8';
 
+const SettingsContent = styled.div`
+  padding: 30px;
+`;
+
+const QpaySectionStyle = styled.div`
+  padding: 50px 10px;
+`;
+
+const QpayButtonStyle = styled.div`
+  padding: 5px 35%;
+`;
+
+const QpayImageStyle = styled.div`
+  padding: 30px 40%;
+`;
+
 const IntegrationWrapper = styled.div`
   padding-bottom: ${dimensions.coreSpacing * 1.5}px;
   flex: 1;
@@ -240,5 +256,9 @@ export {
   Content,
   SearchInput,
   Ribbon,
-  FullHeight
+  FullHeight,
+  SettingsContent,
+  QpayButtonStyle,
+  QpayImageStyle,
+  QpaySectionStyle
 };

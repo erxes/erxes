@@ -20,7 +20,13 @@ query PaymentConfigsCountByType {
 }
 `;
 
+const checkInvoice = `
+query checkInvoice($paymentId: String!, $invoiceId: String!) {
+  checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
+}`;
+
 export default {
   paymentConfigs,
-  paymentConfigsCountByType
+  paymentConfigsCountByType,
+  checkInvoice
 };

@@ -18,6 +18,7 @@ export const types = `
 export const queries = `
   paymentConfigs: [PaymentConfig]
   paymentConfigsCountByType: PaymentTypeCount
+  checkInvoice(paymentId: String!, invoiceId: String!): JSON
 `;
 
 const params = `

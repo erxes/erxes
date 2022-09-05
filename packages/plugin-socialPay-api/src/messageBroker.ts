@@ -5,6 +5,7 @@ import { debugBase } from '@erxes/api-utils/src/debuggers';
 import {
   hmac256,
   makeInvoiceNo,
+  socialPayInvoiceCheck,
   socialPayInvoicePhone,
   socialPayInvoiceQR
 } from './utilsGolomtSP';
@@ -15,6 +16,48 @@ export const initBroker = async cl => {
   client = cl;
 
   const { consumeRPCQueue } = cl;
+
+  consumeRPCQueue('socialPay:checkInvoice', async ({ subdomain, data }) => {
+    debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
+    const models = await generateModels(subdomain);
+    const { config, invoiceId } = data;
+    const { inStoreSPTerminal, inStoreSPKey } = config;
+
+    const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
+      invoiceId
+    );
+
+    const amount = invoice.amount;
+    const checksum = await hmac256(
+      inStoreSPKey,
+      inStoreSPTerminal + invoiceId + amount
+    );
+
+    const requestBody = {
+      amount,
+      checksum,
+      invoice: invoiceId,
+      terminal: inStoreSPTerminal
+    };
+    const response = await socialPayInvoiceCheck(requestBody, config);
+
+    if (
+      response &&
+      response.header.code === 200 &&
+      response.body.response.resp_desc &&
+      response.body.response.resp_desc === 'Амжилттай'
+    ) {
+      await models.SocialPayInvoice.socialPayInvoiceStatusUpdate(
+        invoice,
+        'paid'
+      );
+    }
+
+    return {
+      status: 'success',
+      data: response
+    };
+  });
 
   consumeRPCQueue('socialPay:createInvoice', async ({ subdomain, data }) => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
@@ -66,7 +109,10 @@ export const initBroker = async cl => {
 
     return {
       status: 'success',
-      data: { status: 'socialPay success', data: invoiceQrData }
+      data: {
+        status: 'socialPay success',
+        data: { qr: qrText, invoiceNo }
+      }
     };
   });
 };
