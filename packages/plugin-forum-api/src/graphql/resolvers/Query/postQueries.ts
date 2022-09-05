@@ -2,7 +2,7 @@ import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { IModels } from '../../../db/models';
 
-const buildPostsQuery = async ({ Category }: IModels, params: any) => {
+export const buildPostsQuery = async ({ Category }: IModels, params: any) => {
   const query: any = {};
 
   for (const field of ['_id', 'state']) {

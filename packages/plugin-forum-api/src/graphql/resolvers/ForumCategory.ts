@@ -1,6 +1,7 @@
 import { IContext } from '..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { ICategory } from '../../db/models/category';
+import { buildPostsQuery } from './Query/postQueries';
 
 const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
   async parent({ parentId }, _, { models: { Category } }) {
@@ -18,10 +19,17 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
   async ancestors({ _id }, _, { models: { Category } }) {
     return Category.getAncestorsOf(_id);
   },
-  async posts({ _id }, { last }, { models: { Post } }) {
-    if (!last) return [];
-    return Post.find({ categoryId: _id })
-      .limit(last)
+  async posts({ _id }, params, { models }) {
+    const { Post } = models;
+    const query: any = await buildPostsQuery(models, {
+      ...params,
+      categoryId: [_id]
+    });
+    const { limit = 0, offset = 0 } = params;
+
+    return Post.find(query)
+      .skip(offset)
+      .limit(limit)
       .lean();
   }
 };

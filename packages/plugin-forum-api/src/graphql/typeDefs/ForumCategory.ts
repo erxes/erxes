@@ -13,6 +13,13 @@ export default `
     descendants: [ForumCategory!]
     ancestors: [ForumCategory!]
 
-    posts(last: Int): [ForumPost!]
+    posts(
+      state: [String!]
+      categoryIncludeDescendants: Boolean
+      offset: Int
+      limit: Int
+    ): [ForumPost!]
+
+    
   }
 `;
