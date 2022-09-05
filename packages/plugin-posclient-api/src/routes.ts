@@ -28,12 +28,11 @@ export const posInitialSetup = async (req, res) => {
 };
 
 export const callBackQpay = async (req, res) => {
-  console.log('dddddddddddddddddddddddddddddddddd');
+  console.log('start callBackQpay');
   console.log(req.query);
 
   const { SKIP_REDIS } = process.env;
   if (SKIP_REDIS) {
-    console.log('22222222222');
     return res.send();
   }
 
@@ -53,7 +52,7 @@ export const callBackQpay = async (req, res) => {
 
   const pos = await sendPosMessage({
     subdomain,
-    action: 'configs.find',
+    action: 'configs.findOne',
     data: { token: order.posToken },
     isRPC: true,
     defaultValue: {}
@@ -89,16 +88,6 @@ export const callBackQpay = async (req, res) => {
     (await models.Configs.findOne({ token: invoice.token }).lean()) ||
     ({} as IConfigDocument);
 
-  console.log(
-    '11111111111',
-    {
-      subdomain,
-      orderId,
-      config,
-      paidMobileAmount
-    },
-    '111111111111'
-  );
   await commonCheckPayment(
     subdomain,
     models,
@@ -107,5 +96,6 @@ export const callBackQpay = async (req, res) => {
     paidMobileAmount
   );
 
+  console.log('end callBackQpay');
   return res.send();
 };
