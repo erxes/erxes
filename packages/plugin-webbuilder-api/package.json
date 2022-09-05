@@ -8,7 +8,6 @@
     "start": "cd .erxes/dist/plugin-webbuilder-api/.erxes && node src"
   },
   "dependencies": {
-    "fs-extra": "^9.0.1",
-    "heapdump": "0.3.15"
+    "fs-extra": "^9.0.1"
   }
 }

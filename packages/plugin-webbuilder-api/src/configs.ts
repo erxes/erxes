@@ -1,5 +1,3 @@
-import * as heapdump from 'heapdump';
-
 import typeDefs from './graphql/typeDefs';
 import { sendRequest } from '@erxes/api-utils/src';
 import resolvers from './graphql/resolvers';
@@ -46,13 +44,6 @@ export default {
     debug = options.debug;
 
     const { app } = options;
-
-    app.get('/heapdump', (_req, res) => {
-      heapdump.writeSnapshot((_err, filename) => {
-        console.log('Heap dump written to', filename);
-        return res.send('ok');
-      });
-    });
 
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
