@@ -37,31 +37,25 @@ const paymentMutations = {
       await checkInvoiceAmount({ order, amount, models });
 
       const tokenInfo = await fetchQPayToken(config.qpayConfig);
-      console.log('dddddddddddddddd', tokenInfo, {
-        invoice_code: tokenInfo.invoiceCode,
-        sender_invoice_no: order._id,
-        invoice_receiver_code: 'terminal',
-        invoice_description: order.number,
-        amount: amount ? amount : order.totalAmount,
-        callback_url: tokenInfo.callbackUrl
-          ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
-          : ''
-      });
+
       const invoiceData = await requestQPayInvoice(
         {
-          invoice_code: tokenInfo.invoiceCode,
+          invoice_code: config.qpayConfig.invoiceCode,
           sender_invoice_no: order._id,
           invoice_receiver_code: 'terminal',
           invoice_description: order.number,
           amount: amount ? amount : order.totalAmount,
           callback_url: tokenInfo.callbackUrl
             ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
+            : '',
+          calback_url: tokenInfo.callbackUrl
+            ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
             : ''
         },
         tokenInfo.access_token,
-        tokenInfo
+        config.qpayConfig
       );
-      console.log(invoiceData, 'zz');
+
       const invoice = await models.QPayInvoices.createInvoice({
         senderInvoiceNo: order._id,
         amount: amount ? amount.toString() : order.totalAmount.toString(),
