@@ -10,6 +10,7 @@ import {
   receiveProductCategory,
   receiveUser
 } from './graphql/utils/syncUtils';
+import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
 
 let client;
 
@@ -164,7 +165,28 @@ const sendMessageWrapper = async (
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
   if (SKIP_REDIS) {
-    const { action } = args;
+    const { action, isRPC } = args;
+
+    // check connected gateway on server and check some plugins isAvailable
+    if (isRPC) {
+      const longTask = async () =>
+        await sendRPCMessage('gateway:isServiceAvailable', serviceName);
+
+      const timeout = (cb, interval) => () =>
+        new Promise(resolve => setTimeout(() => cb(resolve), interval));
+
+      const onTimeout = timeout(resolve => resolve(false), 1500);
+
+      let response = false;
+      await Promise.race([longTask, onTimeout].map(f => f())).then(
+        result => (response = result as boolean)
+      );
+
+      if (!response) {
+        return args.defaultValue;
+      }
+    }
+
     return sendMessage({
       client,
       serviceDiscovery,
