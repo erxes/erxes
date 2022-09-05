@@ -45,10 +45,10 @@ const paymentMutations = {
           invoice_receiver_code: 'terminal',
           invoice_description: order.number,
           amount: amount ? amount : order.totalAmount,
-          callback_url: tokenInfo.callbackUrl
+          callback_url: config.qpayConfig.callbackUrl
             ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
             : '',
-          calback_url: tokenInfo.callbackUrl
+          calback_url: config.qpayConfig.callbackUrl
             ? `${config.qpayConfig.callbackUrl}?payment_id=${order._id}`
             : ''
         },
