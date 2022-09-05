@@ -4,10 +4,15 @@ import { Connection } from 'mongoose';
 import { generateCategoryModel, ICategoryModel } from './category';
 import { generateCommentModel, ICommentModel } from './comment';
 import { generatePostModel, IPostModel } from './post';
+import { VoteModel } from './vote';
 export interface IModels {
   Category: ICategoryModel;
   Post: IPostModel;
   Comment: ICommentModel;
+  PostUpVote: VoteModel;
+  PostDownVote: VoteModel;
+  CommentUpVote: VoteModel;
+  CommentDownVote: VoteModel;
 }
 
 export let models: IModels | null = null;
