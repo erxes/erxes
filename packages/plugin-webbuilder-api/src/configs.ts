@@ -47,6 +47,13 @@ export default {
 
     const { app } = options;
 
+    app.get('/heapdump', (_req, res) => {
+      heapdump.writeSnapshot((_err, filename) => {
+        console.log('Heap dump written to', filename);
+        return res.send('ok');
+      });
+    });
+
     app.get('/:sitename', async (req, res) => {
       const { sitename } = req.params;
 
@@ -185,13 +192,6 @@ export default {
           ${page.html}
         `
       );
-    });
-
-    app.get('/heapdump', (_req, res) => {
-      heapdump.writeSnapshot((_err, filename) => {
-        console.log('Heap dump written to', filename);
-        return res.send('ok');
-      });
     });
   }
 };
