@@ -1,13 +1,12 @@
+import * as compose from 'lodash.flowright';
+
+import PluginDetails from '../components/detail/PluginDetails';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import * as compose from 'lodash.flowright';
-
-import { withProps } from 'modules/common/utils';
-
 import { mutations } from '@erxes/ui-settings/src/general/graphql';
-
-import PluginDetails from '../components/detail/PluginDetails';
+import { queries } from '../graphql';
+import { withProps } from 'modules/common/utils';
 
 type Props = {
   id: string;
@@ -33,14 +32,9 @@ class PluginDetailsContainer extends React.Component<FinalProps> {
 
 export default withProps<{}>(
   compose(
-    graphql<{}, {}, {}>(
-      gql(`query enabledServices {
-          enabledServices
-        }`),
-      {
-        name: 'enabledServicesQuery'
-      }
-    ),
+    graphql<{}, {}, {}>(gql(queries.enabledServices), {
+      name: 'enabledServicesQuery'
+    }),
     graphql<{}>(gql(mutations.managePluginInstall), {
       name: 'manageInstall'
     })
