@@ -16,13 +16,6 @@ cube(`DealsProductsdata`, {
     }
   },
 
-  segments: {
-    onlyHaveProductAmount: {
-      sql: `${productsdataAmount} != ''`,
-      title: `Only have product amount`
-    }
-  },
-
   measures: {
     productsdataAmountSum: {
       sql: `${CUBE}.\`productsData.amount\``,

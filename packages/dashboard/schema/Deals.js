@@ -86,5 +86,10 @@ cube(`Deals`, {
       type: `string`,
       shown: false
     }
+
+    // tag: {
+    //   sql: `${CUBE}.\`tagIds\``,
+    //   type: `string`
+    // }
   }
 });
