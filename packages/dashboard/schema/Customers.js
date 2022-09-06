@@ -1,5 +1,7 @@
+const { tableSchema } = require('../tablePrefix');
+
 cube(`Customers`, {
-  sql: `SELECT * FROM erxes.customers`,
+  sql: `SELECT * FROM ${tableSchema()}.customers`,
 
   joins: {
     Integrations: {
@@ -34,6 +36,16 @@ cube(`Customers`, {
     createdAt: {
       sql: `${CUBE}.\`createdAt\``,
       type: `time`
+    },
+
+    firstName: {
+      sql: `firstName`,
+      type: `string`
+    },
+
+    state: {
+      sql: `${CUBE}.\`state\``,
+      type: `string`
     }
   }
 });
