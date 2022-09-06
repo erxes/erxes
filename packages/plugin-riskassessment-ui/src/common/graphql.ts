@@ -21,7 +21,7 @@ export const riskAssessmentDef = `
     $categoryId: String!,
     $description: String!,
     $name: String!,
-    $status: String!
+    $status: String
 `;
 
 export const riskAssessmentValues = `

@@ -1,17 +1,21 @@
-import { Spinner } from '@erxes/ui/src';
+import { Alert, Spinner } from '@erxes/ui/src';
 import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import SubmissionsComponent from '../component/Submissions';
-import { queries } from '../graphql';
+import { mutations, queries } from '../graphql';
 type Props = {
-    id:string
+  cardId: string;
+  closeModal: () => void;
+  currentUserId?: string;
+  refetch: () => void;
 };
 
 type FinalProps = {
-    assignedUsers:any
+  formDetail: any;
+  saveFormSubmissions: any;
 } & Props;
 
 class Submissions extends React.Component<FinalProps> {
@@ -20,17 +24,45 @@ class Submissions extends React.Component<FinalProps> {
   }
 
   render() {
+    const {
+      formDetail,
+      saveFormSubmissions,
+      cardId,
+      closeModal,
+      currentUserId,
+      refetch
+    } = this.props;
 
-    const {assignedUsers} = this.props;
+    const formSubmissionsSave = doc => {
+      const variables = {
+        ...doc,
+        contentTypeId: cardId,
+        contentType: 'form',
+        userId: currentUserId
+      };
 
-    if(assignedUsers.loading){
-        return <Spinner objective/>
+      saveFormSubmissions({ variables })
+        .then(() => {
+          Alert.success('Risk assessment submitted successfully');
+          refetch();
+          closeModal();
+        })
+        .catch(err => {
+          Alert.error(err.message);
+        });
+    };
+
+    if (formDetail.loading) {
+      return <Spinner objective />;
     }
 
     const updatedProps = {
-        list:assignedUsers.riskConfirmitySubmissions.assignedUsers,
-        isSelectedRiskAssessment:assignedUsers.riskConfirmitySubmissions.isSelectedRiskAssessment
-    }
+      fields: formDetail.riskConfirmityFormDetail.fields,
+      submissions: formDetail.riskConfirmityFormDetail.submissions,
+      formId: formDetail.riskConfirmityFormDetail.formId,
+      formSubmissionsSave,
+      closeModal
+    };
 
     return <SubmissionsComponent {...updatedProps} />;
   }
@@ -38,11 +70,17 @@ class Submissions extends React.Component<FinalProps> {
 
 export default withProps<Props>(
   compose(
-  graphql<Props>(gql(queries.riskConfirmitySubmissions),{
-    name:'assignedUsers',
-    options:({id})=>({
-        variables:{dealId:id}
+    graphql<Props>(gql(queries.riskConfirmityDetail), {
+      name: 'formDetail',
+      options: ({ cardId, currentUserId }) => ({
+        variables: { cardId, userId: currentUserId }
+      })
+    }),
+    graphql<Props>(gql(mutations.formSubmissionsSave), {
+      name: 'saveFormSubmissions',
+      options: () => ({
+        refetchQueries: ['formDetail']
+      })
     })
-  })
   )(Submissions)
 );

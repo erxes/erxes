@@ -1,10 +1,10 @@
-import { paginate } from '@erxes/api-utils/src'
-import { escapeRegExp } from '@erxes/api-utils/src/core'
-import { Model } from 'mongoose'
-import { IModels } from '../connectionResolver'
-import { validRiskAssessment } from '../utils'
-import { IRiskAssessmentField, PaginateField } from './definitions/common'
-import { IRiskAssessmentDocument, riskAssessmentSchema } from './definitions/riskassessment'
+import { paginate } from '@erxes/api-utils/src';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { validRiskAssessment } from '../utils';
+import { IRiskAssessmentField, PaginateField } from './definitions/common';
+import { IRiskAssessmentDocument, riskAssessmentSchema } from './definitions/riskassessment';
 
 export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   riskAssesments(
@@ -19,10 +19,12 @@ export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   }): Promise<IRiskAssessmentDocument>;
 }
 
-const generateFilter = (params: { _id?: string;categoryId?: string } & IRiskAssessmentField & PaginateField) => {
+const generateFilter = (
+  params: { _id?: string; categoryId?: string } & IRiskAssessmentField & PaginateField
+) => {
   let filter: any = {};
 
-  if(params._id){
+  if (params._id) {
     filter._id = params._id;
   }
 
@@ -76,14 +78,14 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
           from: 'risk_assessment_categories',
           localField: 'categoryId',
           foreignField: '_id',
-          as: 'category',
-        },
+          as: 'category'
+        }
       };
       const filter = generateFilter(params);
 
       const match = { $match: filter };
       const sort = { $sort: generateOrderFilters(params) };
-      const set = { $unwind: '$category'  };
+      const set = { $unwind: '$category' };
       const list = paginate(model.RiskAssessment.aggregate([match, lookup, set, sort]), params);
 
       const totalCount = model.RiskAssessment.find(filter).countDocuments();
@@ -123,26 +125,26 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
     }
 
     public static async riskAssessmentDetail(params: { _id: string }) {
-      const filter = generateFilter(params)
+      const filter = generateFilter(params);
       if (!filter._id) {
         throw new Error('You must provide a _id parameter');
       }
 
-      const match = { $match: filter }
+      const match = { $match: filter };
 
       const lookup = {
         $lookup: {
           from: 'risk_assessment_categories',
           localField: 'categoryId',
           foreignField: '_id',
-          as: 'category',
-        },
-      }
+          as: 'category'
+        }
+      };
       const unwind = {
-        $unwind: '$category',
-      }
+        $unwind: '$category'
+      };
 
-      const [first] = await model.RiskAssessment.aggregate([match,lookup,unwind])
+      const [first] = await model.RiskAssessment.aggregate([match, lookup, unwind]);
 
       return first;
     }

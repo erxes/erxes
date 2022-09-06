@@ -17,13 +17,19 @@ const riskConfirmities = `
 `;
 
 const riskConfimityDetails = `
-  query RiskConfirmityDetails($cardId: String) {
-    riskConfirmityDetails(cardId: $cardId)
+  query RiskConfirmityDetails($cardId: String,$userId:String) {
+    riskConfirmityDetails(cardId: $cardId,userId: $userId) 
   }`;
 
 const riskConfirmitySubmissions = `
-  query Query($dealId: String) {
+  query RiskConfirmitySubmissions($dealId: String) {
     riskConfirmitySubmissions(dealId: $dealId)
+  }
+`;
+
+const riskConfirmityDetail = `
+  query RiskConfirmityFormDetail($cardId: String,$userId: String) {
+    riskConfirmityFormDetail(cardId: $cardId, userId: $userId)
   }
 `;
 
@@ -32,4 +38,5 @@ export default {
   riskConfirmities,
   riskConfimityDetails,
   riskConfirmitySubmissions,
+  riskConfirmityDetail
 };

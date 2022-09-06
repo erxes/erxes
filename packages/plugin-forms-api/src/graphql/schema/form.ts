@@ -90,6 +90,7 @@ const commonFormSubmissionFields = `
   contentTypeId: String,
   contentType: String,
   formSubmissions: JSON
+  userId:String
 `;
 
 const formSubmissionQueryParams = `

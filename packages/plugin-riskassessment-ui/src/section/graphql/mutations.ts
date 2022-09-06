@@ -6,7 +6,7 @@ const confirmityRiskAssessment = `
       riskAssessmentId
     }
   }
-`
+`;
 const editConfimityRiskAssessment = `
   mutation UpdateRiskConfirmity($cardId: String, $riskAssessmentId: String) {
     updateRiskConfirmity(cardId: $cardId, riskAssessmentId: $riskAssessmentId) {
@@ -16,13 +16,23 @@ const editConfimityRiskAssessment = `
       riskAssessmentId
     }
   }
-`
+`;
 
 const removeConfirmityRiskAssessment = `
   mutation RemoveRiskConfirmity($cardId: String) {
     removeRiskConfirmity(cardId: $cardId)
   }
-`
-export default {confirmityRiskAssessment,
-    editConfimityRiskAssessment,
-    removeConfirmityRiskAssessment}
+`;
+
+const formSubmissionsSave = `
+mutation FormSubmissionsSave($contentType: String, $contentTypeId: String, $formId: String, $formSubmissions: JSON,$userId:String) {
+  formSubmissionsSave(contentType: $contentType, contentTypeId: $contentTypeId, formId: $formId, formSubmissions: $formSubmissions,userId: $userId)
+}
+`;
+
+export default {
+  confirmityRiskAssessment,
+  editConfimityRiskAssessment,
+  removeConfirmityRiskAssessment,
+  formSubmissionsSave
+};

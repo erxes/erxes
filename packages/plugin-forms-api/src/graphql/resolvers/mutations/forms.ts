@@ -51,7 +51,8 @@ const formMutations = {
       const formSubmission = await models.FormSubmissions.findOne({
         contentTypeId,
         contentType,
-        formFieldId
+        formFieldId,
+        userId
       });
 
       if (formSubmission) {
@@ -67,7 +68,6 @@ const formMutations = {
           userId,
           value: formSubmissions[formFieldId]
         };
-
         models.FormSubmissions.createFormSubmission(doc);
       }
     }

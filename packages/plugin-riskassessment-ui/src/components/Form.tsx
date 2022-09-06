@@ -38,7 +38,7 @@ class Form extends React.Component<Props & ICommonFormProps> {
       label,
       required,
       row,
-      spaceBetween,
+      spaceBetween
     }: CustomFromGroupProps) => {
       return (
         <FormGroupRow horizontal={row} spaceBetween={spaceBetween}>
@@ -83,7 +83,7 @@ class Form extends React.Component<Props & ICommonFormProps> {
               defaultValue={assessmentDetail?.categoryId}
             >
               <option />
-              {categories.map((category) => (
+              {categories.map(category => (
                 <option value={category._id} key={category._id}>
                   {category.parentId && subOption(category)}
                   {category.name}

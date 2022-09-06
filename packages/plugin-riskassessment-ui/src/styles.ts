@@ -9,8 +9,8 @@ export const GridContainer = styledTS<{
   column?: number;
 }>(styled.div)`
     display:grid;
-    gap:${(props) => props.gap || 0}
-    grid-template-columns:${(props) =>
+    gap:${props => props.gap || 0}
+    grid-template-columns:${props =>
       props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto'}
 `;
 
@@ -21,12 +21,12 @@ export const FormGroupRow = styledTS<{
 margin-bottom: 20px;
 position: relative;
 
-${(props) =>
+${props =>
   props.horizontal &&
   css`
     display: flex;
     align-items: center;
-    ${(props) =>
+    ${props =>
       props.spaceBetween &&
       css`
         justify-content: space-between;
@@ -88,7 +88,7 @@ export const FormContainer = styledTS<{
   display: flex;
   flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
   justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({
-  spaceAround,
+  spaceAround
 }) => (spaceAround ? 'space-around' : '')};
   gap: ${({ gap }) => (gap ? '25px' : '')};
   align-items:${({ align }) => (align ? align : '')}
@@ -128,7 +128,7 @@ export const ClearableBtn = styled.a`
   cursor: pointer;
 `;
 
-export const ProductName = styledTS<{ pointer?:boolean,underline?:boolean }>(styled.a)`
+export const ProductName = styledTS<{ pointer?: boolean; underline?: boolean }>(styled.a)`
   cursor: pointer;
   color: ${colors.textSecondary};
   display: flex;
@@ -140,4 +140,12 @@ export const ProductName = styledTS<{ pointer?:boolean,underline?:boolean }>(sty
   &:hover i {
     visibility: visible;
   }
+`;
+
+export const Badge = styledTS<{ color?: string }>(styled.div)`
+  background-color: ${({ color }) => color}
+  border-radius: 13px;
+  text-align: center;
+  color:white;
+  max-width: 100px;
 `;

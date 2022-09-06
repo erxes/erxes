@@ -1,9 +1,10 @@
-import { FormControl, ModalTrigger, Tip } from '@erxes/ui/src'
-import { IButtonMutateProps } from '@erxes/ui/src/types'
-import moment from 'moment'
-import React from 'react'
-import { RiskAssesmentsType } from '../common/types'
-import Form from '../containers/Form'
+import { Chip, FormControl, ModalTrigger, Tags, Tip } from '@erxes/ui/src';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
+import moment from 'moment';
+import React from 'react';
+import { RiskAssesmentsType } from '../common/types';
+import Form from '../containers/Form';
+import { Badge } from '../styles';
 
 type IProps = {
   object: RiskAssesmentsType;
@@ -16,11 +17,11 @@ class TableRow extends React.Component<IProps> {
   render() {
     const { object, selectedValue, onchange } = this.props;
 
-    const generateDoc = (values) => {
+    const generateDoc = values => {
       return { doc: { ...values }, _id: object._id };
     };
 
-    const onclick = (e) => {
+    const onclick = e => {
       e.stopPropagation();
     };
 
@@ -35,18 +36,21 @@ class TableRow extends React.Component<IProps> {
         </td>
         <td>{object.name}</td>
         <td>{object.category?.name || '-'}</td>
-        <td>{object.status}</td>
+        {/* <td>{object.status}</td> */}
+        <td>
+          <Badge color="#6bdcffe6">Pending</Badge>
+        </td>
         <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
-        <td>{moment(object.createdAt).fromNow()}</td>
+          <td>{moment(object.createdAt).fromNow()}</td>
         </Tip>
       </tr>
     );
 
-    const contentForm = (props) => {
+    const contentForm = props => {
       const updatedProps = {
         ...this.props,
         ...props,
-        generateDoc,
+        generateDoc
       };
       return <Form {...updatedProps} asssessmentId={object._id} />;
     };

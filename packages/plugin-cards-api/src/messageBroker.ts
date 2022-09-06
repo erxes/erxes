@@ -8,8 +8,8 @@ import { getCardItem } from './utils';
 import { notifiedUserIds } from './graphql/utils';
 import { generateModels } from './connectionResolver';
 import { ISendMessageArgs, sendMessage } from '@erxes/api-utils/src/core';
-import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 import { publishHelper } from './graphql/resolvers/mutations/utils';
+import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
 
 let client;
 

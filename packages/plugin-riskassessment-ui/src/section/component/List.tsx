@@ -1,13 +1,16 @@
-import { getEnv, SectionBodyItem, __ } from '@erxes/ui/src'
-import { Box, Button, EmptyState, Icon, ModalTrigger, Tip } from '@erxes/ui/src/components'
-import React from 'react'
-import { IDealRiskAssements } from '../../common/types'
-import { ProductName } from '../../styles'
-import RiskAssessmentForm from '../container/Form'
+import { getEnv, SectionBodyItem, __ } from '@erxes/ui/src';
+import { Box, Button, EmptyState, Icon, ModalTrigger, Tip } from '@erxes/ui/src/components';
+import React from 'react';
+import { IDealRiskAssements } from '../../common/types';
+import { ProductName } from '../../styles';
+import RiskAssessmentForm from '../container/Form';
+import Submissions from '../container/Submissions';
 type Props = {
   list: IDealRiskAssements[];
   refetch: () => void;
   submissions: any;
+  id: string;
+  currentUser: any;
 };
 
 function RiskAssessmentSection(props: Props) {
@@ -15,7 +18,7 @@ function RiskAssessmentSection(props: Props) {
 
   const renderFormModalContent = ({
     closeModal,
-    riskAssessmentId,
+    riskAssessmentId
   }: {
     closeModal: () => void;
     dealId?: string;
@@ -31,7 +34,7 @@ function RiskAssessmentSection(props: Props) {
       <ModalTrigger
         size="lg"
         trigger={trigger}
-        content={(props) => renderFormModalContent({ ...props, riskAssessmentId })}
+        content={props => renderFormModalContent({ ...props, riskAssessmentId })}
         title="Risk Assessment"
       />
     );
@@ -41,10 +44,38 @@ function RiskAssessmentSection(props: Props) {
     return <ProductName>{text}</ProductName>;
   };
 
-  const handleSumbmissionForm = () => {
-    const { REACT_APP_CDN_HOST } = getEnv();
+  const renderSubmissionForm = (isSubmitted?: boolean) => {
+    const trigger = (
+      <Button btnStyle="link">
+        <Tip text={isSubmitted ? 'See Submitted Form' : 'Submission Form'}>
+          <Icon
+            color={isSubmitted ? 'purple' : 'green'}
+            icon={isSubmitted ? 'file-edit-alt' : 'file-alt'}
+          />
+        </Tip>
+      </Button>
+    );
 
-    window.open(`${REACT_APP_CDN_HOST}/test?type=form&deal_id=jRPrqDWe8bANC6T3C&form_id=DEMDxP`);
+    const content = ({ closeModal }) => {
+      return (
+        <Submissions
+          cardId={props.id}
+          currentUserId={props.currentUser._id}
+          closeModal={closeModal}
+          refetch={props.refetch}
+        />
+      );
+    };
+
+    return (
+      <ModalTrigger
+        title="Your Risk Assessment Submission Form"
+        trigger={trigger}
+        content={content}
+        backDrop
+        isAnimate
+      />
+    );
   };
 
   return (
@@ -60,7 +91,7 @@ function RiskAssessmentSection(props: Props) {
       >
         {list.length ? (
           <div>
-            {list.map((item) => (
+            {list.map(item => (
               <SectionBodyItem key={item.riskAssessmentId}>
                 {renderFormModal(renderItem(item.name || ''), item.riskAssessmentId)}
               </SectionBodyItem>
@@ -73,15 +104,11 @@ function RiskAssessmentSection(props: Props) {
       {list.length > 0 && (
         <Box name="riskSubmissions" title={__('Risk Assessment Submissions')}>
           {submissions ? (
-            submissions.map((user) => (
+            submissions.map(user => (
               <SectionBodyItem key={user._id}>
                 <ProductName>
                   {user.email}
-                  <Button btnStyle="link" onClick={handleSumbmissionForm}>
-                    <Tip text="Submission Form">
-                      <Icon icon="file-alt" />
-                    </Tip>
-                  </Button>
+                  {renderSubmissionForm(user.isSubmittedRiskAssessmentForm)}
                 </ProductName>
               </SectionBodyItem>
             ))
