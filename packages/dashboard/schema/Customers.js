@@ -34,6 +34,16 @@ cube(`Customers`, {
     createdAt: {
       sql: `${CUBE}.\`createdAt\``,
       type: `time`
+    },
+
+    firstName: {
+      sql: `firstName`,
+      type: `string`
+    },
+
+    state: {
+      sql: `${CUBE}.\`state\``,
+      type: `string`
     }
   }
 });

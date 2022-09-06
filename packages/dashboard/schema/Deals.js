@@ -15,18 +15,6 @@ cube(`Deals`, {
     }
   },
 
-  segments: {
-    wonDeals: {
-      sql: `${CUBE.stageProbability} = 'Won'`,
-      title: `Won`
-    },
-
-    lostDeals: {
-      sql: `${CUBE.stageProbability} = 'Lost'`,
-      title: `lost`
-    }
-  },
-
   dimensions: {
     _id: {
       sql: `${CUBE}.\`_id\``,
