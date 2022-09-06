@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`ConversationsTag`, {
-  sql: `SELECT * FROM ${tableSchema()}.\`conversations_tagIds\``,
+cube(`DealsAssigneduser`, {
+  sql: `SELECT * FROM ${tableSchema()}.\`deals_assignedUserIds\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -9,15 +9,16 @@ cube(`ConversationsTag`, {
   },
 
   joins: {
-    Tags: {
-      sql: `CONCAT(${CUBE}.tagIds)= ${Tags}._id`,
+    Users: {
+      sql: `CONCAT(${CUBE}.assignedUserIds)= ${Users}._id`,
       relationship: `belongsTo`
     }
   },
 
   measures: {
     count: {
-      type: `count`
+      type: `count`,
+      drillMembers: [assigneduserids]
     }
   },
 
@@ -28,8 +29,8 @@ cube(`ConversationsTag`, {
       primaryKey: true
     },
 
-    tag: {
-      sql: `${Tags.name}`,
+    assigneduserids: {
+      sql: `${Users}.\`username\``,
       type: `string`,
       title: 'Name'
     }

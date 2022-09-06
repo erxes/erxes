@@ -8,14 +8,16 @@ cube(`Deals`, {
       sql: `${CUBE}.stageId = ${Stages}._id`,
       relationship: `belongsTo`
     },
-
     DealsLabel: {
       sql: `${CUBE}._id= ${DealsLabel}._id`,
       relationship: `belongsTo`
     },
-
     DealsProductsdata: {
-      sql: `${CUBE}._id= ${DealsProductsdata}._id`,
+      sql: `${CUBE}._id = ${DealsProductsdata}._id`,
+      relationship: `belongsTo`
+    },
+    DealsAssigneduser: {
+      sql: `${CUBE}._id = ${DealsAssigneduser}._id`,
       relationship: `belongsTo`
     }
   },

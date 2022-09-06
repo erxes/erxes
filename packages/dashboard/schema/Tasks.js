@@ -7,6 +7,10 @@ cube(`Tasks`, {
     Stages: {
       sql: `${CUBE}.stageId = ${Stages}._id`,
       relationship: `belongsTo`
+    },
+    TasksAssigneduser: {
+      sql: `${CUBE}._id = ${TasksAssigneduser}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -59,16 +63,6 @@ cube(`Tasks`, {
       type: `string`
     },
 
-    searchtext: {
-      sql: `${CUBE}.\`searchText\``,
-      type: `string`
-    },
-
-    sourceconversationid: {
-      sql: `${CUBE}.\`sourceConversationId\``,
-      type: `string`
-    },
-
     stageProbability: {
       type: `string`,
       case: {
@@ -90,29 +84,14 @@ cube(`Tasks`, {
 
     stageid: {
       sql: `${CUBE}.\`stageId\``,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     status: {
       sql: `status`,
-      type: `string`
-    },
-
-    timetrackStartdate: {
-      sql: `${CUBE}.\`timeTrack.startDate\``,
       type: `string`,
-      title: `Timetrack.startdate`
-    },
-
-    timetrackStatus: {
-      sql: `${CUBE}.\`timeTrack.status\``,
-      type: `string`,
-      title: `Timetrack.status`
-    },
-
-    userid: {
-      sql: `${CUBE}.\`userId\``,
-      type: `string`
+      shown: false
     },
 
     createdat: {
@@ -120,23 +99,8 @@ cube(`Tasks`, {
       type: `time`
     },
 
-    closedate: {
-      sql: `${CUBE}.\`closeDate\``,
-      type: `time`
-    },
-
     modifiedat: {
       sql: `${CUBE}.\`modifiedAt\``,
-      type: `time`
-    },
-
-    stagechangeddate: {
-      sql: `${CUBE}.\`stageChangedDate\``,
-      type: `time`
-    },
-
-    startdate: {
-      sql: `${CUBE}.\`startDate\``,
       type: `time`
     }
   },

@@ -20,6 +20,10 @@ cube(`Conversations`, {
     Integrations: {
       relationship: `belongsTo`,
       sql: `${CUBE}.integrationId = ${Integrations}._id`
+    },
+    ConversationsTag: {
+      sql: `${CUBE}._id = ${ConversationsTag}._id`,
+      relationship: `belongsTo`
     }
   },
 

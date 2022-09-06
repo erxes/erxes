@@ -12,23 +12,20 @@ cube(`Tickets`, {
     Stages: {
       sql: `${CUBE}.stageId = ${Stages}._id`,
       relationship: `belongsTo`
+    },
+    TicketsLabel: {
+      sql: `${CUBE}._id = ${TicketsLabel}._id`,
+      relationship: `belongsTo`
+    },
+    TicketsAssigneduser: {
+      sql: `${CUBE}._id = ${TicketsAssigneduser}._id`,
+      relationship: `belongsTo`
     }
   },
 
   measures: {
     count: {
-      type: `count`,
-      drillMembers: [
-        initialstageid,
-        name,
-        sourceconversationid,
-        stageid,
-        userid,
-        createdat,
-        closedate,
-        stagechangeddate,
-        startdate
-      ]
+      type: `count`
     }
   },
 
@@ -77,7 +74,8 @@ cube(`Tickets`, {
 
     searchtext: {
       sql: `${CUBE}.\`searchText\``,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     source: {
@@ -111,47 +109,18 @@ cube(`Tickets`, {
 
     stageid: {
       sql: `${CUBE}.\`stageId\``,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     status: {
       sql: `status`,
-      type: `string`
-    },
-
-    timetrackStatus: {
-      sql: `${CUBE}.\`timeTrack.status\``,
       type: `string`,
-      title: `Timetrack.status`
-    },
-
-    userid: {
-      sql: `${CUBE}.\`userId\``,
-      type: `string`
+      shown: false
     },
 
     createdat: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
-    },
-
-    closedate: {
-      sql: `${CUBE}.\`closeDate\``,
-      type: `time`
-    },
-
-    modifiedat: {
-      sql: `${CUBE}.\`modifiedAt\``,
-      type: `time`
-    },
-
-    stagechangeddate: {
-      sql: `${CUBE}.\`stageChangedDate\``,
-      type: `time`
-    },
-
-    startdate: {
-      sql: `${CUBE}.\`startDate\``,
       type: `time`
     }
   },
