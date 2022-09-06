@@ -167,18 +167,6 @@ export const AddContent = styled.div`
   }
 `;
 
-export const SelectInput = styled.div`
-  overflow: hidden;
-
-  .Select-input {
-    width: 100%;
-
-    input {
-      width: 100% !important;
-    }
-  }
-`;
-
 export const TitleRow = styled.div`
   display: flex;
   align-items: center;
