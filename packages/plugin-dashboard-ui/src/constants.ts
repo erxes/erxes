@@ -36,43 +36,113 @@ export const CHART_TYPES = [
 export const DATE_RANGES = [
   {
     title: 'All time',
-    value: 'All time'
+    value: 'All time',
+    exceludedGranularities: ['Second', 'Minute', 'Hour', 'Day']
   },
   {
-    value: 'Today'
+    value: 'Today',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Day',
+      'Week',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'Yesterday'
+    value: 'Yesterday',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Week',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'This week'
+    value: 'This week',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Week',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'This month'
+    value: 'This month',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Hour',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'This quarter'
+    value: 'This quarter',
+    exceludedGranularities: ['Second', 'Minute', 'Hour', 'Quarter', 'Year']
   },
   {
-    value: 'This year'
+    value: 'This year',
+    exceludedGranularities: ['Second', 'Minute', 'Hour', 'Year']
   },
   {
-    value: 'Last 7 days'
+    value: 'Last 7 days',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Week',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'Last 30 days'
+    value: 'Last 30 days',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Hour',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'Last week'
+    value: 'Last week',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Week',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'Last month'
+    value: 'Last month',
+    exceludedGranularities: [
+      'Second',
+      'Minute',
+      'Hour',
+      'Month',
+      'Quarter',
+      'Year'
+    ]
   },
   {
-    value: 'Last quarter'
+    value: 'Last quarter',
+    exceludedGranularities: ['Second', 'Minute', 'Hour', 'Quarter', 'Year']
   },
   {
-    value: 'Last year'
+    value: 'Last year',
+    exceludedGranularities: ['Second', 'Minute', 'Hour', 'Year']
   }
 ];
 

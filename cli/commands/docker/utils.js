@@ -8,8 +8,9 @@ const commonEnvs = configs => {
   const widgets = configs.widgets || {};
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
-  const rabbitmq_host = `amqp://${rabbitmq.user}:${rabbitmq.pass
-    }@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
+  const rabbitmq_host = `amqp://${rabbitmq.user}:${
+    rabbitmq.pass
+  }@${rabbitmq.server_address || db_server_address}:5672/${rabbitmq.vhost}`;
 
   return {
     ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
@@ -86,8 +87,8 @@ const generatePluginBlock = (configs, plugin) => {
     networks: ['erxes'],
     extra_hosts: [
       `mongo:${plugin.db_server_address ||
-      configs.db_server_address ||
-      '127.0.0.1'}`
+        configs.db_server_address ||
+        '127.0.0.1'}`
     ]
   };
 
@@ -189,17 +190,27 @@ const deployDbs = async program => {
     if (!(await fse.exists(filePath(`mongo-key`)))) {
       log('mongo-key file not found ....', 'red');
 
-      return log(`Create this file using
+      return log(
+        `Create this file using
           openssl rand -base64 756 > <path-to-keyfile>
           chmod 400 <path-to-keyfile>
           chmod 999:999 <path-to-keyfile>
-      `, 'red');
+      `,
+        'red'
+      );
     }
 
-    dockerComposeConfig.services.mongo.volumes.push('./mongo-key:/etc/mongodb/keys/mongo-key');
+    dockerComposeConfig.services.mongo.volumes.push(
+      './mongo-key:/etc/mongodb/keys/mongo-key'
+    );
     dockerComposeConfig.services.mongo.command.push('--keyFile');
-    dockerComposeConfig.services.mongo.command.push('/etc/mongodb/keys/mongo-key');
-    dockerComposeConfig.services.mongo.extra_hosts = [`mongo:${configs.db_server_address}`, `mongo-secondary:${configs.secondary_server_address}`];
+    dockerComposeConfig.services.mongo.command.push(
+      '/etc/mongodb/keys/mongo-key'
+    );
+    dockerComposeConfig.services.mongo.extra_hosts = [
+      `mongo:${configs.db_server_address}`,
+      `mongo-secondary:${configs.secondary_server_address}`
+    ];
   }
 
   if (configs.elasticsearch) {
@@ -438,6 +449,7 @@ const up = async ({ uis, fromInstaller }) => {
         CUBEJS_API_SECRET: dashboard.api_secret,
         REDIS_URL: `redis://${db_server_address || 'redis'}:6379`,
         REDIS_PASSWORD: configs.redis.password || '',
+        DB_NAME: db_name,
         ...(dashboard.extra_env || {})
       },
       volumes: ['./enabled-services.js:/data/enabled-services.js'],
@@ -843,11 +855,18 @@ const dumpDb = async program => {
 
   const configs = await fse.readJSON(filePath('configs.json'));
 
-  await execCommand(`docker ps --format "{{.Names}}" | grep mongo > docker-mongo-name.txt`);
-  const dockerMongoName = fs.readFileSync('docker-mongo-name.txt').toString().replace('\n', '');
+  await execCommand(
+    `docker ps --format "{{.Names}}" | grep mongo > docker-mongo-name.txt`
+  );
+  const dockerMongoName = fs
+    .readFileSync('docker-mongo-name.txt')
+    .toString()
+    .replace('\n', '');
 
   log('Running mongodump ....');
-  await execCommand(`docker exec ${dockerMongoName} mongodump -u ${configs.mongo.username} -p ${configs.mongo.password} --authenticationDatabase admin --db ${dbName}`);
+  await execCommand(
+    `docker exec ${dockerMongoName} mongodump -u ${configs.mongo.username} -p ${configs.mongo.password} --authenticationDatabase admin --db ${dbName}`
+  );
 
   if (program.copydump) {
     log('Copying dump ....');
@@ -880,23 +899,28 @@ const deployMongoBi = async program => {
     CUBEJS_DB_SSL_REJECT_UNAUTHORIZED: "false",
     CUBEJS_DB_USER: "${configs.mongo_username}",
     CUBEJS_DB_PASS: "${configs.mongo_password}"
-  `)
+  `);
 
   if (!(await fse.exists(filePath(`mongo.pem`)))) {
     log('mongo.pem file not found. creating new one ....');
-    await execCommand('openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem --batch');
+    await execCommand(
+      'openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem --batch'
+    );
     await execCommand('cat key.pem certificate.pem > mongo.pem');
   }
 
   if (!(await fse.exists(filePath(`mongo-key`)))) {
     log('mongo-key file not found ....', 'red');
 
-    return log(`Create this file using
+    return log(
+      `Create this file using
         openssl rand -base64 756 > <path-to-keyfile>
         chmod 400 <path-to-keyfile>
         chmod 999:999 <path-to-keyfile>
         on primary mongo server then it here
-    `, 'red');
+    `,
+      'red'
+    );
   }
 
   const dockerComposeConfig = {
@@ -918,9 +942,21 @@ const deployMongoBi = async program => {
       MONGO_INITDB_ROOT_PASSWORD: configs.mongo_password
     },
     networks: ['erxes'],
-    volumes: ['./mongodata:/data/db', './mongo-key:/etc/mongodb/keys/mongo-key'],
-    command: ['--replSet', 'rs0', '--bind_ip_all', '--keyFile', '/etc/mongodb/keys/mongo-key'],
-    extra_hosts: [`mongo:${configs.primary_server_ip}`, `mongo-secondary: ${configs.server_ip}`]
+    volumes: [
+      './mongodata:/data/db',
+      './mongo-key:/etc/mongodb/keys/mongo-key'
+    ],
+    command: [
+      '--replSet',
+      'rs0',
+      '--bind_ip_all',
+      '--keyFile',
+      '/etc/mongodb/keys/mongo-key'
+    ],
+    extra_hosts: [
+      `mongo:${configs.primary_server_ip}`,
+      `mongo-secondary: ${configs.server_ip}`
+    ]
   };
 
   dockerComposeConfig.services['mongo-bi-connector'] = {
@@ -933,7 +969,7 @@ const deployMongoBi = async program => {
       MONGO_PASSWORD: configs.mongo_password
     },
     networks: ['erxes'],
-    volumes: ['./mongo.pem:/mongosqld/mongo.pem'],
+    volumes: ['./mongo.pem:/mongosqld/mongo.pem']
   };
 
   const yamlString = yaml.stringify(dockerComposeConfig);
