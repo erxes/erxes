@@ -98,12 +98,12 @@ const dashBoardQueries = {
       'Tasks',
       'Tags',
       'Tickets',
-      'DealsLabelids',
+      'DealsLabel',
       'Tags',
-      'ConversationsTagids',
+      'ConversationsTag',
       'PipelineLabels',
-      'TasksLabelids',
-      'TicketsLabelids'
+      'TasksLabel',
+      'TicketsLabel'
     ];
   },
 

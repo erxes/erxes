@@ -1,4 +1,4 @@
-cube(`TasksLabelids`, {
+cube(`TasksLabel`, {
   sql: `SELECT * FROM erxes.\`tasks_labelIds\``,
 
   preAggregations: {
@@ -15,8 +15,8 @@ cube(`TasksLabelids`, {
 
   measures: {
     count: {
-      type: `count`,
-      drillMembers: [labelids]
+      type: `count`
+      // drillMembers: [labelids]
     }
   },
 
@@ -27,7 +27,7 @@ cube(`TasksLabelids`, {
       primaryKey: true
     },
 
-    labelids: {
+    label: {
       sql: `${PipelineLabels.name}`,
       type: `string`
     }

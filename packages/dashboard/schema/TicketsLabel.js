@@ -1,5 +1,5 @@
-cube(`DealsLabelids`, {
-  sql: `SELECT * FROM erxes.\`deals_labelIds\``,
+cube(`TicketsLabel`, {
+  sql: `SELECT * FROM erxes.\`tickets_labelIds\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here

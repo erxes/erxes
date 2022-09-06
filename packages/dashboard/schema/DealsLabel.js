@@ -1,5 +1,5 @@
-cube(`TicketsLabelids`, {
-  sql: `SELECT * FROM erxes.\`tickets_labelIds\``,
+cube(`DealsLabel`, {
+  sql: `SELECT * FROM erxes.\`deals_labelIds\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -15,8 +15,7 @@ cube(`TicketsLabelids`, {
 
   measures: {
     count: {
-      type: `count`,
-      drillMembers: [labelids]
+      type: `count`
     }
   },
 
@@ -27,7 +26,7 @@ cube(`TicketsLabelids`, {
       primaryKey: true
     },
 
-    labelids: {
+    label: {
       sql: `${PipelineLabels.name}`,
       type: `string`
     }
