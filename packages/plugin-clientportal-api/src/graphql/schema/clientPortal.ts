@@ -40,7 +40,8 @@ ${
 
   type MailConfig {
     subject: String
-    content: String
+    invitationContent : String
+    registrationContent : String
   }
 
   input OTPConfigInput {
@@ -51,7 +52,8 @@ ${
 
   input MailConfigInput {
     subject: String
-    content: String
+    invitationContent : String
+    registrationContent : String
   }
 
   type ClientPortal {

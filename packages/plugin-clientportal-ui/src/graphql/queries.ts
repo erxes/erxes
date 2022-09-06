@@ -59,7 +59,8 @@ export const commonFields = `
 
   mailConfig {
     subject
-    content
+    invitationContent
+    registrationContent
   }
 `;
 

@@ -3,6 +3,7 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
 import { __ } from '@erxes/ui/src/utils';
 import React, { useState } from 'react';
@@ -30,6 +31,8 @@ function General({
   googleCredentials,
   otpConfig,
   mailConfig,
+  url,
+  name,
   handleFormChange
 }: Props) {
   const [otpEnabled, setOtpEnabled] = useState<boolean>(
@@ -98,9 +101,18 @@ function General({
       if (key === 'content') {
         let content = value;
 
-        if (!content || !content.length) {
-          content = '{{code}}';
+        const base = ' {{code}} ';
+        const regex = new RegExp('[sS]*?' + base + '[sS]*?', 'i');
+
+        if (!regex.test(value)) {
+          content = content.replace(/{{code}}/g, base);
+          if (content.search(base) === -1) {
+            content = base;
+          }
+
+          content = content.replace('  ', ' ');
         }
+
         obj.content = content;
       }
 
@@ -174,16 +186,30 @@ function General({
 
   const renderMailConfig = () => {
     let obj = mailConfig || {
-      content: '',
-      subject: ''
+      registrationContent: `Hello <br /><br />Your verification link is {{link}}.<br /><br />Thanks,<br />${name}`,
+      invitationContent: `Hello <br /><br />Your verification link is {{link}}.<br />  Your password is: {{password}} . Please change your password after you login. <br /><br />Thanks,<br />${name}`,
+      subject: `${name} - invitation`
     };
 
-    const handleChange = (e: React.FormEvent) => {
-      const key = e.currentTarget.id;
-      const value = (e.currentTarget as HTMLInputElement).value;
+    const onChangeSubject = (e: React.FormEvent) => {
+      obj.subject = (e.currentTarget as HTMLInputElement).value;
+      handleFormChange('mailConfig', obj);
+    };
 
-      obj[key] = value;
-      handleFormChange('otpConfig', obj);
+    const onEditorChange = e => {
+      const value = e.editor.getData();
+      const editorNumber: number =
+        e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
+
+      if (editorNumber % 2 !== 0) {
+        obj.registrationContent = value;
+      } else {
+        obj.invitationContent = value;
+
+        // console.log('invitationContent', invitationContent.match(/{{ link }}|{{ password }}/g));
+      }
+
+      handleFormChange('mailConfig', obj);
     };
 
     return (
@@ -215,20 +241,61 @@ function General({
                   id="subject"
                   name="subject"
                   value={obj.subject}
-                  onChange={handleChange}
+                  onChange={onChangeSubject}
                 />
               </FlexContent>
             </FormGroup>
 
             <FormGroup>
-              <ControlLabel required={true}>Content</ControlLabel>
+              <ControlLabel required={true}>
+                Registration Mail Content
+              </ControlLabel>
+              <p>Registration mail body</p>
+              <FlexContent>
+                <EditorCK
+                  content={obj.registrationContent || ''}
+                  onChange={onEditorChange}
+                  height={300}
+                  name={'registrationContent'}
+                  insertItems={{
+                    items: [
+                      {
+                        value: 'link',
+                        name: 'Link'
+                      }
+                    ],
+                    title: 'Attributes',
+                    label: 'Attributes'
+                  }}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>
+                Invitation Mail Content
+              </ControlLabel>
               <p>Invitation mail body</p>
               <FlexContent>
-                <FormControl
-                  id="content"
-                  name="content"
-                  value={obj.content}
-                  onChange={handleChange}
+                <EditorCK
+                  content={obj.invitationContent || ''}
+                  onChange={onEditorChange}
+                  height={300}
+                  name={'invitationContent'}
+                  insertItems={{
+                    items: [
+                      {
+                        value: 'link',
+                        name: 'Link'
+                      },
+                      {
+                        value: 'password',
+                        name: 'Password'
+                      }
+                    ],
+                    title: 'Attributes',
+                    label: 'Attributes'
+                  }}
                 />
               </FlexContent>
             </FormGroup>

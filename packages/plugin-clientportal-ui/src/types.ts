@@ -10,7 +10,8 @@ export type OTPConfig = {
 
 export type MailConfig = {
   subject: string;
-  content: string;
+  registrationContent: string;
+  invitationContent: string;
 };
 
 export interface IClientPortalUserDoc {

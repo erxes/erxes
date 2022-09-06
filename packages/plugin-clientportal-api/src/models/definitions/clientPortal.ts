@@ -10,7 +10,8 @@ export interface IOTPConfig {
 
 export interface IMailConfig {
   subject: string;
-  content: string;
+  invitationContent: string;
+  registrationContent: string;
 }
 
 export interface IClientPortal {
@@ -110,7 +111,8 @@ const otpConfigSchema = new Schema(
 const mailConfigSchema = new Schema(
   {
     subject: field({ type: String, optional: true }),
-    content: field({ type: String, optional: true })
+    invitationContent: field({ type: String, optional: true }),
+    registrationContent: field({ type: String, optional: true })
   },
   { _id: false }
 );

@@ -1,11 +1,12 @@
 import Button from '@erxes/ui/src/components/Button';
 import { Alert } from '@erxes/ui/src/utils';
+import { removeTypename } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import { CONFIG_TYPES } from '../constants';
 import General from '../containers/General';
 import { ButtonWrap, Content } from '../styles';
-import { ClientPortalConfig } from '../types';
+import { ClientPortalConfig, MailConfig } from '../types';
 import Appearance from './forms/Appearance';
 import Config from './forms/Config';
 
@@ -93,6 +94,33 @@ class Form extends React.Component<Props, State> {
     }
 
     delete (formValues.styles || ({} as any)).__typename;
+
+    if (formValues.mailConfig) {
+      const mailConfig: MailConfig =
+        removeTypename(formValues.mailConfig) || {};
+
+      if (!mailConfig.registrationContent.match(/{{ link }}/g)) {
+        return Alert.error(
+          'Please add {{ link }} to registration mail content to send verification link'
+        );
+      }
+
+      if (!mailConfig.invitationContent.match(/{{ link }}|{{ password }}/g)) {
+        return Alert.error(
+          'Please add {{ link }} and {{ password }} to invitation mail content to send verification link and password'
+        );
+      }
+    }
+
+    if (formValues.otpConfig) {
+      const { content } = formValues.otpConfig;
+
+      if (!content.match(/{{ code }}/g)) {
+        return Alert.error(
+          'Please add {{ code }} to OTP content to send verification code'
+        );
+      }
+    }
 
     this.props.handleUpdate(formValues);
   };
