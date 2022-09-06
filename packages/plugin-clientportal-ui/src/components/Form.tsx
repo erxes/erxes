@@ -50,8 +50,6 @@ class Form extends React.Component<Props, State> {
     e.preventDefault();
     const { formValues } = this.state;
 
-    console.log('formValues', formValues);
-
     if (!formValues.name) {
       return Alert.error('Please enter a client portal name');
     }
