@@ -35,6 +35,28 @@ const ForumPost: IObjectTypeResolver<IPost, IContext> = {
   },
   async commentCount({ _id }, _, { models: { Comment } }) {
     return (await Comment.countDocuments({ postId: _id })) || 0;
+  },
+
+  async upVoteCount({ _id }, _, { models: { PostUpVote } }) {
+    return PostUpVote.countDocuments({ contentId: _id });
+  },
+  async downVoteCount({ _id }, _, { models: { PostDownVote } }) {
+    return PostDownVote.countDocuments({ contentId: _id });
+  },
+
+  async upVotes({ _id }, _, { models: { PostUpVote } }) {
+    const upVotes = await PostUpVote.find({ contentId: _id }).lean();
+    return upVotes.map(v => ({
+      __typename: 'ClientPortalUser',
+      _id: v.userId
+    }));
+  },
+  async downVotes({ _id }, _, { models: { PostDownVote } }) {
+    const downVotes = await PostDownVote.find({ contentId: _id }).lean();
+    return downVotes.map(v => ({
+      __typename: 'ClientPortalUser',
+      _id: v.userId
+    }));
   }
 };
 

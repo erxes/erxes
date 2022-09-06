@@ -40,5 +40,11 @@ export default `
     
     categoryId: ID!
     category: ForumCategory
+
+    upVoteCount: Int
+    downVoteCount: Int
+
+    upVotes: [ClientPortalUser]
+    downVotes: [ClientPortalUser]
   }
 `;

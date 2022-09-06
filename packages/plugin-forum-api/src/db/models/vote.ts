@@ -10,36 +10,36 @@ interface IVote {
 export type VoteDocument = IVote & Document;
 export type VoteModel = Model<VoteDocument>;
 
-export const voteSchema = new Schema<VoteDocument>(
-  {
-    contentId: Types.ObjectId,
-    userId: String
-  },
-  {
-    _id: false,
-    id: false
-  }
-);
+export const voteSchema = new Schema<VoteDocument>({
+  contentId: Types.ObjectId,
+  userId: String
+});
 voteSchema.index({ contentId: 1, userId: 1 }, { unique: true });
 
-type VoteModels =
-  | 'PostUpVote'
-  | 'CommentUpVote'
-  | 'PostDownVote'
-  | 'CommentDownVote';
+type VoteModels = keyof Pick<
+  IModels,
+  'PostUpVote' | 'CommentUpVote' | 'PostDownVote' | 'CommentDownVote'
+>;
 
-const vote = (Insert: VoteModels, Delete: VoteModels) => async (
+const vote = (ToInsert: VoteModels, ToDelete: VoteModels) => async (
   models: IModels,
   contentId: string,
   cpUser?: ICpUser
 ) => {
   if (!cpUser) throw new Error(`Unauthorized`);
   const doc: IVote = {
-    contentId: Types.ObjectId(contentId),
+    contentId: contentId,
     userId: cpUser.userId
   };
-  await models[Insert].update(doc, doc, { upsert: true });
-  await models[Delete].deleteMany(doc);
+
+  try {
+    await models[ToInsert].create(doc);
+  } catch (e) {
+    if (e.code != 11000) {
+      throw e;
+    }
+  }
+  await models[ToDelete].deleteMany(doc);
 };
 
 export const postUpVote = vote('PostUpVote', 'PostDownVote');
@@ -47,7 +47,7 @@ export const postDownVote = vote('PostDownVote', 'PostUpVote');
 export const commentUpVote = vote('CommentUpVote', 'CommentDownVote');
 export const commentDownVote = vote('CommentDownVote', 'CommentUpVote');
 
-export const generateCommentModel = (
+export const generateVoteModels = (
   subdomain: string,
   con: Connection,
   models: IModels
