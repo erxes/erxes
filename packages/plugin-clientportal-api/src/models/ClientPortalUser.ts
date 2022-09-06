@@ -16,6 +16,7 @@ import {
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
+import { DEFAULT_MAIL_CONFIG } from './definitions/constants';
 import { handleContacts, putActivityLog } from './utils';
 
 const SALT_WORK_FACTOR = 10;
@@ -716,7 +717,14 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
-      const content = `Here is your verification link: ${clientPortal.url}/verify?token=${token}  Please click on the link to verify your account. Your password is: ${plainPassword}. Please change your password after you login.`;
+      const config = clientPortal.mailConfig || {
+        invitationContent: DEFAULT_MAIL_CONFIG.INVITE
+      };
+
+      const link = `${clientPortal.domain}/register?token=${token}`;
+
+      let content = config.invitationContent.replace(/{{ link }}/, link);
+      content = content.replace(/{{ password }}/, plainPassword);
 
       await sendCoreMessage({
         subdomain,
