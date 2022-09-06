@@ -67,8 +67,6 @@ class MeasureForm extends React.Component<Props, State> {
       return options;
     };
 
-    console.log(schemaType, '123');
-
     return (
       <FormGroup>
         <ControlLabel>Measure</ControlLabel>
