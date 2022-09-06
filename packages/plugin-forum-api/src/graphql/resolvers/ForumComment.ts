@@ -20,6 +20,29 @@ const ForumComment: IObjectTypeResolver<IComment, IContext> = {
     return (
       createdByCpId && { __typename: 'ClientPortalUser', _id: createdByCpId }
     );
+  },
+
+  async upVoteCount({ _id }, _, { models: { CommentUpVote } }) {
+    return CommentUpVote.countDocuments({ contentId: _id });
+  },
+  async downVoteCount({ _id }, _, { models: { CommentDownVote } }) {
+    return CommentDownVote.countDocuments({ contentId: _id });
+  },
+
+  async upVotes({ _id }, _, { models: { CommentUpVote } }) {
+    const upVotes = await CommentUpVote.find({ contentId: _id }).lean();
+    console.log({ upVotes });
+    return upVotes.map(v => ({
+      __typename: 'ClientPortalUser',
+      _id: v.userId
+    }));
+  },
+  async downVotes({ _id }, _, { models: { CommentDownVote } }) {
+    const downVotes = await CommentDownVote.find({ contentId: _id }).lean();
+    return downVotes.map(v => ({
+      __typename: 'ClientPortalUser',
+      _id: v.userId
+    }));
   }
 };
 

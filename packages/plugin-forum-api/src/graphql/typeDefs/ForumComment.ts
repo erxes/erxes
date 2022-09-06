@@ -16,5 +16,11 @@ export default `
     post: ForumPost!
     replyTo: ForumComment
     replies: [ForumComment!]
+
+    upVoteCount: Int
+    downVoteCount: Int
+
+    upVotes: [ClientPortalUser]
+    downVotes: [ClientPortalUser]
   }
 `;

@@ -17,11 +17,11 @@ const voteMutations: IObjectTypeResolver<any, IContext> = {
     return true;
   },
   async forumUpVoteCommentCp(_, args, { models, cpUser }) {
-    await commentUpVote(models, args.postId, cpUser);
+    await commentUpVote(models, args.commentId, cpUser);
     return true;
   },
   async forumDownVoteCommentCp(_, args, { models, cpUser }) {
-    await commentDownVote(models, args.postId, cpUser);
+    await commentDownVote(models, args.commentId, cpUser);
     return true;
   }
 };
