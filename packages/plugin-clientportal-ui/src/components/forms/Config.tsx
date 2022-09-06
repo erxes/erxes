@@ -31,7 +31,6 @@ function General({
   googleCredentials,
   otpConfig,
   mailConfig,
-  url,
   name,
   handleFormChange
 }: Props) {
@@ -46,10 +45,24 @@ function General({
   const onChangeToggle = (name: string, value: boolean) => {
     if (name === 'otpEnabled') {
       setOtpEnabled(value);
+
+      if (!value) {
+        handleFormChange('otpConfig', null);
+      } else {
+        handleFormChange('otpConfig', {
+          smsTransporterType: '',
+          codeLength: 4,
+          content: 'Your verification code is {{code}}'
+        });
+      }
     }
 
     if (name === 'mailEnabled') {
       setMailEnabled(value);
+
+      if (!value) {
+        handleFormChange('mailConfig', null);
+      }
     }
   };
 
@@ -186,8 +199,8 @@ function General({
 
   const renderMailConfig = () => {
     let obj = mailConfig || {
-      registrationContent: `Hello <br /><br />Your verification link is {{link}}.<br /><br />Thanks,<br />${name}`,
-      invitationContent: `Hello <br /><br />Your verification link is {{link}}.<br />  Your password is: {{password}} . Please change your password after you login. <br /><br />Thanks,<br />${name}`,
+      registrationContent: `Hello <br /><br />Your verification link is {{link}}.<br /><br />Thanks<br />${name}`,
+      invitationContent: `Hello <br /><br />Your verification link is {{link}}.<br />  Your password is: {{password}} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
       subject: `${name} - invitation`
     };
 
@@ -205,8 +218,6 @@ function General({
         obj.registrationContent = value;
       } else {
         obj.invitationContent = value;
-
-        // console.log('invitationContent', invitationContent.match(/{{ link }}|{{ password }}/g));
       }
 
       handleFormChange('mailConfig', obj);
@@ -214,13 +225,13 @@ function General({
 
     return (
       <CollapseContent
-        title={__('Invitation Mail Config')}
+        title={__('Confirmation mail settings')}
         compact={true}
         open={false}
       >
         <ToggleWrap>
           <FormGroup>
-            <ControlLabel>Enable config</ControlLabel>
+            <ControlLabel>Enable mail config</ControlLabel>
             <Toggle
               checked={mailEnabled}
               onChange={() => onChangeToggle('mailEnabled', !mailEnabled)}

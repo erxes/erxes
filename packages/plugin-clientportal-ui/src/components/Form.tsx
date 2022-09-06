@@ -32,12 +32,8 @@ class Form extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const formValues = this.cleanValues(
-      props.defaultConfigValues || ({} as ClientPortalConfig)
-    );
-
     this.state = {
-      formValues
+      formValues: props.defaultConfigValues || ({} as ClientPortalConfig)
     };
   }
 
@@ -46,28 +42,15 @@ class Form extends React.Component<Props, State> {
       this.props.defaultConfigValues &&
       nextProps.defaultConfigValues !== this.props.defaultConfigValues
     ) {
-      const formValues = this.cleanValues(
-        nextProps.defaultConfigValues || ({} as ClientPortalConfig)
-      );
-      this.setState({ formValues });
+      this.setState({ formValues: nextProps.defaultConfigValues });
     }
   }
-
-  cleanValues = (values: ClientPortalConfig) => {
-    const { __typename = '', ...otp }: any = values.otpConfig || {
-      smsTransporterType: '',
-      codeLength: 4,
-      content: 'Your verification code is {{code}}'
-    };
-
-    values.otpConfig = otp;
-
-    return values;
-  };
-
+  s;
   handleSubmit = e => {
     e.preventDefault();
     const { formValues } = this.state;
+
+    console.log('formValues', formValues);
 
     if (!formValues.name) {
       return Alert.error('Please enter a client portal name');

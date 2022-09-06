@@ -12,7 +12,7 @@ export const USER_LOGIN_TYPES = {
 
 export const DEFAULT_MAIL_CONFIG = {
   INVITE:
-    'Here is your verification link: {{ link }} </br> Please click on the link to verify your account. Your password is: {{ password }} </br> Please change your password after you login.`',
+    'Here is your verification link: {{ link }} <br /> Please click on the link to verify your account. Your password is: {{ password }} <br /> Please change your password after you login.`',
   REGISTER:
-    'Here is your verification link: {{ link }} </br> Please click on the link to verify your account.'
+    'Here is your verification link: {{ link }} <br /> Please click on the link to verify your account.'
 };
