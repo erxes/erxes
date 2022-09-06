@@ -61,6 +61,9 @@ export const FORUM_POSTS_QUERY = gql`
       updatedAt
       commentCount
 
+      upVoteCount
+      downVoteCount
+
       createdUserType
       createdBy {
         _id
@@ -127,6 +130,9 @@ export const FORUM_POST_DETAIL = gql`
       stateChangedAt
       commentCount
 
+      upVoteCount
+      downVoteCount
+
       createdUserType
       createdBy {
         _id
@@ -187,6 +193,9 @@ export const FORUM_COMMENTS = gql`
       postId
       replyToId
       updatedAt
+
+      upVoteCount
+      downVoteCount
 
       createdBy {
         _id

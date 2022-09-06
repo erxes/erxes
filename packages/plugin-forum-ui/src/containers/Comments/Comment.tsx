@@ -43,7 +43,12 @@ const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
 
   return (
     <div style={{ border: '1px solid grey', padding: 10 }}>
-      <b>{createdByDisplayName}</b>
+      <div>
+        <b>{createdByDisplayName}</b>{' '}
+        <span>
+          Up votes: {comment.upVoteCount}. Down votes {comment.downVoteCount}
+        </span>
+      </div>
       <p style={{ whiteSpace: 'pre' }}>{comment.content}</p>
       {showReplyForm && (
         <button onClick={() => setShowReplyForm(false)}>Cancel</button>

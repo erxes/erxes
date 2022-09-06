@@ -147,6 +147,12 @@ const PostDetail: React.FC = () => {
               ></div>
             </td>
           </tr>
+          <tr>
+            <th>Up vote count:</th>
+            <td>{forumPost.upVoteCount}</td>
+            <th>Down vote count:</th>
+            <td>{forumPost.downVoteCount}</td>
+          </tr>
         </tbody>
       </table>
       <hr />
