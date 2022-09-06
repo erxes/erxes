@@ -1,5 +1,7 @@
+const { tableSchema } = require('../tablePrefix');
+
 cube(`PipelineLabels`, {
-  sql: `SELECT * FROM erxes.pipeline_labels`,
+  sql: `SELECT * FROM ${tableSchema()}.pipeline_labels`,
 
   preAggregations: {
     // Pre-Aggregations definitions go here

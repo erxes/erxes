@@ -1,5 +1,7 @@
+const { tableSchema } = require('../tablePrefix');
+
 cube(`DealsProductsdata`, {
-  sql: `SELECT * FROM erxes.\`deals_productsData\``,
+  sql: `SELECT * FROM ${tableSchema()}.\`deals_productsData\``,
 
   joins: {
     Deals: {
@@ -37,10 +39,6 @@ cube(`DealsProductsdata`, {
       sql: `${CUBE}.\`productsData.discount\``,
       type: `sum`,
       title: `Discount sum`
-    },
-
-    count: {
-      type: `count`
     }
   },
 

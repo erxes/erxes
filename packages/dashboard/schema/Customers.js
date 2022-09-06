@@ -1,5 +1,7 @@
+const { tableSchema } = require('../tablePrefix');
+
 cube(`Customers`, {
-  sql: `SELECT * FROM erxes.customers`,
+  sql: `SELECT * FROM ${tableSchema()}.customers`,
 
   joins: {
     Integrations: {

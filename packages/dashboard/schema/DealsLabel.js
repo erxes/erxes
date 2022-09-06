@@ -1,5 +1,7 @@
+const { tableSchema } = require('../tablePrefix');
+
 cube(`DealsLabel`, {
-  sql: `SELECT * FROM erxes.\`deals_labelIds\``,
+  sql: `SELECT * FROM ${tableSchema()}.\`deals_labelIds\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
