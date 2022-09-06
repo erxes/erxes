@@ -103,7 +103,9 @@ const dashBoardQueries = {
       'ConversationsTag',
       'PipelineLabels',
       'TasksLabel',
-      'TicketsLabel'
+      'TicketsLabel',
+      'Products',
+      'ProductsTag'
     ];
   },
 

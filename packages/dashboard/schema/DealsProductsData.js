@@ -13,26 +13,34 @@ cube(`DealsProductsdata`, {
     Pipelines: {
       sql: `${Stages}.pipelineId = ${Pipelines}._id`,
       relationship: `belongsTo`
+    },
+    Products: {
+      sql: `${CUBE}.\`productsData.productId\` = ${Products}._id`,
+      relationship: `belongsTo`
     }
   },
 
   measures: {
-    productsdataAmountSum: {
+    productAmountSum: {
       sql: `${CUBE}.\`productsData.amount\``,
       type: `sum`,
       title: `Amount sum`
     },
 
-    productsdataAmountAvg: {
+    productAmountAvg: {
       sql: `${CUBE}.\`productsData.amount\``,
       type: `avg`,
       title: `Amount avarage`
     },
 
-    productsdataDiscountSum: {
+    productDiscountSum: {
       sql: `${CUBE}.\`productsData.discount\``,
       type: `sum`,
       title: `Discount sum`
+    },
+
+    count: {
+      type: `count`
     }
   },
 
@@ -42,18 +50,17 @@ cube(`DealsProductsdata`, {
       type: `string`,
       primaryKey: true
     },
-
-    productsdataProductid: {
-      sql: `${CUBE}.\`productsData.productId\``,
+    // .\`productsData.productId\`
+    productsdataProduct: {
+      sql: `${Products}.name`,
       type: `string`,
-      title: `Productsdata.productid`,
-      shown: false
+      title: `Name`
     },
 
     productsdataAmount: {
       sql: `${CUBE}.\`productsData.amount\``,
       type: `string`,
-      title: `Productsdata.amount`,
+      title: `amount`,
       shown: false
     },
 

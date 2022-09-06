@@ -5,13 +5,22 @@ cube(`Deals`, {
     Stages: {
       sql: `${CUBE}.stageId = ${Stages}._id`,
       relationship: `belongsTo`
+    },
+
+    DealsLabel: {
+      sql: `${CUBE}._id= ${DealsLabel}._id`,
+      relationship: `belongsTo`
+    },
+
+    DealsProductsdata: {
+      sql: `${CUBE}._id= ${DealsProductsdata}._id`,
+      relationship: `belongsTo`
     }
   },
 
   measures: {
     count: {
-      type: `count`,
-      drillMembers: [initialstageid, name, stageid, createdat, closedate]
+      type: `count`
     }
   },
 
@@ -86,10 +95,5 @@ cube(`Deals`, {
       type: `string`,
       shown: false
     }
-
-    // tag: {
-    //   sql: `${CUBE}.\`tagIds\``,
-    //   type: `string`
-    // }
   }
 });

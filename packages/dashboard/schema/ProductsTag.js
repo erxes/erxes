@@ -1,5 +1,5 @@
-cube(`DealsLabel`, {
-  sql: `SELECT * FROM erxes.\`deals_labelIds\``,
+cube(`ProductsTag`, {
+  sql: `SELECT * FROM erxes.\`products_tagIds\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -7,8 +7,8 @@ cube(`DealsLabel`, {
   },
 
   joins: {
-    PipelineLabels: {
-      sql: `CONCAT(${CUBE}.labelIds)= ${PipelineLabels}._id`,
+    Tags: {
+      sql: `CONCAT(${CUBE}.tagIds)= ${Tags}._id`,
       relationship: `belongsTo`
     }
   },
@@ -26,8 +26,8 @@ cube(`DealsLabel`, {
       primaryKey: true
     },
 
-    name: {
-      sql: `${PipelineLabels.name}`,
+    tag: {
+      sql: `${Tags.name}`,
       type: `string`
     }
   },
