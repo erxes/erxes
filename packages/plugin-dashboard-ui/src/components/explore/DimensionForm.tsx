@@ -21,7 +21,7 @@ class DimensionForm extends React.Component<Props, State> {
       schemaType
     } = this.props;
 
-    const onChangeMeasure = (index, m) => {
+    const onChangeDimension = (index, m) => {
       const dimension = dimensions[index];
 
       if (!m) {
@@ -37,7 +37,7 @@ class DimensionForm extends React.Component<Props, State> {
       updateDimensions.add(value);
     };
 
-    const renderMeasureValue = index => {
+    const renderDimensionValue = index => {
       if (dimensions.length > 0) {
         const value = { ...dimensions[index] } as any;
         delete value.index;
@@ -73,8 +73,8 @@ class DimensionForm extends React.Component<Props, State> {
             <FormGroup key={Math.random()}>
               <Select
                 options={generateOptions()}
-                value={renderMeasureValue(dimension.index)}
-                onChange={m => onChangeMeasure(dimension.index, m)}
+                value={renderDimensionValue(dimension.index)}
+                onChange={m => onChangeDimension(dimension.index, m)}
                 placeholder={__('Choose dimension')}
               />
             </FormGroup>
@@ -84,8 +84,8 @@ class DimensionForm extends React.Component<Props, State> {
         <Select
           options={generateOptions()}
           value={''}
-          onChange={m => onChangeMeasure(100, m)}
-          placeholder={__(`Choose Measure`)}
+          onChange={m => onChangeDimension(100, m)}
+          placeholder={__(`Choose Dimension`)}
         />
       </FormGroup>
     );
