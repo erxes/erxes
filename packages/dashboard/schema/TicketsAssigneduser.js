@@ -15,12 +15,7 @@ cube(`TicketsAssigneduser`, {
     }
   },
 
-  measures: {
-    count: {
-      type: `count`,
-      drillMembers: [assigneduserids]
-    }
-  },
+  measures: {},
 
   dimensions: {
     _id: {

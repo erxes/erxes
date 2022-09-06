@@ -15,11 +15,7 @@ cube(`TicketsLabel`, {
     }
   },
 
-  measures: {
-    count: {
-      type: `count`
-    }
-  },
+  measures: {},
 
   dimensions: {
     _id: {
