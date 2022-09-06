@@ -5,7 +5,10 @@ import {
   IChat,
   IChatMessage,
   IChatDocument,
-  IChatMessageDocument
+  IChatMessageDocument,
+  IUserStatusDocument,
+  IUserStatus,
+  userStatusSchema
 } from './definitions/chat';
 
 export interface IChatModel extends Model<IChatDocument> {
@@ -97,4 +100,45 @@ export const loadChatMessageClass = models => {
   chatMessageSchema.loadClass(ChatMessage);
 
   return chatMessageSchema;
+};
+
+export interface IUserStatusModel extends Model<IUserStatusDocument> {
+  getChat(_id: string);
+  createUserStatus(doc: IUserStatus): Promise<IUserStatusDocument>;
+  updateChat(_id: string, doc: IUserStatus);
+}
+export const loadUserStatusClass = models => {
+  class UserStatus {
+    /*
+     * Get a UserStatus
+     */
+    public static async getChatUserStatus(_id: string) {
+      const chat = await models.UserStatus.findOne({ _id });
+
+      if (!chat) {
+        throw new Error('UserStatus not found');
+      }
+
+      return chat;
+    }
+
+    public static async createUserStatus(doc: IUserStatus) {
+      return await models.UserStatus.create({
+        ...doc
+      });
+    }
+
+    public static async updateUserStatusByUserId(
+      userId: string,
+      doc: IUserStatus
+    ) {
+      await models.UserStatus.updateOne({ userId }, { $set: doc });
+
+      return models.UserStatus.findOne({ userId });
+    }
+  }
+
+  userStatusSchema.loadClass(UserStatus);
+
+  return userStatusSchema;
 };

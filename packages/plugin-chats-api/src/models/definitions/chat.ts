@@ -84,3 +84,21 @@ export const chatSchema = schemaHooksWrapper(
   }),
   'erxes_chat'
 );
+
+export interface IUserStatus {
+  onlineDate?: Date;
+  userId: string;
+}
+
+export interface IUserStatusDocument extends IUserStatus, Document {
+  _id: String;
+}
+
+export const userStatusSchema = schemaHooksWrapper(
+  new Schema({
+    _id: field({ pkey: true }),
+    userId: field({ type: String, label: 'User id' }),
+    onlineDate: field({ type: String, label: 'Last Online Date' })
+  }),
+  'erxes_chatUserStatus'
+);

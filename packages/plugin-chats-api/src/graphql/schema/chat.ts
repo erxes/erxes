@@ -73,6 +73,12 @@ export const types = () => `
     totalCount: Int
   }
 
+  type UserStatus {
+    _id: String!
+    onlineDate: Date
+    userId: String
+  }
+  
   enum ChatType {
     direct
     group
@@ -101,6 +107,8 @@ export const queries = `
   chatMessages(chatId: String, isPinned: Boolean, ${paginationParams}): ChatMessageResponse
   chatMessageDetail(_id : String) : ChatMessage
   getChatIdByUserIds(userIds: [String]): String
+  isChatUserOnline(userIds:[String]): [UserStatus]
+  activeMe(userId:String!):UserStatus
 `;
 
 export const mutations = `
