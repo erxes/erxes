@@ -1,5 +1,3 @@
-import { IField } from '@erxes/ui/src/types';
-
 import { LogicParams } from './types';
 
 const updateCustomFieldsCache = ({
@@ -49,57 +47,6 @@ const updateCustomFieldsCache = ({
   localStorage.setItem(storageKey, JSON.stringify(items));
 };
 
-const applyLogics = (
-  currentField: IField,
-  fields: IField[],
-  doc: any,
-  data: any
-) => {
-  const logics: LogicParams[] = (currentField.logics || []).map(logic => {
-    let { fieldId = '' } = logic;
-
-    if (fieldId.includes('customFieldsData')) {
-      fieldId = fieldId.split('.')[1];
-
-      return {
-        fieldId,
-        operator: logic.logicOperator,
-        validation: fields.find(e => e._id === fieldId)?.validation,
-        logicValue: logic.logicValue,
-        fieldValue: data[fieldId],
-        type: currentField.type
-      };
-    }
-
-    return {
-      fieldId,
-      operator: logic.logicOperator,
-      logicValue: logic.logicValue,
-      fieldValue: doc[logic.fieldId || ''],
-      validation: fields.find(e => e._id === fieldId)?.validation,
-      type: currentField.type
-    };
-  });
-
-  const isLogicsFulfilled = checkLogic(logics);
-
-  if (currentField.logicAction && currentField.logicAction === 'show') {
-    if (!isLogicsFulfilled) {
-      return null;
-    }
-
-    return true;
-  }
-
-  if (currentField.logicAction && currentField.logicAction === 'hide') {
-    if (isLogicsFulfilled) {
-      return null;
-    }
-
-    return true;
-  }
-};
-
 const checkLogic = (logics: LogicParams[]) => {
   const values: { [key: string]: boolean } = {};
 
@@ -107,8 +54,8 @@ const checkLogic = (logics: LogicParams[]) => {
     const {
       fieldId,
       operator,
-      logicValue = '',
-      fieldValue = '',
+      logicValue,
+      fieldValue,
       validation,
       type
     } = logic;
@@ -270,4 +217,4 @@ const checkLogic = (logics: LogicParams[]) => {
   return false;
 };
 
-export { updateCustomFieldsCache, applyLogics };
+export { updateCustomFieldsCache, checkLogic };

@@ -39,6 +39,12 @@ const commonFields = `
       fullName
     }
   }
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
 `;
 
 const commonFieldsGroups = `
