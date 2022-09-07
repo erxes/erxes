@@ -27,8 +27,6 @@ const showOptions = [
 function FieldLogics(props: Props) {
   const { fields, onLogicsChange, onActionChange } = props;
 
-  console.log('action ', props.action);
-
   const [logics, setLogics] = useState(
     (props.logics || []).map(
       ({ fieldId, tempFieldId, logicOperator, logicValue }) => {
