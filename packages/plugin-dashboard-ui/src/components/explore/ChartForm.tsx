@@ -212,22 +212,17 @@ class ChartForm extends React.Component<Props, State> {
                           {__('Type')}
                         </ControlLabel>
 
-                        <FormControl
-                          componentClass="select"
-                          value={type}
-                          onChange={(e: any) => this.setType(e.target.value)}
-                        >
-                          <option key={''} value={''}>
-                            {'Select Type'}
-                          </option>
-                          {schemaTypes.map(schemaType => {
-                            return (
-                              <option key={Math.random()} value={schemaType}>
-                                {schemaType}
-                              </option>
-                            );
+                        <Select
+                          options={schemaTypes.map(schemaType => {
+                            return {
+                              label: schemaType,
+                              value: schemaType
+                            };
                           })}
-                        </FormControl>
+                          value={type}
+                          onChange={m => this.setType(m.value)}
+                          placeholder={__(`Choose Type`)}
+                        />
                       </FormGroup>
                       <MeasureForm
                         schemaType={type}
