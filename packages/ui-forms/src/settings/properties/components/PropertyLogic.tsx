@@ -59,8 +59,6 @@ function PropertyLogic(props: Props) {
       index
     );
 
-    console.log('onChangeFieldId', value);
-
     const operators = getOperatorOptions();
     onChangeLogic('logicOperator', operators[1].value, index);
   };
@@ -83,8 +81,6 @@ function PropertyLogic(props: Props) {
 
   const renderLogicValue = () => {
     const selectedField = getSelectedField();
-
-    console.log('selectedField', selectedField);
 
     if (selectedField) {
       if (
