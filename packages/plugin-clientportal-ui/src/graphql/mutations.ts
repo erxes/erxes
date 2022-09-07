@@ -33,6 +33,7 @@ const createOrUpdateConfig = `
     $ticketToggle: Boolean
     $taskToggle: Boolean
     $otpConfig: OTPConfigInput
+    $mailConfig: MailConfigInput
   ) {
     clientPortalConfigUpdate(
       _id: $_id,
@@ -66,6 +67,7 @@ const createOrUpdateConfig = `
       ticketToggle: $ticketToggle,
       taskToggle: $taskToggle,
       otpConfig: $otpConfig
+      mailConfig: $mailConfig
     ) {
       ${commonFields}
     }
