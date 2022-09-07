@@ -27,6 +27,8 @@ const showOptions = [
 function FieldLogics(props: Props) {
   const { fields, onLogicsChange, onActionChange } = props;
 
+  console.log('action ', props.action);
+
   const [logics, setLogics] = useState(
     (props.logics || []).map(
       ({ fieldId, tempFieldId, logicOperator, logicValue }) => {
@@ -50,7 +52,6 @@ function FieldLogics(props: Props) {
 
   const onChangeLogic = (name, value, index) => {
     // find current editing one
-    // console.log('onChangeLogic', name ,'-', value,'-', index);
     const currentLogic = logics.find((l, i) => i === index);
 
     // set new value
@@ -91,7 +92,7 @@ function FieldLogics(props: Props) {
           <FormGroup>
             <FormControl
               componentClass="select"
-              defaultValue={props.action}
+              value={props.action}
               name="logicAction"
               options={showOptions}
               onChange={(e: any) => {

@@ -1,13 +1,21 @@
-import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import {
+  IButtonMutateProps,
+  IFieldLogic,
+  IFormProps
+} from '@erxes/ui/src/types';
+import { __ } from '@erxes/ui/src/utils';
+import { RenderDynamicComponent } from '@erxes/ui/src/utils/core';
 import React from 'react';
+
+import PropertyLogics from '../containers/PropertyLogics';
 import { IFieldGroup } from '../types';
 
 type Props = {
@@ -21,6 +29,8 @@ type State = {
   isVisible: boolean;
   isVisibleInDetail: boolean;
   config: any;
+  logics?: IFieldLogic[];
+  logicAction?: string;
 };
 class PropertyGroupForm extends React.Component<Props, State> {
   constructor(props) {
@@ -39,7 +49,9 @@ class PropertyGroupForm extends React.Component<Props, State> {
     this.state = {
       config,
       isVisible,
-      isVisibleInDetail
+      isVisibleInDetail,
+      logics: props.group && props.group.logics ? props.group.logics : [],
+      logicAction: props.group && props.group.logicAction
     };
   }
 
@@ -47,10 +59,14 @@ class PropertyGroupForm extends React.Component<Props, State> {
     _id?: string;
     name: string;
     description: string;
+    logicAction: string;
+    logics: IFieldLogic[];
   }) => {
     const { group, type } = this.props;
     const finalValues = values;
     const config = this.state.config;
+
+    const { logicAction, logics } = this.state;
 
     if (group) {
       finalValues._id = group._id;
@@ -61,7 +77,9 @@ class PropertyGroupForm extends React.Component<Props, State> {
       contentType: type,
       isVisible: this.state.isVisible,
       isVisibleInDetail: this.state.isVisibleInDetail,
-      config
+      config,
+      logicAction,
+      logics
     };
   };
 
@@ -125,6 +143,14 @@ class PropertyGroupForm extends React.Component<Props, State> {
 
   onChangeItems = boardsPipelines => {
     this.setState({ config: { boardsPipelines } });
+  };
+
+  onChangeLogicAction = value => {
+    this.setState({ logicAction: value });
+  };
+
+  onChangeLogics = logics => {
+    this.setState({ logics });
   };
 
   renderExtraContent() {
@@ -194,6 +220,16 @@ class PropertyGroupForm extends React.Component<Props, State> {
         ) : (
           <></>
         )}
+
+        <CollapseContent title={__('Logic')} compact={true}>
+          <PropertyLogics
+            contentType={this.props.type}
+            logics={this.state.logics || []}
+            action={this.state.logicAction || 'show'}
+            onLogicsChange={this.onChangeLogics}
+            onActionChange={this.onChangeLogicAction}
+          />
+        </CollapseContent>
 
         <ModalFooter>
           <Button btnStyle="simple" onClick={closeModal} icon="times-circle">

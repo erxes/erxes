@@ -119,7 +119,8 @@ class PropertyForm extends React.Component<Props, State> {
       ...doc,
       currentLocation: { lat: 0, lng: 0 },
       add: false,
-      logics: props.field && props.field.logics ? props.field.logics : []
+      logics: props.field && props.field.logics ? props.field.logics : [],
+      logicAction: props.field && props.field.logicAction
     };
   }
 
