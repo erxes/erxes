@@ -60,7 +60,7 @@ export const afterMutationHandlers = async (subdomain, params) => {
         await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
           action: 'get-response-return-order',
           isJson: true,
-          isEbarimt: returnConfig.isEbarimt || false,
+          isEbarimt: false,
           payload: JSON.stringify(postData),
           thirdService: true
         });
@@ -78,41 +78,13 @@ export const afterMutationHandlers = async (subdomain, params) => {
       };
       const postData = await getPostData(subdomain, config, deal);
 
-      const isEbarimt = config.isEbarimt || false;
-      if (isEbarimt) {
-        const apiAutomationResponse = await sendRPCMessage(
-          'rpc_queue:erxes-automation-erkhet',
-          {
-            action: 'get-response-send-order-info',
-            isEbarimt: isEbarimt,
-            payload: JSON.stringify(postData),
-            thirdService: true
-          }
-        );
+      await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
+        action: 'get-response-send-order-info',
+        isEbarimt: false,
+        payload: JSON.stringify(postData),
+        thirdService: true
+      });
 
-        if (!apiAutomationResponse) {
-          return;
-        }
-        try {
-          await graphqlPubsub.publish('automationResponded', {
-            automationResponded: {
-              userId: user._id,
-              responseId: deal._id,
-              sessionCode: user.sessionCode || '',
-              content: { ...config, ...apiAutomationResponse }
-            }
-          });
-        } catch (e) {
-          throw new Error(e.message);
-        }
-      } else {
-        await sendCommonMessage('rpc_queue:erxes-automation-erkhet', {
-          action: 'get-response-send-order-info',
-          isEbarimt: isEbarimt,
-          payload: JSON.stringify(postData),
-          thirdService: true
-        });
-      }
       return;
     }
     return;
