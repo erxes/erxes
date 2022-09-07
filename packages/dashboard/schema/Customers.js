@@ -35,7 +35,8 @@ cube(`Customers`, {
 
     createdAt: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Created Date'
     },
 
     firstName: {
