@@ -10,7 +10,7 @@ cube(`Conversations`, {
 
   joins: {
     Users: {
-      sql: `${CUBE}.firstRespondedUserId = ${Users}._id or ${CUBE}.assignedUserId = ${Users}._id  or ${CUBE}.closedUserId = ${Users}._id or ${CUBE}.userId = ${Users}._id`,
+      sql: `${CUBE}.firstRespondedUserId = ${Users}._id or ${CUBE}.assignedUserId = ${Users}._id  or ${CUBE}.closedUserId = ${Users}._id or ${CUBE}.visitorId = ${Users}._id`,
       relationship: `belongsTo`
     },
     Customers: {
@@ -34,7 +34,8 @@ cube(`Conversations`, {
 
     messagecount: {
       sql: `${CUBE}.\`messageCount\``,
-      type: `sum`
+      type: `sum`,
+      title: 'Message Count'
     },
 
     number: {
@@ -58,7 +59,8 @@ cube(`Conversations`, {
 
     assignedUser: {
       sql: `${Users}.\`username\``,
-      type: `string`
+      type: `string`,
+      title: 'Assigned User'
     },
 
     closeduserid: {
@@ -78,7 +80,7 @@ cube(`Conversations`, {
         ],
         else: {}
       },
-      title: `Closed user`
+      title: `Closed User`
     },
 
     firstrespondeduserid: {
@@ -98,12 +100,7 @@ cube(`Conversations`, {
         ],
         else: {}
       },
-      title: `First responsed user`
-    },
-
-    content: {
-      sql: `content`,
-      type: `string`
+      title: `First Responsed User`
     },
 
     customer: {
@@ -118,7 +115,8 @@ cube(`Conversations`, {
 
     operatorstatus: {
       sql: `${CUBE}.\`operatorStatus\``,
-      type: `string`
+      type: `string`,
+      title: 'Operator Status'
     },
 
     status: {
@@ -143,32 +141,38 @@ cube(`Conversations`, {
         ],
         else: {}
       },
-      title: `User`
+      title: `User`,
+      shown: false
     },
 
-    visitorid: {
-      sql: `${CUBE}.\`visitorId\``,
-      type: `string`
+    visitor: {
+      sql: `${Users}.\`username\``,
+      type: `string`,
+      title: 'Visitors'
     },
 
     createdat: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Created Date'
     },
 
     updatedat: {
       sql: `${CUBE}.\`updatedAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Updated Date'
     },
 
     closedat: {
       sql: `${CUBE}.\`closedAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Closed Date'
     },
 
     firstrespondeddate: {
       sql: `${CUBE}.\`firstRespondedDate\``,
-      type: `time`
+      type: `time`,
+      title: 'First Responded Date'
     }
   },
 

@@ -49,7 +49,7 @@ cube(`Deals`, {
     stageName: {
       sql: `${Stages}.name`,
       type: `string`,
-      title: `Stage name`
+      title: `Stage Name`
     },
 
     stageProbability: {
@@ -68,7 +68,7 @@ cube(`Deals`, {
     pipelineName: {
       sql: `${Stages.pipelineName}`,
       type: `string`,
-      title: `Pipeline name`
+      title: `Pipeline Name`
     },
 
     stageid: {
@@ -85,13 +85,13 @@ cube(`Deals`, {
     createdat: {
       sql: `${CUBE}.\`createdAt\``,
       type: `time`,
-      title: 'Created date'
+      title: 'Created Date'
     },
 
     closedate: {
       sql: `${CUBE}.\`closeDate\``,
       type: `time`,
-      title: 'Closed date'
+      title: 'Closed Date'
     },
 
     modifiedby: {

@@ -38,17 +38,21 @@ cube(`Tickets`, {
 
     description: {
       sql: `description`,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     initialstageid: {
       sql: `${CUBE}.\`initialStageId\``,
-      type: `string`
+      type: `string`,
+      title: 'Initial Stage',
+      shown: false
     },
 
     modifiedby: {
       sql: `${CUBE}.\`modifiedBy\``,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     name: {
@@ -59,12 +63,13 @@ cube(`Tickets`, {
     stageName: {
       sql: `${Stages}.name`,
       type: `string`,
-      title: `Stage name`
+      title: `Stage Name`
     },
 
     number: {
       sql: `number`,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     priority: {
@@ -85,7 +90,8 @@ cube(`Tickets`, {
 
     sourceconversationid: {
       sql: `${CUBE}.\`sourceConversationId\``,
-      type: `string`
+      type: `string`,
+      title: 'Source Conversation'
     },
 
     stageProbability: {
@@ -121,7 +127,8 @@ cube(`Tickets`, {
 
     createdat: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Created Date'
     }
   },
 
