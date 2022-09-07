@@ -167,7 +167,8 @@ module.exports.startServices = async configs => {
     RABBITMQ_HOST,
     REDIS_HOST,
     REDIS_PORT,
-    REDIS_PASSWORD
+    REDIS_PASSWORD,
+    REDIS_DB
   } = configs || {};
 
   const optionalDbConfigs = {};
@@ -180,6 +181,7 @@ module.exports.startServices = async configs => {
     optionalDbConfigs.REDIS_HOST = REDIS_HOST;
     optionalDbConfigs.REDIS_PORT = REDIS_PORT;
     optionalDbConfigs.REDIS_PASSWORD = REDIS_PASSWORD;
+    optionalDbConfigs.REDIS_DB = REDIS_DB;
   }
 
   const generateMongoUrl = dbName => {
@@ -353,7 +355,8 @@ module.exports.startServices = async configs => {
         SCHEMA_PATH: dasbhoardSchemaPath,
         REDIS_URL: `redis://${REDIS_HOST}:${REDIS_PORT ||
           6379}?password=${REDIS_PASSWORD || ''}`,
-        REDIS_PASSWORD: REDIS_PASSWORD
+        REDIS_PASSWORD: REDIS_PASSWORD,
+        REDIS_DB: REDIS_DB
       }
     });
 

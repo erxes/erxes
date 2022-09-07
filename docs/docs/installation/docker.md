@@ -213,6 +213,7 @@ services:
       REDIS_HOST: 'redis'
       REDIS_PORT: '6379'
       REDIS_PASSWORD: 'erxes'
+      REDIS_DB: '0'
       # RabbitMQ
       RABBITMQ_HOST: 'amqp://rabbitmq:5672/erxes'
       JWT_TOKEN_SECRET: 'erxes'
@@ -269,6 +270,7 @@ services:
       REDIS_HOST: 'redis'
       REDIS_PORT: '6379'
       REDIS_PASSWORD: 'erxes'
+      REDIS_DB: '0'
       JWT_TOKEN_SECRET: 'erxes'
       # RabbitMQ
       RABBITMQ_HOST: 'amqp://rabbitmq:5672/erxes'
@@ -314,6 +316,7 @@ services:
       REDIS_HOST: 'redis'
       REDIS_PORT: '6379'
       REDIS_PASSWORD: 'erxes'
+      REDIS_DB: '0'
       # Dashboard
       ENDPOINT_URL: https://enterprise.erxes.io
     ports:
@@ -351,6 +354,7 @@ services:
       REDIS_HOST: 'redis'
       REDIS_PORT: '6379'
       REDIS_PASSWORD: 'erxes'
+      REDIS_DB: '0'
       # RabbitMQ
       RABBITMQ_HOST: 'amqp://rabbitmq:5672/erxes'
     networks:
@@ -400,6 +404,7 @@ services:
       CUBEJS_API_SECRET: 'erxes'
       REDIS_URL: redis://redis:6379
       REDIS_PASSWORD: 'erxes'
+      REDIS_DB: '0'
       DB_NAME: 'erxes'
     networks:
       - erxes-net

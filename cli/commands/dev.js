@@ -44,6 +44,7 @@ module.exports.devCmd = async program => {
     REDIS_HOST: 'localhost',
     REDIS_PORT: 6379,
     REDIS_PASSWORD: configs.redis.password,
+    REDIS_DB: configs.redis.db,
     RABBITMQ_HOST: 'amqp://localhost',
     ELASTICSEARCH_URL: 'http://localhost:9200',
     ENABLED_SERVICES_PATH: filePath('enabled-services.js'),

@@ -8,12 +8,14 @@ const {
   REDIS_HOST = 'localhost',
   REDIS_PORT = 6379,
   REDIS_PASSWORD,
-  NODE_ENV
+  NODE_ENV,
+  REDIS_DB = 0
 }: {
   REDIS_HOST?: string;
   REDIS_PORT?: number;
   REDIS_PASSWORD?: string;
   NODE_ENV?: string;
+  REDIS_DB?: number;
 } = process.env;
 
 let client;
@@ -23,6 +25,7 @@ export const initRedis = (callback?: (client) => void) => {
     host: REDIS_HOST,
     port: REDIS_PORT,
     password: REDIS_PASSWORD,
+    db: REDIS_DB || 0,
     connect_timeout: 15000,
     enable_offline_queue: true,
     retry_unfulfilled_commands: true,

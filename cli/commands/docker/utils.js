@@ -38,6 +38,7 @@ const commonEnvs = configs => {
     REDIS_HOST: db_server_address || (isSwarm ? 'erxes-dbs_redis' : 'redis'),
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || '',
+    REDIS_DB: redis.db || 0,
     RABBITMQ_HOST: rabbitmq_host,
     ELASTICSEARCH_URL: `http://${db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',

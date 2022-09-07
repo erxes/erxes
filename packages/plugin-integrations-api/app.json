@@ -42,6 +42,10 @@
     "REDIS_PASSWORD": {
       "description": "REDIS_PASSWORD",
       "value": "copy and paste from erxes-api REDIS_PASSWORD config var"
+    },
+    "REDIS_DB": {
+      "description": "REDIS_DB",
+      "value": "copy and paste from erxes-api REDIS_DB config var"
     }
   },
   "addons": [
