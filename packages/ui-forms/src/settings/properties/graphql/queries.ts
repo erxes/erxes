@@ -7,6 +7,13 @@ const genericFields = `
   isVisibleInDetail
   contentType
   isDefinedByErxes
+
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
+  }
 `;
 
 const commonFields = `
@@ -38,6 +45,12 @@ const commonFields = `
     details {
       fullName
     }
+  }
+  logicAction
+  logics {
+    fieldId
+    logicOperator
+    logicValue
   }
 `;
 
