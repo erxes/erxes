@@ -29,17 +29,21 @@ cube(`Tasks`, {
 
     description: {
       sql: `description`,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     initialstageid: {
       sql: `${CUBE}.\`initialStageId\``,
-      type: `string`
+      type: `string`,
+      title: 'Initial Stage',
+      shown: false
     },
 
     modifiedby: {
       sql: `${CUBE}.\`modifiedBy\``,
-      type: `string`
+      type: `string`,
+      title: 'Modified User'
     },
 
     name: {
@@ -55,7 +59,8 @@ cube(`Tasks`, {
 
     number: {
       sql: `number`,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     priority: {
@@ -96,12 +101,15 @@ cube(`Tasks`, {
 
     createdat: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Creted Date'
     },
 
     modifiedat: {
       sql: `${CUBE}.\`modifiedAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Modified Date',
+      shown: false
     }
   },
 

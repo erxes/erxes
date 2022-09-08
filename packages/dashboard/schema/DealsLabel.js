@@ -15,11 +15,7 @@ cube(`DealsLabel`, {
     }
   },
 
-  measures: {
-    count: {
-      type: `count`
-    }
-  },
+  measures: {},
 
   dimensions: {
     _id: {

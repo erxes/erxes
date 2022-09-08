@@ -15,11 +15,7 @@ cube(`TicketsLabel`, {
     }
   },
 
-  measures: {
-    count: {
-      type: `count`
-    }
-  },
+  measures: {},
 
   dimensions: {
     _id: {
@@ -30,7 +26,8 @@ cube(`TicketsLabel`, {
 
     label: {
       sql: `${PipelineLabels.name}`,
-      type: `string`
+      type: `string`,
+      title: 'Name'
     }
   },
 

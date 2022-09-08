@@ -10,12 +10,7 @@ cube(`PipelineLabels`, {
 
   joins: {},
 
-  measures: {
-    count: {
-      type: `count`,
-      drillMembers: [createdby, name, pipelineid, createdat]
-    }
-  },
+  measures: {},
 
   dimensions: {
     _id: {

@@ -219,7 +219,8 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       if (
         field.contentType &&
         field.contentType !== 'form' &&
-        (field.type !== doc.type || field.validation !== doc.validation)
+        (field.type !== doc.type ||
+          (doc.validation && doc.validation !== field.validation))
       ) {
         const hasValue = await this.checkHasValue(_id, field.contentType);
 

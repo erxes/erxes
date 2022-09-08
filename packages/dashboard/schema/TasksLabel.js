@@ -15,12 +15,7 @@ cube(`TasksLabel`, {
     }
   },
 
-  measures: {
-    count: {
-      type: `count`
-      // drillMembers: [labelids]
-    }
-  },
+  measures: {},
 
   dimensions: {
     _id: {
@@ -31,7 +26,8 @@ cube(`TasksLabel`, {
 
     label: {
       sql: `${PipelineLabels.name}`,
-      type: `string`
+      type: `string`,
+      title: 'Name'
     }
   },
 

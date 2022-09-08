@@ -88,25 +88,7 @@ const dashBoardQueries = {
       }
     }
 
-    return [
-      'Customers',
-      'Deals',
-      'Integrations',
-      'DealsProductsdata',
-      'Conversations',
-      'Channels',
-      'Tasks',
-      'Tags',
-      'Tickets',
-      'DealsLabel',
-      'Tags',
-      'ConversationsTag',
-      'PipelineLabels',
-      'TasksLabel',
-      'TicketsLabel',
-      'Products',
-      'ProductsTag'
-    ];
+    return ['Customers', 'Deals', 'Conversations', 'Tasks', 'Tickets'];
   },
 
   async dashboardItems(
