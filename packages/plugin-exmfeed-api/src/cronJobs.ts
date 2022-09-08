@@ -1,6 +1,6 @@
 import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
-import { FEED_CONTENT_TYPES } from '../src/models/definitions/exm';
+import { FEED_CONTENT_TYPES } from './models/definitions/exm';
 import * as moment from 'moment';
 
 const getUserInfo = user => {
