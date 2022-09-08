@@ -82,7 +82,7 @@ const checkLogic = (logics: LogicParams[]) => {
 
     // if fieldValue equals logic value
     if (operator === 'is') {
-      if (logicValue.toString() === fieldValue.toString()) {
+      if ((logicValue || '').toString() === (fieldValue || '').toString()) {
         values[key] = true;
       } else {
         values[key] = false;
