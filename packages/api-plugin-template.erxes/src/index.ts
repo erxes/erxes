@@ -494,6 +494,16 @@ async function startServer() {
             data: await cronjobs.handleMinutelyJob(args)
           }));
         }
+
+        if (cronjobs.handle10MinutelyJob) {
+          cronjobs.handle10MinutelyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handle10MinutelyJob(args)
+          }));
+        }
+
         if (cronjobs.handleHourlyJob) {
           cronjobs.handleHourlyJobAvailable = true;
 
@@ -502,6 +512,7 @@ async function startServer() {
             data: await cronjobs.handleHourlyJob(args)
           }));
         }
+
         if (cronjobs.handleDailyJob) {
           cronjobs.handleDailyJobAvailable = true;
 
