@@ -449,7 +449,6 @@ const up = async ({ uis, fromInstaller }) => {
         CUBEJS_API_SECRET: dashboard.api_secret,
         REDIS_URL: `redis://${db_server_address || 'redis'}:6379`,
         REDIS_PASSWORD: configs.redis.password || '',
-        DB_NAME: db_name,
         ...(dashboard.extra_env || {})
       },
       volumes: ['./enabled-services.js:/data/enabled-services.js'],
