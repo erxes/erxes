@@ -1,4 +1,7 @@
-import { Description, Row } from '../../../styles';
+import {
+  Description,
+  Row
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ISkillDocument,
   ISkillTypesDocument
@@ -9,7 +12,7 @@ import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { ISkillData } from '../../../types';
+import { ISkillData } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import { Link } from 'react-router-dom';
 import Select from 'react-select-plus';

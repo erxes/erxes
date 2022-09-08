@@ -343,7 +343,11 @@ export const itemsEdit = async (
         title: notificationDoc?.item?.name,
         body: `${user?.details?.fullName ||
           user?.details?.shortName} has updated`,
-        receivers: notificationDoc?.item?.assignedUserIds
+        receivers: notificationDoc?.item?.assignedUserIds,
+        data: {
+          type: type,
+          id: _id
+        }
       }
     });
   }
@@ -556,7 +560,11 @@ export const itemsChange = async (
         title: `${item.name}`,
         body: `${user?.details?.fullName || user?.details?.shortName} ${action +
           content}`,
-        receivers: item?.assignedUserIds
+        receivers: item?.assignedUserIds,
+        data: {
+          type: type,
+          id: item._id
+        }
       }
     });
   }
@@ -641,7 +649,11 @@ export const itemsRemove = async (
         title: `${item.name}`,
         body: `${user?.details?.fullName ||
           user?.details?.shortName} deleted the ${type}`,
-        receivers: item?.assignedUserIds
+        receivers: item?.assignedUserIds,
+        data: {
+          type: type,
+          id: item._id
+        }
       }
     });
   }

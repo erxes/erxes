@@ -1,26 +1,28 @@
-import gql from 'graphql-tag';
+import * as React from 'react';
 import * as compose from 'lodash.flowright';
-import debounce from 'lodash/debounce';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
 import {
   EngageVerifiedEmailsQueryResponse,
   IEmailFormProps
 } from '@erxes/ui-engage/src/types';
-import { mutations, queries } from '../../graphql';
-import * as React from 'react';
-import { graphql } from 'react-apollo';
-import MailForm from '../../components/mail/MailForm';
+import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import {
   defaultCustomerFields,
   defaultMailFields,
   defaultMessageFields
 } from './constants';
+import { mutations, queries } from '../../graphql';
+
+import { IUser } from '@erxes/ui/src/auth/types';
+import MailForm from '../../components/mail/MailForm';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import debounce from 'lodash/debounce';
+import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   clearOnSubmit?: boolean;

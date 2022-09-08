@@ -212,13 +212,13 @@ class CustomerListContainer extends React.Component<FinalProps, State> {
       }
 
       columnsConfig.forEach(checked => {
-        checkedConfigs.push(checked);
+        checkedConfigs.push(checked.name);
       });
 
       const exportQuery = {
         ...queryParams,
         type,
-        configs: JSON.stringify(columnsConfig)
+        configs: JSON.stringify(checkedConfigs)
       };
 
       const stringified = queryString.stringify(exportQuery);
