@@ -1,4 +1,6 @@
-module.exports = {
+var userGuideSidebar = require('./user.guide.sidebars');
+
+var sideBar  = {  
   docs: [
     {
       type: 'category',
@@ -118,6 +120,12 @@ module.exports = {
       },
       collapsed: true,
       items: ['developer/erxes-xos-user-guide']
-    }
-  ]
+    },
+
+
+  
+  ],
+  ...userGuideSidebar
 };
+
+module.exports = sideBar;
