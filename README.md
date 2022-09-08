@@ -71,7 +71,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
 ## What is erxes?
-erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about <a href="**https://docs.erxes.io/introduction/architecture">erxes architecture in our documentation</a>**.
+erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/introduction/architecture">erxes architecture in our documentation</a>.**
 
 ## erxes XOS & Plugins
 erxes is composed of 2 main components: **XOS** & **Plugins**
