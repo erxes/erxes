@@ -1,11 +1,16 @@
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
 import { FlexContent } from '@erxes/ui/src/layout/styles';
-import React from 'react';
+import { __ } from '@erxes/ui/src/utils';
+import React, { useState } from 'react';
 import Select from 'react-select-plus';
 
 import { CONFIGURATIONS } from '../../constants';
+import { ToggleWrap } from '../../styles';
 import { ClientPortalConfig } from '../../types';
 
 type Props = {
@@ -22,7 +27,45 @@ type ControlItem = {
   formProps?: any;
 };
 
-function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
+function General({
+  googleCredentials,
+  otpConfig,
+  mailConfig,
+  name,
+  handleFormChange
+}: Props) {
+  const [otpEnabled, setOtpEnabled] = useState<boolean>(
+    otpConfig ? true : false
+  );
+
+  const [mailEnabled, setMailEnabled] = useState<boolean>(
+    mailConfig ? true : false
+  );
+
+  const onChangeToggle = (name: string, value: boolean) => {
+    if (name === 'otpEnabled') {
+      setOtpEnabled(value);
+
+      if (!value) {
+        handleFormChange('otpConfig', null);
+      } else {
+        handleFormChange('otpConfig', {
+          smsTransporterType: '',
+          codeLength: 4,
+          content: 'Your verification code is {{code}}'
+        });
+      }
+    }
+
+    if (name === 'mailEnabled') {
+      setMailEnabled(value);
+
+      if (!value) {
+        handleFormChange('mailConfig', null);
+      }
+    }
+  };
+
   function renderControl({
     required,
     label,
@@ -56,14 +99,13 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
     );
   }
 
-  const renderContent = () => {
-    if (!otpConfig || !otpConfig.smsTransporterType) {
-      return;
-    }
-
+  const renderOtp = () => {
+    let obj = otpConfig || {
+      content: '',
+      codeLength: 4,
+      smsTransporterType: 'messagePro'
+    };
     const handleChange = (e: React.FormEvent) => {
-      let obj = otpConfig;
-
       const key = e.currentTarget.id;
       const value = (e.currentTarget as HTMLInputElement).value;
 
@@ -72,9 +114,18 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
       if (key === 'content') {
         let content = value;
 
-        if (!content || !content.length) {
-          content = '{{code}}';
+        const base = ' {{code}} ';
+        const regex = new RegExp('[sS]*?' + base + '[sS]*?', 'i');
+
+        if (!regex.test(value)) {
+          content = content.replace(/{{code}}/g, base);
+          if (content.search(base) === -1) {
+            content = base;
+          }
+
+          content = content.replace('  ', ' ');
         }
+
         obj.content = content;
       }
 
@@ -82,67 +133,210 @@ function General({ googleCredentials, otpConfig, handleFormChange }: Props) {
         obj[key] = parseInt(value);
       }
 
-      handleFormChange('otpConfig', otpConfig);
+      handleFormChange('otpConfig', obj);
     };
 
     return (
-      <>
-        <FormGroup>
-          <ControlLabel required={true}>Content</ControlLabel>
-          <p>OTP message body</p>
-          <FlexContent>
-            <FormControl
-              id="content"
-              name="content"
-              value={otpConfig.content}
-              onChange={handleChange}
+      <CollapseContent title={__('Mobile OTP')} compact={true} open={false}>
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Enable OTP config</ControlLabel>
+            <Toggle
+              checked={otpEnabled}
+              onChange={() => onChangeToggle('otpEnabled', !otpEnabled)}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
             />
-          </FlexContent>
-        </FormGroup>
+          </FormGroup>
+        </ToggleWrap>
 
-        <FormGroup>
-          <ControlLabel required={true}>OTP code length</ControlLabel>
-          <p>OTP code length</p>
-          <FlexContent>
-            <FormControl
-              id="codeLength"
-              name="codeLength"
-              value={otpConfig.codeLength}
-              onChange={handleChange}
-              type={'number'}
-              min={4}
+        {otpEnabled && (
+          <>
+            <FormGroup>
+              <ControlLabel>Sms Configuration</ControlLabel>
+              <Select
+                placeholder="Choose a configuration"
+                value={obj.smsTransporterType}
+                options={CONFIGURATIONS}
+                name="SMS Configuration"
+                onChange={onChangeConfiguration}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel required={true}>Content</ControlLabel>
+              <p>OTP message body</p>
+              <FlexContent>
+                <FormControl
+                  id="content"
+                  name="content"
+                  value={obj.content}
+                  onChange={handleChange}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>OTP code length</ControlLabel>
+              <p>OTP code length</p>
+              <FlexContent>
+                <FormControl
+                  id="codeLength"
+                  name="codeLength"
+                  value={obj.codeLength}
+                  onChange={handleChange}
+                  type={'number'}
+                  min={4}
+                />
+              </FlexContent>
+            </FormGroup>
+          </>
+        )}
+      </CollapseContent>
+    );
+  };
+
+  const renderMailConfig = () => {
+    let obj = mailConfig || {
+      registrationContent: `Hello <br /><br />Your verification link is {{link}}.<br /><br />Thanks<br />${name}`,
+      invitationContent: `Hello <br /><br />Your verification link is {{link}}.<br />  Your password is: {{password}} . Please change your password after you login. <br /><br />Thanks <br />${name}`,
+      subject: `${name} - invitation`
+    };
+
+    const onChangeSubject = (e: React.FormEvent) => {
+      obj.subject = (e.currentTarget as HTMLInputElement).value;
+      handleFormChange('mailConfig', obj);
+    };
+
+    const onEditorChange = e => {
+      const value = e.editor.getData();
+      const editorNumber: number =
+        e.editor.name && e.editor.name.replace(/[^\d.]/g, '');
+
+      if (editorNumber % 2 !== 0) {
+        obj.registrationContent = value;
+      } else {
+        obj.invitationContent = value;
+      }
+
+      handleFormChange('mailConfig', obj);
+    };
+
+    return (
+      <CollapseContent
+        title={__('Confirmation mail settings')}
+        compact={true}
+        open={false}
+      >
+        <ToggleWrap>
+          <FormGroup>
+            <ControlLabel>Enable mail config</ControlLabel>
+            <Toggle
+              checked={mailEnabled}
+              onChange={() => onChangeToggle('mailEnabled', !mailEnabled)}
+              icons={{
+                checked: <span>Yes</span>,
+                unchecked: <span>No</span>
+              }}
             />
-          </FlexContent>
-        </FormGroup>
-      </>
+          </FormGroup>
+        </ToggleWrap>
+        {mailEnabled && (
+          <>
+            <FormGroup>
+              <ControlLabel required={true}>Subject</ControlLabel>
+              <p>Invitation mail subject</p>
+              <FlexContent>
+                <FormControl
+                  id="subject"
+                  name="subject"
+                  value={obj.subject}
+                  onChange={onChangeSubject}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>
+                Registration Mail Content
+              </ControlLabel>
+              <p>Registration mail body</p>
+              <FlexContent>
+                <EditorCK
+                  content={obj.registrationContent || ''}
+                  onChange={onEditorChange}
+                  height={300}
+                  name={'registrationContent'}
+                  insertItems={{
+                    items: [
+                      {
+                        value: 'link',
+                        name: 'Link'
+                      }
+                    ],
+                    title: 'Attributes',
+                    label: 'Attributes'
+                  }}
+                />
+              </FlexContent>
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel required={true}>
+                Invitation Mail Content
+              </ControlLabel>
+              <p>Invitation mail body</p>
+              <FlexContent>
+                <EditorCK
+                  content={obj.invitationContent || ''}
+                  onChange={onEditorChange}
+                  height={300}
+                  name={'invitationContent'}
+                  insertItems={{
+                    items: [
+                      {
+                        value: 'link',
+                        name: 'Link'
+                      },
+                      {
+                        value: 'password',
+                        name: 'Password'
+                      }
+                    ],
+                    title: 'Attributes',
+                    label: 'Attributes'
+                  }}
+                />
+              </FlexContent>
+            </FormGroup>
+          </>
+        )}
+      </CollapseContent>
     );
   };
 
   const onChangeConfiguration = option => {
-    // setConfig({ ...config, smsTransporterType: option.value });
-    otpConfig.smsTransporterType = option.value;
+    otpConfig && (otpConfig.smsTransporterType = option.value);
     handleFormChange('otpConfig', otpConfig);
   };
 
   return (
     <>
-      <FormGroup>
-        <ControlLabel>Sms Configuration</ControlLabel>
-        <Select
-          placeholder="Choose a configuration"
-          value={otpConfig.smsTransporterType}
-          options={CONFIGURATIONS}
-          name="SMS Configuration"
-          onChange={onChangeConfiguration}
-        />
-      </FormGroup>
-      {renderContent()}
+      {renderOtp()}
+      {renderMailConfig()}
 
-      {renderControl({
-        label: 'Google Application Credentials',
-        formValueName: 'googleCredentials',
-        formValue: googleCredentials
-      })}
+      <CollapseContent
+        title={__('Google Application Credentials')}
+        compact={true}
+        open={false}
+      >
+        {renderControl({
+          label: 'Google Application Credentials',
+          formValueName: 'googleCredentials',
+          formValue: googleCredentials
+        })}
+      </CollapseContent>
     </>
   );
 }

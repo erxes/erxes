@@ -1,14 +1,15 @@
-import Button from '@erxes/ui/src/components/Button';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import { IButtonMutateProps, IOption } from '@erxes/ui/src/types';
+import { LeftContent, Row } from '../styles';
+
+import Button from '@erxes/ui/src/components/Button';
 import ChannelForm from '../../channels/containers/ChannelForm';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import FormGroup from '@erxes/ui/src/components/form/Group';
 import { IChannel } from '../../channels/types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Select from 'react-select-plus';
 import { __ } from '@erxes/ui/src/utils';
-import { LeftContent, Row } from '../styles';
 
 type Props = {
   channels: IChannel[];
@@ -25,7 +26,7 @@ class SelectChannels extends React.Component<Props, {}> {
 
     const trigger = (
       <Button btnStyle="primary" icon="plus-circle">
-        Create channel
+        {__('Create channel')}
       </Button>
     );
 

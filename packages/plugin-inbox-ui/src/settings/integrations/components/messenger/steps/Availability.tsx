@@ -1,17 +1,17 @@
 import { FlexItem, LeftItem } from '@erxes/ui/src/components/step/styles';
 
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Description } from '../../../styles';
+import { Description } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IOnlineHour } from '../../../types';
+import { IOnlineHour } from '@erxes/ui-inbox/src/settings/integrations/types';
 import OnlineHours from './OnlineHours';
+import { RESPOND_RATES } from '../../../constants';
 import React from 'react';
 import Select from 'react-select-plus';
 import Toggle from '@erxes/ui/src/components/Toggle';
 import { ToggleWrapper } from '../widgetPreview/styles';
 import { __ } from 'coreui/utils';
-import { RESPOND_RATES } from '../../../constants';
 import timezones from '@erxes/ui/src/constants/timezones';
 
 type Props = {
