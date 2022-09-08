@@ -1,4 +1,4 @@
-import { Chip, FormControl, ModalTrigger, Tags, Tip } from '@erxes/ui/src';
+import { Chip, colors, FormControl, ModalTrigger, Tags, Tip } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import moment from 'moment';
 import React from 'react';
@@ -21,6 +21,16 @@ class TableRow extends React.Component<IProps> {
       return { doc: { ...values }, _id: object._id };
     };
 
+    const generateStatusColor = value => {
+      switch (value) {
+        case 'Risky':
+          return colors.colorCoreRed;
+        case 'UnRisky':
+          return colors.colorCoreGreen;
+        default:
+          return colors.colorCoreBlue;
+      }
+    };
     const onclick = e => {
       e.stopPropagation();
     };
@@ -36,9 +46,8 @@ class TableRow extends React.Component<IProps> {
         </td>
         <td>{object.name}</td>
         <td>{object.category?.name || '-'}</td>
-        {/* <td>{object.status}</td> */}
         <td>
-          <Badge color="#6bdcffe6">Pending</Badge>
+          <Badge color={generateStatusColor(object.status)}>{object.status}</Badge>
         </td>
         <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
           <td>{moment(object.createdAt).fromNow()}</td>

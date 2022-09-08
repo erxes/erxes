@@ -18,7 +18,6 @@ export const commonRiskAssessmentTypes = `
     name: String!
     description: String!
     categoryId: String!
-    status: String!
 `;
 
 export const commonRiskConfirmityTypes = `

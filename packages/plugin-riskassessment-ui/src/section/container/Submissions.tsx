@@ -4,6 +4,7 @@ import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
+import { IRiskFormDetailQueryResponse } from '../../common/types';
 import SubmissionsComponent from '../component/Submissions';
 import { mutations, queries } from '../graphql';
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
 };
 
 type FinalProps = {
-  formDetail: any;
+  formDetail: IRiskFormDetailQueryResponse;
   saveFormSubmissions: any;
 } & Props;
 

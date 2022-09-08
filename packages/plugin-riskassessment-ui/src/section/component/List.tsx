@@ -8,6 +8,7 @@ import Submissions from '../container/Submissions';
 type Props = {
   list: IDealRiskAssements[];
   refetch: () => void;
+  refetchSubmissions: () => void;
   submissions: any;
   id: string;
   currentUser: any;

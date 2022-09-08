@@ -92,14 +92,14 @@ class Form extends React.Component<Props & ICommonFormProps> {
             </FormControl>
           )}
         </CustomFormGroup>
-        <CustomFormGroup label="RiskAssessment Status">
+        {/* <CustomFormGroup label="RiskAssessment Status">
           <FormControl
             {...formProps}
             name="status"
             type="text"
             defaultValue={assessmentDetail?.status}
           />
-        </CustomFormGroup>
+        </CustomFormGroup> */}
       </>
     );
   };

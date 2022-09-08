@@ -24,7 +24,7 @@ export const riskAssessmentCategorySchema = new Schema({
   formId: field({ type: String, label: 'Category Form Id' }),
   parentId: field({ type: String, label: 'Category Parent Name' }),
   order: field({ type: String, label: 'Category Order' }),
-  code: field({ type: String, label: 'Category Code' }),
+  code: field({ type: String, label: 'Category Code' })
 });
 
 export const riskAssessmentSchema = new Schema({
@@ -33,5 +33,5 @@ export const riskAssessmentSchema = new Schema({
   description: field({ type: String, label: 'Description' }),
   createdAt: field({ type: Date, default: new Date(), label: 'Created At' }),
   categoryId: field({ type: String, label: 'Risk Assessment Category Id' }),
-  status: field({ type: String, label: 'Status' }),
+  status: field({ type: String, label: 'Status', default: 'In Progress' })
 });

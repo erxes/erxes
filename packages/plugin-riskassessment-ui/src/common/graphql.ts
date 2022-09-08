@@ -21,14 +21,12 @@ export const riskAssessmentDef = `
     $categoryId: String!,
     $description: String!,
     $name: String!,
-    $status: String
 `;
 
 export const riskAssessmentValues = `
     categoryId: $categoryId,
     description: $description,
     name: $name,
-    status: $status
 `;
 
 export const riskAssessmentCategoryParams = `
@@ -40,11 +38,11 @@ code
 order
 `;
 
-export const riskAssessmentParams = `
+export const riskAssessmentParams = ({ status }) => `
     _id,
     name,
     description,
-    status,
+    ${status ? 'status' : ''}
     categoryId,
     createdAt,
     category{
@@ -53,4 +51,13 @@ export const riskAssessmentParams = `
         parentId
         name
     }
+`;
+
+export const riskConfirmityParams = `
+    _id
+    categoryId
+    createdAt
+    description
+    name
+    status
 `;

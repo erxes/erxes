@@ -1,3 +1,5 @@
+import { riskConfirmityParams } from '../../common/graphql';
+
 const riskAssessments = `
   query RiskAssesments($categoryId: String,,$searchValue: String,$perPage: Int) {
     riskAssesments(categoryId: $categoryId ,perPage: $perPage,searchValue: $searchValue) {
@@ -17,8 +19,10 @@ const riskConfirmities = `
 `;
 
 const riskConfimityDetails = `
-  query RiskConfirmityDetails($cardId: String,$userId:String) {
-    riskConfirmityDetails(cardId: $cardId,userId: $userId) 
+  query RiskConfirmityDetails($cardId: String) {
+    riskConfirmityDetails(cardId: $cardId){
+      ${riskConfirmityParams}
+    } 
   }`;
 
 const riskConfirmitySubmissions = `
@@ -29,7 +33,11 @@ const riskConfirmitySubmissions = `
 
 const riskConfirmityDetail = `
   query RiskConfirmityFormDetail($cardId: String,$userId: String) {
-    riskConfirmityFormDetail(cardId: $cardId, userId: $userId)
+    riskConfirmityFormDetail(cardId: $cardId, userId: $userId){
+      fields
+      formId
+      submissions
+    }
   }
 `;
 
