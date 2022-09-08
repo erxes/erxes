@@ -1,6 +1,8 @@
 import { colors, dimensions } from 'modules/common/styles';
 
+import { rgba } from 'modules/common/styles/color';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 export const Container = styled.div`
   padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px
@@ -18,7 +20,7 @@ export const Container = styled.div`
   }
 `;
 
-export const Services = styled.div`
+export const FlexWrapContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
 
@@ -179,4 +181,190 @@ export const Price = styled.div`
 export const SubService = styled.div`
   width: 50%;
   float: left;
+`;
+
+export const MoreBtn = styled.div`
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 36px;
+  border: 1px solid ${colors.borderPrimary};
+  background: ${colors.bgLight};
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all ease 0.3s;
+`;
+
+export const ItemBox = styled.div`
+  flex-basis: 300px;
+  padding: ${dimensions.coreSpacing}px 30px;
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 8px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  flex: 1;
+  min-height: 200px;
+  border: 1px solid ${colors.borderPrimary};
+  cursor: pointer;
+  transition: all ease 0.3s;
+
+  &:hover {
+    box-shadow: 0px 16px 24px rgba(0, 0, 0, 0.06),
+      0px 2px 6px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04);
+
+    ${MoreBtn} {
+      background: ${colors.colorSecondary};
+      color: ${colors.colorWhite};
+    }
+  }
+`;
+
+export const PluginContent = styled.div`
+  > h5 {
+    font-weight: 700;
+    margin: ${dimensions.coreSpacing}px 0 ${dimensions.unitSpacing}px;
+  }
+
+  .short-desc {
+    height: 40px;
+    overflow: hidden;
+    margin-bottom: ${dimensions.unitSpacing}px;
+  }
+
+  .short-desc,
+  p span {
+    color: #666;
+  }
+`;
+
+export const FilterContainer = styledTS<{ width?: number }>(styled.div)`
+  padding: 8px;
+  border-radius: ${dimensions.unitSpacing - 2}px;
+  border: 1px solid ${colors.borderPrimary};
+  flex: ${props => !props.width && 1};
+  overflow-y: auto;
+  width: ${props => props.width && `${props.width}px`};
+  margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
+
+  > label {
+    margin-right: ${dimensions.coreSpacing}px;
+  }
+
+  > input {
+    border: 0;
+    outline: 0;
+    width: 100%;
+  }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+export const Labels = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+export const Tag = styled.span`
+  background: ${colors.bgLight};
+  padding: 5px ${dimensions.unitSpacing}px;
+  border-radius: 6px;
+  color: rgba(0, 0, 0, 0.62);
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-right: ${dimensions.unitSpacing}px;
+  transition: all ease 0.3s;
+
+  &:hover {
+    background: ${colors.colorSecondary};
+    color: ${colors.colorWhite};
+  }
+`;
+
+export const PluginBoxHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  > img {
+    max-width: 60px;
+    max-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+export const PluginBoxFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid ${colors.borderPrimary};
+  padding-top: ${dimensions.unitSpacing}px;
+`;
+
+export const PerPrice = styled.div`
+  display: flex;
+  align-items: center;
+
+  h2 {
+    font-weight: 900;
+    margin: 0;
+    color: ${colors.colorSecondary};
+  }
+
+  span {
+    color: ${colors.colorCoreGray};
+    margin-left: 5px;
+    width: 40px;
+    line-height: 15px;
+  }
+`;
+
+export const FooterItem = styled.div`
+  color: #777;
+
+  i {
+    color: #aaa;
+    margin-right: 5px;
+  }
+`;
+
+export const AddOns = styled.div`
+  display: flex;
+  align-items: center;
+
+  > span {
+    text-transform: uppercase;
+    font-size: 10px;
+    width: 40px;
+    margin-right: 5px;
+    line-height: 11px;
+    font-weight: 500;
+  }
+`;
+
+export const Addon = styled.div`
+  border-radius: 4px;
+  background: ${rgba(colors.colorPrimary, 0.1)};
+  color: ${colors.colorPrimary};
+  display: flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 5px 3px 3px;
+
+  > img {
+    max-width: 20px;
+    max-height: 20px;
+    margin-right: 5px;
+  }
 `;

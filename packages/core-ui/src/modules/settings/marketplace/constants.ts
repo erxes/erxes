@@ -45,3 +45,26 @@ export const SUB_KINDS = {
     facebook: 'Facebook'
   }
 };
+
+export const CATEGORIES = [
+  { value: 'Marketing' },
+  { value: 'Sales' },
+  { value: 'Services' },
+  { value: 'Operations' },
+  { value: 'Communications' },
+  { value: 'Productivity' },
+  { value: 'Website' },
+  { value: 'ECommerce' },
+  { value: 'Document management' },
+  { value: 'Human resource' },
+  { value: 'Finance' },
+  { value: 'Inventory' },
+  { value: 'Analytics' },
+  { value: 'Reporting' }
+];
+
+export const STATUS_TYPES = [
+  { value: 'All' },
+  { value: 'Free' },
+  { value: 'Paid' }
+];
