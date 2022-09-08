@@ -2,9 +2,9 @@ import { days, hours } from '@erxes/ui/src/constants/integrations';
 
 import Button from '@erxes/ui/src/components/Button';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { FlexRow } from '../../../styles';
+import { FlexRow } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IOnlineHour } from '../../../types';
+import { IOnlineHour } from '@erxes/ui-inbox/src/settings/integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import Select from 'react-select-plus';

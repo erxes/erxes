@@ -11,12 +11,12 @@ import {
   ITopicMessengerApp,
   IWebsite,
   IWebsiteMessengerApp
-} from '../../../types';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 
 import Button from '@erxes/ui/src/components/Button';
 import { ITopic } from '@erxes/ui-knowledgebase/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Options } from '../../../styles';
+import { Options } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import React from 'react';
 import Select from 'react-select-plus';
 import Tip from '@erxes/ui/src/components/Tip';

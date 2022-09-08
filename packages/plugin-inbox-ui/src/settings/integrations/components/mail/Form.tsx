@@ -6,7 +6,11 @@ import {
   IFormProps,
   IRouterProps
 } from '@erxes/ui/src/types';
-import { IExchangeForm, IImapForm, IntegrationTypes } from '../../types';
+import {
+  IExchangeForm,
+  IImapForm,
+  IntegrationTypes
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 
 import Button from '@erxes/ui/src/components/Button';
 import CommonForm from '@erxes/ui/src/components/form/Form';
@@ -18,8 +22,8 @@ import ImapForm from './ImapForm';
 import Info from '@erxes/ui/src/components/Info';
 import MailAuthForm from './MailAuthForm';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import SelectBrand from '../../containers/SelectBrand';
-import SelectChannels from '../../containers/SelectChannels';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import { __ } from 'coreui/utils';
 import { withRouter } from 'react-router-dom';
 

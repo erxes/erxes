@@ -5,22 +5,22 @@ on:
     branches:
       - dev
     paths:
-      - "packages/erxes-ui/**"
-      - "packages/ui-plugin-template/**"
-      - "packages/ui-cards/**"
-      - "packages/ui-forms/**"
-      - "packages/ui-inbox/**"
-      - "packages/ui-knowledgebase/**"
-      - "packages/ui-leads/**"
-      - "packages/ui-log/**"
-      - "packages/ui-notifications/**"
-      - "packages/ui-products/**"
-      - "packages/ui-segments/**"
-      - "packages/ui-settings/**"
-      - "packages/ui-team/**"
-      - "packages/ui-rentpay/**"
-      - "packages/plugin-rentpay-ui/**"
-      - ".github/workflows/plugin-rentpay-ui.yaml"
+      - 'packages/erxes-ui/**'
+      - 'packages/ui-plugin-template/**'
+      - 'packages/ui-cards/**'
+      - 'packages/ui-forms/**'
+      - 'packages/ui-inbox/**'
+      - 'packages/ui-knowledgebase/**'
+      - 'packages/ui-leads/**'
+      - 'packages/ui-log/**'
+      - 'packages/ui-notifications/**'
+      - 'packages/ui-products/**'
+      - 'packages/ui-segments/**'
+      - 'packages/ui-settings/**'
+      - 'packages/ui-team/**'
+      - 'packages/ui-rentpay/**'
+      - 'packages/plugin-rentpay-ui/**'
+      - '.github/workflows/plugin-rentpay-ui.yaml'
 
 jobs:
   ui:
@@ -46,6 +46,7 @@ jobs:
           ls
 
       - name: Configure AWS credentials
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' )
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -53,6 +54,7 @@ jobs:
           aws-region: us-west-2
 
       - name: Deploy
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev' )
         run: |
           tar -cf build.tar --directory=packages/plugin-rentpay-ui/.erxes/dist .
           cp build.tar packages/plugin-rentpay-ui/.erxes/dist

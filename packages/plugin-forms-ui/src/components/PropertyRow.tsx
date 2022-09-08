@@ -1,4 +1,5 @@
-import { Alert, __, confirm } from '@erxes/ui/src/utils';
+import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
+import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
 import {
   CollapseRow,
   DropIcon,
@@ -8,20 +9,18 @@ import {
   PropertyTableRow,
   RowField
 } from '@erxes/ui-forms/src/settings/properties/styles';
-
+import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import Button from '@erxes/ui/src/components/Button';
-import Collapse from 'react-bootstrap/Collapse';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { IField } from '@erxes/ui/src/types';
-import { IFieldGroup } from '@erxes/ui-forms/src/settings/properties/types';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import PropertyForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyForm';
-import PropertyGroupForm from '@erxes/ui-forms/src/settings/properties/containers/PropertyGroupForm';
-import React from 'react';
 import SortableList from '@erxes/ui/src/components/SortableList';
 import Toggle from '@erxes/ui/src/components/Toggle';
+import { IField } from '@erxes/ui/src/types';
+import { __, Alert, confirm } from '@erxes/ui/src/utils';
+import React from 'react';
+import Collapse from 'react-bootstrap/Collapse';
 
 type Props = {
   group: IFieldGroup;
@@ -146,12 +145,15 @@ class PropertyRow extends React.Component<Props, State> {
 
     const onChange = e => this.visibleHandler(e, field);
 
+    const hasLogic = field.logics && field.logics.length > 0;
+
     return (
       <PropertyTableRow key={field._id}>
         <RowField>
           {field.text}
           <FieldType>{field.type}</FieldType>
         </RowField>
+
         <RowField>
           {lastUpdatedUser && lastUpdatedUser.details
             ? lastUpdatedUser.details.fullName
@@ -213,6 +215,8 @@ class PropertyRow extends React.Component<Props, State> {
             </RowField>
           </>
         )}
+        <RowField>{hasLogic ? 'Yes' : 'No'}</RowField>
+
         <RowField>
           {this.renderActionButtons(
             field,
@@ -279,6 +283,7 @@ class PropertyRow extends React.Component<Props, State> {
           {showVisibleDetail && (
             <ControlLabel>{__('Visible in detail')}</ControlLabel>
           )}
+          <ControlLabel>{__('Has logic')}</ControlLabel>
           <ControlLabel>{__('Actions')}</ControlLabel>
         </PropertyTableHeader>
         <div>

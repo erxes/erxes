@@ -240,7 +240,14 @@ class Dashboard extends React.Component<Props, State> {
   toggleDrawer = () => {
     const { showDrawer } = this.state;
 
-    this.setState({ showDrawer: !showDrawer });
+    this.setState(
+      {
+        item: {} as IDashboardItem
+      },
+      () => {
+        this.setState({ showDrawer: !showDrawer });
+      }
+    );
   };
 
   renderButtons() {

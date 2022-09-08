@@ -699,6 +699,36 @@ const MobileRecommend = styled.div`
   box-shadow: 0 -5px ${dimensions.unitSpacing}px 0 ${rgba(colors.colorBlack, 0.2)};
 `;
 
+const NotFoundWrapper = styled.div`
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h1 {
+      font-weight: bold;
+    }
+
+    p {
+      margin-bottom: ${dimensions.coreSpacing}px;
+    }
+
+    i {
+      margin-right: 5px;
+    }
+
+    img {
+      width: 250px;
+    }
+  }
+`;
+
 export {
   PageHeader,
   AuthWrapper,
@@ -740,5 +770,6 @@ export {
   FlexItem,
   FlexContent,
   FlexRightItem,
-  SectionBodyItem
+  SectionBodyItem,
+  NotFoundWrapper
 };

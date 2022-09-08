@@ -1,10 +1,10 @@
+import { IIntegration } from '../../integrations/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { colors } from '@erxes/ui/src/styles';
 import React from 'react';
+import { colors } from '@erxes/ui/src/styles';
+import { darken } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { IIntegration } from '../../integrations/types';
-import { darken } from '@erxes/ui/src/styles/ecolor';
 
 const RoundedBackground = styledTS<{ type: string; size?: number }>(
   styled.span
@@ -30,12 +30,10 @@ const RoundedBackground = styledTS<{ type: string; size?: number }>(
     (props.type.includes('line') && colors.socialLine) ||
     (props.type.includes('twilio') && colors.socialTwilio) ||
     colors.colorCoreRed};
-
   i {
     color: ${colors.colorWhite};
     font-size: ${props => (props.size ? `${props.size / 2}px` : '11px')};
   }
-
   img {
     max-width: 65%;
   }

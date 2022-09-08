@@ -72,21 +72,10 @@ const clientPortalUserMutations = {
 
   clientPortalRegister: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
-    const clientPortal = await models.ClientPortals.getConfig(
-      args.clientPortalId
-    );
 
     const user = await models.ClientPortalUsers.createUser(subdomain, {
       ...args
     });
-
-    await models.ClientPortalUsers.sendVerification(
-      subdomain,
-      args.clientPortalId,
-      clientPortal.otpConfig,
-      args.phone,
-      args.email
-    );
 
     return user._id;
   },

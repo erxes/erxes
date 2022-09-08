@@ -9,6 +9,7 @@ const fieldCommonFields = `
   order: Int
   associatedFieldId: String
   logicAction: String
+  
   column: Int
   groupName: String
   pageNumber: Int
@@ -78,7 +79,6 @@ export const fieldsTypes = ({ products }) => `
     lastUpdatedUser: User
     lastUpdatedUserId: String
     associatedField: Field
-    logics: [Logic]
     locationOptions: [LocationOption]
     objectListConfigs: [ObjectListConfig]
     ${
@@ -86,10 +86,11 @@ export const fieldsTypes = ({ products }) => `
         ? `
         products: [Product]
       `
-        : ''
+        : `products: [JSON]`
     }
    
     ${fieldCommonFields}
+    logics: [Logic]
   }
 
   input OrderItem {
@@ -141,7 +142,8 @@ const fieldsCommonFields = `
   isVisible: Boolean
   canHide: Boolean
   associatedFieldId: String
-  logic: LogicInput
+  logicAction: String
+  logics: [LogicInput]
   searchable: Boolean
   showInCard: Boolean
   objectListConfigs: [objectListConfigInput]
@@ -173,6 +175,9 @@ export const fieldsGroupsTypes = `
     lastUpdatedUserId: String
     lastUpdatedUser: User
     config: JSON
+
+    logicAction: String
+    logics: [Logic]
   }
 `;
 
@@ -185,6 +190,9 @@ const fieldsGroupsCommonFields = `
   isVisible: Boolean
   isVisibleInDetail: Boolean
   config: JSON
+
+  logicAction: String
+  logics: [LogicInput]
 `;
 
 export const fieldsGroupsQueries = `

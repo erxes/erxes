@@ -124,7 +124,11 @@ export const sendNotifications = async (
         body: `${notificationDoc.createdUser?.details?.fullName ||
           notificationDoc.createdUser?.details
             ?.shortName} removed you from ${contentType}`,
-        receivers: removedUsers.filter(id => id !== user._id)
+        receivers: removedUsers.filter(id => id !== user._id),
+        data: {
+          type: contentType,
+          id: item._id
+        }
       }
     });
   }
@@ -146,7 +150,11 @@ export const sendNotifications = async (
         body: `${notificationDoc.createdUser?.details?.fullName ||
           notificationDoc.createdUser?.details
             ?.shortName} invited you to the ${contentType}`,
-        receivers: invitedUsers.filter(id => id !== user._id)
+        receivers: invitedUsers.filter(id => id !== user._id),
+        data: {
+          type: contentType,
+          id: item._id
+        }
       }
     });
   }

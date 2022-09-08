@@ -354,7 +354,11 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             conversationMessages.push(conversationMessage);
 
             // add given customer to customerIds list
-            if (customer) {
+            if (
+              customer &&
+              message.customerIds &&
+              !message.customerIds.includes(customer._id)
+            ) {
               await models.EngageMessages.updateOne(
                 { _id: message._id },
                 { $push: { customerIds: customer._id } }
@@ -362,7 +366,7 @@ export const loadEngageMessageClass = (models: IModels, subdomain: string) => {
             }
           }
         }
-      }
+      } // end for loop
 
       return conversationMessages;
     }

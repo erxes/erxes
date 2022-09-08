@@ -1,20 +1,41 @@
 import { IModels } from './connectionResolver';
 import { IPageDocument } from './models/pages';
+import { ISiteDocument } from './models/sites';
+
+const pathReplacer = (html: any, site: ISiteDocument) => {
+  const siteHolder = `{{sitename}}`;
+  const path = `{{pl:webbuilder}}/`;
+
+  if (html.includes(siteHolder)) {
+    html = html.replace(new RegExp(siteHolder, 'g'), site.name);
+  }
+
+  if (html.includes(path)) {
+    if (site.domain && site.domain.includes('http')) {
+      html = html.replace(new RegExp(path, 'g'), '');
+    }
+
+    html = html.replace(new RegExp(path, 'g'), 'gateway/pl:webbuilder/');
+  }
+
+  return html;
+};
 
 const entryReplacer = async (
   models: IModels,
-  siteId: string,
+  site: ISiteDocument,
   page: IPageDocument,
   limit: any,
   skip: any
 ) => {
   let subHtml = '';
+  const html = pathReplacer(page.html, site);
 
   if (page.name.includes('_entry')) {
     const contentTypeCode = page.name.replace('_entry', '');
 
     const contentType = await models.ContentTypes.findOne({
-      siteId,
+      siteId: site._id,
       code: contentTypeCode
     });
 
@@ -25,7 +46,7 @@ const entryReplacer = async (
       .skip(skip);
 
     for (const entry of entries) {
-      let entryHtml = page.html.replace(/{{entry._id}}/g, entry._id);
+      let entryHtml = html.replace(/{{entry._id}}/g, entry._id);
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
@@ -38,7 +59,7 @@ const entryReplacer = async (
       subHtml += entryHtml + `<style>${page.css}</style>`;
     }
   } else {
-    subHtml = `${page.html} <style>${page.css}</style>`;
+    subHtml = `${html} <style>${page.css}</style>`;
   }
 
   return subHtml;
@@ -47,12 +68,12 @@ const entryReplacer = async (
 const pageReplacer = async (
   models: IModels,
   page: IPageDocument,
-  siteId: string
+  site: ISiteDocument
 ) => {
-  let html = page.html;
+  let html = pathReplacer(page.html, site);
 
   const pages = await models.Pages.find({
-    siteId,
+    siteId: site._id,
     name: { $ne: page.name }
   });
 
@@ -83,7 +104,7 @@ const pageReplacer = async (
 
       html = html.replace(
         new RegExp(holder, 'g'),
-        await entryReplacer(models, siteId, p, limit, skip)
+        await entryReplacer(models, site, p, limit, skip)
       );
     }
   }

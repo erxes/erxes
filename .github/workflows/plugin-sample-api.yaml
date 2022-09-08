@@ -9,6 +9,14 @@ on:
       - 'packages/api-plugin-template.erxes/**'
       - 'packages/plugin-{sample}-api/**'
       - '.github/workflows/plugin-{sample}-api.yaml'
+  pull_request:
+    branches:
+      - dev
+    paths:
+      - 'packages/api-utils/**'
+      - 'packages/api-plugin-template.erxes/**'
+      - 'packages/plugin-{sample}-api/**'
+      - '.github/workflows/plugin-{sample}-api.yaml'
 
 jobs:
   api:
