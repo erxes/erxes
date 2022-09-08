@@ -18,7 +18,7 @@ export const sendMessageEmail = async (subdomain: string) => {
   // new or open conversations
   const conversations = await models.Conversations.newOrOpenConversation();
 
-  // debugCrons(`Found ${conversations.length} conversations`);
+  console.log(`Found ${conversations.length} conversations`);
 
   for (const conversation of conversations) {
     const customer = await sendContactsMessage({
