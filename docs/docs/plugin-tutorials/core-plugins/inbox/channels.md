@@ -32,7 +32,6 @@ The Channel can be found in the settings section on the bottom left side of the 
 
 To create your channels:
 
-
 In your team 
 
 
