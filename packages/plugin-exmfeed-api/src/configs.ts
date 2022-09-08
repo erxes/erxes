@@ -4,6 +4,7 @@ import { generateModels } from './connectionResolver';
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as permissions from './permissions';
+import cronjobs, { createCeremonies } from './cronjobs';
 
 export let debug;
 export let graphqlPubsub;
@@ -34,10 +35,21 @@ export default {
   onServerInit: async options => {
     mainDb = options.db;
 
+    const app = options.app;
+
+    app.get('/trigger-cron', async (req, res) => {
+      const subdomain = getSubdomain(req);
+
+      await createCeremonies(subdomain);
+
+      return res.send('ok');
+    });
+
     initBroker(options.messageBrokerClient);
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: {}
+
+  meta: { cronjobs }
 };

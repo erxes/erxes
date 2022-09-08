@@ -1,3 +1,5 @@
+import { generateModels } from './connectionResolver';
+import { sendCoreMessage } from './messageBroker';
 import { FEED_CONTENT_TYPES } from '../src/models/definitions/exm';
 import * as moment from 'moment';
 
@@ -22,7 +24,7 @@ const generateData = (
     let ceremonyData = {};
     let title = `Welcome to our company, ${getUserInfo(user)}`;
 
-    if (fieldName && user) {
+    if (fieldName && user && year) {
       title = 'Ceremony';
 
       const date = new Date(user.details[fieldName]);
@@ -53,27 +55,59 @@ const generateData = (
   return feeds;
 };
 
-export const createCeremonies = async models => {
+export const createCeremonies = async (subdomain: string) => {
   console.log('starting to create ceremonies');
+
+  const models = await generateModels(subdomain);
 
   const now = new Date();
   const year = now.getFullYear();
 
-  const usersHasBirthday = await models.Users.findUsers({
-    'details.birthDate': { $exists: true }
+  const usersHasBirthday = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {
+        'details.birthDate': { $exists: true }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
   });
 
-  const usersHasWorkAnniversary = await models.Users.findUsers({
-    'details.workStartedDate': { $exists: true }
+  console.log('usersHasBirthday', usersHasBirthday.length);
+
+  const usersHasWorkAnniversary = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {
+        'details.workStartedDate': { $exists: true }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
   });
+
+  console.log('usersHasWorkAnniversary', usersHasWorkAnniversary.length);
 
   const yesterday = moment()
     .add(-1, 'days')
     .format('YYYY-MM-DD');
 
-  const newUsers = await models.Users.findUsers({
-    createdAt: { $gte: new Date(yesterday) }
+  const newUsers = await sendCoreMessage({
+    subdomain,
+    action: 'users.find',
+    data: {
+      query: {
+        createdAt: { $gte: new Date(yesterday) }
+      }
+    },
+    isRPC: true,
+    defaultValue: []
   });
+
+  console.log('newUsers', newUsers.length);
 
   await models.ExmFeed.deleteMany({
     contentType: {
@@ -107,24 +141,8 @@ export const createCeremonies = async models => {
   console.log('ending to create ceremonies');
 };
 
-/**
- * *    *    *    *    *    *
- * ┬    ┬    ┬    ┬    ┬    ┬
- * │    │    │    │    │    |
- * │    │    │    │    │    └ day of week (0 - 7) (0 or 7 is Sun)
- * │    │    │    │    └───── month (1 - 12)
- * │    │    │    └────────── day of month (1 - 31)
- * │    │    └─────────────── hour (0 - 23)
- * │    └──────────────────── minute (0 - 59)
- * └───────────────────────── second (0 - 59, OPTIONAL)
- */
-
-// 20:00
-export default [
-  {
-    schedule: '25 9 * * *',
-    handler: async ({ models }) => {
-      await createCeremonies(models);
-    }
+export default {
+  handleDailyJob: async ({ subdomain }) => {
+    await createCeremonies(subdomain);
   }
-];
+};
