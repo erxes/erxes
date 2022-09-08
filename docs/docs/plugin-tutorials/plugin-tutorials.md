@@ -1,4 +1,4 @@
 ---
 id: plugin-tutorials
-title: PLugin Tutorials
+title: Welcome
 ---

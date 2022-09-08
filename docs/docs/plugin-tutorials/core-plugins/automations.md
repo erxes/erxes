@@ -1,0 +1,4 @@
+---
+id: automations
+title: Automations
+---

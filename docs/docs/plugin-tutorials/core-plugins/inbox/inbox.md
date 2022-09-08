@@ -1,0 +1,4 @@
+---
+id: inbox
+title: Inbox
+---
