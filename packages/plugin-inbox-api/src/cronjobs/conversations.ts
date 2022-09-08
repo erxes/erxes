@@ -1,19 +1,20 @@
 import * as moment from 'moment';
-import * as schedule from 'node-schedule';
 import * as _ from 'underscore';
-import { IModels } from '../connectionResolver';
-// import { debugCrons } from '../debuggers';
+import { generateModels } from '../connectionResolver';
 import {
   sendAutomationsMessage,
   sendContactsMessage,
   sendCoreMessage
 } from '../messageBroker';
+
 import { IMessageDocument } from '../models/definitions/conversationMessages';
 
 /**
  * Send conversation messages to customer
  */
-export const sendMessageEmail = async (models: IModels, subdomain: string) => {
+export const sendMessageEmail = async (subdomain: string) => {
+  const models = await generateModels(subdomain);
+
   // new or open conversations
   const conversations = await models.Conversations.newOrOpenConversation();
 
@@ -181,23 +182,7 @@ export const sendMessageEmail = async (models: IModels, subdomain: string) => {
 };
 
 export default {
-  sendMessageEmail
+  handle10MinutelyJob: async ({ subdomain }) => {
+    await sendMessageEmail(subdomain);
+  }
 };
-
-/**
- * *    *    *    *    *    *
- * ┬    ┬    ┬    ┬    ┬    ┬
- * │    │    │    │    │    |
- * │    │    │    │    │    └ day of week (0 - 7) (0 or 7 is Sun)
- * │    │    │    │    └───── month (1 - 12)
- * │    │    │    └────────── day of month (1 - 31)
- * │    │    └─────────────── hour (0 - 23)
- * │    └──────────────────── minute (0 - 59)
- * └───────────────────────── second (0 - 59, OPTIONAL)
- */
-// every 10 minutes
-// schedule.scheduleJob('*/10 * * * *', async () => {
-//   debugCrons('Ran conversation crons');
-
-//   await sendMessageEmail();
-// });
