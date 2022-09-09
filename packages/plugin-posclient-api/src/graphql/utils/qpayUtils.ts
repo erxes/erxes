@@ -20,7 +20,6 @@ export const requestQPayInvoice = async (
   accessToken: string,
   qpayConfig: IQPayConfig
 ) => {
-  console.log(data, 'dataaaaaaaaaa');
   const response = await sendRequest({
     method: 'POST',
     url: `${qpayConfig.url}/v2/invoice`,
