@@ -6,7 +6,7 @@ title: Sales management
 The sales pipeline section helps team members with the process of receiving, managing, and resolving incoming sales deals.
 
 
-###WITH SALES PIPELINE, YOU CAN DO..
+### WITH SALES PIPELINE, YOU CAN DO..
  
 Sales are the areas in which team involved in the process of creating, managing, and closing leads, starting with the organization's existing customers to the target market. 
 
@@ -23,7 +23,7 @@ Teams can effectively communicate through Erxes having your team members know ev
 erxes provide auto analytic tools which can generate all useful statistics and graphics related to your sales. You can see won and lost deal reports from Erxes just for free. Insights filter helps you to see your sales records by products, pipeline, dates and sales person.
 
 
-###SETTING UP SALES PIPELINE
+### SETTING UP SALES PIPELINE
 
 
 The Sales Pipeline plugin is available at erxes marketplace for all users when you get started with erxes. It comes with Cards plugin for free as it’s one of the core plugins erxes provides.
@@ -34,7 +34,7 @@ The Sales Pipeline plugin is available at erxes marketplace for all users when y
 ‍💻  SaaS clients, when you sign-up to erxes Sales Pipeline plugin will be there already, so just go aling with this guideline to get started with this plugin.  
 
 
-###CREATING YOUR SALES PIPELINE
+### CREATING YOUR SALES PIPELINE
 
 The Sales Pipeline can be found on the left hand side of the screen when you enter erxes. By selecting the tab you will be able to place the sign on the plugins bar visible.
 
