@@ -1,5 +1,5 @@
 import { generateModels } from './connectionResolver';
-import { sendCoreMessage } from './messageBroker';
+import { sendCoreMessage, sendEXMFeedMessage } from './messageBroker';
 import { FEED_CONTENT_TYPES } from './models/definitions/exm';
 import * as moment from 'moment';
 
@@ -139,6 +139,50 @@ export const createCeremonies = async (subdomain: string) => {
   }
 
   console.log('ending to create ceremonies');
+
+  const tomorrow = moment()
+    .add(+1, 'days')
+    .format('YYYY-MM-DD');
+
+  const todayEvent = await sendEXMFeedMessage({
+    subdomain,
+    action: 'ExmFeed.find',
+    data: {
+      'eventData.startDate': {
+        $lte: new Date(tomorrow),
+        $gt: new Date(yesterday)
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
+  if (todayEvent?.length > 0) {
+    const userWithDeviceTokens = await sendCoreMessage({
+      subdomain,
+      action: 'users.find',
+      data: {
+        query: {
+          deviceTokens: { $exists: true }
+        }
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+    const receivers = userWithDeviceTokens.map((user: any) => user._id);
+
+    for (const event of todayEvent || []) {
+      sendCoreMessage({
+        subdomain: subdomain,
+        action: 'sendMobileNotification',
+        data: {
+          title: `${event.title} is today.`,
+          body: `Location is ${event?.eventDate?.where}.`,
+          receivers
+        }
+      });
+    }
+  }
 };
 
 export default {
