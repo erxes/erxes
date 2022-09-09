@@ -1,0 +1,4 @@
+---
+id: neighbor
+title: Neighbor
+---
