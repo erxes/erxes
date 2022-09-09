@@ -1,10 +1,14 @@
-const forumPostsQueryParams = `
-  _id: [ID!]
-  categoryId: [ID!]
-  state: [String!]
+export const commonPostsParams = `
+  state: [ForumPostState!]
   categoryIncludeDescendants: Boolean
   offset: Int
   limit: Int
+`;
+
+const forumPostsQueryParams = `
+  _id: [ID!]
+  categoryId: [ID!]
+  ${commonPostsParams}
 `;
 
 const Query = ` 

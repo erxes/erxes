@@ -1,3 +1,5 @@
+import { commonPostsParams } from './Query';
+
 export default `
   type ForumCategory @key(fields: "_id") {
     _id: ID!
@@ -13,11 +15,12 @@ export default `
     descendants: [ForumCategory!]
     ancestors: [ForumCategory!]
 
+    postsCount(
+      ${commonPostsParams}
+    ): Int
+
     posts(
-      state: [String!]
-      categoryIncludeDescendants: Boolean
-      offset: Int
-      limit: Int
+      ${commonPostsParams}
     ): [ForumPost!]
 
     

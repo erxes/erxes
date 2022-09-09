@@ -31,6 +31,13 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
       .skip(offset)
       .limit(limit)
       .lean();
+  },
+
+  async postsCount({ _id }, params, { models }) {
+    const { Post } = models;
+    params.categoryId = [_id];
+    const query: any = await buildPostsQuery(models, params);
+    return Post.find(query).countDocuments();
   }
 };
 
