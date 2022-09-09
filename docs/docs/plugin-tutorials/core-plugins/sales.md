@@ -38,8 +38,7 @@ The Sales Pipeline plugin is available at erxes marketplace for all users when y
 
 The Sales Pipeline can be found on the left hand side of the screen when you enter erxes. By selecting the tab you will be able to place the sign on the plugins bar visible.
 
-<img src="https://imagedelivery.net/5m26Aj-CutMXPPNacMs_yQ/b69bfc16-c91a-4fe6-7fd2-422a0a47fa00/public
-" width="100%" alt="Sales Pipeline Tab "></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.sales.gif" width="100%" alt="Sales Pipeline Tab "></img>
  
 
 The sales pipeline menu allows you to organize and customize the way your organization's sales deals are viewed and collected on erxes in the following ways.
