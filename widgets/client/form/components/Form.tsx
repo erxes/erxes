@@ -321,7 +321,7 @@ class Form extends React.Component<Props, State> {
 
       if (field.logics && field.logics.length > 0) {
         const logics: LogicParams[] = field.logics.map((logic) => {
-          const { validation, value, type } = this.state.doc[logic.fieldId];
+          const { validation, value, type } = this.state.doc[logic.fieldId] || {};
 
           return {
             fieldId: logic.fieldId,
