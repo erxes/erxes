@@ -133,9 +133,9 @@ export const posOrderSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     createdAt: field({ type: Date }),
-    status: field({ type: String, label: 'Status of the order' }),
+    status: field({ type: String, label: 'Status of the order', index: true }),
     paidDate: field({ type: Date, label: 'Paid date' }),
-    number: field({ type: String, label: 'Order number' }),
+    number: field({ type: String, label: 'Order number', index: true }),
     customerId: field({ type: String, label: 'Customer' }),
     cardAmount: field({ type: Number }),
     cashAmount: field({ type: Number }),

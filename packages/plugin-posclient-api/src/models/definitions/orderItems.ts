@@ -54,7 +54,7 @@ export const orderItemSchema = schemaHooksWrapper(
       optional: true
     }),
     bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
-    orderId: field({ type: String, label: 'Order id' }),
+    orderId: field({ type: String, label: 'Order id', index: true }),
     isPackage: field({
       type: Boolean,
       default: false,
