@@ -6,7 +6,7 @@ title: Tasks management
 The task management section helps team members with the planning process of day, week, and month.
 
 
-### WITH TASK MANAGEMENT, YOU CAN DO…
+### With Task Management, you can do…
 
 Task management is useful for team members to enter, monitor and track tasks to be performed.
 
@@ -17,7 +17,7 @@ Task management is useful for team members to enter, monitor and track tasks to 
 
 
 
-### SETTING UP TASK MANAGEMENT
+### Setting up task management
 
 The Task Management plugin is available at <a href="https://erxes.io/marketplace">**erxes marketplace**</a> for all users when you <a href="https://erxes.io/experience-management">**get started**</a> with erxes. It comes with Cards plugin for free as it’s one of the core plugins erxes provides.
 
@@ -29,7 +29,7 @@ to intsal the card plugin after installing the erxes XOS.
 
 
 
-### CREATING YOUR TASK MANAGEMENT
+### Creating your tasks
 
 The Task Management can be found on the left hand side of the screen when you enter erxes. By selecting the pin you will be able to place the sign on the plugins bar visible.
 
@@ -116,7 +116,7 @@ Note that if you're not using erxes SaaS with your own AWS SES account, these au
 🥳 Congratulations, you have successfully set up your Task Management Pipeline. Now, let’s start using it. 
 
 
-### EVERYDAY WITH TASK MANAGEMENT
+### Everyday with Task Management
 
 Let you guys go through the main actions on Task Management below:
  
