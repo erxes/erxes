@@ -26,12 +26,12 @@ erxes provide auto analytic tools which can generate all useful statistics and g
 ### Setting up Sales Pipeline
 
 
-The Sales Pipeline plugin is available at erxes marketplace for all users when you get started with erxes. It comes with Cards plugin for free as it’s one of the core plugins erxes provides.
+The Sales Pipeline plugin is available at erxes **<a href="https://erxes.io/marketplace">marketplace</a>** for all users when you get started with erxes. It comes with Cards plugin for free as it’s one of the core plugins erxes provides.
 
 
-⚙️ Self-hosted client, please go to the plugin installation documentation to intsal the Card plugin after installing the erxes XOS.
+⚙️ Self-hosted client, please go to <a href="https://docs.erxes.io/docs/category/-plugins">**the plugin installation documentation**</a> to intsal the Card plugin after installing the erxes XOS.
 
-‍💻  SaaS clients, when you sign-up to erxes Sales Pipeline plugin will be there already, so just go aling with this guideline to get started with this plugin.  
+‍💻  SaaS clients, when you sign-up to erxes, Sales Pipeline plugin will be there already, so just go along with this guideline to get started with this plugin.  
 
 
 ### Creating your sales pipeline
@@ -43,17 +43,17 @@ The Sales Pipeline can be found on the left hand side of the screen when you ent
 
 The sales pipeline menu allows you to organize and customize the way your organization's sales deals are viewed and collected on erxes in the following ways.
 
-Save multiple Pipelines on a single Board.
-There are two subdivisions for pipelines, which can be customized to your organization’s needs. Each pipeline can be dedicated to a team within your organization.
+- Save multiple Pipelines on a single Board.
+- There are subdivisions for pipelines, which can be customized to your organization’s needs. Each pipeline can be dedicated to a team within your organization.
 
-:::info
+:::caution
 
 If your organization does not have many team members, creating a single pipeline would be beneficial. As you can organize different deals/tasks in the Label or Properties section of the pipeline, it may be more convenient for a small team to work on one board. This saves time as it reduces time spent navigating around multiple screens as everything is sorted and funnelled into one page.
 
 :::
 
 
-**Step one.** Creating your board and pipeline
+**Step one.** Create your board and pipeline
 
 
 There are 2 ways to create your board 
@@ -66,25 +66,27 @@ There are 2 ways to create your board
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.sales.gif" width="100%" alt="Creating sales pipeline with settings option"></img>
 
-When you’re creating you pipeline, you have keep it mind that all businesses are different and requires different stages to reach the final stage of selling a product. Some companies use a five-stage pipeline, some use more than five, and some even use more than 10. Moreover, it all depends on the business.  Before creating your Sales pipeline stages, please read the blog post will hopefullyl help you to set up your Sales pipeline effectively. 
+When you’re creating your pipeline, you have keep it mind that all businesses are different and requires different stages to reach the final stage of selling a product. Some companies use a five-stage pipeline, some use more than five, and some even use more than 10. 
+
+Moreover, it all depends on the business.  Before creating your Sales pipeline stages, please read the blog post will hopefullyl help you to set up your Sales pipeline effectively. 
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.sales.gif" width="100%" alt="Adding pipeline on sales pipeline "></img>
 
 **Step two.** Create your products and services
 
-The part of tracking your sales performance, connecting your products and services to your Sales pipeline is important step. In order to create your products and services, please go to Products & services plugin **here.**
+The part of tracking your sales performance, connecting your products and services to your Sales pipeline is important step. In order to create your products and services, please go to Products & services plugin <a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/products">**here.**</a>
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/5.sales.gif" width="100%" alt="Creating products and services on Sales.P"></img>
 
 **Step three.** Add properties on your sales pipeline
 
-To customize your Sales pipeline, you can create additional fields fits your unique needs from leads. To add new properties in your Sales pipeline card, you’ll need to go to Property plugin **here.**
+To customize your Sales pipeline, you can create additional fields fits your unique needs from leads. To add new properties in your Sales pipeline card, you’ll need to go to Property plugin <a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/property">**here.**</a>
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/6.sales.gif" width="100%" alt="Add properties on your Sales Pipeline"></img>
 
 **Step four.** Add campaign on your sales pipeline
 
-Aside from marketing emails, you can use Auto Campaigns to send automatic emails to be sent when you drag a card to a different stage as they progress along your Deal/Task/Ticket pipelines.
+You can use Auto Campaigns to send automatic emails to be sent when you drag a card to a different stage as they progress along your Deal/Task/Ticket pipelines. To create campaign on your sales pipeline using the guideline of <a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/campaign">**the Campaign plugin**</a>.
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/7.+sales.png+(asuudalt+bga+gif).png" width="100%" alt="Add campaign on your sales pipeline"></img>
 
@@ -97,44 +99,45 @@ Let you guys go through the main actions on Sales Pipeline below:
 
 For the Managers, erxes provides the numbers view options to precisely look into the projects. 
 
-- **Board
+- **Board**
 ---
 
-- **Calendar
+- **Calendar**
 ---
 
-- **Conversion
+- **Conversion**
 ---
 
-- **List
+- **List**
 ---
 
-- **Gantt
+- **Gantt**
 ---
 
-- **Time
+- **Time**
 ---
 
 
 **Filter and view archives among cards.**
 
 1. You can filter your card by clicking on the Show menu. Explanation of available names
-Filter by created members
-Filter by priority
-Filter by labels
-Filter by team members
-Choose companies
-Choose customers
-Date range
-Assigned to me
-Due tomorrow: Tasks to be completed tomorrow
-Due next week: Tasks due next week
+- Filter by created members
+- Filter by priority
+- Filter by labels
+- Filter by team members
+- Choose companies
+- Choose customers
+- Date range
+- Assigned to me
+- Due tomorrow: Tasks to be completed tomorrow
+- Due next week: Tasks due next week
+
 2. When viewing archived cards, select Archived items.
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/22.sales.gif" width="100%" alt="Select Archived items"></img>
 
 
-Now that you’re already know how to use Sales Pipeline, please go the following blog posts to learn about different use cases of Sales Pipeline plugin and master it.
+Now that you’re already know how to use Sales Pipeline, please go the following the blog posts to learn about different use cases of Sales Pipeline plugin and master it.
 
 ✌️ Enjoy your journey with Sales Pipeline plugin!  
 
