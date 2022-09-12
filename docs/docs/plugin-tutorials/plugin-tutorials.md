@@ -27,13 +27,13 @@ erxes is composed of 2 main components: XOS & Plugins
 
 It contains the project's core, or I would say the infrastructure of the erxes software. You can find the admin panel and the code that runs different plugins. The operating system has default utility features that allow users to customize, improve speed, and enhance the experience when using choices plugins/features. 
 
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/systemconfig">**System configuration**</a>
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/permission">**Permission**</a>
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/teammembers">**Team members**</a>
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/brands">**Brands**</a>
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/importexport">**Import/Export**</a>
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/apps">**Apps**</a>
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/marketplace">**Marketplace**</a>
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/systemconfig">System configuration</a>**
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/permission">Permission</a>**
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/teammembers">Team members</a>**
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/brands">Brands</a>**
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/importexport">Import/Export</a>**
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/apps">Apps</a>**
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/marketplace">Marketplace</a>**
 
 Technically you can not do anything with erxes XOS on its own without plugins, even though it is the core infrastructure of your erxes project. 
 
