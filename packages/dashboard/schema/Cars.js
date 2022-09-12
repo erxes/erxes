@@ -10,6 +10,10 @@ cube(`Cars`, {
     CarCategories: {
       sql: `${CUBE}.categoryId = ${CarCategories}._id`,
       relationship: `belongsTo`
+    },
+    Conformities: {
+      sql: `${CUBE}._id = ${Conformities}.relTypeId or ${CUBE}._id = ${Conformities}.mainTypeId `,
+      relationship: `belongsTo`
     }
   },
 
@@ -155,6 +159,12 @@ cube(`Cars`, {
       sql: `type`,
       type: `string`,
       title: 'Type'
+    },
+
+    reltypecustomer: {
+      sql: `${Conformities.reltypecustomer}`,
+      type: `string`,
+      title: 'Rel-Type Customer'
     },
 
     vinnumber: {
