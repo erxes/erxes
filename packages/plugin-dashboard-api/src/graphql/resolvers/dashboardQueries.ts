@@ -88,7 +88,16 @@ const dashBoardQueries = {
       }
     }
 
-    return ['Customers', 'Deals', 'Conversations', 'Tasks', 'Tickets'];
+    return [
+      'Customers',
+      'Deals',
+      'Conversations',
+      'Tasks',
+      'Tickets',
+      'Conformities',
+      'Cars',
+      'Trips'
+    ];
   },
 
   async dashboardItems(

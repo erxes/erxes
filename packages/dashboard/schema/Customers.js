@@ -7,6 +7,10 @@ cube(`Customers`, {
     Integrations: {
       relationship: `belongsTo`,
       sql: `${Customers}.integrationId = ${Integrations}._id`
+    },
+    CustomersTag: {
+      sql: `${CUBE}._id = ${CustomersTag}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -18,8 +22,8 @@ cube(`Customers`, {
 
   dimensions: {
     _id: {
-      sql: `_id`,
-      type: `number`,
+      sql: `CONCAT(${CUBE}._id)`,
+      type: `string`,
       primaryKey: true
     },
 
