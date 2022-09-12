@@ -21,9 +21,9 @@ The Email template is also used with the Sales Pipeline/Task Management/Ticket p
 
 ### Setting up email template plugin
 
-The Email plugin is available at erxes <a href="https://erxes.io/marketplace/detail/62bbf5a84d8f5eff723faf64">marketplace</a> for all users when you <a href="https://erxes.io/experience-management">get started</a> with erxes. It comes with the Campaign plugin for free as it’s one of the core plugins erxes provides.
+The Email plugin is available at erxes **<a href="https://erxes.io/marketplace/detail/62bbf5a84d8f5eff723faf64">marketplace</a>** for all users when you **<a href="https://erxes.io/experience-management">get started</a>** with erxes. It comes with the Campaign plugin for free as it’s one of the core plugins erxes provides.
 
-⚙️ Self-hosted client, please go to <a href="https://docs.erxes.io/docs/plugins/plugin-installation">the plugin installation documentation</a> to install the Email template plugin after installing the erxes XOS.
+⚙️ Self-hosted client, please go to **<a href="https://docs.erxes.io/docs/plugins/plugin-installation">the plugin installation documentation</a>** to install the Email template plugin after installing the erxes XOS.
 
 ‍💻  SaaS clients, when you sign-up for the Email template plugin, will be there already, so just go along with this guideline to get started with this plugin 
 
@@ -46,15 +46,8 @@ The Email Template plugin can be found in the settings section on the bottom lef
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.email.gif" width="100%" alt="Edit/Delete/Duplicate the email template"></img>
 
+
 👇 Now that you’re already created your email template, please go to the following use cases to learn more about how you can **Email Template.**
 
 
 ✌️ Enjoy your journey with the Email template plugin!  
-
-
-
-
-
-
-
-
