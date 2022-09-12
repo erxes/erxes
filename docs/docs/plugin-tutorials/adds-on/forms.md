@@ -45,15 +45,16 @@ Filter by Status
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.forms.png" width="100%" alt="Where to find Forms"></img>
 
+### Prerequisite
 
-:::Prerequisite
+:::info
 
 Before you start creating your forms you need to make sure you have created your brands & channels
 
 In order to efficiently manage your customer communications when you have several brands and team units like departments or products/services operating in your organization, you need to create brands and channels dedicated to those separate units. 
 
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/brands">**Brands**</a> are usually linked to the source of communication channels dedicated to products and services, please find more information here. 
-- <a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/inbox/channels">**Channels**</a> are usually linked to group team members dedicated to particular channels like Sales, Marketing, and etc. You can direct the form you're creating to the team dedicated to get an access to it with Brands/Channels.
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/xos-features/brands">Brands</a>** are usually linked to the source of communication channels dedicated to products and services, please find more information here. 
+- **<a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/inbox/channels">Channels</a>** are usually linked to group team members dedicated to particular channels like Sales, Marketing, and etc. You can direct the form you're creating to the team dedicated to get an access to it with Brands/Channels.
  
 :::
 
