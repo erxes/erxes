@@ -1,3 +1,4 @@
+import { debugBase } from '@erxes/api-utils/src/debuggers';
 import { IContext } from '../../../connectionResolver';
 import {
   sendCoreMessage,
@@ -110,7 +111,10 @@ const participantMutations = {
     const cpUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
-      data: { erxesCustomerId: driverId },
+      data: {
+        erxesCustomerId: driverId,
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
       isRPC: true,
       defaultValue: null
     });
