@@ -285,7 +285,11 @@ const sendNotifications = async (
               false
             ),
             customerId: conversation.customerId,
-            conversationId: conversation._id
+            conversationId: conversation._id,
+            data: {
+              type: 'messenger',
+              id: conversation._id
+            }
           }
         });
       } catch (e) {
