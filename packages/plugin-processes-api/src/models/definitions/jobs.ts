@@ -110,6 +110,7 @@ export const productsDataSchema = new Schema({
   quantity: field({ type: Number, label: 'Quantity' }),
   uomId: field({ type: String, label: 'UOM' }),
   uom: field({ type: Object }),
+  proportion: field({ type: Number, optional: true }),
   branchId: field({ type: String, optional: true, label: 'Branch' }),
   departmentId: field({ type: String, optional: true, label: 'Department' })
 });

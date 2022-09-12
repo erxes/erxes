@@ -10,9 +10,7 @@ const ProductList = asyncComponent(() =>
 );
 
 const Details = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "FlowForm" */ '../flowUi/containers/forms/FlowForm'
-  )
+  import(/* webpackChunkName: "FlowForm" */ './containers/forms/FlowForm')
 );
 
 const productService = ({ location, history }) => {

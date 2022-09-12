@@ -1,5 +1,6 @@
 import { colors, dimensions } from '@erxes/ui/src/styles';
 import styled from 'styled-components';
+import { Table } from '@erxes/ui/src';
 
 const InfoDetail = styled.p`
   margin: 0;
@@ -50,6 +51,19 @@ export const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
   max-width: 640px;
   margin: 0 auto;
+`;
+
+export const TableOver = styled(Table)`
+  box-shadow: 1px solid black;
+  border-collapse: collapse;
+
+  tbody {
+    td {
+      padding: 4px 8px 4px 0;
+      border-top-width: 0px;
+      border-bottom: none;
+    }
+  }
 `;
 
 export { InfoDetail, ProductContent, OverallWorkSidebar };

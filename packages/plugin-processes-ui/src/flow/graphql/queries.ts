@@ -1,16 +1,17 @@
 import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 
 const flowFields = `
-_id
-createdAt
-createdBy
-updatedAt
-updatedBy
-name
-categoryId
-status
-flowJobStatus
-jobs
+  _id
+  createdAt
+  createdBy
+  updatedAt
+  updatedBy
+  name
+  categoryId
+  productId
+  product
+  status
+  flowJobStatus
 `;
 
 const flows = `
@@ -32,17 +33,7 @@ query flowsAll {
 const flowDetail = `
 query flowDetail($_id: String!) {
   flowDetail(_id: $_id) {
-    _id
-    createdAt
-    createdBy
-    updatedAt
-    updatedBy
-    name
-    categoryId
-    productId
-    product
-    status
-    flowJobStatus
+    ${flowFields}
     jobs
   }
 }

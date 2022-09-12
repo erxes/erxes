@@ -1,5 +1,5 @@
 module.exports = {
-  products: {
+  processes: {
     name: 'processes',
     description: 'Processes',
     actions: [
