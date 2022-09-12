@@ -1,14 +1,14 @@
-import { formatValue } from '@erxes/ui/src/utils';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils/core';
-import { ICar, IProductCategory } from '../../types';
-
 import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
-import { FlexItem } from '../../styles';
 import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import React from 'react';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import { formatValue } from '@erxes/ui/src/utils';
+import { renderFullName } from '@erxes/ui/src/utils/core';
 import _ from 'lodash';
+import React from 'react';
+
+import { FlexItem } from '../../styles';
+import { ICar, IProductCategory } from '../../types';
 
 type Props = {
   car: ICar;
@@ -30,6 +30,17 @@ function displayValue(car, name, index) {
 
   if (name === '#') {
     return <TextInfo>{index.toString()}</TextInfo>;
+  }
+
+  if (name === 'driver') {
+    console.log('car.customers', car.customers);
+
+    const driver =
+      car.customers && car.customers.length ? car.customers[0] : null;
+    if (car.customers && car.customers.length > 0) {
+      console.log('customers = ', car.customers);
+    }
+    return <TextInfo>{driver ? renderFullName(driver) : '-'}</TextInfo>;
   }
 
   return formatValue(value);

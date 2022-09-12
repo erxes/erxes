@@ -83,6 +83,20 @@ export const carFields = `
   category {
     ${carCategoryFields}
   }
+
+  customers {
+    _id
+    firstName
+    lastName
+    primaryEmail
+    primaryPhone
+  }
+  
+  companies {
+    _id
+    primaryName
+    website
+  }
   color
   fuelType
   engineChange
@@ -258,19 +272,7 @@ export const carDetail = `
   query carDetail($_id: String!) {
     carDetail(_id: $_id) {
       ${carFields}
-      customers {
-        _id
-        firstName
-        lastName
-        primaryEmail
-        primaryPhone
-      }
       
-      companies {
-        _id
-        primaryName
-        website
-      }
 
       attachments {
         name

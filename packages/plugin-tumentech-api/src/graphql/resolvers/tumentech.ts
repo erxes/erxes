@@ -14,6 +14,8 @@ const Cars = {
   },
 
   customers(car) {
+    console.log('car :>> ', car);
+
     async ({ models, subdomain }) => {
       const customerIds = await sendCoreMessage({
         subdomain,
@@ -26,6 +28,8 @@ const Cars = {
         isRPC: true,
         defaultValue: []
       });
+
+      console.log('customerIds', customerIds);
 
       return models.Customers.find({ _id: { $in: customerIds || [] } });
     };
