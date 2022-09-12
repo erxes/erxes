@@ -95,18 +95,6 @@ cube(`Cars`, {
       type: `string`
     },
 
-    lifttype: {
-      sql: `${CUBE}.\`liftType\``,
-      type: `string`,
-      title: 'Lift Type'
-    },
-
-    liftwagoncapacityvalue: {
-      sql: `${CUBE}.\`liftWagonCapacityValue\``,
-      type: `string`,
-      title: 'Lift-Wagon Capacity Value'
-    },
-
     manufacture: {
       sql: `manufacture`,
       type: `string`,
@@ -125,11 +113,6 @@ cube(`Cars`, {
 
     platenumber: {
       sql: `${CUBE}.\`plateNumber\``,
-      type: `string`
-    },
-
-    pumpcapacity: {
-      sql: `${CUBE}.\`pumpCapacity\``,
       type: `string`
     },
 
@@ -178,28 +161,10 @@ cube(`Cars`, {
       title: 'Created Date'
     },
 
-    diagnosisdate: {
-      sql: `${CUBE}.\`diagnosisDate\``,
-      type: `time`,
-      title: 'Diagnosis Date'
-    },
-
     modifiedat: {
       sql: `${CUBE}.\`modifiedAt\``,
       type: `time`,
       title: 'Modified Date'
-    },
-
-    rediagnosisdate: {
-      sql: `${CUBE}.\`reDiagnosisDate\``,
-      type: `time`,
-      title: 'Re-Diagnosis Date'
-    },
-
-    taxdate: {
-      sql: `${CUBE}.\`taxDate\``,
-      type: `time`,
-      title: 'Tax Date'
     }
   },
 
