@@ -61,153 +61,152 @@ In order to efficiently manage your customer communications when you have severa
 **Step one.** Style the form
 
 You can change the theme colour from choice of colours provided or you can enter your desired colour code on the field.  
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/5.forms.gif" width="100%" alt="Styling forms"></img>
+
+
 View of form flow types are below:
 
-
+---
 
 **Step two.** Create Callout page
 
 Your form can have callout display where people can press on that to get access to the actual form. 
 
-Note
-*If you want to your form to appear instantly, you can skip this part.  
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/6.forms.gif" width="100%" alt="Callout page on form"></img>
 
 
+:::note
 
-(Ene n ter gesen yg nariin bodit amidrl dr hargdj baigaa jisheetei haritsuulj haruulh- sumaar zaah esvl dugaarar n haruulh inghde hesg buriin jijig tailbrig oruulh
-1. Brief title of form 
-2. Interpretation of what your form about
-3. Button name accessing to the actual form
-4. Chosen image will be showed on a display page
-5. Callout image size options)
+If you want to your form to appear instantly, you can skip this part. 
 
-Step three. Create a content for your form. 
+:::
 
+**Step three.** Create a content for your form. 
 
-Text input
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/7.forms.gif" width="100%" alt="create content for your form"></img>
 
-Text area
+- Text input
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/8.forms.gif" width="100%" alt="text input in form"></img>
 
-Checkbox
- 
-Radio button
+- Text area
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/9.forms.gif" width="100%" alt="text area in form"></img>
 
-Select
-
-File
-
-Email
-
-Phone
-
-First name
-
-Middle name
-
-Last name
-
-Company name
-
-Company email
-
-Company phone
-
-HTML
-
-Product/Service
-
-Object list
+- Checkbox
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/10.forms.gif" width="100%" alt="checkbox in form"></img>
 
 
-Note
+- Radio button
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/11.forms.gif" width="100%" alt="radio button in form"></img>
 
-If you use First Name, Last name and etc from this field, filled out information will automatically sink to your customer database.
+- Select
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/12.forms.gif" width="100%" alt="select in form"></img>
+
+- File
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/13.forms.gif" width="100%" alt="file in form"></img>
+
+:::tip
+
+If you use the following fields for your forms, the filled out information will automatically sink to your customer database.
+
+:::
+
+- Email
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/14.forms.gif" width="100%" alt="email in form"></img>
+
+- Phone
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/15.forms.gif" width="100%" alt="phone in form"></img>
+
+- First name
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/16.forms.gif" width="100%" alt="first name in form"></img>
+
+- Middle name
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/17.forms.gif" width="100%" alt="middle name in form"></img>
+
+- Last name
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/18.froms.gif" width="100%" alt="last name in form"></img>
+
+- Company name
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/19.forms.gif" width="100%" alt="company name in form"></img>
+
+- Company email
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/20.forms.gif" width="100%" alt="company email in form"></img>
+
+- Company phone
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/21.forms.gif" width="100%" alt="company phone in form"></img>
+
+- HTML: You can create the field that allows attachechment file with HTML
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/22.forms.gif" width="100%" alt="HTML in form"></img>
+
+- Product/Service
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/23.forms.gif" width="100%" alt="product & service in form"></img>
+
+- Object list
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/24.forms.gif" width="100%" alt="object lists in form"></img>
 
 
 ⭐ PLUGIN HIGHLIGHT 
 
-FORM LOGIC
+### FORM LOGIC
 
 erxes can create forms with high level logic where you can enhance the purpose of your form. 
 
-
- 
-
-
-(logic holboj buigaar gif oruulsn, ghde tailbarlasn bichleg heregt)
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/25.forms.gif" width="100%" alt="form logic"></img>
 
 
-Step Four. Add rules on your form. 
-
+**Step Four.** Add rules on your form. 
 
 You can customize your own rules customizing among following 5 custom rules to target on the audiences.
- Browser language rule
-You can choose which language you want to display your form. Language codes in value field as appointed in ISO-639, i.e “en” for English, “fr” for French, “de” for German etc.
-
- Curren page URL
-Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on https://office.erxes.io/pricing - then write /pricing.
-
-Country
-Locates visitor’s physical location in country resolution. Insert only Country codes in value field as appointed in ISO-3166standard, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.
-
-City
-Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.
-
-Number of visits
-Counts individual visitor’s visitting number. For example, you can show the form only if a visitor views the webpage more than 5 times.
-
-
  
+- **Browser language rule** You can choose which language you want to display your form. Language codes in value field as appointed in **ISO-639**, i.e “en” for English, “fr” for French, “de” for German etc.
+- **Curren page URL** Write your desired page URL, excluding domain name. For example: If you want to place your engagement message on **https://office.erxes.io/pricing** - then write /pricing.
+- **Country** Locates visitor’s physical location in country resolution. Insert only Country codes in value field as appointed in **ISO-3166 standard**, i.e “gb” for Great Britain, “fr” for French, “de” for German, “jp” for Japanese etc.
+- **City** Locates visitor’s physical location in city resolution. Write a name of the City in value field. If Country’s not set, every city with same name will meet the criteria.
+
+- **Number of visits** Counts individual visitor’s visitting number. For example, you can show the form only if a visitor views the webpage more than 5 times.
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/26.forms.gif" width="100%" alt="add rules on form"></img>
 
 
-(enen dr zgr door n tailbar bichih)
-
-
-Step five. Inserting options that the form would be recognized internally.
+**Step five.** Inserting options that the form would be recognized internally.
 
 In this section, you’ll insert the information about the forms identified within your organization internally. 
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/27.forms.gif" width="100%" alt="insert internal information on form"></img>
 
-
-
-Step six. Advance styling
+**Step six.** Advance styling
 
 In this section you’ll insert the HTML code to style the form in advanced level. 
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/28.forms.png" width="100%" alt="advance styling on form"></img>
 
-
-
-(Video shows how to style form in advanced level)
-
-Step seven. Confirmation 
+**Step seven.** Confirmation 
 
 Final section is for setting up the actions and content after forms been filled out. 
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/29.forms.gif" width="100%" alt="confirmation on form"></img>
 
 
+**Step eight.** Installing the form script 
+
+Once you've created your form you need to place your form to your desired places like, your website, mobile application, landing page, client portal page and etc by using <a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/inbox/scripts">**erxes Script intallation feature.**</a>
 
 
-Step eight. Installing the form script 
+### Everyday with Forms
 
 
-
-USING FORMS
-
-
-
-To receive forms in different ways:
+- You can **receive completed forms** in the following ways:
 
 Receive forms in team inbox
 Receive forms in dedicated pipeline
 Receive forms in email 
 
 
-(3 video shows how to receive submitted forms in different ways)
+- **View the form performance**
 
-View the form performance
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/31.forms.png" width="100%" alt="view form performance"></img>
 
-/jkdGH/
+- **Managing your Forms** After you have created your form you can go back to the Forms page to manage all of the forms you have created. Within the main Forms page you will also be able to incorporate all of your Forms to your websites. Each Form you have created there will be an Actions section. From this section you will be able to:
 
-
-Managing your Forms:
-After you have created your form you can go back to the Forms page to manage all of the forms you have created. Within the main Forms page you will also be able to incorporate all of your Forms to your websites. Each Form you have created there will be an Actions section. From this section you will be able to:
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/32.forms.png" width="100%" alt="manage form"></img>
 
 Edit: Make changes to your Form
 Script code: To get access to form script code
@@ -217,5 +216,7 @@ Submissions: To see all the submitted forms by date & time.
 Duplicate: Duplicate the Form
 Delete: Delete Forms that are no longer needed
 
+ 
+Here you have everything you need to know about Forms, please go the following blog posts to learn about different use cases of Forms and master it.
 
-USE CASES
+✌️ Enjoy your journey with the Forms!  
