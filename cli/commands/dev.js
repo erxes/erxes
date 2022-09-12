@@ -72,7 +72,7 @@ module.exports.devCmd = async program => {
         PORT: (configs.core || {}).port || port,
         CLIENT_PORTAL_DOMAINS: configs.client_portal_domains || '',
         ...commonEnv,
-        ...((configs.core || {}).envs || {})
+        ...((configs.core || {}).extra_env || {})
       }
     }
   ];
