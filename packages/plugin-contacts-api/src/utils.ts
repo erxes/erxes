@@ -169,6 +169,35 @@ const generateUsersOptions = async (
   };
 };
 
+const generateBrandsOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  subdomain: string
+) => {
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: 'brands.find',
+    data: {
+      query: {}
+    },
+    isRPC: true
+  });
+
+  const options: Array<{ label: string; value: any }> = brands.map(brand => ({
+    value: brand._id,
+    label: brand.name
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
 const getTags = async (type: string, subdomain: string) => {
   const tags = await sendTagsMessage({
     subdomain,
@@ -328,6 +357,7 @@ export const generateFields = async ({ subdomain, data }) => {
     const integrations = await getIntegrations(subdomain);
 
     fields = [...fields, integrations];
+
     if (usageType === 'import') {
       fields.push({
         _id: Math.random(),
@@ -341,6 +371,17 @@ export const generateFields = async ({ subdomain, data }) => {
         label: 'Company Primary Emails'
       });
     }
+  }
+
+  if (process.env.USE_BRAND_RESTRICTIONS) {
+    const brandsOptions = await generateBrandsOptions(
+      'scopeBrandIds',
+      'Brands',
+      'brand',
+      subdomain
+    );
+
+    fields.push(brandsOptions);
   }
 
   fields = [...fields, ownerOptions];
