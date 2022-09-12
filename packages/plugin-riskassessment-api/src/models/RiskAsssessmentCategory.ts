@@ -1,13 +1,13 @@
-import { paginate } from '@erxes/api-utils/src'
-import { escapeRegExp } from '@erxes/api-utils/src/core'
-import { Model } from 'mongoose'
-import { IModels } from '../connectionResolver'
-import { sendFormsMessage } from '../messageBroker'
-import { IRiskAssessmentCategoryField, PaginateField } from './definitions/common'
+import { paginate } from '@erxes/api-utils/src';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
+import { Model } from 'mongoose';
+import { IModels } from '../connectionResolver';
+import { sendFormsMessage } from '../messageBroker';
+import { IRiskAssessmentCategoryField, PaginateField } from './definitions/common';
 import {
   IRiskAssessmentCategoryDocument,
-  riskAssessmentCategorySchema
-} from './definitions/riskassessment'
+  riskAssessmentCategorySchema,
+} from './definitions/riskassessment';
 
 export interface IRiskAssessmentCategoryModel extends Model<IRiskAssessmentCategoryDocument> {
   addAssessmentCategory(
@@ -49,7 +49,7 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         throw new Error('please type the assessment category fields');
       }
 
-      const isParamsHasError = await this.checkParams(params,true);
+      const isParamsHasError = await this.checkParams(params, true);
 
       if (isParamsHasError) {
         throw new Error(isParamsHasError);
@@ -62,8 +62,6 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
     };
 
     public static getAssessmentCategories = (params: IRiskAssessmentCategoryField) => {
-      console.log(params);
-
       const filter = generateFilter(params);
 
       return paginate(models.RiskAssessmentCategory.find(filter), params);
@@ -161,7 +159,7 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       return parent ? `${parent.order}/${code}` : `${name}${code}`;
     }
 
-    static async checkParams(params: IRiskAssessmentCategoryField,checkCode?:boolean) {
+    static async checkParams(params: IRiskAssessmentCategoryField, checkCode?: boolean) {
       if (!params.formId) {
         return 'You must a build form';
       }
@@ -174,7 +172,7 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
         return 'You must provide code';
       }
 
-      if (checkCode&&await models.RiskAssessmentCategory.findOne({ code: params.code })) {
+      if (checkCode && (await models.RiskAssessmentCategory.findOne({ code: params.code }))) {
         return 'Code must be unique';
       }
     }

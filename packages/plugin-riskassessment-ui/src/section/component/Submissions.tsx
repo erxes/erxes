@@ -1,8 +1,7 @@
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
-import { Box, Button, getEnv, Icon, SectionBodyItem, Tip, __ } from '@erxes/ui/src';
+import { Button } from '@erxes/ui/src';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-import { ProductName } from '../../styles';
 
 type Props = {
   fields: any;
@@ -20,7 +19,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      submissions: this.props.submissions || {}
+      submissions: this.props.submissions || {},
     };
 
     this.handleSumbmissionForm = this.handleSumbmissionForm.bind(this);
@@ -33,7 +32,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
 
     formSubmissionsSave({
       formSubmissions: submissions,
-      formId
+      formId,
     });
   }
 
@@ -41,12 +40,12 @@ class SubmissionsComponent extends React.Component<Props, State> {
     const { fields } = this.props;
     const { submissions } = this.state;
 
-    const handleChange = field => {
+    const handleChange = (field) => {
       submissions[field._id] = field.value;
       this.setState({ submissions });
     };
 
-    return fields.map(field => (
+    return fields.map((field) => (
       <GenerateField
         isEditing={true}
         defaultValue={submissions[field._id]}
@@ -59,19 +58,21 @@ class SubmissionsComponent extends React.Component<Props, State> {
   }
 
   render() {
-    const { closeModal } = this.props;
+    const { closeModal, submissions } = this.props;
 
     return (
       <div>
         {this.renderForm()}
+        {/* {__.isEmpty(submissions) && ( */}
         <ModalFooter>
-          <Button btnStyle="simple" onClick={closeModal}>
+          <Button btnStyle='simple' onClick={closeModal}>
             Cancel
           </Button>
-          <Button btnStyle="success" onClick={this.handleSumbmissionForm}>
+          <Button btnStyle='success' onClick={this.handleSumbmissionForm}>
             Submit
           </Button>
         </ModalFooter>
+        {/* )} */}
       </div>
     );
   }

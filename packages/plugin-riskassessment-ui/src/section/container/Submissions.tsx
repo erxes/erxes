@@ -12,6 +12,8 @@ type Props = {
   closeModal: () => void;
   currentUserId?: string;
   refetch: () => void;
+  refetchSubmissions: () => void;
+  riskAssessmentId?: string;
 };
 
 type FinalProps = {
@@ -31,24 +33,27 @@ class Submissions extends React.Component<FinalProps> {
       cardId,
       closeModal,
       currentUserId,
-      refetch
+      refetch,
+      refetchSubmissions,
+      riskAssessmentId,
     } = this.props;
 
-    const formSubmissionsSave = doc => {
+    const formSubmissionsSave = (doc) => {
       const variables = {
         ...doc,
-        contentTypeId: cardId,
-        contentType: 'form',
-        userId: currentUserId
+        cardId,
+        userId: currentUserId,
+        riskAssessmentId,
       };
 
       saveFormSubmissions({ variables })
         .then(() => {
           Alert.success('Risk assessment submitted successfully');
           refetch();
+          refetchSubmissions();
           closeModal();
         })
-        .catch(err => {
+        .catch((err) => {
           Alert.error(err.message);
         });
     };
@@ -62,7 +67,7 @@ class Submissions extends React.Component<FinalProps> {
       submissions: formDetail.riskConfirmityFormDetail.submissions,
       formId: formDetail.riskConfirmityFormDetail.formId,
       formSubmissionsSave,
-      closeModal
+      closeModal,
     };
 
     return <SubmissionsComponent {...updatedProps} />;
@@ -74,14 +79,14 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.riskConfirmityDetail), {
       name: 'formDetail',
       options: ({ cardId, currentUserId }) => ({
-        variables: { cardId, userId: currentUserId }
-      })
+        variables: { cardId, userId: currentUserId },
+      }),
     }),
-    graphql<Props>(gql(mutations.formSubmissionsSave), {
+    graphql<Props>(gql(mutations.riskFormSaveSubmission), {
       name: 'saveFormSubmissions',
       options: () => ({
-        refetchQueries: ['formDetail']
-      })
+        refetchQueries: ['formDetail'],
+      }),
     })
   )(Submissions)
 );

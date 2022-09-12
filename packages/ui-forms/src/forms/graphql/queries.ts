@@ -40,11 +40,9 @@ const fields = `
       productCategoryId
       isDefinedByErxes
       optionsObj {
-        key
         label
         value
       },
-      riskAssessmentFieldType
     }
   }
 `;

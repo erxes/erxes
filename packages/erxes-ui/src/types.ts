@@ -81,9 +81,8 @@ export interface IObjectListConfig {
 }
 
 export interface IObjectObjType {
-  key: number;
   label: string;
-  value: string;
+  value:number
 }
 export interface IField {
   _id: string;
@@ -126,8 +125,6 @@ export interface IField {
   keys?: string[];
   productCategoryId?: string;
   optionsObj?: IObjectObjType[];
-  riskAssessmentFieldValue?: string;
-  riskAssessmentFieldType?: string;
 }
 
 export interface IFormProps {

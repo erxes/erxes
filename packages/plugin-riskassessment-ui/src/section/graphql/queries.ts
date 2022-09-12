@@ -1,8 +1,8 @@
 import { riskConfirmityParams } from '../../common/graphql';
 
 const riskAssessments = `
-  query RiskAssesments($categoryId: String,,$searchValue: String,$perPage: Int) {
-    riskAssesments(categoryId: $categoryId ,perPage: $perPage,searchValue: $searchValue) {
+  query RiskAssesments($categoryId: String,,$searchValue: String,$perPage: Int,$status: String) {
+    riskAssesments(categoryId: $categoryId ,perPage: $perPage,searchValue: $searchValue,status: $status) {
       list{_id,name,description,status,categoryId},totalCount
     }
   }
@@ -14,6 +14,7 @@ const riskConfirmities = `
       cardId
       riskAssessmentId
       name
+      statusColor
     }
   }
 `;
@@ -46,5 +47,5 @@ export default {
   riskConfirmities,
   riskConfimityDetails,
   riskConfirmitySubmissions,
-  riskConfirmityDetail
+  riskConfirmityDetail,
 };

@@ -13,6 +13,22 @@ export const types = `
         status: String
     }
 
+    input CalculateLogicInput {
+        _id: String,
+        name: String,
+        value: Int
+        value2:Int
+        logic: String,
+        color: String
+    }
+    type CalculateLogicType {
+        _id: String,
+        name: String,
+        value: Int
+        logic: String,
+        color: String
+    }
+
     type RiskAssessmentCategoryInput {
         ${commonAssessmentCategoryTypes}
     }
@@ -23,8 +39,11 @@ export const types = `
         description: String
         categoryId: String
         status: String
+        statusColor: String
         createdAt:Date
         category:RiskAssessmentCategoryInput
+        calculateMethod:String
+        calculateLogics:[CalculateLogicType]
     }
     type list {
         list: [RiskAssessment]
@@ -33,11 +52,11 @@ export const types = `
 `;
 
 export const queries = `
-    riskAssesments (categoryId:String,${commonPaginateTypes}):list
+    riskAssesments (categoryId:String,${commonPaginateTypes},status:String):list
     riskAssessmentDetail(_id: String): RiskAssessment
 `;
 export const mutations = `
-    addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes}):JSON
+    addRiskAssesment (${commonRiskAssessmentTypes}${commonTypes},calculateLogics:[CalculateLogicInput]):JSON
     removeRiskAssessment (_ids:[String]):JSON
     updateRiskAssessment (_id:String,doc:RiskAssessmentInput):JSON
 `;

@@ -30,9 +30,16 @@ mutation FormSubmissionsSave($contentType: String, $contentTypeId: String, $form
 }
 `;
 
+const riskFormSaveSubmission = `
+  mutation RiskFormSaveSubmissions($cardId: String, $fieldId: String, $formId: String, $formSubmissions: JSON, $userId: String,$riskAssessmentId:String) {
+    riskFormSaveSubmissions(cardId: $cardId, fieldId: $fieldId, formId: $formId, formSubmissions: $formSubmissions, userId: $userId,riskAssessmentId: $riskAssessmentId)
+  }
+`;
+
 export default {
   confirmityRiskAssessment,
   editConfimityRiskAssessment,
   removeConfirmityRiskAssessment,
-  formSubmissionsSave
+  formSubmissionsSave,
+  riskFormSaveSubmission,
 };

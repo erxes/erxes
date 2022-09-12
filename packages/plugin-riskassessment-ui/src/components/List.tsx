@@ -1,12 +1,12 @@
-import { BarItems, Button, FormControl, ModalTrigger, Table } from '@erxes/ui/src'
-import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types'
-import _loadash from 'lodash'
-import React from 'react'
-import AssessmentCategories from '../categories/container/List'
-import { ICommonListProps, RiskAssesmentsType } from '../common/types'
-import { DefaultWrapper } from '../common/utils'
-import Form from '../containers/Form'
-import TableRow from './Row'
+import { BarItems, Button, FormControl, ModalTrigger, Table } from '@erxes/ui/src';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
+import _loadash from 'lodash';
+import React from 'react';
+import AssessmentCategories from '../categories/container/List';
+import { ICommonListProps, RiskAssesmentsType } from '../common/types';
+import { DefaultWrapper } from '../common/utils';
+import Form from '../containers/Form';
+import TableRow from './Row';
 
 type Props = {
   queryParams: any;
@@ -35,10 +35,6 @@ class ListComp extends React.Component<Props, IState> {
     this.selectValue = this.selectValue.bind(this);
   }
 
-  generateDoc = (values) => {
-    return { ...values };
-  };
-
   selectValue(id: string) {
     const { selectedValue } = this.state;
     if (selectedValue.includes(id)) {
@@ -62,9 +58,7 @@ class ListComp extends React.Component<Props, IState> {
   }
 
   renderForm = (props) => {
-    return (
-      <Form {...props} renderButton={this.props.renderButton} generateDoc={this.generateDoc} />
-    );
+    return <Form {...props} renderButton={this.props.renderButton} />;
   };
 
   renderFormContent = (props) => {
@@ -73,28 +67,30 @@ class ListComp extends React.Component<Props, IState> {
   };
 
   rightActionBarTrigger = (
-    <Button btnStyle="success" icon="plus-circle">
+    <Button btnStyle='success' icon='plus-circle'>
       Add Risk Assessment
     </Button>
   );
 
   rightActionBar = (
     <ModalTrigger
-      title="Add Risk Assessment"
+      title='Add Risk Assessment'
       enforceFocus={false}
       trigger={this.rightActionBarTrigger}
-      autoOpenKey="showListFormModal"
+      autoOpenKey='showListFormModal'
       content={this.renderFormContent}
-      dialogClassName="transform"
+      dialogClassName='transform'
+      size='lg'
     />
   );
   handleRemoveBtn = () => {
     const { remove } = this.props;
     const { selectedValue } = this.state;
     remove(selectedValue);
+    this.setState({ selectedValue: [] });
   };
   RemoveBtn = (
-    <Button btnStyle="danger" icon="cancel-1" onClick={this.handleRemoveBtn}>
+    <Button btnStyle='danger' icon='cancel-1' onClick={this.handleRemoveBtn}>
       Remove
     </Button>
   );
@@ -114,15 +110,15 @@ class ListComp extends React.Component<Props, IState> {
   renderSearchField = () => {
     return (
       <FormControl
-        type="text"
-        placeholder="type a search"
+        type='text'
+        placeholder='type a search'
         onChange={this.handleSearch}
         value={this.state.searchValue}
       />
     );
   };
 
-  renderContent = (list:RiskAssesmentsType[]) => {
+  renderContent = (list: RiskAssesmentsType[]) => {
     const { selectedValue } = this.state;
     return (
       <Table>
@@ -131,7 +127,7 @@ class ListComp extends React.Component<Props, IState> {
             <th>
               {list && (
                 <FormControl
-                  componentClass="checkbox"
+                  componentClass='checkbox'
                   checked={_loadash.isEqual(
                     selectedValue,
                     list.map((object) => object._id)

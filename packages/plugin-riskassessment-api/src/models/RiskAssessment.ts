@@ -19,6 +19,12 @@ export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
   }): Promise<IRiskAssessmentDocument>;
 }
 
+const statusColors = {
+  Error: '#ea475d',
+  Warning: '#f7ce53',
+  Success: '#3ccc38',
+};
+
 const generateFilter = (
   params: { _id?: string; categoryId?: string } & IRiskAssessmentField & PaginateField
 ) => {
@@ -47,7 +53,7 @@ const generateFilter = (
   }
 
   if (params.status) {
-    filter.status = params.status;
+    filter.statusColor = statusColors[params.status];
   }
   if (params.searchValue) {
     filter.name = { $regex: new RegExp(escapeRegExp(params.searchValue), 'i') };
@@ -78,8 +84,8 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
           from: 'risk_assessment_categories',
           localField: 'categoryId',
           foreignField: '_id',
-          as: 'category'
-        }
+          as: 'category',
+        },
       };
       const filter = generateFilter(params);
 
@@ -99,6 +105,7 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       } catch (e) {
         throw new Error(e.message);
       }
+
       return model.RiskAssessment.create({ ...params });
     }
 
@@ -106,8 +113,14 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
       if (!_ids) {
         throw new Error('Please select a list of risk assessment IDs');
       }
-      await model.RiskAssessment.deleteMany({ _id: { $in: _ids } });
-      return;
+      try {
+        await model.RiskConfimity.deleteMany({ riskAssessmentId: { $in: _ids } });
+        await model.RiksFormSubmissions.deleteMany({ riskAssessmentId: { $in: _ids } });
+        await model.RiskAssessment.deleteMany({ _id: { $in: _ids } });
+        return true;
+      } catch (e) {
+        throw new Error(e.message);
+      }
     }
 
     public static async riskAssessmentUpdate(params: { _id: string; doc: IRiskAssessmentField }) {
@@ -137,15 +150,14 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
           from: 'risk_assessment_categories',
           localField: 'categoryId',
           foreignField: '_id',
-          as: 'category'
-        }
+          as: 'category',
+        },
       };
       const unwind = {
-        $unwind: '$category'
+        $unwind: '$category',
       };
 
       const [first] = await model.RiskAssessment.aggregate([match, lookup, unwind]);
-
       return first;
     }
   }

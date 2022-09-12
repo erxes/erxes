@@ -6,12 +6,22 @@ input RiskAssessmentInput {
   description: String
   categoryId: String
   status: String
+  calculateMethod:String
+  calculateLogics:[CalculateLogicInput]
+}
+input CalculateLogicInput {
+  _id: String,
+  name: String,
+  value: Int
+  value2:Int
+  logic: String
+  color: String
 }
 `;
 
 const riskAssessmentAdd = `
-  mutation AddRiskAssesment(${riskAssessmentDef}) {
-    addRiskAssesment(${riskAssessmentValues})
+  mutation AddRiskAssesment(${riskAssessmentDef},$calculateLogics:[CalculateLogicInput]) {
+    addRiskAssesment(${riskAssessmentValues},calculateLogics:$calculateLogics)
   }
 `;
 

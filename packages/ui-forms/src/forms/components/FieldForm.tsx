@@ -9,7 +9,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label'
 import Icon from '@erxes/ui/src/components/Icon'
 import { FlexItem } from '@erxes/ui/src/components/step/styles'
 import Toggle from '@erxes/ui/src/components/Toggle'
-import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types'
+import { IField, IFieldLogic, IObjectObjType, IOption } from '@erxes/ui/src/types'
 import { __ } from '@erxes/ui/src/utils'
 import React from 'react'
 import Modal from 'react-bootstrap/Modal'
@@ -26,7 +26,6 @@ import FieldLogics from './FieldLogics'
 import FieldPreview from './FieldPreview'
 import LocationOptions from './LocationOptions'
 import ObjectListConfigs from './ObjectListConfigs'
-import RiskAssessmenOptions from './riskAssessmentConfig'
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -76,7 +75,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IObjectObjType[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -153,7 +152,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IObjectObjType[]
   ) {
     const { field } = this.state;
 
@@ -314,6 +313,43 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderOptionsValue(){
+
+    const {field} = this.state
+
+    const handleChange = (e) =>{
+      const {value} = e.currentTarget as HTMLInputElement
+      const items = value.split('\n')
+
+      const result = items.map(item=>{
+        if(item.match(/=/g)){
+          const label = item?.substring(0,item.indexOf('='))
+          const value = parseInt(item.substring(item?.indexOf('=')+1,item.length))
+          if(field.options?.includes(label)){
+            return {label,value}
+          }
+        }
+      },[]).filter(item=>item)
+
+      this.onFieldChange('optionsObj',result)
+    }
+
+    if(['select','radio'].includes(field.type)){
+      return (
+        <CollapseContent title={__('Field Value')}>
+          <FormGroup>
+            <ControlLabel>{__('Value')}</ControlLabel>
+            <FormControl
+              id="FieldValue"
+              componentClass="textarea"
+              onChange={handleChange}
+            />
+          </FormGroup>
+        </CollapseContent>
+      )
+    }
+  }
+
   renderPageSelect() {
     const { numberOfPages } = this.props;
     const { field } = this.state;
@@ -447,7 +483,7 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
-          {this.renderRiskAssessment()}
+          {/* {this.renderRiskAssessment()} */}
         </CollapseContent>
         {fields.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
@@ -458,6 +494,7 @@ class FieldForm extends React.Component<Props, State> {
             />
           </CollapseContent>
         )}
+        {this.renderOptionsValue()}
 
         <Modal.Footer>
           <Button
@@ -579,32 +616,32 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderRiskAssessment() {
-    const { field } = this.state;
-    if (field.type !== 'risk-assessment') {
-      return null;
-    }
+  // renderRiskAssessment() {
+  //   const { field } = this.state;
+  //   if (field.type !== 'risk-assessment') {
+  //     return null;
+  //   }
 
-    const onChangeRiskAssessment = e => {
-      const { value, name } = e.currentTarget as HTMLInputElement;
-      this.onFieldChange(name, value);
-    };
+  //   const onChangeRiskAssessment = e => {
+  //     const { value, name } = e.currentTarget as HTMLInputElement;
+  //     this.onFieldChange(name, value);
+  //   };
 
-    const onChangeOptions = (field, options) =>
-      this.onFieldChange(field, options);
+  //   const onChangeOptions = (field, options) =>
+  //     this.onFieldChange(field, options);
 
-    return (
-      <RiskAssessmenOptions
-        onchange={onChangeRiskAssessment}
-        defaultValue={field.riskAssessmentValue || ''}
-        fieldType={field.riskAssessmentFieldType || ''}
-        options={field.options || []}
-        onChangeOptions={onChangeOptions}
-        optionsObj={field.optionsObj}
-        riskAssessmentFieldType={field.riskAssessmentFieldType}
-      />
-    );
-  }
+  //   return (
+  //     <RiskAssessmenOptions
+  //       onchange={onChangeRiskAssessment}
+  //       defaultValue={field.riskAssessmentValue || ''}
+  //       fieldType={field.riskAssessmentFieldType || ''}
+  //       options={field.options || []}
+  //       onChangeOptions={onChangeOptions}
+  //       optionsObj={field.optionsObj}
+  //       riskAssessmentFieldType={field.riskAssessmentFieldType}
+  //     />
+  //   );
+  // }
 
   renderColumn() {
     const { field } = this.state;

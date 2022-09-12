@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import {
   IDealRiskAssessmentDetailQueryResponse,
-  IDealRiskAssessmentsQueryResponse
+  IDealRiskAssessmentsQueryResponse,
 } from '../../common/types';
 import AddRiskAssessmentForm from '../../containers/Form';
 import { mutations as riskAssessmentMutattions } from '../../graphql';
@@ -38,14 +38,14 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      perpage: 5
+      perpage: 5,
     };
 
     this.handleSelect = this.handleSelect.bind(this);
   }
 
   renderAddForm(props) {
-    const generateDoc = values => {
+    const generateDoc = (values) => {
       return { ...values };
     };
 
@@ -57,7 +57,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
           callback={callback}
           refetchQueries={refetchQueries}
           isSubmitted={isSubmitted}
-          type="submit"
+          type='submit'
           successMessage={`You successfully added risk assessment`}
         />
       );
@@ -68,7 +68,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     );
   }
 
-  handleSelect = item => {
+  handleSelect = (item) => {
     const {
       id,
       refetch,
@@ -76,7 +76,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
       confirmityDetail,
       editconfirmity,
       removeConfirmity,
-      refetchSubmissions
+      refetchSubmissions,
     } = this.props;
 
     if (item.length === 0) {
@@ -85,12 +85,12 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
           refetch();
           refetchSubmissions();
         })
-        .catch(e => Alert.error(e.message));
+        .catch((e) => Alert.error(e.message));
     }
 
     const variables = {
       cardId: id,
-      riskAssessmentId: item[0]._id
+      riskAssessmentId: item[0]._id,
     };
 
     if (confirmityDetail.riskConfirmityDetails.length > 0) {
@@ -99,7 +99,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
           refetch();
           refetchSubmissions();
         })
-        .catch(e => Alert.error(e.message));
+        .catch((e) => Alert.error(e.message));
     }
 
     addConfirmity({ variables })
@@ -107,7 +107,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
         refetch();
         refetchSubmissions();
       })
-      .catch(e => Alert.error(e.message));
+      .catch((e) => Alert.error(e.message));
   };
 
   search = (value: string, reload?: boolean) => {
@@ -118,7 +118,7 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
     this.setState({ perpage: this.state.perpage + 5 }, () =>
       this.props.riskAssessmentsQuery.refetch({
         searchValue: value,
-        perPage: this.state.perpage
+        perPage: this.state.perpage,
       })
     );
   };
@@ -136,12 +136,12 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
 
     return (
       <Chooser
-        title="Risk Assessment Forms"
+        title='Risk Assessment Forms'
         datas={list}
         data={{ name: 'name', datas: selectedItems }}
         search={this.search}
         clearState={() => this.search('', true)}
-        renderName={category => category.name}
+        renderName={(category) => category.name}
         renderForm={this.renderAddForm}
         onSelect={this.handleSelect}
         closeModal={() => closeModal()}
@@ -156,12 +156,12 @@ const refetchQueries = ({ id }) => ({
   refetchQueries: [
     {
       query: gql(queries.riskConfimityDetails),
-      variables: { cardId: id }
+      variables: { cardId: id },
     },
     {
-      query: gql(queries.riskConfimityDetails)
-    }
-  ]
+      query: gql(queries.riskConfimityDetails),
+    },
+  ],
 });
 
 export default withProps<Props>(
@@ -174,15 +174,16 @@ export default withProps<Props>(
       options: ({}) => ({
         variables: {
           perPage: 20,
-          searchValue: ''
+          searchValue: '',
+          status: 'In Progress',
         },
-        fetchPolicy: 'network-only'
-      })
+        fetchPolicy: 'network-only',
+      }),
     }),
     graphql<Props>(gql(queries.riskConfimityDetails), {
       name: 'confirmityDetail',
       options: ({ id }) => ({ variables: { cardId: id } }),
-      skip: ({ id }) => !isEnabled('riskassessment') || !id
+      skip: ({ id }) => !isEnabled('riskassessment') || !id,
     }),
 
     //Mutation
@@ -190,17 +191,17 @@ export default withProps<Props>(
     graphql<Props>(gql(mutations.confirmityRiskAssessment), {
       name: 'addConfirmity',
       skip: ({ id }) => !id,
-      options: ({ id }) => refetchQueries({ id })
+      options: ({ id }) => refetchQueries({ id }),
     }),
     graphql<Props>(gql(mutations.editConfimityRiskAssessment), {
       name: 'editconfirmity',
       skip: ({ id }) => !id,
-      options: ({ id }) => refetchQueries({ id })
+      options: ({ id }) => refetchQueries({ id }),
     }),
     graphql<Props>(gql(mutations.removeConfirmityRiskAssessment), {
       name: 'removeConfirmity',
       skip: ({ id }) => !id,
-      options: ({ id }) => refetchQueries({ id })
+      options: ({ id }) => refetchQueries({ id }),
     })
   )(RiskAssessmentForm)
 );

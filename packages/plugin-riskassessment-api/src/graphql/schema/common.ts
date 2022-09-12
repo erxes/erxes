@@ -11,6 +11,7 @@ export const commonPaginateTypes = `
     searchValue: String,
     sortFromDate: String,
     sortToDate: String
+    status: String
 `;
 
 export const commonRiskAssessmentTypes = `
@@ -18,6 +19,7 @@ export const commonRiskAssessmentTypes = `
     name: String!
     description: String!
     categoryId: String!
+    calculateMethod: String!
 `;
 
 export const commonRiskConfirmityTypes = `
@@ -31,4 +33,13 @@ export const commonAssessmentCategoryTypes = `
     name: String
     formId: String
     parentId: String
+`;
+
+export const commonFormSubmissionsTypes = `
+    cardId: String,
+    formId: String,
+    userId: String,
+    fieldId: String,
+    riskAssessmentId: String,
+    formSubmissions:JSON
 `;

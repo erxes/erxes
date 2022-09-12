@@ -1,17 +1,18 @@
-import { ICommonFormProps } from '@erxes/ui-settings/src/common/types'
-import { IRouterProps } from '@erxes/ui/src/types'
-import { withProps } from '@erxes/ui/src/utils/core'
-import gql from 'graphql-tag'
-import * as compose from 'lodash.flowright'
-import React from 'react'
-import { graphql } from 'react-apollo'
-import { withRouter } from 'react-router-dom'
+import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
+import { Spinner } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
 import {
   RiskAssesmentsCategoriesQueryResponse,
   RiskAssessmentDetailQueryResponse
-} from '../common/types'
-import FormCompnent from '../components/Form'
-import { queries } from '../graphql'
+} from '../common/types';
+import FormCompnent from '../components/Form';
+import { queries } from '../graphql';
 
 type Props = {
   asssessmentId?: string;
@@ -20,7 +21,6 @@ type Props = {
 
 type FinalProps = {
   object;
-  generateDoc: (values: any) => any;
   categories: RiskAssesmentsCategoriesQueryResponse;
 } & ICommonFormProps &
   IRouterProps &
@@ -41,6 +41,10 @@ class FormContainer extends React.Component<FinalProps> {
       assessmentDetail: assessmentDetail?.riskAssessmentDetail,
       detailLoading: assessmentDetail?.loading,
     };
+
+    if(assessmentDetail?.loading){
+      return <Spinner/>
+    }
 
     return <FormCompnent {...updatedProps} />;
   }

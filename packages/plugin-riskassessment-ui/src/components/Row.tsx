@@ -1,4 +1,4 @@
-import { Chip, colors, FormControl, ModalTrigger, Tags, Tip } from '@erxes/ui/src';
+import { colors, FormControl, ModalTrigger, Tip } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import moment from 'moment';
 import React from 'react';
@@ -17,11 +17,11 @@ class TableRow extends React.Component<IProps> {
   render() {
     const { object, selectedValue, onchange } = this.props;
 
-    const generateDoc = values => {
+    const generateDoc = (values) => {
       return { doc: { ...values }, _id: object._id };
     };
 
-    const generateStatusColor = value => {
+    const generateStatusColor = (value) => {
       switch (value) {
         case 'Risky':
           return colors.colorCoreRed;
@@ -31,7 +31,7 @@ class TableRow extends React.Component<IProps> {
           return colors.colorCoreBlue;
       }
     };
-    const onclick = e => {
+    const onclick = (e) => {
       e.stopPropagation();
     };
 
@@ -39,7 +39,7 @@ class TableRow extends React.Component<IProps> {
       <tr key={object._id}>
         <td onClick={onclick}>
           <FormControl
-            componentClass="checkbox"
+            componentClass='checkbox'
             checked={selectedValue.includes(object._id)}
             onChange={() => onchange(object._id)}
           />
@@ -47,31 +47,32 @@ class TableRow extends React.Component<IProps> {
         <td>{object.name}</td>
         <td>{object.category?.name || '-'}</td>
         <td>
-          <Badge color={generateStatusColor(object.status)}>{object.status}</Badge>
+          <Badge color={object.statusColor}>{object.status}</Badge>
         </td>
-        <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
+        <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement='bottom'>
           <td>{moment(object.createdAt).fromNow()}</td>
         </Tip>
       </tr>
     );
 
-    const contentForm = props => {
+    const contentForm = (props) => {
       const updatedProps = {
         ...this.props,
         ...props,
-        generateDoc
+        generateDoc,
       };
       return <Form {...updatedProps} asssessmentId={object._id} />;
     };
 
     return (
       <ModalTrigger
-        title="Edit Risk Assessment"
+        title='Edit Risk Assessment'
         enforceFocus={false}
         trigger={trigger}
-        autoOpenKey="showListFormModal"
+        autoOpenKey='showListFormModal'
         content={contentForm}
-        dialogClassName="transform"
+        dialogClassName='transform'
+        size='lg'
       />
     );
   }

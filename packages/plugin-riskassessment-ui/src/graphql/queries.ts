@@ -2,13 +2,11 @@ import {
   commonPaginateDef,
   commonPaginateValue,
   riskAssessmentCategoryParams,
-  riskAssessmentParams
+  riskAssessmentParams,
 } from '../common/graphql';
 const list = `
 query RiskAssesments($categoryId: String,${commonPaginateDef}) {
-  riskAssesments(categoryId: $categoryId , ${commonPaginateValue}) {list{${riskAssessmentParams({
-  status: true
-})}},totalCount}
+  riskAssesments(categoryId: $categoryId , ${commonPaginateValue}) {list{${riskAssessmentParams}},totalCount}
   }
 `;
 
@@ -38,5 +36,5 @@ export default {
   list,
   totalCount,
   listAssessmentCategories,
-  assessmentDetail
+  assessmentDetail,
 };

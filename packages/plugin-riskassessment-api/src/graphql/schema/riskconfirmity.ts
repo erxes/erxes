@@ -4,6 +4,7 @@ export const types = `
         cardId: String,
         riskAssessmentId: String,
         name:String
+        statusColor:String
     }
     type RiskConfirmityDetail{
         createdAt: String
@@ -29,7 +30,7 @@ export const queries = `
 `;
 
 export const mutations = `
-    addRiskConfirmity (cardId: String,riskAssessmentId: String,):RiskConfirmity
+    addRiskConfirmity (cardId: String,riskAssessmentId: String):RiskConfirmity
     updateRiskConfirmity (cardId: String,riskAssessmentId: String):RiskConfirmity
     removeRiskConfirmity (cardId: String):String
 `;

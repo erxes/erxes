@@ -5,13 +5,21 @@ export interface PaginateField {
   sortFromDate?: string;
   sortToDate?: string;
 }
-
+type IRiskAssessmentCalculateLogicsField = {
+  key: string;
+  name: string;
+  value: number;
+  value2: number;
+  logic: string;
+};
 export interface IRiskAssessmentField {
   name?: string;
   description?: string;
   createdAt?: string;
   categoryId?: string;
   status?: string;
+  calculateMethod?: string;
+  calculateLogics?: IRiskAssessmentCalculateLogicsField[];
 }
 
 export interface IRiskAssessmentCategoryField extends PaginateField {
@@ -37,3 +45,21 @@ export interface IRiskConfirmityParams {
   cardId: string;
   riskAssessmentId?: string;
 }
+
+export interface IRiskFormSubmissionParams {
+  cardId: string;
+  userId: string;
+  formId: string;
+  formSubmissions: {
+    [key: string]: string;
+  };
+}
+
+export type IRiskFormSubmissionsField = {
+  _id: string;
+  cardId: string;
+  userId: string;
+  formId: string;
+  fieldId: string;
+  value: number;
+};

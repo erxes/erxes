@@ -61,8 +61,7 @@ export const fieldsTypes = ({ products,riskAssessment }) => `
   }
 
   type OptionsObjType {
-    key: Int
-    value: String
+    value: Int
     label: String
   }
 
@@ -90,7 +89,6 @@ export const fieldsTypes = ({ products,riskAssessment }) => `
     ${
       riskAssessment?`
         optionsObj:[OptionsObjType]
-        riskAssessmentFieldType:String
       `:''
     }
 
@@ -117,8 +115,7 @@ export const fieldsTypes = ({ products,riskAssessment }) => `
     logicValue: JSON
   }
   input ObjectOptions {
-    key: Int
-    value: String
+    value: Int
     label: String
   }
 
@@ -131,7 +128,6 @@ export const fieldsTypes = ({ products,riskAssessment }) => `
     ${
       riskAssessment?`
       optionsObj:[ObjectOptions]
-      riskAssessmentFieldType:String
       `:''
     }
     value: String

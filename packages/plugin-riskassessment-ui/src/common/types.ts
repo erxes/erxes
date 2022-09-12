@@ -6,14 +6,25 @@ export type commonRefetchType = {
   sortToDate?: string;
 };
 
+export type RiskCalculateLogicType = {
+  _id: string;
+  name: string;
+  value: number;
+  logic: string;
+  color?: string;
+};
+
 export type RiskAssesmentsType = {
   _id: string;
-  categoryId?: string;
-  description?: string;
-  name?: string;
-  status?: string;
+  categoryId: string;
+  description: string;
+  name: string;
+  status: string;
+  statusColor: string;
   createdAt?: string;
   category?: RiskAssessmentCategory;
+  calculateMethod: string;
+  calculateLogics: RiskCalculateLogicType[];
 };
 
 export type RiskAssessmentDetailQueryResponse = {
@@ -71,6 +82,7 @@ export interface IDealRiskAssements {
   cardId: string;
   riskAssessmentId: string;
   name?: string;
+  statusColor?: string;
 }
 
 export type IDealRiskConfirmitiesQueryResponse = {

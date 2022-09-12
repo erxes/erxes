@@ -44,12 +44,19 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
             from: 'risk_assessments',
             localField: 'riskAssessmentId',
             foreignField: '_id',
-            as: 'risk_assessment'
-          }
+            as: 'risk_assessment',
+          },
         },
         { $unwind: '$risk_assessment' },
-        { $addFields: { name: '$risk_assessment.name' } },
-        { $project: { risk_assessment: 0 } }
+        {
+          $addFields: {
+            name: '$risk_assessment.name',
+            statusColor: '$risk_assessment.statusColor',
+          },
+        },
+        {
+          $project: { risk_assessment: 0 },
+        },
       ]);
 
       return confimities;
@@ -64,13 +71,13 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
             from: 'risk_assessments',
             localField: 'riskAssessmentId',
             foreignField: '_id',
-            as: 'risk_assessment'
-          }
+            as: 'risk_assessment',
+          },
         },
         { $unwind: '$risk_assessment' },
         { $project: { _id: 0, createdAt: 0, cardId: 0, riskAssessmentId: 0, __v: 0 } },
         { $replaceWith: { $mergeObjects: ['$$ROOT', '$risk_assessment'] } },
-        { $project: { risk_assessment: 0 } }
+        { $project: { risk_assessment: 0 } },
       ]);
 
       return result;
@@ -91,6 +98,7 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
       if (!confimity) {
         throw new Error('Confimity not found');
       }
+      console.log(confimity);
 
       return await model.RiskConfimity.findOneAndUpdate(
         confimity._id,
@@ -115,18 +123,17 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
         throw new Error('deal Id is required');
       }
 
+      const { riskAssessmentId } = await model.RiskConfimity.findOne({ cardId: dealId }).lean();
+
       const assignedUsers = await this.getAsssignedUsers(dealId);
       const formId = await this.getFormId(dealId);
 
       for (const usr of assignedUsers) {
-        const submissions = await sendFormsMessage({
-          subdomain,
-          action: 'submissions.find',
-          data: {
-            query: { contentType: 'form', contentTypeId: dealId, formId, userId: usr._id }
-          },
-          isRPC: true,
-          defaultValue: []
+        const submissions = await model.RiksFormSubmissions.find({
+          cardId: dealId,
+          formId,
+          userId: usr._id,
+          riskAssessmentId,
         });
         if (submissions.length > 0) {
           usr['isSubmittedRiskAssessmentForm'] = true;
@@ -158,21 +165,17 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
         action: 'fields.find',
         data: { query },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
-      const submissions = await sendFormsMessage({
-        subdomain,
-        action: 'submissions.find',
-        data: {
-          query: { contentType: 'form', contentTypeId: cardId, formId, userId }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
+      const submissions = await model.RiksFormSubmissions.find({
+        cardId,
+        formId,
+        userId,
+      }).lean();
 
       for (const submission of submissions) {
-        editedsubmissions[submission.formFieldId] = submission.value;
+        editedsubmissions[submission.fieldId] = submission.value;
       }
 
       return { fields, submissions: editedsubmissions, formId };
@@ -181,7 +184,8 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
     public static async riskAssessmentResult(params) {
       const { cardId } = params;
       if (await this.checkAllUsersSubmitted(cardId)) {
-        calculateRiskAssessment(model, subdomain, cardId);
+        const formId = await this.getFormId(cardId);
+        calculateRiskAssessment(model, subdomain, cardId, formId);
       }
       // if (Object.keys(groupedSubmissions).length === assignedUsers.length) {
       //   console.log('hell yeah');
@@ -196,10 +200,10 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
         subdomain,
         action: 'deals.findOne',
         data: {
-          _id: dealId
+          _id: dealId,
         },
         isRPC: true,
-        defaultValue: []
+        defaultValue: [],
       });
 
       if (deal) {
@@ -209,10 +213,10 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
           subdomain,
           action: 'users.find',
           data: {
-            query: { _id: { $in: assignedUserIds } }
+            query: { _id: { $in: assignedUserIds } },
           },
           isRPC: true,
-          defaultValue: []
+          defaultValue: [],
         });
       }
 
@@ -234,22 +238,13 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
 
       const formId = await this.getFormId(cardId);
 
-      const assignedUserIds = assignedUsers.map(usr => usr._id);
+      const assignedUserIds = assignedUsers.map((usr) => usr._id);
+      const submissions = await model.RiksFormSubmissions.find({
+        cardId,
+        formId,
+        userId: { $in: assignedUserIds },
+      }).lean();
 
-      const submissions = await sendFormsMessage({
-        subdomain,
-        action: 'submissions.find',
-        data: {
-          query: {
-            contentType: 'form',
-            contentTypeId: cardId,
-            formId,
-            userId: { $in: assignedUserIds }
-          }
-        },
-        isRPC: true,
-        defaultValue: []
-      });
       const groupedSubmissions = {};
 
       for (const submission of submissions) {

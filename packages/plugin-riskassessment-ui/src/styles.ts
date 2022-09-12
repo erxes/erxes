@@ -1,5 +1,7 @@
 import { colors, dimensions, WhiteBoxRoot } from '@erxes/ui/src';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import { rgba } from '@erxes/ui/src/styles/ecolor';
+import { BoxRoot } from '@erxes/ui/src/styles/main';
 import styled, { css } from 'styled-components';
 import styledTS from 'styled-components-ts';
 
@@ -9,8 +11,8 @@ export const GridContainer = styledTS<{
   column?: number;
 }>(styled.div)`
     display:grid;
-    gap:${props => props.gap || 0}
-    grid-template-columns:${props =>
+    gap:${(props) => props.gap || 0}
+    grid-template-columns:${(props) =>
       props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto'}
 `;
 
@@ -21,12 +23,12 @@ export const FormGroupRow = styledTS<{
 margin-bottom: 20px;
 position: relative;
 
-${props =>
+${(props) =>
   props.horizontal &&
   css`
     display: flex;
     align-items: center;
-    ${props =>
+    ${(props) =>
       props.spaceBetween &&
       css`
         justify-content: space-between;
@@ -83,15 +85,17 @@ export const FormContainer = styledTS<{
   spaceBetween?: boolean;
   spaceAround?: boolean;
   gap?: boolean;
+  gapBetween?: string;
   align?: string;
 }>(styled.div)`
   display: flex;
   flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
   justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({
-  spaceAround
+  spaceAround,
 }) => (spaceAround ? 'space-around' : '')};
   gap: ${({ gap }) => (gap ? '25px' : '')};
-  align-items:${({ align }) => (align ? align : '')}
+  gap: ${({ gapBetween }) => (gapBetween ? gapBetween : '')};
+  place-items:${({ align }) => (align ? align : '')}
 `;
 
 export const BoxItem = styled.div`
@@ -148,4 +152,57 @@ export const Badge = styledTS<{ color?: string }>(styled.div)`
   text-align: center;
   color:white;
   max-width: 100px;
+`;
+
+export const ColorBox = styledTS<{ color?: string }>(styled.div)`
+  height: 10px;
+  width: 10px;
+  background-color: ${({ color }) => color}
+  border-radius: 15px
+`;
+
+export const ColorButton = styledTS<{ color?: string }>(styled.div)`
+  height: 25px;
+  border-radius: 2px;
+  font-weight: 500;
+  line-height: 25px;
+  font-size: 12px;
+  background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${(props) => props.color || colors.colorPrimaryDark};
+  padding: 0 10px;
+  transition: background 0.3s ease;
+  > i {
+    margin-right: 5px;
+  }
+  > span {
+    margin-right: 5px;
+  }
+  &:hover {
+    cursor: pointer;
+    background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.2)};
+  }
+`;
+export const Box = styled(BoxRoot)`
+  flex: 1;
+  padding: ${dimensions.unitSpacing}px;
+  text-align: left;
+  background: ${colors.colorWhite};
+  margin: 10px 10px 0 0;
+
+  b {
+    font-size: 26px;
+    text-transform: uppercase;
+    color: ${colors.colorCoreLightGray};
+    line-height: 30px;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: ${colors.textSecondary};
+  }
+
+  &:last-of-type {
+    margin-right: 0;
+  }
 `;

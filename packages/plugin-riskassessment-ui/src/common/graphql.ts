@@ -6,6 +6,7 @@ export const commonPaginateDef = `
     $searchValue: String,
     $sortFromDate:String
     $sortToDate:String
+    $status:String
 `;
 export const commonPaginateValue = `
     page:$page
@@ -15,18 +16,21 @@ export const commonPaginateValue = `
     searchValue:$searchValue,
     sortFromDate:$sortFromDate
     sortToDate:$sortToDate
+    status:$status
 `;
 
 export const riskAssessmentDef = `
     $categoryId: String!,
     $description: String!,
     $name: String!,
+    $calculateMethod: String!,
 `;
 
 export const riskAssessmentValues = `
     categoryId: $categoryId,
     description: $description,
     name: $name,
+    calculateMethod: $calculateMethod
 `;
 
 export const riskAssessmentCategoryParams = `
@@ -38,11 +42,12 @@ code
 order
 `;
 
-export const riskAssessmentParams = ({ status }) => `
+export const riskAssessmentParams = `
     _id,
     name,
     description,
-    ${status ? 'status' : ''}
+    status,
+    statusColor,
     categoryId,
     createdAt,
     category{
@@ -50,7 +55,15 @@ export const riskAssessmentParams = ({ status }) => `
         formId
         parentId
         name
-    }
+    },
+    calculateMethod,
+    calculateLogics {
+        _id
+        logic
+        name
+        value
+        color
+      }
 `;
 
 export const riskConfirmityParams = `
