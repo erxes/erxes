@@ -131,7 +131,7 @@ Let’s start growing **<a href="https://erxes.io/partners">together</a>**.
 
 ## Contributing 
 
-Please read our **<a href="https://docs.erxes.io/contribute/overview" >contributing guide<a>** before submitting a Pull Request to the project.
+Please read our **<a href="https://docs.erxes.io/docs/contribute/overview/" >contributing guide<a>** before submitting a Pull Request to the project.
 
 ## Community support
 
@@ -146,7 +146,7 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## Upgrade Guides
 
-Follow our **<a href="https://github.com/orgs/erxes/repositories">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/introduction/introduction">documentation here</a>**.
+Follow our **<a href="https://github.com/orgs/erxes/repositories">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/docs/intro">documentation here</a>**.
 
  
 ## License
