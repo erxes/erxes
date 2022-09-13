@@ -3,34 +3,18 @@ id: tags
 title: Tags
 ---
 
-### TAGS 
-
-Tag is an easy-to-use project management tool for team members of any size. Tag lets you save time managing your projects, monitor the team's productivity, increase cooperation and enhance the quality of your products. A tag is a large group of entities that are used to categorize items and get reports. The tag is treated as LABEL for the card only. 
-
-**Dependent plugins: Inbox, Contacts, Template**
-
-**Additional plugins: Cards, Form**
+Tag is an easy-to-use project management tool for team members of any size. Tag lets you save time managing your projects, monitor the team's productivity, increase cooperation and enhance the quality of your products. A tag is a large group of entities that are used to categorize items and get reports. The tag is treated as LABEL for the cards. 
 
 
-### WITH TAGS, YOU CAN DO…
+### With Tags, you can do...
 
-S**imple as pressing a button**
+- **Simple as pressing a button** Easily organize important information with support tags such as customer, company, campaign, and integration.
+- **Integrate your services into one spot** Activate the Tag plugin to support tags and advanced automation.
+- **Keep you and your team organized for smooth flow** Use tags to organize your data. It's easy to see at a glance what the tags mean, what they're useful for, and who you can reach with them.
+- **Keep track of what’s important** Allows you to segment your operations and track their behavior across all of your channels.
+- 
 
-Easily organize important information with support tags such as customer, company, campaign, and integration.
-
-**Integrate your services into one spot**
-
-Activate the Tag plugin to support tags and advanced automation. 
-
-**Keep you and your team organized for smooth flow**
-
-Use tags to organize your data. It's easy to see at a glance what the tags mean, what they're useful for, and who you can reach with them.
-
-**Keep track of what’s important**
-
-Allows you to segment your operations and track their behavior across all of your channels.
-
-### SETTING UP LOGS PLUGIN
+### Setting up Tags plugin
 
 The Tags plugin is available at erxes <a href="https://erxes.io/marketplace/detail/62bbf5a84d8f5eff723faf64">marketplace</a> for all users when you <a href="https://erxes.io/experience-management">get started</a> with erxes. It comes with the Inbox plugin for free as it’s one of the core plugins erxes provides.
 
@@ -38,18 +22,20 @@ The Tags plugin is available at erxes <a href="https://erxes.io/marketplace/deta
 
 ‍💻  SaaS clients, when you sign-up for Tags plugin will be there already, so just go along with this guideline to get started with this plugin
 
-### CREATE YOUR TAGS
+
+### Creating your tags
 
 The Tags plugin can be found in the settings section on the bottom left side of the screen. By selecting the Tags tab you will be able to access to property plugin. 
 
----
-Modules:
-- Tags Type
-- Add tag
-- Name
-- Color
-- Parent tag
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.tags.gif" width="90%" alt="where to find tags"></img>
 
+Tags can be made on:
+
+- Products & Services
+- Deal 
+- Customer
+- Company
+- Integration Conversation
 
 **CAMPAIGN TAG**
 
@@ -96,7 +82,6 @@ This is the section where you can sort out the companies you register on the erx
 - Enterprise
 - Partner company
 
-
 **INTEGRATION TAG**
 
 Use it if there is a need to separate it with too many integration connections.
@@ -107,57 +92,20 @@ Products can be classified by TAG, but they are also classified by Category when
 
 **Step one.** Create Tags
 
----
-Click "Settings" in the upper right corner and select "Tags"
-
----
-Click the "New tag" button on the right side of the window that appears
-
----
-Fill the required informations
-
-Then, save your tags
----
-**How to edit tags?**
-1. Settings
-2. Tags
-3. Edit
-4. Save
-
----
-Click "Settings" in the upper right corner and select "Tags"
-
----
-Click “Edit” and edit the information to require 
-
----
-Click the "Save" button on the window that appears
-
----
-**How to delete tags?**
-1. Settings
-2. Tags
-3. Choose a tag type
-4. Delete
-5. Click “Yes, I am”
-
----
-Click "Settings" in the upper right corner and select "Tags"
-
----
-Click the "x" button on the right side of the window that appears
-
----
-Click the green highlighted "Yes, I am" button to remove it
-
----
-### EVERYDAY WITH TAGS
-- Tag conversation
-- Tag Integration
-- Tag Customer
-- Tag company
-- Tag Product and Service
-- Tag Campaign
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/5.tags.gif" width="90%" alt="create tags"></img>
 
 
+## Everyday with Tags
+
+To edit tags
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/9.tags.gif" width="90%" alt="edit tags"></img>
+
+To delele tags
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/13.tags.gif" width="90%" alt="delete tags"></img>
+
+Now that you already know how to use Tags, please go to the following blog posts to learn about different use cases of this plugin and master them.
+
+✌️ Enjoy your journey with the Tags plugin!  
 
