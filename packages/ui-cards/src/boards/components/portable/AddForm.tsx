@@ -239,6 +239,31 @@ class AddForm extends React.Component<Props, State> {
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
+  renderNameInput = () => {
+    const { type } = this.props.options;
+
+    if (this.props.showSelect) {
+      return (
+        <FormControl
+          value={this.state.name}
+          autoFocus={true}
+          placeholder="Create a new card"
+          onChange={this.onChangeName}
+        />
+      );
+    }
+
+    return (
+      <CardSelect
+        placeholder={`Add a new ${type} or select one`}
+        options={this.state.cards}
+        onChange={this.onChangeCardSelect}
+        type={type}
+        additionalValue={this.state.name}
+      />
+    );
+  };
+
   render() {
     return (
       <form onSubmit={this.save}>
@@ -246,12 +271,7 @@ class AddForm extends React.Component<Props, State> {
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <FormControl
-              value={this.state.name}
-              autoFocus={true}
-              placeholder="Create a new card"
-              onChange={this.onChangeName}
-            />
+            <SelectInput>{this.renderNameInput()}</SelectInput>
           </HeaderContent>
         </HeaderRow>
         <GenerateAddFormFields
