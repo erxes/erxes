@@ -66,7 +66,7 @@ export default {
         return res.status(404).send('Not found');
       }
 
-      const html = await pageReplacer(models, page, site);
+      const html = await pageReplacer(models, subdomain, page, site);
 
       return res.send(
         `
@@ -114,7 +114,7 @@ export default {
         return res.status(404).send('Entry not found');
       }
 
-      let html = await pageReplacer(models, page, site);
+      let html = await pageReplacer(models, subdomain, page, site);
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
@@ -137,8 +137,6 @@ export default {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
-      console.log(subdomain, '==========-------------============');
-
       const { sitename, name } = req.params;
 
       const site = await models.Sites.findOne({ name: sitename }).lean();
@@ -153,7 +151,7 @@ export default {
         return res.status(404).send('Page not found');
       }
 
-      const html = await pageReplacer(models, page, site);
+      const html = await pageReplacer(models, subdomain, page, site);
 
       return res.send(
         `
