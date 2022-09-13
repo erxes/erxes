@@ -25,7 +25,7 @@ The Email plugin is available at erxes **<a href="https://erxes.io/marketplace/d
 
 ⚙️ Self-hosted client, please go to **<a href="https://docs.erxes.io/docs/plugins/plugin-installation">the plugin installation documentation</a>** to install the Email template plugin after installing the erxes XOS.
 
-‍💻  SaaS clients, when you sign-up for the Email template plugin, will be there already, so just go along with this guideline to get started with this plugin 
+‍💻  SaaS clients, when you sign-up for the Email template plugin, will be there already, so just go along with this guideline to get started with this plugin.
 
 ### Create your email template
 
