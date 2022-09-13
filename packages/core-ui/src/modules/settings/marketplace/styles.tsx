@@ -341,7 +341,6 @@ const SidebarWrapper = styled.div`
   max-width: 350px;
 
   a {
-    padding: 12px;
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -553,6 +552,20 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
+const AttachmentContainer = styled.div`
+  display: flex;
+  height: 200px;
+  margin-top: 30px;
+  overflow: auto;
+
+  img {
+    width: 300px;
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 8px;
+  }
+`;
+
 export {
   ImageWrapper,
   MainContainer,
@@ -594,5 +607,6 @@ export {
   SmallText,
   WidgetApperance,
   FormLabel,
-  Checkbox
+  Checkbox,
+  AttachmentContainer
 };

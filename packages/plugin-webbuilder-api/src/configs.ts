@@ -66,14 +66,14 @@ export default {
         return res.status(404).send('Not found');
       }
 
-      const html = await pageReplacer(models, page, site);
+      const html = await pageReplacer(models, subdomain, page, site);
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
         `
       );
     });
@@ -114,7 +114,7 @@ export default {
         return res.status(404).send('Entry not found');
       }
 
-      let html = await pageReplacer(models, page, site);
+      let html = await pageReplacer(models, subdomain, page, site);
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
@@ -125,10 +125,10 @@ export default {
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
         `
       );
     });
@@ -151,14 +151,14 @@ export default {
         return res.status(404).send('Page not found');
       }
 
-      const html = await pageReplacer(models, page, site);
+      const html = await pageReplacer(models, subdomain, page, site);
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
         `
       );
     });
@@ -177,10 +177,10 @@ export default {
 
       return res.send(
         `
+          ${page.html}
           <style>
             ${page.css}
           </style>
-          ${page.html}
         `
       );
     });

@@ -5,7 +5,7 @@ import { IEntry } from '../../models/entries';
 import { IContext } from '../../connectionResolver';
 import { ITemplate } from '../../models/templates';
 import { ISite } from '../../models/sites';
-import { createSiteContentTypes, writeAndReadHelpersData } from './utils';
+import { createSiteContentTypes, readHelpersData } from './utils';
 
 interface IContentTypeEdit extends IContentType {
   _id: string;
@@ -106,17 +106,17 @@ const webbuilderMutations = {
       return;
     }
 
-    const pages = await writeAndReadHelpersData('pages', `templateId=${_id}`);
+    const pages = await readHelpersData('pages', `templateId=${_id}`);
 
     if (!pages.length) {
       return;
     }
 
     // read and write all content types from erxes-helper
-    const contentTypesAll = await writeAndReadHelpersData('contentTypes');
+    const contentTypesAll = await readHelpersData('contentTypes');
 
     // read and write all entries from erxes-helper
-    const entriesAll = await writeAndReadHelpersData('entries');
+    const entriesAll = await readHelpersData('entries');
 
     for (const page of pages) {
       await models.Pages.createPage(
