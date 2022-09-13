@@ -47,7 +47,7 @@ Filter by Status
 
 ### Prerequisite
 
-:::info
+:::caution
 
 Before you start creating your forms you need to make sure you have created your brands & channels
 
