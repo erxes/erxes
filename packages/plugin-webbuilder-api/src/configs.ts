@@ -70,10 +70,10 @@ export default {
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
         `
       );
     });
@@ -125,10 +125,10 @@ export default {
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
         `
       );
     });
@@ -155,10 +155,10 @@ export default {
 
       return res.send(
         `
+          ${html}
           <style>
             ${page.css}
           </style>
-          ${html}
         `
       );
     });
@@ -177,10 +177,10 @@ export default {
 
       return res.send(
         `
+          ${page.html}
           <style>
             ${page.css}
           </style>
-          ${page.html}
         `
       );
     });
