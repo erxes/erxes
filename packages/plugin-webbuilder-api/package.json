@@ -7,7 +7,5 @@
     "build": "cd .erxes && yarn build",
     "start": "cd .erxes/dist/plugin-webbuilder-api/.erxes && node src"
   },
-  "dependencies": {
-    "fs-extra": "^9.0.1"
-  }
+  "dependencies": {}
 }
