@@ -33,7 +33,7 @@ The Ticket plugin is available at erxes <a href="https://erxes.io/marketplace/de
 
 The Ticket can be found on the left hand side of the screen when you enter erxes. By selecting the tab you will be able to place the sign on the plugins bar visible.
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.ticket.gif" width="100%" alt="where to find ticket plugin"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.ticket.gif" width="90%" alt="where to find ticket plugin"></img>
  
 
 The ticket menu allows you to organize, customize and monitor the way your support team performing, all customers’requests and inquiries are dealt with, viewed and collected on erxes in the following ways.
@@ -47,9 +47,7 @@ If your organization does not have many inquiries, creating a single pipeline wo
 
 :::
 
-
 After setting up this section, you can learn more about how to use this menu effectively in the Ticket menu.
-
 
 **Step one.** Creating your board and pipeline
 
@@ -57,12 +55,12 @@ There are 2 ways to create your board
 
 1. Using the onboarding kit or
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.ticket.gif" width="100%" alt="creating ticket with onboarding kit"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.ticket.gif" width="90%" alt="creating ticket with onboarding kit"></img>
 
 
 2. Using the settings option.  
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.ticket.gif" width="100%" alt="creating ticket with settings option"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.ticket.gif" width="90%" alt="creating ticket with settings option"></img>
 
 
 When you’re creating your pipeline, you have to keep in mind that all businesses are different and require different stages to reach the final stage of each project. Before creating your Ticket stages, please read the blog post that will hopefully help you to set up your Ticket pipeline effectively. 
@@ -72,12 +70,12 @@ When you’re creating your pipeline, you have to keep in mind that all business
 
 To customize your Ticket cards, you can create additional fields that fit your unique needs from each card. To add new properties in your Task pipeline card, you’ll need to go to the Property plugin here. 
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.ticket.gif" width="100%" alt="creating properties for your ticket"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.ticket.gif" width="90%" alt="creating properties for your ticket"></img>
 
 
 **Step three.** Add campaign on your ticket pipeline
 
-You can set up automated campaign for your ticker pipeline using campaign plugin, so it will automate the part of your process. This will save time and prevent human error.  
+You can set up automated campaign for your ticket pipeline using **<a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/campaign">the Campaign plugin</a>**, so it will automate the part of your process. This will save time and prevent human error.  
 
 
 🥳 Congratulations, you have successfully set up your Ticket Pipeline. Now, let’s start using it. 
@@ -87,32 +85,34 @@ You can set up automated campaign for your ticker pipeline using campaign plugin
 
 Let you guys go through the main actions on Ticket below:
 
-1. Enter information in the Description section
-2. Label the card
-3. Insert the start to end date for your ticket 
-4. Create checklists
-5. Create the properties on the map
-6. Link card to related task and deals
-7. Leave a note to other members
-8. Create an automatic campaign connected to Ticket
-9. Specially invite members to work in that pipeline
-10. Search for the information you need
-11. View information using filters
-12. View data by month
-13. Record whether the task has been completed or not
+- Enter information in the Description section
+- Label the card
+- Insert the start to end date for your ticket 
+- Create checklists
+- Create the properties on the map
+- Link card to related task and deals
+- Leave a note to other members
+- Create an automatic campaign connected to Ticket
+- Specially invite members to work in that pipeline
+- Search for the information you need
+- View information using filters
+- View data by month
+- Record whether the task has been completed or not
 
 
 For the Managers, erxes provides the numbers view options to precisely look into the projects.
 
-- Board: 
-
-
-- Chart: 
-
-
+- Board
+- Calendar
+- Activity
+- List
+- Gantt
+- Chart 
 
 **Filter and view archives among cards**
+
 1. You can filter your card by clicking on the Show menu. Explanation of available names
+
 - Filter by created members
 - Filter by priority
 - Filter by labels
@@ -123,7 +123,10 @@ For the Managers, erxes provides the numbers view options to precisely look into
 - Assigned to me
 - Due tomorrow: Tasks to be completed tomorrow
 - Due next week: Tasks due next week
-2. When viewing archived cards, select Archived items.
+
+
+3. When viewing archived cards, select Archived items.
+
 ---
 
 Now that you already know how to use Ticket, please go the following blog posts to learn about different use cases of Ticket plugin and master it.
