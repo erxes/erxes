@@ -32,7 +32,7 @@ The Inbox plugin is available at erxes **<a href="https://erxes.io/marketplace">
 
 ### Prerequisite
 
-:::caution
+:::info
 
 Before you start with inbox you need to make sure you have created your brands & channels
 
@@ -45,18 +45,18 @@ In order to efficiently manage your customer communications when you have severa
 
 - To create brands      
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/2.inbox.gif" width="80%" alt="create brands"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/2.inbox.gif" width="90%" alt="create brands"></img>
 
 - To create channels
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.inbox.gif" width="80%" alt="create channels"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.inbox.gif" width="90%" alt="create channels"></img>
 
 
 ### Let's get started with Inbox
 
 The Inbox plugin can be found on the left hand side of the screen when you enter erxes. By selecting the pin on the top right of the tab you will be seen the Inbox tab permanantly.
 
-<img src="" width="80%" alt="where to find inbox"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.inbox.gif" width="90%" alt="where to find inbox"></img>
 
 
 **Step 1.** Set up your skill
@@ -73,7 +73,7 @@ Properties allow you to make custom fields for all of customer database. You can
 
 The Inbox is one of the largest plugins, which plays the heart of erxes software, that brings all channels connects your organization to the its customer and leads together. **<a href="">The Add-ons</a>** the additional feature support  
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.inbox.png" width="80%" alt="Add-ons"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.inbox.png" width="90%" alt="Add-ons"></img>
  
 
 **Step 6.** Create your response template
@@ -88,34 +88,65 @@ Creating your response templates for common customer inquiries, so it saves time
 
 ### Using Inbox 
  
-- **To navigate your the team inbox**
+**To navigate your the team inbox**
+
 
 Filter communication within the chosen channels/brands/integrations/tags..
 
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/7.inbox.gif" width="90%" alt="filter by channels/brands/integrations"></img>
+
+
 To resolve all the messages.
 
-View communication within the chosen time frame.
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/8.inbox.gif" width="90%" alt="resolve message"></img>
 
-View communications by statuses.
+
+View conversations within the chosen time frame.
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/9.inbox.gif" width="90%" alt="view conversation within time frame"></img>
+
+
+View conversations by statuses.
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/10.inbox.gif" width="90%" alt="view conversation by status"></img>
+
 
 View customer information by detail/activity/related plugins
 
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/11.inbox.gif" width="90%" alt="view customer data by detail"></img>
+
  
-2. Convert communications into deal/task/ticket
-Note: 
-Please note that Card plugin should be installed when you convert customer communication to deal/task/ticket.  
+**Convert communications into deal/task/ticket**
 
-3. Insert customer information manually
+:::caution
 
-4. Email/SMS/Call customer directly. 
-Caution
+Please note that Card plugin should be installed beforehand when you convert customer communications to deal/task/ticket.  
+
+:::
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/12.inbox.gif" width="90%" alt="convert conversation to deal/task/ticket"></img>
+
+
+**Insert customer information manually**
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/13.inbox.gif" width="90%" alt="insert customer info manually"></img>
+
+**Email/SMS/Call customer directly**
+
+:::caution
+
 In order to directly email/SMS/Call customers, related Add-ons need to be integrated into your inbox.  
 
-5. Communicate with your customers/team members
-with direct message
-using response template
-with video/audio call
-with your team members
+:::
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/14.inbox.gif" width="90%" alt="email/SMS/call customer directly"></img>
+
+**Communicate with your customers/team members**
+
+- with direct message
+- using response template
+- with video/audio call
+- with your team members
 
 Now that you’re already know how to use Inbox, please go the following blog posts to learn about different use cases of Inbox plugin and master it.
 
