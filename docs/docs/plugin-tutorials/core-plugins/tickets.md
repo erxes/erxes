@@ -51,19 +51,26 @@ After setting up this section, you can learn more about how to use this menu eff
 
 **Step one.** Creating your board and pipeline
 
-There are 2 ways to create your board 
+- There are 2 ways to create your board 
 
 1. Using the onboarding kit or
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.ticket.gif" width="90%" alt="creating ticket with onboarding kit"></img>
+<img src="" width="90%" alt="creating ticket with onboarding kit"></img>
 
 
 2. Using the settings option.  
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.ticket.gif" width="90%" alt="creating ticket with settings option"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/2.ticket.gif" width="90%" alt="creating ticket with settings option"></img>
 
+- To create your pipelines
+
+:::tip
 
 When you’re creating your pipeline, you have to keep in mind that all businesses are different and require different stages to reach the final stage of each project. Before creating your Ticket stages, please read the blog post that will hopefully help you to set up your Ticket pipeline effectively. 
+
+:::
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.ticket.gif" width="90%" alt="creating pipelines"></img>
 
 
 **Step two.** Add properties on your ticket pipeline
