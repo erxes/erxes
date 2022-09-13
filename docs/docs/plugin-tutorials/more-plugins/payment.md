@@ -1,0 +1,4 @@
+---
+id: payment
+title: Payment
+---

@@ -1,0 +1,4 @@
+---
+id: skills
+title: Skills
+---

@@ -1,0 +1,4 @@
+---
+id: bookings
+title: Bookings
+---

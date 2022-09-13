@@ -1,0 +1,4 @@
+---
+id: ebarimt
+title: Ebarimt
+---

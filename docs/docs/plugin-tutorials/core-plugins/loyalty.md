@@ -1,0 +1,4 @@
+---
+id: loyalty
+title: Loyalty
+---
