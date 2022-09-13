@@ -75,6 +75,7 @@ The Inbox is one of the largest plugins, which plays the heart of erxes software
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.inbox.png" width="80%" alt="Add-ons"></img>
  
+
 **Step 6.** Create your response template
 
 Creating your response templates for common customer inquiries, so it saves time and gives customers instant answers to what they are looking for. You can categorize and customize your messages depending on the brands, channels, and inquiries to have more organized responses.
