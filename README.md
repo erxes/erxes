@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://docs.erxes.io/introduction/introduction">Docs</a>
+  <a href="https://docs.erxes.io/docs/intro">Docs</a>
   |
   <a href="https://xosdemo.erxes.io/">Demo</a>
   |
