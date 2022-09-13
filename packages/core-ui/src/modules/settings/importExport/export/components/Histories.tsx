@@ -10,8 +10,8 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { BarItems } from 'modules/layout/styles';
 
 import React from 'react';
-import { IImportHistory } from '../../types';
-import HistoryRow from '../components/HistoryRow';
+import { IExportHistory } from '../../types';
+import HistoryRow from './HistoryRow';
 import Sidebar from '../../import/containers/list/SideBar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { Link } from 'react-router-dom';
@@ -21,7 +21,7 @@ import { IRouterProps } from '@erxes/ui/src/types';
 type Props = {
   queryParams: any;
   history: any;
-  histories: IImportHistory[];
+  histories: IExportHistory[];
   loading: boolean;
   totalCount: number;
   currentType: string;
@@ -58,36 +58,14 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
     );
   };
 
-  getButtonText() {
-    const { currentType } = this.props;
-    let buttonText = `${currentType}s`;
-
-    switch (currentType) {
-      case 'company':
-        buttonText = 'companies';
-        break;
-      case 'deal':
-        buttonText = 'sales pipelines';
-        break;
-      case 'user':
-        buttonText = 'team members';
-        break;
-      default:
-        buttonText = '';
-        break;
-    }
-
-    return buttonText;
-  }
-
   renderExportButton = () => {
     const { currentType } = this.props;
 
     if (currentType)
       return (
-        <Link to={`/settings/export`}>
+        <Link to={`/settings/export?type=${currentType}`}>
           <Button icon="export" btnStyle="primary">
-            {__(`Export ${this.getButtonText()}`)}
+            {__(`Export`)}
           </Button>
         </Link>
       );

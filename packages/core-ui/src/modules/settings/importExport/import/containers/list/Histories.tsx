@@ -85,6 +85,8 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       currentType
     };
 
+    console.log(this.props.queryParams, 'YYYYYYYYYYYYYYYYYYYYY');
+
     return <Histories {...updatedProps} />;
   }
 }

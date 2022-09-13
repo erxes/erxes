@@ -26,7 +26,7 @@ const Histories = asyncComponent(() =>
 );
 const ExportHistories = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings Histories" */ './export/containers/ExportHistories'
+    /* webpackChunkName: "Settings Histories" */ './export/containers/Histories'
   )
 );
 const Menu = asyncComponent(() =>
@@ -45,7 +45,6 @@ const importForm = ({ location }) => {
 
   return <Import contentType={queryParams.type} />;
 };
-
 const exportForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
@@ -72,11 +71,6 @@ const selectMenu = ({ location }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      {/* <Route
-        key="/settings/export"
-        path="/settings/export"
-        component={exportForm}
-      /> */}
       <Route
         key="/settings/import"
         path="/settings/import"

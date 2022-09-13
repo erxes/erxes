@@ -1,17 +1,17 @@
 import { Content, LeftContent } from '../../styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
-
-import AccociateForm from '../containers/AccociateForm';
 import ConfigsForm from './ConfigsForm';
-import { IExportHistoryContentType } from '../../types';
 import React from 'react';
 import TypeForm from '../containers/TypeForm';
 import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
+import { FlexPad } from 'modules/common/components/step/styles';
+import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
+import { loadDynamicComponent } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  columns: any[];
+  columns: any[]; //check
   count: string;
   loading: boolean;
   previewCount: (segmentId?: string) => void;
@@ -23,7 +23,7 @@ type State = {
   importName: string;
   disclaimer: boolean;
   type: string;
-  contentTypes: IExportHistoryContentType[];
+  contentType: string;
   segmentId: string;
 
   associatedField: string;
@@ -41,7 +41,7 @@ class Form extends React.Component<Props, State> {
       importName: '',
       disclaimer: false,
       type: 'single',
-      contentTypes: [],
+      contentType: '',
       associatedField: '',
       associatedContentType: '',
       columns: props.columns,
@@ -73,61 +73,13 @@ class Form extends React.Component<Props, State> {
   };
 
   onChangeType = value => {
-    this.setState({ type: value, contentTypes: [] });
+    this.setState({ type: value, contentType: '' });
   };
 
-  onChangeAssociateHeader = value => {
-    this.setState({ associatedField: value });
-  };
+  onChangeContentType = () => {
+    const { contentType } = this.state;
 
-  onChangeAssociateContentType = value => {
-    this.setState({ associatedContentType: value });
-  };
-
-  onChangeContentType = (contentType: IExportHistoryContentType) => {
-    const { type, contentTypes } = this.state;
-
-    if (type === 'single') {
-      return this.setState({ contentTypes: [contentType] });
-    }
-
-    let temp: IExportHistoryContentType[] = [];
-
-    if (contentTypes.length === 2) {
-      temp = [...contentTypes];
-
-      temp[0] = contentTypes[1];
-
-      temp[1] = contentType;
-
-      return this.setState({ contentTypes: temp });
-    }
-
-    temp = [...contentTypes];
-
-    temp.push(contentType);
-
-    return this.setState({ contentTypes: temp });
-  };
-
-  renderAssociateForm = () => {
-    if (this.state.type === 'multi') {
-      const { contentTypes } = this.state;
-      const attachmentNames: string[] = [];
-
-      return (
-        <Step title="Accociate">
-          <AccociateForm
-            attachmentNames={attachmentNames}
-            contentTypes={contentTypes}
-            onChangeAssociateHeader={this.onChangeAssociateHeader}
-            onChangeAssociateContentType={this.onChangeAssociateContentType}
-          />
-        </Step>
-      );
-    }
-
-    return;
+    return this.setState({ contentType });
   };
 
   onClickField = (checked, field) => {
@@ -141,35 +93,27 @@ class Form extends React.Component<Props, State> {
 
     this.setState({ columns });
   };
+  addFilter = segmentId => {
+    this.setState({ segmentId });
+
+    this.props.previewCount(segmentId);
+  };
+
   onSearch = e => {
     const value = e.target.value;
 
     this.setState({ searchValue: value });
   };
+  segmentCloseModal = () => {
+    this.setState({ segmentId: '' });
 
-  // renderExportButton = () => {
-  //   const { currentType } = this.props;
+    this.props.previewCount();
+  };
 
-  //   if (currentType)
-  //     return (
-  //       <Link to={`/settings/export?type=${currentType}`}>
-  //         <Button icon="export" btnStyle="primary">
-  //           {__(`Export ${this.getButtonText()}`)}
-  //         </Button>
-  //       </Link>
-  //     );
-
-  //   return (
-  //     <Button icon="export" btnStyle="primary" disabled>
-  //       {__('Export')}
-  //     </Button>
-  //   );
-  // };
   render() {
-    const { type, contentTypes, columns, searchValue } = this.state;
+    const { type, columns, searchValue, segmentId } = this.state;
 
-    console.log('columns:::::::::::', this.props.columns);
-
+    const { contentType } = this.props;
     const title = __('Import');
 
     const breadcrumb = [
@@ -177,6 +121,10 @@ class Form extends React.Component<Props, State> {
       { title: __('Import & Export'), link: '/settings/importHistories' },
       { title }
     ];
+    console.log(segmentId, '<=============segmentId');
+    console.log(contentType, '<=============contentType');
+    console.log(this.segmentCloseModal, '<=============closeModal');
+    console.log(this.addFilter, '<=============addFilter');
 
     const content = (
       <Content>
@@ -186,7 +134,7 @@ class Form extends React.Component<Props, State> {
               <TypeForm
                 type={type}
                 onChangeContentType={this.onChangeContentType}
-                contentTypes={contentTypes}
+                contentType={contentType}
               />
             </Step>
             {
@@ -196,24 +144,30 @@ class Form extends React.Component<Props, State> {
                   onClickField={this.onClickField}
                   onSearch={this.onSearch}
                   searchValue={searchValue}
-                  contentTypes={contentTypes}
                 />
               </Step>
             }
             <Step title="Filter">
-              {/* <ConfigsForm
-                  columns={columns}
-                  onClickField={this.onClickField}
-                  onSearch={this.onSearch}
-                  searchValue={searchValue}
-                /> */}
+              <FlexPad direction="column" overflow="auto">
+                <SubHeading>{__('Filter')}</SubHeading>
+                <Description>
+                  {__('Skip this step if you wish to export all items')}
+                </Description>
+                {loadDynamicComponent('importExportFilterForm', {
+                  ...this.props,
+                  id: segmentId,
+                  contentType: contentType || 'customer',
+                  closeModal: this.segmentCloseModal,
+                  addFilter: this.addFilter,
+                  hideDetailForm: true,
+                  usageType: 'export'
+                })}
+              </FlexPad>
             </Step>
           </Steps>
         </LeftContent>
       </Content>
     );
-
-    console.log(columns, 'columns:::::::');
 
     return (
       <Wrapper

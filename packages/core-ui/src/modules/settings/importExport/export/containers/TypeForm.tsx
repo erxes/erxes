@@ -10,7 +10,7 @@ import { mutations, queries } from '../graphql';
 
 type Props = {
   onChangeContentType: (value: IExportHistoryContentType) => void;
-  contentTypes: IExportHistoryContentType[];
+  contentType: string;
   type: string;
 };
 
@@ -33,7 +33,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     return (
       <TypeForm
         onChangeContentType={this.props.onChangeContentType}
-        contentTypes={this.props.contentTypes}
+        contentType={this.props.contentType}
         type={this.props.type}
         typeOptions={typeOptions}
       />

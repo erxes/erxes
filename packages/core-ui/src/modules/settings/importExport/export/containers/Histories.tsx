@@ -6,7 +6,7 @@ import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import ExportHistories from '../components/ExportHistories';
+import ExportHistories from '../components/Histories';
 import { mutations, queries } from '../graphql';
 import {
   ExportHistoriesQueryResponse,
@@ -47,6 +47,8 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const histories = historiesQuery.exportHistories || {};
     const list = histories.list || [];
 
+    console.log(historiesQuery, '<===============historiesQuery');
+
     if (historiesQuery.loading) {
       return <Spinner />;
     }
@@ -60,6 +62,8 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     }
 
     const currentType = router.getParam(history, 'type');
+
+    console.log(currentType, '<==============currentType');
 
     const removeHistory = (historyId: string, contentType: string) => {
       importHistoriesRemove({
@@ -85,7 +89,11 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
       currentType
     };
 
-    return <ExportHistories {...updatedProps} />;
+    return (
+      <>
+        <ExportHistories {...updatedProps} />
+      </>
+    );
   }
 }
 

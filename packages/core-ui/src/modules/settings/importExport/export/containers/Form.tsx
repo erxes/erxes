@@ -1,5 +1,4 @@
 import * as compose from 'lodash.flowright';
-
 import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
 import Form from '../components/Form';
 import React from 'react';
@@ -9,10 +8,10 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import { withProps } from 'modules/common/utils';
+import { router } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  addExportHistory: (doc: any) => void;
 };
 
 type FinalProps = {
