@@ -57,7 +57,7 @@ If your organization does not have many team members, creating a single pipeline
 **Step one.** Create your board and pipeline
 
 
-There are 2 ways to create your board 
+- There are 2 ways to create your board 
 
 1. Using onboarding kit or 
 
@@ -67,9 +67,15 @@ There are 2 ways to create your board
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.sales.gif" width="90%" alt="Creating sales pipeline with settings option"></img>
 
+:::tip
+
 When you’re creating your pipeline, you have keep it mind that all businesses are different and requires different stages to reach the final stage of selling a product. Some companies use a five-stage pipeline, some use more than five, and some even use more than 10. 
 
 Moreover, it all depends on the business.  Before creating your Sales pipeline stages, please read the blog post will hopefullyl help you to set up your Sales pipeline effectively. 
+
+:::
+
+- To create pipeline
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.sales.gif" width="90%" alt="Adding pipeline on sales pipeline "></img>
 
