@@ -71,7 +71,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
 ## What is erxes?
-erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/introduction/architecture">erxes architecture in our documentation</a>.**
+erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/docs/introduction/architecture">erxes architecture in our documentation</a>.**
 
 ## erxes XOS & Plugins
 erxes is composed of 2 main components: **XOS** & **Plugins**
@@ -92,11 +92,11 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
  
 ## Getting Started
 
-Read **<a href="https://docs.erxes.io/developer/ubuntu" >the documentation<a>** to install erxes locally.
+Read **<a href="https://docs.erxes.io/docs/deployment/" >the documentation<a>** to install erxes locally.
 
 **🖐 Requirements**
 
-Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/developer/ubuntu#prerequisites" >installation requirements</a>**.
+Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/deployment/" >installation requirements</a>**.
 
 Supported operating systems:
 
@@ -131,7 +131,7 @@ Let’s start growing **<a href="https://erxes.io/partners">together</a>**.
 
 ## Contributing 
 
-Please read our **<a href="https://docs.erxes.io/contribute/overview" >contributing guide<a>** before submitting a Pull Request to the project.
+Please read our **<a href="https://github.com/erxes/erxes/blob/master/CONTRIBUTING.md" >contributing guide<a>** before submitting a Pull Request to the project.
 
 ## Community support
 
@@ -146,7 +146,7 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## Upgrade Guides
 
-Follow our **<a href="https://github.com/orgs/erxes/repositories">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/introduction/introduction">documentation here</a>**.
+Follow our **<a href="https://github.com/orgs/erxes/repositories">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/docs/intro">documentation here</a>**.
 
  
 ## License
