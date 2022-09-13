@@ -52,7 +52,7 @@ If you have a small team that everyone has to get access to everything, you may 
 
 **Step three.** Edit permissions
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.permission.gif" width="80%" alt="edit permission"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.permission.gif" width="80%" alt="edit permission"></img>
 
 
 
