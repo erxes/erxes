@@ -137,6 +137,8 @@ export default {
       const subdomain = getSubdomain(req);
       const models = await generateModels(subdomain);
 
+      console.log(subdomain, '==========-------------============');
+
       const { sitename, name } = req.params;
 
       const site = await models.Sites.findOne({ name: sitename }).lean();
