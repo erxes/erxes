@@ -91,18 +91,12 @@ export default class SelectBoard extends React.Component<Props, State> {
       this.setState({ pipelineId: plId, stages });
     const brIdOnChange = brId => this.setState({ boardId: brId });
 
-    let modifiedType = type;
-
-    if (type.includes('cards:')) {
-      modifiedType = type.slice(6);
-    }
-
     return (
       <Popover id="select-stage-popover">
         <Attributes>
           <React.Fragment>
             <BoardSelect
-              type={modifiedType}
+              type={type.includes('cards:') ? type.slice(6) : type}
               stageId={this.state.stageId}
               boardId={this.state.boardId}
               pipelineId={this.state.pipelineId}
