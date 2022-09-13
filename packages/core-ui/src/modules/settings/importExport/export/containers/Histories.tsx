@@ -47,8 +47,6 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     const histories = historiesQuery.exportHistories || {};
     const list = histories.list || [];
 
-    console.log(historiesQuery, '<===============historiesQuery');
-
     if (historiesQuery.loading) {
       return <Spinner />;
     }
@@ -62,8 +60,6 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
     }
 
     const currentType = router.getParam(history, 'type');
-
-    console.log(currentType, '<==============currentType');
 
     const removeHistory = (historyId: string, contentType: string) => {
       importHistoriesRemove({

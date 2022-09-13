@@ -20,14 +20,8 @@ type Props = {
 type State = {
   searchValue: string;
   columnWithChosenField: any;
-  importName: string;
-  disclaimer: boolean;
-  type: string;
   contentType: string;
   segmentId: string;
-
-  associatedField: string;
-  associatedContentType: string;
   columns: any[];
 };
 
@@ -38,12 +32,7 @@ class Form extends React.Component<Props, State> {
     this.state = {
       segmentId: '',
       columnWithChosenField: {},
-      importName: '',
-      disclaimer: false,
-      type: 'single',
       contentType: '',
-      associatedField: '',
-      associatedContentType: '',
       columns: props.columns,
       searchValue: ''
     };
@@ -62,18 +51,6 @@ class Form extends React.Component<Props, State> {
     temp2[contentType] = temp;
 
     this.setState({ columnWithChosenField: temp2 });
-  };
-
-  onChangeImportName = value => {
-    this.setState({ importName: value });
-  };
-
-  onChangeDisclaimer = value => {
-    this.setState({ disclaimer: value });
-  };
-
-  onChangeType = value => {
-    this.setState({ type: value, contentType: '' });
   };
 
   onChangeContentType = () => {
@@ -111,7 +88,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { type, columns, searchValue, segmentId } = this.state;
+    const { columns, searchValue, segmentId } = this.state;
 
     const { contentType } = this.props;
     const title = __('Import');
@@ -121,10 +98,6 @@ class Form extends React.Component<Props, State> {
       { title: __('Import & Export'), link: '/settings/importHistories' },
       { title }
     ];
-    console.log(segmentId, '<=============segmentId');
-    console.log(contentType, '<=============contentType');
-    console.log(this.segmentCloseModal, '<=============closeModal');
-    console.log(this.addFilter, '<=============addFilter');
 
     const content = (
       <Content>
@@ -132,7 +105,6 @@ class Form extends React.Component<Props, State> {
           <Steps active={1} direction="horizontal">
             <Step title="Type" link="exportHistories">
               <TypeForm
-                type={type}
                 onChangeContentType={this.onChangeContentType}
                 contentType={contentType}
               />

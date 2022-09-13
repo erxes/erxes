@@ -8,7 +8,6 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../../graphql';
 import { withProps } from 'modules/common/utils';
-import { router } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
@@ -52,10 +51,6 @@ class FormContainer extends React.Component<
         });
       });
   };
-
-  componentWillMount() {
-    this.previewCount();
-  }
 
   render() {
     const { fieldsQuery } = this.props;

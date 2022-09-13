@@ -8,7 +8,6 @@ import { IExportHistoryContentType } from '../../types';
 type Props = {
   onChangeContentType: (value: IExportHistoryContentType) => void;
   contentType: string;
-  type: string;
   typeOptions: any[];
 };
 

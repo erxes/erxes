@@ -35,11 +35,6 @@ const Menu = asyncComponent(() =>
   )
 );
 
-// const exportForm = ({ location }) => {
-//   const queryParams = queryString.parse(location.search);
-//   return <Export contentType={queryParams.type} />;
-// };
-
 const importForm = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
