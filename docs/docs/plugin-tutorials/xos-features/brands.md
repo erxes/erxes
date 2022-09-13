@@ -32,11 +32,11 @@ With brands, you can use:
 
 The Brands can be found in the settings section on the bottom left side of the screen. By selecting the tab, you will be able to access it. 
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.brands.gif" width="80%" alt="where to find brands"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.brands.gif" width="90%" alt="where to find brands"></img>
 
 **Step one.** Creating your brands
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/2.brands.gif" width="80%" alt="create brand"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/2.brands.gif" width="90%" alt="create brand"></img>
 
 
 ✌️ Enjoy your journey with Brands!  
