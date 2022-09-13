@@ -10,15 +10,11 @@ The task management section helps team members with the planning process of day,
 
 Task management is useful for team members to enter, monitor and track tasks to be performed.
 
-- **Unlimited boards and pipelines** 
-Manage your to-do list by allowing you to filter most of the views by: Companies, Customers, Priority, Team Members, Labels, and Due Dates.
+- **Unlimited boards and pipelines**Manage your to-do list by allowing you to filter most of the views by: Companies, Customers, Priority, Team Members, Labels, and Due Dates.
 
-- **Synergy with our other plugins**
-The Time Management plugin works perfectly with the sales pipeline, ticket, and Contact plugins. With this option you can create tasks for you and your clients to manage the overall delivery of their projects.
+- **Synergy with our other plugins** The Time Management plugin works perfectly with the sales pipeline, ticket, and Contact plugins. With this option you can create tasks for you and your clients to manage the overall delivery of their projects.
  
-- **Keep up to date in your calendar** 
-Improve your productivity and prevent procrastination by receiving notifications for the due dates that you set.
-
+- **Keep up to date in your calendar** Improve your productivity and prevent procrastination by receiving notifications for the due dates that you set.
 
 
 ### Setting up task management
@@ -51,24 +47,20 @@ If your organization does not have many team members, creating a single pipeline
 
 :::
 
-
 After setting up this section, you can learn more about how to use this menu effectively in the Task Management menu.
 
  
 **Step one.** Create your board and pipeline
 
 
-There are 2 ways to create your board 
-
+- There are 2 ways to create your board 
 
 1. Using onboarding kit or 
-
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/2.task.png" width="90%" alt="Creating tasks with onboarding kit"></img>
 
 
 2. Using the settings option 
- 
  
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/3.task.gif" width="90%" alt="Creating tasks with the settings option"></img>
 
@@ -78,6 +70,8 @@ There are 2 ways to create your board
 When you’re creating your pipeline, you have to keep in mind that all businesses are different and require different stages to reach the final stage of each project. Before creating your Task Management stages, please read the blog post that will hopefully help you to set up your Task pipeline effectively.
 
 :::
+
+- Create your pipeline
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/4.task.gif" width="90%" alt="Setting up tasks pipeline"></img>
 
