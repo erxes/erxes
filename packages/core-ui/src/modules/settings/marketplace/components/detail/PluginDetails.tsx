@@ -14,9 +14,10 @@ import {
   DetailInformation,
   Hashtag,
   Detail,
-  ColorHeader
+  ColorHeader,
+  AttachmentContainer
 } from '../../styles';
-import Carousel from './Carousel';
+import { Attachment } from '@erxes/ui/src/components';
 
 type Props = {
   id: string;
@@ -92,9 +93,16 @@ class PluginDetails extends React.Component<Props, State> {
     const pluginCategories = 'Free Marketing'.split(' ');
 
     const dataSlider = [
-      'https://wallpaperaccess.com/full/1760844.jpg',
-      'https://wallpaperaccess.com/full/1282257.jpg',
-      'https://wallpaperaccess.com/full/124624.jpg'
+      {
+        url: 'https://wallpaperaccess.com/full/1760844.jpg',
+        name: 'image-1',
+        type: 'image'
+      },
+      {
+        url: 'https://wallpaperaccess.com/full/1282257.jpg',
+        name: 'image-2',
+        type: 'image'
+      }
     ];
 
     const breadcrumb = [
@@ -190,24 +198,36 @@ class PluginDetails extends React.Component<Props, State> {
           )}
         </PluginTitle>
 
-        {dataSlider.length !== 0 && <Carousel dataSlider={dataSlider} />}
+        <AttachmentContainer>
+          {dataSlider.length !== 0 &&
+            dataSlider.map(data =>
+              data.type === 'video' ? (
+                <video controls={true} loop={true}>
+                  <source src={data.url} type="video/mp4" />
+                  {__('Your browser does not support the video tag')}.
+                </video>
+              ) : (
+                <Attachment simple={true} attachment={data} />
+              )
+            )}
+        </AttachmentContainer>
 
         <Tabs>
           <TabTitle
             onClick={() => handleSelect('Description')}
-            active={tabType === 'Description'}
+            className={tabType === 'Description' ? 'active' : ''}
           >
             Description
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Guide')}
-            active={tabType === 'Guide'}
+            className={tabType === 'Guide' ? 'active' : ''}
           >
             Guide
           </TabTitle>
           <TabTitle
             onClick={() => handleSelect('Changelog')}
-            active={tabType === 'Changelog'}
+            className={tabType === 'Changelog' ? 'active' : ''}
           >
             Changelog
           </TabTitle>
