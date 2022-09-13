@@ -48,6 +48,7 @@ The sales pipeline menu allows you to organize and customize the way your organi
 
 :::caution
 
+
 If your organization does not have many team members, creating a single pipeline would be beneficial. As you can organize different deals/tasks in the Label or Properties section of the pipeline, it may be more convenient for a small team to work on one board. This saves time as it reduces time spent navigating around multiple screens as everything is sorted and funnelled into one page.
 
 :::
