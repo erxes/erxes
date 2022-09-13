@@ -43,11 +43,11 @@ Filter by Tags
 Filter by Brands
 Filter by Status
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.forms.png" width="100%" alt="Where to find Forms"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.forms.png" width="90%" alt="Where to find Forms"></img>
 
 ### Prerequisite
 
-:::caution
+:::info
 
 Before you start creating your forms you need to make sure you have created your brands & channels
 
@@ -63,7 +63,7 @@ In order to efficiently manage your customer communications when you have severa
 
 You can change the theme colour from choice of colours provided or you can enter your desired colour code on the field.  
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/5.forms.gif" width="100%" alt="Styling forms"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/5.forms.gif" width="90%" alt="Styling forms"></img>
 
 
 View of form flow types are below:
@@ -74,7 +74,7 @@ View of form flow types are below:
 
 Your form can have callout display where people can press on that to get access to the actual form. 
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/6.forms.gif" width="100%" alt="Callout page on form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/6.forms.gif" width="90%" alt="Callout page on form"></img>
 
 
 :::note
@@ -85,26 +85,26 @@ If you want to your form to appear instantly, you can skip this part.
 
 **Step three.** Create a content for your form. 
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/7.forms.gif" width="100%" alt="create content for your form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/7.forms.gif" width="90%" alt="create content for your form"></img>
 
 - Text input
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/8.forms.gif" width="100%" alt="text input in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/8.forms.gif" width="90%" alt="text input in form"></img>
 
 - Text area
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/9.forms.gif" width="100%" alt="text area in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/9.forms.gif" width="90%" alt="text area in form"></img>
 
 - Checkbox
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/10.forms.gif" width="100%" alt="checkbox in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/10.forms.gif" width="90%" alt="checkbox in form"></img>
 
 
 - Radio button
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/11.forms.gif" width="100%" alt="radio button in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/11.forms.gif" width="90%" alt="radio button in form"></img>
 
 - Select
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/12.forms.gif" width="100%" alt="select in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/12.forms.gif" width="90%" alt="select in form"></img>
 
 - File
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/13.forms.gif" width="100%" alt="file in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/13.forms.gif" width="90%" alt="file in form"></img>
 
 :::tip
 
@@ -113,38 +113,38 @@ If you use the following fields for your forms, the filled out information will 
 :::
 
 - Email
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/14.forms.gif" width="100%" alt="email in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/14.forms.gif" width="90%" alt="email in form"></img>
 
 - Phone
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/15.forms.gif" width="100%" alt="phone in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/15.forms.gif" width="90%" alt="phone in form"></img>
 
 - First name
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/16.forms.gif" width="100%" alt="first name in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/16.forms.gif" width="90%" alt="first name in form"></img>
 
 - Middle name
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/17.forms.gif" width="100%" alt="middle name in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/17.forms.gif" width="90%" alt="middle name in form"></img>
 
 - Last name
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/18.froms.gif" width="100%" alt="last name in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/18.froms.gif" width="90%" alt="last name in form"></img>
 
 - Company name
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/19.forms.gif" width="100%" alt="company name in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/19.forms.gif" width="90%" alt="company name in form"></img>
 
 - Company email
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/20.forms.gif" width="100%" alt="company email in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/20.forms.gif" width="90%" alt="company email in form"></img>
 
 - Company phone
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/21.forms.gif" width="100%" alt="company phone in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/21.forms.gif" width="90%" alt="company phone in form"></img>
 
 - HTML: You can create the field that allows attachechment file with HTML
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/22.forms.gif" width="100%" alt="HTML in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/22.forms.gif" width="90%" alt="HTML in form"></img>
 
 - Product/Service
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/23.forms.gif" width="100%" alt="product & service in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/23.forms.gif" width="90%" alt="product & service in form"></img>
 
 - Object list
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/24.forms.gif" width="100%" alt="object lists in form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/24.forms.gif" width="90%" alt="object lists in form"></img>
 
 
 ⭐ PLUGIN HIGHLIGHT 
@@ -153,7 +153,7 @@ If you use the following fields for your forms, the filled out information will 
 
 erxes can create forms with high level logic where you can enhance the purpose of your form. 
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/25.forms.gif" width="100%" alt="form logic"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/25.forms.gif" width="90%" alt="form logic"></img>
 
 
 **Step Four.** Add rules on your form. 
@@ -167,23 +167,23 @@ You can customize your own rules customizing among following 5 custom rules to t
 
 - **Number of visits** Counts individual visitor’s visitting number. For example, you can show the form only if a visitor views the webpage more than 5 times.
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/26.forms.gif" width="100%" alt="add rules on form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/26.forms.gif" width="90%" alt="add rules on form"></img>
 
 
 **Step five.** Inserting options that the form would be recognized internally.
 
 In this section, you’ll insert the information about the forms identified within your organization internally. 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/27.forms.gif" width="100%" alt="insert internal information on form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/27.forms.gif" width="90%" alt="insert internal information on form"></img>
 
 **Step six.** Advance styling
 
 In this section you’ll insert the HTML code to style the form in advanced level. 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/28.forms.png" width="100%" alt="advance styling on form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/28.forms.png" width="90%" alt="advance styling on form"></img>
 
 **Step seven.** Confirmation 
 
 Final section is for setting up the actions and content after forms been filled out. 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/29.forms.gif" width="100%" alt="confirmation on form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/29.forms.gif" width="90%" alt="confirmation on form"></img>
 
 
 **Step eight.** Installing the form script 
@@ -203,11 +203,11 @@ Receive forms in email
 
 - **View the form performance**
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/31.forms.png" width="100%" alt="view form performance"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/31.forms.png" width="90%" alt="view form performance"></img>
 
 - **Managing your Forms** After you have created your form you can go back to the Forms page to manage all of the forms you have created. Within the main Forms page you will also be able to incorporate all of your Forms to your websites. Each Form you have created there will be an Actions section. From this section you will be able to:
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/32.forms.png" width="100%" alt="manage form"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/32.forms.png" width="60%" alt="manage form"></img>
 
 Edit: Make changes to your Form
 Script code: To get access to form script code
