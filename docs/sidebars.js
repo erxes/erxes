@@ -57,8 +57,8 @@ module.exports = {
         {
           'GraphQL API': [
             'api/introduction',
-            'api/objects',
-            'api/inputObjects',
+            'api/types',
+            'api/inputTypes',
             'api/enums',
             'api/scalars',
             'api/queries',

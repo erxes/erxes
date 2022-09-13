@@ -1,13 +1,11 @@
 ---
-id: inputObjects
-title: Input objects
-slug: inputObjects
+id: inputTypes
+title: Input types
+slug: inputTypes
 sidebar_position: 8
 ---
 
 ## ActionInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -91,8 +89,6 @@ type<br />
 
 ## ageGroupsInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -138,8 +134,6 @@ millennials<br />
 </table>
 
 ## AttachmentInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -195,8 +189,6 @@ url<br />
 </table>
 
 ## BookingStyleInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -280,8 +272,6 @@ widgetColor<br />
 
 ## CatProdInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -319,8 +309,6 @@ productId<br />
 
 ## CommonInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -357,8 +345,6 @@ locationValue<br />
 </table>
 
 ## ConversationMessageParams
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -442,8 +428,6 @@ userId<br />
 
 ## CoordinateInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -471,8 +455,6 @@ longitude<br />
 </table>
 
 ## DistrictTownInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -592,8 +574,6 @@ publicServiceAttachment<br />
 
 ## EmailSignature
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -621,8 +601,6 @@ signature<br />
 </table>
 
 ## EngageMessageEmail
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -688,8 +666,6 @@ templateId<br />
 
 ## EngageMessageMessenger
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -745,8 +721,6 @@ sentAs<br />
 
 ## EngageMessageSmsInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -783,8 +757,6 @@ fromIntegrationId<br />
 </table>
 
 ## EngageScheduleDateInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -831,8 +803,6 @@ type<br />
 </table>
 
 ## EnvInfoInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -898,8 +868,6 @@ walkingEnv<br />
 
 ## EventAttributeFilter
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -937,8 +905,6 @@ value<br />
 
 ## ExmAppearanceInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -966,8 +932,6 @@ secondaryColor<br />
 </table>
 
 ## ExmEventDataInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1014,8 +978,6 @@ where<br />
 </table>
 
 ## ExmFeatureInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1090,8 +1052,6 @@ subContentId<br />
 
 ## ExmWelcomeContentInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -1137,8 +1097,6 @@ title<br />
 </table>
 
 ## FieldItem
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1375,8 +1333,6 @@ validation<br />
 
 ## FieldValueInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -1477,8 +1433,6 @@ value<br />
 
 ## GroupInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -1543,8 +1497,6 @@ name<br />
 
 ## InputRule
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -1599,8 +1551,6 @@ value<br />
 </table>
 
 ## IntegrationBookingData
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1683,8 +1633,6 @@ style<br />
 </table>
 
 ## IntegrationLeadData
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -1885,8 +1833,6 @@ userEmailTitle<br />
 
 ## IntegrationLinks
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -1923,8 +1869,6 @@ youtube<br />
 </table>
 
 ## IntegrationMessengerData
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2116,8 +2060,6 @@ timezone<br />
 
 ## InvitationEntry
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2191,8 +2133,6 @@ unitId<br />
 
 ## ItemDate
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2220,8 +2160,6 @@ year<br />
 </table>
 
 ## KhorooInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2313,8 +2251,6 @@ sex<br />
 </table>
 
 ## KnowledgeBaseArticleDoc
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2416,8 +2352,6 @@ topicId<br />
 
 ## KnowledgeBaseCategoryDoc
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2491,8 +2425,6 @@ topicIds<br />
 
 ## KnowledgeBaseMessengerAppInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2511,8 +2443,6 @@ topicId<br />
 </table>
 
 ## KnowledgeBaseTopicDoc
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2587,8 +2517,6 @@ title<br />
 
 ## LeadMessengerAppInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2607,8 +2535,6 @@ formCode<br />
 </table>
 
 ## LocationInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2637,8 +2563,6 @@ type<br />
 </table>
 
 ## LocationOptionInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2676,8 +2600,6 @@ lng<br />
 </table>
 
 ## LogicInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2725,8 +2647,6 @@ tempFieldId<br />
 
 ## MessengerAppsInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2763,8 +2683,6 @@ websites<br />
 </table>
 
 ## MessengerOnlineHoursSchema
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2812,8 +2730,6 @@ to<br />
 
 ## MessengerUiOptions
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2860,8 +2776,6 @@ wallpaper<br />
 
 ## NeighborInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2898,8 +2812,6 @@ rate<br />
 </table>
 
 ## objectListConfigInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -2938,8 +2850,6 @@ type<br />
 
 ## OrderItem
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -2967,8 +2877,6 @@ order<br />
 </table>
 
 ## OTPConfigInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3016,8 +2924,6 @@ smsTransporterType<br />
 
 ## PipelineTemplateStageInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -3055,8 +2961,6 @@ name<br />
 
 ## ProductField
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -3084,8 +2988,6 @@ quantity<br />
 </table>
 
 ## SchoolInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3132,8 +3034,6 @@ locationValue<br />
 </table>
 
 ## SegmentCondition
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3244,8 +3144,6 @@ type<br />
 
 ## sexInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -3273,8 +3171,6 @@ male<br />
 </table>
 
 ## SlotInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3322,8 +3218,6 @@ posId<br />
 
 ## SohInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -3369,8 +3263,6 @@ thermality<br />
 </table>
 
 ## StylesParams
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3517,8 +3409,6 @@ secondaryBtnColor<br />
 
 ## SubmissionFilter
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -3555,8 +3445,6 @@ value<br />
 </table>
 
 ## SubSegment
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3612,8 +3500,6 @@ contentType<br />
 </table>
 
 ## TriggerInput
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3697,8 +3583,6 @@ type<br />
 
 ## UniversityInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -3726,8 +3610,6 @@ locationValue<br />
 </table>
 
 ## UserDetails
-
-
 
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
@@ -3820,8 +3702,6 @@ workStartedDate<br />
 
 ## WebSiteMessengerAppInput
 
-
-
 <p style={{ marginBottom: "0.4em" }}><strong>Arguments</strong></p>
 
 <table>
@@ -3856,4 +3736,3 @@ url<br />
 </tr>
 </tbody>
 </table>
-

@@ -1,7 +1,7 @@
 ---
-id: objects
-title: Objects
-slug: objects
+id: types
+title: Types
+slug: types
 sidebar_position: 4
 ---
 
