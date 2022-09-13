@@ -12,7 +12,6 @@ Tag is an easy-to-use project management tool for team members of any size. Tag 
 - **Integrate your services into one spot** Activate the Tag plugin to support tags and advanced automation.
 - **Keep you and your team organized for smooth flow** Use tags to organize your data. It's easy to see at a glance what the tags mean, what they're useful for, and who you can reach with them.
 - **Keep track of what’s important** Allows you to segment your operations and track their behavior across all of your channels.
-- 
 
 ### Setting up Tags plugin
 
