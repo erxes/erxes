@@ -24,7 +24,10 @@ const participantMutations = {
     const cpUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
-      data: { _id: participant.driverId },
+      data: {
+        _id: participant.driverId,
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
       isRPC: true,
       defaultValue: null
     });

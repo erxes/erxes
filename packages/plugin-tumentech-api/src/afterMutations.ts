@@ -43,7 +43,8 @@ export const afterMutationHandlers = async (subdomain, params) => {
           subdomain,
           action: 'clientPortalUsers.find',
           data: {
-            _id: { $in: driverIds }
+            _id: { $in: driverIds },
+            clientPortalId: process.env.MOBILE_CP_ID || ''
           },
           isRPC: true,
           defaultValue: []
