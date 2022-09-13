@@ -27,7 +27,7 @@ The Permission can be found in the settings section on the bottom left side of t
  
 For each teammate, you can choose different permissions depending on their needs in the workspace. Below is the logic behind setting up your team member’s permissions. You can create as many permissions as you wish to create, but each type of permission has the following:
  
-:::note
+:::tip
 
 If you have a small team that everyone has to get access to everything, you may only create one permission, which has a superpower, and you could give everyone that permission. 
 
