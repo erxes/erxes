@@ -1,4 +1,5 @@
-var userGuideSidebar = require('./user.guide.sidebars');
+var pluginTutorialSideBar = require('./plugin.tutorial.sidebars');
+var userGuideSidebar = require('./user.guide.sidebar');
 
 var sideBar  = {  
   docs: [
@@ -125,6 +126,7 @@ var sideBar  = {
 
   
   ],
+  ...pluginTutorialSideBar,
   ...userGuideSidebar
 };
 

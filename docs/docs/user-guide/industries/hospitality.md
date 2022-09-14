@@ -1,0 +1,4 @@
+---
+id: hospitality
+title: Hospitality
+---
