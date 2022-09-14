@@ -33,11 +33,23 @@ function displayValue(car, name, index) {
   }
 
   if (name === 'drivers') {
-    return car.customers.map(driver => (
-      <li>
-        <TextInfo>{driver ? renderFullName(driver) : '-'}</TextInfo>
-      </li>
-    ));
+    return car.customers && car.customers.length
+      ? car.customers.map(driver => (
+          <li>
+            <TextInfo>{driver ? renderFullName(driver) : '-'}</TextInfo>
+          </li>
+        ))
+      : '-';
+  }
+
+  if (name === 'companies') {
+    return car.companies && car.companies.length
+      ? car.companies.map(company => (
+          <li>
+            <TextInfo>{company ? company.primaryName : '-'}</TextInfo>
+          </li>
+        ))
+      : '-';
   }
 
   return formatValue(value);

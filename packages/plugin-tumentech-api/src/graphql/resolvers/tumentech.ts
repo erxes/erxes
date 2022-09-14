@@ -1,5 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 import { IParticipantDocument } from '../../models/definitions/participants';
 import {
   ICarCategoryDocument,
@@ -29,7 +29,15 @@ const Cars = {
       defaultValue: []
     });
 
-    return (customerIds || []).map(_id => ({ __typename: 'Customer', _id }));
+    const customers = await sendContactsMessage({
+      subdomain,
+      action: 'customers.find',
+      data: { _id: { $in: customerIds } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return customers;
   },
 
   async companies(car: ICarDocument, {}, { subdomain }: IContext) {
@@ -45,7 +53,15 @@ const Cars = {
       defaultValue: []
     });
 
-    return (companiIds || []).map(_id => ({ __typename: 'Company', _id }));
+    const companies = await sendContactsMessage({
+      subdomain,
+      action: 'companies.find',
+      data: { _id: { $in: companiIds } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return companies;
   }
 };
 
