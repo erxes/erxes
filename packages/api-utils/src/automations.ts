@@ -342,9 +342,10 @@ export const setProperty = async ({
 
   for (const conformity of conformities) {
     const setDoc = {};
+    const pushDoc = {};
 
     for (const rule of rules) {
-      setDoc[rule.field] = await getPerValue({
+      const value = await getPerValue({
         models,
         subdomain,
         conformity,
@@ -352,13 +353,48 @@ export const setProperty = async ({
         target,
         getRelatedValue
       });
+
+      if (
+        !rule.field.includes('customFieldsData') &&
+        !rule.field.includes('trackedData')
+      ) {
+        setDoc[rule.field] = value;
+        continue;
+      }
+
+      for (const complexFieldKey of ['customFieldsData', 'trackedData']) {
+        if (rule.field.includes(complexFieldKey)) {
+          const fieldId = rule.field.replace(`${complexFieldKey}.`, '');
+
+          pushDoc[complexFieldKey] = await sendCommonMessage({
+            subdomain,
+            serviceName: 'forms',
+            action: 'fields.generateTypedItem',
+            data: {
+              field: fieldId,
+              value
+            },
+            isRPC: true
+          });
+        }
+      }
+    }
+
+    const modifier: any = {};
+
+    if (Object.keys(setDoc).length > 0) {
+      modifier.$set = setDoc;
+    }
+
+    if (Object.keys(pushDoc).length > 0) {
+      modifier.$push = pushDoc;
     }
 
     const response = await sendCommonMessage({
       subdomain,
       serviceName,
       action: `${collectionType}s.updateMany`,
-      data: { selector: { _id: conformity._id }, modifier: setDoc },
+      data: { selector: { _id: conformity._id }, modifier },
       isRPC: true
     });
 
