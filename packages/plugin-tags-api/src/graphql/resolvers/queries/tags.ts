@@ -33,7 +33,7 @@ const tagQueries = {
     return fieldTypes;
   },
 
-  tags(
+  async tags(
     _root,
     {
       type,
@@ -56,10 +56,12 @@ const tagQueries = {
       selector._id = { $in: tagIds };
     }
 
-    return models.Tags.find(selector).sort({
+    const tags = await models.Tags.find(selector).sort({
       order: 1,
       name: 1
     });
+
+    return tags;
   },
 
   /**
