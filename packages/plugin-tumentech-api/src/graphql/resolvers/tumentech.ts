@@ -1,7 +1,10 @@
 import { IContext } from '../../connectionResolver';
 import { sendCoreMessage } from '../../messageBroker';
 import { IParticipantDocument } from '../../models/definitions/participants';
-import { ICarCategoryDocument } from '../../models/definitions/tumentech';
+import {
+  ICarCategoryDocument,
+  ICarDocument
+} from '../../models/definitions/tumentech';
 
 const Cars = {
   category(car, _args, { models }) {
@@ -13,26 +16,36 @@ const Cars = {
     );
   },
 
-  customers(car) {
-    console.log('car :>> ', car);
+  async customers(car: ICarDocument, {}, { subdomain }: IContext) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: 'car',
+        mainTypeId: car._id.toString(),
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
-    async ({ models, subdomain }) => {
-      const customerIds = await sendCoreMessage({
-        subdomain,
-        action: 'conformities.savedConformity',
-        data: {
-          mainType: 'car',
-          mainTypeId: car._id.toString(),
-          relTypes: ['customer']
-        },
-        isRPC: true,
-        defaultValue: []
-      });
+    return (customerIds || []).map(_id => ({ __typename: 'Customer', _id }));
+  },
 
-      console.log('customerIds', customerIds);
+  async companies(car: ICarDocument, {}, { subdomain }: IContext) {
+    const companiIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: 'car',
+        mainTypeId: car._id.toString(),
+        relTypes: ['company']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
 
-      return models.Customers.find({ _id: { $in: customerIds || [] } });
-    };
+    return (companiIds || []).map(_id => ({ __typename: 'Company', _id }));
   }
 };
 

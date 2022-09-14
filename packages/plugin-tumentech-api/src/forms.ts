@@ -10,8 +10,8 @@ export default {
   fields: generateFields,
   defaultColumnsConfig: {
     car: [
-      { name: 'driver', label: 'Driver', order: 1 },
-      { name: 'company', label: 'Company', order: 2 },
+      { name: 'drivers', label: 'Driver(s)', order: 1 },
+      { name: 'companies', label: 'Company(s)', order: 2 },
       { name: 'plateNumber', label: 'Plate number', order: 3 },
       { name: 'vinNumber', label: 'Vin number', order: 4 },
       { name: 'vintageYear', label: 'Vintage year', order: 5 },

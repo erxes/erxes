@@ -32,15 +32,12 @@ function displayValue(car, name, index) {
     return <TextInfo>{index.toString()}</TextInfo>;
   }
 
-  if (name === 'driver') {
-    console.log('car.customers', car.customers);
-
-    const driver =
-      car.customers && car.customers.length ? car.customers[0] : null;
-    if (car.customers && car.customers.length > 0) {
-      console.log('customers = ', car.customers);
-    }
-    return <TextInfo>{driver ? renderFullName(driver) : '-'}</TextInfo>;
+  if (name === 'drivers') {
+    return car.customers.map(driver => (
+      <li>
+        <TextInfo>{driver ? renderFullName(driver) : '-'}</TextInfo>
+      </li>
+    ));
   }
 
   return formatValue(value);
