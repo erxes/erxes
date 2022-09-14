@@ -48,7 +48,9 @@ export default {
     search,
     logs: { providesActivityLog: true, consumers: logs },
     webhooks,
-    cronjobs
+    cronjobs,
+    // for fixing permissions
+    permissions
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

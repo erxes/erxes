@@ -205,12 +205,16 @@ export const userActionsMap = async (
  * If a permission is added or removed from the constants & forgotten from required actions,
  * this util will fix that.
  */
-export const fixPermissions = async (models: IModels): Promise<string[]> => {
-  const modules = Object.getOwnPropertyNames(moduleObjects);
+export const fixPermissions = async (
+  models: IModels,
+  externalObjects?
+): Promise<string[]> => {
+  const permissionObjects = { ...moduleObjects, ...(externalObjects || {}) };
+  const modules = Object.getOwnPropertyNames(permissionObjects);
   const result: string[] = [];
 
   for (const mod of modules) {
-    const moduleItem: IModuleMap = moduleObjects[mod];
+    const moduleItem: IModuleMap = permissionObjects[mod];
 
     if (moduleItem && moduleItem.actions) {
       const allAction: IActionsMap | undefined = moduleItem.actions.find(
@@ -232,14 +236,16 @@ export const fixPermissions = async (models: IModels): Promise<string[]> => {
             ? allAction.use
             : otherActions;
 
-        const permissions: IPermissionDocument[] = await models.Permissions.find({
-          module: mod,
-          action: allAction.name,
-          $or: [
-            { requiredActions: { $eq: null } },
-            { requiredActions: { $not: { $size: mostActions.length } } }
-          ]
-        }).lean();
+        const permissions: IPermissionDocument[] = await models.Permissions.find(
+          {
+            module: mod,
+            action: allAction.name,
+            $or: [
+              { requiredActions: { $eq: null } },
+              { requiredActions: { $not: { $size: mostActions.length } } }
+            ]
+          }
+        ).lean();
 
         for (const perm of permissions) {
           await models.Permissions.updateOne(
@@ -257,7 +263,9 @@ export const fixPermissions = async (models: IModels): Promise<string[]> => {
               : perm.userId;
           }
           if (perm.groupId) {
-            const group = await models.UsersGroups.findOne({ _id: perm.groupId });
+            const group = await models.UsersGroups.findOne({
+              _id: perm.groupId
+            });
 
             message = group ? `user group "${group.name}"` : perm.groupId;
           }
