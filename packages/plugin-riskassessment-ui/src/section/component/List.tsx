@@ -15,11 +15,11 @@ type Props = {
 };
 
 function RiskAssessmentSection(props: Props) {
-  const { list, submissions } = props;
+  const { list, submissions, currentUser } = props;
 
   const renderFormModalContent = ({
     closeModal,
-    riskAssessmentId,
+    riskAssessmentId
   }: {
     closeModal: () => void;
     dealId?: string;
@@ -33,10 +33,10 @@ function RiskAssessmentSection(props: Props) {
   const renderFormModal = (trigger: React.ReactNode, riskAssessmentId?: string) => {
     return (
       <ModalTrigger
-        size='lg'
+        size="lg"
         trigger={trigger}
-        content={(props) => renderFormModalContent({ ...props, riskAssessmentId })}
-        title='Risk Assessment'
+        content={props => renderFormModalContent({ ...props, riskAssessmentId })}
+        title="Risk Assessment"
       />
     );
   };
@@ -52,7 +52,7 @@ function RiskAssessmentSection(props: Props) {
 
   const renderSubmissionForm = (isSubmitted?: boolean, riskAssessmentId?: string) => {
     const trigger = (
-      <Button btnStyle='link'>
+      <Button btnStyle="link">
         <Tip text={isSubmitted ? 'See Submitted Form' : 'Submission Form'}>
           <Icon
             color={isSubmitted ? 'purple' : 'green'}
@@ -77,7 +77,7 @@ function RiskAssessmentSection(props: Props) {
 
     return (
       <ModalTrigger
-        title='Your Risk Assessment Submission Form'
+        title="Your Risk Assessment Submission Form"
         trigger={trigger}
         content={content}
         backDrop
@@ -89,17 +89,17 @@ function RiskAssessmentSection(props: Props) {
   return (
     <>
       <Box
-        name='riskAssessment'
+        name="riskAssessment"
         title={__('Risk Assessment')}
         extraButtons={renderFormModal(
           <button>
-            <Icon icon='plus-circle' />
+            <Icon icon="plus-circle" />
           </button>
         )}
       >
         {list.length ? (
           <div>
-            {list.map((item) => (
+            {list.map(item => (
               <SectionBodyItem key={item.riskAssessmentId}>
                 {renderFormModal(
                   renderItem(item.name || '', item.statusColor || ''),
@@ -109,25 +109,26 @@ function RiskAssessmentSection(props: Props) {
             ))}
           </div>
         ) : (
-          <EmptyState icon='folder-2' text={`No risk assessment`} />
+          <EmptyState icon="folder-2" text={`No risk assessment`} />
         )}
       </Box>
       {list.length > 0 && (
-        <Box name='riskSubmissions' title={__('Risk Assessment Submissions')}>
+        <Box name="riskSubmissions" title={__('Risk Assessment Submissions')}>
           {submissions ? (
-            submissions.map((user) => (
+            submissions.map(user => (
               <SectionBodyItem key={user._id}>
                 <ProductName>
                   {user.email}
-                  {renderSubmissionForm(
-                    user.isSubmittedRiskAssessmentForm,
-                    list[0].riskAssessmentId
-                  )}
+                  {currentUser.email === user.email &&
+                    renderSubmissionForm(
+                      user.isSubmittedRiskAssessmentForm,
+                      list[0].riskAssessmentId
+                    )}
                 </ProductName>
               </SectionBodyItem>
             ))
           ) : (
-            <EmptyState icon='folder-2' text={`No risk assessment submissions`} />
+            <EmptyState icon="folder-2" text={`No risk assessment submissions`} />
           )}
         </Box>
       )}
