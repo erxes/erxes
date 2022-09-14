@@ -107,22 +107,11 @@ Let you guys go through the main actions on Sales Pipeline below:
 For the Managers, erxes provides the numbers view options to precisely look into the projects. 
 
 - **Board**
----
-
 - **Calendar**
----
-
 - **Conversion**
----
-
 - **List**
----
-
 - **Gantt**
----
-
 - **Time**
----
 
 
 **Filter and view archives among cards.**
