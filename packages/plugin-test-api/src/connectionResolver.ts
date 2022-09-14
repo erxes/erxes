@@ -1,11 +1,20 @@
 import * as mongoose from 'mongoose';
-import { ITagDocument } from './models/definitions/tags';
-import { ITagModel, loadTagClass } from './models/Tags';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
+import {
+  ITemplateModel,
+  ITypeModel,
+  loadTemplateClass,
+  loadTypeClass
+} from './models/Template';
+import {
+  ITemplateDocument,
+  ITypeDocument
+} from './models/definitions/template';
 
 export interface IModels {
-  Tags: ITagModel;
+  Templates: ITemplateModel;
+  Types: ITypeModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -17,7 +26,15 @@ export let models: IModels | null = null;
 export const loadClasses = (db: mongoose.Connection): IModels => {
   models = {} as IModels;
 
-  models.Tags = db.model<ITagDocument, ITagModel>('tags', loadTagClass(models));
+  models.Templates = db.model<ITemplateDocument, ITemplateModel>(
+    'test',
+    loadTemplateClass(models)
+  );
+
+  models.Types = db.model<ITypeDocument, ITypeModel>(
+    'type',
+    loadTypeClass(models)
+  );
 
   return models;
 };

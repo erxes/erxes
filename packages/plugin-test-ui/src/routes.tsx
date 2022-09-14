@@ -4,20 +4,18 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Tags" */ './containers/List')
+  import(/* webpackChunkName: "List - Tests" */ './containers/List')
 );
 
-const tags = ({ location, history }) => {
+const tests = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
-
-  // console.log(queryParams);
   const { type } = queryParams;
 
-  return <List type={type} history={history} />;
+  return <List typeId={type} history={history} />;
 };
 
 const routes = () => {
-  return <Route path="/tags/" component={tags} />;
+  return <Route path="/tests/" component={tests} />;
 };
 
 export default routes;
