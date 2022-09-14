@@ -1,5 +1,5 @@
 import { Content, LeftContent } from '../../styles';
-import { Step, Steps } from '@erxes/ui/src/components/step';
+import { Step, Steps, ExportStep } from '@erxes/ui/src/components/step';
 import ConfigsForm from './ConfigsForm';
 import React from 'react';
 import TypeForm from '../containers/TypeForm';
@@ -8,6 +8,7 @@ import { __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import { loadDynamicComponent } from 'modules/common/utils';
+import { IExportHistoryContentType } from '../../types';
 
 type Props = {
   contentType: string;
@@ -20,9 +21,10 @@ type Props = {
 type State = {
   searchValue: string;
   columnWithChosenField: any;
-  contentType: string;
   segmentId: string;
   columns: any[];
+  contentTypes: IExportHistoryContentType[];
+  type: string;
 };
 
 class Form extends React.Component<Props, State> {
@@ -32,9 +34,10 @@ class Form extends React.Component<Props, State> {
     this.state = {
       segmentId: '',
       columnWithChosenField: {},
-      contentType: '',
+      contentTypes: [],
       columns: props.columns,
-      searchValue: ''
+      searchValue: '',
+      type: 'single'
     };
   }
 
@@ -53,10 +56,30 @@ class Form extends React.Component<Props, State> {
     this.setState({ columnWithChosenField: temp2 });
   };
 
-  onChangeContentType = () => {
-    const { contentType } = this.state;
+  onChangeContentType = (contentType: IExportHistoryContentType) => {
+    const { type, contentTypes } = this.state;
 
-    return this.setState({ contentType });
+    if (type === 'single') {
+      return this.setState({ contentTypes: [contentType] });
+    }
+
+    let temp: IExportHistoryContentType[] = [];
+
+    if (contentTypes.length === 2) {
+      temp = [...contentTypes];
+
+      temp[0] = contentTypes[1];
+
+      temp[1] = contentType;
+
+      return this.setState({ contentTypes: temp });
+    }
+
+    temp = [...contentTypes];
+
+    temp.push(contentType);
+
+    return this.setState({ contentTypes: temp });
   };
 
   onClickField = (checked, field) => {
@@ -88,7 +111,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { columns, searchValue, segmentId } = this.state;
+    const { columns, searchValue, segmentId, contentTypes } = this.state;
 
     const { contentType } = this.props;
     const title = __('Import');
@@ -106,7 +129,7 @@ class Form extends React.Component<Props, State> {
             <Step title="Type" link="exportHistories">
               <TypeForm
                 onChangeContentType={this.onChangeContentType}
-                contentType={contentType}
+                contentTypes={contentTypes}
               />
             </Step>
             {
@@ -119,7 +142,7 @@ class Form extends React.Component<Props, State> {
                 />
               </Step>
             }
-            <Step title="Filter">
+            <ExportStep title="Filter">
               <FlexPad direction="column" overflow="auto">
                 <SubHeading>{__('Filter')}</SubHeading>
                 <Description>
@@ -135,7 +158,7 @@ class Form extends React.Component<Props, State> {
                   usageType: 'export'
                 })}
               </FlexPad>
-            </Step>
+            </ExportStep>
           </Steps>
         </LeftContent>
       </Content>

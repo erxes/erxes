@@ -7,18 +7,18 @@ import { IExportHistoryContentType } from '../../types';
 
 type Props = {
   onChangeContentType: (value: IExportHistoryContentType) => void;
-  contentType: string;
+  contentTypes: IExportHistoryContentType[];
   typeOptions: any[];
 };
 
 class TypeForm extends React.Component<Props> {
   renderSelected = selectedType => {
-    const { contentType } = this.props;
+    const { contentTypes } = this.props;
 
-    if (contentType) {
-      const content = contentType;
+    if (contentTypes.length > 0) {
+      const contentType = contentTypes[0].contentType;
 
-      return content === selectedType.contentType ? true : false;
+      return contentType === selectedType.contentType ? true : false;
     }
 
     return false;

@@ -44,7 +44,6 @@ export interface IExportHistoryItem {
   count: number;
 }
 export interface IExportHistoryContentType {
-  type: 'core' | 'plugin';
   contentType: string;
 }
 
