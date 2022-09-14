@@ -40,7 +40,7 @@ const tagQueries = {
       searchValue,
       tagIds
     }: { type: string; searchValue?: string; tagIds?: string[] },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -60,6 +60,8 @@ const tagQueries = {
       order: 1,
       name: 1
     });
+
+    models = undefined;
 
     return tags;
   },
