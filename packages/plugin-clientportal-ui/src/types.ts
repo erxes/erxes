@@ -5,8 +5,13 @@ import { QueryResponse } from '@erxes/ui/src/types';
 export type OTPConfig = {
   content: string;
   smsTransporterType?: '' | 'messagePro';
-  emailTransporterType?: '' | 'ses';
   codeLength: number;
+};
+
+export type MailConfig = {
+  subject: string;
+  registrationContent: string;
+  invitationContent: string;
 };
 
 export interface IClientPortalUserDoc {
@@ -100,6 +105,7 @@ export type ClientPortalConfig = {
   ticketToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
+  mailConfig?: MailConfig;
 };
 
 export type Styles = {

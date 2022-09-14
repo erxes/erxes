@@ -6,6 +6,17 @@ const fields = `
         name
         domain
       }
+      createdUser {
+        details {
+          fullName
+        }
+      }
+
+      updatedUser {
+        details {
+          fullName
+        }
+      }
 `;
 
 const pagesMain = `
@@ -49,6 +60,7 @@ const contentTypes = `
     webbuilderContentTypes(siteId: $siteId) {
       _id
       displayName
+      fields
     }
   }
 `;

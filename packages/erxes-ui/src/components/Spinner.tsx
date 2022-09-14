@@ -1,8 +1,8 @@
-import { rotate } from '../utils/animations';
 import React from 'react';
+import { colors } from '../styles';
+import { rotate } from '../utils/animations';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors } from '../styles';
 
 type Props = {
   objective?: boolean;

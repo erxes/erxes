@@ -1,35 +1,7 @@
-import dayjs from 'dayjs';
-import Button from '@erxes/ui/src/components/Button';
-import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { Label } from '@erxes/ui/src/components/form/styles';
-import Icon from '@erxes/ui/src/components/Icon';
-import Tip from '@erxes/ui/src/components/Tip';
-import EditorCK from '@erxes/ui/src/containers/EditorCK';
-import { __, Alert, uploadHandler } from '@erxes/ui/src/utils';
-import { Meta } from './styles';
-import { FileName } from '@erxes/ui-inbox/src/inbox/styles';
-import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import { IEmailSignature } from '@erxes/ui/src/auth/types';
-import React, { ReactNode } from 'react';
-import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import {
-  formatObj,
-  formatStr,
-  generateForwardMailContent,
-  generatePreviousContents
-} from '../../containers/utils';
-
-import { IUser } from '@erxes/ui/src/auth/types';
-import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
-import EmailTemplate from './emailTemplate/EmailTemplate';
-import MailChooser from './MailChooser';
-import {
-  AttachmentContainer,
-  Attachments,
   ControlWrapper,
   EditorFooter,
-  FileSize,
   MailEditorWrapper,
   Resipients,
   ShowReplies,
@@ -39,7 +11,33 @@ import {
   Uploading
 } from './styles';
 import { FlexRow, Subject } from './styles';
+import { IEmail, IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
+import React, { ReactNode } from 'react';
+import {
+  formatObj,
+  formatStr,
+  generateForwardMailContent,
+  generatePreviousContents
+} from '../../containers/utils';
+
+import Button from '@erxes/ui/src/components/Button';
 import { Column } from '@erxes/ui/src/styles/main';
+import EditorCK from '@erxes/ui/src/containers/EditorCK';
+import EmailTemplate from './emailTemplate/EmailTemplate';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import { IEmailSignature } from '@erxes/ui/src/auth/types';
+import { IUser } from '@erxes/ui/src/auth/types';
+import Icon from '@erxes/ui/src/components/Icon';
+import { Label } from '@erxes/ui/src/components/form/styles';
+import { MAIL_TOOLBARS_CONFIG } from '@erxes/ui/src/constants/integrations';
+import MailChooser from './MailChooser';
+import { Meta } from './styles';
+import { SmallLoader } from '@erxes/ui/src/components/ButtonMutate';
+import Tip from '@erxes/ui/src/components/Tip';
+import dayjs from 'dayjs';
+import { generateEmailTemplateParams } from '@erxes/ui-engage/src/utils';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { readFile } from '@erxes/ui/src/utils/core';
 
 type Props = {
   emailTemplates: any[] /*change type*/;
@@ -86,8 +84,6 @@ type State = {
   isLoading: boolean;
   attachments: any[];
   fileIds: string[];
-  totalFileSize: number;
-  isUploading: boolean;
   showPrevEmails: boolean;
   emailSignature: string;
   name: string;
@@ -135,12 +131,10 @@ class MailForm extends React.Component<Props, State> {
       content: this.getContent(mailData, ''),
 
       status: 'draft',
-      isUploading: false,
       kind: '',
 
       attachments,
       fileIds: [],
-      totalFileSize: 0,
 
       name: `mail_${mailKey}`,
       showReply: `reply_${mailKey}`
@@ -445,99 +439,6 @@ class MailForm extends React.Component<Props, State> {
     this.setState({ content: this.findTemplate(value), templateId: value });
   };
 
-  onAttachment = (e: React.FormEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
-    const { from } = this.state;
-
-    uploadHandler({
-      kind: 'main',
-      files,
-      userId: this.props.currentUser._id,
-      extraFormData: [{ key: 'erxesApiId', value: from || '' }],
-      beforeUpload: () => {
-        this.setState({ isUploading: true });
-      },
-      afterUpload: ({ status, response, fileInfo }) => {
-        if (status === 'error') {
-          return Alert.error(
-            response.statusText || `Error occured for ${fileInfo.name}`
-          );
-        }
-
-        const resObj = JSON.parse(response);
-
-        this.setState({
-          isUploading: false
-        });
-
-        this.setState(prevState => ({
-          attachments: [...prevState.attachments, resObj]
-        }));
-      }
-    });
-  };
-
-  handleFileInput = (e: React.FormEvent<HTMLInputElement>) => {
-    const files = e.currentTarget.files;
-
-    if (!files) {
-      return;
-    }
-
-    if (files.length === 0) {
-      return;
-    }
-
-    this.setState({ isUploading: true });
-
-    let j = 0;
-
-    // tslint:disable-next-line
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      const uploadReader = new FileReader();
-      const fileInfo = {
-        filename: file.name,
-        size: file.size,
-        mimeType: file.type
-      };
-
-      // eslint-disable-next-line
-      uploadReader.onloadend = () => {
-        const totalFileSize = this.state.totalFileSize + fileInfo.size;
-
-        if (totalFileSize > 5184000) {
-          this.setState({ isUploading: false });
-
-          return Alert.error('It`s size exceeds the limit 5mb');
-        }
-
-        const result = uploadReader.result;
-
-        if (result) {
-          const dataStr = result.toString();
-          const data = dataStr.substr(dataStr.indexOf(',') + 1);
-
-          const fileData = Object.assign({ data }, fileInfo);
-
-          this.setState({
-            attachments: [...this.state.attachments, fileData],
-            totalFileSize
-          });
-
-          j++;
-
-          if (j === files.length) {
-            this.setState({ isUploading: false });
-          }
-        }
-      };
-
-      uploadReader.readAsDataURL(file);
-    }
-  };
-
   renderFromValue = () => {
     const { verifiedEmails } = this.props;
 
@@ -557,10 +458,10 @@ class MailForm extends React.Component<Props, State> {
 
   renderFrom() {
     return (
-      <>
+      <FlexRow>
         <label>From:</label>
         {this.renderFromValue()}
-      </>
+      </FlexRow>
     );
   }
 
@@ -644,35 +545,6 @@ class MailForm extends React.Component<Props, State> {
     );
   }
 
-  renderAttachments() {
-    const { attachments } = this.state;
-
-    if (attachments.length === 0) {
-      return;
-    }
-
-    return (
-      <Attachments>
-        {attachments.map((attachment, index) => (
-          <AttachmentContainer key={index}>
-            <FileName>{attachment.filename || attachment.name}</FileName>
-            {attachment.size ? (
-              <FileSize>
-                ({Math.round(attachment.size / 1000)}
-                kB)
-              </FileSize>
-            ) : null}
-            <Icon
-              icon="times-circle"
-              size={14}
-              onClick={this.onRemoveAttach.bind(this, attachment)}
-            />
-          </AttachmentContainer>
-        ))}
-      </Attachments>
-    );
-  }
-
   renderIcon = ({
     text,
     icon,
@@ -716,7 +588,6 @@ class MailForm extends React.Component<Props, State> {
   }
 
   renderButtons() {
-    const { kind } = this.state;
     const {
       isReply,
       emailTemplates,
@@ -725,25 +596,26 @@ class MailForm extends React.Component<Props, State> {
       fetchMoreEmailTemplates
     } = this.props;
 
-    const inputProps = {
-      type: 'file',
-      multiple: true,
-      onChange: kind.includes('nylas')
-        ? this.onAttachment
-        : this.handleFileInput
-    };
-
     const onSubmitResolve = e => this.onSubmit(e, true);
+
+    const onChangeAttachment = attachments => {
+      for (const att of attachments) {
+        att.url = readFile(att.url);
+      }
+
+      this.setState(prevState => ({
+        attachments: [...prevState.attachments, attachments]
+      }));
+    };
 
     return (
       <EditorFooter>
         <SpaceBetweenRow>
           <ToolBar>
-            {this.renderIcon({
-              text: 'Attach file',
-              icon: 'paperclip',
-              element: <input {...inputProps} />
-            })}
+            <Uploader
+              defaultFileList={this.state.attachments || []}
+              onChange={onChangeAttachment}
+            />
             {this.renderIcon({
               text: 'Delete',
               icon: 'trash-alt',
@@ -757,23 +629,16 @@ class MailForm extends React.Component<Props, State> {
               targets={generateEmailTemplateParams(emailTemplates || [])}
             />
           </ToolBar>
-          {this.state.isUploading ? (
-            <Uploading>
-              <SmallLoader />
-              <span>Uploading...</span>
-            </Uploading>
-          ) : (
-            <div>
-              {this.renderSubmit('Send', this.onSubmit, 'primary')}
-              {isReply &&
-                this.renderSubmit(
-                  'Send and Resolve',
-                  onSubmitResolve,
-                  'success',
-                  'check-circle'
-                )}
-            </div>
-          )}
+          <div>
+            {this.renderSubmit('Send', this.onSubmit, 'primary')}
+            {isReply &&
+              this.renderSubmit(
+                'Send and Resolve',
+                onSubmitResolve,
+                'success',
+                'check-circle'
+              )}
+          </div>
         </SpaceBetweenRow>
       </EditorFooter>
     );
@@ -867,7 +732,6 @@ class MailForm extends React.Component<Props, State> {
         {this.renderMeta()}
         {this.renderSubject()}
         {this.renderBody()}
-        {this.renderAttachments()}
         {this.renderButtons()}
       </ControlWrapper>
     );

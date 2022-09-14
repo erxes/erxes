@@ -8,7 +8,7 @@ import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
-import SelectBrand from '../../containers/SelectBrand';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
 import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
