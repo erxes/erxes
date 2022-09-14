@@ -119,11 +119,13 @@ class CarListContainer extends React.Component<FinalProps, State> {
 
     let columnsConfig = (carsListConfigQuery &&
       carsListConfigQuery.fieldsDefaultColumnsConfig) || [
-      { name: 'plateNumber', label: 'Plate number', order: 1 },
-      { name: 'vinNumber', label: 'Vin number', order: 2 },
-      { name: 'vintageYear', label: 'Vintage year', order: 3 },
-      { name: 'importYear', label: 'Import year', order: 4 },
-      { name: 'description', label: 'Description', order: 5 }
+      { name: 'driver', label: 'Driver', order: 1 },
+      { name: 'company', label: 'Company', order: 2 },
+      { name: 'plateNumber', label: 'Plate number', order: 3 },
+      { name: 'vinNumber', label: 'Vin number', order: 4 },
+      { name: 'vintageYear', label: 'Vintage year', order: 5 },
+      { name: 'importYear', label: 'Import year', order: 6 },
+      { name: 'description', label: 'Description', order: 7 }
     ];
 
     // load config from local storage

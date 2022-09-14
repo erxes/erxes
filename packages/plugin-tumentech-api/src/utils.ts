@@ -144,7 +144,24 @@ export const generateFields = async ({ subdomain }) => {
     }
   }
 
-  return fields;
+  const additionalFields = [
+    {
+      _id: Math.random(),
+      name: 'drivers',
+      label: 'Driver(s)',
+      type: 'String',
+      selectOptions: undefined
+    },
+    {
+      _id: Math.random(),
+      name: 'companies',
+      label: 'Company(s)',
+      type: 'String',
+      selectOptions: undefined
+    }
+  ];
+
+  return [...additionalFields, ...fields];
 };
 
 export const generateRandomString = async (

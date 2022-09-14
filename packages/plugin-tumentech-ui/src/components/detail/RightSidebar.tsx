@@ -51,7 +51,11 @@ export default class RightSidebar extends React.Component<Props> {
       <Sidebar>
         {isEnabled('contacts') && (
           <>
-            <CustomerSection mainType="car" mainTypeId={car._id} />
+            <CustomerSection
+              mainType="car"
+              mainTypeId={car._id}
+              title="Driver(s)"
+            />
             <CompanySection mainType="car" mainTypeId={car._id} />
           </>
         )}
