@@ -33,14 +33,14 @@ const tagQueries = {
     return fieldTypes;
   },
 
-  tags(
+  async tags(
     _root,
     {
       type,
       searchValue,
       tagIds
     }: { type: string; searchValue?: string; tagIds?: string[] },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -56,10 +56,14 @@ const tagQueries = {
       selector._id = { $in: tagIds };
     }
 
-    return models.Tags.find(selector).sort({
+    const tags = await models.Tags.find(selector).sort({
       order: 1,
       name: 1
     });
+
+    models = undefined;
+
+    return tags;
   },
 
   /**

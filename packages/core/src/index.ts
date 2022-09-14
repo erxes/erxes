@@ -50,6 +50,7 @@ import forms from './forms';
 import { generateModels } from './connectionResolver';
 import { authCookieOptions, getSubdomain } from '@erxes/api-utils/src/core';
 import segments from './segments';
+import { moduleObjects } from './data/permissions/actions/permission';
 
 const {
   JWT_TOKEN_SECRET,
@@ -299,7 +300,8 @@ httpServer.listen(PORT, async () => {
     meta: {
       logs: { providesActivityLog: true, consumers: logs },
       forms,
-      segments
+      segments,
+      permissions: moduleObjects
     }
   });
 

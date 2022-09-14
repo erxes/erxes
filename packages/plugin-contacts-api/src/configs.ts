@@ -47,7 +47,9 @@ export default {
     search,
     internalNotes,
     webhooks,
-    dashboards
+    dashboards,
+    // for fixing permissions
+    permissions
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
