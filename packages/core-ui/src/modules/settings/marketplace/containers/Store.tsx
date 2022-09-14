@@ -17,14 +17,15 @@ class StoreContainer extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    fetch('https://erxes.io/plugins')
+    // fetch('https://erxes.io/plugins')
+    fetch('http://127.0.0.1:3500/plugins')
       .then(async response => {
         const plugins = await response.json();
 
         this.setState({ plugins });
       })
       .catch(e => {
-        console.log(e);
+        console.log(e, 'error');
       });
   }
 
