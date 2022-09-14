@@ -22,6 +22,7 @@ export interface IRiskAssessmentCategoryModel extends Model<IRiskAssessmentCateg
   ): Promise<IRiskAssessmentCategoryDocument>;
   getAssessmentCategory(_id: string): Promise<IRiskAssessmentCategoryDocument>;
   getFormDetail(_id: string): Promise<IRiskAssessmentCategoryDocument>;
+  removeUnsavedRiskAssessmentCategoryForm(formId:string): Boolean
 }
 
 const generateFilter = (params: IRiskAssessmentCategoryField & PaginateField) => {
@@ -152,6 +153,21 @@ export const loadAssessmentCategory = (models: IModels, subdomain: string) => {
       });
 
       return form;
+    }
+
+    public static async removeUnsavedRiskAssessmentCategoryForm(formId){
+      try {
+        const form = await sendFormsMessage({
+          subdomain,
+          action:'removeForm',
+          data:{formId},
+          isRPC: true,
+          defaultValue:{}
+        })
+        return true
+      } catch (error) {
+        throw new Error(error.message);
+      }
     }
 
     static async getOrder(_id: string, code: string, name: string) {

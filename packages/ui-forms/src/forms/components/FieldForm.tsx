@@ -483,7 +483,6 @@ class FieldForm extends React.Component<Props, State> {
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
-          {/* {this.renderRiskAssessment()} */}
         </CollapseContent>
         {fields.length > 0 && (
           <CollapseContent title={__('Logic')} compact={true}>
@@ -615,33 +614,6 @@ class FieldForm extends React.Component<Props, State> {
       </>
     );
   }
-
-  // renderRiskAssessment() {
-  //   const { field } = this.state;
-  //   if (field.type !== 'risk-assessment') {
-  //     return null;
-  //   }
-
-  //   const onChangeRiskAssessment = e => {
-  //     const { value, name } = e.currentTarget as HTMLInputElement;
-  //     this.onFieldChange(name, value);
-  //   };
-
-  //   const onChangeOptions = (field, options) =>
-  //     this.onFieldChange(field, options);
-
-  //   return (
-  //     <RiskAssessmenOptions
-  //       onchange={onChangeRiskAssessment}
-  //       defaultValue={field.riskAssessmentValue || ''}
-  //       fieldType={field.riskAssessmentFieldType || ''}
-  //       options={field.options || []}
-  //       onChangeOptions={onChangeOptions}
-  //       optionsObj={field.optionsObj}
-  //       riskAssessmentFieldType={field.riskAssessmentFieldType}
-  //     />
-  //   );
-  // }
 
   renderColumn() {
     const { field } = this.state;

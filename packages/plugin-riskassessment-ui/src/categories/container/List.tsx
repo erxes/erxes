@@ -6,15 +6,15 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
-import { commonRefetchType, RiskAssesmentsCategoriesQueryResponse } from '../../common/types';
+import { commonRefetchType, RiskAssessmentsCategoriesQueryResponse } from '../../common/types';
 import AssessmentCategoriesComponent from '../components/List';
 import { mutations, queries } from '../graphql';
 
 type Props = {
-  categories?: RiskAssesmentsCategoriesQueryResponse;
+  categories?: RiskAssessmentsCategoriesQueryResponse;
   removeCategory?: any;
   queryParams?: any;
-  riskAssesmentsRefetch?: (params: commonRefetchType) => void;
+  riskAssessmentsRefetch?: (params: commonRefetchType) => void;
 } & IRouterProps;
 
 class AssessmentCategories extends React.Component<Props> {
@@ -32,7 +32,7 @@ class AssessmentCategories extends React.Component<Props> {
         Alert.success('Successfully removed category');
         categories?.refetch();
       })
-      .catch((e) => {
+      .catch(e => {
         Alert.error(e.message);
       });
   }
@@ -42,11 +42,11 @@ class AssessmentCategories extends React.Component<Props> {
 
     const updatedProps = {
       ...this.props,
-      categories: categories?.getRiskAssesmentCategories,
+      categories: categories?.riskAssesmentCategories,
       loading: categories?.loading || false,
-      totalCount: categories?.getRiskAssesmentCategories?.length || 0,
+      totalCount: categories?.riskAssesmentCategories?.length || 0,
       removeCategory: this.removeCategory,
-      refetch: categories?.refetch!,
+      refetch: categories?.refetch!
     };
 
     return <AssessmentCategoriesComponent {...updatedProps} />;
@@ -55,13 +55,13 @@ class AssessmentCategories extends React.Component<Props> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.listAssessmentCategories), {
-      name: 'categories',
+      name: 'categories'
     }),
     graphql<Props>(gql(mutations.removeAssessmentCategory), {
       name: 'removeCategory',
       options: () => ({
-        refetchQueries: ['categories'],
-      }),
+        refetchQueries: ['categories']
+      })
     })
   )(withRouter<IRouterProps>(AssessmentCategories))
 );

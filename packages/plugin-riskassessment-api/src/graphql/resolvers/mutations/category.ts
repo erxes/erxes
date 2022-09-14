@@ -13,5 +13,12 @@ const RiskAssessmentCategoryMutation = {
   async editAssessmentCategory(_root, params: IRiskAssessmentCategoryField, { models }: IContext) {
     return await models.RiskAssessmentCategory.editAssessmentCategory(params);
   },
+  async removeUnsavedRiskAssessmentCategoryForm(
+    _root,
+    { formId }: { formId: string },
+    { models }: IContext
+  ) {
+    return await models.RiskAssessmentCategory.removeUnsavedRiskAssessmentCategoryForm(formId);
+  }
 };
 export default RiskAssessmentCategoryMutation;

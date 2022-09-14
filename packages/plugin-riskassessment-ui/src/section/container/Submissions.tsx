@@ -35,15 +35,15 @@ class Submissions extends React.Component<FinalProps> {
       currentUserId,
       refetch,
       refetchSubmissions,
-      riskAssessmentId,
+      riskAssessmentId
     } = this.props;
 
-    const formSubmissionsSave = (doc) => {
+    const formSubmissionsSave = doc => {
       const variables = {
         ...doc,
         cardId,
         userId: currentUserId,
-        riskAssessmentId,
+        riskAssessmentId
       };
 
       saveFormSubmissions({ variables })
@@ -53,7 +53,7 @@ class Submissions extends React.Component<FinalProps> {
           refetchSubmissions();
           closeModal();
         })
-        .catch((err) => {
+        .catch(err => {
           Alert.error(err.message);
         });
     };
@@ -67,7 +67,7 @@ class Submissions extends React.Component<FinalProps> {
       submissions: formDetail.riskConfirmityFormDetail.submissions,
       formId: formDetail.riskConfirmityFormDetail.formId,
       formSubmissionsSave,
-      closeModal,
+      closeModal
     };
 
     return <SubmissionsComponent {...updatedProps} />;
@@ -78,15 +78,15 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.riskConfirmityDetail), {
       name: 'formDetail',
-      options: ({ cardId, currentUserId }) => ({
-        variables: { cardId, userId: currentUserId },
-      }),
+      options: ({ cardId, currentUserId, riskAssessmentId }) => ({
+        variables: { cardId, userId: currentUserId, riskAssessmentId }
+      })
     }),
     graphql<Props>(gql(mutations.riskFormSaveSubmission), {
       name: 'saveFormSubmissions',
       options: () => ({
-        refetchQueries: ['formDetail'],
-      }),
+        refetchQueries: ['formDetail']
+      })
     })
   )(Submissions)
 );

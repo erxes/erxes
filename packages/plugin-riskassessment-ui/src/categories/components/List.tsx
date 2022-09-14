@@ -16,7 +16,7 @@ import {
   Spinner,
   Tip,
   Wrapper,
-  __,
+  __
 } from '@erxes/ui/src';
 import { DateContainer } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
@@ -30,7 +30,7 @@ import {
   ClearableBtn,
   ColorBox,
   FormContainer as Container,
-  Padding,
+  Padding
 } from '../../styles';
 import FormContainer from '../container/Form';
 
@@ -41,7 +41,7 @@ type Props = {
   loading: boolean;
   removeCategory: (id: string) => any;
   refetch: (prop?: commonRefetchType) => any;
-  riskAssesmentsRefetch?: (props: commonRefetchType) => any;
+  riskAssessmentsRefetch?: (props: commonRefetchType) => any;
 } & IRouterProps;
 
 interface LayoutProps {
@@ -59,7 +59,7 @@ type State = {
   To: string;
 };
 
-const generateQueryParamsDate = (params) => {
+const generateQueryParamsDate = params => {
   return params ? new Date(parseInt(params)).toString() : '';
 };
 
@@ -75,13 +75,13 @@ class AssessmentCategories extends React.Component<Props, State> {
       perPage: 20,
       sortDirection: -1,
       From: generateQueryParamsDate(From),
-      To: generateQueryParamsDate(To),
+      To: generateQueryParamsDate(To)
     };
   }
 
   addModal = () => {
     const trigger = (
-      <Button block btnStyle='success'>
+      <Button block btnStyle="success">
         Add New Assessment Category
       </Button>
     );
@@ -93,7 +93,7 @@ class AssessmentCategories extends React.Component<Props, State> {
     return (
       <ModalTrigger
         isAnimate
-        title='Add New Assessment Category'
+        title="Add New Assessment Category"
         content={content}
         trigger={trigger}
       />
@@ -104,7 +104,7 @@ class AssessmentCategories extends React.Component<Props, State> {
     router.removeParams(this.props.history, 'categoryId');
   };
 
-  handleSearch = (e) => {
+  handleSearch = e => {
     const { value } = e.currentTarget as HTMLInputElement;
 
     this.setState({ searchValue: value });
@@ -117,7 +117,7 @@ class AssessmentCategories extends React.Component<Props, State> {
   renderContent() {
     const { categories, queryParams } = this.props;
 
-    return categories.map((category) => (
+    return categories.map(category => (
       <SidebarListItem key={category._id} isActive={queryParams.categoryId === category._id}>
         <Link to={`?categoryId=${category._id}`}>
           {category.parentId && subOption(category)}
@@ -133,9 +133,9 @@ class AssessmentCategories extends React.Component<Props, State> {
 
   renderCategoryEditAction(category) {
     const trigger = (
-      <Button btnStyle='link'>
-        <Tip text='Edit' placement='bottom'>
-          <Icon icon='edit' />
+      <Button btnStyle="link">
+        <Tip text="Edit" placement="bottom">
+          <Icon icon="edit" />
         </Tip>
       </Button>
     );
@@ -154,7 +154,7 @@ class AssessmentCategories extends React.Component<Props, State> {
     return (
       <ModalTrigger
         isAnimate
-        title='Edit Assessment Category'
+        title="Edit Assessment Category"
         content={content}
         trigger={trigger}
       />
@@ -169,9 +169,9 @@ class AssessmentCategories extends React.Component<Props, State> {
     };
 
     return (
-      <Button btnStyle='link' onClick={remove}>
-        <Tip text='Remove' placement='bottom'>
-          <Icon icon='cancel-1' />
+      <Button btnStyle="link" onClick={remove}>
+        <Tip text="Remove" placement="bottom">
+          <Icon icon="cancel-1" />
         </Tip>
       </Button>
     );
@@ -190,9 +190,9 @@ class AssessmentCategories extends React.Component<Props, State> {
           data={this.renderContent()}
           loading={loading}
           count={totalCount}
-          emptyText='There is no risk asssessment category'
-          emptyIcon='folder-2'
-          size='small'
+          emptyText="There is no risk asssessment category"
+          emptyIcon="folder-2"
+          size="small"
         />
       </SidebarList>
     );
@@ -201,13 +201,13 @@ class AssessmentCategories extends React.Component<Props, State> {
   renderCategories() {
     return (
       <Box
-        name='categories'
+        name="categories"
         title={__('Categories')}
         extraButtons={
           this.props.queryParams.categoryId && (
-            <Button btnStyle='link' onClick={this.removeQueryParams}>
-              <Tip text='Clear Filter'>
-                <Icon icon='cancel-1' />
+            <Button btnStyle="link" onClick={this.removeQueryParams}>
+              <Tip text="Clear Filter">
+                <Icon icon="cancel-1" />
               </Tip>
             </Button>
           )
@@ -220,13 +220,13 @@ class AssessmentCategories extends React.Component<Props, State> {
 
   renderCategoriesFilter() {
     return (
-      <Box name='filter_category' title={__('Addition Filter Categories')}>
+      <Box name="filter_category" title={__('Addition Filter Categories')}>
         <Padding horizontal vertical>
           <FormGroup>
             <ControlLabel>Search</ControlLabel>
             <FormControl
-              type='text'
-              placeholder='type a search'
+              type="text"
+              placeholder="type a search"
               value={this.state.searchValue}
               onChange={this.handleSearch}
             />
@@ -238,17 +238,17 @@ class AssessmentCategories extends React.Component<Props, State> {
 
   renderListFilter() {
     const { From, To, sortDirection } = this.state;
-    const { riskAssesmentsRefetch, history, queryParams } = this.props;
+    const { riskAssessmentsRefetch, history, queryParams } = this.props;
 
     const toggleSort = () => {
       this.setState({ sortDirection: sortDirection * -1 });
-      riskAssesmentsRefetch && riskAssesmentsRefetch({ sortDirection: sortDirection * -1 });
+      riskAssessmentsRefetch && riskAssessmentsRefetch({ sortDirection: sortDirection * -1 });
     };
 
     const dateOrder = (value, name) => {
       router.setParams(history, { [name]: new Date(value).valueOf() });
     };
-    const selectStatus = (color) => {
+    const selectStatus = color => {
       router.setParams(history, { Status: color });
     };
 
@@ -262,8 +262,8 @@ class AssessmentCategories extends React.Component<Props, State> {
           <ControlLabel>{label}</ControlLabel>
           {clearable && (
             <ClearableBtn onClick={handleClearable}>
-              <Tip text='Clear'>
-                <Icon icon='cancel-1' />
+              <Tip text="Clear">
+                <Icon icon="cancel-1" />
               </Tip>
             </ClearableBtn>
           )}
@@ -273,49 +273,48 @@ class AssessmentCategories extends React.Component<Props, State> {
     };
 
     return (
-      <Box name='filter_list' title={__('Addition Filter List')}>
+      <Box name="filter_list" title={__('Addition Filter List')}>
         <Padding horizontal vertical>
-          <CustomForm label='Status' clearable={!!this.props.queryParams.Status}>
+          <CustomForm label="Status" clearable={!!this.props.queryParams.Status}>
             <Container row>
-              {statusColorConstant.map((status) => (
+              {statusColorConstant.map(status => (
                 <StatusBox
                   selected={this.props.queryParams.Status === status.name}
                   onClick={() => selectStatus(status.name)}
                   key={status.color}
                 >
-                  <Container row gap align='center'>
+                  <Container row gap align="center">
                     <ColorBox color={status.color} />
-                    {status.name}
                   </Container>
                 </StatusBox>
               ))}
             </Container>
           </CustomForm>
-          <Container align='center' spaceBetween>
+          <Container align="center" spaceBetween>
             <ControlLabel>Sort:</ControlLabel>
-            <Button btnStyle='link' onClick={toggleSort}>
-              <Tip text={`Sort by Created Date`} placement='bottom'>
-                <Icon size={15} icon='sort' />
+            <Button btnStyle="link" onClick={toggleSort}>
+              <Tip text={`Sort by Created Date`} placement="bottom">
+                <Icon size={15} icon="sort" />
               </Tip>
             </Button>
           </Container>
-          <CustomForm label='From' clearable={queryParams.From}>
+          <CustomForm label="From" clearable={queryParams.From}>
             <DateContainer>
               <DateControl
-                name='from'
+                name="from"
                 value={From}
-                placeholder='select from date '
-                onChange={(e) => dateOrder(e, 'From')}
+                placeholder="select from date "
+                onChange={e => dateOrder(e, 'From')}
               />
             </DateContainer>
           </CustomForm>
-          <CustomForm label='To' clearable={queryParams.To}>
+          <CustomForm label="To" clearable={queryParams.To}>
             <DateContainer>
               <DateControl
-                name='to'
+                name="to"
                 value={To}
-                placeholder='select to date '
-                onChange={(e) => dateOrder(e, 'To')}
+                placeholder="select to date "
+                onChange={e => dateOrder(e, 'To')}
               />
             </DateContainer>
           </CustomForm>
@@ -329,8 +328,8 @@ class AssessmentCategories extends React.Component<Props, State> {
       <Sidebar wide={true} hasBorder={true} noMargin>
         <Section maxHeight={500} collapsible={this.props.totalCount > 9} noMargin noShadow>
           {this.rightActionBar}
-          {this.renderCategories()}
           {this.renderCategoriesFilter()}
+          {this.renderCategories()}
           {this.renderListFilter()}
         </Section>
       </Sidebar>

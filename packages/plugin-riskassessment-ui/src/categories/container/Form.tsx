@@ -1,25 +1,25 @@
-import { Alert } from '@erxes/ui/src'
-import { IRouterProps } from '@erxes/ui/src/types'
-import { withProps } from '@erxes/ui/src/utils/core'
-import gql from 'graphql-tag'
-import * as compose from 'lodash.flowright'
-import React from 'react'
-import { graphql } from 'react-apollo'
-import { withRouter } from 'react-router-dom'
-import { commonRefetchType, RiskAssesmentsCategoriesQueryResponse } from '../../common/types'
-import Form from '../components/Form'
-import { mutations, queries } from '../graphql'
+import { Alert } from '@erxes/ui/src';
+import { IRouterProps } from '@erxes/ui/src/types';
+import { withProps } from '@erxes/ui/src/utils/core';
+import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
+import { graphql } from 'react-apollo';
+import { withRouter } from 'react-router-dom';
+import { commonRefetchType, RiskAssessmentsCategoriesQueryResponse } from '../../common/types';
+import Form from '../components/Form';
+import { mutations, queries } from '../graphql';
 
 type Props = {
   trigger?: JSX.Element;
   categoryId?: string;
   formId?: string;
-  refetch?: (prop?:commonRefetchType) => void;
+  refetch?: (prop?: commonRefetchType) => void;
   closeModal: () => void;
 };
 
 type FinalProps = {
-  categories: RiskAssesmentsCategoriesQueryResponse;
+  categories: RiskAssessmentsCategoriesQueryResponse;
   categoryDetail: any;
   addCategory: any;
   editCategory: any;
@@ -46,7 +46,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         this.props.refetch && this.props.refetch();
         this.props.closeModal();
       })
-      .catch((e) => Alert.error(e.message));
+      .catch(e => Alert.error(e.message));
   }
 
   updateCategory(variables) {
@@ -59,7 +59,7 @@ class FormContainer extends React.Component<FinalProps, State> {
           this.props.closeModal();
         }, 300);
       })
-      .catch((e) => Alert.error(e.message));
+      .catch(e => Alert.error(e.message));
   }
 
   render() {
@@ -67,11 +67,11 @@ class FormContainer extends React.Component<FinalProps, State> {
 
     const updatedProps = {
       ...this.props,
-      categories: categories.getRiskAssesmentCategories,
-      detail: categoryDetail?.getRiskAssesmentCategory,
+      categories: categories.riskAssesmentCategories,
+      detail: categoryDetail?.riskAssesmentCategory,
       loading: categoryDetail?.loading,
       addCategory: this.addCategory,
-      updateCategory: this.updateCategory,
+      updateCategory: this.updateCategory
     };
 
     return <Form {...updatedProps} />;
@@ -81,20 +81,20 @@ class FormContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.listAssessmentCategories), {
-      name: 'categories',
+      name: 'categories'
     }),
     graphql<Props>(gql(queries.riskAssessmentDetail), {
       name: 'categoryDetail',
       options: ({ categoryId }) => ({
-        variables: { id: categoryId },
+        variables: { id: categoryId }
       }),
-      skip: ({ categoryId }) => !categoryId,
+      skip: ({ categoryId }) => !categoryId
     }),
     graphql<Props>(gql(mutations.addAssessmentCategory), {
-      name: 'addCategory',
+      name: 'addCategory'
     }),
     graphql<Props>(gql(mutations.editAssessmentCategory), {
-      name: 'editCategory',
+      name: 'editCategory'
     })
   )(withRouter<IRouterProps>(FormContainer))
 );

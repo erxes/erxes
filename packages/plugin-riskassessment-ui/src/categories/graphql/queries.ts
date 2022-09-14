@@ -1,20 +1,20 @@
 import {
   commonPaginateDef,
   commonPaginateValue,
-  riskAssessmentCategoryParams,
+  riskAssessmentCategoryParams
 } from '../../common/graphql';
 
 const listAssessmentCategories = `
-  query GetRiskAssesmentCategories(${commonPaginateDef}) {
-    getRiskAssesmentCategories (${commonPaginateValue}) {
+  query RiskAssesmentCategories(${commonPaginateDef}) {
+    riskAssesmentCategories (${commonPaginateValue}) {
       ${riskAssessmentCategoryParams}
     }
   }
 `;
 
 const riskAssessmentDetail = `
-  query GetRiskAssesmentCategory ($id: String!) {
-    getRiskAssesmentCategory (_id: $id) {
+  query riskAssesmentCategory ($id: String!) {
+    riskAssesmentCategory (_id: $id) {
       ${riskAssessmentCategoryParams}
       parent{
         formId
@@ -29,5 +29,5 @@ const riskAssessmentDetail = `
 
 export default {
   listAssessmentCategories,
-  riskAssessmentDetail,
+  riskAssessmentDetail
 };

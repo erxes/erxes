@@ -22,12 +22,13 @@ export const types = `
     }
 `;
 export const queries = `
-    getRiskAssesmentCategories(${commonPaginateTypes}):[CategoryMainField]
-    getRiskAssesmentCategory(_id: String!): CategoryMainField
-    getRiskAssessmentFormDetail(_id : String):JSON
+    riskAssesmentCategories(${commonPaginateTypes}):[CategoryMainField]
+    riskAssesmentCategory(_id: String!): CategoryMainField
+    riskAssessmentFormDetail(_id : String):JSON
 `;
 export const mutations = `
     addAssessmentCategory (name: String,formId: String,parentId: String,code: String):JSON
     removeAssessmentCategory (_id:String):JSON
     editAssessmentCategory(_id:String,name: String,formId: String,parentId: String,code: String):JSON
+    removeUnsavedRiskAssessmentCategoryForm(formId: String): Boolean
 `;

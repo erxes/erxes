@@ -8,7 +8,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import {
-  RiskAssesmentsCategoriesQueryResponse,
+  RiskAssessmentsCategoriesQueryResponse,
   RiskAssessmentDetailQueryResponse
 } from '../common/types';
 import FormCompnent from '../components/Form';
@@ -21,7 +21,7 @@ type Props = {
 
 type FinalProps = {
   object;
-  categories: RiskAssesmentsCategoriesQueryResponse;
+  categories: RiskAssessmentsCategoriesQueryResponse;
 } & ICommonFormProps &
   IRouterProps &
   Props;
@@ -36,14 +36,14 @@ class FormContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      categories: categories.getRiskAssesmentCategories,
+      categories: categories.riskAssesmentCategories,
       loading: categories.loading,
       assessmentDetail: assessmentDetail?.riskAssessmentDetail,
-      detailLoading: assessmentDetail?.loading,
+      detailLoading: assessmentDetail?.loading
     };
 
-    if(assessmentDetail?.loading){
-      return <Spinner/>
+    if (assessmentDetail?.loading) {
+      return <Spinner />;
     }
 
     return <FormCompnent {...updatedProps} />;
@@ -53,14 +53,14 @@ class FormContainer extends React.Component<FinalProps> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.listAssessmentCategories), {
-      name: 'categories',
+      name: 'categories'
     }),
     graphql<Props>(gql(queries.assessmentDetail), {
       name: 'assessmentDetail',
       skip: ({ asssessmentId }) => !asssessmentId,
       options: ({ asssessmentId }) => ({
-        variables: { id: asssessmentId },
-      }),
+        variables: { id: asssessmentId }
+      })
     })
   )(withRouter<IRouterProps>(FormContainer))
 );

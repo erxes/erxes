@@ -1,12 +1,32 @@
 import { models } from './connectionResolver';
 import { sendCardsMessage, sendCoreMessage, sendFormsMessage } from './messageBroker';
 
-export const validRiskAssessment = async (params) => {
+export const validRiskAssessment = async params => {
   if (!params.categoryId) {
     throw new Error('Please select some category');
   }
   if (await models?.RiskAssessment.findOne({ name: params.name })) {
     throw new Error('This risk assessment is already in use. Please type another name');
+  }
+
+  const { calculateLogics } = params;
+
+  if (!calculateLogics.length) {
+    throw new Error('You must specify at least one logics to calculate the risk assessment');
+  }
+
+  for (const logic of calculateLogics) {
+    if (!logic.logic) {
+      throw new Error(`${logic.name} calculate logic should not be empty.Please select a logic`);
+    }
+    if (!logic.color) {
+      throw new Error(
+        `${logic.name} calculate status color should not be empty.Please select some color`
+      );
+    }
+    if (!logic.value || logic.value === 0) {
+      throw new Error(`${logic.name} calculate value should be greather than zero`);
+    }
   }
 };
 
@@ -14,7 +34,9 @@ export const calculateRiskAssessment = async (models, subdomain, cardId, formId)
   const { riskAssessmentId } = await models.RiskConfimity.findOne({ cardId }).lean();
 
   const submissions = await models.RiksFormSubmissions.find({ cardId, formId, riskAssessmentId });
-  const { calculateLogics } = await models.RiskAssessment.findOne({ _id: riskAssessmentId }).lean();
+  const { calculateLogics, calculateMethod } = await models.RiskAssessment.findOne({
+    _id: riskAssessmentId
+  }).lean();
 
   const query = { contentType: 'form', contentTypeId: formId };
   const fields = await sendFormsMessage({
@@ -22,16 +44,30 @@ export const calculateRiskAssessment = async (models, subdomain, cardId, formId)
     action: 'fields.find',
     data: { query },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   let sumNumber = 0;
 
-  for (const submission of submissions) {
-    const { optionsObj } = fields.find((field) => field._id === submission.fieldId);
-    const fieldValue = optionsObj.find((option) => option.label === submission.value);
-    sumNumber += parseInt(fieldValue.value);
+  if (calculateMethod === 'Multiply') {
+    sumNumber = 1;
   }
+
+  for (const submission of submissions) {
+    const { optionsObj } = fields.find(field => field._id === submission.fieldId);
+    const fieldValue = optionsObj.find(option => option.label === submission.value);
+
+    switch (calculateMethod) {
+      case 'Multiply':
+        sumNumber *= parseInt(fieldValue.value);
+        break;
+      case 'Addition':
+        sumNumber += parseInt(fieldValue.value);
+        break;
+    }
+    // sumNumber += parseInt(fieldValue.value);
+  }
+
   for (const { name, value, value2, logic, color } of calculateLogics) {
     const operator = logic.substring(1, 2);
     if (operator === '≈') {
@@ -45,7 +81,6 @@ export const calculateRiskAssessment = async (models, subdomain, cardId, formId)
     }
     if (['>', '<'].includes(operator)) {
       if (eval(sumNumber + operator + value)) {
-        console.log(sumNumber, operator, value);
         await models.RiskAssessment.findOneAndUpdate(
           { _id: riskAssessmentId },
           { $set: { status: name, statusColor: color } },
@@ -63,11 +98,11 @@ export const checkAllUsersSubmitted = async (subdomain, model, cardId: string) =
 
   const formId = await getFormId(model, cardId);
 
-  const assignedUserIds = assignedUsers.map((usr) => usr._id);
+  const assignedUserIds = assignedUsers.map(usr => usr._id);
   const submissions = await model.RiksFormSubmissions.find({
     cardId,
     formId,
-    userId: { $in: assignedUserIds },
+    userId: { $in: assignedUserIds }
   }).lean();
 
   const groupedSubmissions = {};
@@ -88,10 +123,10 @@ export const getAsssignedUsers = async (subdomain, dealId: string) => {
     subdomain,
     action: 'deals.findOne',
     data: {
-      _id: dealId,
+      _id: dealId
     },
     isRPC: true,
-    defaultValue: [],
+    defaultValue: []
   });
 
   if (deal) {
@@ -101,10 +136,10 @@ export const getAsssignedUsers = async (subdomain, dealId: string) => {
       subdomain,
       action: 'users.find',
       data: {
-        query: { _id: { $in: assignedUserIds } },
+        query: { _id: { $in: assignedUserIds } }
       },
       isRPC: true,
-      defaultValue: [],
+      defaultValue: []
     });
   }
 

@@ -11,8 +11,8 @@ export const GridContainer = styledTS<{
   column?: number;
 }>(styled.div)`
     display:grid;
-    gap:${(props) => props.gap || 0}
-    grid-template-columns:${(props) =>
+    gap:${props => props.gap || 0}
+    grid-template-columns:${props =>
       props.column ? `repeat(${props.column},${100 / props.column}%)` : 'auto'}
 `;
 
@@ -23,12 +23,12 @@ export const FormGroupRow = styledTS<{
 margin-bottom: 20px;
 position: relative;
 
-${(props) =>
+${props =>
   props.horizontal &&
   css`
     display: flex;
     align-items: center;
-    ${(props) =>
+    ${props =>
       props.spaceBetween &&
       css`
         justify-content: space-between;
@@ -85,17 +85,19 @@ export const FormContainer = styledTS<{
   spaceBetween?: boolean;
   spaceAround?: boolean;
   gap?: boolean;
-  gapBetween?: string;
+  gapBetween?: number;
   align?: string;
+  justifyCenter?: boolean;
 }>(styled.div)`
   display: flex;
   flex-direction: ${({ row }) => row && 'row'} ${({ column }) => column && 'column'};
   justify-content: ${({ spaceBetween }) => (spaceBetween ? 'space-between' : '')} ${({
-  spaceAround,
+  spaceAround
 }) => (spaceAround ? 'space-around' : '')};
   gap: ${({ gap }) => (gap ? '25px' : '')};
-  gap: ${({ gapBetween }) => (gapBetween ? gapBetween : '')};
-  place-items:${({ align }) => (align ? align : '')}
+  gap: ${({ gapBetween }) => (gapBetween ? `${gapBetween}px` : '')};
+  place-items:${({ align }) => (align ? align : '')};
+  justify-content:${({ justifyCenter }) => (justifyCenter ? 'center' : '')}; 
 `;
 
 export const BoxItem = styled.div`
@@ -167,8 +169,8 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   font-weight: 500;
   line-height: 25px;
   font-size: 12px;
-  background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.1)};
-  color: ${(props) => props.color || colors.colorPrimaryDark};
+  background-color: ${props => rgba(props.color || colors.colorPrimary, 0.1)};
+  color: ${props => props.color || colors.colorPrimaryDark};
   padding: 0 10px;
   transition: background 0.3s ease;
   > i {
@@ -179,13 +181,13 @@ export const ColorButton = styledTS<{ color?: string }>(styled.div)`
   }
   &:hover {
     cursor: pointer;
-    background-color: ${(props) => rgba(props.color || colors.colorPrimary, 0.2)};
+    background-color: ${props => rgba(props.color || colors.colorPrimary, 0.2)};
   }
 `;
 export const Box = styled(BoxRoot)`
   flex: 1;
   padding: ${dimensions.unitSpacing}px;
-  text-align: left;
+  text-align: center;
   background: ${colors.colorWhite};
   margin: 10px 10px 0 0;
 
@@ -205,4 +207,12 @@ export const Box = styled(BoxRoot)`
   &:last-of-type {
     margin-right: 0;
   }
+`;
+
+export const Typography = styledTS<{ color?: string; bold?: boolean; fontSize: number }>(
+  styled.div
+)`
+  font-size: ${({ fontSize }) => `${fontSize}px`};
+  font-weight: ${({ bold }) => (bold ? 'bold' : 'inheri')}}
+  color: ${({ color }) => (color ? `${color}` : 'inherit')}
 `;

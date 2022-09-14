@@ -1,14 +1,23 @@
-import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm'
-import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm'
-import { ShowPreview } from '@erxes/ui-forms/src/forms/styles'
-import { Button, FormControl, Icon, ModalTrigger, Spinner, Tip } from '@erxes/ui/src'
-import { __ } from '@erxes/ui/src/'
-import { ModalFooter } from '@erxes/ui/src/styles/main'
-import { IField } from '@erxes/ui/src/types'
-import React from 'react'
-import { RiskAssessmentCategory } from '../../common/types'
-import { CustomFormGroup, subOption } from '../../common/utils'
-import { ContentWrapper, FormContainer, PreviewWrapper } from '../../styles'
+import CreateForm from '@erxes/ui-forms/src/forms/containers/CreateForm';
+import EditForm from '@erxes/ui-forms/src/forms/containers/EditForm';
+import { ShowPreview } from '@erxes/ui-forms/src/forms/styles';
+import { Button, colors, FormControl, Icon, ModalTrigger, Spinner, confirm } from '@erxes/ui/src';
+import { __ } from '@erxes/ui/src/';
+import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IField } from '@erxes/ui/src/types';
+import React from 'react';
+import { RiskAssessmentCategory } from '../../common/types';
+import { CustomFormGroup, subOption } from '../../common/utils';
+import {
+  ContentWrapper,
+  FormContainer,
+  PreviewWrapper,
+  Box as FormTriggerBtn,
+  Typography
+} from '../../styles';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import mutations from '../graphql/mutations';
 
 type IProps = {
   categories?: RiskAssessmentCategory[];
@@ -24,7 +33,7 @@ type IProps = {
 type DocField = {
   name?: string;
   code?: string;
-  form?: string;
+  formId?: string;
   parentId?: string;
 };
 type IState = {
@@ -38,13 +47,25 @@ class Form extends React.Component<IProps, IState> {
 
     this.state = {
       isReadyToSave: false,
-      doc: {},
+      doc: {}
     };
 
     this.handleSaveCategory = this.handleSaveCategory.bind(this);
   }
 
   handleCloseForm = () => {
+    const { formId } = this.state.doc;
+    const { detail } = this.props;
+
+    if (formId && !detail) {
+      confirm(`Are you sure you want to close.Your created form won't save`).then(() => {
+        client.mutate({
+          mutation: gql(mutations.removeUnsavedRiskAssessmentCategoryForm),
+          variables: { formId }
+        });
+        return this.props.closeModal();
+      });
+    }
     this.props.closeModal();
   };
 
@@ -54,9 +75,9 @@ class Form extends React.Component<IProps, IState> {
     </Button>
   );
 
-  handleDoc = (e) => {
+  handleDoc = e => {
     const { name, value } = e.target as HTMLInputElement;
-    this.setState((prev) => ({ doc: { ...prev.doc, [name]: value } }));
+    this.setState(prev => ({ doc: { ...prev.doc, [name]: value } }));
   };
 
   handleSaveCategory() {
@@ -68,7 +89,7 @@ class Form extends React.Component<IProps, IState> {
         name,
         formId,
         parentId,
-        code,
+        code
       }))(detail);
       return updateCategory({ ...oldVariables, ...variables });
     }
@@ -77,18 +98,28 @@ class Form extends React.Component<IProps, IState> {
 
   render() {
     const { detail, loading } = this.props;
+    const { doc } = this.state;
 
     if (loading) {
       return <Spinner />;
     }
     const formTrigger = (
-      <Button>
-        <Tip placement="top" text={this.props.detail ? 'Edit a form' : 'Build a form'}>
-          <Icon icon={this.props.detail?"file-edit-alt":"file-plus-alt"} />
-        </Tip>
-      </Button>
+      // <Button>
+      // </Button>
+      <FormTriggerBtn selected={detail || doc.formId ? true : false}>
+        <FormContainer row justifyCenter gapBetween={10}>
+          <Icon
+            size={15}
+            icon={detail ? 'file-edit-alt' : 'file-plus-alt'}
+            color={colors.colorPrimary}
+          />
+          <Typography fontSize={13} bold color={colors.colorPrimary}>
+            {__(detail ? 'Edit a form' : 'Build a form')}
+          </Typography>
+        </FormContainer>
+      </FormTriggerBtn>
     );
-    const renderFormContent = ({closeModal}) => {
+    const renderFormContent = ({ closeModal }) => {
       const { formId } = this.props;
 
       const formPreview = (previewRenderer, fields: IField[]) => {
@@ -131,9 +162,9 @@ class Form extends React.Component<IProps, IState> {
         );
       };
       const afterDbSave = (formId: string) => {
-        this.setState((prev) => ({
+        this.setState(prev => ({
           doc: { ...prev.doc, formId },
-          isReadyToSave: false,
+          isReadyToSave: false
         }));
         closeModal();
       };
@@ -143,7 +174,7 @@ class Form extends React.Component<IProps, IState> {
         afterDbSave,
         type: 'risk-assessment',
         isReadyToSave: this.state.isReadyToSave,
-        hideOptionalFields: false,
+        hideOptionalFields: true
       };
       if (formId) {
         return (
@@ -171,15 +202,7 @@ class Form extends React.Component<IProps, IState> {
           />
         </CustomFormGroup>
         <CustomFormGroup label={detail ? 'Edit a form' : 'Build a form'}>
-          <FormContainer gap>
-            <FormControl
-              type="text"
-              name="form"
-              defaultValue={detail?.formName}
-              placeholder="Form Name"
-              disabled
-              onChange={this.handleDoc}
-            />
+          <FormContainer>
             <ModalTrigger
               isAnimate
               title="Build New Form"
@@ -207,7 +230,7 @@ class Form extends React.Component<IProps, IState> {
           >
             <option />
             {this.props.categories?.map(
-              (category) =>
+              category =>
                 category._id !== detail?._id && (
                   <option value={category._id} key={category._id}>
                     {category.parentId && subOption(category)}

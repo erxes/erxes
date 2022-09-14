@@ -62,6 +62,7 @@ export const riskAssessmentParams = `
         logic
         name
         value
+        value2
         color
       }
 `;

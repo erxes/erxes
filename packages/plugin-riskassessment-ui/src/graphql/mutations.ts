@@ -32,13 +32,13 @@ const riskAssesmentRemove = `
 `;
 
 const riskAssessmentUpdate = `
-  mutation UpdateRiskAssessment($_id:String,$doc:RiskAssessmentInput){
-    updateRiskAssessment(_id: $_id,doc:$doc)
+  mutation UpdateRiskAssessment($id:String,$doc:RiskAssessmentInput){
+    updateRiskAssessment(_id: $id,doc:$doc)
   }
 `;
 
 export default {
   riskAssessmentAdd,
   riskAssesmentRemove,
-  riskAssessmentUpdate,
+  riskAssessmentUpdate
 };

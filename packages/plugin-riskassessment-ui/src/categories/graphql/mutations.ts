@@ -16,4 +16,15 @@ const editAssessmentCategory = `
     }
 `;
 
-export default { addAssessmentCategory, removeAssessmentCategory, editAssessmentCategory };
+const removeUnsavedRiskAssessmentCategoryForm = `
+    mutation RemoveUnsavedRiskAssessmentCategoryForm($formId: String) {
+        removeUnsavedRiskAssessmentCategoryForm(formId: $formId)
+    }
+`;
+
+export default {
+  addAssessmentCategory,
+  removeAssessmentCategory,
+  editAssessmentCategory,
+  removeUnsavedRiskAssessmentCategoryForm
+};

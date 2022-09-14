@@ -30,11 +30,6 @@ export interface IRiskAssessmentCategoryField extends PaginateField {
   code: string;
 }
 
-export interface IRiskAnswerField {
-  name: string;
-  value: number;
-  categoryId: string;
-}
 export interface IRiskConfirmityField {
   _id: string;
   cardId: string;

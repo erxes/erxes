@@ -10,11 +10,13 @@ export type RiskCalculateLogicType = {
   _id: string;
   name: string;
   value: number;
+  value2?: number;
   logic: string;
   color?: string;
+  __typename?: string;
 };
 
-export type RiskAssesmentsType = {
+export type RiskAssessmentsType = {
   _id: string;
   categoryId: string;
   description: string;
@@ -28,16 +30,16 @@ export type RiskAssesmentsType = {
 };
 
 export type RiskAssessmentDetailQueryResponse = {
-  riskAssessmentDetail: RiskAssesmentsType;
+  riskAssessmentDetail: RiskAssessmentsType;
   loading: boolean;
   refetch: () => void;
 };
 
-export type RiskAssesmentsListQueryResponse = {
+export type RiskAssessmentsListQueryResponse = {
   loading: boolean;
   refetch: () => void;
-  riskAssesments: {
-    list: RiskAssesmentsType[];
+  riskAssessments: {
+    list: RiskAssessmentsType[];
     totalCount: number;
   };
 };
@@ -53,10 +55,10 @@ export type RiskAssessmentCategory = {
   formName?: string;
 };
 
-export type RiskAssesmentsCategoriesQueryResponse = {
+export type RiskAssessmentsCategoriesQueryResponse = {
   loading: boolean;
   refetch: () => void;
-  getRiskAssesmentCategories: [RiskAssessmentCategory];
+  riskAssesmentCategories: [RiskAssessmentCategory];
 };
 
 export interface ICommonListProps {
@@ -98,7 +100,7 @@ export type IRiskSubmissionsQueryResponse = {
 };
 
 export type IDealRiskAssessmentsQueryResponse = {
-  riskAssesments: {
+  riskAssessments: {
     list: IDealRiskAssements[];
     totalCount: number;
   };

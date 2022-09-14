@@ -23,7 +23,7 @@ import SelectProductCategory from '../containers/SelectProductCategory';
 import ObjectList from './ObjectList';
 
 type Props = {
-  field: IField;
+  field: { withValueFieldType: string } & IField;
   currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
@@ -114,7 +114,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderInput(attrs, hasError?: boolean) {
     let { value, errorCounter } = this.state;
     let checkBoxValues = this.state.checkBoxValues || [];
-    const { type, riskAssessmentFieldType } = this.props.field;
+    const { type, withValueFieldType } = this.props.field;
     let { validation } = this.props.field;
 
     if (hasError) {
@@ -130,7 +130,7 @@ export default class GenerateField extends React.Component<Props, State> {
       this.onChange(e, attrs.option);
     };
 
-    if (type === 'radio' || riskAssessmentFieldType === 'radio') {
+    if (type === 'radio' || withValueFieldType === 'radio') {
       attrs.type = 'radio';
       attrs.componentClass = 'radio';
       attrs.checked = String(value) === attrs.option;
@@ -148,7 +148,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type === 'check' || riskAssessmentFieldType === 'checkbox') {
+    if (type === 'check' || withValueFieldType === 'checkbox') {
       attrs.type = 'checkbox';
       attrs.componentClass = 'checkbox';
       attrs.checked = checkBoxValues.includes(attrs.option);
@@ -365,25 +365,6 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
-  renderRiskAssessment(options: string[], attrs: {}) {
-    const { field } = this.props;
-    if (!field.riskAssessmentFieldType) {
-      return null;
-    }
-    if (['checkbox', 'radio'].includes(field.riskAssessmentFieldType)) {
-      try {
-        return this.renderRadioOrCheckInputs(options, attrs);
-      } catch {
-        return this.renderRadioOrCheckInputs(options, attrs, true);
-      }
-    }
-    if (field.riskAssessmentFieldType === 'select') {
-      return this.renderSelect(options, attrs);
-    }
-
-    return <FormControl componentClass={field.riskAssessmentFieldType} />;
-  }
-
   renderMap(attrs) {
     const { field, onValueChange } = this.props;
     const { locationOptions = [] } = field;
@@ -581,10 +562,6 @@ export default class GenerateField extends React.Component<Props, State> {
 
       case 'objectList': {
         return this.renderObjectList(objectListConfigs, attrs);
-      }
-
-      case 'risk-assessment': {
-        return this.renderRiskAssessment(options, attrs);
       }
 
       case 'map': {

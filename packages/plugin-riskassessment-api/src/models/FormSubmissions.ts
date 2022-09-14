@@ -4,14 +4,14 @@ import { calculateRiskAssessment, checkAllUsersSubmitted, getFormId } from '../u
 import { IRiskFormSubmissionParams } from './definitions/common';
 import {
   IRiskFormSubmissionDocument,
-  riskConfirmityFormSubmissionSchema,
-} from './definitions/riskConfimity';
+  riskConfirmityFormSubmissionSchema
+} from './definitions/confimity';
 
 export interface IRiskFormSubmissionModel extends Model<IRiskFormSubmissionDocument> {
   formSaveSubmission(params: IRiskFormSubmissionParams): Promise<IRiskFormSubmissionDocument>;
 }
 
-const generateFields = (params) => {
+const generateFields = params => {
   const filter: any = {};
   if (params.formId) {
     filter.formId = params.formId;

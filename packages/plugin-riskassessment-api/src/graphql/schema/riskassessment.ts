@@ -2,7 +2,7 @@ import {
   commonAssessmentCategoryTypes,
   commonPaginateTypes,
   commonRiskAssessmentTypes,
-  commonTypes,
+  commonTypes
 } from './common';
 
 export const types = `
@@ -10,7 +10,9 @@ export const types = `
         name: String
         description: String
         categoryId: String
-        status: String
+        status: String,
+        calculateMethod: String,
+        calculateLogics: [CalculateLogicInput]
     }
 
     input CalculateLogicInput {
@@ -18,13 +20,14 @@ export const types = `
         name: String,
         value: Int
         value2:Int
-        logic: String,
+        logic: String
         color: String
     }
     type CalculateLogicType {
         _id: String,
         name: String,
         value: Int
+        value2:Int
         logic: String,
         color: String
     }
@@ -52,7 +55,7 @@ export const types = `
 `;
 
 export const queries = `
-    riskAssesments (categoryId:String,${commonPaginateTypes},status:String):list
+    riskAssessments (categoryId:String,${commonPaginateTypes},status:String):list
     riskAssessmentDetail(_id: String): RiskAssessment
 `;
 export const mutations = `

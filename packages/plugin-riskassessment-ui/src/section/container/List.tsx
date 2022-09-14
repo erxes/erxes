@@ -27,7 +27,11 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
   }
 
   render() {
-    const { lists, submissions } = this.props;
+    const { lists, submissions, id } = this.props;
+
+    if (id) {
+      submissions.refetch();
+    }
 
     const updatedProps = {
       ...this.props,
@@ -45,7 +49,7 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.riskConfirmities), {
       name: 'lists',
-      skip: ({ id }) => !isEnabled('riskassessment') || !id,
+      skip: ({ id }) => !id,
       options: ({ id }) => ({ variables: { cardId: id } })
     }),
     graphql<Props>(gql(queries.riskConfirmitySubmissions), {

@@ -9,8 +9,8 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import {
   ICommonListProps,
-  RiskAssesmentsCategoriesQueryResponse,
-  RiskAssesmentsListQueryResponse,
+  RiskAssessmentsCategoriesQueryResponse,
+  RiskAssessmentsListQueryResponse
 } from '../common/types';
 import List from '../components/List';
 import { mutations, queries } from '../graphql';
@@ -22,9 +22,9 @@ type Props = {
 
 type FinalProps = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
-  listQuery: RiskAssesmentsListQueryResponse;
+  listQuery: RiskAssessmentsListQueryResponse;
   removeMutation: any;
-  categories: RiskAssesmentsCategoriesQueryResponse;
+  categories: RiskAssessmentsCategoriesQueryResponse;
 } & Props &
   IRouterProps &
   ICommonListProps &
@@ -33,7 +33,7 @@ class ListContainer extends React.Component<FinalProps> {
   render() {
     const { removeMutation, listQuery } = this.props;
 
-    const { riskAssesments, loading } = listQuery;
+    const { riskAssessments, loading } = listQuery;
 
     const remove = (_ids: string[]) => {
       confirm('Are you sure?').then(() => {
@@ -42,7 +42,7 @@ class ListContainer extends React.Component<FinalProps> {
             listQuery.refetch();
             Alert.success('You successfully removed risk assesments');
           })
-          .catch((e) => {
+          .catch(e => {
             Alert.error(e.message);
           });
       });
@@ -54,7 +54,7 @@ class ListContainer extends React.Component<FinalProps> {
       isSubmitted,
       callback,
       confirmationUpdate,
-      object,
+      object
     }: IButtonMutateProps) => {
       const afterMutate = () => {
         listQuery.refetch();
@@ -74,7 +74,7 @@ class ListContainer extends React.Component<FinalProps> {
           variables={values}
           callback={afterMutate}
           isSubmitted={isSubmitted}
-          type='submit'
+          type="submit"
           confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}
         />
@@ -83,12 +83,12 @@ class ListContainer extends React.Component<FinalProps> {
 
     const updatedProps = {
       ...this.props,
-      list: riskAssesments?.list,
-      totalCount: riskAssesments?.totalCount,
+      list: riskAssessments?.list,
+      totalCount: riskAssessments?.totalCount,
       refetch: listQuery.refetch,
       loading,
       remove,
-      renderButton,
+      renderButton
     };
 
     return <List {...updatedProps} />;
@@ -107,7 +107,7 @@ const generateParams = ({ queryParams }) => ({
   sortDirection: Number(queryParams.sortDirection) || undefined,
   sortFromDate: queryParams.From || undefined,
   sortToDate: queryParams.To || undefined,
-  categoryId: queryParams.categoryId,
+  categoryId: queryParams.categoryId
 });
 
 export default withProps<Props>(
@@ -115,17 +115,17 @@ export default withProps<Props>(
     graphql<Props>(gql(queries.list), {
       name: 'listQuery',
       options: ({ queryParams }) => ({
-        variables: generateParams({ queryParams }),
-      }),
+        variables: generateParams({ queryParams })
+      })
     }),
     graphql(gql(mutations.riskAssessmentAdd), {
-      name: 'addMutation',
+      name: 'addMutation'
     }),
     graphql(gql(mutations.riskAssesmentRemove), {
-      name: 'removeMutation',
+      name: 'removeMutation'
     }),
     graphql(gql(mutations.riskAssessmentUpdate), {
-      name: 'editMutation',
+      name: 'editMutation'
     })
   )(ListContainer)
 );

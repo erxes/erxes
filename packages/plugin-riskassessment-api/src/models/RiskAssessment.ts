@@ -7,7 +7,7 @@ import { IRiskAssessmentField, PaginateField } from './definitions/common';
 import { IRiskAssessmentDocument, riskAssessmentSchema } from './definitions/riskassessment';
 
 export interface IRiskAssessmentModel extends Model<IRiskAssessmentDocument> {
-  riskAssesments(
+  riskAssessments(
     params: { categoryId: string } & IRiskAssessmentField & PaginateField
   ): Promise<IRiskAssessmentDocument>;
   riskAssessmentDetail(params: { _id: string }): Promise<IRiskAssessmentDocument>;
@@ -23,6 +23,7 @@ const statusColors = {
   Error: '#ea475d',
   Warning: '#f7ce53',
   Success: '#3ccc38',
+  In_Progress: '#3B85F4'
 };
 
 const generateFilter = (
@@ -76,7 +77,7 @@ const generateOrderFilters = (params: IRiskAssessmentField & PaginateField) => {
 
 export const loadRiskAssessment = (model: IModels, subdomain: string) => {
   class RiskAssessment {
-    public static async riskAssesments(
+    public static async riskAssessments(
       params: { categoryId: string } & IRiskAssessmentField & PaginateField
     ) {
       const lookup = {
@@ -84,8 +85,8 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
           from: 'risk_assessment_categories',
           localField: 'categoryId',
           foreignField: '_id',
-          as: 'category',
-        },
+          as: 'category'
+        }
       };
       const filter = generateFilter(params);
 
@@ -130,6 +131,8 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
         throw new Error('Not found risk assessment');
       }
 
+      console.log(_id);
+
       const result = await model.RiskAssessment.findByIdAndUpdate(_id, doc);
       if (!result) {
         throw new Error('Something went wrong');
@@ -150,11 +153,11 @@ export const loadRiskAssessment = (model: IModels, subdomain: string) => {
           from: 'risk_assessment_categories',
           localField: 'categoryId',
           foreignField: '_id',
-          as: 'category',
-        },
+          as: 'category'
+        }
       };
       const unwind = {
-        $unwind: '$category',
+        $unwind: '$category'
       };
 
       const [first] = await model.RiskAssessment.aggregate([match, lookup, unwind]);
