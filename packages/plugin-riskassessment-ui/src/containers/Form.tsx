@@ -1,6 +1,6 @@
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { Spinner } from '@erxes/ui/src';
-import { IRouterProps } from '@erxes/ui/src/types';
+import { IButtonMutateProps, IRouterProps } from '@erxes/ui/src/types';
 import { withProps } from '@erxes/ui/src/utils/core';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
@@ -17,6 +17,7 @@ import { queries } from '../graphql';
 type Props = {
   asssessmentId?: string;
   assessmentDetail?: RiskAssessmentDetailQueryResponse;
+  renderButton: (props: IButtonMutateProps) => JSX.Element;
 };
 
 type FinalProps = {

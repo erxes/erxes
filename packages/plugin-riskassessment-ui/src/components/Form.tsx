@@ -17,6 +17,7 @@ import {
 } from '../common/types';
 import { subOption } from '../common/utils';
 import { FormContainer, FormGroupRow } from '../styles';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
 
 type Props = {
   categories: RiskAssessmentCategory[];
@@ -214,8 +215,6 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    console.log(formProps);
-
     const { categories, loading, detailLoading, assessmentDetail, categoryId } = this.props;
     const { riskAssessment } = this.state;
 
@@ -253,6 +252,14 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         }
       }));
     };
+    const handleState = e => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const { name, value } = e.currentTarget as HTMLInputElement;
+
+      this.setState(prev => ({ riskAssessment: { ...prev.riskAssessment, [name]: value } }));
+    };
 
     return (
       <>
@@ -262,7 +269,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             name="name"
             type="text"
             required={true}
+            // autoFocus={true}
             defaultValue={riskAssessment.name}
+            onChange={handleState}
           />
         </CustomFormGroup>
         <CustomFormGroup label="Risk Assessment Description">
@@ -270,7 +279,9 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             {...formProps}
             name="description"
             componentClass="textarea"
+            // autoFocus={true}
             defaultValue={riskAssessment.description}
+            onChange={handleState}
           />
         </CustomFormGroup>
         <CustomFormGroup label="Risk Assessment Category">
@@ -281,6 +292,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
               {...formProps}
               name="categoryId"
               componentClass="select"
+              onChange={handleState}
               defaultValue={!categoryId ? riskAssessment.categoryId : categoryId}
               required
             >
@@ -301,6 +313,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
             name="calculateMethod"
             componentClass="select"
             defaultValue={riskAssessment.calculateMethod}
+            onChange={handleState}
           >
             <option />
             {['Addition', 'Multiply', 'Matrix'].map(value => (
@@ -344,6 +357,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
         generateDoc={this.generateDoc}
         object={this.props.object}
         renderButton={renderBtn()}
+        createdAt={assessmentDetail?.createdAt}
       />
     );
   }
