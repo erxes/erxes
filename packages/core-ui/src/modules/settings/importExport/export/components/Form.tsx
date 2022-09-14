@@ -7,8 +7,11 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import { loadDynamicComponent } from 'modules/common/utils';
+import { loadDynamicComponent, getEnv } from 'modules/common/utils';
 import { IExportHistoryContentType } from '../../types';
+import queryString from 'query-string';
+import Button from 'modules/common/components/Button';
+import { Link } from 'react-router-dom';
 
 type Props = {
   contentType: string;
@@ -26,6 +29,8 @@ type State = {
   contentTypes: IExportHistoryContentType[];
   type: string;
 };
+
+const { REACT_APP_API_URL } = getEnv();
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
@@ -109,6 +114,32 @@ class Form extends React.Component<Props, State> {
 
     this.props.previewCount();
   };
+  onSubmit = () => {
+    const { contentType } = this.props;
+    const { columns, segmentId } = this.state;
+
+    const serviceType = contentType.split(':')[0];
+
+    let columnsConfig = columns.filter(conf => conf.checked) as any;
+
+    columnsConfig = columnsConfig.map(conf => {
+      return conf.name;
+    });
+
+    const stringified = queryString.stringify({
+      configs: JSON.stringify(columnsConfig),
+      type: contentType.split(':')[1],
+      segment: segmentId,
+      unlimited: true
+    });
+
+    window.open(
+      `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
+      '_blank'
+    );
+
+    window.location.href = `/settings/importHistories?type=${contentType}`;
+  };
 
   render() {
     const { columns, searchValue, segmentId, contentTypes } = this.state;
@@ -158,6 +189,17 @@ class Form extends React.Component<Props, State> {
                   usageType: 'export'
                 })}
               </FlexPad>
+              <Button.Group>
+                <Link to="settings/importHistories">
+                  <Button btnStyle="simple" icon="times-circle">
+                    Cancel
+                  </Button>
+                </Link>
+
+                <Button btnStyle="success" onClick={this.onSubmit}>
+                  Export
+                </Button>
+              </Button.Group>
             </ExportStep>
           </Steps>
         </LeftContent>
