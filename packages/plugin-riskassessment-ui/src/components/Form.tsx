@@ -17,7 +17,6 @@ import {
 } from '../common/types';
 import { subOption } from '../common/utils';
 import { FormContainer, FormGroupRow } from '../styles';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 
 type Props = {
   categories: RiskAssessmentCategory[];
@@ -215,7 +214,7 @@ class Form extends React.Component<Props & ICommonFormProps, State> {
   }
 
   renderContent = (formProps: IFormProps) => {
-    const { categories, loading, detailLoading, assessmentDetail, categoryId } = this.props;
+    const { categories, loading, detailLoading, categoryId } = this.props;
     const { riskAssessment } = this.state;
 
     const CustomFormGroup = ({
