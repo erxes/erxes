@@ -41,7 +41,7 @@ const Cars = {
   },
 
   async companies(car: ICarDocument, {}, { subdomain }: IContext) {
-    const companiIds = await sendCoreMessage({
+    const companyIds = await sendCoreMessage({
       subdomain,
       action: 'conformities.savedConformity',
       data: {
@@ -55,8 +55,8 @@ const Cars = {
 
     const companies = await sendContactsMessage({
       subdomain,
-      action: 'companies.find',
-      data: { _id: { $in: companiIds } },
+      action: 'companies.findActiveCompanies',
+      data: { selector: { _id: { $in: companyIds } } },
       isRPC: true,
       defaultValue: []
     });
