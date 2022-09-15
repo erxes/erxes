@@ -68,6 +68,7 @@ const formMutations = {
           userId,
           value: formSubmissions[formFieldId]
         };
+
         models.FormSubmissions.createFormSubmission(doc);
       }
     }
