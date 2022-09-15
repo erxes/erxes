@@ -5,7 +5,7 @@ import {
   FormControl,
   FormGroup,
   DateControl,
-  Uploader
+  Uploader,
 } from '@erxes/ui/src/components';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import {
@@ -16,9 +16,9 @@ import {
   MainStyleDateContainer as DateContainer
 } from '@erxes/ui/src/styles/eindex';
 import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import { ISpinCampaign, ISpinCampaignAward } from '../types';
 import Select from 'react-select-plus';
+import { extractAttachment, __ } from '@erxes/ui/src/utils'; 
 import React from 'react';
 import { IVoucherCampaign } from '../../voucherCampaign/types';
 
