@@ -6,10 +6,11 @@ import {
 } from '@erxes/ui/src/components';
 import EditorCK from '@erxes/ui/src/components/EditorCK';
 import {
-  MainStyleDateContainer as DateContainer, MainStyleFormColumn as FormColumn,
+  MainStyleFormColumn as FormColumn,
   MainStyleFormWrapper as FormWrapper,
   MainStyleModalFooter as ModalFooter,
-  MainStyleScrollWrapper as ScrollWrapper
+  MainStyleScrollWrapper as ScrollWrapper,
+  MainStyleDateContainer as DateContainer
 } from '@erxes/ui/src/styles/eindex';
 import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { extractAttachment, __ } from '@erxes/ui/src/utils';
