@@ -334,6 +334,11 @@ class FieldForm extends React.Component<Props, State> {
       this.onFieldChange('optionsObj',result)
     }
 
+    const defaultValue = () =>{
+      const { optionsObj } = this.props.field
+      return optionsObj?.map(({label,value})=> `${label}=${value}`).join('\n')
+    }
+
     if(['select','radio'].includes(field.type)){
       return (
         <CollapseContent title={__('Field Value')}>
@@ -342,6 +347,7 @@ class FieldForm extends React.Component<Props, State> {
             <FormControl
               id="FieldValue"
               componentClass="textarea"
+              defaultValue={defaultValue()}
               onChange={handleChange}
             />
           </FormGroup>

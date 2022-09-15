@@ -1,6 +1,7 @@
 import GenerateField from '@erxes/ui-forms/src/settings/properties/components/GenerateField';
 import { Button } from '@erxes/ui/src';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
+import __ from 'lodash';
 import React from 'react';
 
 type Props = {
@@ -63,7 +64,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
     return (
       <div>
         {this.renderForm()}
-        {/* {__.isEmpty(submissions) && ( */}
+        {__.isEmpty(submissions) && (
         <ModalFooter>
           <Button btnStyle='simple' onClick={closeModal}>
             Cancel
@@ -72,7 +73,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
             Submit
           </Button>
         </ModalFooter>
-        {/* )} */}
+         )}
       </div>
     );
   }
