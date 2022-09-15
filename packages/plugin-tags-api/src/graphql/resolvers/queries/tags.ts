@@ -56,14 +56,10 @@ const tagQueries = {
       selector._id = { $in: tagIds };
     }
 
-    const tags = await models.Tags.find(selector).sort({
+    return models.Tags.find(selector).sort({
       order: 1,
       name: 1
     });
-
-    models = undefined;
-
-    return tags;
   },
 
   /**
