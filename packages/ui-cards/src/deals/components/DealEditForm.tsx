@@ -155,7 +155,8 @@ export default class DealEditForm extends React.Component<Props, State> {
 
     const pDataChange = pData => this.onChangeField('productsData', pData);
     const prsChange = prs => this.onChangeField('products', prs);
-    const payDataChange = payData => this.onChangeField('paymentsData', payData);
+    const payDataChange = payData =>
+      this.onChangeField('paymentsData', payData);
 
     return (
       <ProductSection
@@ -175,15 +176,26 @@ export default class DealEditForm extends React.Component<Props, State> {
     const { item } = this.props;
     return (
       <>
-        <PortableTickets mainType='deal' mainTypeId={item._id} />
-        <PortableTasks mainType='deal' mainTypeId={item._id} />
+        <PortableTickets mainType="deal" mainTypeId={item._id} />
+        <PortableTasks mainType="deal" mainTypeId={item._id} />
         {pluginsOfItemSidebar(item, 'deal')}
       </>
     );
   };
 
-  renderFormContent = ({ saveItem, onChangeStage, copy, remove }: IEditFormContent) => {
-    const { item, options, onUpdate, addItem, sendToBoard, updateTimeTrack } = this.props;
+  renderFormContent = ({
+    saveItem,
+    onChangeStage,
+    copy,
+    remove
+  }: IEditFormContent) => {
+    const {
+      item,
+      options,
+      onUpdate,
+      addItem,
+      sendToBoard,
+      updateTimeTrack } = this.props;
 
     return (
       <>

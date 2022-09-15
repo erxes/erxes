@@ -84,7 +84,6 @@ const confirmLoyalties = `
   }
 `;
 
-
 export default {
   dealsAdd,
   dealsEdit,
