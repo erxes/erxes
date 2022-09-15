@@ -1,9 +1,9 @@
-import { commonFields, commonListFields } from '../../boards/graphql/mutations'
+import { commonFields, commonListFields } from '../../boards/graphql/mutations';
 import {
   conformityQueryFieldDefs,
   conformityQueryFields
-} from '../../conformity/graphql/queries'
-import { isEnabled } from '@erxes/ui/src/utils/core'
+} from '../../conformity/graphql/queries';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const commonParams = `
   $companyIds: [String],
