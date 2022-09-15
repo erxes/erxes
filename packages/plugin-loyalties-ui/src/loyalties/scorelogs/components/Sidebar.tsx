@@ -79,6 +79,7 @@ class SideBar extends React.Component<Props, State> {
       router.removeParams(history, type);
       variables[type] = '';
       refetch(variables);
+      // this.setState({variables:variables})
     };
 
     const handleValue = (e: any) => {
