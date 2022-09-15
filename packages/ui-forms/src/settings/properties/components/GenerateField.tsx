@@ -15,15 +15,15 @@ import { IOption } from '@erxes/ui/src/types';
 import Map from '@erxes/ui/src/containers/map/Map';
 import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import ObjectList from './ObjectList';
-import Select from 'react-select-plus';
 import React from 'react';
+import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from '@erxes/ui/src/utils/core';
 import SelectProductCategory from '../containers/SelectProductCategory';
 
 type Props = {
-  field: { withValueFieldType: string } & IField;
+  field: IField;
   currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
@@ -114,7 +114,7 @@ export default class GenerateField extends React.Component<Props, State> {
   renderInput(attrs, hasError?: boolean) {
     let { value, errorCounter } = this.state;
     let checkBoxValues = this.state.checkBoxValues || [];
-    const { type, withValueFieldType } = this.props.field;
+    const { type } = this.props.field;
     let { validation } = this.props.field;
 
     if (hasError) {
@@ -130,7 +130,7 @@ export default class GenerateField extends React.Component<Props, State> {
       this.onChange(e, attrs.option);
     };
 
-    if (type === 'radio' || withValueFieldType === 'radio') {
+    if (type === 'radio') {
       attrs.type = 'radio';
       attrs.componentClass = 'radio';
       attrs.checked = String(value) === attrs.option;
@@ -148,7 +148,7 @@ export default class GenerateField extends React.Component<Props, State> {
       attrs.checked = String(value) === attrs.option;
     }
 
-    if (type === 'check' || withValueFieldType === 'checkbox') {
+    if (type === 'check') {
       attrs.type = 'checkbox';
       attrs.componentClass = 'checkbox';
       attrs.checked = checkBoxValues.includes(attrs.option);
