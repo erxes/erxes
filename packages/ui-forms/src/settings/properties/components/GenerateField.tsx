@@ -1,26 +1,26 @@
+import { Button, Icon } from '@erxes/ui/src/components';
 import {
   COMPANY_BUSINESS_TYPES,
   COMPANY_INDUSTRY_TYPES,
   COUNTRIES
 } from '@erxes/ui-contacts/src/companies/constants';
-import { Button, Icon } from '@erxes/ui/src/components';
 import { IAttachment, IField, ILocationOption } from '@erxes/ui/src/types';
 import { LogicIndicator, SelectInput } from '../styles';
 
-import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Datetime from '@nateradebaugh/react-datetime';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModifiableList from '@erxes/ui/src/components/ModifiableList';
-import Uploader from '@erxes/ui/src/components/Uploader';
-import Map from '@erxes/ui/src/containers/map/Map';
 import { IOption } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils/core';
-import Datetime from '@nateradebaugh/react-datetime';
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectProductCategory from '../containers/SelectProductCategory';
+import Map from '@erxes/ui/src/containers/map/Map';
+import ModifiableList from '@erxes/ui/src/components/ModifiableList';
 import ObjectList from './ObjectList';
+import Select from 'react-select-plus';
+import React from 'react';
+import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import Uploader from '@erxes/ui/src/components/Uploader';
+import { __ } from '@erxes/ui/src/utils/core';
+import SelectProductCategory from '../containers/SelectProductCategory';
 
 type Props = {
   field: { withValueFieldType: string } & IField;
