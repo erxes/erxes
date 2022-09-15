@@ -19,7 +19,7 @@ import {
 import { IAttachment, IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { ISpinCampaign, ISpinCampaignAward } from '../types';
 import Select from 'react-select-plus';
-import { extractAttachment, __ } from '@erxes/ui/src/utils'; 
+import { extractAttachment, __ } from '@erxes/ui/src/utils';
 import { IVoucherCampaign } from '../../voucherCampaign/types';
 
 type Props = {

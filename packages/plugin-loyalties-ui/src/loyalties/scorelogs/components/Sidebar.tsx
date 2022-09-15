@@ -1,4 +1,4 @@
-import * as path from 'path'
+import * as path from 'path';
 
 import {
   ClearBtnContainer,
@@ -11,17 +11,16 @@ import {
   FormControl,
   FormGroup,
   Icon,
-  router,
   SelectTeamMembers,
   Tip,
-  Wrapper
+  Wrapper,
+  router,
 } from '@erxes/ui/src';
 import { DateContainer, ScrollWrapper } from '@erxes/ui/src/styles/main';
 
 import React from 'react';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import { isEnabled } from '@erxes/ui/src/utils/core';
-
 
 const SelectCompanies = asyncComponent(
   () =>
