@@ -7,6 +7,10 @@ cube(`Customers`, {
     Integrations: {
       relationship: `belongsTo`,
       sql: `${Customers}.integrationId = ${Integrations}._id`
+    },
+    CustomersCustomfieldsdata: {
+      sql: `${CUBE}._id = ${CustomersCustomfieldsdata}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -41,6 +45,17 @@ cube(`Customers`, {
 
     firstName: {
       sql: `firstName`,
+      type: `string`
+    },
+
+    customField: {
+      sql: `${CustomersCustomfieldsdata.customfieldsdataField}`,
+      type: `string`,
+      shown: false
+    },
+
+    customFieldValue: {
+      sql: `${CustomersCustomfieldsdata.customfieldsdataStringvalue}`,
       type: `string`
     },
 
