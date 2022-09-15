@@ -1,14 +1,14 @@
-import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
 import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
-import { serviceDiscovery } from '../../../configs';
 import { IContext } from '../../../connectionResolver';
 import { putCreateLog } from '../../../logUtils';
-import { sendCommonMessage } from '../../../messageBroker';
 import {
   IField,
   IFieldDocument,
   IFieldGroup
 } from '../../../models/definitions/fields';
+import { IOrderInput } from '@erxes/api-utils/src/commonUtils';
+import { serviceDiscovery } from '../../../configs';
+import { sendCommonMessage } from '../../../messageBroker';
 
 interface IFieldsEdit extends IField {
   _id: string;
@@ -126,6 +126,7 @@ const fieldMutations = {
           f.logics[logics.indexOf(logic)].fieldId = temp[logic.tempFieldId];
         }
       }
+
       const field = await models.Fields.createField({
         ...f,
         contentType,
@@ -149,6 +150,7 @@ const fieldMutations = {
           }
         }
       }
+
       const field = await models.Fields.updateField(_id, {
         ...doc,
         lastUpdatedUserId: user._id
