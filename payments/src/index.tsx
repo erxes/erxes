@@ -1,15 +1,24 @@
-// import ReactDOM from 'react-dom';
-import App from './App';
-import * as ReactDOM from 'react-dom'
-import * as React from 'react';
-// import * as React from 'react'
+import './index.css';
+
+import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import ReactDOM from 'react-dom/client';
+
+import PaymentsContainer from './containers/Payments';
+import reportWebVitals from './reportWebVitals';
+
+const client = new ApolloClient({
+  uri: `${process.env.REACT_APP_API_URL}/graphql`,
+  cache: new InMemoryCache(),
+});
+
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
+root.render(
+  <ApolloProvider client={client}>
+    <PaymentsContainer />
+  </ApolloProvider>
+);
 
 
-// ReactDOM.render(
-//   <React.StrictMode>
-//     <App />
-//   </React.StrictMode>
-//   , document.getElementById('root')
-// );
-
-ReactDOM.render(<App />, document.getElementById('root'));
+reportWebVitals();

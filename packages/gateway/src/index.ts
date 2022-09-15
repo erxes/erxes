@@ -41,7 +41,8 @@ const {
   CLIENT_PORTAL_DOMAINS,
   PORT,
   RABBITMQ_HOST,
-  MESSAGE_BROKER_PREFIX
+  MESSAGE_BROKER_PREFIX,
+  PAYMENTS_DOMAIN
 } = process.env;
 
 (async () => {
@@ -59,6 +60,7 @@ const {
     origin: [
       DOMAIN ? DOMAIN : 'http://localhost:3000',
       WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+      PAYMENTS_DOMAIN ? PAYMENTS_DOMAIN : 'http://localhost:3600',
       ...(CLIENT_PORTAL_DOMAINS || '').split(','),
       'https://studio.apollographql.com',
       ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
