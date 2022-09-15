@@ -27,8 +27,8 @@ class Sidebar extends React.Component<Props> {
   render() {
     const { item, saveItem, sidebar } = this.props;
 
-    const userOnChange = (usrs) => saveItem({ assignedUserIds: usrs });
-    const assignedUserIds = (item.assignedUsers || []).map((user) => user._id);
+    const userOnChange = usrs => saveItem({ assignedUserIds: usrs });
+    const assignedUserIds = (item.assignedUsers || []).map(user => user._id);
 
     return (
       <RightContent>
