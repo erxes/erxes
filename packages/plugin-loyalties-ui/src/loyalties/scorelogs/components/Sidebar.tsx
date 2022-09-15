@@ -14,7 +14,7 @@ import {
   SelectTeamMembers,
   Tip,
   Wrapper,
-  router,
+  router
 } from '@erxes/ui/src';
 import { DateContainer, ScrollWrapper } from '@erxes/ui/src/styles/main';
 
