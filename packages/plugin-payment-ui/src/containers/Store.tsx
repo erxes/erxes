@@ -1,5 +1,4 @@
 import * as compose from 'lodash.flowright';
-
 import { withProps } from '@erxes/ui/src/utils';
 import Home from '../components/Home';
 import React from 'react';

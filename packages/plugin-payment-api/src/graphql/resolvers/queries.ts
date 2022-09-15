@@ -14,6 +14,31 @@ const paymentConfigQueries = {
     }).countDocuments();
   },
 
+  // {
+  //   paymentIds,
+  //   amount,
+  //   customerId,
+  //   companyId,
+  //   contentType,
+  //   contentTypeId
+  // }: {
+  //   paymentIds: string[];
+  //   amount: number;
+  //   customerId: string;
+  //   companyId: string;
+  //   contentType: string;
+  //   contentTypeId: string;
+  // }
+
+  getPaymentOptions(_root, params, { models }: IContext) {
+    console.log('Process: ', JSON.stringify(process));
+    const mainUrl = 'http://localhost:3000/';
+    const route = 'payment_options';
+    const base64 = Buffer.from(JSON.stringify(params)).toString('base64');
+    console.log(Buffer.from(base64, 'base64').toString('ascii'));
+    return mainUrl + route + '?q=' + base64;
+  },
+
   async checkInvoice(
     _root,
     { paymentId, invoiceId }: { paymentId: string; invoiceId: string },
@@ -50,7 +75,7 @@ const paymentConfigQueries = {
   }
 };
 
-requireLogin(paymentConfigQueries, 'paymentConfigs');
+// requireLogin(paymentConfigQueries, 'paymentConfigs');
 requireLogin(paymentConfigQueries, 'paymentConfigsCountByType');
 
 export default paymentConfigQueries;

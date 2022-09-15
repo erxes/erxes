@@ -31,8 +31,8 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
         variables: { messageId: props.lastMessageId || "" },
       })
       .subscribe({
-        next({ data }) {
-          if (data.formInvoiceUpdated.status === "success") {
+        next({ dataa }) {
+          if (dataa.formInvoiceUpdated.status === "success") {
             props.onChangeCurrentStatus("SUCCESS");
           }
         },

@@ -1,11 +1,11 @@
 {
-  "name": "@erxes/plugin-qpay-api",
+  "name": "@erxes/plugin-socialPay-api",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
     "dev": "cd .erxes && yarn dev",
     "build": "cd .erxes && yarn build",
-    "start": "cd .erxes/dist/plugin-qpay-api/.erxes && node src"
+    "start": "cd .erxes/dist/plugin-socialPay-api/.erxes && node src"
   },
   "dependencies": {
     "node-fetch": "^2.3.0"

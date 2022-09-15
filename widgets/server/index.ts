@@ -3,7 +3,7 @@ import * as cors from 'cors';
 import * as dotenv from 'dotenv';
 import * as express from 'express';
 import * as path from 'path';
-const compression = require('compression');
+import compression as require('compression');
 
 dotenv.config();
 

@@ -1,0 +1,9 @@
+body {
+  background-color: #ddd;
+  font-size: 20px;
+}
+
+.btn {
+  font-size: inherit;
+  margin-bottom: 10px;
+}

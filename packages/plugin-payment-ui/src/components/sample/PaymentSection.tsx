@@ -6,6 +6,7 @@ import SocialPaySection from './SocialPaySection';
 import QpaySection from './QpaySection';
 import Select from 'react-select-plus';
 import { IPaymentConfigDocument } from 'types';
+import { Buffer } from 'buffer';
 
 type Props = {
   type?: string;
@@ -16,17 +17,26 @@ type Props = {
 type State = {
   type: string;
   paymentId: string;
+  amount: string;
 };
 
 class PaymentSection extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { type } = props;
+    const { type, queryParams } = props;
+
+    const base64 = queryParams.q;
+    console.log(base64);
+
+    const data = Buffer.from(base64, 'base64').toString('ascii');
+    const { amount } = JSON.parse(data);
+    console.log(data);
 
     this.state = {
       type: type ? type : '',
-      paymentId: ''
+      paymentId: '',
+      amount
     };
   }
 
@@ -44,7 +54,7 @@ class PaymentSection extends React.Component<Props, State> {
 
   render() {
     const { paymentConfigs } = this.props;
-    const { paymentId } = this.state;
+    const { paymentId, amount } = this.state;
     const paymentTypes = paymentConfigs.map(e => ({
       value: e._id,
       label: e.name
@@ -64,7 +74,7 @@ class PaymentSection extends React.Component<Props, State> {
           {this.state.type === 'socialPay' && (
             <SocialPaySection
               paymentConfigId={paymentId}
-              amount="10"
+              amount={amount}
               invoiceNo="socialPay test invoice"
               phone=""
             />
@@ -73,7 +83,7 @@ class PaymentSection extends React.Component<Props, State> {
           {this.state.type === 'qpay' && (
             <QpaySection
               paymentConfigId={paymentId}
-              amount="10"
+              amount={amount}
               description="qpay test invoice"
             />
           )}
