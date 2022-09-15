@@ -9,7 +9,7 @@ import {
   fieldsGroupsMutations
 } from './schema/field';
 
-import { mutations, queries, types } from './schema/form';
+import { types, queries, mutations } from './schema/form';
 
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
