@@ -54,8 +54,8 @@ export const calculateRiskAssessment = async (models, subdomain, cardId, formId)
   }
 
   for (const submission of submissions) {
-    const { optionsObj } = fields.find(field => field._id === submission.fieldId);
-    const fieldValue = optionsObj.find(option => option.label === submission.value);
+    const { optionsValues } = fields.find(field => field._id === submission.fieldId);
+    const fieldValue = optionsValues.find(option => option.label === submission.value);
 
     switch (calculateMethod) {
       case 'Multiply':
@@ -69,17 +69,18 @@ export const calculateRiskAssessment = async (models, subdomain, cardId, formId)
   }
 
   for (const { name, value, value2, logic, color } of calculateLogics) {
-    const operator = logic.substring(1, 2);
+    let operator = logic.substring(1, 2);
     if (operator === '≈') {
       if (value < sumNumber && sumNumber < value2) {
         return await models.RiskAssessment.findOneAndUpdate(
           { _id: riskAssessmentId },
           { $set: { status: name, statusColor: color } },
           { new: true }
-        );
+          );
+        }
       }
-    }
     if (['>', '<'].includes(operator)) {
+      operator += '='
       if (eval(sumNumber + operator + value)) {
         await models.RiskAssessment.findOneAndUpdate(
           { _id: riskAssessmentId },

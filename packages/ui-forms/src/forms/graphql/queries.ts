@@ -39,7 +39,7 @@ const fields = `
       pageNumber
       productCategoryId
       isDefinedByErxes
-      optionsObj {
+      optionsValues {
         label
         value
       },

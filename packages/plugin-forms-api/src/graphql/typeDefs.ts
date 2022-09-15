@@ -1,10 +1,15 @@
-import { gql } from 'apollo-server-express'
+import { gql } from 'apollo-server-express';
 
 import {
-  fieldsGroupsMutations, fieldsGroupsQueries, fieldsGroupsTypes, fieldsMutations, fieldsQueries, fieldsTypes
-} from './schema/field'
+  fieldsTypes,
+  fieldsQueries,
+  fieldsMutations,
+  fieldsGroupsTypes,
+  fieldsGroupsQueries,
+  fieldsGroupsMutations
+} from './schema/field';
 
-import { mutations, queries, types } from './schema/form'
+import { mutations, queries, types } from './schema/form';
 
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');

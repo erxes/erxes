@@ -9,7 +9,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
+import { IField, IFieldLogic, IOption, IOptionsValuesType } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -75,7 +75,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IObjectObjType[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IOptionsValuesType[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -152,7 +152,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IObjectObjType[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IOptionsValuesType[]
   ) {
     const { field } = this.state;
 
@@ -331,12 +331,12 @@ class FieldForm extends React.Component<Props, State> {
         }
       },[]).filter(item=>item)
 
-      this.onFieldChange('optionsObj',result)
+      this.onFieldChange('optionsValues', result);
     }
 
     const defaultValue = () =>{
-      const { optionsObj } = this.props.field
-      return optionsObj?.map(({label,value})=> `${label}=${value}`).join('\n')
+      const { optionsValues } = this.props.field;
+      return optionsValues?.map(({ label, value }) => `${label}=${value}`).join('\n');
     }
 
     if(['select','radio'].includes(field.type)){

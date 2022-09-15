@@ -80,7 +80,7 @@ export interface IObjectListConfig {
   type: string;
 }
 
-export interface IObjectObjType {
+export interface IOptionsValuesType {
   label: string;
   value:number
 }
@@ -124,7 +124,7 @@ export interface IField {
   showInCard?: boolean;
   keys?: string[];
   productCategoryId?: string;
-  optionsObj?: IObjectObjType[];
+  optionsValues?: IOptionsValuesType[];
 }
 
 export interface IFormProps {

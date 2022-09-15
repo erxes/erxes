@@ -14,6 +14,7 @@ type Props = {
   refetch: () => void;
   refetchSubmissions: () => void;
   riskAssessmentId?: string;
+  isSubmitted?:boolean
 };
 
 type FinalProps = {
@@ -35,7 +36,8 @@ class Submissions extends React.Component<FinalProps> {
       currentUserId,
       refetch,
       refetchSubmissions,
-      riskAssessmentId
+      riskAssessmentId,
+      isSubmitted
     } = this.props;
 
     const formSubmissionsSave = doc => {
@@ -67,7 +69,8 @@ class Submissions extends React.Component<FinalProps> {
       submissions: formDetail.riskConfirmityFormDetail.submissions,
       formId: formDetail.riskConfirmityFormDetail.formId,
       formSubmissionsSave,
-      closeModal
+      closeModal,
+      isSubmitted
     };
 
     return <SubmissionsComponent {...updatedProps} />;

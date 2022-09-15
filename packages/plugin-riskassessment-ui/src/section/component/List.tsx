@@ -71,6 +71,7 @@ function RiskAssessmentSection(props: Props) {
           refetch={props.refetch}
           riskAssessmentId={riskAssessmentId}
           refetchSubmissions={props.refetchSubmissions}
+          isSubmitted={isSubmitted}
         />
       );
     };

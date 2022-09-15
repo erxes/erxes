@@ -10,6 +10,7 @@ type Props = {
   formId: string;
   formSubmissionsSave: (doc: any) => any;
   closeModal: () => void;
+  isSubmitted?:boolean
 };
 
 type State = {
@@ -59,12 +60,12 @@ class SubmissionsComponent extends React.Component<Props, State> {
   }
 
   render() {
-    const { closeModal, submissions } = this.props;
+    const { closeModal, isSubmitted } = this.props;
 
     return (
       <div>
         {this.renderForm()}
-        {__.isEmpty(submissions) && (
+        {!isSubmitted && (
         <ModalFooter>
           <Button btnStyle='simple' onClick={closeModal}>
             Cancel
@@ -73,7 +74,7 @@ class SubmissionsComponent extends React.Component<Props, State> {
             Submit
           </Button>
         </ModalFooter>
-         )}
+        )}
       </div>
     );
   }
