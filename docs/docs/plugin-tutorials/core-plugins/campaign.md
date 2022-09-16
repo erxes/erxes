@@ -23,9 +23,9 @@ Visitor Auto message is displayed for unregistered users or new visitors viewing
 ### Setting up campaign
 
 
-The Campaign plugin is available at erxes <a href="https://erxes.io/marketplace/detail/62bbf5a84d8f5eff723faf64">marketplace</a> for all users when you <a href="https://erxes.io/experience-management">get started</a> with erxes. It comes for free as it’s one of the core plugins erxes provides.
+The Campaign plugin is available at erxes **<a href="https://erxes.io/marketplace/detail/62bbf5a84d8f5eff723faf64">marketplace</a>** for all users when you **<a href="https://erxes.io/experience-management">get started</a>** with erxes. It comes for free as it’s one of the core plugins erxes provides.
 
-⚙️ Self-hosted client, please go to <a href="https://docs.erxes.io/docs/plugins/plugin-installation">the plugin installation documentation</a> to install the Campaign plugin after installing the erxes XOS.
+⚙️ Self-hosted client, please go to **<a href="https://docs.erxes.io/docs/plugins/plugin-installation">the plugin installation documentation</a>** to install the Campaign plugin after installing the erxes XOS.
 
 ‍💻  SaaS clients, when you sign-up for erxes Campaign plugin will be there already, so just go along with this guideline to get started with this plugin
 
@@ -86,19 +86,10 @@ Whether you decided to do onboarding sequence to your new clients or one-time Ch
 Now that you have determined the target, it is time to execute the campaign. 
 
 1. Choosing the type of your campaign
-<img src="D" width="90%" alt="D"></img>
-
 2. Select the target group you're intended to execute the campaign
-<img src="D" width="90%" alt="D"></img>
-
 3. Compose your campaign
-<img src="D" width="90%" alt="D"></img>
-
 4. Preview your composed content
-<img src="D" width="90%" alt="D"></img>
-
 5. Submit your campaign
-<img src="D" width="90%" alt="D"></img>
 
 **Step five.** Track responses
 
@@ -106,9 +97,7 @@ Before tracking responses, you will need to determine what responses you require
 
 - If your campaign points the recipient to your web page, you can set up a web-to-lead form on your page that customers can fill out. Then you can track all the triggered events to the number of forms filled out. 
 - They are then automatically created as a lead and added to the campaign of your choice. This is the easiest way to track responses as it is automatic. This is how you can track your manual campaign responses. 
-- If you tracking your new customer onboarding sequins, you may have to check the software renewal percentage as well as the numbers of your customer inquiry. 
-<img src="D" width="90%" alt="D"></img>
-
+- If you tracking your new customer onboarding sequins, you may have to check the software renewal percentage as well as the numbers of your customer inquiry.
 - If your responses come in individually, like phone calls or emails, you can manually create the new lead and then manually associate it to the proper campaign or update the status of a pre-existing campaign member. This can be the most time-consuming, so you may want to look at mass uploading or mass updating.
 
 
@@ -119,7 +108,6 @@ Right on the campaign detail page, you can track the total sent and responded, t
 If the campaign is a parent in a campaign hierarchy, you can also see the above statistics for all child campaigns on the parent campaign page.
 
 erxes also includes standard campaign reports such as email analysis, customer response, and more. These can be customized to fit your needs, and after customization, they can be used for campaign dashboards that can tell you at a glance how all of your campaigns are doing and how they stack up against each other.
-<img src="D" width="90%" alt="D"></img>
 
 🥳 Congratulations, you have successfully executed the Campaign. Now, let’s start analyzing your campaign and improving.  
 
