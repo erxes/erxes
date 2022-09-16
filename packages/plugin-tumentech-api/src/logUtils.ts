@@ -1,5 +1,4 @@
-import { carCategorySchema } from './../../plugin-cars-api/src/models/definitions/cars';
-import { carSchema } from './models/definitions/tumentech';
+import { carSchema, carCategorySchema } from './models/definitions/tumentech';
 import {
   putCreateLog as commonPutCreateLog,
   putUpdateLog as commonPutUpdateLog,
