@@ -34,8 +34,8 @@ class SideBar extends React.Component<Props, State> {
   trigger = (
     <Button
       id={'AddTypeButton'}
-      btnStyle="success"
-      icon="plus-circle"
+      btnStyle='success'
+      icon='plus-circle'
       block={true}
     >
       Create Category
@@ -43,9 +43,9 @@ class SideBar extends React.Component<Props, State> {
   );
 
   editTrigger = (
-    <Button btnStyle="link">
+    <Button btnStyle='link'>
       <Tip text={__('Edit')}>
-        <Icon icon="edit-3"></Icon>
+        <Icon icon='edit-3'></Icon>
       </Tip>
     </Button>
   );
@@ -66,22 +66,22 @@ class SideBar extends React.Component<Props, State> {
 
     return (
       <SidebarListItem isActive={className == 'active'} key={type._id}>
-        <Link to={`/tests?type=${type._id}`}>{__(type.name)}</Link>
+        <Link to={`/{name}s?type=${type._id}`}>{__(type.name)}</Link>
         {className && (
           <ActionButtons>
             <ModalTrigger
-              size="sm"
-              title="Edit type"
+              size='sm'
+              title='Edit type'
               trigger={this.editTrigger}
               content={this.content}
               enforceFocus={false}
             />
 
-            <Tip text={__('Delete')} placement="top">
+            <Tip text={__('Delete')} placement='top'>
               <Button
-                btnStyle="link"
+                btnStyle='link'
                 onClick={remove.bind(null, type)}
-                icon="times-circle"
+                icon='times-circle'
               />
             </Tip>
           </ActionButtons>
@@ -103,7 +103,7 @@ class SideBar extends React.Component<Props, State> {
         header={
           <Header>
             <ModalTrigger
-              size="sm"
+              size='sm'
               title={__('Add Todo Type')}
               trigger={this.trigger}
               content={this.modalContent}
@@ -116,7 +116,7 @@ class SideBar extends React.Component<Props, State> {
           {__('Categories')}
         </LeftSidebar.Header>
 
-        <SidebarList noTextColor noBackground id="SideBar">
+        <SidebarList noTextColor noBackground id='SideBar'>
           {types.map(type => {
             return this.ListItem(type, currentTypeId);
           })}

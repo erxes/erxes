@@ -51,20 +51,20 @@ const TypeForm = (props: Props) => {
           <ControlLabel required={true}>Todo Type</ControlLabel>
           <FormControl
             {...formProps}
-            name="name"
+            name='name'
             defaultValue={object.name}
-            type="text"
+            type='text'
             required={true}
             autoFocus={true}
           />
         </FormGroup>
         <ModalFooter id={'AddTypeButtons'}>
-          <Button btnStyle="simple" onClick={closeModal} icon="times-circle">
+          <Button btnStyle='simple' onClick={closeModal} icon='times-circle'>
             Cancel
           </Button>
 
           {renderButton({
-            name: 'type',
+            passedName: 'type',
             values: generateDoc(values),
             isSubmitted,
             callback: closeModal || afterSave,

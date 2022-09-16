@@ -1,4 +1,4 @@
-export interface ITest {
+export interface I{Name} {
   _id: string;
   name?: string;
   createdAt?: Date;
@@ -14,34 +14,14 @@ export interface IType {
   name: string;
 }
 
-export interface ITypeSaveParams {
-  type?: IType;
-  doc: {
-    _id?: String;
-    name: String;
-  };
-  callback?: () => void;
-}
-
-export interface ITagSaveParams {
-  test?: ITest;
-  doc: {
-    _id?: String;
-    name: String;
-    createdAt?: Date;
-    expiryDate?: Date;
-  };
-  callback?: () => void;
-}
-
 // queries
-export type TestQueryResponse = {
-  tests: ITest[];
+export type {Name}QueryResponse = {
+  {name}s: I{Name}[];
   refetch: () => void;
   loading: boolean;
 };
 export type TypeQueryResponse = {
-  types: IType[];
+  {name}Types: IType[];
   refetch: () => void;
   loading: boolean;
 };
@@ -75,7 +55,7 @@ export type RemoveTypeMutationResponse = {
   typesRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
-// export type TestMutationVariables = {
+// export type {Name}MutationVariables = {
 //   type: string;
 //   targetIds: string[];
 //   tagIds: string[];

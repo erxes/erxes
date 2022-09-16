@@ -20,21 +20,21 @@ type Props = {
 };
 
 type FinalProps = {
-  listTestTypeQuery: TypeQueryResponse;
+  list{Name}TypeQuery: TypeQueryResponse;
 } & Props &
   RemoveTypeMutationResponse &
   EditTypeMutationResponse;
 
 const TypesListContainer = (props: FinalProps) => {
-  const { listTestTypeQuery, typesEdit, typesRemove, history } = props;
+  const { list{Name}TypeQuery, typesEdit, typesRemove, history } = props;
 
-  if (listTestTypeQuery.loading) {
+  if (list{Name}TypeQuery.loading) {
     return <Spinner />;
   }
 
   //calls gql mutation for edit/add type
   const renderButton = ({
-    name,
+    passedName,
     values,
     isSubmitted,
     callback,
@@ -49,8 +49,8 @@ const TypesListContainer = (props: FinalProps) => {
         type="submit"
         successMessage={`You successfully ${
           object ? 'updated' : 'added'
-        } a ${name}`}
-        refetchQueries={['listTestTypeQuery']}
+        } a ${passedName}`}
+        refetchQueries={['list{Name}TypeQuery']}
       />
     );
   };
@@ -69,8 +69,8 @@ const TypesListContainer = (props: FinalProps) => {
 
   const updatedProps = {
     ...props,
-    types: listTestTypeQuery.types || [],
-    loading: listTestTypeQuery.loading,
+    types: list{Name}TypeQuery.{name}Types || [],
+    loading: list{Name}TypeQuery.loading,
     remove,
     renderButton
   };
@@ -80,8 +80,8 @@ const TypesListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql(gql(queries.listTestTypes), {
-      name: 'listTestTypeQuery',
+    graphql(gql(queries.list{Name}Types), {
+      name: 'list{Name}TypeQuery',
       options: () => ({
         fetchPolicy: 'network-only'
       })
@@ -89,7 +89,7 @@ export default withProps<Props>(
     graphql(gql(mutations.removeType), {
       name: 'typesRemove',
       options: () => ({
-        refetchQueries: ['listTestTypeQuery']
+        refetchQueries: ['list{Name}TypeQuery']
       })
     })
   )(TypesListContainer)
