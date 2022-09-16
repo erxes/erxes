@@ -144,7 +144,13 @@ export const generateFields = async ({ subdomain }) => {
     }
   }
 
-  fields = fields.filter(field => field.name !== 'categoryId');
+  fields = fields.filter(field => {
+    if (field.name === 'parentCategoryId' || field.name === 'categoryId') {
+      return false;
+    }
+
+    return true;
+  });
 
   const parentCategories = await models.CarCategories.find({
     $or: [{ parentId: null }, { parentId: '' }]
