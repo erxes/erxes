@@ -20,26 +20,6 @@ cube(`Cars`, {
   measures: {
     count: {
       type: `count`
-    },
-
-    forcecapacityvalue: {
-      sql: `${CUBE}.\`forceCapacityValue\``,
-      type: `sum`
-    },
-
-    forcevalue: {
-      sql: `${CUBE}.\`forceValue\``,
-      type: `sum`
-    },
-
-    runningvalue: {
-      sql: `${CUBE}.\`runningValue\``,
-      type: `sum`
-    },
-
-    valuationamount: {
-      sql: `${CUBE}.\`valuationAmount\``,
-      type: `sum`
     }
   },
 
