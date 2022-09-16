@@ -74,6 +74,7 @@ type Car {
   vinNumber: String
   color: String
   categoryId: String
+  parentCategoryId: String
 
   parentCategory: CarCategory
   category: CarCategory

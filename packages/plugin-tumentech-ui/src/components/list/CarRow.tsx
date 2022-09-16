@@ -56,7 +56,7 @@ function displayValue(car, name, index) {
     value = car.category ? car.category.name : '-';
   }
 
-  if (name === 'parentCategory') {
+  if (name === 'parentCategoryId') {
     value = car.parentCategory ? car.parentCategory.name : '-';
   }
 
