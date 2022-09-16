@@ -441,6 +441,7 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         } catch (e) {
           throw new Error(e.message);
         }
+
         result.push(
           models.Fields.generateTypedItem(
             field._id,

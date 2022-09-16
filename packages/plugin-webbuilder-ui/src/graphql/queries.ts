@@ -60,6 +60,7 @@ const contentTypes = `
     webbuilderContentTypes(siteId: $siteId) {
       _id
       displayName
+      fields
     }
   }
 `;

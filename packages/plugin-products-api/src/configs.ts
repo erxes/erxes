@@ -41,7 +41,14 @@ export default {
     return context;
   },
 
-  meta: { logs: { consumers: logs }, tags, internalNotes, forms, imports },
+  meta: {
+    logs: { consumers: logs },
+    tags,
+    internalNotes,
+    forms,
+    imports,
+    permissions
+  },
 
   onServerInit: async options => {
     initBroker(options.messageBrokerClient);

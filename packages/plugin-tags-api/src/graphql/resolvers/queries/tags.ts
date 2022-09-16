@@ -33,14 +33,14 @@ const tagQueries = {
     return fieldTypes;
   },
 
-  tags(
+  async tags(
     _root,
     {
       type,
       searchValue,
       tagIds
     }: { type: string; searchValue?: string; tagIds?: string[] },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector }
   ) {
     const selector: any = { ...commonQuerySelector };
 
