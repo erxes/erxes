@@ -19,6 +19,10 @@ cube(`Deals`, {
     DealsAssigneduser: {
       sql: `${CUBE}._id = ${DealsAssigneduser}._id`,
       relationship: `belongsTo`
+    },
+    Conformities: {
+      sql: `${CUBE}._id = ${Conformities}.relTypeId or ${CUBE}._id = ${Conformities}.mainTypeId `,
+      relationship: `belongsTo`
     }
   },
 
@@ -44,6 +48,12 @@ cube(`Deals`, {
     name: {
       sql: `name`,
       type: `string`
+    },
+
+    reltypecustomer: {
+      sql: `${Conformities.reltypecustomer}`,
+      type: `string`,
+      title: 'Rel-Type Customer'
     },
 
     stageName: {
