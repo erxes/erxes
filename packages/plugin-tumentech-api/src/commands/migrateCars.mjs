@@ -10,6 +10,8 @@ if (!MONGO_URL) {
 
 const client = new MongoClient(MONGO_URL);
 
+console.log("Connected to ", MONGO_URL)
+
 let db;
 
 let Cars;
@@ -26,6 +28,8 @@ const command = async () => {
 
   for (const car of cars) {
     const category = await CarCategories.findOne({ _id: car.categoryId  });
+
+    console.log(category)
 
     if (!category) {
         continue;
