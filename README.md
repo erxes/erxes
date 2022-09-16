@@ -131,7 +131,9 @@ Let’s start growing **<a href="https://erxes.io/partners">together</a>**.
 
 ## Contributing 
 
-Please read our **<a href="https://github.com/erxes/erxes/blob/master/CONTRIBUTING.md" >contributing guide<a>** before submitting a Pull Request to the project.
+
+Please read our **<a href="https://docs.erxes.io/docs/contribute/overview/" >contributing guide<a>** before submitting a Pull Request to the project.
+
 
 ## Community support
 
