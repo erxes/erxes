@@ -46,6 +46,9 @@ export default withProps<Props>(
     }),
     graphql<Props>(gql(queries.exportHistoryGetTypes), {
       name: 'exportHistoryGetTypes'
+    }),
+    graphql<Props>(gql(mutations.exportHistoryInfo), {
+      name: 'exportHistoryInfo'
     })
   )(FormContainer)
 );

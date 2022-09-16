@@ -10,7 +10,14 @@ const exportHistoriesRemove = `
   }
 `;
 
+const exportHistoryInfo = `
+  query exportHistoryInformation($_id: String!, $contentType: String!) {
+    exportHistoryInformation(_id: $_id, contentType: $contentType)
+  }
+`;
+
 export default {
   exportHistoriesCreate,
-  exportHistoriesRemove
+  exportHistoriesRemove,
+  exportHistoryInfo
 };

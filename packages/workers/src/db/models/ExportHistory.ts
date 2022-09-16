@@ -24,7 +24,7 @@ export const loadExportHistoryClass = (models: IModels) => {
       const exportHistory = await models.ExportHistory.findOne({ _id });
 
       if (!exportHistory) {
-        throw new Error('Import history not found');
+        throw new Error('Export history not found');
       }
 
       return exportHistory;
@@ -42,7 +42,7 @@ export const loadExportHistoryClass = (models: IModels) => {
     }
 
     /*
-     * Remove Imported history
+     * Remove Exported history
      */
     public static async removeHistory(_id: string) {
       const historyObj = await models.ExportHistory.findOne({ _id });
