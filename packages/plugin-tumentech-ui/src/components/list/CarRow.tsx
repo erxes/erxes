@@ -52,7 +52,7 @@ function displayValue(car, name, index) {
       : '-';
   }
 
-  if (name === 'category') {
+  if (name === 'categoryId') {
     value = car.category ? car.category.name : '-';
   }
 

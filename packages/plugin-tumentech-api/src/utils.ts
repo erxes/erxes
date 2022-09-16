@@ -144,6 +144,8 @@ export const generateFields = async ({ subdomain }) => {
     }
   }
 
+  fields.filter(field => field.name !== 'categoryId');
+
   const parentCategories = await models.CarCategories.find({
     $or: [{ parentId: null }, { parentId: '' }]
   });
@@ -165,7 +167,7 @@ export const generateFields = async ({ subdomain }) => {
     },
     {
       _id: Math.random(),
-      name: 'category',
+      name: 'categoryId',
       label: 'Sub category',
       type: 'String',
       selectOptions: categories.map(category => ({
