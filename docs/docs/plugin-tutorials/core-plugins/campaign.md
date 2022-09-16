@@ -3,60 +3,53 @@ id: campaign
 title: Campaign
 ---
 
-
-### CAMPAIGN
-
-
 The campaign plugin allows the user to send out Emails, Messages, and SMS' automatically and saves your valuable time. 
 
 
-**Dependent plugins:** Segment, Template
-
-**Additional plugins:** Cards, Form
-
-
-### WITH CAMPAIGN, YOU CAN DO?
-
+### With Campaign, you can do...
 
 Campaigns are marketing, sales & support projects that allow you to generate new business from your existing customers, leads (sales prospects), or guide the existing clients. Campaigns allow you to track the campaign budget, the number of customers or potential customers (leads), their responses, and the number of open sales.
 
-
-**Auto campaign**
-
+- **Auto campaign**
 Send out mass Emails, Messenger, SMS to your targeted customers/leads/employee automatically at a scheduled time or some triggered actions they take. Chosen segments for the customers will be updated automatically, and you may pause the automated campaign at any time.
 
-**Manual Campaign**
-
+- **Manual Campaign**
 Allows you to send out mass emails only once to the targeted customers/leads/employee.
 
-**Visitor Auto Message**
-
+- **Visitor Auto Message**
 Visitor Auto message is displayed for unregistered users or new visitors viewing your website or integrations.
 
-### SETTING UP CAMPAIGN
+
+### Setting up campaign
+
 
 The Campaign plugin is available at erxes <a href="https://erxes.io/marketplace/detail/62bbf5a84d8f5eff723faf64">marketplace</a> for all users when you <a href="https://erxes.io/experience-management">get started</a> with erxes. It comes for free as it’s one of the core plugins erxes provides.
 
 ⚙️ Self-hosted client, please go to <a href="https://docs.erxes.io/docs/plugins/plugin-installation">the plugin installation documentation</a> to install the Campaign plugin after installing the erxes XOS.
+
 ‍💻  SaaS clients, when you sign-up for erxes Campaign plugin will be there already, so just go along with this guideline to get started with this plugin
 
 
-### CREATE YOUR CAMPAIGN
+### Creating your campaign
 
 The Campaign can be found on the left-hand side of the screen when you enter erxes. By selecting the pin, you will be able to place the sign on the plugins bar visible.
 
----
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/1.+campaign.gif" width="90%" alt="where to find campaign "></img>
 
 :::caution
 
+
 To execute the campaign, you must make sure you have chosen your target segments on Segment plugin & prepared the email/message/SMS content in Email template Plugin. 
+
+:::
+
 
 **Step One:** Create your brand
 
 ---
 ---
 
-**Step Create the campaign.**
+**Step two**. Create the campaign
  
 1. Plan your campaign
 
@@ -66,7 +59,7 @@ This sounds simple enough but usually requires the most amount of thought. What 
 
 There are four main groups you will want to target: existing customers, prospective customers (leads), visitors, team members, or a combination of all. The goal of the campaign will determine which group you target. erxes allows for easy creation of lists based on the target group and any criteria you choose, such as industry, geography, or title.
 
-Once you have determined the target groups, you can use the standard and custom fields on the Segment plugin to track this information. 
+Once you have determined the target groups, you can use the standard and custom fields on the <a href="https://docs.erxes.io/docs/plugin-tutorials/core-plugins/segment">**Segment**</a> plugin to track this information. 
 
 3. Execute the campaign 
 
