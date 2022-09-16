@@ -1,5 +1,5 @@
 import { Content, LeftContent } from '../../styles';
-import { Step, Steps, ExportStep } from '@erxes/ui/src/components/step';
+import { Step, Steps } from '@erxes/ui/src/components/step';
 import ConfigsForm from './ConfigsForm';
 import React from 'react';
 import TypeForm from '../containers/TypeForm';
@@ -10,8 +10,8 @@ import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import { loadDynamicComponent, getEnv } from 'modules/common/utils';
 import { IExportHistoryContentType } from '../../types';
 import queryString from 'query-string';
-import Button from 'modules/common/components/Button';
-import { Link } from 'react-router-dom';
+import { StepButton } from '@erxes/ui/src/components/step/styles';
+import Details from './Details';
 
 type Props = {
   contentType: string;
@@ -28,6 +28,8 @@ type State = {
   columns: any[];
   contentTypes: IExportHistoryContentType[];
   type: string;
+  disclaimer: boolean;
+  exportName: string;
 };
 
 const { REACT_APP_API_URL } = getEnv();
@@ -42,7 +44,9 @@ class Form extends React.Component<Props, State> {
       contentTypes: [],
       columns: props.columns,
       searchValue: '',
-      type: 'single'
+      type: 'single',
+      disclaimer: false,
+      exportName: ''
     };
   }
 
@@ -109,6 +113,15 @@ class Form extends React.Component<Props, State> {
 
     this.setState({ searchValue: value });
   };
+
+  onChangeExportName = value => {
+    this.setState({ exportName: value });
+  };
+
+  onChangeDisclaimer = value => {
+    this.setState({ disclaimer: value });
+  };
+
   segmentCloseModal = () => {
     this.setState({ segmentId: '' });
 
@@ -138,11 +151,25 @@ class Form extends React.Component<Props, State> {
       '_blank'
     );
 
-    window.location.href = `/settings/importHistories?type=${contentType}`;
+    window.location.href = `/settings/exportHistories?type=${contentType}`;
+  };
+  renderExportButton = () => {
+    return (
+      <StepButton next={true} onClick={this.onSubmit}>
+        Export
+      </StepButton>
+    );
   };
 
   render() {
-    const { columns, searchValue, segmentId, contentTypes } = this.state;
+    const {
+      columns,
+      searchValue,
+      segmentId,
+      contentTypes,
+      disclaimer,
+      exportName
+    } = this.state;
 
     const { contentType } = this.props;
     const title = __('Import');
@@ -173,7 +200,7 @@ class Form extends React.Component<Props, State> {
                 />
               </Step>
             }
-            <ExportStep title="Filter">
+            <Step title="Filter">
               <FlexPad direction="column" overflow="auto">
                 <SubHeading>{__('Filter')}</SubHeading>
                 <Description>
@@ -189,18 +216,16 @@ class Form extends React.Component<Props, State> {
                   usageType: 'export'
                 })}
               </FlexPad>
-              <Button.Group>
-                <Link to="settings/importHistories">
-                  <Button btnStyle="simple" icon="times-circle">
-                    Cancel
-                  </Button>
-                </Link>
-
-                <Button btnStyle="success" onClick={this.onSubmit}>
-                  Export
-                </Button>
-              </Button.Group>
-            </ExportStep>
+            </Step>
+            <Step title="Detail" additionalButton={this.renderExportButton()}>
+              <Details
+                type="stepper"
+                disclaimer={disclaimer}
+                exportName={exportName}
+                onChangeExportName={this.onChangeExportName}
+                onChangeDisclaimer={this.onChangeDisclaimer}
+              />
+            </Step>
           </Steps>
         </LeftContent>
       </Content>
