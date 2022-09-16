@@ -34,14 +34,6 @@ const List = (props: Props) => {
   queryParams.loadingMainQuery = loading;
   let actionBarLeft: React.ReactNode;
 
-  // const actionBarRight = (
-  //   <Link to="/forms/create">
-  //     <Button btnStyle="success" size="small" icon="plus-circle">
-  //       Add direction
-  //     </Button>
-  //   </Link>
-  // );
-
   const trigger = (
     <Button btnStyle="success" size="small" icon="plus-circle">
       Add place

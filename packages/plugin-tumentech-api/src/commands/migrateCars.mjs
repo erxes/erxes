@@ -29,8 +29,6 @@ var command = async () => {
   for (var car of cars) {
     var category = await CarCategories.findOne({ _id: car.categoryId  });
 
-    console.log(category)
-
     if (!category) {
         continue;
     }
