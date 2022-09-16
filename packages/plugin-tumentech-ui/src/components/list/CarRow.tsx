@@ -1,14 +1,14 @@
-import { formatValue } from '@erxes/ui/src/utils';
-import TextInfo from '@erxes/ui/src/components/TextInfo';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import { __ } from '@erxes/ui/src/utils/core';
-import { ICar, IProductCategory } from '../../types';
-
 import { ClickableRow } from '@erxes/ui-contacts/src/customers/styles';
-import { FlexItem } from '../../styles';
 import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import React from 'react';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import TextInfo from '@erxes/ui/src/components/TextInfo';
+import { formatValue } from '@erxes/ui/src/utils';
+import { renderFullName } from '@erxes/ui/src/utils/core';
 import _ from 'lodash';
+import React from 'react';
+
+import { FlexItem } from '../../styles';
+import { ICar, IProductCategory } from '../../types';
 
 type Props = {
   car: ICar;
@@ -22,14 +22,42 @@ type Props = {
 };
 
 function displayValue(car, name, index) {
-  const value = _.get(car, name);
+  let value = _.get(car, name);
 
   if (name === 'primaryName') {
     return <FlexItem>{formatValue(car.primaryName)}</FlexItem>;
   }
 
   if (name === '#') {
-    return <TextInfo>{index.toString()}</TextInfo>;
+    value = index.toString();
+  }
+
+  if (name === 'drivers') {
+    return car.customers && car.customers.length
+      ? car.customers.map(driver => (
+          <li>
+            <TextInfo>{driver ? renderFullName(driver) : '-'}</TextInfo>
+          </li>
+        ))
+      : '-';
+  }
+
+  if (name === 'companies') {
+    return car.companies && car.companies.length
+      ? car.companies.map(company => (
+          <li>
+            <TextInfo>{company ? company.primaryName : '-'}</TextInfo>
+          </li>
+        ))
+      : '-';
+  }
+
+  if (name === 'category') {
+    value = car.category ? car.category.name : '-';
+  }
+
+  if (name === 'parentCategory') {
+    value = car.parentCategory ? car.parentCategory.name : '-';
   }
 
   return formatValue(value);

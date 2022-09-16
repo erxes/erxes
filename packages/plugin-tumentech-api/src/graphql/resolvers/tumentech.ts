@@ -1,7 +1,10 @@
 import { IContext } from '../../connectionResolver';
-import { sendCoreMessage } from '../../messageBroker';
+import { sendContactsMessage, sendCoreMessage } from '../../messageBroker';
 import { IParticipantDocument } from '../../models/definitions/participants';
-import { ICarCategoryDocument } from '../../models/definitions/tumentech';
+import {
+  ICarCategoryDocument,
+  ICarDocument
+} from '../../models/definitions/tumentech';
 
 const Cars = {
   category(car, _args, { models }) {
@@ -13,22 +16,64 @@ const Cars = {
     );
   },
 
-  customers(car) {
-    async ({ models, subdomain }) => {
-      const customerIds = await sendCoreMessage({
-        subdomain,
-        action: 'conformities.savedConformity',
-        data: {
-          mainType: 'car',
-          mainTypeId: car._id.toString(),
-          relTypes: ['customer']
-        },
-        isRPC: true,
-        defaultValue: []
-      });
+  async parentCategory(car: ICarDocument, _args, { models }: IContext) {
+    const category =
+      car.categoryId &&
+      (await models.CarCategories.findOne({ _id: car.categoryId }));
 
-      return models.Customers.find({ _id: { $in: customerIds || [] } });
-    };
+    if (!category || !category.parentId) {
+      return null;
+    }
+
+    return models.CarCategories.findOne({ _id: category.parentId });
+  },
+
+  async customers(car: ICarDocument, {}, { subdomain }: IContext) {
+    const customerIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: 'car',
+        mainTypeId: car._id.toString(),
+        relTypes: ['customer']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const customers = await sendContactsMessage({
+      subdomain,
+      action: 'customers.find',
+      data: { _id: { $in: customerIds } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return customers;
+  },
+
+  async companies(car: ICarDocument, {}, { subdomain }: IContext) {
+    const companyIds = await sendCoreMessage({
+      subdomain,
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: 'car',
+        mainTypeId: car._id.toString(),
+        relTypes: ['company']
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    const companies = await sendContactsMessage({
+      subdomain,
+      action: 'companies.findActiveCompanies',
+      data: { selector: { _id: { $in: companyIds } } },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    return companies;
   }
 };
 

@@ -75,7 +75,7 @@ type Car {
   color: String
   categoryId: String
 
-
+  parentCategory: CarCategory
   category: CarCategory
   fuelType: String
   engineChange: String

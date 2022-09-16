@@ -27,6 +27,11 @@ class DetailInfo extends React.Component<Props> {
 
     return (
       <SidebarList className="no-link">
+        {this.renderRow(
+          'Category',
+          car.parentCategory ? car.parentCategory.name : '-'
+        )}
+        {this.renderRow('Sub category', car.category ? car.category.name : '-')}
         {this.renderRow('Улсын дугаар', car.plateNumber)}
         {this.renderRow('Арлын дугаар', car.vinNumber)}
         {this.renderRow(

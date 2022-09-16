@@ -170,7 +170,8 @@ export const LIFT_TYPE = [
   { label: 'Кран', value: 'Kran' },
   { label: 'Сэрээт ачигч', value: 'Forklift' },
   { label: 'Ковш', value: 'Kovsh' },
-  { label: 'Экска', value: 'Exca' }
+  { label: 'Экска', value: 'Exca' },
+  { label: 'Өөрөөрөө', value: 'self' }
 ];
 
 export const DOOR_CHANGE = [

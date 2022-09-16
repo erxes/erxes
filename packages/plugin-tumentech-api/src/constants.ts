@@ -113,7 +113,8 @@ export const CAR_SELECT_OPTIONS = {
     { label: 'Кран', value: 'Kran' },
     { label: 'Сэрээт ачигч', value: 'Forklift' },
     { label: 'Ковш', value: 'Kovsh' },
-    { label: 'Экска', value: 'Exca' }
+    { label: 'Экска', value: 'Exca' },
+    { label: 'Өөрөөрөө', value: 'self' }
   ],
 
   DOOR_CHANGE: [

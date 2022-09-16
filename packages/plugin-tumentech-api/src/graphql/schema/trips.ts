@@ -60,7 +60,7 @@ export const queries = `
 
 const params = `
     driverId: String,
-    carId: String,
+    carIds: [String],
     dealIds: [String],
     routeId: String,
     routeReversed: Boolean,

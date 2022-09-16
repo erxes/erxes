@@ -2,7 +2,8 @@ import { IContext } from '../../../connectionResolver';
 import {
   sendCoreMessage,
   sendContactsMessage,
-  sendClientPortalMessage
+  sendClientPortalMessage,
+  sendCardsMessage
 } from '../../../messageBroker';
 import { IParticipant } from './../../../models/definitions/participants';
 
@@ -23,7 +24,10 @@ const participantMutations = {
     const cpUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
-      data: { _id: participant.driverId },
+      data: {
+        erxesCustomerId: participant.driverId,
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
       isRPC: true,
       defaultValue: null
     });
@@ -33,7 +37,7 @@ const participantMutations = {
         subdomain: subdomain,
         action: 'sendMobileNotification',
         data: {
-          title: 'Баяр хүргэе',
+          title: 'Үнийн санал илгээсэн танд баярлалаа.',
           body: 'Таны үнийн саналыг амжилттай хүлээн авлаа!',
           deviceTokens: cpUser.deviceTokens
         }
@@ -107,10 +111,32 @@ const participantMutations = {
       driverId
     });
 
+    const failedDriverIds = await models.Participants.find({
+      dealId,
+      status: 'lose'
+    }).distinct('driverId');
+
+    const deal = await sendCardsMessage({
+      subdomain,
+      action: 'deals.findOne',
+      data: {
+        _id: dealId
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+
+    if (!deal) {
+      throw new Error('Deal not found');
+    }
+
     const cpUser = await sendClientPortalMessage({
       subdomain,
       action: 'clientPortalUsers.findOne',
-      data: { erxesCustomerId: driverId },
+      data: {
+        erxesCustomerId: driverId,
+        clientPortalId: process.env.MOBILE_CP_ID || ''
+      },
       isRPC: true,
       defaultValue: null
     });
@@ -121,10 +147,45 @@ const participantMutations = {
         action: 'sendMobileNotification',
         data: {
           title: 'Баяр хүргэе',
-          body: 'Таны илгээсэн үнийн санал баталгаажиж, та сонгогдлоо !',
+          body: `Таны илгээсэн үнийн санал баталгаажиж,  ${deal.name} дугаартай тээврийн ажилд та сонгогдлоо !`,
           deviceTokens: cpUser.deviceTokens
         }
       });
+    }
+
+    if (failedDriverIds && failedDriverIds.length > 0) {
+      const cpUsers = await sendClientPortalMessage({
+        subdomain,
+        action: 'clientPortalUsers.find',
+        data: {
+          erxesCustomerId: { $in: failedDriverIds },
+          clientPortalId: process.env.MOBILE_CP_ID || ''
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      if (cpUsers && cpUsers.length > 0) {
+        const deviceTokens = cpUsers.reduce((acc, cpUser) => {
+          if (cpUser.deviceTokens && cpUser.deviceTokens.length > 0) {
+            return [...acc, ...cpUser.deviceTokens];
+          }
+
+          return acc;
+        }, []);
+
+        if (deviceTokens.length > 0) {
+          sendCoreMessage({
+            subdomain: subdomain,
+            action: 'sendMobileNotification',
+            data: {
+              title: 'Үнийн санал илгээсэн танд баярлалаа.',
+              body: `${deal.name} дугаартай тээврийн ажилд өөр тээвэрчин сонгогдсон байна.`,
+              deviceTokens
+            }
+          });
+        }
+      }
     }
 
     return participant;
