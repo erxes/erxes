@@ -22,14 +22,14 @@ type Props = {
 };
 
 function displayValue(car, name, index) {
-  const value = _.get(car, name);
+  let value = _.get(car, name);
 
   if (name === 'primaryName') {
     return <FlexItem>{formatValue(car.primaryName)}</FlexItem>;
   }
 
   if (name === '#') {
-    return <TextInfo>{index.toString()}</TextInfo>;
+    value = index.toString();
   }
 
   if (name === 'drivers') {
@@ -50,6 +50,14 @@ function displayValue(car, name, index) {
           </li>
         ))
       : '-';
+  }
+
+  if (name === 'category') {
+    value = car.category ? car.category.name : '-';
+  }
+
+  if (name === 'parentCategory') {
+    value = car.parentCategory ? car.parentCategory.name : '-';
   }
 
   return formatValue(value);

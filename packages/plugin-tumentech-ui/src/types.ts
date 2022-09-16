@@ -234,6 +234,7 @@ export interface ICar extends ICarDoc {
   _id: string;
   owner: IUser;
   category?: ICarCategory;
+  parentCategory?: ICarCategory;
 }
 
 // mutation types

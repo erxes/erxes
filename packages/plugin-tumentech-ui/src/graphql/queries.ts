@@ -84,6 +84,10 @@ export const carFields = `
     ${carCategoryFields}
   }
 
+  parentCategory {
+    ${carCategoryFields}
+  }
+
   customers {
     _id
     firstName

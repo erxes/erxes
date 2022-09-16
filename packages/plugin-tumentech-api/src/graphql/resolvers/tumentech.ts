@@ -16,6 +16,18 @@ const Cars = {
     );
   },
 
+  async parentCategory(car: ICarDocument, _args, { models }: IContext) {
+    const category =
+      car.categoryId &&
+      (await models.CarCategories.findOne({ _id: car.categoryId }));
+
+    if (!category || !category.parentId) {
+      return null;
+    }
+
+    return models.CarCategories.findOne({ _id: category.parentId });
+  },
+
   async customers(car: ICarDocument, {}, { subdomain }: IContext) {
     const customerIds = await sendCoreMessage({
       subdomain,
