@@ -1,17 +1,39 @@
-interface Props {
-  data: any;
+import { Component } from 'react';
+import Modal from './common/Modal';
+
+type Props = {
+  datas: any[];
 }
 
-const App = (props: Props) => {
-
-  return (
-    <div className='App'>
-      <header className='App-header'>
-        <p>This is payments window</p>
-        <p>{`This is graphql result: ${JSON.stringify(props.data)}`}</p>
-      </header>
-    </div>
-  );
+type State = {
+  show: boolean;
 };
+class Dashboard extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
 
-export default App;
+    this.state = {
+      show: true
+    };
+  }
+
+  hideModal = () => {
+    this.setState({ show: false });
+  };
+
+  render() {
+
+    const { datas } = this.props;
+    const { show } = this.state;
+
+    console.log(datas);
+
+    return (
+      <div>
+        <Modal show={show} handleClose={this.hideModal} datas={datas} />
+      </div>
+    );
+  }
+}
+
+export default Dashboard;

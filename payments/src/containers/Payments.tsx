@@ -6,14 +6,21 @@ const configsQuery = gql`
     paymentConfigs {
       _id
       name
+      type
+      status
+      config
     }
   }
 `;
 
 function Container() {
-  const { data = {} as any } = useQuery(configsQuery);
+  const { data = {} as any, loading } = useQuery(configsQuery);
 
-  return <Payments data={data} />;
+  if (loading) {
+    return null;
+  }
+
+  return <Payments datas={data.paymentConfigs} />;
 }
 
 export default Container;

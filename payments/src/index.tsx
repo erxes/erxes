@@ -7,9 +7,11 @@ import PaymentsContainer from './containers/Payments';
 import reportWebVitals from './reportWebVitals';
 
 const client = new ApolloClient({
-  uri: `${process.env.REACT_APP_API_URL}/graphql`,
+  uri: process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/graphql` : 'http://localhost:3305/graphql',
   cache: new InMemoryCache(),
 });
+
+console.log("process.env.REACT_APP_API_URL: ", process.env.PORT);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
