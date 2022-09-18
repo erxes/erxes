@@ -24,125 +24,51 @@ const QpaySection = ({
   const [qrPaymentStatus, setQrPaymentStatus] = useState("CREATED");
   // const [type, setType] = useState("qpay");
 
-  const useCheckInvoice = () => {
+  const useCheckInvoiceQuery = () => {
 
     const checkInvoiceQuery = `query checkInvoice($paymentId: String!, $invoiceId: String!) {
       checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
     }`;
 
-    const { loading, data = {} as any } = useQuery(gql(checkInvoiceQuery), {
+    console.log(checkInvoiceQuery);
+
+    const { refetch } = useQuery(gql(checkInvoiceQuery), {
       variables: {
         invoiceId: qrInvoiceNo,
         paymentId: paymentConfigId
       }
     });
 
-    if (!loading && data) {
-      const checkInvoiceResponse = data.checkInvoice;
-      if (!data.error) {
-        setQrPaymentStatus(checkInvoiceResponse.invoice_status);
-      } else {
-        alert(data.error.amount.message);
-      }
-    }
+    return (
+      <div>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            refetch().then(response => {
+              const checkInvoiceResponse = response.data.checkInvoice;
+              if (!response.data.error) {
+                setQrPaymentStatus(checkInvoiceResponse.invoice_status);
+              } else {
+                alert(response.data.error.amount.message);
+              }
+            });
+          }}
+        >
+          <button type="submit">Check</button>
+        </form>
+      </div>
+    );
 
-  };
-
-  const useCreateQpay = () => {
-
-    const createInvoice = `mutation createInvoice($paymentId: String!, $amount: Float!, $description: String!) {
-      createInvoice(paymentId: $paymentId, amount: $amount, description: $description)
-    }`;
-
-    console.log(createInvoice);
-
-    setQr(""); setQrInvoiceNo("")
-
-    const [mutateFunction, { loading }] = useMutation(gql(createInvoice));
-
-    mutateFunction({
-      variables: {
-        paymentId: paymentConfigId,
-        amount,
-        description,
-        phone: '',
-        customerId: '',
-        companyId: ''
-      }
-    }).then((data) => {
-
-      console.log(data);
-      // const createInvoiceResponse = data.createInvoice;
-      // const invoice = createInvoiceResponse[0];
-
-      // if (!invoice.error) {
-      //   QRCode.toDataURL(invoice.response.qr_text).then(qrImage => {
-      //     setQr(qrImage);
-      //     setQrInvoiceNo(invoice.response.invoice_id);
-      //   });
-      // } else {
-      //   alert(invoice.error);
-      // }
-    });
-
-    // if (!loading && data) {
-    //   const createInvoiceResponse = data.createInvoice;
-    //   const invoice = createInvoiceResponse[0];
-
-    //   if (!invoice.error) {
-    //     QRCode.toDataURL(invoice.response.qr_text).then(qrImage => {
-    //       setQr(qrImage);
-    //       setQrInvoiceNo(invoice.response.invoice_id);
-    //     });
-    //   } else {
-    //     alert(invoice.error);
-    //   }
-    // }
-
-    // return (
-    //   <button
-    //     onClick={() => {
-    //       mutateFunction({
-    //         variables: {
-    //           input: {
-    //             paymentId: paymentConfigId,
-    //             amount,
-    //             description,
-    //             phone: '',
-    //             customerId: '',
-    //             companyId: ''
-    //           },
-    //         },
-    //         onCompleted(data) {
-    //           const createInvoiceResponse = data.createInvoice;
-    //           const invoice = createInvoiceResponse[0];
-
-    //           if (!invoice.error) {
-    //             QRCode.toDataURL(invoice.response.qr_text).then(qrImage => {
-    //               setQr(qrImage);
-    //               setQrInvoiceNo(invoice.response.invoice_id);
-    //             });
-    //           } else {
-    //             alert(invoice.error);
-    //           }
-    //         },
-    //       });
-    //     }}>
-    //     Create invoice
-    //   </button>
-    // )
   };
 
   const useCreateInvoiceMutation = () => {
     const createInvoice = `mutation createInvoice($paymentId: String!, $amount: Float!, $description: String!) {
       createInvoice(paymentId: $paymentId, amount: $amount, description: $description)
     }`;
-    const [addTodo, { data, loading, error }] = useMutation(gql(createInvoice));
+    const [addTodo, { loading, error }] = useMutation(gql(createInvoice));
 
     if (loading) { return 'Submitting...'; }
     if (error) { return `Submission error! ${error.message}`; }
-
-    console.log("dataaa:", data)
 
     return (
       <div>
@@ -159,8 +85,6 @@ const QpaySection = ({
                 companyId: ''
               }
             }).then(response => {
-
-              console.log(response.data)
 
               const createInvoiceResponse = response.data.createInvoice;
               const invoice = createInvoiceResponse[0];
@@ -195,7 +119,6 @@ const QpaySection = ({
 
   return (
     <>
-      {/* <input type="text" value={paymentConfigId} /> */}
       <div>
         <label>Description: </label>
         <input type="text"
@@ -214,22 +137,19 @@ const QpaySection = ({
       {useCreateInvoiceMutation()}
 
       {
-        qrInvoiceNo !== '' && (
-          <>
-            <img src={qr} alt="" width="150px" />
-            <label>
-              Status: {qrPaymentStatus}
-            </label>
-            <label>Qpay InvoiceNo</label>
-            <input type="text"
-              value={qrInvoiceNo}
-            />
-            <input type="button"
-              onClick={() => useCheckInvoice}
-              value="Check"
-            />
-          </>
-        )
+        // qrInvoiceNo !== '' && (
+        <>
+          <img src={qr} alt="" width="150px" />
+          <label>
+            Status: {qrPaymentStatus}
+          </label>
+          <label>Qpay InvoiceNo</label>
+          <input type="text"
+            value={qrInvoiceNo}
+          />
+          {useCheckInvoiceQuery()}
+        </>
+        // )
       }
     </>
   )
