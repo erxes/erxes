@@ -51,12 +51,13 @@ cube(`Customers`, {
     customField: {
       sql: `${CustomersCustomfieldsdata.customfieldsdataField}`,
       type: `string`,
-      shown: false
+      title: 'Fields Name'
     },
 
     customFieldValue: {
       sql: `${CustomersCustomfieldsdata.customfieldsdataStringvalue}`,
-      type: `string`
+      type: `string`,
+      title: 'Field Value'
     },
 
     state: {

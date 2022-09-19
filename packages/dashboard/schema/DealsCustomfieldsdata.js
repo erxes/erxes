@@ -1,7 +1,5 @@
-const { tableSchema } = require('../tablePrefix');
-
-cube(`CustomersCustomfieldsdata`, {
-  sql: `SELECT * FROM ${tableSchema()}.\`customers_customFieldsData\``,
+cube(`DealsCustomfieldsdata`, {
+  sql: `SELECT * FROM erxes.\`deals_customFieldsData\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -32,21 +30,21 @@ cube(`CustomersCustomfieldsdata`, {
     customfieldsdataField: {
       sql: `${Fields}.\`text\``,
       type: `string`,
-      title: `Fields`,
+      title: `Customfieldsdata.field`,
       shown: false
     },
 
     customfieldsdataStringvalue: {
       sql: `${CUBE}.\`customFieldsData.stringValue\``,
       type: `string`,
-      title: `String Value`,
+      title: `Customfieldsdata.stringvalue`,
       shown: false
     },
 
     customfieldsdataDatevalue: {
       sql: `${CUBE}.\`customFieldsData.dateValue\``,
       type: `time`,
-      title: `Date Value`,
+      title: `Customfieldsdata.datevalue`,
       shown: false
     }
   },
