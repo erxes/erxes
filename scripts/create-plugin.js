@@ -3,7 +3,6 @@ var { resolve } = require('path');
 var fs = require('fs-extra');
 var path = require('path');
 const execSync = require('child_process').exec;
-const configsPath = resolve(__dirname, '..', 'cli/configs.json');
 
 const filePath = pathName => {
   if (pathName) {
@@ -29,7 +28,7 @@ const replacer = (fullPath, name) => {
     .replace(/{name}/g, name)
     .replace(/{Name}/g, capitalizeFirstLetter(name));
 
-  fs.writeFileSync(fullPath, content);
+  fs.writeFile(fullPath, content);
 };
 
 const loopDirFiles = async (dir, name) => {
@@ -55,10 +54,10 @@ const loopDirFiles = async (dir, name) => {
   });
 };
 
-var createUi = async name => {
+var createUi = async (name, location) => {
   const newDir = filePath(`./packages/plugin-${name}-ui`);
   fs.copySync(filePath('./packages/ui-plugin-template'), newDir);
-  loopDirFiles(newDir, name);
+  addIntoUIConfigs(name, location, () => loopDirFiles(newDir, name));
 };
 
 var createApi = async name => {
@@ -67,7 +66,43 @@ var createApi = async name => {
   loopDirFiles(newDir, name);
 };
 
+const addIntoUIConfigs = (name, location, callback) => {
+  const menu =
+    location == 'mainNav'
+      ? {
+          text: '{Name}s',
+          url: '/{name}s',
+          icon: 'icon-star',
+          location: 'mainNavigation'
+        }
+      : {
+          text: '{Name}s',
+          to: '/{name}s',
+          image: '/images/icons/erxes-18.svg',
+          location: 'settings',
+          scope: '{name}'
+        };
+
+  const uiPath = filePath(`./packages/plugin-${name}-ui/src/configs.js`);
+  var ret = false;
+  fs.readFile(uiPath, (err, data) => {
+    if (err) {
+      console.error(`Could not read the file at directory: ${uiPath}`, err);
+      process.exit(1);
+    }
+    var updated = data
+      .toString()
+      .replace(/menus:.*\[.*\]/g, `menus:[${JSON.stringify(menu)}]`);
+    fs.writeFile(uiPath, updated, err2 => {
+      if (err2) console.error(err2);
+      callback();
+    });
+  });
+};
+
 const addIntoConfigs = async name => {
+  const configsPath = resolve(__dirname, '..', 'cli/configs.json');
+
   var newPlugin = {
     name: name,
     ui: 'local'
@@ -76,7 +111,7 @@ const addIntoConfigs = async name => {
   fs.readFile(configsPath, (err, data) => {
     if (err) {
       console.error(
-        `Could not read the configs file at directory: ${configsPath}`,
+        `Could not read the file at directory: ${configsPath}`,
         err
       );
       process.exit(1);
@@ -88,34 +123,38 @@ const addIntoConfigs = async name => {
 };
 
 const installUiDeps = name => {
-  return `cd  ../packages/plugin-${name}-ui && yarn install-deps`;
+  return `cd ` + filePath(`packages/plugin-${name}-ui && yarn install-deps`);
 };
 
 const installApiDeps = name => {
-  return `cd  ../packages/plugin-${name}-api && yarn install-deps`;
+  return `cd ` + filePath(`packages/plugin-${name}-api && yarn install-deps`);
 };
 
 const installDeps = name => {
   execSync(installUiDeps(name), (err, data) => {
     if (err) console.error(err);
     console.log(data);
-  });
-  execSync(installApiDeps(name), (err, data) => {
-    if (err) console.error(err);
-    console.log(data);
     console.log(`\nsuccessfully created plugin ${name}\n`);
   });
 
-  return true;
+  execSync(installApiDeps(name), (err, data) => {
+    if (err) console.error(err);
+    console.log(data);
+  });
 };
-
 const main = () => {
   rl.question('Please enter the plugin name: ', async name => {
-    createApi(name);
-    createUi(name);
-    addIntoConfigs(name);
-    installDeps(name, () => {});
-    rl.close();
+    if (!name) main();
+    rl.question(
+      'Where do you want to place the new plugin? (settings/mainNav) settings is default option:\n',
+      async location => {
+        createUi(name, location);
+        createApi(name);
+        addIntoConfigs(name);
+        installDeps(name);
+        rl.close();
+      }
+    );
   });
 };
 
