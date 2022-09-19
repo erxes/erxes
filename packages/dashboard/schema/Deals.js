@@ -19,6 +19,14 @@ cube(`Deals`, {
     DealsAssigneduser: {
       sql: `${CUBE}._id = ${DealsAssigneduser}._id`,
       relationship: `belongsTo`
+    },
+    Conformities: {
+      sql: `${CUBE}._id = ${Conformities}.relTypeId or ${CUBE}._id = ${Conformities}.mainTypeId `,
+      relationship: `belongsTo`
+    },
+    DealsCustomfieldsdata: {
+      sql: `${CUBE}._id = ${DealsCustomfieldsdata}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -46,6 +54,12 @@ cube(`Deals`, {
       type: `string`
     },
 
+    reltypecustomer: {
+      sql: `${Conformities.reltypecustomer}`,
+      type: `string`,
+      title: 'Rel-Type Customer'
+    },
+
     stageName: {
       sql: `${Stages}.name`,
       type: `string`,
@@ -69,6 +83,18 @@ cube(`Deals`, {
       sql: `${Stages.pipelineName}`,
       type: `string`,
       title: `Pipeline Name`
+    },
+
+    dealCustomField: {
+      sql: `${DealsCustomfieldsdata.customfieldsdataField}`,
+      type: `string`,
+      title: 'Fields Name'
+    },
+
+    dealCustomFieldValue: {
+      sql: `${DealsCustomfieldsdata.customfieldsdataStringvalue}`,
+      type: `string`,
+      title: 'Field Value'
     },
 
     stageid: {

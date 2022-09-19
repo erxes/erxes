@@ -29,7 +29,8 @@
     "migrateFieldsGroups": "node_modules/.bin/ts-node src/commands/migrateFieldsGroups.ts",
     "migrateApps": "node_modules/.bin/ts-node src/commands/migrateApps.ts",
     "migrateDirections": "node_modules/.bin/ts-node src/commands/migrateDirections.ts",
-    "migrateRoutes": "node_modules/.bin/ts-node src/commands/migrateRoutes.ts"
+    "migrateRoutes": "node_modules/.bin/ts-node src/commands/migrateRoutes.ts",
+    "migrateFields": "node_modules/.bin/ts-node src/commands/migrateFields.ts"
   },
   "dependencies": {
     "apollo-datasource-rest": "^0.5.1",
