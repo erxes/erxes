@@ -7,6 +7,7 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import React from 'react';
 import { Sidebar, Wrapper } from '@erxes/ui/src/layout';
 import { __, router } from '@erxes/ui/src/utils';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 const { Section } = Wrapper.Sidebar;
 
@@ -21,6 +22,7 @@ interface State {
   stageId: string;
   stageChangedStartDate: Date;
   stageChangedEndDate: Date;
+  userId: string;
 }
 
 class CheckerSidebar extends React.Component<IProps, State> {
@@ -29,6 +31,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
 
     const { queryParams } = this.props;
     this.state = {
+      userId: queryParams.userId,
       boardId: queryParams.boardId,
       pipelineId: queryParams.pipelineId,
       stageId: queryParams.stageId,
@@ -55,6 +58,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       boardId,
       pipelineId,
       stageId,
+      userId,
       stageChangedStartDate,
       stageChangedEndDate
     } = this.state;
@@ -64,6 +68,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
       boardId,
       pipelineId,
       stageId,
+      userId,
       stageChangedStartDate,
       stageChangedEndDate
     });
@@ -116,7 +121,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
   }
 
   render() {
-    const { boardId, pipelineId, stageId } = this.state;
+    const { boardId, pipelineId, stageId, userId } = this.state;
 
     const onChangeBoard = (boardId: string) => {
       this.setState({ boardId });
@@ -128,6 +133,10 @@ class CheckerSidebar extends React.Component<IProps, State> {
 
     const onChangeStage = (stageId: string) => {
       this.setState({ stageId });
+    };
+
+    const onUserChange = userId => {
+      this.setState({ userId });
     };
 
     return (
@@ -147,6 +156,16 @@ class CheckerSidebar extends React.Component<IProps, State> {
                 onChangeBoard={onChangeBoard}
                 onChangePipeline={onChangePipeline}
                 onChangeStage={onChangeStage}
+              />
+            </FormGroup>
+            <FormGroup>
+              <ControlLabel>Assigned</ControlLabel>
+              <SelectTeamMembers
+                label="Choose users"
+                name="userId"
+                initialValue={userId || ''}
+                onSelect={onUserChange}
+                multi={false}
               />
             </FormGroup>
 

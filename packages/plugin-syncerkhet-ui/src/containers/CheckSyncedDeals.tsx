@@ -138,6 +138,7 @@ const generateParams = ({ queryParams }) => {
     stageId: queryParams.stageId,
     stageChangedStartDate: queryParams.stageChangedStartDate,
     stageChangedEndDate: queryParams.stageChangedEndDate,
+    assignedUserIds: [queryParams.userId],
     sortField: queryParams.sortField,
     sortDirection: Number(queryParams.sortDirection) || undefined
   };
