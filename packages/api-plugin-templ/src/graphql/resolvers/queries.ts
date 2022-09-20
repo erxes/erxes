@@ -11,16 +11,13 @@ const templateQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
-    console.log(typeId);
     if (typeId) {
       selector.typeId = typeId;
     }
 
     if (searchValue) {
-      console.log('asdasd', searchValue);
       selector.name = new RegExp(`.*${searchValue}.*`, 'i');
     }
-    console.log({name}Ids);
     if ({name}Ids) {
       selector._id = { $in: {name}Ids };
     }

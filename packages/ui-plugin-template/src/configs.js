@@ -10,13 +10,5 @@ module.exports = {
     scope: '{name}',
     module: './routes'
   },
-  menus: [
-    {
-      text: '{Name}s',
-      to: '/{name}s',
-      image: '/images/icons/erxes-18.svg',
-      location: 'settings',
-      scope: '{name}'
-    }
-  ]
+  menus: []
 };
