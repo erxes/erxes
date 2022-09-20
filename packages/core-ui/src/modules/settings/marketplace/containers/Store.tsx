@@ -30,6 +30,10 @@ class StoreContainer extends React.Component<Props, State> {
   }
 
   render() {
+    if (!this.state.plugins || this.state.plugins.length === 0) {
+      return null;
+    }
+
     return <Store plugins={this.state.plugins} />;
   }
 }

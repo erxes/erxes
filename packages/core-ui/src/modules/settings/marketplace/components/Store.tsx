@@ -12,6 +12,7 @@ import {
 import EmptyState from 'modules/common/components/EmptyState';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
 import { FormControl } from 'modules/common/components/form';
+import Icon from 'modules/common/components/Icon';
 import PluginBox from './PluginBox';
 import React from 'react';
 import ServiceBox from './ServiceBox';
@@ -26,6 +27,7 @@ type State = {
   status: string;
   searchValue: string;
   plugins: any;
+  selectedCategories: any[];
 };
 
 class Store extends React.Component<Props, State> {
@@ -35,12 +37,13 @@ class Store extends React.Component<Props, State> {
     this.state = {
       plugins: props.plugins || [],
       status: 'All',
-      searchValue: ''
+      searchValue: '',
+      selectedCategories: []
     };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { searchValue } = this.state;
+    const { searchValue, selectedCategories } = this.state;
 
     if (prevState.searchValue !== searchValue) {
       this.setState({
@@ -49,15 +52,56 @@ class Store extends React.Component<Props, State> {
         )
       });
     }
+
+    if (prevState.selectedCategories !== selectedCategories) {
+      return this.onFilterByCategories();
+    }
   }
 
   onSearch = e => {
     this.setState({ searchValue: e.target.value.toLowerCase() });
   };
 
-  handleCategory = (status: string) => {
+  handleStatus = (status: string) => {
     this.setState({ status });
   };
+
+  handleCategory = (cat: any) => {
+    const { selectedCategories } = this.state;
+
+    let datas = [] as any;
+
+    if (selectedCategories.includes(cat)) {
+      datas = selectedCategories.filter(val => val !== cat);
+    } else {
+      datas.push(...selectedCategories, cat);
+    }
+
+    this.setState({
+      selectedCategories: datas
+    });
+  };
+
+  onFilterByCategories() {
+    const { selectedCategories } = this.state;
+    let plugins = [];
+
+    plugins = this.props.plugins.filter(plugin => {
+      const categories = plugin.categories.filter(cat =>
+        selectedCategories.includes(cat)
+      );
+
+      if (categories.length === 0 && selectedCategories.length !== 0) {
+        return null;
+      }
+
+      return categories;
+    });
+
+    this.setState({
+      plugins
+    });
+  }
 
   renderPlugins(hasAddon?: boolean) {
     const { plugins } = this.state;
@@ -108,9 +152,30 @@ class Store extends React.Component<Props, State> {
     ));
   }
 
+  renderCategories(cat: any, index: number) {
+    const isActive = this.state.selectedCategories.includes(
+      cat.value.toLowerCase()
+    );
+
+    return (
+      <Tag
+        key={index}
+        onClick={() => this.handleCategory(cat.value.toLowerCase())}
+        isActive={isActive}
+      >
+        {cat.value}
+        {isActive && (
+          <Icon
+            icon="cancel-1"
+            size={11}
+            onClick={() => this.handleCategory(cat.value.toLowerCase())}
+          />
+        )}
+      </Tag>
+    );
+  }
+
   renderContent() {
-    const { plugins = [] } = this.state;
-    console.log(plugins);
     return (
       <Container>
         <FlexRow>
@@ -121,7 +186,7 @@ class Store extends React.Component<Props, State> {
                 key={status.value}
                 componentClass="radio"
                 onChange={() => {
-                  this.handleCategory(status.value);
+                  this.handleStatus(status.value);
                 }}
                 checked={status.value === this.state.status}
               >
@@ -138,11 +203,9 @@ class Store extends React.Component<Props, State> {
           </FilterContainer>
         </FlexRow>
 
-        <FilterContainer>
+        <FilterContainer noPadding={true}>
           <Labels>
-            {CATEGORIES.map((cat, index) => (
-              <Tag key={index}>{cat.value}</Tag>
-            ))}
+            {CATEGORIES.map((cat, index) => this.renderCategories(cat, index))}
           </Labels>
         </FilterContainer>
 

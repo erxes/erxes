@@ -232,12 +232,15 @@ export const PluginContent = styled.div`
   }
 `;
 
-export const FilterContainer = styledTS<{ width?: number }>(styled.div)`
-  padding: 8px;
+export const FilterContainer = styledTS<{
+  width?: number;
+  noPadding?: boolean;
+}>(styled.div)`
+  padding: ${props => !props.noPadding && '8px'};
   border-radius: ${dimensions.unitSpacing - 2}px;
   border: 1px solid ${colors.borderPrimary};
   flex: ${props => !props.width && 1};
-  overflow-y: auto;
+  position: relative;
   width: ${props => props.width && `${props.width}px`};
   margin: 0 ${dimensions.coreSpacing}px ${dimensions.coreSpacing}px 0;
 
@@ -250,22 +253,27 @@ export const FilterContainer = styledTS<{ width?: number }>(styled.div)`
     outline: 0;
     width: 100%;
   }
+`;
+
+export const Labels = styledTS<{ filteredCategories?: boolean }>(styled.div)`
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 8px;
+  overflow-y: auto;
 
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
-export const Labels = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-export const Tag = styled.span`
-  background: ${colors.bgLight};
+export const Tag = styledTS<{ isActive?: boolean }>(styled.span)`
+  background: ${props =>
+    props.isActive ? colors.colorSecondary : colors.bgLight};
   padding: 5px ${dimensions.unitSpacing}px;
   border-radius: 6px;
-  color: rgba(0, 0, 0, 0.62);
+  color: ${props =>
+    props.isActive ? colors.colorWhite : 'rgba(0, 0, 0, 0.62)'};
   font-weight: 700;
   cursor: pointer;
   font-size: 12px;
@@ -273,8 +281,13 @@ export const Tag = styled.span`
   margin-right: ${dimensions.unitSpacing}px;
   transition: all ease 0.3s;
 
+  > i {
+    margin-left: 5px;
+    cursor: pointer;
+  }
+
   &:hover {
-    background: ${colors.colorSecondary};
+    background: ${rgba(colors.colorSecondary, 0.8)};
     color: ${colors.colorWhite};
   }
 `;
