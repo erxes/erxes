@@ -11,6 +11,7 @@ import {
 } from './styles';
 
 import Icon from 'modules/common/components/Icon';
+import { Link } from 'react-router-dom';
 import React from 'react';
 import { __ } from 'modules/common/utils';
 
@@ -77,29 +78,31 @@ class PluginBox extends React.Component<Props, {}> {
 
     return (
       <ItemBox>
-        <PluginContent>
-          <PluginBoxHeader>
-            <img
-              src={plugin.image || '/images/no-plugin.png'}
-              alt={plugin.title}
+        <Link to={`installer/details/${plugin._id}`}>
+          <PluginContent>
+            <PluginBoxHeader>
+              <img
+                src={plugin.image || '/images/no-plugin.png'}
+                alt={plugin.title}
+              />
+              {this.renderPrice(plugin.price)}
+            </PluginBoxHeader>
+            <h5>{__(plugin.title)}</h5>
+            <div
+              className="short-desc"
+              dangerouslySetInnerHTML={{
+                __html: plugin.shortDescription
+              }}
             />
-            {this.renderPrice(plugin.price)}
-          </PluginBoxHeader>
-          <h5>{__(plugin.title)}</h5>
-          <div
-            className="short-desc"
-            dangerouslySetInnerHTML={{
-              __html: plugin.shortDescription
-            }}
-          />
-        </PluginContent>
-        <PluginBoxFooter>
-          <div>{this.renderFooterLeftItems()}</div>
+          </PluginContent>
+          <PluginBoxFooter>
+            <div>{this.renderFooterLeftItems()}</div>
 
-          <MoreBtn>
-            <Icon icon="arrow-right" size={20} />
-          </MoreBtn>
-        </PluginBoxFooter>
+            <MoreBtn>
+              <Icon icon="arrow-right" size={20} />
+            </MoreBtn>
+          </PluginBoxFooter>
+        </Link>
       </ItemBox>
     );
   }
