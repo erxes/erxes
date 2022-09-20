@@ -105,7 +105,7 @@ class Pages extends React.Component<Props, State> {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No Entries"
+          text="No Pages"
           size="small"
         />
       );
