@@ -1,6 +1,7 @@
 import { CATEGORIES, STATUS_TYPES } from '../constants';
 import {
   Container,
+  EmptyContent,
   FilterContainer,
   FlexWrapContainer,
   Labels,
@@ -8,6 +9,7 @@ import {
   Tag
 } from './styles';
 
+import EmptyState from 'modules/common/components/EmptyState';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
 import { FormControl } from 'modules/common/components/form';
 import PluginBox from './PluginBox';
@@ -22,6 +24,8 @@ type Props = {
 
 type State = {
   status: string;
+  searchValue: string;
+  plugins: any;
 };
 
 class Store extends React.Component<Props, State> {
@@ -29,16 +33,83 @@ class Store extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      status: 'All'
+      plugins: props.plugins || [],
+      status: 'All',
+      searchValue: ''
     };
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { searchValue } = this.state;
+
+    if (prevState.searchValue !== searchValue) {
+      this.setState({
+        plugins: this.props.plugins.filter(
+          plugin => plugin.title.toLowerCase().indexOf(searchValue) !== -1
+        )
+      });
+    }
+  }
+
+  onSearch = e => {
+    this.setState({ searchValue: e.target.value.toLowerCase() });
+  };
 
   handleCategory = (status: string) => {
     this.setState({ status });
   };
 
+  renderPlugins(hasAddon?: boolean) {
+    const { plugins } = this.state;
+    const isAddon = hasAddon ? true : false;
+
+    if (!plugins || plugins.length === 0) {
+      return (
+        <EmptyContent>
+          <EmptyState
+            text={__(
+              `Sorry, We don't have any suitable ${
+                isAddon ? 'add-ons' : 'plugins'
+              } at the moment`
+            )}
+            image={`/images/actions/${isAddon ? 5 : 30}.svg`}
+          />
+        </EmptyContent>
+      );
+    }
+
+    return plugins.map((plugin, index) => {
+      if ((isAddon ? !plugin.isAddon : plugin.isAddon) || plugin.isService) {
+        return null;
+      }
+
+      return <PluginBox key={index} plugin={plugin} isAddon={isAddon} />;
+    });
+  }
+
+  renderServices() {
+    const { plugins = [] } = this.state;
+
+    if (!plugins || plugins.length === 0) {
+      return (
+        <EmptyContent>
+          <EmptyState
+            text={__(
+              `Sorry, We don't have any suitable services at the moment`
+            )}
+            image={`/images/actions/25.svg`}
+          />
+        </EmptyContent>
+      );
+    }
+
+    return plugins.map((service, index) => (
+      <ServiceBox key={index} service={service} />
+    ));
+  }
+
   renderContent() {
-    const { plugins = [] } = this.props;
+    const { plugins = [] } = this.state;
     console.log(plugins);
     return (
       <Container>
@@ -60,11 +131,9 @@ class Store extends React.Component<Props, State> {
           </FilterContainer>
           <FilterContainer>
             <input
-              placeholder={__('Search results')}
-              // value={searchValue}
-              // autoFocus={true}
-              // onKeyUp={onSearch}
-              // onChange={this.handleInput}
+              placeholder={__('Type to search for an results') + '...'}
+              type="text"
+              onChange={this.onSearch}
             />
           </FilterContainer>
         </FlexRow>
@@ -84,25 +153,13 @@ class Store extends React.Component<Props, State> {
               'Upgrade your plan with these premium services for expert help and guidance'
             )}
           </p>
-          <FlexWrapContainer>
-            {plugins.map((service, index) => (
-              <ServiceBox key={index} service={service} />
-            ))}
-          </FlexWrapContainer>
+          <FlexWrapContainer>{this.renderServices()}</FlexWrapContainer>
         </StoreBlock>
 
         <StoreBlock>
           <h4>{__('Plugins')}</h4>
           <p>{__('Customize and enhance your plugins limits')}</p>
-          <FlexWrapContainer>
-            {plugins.map((plugin, index) => {
-              if (plugin.isAddon || plugin.isService) {
-                return null;
-              }
-
-              return <PluginBox key={index} plugin={plugin} />;
-            })}
-          </FlexWrapContainer>
+          <FlexWrapContainer>{this.renderPlugins()}</FlexWrapContainer>
         </StoreBlock>
 
         <StoreBlock>
@@ -112,15 +169,7 @@ class Store extends React.Component<Props, State> {
               'Increase the limits of individual plug-ins depending on your use'
             )}
           </p>
-          <FlexWrapContainer>
-            {plugins.map((plugin, index) => {
-              if (!plugin.isAddon || plugin.isService) {
-                return null;
-              }
-
-              return <PluginBox key={index} plugin={plugin} isAddon={true} />;
-            })}
-          </FlexWrapContainer>
+          <FlexWrapContainer>{this.renderPlugins(true)}</FlexWrapContainer>
         </StoreBlock>
       </Container>
     );

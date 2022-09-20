@@ -372,3 +372,11 @@ export const StoreBlock = styled.div`
     margin: ${dimensions.unitSpacing}px 0;
   }
 `;
+
+export const EmptyContent = styled.div`
+  border: 1px solid ${colors.borderPrimary};
+  border-radius: 8px;
+  padding: ${dimensions.coreSpacing}px;
+  flex: 1;
+  margin-right: ${dimensions.coreSpacing}px;
+`;

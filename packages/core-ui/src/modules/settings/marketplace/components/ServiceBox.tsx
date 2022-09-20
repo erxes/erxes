@@ -28,7 +28,7 @@ class ServiceBox extends React.Component<Props, {}> {
     if (!service || !service.selfHosted) {
       return null;
     }
-    console.log('services:', service);
+
     const { price, description, title } = service || {};
 
     return (
