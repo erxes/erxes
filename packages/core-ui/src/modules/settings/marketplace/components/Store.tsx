@@ -1,9 +1,10 @@
-import { CATEGORIES, OS_SERVICES, STATUS_TYPES } from '../constants';
+import { CATEGORIES, STATUS_TYPES } from '../constants';
 import {
   Container,
   FilterContainer,
   FlexWrapContainer,
   Labels,
+  StoreBlock,
   Tag
 } from './styles';
 
@@ -76,39 +77,67 @@ class Store extends React.Component<Props, State> {
           </Labels>
         </FilterContainer>
 
-        <h4>{__('Services')}</h4>
-        <p>
-          {__(
-            'Upgrade your plan with these premium services for expert help and guidance'
-          )}
-        </p>
-        <FlexWrapContainer>
-          {OS_SERVICES.map((service, index) => (
-            <ServiceBox key={index} service={service} />
-          ))}
-        </FlexWrapContainer>
+        <StoreBlock>
+          <h4>{__('Services')}</h4>
+          <p>
+            {__(
+              'Upgrade your plan with these premium services for expert help and guidance'
+            )}
+          </p>
+          <FlexWrapContainer>
+            {plugins.map((service, index) => (
+              <ServiceBox key={index} service={service} />
+            ))}
+          </FlexWrapContainer>
+        </StoreBlock>
 
-        <h4>{__('Plugins')}</h4>
-        <p>{__('Customize and enhance your plugins limits')}</p>
-        <FlexWrapContainer>
-          {plugins.map((plugin, index) => (
-            <PluginBox key={index} plugin={plugin} />
-          ))}
-        </FlexWrapContainer>
+        <StoreBlock>
+          <h4>{__('Plugins')}</h4>
+          <p>{__('Customize and enhance your plugins limits')}</p>
+          <FlexWrapContainer>
+            {plugins.map((plugin, index) => {
+              if (plugin.isAddon || plugin.isService) {
+                return null;
+              }
 
-        <h4>{__('Add-ons')}</h4>
-        <p>
-          {__(
-            'Increase the limits of individual plug-ins depending on your use'
-          )}
-        </p>
-        <PluginBox />
+              return <PluginBox key={index} plugin={plugin} />;
+            })}
+          </FlexWrapContainer>
+        </StoreBlock>
+
+        <StoreBlock>
+          <h4>{__('Add-ons')}</h4>
+          <p>
+            {__(
+              'Increase the limits of individual plug-ins depending on your use'
+            )}
+          </p>
+          <FlexWrapContainer>
+            {plugins.map((plugin, index) => {
+              if (!plugin.isAddon || plugin.isService) {
+                return null;
+              }
+
+              return <PluginBox key={index} plugin={plugin} isAddon={true} />;
+            })}
+          </FlexWrapContainer>
+        </StoreBlock>
       </Container>
     );
   }
 
   render() {
-    return <Wrapper content={this.renderContent()} />;
+    return (
+      <Wrapper
+        header={
+          <Wrapper.Header
+            title={__('Store')}
+            breadcrumb={[{ title: __('Store') }]}
+          />
+        }
+        content={this.renderContent()}
+      />
+    );
   }
 }
 

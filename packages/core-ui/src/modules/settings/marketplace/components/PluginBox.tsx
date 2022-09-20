@@ -22,12 +22,12 @@ type Props = {
 class PluginBox extends React.Component<Props, {}> {
   renderPrice(price) {
     if (!price) {
-      return null;
+      return <b>{__('Free')}</b>;
     }
 
     return (
       <PerPrice>
-        <h2>$20</h2>
+        <h2>${price.monthly || 20}</h2>
         <span>{__('per month')}</span>
       </PerPrice>
     );
@@ -43,7 +43,9 @@ class PluginBox extends React.Component<Props, {}> {
   }
 
   renderFooterLeftItems() {
-    if (this.props.isAddon) {
+    const { isAddon } = this.props;
+
+    if (isAddon) {
       return (
         <AddOns>
           <span>{__('Works with')}</span>

@@ -24,16 +24,21 @@ class ServiceBox extends React.Component<Props, {}> {
 
   render() {
     const { service } = this.props;
-    const { price, description, name } = service || {};
+
+    if (!service || !service.selfHosted) {
+      return null;
+    }
+    console.log('services:', service);
+    const { price, description, title } = service || {};
 
     return (
       <Service>
         <div>
           <Price>
-            ${price}
+            ${price.oneTime || price.monthly}
             <span>{__('Per month')}</span>
           </Price>
-          <h5>{name}</h5>
+          <h5>{title}</h5>
           <p>
             {description} <br />
             {/* {this.renderSubService(type)} */}

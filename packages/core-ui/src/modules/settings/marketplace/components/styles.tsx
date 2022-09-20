@@ -7,17 +7,6 @@ import styledTS from 'styled-components-ts';
 export const Container = styled.div`
   padding: ${dimensions.unitSpacing}px 0 ${dimensions.unitSpacing}px
     ${dimensions.coreSpacing}px;
-
-  > h4 {
-    margin: 0;
-    font-size: ${dimensions.coreSpacing}px;
-  }
-
-  > p {
-    color: ${colors.colorCoreGray};
-    font-size: 14px;
-    margin: ${dimensions.unitSpacing}px 0;
-  }
 `;
 
 export const FlexWrapContainer = styled.div`
@@ -366,5 +355,20 @@ export const Addon = styled.div`
     max-width: 20px;
     max-height: 20px;
     margin-right: 5px;
+  }
+`;
+
+export const StoreBlock = styled.div`
+  margin-bottom: ${dimensions.coreSpacing}px;
+
+  > h4 {
+    margin: 0;
+    font-size: ${dimensions.coreSpacing}px;
+  }
+
+  > p {
+    color: ${colors.colorCoreGray};
+    font-size: 14px;
+    margin: ${dimensions.unitSpacing}px 0;
   }
 `;
