@@ -21,7 +21,7 @@ const fieldCommonFields = `
   isDefinedByErxes: Boolean
 `;
 
-export const fieldsTypes = ({ products, riskAssessment }) => `
+export const fieldsTypes = ({ products }) => `
   ${
     products
       ? `
@@ -86,13 +86,7 @@ export const fieldsTypes = ({ products, riskAssessment }) => `
     logics: [Logic]
     locationOptions: [LocationOption]
     objectListConfigs: [ObjectListConfig]
-    ${
-      riskAssessment
-        ? `
-        optionsValues:[OptionsValuesType]
-      `
-        : ''
-    }
+    optionsValues:[OptionsValuesType]
 
     ${
       products
@@ -127,13 +121,7 @@ export const fieldsTypes = ({ products, riskAssessment }) => `
     logics: [LogicInput]
     locationOptions: [LocationOptionInput]
     objectListConfigs: [objectListConfigInput]
-    ${
-      riskAssessment
-        ? `
-      optionsValues:[ObjectOptions]
-      `
-        : ''
-    }
+    optionsValues:[ObjectOptions]
     value: String
     ${fieldCommonFields}
   }
