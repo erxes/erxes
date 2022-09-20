@@ -7,7 +7,7 @@ import * as readline from 'readline';
 import { Writable } from 'stream';
 import { createAWS, getS3FileInfo, uploadsFolderPath } from '../../data/utils';
 
-import CustomWorker from './workerUtil';
+import CustomWorker from '../workerUtil';
 import { debugWorkers } from '../debugger';
 import { getFileUploadConfigs, initBroker } from '../../messageBroker';
 import { redis } from '../../serviceDiscovery';
@@ -202,10 +202,10 @@ const importBulkStream = ({
 
 const getWorkerFile = fileName => {
   if (process.env.NODE_ENV !== 'production') {
-    return `./src/worker/${fileName}.worker.import.js`;
+    return `./src/worker/import/${fileName}.worker.import.js`;
   }
 
-  return `./dist/workers/src/worker/${fileName}.worker.import.js`;
+  return `./dist/workers/src/worker/import/${fileName}.worker.import.js`;
 };
 
 export const clearEmptyValues = (obj: any) => {

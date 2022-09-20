@@ -2,6 +2,12 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IExportHistory {
+  // success: number;
+  // failed: number;
+  // updated: number;
+  // total: number;
+  // status?: string;
+  // percentage?: number;
   contentType: string;
   columnsConfig: string[];
   segmentId: string;

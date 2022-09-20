@@ -1,46 +1,8 @@
-import { receiveImportRemove } from '../../../worker/importHistory/utils';
+import { receiveImportRemove } from '../../../worker/import/utils';
 import { IContext } from '../../../connectionResolvers';
 import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
-
-// const importer = async (
-//   contentTypes,
-//   files,
-//   columnsConfig,
-//   importHistoryId,
-//   associatedContentType,
-//   associatedField,
-//   user,
-//   models,
-//   subdomain,
-//   scopeBrandIds
-// ) => {
-//   try {
-//     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
-
-//     await receiveImportCreate(
-//       {
-//         action: 'createImport',
-//         contentTypes,
-//         files,
-//         uploadType: UPLOAD_SERVICE_TYPE,
-//         columnsConfig,
-//         user,
-//         importHistoryId,
-//         associatedContentType,
-//         associatedField,
-//         scopeBrandIds
-//       },
-//       models,
-//       subdomain
-//     );
-//   } catch (e) {
-//     return models.ImportHistory.updateOne(
-//       { _id: 'importHistoryId' },
-//       { error: e.message }
-//     );
-//   }
-// };
+import { receiveExportCreate } from '../../../worker/export/utils';
 
 const exportHistoryMutations = {
   /**
@@ -89,7 +51,7 @@ const exportHistoryMutations = {
       columnsConfig: any;
       segmentId: string;
     },
-    { models }: IContext
+    { models, subdomain }: IContext
   ) {
     const exportHistory = await models.ExportHistory.createHistory({
       contentType,
@@ -97,7 +59,24 @@ const exportHistoryMutations = {
       segmentId
     });
 
-    return exportHistory;
+    try {
+      await receiveExportCreate(
+        {
+          contentType,
+          columnsConfig,
+          exportHistoryId: exportHistory._id
+        },
+        models,
+        subdomain
+      );
+    } catch (e) {
+      return models.ExportHistory.updateOne(
+        { _id: 'exportHistoryId' },
+        { error: e.message }
+      );
+    }
+
+    return 'success';
   }
 };
 

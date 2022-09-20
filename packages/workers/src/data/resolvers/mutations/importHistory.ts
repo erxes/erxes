@@ -1,49 +1,10 @@
 import {
   receiveImportCreate,
   receiveImportRemove
-} from '../../../worker/importHistory/utils';
+} from '../../../worker/import/utils';
 import { IContext } from '../../../connectionResolvers';
 import messageBroker, { getFileUploadConfigs } from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
-
-const importer = async (
-  contentTypes,
-  files,
-  columnsConfig,
-  importHistoryId,
-  associatedContentType,
-  associatedField,
-  user,
-  models,
-  subdomain,
-  scopeBrandIds
-) => {
-  try {
-    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
-
-    await receiveImportCreate(
-      {
-        action: 'createImport',
-        contentTypes,
-        files,
-        uploadType: UPLOAD_SERVICE_TYPE,
-        columnsConfig,
-        user,
-        importHistoryId,
-        associatedContentType,
-        associatedField,
-        scopeBrandIds
-      },
-      models,
-      subdomain
-    );
-  } catch (e) {
-    return models.ImportHistory.updateOne(
-      { _id: 'importHistoryId' },
-      { error: e.message }
-    );
-  }
-};
 
 const importHistoryMutations = {
   /**
@@ -113,18 +74,31 @@ const importHistoryMutations = {
       user
     );
 
-    importer(
-      contentTypes,
-      files,
-      columnsConfig,
-      importHistory._id,
-      associatedContentType,
-      associatedField,
-      user,
-      models,
-      subdomain,
-      scopeBrandIds
-    );
+    try {
+      const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+      await receiveImportCreate(
+        {
+          action: 'createImport',
+          contentTypes,
+          files,
+          uploadType: UPLOAD_SERVICE_TYPE,
+          columnsConfig,
+          user,
+          importHistoryId: importHistory._id,
+          associatedContentType,
+          associatedField,
+          scopeBrandIds
+        },
+        models,
+        subdomain
+      );
+    } catch (e) {
+      return models.ImportHistory.updateOne(
+        { _id: 'importHistoryId' },
+        { error: e.message }
+      );
+    }
 
     return 'success';
   }
