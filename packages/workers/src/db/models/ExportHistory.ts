@@ -8,10 +8,7 @@ import {
 
 export interface IExportHistoryModel extends Model<IExportHistoryDocument> {
   getExportHistory(_id: string): Promise<IExportHistoryDocument>;
-  createHistory(
-    doc: IExportHistory,
-    user: any
-  ): Promise<IExportHistoryDocument>;
+  createHistory(doc: IExportHistory): Promise<IExportHistoryDocument>;
   removeHistory(_id: string): Promise<string>;
 }
 
@@ -33,9 +30,8 @@ export const loadExportHistoryClass = (models: IModels) => {
     /*
      * Create new history
      */
-    public static async createHistory(doc: IExportHistory, user: any) {
+    public static async createHistory(doc: IExportHistory) {
       return models.ExportHistory.create({
-        userId: user._id,
         date: new Date(),
         ...doc
       });

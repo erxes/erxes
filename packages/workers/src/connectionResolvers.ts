@@ -7,7 +7,10 @@ import {
   IImportHistoryModel,
   loadImportHistoryClass
 } from './db/models/ImportHistory';
-import { IExportHistoryModel } from './db/models/ExportHistory';
+import {
+  IExportHistoryModel,
+  loadExportHistoryClass
+} from './db/models/ExportHistory';
 
 export interface IModels {
   ImportHistory: IImportHistoryModel;
@@ -33,7 +36,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.ExportHistory = db.model<IExportHistoryDocument, IExportHistoryModel>(
     'export_history',
-    loadImportHistoryClass(models)
+    loadExportHistoryClass(models)
   );
 
   return models;

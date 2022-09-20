@@ -36,5 +36,5 @@ export const queries = `
 export const mutations = `
   exportHistoriesRemove(_id: String!, contentType: String!): JSON
   exportHistoriesCancel(_id: String!): Boolean
-  exportHistoriesCreate(contentTypes: [JSON], files: JSON, columnsConfig: JSON, importName: String, associatedContentType: String, associatedField: String): JSON
+  exportHistoriesCreate(contentType: String!, columnsConfig: JSON, segmentId: String): JSON
 `;

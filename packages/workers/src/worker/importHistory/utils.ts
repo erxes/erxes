@@ -5,13 +5,13 @@ import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
-import { createAWS, getS3FileInfo, uploadsFolderPath } from '../data/utils';
+import { createAWS, getS3FileInfo, uploadsFolderPath } from '../../data/utils';
 
 import CustomWorker from './workerUtil';
-import { debugWorkers } from './debugger';
-import { getFileUploadConfigs, initBroker } from '../messageBroker';
-import { redis } from '../serviceDiscovery';
-import { IModels } from '../connectionResolvers';
+import { debugWorkers } from '../debugger';
+import { getFileUploadConfigs, initBroker } from '../../messageBroker';
+import { redis } from '../../serviceDiscovery';
+import { IModels } from '../../connectionResolvers';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
 const WORKER_BULK_LIMIT = 300;

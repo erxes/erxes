@@ -1,51 +1,48 @@
-import {
-  receiveImportCreate,
-  receiveImportRemove
-} from '../../../worker/utils';
+import { receiveImportRemove } from '../../../worker/importHistory/utils';
 import { IContext } from '../../../connectionResolvers';
-import messageBroker, { getFileUploadConfigs } from '../../../messageBroker';
+import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 
-const importer = async (
-  contentTypes,
-  files,
-  columnsConfig,
-  importHistoryId,
-  associatedContentType,
-  associatedField,
-  user,
-  models,
-  subdomain,
-  scopeBrandIds
-) => {
-  try {
-    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+// const importer = async (
+//   contentTypes,
+//   files,
+//   columnsConfig,
+//   importHistoryId,
+//   associatedContentType,
+//   associatedField,
+//   user,
+//   models,
+//   subdomain,
+//   scopeBrandIds
+// ) => {
+//   try {
+//     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
-    await receiveImportCreate(
-      {
-        action: 'createImport',
-        contentTypes,
-        files,
-        uploadType: UPLOAD_SERVICE_TYPE,
-        columnsConfig,
-        user,
-        importHistoryId,
-        associatedContentType,
-        associatedField,
-        scopeBrandIds
-      },
-      models,
-      subdomain
-    );
-  } catch (e) {
-    return models.ImportHistory.updateOne(
-      { _id: 'importHistoryId' },
-      { error: e.message }
-    );
-  }
-};
+//     await receiveImportCreate(
+//       {
+//         action: 'createImport',
+//         contentTypes,
+//         files,
+//         uploadType: UPLOAD_SERVICE_TYPE,
+//         columnsConfig,
+//         user,
+//         importHistoryId,
+//         associatedContentType,
+//         associatedField,
+//         scopeBrandIds
+//       },
+//       models,
+//       subdomain
+//     );
+//   } catch (e) {
+//     return models.ImportHistory.updateOne(
+//       { _id: 'importHistoryId' },
+//       { error: e.message }
+//     );
+//   }
+// };
 
-const importHistoryMutations = {
+const exportHistoryMutations = {
   /**
    * Removes a history
    * @param {string} param1._id ImportHistory id
@@ -84,50 +81,24 @@ const importHistoryMutations = {
   async exportHistoriesCreate(
     _root,
     {
-      contentTypes,
-      files,
+      contentType,
       columnsConfig,
-      importName,
-      associatedContentType,
-      associatedField
+      segmentId
     }: {
-      contentTypes: string[];
-      files: any[];
+      contentType: string;
       columnsConfig: any;
-      importName: string;
-      associatedContentType: string;
-      associatedField: string;
+      segmentId: string;
     },
-    { user, models, subdomain, scopeBrandIds }: IContext
+    { models }: IContext
   ) {
-    const importHistory = await models.ImportHistory.createHistory(
-      {
-        success: 0,
-        updated: 0,
-        total: 0,
-        failed: 0,
-        contentTypes,
-        name: importName,
-        attachments: files
-      },
-      user
-    );
-
-    importer(
-      contentTypes,
-      files,
+    const exportHistory = await models.ExportHistory.createHistory({
+      contentType,
       columnsConfig,
-      importHistory._id,
-      associatedContentType,
-      associatedField,
-      user,
-      models,
-      subdomain,
-      scopeBrandIds
-    );
+      segmentId
+    });
 
-    return 'success';
+    return exportHistory;
   }
 };
 
-export default importHistoryMutations;
+export default exportHistoryMutations;

@@ -146,12 +146,16 @@ class Form extends React.Component<Props, State> {
       unlimited: true
     });
 
-    window.open(
-      `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
-      '_blank'
-    );
+    console.log(columnsConfig, contentType, segmentId);
 
-    window.location.href = `/settings/exportHistories?type=${contentType}`;
+    // console.log(stringified, serviceType);
+
+    // window.open(
+    //   `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
+    //   '_blank'
+    // );
+
+    // window.location.href = `/settings/exportHistories?type=${contentType}`;
   };
   renderExportButton = () => {
     return (

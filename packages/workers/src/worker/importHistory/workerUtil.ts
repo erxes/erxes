@@ -1,5 +1,5 @@
 import * as os from 'os';
-import { debugWorkers } from './debugger';
+import { debugWorkers } from '../debugger';
 
 export default class CustomWorker {
   readonly cpuCount: number = os.cpus().length;

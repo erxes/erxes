@@ -18,7 +18,6 @@ type FinalProps = {
 
 class FormContainer extends React.Component<FinalProps, State> {
   render() {
-    console.log(this.props.contentType, 'RRRRRRRRRRRR');
     const { importHistoriesCreate } = this.props;
 
     const addImportHistory = doc => {
