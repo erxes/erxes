@@ -49,8 +49,8 @@ const ObjectListSchema = new Schema({
 });
 
 const optionsValuesSchema = new Schema({
-  label: field({ type: String, label: 'Risk Assessment Field Options Label' }),
-  value:field({type:String,label: 'Risk Assessment Field Options Value'})
+  label: field({ type: String, label: 'Field Option Label' }),
+  value:field({type:String,label: 'Field Option Value'})
 })
 
 interface IVisibility {
@@ -165,7 +165,7 @@ export const fieldSchema = schemaWrapper(
     }),
     optionsValues: field({
       type:[optionsValuesSchema],
-      label: 'Risk Assessment Field Options object'
+      label: 'Field Options'
     }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
