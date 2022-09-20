@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { gql, useQuery, useMutation } from '@apollo/client';
 import * as QRCode from 'qrcode';
+import './common.css';
 
 type Props = {
   invoiceNoValue?: string;
@@ -54,7 +55,7 @@ const QpaySection = ({
             });
           }}
         >
-          <button type="submit">Check</button>
+          <input type="submit" value='Check' />
         </form>
       </div>
     );
@@ -102,10 +103,36 @@ const QpaySection = ({
 
           }}
         >
-          <button type="submit">Create invoice</button>
+          <input type="submit" value="Create invoice" />
         </form>
       </div>
     );
+  }
+
+  const RenderQpayImage = () => {
+
+    const showQpay =
+      <>
+        <div className="border">
+
+          <img src={qr} alt="" width="150px" className="center" id="qpay" />
+          <div>
+            <label className="labelSpecial center" htmlFor="qpay">
+              Status: {qrPaymentStatus}
+            </label>
+          </div>
+          <label className="label" htmlFor="qrInvoiceNo">Qpay InvoiceNo:</label>
+          <input type="text" name="qrInvoiceNo"
+            value={qrInvoiceNo}
+            disabled={true}
+          />
+
+          {useCheckInvoiceQuery()}
+        </div>
+      </>
+
+    return qrInvoiceNo ? showQpay : null;
+
   }
 
   const onChangeDescription = (e: any) => {
@@ -118,40 +145,28 @@ const QpaySection = ({
 
 
   return (
-    <>
-      <div>
-        <label>Description: </label>
+
+    <div style={{ height: '30em', overflow: 'auto' }}>
+      {RenderQpayImage()}
+      <div className="border">
+        <label className="label" htmlFor="description">Description: </label>
         <input type="text"
           value={description}
           onChange={e => onChangeDescription(e)}
+          name="description" id="description"
         />
-      </div>
-      <div>
-        <label>Amount: </label>
-        <input type="text"
-          value={amount}
-          onChange={e => onChangeAmount(e)}
-        />
-      </div>
-
-      {useCreateInvoiceMutation()}
-
-      {
-        // qrInvoiceNo !== '' && (
-        <>
-          <img src={qr} alt="" width="150px" />
-          <label>
-            Status: {qrPaymentStatus}
-          </label>
-          <label>Qpay InvoiceNo</label>
+        <div>
+          <label className="label" htmlFor="amount">Amount: </label>
           <input type="text"
-            value={qrInvoiceNo}
+            value={amount}
+            onChange={e => onChangeAmount(e)}
+            name="amount" id="amount"
           />
-          {useCheckInvoiceQuery()}
-        </>
-        // )
-      }
-    </>
+        </div>
+
+        {useCreateInvoiceMutation()}
+      </div>
+    </div>
   )
 
 }

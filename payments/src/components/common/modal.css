@@ -10,7 +10,7 @@
 .modal-main {
   position:fixed;
   background: white;
-  width: 60%;
+  width: 70%;
   height: auto;
   top:50%;
   left:50%;
@@ -42,6 +42,7 @@
 
 .grid-sub-container:hover {
   border: 1px solid rgba(98, 155, 224, 0.8);
+  width: 400px;
 }
 
 .grid-item {
