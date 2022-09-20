@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import colors from '../styles/colors';
 
 import { DragHandler, SortableWrapper, SortItem } from '../styles/sort';
 import { reorder } from '../utils/core';
@@ -30,12 +31,20 @@ const SortableList = (props: Props) => {
 
   useEffect(() => {
     if (searchValue) {
-      const patters = new RegExp(searchValue, 'i');
-      const index = fields.findIndex(field => patters.test(field.label));
+      const pattern = new RegExp(searchValue, 'i');
+      const index = fields.findIndex(field => pattern.test(field.label));
       if (index !== -1) {
         const element = document.getElementById(fields[index]._id);
 
-        element && element.scrollIntoView({ block: 'start' });
+        if (element) {
+          element.scrollIntoView({ block: 'start' });
+
+          element.style.filter = 'brightness(90%)';
+
+          setTimeout(() => {
+            element.style.filter = 'brightness(100%)';
+          }, 1000);
+        }
       }
     }
   }, [fields, searchValue]);
@@ -83,28 +92,28 @@ const SortableList = (props: Props) => {
             innerRef={provided.innerRef}
           >
             {fields.map((field, index) => (
-              <div id={field._id} key={field._id}>
-                <Draggable
-                  key={field._id || index}
-                  draggableId={field._id.toString() || index || Math.random()}
-                  index={index}
-                  isDragDisabled={isDragDisabled}
-                  ref={provided.innerRef}
-                >
-                  {(dragProvided, snapshot) => (
-                    <SortItem
-                      innerRef={dragProvided.innerRef}
-                      {...dragProvided.draggableProps}
-                      {...dragProvided.dragHandleProps}
-                      isDragging={snapshot.isDragging}
-                      column={field.column}
-                    >
-                      {renderDragHandler()}
-                      {child(field)}
-                    </SortItem>
-                  )}
-                </Draggable>
-              </div>
+              <Draggable
+                backgroundColor={colors.colorCoreRed}
+                key={field._id || index}
+                draggableId={field._id.toString() || index || Math.random()}
+                index={index}
+                isDragDisabled={isDragDisabled}
+                ref={provided.innerRef}
+              >
+                {(dragProvided, snapshot) => (
+                  <SortItem
+                    id={field._id}
+                    innerRef={dragProvided.innerRef}
+                    {...dragProvided.draggableProps}
+                    {...dragProvided.dragHandleProps}
+                    isDragging={snapshot.isDragging}
+                    column={field.column}
+                  >
+                    {renderDragHandler()}
+                    {child(field)}
+                  </SortItem>
+                )}
+              </Draggable>
             ))}
             {provided.placeholder}
           </SortableWrapper>
