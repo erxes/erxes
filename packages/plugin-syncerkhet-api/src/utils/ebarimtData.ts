@@ -170,6 +170,7 @@ export const getPostData = async (subdomain, config, deal, isNow = true) => {
         ? new Date().toISOString().slice(0, 10)
         : new Date(deal.stageChangedDate).toISOString().slice(0, 10),
       orderId: deal._id,
+      number: deal.number || '',
       hasVat: config.hasVat || false,
       hasCitytax: config.hasCitytax || false,
       billType,
