@@ -30,6 +30,13 @@ input[type=submit]:hover {
   width: 50%;
 }
 
+.centerStatus {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 20%;
+}
+
 .border {
   border: 1.5px dotted rgba(217, 207, 207, 0.8);
   margin: 2px;

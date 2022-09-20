@@ -1,8 +1,9 @@
 import { Component } from 'react';
-import Modal from './common/Modal';
+import PaymentOption from './common/PaymentOption';
 
 type Props = {
   datas: any[];
+  queryParams?: any;
 }
 
 type State = {
@@ -23,14 +24,14 @@ class Dashboard extends Component<Props, State> {
 
   render() {
 
-    const { datas } = this.props;
+    const { datas, queryParams } = this.props;
     const { show } = this.state;
 
-    console.log(datas);
+    console.log(queryParams);
 
     return (
       <div>
-        <Modal show={show} handleClose={this.hideModal} datas={datas} />
+        <PaymentOption show={show} handleClose={this.hideModal} datas={datas} />
       </div>
     );
   }

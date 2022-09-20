@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { gql, useQuery, useMutation } from '@apollo/client';
 import * as QRCode from 'qrcode';
-import './common.css';
+import './styles/common.css';
 
 type Props = {
   invoiceNoValue?: string;
@@ -63,8 +63,8 @@ const QpaySection = ({
   };
 
   const useCreateInvoiceMutation = () => {
-    const createInvoice = `mutation createInvoice($paymentId: String!, $amount: Float!, $description: String!) {
-      createInvoice(paymentId: $paymentId, amount: $amount, description: $description)
+    const createInvoice = `mutation createInvoice($paymentId: String!, $amount: Float!, $description: String!, $phone: String, $customerId: String, $companyId: String) {
+      createInvoice(paymentId: $paymentId, amount: $amount, description: $description, phone: $phone, customerId: $customerId, companyId: $companyId)
     }`;
     const [addTodo, { loading, error }] = useMutation(gql(createInvoice));
 
@@ -117,7 +117,7 @@ const QpaySection = ({
 
           <img src={qr} alt="" width="150px" className="center" id="qpay" />
           <div>
-            <label className="labelSpecial center" htmlFor="qpay">
+            <label className="labelSpecial centerStatus" htmlFor="qpay">
               Status: {qrPaymentStatus}
             </label>
           </div>

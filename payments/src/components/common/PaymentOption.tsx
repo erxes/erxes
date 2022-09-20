@@ -1,7 +1,8 @@
-import './modal.css';
+import './styles/modal.css';
 import { PAYMENTS } from './constants';
 import { Component } from 'react';
 import QpaySection from './Qpay';
+import SocialPaySection from './SocialPay';
 
 type Props = {
   handleClose: any;
@@ -41,7 +42,10 @@ class Modal extends Component<Props, State> {
   }
 
   paymentOptionRender = (datas: any[]) => {
-
+    const { id } = this.state;
+    const paymentData = id ? datas.find(d => d._id === id) : null;
+    const type = paymentData ? paymentData.type : null;
+    const amount = "10";
     return (
       <div className="grid-container">
         <div className="grid-item">
@@ -58,11 +62,20 @@ class Modal extends Component<Props, State> {
           </div>
         </div>
         <div className="grid-item">
-          {this.state.id && <QpaySection
-            paymentConfigId={this.state.id}
-            amountValue="10"
-            descriptionValue="qpay test invoice"
-          />}
+          {id && type === 'qpay' &&
+            <QpaySection
+              paymentConfigId={id}
+              amountValue={amount}
+              descriptionValue="qpay test invoice"
+            />}
+
+          {id && type === 'socialPay' &&
+            <SocialPaySection
+              paymentConfigId={id}
+              amountValue={amount}
+              phoneValue=""
+            />
+          }
         </div>
 
       </div>
