@@ -16,6 +16,7 @@ export let serviceDiscovery;
 export default {
   name: 'webbuilder',
   permissions,
+  meta: { permissions },
   graphql: async sd => {
     serviceDiscovery = sd;
 
