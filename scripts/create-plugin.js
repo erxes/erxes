@@ -54,15 +54,25 @@ const loopDirFiles = async (dir, name) => {
   });
 };
 
-var createUi = async (name, location) => {
+var createUi = async (name, location, isEmpty) => {
   const newDir = filePath(`./packages/plugin-${name}-ui`);
-  fs.copySync(filePath('./packages/ui-plugin-template'), newDir);
+  fs.copySync(
+    isEmpty
+      ? filePath('./packages/ui-plugin-template-empty')
+      : filePath('./packages/ui-plugin-template'),
+    newDir
+  );
   addIntoUIConfigs(name, location, () => loopDirFiles(newDir, name));
 };
 
-var createApi = async name => {
+var createApi = async (name, isEmpty) => {
   const newDir = filePath(`./packages/plugin-${name}-api`);
-  fs.copySync(filePath('./packages/api-plugin-templ'), newDir);
+  fs.copySync(
+    isEmpty
+      ? filePath('./packages/api-plugin-templ-empty')
+      : filePath('./packages/api-plugin-templ'),
+    newDir
+  );
   loopDirFiles(newDir, name);
 };
 
@@ -133,28 +143,50 @@ const installApiDeps = name => {
 const installDeps = name => {
   execSync(installUiDeps(name), (err, data) => {
     if (err) console.error(err);
-    console.log(data);
-    console.log(`\nsuccessfully created plugin ${name}\n`);
+    console.log('Installing UI dependencies...');
+    console.log(`successfully created plugin ${name}`);
   });
 
   execSync(installApiDeps(name), (err, data) => {
     if (err) console.error(err);
-    console.log(data);
+    console.log('Installing API dependencies...');
   });
 };
+const isEmptyTemplate = async () => {
+  var isEmpty, answer;
+  return new Promise((res, rej) => {
+    rl.question(
+      'Do you wanna start building from an example template? (y/n) --- no will result in empty template:\n',
+      async input => {
+        answer = input.toLowerCase();
+        if (!input || (answer != 'n' && answer != 'y')) {
+          res(isEmptyTemplate());
+        } else {
+          isEmpty = answer == 'n' ? true : false;
+          res(isEmpty);
+        }
+      }
+    );
+  });
+};
+
 const main = () => {
   rl.question('Please enter the plugin name: ', async name => {
     if (!name) main();
-    rl.question(
-      'Where do you want to place the new plugin? (settings/mainNav) settings is default option:\n',
-      async location => {
-        createUi(name, location);
-        createApi(name);
-        addIntoConfigs(name);
-        installDeps(name);
-        rl.close();
-      }
-    );
+    isEmptyTemplate()
+      .then(isEmpty => {
+        rl.question(
+          'Where do you want to place the new plugin at? (settings/mainNav) --- settings is default option:\n',
+          async location => {
+            createUi(name, location, isEmpty);
+            createApi(name, isEmpty);
+            addIntoConfigs(name);
+            installDeps(name);
+            rl.close();
+          }
+        );
+      })
+      .catch(err => console.error(err));
   });
 };
 
