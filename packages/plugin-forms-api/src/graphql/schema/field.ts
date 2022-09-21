@@ -60,11 +60,6 @@ export const fieldsTypes = ({ products, riskAssessment }) => `
     type: String
   }
 
-  type OptionsValuesType {
-    value: Int
-    label: String
-  }
-
   input objectListConfigInput {
     key: String
     label: String
@@ -86,13 +81,7 @@ export const fieldsTypes = ({ products, riskAssessment }) => `
     logics: [Logic]
     locationOptions: [LocationOption]
     objectListConfigs: [ObjectListConfig]
-    ${
-      riskAssessment
-        ? `
-        optionsValues:[OptionsValuesType]
-      `
-        : ''
-    }
+    optionsValues:String
 
     ${
       products
@@ -127,13 +116,7 @@ export const fieldsTypes = ({ products, riskAssessment }) => `
     logics: [LogicInput]
     locationOptions: [LocationOptionInput]
     objectListConfigs: [objectListConfigInput]
-    ${
-      riskAssessment
-        ? `
-      optionsValues:[ObjectOptions]
-      `
-        : ''
-    }
+    optionsValues:String
     value: String
     ${fieldCommonFields}
   }

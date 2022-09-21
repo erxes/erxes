@@ -9,7 +9,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Icon from '@erxes/ui/src/components/Icon';
 import { FlexItem } from '@erxes/ui/src/components/step/styles';
 import Toggle from '@erxes/ui/src/components/Toggle';
-import { IField, IFieldLogic, IOption, IOptionsValuesType } from '@erxes/ui/src/types';
+import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import Modal from 'react-bootstrap/Modal';
@@ -75,7 +75,7 @@ class FieldForm extends React.Component<Props, State> {
 
   onFieldChange = (
     name: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IOptionsValuesType[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) => {
     this.setFieldAttrChanges(name, value);
   };
@@ -152,7 +152,7 @@ class FieldForm extends React.Component<Props, State> {
 
   setFieldAttrChanges(
     attributeName: string,
-    value: string | boolean | number | string[] | number[] | IFieldLogic[] | IOptionsValuesType[]
+    value: string | boolean | number | string[] | number[] | IFieldLogic[]
   ) {
     const { field } = this.state;
 
@@ -316,27 +316,12 @@ class FieldForm extends React.Component<Props, State> {
   renderOptionsValue(){
 
     const {field} = this.state
+    const { optionsValues } = this.props.field;
 
     const handleChange = (e) =>{
       const {value} = e.currentTarget as HTMLInputElement
-      const items = value.split('\n')
 
-      const result = items.map(item=>{
-        if(item.match(/=/g)){
-          const label = item?.substring(0,item.indexOf('='))
-          const value = parseInt(item.substring(item?.indexOf('=')+1,item.length))
-          if(field.options?.includes(label)){
-            return {label,value}
-          }
-        }
-      },[]).filter(item=>item)
-
-      this.onFieldChange('optionsValues', result);
-    }
-
-    const defaultValue = () =>{
-      const { optionsValues } = this.props.field;
-      return optionsValues?.map(({ label, value }) => `${label}=${value}`).join('\n');
+      this.onFieldChange('optionsValues', value);
     }
 
     if(['select','radio'].includes(field.type)){
@@ -347,7 +332,7 @@ class FieldForm extends React.Component<Props, State> {
             <FormControl
               id="FieldValue"
               componentClass="textarea"
-              defaultValue={defaultValue()}
+              defaultValue={optionsValues}
               onChange={handleChange}
             />
           </FormGroup>
