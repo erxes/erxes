@@ -455,10 +455,6 @@ const integrationMutations = {
   async integrationSendMail(_root, args: any, { user, subdomain }: IContext) {
     const { erxesApiId, body, customerId, ...doc } = args;
 
-    if (!user.email) {
-      throw new Error(`Current user email is not set`);
-    }
-
     let kind = doc.kind;
 
     if (kind.includes('nylas')) {
@@ -499,12 +495,14 @@ const integrationMutations = {
         action: 'sendEmail',
         subdomain,
         data: {
-          fromEmail: user.email,
+          fromEmail: doc.from || '',
           email: {
             content: doc.body,
             subject: doc.subject,
             attachments: doc.attachments,
-            sender: user.email
+            sender: doc.from || '',
+            cc: doc.cc || [],
+            bcc: doc.bcc || []
           },
           customers: [customer],
           customer,

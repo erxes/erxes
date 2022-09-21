@@ -134,7 +134,6 @@ class DashboardsList extends React.Component<IProps, State> {
               <th>{__('Created by')}</th>
               <th>{__('Updated Date')}</th>
               <th>{__('Created date')}</th>
-              <th>{__('Actions')}</th>
             </tr>
           </thead>
           <tbody id="dashboards" className={isExpand ? 'expand' : ''}>

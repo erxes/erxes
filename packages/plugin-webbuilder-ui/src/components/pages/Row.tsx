@@ -1,12 +1,13 @@
 import ActionButtons from '@erxes/ui/src/components/ActionButtons';
 import { RowTitle } from '@erxes/ui-engage/src/styles';
-import { __ } from '@erxes/ui/src/utils/core';
+import { getEnv, __ } from '@erxes/ui/src/utils/core';
 import Icon from '@erxes/ui/src/components/Icon';
 import Tip from '@erxes/ui/src/components/Tip';
 import Button from '@erxes/ui/src/components/Button';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { IPageDoc } from '../../types';
+import NameCard from '@erxes/ui/src/components/nameCard/NameCard';
 
 type Props = {
   page: IPageDoc;
@@ -28,6 +29,22 @@ class Row extends React.Component<Props> {
     );
   }
 
+  renderShowAction(page: IPageDoc) {
+    const { REACT_APP_API_URL } = getEnv();
+
+    const { site } = page;
+
+    const url = `${REACT_APP_API_URL}/pl:webbuilder/${site?.name}/page/${page.name}`;
+
+    const onClick = () => window.open(`${url}`, '_blank');
+
+    return (
+      <Tip text={__('Show')} placement="top">
+        <Button btnStyle="link" onClick={onClick} icon="eye" />
+      </Tip>
+    );
+  }
+
   renderRemoveAction() {
     const { page, remove } = this.props;
 
@@ -39,10 +56,11 @@ class Row extends React.Component<Props> {
       </Tip>
     );
   }
+
   render() {
     const { page } = this.props;
 
-    const { name, description, _id, site } = page;
+    const { name, description, _id, site, createdUser, updatedUser } = page;
 
     return (
       <tr>
@@ -53,9 +71,18 @@ class Row extends React.Component<Props> {
         </td>
         <td>{description}</td>
         <td>{site?.name || ''}</td>
+
+        <td>
+          <NameCard user={createdUser} avatarSize={30} />
+        </td>
+        <td>
+          <NameCard user={updatedUser} avatarSize={30} />
+        </td>
+
         <td>
           <ActionButtons>
             {this.manageAction(page)}
+            {this.renderShowAction(page)}
             {this.renderRemoveAction()}
           </ActionButtons>
         </td>

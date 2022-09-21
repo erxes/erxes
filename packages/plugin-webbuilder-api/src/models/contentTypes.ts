@@ -16,10 +16,16 @@ export interface IContentType {
   code: string;
   displayName: string;
   fields: IField[];
+
+  createdBy?: string;
+  modifiedBy?: string;
 }
 
 export interface IContentTypeDocument extends IContentType, Document {
   _id: string;
+
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export const fieldSchema = new Schema(
@@ -36,14 +42,24 @@ export const contentTypeSchema = new Schema({
   siteId: field({ type: String, optional: true, label: 'Site Id' }),
   code: field({ type: String, label: 'Name' }),
   displayName: field({ type: String, label: 'Description' }),
-  fields: field({ type: [fieldSchema] })
+  fields: field({ type: [fieldSchema] }),
+
+  createdBy: field({ type: String, optional: true, label: 'Created by' }),
+  modifiedBy: field({ type: String, optional: true, label: 'Modified by' }),
+
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' })
 });
 
 export interface IContentTypeModel extends Model<IContentTypeDocument> {
-  createContentType(doc: IContentType): Promise<IContentTypeDocument>;
+  createContentType(
+    doc: IContentType,
+    userId: string
+  ): Promise<IContentTypeDocument>;
   updateContentType(
     _id: string,
-    doc: IContentType
+    doc: IContentType,
+    userId: string
   ): Promise<IContentTypeDocument>;
   removeContentType(_id: string): void;
 }
@@ -71,16 +87,27 @@ export const loadTypeClass = (models: IModels) => {
       }
     }
 
-    public static async createContentType(doc: IContentType) {
+    public static async createContentType(doc: IContentType, userId: string) {
       await this.checkDuplication(doc.code, doc.siteId);
 
-      return models.ContentTypes.create(doc);
+      return models.ContentTypes.create({
+        ...doc,
+        createdBy: userId,
+        createdAt: new Date()
+      });
     }
 
-    public static async updateContentType(_id: string, doc: IContentType) {
+    public static async updateContentType(
+      _id: string,
+      doc: IContentType,
+      userId: string
+    ) {
       await this.checkDuplication(doc.code, doc.siteId, _id);
 
-      await models.ContentTypes.updateOne({ _id }, { $set: doc });
+      await models.ContentTypes.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedBy: userId, modifiedAt: new Date() } }
+      );
 
       return models.ContentTypes.findOne({ _id });
     }

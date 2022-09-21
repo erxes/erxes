@@ -74,6 +74,16 @@ const main = async () => {
         }
       )
     );
+
+    await execute(() =>
+      fse.copy(
+        `./${folderName}/Dockerfile`,
+        `./${folderName}/.erxes/Dockerfile`,
+        {
+          overwrite: true
+        }
+      )
+    );
   }
 
   // Even though this global yarn.lock contains all node_modules in packages folder

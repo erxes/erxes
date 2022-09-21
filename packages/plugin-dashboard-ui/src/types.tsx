@@ -98,6 +98,7 @@ export type DashboardsCount = {
 export type DashboardDetailsQueryResponse = {
   dashboardDetails: IDashboard;
   loading: boolean;
+  refetch: () => void;
 };
 
 export type EditDashboardItemMutationVariables = {

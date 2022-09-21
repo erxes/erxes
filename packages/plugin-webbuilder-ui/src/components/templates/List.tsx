@@ -1,6 +1,6 @@
 import React from 'react';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Icon from '@erxes/ui/src/components/Icon';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import {
   Actions,
   IframePreview,
@@ -43,7 +43,7 @@ function List(props: Props) {
   let content = <Templates>{renderRow()}</Templates>;
   setCount(templatesCount);
 
-  if (templatesCount < 1) {
+  if (templates.length < 1) {
     content = (
       <EmptyState
         image="/images/actions/8.svg"

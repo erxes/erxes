@@ -1,4 +1,8 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
   type WebbuilderPage {
     _id: String!
     name: String
@@ -7,6 +11,9 @@ export const types = `
     css: String
     siteId: String
     site: WebbuilderSite
+    
+    createdUser: User
+    updatedUser: User
   }
 
   type WebbuilderPagesList {
@@ -68,7 +75,7 @@ export const queries = `
   webbuilderTemplatesTotalCount: Int
   webbuilderTemplateDetail(_id: String!): WebbuilderTemplate
 
-  webbuilderSites(page: Int, perPage: Int): [WebbuilderSite]
+  webbuilderSites(page: Int, perPage: Int, fromSelect: Boolean): [WebbuilderSite]
   webbuilderSitesTotalCount: Int
 `;
 
@@ -77,7 +84,7 @@ const params = `
   description: String,
   html: String,
   css: String,
-  siteId: String
+  siteId: String,
 `;
 
 const contentTypeParams = `

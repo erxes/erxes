@@ -109,13 +109,6 @@ class PageForm extends React.Component<Props, State> {
       }
     });
 
-    if (page) {
-      const { html = '', css = '' } = page;
-
-      this.grapes.setComponents(html.trim());
-      this.grapes.setStyle(css.trim());
-    }
-
     const editor = this.grapes;
 
     const pfx = editor.getConfig().stylePrefix;
@@ -163,6 +156,14 @@ class PageForm extends React.Component<Props, State> {
 
       modal.close();
     };
+
+    // don't move this block
+    if (page && page.html) {
+      const { html, css } = page;
+
+      editor.setComponents(html);
+      editor.setStyle(css.trim());
+    }
 
     cmdm.add('html-edit', {
       run: (editr, sender) => {
