@@ -17,7 +17,9 @@ export default {
   permissions,
   meta: {
     forms,
-    initialSetup
+    initialSetup,
+    // for fixing permissions
+    permissions
   },
   graphql: async sd => {
     serviceDiscovery = sd;

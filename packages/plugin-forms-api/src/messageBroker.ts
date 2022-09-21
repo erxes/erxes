@@ -123,6 +123,23 @@ export const initBroker = async cl => {
     }
   );
 
+  consumeRPCQueue(
+    'forms:fields.generateTypedItem',
+    async ({ subdomain, data }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Fields.generateTypedItem(
+          data.field,
+          data.value,
+          data.type,
+          data.validation
+        )
+      };
+    }
+  );
+
   consumeQueue(
     'forms:updateGroup',
     async ({ subdomain, data: { groupId, fieldsGroup } }) => {

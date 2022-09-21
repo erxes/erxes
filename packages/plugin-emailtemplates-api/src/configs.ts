@@ -38,5 +38,5 @@ export default {
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
   },
-  meta: { logs: { consumers: logs } }
+  meta: { logs: { consumers: logs }, permissions }
 };

@@ -9,7 +9,6 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 export let graphqlPubsub;
 export let serviceDiscovery;
 export let mainDb;
-
 export let debug;
 
 export default {
@@ -40,5 +39,6 @@ export default {
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;
-  }
+  },
+  meta: { permissions }
 };

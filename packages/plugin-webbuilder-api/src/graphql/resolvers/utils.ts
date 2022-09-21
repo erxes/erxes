@@ -55,10 +55,7 @@ export const createSiteContentTypes = async (
   }
 };
 
-export const writeAndReadHelpersData = async (
-  fileName: string,
-  query: string = ''
-) => {
+export const readHelpersData = async (fileName: string, query: string = '') => {
   const HELPERS_DOMAIN = `https://helper.erxes.io`;
 
   const url = `${HELPERS_DOMAIN}/get-webbuilder-${fileName}?${query}`;
