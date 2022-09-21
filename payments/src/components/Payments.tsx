@@ -16,6 +16,8 @@ class Dashboard extends Component<Props, State> {
     this.state = {
       show: true
     };
+
+    console.log("props: ", props);
   }
 
   hideModal = () => {

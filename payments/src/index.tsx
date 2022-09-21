@@ -6,6 +6,8 @@ import ReactDOM from 'react-dom/client';
 import PaymentsContainer from './containers/Payments';
 import reportWebVitals from './reportWebVitals';
 
+import TestContainer from './containers/Test'
+
 const client = new ApolloClient({
   uri: process.env.REACT_APP_API_URL ? `${process.env.REACT_APP_API_URL}/graphql` : 'http://localhost:3305/graphql',
   cache: new InMemoryCache(),
@@ -16,7 +18,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <ApolloProvider client={client}>
-    <PaymentsContainer />
+    <TestContainer />
   </ApolloProvider>
 );
 

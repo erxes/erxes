@@ -1,6 +1,6 @@
 import Payments from '../components/Payments';
 import { gql, useQuery } from '@apollo/client';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 
 const configsQuery = gql`
@@ -15,11 +15,10 @@ const configsQuery = gql`
   }
 `;
 
+function useContainer() {
 
-
-const Container = () => {
-  // const location = useLocation();
   const { data = {} as any, loading } = useQuery(configsQuery);
+  const params = useParams();
 
   if (loading) {
     return null;
@@ -27,4 +26,4 @@ const Container = () => {
   return <Payments datas={data.paymentConfigs} />;
 }
 
-export default Container;
+export default useContainer;
