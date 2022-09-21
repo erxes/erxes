@@ -1069,7 +1069,7 @@ module.exports = {
       menus: [
         {
           text: "Reports",
-          url: "/dashboards",
+          url: "/dashboard",
           icon: "icon-dashboard",
           location: "mainNavigation",
           permission: "showDashboards",
