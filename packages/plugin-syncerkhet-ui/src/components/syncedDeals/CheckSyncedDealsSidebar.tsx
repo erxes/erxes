@@ -163,6 +163,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
               <SelectTeamMembers
                 label="Choose users"
                 name="userId"
+                customOption={{ label: 'Choose user', value: '' }}
                 initialValue={userId || ''}
                 onSelect={onUserChange}
                 multi={false}
