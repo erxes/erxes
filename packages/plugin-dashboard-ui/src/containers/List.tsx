@@ -98,7 +98,7 @@ class ListContainer extends React.Component<FinalProps, State> {
       })
         .then(data => {
           history.push({
-            pathname: `/dashboards/details/${data.data.dashboardsAdd._id}`,
+            pathname: `/dashboard/details/${data.data.dashboardsAdd._id}`,
             search: '?isCreate=true'
           });
         })
