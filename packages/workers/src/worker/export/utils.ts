@@ -1,7 +1,4 @@
-import { initBroker } from '../../messageBroker';
 import { IModels } from '../../connectionResolvers';
-import { redis } from '../../serviceDiscovery';
-import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
@@ -14,10 +11,10 @@ const myWorker = new CustomWorker();
 
 const getWorkerFile = () => {
   if (process.env.NODE_ENV !== 'production') {
-    return `./src/worker/exportHistory/export.worker.js`;
+    return `./src/worker/export/export.worker.js`;
   }
 
-  return `./dist/workers/src/worker/exportHistory/export.worker.js`;
+  return `./dist/workers/src/worker/export/export.worker.js`;
 };
 
 export const receiveExportCreate = async (
@@ -49,17 +46,4 @@ export const receiveExportCreate = async (
     );
   }
   return { id: exportHistoryId };
-};
-
-export const connect = async () => {
-  const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, MONGO_URL = '' } = process.env;
-
-  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
-    console.log(`Error ocurred during message broker init ${e.message}`);
-  });
-
-  return mongoose.connect(MONGO_URL, {
-    useNewUrlParser: true,
-    useCreateIndex: true
-  });
 };

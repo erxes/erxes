@@ -1,7 +1,6 @@
 import * as csvParser from 'csv-parser';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
-import * as mongoose from 'mongoose';
 import * as path from 'path';
 import * as readline from 'readline';
 import { Writable } from 'stream';
@@ -9,11 +8,10 @@ import { createAWS, getS3FileInfo, uploadsFolderPath } from '../../data/utils';
 
 import CustomWorker from '../workerUtil';
 import { debugWorkers } from '../debugger';
-import { getFileUploadConfigs, initBroker } from '../../messageBroker';
-import { redis } from '../../serviceDiscovery';
+import { getFileUploadConfigs } from '../../messageBroker';
 import { IModels } from '../../connectionResolvers';
 
-const { MONGO_URL = '', ELK_SYNCER } = process.env;
+const { ELK_SYNCER } = process.env;
 const WORKER_BULK_LIMIT = 300;
 
 const checkFieldNames = async (fields: string[], columnConfig?: object) => {
@@ -47,19 +45,6 @@ const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   }
 
   return properties;
-};
-
-export const connect = async () => {
-  const { RABBITMQ_HOST, MESSAGE_BROKER_PREFIX } = process.env;
-
-  await initBroker({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }).catch(e => {
-    console.log(`Error ocurred during message broker init ${e.message}`);
-  });
-
-  return mongoose.connect(MONGO_URL, {
-    useNewUrlParser: true,
-    useCreateIndex: true
-  });
 };
 
 dotenv.config();

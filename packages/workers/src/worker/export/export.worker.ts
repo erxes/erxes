@@ -1,5 +1,5 @@
 // import { sendMessage } from '@erxes/api-utils/src/core';
-import { connect } from './utils';
+import { connect } from '../utils';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');

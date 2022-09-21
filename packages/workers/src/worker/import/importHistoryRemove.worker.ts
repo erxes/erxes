@@ -7,7 +7,7 @@ import {
   removeTickets
 } from '../../messageBroker';
 
-import { connect } from './utils';
+import { connect } from '../utils';
 import { removeProducts } from '../../messageBroker';
 
 // tslint:disable-next-line
