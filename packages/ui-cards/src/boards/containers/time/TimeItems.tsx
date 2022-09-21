@@ -21,6 +21,7 @@ import {
 } from '../../../deals/types';
 import { getFilterParams } from '../../utils';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import moment from 'moment';
 
 type Props = {
   options: IOptions;
@@ -99,8 +100,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       tags.map(tag => {
         return {
           id: tag._id,
-          title: tag.name,
-          eventColor: tag.colorCode
+          title: tag.name
         };
       });
 
@@ -109,12 +109,11 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
     for (const deal of this.state.items) {
       for (const tagId of deal.tagIds || []) {
         events.push({
-          resourceId: tagId,
-          title: deal.name,
-          start: deal.startDate,
-          end: deal.closeDate,
-          item: deal._id,
-          color: '#6569DF'
+          id: deal._id,
+          group: tagId,
+          start_time: moment.utc(deal.startDate),
+          end_time: moment.utc(deal.closeDate),
+          title: deal.name
         });
       }
     }

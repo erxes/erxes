@@ -126,4 +126,14 @@ export const TextStyle = styled.div`
 
 export const CalendarContainer = styled.div`
   background: white;
+
+  .sticky {
+    background: #6569df !important;
+
+    &:first-child {
+      display: flex;
+      align-items: center;
+      text-align: center;
+    }
+  }
 `;

@@ -3354,6 +3354,11 @@
   resolved "https://registry.yarnpkg.com/@icons/material/-/material-0.2.4.tgz#e90c9f71768b3736e76d7dd6783fc6c2afa88bc8"
   integrity sha512-QPcGmICAPbGLGb6F/yNf/KzKqvFx8z5qx3D1yFqVAjoFmXK35EgyW+cJ57Te3CNsmzblwtzakLGFqHPqrfb4Tw==
 
+"@interactjs/types@1.10.17":
+  version "1.10.17"
+  resolved "https://registry.yarnpkg.com/@interactjs/types/-/types-1.10.17.tgz#1649de06d9ead790c81ecece76736b852bdfc77e"
+  integrity sha512-X2JpoM7xUw0p9Me0tMaI0HNfcF/Hd07ZZlzpnpEMpGerUZOLoyeThrV9P+CrBHxZrluWJrigJbcdqXliFd0YMA==
+
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz#fd3db1d59ecf7cf121e80650bb86712f9b55eced"
@@ -10166,6 +10171,13 @@ elegant-spinner@^1.0.1:
   resolved "https://registry.yarnpkg.com/elegant-spinner/-/elegant-spinner-1.0.1.tgz#db043521c95d7e303fd8f345bedc3349cfb0729e"
   integrity sha1-2wQ1IcldfjA/2PNFvtwzSc+wcp4=
 
+element-resize-detector@^1.1.12:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/element-resize-detector/-/element-resize-detector-1.2.4.tgz#3e6c5982dd77508b5fa7e6d5c02170e26325c9b1"
+  integrity sha512-Fl5Ftk6WwXE0wqCgNoseKWndjzZlDCwuPTcoVZfCP9R3EHQF8qUtr3YUPNETegRBOKqQKPW3n4kiIWngGi8tKg==
+  dependencies:
+    batch-processor "1.0.0"
+
 element-resize-detector@^1.2.1:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/element-resize-detector/-/element-resize-detector-1.2.3.tgz#5078d9b99398fe4c589f8c8df94ff99e5d413ff3"
@@ -13133,6 +13145,13 @@ inquirer@7.3.3:
     string-width "^4.1.0"
     strip-ansi "^6.0.0"
     through "^2.3.6"
+
+interactjs@^1.10.17:
+  version "1.10.17"
+  resolved "https://registry.yarnpkg.com/interactjs/-/interactjs-1.10.17.tgz#aed66a63020cd092236133f9149e6448dc405d72"
+  integrity sha512-grjHJgnWkCoQLmAlk2yalNd1r0ztUhXLJNVjSOfWn1wfNNgU2tx1cDEkro9WYerDNC9UG3MZTeD4O6zOM5gbIA==
+  dependencies:
+    "@interactjs/types" "1.10.17"
 
 internal-slot@^1.0.3:
   version "1.0.3"
@@ -18738,6 +18757,17 @@ react-bootstrap@1.0.0-beta.14:
     react-transition-group "^4.0.0"
     uncontrollable "^7.0.0"
     warning "^4.0.3"
+
+react-calendar-timeline@^0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/react-calendar-timeline/-/react-calendar-timeline-0.28.0.tgz#b9b0eb7845989773f642373b9aa6ef59d6375232"
+  integrity sha512-uy/erjon2oZO6dRtpQri1Sc20w4AOlIOqwjOpD2QNiWZvWt19VzO8pqOFF6BcnkuE63TM1xGfLdMbzSnKBPfeA==
+  dependencies:
+    classnames "^2.2.6"
+    create-react-context "^0.3.0"
+    element-resize-detector "^1.1.12"
+    lodash.isequal "^4.5.0"
+    memoize-one "^5.1.1"
 
 react-color@^2.17.3:
   version "2.17.3"
