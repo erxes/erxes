@@ -17,7 +17,7 @@ const typeDefs = async serviceDiscovery => {
 
   const isEnabled = {
     contacts: isContactsEnabled,
-    products: isProductsEnabled,
+    products: isProductsEnabled
   };
 
   return gql`
