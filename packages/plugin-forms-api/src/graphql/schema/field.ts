@@ -21,7 +21,7 @@ const fieldCommonFields = `
   isDefinedByErxes: Boolean
 `;
 
-export const fieldsTypes = ({ products, riskAssessment }) => `
+export const fieldsTypes = ({ products }) => `
   ${
     products
       ? `
@@ -82,7 +82,6 @@ export const fieldsTypes = ({ products, riskAssessment }) => `
     locationOptions: [LocationOption]
     objectListConfigs: [ObjectListConfig]
     optionsValues:String
-
     ${
       products
         ? `
@@ -104,10 +103,6 @@ export const fieldsTypes = ({ products, riskAssessment }) => `
     tempFieldId: String
     logicOperator: String
     logicValue: JSON
-  }
-  input ObjectOptions {
-    value: Int
-    label: String
   }
 
   input FieldItem {

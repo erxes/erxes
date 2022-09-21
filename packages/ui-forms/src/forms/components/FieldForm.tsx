@@ -320,18 +320,7 @@ class FieldForm extends React.Component<Props, State> {
 
     const handleChange = (e) =>{
       const {value} = e.currentTarget as HTMLInputElement
-      // const items = value.split('\n')
-
-      // const result = items.map(item=>{
-      //   if(item.match(/=/g)){
-      //     const label = item?.substring(0,item.indexOf('='))
-      //     const value = parseInt(item.substring(item?.indexOf('=')+1,item.length))
-      //     if(field.options?.includes(label)){
-      //       return {label,value}
-      //     }
-      //   }
-      // },[]).filter(item=>item)
-
+      
       this.onFieldChange('optionsValues', value);
     }
 
