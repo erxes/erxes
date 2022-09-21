@@ -49,13 +49,18 @@ input TrackingItemInput {
     list: [Trip],
     totalCount: Int
   }
+
+  enum DateFilterType {
+    createdAt
+    ShipmentTime
+  }
 `;
 
 export const queries = `
     trips(status: String, driverId: String, dealId: String, page: Int, perPage: Int): TripListResponse
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
-    matchingDeals(routeId:String, carId: String, categoryIds: [String], date: Date): [Deal]
+    matchingDeals(routeId:String, carId: String, categoryIds: [String], date: String, dateType: DateFilterType): [Deal]
 `;
 
 const params = `
