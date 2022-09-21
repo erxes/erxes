@@ -14,7 +14,7 @@ const commonEnvs = configs => {
 
   return {
     ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
-    DEBUG: 'erxes*',
+    DEBUG: configs.debug_level || '*error*',
     NODE_ENV: 'production',
     DOMAIN: configs.domain,
     WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,

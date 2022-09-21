@@ -81,7 +81,7 @@ export default class RightSidebar extends React.Component<Props> {
           target="_blank"
           block
         >
-          <Icon icon="exclamation-circle" size={20} />
+          <Icon icon="exclamation-circle" size={18} />
           &nbsp;Report an issue
         </Button>
       </SidebarWrapper>
