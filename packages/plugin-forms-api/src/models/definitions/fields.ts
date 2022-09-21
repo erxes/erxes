@@ -58,6 +58,7 @@ interface IObjectListConfig {
   label: string;
   type: string;
 }
+
 export interface IField extends IVisibility {
   contentType?: string;
   contentTypeId?: string;
