@@ -21,7 +21,7 @@ const fieldCommonFields = `
   isDefinedByErxes: Boolean
 `;
 
-export const fieldsTypes = ({ products }) => `
+export const fieldsTypes = ({ products, riskAssessment }) => `
   ${
     products
       ? `

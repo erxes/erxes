@@ -14,10 +14,12 @@ import { types, queries, mutations } from './schema/form';
 const typeDefs = async serviceDiscovery => {
   const isContactsEnabled = await serviceDiscovery.isEnabled('contacts');
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
+  const isRiskAssessmentEnabled = await serviceDiscovery.isEnabled('riskassessment');
 
   const isEnabled = {
     contacts: isContactsEnabled,
-    products: isProductsEnabled
+    products: isProductsEnabled,
+    riskAssessment:isRiskAssessmentEnabled
   };
 
   return gql`
