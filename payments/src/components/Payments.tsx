@@ -1,23 +1,22 @@
 import { Component } from 'react';
+
 import PaymentOption from './common/PaymentOption';
 
 type Props = {
   datas: any[];
   queryParams?: any;
-}
+};
 
 type State = {
   show: boolean;
 };
 class Dashboard extends Component<Props, State> {
   constructor(props: Props) {
-    super(props)
+    super(props);
 
     this.state = {
-      show: true
+      show: true,
     };
-
-    console.log("props: ", props);
   }
 
   hideModal = () => {
@@ -25,11 +24,8 @@ class Dashboard extends Component<Props, State> {
   };
 
   render() {
-
     const { datas, queryParams } = this.props;
     const { show } = this.state;
-
-    console.log(queryParams);
 
     return (
       <div>
