@@ -1,9 +1,8 @@
-const readline = require('readline');
 var { resolve } = require('path');
 var fs = require('fs-extra');
 var path = require('path');
 const execSync = require('child_process').exec;
-
+const { prompt, Select } = require('enquirer');
 const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
@@ -11,10 +10,16 @@ const filePath = pathName => {
 
   return resolve(__dirname, '..');
 };
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+const promptLocation = new Select({
+  name: 'location',
+  message: 'Where do you want to place the plugin at?',
+  choices: ['settings', 'main navigation']
+});
+const promptBlank = new Select({
+  name: 'location',
+  message:
+    'Do you wanna start building from an example template? (no will result in empty template)',
+  choices: ['yes', 'no']
 });
 
 const capitalizeFirstLetter = value =>
@@ -78,7 +83,7 @@ var createApi = async (name, isEmpty) => {
 
 const addIntoUIConfigs = (name, location, callback) => {
   const menu =
-    location == 'mainNav'
+    location == 'main navigation'
       ? {
           text: '{Name}s',
           url: '/{name}s',
@@ -152,42 +157,31 @@ const installDeps = name => {
     console.log('Installing API dependencies...');
   });
 };
-const isEmptyTemplate = async () => {
-  var isEmpty, answer;
-  return new Promise((res, rej) => {
-    rl.question(
-      'Do you wanna start building from an example template? (y/n) --- no will result in empty template:\n',
-      async input => {
-        answer = input.toLowerCase();
-        if (!input || (answer != 'n' && answer != 'y')) {
-          res(isEmptyTemplate());
-        } else {
-          isEmpty = answer == 'n' ? true : false;
-          res(isEmpty);
-        }
-      }
-    );
-  });
-};
 
-const main = () => {
-  rl.question('Please enter the plugin name: ', async name => {
-    if (!name) main();
-    isEmptyTemplate()
-      .then(isEmpty => {
-        rl.question(
-          'Where do you want to place the new plugin at? (settings/mainNav) --- settings is default option:\n',
-          async location => {
-            createUi(name, location, isEmpty);
-            createApi(name, isEmpty);
-            addIntoConfigs(name);
-            installDeps(name);
-            rl.close();
-          }
-        );
-      })
-      .catch(err => console.error(err));
-  });
+const main = async () => {
+  const input = await prompt([
+    {
+      type: 'input',
+      name: 'name',
+      message: 'Please enter the plugin name:'
+    }
+  ]);
+  promptBlank
+    .run()
+    .then(defaultTemplate => {
+      promptLocation
+        .run()
+        .then(location => {
+          const name = input.name;
+          const isEmpty = defaultTemplate == 'no';
+          createUi(name, location, isEmpty);
+          createApi(name, isEmpty);
+          addIntoConfigs(name);
+          installDeps(name);
+        })
+        .catch(err => console.error(err));
+    })
+    .catch(err => console.error(err));
 };
 
 main();

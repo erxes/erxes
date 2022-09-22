@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-{name}-api",
+  "name": "@erxes/plugin-_name_-api",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",

@@ -1,5 +1,5 @@
 {
-  "name": "plugin-{name}-ui",
+  "name": "plugin-_name_-ui",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
