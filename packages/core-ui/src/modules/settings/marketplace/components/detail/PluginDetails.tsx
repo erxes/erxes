@@ -43,7 +43,8 @@ class PluginDetails extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    await fetch(`https://erxes.io/pluginDetail/${this.props.id}`)
+    // await fetch(`https://erxes.io/pluginDetail/${this.props.id}`)
+    await fetch(`http://localhost:3500/pluginDetail/${this.props.id}`)
       .then(async response => {
         const plugin = await response.json();
 
