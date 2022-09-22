@@ -4,6 +4,9 @@ import {
   fetchEs,
   fetchEsWithScroll
 } from '@erxes/api-utils/src/elasticsearch';
+
+import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
+
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -69,7 +72,8 @@ export const fetchSegment = async (
     }
   }
 
-  let index = await getIndexByContentType(serviceConfigs, contentType);
+  let index = await getEsIndexByContentType(contentType);
+  console.log(index, '111111111111111111111111111');
   let selector = { bool: {} };
 
   await generateQueryBySegment(models, subdomain, {
@@ -83,18 +87,12 @@ export const fetchSegment = async (
   const { returnAssociated } = options;
 
   if (returnAssociated && contentType !== returnAssociated.relType) {
-    index = await getIndexByContentType(
-      serviceConfigs,
-      returnAssociated.relType
-    );
+    index = await getEsIndexByContentType(returnAssociated.relType);
 
     const itemsResponse = await fetchEs({
       subdomain,
       action: 'search',
-      index: await getIndexByContentType(
-        serviceConfigs,
-        returnAssociated.mainType
-      ),
+      index: await getEsIndexByContentType(returnAssociated.mainType),
       body: {
         query: selector,
         _source: '_id'
@@ -790,24 +788,6 @@ export function elkConvertConditionToQuery(args: {
 
   return [positiveQuery, negativeQuery];
 }
-
-const getIndexByContentType = async (
-  serviceConfigs: any,
-  contentType: string
-) => {
-  let index = '';
-
-  for (const serviceConfig of serviceConfigs) {
-    const { indexesTypeContentType } = serviceConfig;
-
-    if (indexesTypeContentType && indexesTypeContentType[contentType]) {
-      index = indexesTypeContentType[contentType];
-      break;
-    }
-  }
-
-  return index;
-};
 
 const associationPropertyFilter = async (
   subdomain: string,
