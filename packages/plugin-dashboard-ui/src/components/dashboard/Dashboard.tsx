@@ -201,7 +201,7 @@ class Dashboard extends React.Component<Props, State> {
 
     return (
       <FlexContent>
-        <Link to={`/dashboards`}>
+        <Link to={`/dashboard`}>
           <BackButton>
             <Icon icon="angle-left" size={20} />
           </BackButton>
@@ -394,7 +394,7 @@ class Dashboard extends React.Component<Props, State> {
             <Wrapper.Header
               title={`${(dashboard && dashboard.name) || 'Dashboard'}`}
               breadcrumb={[
-                { title: __('Dashboar1d'), link: '/dashboards' },
+                { title: __('Dashboar1d'), link: '/dashboard' },
                 { title: `${(dashboard && dashboard.name) || ''}` }
               ]}
             />
