@@ -51,7 +51,6 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
       console.log(
         `coreui${envs.REACT_APP_API_URL.replace(/\//g, '')
           .replace('gateway', '')
-          .replace(/./g, '')
           .replace(/:/g, '')
           .replace('https', '')}`
       );
@@ -59,7 +58,6 @@ fetch(`${envs.REACT_APP_API_URL}/initial-setup?envs=${JSON.stringify(envs)}`, {
       initApm({
         serviceName: `coreui${envs.REACT_APP_API_URL.replace(/\//g, '')
           .replace('gateway', '')
-          .replace(/./g, '')
           .replace(/:/g, '')
           .replace('https', '')}`,
         serverUrl: envs.REACT_APP_APM_SERVER_URL,
