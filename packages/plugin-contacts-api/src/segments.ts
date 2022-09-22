@@ -1,45 +1,17 @@
 import * as _ from 'underscore';
 import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
+import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
 import { sendCoreMessage } from './messageBroker';
-
-const indexesTypeContentType = {
-  'contacts:lead': 'customers',
-  'contacts:customer': 'customers',
-  'contacts:company': 'companies',
-  'cards:deal': 'deals',
-  'cards:task': 'tasks',
-  'cards:ticket': 'tickets',
-  'inbox:conversation': 'conversations'
-};
 
 export const getName = type =>
   type.replace('contacts:', '').replace('cards:', '');
 
 export default {
-  indexesTypeContentType,
-  associationTypes: [
-    'contacts:lead',
-    'contacts:customer',
-    'contacts:company',
-    'cards:deal',
-    'cards:ticket',
-    'cards:task',
-    'inbox:conversation',
-    'forms:form_submission'
+  contentTypes: [
+    { type: 'company', description: 'Company', esIndex: 'companies' },
+    { type: 'customer', description: 'Customer', esIndex: 'customers' },
+    { type: 'lead', description: 'Lead', esIndex: 'customers' }
   ],
-
-  contentTypes: ['lead', 'customer', 'company'],
-
-  descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    lead: 'Lead',
-    customer: 'Customer',
-    company: 'Company',
-    conversation: 'Conversation',
-    form_submission: 'Form Submission'
-  },
 
   associationFilter: async ({
     subdomain,
@@ -70,7 +42,7 @@ export default {
     if (associatedTypes.includes(propertyType)) {
       const mainTypeIds = await fetchByQuery({
         subdomain,
-        index: indexesTypeContentType[propertyType],
+        index: await getEsIndexByContentType(propertyType),
         positiveQuery,
         negativeQuery
       });

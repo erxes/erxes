@@ -2,32 +2,29 @@ import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { generateConditionStageIds } from './utils';
-
-const indexesTypeContentType = {
-  'contacts:lead': 'customers',
-  'contacts:customer': 'customers',
-  'contacts:company': 'companies',
-  'cards:deal': 'deals',
-  'cards:ticket': 'tickets',
-  'cards:task': 'tasks',
-  'inbox:conversation': 'conversations'
-};
+import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
 
 const getName = type => type.replace('contacts:', '').replace('cards:', '');
 
 export default {
-  indexesTypeContentType,
+  dependentServices: [
+    { name: 'contacts', twoWay: true },
+    { name: 'inbox', twoWay: true }
+  ],
 
-  contentTypes: ['deal', 'ticket', 'task'],
-
-  descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    customer: 'Customer',
-    company: 'Company',
-    converstaion: 'Conversation'
-  },
+  contentTypes: [
+    {
+      type: 'deal',
+      description: 'Deal',
+      esIndex: 'deals'
+    },
+    {
+      type: 'ticket',
+      description: 'Ticket',
+      esIndex: 'tickets'
+    },
+    { type: 'task', description: 'Task', esIndex: 'tasks' }
+  ],
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
     const models = await generateModels(subdomain);
@@ -49,15 +46,6 @@ export default {
 
     return { data: { positive }, status: 'success' };
   },
-
-  associationTypes: [
-    'cards:deal',
-    'contacts:customer',
-    'contacts:company',
-    'cards:ticket',
-    'cards:task',
-    'inbox:conversation'
-  ],
 
   associationFilter: async ({
     subdomain,
@@ -97,7 +85,7 @@ export default {
     if (associatedTypes.includes(propertyType)) {
       const mainTypeIds = await fetchByQuery({
         subdomain,
-        index: indexesTypeContentType[propertyType],
+        index: await getEsIndexByContentType(propertyType),
         positiveQuery,
         negativeQuery
       });
