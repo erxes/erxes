@@ -101,6 +101,10 @@ const segmentQueries = {
     const dependentServices = meta.segments.dependentServices || [];
 
     for (const dService of dependentServices) {
+      if (!(await serviceDiscovery.isEnabled(dService.name))) {
+        continue;
+      }
+
       const service = await serviceDiscovery.getService(dService.name, true);
       const meta = service.config.meta || {};
 
