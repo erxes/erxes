@@ -6,7 +6,7 @@ module.exports = {
     './routes': './src/routes.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx',
     './unreadCount': './src/inbox/containers/UnreadCount.tsx',
-    './actionForms': './src/settings/integrations/containers/ActionForms',
+    './actionForms': './src/settings/integrations/containers/ActionForms'
   },
   routes: {
     url: 'http://localhost:3009/remoteEntry.js',
@@ -15,6 +15,14 @@ module.exports = {
   },
   activityLog: './activityLog',
   actionForms: './actionForms',
+  dependentPlugins: [
+    'contacts',
+    'integrations',
+    'products',
+    'forms',
+    'tags',
+    'knowledgebase'
+  ],
   menus: [
     {
       text: 'Team Inbox',
@@ -111,9 +119,9 @@ module.exports = {
   ],
   customNavigationLabel: [
     {
-      text: "unreadCount",
-      component: "./unreadCount",
-      scope: "inbox",
+      text: 'unreadCount',
+      component: './unreadCount',
+      scope: 'inbox'
     }
-  ],
+  ]
 };

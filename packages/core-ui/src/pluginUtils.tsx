@@ -3,10 +3,12 @@ declare var __webpack_share_scopes__;
 declare var window;
 
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import DependentPlugins from '@erxes/ui/src/components/DependentPlugins';
 import { IUser } from 'modules/auth/types';
 import { NavItem } from 'modules/layout/components/QuickNavigation';
 import React from 'react';
 import { __ } from 'modules/common/utils';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const PLUGIN_LABEL_COLORS: string[] = [
   '',
@@ -195,6 +197,26 @@ const System = props => {
     loadComponent(props.system.scope, props.system.module)
   );
 
+  let depsEnabled = true;
+
+  if (props.plugin.routes) {
+    const depPlugins = props.plugin.dependentPlugins || [];
+    let inactivePlugins: string[] = [];
+    for (const depPlugin of depPlugins) {
+      if (typeof isEnabled(depPlugin) == 'undefined')
+        inactivePlugins.push(depPlugin);
+      depsEnabled = depsEnabled && isEnabled(depPlugin);
+    }
+    if (!depsEnabled) {
+      return (
+        <DependentPlugins
+          depPlugins={inactivePlugins}
+          currentPlugin={props.plugin.name}
+        ></DependentPlugins>
+      );
+    }
+  }
+
   return (
     <ErrorBoundary pluginName={props.pluginName}>
       <React.Suspense fallback="">
@@ -354,6 +376,7 @@ export const pluginRouters = () => {
           loadScript={true}
           system={plugin.routes}
           pluginName={plugin.name}
+          plugin={plugin}
         />
       );
     }
