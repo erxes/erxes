@@ -4,6 +4,7 @@
   "private": true,
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "@elastic/apm-rum": "^5.12.0",
     "@nateradebaugh/react-datetime": "^4.0.0-rc.10",
     "@types/node": "^10.9.4",
     "@types/react": "^16.4.13",
