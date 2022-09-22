@@ -13,6 +13,7 @@ export interface IPost {
   _id: any;
   categoryId: string;
   content: string;
+  description?: string | null;
   title: string;
   state: PostStates;
   thumbnail?: string | null;
@@ -102,6 +103,7 @@ export const postSchema = new Schema<PostDocument>({
   categoryId: { type: Types.ObjectId },
   title: { type: String },
   content: { type: String },
+  description: String,
   state: {
     type: String,
     required: true,

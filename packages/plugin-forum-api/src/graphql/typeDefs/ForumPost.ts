@@ -1,7 +1,8 @@
 export default `
   type ForumPost @key(fields: "_id") {
     _id: ID!
-    content: String!
+    content: String
+    description: String
     title: String!
     thumbnail: String
     state: ForumPostState
