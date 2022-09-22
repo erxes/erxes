@@ -51,9 +51,11 @@ const exportHistoryMutations = {
       columnsConfig: any;
       segmentId: string;
     },
-    { models, subdomain }: IContext
+    { user, models, subdomain }: IContext
   ) {
     const exportHistory = await models.ExportHistory.createHistory({
+      success: 0,
+      total: 0,
       contentType,
       columnsConfig,
       segmentId
@@ -64,7 +66,8 @@ const exportHistoryMutations = {
         {
           contentType,
           columnsConfig,
-          exportHistoryId: exportHistory._id
+          exportHistoryId: exportHistory._id,
+          user
         },
         models,
         subdomain

@@ -6,7 +6,19 @@ const { parentPort, workerData } = require('worker_threads');
 
 connect()
   .then(async () => {
-    console.log(workerData);
+    console.log(`Worker message recieved`);
+
+    const {
+      contentType,
+      exportHistoryId,
+      columnsConfig
+    }: {
+      contentType: string;
+      exportHistoryId: string;
+      columnsConfig: string[];
+    } = workerData;
+
+    console.log(contentType, exportHistoryId, columnsConfig, 'hshshshshshhshs');
 
     // sendMessage(da)
     for (let i = 0; i < 100; i++) {

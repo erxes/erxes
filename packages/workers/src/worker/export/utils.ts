@@ -22,12 +22,14 @@ export const receiveExportCreate = async (
   models: IModels,
   subdomain: string
 ) => {
-  const { contentType, columnsConfig, exportHistoryId } = content;
+  const { contentType, user, columnsConfig, exportHistoryId } = content;
+
+  // let total = 0;
 
   debugWorkers(`Export called`);
 
   const handleOnEndWorker = async () => {
-    debugWorkers(`Export import ended`);
+    debugWorkers(`Export ended`);
   };
 
   myWorker.setHandleEnd(handleOnEndWorker);
@@ -37,7 +39,8 @@ export const receiveExportCreate = async (
     await myWorker.createWorker(subdomain, workerPath, {
       contentType,
       exportHistoryId,
-      columnsConfig
+      columnsConfig,
+      user
     });
   } catch (e) {
     await models.ExportHistory.update(

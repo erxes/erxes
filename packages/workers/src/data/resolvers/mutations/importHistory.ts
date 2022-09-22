@@ -6,6 +6,45 @@ import { IContext } from '../../../connectionResolvers';
 import messageBroker, { getFileUploadConfigs } from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
 
+const importer = async (
+  contentTypes,
+  files,
+  columnsConfig,
+  importHistoryId,
+  associatedContentType,
+  associatedField,
+  user,
+  models,
+  subdomain,
+  scopeBrandIds
+) => {
+  try {
+    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+    await receiveImportCreate(
+      {
+        action: 'createImport',
+        contentTypes,
+        files,
+        uploadType: UPLOAD_SERVICE_TYPE,
+        columnsConfig,
+        user,
+        importHistoryId,
+        associatedContentType,
+        associatedField,
+        scopeBrandIds
+      },
+      models,
+      subdomain
+    );
+  } catch (e) {
+    return models.ImportHistory.updateOne(
+      { _id: 'importHistoryId' },
+      { error: e.message }
+    );
+  }
+};
+
 const importHistoryMutations = {
   /**
    * Removes a history
@@ -73,32 +112,18 @@ const importHistoryMutations = {
       },
       user
     );
-
-    try {
-      const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
-
-      await receiveImportCreate(
-        {
-          action: 'createImport',
-          contentTypes,
-          files,
-          uploadType: UPLOAD_SERVICE_TYPE,
-          columnsConfig,
-          user,
-          importHistoryId: importHistory._id,
-          associatedContentType,
-          associatedField,
-          scopeBrandIds
-        },
-        models,
-        subdomain
-      );
-    } catch (e) {
-      return models.ImportHistory.updateOne(
-        { _id: 'importHistoryId' },
-        { error: e.message }
-      );
-    }
+    importer(
+      contentTypes,
+      files,
+      columnsConfig,
+      importHistory._id,
+      associatedContentType,
+      associatedField,
+      user,
+      models,
+      subdomain,
+      scopeBrandIds
+    );
 
     return 'success';
   }
