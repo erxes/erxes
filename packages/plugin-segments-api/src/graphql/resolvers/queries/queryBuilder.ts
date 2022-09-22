@@ -311,34 +311,45 @@ export const generateQueryBySegment = async (
       initialSelectorAvailable
     } = serviceConfig;
 
-    if (contentTypes && contentTypes.includes(collectionType)) {
-      if (esTypesMapAvailable) {
-        const response = await sendMessage({
-          subdomain,
-          serviceName,
-          isRPC: true,
-          action: 'segments.esTypesMap',
-          data: { collectionType }
-        });
-
-        typesMap = response.typesMap;
-      }
-
-      if (initialSelectorAvailable) {
-        const { negative, positive } = await sendMessage({
-          subdomain,
-          serviceName,
-          isRPC: true,
-          action: 'segments.initialSelector',
-          data: { segment, options }
-        });
-
-        if (negative) {
-          propertiesNegative.push(negative);
+    if (contentTypes) {
+      for (const contentType of contentTypes) {
+        if (contentType.type !== collectionType) {
+          continue;
         }
 
-        if (positive) {
-          propertiesPositive.push(positive);
+        if (esTypesMapAvailable) {
+          const response = await sendMessage({
+            subdomain,
+            serviceName,
+            isRPC: true,
+            action: 'segments.esTypesMap',
+            data: {
+              collectionType
+            }
+          });
+
+          typesMap = response.typesMap;
+        }
+
+        if (initialSelectorAvailable) {
+          const { negative, positive } = await sendMessage({
+            subdomain,
+            serviceName,
+            isRPC: true,
+            action: 'segments.initialSelector',
+            data: {
+              segment,
+              options
+            }
+          });
+
+          if (negative) {
+            propertiesNegative.push(negative);
+          }
+
+          if (positive) {
+            propertiesPositive.push(positive);
+          }
         }
       }
     }
@@ -421,25 +432,27 @@ export const generateQueryBySegment = async (
           propertyContentType
         ] = condition.propertyType.split(':');
 
-        if (
-          contentTypes &&
-          propertyConditionExtenderAvailable &&
-          contentTypes.includes(propertyContentType)
-        ) {
-          const { positive } = await sendMessage({
-            subdomain,
-            serviceName: propertyServiceName,
-            isRPC: true,
-            action: 'segments.propertyConditionExtender',
-            data: { condition }
-          });
+        if (contentTypes && propertyConditionExtenderAvailable) {
+          for (const contentType of contentTypes) {
+            if (contentType.type !== propertyContentType) {
+              continue;
+            }
 
-          if (positive) {
-            positiveQuery = {
-              bool: {
-                must: [positiveQuery, positive]
-              }
-            };
+            const { positive } = await sendMessage({
+              subdomain,
+              serviceName: propertyServiceName,
+              isRPC: true,
+              action: 'segments.propertyConditionExtender',
+              data: { condition }
+            });
+
+            if (positive) {
+              positiveQuery = {
+                bool: {
+                  must: [positiveQuery, positive]
+                }
+              };
+            }
           }
         }
       }
