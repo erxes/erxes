@@ -1,5 +1,6 @@
 // import { sendMessage } from '@erxes/api-utils/src/core';
 import { connect } from '../utils';
+import messageBroker from '../../messageBroker';
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
@@ -11,18 +12,31 @@ connect()
     const {
       contentType,
       exportHistoryId,
-      columnsConfig
+      columnsConfig,
+      subdomain
     }: {
       contentType: string;
       exportHistoryId: string;
       columnsConfig: string[];
+      subdomain: string;
     } = workerData;
 
-    console.log(contentType, exportHistoryId, columnsConfig, 'hshshshshshhshs');
+    console.log(subdomain);
 
-    for (let i = 0; i < 100; i++) {
-      console.log(i);
-    }
+    const serviceName = contentType.split(':')[0];
+
+    const doc = await messageBroker().sendRPCMessage(
+      `${serviceName}:exporter:prepareExportData`,
+      {
+        subdomain,
+        data: {
+          contentType,
+          columnsConfig
+        }
+      }
+    );
+
+    console.log(doc);
 
     parentPort.postMessage({
       action: 'remove',

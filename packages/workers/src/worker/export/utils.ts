@@ -39,7 +39,8 @@ export const receiveExportCreate = async (
       contentType,
       exportHistoryId,
       columnsConfig,
-      user
+      user,
+      subdomain
     });
   } catch (e) {
     await models.ExportHistory.update(

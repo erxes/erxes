@@ -296,7 +296,8 @@ async function startServer() {
         search,
         webhooks,
         initialSetup,
-        cronjobs
+        cronjobs,
+        exporter
       } = configs.meta;
       const { consumeRPCQueue, consumeQueue } = messageBrokerClient;
 
@@ -448,6 +449,18 @@ async function startServer() {
             async args => ({
               status: 'success',
               data: await imports.insertImportItems(args)
+            })
+          );
+        }
+      }
+
+      if (exporter) {
+        if (exporter.prepareExportData) {
+          consumeRPCQueue(
+            `${configs.name}:exporter:prepareExportData`,
+            async args => ({
+              status: 'success',
+              data: await exporter.prepareExportData(args)
             })
           );
         }

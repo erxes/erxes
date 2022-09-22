@@ -6,7 +6,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { buildFile } from './exporter';
+import { buildFile } from './exporter1';
 import segments from './segments';
 import forms from './forms';
 import logs from './logUtils';
@@ -18,6 +18,7 @@ import search from './search';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import webhooks from './webhooks';
 import tags from './tags';
+import exporter from './exporter';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -44,6 +45,7 @@ export default {
     segments,
     automations,
     imports,
+    exporter,
     internalNotes,
     search,
     webhooks,
