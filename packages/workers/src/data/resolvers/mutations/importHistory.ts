@@ -112,6 +112,7 @@ const importHistoryMutations = {
       },
       user
     );
+
     importer(
       contentTypes,
       files,

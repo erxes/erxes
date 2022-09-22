@@ -20,7 +20,6 @@ connect()
 
     console.log(contentType, exportHistoryId, columnsConfig, 'hshshshshshhshs');
 
-    // sendMessage(da)
     for (let i = 0; i < 100; i++) {
       console.log(i);
     }

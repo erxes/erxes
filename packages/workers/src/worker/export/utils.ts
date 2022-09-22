@@ -24,8 +24,6 @@ export const receiveExportCreate = async (
 ) => {
   const { contentType, user, columnsConfig, exportHistoryId } = content;
 
-  // let total = 0;
-
   debugWorkers(`Export called`);
 
   const handleOnEndWorker = async () => {
@@ -35,6 +33,7 @@ export const receiveExportCreate = async (
   myWorker.setHandleEnd(handleOnEndWorker);
 
   const workerPath = path.resolve(getWorkerFile());
+
   try {
     await myWorker.createWorker(subdomain, workerPath, {
       contentType,
