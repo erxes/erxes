@@ -73,7 +73,6 @@ export const fetchSegment = async (
   }
 
   let index = await getEsIndexByContentType(contentType);
-  console.log(index, '111111111111111111111111111');
   let selector = { bool: {} };
 
   await generateQueryBySegment(models, subdomain, {
