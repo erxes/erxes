@@ -55,7 +55,7 @@ After setting up this section, you can learn more about how to use this menu eff
 
 1. Using the onboarding kit or
 
-<img src="" width="90%" alt="creating ticket with onboarding kit"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/2.ticket.gif" width="90%" alt="creating ticket with onboarding kit"></img>
 
 
 2. Using the settings option.  
@@ -132,7 +132,7 @@ For the Managers, erxes provides the numbers view options to precisely look into
 - Due next week: Tasks due next week
 
 
-3. When viewing archived cards, select Archived items.
+2. When viewing archived cards, select Archived items.
 
 ---
 

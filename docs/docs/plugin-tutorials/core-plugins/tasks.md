@@ -110,27 +110,12 @@ Let you guys go through the main actions on Task Management below:
 
 For the Managers, erxes provides the numbers view options to precisely look into the projects. 
 
-
 - **Board**
----
-
 - **Calendar**
----
-
 - **Activity**
----
-
 - **List**
----
-
 - **Gantt**
----
-
 - **Chart**
----
-
-
-
 **Filter and view archives among cards**
   
 1. You can filter your card by clicking on the Show menu. Explanation of available names

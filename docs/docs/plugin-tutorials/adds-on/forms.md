@@ -87,6 +87,8 @@ If you want to your form to appear instantly, you can skip this part.
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/7.forms.gif" width="90%" alt="create content for your form"></img>
 
+Form field types: 
+
 - Text input
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/8.forms.gif" width="90%" alt="text input in form"></img>
 
