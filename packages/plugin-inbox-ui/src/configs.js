@@ -15,14 +15,7 @@ module.exports = {
   },
   activityLog: './activityLog',
   actionForms: './actionForms',
-  dependentPlugins: [
-    'contacts',
-    'integrations',
-    'products',
-    'forms',
-    'tags',
-    'knowledgebase'
-  ],
+  dependentPlugins: ['contacts', 'integrations'],
   menus: [
     {
       text: 'Team Inbox',
