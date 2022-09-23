@@ -1,7 +1,7 @@
 ---
 id: deployment
 title: Deployment
-sidebar_label: Installation
+sidebar_label: Deployment
 ---
 
 The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">**Docker**</a> on <a href="https://ubuntu.com/" target="_blank">**Ubuntu**</a> in order to use erxes. This the guideline will be dedicated to developers who is about to use erxes for their businesses only. If you want to customize or develop additional plugins on erxes, please go to <a href="https://docs.erxes.io/docs/intro">the developer installation guideline</a>.

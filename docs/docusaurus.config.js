@@ -12,8 +12,8 @@ const config = {
   url: 'https://www.erxes.org',
   baseUrl: '/',
   favicon: 'img/favicon.png',
-  organizationName: 'erxes', // Usually your GitHub org/user name.
-  projectName: 'erxes', // Usually your repo name.
+  organizationName: 'erxes',
+  projectName: 'erxes',
   onBrokenLinks: 'warn',
 
   i18n: {
@@ -47,15 +47,76 @@ const config = {
         logo: {
           alt: 'erxes logo',
           src: 'img/logo_dark.svg',
-          srcDark: 'img/logo.svg'
+          src: 'img/logo_dark.svg'
         },
         items: [
           {
-            type: 'doc',
-            docId: 'intro',
-            position: 'left',
-            label: 'Documentation'
+            href: 'https://erxes.io/resource-center',
+            position: 'right',
+            label: 'Resource center'
           },
+
+          {
+            label: 'Documentation',
+            type: 'dropdown',
+            position: 'right',
+            items: [
+              {
+                label: 'Developer Docs',
+                href: '/docs/intro'
+              },
+              {
+                label: 'User Guide',
+                href: '/docs/user-guide'
+              },
+              {
+                label: '└─ Get Started',
+                to: '/docs/user-guide/get-started'
+              },
+              {
+                label: '└─ Products',
+                to: '/docs/category/products'
+              },
+              {
+                label: '└─ Industries',
+                to: '/docs/category/industries'
+              },
+              {
+                label: '└─ Teams',
+                to: '/docs/category/teams'
+              }
+            ]
+          },
+
+          {
+            type: 'dropdown',
+            label: 'Eco system',
+            position: 'right',
+            items: [
+              { label: 'Erxes', to: '#' },
+              {
+                label: '└─ Website',
+                to: 'https://erxes.io/'
+              },
+              { label: '└─ Blog', to: 'https://erxes.io/blog' },
+
+              { label: 'Community', to: '#' },
+              {
+                label: '└─ Discord',
+                to: 'https://discord.gg/K3hfx6ShmU'
+              },
+              {
+                label: '└─ Forum - not ready',
+                to: '#'
+              },
+              { label: 'Resources', to: '#' },
+              {
+                label: '└─ Tutorials',
+                to: '/docs/plugin-tutorials/'
+              }
+            ]
+          },
+
           {
             href: 'https://github.com/erxes/erxes',
             position: 'right',

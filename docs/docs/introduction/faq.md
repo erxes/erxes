@@ -1,7 +1,7 @@
 ---
 id: faq
-title: FAQ
-sidebar_label: FAQ
+title: Frequently Asked Questions
+sidebar_label: Frequently Asked Questions
 ---
 
 ## What does erxes mean? How do you pronounce it?
