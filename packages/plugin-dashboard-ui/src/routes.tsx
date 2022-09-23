@@ -50,15 +50,15 @@ const routes = () => {
   return (
     <>
       <Route
-        key="/dashboards"
+        key="/dashboard"
         exact={true}
-        path="/dashboards"
+        path="/dashboard"
         component={dashboardList}
       />
       <Route
-        key="/dashboards/details"
+        key="/dashboard/details"
         exact={true}
-        path="/dashboards/details/:id"
+        path="/dashboard/details/:id"
         component={dashboardDetail}
       />
     </>

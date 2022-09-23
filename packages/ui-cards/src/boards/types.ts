@@ -210,6 +210,7 @@ export interface IItem {
   relations: any[];
   tags: ITag[];
   tagIds: string[];
+  customProperties?: any;
 }
 
 export interface IDraggableLocation {

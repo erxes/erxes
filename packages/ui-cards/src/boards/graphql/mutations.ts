@@ -88,6 +88,7 @@ export const commonListFields = `
   score
   number
   tagIds
+  customProperties
 `;
 
 export const commonFields = `
@@ -195,6 +196,7 @@ export const commonFields = `
     startDate
   }
   number
+  customProperties
 `;
 
 const pipelinesWatch = `

@@ -715,14 +715,14 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (name === 'coreui') {
         await execCommand(
-          `docker service update erxes_coreui --image erxes/erxes:federation`
+          `docker service update erxes_coreui --image erxes/erxes:${image_tag}`
         );
         continue;
       }
 
       if (name === 'widgets') {
         await execCommand(
-          `docker service update erxes_widgets --image erxes/widgets:federation`
+          `docker service update erxes_widgets --image erxes/widgets:${image_tag}`
         );
         continue;
       }

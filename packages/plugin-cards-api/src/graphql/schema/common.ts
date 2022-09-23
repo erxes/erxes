@@ -76,6 +76,8 @@ export const commonTypes = `
   timeTrack: TimeTrack
   number: String
   stageChangedDate: Date
+
+  customProperties: JSON
 `;
 
 export const commonMutationParams = `
@@ -128,4 +130,5 @@ export const commonListTypes = `
   number: String
   stageChangedDate: Date
   tagIds: [String]
+  customProperties: JSON
 `;
