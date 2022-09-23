@@ -30,6 +30,7 @@ export const commonMutationVariables = `
   $priority: String,
   $sourceConversationIds: [String],
   $customFieldsData: JSON,
+  $tagIds: [String]
 `;
 
 export const commonMutationParams = `
@@ -48,6 +49,7 @@ export const commonMutationParams = `
   priority: $priority,
   sourceConversationIds: $sourceConversationIds,
   customFieldsData: $customFieldsData,
+  tagIds: $tagIds
 `;
 
 export const commonDragVariables = `

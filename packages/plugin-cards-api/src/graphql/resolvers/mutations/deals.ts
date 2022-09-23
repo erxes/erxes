@@ -13,6 +13,7 @@ import {
 } from './utils';
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
+import { connected } from 'process';
 
 interface IDealsEdit extends IDeal {
   _id: string;
@@ -45,6 +46,7 @@ const dealMutations = {
     { _id, proccessId, ...doc }: IDealsEdit & { proccessId: string },
     { user, models, subdomain }: IContext
   ) {
+    console.log('333', _id, doc);
     const oldDeal = await models.Deals.getDeal(_id);
 
     if (doc.assignedUserIds) {

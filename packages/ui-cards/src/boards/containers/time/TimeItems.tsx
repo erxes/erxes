@@ -3,18 +3,20 @@ import TimeView from '../../components/Time';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import { graphql } from 'react-apollo';
-import { withProps } from '@erxes/ui/src/utils';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 import {
   IFilterParams,
   IItem,
   IOptions,
   IPipeline,
   ItemsQueryResponse,
+  ITimeData,
   RemoveStageMutation,
   SaveItemMutation
 } from '../../types';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { queries } from '../../../deals/graphql';
+import { queries, mutations } from '../../../deals/graphql';
+import { subscriptions } from '../../graphql';
 import {
   DealsQueryResponse,
   DealsTotalCountQueryResponse
@@ -34,9 +36,9 @@ type FinalProps = {
   itemsQuery: ItemsQueryResponse;
   addMutation: SaveItemMutation;
   removeStageMutation: RemoveStageMutation;
-  dealsQuery: DealsQueryResponse;
   tagsQuery: TagsQueryResponse;
   dealsTotalCountQuery: DealsTotalCountQueryResponse;
+  dealsEdit: any;
 } & Props;
 
 type State = {
@@ -45,6 +47,8 @@ type State = {
 };
 
 class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
+  private unsubcribe;
+
   constructor(props) {
     super(props);
 
@@ -54,6 +58,33 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       items: itemsQuery[options.queriesName.itemsQuery] || [],
       perPage: 20
     };
+  }
+
+  componentDidMount() {
+    const { itemsQuery, pipeline } = this.props;
+
+    this.unsubcribe = itemsQuery.subscribeToMore({
+      document: gql(subscriptions.pipelinesChanged),
+      variables: { _id: pipeline._id },
+      updateQuery: (
+        prev,
+        {
+          subscriptionData: {
+            data: { pipelinesChanged }
+          }
+        }
+      ) => {
+        if (!pipelinesChanged || !pipelinesChanged.data) {
+          return;
+        }
+
+        itemsQuery.refetch();
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubcribe();
   }
 
   componentWillReceiveProps(nextProps: FinalProps) {
@@ -83,7 +114,37 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
   };
 
   render() {
-    const { itemsQuery, options, tagsQuery, dealsTotalCountQuery } = this.props;
+    const {
+      itemsQuery,
+      options,
+      tagsQuery,
+      dealsTotalCountQuery,
+      dealsEdit
+    } = this.props;
+
+    const itemMoveResizing = (itemId: string, data: ITimeData) => {
+      const variables: any = { _id: itemId };
+
+      if (data.startDate) {
+        variables['startDate'] = data.startDate;
+      }
+
+      if (data.closeDate) {
+        variables['closeDate'] = data.closeDate;
+      }
+
+      if (data.tagId) {
+        variables['tagIds'] = data.tagId;
+      }
+
+      dealsEdit({ variables })
+        .then(() => {
+          Alert.success(options.texts.changeSuccessText);
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
 
     const refetch = () => {
       itemsQuery.refetch().then(({ data }) => {
@@ -125,7 +186,8 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       resources: tagResources,
       events: events,
       tags: tags,
-      dealsTotalCount: dealsTotalCountQuery.dealsTotalCount
+      dealsTotalCount: dealsTotalCountQuery.dealsTotalCount,
+      itemMoveResizing
     };
 
     if (itemsQuery.loading) {
@@ -165,6 +227,17 @@ const withQuery = ({ options }) => {
         options: ({ queryParams }) => ({
           variables: getFilterParams(queryParams, options.getExtraParams),
           fetchPolicy: 'network-only'
+        })
+      }),
+      graphql<Props>(gql(mutations.dealsEdit), {
+        name: 'dealsEdit',
+        options: ({ queryParams }: Props) => ({
+          refetchQueries: [
+            {
+              query: gql(options.queries.itemsQuery),
+              variables: getFilterParams(queryParams, options.getExtraParams)
+            }
+          ]
         })
       })
     )(TimeItemsContainer)

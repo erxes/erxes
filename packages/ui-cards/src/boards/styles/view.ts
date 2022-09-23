@@ -136,4 +136,9 @@ export const CalendarContainer = styled.div`
       text-align: center;
     }
   }
+
+  .react-calendar-timeline .rct-vertical-lines .rct-vl,
+  .react-calendar-timeline .rct-items .rct-item {
+    z-index: 0 !important;
+  }
 `;

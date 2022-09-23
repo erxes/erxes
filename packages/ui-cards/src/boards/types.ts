@@ -331,6 +331,7 @@ export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
   fetchMore: any;
+  subscribeToMore: any;
 } & QueryResponse;
 
 export type DetailQueryResponse = {
@@ -455,4 +456,10 @@ export type TicketCommentAddMutationResponse = {
   ticketCommentAdd: (params: {
     variables: TicketCommentAddMutationVariables;
   }) => Promise<any>;
+};
+
+export type ITimeData = {
+  closeDate?: Date;
+  startDate?: Date;
+  tagId?: string[];
 };

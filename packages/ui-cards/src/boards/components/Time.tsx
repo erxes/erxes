@@ -2,13 +2,15 @@ import React from 'react';
 import FullCalendar from '@fullcalendar/react'; // must go before plugins
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { ITag } from '@erxes/ui-tags/src/types';
-import { IOptions, IPipeline, IItem } from '../types';
+import { IOptions, IPipeline, IItem, ITimeData } from '../types';
 import { CalendarContainer } from '../styles/view';
 import EditForm from '../containers/editForm/EditForm';
 import Timeline, {
   TimelineHeaders,
   SidebarHeader,
-  DateHeader
+  DateHeader,
+  TimelineMarkers,
+  TodayMarker
 } from 'react-calendar-timeline';
 // make sure you include the timeline stylesheet or the timeline will not be styled
 import 'react-calendar-timeline/lib/Timeline.css';
@@ -23,19 +25,28 @@ type Props = {
   items: IItem[];
   resources: any[];
   events: any[];
+  itemMoveResizing: (itemId: string, data: ITimeData) => void;
 };
 
 type State = {
   selectedItem: any;
+  closeTime: any;
+  startTime: any;
 };
 export class TimeView extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
     this.state = {
-      selectedItem: null
+      selectedItem: null,
+      closeTime: null,
+      startTime: null
     };
   }
+
+  onSelectItem = itemId => {
+    this.setState({ selectedItem: itemId });
+  };
 
   renderForm = () => {
     const { selectedItem } = this.state;
@@ -70,24 +81,33 @@ export class TimeView extends React.Component<Props, State> {
   };
 
   handleItemResize = (itemId, time, edge) => {
-    const { items } = this.props;
-    console.log(itemId, time, edge, '--------------');
-    items.map(item =>
-      item._id === itemId
-        ? Object.assign({}, item, {
-            startDate: edge === 'left' ? time : item.startDate,
-            closeDate: edge === 'right' ? item.closeDate : time
-          })
-        : item
-    );
+    edge === 'right'
+      ? this.props.itemMoveResizing(itemId, { closeDate: time })
+      : this.props.itemMoveResizing(itemId, { startDate: time });
   };
 
   handleItemMove = (itemId, dragTime, newGroupOrder) => {
-    console.log(itemId, dragTime, newGroupOrder, '----------------------');
-  };
+    const { resources, items } = this.props;
 
-  onSelectItem = itemId => {
-    this.setState({ selectedItem: itemId });
+    const newTagId = [] as any;
+
+    let startDate;
+    let endDate;
+
+    newTagId.push(resources[newGroupOrder].id);
+
+    const filteredItem = items.find(item => (item || {})._id === itemId);
+
+    if (filteredItem) {
+      endDate = new Date(filteredItem.closeDate).getTime();
+      startDate = new Date(filteredItem.startDate).getTime();
+    }
+
+    this.props.itemMoveResizing(itemId, {
+      startDate: new Date(dragTime),
+      tagId: newTagId,
+      closeDate: dragTime + (endDate - startDate)
+    });
   };
 
   render() {
@@ -105,6 +125,8 @@ export class TimeView extends React.Component<Props, State> {
           onItemMove={this.handleItemMove}
           canResize={'both'}
           refetch={refetch}
+          stackItems
+          dragSnap={1}
         >
           <TimelineHeaders className="sticky">
             <SidebarHeader>
@@ -115,6 +137,9 @@ export class TimeView extends React.Component<Props, State> {
             <DateHeader unit="primaryHeader" />
             <DateHeader />
           </TimelineHeaders>
+          <TimelineMarkers>
+            <TodayMarker />
+          </TimelineMarkers>
         </Timeline>
         {this.renderForm()}
       </CalendarContainer>
