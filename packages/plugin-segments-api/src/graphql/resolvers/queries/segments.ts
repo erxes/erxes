@@ -61,7 +61,7 @@ const segmentQueries = {
       const meta = service.config.meta || {};
 
       if (meta.segments) {
-        const serviceTypes = meta.segments.contentTypes.flatMap(ct => {
+        const serviceTypes = (meta.segments.contentTypes || []).flatMap(ct => {
           if (ct.hideInSidebar) {
             return [];
           }
