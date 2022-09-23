@@ -28,6 +28,7 @@ module.exports = {
       location: 'mainNavigation',
       permission: 'showDeals'
     },
+
     {
       text: 'Task',
       url: '/task',
