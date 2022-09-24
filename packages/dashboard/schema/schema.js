@@ -3,7 +3,7 @@
 //   transformDimensions,
 //   transformMeasures
 // } from './utils';
-// import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+// import { getService, getServices } from '@${tableSchema()}/api-utils/src/serviceDiscovery';
 
 // asyncModule(async () => {
 //   const services = await getServices();

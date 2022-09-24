@@ -949,7 +949,11 @@ const widgetMutations = {
             body: conversationContent,
             customerId,
             conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId)
+            receivers: conversationNotifReceivers(conversation, customerId),
+            data: {
+              type: 'messenger',
+              id: conversation._id
+            }
           }
         });
       } catch (e) {

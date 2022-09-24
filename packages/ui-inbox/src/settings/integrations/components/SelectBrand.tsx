@@ -1,14 +1,15 @@
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+
+import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
 import Button from '@erxes/ui/src/components/Button';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import BrandForm from '@erxes/ui/src/brands/components/BrandForm';
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
 import { IBrand } from '@erxes/ui/src/brands/types';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import React from 'react';
 import { Row } from '../styles';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   brands: IBrand[];

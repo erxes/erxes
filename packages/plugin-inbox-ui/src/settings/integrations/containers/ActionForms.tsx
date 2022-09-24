@@ -2,11 +2,11 @@ import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
 
 import Button from '@erxes/ui/src/components/Button';
 import Icon from '@erxes/ui/src/components/Icon';
-import { MailBox } from '../styles';
-import MailForm from './mail/MailForm';
+import { MailBox } from '@erxes/ui-contacts/src/customers/styles';
+import MailForm from '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import SmsForm from './telnyx/SmsForm';
+import SmsForm from '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from '@erxes/ui/src/utils';
 

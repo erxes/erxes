@@ -1,10 +1,6 @@
 import { __ } from 'coreui/utils';
 import React from 'react';
-import {
-  ControlLabel,
-  FormControl,
-  FormGroup
-} from '@erxes/ui/src/components/form';
+import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
 import Select from 'react-select-plus';
 import { DATE_RANGES } from '../../constants';
 import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
@@ -60,7 +56,8 @@ class TimeForm extends React.Component<Props, State> {
       if (dimension) {
         return updateTimeDimensions.update(dimension, {
           ...dimension,
-          dateRange: value.value === 'All time' ? undefined : value.value
+          dateRange: value.value === 'All time' ? undefined : value.value,
+          granularity: undefined
         });
       }
     };
@@ -120,14 +117,23 @@ class TimeForm extends React.Component<Props, State> {
     }
 
     const renderGranularitiesOptions = timeDimension => {
-      const dimension = timeDimension.dimension || {};
+      const dimension = timeDimensions[timeDimension.index];
 
-      const granularities = dimension.granularities || [];
+      const granularities = timeDimension.dimension
+        ? timeDimension.dimension.granularities
+        : [];
+
+      const dateRange = dimension.dateRange || 'All time';
+      const foundedDateRange =
+        DATE_RANGES.find(range => range.value === dateRange) || ({} as any);
+
+      const exceludedGranularities =
+        foundedDateRange.exceludedGranularities || [];
 
       const updatedGranularities = [] as any;
 
       for (const granularitie of granularities) {
-        if (!['Second', 'Minute'].includes(granularitie.title)) {
+        if (!exceludedGranularities.includes(granularitie.title)) {
           updatedGranularities.push(granularitie);
         }
       }

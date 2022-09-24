@@ -1,6 +1,11 @@
-import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
+import {
+  Content,
+  FullHeight,
+  IntegrationWrapper,
+  SearchInput
+} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
 
-import { ByKindTotalCount } from '../../types';
+import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';

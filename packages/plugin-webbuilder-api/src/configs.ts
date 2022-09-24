@@ -1,4 +1,5 @@
 import typeDefs from './graphql/typeDefs';
+import { sendRequest } from '@erxes/api-utils/src';
 import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
@@ -65,7 +66,7 @@ export default {
         return res.status(404).send('Not found');
       }
 
-      const html = await pageReplacer(models, page, site._id);
+      const html = await pageReplacer(models, page, site);
 
       return res.send(
         `
@@ -113,7 +114,7 @@ export default {
         return res.status(404).send('Entry not found');
       }
 
-      let html = await pageReplacer(models, page, site._id);
+      let html = await pageReplacer(models, page, site);
 
       for (const evalue of entry.values) {
         const { fieldCode, value } = evalue;
@@ -150,7 +151,7 @@ export default {
         return res.status(404).send('Page not found');
       }
 
-      const html = await pageReplacer(models, page, site._id);
+      const html = await pageReplacer(models, page, site);
 
       return res.send(
         `
@@ -158,6 +159,28 @@ export default {
             ${page.css}
           </style>
           ${html}
+        `
+      );
+    });
+
+    app.get('/demo/:templateId', async (req, res) => {
+      const HELPERS_DOMAIN = `https://helper.erxes.io`;
+
+      const { templateId } = req.params;
+
+      const url = `${HELPERS_DOMAIN}/get-webbuilder-demo-page?templateId=${templateId}`;
+
+      const page = await sendRequest({
+        url,
+        method: 'get'
+      });
+
+      return res.send(
+        `
+          <style>
+            ${page.css}
+          </style>
+          ${page.html}
         `
       );
     });

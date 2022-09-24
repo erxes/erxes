@@ -1,7 +1,10 @@
 import * as compose from 'lodash.flowright';
 
 import { Alert, withProps } from '@erxes/ui/src/utils';
-import { mutations, queries } from '../../integrations/graphql';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 import { IConfigsMap } from '@erxes/ui-settings/src/general/types';
 import IntegrationsConfig from '../components/IntegrationConfigs';
