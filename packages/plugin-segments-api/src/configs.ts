@@ -36,5 +36,6 @@ export default {
 
     mainDb = options.db;
     debug = options.debug;
-  }
+  },
+  meta: { permissions }
 };

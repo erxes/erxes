@@ -76,6 +76,8 @@ export const commonTypes = `
   timeTrack: TimeTrack
   number: String
   stageChangedDate: Date
+
+  customProperties: JSON
 `;
 
 export const commonMutationParams = `
@@ -126,4 +128,5 @@ export const commonListTypes = `
   score: Float
   number: String
   stageChangedDate: Date
+  customProperties: JSON
 `;
