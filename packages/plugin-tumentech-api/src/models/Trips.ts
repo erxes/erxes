@@ -13,6 +13,7 @@ import {
   filterDeals,
   filterDealsByCar,
   filterDealsByRoute,
+  locationFilter,
   prepareDateFilter
 } from './utils';
 
@@ -28,7 +29,9 @@ export interface ITripModel extends Model<ITripDocument> {
     routeId?: string,
     categoryIds?: string[],
     dateType?: 'createdAt' | 'ShipmentTime',
-    date?: string
+    date?: string,
+    currentLocation?: { lat: number; lng: number },
+    searchRadius?: number
   ): any[];
 }
 
@@ -90,7 +93,9 @@ export const loadTripClass = (models: IModels) => {
       routeId?: string,
       categoryIds?: string[],
       dateType: 'createdAt' | 'ShipmentTime' = 'ShipmentTime',
-      date?: string
+      date?: string,
+      currentLocation?: { lat: number; lng: number },
+      searchRadius?: number
     ) {
       const stage = await sendCardsMessage({
         subdomain,
@@ -112,7 +117,9 @@ export const loadTripClass = (models: IModels) => {
           carId,
           routeId,
           date,
-          dateType
+          dateType,
+          currentLocation,
+          searchRadius
         );
       }
 
@@ -123,7 +130,9 @@ export const loadTripClass = (models: IModels) => {
           stage._id,
           routeId,
           date,
-          dateType
+          dateType,
+          currentLocation,
+          searchRadius
         );
       }
 
@@ -134,7 +143,9 @@ export const loadTripClass = (models: IModels) => {
           stage._id,
           carId,
           date,
-          dateType
+          dateType,
+          currentLocation,
+          searchRadius
         );
       }
 
@@ -157,7 +168,8 @@ export const loadTripClass = (models: IModels) => {
           subdomain,
           dateType || 'ShipmentTime',
           date
-        ))
+        )),
+        ...(await locationFilter(subdomain, currentLocation, searchRadius))
       };
 
       return sendCardsMessage({

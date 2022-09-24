@@ -57,6 +57,8 @@ const tripsQuery = {
       routeId,
       carId,
       categoryIds,
+      currentLocation,
+      searchRadius,
       date,
       dateType
     }: {
@@ -65,6 +67,8 @@ const tripsQuery = {
       categoryIds: string[];
       date: string;
       dateType: 'createdAt' | 'ShipmentTime';
+      currentLocation?: { lat: number; lng: number };
+      searchRadius?: number;
     },
     { models, subdomain }: IContext
   ) => {
@@ -74,7 +78,9 @@ const tripsQuery = {
       routeId,
       categoryIds,
       dateType,
-      date
+      date,
+      currentLocation,
+      searchRadius
     );
   }
 };

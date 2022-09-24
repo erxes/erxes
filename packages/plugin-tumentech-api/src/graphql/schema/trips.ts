@@ -11,6 +11,11 @@ input TrackingItemInput {
   trackedDate: Date
 }
 
+input LocationInput {
+  lat: Float
+  lng: Float
+}
+
   type Trip @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String!
     driverId: String
@@ -60,7 +65,7 @@ export const queries = `
     trips(status: String, driverId: String, dealId: String, page: Int, perPage: Int): TripListResponse
     activeTrips: [Trip]
     tripDetail(_id: String!): Trip
-    matchingDeals(routeId:String, carId: String, categoryIds: [String], date: String, dateType: DateFilterType): [Deal]
+    matchingDeals(routeId:String, carId: String, categoryIds: [String], currentLocation:LocationInput, searchRadius: Int ,date: String, dateType: DateFilterType): [Deal]
 `;
 
 const params = `
