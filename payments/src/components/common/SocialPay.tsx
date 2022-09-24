@@ -73,6 +73,8 @@ const SocialPaySection = ({
     if (loading) { return 'Submitting...'; }
     if (error) { return `Submission error! ${error.message}`; }
 
+    const buttonText = qrInvoiceNo ? "Reset window" : "Create invoice";
+
     const {
       customerId, companyId, contentType, contentTypeId
     } = query;
@@ -119,7 +121,16 @@ const SocialPaySection = ({
             });
           }}
         >
-          <input type="submit" value="Create invoice" />
+          {
+            qrInvoiceNo && (
+              <input type="button" onClick={e => { setQrInvoiceNo("") }} value={buttonText} />
+            )
+          }
+          {
+            !qrInvoiceNo && (
+              <input type="submit" value={buttonText} />
+            )
+          }
         </form>
       </div>
     );
