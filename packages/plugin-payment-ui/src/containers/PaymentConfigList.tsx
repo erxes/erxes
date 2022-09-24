@@ -38,8 +38,6 @@ const IntegrationListContainer = (props: FinalProps) => {
     const message = 'Are you sure?';
 
     confirm(message).then(() => {
-      Alert.warning('Removing... Please wait!!!');
-
       paymentConfigsRemove({ variables: { id: paymentConfig._id } })
         .then(() => {
           Alert.success('Your config not found');
