@@ -14,6 +14,7 @@ import { mutations } from '../graphql';
 import { IPaymentConfigDocument } from '../types';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
+import { getRefetchQueries } from '../containers/utils';
 
 type Props = {
   _id?: string;
@@ -65,7 +66,7 @@ class IntegrationListItem extends React.Component<Props, State> {
           mutation={mutations.paymentConfigsEdit}
           variables={values}
           callback={callback}
-          // refetchQueries={getRefetchQueries(this.props.kind)}
+          refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
           successMessage={__(`You successfully edited a`) + `${name}`}

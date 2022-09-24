@@ -10,6 +10,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { mutations } from '../graphql';
 import { IPaymentTypeCount } from 'types';
+import { getRefetchQueries } from '../containers/utils';
 
 type Props = {
   paymentConfig: any;
@@ -55,7 +56,7 @@ const renderButton = ({
       mutation={mutations.paymentConfigsAdd}
       variables={values}
       callback={callback}
-      // refetchQueries={getRefetchQueries(this.props.kind)}
+      refetchQueries={getRefetchQueries()}
       isSubmitted={isSubmitted}
       type="submit"
       successMessage={__(`You successfully added a`) + `${name}`}

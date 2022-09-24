@@ -68,7 +68,10 @@ const IntegrationListContainer = (props: FinalProps) => {
 const mutationOptions = () => ({
   refetchQueries: [
     {
-      query: gql(queries.paymentConfigs)
+      query: gql(queries.paymentConfigs),
+      variables: {
+        paymentIds: []
+      }
     },
     {
       query: gql(queries.paymentConfigsCountByType)
