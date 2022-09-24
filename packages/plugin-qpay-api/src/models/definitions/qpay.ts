@@ -8,6 +8,10 @@ export interface IQpayInvoice {
   qrText: string;
   qpayPaymentId: string;
   status: string;
+  companyId: string;
+  customerId: string;
+  contentType: string;
+  contentTypeId: string;
   createdAt: Date;
 }
 
@@ -40,6 +44,10 @@ export const qpayInvoiceSchema = schemaHooksWrapper(
       type: Date,
       label: 'Updated Date for Qpay payment'
     }),
+    companyId: field({ type: String, label: 'company id' }),
+    customerId: field({ type: String, label: 'customer id' }),
+    contentType: field({ type: String, label: 'content type' }),
+    contentTypeId: field({ type: String, label: 'content type id' }),
     createdAt: field({
       type: Date,
       default: new Date(),

@@ -7,6 +7,10 @@ export interface ISocialPayInvoice {
   phone: string;
   qrText: string;
   status: string;
+  companyId: string;
+  customerId: string;
+  contentType: string;
+  contentTypeId: string;
   createdAt: Date;
 }
 export interface ISocialPayInvoiceDocument extends ISocialPayInvoice, Document {
@@ -21,6 +25,10 @@ export const socialPayInvoiceSchema = schemaHooksWrapper(
     phone: field({ type: String, optional: true, label: 'phone' }),
     qrText: field({ type: String, optional: true, label: 'qr text' }),
     status: field({ type: String, default: 'open', label: 'qr text' }),
+    companyId: field({ type: String, label: 'company id' }),
+    customerId: field({ type: String, label: 'customer id' }),
+    contentType: field({ type: String, label: 'content type' }),
+    contentTypeId: field({ type: String, label: 'content type id' }),
     createdAt: field({
       type: Date,
       default: new Date(),

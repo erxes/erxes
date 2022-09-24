@@ -63,7 +63,15 @@ export const initBroker = async cl => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
-    const { amount, phone, config } = data;
+    const {
+      amount,
+      phone,
+      config,
+      customerId,
+      companyId,
+      contentType,
+      contentTypeId
+    } = data;
     const invoiceNo = await makeInvoiceNo(32);
     const { inStoreSPTerminal, inStoreSPKey } = config;
 
@@ -74,7 +82,14 @@ export const initBroker = async cl => {
         )
       : await hmac256(inStoreSPKey, inStoreSPTerminal + invoiceNo + amount);
 
-    const doc = { amount, invoiceNo };
+    const doc = {
+      amount,
+      invoiceNo,
+      customerId,
+      companyId,
+      contentType,
+      contentTypeId
+    };
     const docLast = phone ? { ...doc, phone } : doc;
 
     const invoiceLog = await models.SocialPayInvoice.socialPayInvoiceCreate(

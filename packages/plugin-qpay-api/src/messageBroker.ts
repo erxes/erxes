@@ -81,7 +81,15 @@ export const initBroker = async cl => {
     debugBase(`Receiving queue data: ${JSON.stringify(data)}`);
 
     const models = await generateModels(subdomain);
-    const { config, invoice_description, amount } = data;
+    const {
+      config,
+      invoice_description,
+      amount,
+      customerId,
+      companyId,
+      contentType,
+      contentTypeId
+    } = data;
     const { qpayInvoiceCode, callbackUrl } = config;
     const invoice_receiver_code = 'terminal';
     const token = await qpayToken(config);
@@ -89,7 +97,11 @@ export const initBroker = async cl => {
 
     const invoiceDoc = {
       senderInvoiceNo: sender_invoice_no,
-      amount
+      amount,
+      customerId,
+      companyId,
+      contentType,
+      contentTypeId
     };
 
     const invoice = await models.QpayInvoice.qpayInvoiceCreate(invoiceDoc);

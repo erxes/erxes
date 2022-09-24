@@ -59,7 +59,9 @@ const paymentConfigMutations = {
       description,
       phone,
       customerId,
-      companyId
+      companyId,
+      contentType,
+      contentTypeId
     } = params;
     console.log(params);
     const paymentConfig = await models.PaymentConfigs.findOne({
@@ -79,7 +81,9 @@ const paymentConfigMutations = {
       invoice_description: description,
       phone,
       customerId,
-      companyId
+      companyId,
+      contentType,
+      contentTypeId
     };
 
     const messageBrokerResponse =
