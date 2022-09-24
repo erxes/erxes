@@ -6,8 +6,8 @@ import { graphql } from 'react-apollo';
 import { queries, mutations } from '../../graphql';
 import {
   TemplatesQueryResponse,
-  TemplatesRemoveMutationResponse,
-  TemplatesTotalCountQueryResponse
+  TemplatesTotalCountQueryResponse,
+  TemplatesUseMutationResponse
 } from '../../types';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import { Alert, confirm } from '@erxes/ui/src/utils';
@@ -16,29 +16,29 @@ import { generatePaginationParams } from '@erxes/ui/src/utils/router';
 type Props = {
   setCount: (count: number) => void;
   queryParams: any;
+  selectedSite: string;
 };
 
 type FinalProps = {
   templatesQuery: TemplatesQueryResponse;
   templatesCountQuery: TemplatesTotalCountQueryResponse;
 } & Props &
-  TemplatesRemoveMutationResponse;
+  TemplatesUseMutationResponse;
 
 function ListContainer(props: FinalProps) {
-  const { templatesQuery, templatesCountQuery, templatesRemove } = props;
+  const { templatesQuery, templatesCountQuery, templatesUse } = props;
 
   if (templatesQuery.loading || templatesCountQuery.loading) {
     return <Spinner objective={true} />;
   }
 
-  const remove = (_id: string) => {
-    confirm().then(() => {
-      templatesRemove({ variables: { _id } })
-        .then(() => {
-          Alert.success('Successfully deleted a template');
+  const use = (_id: string, name: string) => {
+    const message = `Are you sure to create a website using this template? The site will automatically generate!`;
 
-          templatesQuery.refetch();
-          templatesCountQuery.refetch();
+    confirm(message).then(() => {
+      templatesUse({ variables: { _id, name } })
+        .then(() => {
+          Alert.success('Successfully created a website');
         })
         .catch(e => {
           Alert.error(e.message);
@@ -53,15 +53,27 @@ function ListContainer(props: FinalProps) {
     ...props,
     templates,
     templatesCount,
-    remove
+    use
   };
 
   return <List {...updatedProps} />;
 }
 
 export default compose(
-  graphql<{}, TemplatesRemoveMutationResponse>(gql(mutations.templatesRemove), {
-    name: 'templatesRemove'
+  graphql<Props, TemplatesUseMutationResponse>(gql(mutations.templatesUse), {
+    name: 'templatesUse',
+    options: ({ selectedSite }) => ({
+      refetchQueries: [
+        { query: gql(queries.sites), variables: { fromSelect: true } },
+        { query: gql(queries.sitesTotalCount) },
+        {
+          query: gql(queries.contentTypes),
+          variables: {
+            siteId: selectedSite
+          }
+        }
+      ]
+    })
   }),
   graphql<Props, TemplatesQueryResponse>(gql(queries.templates), {
     name: 'templatesQuery',

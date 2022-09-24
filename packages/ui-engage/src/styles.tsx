@@ -46,7 +46,6 @@ const PreviewContent = styledTS<{
   color: ${colors.colorCoreGray};
   font-size: 14px;
   word-break: break-word;
-  min-height: 500px;
 
   ${props => {
     if (!props.isFullmessage) {

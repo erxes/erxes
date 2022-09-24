@@ -8,7 +8,7 @@ import {
 import { graphql, useLazyQuery } from 'react-apollo';
 
 import BuildSkill from '../../components/messenger/steps/BuildSkill';
-import { ISkillData } from '../../types';
+import { ISkillData } from '@erxes/ui-inbox/src/settings/integrations/types';
 import gql from 'graphql-tag';
 import queries from '../../../skills/graphql/queries';
 import { withProps } from '@erxes/ui/src/utils';

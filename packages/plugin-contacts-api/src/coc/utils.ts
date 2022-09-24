@@ -226,7 +226,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const selector = await fetchSegment(
       this.subdomain,
       segment._id,
-      source === 'engages'
+      source === 'engages' && !segment.contentType.includes('contacts')
         ? {
             returnAssociated: {
               mainType: segment.contentType,

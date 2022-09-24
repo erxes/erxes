@@ -1,55 +1,59 @@
 const { tableSchema } = require('../tablePrefix');
 
 cube(`Stages`, {
-  sql: `SELECT * FROM ${tableSchema()}__stages`,
+  sql: `SELECT * FROM ${tableSchema()}.stages`,
 
-  joins: {},
+  joins: {
+    Pipelines: {
+      sql: `${CUBE}.pipelineId = ${Pipelines}._id`,
+      relationship: `belongsTo`
+    }
+  },
 
   measures: {
     count: {
       type: `count`,
-      drillMembers: [formid, name, pipelineid, createdDate]
+      drillMembers: [name, pipelineid, createdat]
     }
   },
 
   dimensions: {
-    formid: {
-      sql: `${CUBE}."formId"`,
-      type: `string`
+    _id: {
+      sql: `${CUBE}.\`_id\``,
+      type: `string`,
+      primaryKey: true
     },
 
     name: {
-      sql: `name`,
+      sql: `${CUBE}.\`name\``,
       type: `string`
     },
 
-    order: {
-      sql: `order`,
+    pipelineName: {
+      sql: `${Pipelines}.\`name\``,
       type: `string`
     },
 
     pipelineid: {
-      sql: `${CUBE}."pipelineId"`,
-      type: `string`
+      sql: `${CUBE}.\`pipelineId\``,
+      type: `string`,
+      shown: false
     },
 
     probability: {
       sql: `probability`,
-      type: `string`
-    },
-
-    status: {
-      sql: `status`,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
     type: {
       sql: `type`,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
-    createdDate: {
-      sql: `${CUBE}."createdAt"`,
+    createdat: {
+      sql: `${CUBE}.\`createdAt\``,
       type: `time`
     }
   }

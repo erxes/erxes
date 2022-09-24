@@ -7,8 +7,8 @@ import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
 import React from 'react';
 import Select from 'react-select-plus';
-import SelectBrand from '../../../settings/integrations/containers/SelectBrand';
-import SelectChannels from '../../../settings/integrations/containers/SelectChannels';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 
 type Name = 'languageCode';
 

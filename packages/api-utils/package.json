@@ -17,7 +17,7 @@
     "babel-preset-gatsby-package": "^0.5.2"
   },
   "dependencies": {
-    "amqplib": "^0.5.5",
+    "amqplib": "^0.10.2",
     "crypto": "^1.0.1",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",

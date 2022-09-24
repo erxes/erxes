@@ -8,9 +8,8 @@ type Props = {
   background?: string;
   zIndex?: number;
   hasFlex?: boolean;
-  withMargin?: boolean;
-  wide?: boolean;
   noBorder?: boolean;
+  wideSpacing?: boolean;
 };
 
 function ActionBar({
@@ -20,17 +19,15 @@ function ActionBar({
   bottom,
   zIndex,
   hasFlex,
-  withMargin,
-  wide,
-  noBorder
+  noBorder,
+  wideSpacing
 }: Props) {
   return (
     <ContentHeader
-      background={background || 'bgLight'}
+      background={background || 'colorWhite'}
       noBorder={noBorder}
       zIndex={zIndex}
-      withMargin={withMargin}
-      wide={wide}
+      wideSpacing={wideSpacing}
     >
       <HeaderContent>
         {left && <HeaderItems hasFlex={hasFlex}>{left}</HeaderItems>}

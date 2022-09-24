@@ -37,9 +37,8 @@ const lotteryCampaignsRemove = `
   }
 `;
 
-
 export default {
   lotteryCampaignsAdd,
   lotteryCampaignsEdit,
-  lotteryCampaignsRemove,
+  lotteryCampaignsRemove
 };

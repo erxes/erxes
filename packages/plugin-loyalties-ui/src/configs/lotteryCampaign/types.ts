@@ -1,19 +1,19 @@
-import { ICommonTypes } from "../../types";
+import { ICommonTypes } from '../../types';
 
 export type ILotteryCampaignAward = {
-  _id: string,
-  name?: string,
-  count?: number,
-  voucherCampaignId?: string
-}
+  _id: string;
+  name?: string;
+  count?: number;
+  voucherCampaignId?: string;
+};
 
 export interface ILotteryCampaign extends ICommonTypes {
-  numberFormat?: string,
-  buyScore?: number,
-  awards?: ILotteryCampaignAward[],
+  numberFormat?: string;
+  buyScore?: number;
+  awards?: ILotteryCampaignAward[];
 
-  lotteriesCount?: number,
-};
+  lotteriesCount?: number;
+}
 
 // query types
 export type LotteryCampaignQueryResponse = {
@@ -38,4 +38,4 @@ export type LotteryCampaignRemoveMutationResponse = {
   lotteryCampaignsRemove: (mutation: {
     variables: { _ids: string[] };
   }) => Promise<any>;
-}
+};

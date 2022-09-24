@@ -1,10 +1,13 @@
-const ModifiedElasticSearchDriver = require('./driver.js');
-
 module.exports = {
-  driverFactory: ({ dataSource }) => {
-    return new ModifiedElasticSearchDriver({
-      xpack: true,
-      dataSource
-    });
-  }
+  repositoryFactory: ({ securityContext }) => {
+    return {
+      dataSchemaFiles: async () => {
+        await Promise.resolve([
+          { fileName: 'file.js', content: 'contents of file' }
+        ]);
+      }
+    };
+  },
+
+  dbType: ({ dataSource }) => 'postgres'
 };

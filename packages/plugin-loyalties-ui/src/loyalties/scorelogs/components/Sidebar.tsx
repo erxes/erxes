@@ -270,7 +270,7 @@ class SideBar extends React.Component<Props, State> {
       );
     };
     return (
-      <Wrapper.Sidebar>
+      <Wrapper.Sidebar hasBorder>
         <PaddingTop>
           <SideBarFilter />
         </PaddingTop>

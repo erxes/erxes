@@ -20,17 +20,14 @@ import messageBroker, {
   sendIntegrationsMessage,
   sendCoreMessage,
   sendFormsMessage,
-  sendLogsMessage
+  sendLogsMessage,
+  sendEngagesMessage
 } from '../../messageBroker';
 
 import { MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
-
-import EditorAttributeUtil from '@erxes/api-utils/src/editorAttributeUtils';
-import { client as msgBrokerClient } from '../../messageBroker';
-import { getServices } from '@erxes/api-utils/src/serviceDiscovery';
 import { IContext, IModels } from '../../connectionResolver';
 
 interface IEditIntegration extends IIntegration {
@@ -491,31 +488,27 @@ const integrationMutations = {
       });
     }
 
-    const replacedContent = await new EditorAttributeUtil(
-      msgBrokerClient,
-      `${process.env.DOMAIN}/gateway/pl:core`,
-      await getServices(),
-      subdomain
-    ).replaceAttributes({
-      content: body,
-      user,
-      customer: customer || undefined
-    });
-
-    doc.body = replacedContent || '';
+    doc.body = body || '';
 
     try {
-      await sendIntegrationsMessage({
-        subdomain,
+      await sendEngagesMessage({
         action: 'sendEmail',
+        subdomain,
         data: {
-          kind,
-          doc: {
-            erxesApiId,
-            data: JSON.stringify(doc)
-          }
-        },
-        isRPC: true
+          fromEmail: doc.from || '',
+          email: {
+            content: doc.body,
+            subject: doc.subject,
+            attachments: doc.attachments,
+            sender: doc.from || '',
+            cc: doc.cc || [],
+            bcc: doc.bcc || []
+          },
+          customers: [customer],
+          customer,
+          createdBy: user._id,
+          title: doc.subject
+        }
       });
     } catch (e) {
       debug.error(e);
@@ -539,7 +532,9 @@ const integrationMutations = {
         action: 'emailDeliveries.create',
         data: {
           ...doc,
-          customerId: cusId
+          customerId: cusId,
+          kind: 'transaction',
+          status: 'pending'
         },
         isRPC: true
       });

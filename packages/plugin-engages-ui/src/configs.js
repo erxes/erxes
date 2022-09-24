@@ -20,7 +20,7 @@ module.exports = {
     {
       text: "Campaign settings",
       to: "/settings/campaign-configs",
-      image: "/images/icons/erxes-31.png",
+      image: "/images/icons/erxes-08.svg",
       location: "settings",
       scope: "engages",
       action: "",

@@ -47,7 +47,8 @@ export default {
     internalNotes,
     search,
     webhooks,
-    tags
+    tags,
+    permissions
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -100,6 +101,8 @@ export default {
     );
 
     initBroker(options.messageBrokerClient);
+
+    console.log('Debug ....');
 
     debug = options.debug;
     graphqlPubsub = options.pubsubClient;

@@ -18,16 +18,17 @@ import ObjectList from './ObjectList';
 import React from 'react';
 import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
+import SelectProductCategory from '../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
 import { __ } from '@erxes/ui/src/utils/core';
-import SelectProductCategory from '../containers/SelectProductCategory';
+import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 
 type Props = {
   field: IField;
   currentLocation?: ILocationOption;
   defaultValue?: any;
   hasLogic?: boolean;
-  isEditing: boolean;
+  isEditing?: boolean;
   isPreview?: boolean;
   onValueChange?: (data: { _id: string; value: any }) => void;
   onChangeLocationOptions?: (locationOptions: ILocationOption[]) => void;
@@ -188,13 +189,15 @@ export default class GenerateField extends React.Component<Props, State> {
       };
 
       return (
-        <Datetime
-          {...attrs}
-          value={value}
-          dateFormat="YYYY/MM/DD"
-          timeFormat={false}
-          closeOnSelect={true}
-        />
+        <div className="dateTime">
+          <Datetime
+            {...attrs}
+            value={value}
+            dateFormat="YYYY/MM/DD"
+            timeFormat={false}
+            closeOnSelect={true}
+          />
+        </div>
       );
     }
 
@@ -321,7 +324,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
     }
 
-    const { field, onValueChange } = this.props;
+    const { field, onValueChange, isEditing } = this.props;
 
     if (field.contentType === 'form') {
       if (!objectListConfigs) {
@@ -330,8 +333,8 @@ export default class GenerateField extends React.Component<Props, State> {
 
       return (
         <>
-          {objectListConfigs.map(o => (
-            <>
+          {objectListConfigs.map((o, index) => (
+            <React.Fragment key={index}>
               <p>
                 <b>{o.label}</b>
               </p>
@@ -340,7 +343,7 @@ export default class GenerateField extends React.Component<Props, State> {
                 componentClass={`${o.type}`}
                 placeholder={`${o.label}`}
               />
-            </>
+            </React.Fragment>
           ))}
         </>
       );
@@ -354,14 +357,14 @@ export default class GenerateField extends React.Component<Props, State> {
     };
 
     return (
-      <>
+      <ErrorBoundary>
         <ObjectList
           objectListConfigs={objectListConfigs}
           value={value}
           onChange={onChange}
-          isEditing={this.props.isEditing}
+          isEditing={isEditing ? isEditing : false}
         />
-      </>
+      </ErrorBoundary>
     );
   }
 

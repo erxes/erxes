@@ -352,6 +352,7 @@ class CompaniesList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
+        hasBorder
       />
     );
   }

@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import * as _ from 'underscore';
 import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
+import { field } from './utils';
 
 export interface IPage {
   siteId: string;
@@ -9,34 +10,51 @@ export interface IPage {
   description: string;
   html: string;
   css: string;
-  jsonData: any;
+  templateId: string;
+
+  createdBy: string;
+  modifiedBy: string;
 }
 
 export interface IPageDocument extends IPage, Document {
   _id: string;
+
+  createdAt: Date;
+  modifiedAt: Date;
 }
 
 export const pageSchema = new Schema({
-  siteId: { type: String },
-  name: { type: String, label: 'Name' },
-  description: { type: String, label: 'Description' },
-  html: { type: String },
-  css: { type: String },
-  jsonData: { type: Object }
+  siteId: field({ type: String, optional: true, label: 'Site' }),
+  name: field({ type: String, label: 'Name' }),
+  description: field({ type: String, optional: true, label: 'Description' }),
+  html: field({ type: String, optional: true, label: 'Html' }),
+  css: field({ type: String, optional: true, label: 'Css' }),
+  templateId: field({ type: String, optional: true, label: 'Template' }),
+
+  createdBy: field({ type: String, optional: true, label: 'Created by' }),
+  modifiedBy: field({ type: String, optional: true, label: 'Modified by' }),
+
+  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
+  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' })
 });
 
 export interface IPageModel extends Model<IPageDocument> {
   checkDuplication(name: string): void;
-  createPage(doc: IPage): Promise<IPageDocument>;
-  updatePage(_id: string, doc: IPage): Promise<IPageDocument>;
+  createPage(doc: IPage, userId: string): Promise<IPageDocument>;
+  updatePage(_id: string, doc: IPage, userId: string): Promise<IPageDocument>;
   removePage(_id: string): Promise<IPageDocument>;
 }
 
 export const loadPageClass = (models: IModels) => {
   class Page {
-    public static async checkDuplication(name: string, id?: string) {
+    public static async checkDuplication(
+      name: string,
+      siteId: string,
+      id?: string
+    ) {
       const query: { [key: string]: any } = {
-        name
+        name,
+        siteId
       };
 
       if (id) {
@@ -46,20 +64,27 @@ export const loadPageClass = (models: IModels) => {
       const page = await models.Pages.findOne(query);
 
       if (page) {
-        throw new Error('Name duplicated');
+        throw new Error('Duplicated! Please change name or site.');
       }
     }
 
-    public static async createPage(doc: IPage) {
-      await this.checkDuplication(doc.name);
+    public static async createPage(doc: IPage, userId: string) {
+      await this.checkDuplication(doc.name, doc.siteId);
 
-      return models.Pages.create(doc);
+      return models.Pages.create({
+        ...doc,
+        createdBy: userId,
+        createdAt: new Date()
+      });
     }
 
-    public static async updatePage(_id: string, doc) {
-      await this.checkDuplication(doc.name, _id);
+    public static async updatePage(_id: string, doc: IPage, userId: string) {
+      await this.checkDuplication(doc.name, doc.siteId, _id);
 
-      await models.Pages.updateOne({ _id }, { $set: doc });
+      await models.Pages.updateOne(
+        { _id },
+        { $set: { ...doc, modifiedBy: userId, modifiedAt: new Date() } }
+      );
 
       return models.Pages.findOne({ _id });
     }
