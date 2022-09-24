@@ -5,6 +5,21 @@ export interface IPaymentConfig {
   config: any;
 }
 
+export interface IQpayConfig {
+  qpayMerchantUser: string;
+  qpayMerchantPassword: string;
+  qpayInvoiceCode: string;
+  qpayUrl: string;
+  callbackUrl: string;
+}
+
+export interface ISocialPayConfig {
+  inStoreSPTerminal: string;
+  inStoreSPKey: string;
+  inStoreSPUrl: string;
+  pushNotification: string;
+}
+
 export interface IPaymentConfigDocument extends IPaymentConfig, Document {
   _id: string;
 }

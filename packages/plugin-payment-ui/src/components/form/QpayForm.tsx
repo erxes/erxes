@@ -7,11 +7,9 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
 import React from 'react';
-// import SelectBrand from '../../containers/SelectBrand';
-// import SelectChannels from '../../containers/SelectChannels';
 import { __ } from '@erxes/ui/src/utils';
 import { SettingsContent } from './styles';
-import { IPaymentConfig, IPaymentConfigDocument } from 'types';
+import { IPaymentConfigDocument, IQpayConfig } from 'types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -33,14 +31,23 @@ class QpayConfigForm extends React.Component<Props, State> {
     super(props);
 
     const { paymentConfig } = this.props;
+    const { name, config } = paymentConfig || ({} as IPaymentConfigDocument);
+    console.log(name, config);
+    const {
+      qpayMerchantUser,
+      qpayMerchantPassword,
+      qpayInvoiceCode,
+      qpayUrl,
+      callbackUrl
+    } = config || ({} as IQpayConfig);
 
     this.state = {
-      paymentConfigName: paymentConfig?.name || '',
-      qpayMerchantUser: paymentConfig?.config.qpayMerchantUser || '',
-      qpayMerchantPassword: paymentConfig?.config.qpayMerchantPassword || '',
-      qpayInvoiceCode: paymentConfig?.config.qpayInvoiceCode || '',
-      qpayUrl: paymentConfig?.config.qpayUrl || '',
-      callbackUrl: paymentConfig?.config.callbackUrl || ''
+      paymentConfigName: name || '',
+      qpayMerchantUser: qpayMerchantUser || '',
+      qpayMerchantPassword: qpayMerchantPassword || '',
+      qpayInvoiceCode: qpayInvoiceCode || '',
+      qpayUrl: qpayUrl || '',
+      callbackUrl: callbackUrl || ''
     };
   }
 

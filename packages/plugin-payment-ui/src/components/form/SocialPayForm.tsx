@@ -10,7 +10,7 @@ import React from 'react';
 
 import { __ } from '@erxes/ui/src/utils';
 import { SettingsContent } from './styles';
-import { IPaymentConfig, IPaymentConfigDocument } from 'types';
+import { ISocialPayConfig, IPaymentConfigDocument } from 'types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -31,13 +31,16 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     super(props);
 
     const { paymentConfig } = this.props;
+    const { name, config } = paymentConfig || ({} as IPaymentConfigDocument);
+    const { inStoreSPTerminal, inStoreSPKey, inStoreSPUrl, pushNotification } =
+      config || ({} as ISocialPayConfig);
 
     this.state = {
-      paymentConfigName: paymentConfig?.name || '',
-      inStoreSPTerminal: paymentConfig?.config.inStoreSPTerminal || '',
-      inStoreSPKey: paymentConfig?.config.inStoreSPKey || '',
-      inStoreSPUrl: paymentConfig?.config.inStoreSPUrl || '',
-      pushNotification: paymentConfig?.config.pushNotification || ''
+      paymentConfigName: name || '',
+      inStoreSPTerminal: inStoreSPTerminal || '',
+      inStoreSPKey: inStoreSPKey || '',
+      inStoreSPUrl: inStoreSPUrl || '',
+      pushNotification: pushNotification || ''
     };
   }
 

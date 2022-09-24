@@ -5,6 +5,7 @@ query paymentConfigs($paymentIds: JSON!) {
     name
     type
     status
+    config
   }
 }
 `;
