@@ -1,18 +1,12 @@
-import {
-  IIntegration,
-  IntegrationMutationVariables
-} from '@erxes/ui-inbox/src/settings/integrations/types';
-
-import { Count } from '@erxes/ui/src/styles/main';
-import { EMPTY_CONTENT_MESSENGER } from '@erxes/ui-settings/src/constants';
-import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
-import EmptyState from '@erxes/ui/src/components/EmptyState';
-import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
-import IntegrationListItem from './IntegrationListItem';
 import React from 'react';
+
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 import Table from '@erxes/ui/src/components/table';
+import { Count } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
-import { IPaymentConfig, IPaymentConfigDocument } from '../types';
+
+import { IPaymentConfigDocument } from '../types';
+import PaymentConfigListItem from './PaymentConfigListItem';
 
 type Props = {
   paymentConfigs: IPaymentConfigDocument[];
@@ -20,21 +14,13 @@ type Props = {
     paymentConfig: IPaymentConfigDocument,
     callback?: any
   ) => void;
-
-  // archive: (id: string, status: boolean) => void;
-  // editPaymentConfig: (
-  //   id: string,
-  //   { name, config }: IPaymentConfigVariables
-  // ) => void;
   queryParams: any;
-  integrationsCount: number;
+  paymentConfigsCount: number;
 };
 
 class IntegrationList extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
-
-    console.log('list component test ...');
   }
 
   renderRows() {
@@ -44,22 +30,18 @@ class IntegrationList extends React.Component<Props> {
       removePaymentConfig
     } = this.props;
 
-    return paymentConfigs.map(i => (
-      <IntegrationListItem
-        key={i._id}
+    return paymentConfigs.map(paymentConfig => (
+      <PaymentConfigListItem
+        key={paymentConfig._id}
         _id={_id}
-        paymentConfig={i}
+        paymentConfig={paymentConfig}
         removePaymentConfig={removePaymentConfig}
-        // editPaymentConfig={editPaymentConfig}
-        // archive={archive}
-        // disableAction={disableAction}
-        // editIntegration={editIntegration}
       />
     ));
   }
 
   render() {
-    const { paymentConfigs, integrationsCount } = this.props;
+    const { paymentConfigs, paymentConfigsCount } = this.props;
 
     if (!paymentConfigs || paymentConfigs.length < 1) {
       return (
@@ -73,7 +55,7 @@ class IntegrationList extends React.Component<Props> {
     return (
       <>
         <Count>
-          {integrationsCount} config{integrationsCount > 1 && 's'}
+          {paymentConfigsCount} config{paymentConfigsCount > 1 && 's'}
         </Count>
         <Table>
           <thead>

@@ -1,18 +1,22 @@
-import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
+import React from 'react';
+import { IPaymentTypeCount } from 'types';
 
-// import { ByKindTotalCount } from '../../types';
+import { Title } from '@erxes/ui-settings/src/styles';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
-import { INTEGRATIONS } from './constants/integrations';
 import Icon from '@erxes/ui/src/components/Icon';
-import React from 'react';
-import Row from './Row';
-// import Sidebar from './Sidebar';
-import { Title } from '@erxes/ui-settings/src/styles';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
-import { IPaymentTypeCount } from 'types';
+
+import { PAYMENTCONFIGS } from './constants/paymentConfigs';
+import PaymentConfigRow from './PaymentConfigRow';
+import {
+  Content,
+  FullHeight,
+  PaymentConfigWrapper,
+  SearchInput
+} from './styles';
 
 type Props = {
   queryParams: any;
@@ -21,7 +25,7 @@ type Props = {
 
 type State = {
   searchValue: string;
-  integrations: any;
+  paymentConfigs: any;
 };
 
 class Home extends React.Component<Props, State> {
@@ -29,15 +33,10 @@ class Home extends React.Component<Props, State> {
     super(props);
     this.state = {
       searchValue: '',
-      integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('Payment method') !== -1
+      paymentConfigs: PAYMENTCONFIGS.filter(
+        paymentConfig => paymentConfig.category.indexOf('Payment method') !== -1
       )
     };
-
-    console.log(
-      'renderIntegrations on Constructor:',
-      this.props.paymentConfigsCount
-    );
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -49,10 +48,10 @@ class Home extends React.Component<Props, State> {
       prevState.searchValue !== searchValue
     ) {
       this.setState({
-        integrations: INTEGRATIONS.filter(
-          integration =>
-            integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-            integration.category.indexOf(
+        paymentConfigs: PAYMENTCONFIGS.filter(
+          paymentConfig =>
+            paymentConfig.name.toLowerCase().indexOf(searchValue) !== -1 &&
+            paymentConfig.category.indexOf(
               queryParams.type || 'Payment method'
             ) !== -1
         )
@@ -64,20 +63,17 @@ class Home extends React.Component<Props, State> {
     this.setState({ searchValue: e.target.value.toLowerCase() });
   };
 
-  renderIntegrations() {
-    const { integrations, searchValue } = this.state;
+  renderPaymentConfigs() {
+    const { paymentConfigs, searchValue } = this.state;
     const { paymentConfigsCount, queryParams } = this.props;
     const datas = [] as any;
-    const rows = [...integrations];
-
-    console.log('renderIntegrations on Home:', paymentConfigsCount);
+    const rows = [...paymentConfigs];
 
     while (rows.length > 0) {
-      // console.log("rows.splice(0, 4)", rows.splice(0, 4));
       datas.push(
-        <Row
+        <PaymentConfigRow
           key={rows.length}
-          integrations={rows.splice(0, 4)}
+          paymentConfigs={rows.splice(0, 4)}
           paymentConfigsCount={paymentConfigsCount}
           queryParams={queryParams}
         />
@@ -144,10 +140,11 @@ class Home extends React.Component<Props, State> {
           />
         }
         mainHead={headerDescription}
-        // leftSidebar={<Sidebar currentType={queryParams.type} />}
         content={
           <Content>
-            <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
+            <PaymentConfigWrapper>
+              {this.renderPaymentConfigs()}
+            </PaymentConfigWrapper>
           </Content>
         }
         hasBorder={true}

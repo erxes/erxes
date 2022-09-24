@@ -22,7 +22,7 @@ const QpayImageStyle = styled.div`
   padding: 30px 40%;
 `;
 
-const IntegrationWrapper = styled.div`
+const PaymentConfigWrapper = styled.div`
   padding-bottom: ${dimensions.coreSpacing * 1.5}px;
   flex: 1;
   min-width: 1000px;
@@ -30,7 +30,7 @@ const IntegrationWrapper = styled.div`
   z-index: 1;
 `;
 
-const IntegrationRow = styled.div`
+const PaymentConfigRow = styled.div`
   padding-right: ${dimensions.coreSpacing}px;
   display: flex;
   flex-wrap: wrap;
@@ -112,7 +112,7 @@ const Type = styled.span`
   padding-top: ${dimensions.coreSpacing - 5}px;
 `;
 
-const IntegrationItem = styled.div`
+const PaymentConfigItem = styled.div`
   width: 25%;
   display: flex;
   padding-left: ${dimensions.coreSpacing}px;
@@ -247,9 +247,9 @@ const FullHeight = styled.div`
 `;
 
 export {
-  IntegrationWrapper,
-  IntegrationRow,
-  IntegrationItem,
+  PaymentConfigWrapper,
+  PaymentConfigRow,
+  PaymentConfigItem,
   CollapsibleContent,
   Box,
   Type,

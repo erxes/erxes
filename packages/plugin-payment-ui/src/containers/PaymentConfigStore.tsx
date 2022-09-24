@@ -1,9 +1,11 @@
-import * as compose from 'lodash.flowright';
-import { withProps } from '@erxes/ui/src/utils';
-import Home from '../components/Home';
-import React from 'react';
 import gql from 'graphql-tag';
+import * as compose from 'lodash.flowright';
+import React from 'react';
 import { graphql } from 'react-apollo';
+
+import { withProps } from '@erxes/ui/src/utils';
+
+import PaymentConfigHome from '../components/PaymentConfigHome';
 import { queries } from '../graphql';
 import { PaymentConfigsCountByTypeQueryResponse } from '../types';
 
@@ -26,17 +28,13 @@ const Store = (props: FinalProps) => {
   const paymentConfigsCount =
     paymentConfigsCountByTypeQuery.paymentConfigsCountByType;
 
-  console.log('store container:', paymentConfigsCount);
-
   const updatedProps = {
     ...props,
     paymentConfigsCount
   };
 
-  return <Home {...updatedProps} />;
+  return <PaymentConfigHome {...updatedProps} />;
 };
-
-// export default Store;
 
 export default withProps<Props>(
   compose(

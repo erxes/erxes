@@ -1,11 +1,10 @@
 const paymentConfigs = `
-query paymentConfigs {
-  paymentConfigs {
+query paymentConfigs($paymentIds: JSON!) {
+  paymentConfigs(paymentIds: $paymentIds) {
     _id
     name
     type
     status
-    config
   }
 }
 `;

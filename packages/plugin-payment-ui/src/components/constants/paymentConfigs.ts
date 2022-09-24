@@ -1,4 +1,4 @@
-export const INTEGRATIONS = [
+export const PAYMENTCONFIGS = [
   {
     name: 'Qpay',
     description: 'Qpay payment method',

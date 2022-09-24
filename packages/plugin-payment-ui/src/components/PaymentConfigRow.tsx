@@ -1,14 +1,15 @@
-import { CollapsibleContent, IntegrationRow } from './styles';
-
-import Collapse from 'react-bootstrap/Collapse';
-import Entry from './Entry';
-import IntegrationList from '../containers/IntegrationList';
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
+import Collapse from 'react-bootstrap/Collapse';
 import { IPaymentTypeCount } from 'types';
 
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+
+import PaymentConfigList from '../containers/PaymentConfigList';
+import PaymentConfigEntry from './PaymentConfigEntry';
+import { CollapsibleContent, PaymentConfigRow } from './styles';
+
 type Props = {
-  integrations: any[];
+  paymentConfigs: any[];
   queryParams: any;
   paymentConfigsCount?: IPaymentTypeCount;
 };
@@ -30,8 +31,6 @@ class Row extends React.Component<Props, State> {
       isContentVisible: Boolean(kind) || false,
       kind
     };
-
-    console.log('Home row ...', this.props.paymentConfigsCount);
   }
 
   getClassName = type => {
@@ -81,17 +80,17 @@ class Row extends React.Component<Props, State> {
     return <Pagination count={totalCount} />;
   }
 
-  renderEntry(integration, paymentConfigsCount, queryParams) {
+  renderEntry(paymentConfig, paymentConfigsCount, queryParams) {
     const commonProp = {
-      key: integration.name,
-      integration,
+      key: paymentConfig.name,
+      paymentConfig,
       toggleBox: this.toggleBox,
       getClassName: this.getClassName,
       paymentConfigsCount,
       queryParams
     };
 
-    return <Entry {...commonProp} />;
+    return <PaymentConfigEntry {...commonProp} />;
   }
 
   renderList() {
@@ -106,10 +105,10 @@ class Row extends React.Component<Props, State> {
 
     return (
       <>
-        <IntegrationList
+        <PaymentConfigList
           type={kind}
           queryParams={queryParams}
-          integrationsCount={count}
+          paymentConfigsCount={count}
         />
         {this.renderPagination(count)}
       </>
@@ -117,21 +116,19 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    console.log('render on Row');
+    const { paymentConfigs, paymentConfigsCount, queryParams } = this.props;
 
-    const { integrations, paymentConfigsCount, queryParams } = this.props;
-
-    const selected = integrations.find(
-      integration => integration.type === this.state.kind
+    const selected = paymentConfigs.find(
+      paymentConfig => paymentConfig.type === this.state.kind
     );
 
     return (
       <>
-        <IntegrationRow>
-          {integrations.map(integration =>
-            this.renderEntry(integration, paymentConfigsCount, queryParams)
+        <PaymentConfigRow>
+          {paymentConfigs.map(paymentConfig =>
+            this.renderEntry(paymentConfig, paymentConfigsCount, queryParams)
           )}
-        </IntegrationRow>
+        </PaymentConfigRow>
         <Collapse
           in={this.state.isContentVisible && selected ? true : false}
           unmountOnExit={true}

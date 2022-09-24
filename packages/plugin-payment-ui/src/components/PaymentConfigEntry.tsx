@@ -5,14 +5,14 @@ import Icon from '@erxes/ui/src/components/Icon';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
-import { Box, IntegrationItem, Ribbon, Type } from './styles';
+import { Box, PaymentConfigItem, Ribbon, Type } from './styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { ButtonMutate } from '@erxes/ui/src/components';
 import { mutations } from '../graphql';
 import { IPaymentTypeCount } from 'types';
 
 type Props = {
-  integration: any;
+  paymentConfig: any;
   getClassName: (type: string) => string;
   toggleBox: (kind: string) => void;
   queryParams: any;
@@ -86,7 +86,7 @@ function renderCreate(type: string) {
 }
 
 function Entry({
-  integration,
+  paymentConfig,
   getClassName,
   toggleBox,
   paymentConfigsCount
@@ -98,20 +98,10 @@ function Entry({
     description,
     logo,
     inMessenger
-  } = integration;
-
-  console.log(
-    'On entry: ',
-    type,
-    isAvailable,
-    name,
-    description,
-    logo,
-    inMessenger
-  );
+  } = paymentConfig;
 
   return (
-    <IntegrationItem key={name} className={getClassName(type)}>
+    <PaymentConfigItem key={name} className={getClassName(type)}>
       <Box onClick={() => toggleBox(type)} isInMessenger={inMessenger}>
         <img alt="logo" src={logo} />
         <h5>
@@ -128,7 +118,7 @@ function Entry({
         )}
       </Box>
       {renderCreate(name)}
-    </IntegrationItem>
+    </PaymentConfigItem>
   );
 }
 
