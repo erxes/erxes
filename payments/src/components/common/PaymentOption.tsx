@@ -1,11 +1,16 @@
 import './styles/modal.css';
-import { PAYMENTS } from './constants';
+
+import { Buffer } from 'buffer';
 import { Component } from 'react';
+
+import { IQueryParams } from '../../types';
+import { PAYMENTS } from './constants';
 import QpaySection from './Qpay';
 import SocialPaySection from './SocialPay';
 
 type Props = {
   handleClose: any;
+  queryParams?: any;
   show: boolean;
   datas: any[];
 }
@@ -43,9 +48,16 @@ class Modal extends Component<Props, State> {
 
   paymentOptionRender = (datas: any[]) => {
     const { id } = this.state;
+    const { queryParams } = this.props;
+    const base64 = queryParams.q;
+    const parsedData: string = Buffer.from(base64, 'base64').toString('ascii');
+    const query: IQueryParams = JSON.parse(parsedData);
+
+    console.log(query);
+
     const paymentData = id ? datas.find(d => d._id === id) : null;
     const type = paymentData ? paymentData.type : null;
-    const amount = "10";
+
     return (
       <div className="grid-container">
         <div className="grid-item">
@@ -65,14 +77,14 @@ class Modal extends Component<Props, State> {
           {id && type === 'qpay' &&
             <QpaySection
               paymentConfigId={id}
-              amountValue={amount}
+              query={query}
               descriptionValue="qpay test invoice"
             />}
 
           {id && type === 'socialPay' &&
             <SocialPaySection
               paymentConfigId={id}
-              amountValue={amount}
+              query={query}
               phoneValue=""
             />
           }
@@ -84,7 +96,7 @@ class Modal extends Component<Props, State> {
   }
 
   render() {
-    const { show, datas, handleClose } = this.props;
+    const { show, datas } = this.props;
     const showHideClassName = show ? 'modal display-block' : 'modal display-none';
 
     return (

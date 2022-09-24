@@ -1,39 +1,34 @@
-import { useState } from "react";
-import { gql, useQuery, useMutation } from '@apollo/client';
-import * as QRCode from 'qrcode';
 import './styles/common.css';
 
+import * as QRCode from 'qrcode';
+import { useState } from 'react';
+
+import { gql, useMutation, useQuery } from '@apollo/client';
+
+import { mutations, queries } from '../../graphql';
+import { IQueryParams } from '../../types';
+
 type Props = {
-  invoiceNoValue?: string;
-  amountValue?: string;
   descriptionValue?: string;
   paymentConfigId: string;
+  query: IQueryParams
 };
 
 const QpaySection = ({
-  invoiceNoValue,
-  amountValue,
+  query,
   descriptionValue,
   paymentConfigId,
 }: Props) => {
 
-  // const [invoiceNo, setInvoiceNo] = useState(invoiceNoValue || "")
-  const [amount, setAmount] = useState(amountValue || '0');
+  const [amount, setAmount] = useState(query.amount || '0');
   const [qr, setQr] = useState("");
   const [qrInvoiceNo, setQrInvoiceNo] = useState("");
   const [description, setDescription] = useState(descriptionValue || "");
   const [qrPaymentStatus, setQrPaymentStatus] = useState("CREATED");
-  // const [type, setType] = useState("qpay");
 
   const useCheckInvoiceQuery = () => {
 
-    const checkInvoiceQuery = `query checkInvoice($paymentId: String!, $invoiceId: String!) {
-      checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
-    }`;
-
-    console.log(checkInvoiceQuery);
-
-    const { refetch } = useQuery(gql(checkInvoiceQuery), {
+    const { refetch } = useQuery(gql(queries.checkInvoiceQuery), {
       variables: {
         invoiceId: qrInvoiceNo,
         paymentId: paymentConfigId
@@ -63,14 +58,13 @@ const QpaySection = ({
   };
 
   const useCreateInvoiceMutation = () => {
-    const createInvoice = `mutation createInvoice($paymentId: String!, $amount: Float!, $description: String!, $phone: String, $customerId: String, $companyId: String) {
-      createInvoice(paymentId: $paymentId, amount: $amount, description: $description, phone: $phone, customerId: $customerId, companyId: $companyId)
-    }`;
-    const [addTodo, { loading, error }] = useMutation(gql(createInvoice));
+    const [addTodo, { loading, error }] = useMutation(gql(mutations.createInvoice));
 
     if (loading) { return 'Submitting...'; }
     if (error) { return `Submission error! ${error.message}`; }
-
+    const {
+      customerId, companyId, contentType, contentTypeId
+    } = query;
     return (
       <div>
         <form
@@ -82,8 +76,10 @@ const QpaySection = ({
                 amount: Number(amount),
                 description,
                 phone: '',
-                customerId: '',
-                companyId: ''
+                customerId,
+                companyId,
+                contentType,
+                contentTypeId
               }
             }).then(response => {
 
@@ -115,7 +111,7 @@ const QpaySection = ({
       <>
         <div className="border">
 
-          <img src={qr} alt="" width="150px" className="center" id="qpay" />
+          <img src={qr} alt="" className="center" id="qpay" />
           <div>
             <label className="labelSpecial centerStatus" htmlFor="qpay">
               Status: {qrPaymentStatus}

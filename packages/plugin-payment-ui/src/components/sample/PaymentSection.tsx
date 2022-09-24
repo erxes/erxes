@@ -1,12 +1,14 @@
-import { Box, FormGroup } from '@erxes/ui/src/components';
-import { __ } from '@erxes/ui/src/utils';
+import { Buffer } from 'buffer';
 import React from 'react';
-import { QpaySectionStyle } from '../styles';
-import SocialPaySection from './SocialPaySection';
-import QpaySection from './QpaySection';
 import Select from 'react-select-plus';
 import { IPaymentConfigDocument } from 'types';
-import { Buffer } from 'buffer';
+
+import { Box, FormGroup } from '@erxes/ui/src/components';
+import { __ } from '@erxes/ui/src/utils';
+
+import { QpaySectionStyle } from '../styles';
+import QpaySection from './QpaySection';
+import SocialPaySection from './SocialPaySection';
 
 type Props = {
   type?: string;

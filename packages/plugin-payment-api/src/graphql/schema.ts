@@ -16,7 +16,7 @@ export const types = `
 `;
 
 export const queries = `
-  paymentConfigs: [PaymentConfig]
+  paymentConfigs(paymentIds: JSON!): [PaymentConfig]
   paymentConfigsCountByType: PaymentTypeCount
   checkInvoice(paymentId: String!, invoiceId: String!): JSON
   getPaymentOptions(paymentIds: JSON,amount: Float, customerId: String, companyId: String,contentType: String, contentTypeId: String): String
@@ -29,9 +29,20 @@ const params = `
   config: JSON
 `;
 
+const invoiceParams = `
+paymentId: String!
+amount: Float!
+description: String!
+phone: String
+customerId: String
+companyId: String
+contentType: String
+contentTypeId: String
+`;
+
 export const mutations = `
   paymentConfigsAdd(${params}): PaymentConfig
   paymentConfigsEdit(id: String!,${params}): PaymentConfig
   paymentConfigRemove(id: String!): String
-  createInvoice(paymentId: String!, amount: Float!, description: String!,phone: String, customerId: String, companyId: String): JSON
+  createInvoice(${invoiceParams}): JSON
 `;

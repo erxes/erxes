@@ -20,6 +20,10 @@ export const types = () => `
     qrText: String
     qpayPaymentId: String
     paymentDate: Date
+    customerId: String
+    companyId: String
+    contentType: String
+    contentTypeId: String
     status: String
   }
 `;
@@ -57,7 +61,11 @@ const createSimpleInvoiceParams = `
   sender_invoice_no: String,
   invoice_receiver_code: String!,
   invoice_description: String!,
-  amount: String!
+  amount: String!,
+  customerId: String,
+  companyId: String,
+  contentType: String,
+  contentTypeId: String
 `;
 
 export const mutations = `

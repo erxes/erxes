@@ -4,8 +4,14 @@ import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
 
 const paymentConfigQueries = {
-  paymentConfigs(_root, _args, { models }: IContext) {
-    return models.PaymentConfigs.find({ status: 'active' });
+  paymentConfigs(_root, args, { models }: IContext) {
+    const paymentIds: string[] = args.paymentIds;
+    const aciveCondition = { status: 'active' };
+    const filter =
+      paymentIds.length > 0
+        ? { ...aciveCondition, _id: { $in: paymentIds } }
+        : aciveCondition;
+    return models.PaymentConfigs.find(filter);
   },
 
   paymentConfigsCountByType(_root, _args, { models }: IContext) {
@@ -13,22 +19,6 @@ const paymentConfigQueries = {
       status: 'active'
     }).countDocuments();
   },
-
-  // {
-  //   paymentIds,
-  //   amount,
-  //   customerId,
-  //   companyId,
-  //   contentType,
-  //   contentTypeId
-  // }: {
-  //   paymentIds: string[];
-  //   amount: number;
-  //   customerId: string;
-  //   companyId: string;
-  //   contentType: string;
-  //   contentTypeId: string;
-  // }
 
   getPaymentOptions(_root, params, { models }: IContext) {
     console.log('Process: ', JSON.stringify(process.env));

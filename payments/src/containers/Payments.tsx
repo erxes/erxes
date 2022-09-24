@@ -1,37 +1,37 @@
-import { gql, useQuery } from '@apollo/client';
 import queryString from 'query-string';
 import { withRouter } from 'react-router-dom';
 
-import Payments from '../components/Payments';
-import { IRouterProps } from '../types';
+import { gql, useQuery } from '@apollo/client';
 
-const configsQuery = gql`
-  query paymentConfigs {
-    paymentConfigs {
-      _id
-      name
-      type
-      status
-      config
-    }
-  }
-`;
+import Payments from '../components/Payments';
+import { queries } from '../graphql';
+import { IRouterProps } from '../types';
+import { Buffer } from 'buffer';
+
 
 const PaymentsContainer = (props: IRouterProps) => {
-  const { data = {} as any, loading } = useQuery(configsQuery);
 
   const { history } = props;
-
   const { location } = history;
   const queryParams = queryString.parse(location.search);
 
-  console.log('queryParams: ', queryParams);
+  const base64str = queryParams.q;
+  const parsedData: string = Buffer.from(base64str as string, 'base64').toString('ascii');
+  const query = JSON.parse(parsedData);
+
+  console.log("payments container: ", query);
+
+  const { data = {} as any, loading } = useQuery(gql(queries.paymentConfigs), {
+    variables: { paymentIds: query.paymentIds }
+  }
+  );
+
 
   if (loading) {
     return null;
   }
 
-  return <Payments datas={data.paymentConfigs} />;
+  return <Payments datas={data.paymentConfigs} queryParams={queryParams} />;
 };
 
 export default withRouter<IRouterProps>(PaymentsContainer);

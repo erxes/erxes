@@ -1,23 +1,26 @@
-import { useState } from "react";
-import { gql, useQuery, useMutation } from '@apollo/client';
-import * as QRCode from 'qrcode';
 import './styles/common.css';
 
+import * as QRCode from 'qrcode';
+import { useState } from 'react';
+
+import { gql, useMutation, useQuery } from '@apollo/client';
+
+import { mutations, queries } from '../../graphql';
+import { IQueryParams } from '../../types';
+
 type Props = {
-  invoiceNoValue?: string;
-  amountValue?: string;
   phoneValue?: string;
   paymentConfigId: string;
+  query: IQueryParams
 };
 
 const SocialPaySection = ({
-  invoiceNoValue,
-  amountValue,
+  query,
   phoneValue,
   paymentConfigId,
 }: Props) => {
 
-  const [amount, setAmount] = useState(amountValue || '0');
+  const [amount, setAmount] = useState(query.amount || '0');
   const [qr, setQr] = useState("");
   const [qrInvoiceNo, setQrInvoiceNo] = useState("");
   const [phone, setPhone] = useState(phoneValue || "");
@@ -26,13 +29,7 @@ const SocialPaySection = ({
 
   const useCheckInvoiceQuery = () => {
 
-    const checkInvoiceQuery = `query checkInvoice($paymentId: String!, $invoiceId: String!) {
-      checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
-    }`;
-
-    console.log(checkInvoiceQuery);
-
-    const { refetch } = useQuery(gql(checkInvoiceQuery), {
+    const { refetch } = useQuery(gql(queries.checkInvoiceQuery), {
       variables: {
         invoiceId: qrInvoiceNo,
         paymentId: paymentConfigId
@@ -70,24 +67,25 @@ const SocialPaySection = ({
   };
 
   const useCreateInvoiceMutation = () => {
-    const createInvoice = `mutation createInvoice($paymentId: String!, $amount: Float!, $description: String!, $phone: String, $customerId: String, $companyId: String) {
-      createInvoice(paymentId: $paymentId, amount: $amount, description: $description, phone: $phone, customerId: $customerId, companyId: $companyId)
-    }`;
-    const [addTodo, { loading, error }] = useMutation(gql(createInvoice));
+
+    const [addTodo, { loading, error }] = useMutation(gql(mutations.createInvoice));
 
     if (loading) { return 'Submitting...'; }
     if (error) { return `Submission error! ${error.message}`; }
 
+    const {
+      customerId, companyId, contentType, contentTypeId
+    } = query;
     const variables = {
       paymentId: paymentConfigId,
       amount: Number(amount),
       phone,
       description: 'socialPay',
-      customerId: '',
-      companyId: ''
+      customerId,
+      companyId,
+      contentType,
+      contentTypeId
     };
-
-    console.log("useCreateInvoiceMutation variables: ", variables);
 
     return (
       <div>
@@ -103,13 +101,11 @@ const SocialPaySection = ({
                 setSpPaymentStatus('created');
 
                 if (!withPhone) {
-                  console.log(invoiceResponse[0]);
                   const invoice = invoiceResponse[0];
 
                   const qrText = invoice.data.qr ? invoice.data.qr : '';
 
                   QRCode.toDataURL(qrText).then(data => {
-                    console.log('QRCode.toDataURL:', invoice.data.invoiceNo, qrText);
 
                     setQr(data);
                     setQrInvoiceNo(invoice.data.invoiceNo);
@@ -128,10 +124,6 @@ const SocialPaySection = ({
       </div>
     );
   }
-
-  // const onChangeEvent = (variable, e) => {
-  //   this.setState({ ...this.state, [`${variable}`]: e.target.value });
-  // };
 
   const RenderSocialPayImage = () => {
     const showSocialPay =

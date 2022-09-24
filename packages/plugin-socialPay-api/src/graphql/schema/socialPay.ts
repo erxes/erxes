@@ -19,6 +19,10 @@ export const types = () => `
     amount: String
     phone: String
     qrText: String
+    customerId: String
+    companyId: String
+    contentType: String
+    contentTypeId: String
     status: String
   }
 `;
@@ -27,13 +31,21 @@ const socialPayInvoicePhoneParams = `
   amount: String!,
   invoiceNoAuto: Boolean!,
   invoice: String,
-  phone: String!
+  phone: String!,
+  customerId: String,
+  companyId: String,
+  contentType: String,
+  contentTypeId: String
 `;
 
 const socialPayInvoiceQrParams = `
   amount: String!
   invoiceNoAuto: Boolean!,
   invoice: String,
+  customerId: String,
+  companyId: String,
+  contentType: String,
+  contentTypeId: String
 `;
 
 const socialPayInvoiceCancelParams = `

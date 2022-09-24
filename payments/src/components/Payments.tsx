@@ -29,7 +29,7 @@ class Dashboard extends Component<Props, State> {
 
     return (
       <div>
-        <PaymentOption show={show} handleClose={this.hideModal} datas={datas} />
+        <PaymentOption show={show} handleClose={this.hideModal} datas={datas} queryParams={queryParams} />
       </div>
     );
   }
