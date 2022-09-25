@@ -1,4 +1,9 @@
 export const types = `
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+
+
   type Dashboard {
     _id: String!
     name: String
@@ -8,10 +13,18 @@ export const types = `
     parentId: String
     childsDashboard: [Dashboard]
     order: String
-    createdAt: Date
     dashboardCount: Int
     relatedIds: [String]
-  }
+    createdAt: Date
+    updatedAt: Date
+    createdBy: String
+    updatedBy: String
+
+    createdUser: User
+    updatedUser: User
+    members: [User]
+    itemsCount: Int
+  } 
 
   type DashboardItem {
     _id: String!
@@ -22,24 +35,39 @@ export const types = `
     type: String
     isDateRange: Boolean
   }
+
+  type DashboardListResponse {
+    list: [Dashboard],
+    totalCount: Float,
+  }
+`;
+
+const queryParams = `
+  page: Int
+  perPage: Int
+  ids: [String]
+  excludeIds: Boolean
+  searchValue: String
+  sortField: String
+  sortDirection: Int
 `;
 
 export const queries = `
-  dashboards(page: Int, perPage: Int): [Dashboard]
+  dashboards(${queryParams}): [Dashboard]
+  dashboardsMain(${queryParams}): DashboardListResponse
   dashboardDetails(_id: String!): Dashboard
   dashboardsTotalCount: Int
   dashboardItems(dashboardId: String!): [DashboardItem]
   dashboardItemDetail(_id: String!): DashboardItem
-  dashboardInitialDatas(type: String): [DashboardItem]
-  dashboardFilters(type: String): JSON
+  dashboardGetTypes: [String]
 `;
 
 export const mutations = `
-  dashboardAdd(name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
-  dashboardEdit(_id: String!, name: String!, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
-  dashboardRemove(_id: String!): JSON
-  dashboardItemAdd(dashboardId: String, layout: String, vizState: String, name: String, type: String, isDateRange: Boolean): DashboardItem
-  dashboardItemEdit(_id: String!, dashboardId:String, layout: String, vizState: String, name: String, type: String): DashboardItem
-  dashboardItemRemove(_id: String!): String
+  dashboardsAdd(name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
+  dashboardsEdit(_id: String!, name: String, description: String, visibility: String, selectedMemberIds: [String], parentId: String): Dashboard
+  dashboardsRemove(dashboardIds: [String]): JSON
+  dashboardItemsAdd(dashboardId: String, layout: String, vizState: String, name: String, type: String, isDateRange: Boolean): DashboardItem
+  dashboardItemsEdit(_id: String!, dashboardId:String, layout: String, vizState: String, name: String, type: String): DashboardItem
+  dashboardItemsRemove(_id: String!): String
   renderDashboard: String
 `;

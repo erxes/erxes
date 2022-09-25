@@ -1,6 +1,11 @@
-import { Content, FullHeight, IntegrationWrapper, SearchInput } from './styles';
+import {
+  Content,
+  FullHeight,
+  IntegrationWrapper,
+  SearchInput
+} from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
 
-import { ByKindTotalCount } from '../../types';
+import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
@@ -134,9 +139,7 @@ class Home extends React.Component<Props, State> {
           <Wrapper.ActionBar
             left={<Title>{queryParams.type || 'All Add-ons'}</Title>}
             right={this.renderSearch()}
-            withMargin
-            wide
-            background="colorWhite"
+            wideSpacing
           />
         }
         mainHead={headerDescription}
@@ -146,9 +149,8 @@ class Home extends React.Component<Props, State> {
             <IntegrationWrapper>{this.renderIntegrations()}</IntegrationWrapper>
           </Content>
         }
-        hasBorder={true}
         transparent={true}
-        noPadding
+        hasBorder
       />
     );
   }

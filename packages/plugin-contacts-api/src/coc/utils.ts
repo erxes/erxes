@@ -1,18 +1,17 @@
-import * as _ from 'underscore';
-import { companySchema } from '../models/definitions/companies';
-import { KIND_CHOICES } from '../models/definitions/constants';
-import { customerSchema } from '../models/definitions/customers';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+
 import { debug } from '../configs';
-import { COC_LEAD_STATUS_TYPES } from '../constants';
 import { IModels } from '../connectionResolver';
+import { COC_LEAD_STATUS_TYPES } from '../constants';
 import {
   fetchSegment,
   sendCoreMessage,
   sendSegmentsMessage,
   sendTagsMessage
 } from '../messageBroker';
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-import { getName } from '../segments';
+import { companySchema } from '../models/definitions/companies';
+import { KIND_CHOICES } from '../models/definitions/constants';
+import { customerSchema } from '../models/definitions/customers';
 
 export interface ICountBy {
   [index: string]: number;
@@ -227,7 +226,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     const selector = await fetchSegment(
       this.subdomain,
       segment._id,
-      source === 'engages'
+      source === 'engages' && !segment.contentType.includes('contacts')
         ? {
             returnAssociated: {
               mainType: segment.contentType,

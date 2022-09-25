@@ -104,6 +104,9 @@ export interface IFieldGroup extends IVisibility {
   lastUpdatedUserId?: string;
   code?: string;
   config?: any;
+
+  logics?: ILogic[];
+  logicAction?: string;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -250,6 +253,14 @@ export const fieldGroupSchema = schemaWrapper(
       default: true,
       label: 'Is group visible in detail'
     }),
-    config: { type: Object }
+    config: { type: Object },
+
+    logics: field({ type: [logicSchema] }),
+
+    logicAction: field({
+      type: String,
+      label:
+        'If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled'
+    })
   })
 );

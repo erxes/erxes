@@ -194,7 +194,7 @@ function Welcome({ currentUser }: Props) {
 
   const renderVideo = (title: string, url: string) => {
     return (
-      <Box title={title} noBackground={true}>
+      <Box title={title}>
         <iframe
           title="erxes tutorial"
           width="100%"

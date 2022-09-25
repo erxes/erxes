@@ -1,5 +1,5 @@
-import { commonDefs, commonVariables } from "../../common/graphq";
-import { donateFields } from "./queries";
+import { commonDefs, commonVariables } from '../../common/graphq';
+import { donateFields } from './queries';
 
 const donatesAdd = `
   mutation donatesAdd(${commonDefs}, $donateScore: Float) {
@@ -26,5 +26,5 @@ const donatesRemove = `
 export default {
   donatesAdd,
   donatesEdit,
-  donatesRemove,
-}
+  donatesRemove
+};

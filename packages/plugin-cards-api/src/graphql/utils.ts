@@ -10,11 +10,19 @@ import { IUserDocument } from '@erxes/api-utils/src/types';
 import { sendCoreMessage, sendNotificationsMessage } from '../messageBroker';
 import { IModels } from '../connectionResolver';
 
-export interface IConformityAdd {
+interface IMainType {
   mainType: string;
   mainTypeId: string;
+}
+
+export interface IConformityAdd extends IMainType {
   relType: string;
   relTypeId: string;
+}
+
+interface IConformityCreate extends IMainType {
+  companyIds?: string[];
+  customerIds?: string[];
 }
 
 /**
@@ -116,7 +124,11 @@ export const sendNotifications = async (
         body: `${notificationDoc.createdUser?.details?.fullName ||
           notificationDoc.createdUser?.details
             ?.shortName} removed you from ${contentType}`,
-        receivers: removedUsers.filter(id => id !== user._id)
+        receivers: removedUsers.filter(id => id !== user._id),
+        data: {
+          type: contentType,
+          id: item._id
+        }
       }
     });
   }
@@ -138,7 +150,11 @@ export const sendNotifications = async (
         body: `${notificationDoc.createdUser?.details?.fullName ||
           notificationDoc.createdUser?.details
             ?.shortName} invited you to the ${contentType}`,
-        receivers: invitedUsers.filter(id => id !== user._id)
+        receivers: invitedUsers.filter(id => id !== user._id),
+        data: {
+          type: contentType,
+          id: item._id
+        }
       }
     });
   }
@@ -247,17 +263,7 @@ export const checkPermission = async (
 
 export const createConformity = async (
   subdomain: string,
-  {
-    companyIds,
-    customerIds,
-    mainType,
-    mainTypeId
-  }: {
-    companyIds?: string[];
-    customerIds?: string[];
-    mainType: string;
-    mainTypeId: string;
-  }
+  { companyIds, customerIds, mainType, mainTypeId }: IConformityCreate
 ) => {
   const companyConformities: IConformityAdd[] = (companyIds || []).map(
     companyId => ({

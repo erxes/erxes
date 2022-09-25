@@ -1,3 +1,6 @@
+import { colors } from '@erxes/ui/src/styles';
+import React from 'react';
+
 import Assignees from '../../boards/components/Assignees';
 import Details from '../../boards/components/Details';
 import DueDateLabel from '../../boards/components/DueDateLabel';
@@ -9,7 +12,6 @@ import { PriceContainer, Right } from '../../boards/styles/item';
 import { Content } from '../../boards/styles/stage';
 import { IOptions } from '../../boards/types';
 import { renderPriority } from '../../boards/utils';
-import React from 'react';
 import { ITicket } from '../types';
 
 type Props = {
@@ -46,7 +48,13 @@ class TicketItem extends React.PureComponent<Props> {
 
   renderContent() {
     const { item } = this.props;
-    const { customers, companies, closeDate, isComplete } = item;
+    const {
+      customers,
+      companies,
+      closeDate,
+      isComplete,
+      customProperties
+    } = item;
 
     return (
       <>
@@ -57,6 +65,10 @@ class TicketItem extends React.PureComponent<Props> {
 
         <Details color="#F7CE53" items={customers || []} />
         <Details color="#EA475D" items={companies || []} />
+        <Details
+          color={colors.colorCoreOrange}
+          items={customProperties || []}
+        />
 
         <PriceContainer>
           <Right>

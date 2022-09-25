@@ -26,6 +26,8 @@ type State = {
 };
 
 class Pages extends React.Component<Props, State> {
+  private timer?: NodeJS.Timer;
+
   constructor(props) {
     super(props);
 
@@ -43,13 +45,19 @@ class Pages extends React.Component<Props, State> {
   };
 
   search = e => {
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+
     const { history } = this.props;
     const searchValue = e.target.value;
 
     this.setState({ searchValue });
 
-    router.removeParams(history, 'page');
-    router.setParams(history, { searchValue });
+    this.timer = setTimeout(() => {
+      router.removeParams(history, 'page');
+      router.setParams(history, { searchValue });
+    }, 500);
   };
 
   render() {
@@ -83,6 +91,8 @@ class Pages extends React.Component<Props, State> {
               <th>{__('Name')}</th>
               <th>{__('Description')}</th>
               <th>{__('Site')}</th>
+              <th>{__('Created By')}</th>
+              <th>{__('Last updated By')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
@@ -95,7 +105,7 @@ class Pages extends React.Component<Props, State> {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No Entries"
+          text="No Pages"
           size="small"
         />
       );

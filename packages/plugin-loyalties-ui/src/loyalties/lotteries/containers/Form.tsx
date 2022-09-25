@@ -47,8 +47,9 @@ class LotteryFromContainer extends React.Component<FinalProps> {
           refetchQueries={getRefetchQueries()}
           isSubmitted={isSubmitted}
           type="submit"
-          successMessage={`You successfully ${object ? 'updated' : 'added'
-            } a ${name}`}
+          successMessage={`You successfully ${
+            object ? 'updated' : 'added'
+          } a ${name}`}
         />
       );
     };
@@ -73,7 +74,4 @@ const getRefetchQueries = () => {
   ];
 };
 
-export default withProps<Props>(
-  compose(
-  )(LotteryFromContainer)
-);
+export default withProps<Props>(compose()(LotteryFromContainer));

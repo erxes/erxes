@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { router } from '@erxes/ui/src/utils';
 import { __ } from '@erxes/ui/src/utils';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
@@ -6,24 +7,28 @@ import ContentTypeList from '../containers/contentTypes/List';
 import EntriesList from '../containers/entries/List';
 import Pages from '../containers/pages/Pages';
 import Sites from '../containers/sites/List';
-import SideBar from './Sidebar';
-import { IContentTypeDoc } from '../types';
+import SideBar from '../containers/Sidebar';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import TemplatesList from '../containers/templates/List';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import SelectSite from '../containers/sites/SelectSite';
+import { withRouter } from 'react-router-dom';
+import { IRouterProps } from '@erxes/ui/src/types';
 
 type Props = {
   step: string;
   queryParams: any;
   history: any;
-  contentTypes: IContentTypeDoc[];
-  loading: boolean;
-};
+} & IRouterProps;
 
 function WebBuilder(props: Props) {
   const [Component, setComponent] = useState(<div />);
   const [RightActionBar, setRightActionBar] = useState(<div />);
   const [count, setCount] = useState(1);
-  const { step, queryParams, history, contentTypes, loading } = props;
+  const [loading, setLoading] = useState(true);
+
+  const { step, queryParams, history } = props;
+  const site = localStorage.getItem('webbuilderSiteId') || '';
 
   useEffect(() => {
     switch (step) {
@@ -33,9 +38,11 @@ function WebBuilder(props: Props) {
             queryParams={queryParams}
             getActionBar={setRightActionBar}
             setCount={setCount}
+            selectedSite={site}
           />
         );
 
+        setLoading(false);
         break;
 
       case 'entries':
@@ -47,6 +54,7 @@ function WebBuilder(props: Props) {
           />
         );
 
+        setLoading(false);
         break;
 
       case 'pages':
@@ -56,17 +64,25 @@ function WebBuilder(props: Props) {
             setCount={setCount}
             queryParams={queryParams}
             history={history}
+            selectedSite={site}
           />
         );
 
+        setLoading(false);
         break;
 
       case 'templates':
         setComponent(
-          <TemplatesList setCount={setCount} queryParams={queryParams} />
+          <TemplatesList
+            setCount={setCount}
+            queryParams={queryParams}
+            selectedSite={site}
+          />
         );
+
         setRightActionBar(<></>);
 
+        setLoading(false);
         break;
 
       case 'sites':
@@ -75,17 +91,38 @@ function WebBuilder(props: Props) {
             getActionBar={setRightActionBar}
             setCount={setCount}
             queryParams={queryParams}
+            selectedSite={site}
           />
         );
 
+        setLoading(false);
         break;
 
       default:
         setComponent(<div />);
+        setLoading(false);
     }
   }, [queryParams]);
 
   const breadcrumb = [{ title: __('Webbuilder') }];
+
+  const onChangeSite = value => {
+    const { history } = props;
+
+    const siteId = value;
+
+    localStorage.setItem('webbuilderSiteId', siteId);
+
+    router.setParams(history, { siteId });
+  };
+
+  const actionBarLeft = () => {
+    return (
+      <BarItems>
+        <SelectSite initialValue={site} onSelect={onChangeSite} />
+      </BarItems>
+    );
+  };
 
   return (
     <>
@@ -97,19 +134,10 @@ function WebBuilder(props: Props) {
           />
         }
         actionBar={
-          <Wrapper.ActionBar
-            right={RightActionBar}
-            withMargin={true}
-            wide={true}
-            background="colorWhite"
-          />
+          <Wrapper.ActionBar right={RightActionBar} left={actionBarLeft()} />
         }
         leftSidebar={
-          <SideBar
-            queryParams={queryParams}
-            type={step}
-            contentTypes={contentTypes}
-          />
+          <SideBar queryParams={queryParams} type={step} selectedSite={site} />
         }
         content={
           <DataWithLoader
@@ -120,12 +148,10 @@ function WebBuilder(props: Props) {
           />
         }
         footer={<Pagination count={count} />}
-        hasBorder={true}
         transparent={true}
-        noPadding={true}
       />
     </>
   );
 }
 
-export default WebBuilder;
+export default withRouter<Props>(WebBuilder);

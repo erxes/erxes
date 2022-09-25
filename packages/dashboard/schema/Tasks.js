@@ -1,9 +1,22 @@
 const { tableSchema } = require('../tablePrefix');
 
 cube(`Tasks`, {
-  sql: `SELECT * FROM ${tableSchema()}__tasks`,
+  sql: `SELECT * FROM ${tableSchema()}.tasks`,
 
-  joins: {},
+  joins: {
+    Stages: {
+      sql: `${CUBE}.stageId = ${Stages}._id`,
+      relationship: `belongsTo`
+    },
+    TasksAssigneduser: {
+      sql: `${CUBE}._id = ${TasksAssigneduser}._id`,
+      relationship: `belongsTo`
+    },
+    Conformities: {
+      sql: `${CUBE}._id = ${Conformities}.relTypeId or ${CUBE}._id = ${Conformities}.mainTypeId `,
+      relationship: `belongsTo`
+    }
+  },
 
   measures: {
     count: {
@@ -12,54 +25,103 @@ cube(`Tasks`, {
   },
 
   dimensions: {
+    _id: {
+      sql: `${CUBE}.\`_id\``,
+      type: `string`,
+      primaryKey: true
+    },
+
+    description: {
+      sql: `description`,
+      type: `string`,
+      shown: false
+    },
+
+    initialstageid: {
+      sql: `${CUBE}.\`initialStageId\``,
+      type: `string`,
+      title: 'Initial Stage',
+      shown: false
+    },
+
+    modifiedby: {
+      sql: `${CUBE}.\`modifiedBy\``,
+      type: `string`,
+      title: 'Modified User'
+    },
+
+    name: {
+      sql: `name`,
+      type: `string`
+    },
+
+    reltypecustomer: {
+      sql: `${Conformities.reltypecustomer}`,
+      type: `string`,
+      title: 'Rel-Type Customer'
+    },
+
+    stageName: {
+      sql: `${Stages}.name`,
+      type: `string`,
+      title: `Stage name`
+    },
+
+    number: {
+      sql: `number`,
+      type: `string`,
+      shown: false
+    },
+
     priority: {
       sql: `priority`,
       type: `string`
     },
 
-    stageName: {
-      sql: `${CUBE}."stageId"`,
-      type: `string`
+    stageProbability: {
+      type: `string`,
+      case: {
+        when: [
+          {
+            sql: `${Stages}.probability != ''`,
+            label: { sql: `${Stages}.probability` }
+          }
+        ],
+        else: {}
+      }
     },
 
-    pipeline: {
-      sql: `${CUBE}."stageId"`,
-      type: `string`
+    pipelineName: {
+      sql: `${Stages.pipelineName}`,
+      type: `string`,
+      title: `Pipeline name`
     },
 
-    assignedUser: {
-      sql: `${CUBE}."assignedUserIds"`,
-      type: `string`
-    },
-
-    board: {
-      sql: `${CUBE}."stageId"`,
-      type: `string`
+    stageid: {
+      sql: `${CUBE}.\`stageId\``,
+      type: `string`,
+      shown: false
     },
 
     status: {
       sql: `status`,
-      type: `string`
+      type: `string`,
+      shown: false
     },
 
-    modifiedBy: {
-      sql: `${CUBE}."modifiedBy"`,
-      type: `string`
+    createdat: {
+      sql: `${CUBE}.\`createdAt\``,
+      type: `time`,
+      title: 'Creted Date'
     },
 
-    createdDate: {
-      sql: `${CUBE}."createdAt"`,
-      type: `time`
-    },
-
-    closedDate: {
-      sql: `${CUBE}."closedDate"`,
-      type: `time`
-    },
-
-    modifiedDate: {
-      sql: `${CUBE}."modifiedAt"`,
-      type: `time`
+    modifiedat: {
+      sql: `${CUBE}.\`modifiedAt\``,
+      type: `time`,
+      title: 'Modified Date',
+      shown: false
     }
-  }
+  },
+
+  dataSource: `default`
 });

@@ -3,7 +3,6 @@ import { SidebarList } from '@erxes/ui/src/layout/styles';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
 
-
 const LoyaltiesTableWrapper = styled.div`
   td {
     max-width: 250px;
@@ -55,7 +54,6 @@ const GroupWrapper = styled.div`
     background: ${colors.bgActive} !important;
   }
 `;
-
 
 const ActionButtons = styled.div`
   display: flex;

@@ -131,7 +131,7 @@ const features: {
   customizeReports: {
     feature: 'dashboards',
     settings: ['dashboardCreate', 'dashboardItemCreate'],
-    settingsPermissions: ['dashboardAdd', 'dashboardItemAdd']
+    settingsPermissions: ['dashboardsAdd', 'dashboardItemsAdd']
   },
 
   createLeadGenerationForm: {
@@ -230,7 +230,11 @@ const robotQueries = {
     return models.OnboardingHistories.stepsCompletness(steps, user);
   },
 
-  async onboardingGetAvailableFeatures(_root, _args, { user, models }: IContext) {
+  async onboardingGetAvailableFeatures(
+    _root,
+    _args,
+    { user, models }: IContext
+  ) {
     const results: Array<{
       name: string;
       isComplete: boolean;
@@ -266,7 +270,8 @@ const robotQueries = {
           settings,
           showSettings,
           isComplete:
-            (await models.OnboardingHistories.find(selector).countDocuments()) > 0
+            (await models.OnboardingHistories.find(selector).countDocuments()) >
+            0
         });
       }
     }

@@ -1,6 +1,6 @@
 import { ICustomer } from '../../models/definitions/customers';
 import { sendCoreMessage, sendIntegrationsMessage } from '../../messageBroker';
-import { MODULE_NAMES } from '../../constants';
+import { COC_LIFECYCLE_STATE_TYPES, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { validateBulk } from '../../verifierUtils';
@@ -8,6 +8,11 @@ import { IContext } from '../../connectionResolver';
 
 interface ICustomersEdit extends ICustomer {
   _id: string;
+}
+
+interface IStateParams {
+  _ids: string[];
+  value: string;
 }
 
 const customerMutations = {
@@ -217,6 +222,24 @@ const customerMutations = {
       args.customerIds,
       args.type,
       args.status
+    );
+  },
+
+  customersChangeStateBulk(
+    _root,
+    { _ids, value }: IStateParams,
+    { models }: IContext
+  ) {
+    if (!_ids || _ids.length < 1) {
+      throw new Error('Customer ids can not be empty');
+    }
+    if (!COC_LIFECYCLE_STATE_TYPES.includes(value)) {
+      throw new Error('Invalid customer state');
+    }
+
+    return models.Customers.updateMany(
+      { _id: { $in: _ids } },
+      { $set: { state: value } }
     );
   }
 };

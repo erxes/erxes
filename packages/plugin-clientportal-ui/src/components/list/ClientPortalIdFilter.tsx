@@ -28,7 +28,7 @@ function ClientPortalUser({
   clientPortalGetConfigs
 }: IProps) {
   const onRemove = () => {
-    router.setParams(history, { cpId: null });
+    router.removeParams(history, 'cpId');
   };
 
   const extraButtons = (

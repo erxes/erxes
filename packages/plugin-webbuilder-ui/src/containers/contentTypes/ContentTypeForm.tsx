@@ -75,7 +75,10 @@ function ContentTypeFormContainer(props: FinalProps) {
 
 const refetchTypeQueries = () => [
   { query: gql(queries.contentTypesMain) },
-  { query: gql(queries.contentTypes) }
+  {
+    query: gql(queries.contentTypes),
+    variables: { siteId: localStorage.getItem('webbuilderSiteId') }
+  }
 ];
 
 export default compose(

@@ -1,19 +1,21 @@
 {
-  "name": "dashboard",
-  "version": "0.0.1",
-  "private": true,
+  "name": "dashboard-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
   "scripts": {
-    "dev": "node index.js --respawn --ignore-watch node_modules -- src"
+    "start": "node dist",
+    "dev": "ERXES_TELEMETRY_DISABLED=1 DEBUG=erxes-dashboard-api* NODE_ENV=development nodemon src/index.ts",
+    "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json"
   },
   "dependencies": {
-    "@cubejs-backend/elasticsearch-driver": "^0.19.17",
-    "@cubejs-backend/server": "^0.19.14",
-    "@cubejs-client/core": "^0.22.2",
-    "dotenv": "^8.2.0",
-    "elasticsearch": "^16.7.1",
-    "express": "^4.17.1",
+    "@cubejs-backend/mongobi-driver": "^0.30.25",
+    "@cubejs-backend/server": "^0.30.28",
+    "@cubejs-backend/server-core": "^0.30.55",
+    "@cubejs-client/core": "^0.30.29",
+    "express": "^4.18.1",
     "jsonwebtoken": "^8.5.1",
     "sqlstring": "^2.3.2",
-    "xlsx-populate": "^1.21.0"
+    "ts-node": "^10.4.0"
   }
 }

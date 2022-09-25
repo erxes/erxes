@@ -1,26 +1,31 @@
-import gql from 'graphql-tag';
-import * as compose from 'lodash.flowright';
-import debounce from 'lodash/debounce';
-import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
-import { IUser } from '@erxes/ui/src/auth/types';
-import Spinner from '@erxes/ui/src/components/Spinner';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
-import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
-import { mutations, queries } from '../../graphql';
 import * as React from 'react';
-import { graphql } from 'react-apollo';
-import MailForm from '../../components/mail/MailForm';
-import { IntegrationsQueryResponse } from '../../types';
+import * as compose from 'lodash.flowright';
+
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import {
+  EngageVerifiedEmailsQueryResponse,
+  IEmailFormProps
+} from '@erxes/ui-engage/src/types';
+import { IMail, IMessage } from '@erxes/ui-inbox/src/inbox/types';
 import {
   defaultCustomerFields,
   defaultMailFields,
   defaultMessageFields
 } from './constants';
+import { mutations, queries } from '../../graphql';
+
+import { IUser } from '@erxes/ui/src/auth/types';
+import MailForm from '../../components/mail/MailForm';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import debounce from 'lodash/debounce';
+import { queries as engageQueries } from '@erxes/ui-engage/src/graphql';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { queries as messageQueries } from '@erxes/ui-inbox/src/inbox/graphql';
+import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 
 type Props = {
   clearOnSubmit?: boolean;
-  integrationId?: string;
   brandId?: string;
   conversationId?: string;
   refetchQueries?: string[];
@@ -44,7 +49,7 @@ type FinalProps = {
   sendMailMutation: any;
   emailTemplatesQuery: any /*change type*/;
   emailTemplatesTotalCountQuery: any /*change type*/;
-  integrationsQuery: IntegrationsQueryResponse;
+  engageVerifiedEmailsQuery: EngageVerifiedEmailsQueryResponse;
 } & Props;
 
 const MailFormContainer = (props: FinalProps) => {
@@ -52,7 +57,6 @@ const MailFormContainer = (props: FinalProps) => {
     mailData,
     customerId,
     conversationId,
-    integrationsQuery,
     isReply,
     closeModal,
     closeReply,
@@ -61,10 +65,11 @@ const MailFormContainer = (props: FinalProps) => {
     sendMailMutation,
     currentUser,
     mails,
-    messageId
+    messageId,
+    engageVerifiedEmailsQuery
   } = props;
 
-  if (integrationsQuery.loading) {
+  if (engageVerifiedEmailsQuery.loading) {
     return <Spinner objective={true} />;
   }
 
@@ -93,8 +98,6 @@ const MailFormContainer = (props: FinalProps) => {
       }
     });
   };
-
-  const integrations = integrationsQuery.integrations || [];
 
   const save = ({
     variables,
@@ -214,14 +217,14 @@ const MailFormContainer = (props: FinalProps) => {
   const updatedProps = {
     ...props,
     sendMail,
-    integrations,
     currentUser,
     fetchMoreEmailTemplates,
     emailTemplates: emailTemplatesQuery.emailTemplates,
     emailSignatures: currentUser.emailSignatures || [],
     totalCount: emailTemplatesTotalCount,
     mails,
-    messageId
+    messageId,
+    verifiedEmails: engageVerifiedEmailsQuery.engageVerifiedEmails
   };
 
   return <MailForm {...updatedProps} />;
@@ -229,15 +232,6 @@ const MailFormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, IntegrationsQueryResponse>(gql(queries.integrations), {
-      name: 'integrationsQuery',
-      options: () => {
-        return {
-          variables: { kind: 'mail', status: 'active' },
-          fetchPolicy: 'network-only'
-        };
-      }
-    }),
     graphql<Props, any>(gql(queries.emailTemplates), {
       name: 'emailTemplatesQuery',
       options: () => ({
@@ -252,6 +246,10 @@ export default withProps<Props>(
       options: () => ({
         refetchQueries: ['activityLogs']
       })
-    })
+    }),
+    graphql<IEmailFormProps, EngageVerifiedEmailsQueryResponse>(
+      gql(engageQueries.verifiedEmails),
+      { name: 'engageVerifiedEmailsQuery' }
+    )
   )(withCurrentUser(MailFormContainer))
 );

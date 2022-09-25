@@ -1,14 +1,5 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, withProps } from '@erxes/ui/src/utils';
-import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
-import { IField, IRouterProps } from '@erxes/ui/src/types';
-import React from 'react';
-import { graphql } from 'react-apollo';
-import { withRouter } from 'react-router-dom';
-import Form from '../components/Form';
-import { mutations } from '../graphql';
-import { queries } from '@erxes/ui-settings/src/general/graphql';
+
 import {
   AddFormMutationResponse,
   AddFormMutationVariables,
@@ -16,7 +7,18 @@ import {
   FieldsBulkAddAndEditMutationResponse,
   IFormData
 } from '../types';
+import { Alert, withProps } from '@erxes/ui/src/utils';
+import { IField, IRouterProps } from '@erxes/ui/src/types';
+
+import { ConfigsQueryResponse } from '@erxes/ui-settings/src/general/types';
+import Form from '../components/Form';
+import React from 'react';
 import { Spinner } from '@erxes/ui/src/components';
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+import { mutations } from '../graphql';
+import { queries } from '@erxes/ui-settings/src/general/graphql';
+import { withRouter } from 'react-router-dom';
 
 type Props = {
   afterDbSave: (formId: string) => void;
@@ -56,12 +58,19 @@ class CreateFormContainer extends React.Component<FinalProps, {}> {
 
     const saveForm = doc => {
       let formId;
-      const { title, desc, buttonText, fields, type, numberOfPages } = doc;
+      const {
+        title,
+        description,
+        buttonText,
+        fields,
+        type,
+        numberOfPages
+      } = doc;
 
       addFormMutation({
         variables: {
           title,
-          description: desc,
+          description,
           buttonText,
           type,
           numberOfPages: Number(numberOfPages)

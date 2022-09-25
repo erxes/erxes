@@ -1,4 +1,8 @@
-import { commonFields, commonParamsDef, commonParamsValue } from '../../common/graphq';
+import {
+  commonFields,
+  commonParamsDef,
+  commonParamsValue
+} from '../../common/graphq';
 
 export const spinFields = `
   ${commonFields}
@@ -47,5 +51,5 @@ const spinDetail = `
 export default {
   spins,
   spinsMain,
-  spinDetail,
+  spinDetail
 };

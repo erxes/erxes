@@ -5,7 +5,6 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { IBreadCrumbItem } from '@erxes/ui/src/types';
 import { ICommonListProps } from '../types';
-import { MarginRight } from '../../styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
@@ -30,8 +29,8 @@ type Props = {
   searchValue?: string;
   history?: any;
   rightActionBar?: any;
-  hasBorder?: boolean;
   transparent?: boolean;
+  hasBorder?: boolean;
 };
 
 class List extends React.Component<Props & ICommonListProps, {}> {
@@ -58,9 +57,9 @@ class List extends React.Component<Props & ICommonListProps, {}> {
       leftSidebar,
       rightActionBar,
       queryParams,
-      hasBorder,
       transparent,
-      history
+      history,
+      hasBorder
     } = this.props;
 
     const trigger = (
@@ -117,8 +116,8 @@ class List extends React.Component<Props & ICommonListProps, {}> {
             emptyContent={emptyContent}
           />
         }
-        hasBorder={hasBorder}
         transparent={transparent}
+        hasBorder={!hasBorder ? false : true}
       />
     );
   }

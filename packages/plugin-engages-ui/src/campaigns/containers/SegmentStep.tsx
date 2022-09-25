@@ -64,7 +64,8 @@ const SegmentStepContainer = (props: FinalProps) => {
     segments: segmentsQuery.segments || [],
     targetCount: countValues,
     customersCount,
-    count
+    count,
+    loadingCount: customerCountsQuery.loading
   };
 
   return <SegmentStep {...updatedProps} />;

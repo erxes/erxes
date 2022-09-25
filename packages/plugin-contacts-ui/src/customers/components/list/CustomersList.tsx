@@ -1,45 +1,44 @@
-import * as routerUtils from '@erxes/ui/src/utils/router';
-
-import { Alert, __, confirm, router } from 'coreui/utils';
+import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
 import {
   EMAIL_VALIDATION_STATUSES,
-  PHONE_VALIDATION_STATUSES
+  PHONE_VALIDATION_STATUSES,
+  CUSTOMER_STATE_OPTIONS
 } from '@erxes/ui-contacts/src/customers/constants';
-
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import Button from '@erxes/ui/src/components/Button';
 import CustomerForm from '@erxes/ui-contacts/src/customers/containers/CustomerForm';
-import CustomerRow from './CustomerRow';
-import CustomersMerge from '@erxes/ui-contacts/src/customers/components/detail/CustomersMerge';
+import { queries } from '@erxes/ui-contacts/src/customers/graphql';
+import Widget from '@erxes/ui-engage/src/containers/Widget';
+import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
+import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
+import Button from '@erxes/ui/src/components/Button';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import DateFilter from '@erxes/ui/src/components/DateFilter';
-import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
-import { IConfigColumn } from '@erxes/ui-forms/src/settings/properties/types';
-import { ICustomer } from '../../types';
-import { IRouterProps } from '@erxes/ui/src/types';
 import Icon from '@erxes/ui/src/components/Icon';
-import { Link } from 'react-router-dom';
-import ManageColumns from '@erxes/ui-forms/src/settings/properties/containers/ManageColumns';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
-import React from 'react';
-import Sidebar from './Sidebar';
 import SortHandler from '@erxes/ui/src/components/SortHandler';
-import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import Table from '@erxes/ui/src/components/table';
-import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
-import Widget from '@erxes/ui-engage/src/containers/Widget';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import gql from 'graphql-tag';
+import { BarItems } from '@erxes/ui/src/layout/styles';
+import { IRouterProps } from '@erxes/ui/src/types';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
-import { queries } from '@erxes/ui-contacts/src/customers/graphql';
-import { withRouter } from 'react-router-dom';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
+import * as routerUtils from '@erxes/ui/src/utils/router';
+import { __, Alert, confirm, router } from 'coreui/utils';
+import gql from 'graphql-tag';
+import React from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Link, withRouter } from 'react-router-dom';
+
+import { ICustomer } from '../../types';
+import CustomerRow from './CustomerRow';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
   type: string;
@@ -77,6 +76,7 @@ interface IProps extends IRouterProps {
   isExpand?: boolean;
   page: number;
   perPage: number;
+  changeStateBulk: (_ids: string[], value: string) => void;
 }
 
 type State = {
@@ -152,6 +152,18 @@ class CustomersList extends React.Component<IProps, State> {
 
     changeVerificationStatus({ verificationType: type, status, customerIds });
   };
+
+  changeState(value: string) {
+    const { type, changeStateBulk, bulk = [] } = this.props;
+
+    if (type === value) {
+      return Alert.warning(`Contacts are already in "${value}" state`);
+    }
+
+    const _ids: string[] = bulk.map(c => c._id);
+
+    changeStateBulk(_ids, value);
+  }
 
   renderContent() {
     const {
@@ -276,6 +288,10 @@ class CustomersList extends React.Component<IProps, State> {
       this.changeVerificationStatus('phone', e.target.id, bulk);
     };
 
+    const onStateClick = e => {
+      this.changeState(e.target.id);
+    };
+
     const emailVerificationStatusList = [] as any;
 
     for (const status of EMAIL_VALIDATION_STATUSES) {
@@ -303,6 +319,18 @@ class CustomersList extends React.Component<IProps, State> {
             onClick={onPhoneStatusClick}
           >
             {status.label}
+          </a>
+        </li>
+      );
+    }
+
+    const customerStateOptions: any[] = [];
+
+    for (const option of CUSTOMER_STATE_OPTIONS) {
+      customerStateOptions.push(
+        <li key={option.value}>
+          <a id={option.value} href="#changeState" onClick={onStateClick}>
+            {option.label}
           </a>
         </li>
       );
@@ -484,7 +512,7 @@ class CustomersList extends React.Component<IProps, State> {
           >
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change email status ')} <Icon icon="angle-down" />
+                {__('Change email status')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -495,11 +523,22 @@ class CustomersList extends React.Component<IProps, State> {
           <Dropdown className="dropdown-btn" alignRight={true}>
             <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
               <Button btnStyle="simple" size="small">
-                {__('Change phone status ')} <Icon icon="angle-down" />
+                {__('Change phone status')} <Icon icon="angle-down" />
               </Button>
             </Dropdown.Toggle>
             <Dropdown.Menu>
               <div>{phoneVerificationStatusList}</div>
+            </Dropdown.Menu>
+          </Dropdown>
+
+          <Dropdown className="dropdown-btn" alignRight={true}>
+            <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
+              <Button btnStyle="simple" size="small">
+                {__('Change state')} <Icon icon="angle-down" />
+              </Button>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <div>{customerStateOptions}</div>
             </Dropdown.Menu>
           </Dropdown>
 
@@ -539,6 +578,7 @@ class CustomersList extends React.Component<IProps, State> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
+        hasBorder={true}
       />
     );
   }

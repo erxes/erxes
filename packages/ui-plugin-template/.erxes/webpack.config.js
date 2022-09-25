@@ -112,7 +112,6 @@ module.exports = (env, args) => {
             path.resolve(__dirname, "../../ui-cards/src"),
             path.resolve(__dirname, "../../ui-knowledgebase/src"),
             path.resolve(__dirname, "../../ui-notifications/src"),
-            path.resolve(__dirname, "../../ui-calendar/src"),
             path.resolve(__dirname, "../../ui-log/src"),
             path.resolve(__dirname, "../../ui-internalnotes/src"),
             path.resolve(__dirname, "../../ui-leads/src"),

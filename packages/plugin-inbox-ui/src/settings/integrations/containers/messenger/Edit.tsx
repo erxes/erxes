@@ -12,8 +12,11 @@ import {
   SaveMessengerAppearanceMutationResponse,
   SaveMessengerAppsMutationResponse,
   SaveMessengerConfigsMutationResponse
-} from '../../types';
-import { mutations, queries } from '../../graphql';
+} from '@erxes/ui-inbox/src/settings/integrations/types';
+import {
+  mutations,
+  queries
+} from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 import { BrandsQueryResponse } from '@erxes/ui/src/brands/types';
 import Form from '../../components/messenger/Form';

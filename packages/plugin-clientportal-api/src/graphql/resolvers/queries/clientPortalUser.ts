@@ -16,6 +16,7 @@ const clientPortalUserQueries = {
       ids,
       excludeIds,
       cpId,
+      dateFilters,
       ...pagintationArgs
     }: {
       ids: string[];
@@ -25,6 +26,7 @@ const clientPortalUserQueries = {
       page: number;
       perPage: number;
       cpId: string;
+      dateFilters: string;
     },
     { commonQuerySelector, models }: IContext
   ) {
@@ -61,7 +63,9 @@ const clientPortalUserQueries = {
             $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')]
           }
         },
-        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+        {
+          code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        }
       ];
 
       filter.$or = fields;
@@ -69,6 +73,34 @@ const clientPortalUserQueries = {
 
     if (cpId) {
       filter.clientPortalId = cpId;
+    }
+
+    if (dateFilters) {
+      const filters = JSON.parse(dateFilters);
+
+      const rangeFilters: any[] = [];
+
+      for (const key of Object.keys(filters)) {
+        const { gte, lte } = filters[key];
+
+        if (gte) {
+          const gteFilter: any = {};
+
+          gteFilter[key] = { $gte: gte };
+
+          rangeFilters.push(gteFilter);
+        }
+
+        if (lte) {
+          const lteFilter: any = {};
+
+          lteFilter[key] = { $lte: lte };
+
+          rangeFilters.push(lteFilter);
+        }
+      }
+
+      rangeFilters.length && (filter.$and = rangeFilters);
     }
 
     return paginate(

@@ -485,6 +485,15 @@ export const sendContactsMessage = (args: ISendMessageArgs): Promise<any> => {
   });
 };
 
+export const sendInboxMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inbox',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

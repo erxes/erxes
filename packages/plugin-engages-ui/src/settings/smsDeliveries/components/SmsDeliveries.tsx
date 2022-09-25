@@ -134,7 +134,7 @@ class SmsDeliveries extends React.Component<Props, State> {
       </FilterWrapper>
     );
 
-    return <Wrapper.ActionBar background="colorWhite" left={actionBarLeft} />;
+    return <Wrapper.ActionBar left={actionBarLeft} />;
   }
 
   render() {

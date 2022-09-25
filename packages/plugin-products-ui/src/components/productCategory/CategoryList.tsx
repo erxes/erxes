@@ -136,7 +136,7 @@ class List extends React.Component<IProps> {
     return (
       <>
         <Header>{this.renderFormTrigger(trigger)}</Header>
-        <Section.Title noBackground noSpacing>
+        <Section.Title>
           {__('Categories')}
 
           <Section.QuickButtons>
@@ -172,12 +172,12 @@ class List extends React.Component<IProps> {
 
   render() {
     return (
-      <Sidebar wide={true} hasBorder={true} noMargin>
+      <Sidebar wide={true} hasBorder>
         <Section
           maxHeight={488}
           collapsible={this.props.productCategoriesCount > 9}
-          noShadow
           noMargin
+          noShadow
         >
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}

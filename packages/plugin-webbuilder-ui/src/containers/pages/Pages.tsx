@@ -17,6 +17,7 @@ type Props = {
   setCount: (count: number) => void;
   queryParams: any;
   history: any;
+  selectedSite: string;
 };
 
 type FinalProps = {
@@ -66,10 +67,11 @@ class PagesContainer extends React.Component<FinalProps> {
 export default compose(
   graphql<Props, PagesMainQueryResponse>(gql(queries.pagesMain), {
     name: 'pagesMainQuery',
-    options: ({ queryParams }) => ({
+    options: ({ queryParams, selectedSite }) => ({
       variables: {
         ...generatePaginationParams(queryParams),
-        searchValue: queryParams.searchValue
+        searchValue: queryParams.searchValue,
+        siteId: queryParams.siteId || selectedSite
       },
       fetchPolicy: 'network-only'
     })

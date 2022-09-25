@@ -1,12 +1,17 @@
-import { ICompany } from '@erxes/ui/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export type OTPConfig = {
   content: string;
   smsTransporterType?: '' | 'messagePro';
-  emailTransporterType?: '' | 'ses';
   codeLength: number;
+};
+
+export type MailConfig = {
+  subject: string;
+  registrationContent: string;
+  invitationContent: string;
 };
 
 export interface IClientPortalUserDoc {
@@ -30,6 +35,10 @@ export interface IClientPortalUserDoc {
 
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
+
+  lastSeenAt: Date;
+  sessionCount: number;
+  isOnline: boolean;
 }
 
 export interface IClientPortalUser extends IClientPortalUserDoc {
@@ -96,6 +105,7 @@ export type ClientPortalConfig = {
   ticketToggle?: boolean;
   taskToggle?: boolean;
   otpConfig?: OTPConfig;
+  mailConfig?: MailConfig;
 };
 
 export type Styles = {

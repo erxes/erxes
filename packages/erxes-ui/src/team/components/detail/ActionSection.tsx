@@ -1,34 +1,15 @@
 import { IUser, IUserDetails } from '@erxes/ui/src/auth/types';
+import { __, loadDynamicComponent } from '@erxes/ui/src/utils';
 
 import { Actions } from '@erxes/ui/src/styles/main';
 import Button from '@erxes/ui/src/components/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownToggle from '@erxes/ui/src/components/DropdownToggle';
 import Icon from '@erxes/ui/src/components/Icon';
-import { MailBox } from './styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
 import Tip from '@erxes/ui/src/components/Tip';
 import UserResetPasswordForm from '../../containers/UserResetPasswordForm';
-import { __ } from '@erxes/ui/src/utils';
-import asyncComponent from '../../../components/AsyncComponent';
-import { isEnabled } from '../../../utils/core';
-
-const MailForm = asyncComponent(
-  () =>
-    isEnabled('inbox') &&
-    import(
-      /* webpackChunkName: "MailForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/mail/MailForm'
-    )
-);
-
-const SmsForm = asyncComponent(
-  () =>
-    isEnabled('inbox') &&
-    import(
-      /* webpackChunkName: "SmsForm" */ '@erxes/ui-inbox/src/settings/integrations/containers/telnyx/SmsForm'
-    )
-);
 
 type Props = {
   user: IUser;
@@ -49,62 +30,9 @@ class ActionSection extends React.Component<Props> {
     const { user } = this.props;
     const { operatorPhone } = user.details || ({} as IUserDetails);
 
-    const content = props => (
-      <MailBox>
-        <MailForm
-          fromEmail={user.email}
-          customerId={user._id || undefined}
-          refetchQueries={['activityLogsUser']}
-          closeModal={props.closeModal}
-        />
-      </MailBox>
-    );
-
-    const smsForm = props => (
-      <SmsForm {...props} primaryPhone={operatorPhone} />
-    );
-
     return (
       <>
-        <ModalTrigger
-          dialogClassName="middle"
-          title="Email"
-          trigger={
-            isEnabled('inbox') && (
-              <Button
-                disabled={user.email ? false : true}
-                size="small"
-                btnStyle={user.email ? 'primary' : 'simple'}
-              >
-                <Tip text="Send e-mail" placement="top-end">
-                  <Icon icon="envelope" />
-                </Tip>
-              </Button>
-            )
-          }
-          size="lg"
-          content={content}
-          paddingContent="less-padding"
-          enforceFocus={false}
-        />
-        <ModalTrigger
-          dialogClassName="middle"
-          title={`Send SMS to (${operatorPhone})`}
-          trigger={
-            isEnabled('inbox') && (
-              <Button
-                disabled={operatorPhone ? false : true}
-                size="small"
-                btnStyle={operatorPhone ? 'primary' : 'simple'}
-              >
-                <Tip text="Send SMS" placement="top-end">
-                  <Icon icon="message" />
-                </Tip>
-              </Button>
-            )
-          }
-          content={smsForm}
-        />
+        {loadDynamicComponent('actionForms', { user })}
         <Button
           href={operatorPhone && `tel:${operatorPhone}`}
           size="small"

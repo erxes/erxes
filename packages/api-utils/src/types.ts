@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+
 export interface IEmailSignature {
   brandId?: string;
   signature?: string;
@@ -114,21 +115,19 @@ export const customFieldSchema = new Schema(
       type: {
         type: String,
         enum: ['Point'],
-        default: 'Point',
-        required: false,
         optional: true
       },
       coordinates: {
         type: [Number],
-        required: false,
-        optional: true,
-        default: [0, 0]
+        optional: true
       },
       required: false
     }
   },
   { _id: false }
 );
+
+customFieldSchema.index({ locationValue: '2dsphere' });
 
 export interface ICustomField {
   field: string;
@@ -160,4 +159,11 @@ export interface ILocationOption {
   lat: number;
   lng: number;
   description?: string;
+}
+
+export interface IAttachment {
+  name: string;
+  url: string;
+  size: number;
+  type: string;
 }

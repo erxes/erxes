@@ -13,7 +13,8 @@ import {
   PopoverHeader,
   PopoverList,
   ChildList,
-  ToggleIcon
+  ToggleIcon,
+  ItemText
 } from './styles';
 import { SidebarList } from '../../layout/styles';
 
@@ -138,18 +139,24 @@ class FilterableList extends React.Component<Props, State> {
 
     return (
       <FlexRow key={item._id}>
-        <li className={showCheckmark ? item.selectedBy : ''} style={item.style}>
+        <li
+          className={showCheckmark ? item.selectedBy : ''}
+          style={item.style}
+          onClick={!hasChildren ? onClick : undefined}
+        >
           {this.renderIcons(item, hasChildren, isOpen)}
 
           <i
             className={item.iconClass}
             style={{ color: item.iconColor }}
-            onClick={onClick}
+            onClick={hasChildren ? onClick : undefined}
           />
 
           {item.avatar ? <AvatarImg src={item.avatar} /> : null}
 
-          <span onClick={onClick}>{item.title || '[undefined]'}</span>
+          <ItemText onClick={hasChildren ? onClick : undefined}>
+            {item.title || '[undefined]'}
+          </ItemText>
         </li>
 
         {item.additionalIconClass && (

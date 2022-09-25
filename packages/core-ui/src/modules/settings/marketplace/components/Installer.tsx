@@ -2,7 +2,7 @@ import React from 'react';
 
 import Leftbar from './Leftbar';
 import PluginPreview from './PluginPreview';
-import Wrapper from '../containers/Wrapper';
+import Wrapper from './Wrapper';
 
 import { ImageWrapper } from '../styles';
 
@@ -42,24 +42,7 @@ class Installer extends React.Component<{}, State> {
     const categories = [
       { category: 'Premium Marketing Sales' },
       { category: 'Free Sales' },
-      { category: 'Premium Services' },
-      { category: 'Free Operations' },
-      { category: 'Free Communications' },
-      { category: 'Free Productivity' },
-      { category: 'Free Website' },
-      { category: 'Free ECommerce' },
-      { category: 'Free Document management' },
-      { category: 'Free Human resource' },
-      { category: 'Free Finance' },
-      { category: 'Free Inventory' },
-      { category: 'Free Analytics' },
-      { category: 'Free Reporting' },
-      { category: 'Free Marketing' },
-      { category: 'Free Marketing' },
-      { category: 'Free Marketing' },
-      { category: 'Free Marketing' },
-      { category: 'Free Marketing' },
-      { category: 'Free Marketing' }
+      { category: 'Premium Services' }
     ];
 
     const pluginsFakeData = plugins.map((plugin, index) => ({
@@ -87,7 +70,7 @@ class Installer extends React.Component<{}, State> {
           <span>Product Experience management template</span>
           <img src="/images/marketplace.png" alt="installer" />
         </ImageWrapper>
-        <PluginPreview plugins={finalFilteredPlugins || []} />
+        <PluginPreview plugins={finalFilteredPlugins} />
       </>
     );
   }

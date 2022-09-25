@@ -14,6 +14,7 @@ import { redis } from '../serviceDiscovery';
 import { IModels } from '../connectionResolvers';
 
 const { MONGO_URL = '', ELK_SYNCER } = process.env;
+const WORKER_BULK_LIMIT = 300;
 
 const checkFieldNames = async (fields: string[], columnConfig?: object) => {
   const properties: any[] = [];
@@ -62,8 +63,6 @@ export const connect = async () => {
 };
 
 dotenv.config();
-
-const WORKER_BULK_LIMIT = 300;
 
 const myWorker = new CustomWorker();
 
@@ -130,10 +129,7 @@ const importBulkStream = ({
   fileName,
   bulkLimit,
   uploadType,
-  handleBulkOperation,
-  associateContentType,
-  associateField,
-  mainAssociateField
+  handleBulkOperation
 }: {
   contentType: string;
   fileName: string;
@@ -142,10 +138,7 @@ const importBulkStream = ({
   handleBulkOperation: (
     rowIndex: number,
     rows: any,
-    contentType: string,
-    associatedContentType?: string,
-    associatedField?: string,
-    mainAssociateField?: string
+    contentType: string
   ) => Promise<void>;
   associateContentType?: string;
   associateField?: string;
@@ -174,18 +167,12 @@ const importBulkStream = ({
     }
 
     const write = (row, _, next) => {
-      rowIndex++;
       rows.push(row);
 
       if (rows.length === bulkLimit) {
-        return handleBulkOperation(
-          rowIndex,
-          rows,
-          contentType,
-          associateContentType,
-          associateField,
-          mainAssociateField
-        )
+        rowIndex++;
+        console.log('write', rowIndex, rows.length, bulkLimit);
+        return handleBulkOperation(rowIndex, rows, contentType)
           .then(() => {
             rows = [];
             next();
@@ -204,14 +191,8 @@ const importBulkStream = ({
       .pipe(new Writable({ write, objectMode: true }))
       .on('finish', () => {
         rowIndex++;
-        handleBulkOperation(
-          rowIndex,
-          rows,
-          contentType,
-          associateContentType,
-          associateField,
-          mainAssociateField
-        ).then(() => {
+        console.log('finish', rows.length, rowIndex);
+        handleBulkOperation(rowIndex, rows, contentType).then(() => {
           resolve('success');
         });
       })

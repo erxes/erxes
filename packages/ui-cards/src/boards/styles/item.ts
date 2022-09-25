@@ -6,6 +6,7 @@ import { Flex } from '@erxes/ui/src/styles/main';
 import { borderRadius } from './common';
 import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styledTS from 'styled-components-ts';
+import { FormContainer } from '../styles/common';
 
 const buttonColor = '#0a1e3c';
 
@@ -126,11 +127,56 @@ export const AddContent = styled.div`
       border-bottom: 1px solid ${colors.colorSecondary};
     }
   }
+
+  input {
+    border: none;
+    width: 100%;
+    height: 34px;
+    padding: 5px 0;
+    color: #444;
+    border-bottom: 1px solid;
+    border-color: ${colors.borderDarker};
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 13px;
+    position: relative;
+    margin-left: 20px;
+  }
+
+  .dateTime {
+    margin-right: ${dimensions.coreSpacing}px;
+
+    &:before {
+      content: '\\e9a8';
+      font-style: normal;
+      font-family: 'erxes';
+      font-size: 16px;
+      position: absolute;
+      color: #777;
+      left: 0;
+      top: 25px;
+    }
+  }
+
+  .form-control:focus {
+    border: none;
+    border-bottom: 1px solid;
+    border-color: #ddd;
+    box-shadow: none;
+  }
 `;
 
-export const AddFormWidth = styled.div`
-  max-width: 700px;
+export const SelectInput = styled.div`
   overflow: hidden;
+
+  .Select-input {
+    width: 100%;
+
+    input {
+      width: 100% !important;
+    }
+  }
 `;
 
 export const TitleRow = styled.div`
@@ -441,5 +487,11 @@ export const ArchiveStatus = styled.div`
   }
   i {
     font-size: 16px;
+  }
+`;
+
+export const BoardSelectWrapper = styled.div`
+  ${FormContainer} {
+    padding: 0;
   }
 `;

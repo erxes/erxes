@@ -72,20 +72,10 @@ const clientPortalUserMutations = {
 
   clientPortalRegister: async (_root, args: IUser, context: IContext) => {
     const { models, subdomain } = context;
-    const clientPortal = await models.ClientPortals.getConfig(
-      args.clientPortalId
-    );
 
     const user = await models.ClientPortalUsers.createUser(subdomain, {
       ...args
     });
-
-    await models.ClientPortalUsers.sendVerification(
-      subdomain,
-      clientPortal.otpConfig,
-      args.phone,
-      args.email
-    );
 
     return user._id;
   },
@@ -138,7 +128,11 @@ const clientPortalUserMutations = {
   /*
    * Logout
    */
-  async clientPortalLogout(_root, _args, { requestInfo, res }: IContext) {
+  async clientPortalLogout(
+    _root,
+    _args,
+    { requestInfo, res, cpUser, models }: IContext
+  ) {
     const NODE_ENV = getEnv({ name: 'NODE_ENV' });
 
     const options: any = {
@@ -148,6 +142,13 @@ const clientPortalUserMutations = {
     if (!['test', 'development'].includes(NODE_ENV)) {
       options.sameSite = 'none';
       options.secure = true;
+    }
+
+    if (cpUser) {
+      await models.ClientPortalUsers.updateOne(
+        { _id: cpUser._id || '' },
+        { $set: { lastSeenAt: new Date(), isOnline: false } }
+      );
     }
 
     res.clearCookie('client-auth-token', options);

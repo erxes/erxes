@@ -90,6 +90,18 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
+app.get('/call-gc', async (_req, res) => {
+  let response = '';
+
+  if (global.gc) {
+    global.gc();
+
+    response = 'called gc';
+  }
+
+  res.end(response);
+});
+
 if (configs.hasSubscriptions) {
   app.get('/subscriptionPlugin.js', async (req, res) => {
     res.sendFile(
@@ -271,6 +283,7 @@ async function startServer() {
   try {
     // connect to mongo database
     const db = await connect(mongoUrl);
+
     const messageBrokerClient = await initBroker({
       RABBITMQ_HOST,
       MESSAGE_BROKER_PREFIX,
@@ -493,6 +506,16 @@ async function startServer() {
             data: await cronjobs.handleMinutelyJob(args)
           }));
         }
+
+        if (cronjobs.handle10MinutelyJob) {
+          cronjobs.handle10MinutelyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handle10MinutelyJob(args)
+          }));
+        }
+
         if (cronjobs.handleHourlyJob) {
           cronjobs.handleHourlyJobAvailable = true;
 
@@ -501,6 +524,7 @@ async function startServer() {
             data: await cronjobs.handleHourlyJob(args)
           }));
         }
+
         if (cronjobs.handleDailyJob) {
           cronjobs.handleDailyJobAvailable = true;
 

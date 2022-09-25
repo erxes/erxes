@@ -3,7 +3,7 @@ import { __ } from '@erxes/ui/src/utils';
 import { SectionBodyItem } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import EmptyState from "@erxes/ui/src/components/EmptyState";
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 import { IDonate } from '../donates/types';
 import { ILottery } from '../lotteries/types';
@@ -33,7 +33,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
           {`Vouchers`} ({vouchers.length})
         </Link>
       </SectionBodyItem>
-    )
+    );
   }
 
   renderSpins() {
@@ -49,7 +49,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
           {`Spins`} ({spins.length})
         </Link>
       </SectionBodyItem>
-    )
+    );
   }
 
   renderLotteries() {
@@ -65,7 +65,7 @@ class LoyaltySection extends React.Component<IProps, {}> {
           {`Lotteries`} ({lotteries.length})
         </Link>
       </SectionBodyItem>
-    )
+    );
   }
 
   renderDonates() {
@@ -81,13 +81,18 @@ class LoyaltySection extends React.Component<IProps, {}> {
           {`Donates`} ({donates.length})
         </Link>
       </SectionBodyItem>
-    )
+    );
   }
 
   renderEmpty() {
     const { vouchers, spins, donates, lotteries } = this.props;
 
-    if (!vouchers.length && !spins.length && !lotteries.length && !donates.length){
+    if (
+      !vouchers.length &&
+      !spins.length &&
+      !lotteries.length &&
+      !donates.length
+    ) {
       return <EmptyState icon="folder-2" text="Empty" size="small" />;
     }
 
@@ -96,18 +101,14 @@ class LoyaltySection extends React.Component<IProps, {}> {
 
   render() {
     return (
-      <Box
-        title={__('Loyalty')}
-        name="Loyalties"
-        isOpen={true}
-      >
+      <Box title={__('Loyalty')} name="Loyalties" isOpen={true}>
         {this.renderEmpty()}
         {this.renderVouchers()}
         {this.renderLotteries()}
         {this.renderSpins()}
         {this.renderDonates()}
       </Box>
-    )
+    );
   }
 }
 export default LoyaltySection;

@@ -20,6 +20,10 @@ const StyledTable = styledTS<{
     border-collapse: collapse;
     white-space: ${props.whiteSpace || ''};
 
+    tr {
+      margin: 0 20px
+    }
+
     th,
     td {
       border-top: 1px solid ${colors.borderPrimary};

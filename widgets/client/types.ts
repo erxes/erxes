@@ -21,6 +21,7 @@ export interface IUser {
   _id: string;
   isActive?: boolean;
   details?: IUserDetails;
+  isOnline: boolean;
 }
 
 export interface IUserLinks {

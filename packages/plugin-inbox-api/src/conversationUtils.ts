@@ -517,12 +517,6 @@ export class CommonBuilder<IArgs extends IListArgs> {
       defaultValue: 0
     });
 
-    console.log(
-      JSON.stringify(queryOptions),
-      '--------------------------',
-      response.count
-    );
-
     return response.count;
   }
 }
