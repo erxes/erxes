@@ -1,7 +1,7 @@
 import { IContext } from '../../connectionResolver';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { IPaymentConfig } from '../../models/definitions/payment';
-import { sendQpayMessage, sendSocialPayMessage } from '../../messageBroker';
+import { sendSocialPayMessage } from '../../messageBroker';
 
 const paymentConfigMutations = {
   /**
@@ -63,7 +63,6 @@ const paymentConfigMutations = {
       contentType,
       contentTypeId
     } = params;
-    console.log(params);
     const paymentConfig = await models.PaymentConfigs.findOne({
       _id: paymentId
     });
@@ -86,14 +85,11 @@ const paymentConfigMutations = {
       contentTypeId
     };
 
+    console.log('createInvoice data::', data);
+
     const messageBrokerResponse =
       type.toLowerCase() === 'qpay'
-        ? await sendQpayMessage({
-            subdomain,
-            action: 'createInvoice',
-            data,
-            isRPC: true
-          })
+        ? await models.QpayInvoice.createInvoice(data)
         : await sendSocialPayMessage({
             subdomain,
             action: 'createInvoice',

@@ -1,7 +1,7 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../connectionResolver';
-import { sendQpayMessage, sendSocialPayMessage } from './../../messageBroker';
+import { sendSocialPayMessage } from './../../messageBroker';
 import { IPaymentConfigDocument } from './../../models/definitions/payment';
 
 const paymentConfigQueries = {
@@ -50,12 +50,7 @@ const paymentConfigQueries = {
 
     const messageBrokerResponse =
       type.toLowerCase() === 'qpay'
-        ? await sendQpayMessage({
-            subdomain,
-            action: 'checkInvoice',
-            data,
-            isRPC: true
-          })
+        ? await models.QpayInvoice.checkInvoice(data)
         : await sendSocialPayMessage({
             subdomain,
             action: 'checkInvoice',

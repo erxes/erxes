@@ -1,6 +1,24 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { sendQpayMessage } from './messageBroker';
+import fetch from 'node-fetch';
+
+export const fetchUrl = async (url, requestOptions) => {
+  let returnData;
+
+  await fetch(`${url}`, requestOptions)
+    .then(response => response.text())
+    .then(result => {
+      try {
+        returnData = JSON.parse(result);
+      } catch (error) {
+        returnData = { error: result };
+      }
+    })
+    .catch(error => console.log('error', error));
+
+  return returnData;
+};
 
 export const callBackSocialPay = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -37,38 +55,70 @@ export const callBackQpay = async (req, res) => {
     isRPC: true
   });
 
-  // const orderId = payment_id;
-  // const paymentId = qpay_payment_id;
-  // const invoice = await models.QPayInvoices.findOne({
-  //   senderInvoiceNo: orderId
-  // }).lean();
-  // if (!invoice) {
-  //   return;
-  // }
-
-  // await models.QPayInvoices.updateOne(
-  //   { senderInvoiceNo: orderId },
-  //   {
-  //     $set: {
-  //       paymentDate: new Date(),
-  //       qpayPaymentId: paymentId,
-  //       status: 'PAID'
-  //     }
-  //   }
-  // );
-  // const paidMobileAmount = await models.QPayInvoices.getPaidAmount(orderId);
-
-  // const config: IConfigDocument =
-  //   (await models.Configs.findOne({ token: invoice.token }).lean()) ||
-  //   ({} as IConfigDocument);
-
-  // await commonCheckPayment(
-  //   subdomain,
-  //   models,
-  //   orderId,
-  //   config,
-  //   paidMobileAmount
-  // );
-
   return response;
+};
+
+export const makeInvoiceNo = length => {
+  let result = '';
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
+
+export const qpayToken = async config => {
+  const { qpayUrl, qpayMerchantUser, qpayMerchantPassword } = config;
+
+  const port = '/v2/auth/token';
+
+  const raw = '';
+
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      Authorization:
+        'Basic ' +
+        Buffer.from(`${qpayMerchantUser}:${qpayMerchantPassword}`).toString(
+          'base64'
+        )
+    },
+    body: raw,
+    redirect: 'follow'
+  };
+
+  const tokenInfo = await fetchUrl(`${qpayUrl}${port}`, requestOptions);
+
+  return tokenInfo.access_token;
+};
+
+export const createQpayInvoice = async (varData, token, config) => {
+  const { qpayUrl } = config;
+  const port = '/v2/invoice';
+  const raw = JSON.stringify(varData);
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: raw,
+    redirect: 'follow'
+  };
+
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
+};
+
+export const getQpayInvoice = async (invoiceId, token, config) => {
+  const { qpayUrl } = config;
+  const port = `/v2/invoice/${invoiceId}`;
+
+  const requestOptions = {
+    method: 'GET',
+    headers: { Authorization: 'Bearer ' + token },
+    redirect: 'follow'
+  };
+
+  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
 };

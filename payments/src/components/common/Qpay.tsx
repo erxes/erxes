@@ -43,7 +43,7 @@ const QpaySection = ({
             refetch().then(response => {
               const checkInvoiceResponse = response.data.checkInvoice;
               if (!response.data.error) {
-                setQrPaymentStatus(checkInvoiceResponse.invoice_status);
+                setQrPaymentStatus(checkInvoiceResponse.data.invoice_status);
               } else {
                 alert(response.data.error.amount.message);
               }
@@ -87,7 +87,7 @@ const QpaySection = ({
             }).then(response => {
 
               const createInvoiceResponse = response.data.createInvoice;
-              const invoice = createInvoiceResponse[0];
+              const invoice = createInvoiceResponse[0].data;
 
               if (!invoice.error) {
                 QRCode.toDataURL(invoice.response.qr_text).then(qrImage => {

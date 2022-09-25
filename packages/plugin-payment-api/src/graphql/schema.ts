@@ -13,6 +13,22 @@ export const types = `
     socialPay: Int
     total: Int
   }
+
+  type QpayInvoice {
+    _id: String!
+    createdAt: Date
+    senderInvoiceNo: String
+    amount: String
+    qpayInvoiceId: String
+    qrText: String
+    qpayPaymentId: String
+    paymentDate: Date
+    customerId: String
+    companyId: String
+    contentType: String
+    contentTypeId: String
+    status: String
+  }
 `;
 
 export const queries = `

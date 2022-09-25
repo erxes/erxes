@@ -10,8 +10,8 @@ import reportWebVitals from './reportWebVitals';
 const client = new ApolloClient({
   uri: process.env.REACT_APP_API_URL
     ? `${process.env.REACT_APP_API_URL}/graphql`
-    : 'http://localhost:3305/graphql',
-  cache: new InMemoryCache(),
+    : 'http://localhost:3304/graphql',
+  cache: new InMemoryCache()
 });
 
 render(
