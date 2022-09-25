@@ -314,6 +314,34 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
+  renderOptionsValue(){
+
+    const {field} = this.state
+    const { optionsValues } = this.props.field;
+
+    const handleChange = (e) =>{
+      const {value} = e.currentTarget as HTMLInputElement
+      
+      this.onFieldChange('optionsValues', value);
+    }
+
+    if(['select','radio'].includes(field.type)){
+      return (
+        <CollapseContent title={__('Field Value')}>
+          <FormGroup>
+            <ControlLabel>{__('Value')}</ControlLabel>
+            <FormControl
+              id="FieldValue"
+              componentClass="textarea"
+              defaultValue={optionsValues}
+              onChange={handleChange}
+            />
+          </FormGroup>
+        </CollapseContent>
+      )
+    }
+  }
+
   renderPageSelect() {
     const { numberOfPages } = this.props;
     const { field } = this.state;
@@ -457,6 +485,7 @@ class FieldForm extends React.Component<Props, State> {
             />
           </CollapseContent>
         )}
+        {this.renderOptionsValue()}
 
         <Modal.Footer>
           <Button
