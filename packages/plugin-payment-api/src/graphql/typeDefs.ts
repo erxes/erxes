@@ -1,13 +1,13 @@
 import { gql } from 'apollo-server-express';
 
-import { types as paymentType, queries, mutations } from './schema';
+import { types, queries, mutations } from './schema';
 
 const typeDefs = async _serviceDiscovery => {
   return gql`
     scalar JSON
     scalar Date
 
-    ${paymentType}
+    ${types}
 
     extend type Query {
       ${queries}

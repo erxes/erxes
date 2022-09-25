@@ -29,13 +29,27 @@ export const types = `
     contentTypeId: String
     status: String
   }
+
+  type SocialPayInvoice {
+    _id: String!
+    createdAt: Date
+    invoiceNo: String
+    amount: String
+    phone: String
+    qrText: String
+    customerId: String
+    companyId: String
+    contentType: String
+    contentTypeId: String
+    status: String
+  }
 `;
 
 export const queries = `
   paymentConfigs(paymentIds: JSON): [PaymentConfig]
   paymentConfigsCountByType: PaymentTypeCount
   checkInvoice(paymentId: String!, invoiceId: String!): JSON
-  getPaymentOptions(paymentIds: JSON,amount: Float, customerId: String, companyId: String,contentType: String, contentTypeId: String): String
+  getPaymentOptions(paymentIds: JSON,amount: Float, customerId: String, companyId: String,contentType: String, contentTypeId: String, description: String): String
 `;
 
 const params = `

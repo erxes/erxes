@@ -42,7 +42,7 @@ const SocialPaySection = ({
           onSubmit={e => {
             e.preventDefault();
             refetch().then(response => {
-              const checkInvoiceResponse = response.data.checkInvoice;
+              const checkInvoiceResponse = response.data.checkInvoice.data;
 
               const status =
                 checkInvoiceResponse.header.code === 200 &&
@@ -76,13 +76,13 @@ const SocialPaySection = ({
     const buttonText = qrInvoiceNo ? "Reset window" : "Create invoice";
 
     const {
-      customerId, companyId, contentType, contentTypeId
+      customerId, companyId, contentType, contentTypeId, description
     } = query;
     const variables = {
       paymentId: paymentConfigId,
       amount: Number(amount),
       phone,
-      description: 'socialPay',
+      description,
       customerId,
       companyId,
       contentType,
@@ -103,7 +103,7 @@ const SocialPaySection = ({
                 setSpPaymentStatus('created');
 
                 if (!withPhone) {
-                  const invoice = invoiceResponse[0];
+                  const invoice = invoiceResponse[0].data;
 
                   const qrText = invoice.data.qr ? invoice.data.qr : '';
 
@@ -200,6 +200,7 @@ const SocialPaySection = ({
         <input type="text"
           value={amount}
           onChange={e => onChangeAmount(e)}
+          disabled={true}
           name="amount" id="amount"
         />
       </div>

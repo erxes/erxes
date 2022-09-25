@@ -9,21 +9,19 @@ import { mutations, queries } from '../../graphql';
 import { IQueryParams } from '../../types';
 
 type Props = {
-  descriptionValue?: string;
   paymentConfigId: string;
   query: IQueryParams
 };
 
 const QpaySection = ({
   query,
-  descriptionValue,
   paymentConfigId,
 }: Props) => {
 
   const [amount, setAmount] = useState(query.amount || '0');
   const [qr, setQr] = useState("");
   const [qrInvoiceNo, setQrInvoiceNo] = useState("");
-  const [description, setDescription] = useState(descriptionValue || "");
+  const [description, setDescription] = useState(query.description || "");
   const [qrPaymentStatus, setQrPaymentStatus] = useState("CREATED");
 
   const useCheckInvoiceQuery = () => {
@@ -143,10 +141,6 @@ const QpaySection = ({
 
   }
 
-  const onChangeDescription = (e: any) => {
-    setDescription(e.target.value)
-  };
-
   const onChangeAmount = (e: any) => {
     setAmount(e.target.value)
   };
@@ -157,18 +151,13 @@ const QpaySection = ({
     <div style={{ height: '30em', overflow: 'auto' }}>
       {RenderQpayImage()}
       <div className="border">
-        <label className="label" htmlFor="description">Description: </label>
-        <input type="text"
-          value={description}
-          onChange={e => onChangeDescription(e)}
-          name="description" id="description"
-        />
         <div>
           <label className="label" htmlFor="amount">Amount: </label>
           <input type="text"
             value={amount}
             onChange={e => onChangeAmount(e)}
             name="amount" id="amount"
+            disabled={true}
           />
         </div>
 

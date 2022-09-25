@@ -85,21 +85,12 @@ const paymentConfigMutations = {
       contentTypeId
     };
 
-    console.log('createInvoice data::', data);
-
-    const messageBrokerResponse =
+    const response =
       type.toLowerCase() === 'qpay'
         ? await models.QpayInvoice.createInvoice(data)
-        : await sendSocialPayMessage({
-            subdomain,
-            action: 'createInvoice',
-            data,
-            isRPC: true
-          });
+        : await models.SocialPayInvoice.createInvoice(data);
 
-    console.log('messageBrokerResponse:', messageBrokerResponse);
-
-    return [messageBrokerResponse];
+    return [response];
   }
 };
 

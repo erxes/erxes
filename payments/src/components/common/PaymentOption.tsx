@@ -78,7 +78,6 @@ class Modal extends Component<Props, State> {
             <QpaySection
               paymentConfigId={id}
               query={query}
-              descriptionValue="qpay test invoice"
             />}
 
           {id && type === 'socialPay' &&

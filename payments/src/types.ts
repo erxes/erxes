@@ -6,6 +6,7 @@ export interface IRouterProps {
 
 export interface IQueryParams {
   amount: number;
+  description: string;
   customerId: string;
   companyId: string;
   contentType: string;

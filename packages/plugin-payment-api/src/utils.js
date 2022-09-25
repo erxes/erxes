@@ -2,6 +2,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import { sendQpayMessage } from './messageBroker';
 import fetch from 'node-fetch';
+import * as crypto from 'crypto';
 
 export const fetchUrl = async (url, requestOptions) => {
   let returnData;
@@ -121,4 +122,51 @@ export const getQpayInvoice = async (invoiceId, token, config) => {
   };
 
   return fetchUrl(`${qpayUrl}${port}`, requestOptions);
+};
+
+export const hmac256 = (key, message) => {
+  const hash = crypto.createHmac('sha256', key).update(message);
+  return hash.digest('hex');
+};
+
+export const socialPayInvoiceCheck = async (raw, config) => {
+  const rawData = JSON.stringify(raw);
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: rawData,
+    redirect: 'follow'
+  };
+  const { inStoreSPUrl } = config;
+  const port = '/pos/invoice/check';
+
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
+};
+
+export const socialPayInvoicePhone = async (raw, config) => {
+  const rawData = JSON.stringify(raw);
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: rawData,
+    redirect: 'follow'
+  };
+  const { inStoreSPUrl } = config;
+  const port = '/pos/invoice/phone';
+
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
+};
+
+export const socialPayInvoiceQR = async (raw, config) => {
+  const rawData = JSON.stringify(raw);
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: rawData,
+    redirect: 'follow'
+  };
+  const { inStoreSPUrl } = config;
+  const port = '/pos/invoice/qr';
+
+  return await fetchUrl(`${inStoreSPUrl}${port}`, requestOptions);
 };

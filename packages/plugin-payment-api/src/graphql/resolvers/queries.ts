@@ -48,17 +48,12 @@ const paymentConfigQueries = {
       invoiceId
     };
 
-    const messageBrokerResponse =
+    const response =
       type.toLowerCase() === 'qpay'
         ? await models.QpayInvoice.checkInvoice(data)
-        : await sendSocialPayMessage({
-            subdomain,
-            action: 'checkInvoice',
-            data,
-            isRPC: true
-          });
+        : await models.SocialPayInvoice.checkInvoice(data);
 
-    return messageBrokerResponse;
+    return response;
   }
 };
 
