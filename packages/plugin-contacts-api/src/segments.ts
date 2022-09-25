@@ -1,41 +1,34 @@
 import * as _ from 'underscore';
 import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
-import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
+import {
+  gatherAssociatedTypes,
+  getEsIndexByContentType,
+  getName
+} from '@erxes/api-utils/src/segments';
 import { sendCoreMessage } from './messageBroker';
 
-export const getName = type =>
-  type.replace('contacts:', '').replace('cards:', '');
+const changeType = (type: string) =>
+  type === 'contacts:lead' ? 'contacts:customer' : type;
 
 export default {
   contentTypes: [
     { type: 'company', description: 'Company', esIndex: 'companies' },
     { type: 'customer', description: 'Customer', esIndex: 'customers' },
-    { type: 'lead', description: 'Lead', esIndex: 'customers' }
+    {
+      type: 'lead',
+      description: 'Lead',
+      esIndex: 'customers',
+      notAssociated: true
+    }
   ],
 
   associationFilter: async ({
     subdomain,
     data: { mainType, propertyType, positiveQuery, negativeQuery }
   }) => {
-    let associatedTypes: string[] = [];
-
-    if (['contacts:customer', 'contacts:lead'].includes(mainType)) {
-      associatedTypes = [
-        'contacts:company',
-        'cards:deal',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
-
-    if (mainType === 'contacts:company') {
-      associatedTypes = [
-        'contacts:customer',
-        'cards:deal',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
+    const associatedTypes: string[] = await gatherAssociatedTypes(
+      changeType(mainType)
+    );
 
     let ids: string[] = [];
 
@@ -53,9 +46,7 @@ export default {
         data: {
           mainType: getName(propertyType),
           mainTypeIds,
-          relType: getName(
-            mainType === 'contacts:lead' ? 'contacts:customer' : mainType
-          )
+          relType: getName(changeType(mainType))
         },
         isRPC: true
       });

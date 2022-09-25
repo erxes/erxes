@@ -2,13 +2,15 @@ import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { generateConditionStageIds } from './utils';
-import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
-
-const getName = type => type.replace('contacts:', '').replace('cards:', '');
+import {
+  gatherAssociatedTypes,
+  getEsIndexByContentType,
+  getName
+} from '@erxes/api-utils/src/segments';
 
 export default {
   dependentServices: [
-    { name: 'contacts', twoWay: true },
+    { name: 'contacts', twoWay: true, associated: true },
     { name: 'inbox', twoWay: true }
   ],
 
@@ -51,34 +53,7 @@ export default {
     subdomain,
     data: { mainType, propertyType, positiveQuery, negativeQuery }
   }) => {
-    let associatedTypes: string[] = [];
-
-    if (mainType === 'cards:deal') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
-
-    if (mainType === 'cards:task') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:deal'
-      ];
-    }
-
-    if (mainType === 'cards:ticket') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:deal',
-        'cards:task'
-      ];
-    }
+    const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
 
     let ids: string[] = [];
 
