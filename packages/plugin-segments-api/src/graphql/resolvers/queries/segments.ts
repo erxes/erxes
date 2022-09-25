@@ -1,5 +1,9 @@
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 import {
+  gatherDependentServicesType,
+  ISegmentContentType
+} from '@erxes/api-utils/src/segments';
+import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
@@ -20,36 +24,6 @@ interface IAssociatedType {
   description: string;
 }
 
-// gather contentTypes of services that are dependent on current service
-const gatherCts = async (
-  currentService: string,
-  associatedTypes: IAssociatedType[]
-) => {
-  const serviceNames = await serviceDiscovery.getServices();
-
-  for (const serviceName of serviceNames) {
-    const service = await serviceDiscovery.getService(serviceName, true);
-    const meta = service.config.meta || {};
-
-    if (!meta.segments) {
-      continue;
-    }
-
-    (meta.segments.dependentServices || []).forEach(depService => {
-      if (depService.name === currentService && depService.twoWay) {
-        const contentTypes = meta.segments.contentTypes || [];
-
-        contentTypes.forEach(ct => {
-          associatedTypes.push({
-            type: `${serviceName}:${ct.type}`,
-            description: ct.description
-          });
-        });
-      }
-    });
-  }
-};
-
 const segmentQueries = {
   async segmentsGetTypes() {
     const serviceNames = await serviceDiscovery.getServices();
@@ -61,16 +35,18 @@ const segmentQueries = {
       const meta = service.config.meta || {};
 
       if (meta.segments) {
-        const serviceTypes = (meta.segments.contentTypes || []).flatMap(ct => {
-          if (ct.hideInSidebar) {
-            return [];
-          }
+        const serviceTypes = (meta.segments.contentTypes || []).flatMap(
+          (ct: ISegmentContentType) => {
+            if (ct.hideInSidebar) {
+              return [];
+            }
 
-          return {
-            contentType: `${serviceName}:${ct.type}`,
-            description: ct.description
-          };
-        });
+            return {
+              contentType: `${serviceName}:${ct.type}`,
+              description: ct.description
+            };
+          }
+        );
 
         types = [...types, ...serviceTypes];
       }
@@ -92,10 +68,12 @@ const segmentQueries = {
     // get current services content types
     const serviceCts = meta.segments.contentTypes || [];
 
-    const associatedTypes: IAssociatedType[] = serviceCts.map(ct => ({
-      type: `${serviceName}:${ct.type}`,
-      description: ct.description
-    }));
+    const associatedTypes: IAssociatedType[] = serviceCts.map(
+      (ct: ISegmentContentType) => ({
+        type: `${serviceName}:${ct.type}`,
+        description: ct.description
+      })
+    );
 
     // gather dependent services contentTypes
     const dependentServices = meta.segments.dependentServices || [];
@@ -111,7 +89,7 @@ const segmentQueries = {
       if (meta.segments) {
         const contentTypes = meta.segments.contentTypes || [];
 
-        contentTypes.forEach(ct => {
+        contentTypes.forEach((ct: ISegmentContentType) => {
           associatedTypes.push({
             type: `${dService.name}:${ct.type}`,
             description: ct.description
@@ -121,7 +99,15 @@ const segmentQueries = {
     }
 
     // gather contentTypes of services that are dependent on current service
-    await gatherCts(serviceName, associatedTypes);
+    await gatherDependentServicesType(
+      serviceName,
+      (ct: ISegmentContentType, sName: string) => {
+        associatedTypes.push({
+          type: `${sName}:${ct.type}`,
+          description: ct.description
+        });
+      }
+    );
 
     return associatedTypes.map(atype => ({
       value: atype.type,
