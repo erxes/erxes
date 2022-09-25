@@ -39,10 +39,24 @@ const customFieldSchema = new Schema(
     value: { type: Schema.Types.Mixed },
     stringValue: { type: String, optional: true },
     numberValue: { type: Number, optional: true },
-    dateValue: { type: Date, optional: true }
+    dateValue: { type: Date, optional: true },
+    locationValue: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        optional: true
+      },
+      coordinates: {
+        type: [Number],
+        optional: true
+      },
+      required: false
+    }
   },
   { _id: false }
 );
+
+customFieldSchema.index({ locationValue: '2dsphere' });
 
 export interface ICustomField {
   field: string;
