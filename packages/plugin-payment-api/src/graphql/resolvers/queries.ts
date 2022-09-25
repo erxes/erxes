@@ -1,16 +1,18 @@
-import { IPaymentConfigDocument } from './../../models/definitions/payment';
-import { sendQpayMessage, sendSocialPayMessage } from './../../messageBroker';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
+
 import { IContext } from '../../connectionResolver';
+import { sendQpayMessage, sendSocialPayMessage } from './../../messageBroker';
+import { IPaymentConfigDocument } from './../../models/definitions/payment';
 
 const paymentConfigQueries = {
   paymentConfigs(_root, args, { models }: IContext) {
     const paymentIds: string[] = args.paymentIds;
-    const aciveCondition = { status: 'active' };
-    const filter =
-      paymentIds.length > 0
-        ? { ...aciveCondition, _id: { $in: paymentIds } }
-        : aciveCondition;
+
+    const filter: any = { status: 'active' };
+    if (paymentIds && paymentIds.length) {
+      filter._id = { $in: paymentIds };
+    }
+
     return models.PaymentConfigs.find(filter);
   },
 
@@ -22,7 +24,7 @@ const paymentConfigQueries = {
 
   getPaymentOptions(_root, params, { models }: IContext) {
     console.log('Process: ', JSON.stringify(process.env));
-    const mainUrl = process.env.PAYMENT_APP_URL || 'http://localhost:3202/';
+    const mainUrl = process.env.PAYMENT_APP_URL || 'http://localhost:3600';
     const route = 'payment_options';
     const base64 = Buffer.from(JSON.stringify(params)).toString('base64');
     console.log(Buffer.from(base64, 'base64').toString('ascii'));

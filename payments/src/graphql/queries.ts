@@ -3,7 +3,7 @@ const checkInvoiceQuery = `query checkInvoice($paymentId: String!, $invoiceId: S
 }`;
 
 const paymentConfigs = `
-query paymentConfigs($paymentIds: JSON!) {
+query paymentConfigs($paymentIds: JSON) {
   paymentConfigs(paymentIds: $paymentIds) {
     _id
     name

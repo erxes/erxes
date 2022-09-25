@@ -137,7 +137,7 @@ class Home extends React.Component<Props, State> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{queryParams.type || 'All Add-onsss'}</Title>}
+            left={<Title>{queryParams.type || 'All Add-ons'}</Title>}
             right={this.renderSearch()}
             wideSpacing
           />
