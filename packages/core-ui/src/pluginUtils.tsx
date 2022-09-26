@@ -201,18 +201,21 @@ const System = props => {
 
   if (props.plugin.routes) {
     const depPlugins = props.plugin.dependentPlugins || [];
-    let inactivePlugins: string[] = [];
+    const inactivePlugins: string[] = [];
+
     for (const depPlugin of depPlugins) {
-      if (typeof isEnabled(depPlugin) == 'undefined')
+      if (typeof isEnabled(depPlugin) === 'undefined') {
         inactivePlugins.push(depPlugin);
+      }
       depsEnabled = depsEnabled && isEnabled(depPlugin);
     }
+
     if (!depsEnabled) {
       return (
         <DependentPlugins
           depPlugins={inactivePlugins}
           currentPlugin={props.plugin.name}
-        ></DependentPlugins>
+        />
       );
     }
   }

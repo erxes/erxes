@@ -10,19 +10,22 @@ const DependentPlugins = (props: Props) => {
   const { depPlugins, currentPlugin } = props;
   return (
     <Info type="primary">
-      <thead>
-        <th>
-          Please enable the plugins below (inside <code> cli/configs.json</code>
-          ) in order to run <code>{currentPlugin}</code>
-        </th>
-      </thead>
-      <tbody>
-        {depPlugins.map(dep => (
-          <tr>
-            <td>{dep}</td>
-          </tr>
-        ))}
-      </tbody>
+      <table>
+        <thead>
+          <th>
+            Please enable the plugins below (inside{' '}
+            <code> cli/configs.json</code>) in order to run{' '}
+            <code>{currentPlugin}</code>
+          </th>
+        </thead>
+        <tbody>
+          {depPlugins.map(dep => (
+            <tr key={dep}>
+              <td>{dep}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </Info>
   );
 };
