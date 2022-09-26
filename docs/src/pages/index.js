@@ -1,8 +1,6 @@
 import React from 'react';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import { Redirect } from '@docusaurus/router';
 
-function Home() {
-  return (window.location.href = useBaseUrl('/docs/intro'));
+export default function Home() {
+  return <Redirect to="/docs/intro" />;
 }
-
-export default Home;
