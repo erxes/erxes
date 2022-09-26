@@ -312,8 +312,8 @@ export const generateQueryBySegment = async (
     } = serviceConfig;
 
     if (contentTypes) {
-      for (const contentType of contentTypes) {
-        if (contentType.type !== collectionType) {
+      for (const ct of contentTypes) {
+        if (ct.type !== collectionType) {
           continue;
         }
 
@@ -433,8 +433,8 @@ export const generateQueryBySegment = async (
         ] = condition.propertyType.split(':');
 
         if (contentTypes && propertyConditionExtenderAvailable) {
-          for (const contentType of contentTypes) {
-            if (contentType.type !== propertyContentType) {
+          for (const ct of contentTypes) {
+            if (ct.type !== propertyContentType) {
               continue;
             }
 
