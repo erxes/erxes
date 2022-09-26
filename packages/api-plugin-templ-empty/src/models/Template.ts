@@ -13,7 +13,7 @@ export interface ITemplateModel extends Model<ITemplateDocument> {
 
 export const loadTemplateClass = (models: IModels) => {
   class Template {
-    //create
+    // create
     public static async createTemplate(doc: ITemplate) {
       return models.Templates.create({
         ...doc,

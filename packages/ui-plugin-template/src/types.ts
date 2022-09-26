@@ -26,7 +26,7 @@ export type TypeQueryResponse = {
   loading: boolean;
 };
 
-//mutations
+// mutations
 export type MutationVariables = {
   _id?: String;
   name: String;

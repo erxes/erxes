@@ -35,11 +35,11 @@ export const loadTypeClass = (models: IModels) => {
 
       return type;
     }
-    //create type
+    // create type
     public static async createType(doc: IType) {
       return models.Types.create({ ...doc });
     }
-    //remove type
+    // remove type
     public static async removeType(_id: string) {
       const type = await models?.Types.getType(_id);
       return models.Types.deleteOne({ _id });
@@ -68,21 +68,21 @@ export const loadTemplateClass = models => {
       return {name};
     }
 
-    //create
+    // create
     public static async createTemplate(doc: ITemplate) {
       return models.Templates.create({
         ...doc,
         createdAt: new Date()
       });
     }
-    //update
+    // update
     public static async updateTemplate(_id: string, doc: ITemplate) {
       await models.Templates.updateOne(
         { _id },
         { $set: { ...doc } }
       ).then(err => console.error(err));
     }
-    //remove
+    // remove
     public static async removeTemplate(_id: string) {
       const {name} = await models.Templates.getTemplate(_id);
 

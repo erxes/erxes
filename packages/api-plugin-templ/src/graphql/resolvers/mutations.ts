@@ -78,7 +78,7 @@ const templateMutations = {
   }
 };
 
-//commented out for testing purposes
+// commented out for testing purposes
 // requireLogin(templateMutations, '{name}sAdd');
 
 export default templateMutations;

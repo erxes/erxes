@@ -32,7 +32,7 @@ const TypesListContainer = (props: FinalProps) => {
     return <Spinner />;
   }
 
-  //calls gql mutation for edit/add type
+  // calls gql mutation for edit/add type
   const renderButton = ({
     passedName,
     values,
