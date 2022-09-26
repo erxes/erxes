@@ -1,7 +1,7 @@
 const externalId = '_id: String! @external';
 const keyFields = '@key(fields: "_id")';
 
-export const types = async (serviceDiscovery) => {
+export const types = async serviceDiscovery => {
   const enabledTags = await serviceDiscovery.isEnabled('tags');
   const enabledContacts = await serviceDiscovery.isEnabled('contacts');
   const enabledSegments = await serviceDiscovery.isEnabled('segments');
@@ -247,6 +247,7 @@ const commonParams = `
   scheduleDate: EngageScheduleDateInput,
   messenger: EngageMessageMessenger,
   shortMessage: EngageMessageSmsInput
+  forceCreateConversation: Boolean
 `;
 
 export const mutations = `
