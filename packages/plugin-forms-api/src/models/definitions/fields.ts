@@ -70,6 +70,7 @@ export interface IField extends IVisibility {
   options?: string[];
   locationOptions?: ILocationOption[];
   objectListConfigs?: IObjectListConfig[];
+  optionsValues?:string;
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   isVisibleToCreate?: boolean;
@@ -155,6 +156,10 @@ export const fieldSchema = schemaWrapper(
       type: [ObjectListSchema],
       optional: true,
       label: 'object list config'
+    }),
+    optionsValues: field({
+      type:String,
+      label: 'Field Options object'
     }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
