@@ -15,12 +15,7 @@ import {
   SaveItemMutation
 } from '../../types';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { queries, mutations } from '../../../deals/graphql';
 import { subscriptions } from '../../graphql';
-import {
-  DealsQueryResponse,
-  DealsTotalCountQueryResponse
-} from '../../../deals/types';
 import { getFilterParams } from '../../utils';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import moment from 'moment';
@@ -37,8 +32,7 @@ type FinalProps = {
   addMutation: SaveItemMutation;
   removeStageMutation: RemoveStageMutation;
   tagsQuery: TagsQueryResponse;
-  dealsTotalCountQuery: DealsTotalCountQueryResponse;
-  dealsEdit: any;
+  editMutation: any;
 } & Props;
 
 type State = {
@@ -114,13 +108,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
   };
 
   render() {
-    const {
-      itemsQuery,
-      options,
-      tagsQuery,
-      dealsTotalCountQuery,
-      dealsEdit
-    } = this.props;
+    const { itemsQuery, options, tagsQuery, editMutation } = this.props;
 
     const itemMoveResizing = (itemId: string, data: ITimeData) => {
       const variables: any = { _id: itemId };
@@ -137,7 +125,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
         variables['tagIds'] = data.tagId;
       }
 
-      dealsEdit({ variables })
+      editMutation({ variables })
         .then(() => {
           Alert.success(options.texts.changeSuccessText);
         })
@@ -186,7 +174,6 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       resources: tagResources,
       events: events,
       tags: tags,
-      dealsTotalCount: dealsTotalCountQuery.dealsTotalCount,
       itemMoveResizing
     };
 
@@ -199,6 +186,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
 }
 
 const withQuery = ({ options }) => {
+  console.log(options, '---------------options------------');
   return withProps<Props>(
     compose(
       graphql<Props, TagsQueryResponse, { type: string }>(
@@ -208,17 +196,8 @@ const withQuery = ({ options }) => {
           options: (props: Props) => ({
             variables: {
               type: `cards:${props.type}`,
-              parentId: props.pipeline.tagId
+              parentId: props.pipeline.tagId || ''
             }
-          })
-        }
-      ),
-      graphql<Props, DealsTotalCountQueryResponse>(
-        gql(queries.dealsTotalCount),
-        {
-          name: 'dealsTotalCountQuery',
-          options: (props: Props) => ({
-            variables: { pipelineId: props.pipeline._id }
           })
         }
       ),
@@ -229,8 +208,8 @@ const withQuery = ({ options }) => {
           fetchPolicy: 'network-only'
         })
       }),
-      graphql<Props>(gql(mutations.dealsEdit), {
-        name: 'dealsEdit',
+      graphql<Props>(gql(options.mutations.editMutation), {
+        name: 'editMutation',
         options: ({ queryParams }: Props) => ({
           refetchQueries: [
             {

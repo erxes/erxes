@@ -18,7 +18,6 @@ import moment from 'moment';
 
 type Props = {
   tags: ITag[];
-  dealsTotalCount: number;
   pipeline: IPipeline;
   options: IOptions;
   refetch: () => void;
@@ -131,14 +130,27 @@ export class TimeView extends React.Component<Props, State> {
           <TimelineHeaders className="sticky">
             <SidebarHeader>
               {({ getRootProps }) => {
-                return <div {...getRootProps()}>Tags</div>;
+                return (
+                  <div {...getRootProps({ style: { color: '#fff' } })}>
+                    By Tags
+                  </div>
+                );
               }}
             </SidebarHeader>
             <DateHeader unit="primaryHeader" />
             <DateHeader />
           </TimelineHeaders>
           <TimelineMarkers>
-            <TodayMarker />
+            <TodayMarker>
+              {({ styles }) => {
+                const customStyles = {
+                  ...styles,
+                  backgroundColor: 'red'
+                };
+
+                return <div style={customStyles} />;
+              }}
+            </TodayMarker>
           </TimelineMarkers>
         </Timeline>
         {this.renderForm()}

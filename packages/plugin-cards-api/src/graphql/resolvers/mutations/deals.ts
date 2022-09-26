@@ -46,7 +46,6 @@ const dealMutations = {
     { _id, proccessId, ...doc }: IDealsEdit & { proccessId: string },
     { user, models, subdomain }: IContext
   ) {
-    console.log('333', _id, doc);
     const oldDeal = await models.Deals.getDeal(_id);
 
     if (doc.assignedUserIds) {
