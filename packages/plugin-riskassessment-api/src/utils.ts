@@ -30,10 +30,13 @@ export const validRiskAssessment = async params => {
   }
 };
 
-export const calculateRiskAssessment = async (models, subdomain, cardId, formId) => {
-  const { riskAssessmentId } = await models.RiskConfimity.findOne({ cardId }).lean();
+export const calculateRiskAssessment = async (models, subdomain, cardId,cardType, formId) => {
+  const { riskAssessmentId } = await models.RiskConfimity.findOne({
+    cardId,
+    cardType
+  }).lean();
 
-  const submissions = await models.RiksFormSubmissions.find({ cardId, formId, riskAssessmentId });
+  const submissions = await models.RiksFormSubmissions.find({ cardId, cardType, formId, riskAssessmentId });
   const { calculateLogics, calculateMethod } = await models.RiskAssessment.findOne({
     _id: riskAssessmentId
   }).lean();
@@ -101,12 +104,12 @@ export const calculateRiskAssessment = async (models, subdomain, cardId, formId)
   }
 };
 
-export const checkAllUsersSubmitted = async (subdomain, model, cardId: string) => {
+export const checkAllUsersSubmitted = async (subdomain, model, cardId: string, cardType: string) => {
   let result = false;
 
-  const assignedUsers = await getAsssignedUsers(subdomain, cardId);
+  const assignedUsers = await getAsssignedUsers(subdomain, cardId, cardType);
 
-  const formId = await getFormId(model, cardId);
+  const formId = await getFormId(model, cardId,cardType);
 
   const assignedUserIds = assignedUsers.map(usr => usr._id);
   const submissions = await model.RiksFormSubmissions.find({
@@ -127,20 +130,20 @@ export const checkAllUsersSubmitted = async (subdomain, model, cardId: string) =
   return result;
 };
 
-export const getAsssignedUsers = async (subdomain, dealId: string) => {
+export const getAsssignedUsers = async (subdomain, cardId: string, cardType: string) => {
   let assignedUsers;
-  const deal = await sendCardsMessage({
+  const card = await sendCardsMessage({
     subdomain,
-    action: 'deals.findOne',
+    action: `${cardType}s.findOne`,
     data: {
-      _id: dealId
+      _id: cardId
     },
     isRPC: true,
     defaultValue: []
   });
 
-  if (deal) {
-    const { assignedUserIds } = deal;
+  if (card) {
+    const { assignedUserIds } = card;
 
     assignedUsers = await sendCoreMessage({
       subdomain,
@@ -156,8 +159,8 @@ export const getAsssignedUsers = async (subdomain, dealId: string) => {
   return assignedUsers;
 };
 
-export const getFormId = async (model, cardId: string) => {
-  const { riskAssessmentId } = await model.RiskConfimity.findOne({ cardId }).lean();
+export const getFormId = async (model, cardId: string,cardType:String) => {
+  const { riskAssessmentId } = await model.RiskConfimity.findOne({ cardId,cardType }).lean();
   const { categoryId } = await model.RiskAssessment.findOne({ _id: riskAssessmentId }).lean();
 
   const { formId } = await model.RiskAssessmentCategory.findOne({ _id: categoryId }).lean();

@@ -6,18 +6,19 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
-  IDealRiskConfirmitiesQueryResponse,
+  ICardRiskConfirmitiesQueryResponse,
   IRiskSubmissionsQueryResponse
 } from '../../common/types';
 import SectionComponent from '../component/List';
 import { queries } from '../graphql';
 type Props = {
-  id: string;
+  mainType:string;
+  mainTypeId: string;
   currentUser: IUser;
 };
 
 type FinalProps = {
-  lists: IDealRiskConfirmitiesQueryResponse;
+  lists: ICardRiskConfirmitiesQueryResponse;
   submissions: IRiskSubmissionsQueryResponse;
 } & Props;
 
@@ -27,14 +28,16 @@ class RiskAssessmentSection extends React.Component<FinalProps> {
   }
 
   render() {
-    const { lists, submissions, id } = this.props;
+    const { lists, submissions, mainTypeId } = this.props;
 
-    if (id) {
+    if (mainTypeId) {
       submissions.refetch();
     }
 
     const updatedProps = {
       ...this.props,
+      cardId:this.props.mainTypeId,
+      cardType:this.props.mainType,
       list: lists?.riskConfirmities || [],
       refetch: lists?.refetch,
       submissions: submissions.riskConfirmitySubmissions,
@@ -49,13 +52,13 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.riskConfirmities), {
       name: 'lists',
-      skip: ({ id }) => !id,
-      options: ({ id }) => ({ variables: { cardId: id } })
+      skip: ({ mainTypeId }) => !mainTypeId,
+      options: ({ mainTypeId,mainType }) => ({ variables: { cardId: mainTypeId,cardType:mainType } })
     }),
     graphql<Props>(gql(queries.riskConfirmitySubmissions), {
       name: 'submissions',
-      skip: ({ id }) => !id,
-      options: ({ id }) => ({ variables: { dealId: id } })
+      skip: ({ mainTypeId }) => !mainTypeId,
+      options: ({ mainTypeId,mainType }) => ({ variables: { cardId: mainTypeId,cardType:mainType } })
     })
   )(withCurrentUser(RiskAssessmentSection))
 );

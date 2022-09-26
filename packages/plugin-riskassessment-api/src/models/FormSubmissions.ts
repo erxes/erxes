@@ -22,6 +22,9 @@ const generateFields = params => {
   if (params.cardId) {
     filter.cardId = params.cardId;
   }
+  if(params.cardType) {
+    filter.cardType = params.cardType;
+  }
   if (params.riskAssessmentId) {
     filter.riskAssessmentId = params.riskAssessmentId;
   }
@@ -31,7 +34,7 @@ const generateFields = params => {
 export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
   class FormSubmissionsClass {
     public static async formSaveSubmission(params: IRiskFormSubmissionParams) {
-      const { formSubmissions, cardId } = params;
+      const { formSubmissions, cardId, cardType } = params;
 
       const filter = generateFields(params);
 
@@ -42,9 +45,9 @@ export const loadRiskFormSubmissions = (model: IModels, subdomain: string) => {
       }
 
       const result = model.RiksFormSubmissions.insertMany(newSubmission);
-      if (await checkAllUsersSubmitted(subdomain, model, cardId)) {
-        const formId = await getFormId(model, cardId);
-        calculateRiskAssessment(model, subdomain, cardId, formId);
+      if (await checkAllUsersSubmitted(subdomain, model, cardId, cardType)) {
+        const formId = await getFormId(model, cardId,cardType);
+        calculateRiskAssessment(model, subdomain, cardId, cardType, formId);
       }
       return result;
     }

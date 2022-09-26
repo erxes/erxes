@@ -15,6 +15,7 @@ import PortableTasks from '../../tasks/components/PortableTasks';
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select-plus';
 import { ITicket, ITicketParams } from '../types';
+import { pluginsOfItemSidebar } from 'coreui/pluginUtils';
 
 type Props = {
   options: IOptions;
@@ -91,6 +92,7 @@ export default function TicketEditForm(props: Props) {
       <>
         <PortableDeals mainType="ticket" mainTypeId={props.item._id} />
         <PortableTasks mainType="ticket" mainTypeId={props.item._id} />
+        {pluginsOfItemSidebar(props.item, "ticket")}
       </>
     );
   }

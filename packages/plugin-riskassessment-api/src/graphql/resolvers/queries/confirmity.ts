@@ -8,7 +8,7 @@ const RiskConfimityQuries = {
   async riskConfirmityDetails(_root, params: IRiskConfirmityParams, { models }: IContext) {
     return await models.RiskConfimity.riskConfirmityDetails(params);
   },
-  async riskConfirmitySubmissions(_root, params: { dealId: string }, { models }: IContext) {
+  async riskConfirmitySubmissions(_root, params: { cardId: string }, { models }: IContext) {
     return await models.RiskConfimity.riskConfirmitySubmissions(params);
   },
 

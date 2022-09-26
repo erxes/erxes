@@ -6,8 +6,8 @@ import * as compose from 'lodash.flowright';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import {
-  IDealRiskAssessmentDetailQueryResponse,
-  IDealRiskAssessmentsQueryResponse
+  ICardRiskAssessmentDetailQueryResponse,
+  ICardRiskAssessmentsQueryResponse
 } from '../../common/types';
 import AddRiskAssessmentForm from '../../containers/Form';
 import { mutations as riskAssessmentMutattions } from '../../graphql';
@@ -22,8 +22,8 @@ type Props = {
 };
 
 type FinalProps = {
-  riskAssessmentsQuery: IDealRiskAssessmentsQueryResponse;
-  confirmityDetail: IDealRiskAssessmentDetailQueryResponse;
+  riskAssessmentsQuery: ICardRiskAssessmentsQueryResponse;
+  confirmityDetail: ICardRiskAssessmentDetailQueryResponse;
   addConfirmity: any;
   editconfirmity: any;
   removeConfirmity: any;

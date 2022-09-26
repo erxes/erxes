@@ -1,16 +1,17 @@
 import { SectionBodyItem, __ } from '@erxes/ui/src';
 import { Box, Button, EmptyState, Icon, ModalTrigger, Tip } from '@erxes/ui/src/components';
 import React from 'react';
-import { IDealRiskAssements } from '../../common/types';
+import { ICardRiskAssements } from '../../common/types';
 import { ColorBox, ProductName } from '../../styles';
 import RiskAssessmentForm from '../container/Form';
 import Submissions from '../container/Submissions';
 type Props = {
-  list: IDealRiskAssements[];
+  list: ICardRiskAssements[];
   refetch: () => void;
   refetchSubmissions: () => void;
   submissions: any;
-  id: string;
+  cardId: string;
+  cardType: string;
   currentUser: any;
 };
 
@@ -22,11 +23,15 @@ function RiskAssessmentSection(props: Props) {
     riskAssessmentId
   }: {
     closeModal: () => void;
-    dealId?: string;
+    cardId?: string;
     riskAssessmentId?: string;
   }) => {
     return (
-      <RiskAssessmentForm {...props} closeModal={closeModal} riskAssessmentId={riskAssessmentId} />
+      <RiskAssessmentForm
+        {...props}
+        closeModal={closeModal}
+        riskAssessmentId={riskAssessmentId}
+      />
     );
   };
 
@@ -65,7 +70,8 @@ function RiskAssessmentSection(props: Props) {
     const content = ({ closeModal }) => {
       return (
         <Submissions
-          cardId={props.id}
+          cardId={props.cardId}
+          cardType={props.cardType}
           currentUserId={props.currentUser._id}
           closeModal={closeModal}
           refetch={props.refetch}

@@ -33,16 +33,19 @@ export interface IRiskAssessmentCategoryField extends PaginateField {
 export interface IRiskConfirmityField {
   _id: string;
   cardId: string;
+  cardType: string;
   riskAssessmentId: string;
 }
 
 export interface IRiskConfirmityParams {
   cardId: string;
+  cardType: string;
   riskAssessmentId?: string;
 }
 
 export interface IRiskFormSubmissionParams {
   cardId: string;
+  cardType: string;
   userId: string;
   formId: string;
   formSubmissions: {

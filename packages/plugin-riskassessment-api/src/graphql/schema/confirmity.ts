@@ -2,6 +2,7 @@ export const types = `
     type RiskConfirmity {
         _id: String,
         cardId: String,
+        cardType: String,
         riskAssessmentId: String,
         name:String
         statusColor:String
@@ -24,12 +25,12 @@ export const types = `
 export const queries = `
     riskConfirmities(cardId:String,riskAssessmentId:String):[RiskConfirmity]
     riskConfirmityDetails(cardId:String) :[RiskConfirmityDetail]
-    riskConfirmitySubmissions(dealId:String) :JSON
+    riskConfirmitySubmissions(cardId:String,cardType:String) :JSON
     riskConfirmityFormDetail(cardId:String,userId: String,riskAssessmentId:String) :RiskConfirmityFormDetailType
 `;
 
 export const mutations = `
-    addRiskConfirmity (cardId: String,riskAssessmentId: String):RiskConfirmity
-    updateRiskConfirmity (cardId: String,riskAssessmentId: String):RiskConfirmity
-    removeRiskConfirmity (cardId: String):String
+    addRiskConfirmity (cardId: String,cardType:String,riskAssessmentId: String):RiskConfirmity
+    updateRiskConfirmity (cardId: String,cardType:String,riskAssessmentId: String):RiskConfirmity
+    removeRiskConfirmity (cardId: String,cardType:String):String
 `;

@@ -27,8 +27,8 @@ const riskConfimityDetails = `
   }`;
 
 const riskConfirmitySubmissions = `
-  query RiskConfirmitySubmissions($dealId: String) {
-    riskConfirmitySubmissions(dealId: $dealId)
+  query RiskConfirmitySubmissions($cardId: String,$cardType:String) {
+    riskConfirmitySubmissions(cardId: $cardId, cardType: $cardType)
   }
 `;
 

@@ -19,13 +19,15 @@ export interface IRiskFormSubmissionDocument extends Document {
 export const riskConfirmitySchema = new Schema({
   _id: field({ pkey: true }),
   cardId: field({ type: String, label: 'Card Id' }),
+  cardType: field({ type: String, label: 'Card Type' }),
   riskAssessmentId: field({ type: String, label: 'Answer Risk assessment Ids' }),
   createdAt: field({ type: Date, label: 'Created At', default: new Date() })
 });
 
 export const riskConfirmityFormSubmissionSchema = new Schema({
   _id: field({ pkey: true }),
-  cardId: field({ type: String, label: 'Content Type Id' }),
+  cardId: field({ type: String, label: 'Card Id' }),
+  cardType: field({ type: String, label: 'Card Type' }),
   userId: field({ type: String, label: 'User Id' }),
   formId: field({ type: String, label: 'Form ID' }),
   riskAssessmentId: field({ type: String, label: 'risk assessment ID' }),

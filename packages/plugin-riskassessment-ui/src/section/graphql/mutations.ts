@@ -1,6 +1,6 @@
 const confirmityRiskAssessment = `
-  mutation AddRiskConfirmity( $riskAssessmentId: String!, $cardId: String!) {
-    addRiskConfirmity( riskAssessmentId: $riskAssessmentId, cardId: $cardId) {
+  mutation AddRiskConfirmity( $riskAssessmentId: String!, $cardId: String!,$cardType: String) {
+    addRiskConfirmity( riskAssessmentId: $riskAssessmentId, cardId: $cardId,cardType: $cardType) {
       cardId
       _id
       riskAssessmentId
@@ -8,10 +8,11 @@ const confirmityRiskAssessment = `
   }
 `;
 const editConfimityRiskAssessment = `
-  mutation UpdateRiskConfirmity($cardId: String, $riskAssessmentId: String) {
-    updateRiskConfirmity(cardId: $cardId, riskAssessmentId: $riskAssessmentId) {
+  mutation UpdateRiskConfirmity($cardId: String,$cardType:String, $riskAssessmentId: String) {
+    updateRiskConfirmity(cardId: $cardId,cardType:$cardType, riskAssessmentId: $riskAssessmentId) {
       _id
       cardId
+      cardType
       name
       riskAssessmentId
     }
@@ -19,20 +20,14 @@ const editConfimityRiskAssessment = `
 `;
 
 const removeConfirmityRiskAssessment = `
-  mutation RemoveRiskConfirmity($cardId: String) {
-    removeRiskConfirmity(cardId: $cardId)
+  mutation RemoveRiskConfirmity($cardId: String,$cardType:String) {
+    removeRiskConfirmity(cardId: $cardId,cardType:$cardType) 
   }
 `;
 
-const formSubmissionsSave = `
-mutation FormSubmissionsSave($contentType: String, $contentTypeId: String, $formId: String, $formSubmissions: JSON,$userId:String) {
-  formSubmissionsSave(contentType: $contentType, contentTypeId: $contentTypeId, formId: $formId, formSubmissions: $formSubmissions,userId: $userId)
-}
-`;
-
 const riskFormSaveSubmission = `
-  mutation RiskFormSaveSubmissions($cardId: String, $fieldId: String, $formId: String, $formSubmissions: JSON, $userId: String,$riskAssessmentId:String) {
-    riskFormSaveSubmissions(cardId: $cardId, fieldId: $fieldId, formId: $formId, formSubmissions: $formSubmissions, userId: $userId,riskAssessmentId: $riskAssessmentId)
+  mutation RiskFormSaveSubmissions($cardId: String,$cardType:String, $fieldId: String, $formId: String, $formSubmissions: JSON, $userId: String,$riskAssessmentId:String) {
+    riskFormSaveSubmissions(cardId: $cardId,cardType:$cardType ,fieldId: $fieldId, formId: $formId, formSubmissions: $formSubmissions, userId: $userId,riskAssessmentId: $riskAssessmentId)
   }
 `;
 
@@ -40,6 +35,5 @@ export default {
   confirmityRiskAssessment,
   editConfimityRiskAssessment,
   removeConfirmityRiskAssessment,
-  formSubmissionsSave,
   riskFormSaveSubmission
 };

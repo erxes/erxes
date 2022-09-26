@@ -79,7 +79,7 @@ export type CustomFormGroupProps = {
   spaceBetween?: boolean;
 };
 
-export interface IDealRiskAssements {
+export interface ICardRiskAssements {
   _id: string;
   cardId: string;
   riskAssessmentId: string;
@@ -87,8 +87,8 @@ export interface IDealRiskAssements {
   statusColor?: string;
 }
 
-export type IDealRiskConfirmitiesQueryResponse = {
-  riskConfirmities: IDealRiskAssements[];
+export type ICardRiskConfirmitiesQueryResponse = {
+  riskConfirmities: ICardRiskAssements[];
   loading: boolean;
   refetch: () => void;
 };
@@ -99,16 +99,16 @@ export type IRiskSubmissionsQueryResponse = {
   refetch: () => void;
 };
 
-export type IDealRiskAssessmentsQueryResponse = {
+export type ICardRiskAssessmentsQueryResponse = {
   riskAssessments: {
-    list: IDealRiskAssements[];
+    list: ICardRiskAssements[];
     totalCount: number;
   };
   loading: boolean;
   refetch: (params: { searchValue: string; perPage: number }) => void;
 };
-export type IDealRiskAssessmentDetailQueryResponse = {
-  riskConfirmityDetails: IDealRiskAssements[];
+export type ICardRiskAssessmentDetailQueryResponse = {
+  riskConfirmityDetails: ICardRiskAssements[];
   loading: boolean;
   refetch: () => void;
 };

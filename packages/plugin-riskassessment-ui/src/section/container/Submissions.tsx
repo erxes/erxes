@@ -9,6 +9,7 @@ import SubmissionsComponent from '../component/Submissions';
 import { mutations, queries } from '../graphql';
 type Props = {
   cardId: string;
+  cardType:string
   closeModal: () => void;
   currentUserId?: string;
   refetch: () => void;
@@ -32,6 +33,7 @@ class Submissions extends React.Component<FinalProps> {
       formDetail,
       saveFormSubmissions,
       cardId,
+      cardType,
       closeModal,
       currentUserId,
       refetch,
@@ -44,6 +46,7 @@ class Submissions extends React.Component<FinalProps> {
       const variables = {
         ...doc,
         cardId,
+        cardType,
         userId: currentUserId,
         riskAssessmentId
       };
@@ -81,8 +84,8 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.riskConfirmityDetail), {
       name: 'formDetail',
-      options: ({ cardId, currentUserId, riskAssessmentId }) => ({
-        variables: { cardId, userId: currentUserId, riskAssessmentId }
+      options: ({ cardId,cardType, currentUserId, riskAssessmentId }) => ({
+        variables: { cardId,cardType , userId: currentUserId, riskAssessmentId }
       })
     }),
     graphql<Props>(gql(mutations.riskFormSaveSubmission), {
