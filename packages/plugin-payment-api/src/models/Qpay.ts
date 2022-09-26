@@ -1,0 +1,137 @@
+import { Model } from 'mongoose';
+import { qpayInvoiceSchema, IQpayInvoiceDocument } from './definitions/qpay';
+
+import {
+  makeInvoiceNo,
+  qpayToken,
+  createQpayInvoice,
+  getQpayInvoice
+} from '../utils';
+
+export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
+  getQpayInvoice(_id: string): IQpayInvoiceDocument;
+  qpayInvoiceCreate(doc: any): IQpayInvoiceDocument;
+  qpayInvoiceUpdate(invoice: any, invoiceData: any): IQpayInvoiceDocument;
+  checkInvoice(data: any): any;
+  createInvoice(data: any): any;
+}
+
+export const loadQpayInvoiceClass = models => {
+  class QpayInvoice {
+    public static async getQpayInvoice(_id: string) {
+      const invoice = await models.QpayInvoice.findOne({ _id });
+
+      if (!invoice) {
+        throw new Error('Invoice not found');
+      }
+
+      return invoice;
+    }
+
+    public static async qpayInvoiceCreate(doc) {
+      const invoice = await models.QpayInvoice.findOne({
+        senderInvoiceNo: doc.senderInvoiceNo
+      });
+
+      if (invoice) {
+        throw new Error('senderInvoiceNo duplicated');
+      }
+
+      return await models.QpayInvoice.create({
+        ...doc
+      });
+    }
+
+    public static async checkInvoice(data) {
+      const { config, invoiceId } = data;
+      const token = await qpayToken(config);
+      const invoice = await models.QpayInvoice.findOne({
+        qpayInvoiceId: invoiceId
+      });
+
+      const detail: any = await getQpayInvoice(invoiceId, token, config);
+
+      if (
+        invoice &&
+        !invoice.qpayPaymentId &&
+        detail.invoice_status === 'CLOSED'
+      ) {
+        const payments = detail.payments;
+
+        payments.map(async e => {
+          const paymentId = e.payment_id;
+
+          await models.QpayInvoice.updateOne(
+            { qpayInvoiceId: invoiceId },
+            {
+              $set: {
+                paymentDate: new Date(),
+                qpayPaymentId: paymentId,
+                status: 'PAID'
+              }
+            }
+          );
+        });
+      }
+
+      return {
+        status: 'success',
+        data: detail
+      };
+    }
+
+    public static async createInvoice(data) {
+      const {
+        config,
+        invoice_description,
+        amount,
+        customerId,
+        companyId,
+        contentType,
+        contentTypeId
+      } = data;
+      const { qpayInvoiceCode, callbackUrl } = config;
+      const invoice_receiver_code = 'terminal';
+      const token = await qpayToken(config);
+      const sender_invoice_no = await makeInvoiceNo(16);
+
+      const invoiceDoc = {
+        senderInvoiceNo: sender_invoice_no,
+        amount,
+        customerId,
+        companyId,
+        contentType,
+        contentTypeId
+      };
+
+      const invoice = await models.QpayInvoice.qpayInvoiceCreate(invoiceDoc);
+
+      const varData = {
+        invoice_code: qpayInvoiceCode,
+        sender_invoice_no,
+        invoice_receiver_code,
+        invoice_description,
+        amount,
+        callback_url: `${callbackUrl}/callBackQpay?payment_id=${sender_invoice_no}`
+      };
+      const invoiceData = await createQpayInvoice(varData, token, config);
+      await models.QpayInvoice.qpayInvoiceUpdate(invoice, invoiceData);
+
+      return {
+        status: 'qpay success',
+        data: { response: invoiceData }
+      };
+    }
+
+    public static async qpayInvoiceUpdate(invoice, invoiceData) {
+      const qpayInvoiceId = invoiceData.invoice_id;
+      const qrText = invoiceData.qr_text;
+      await models.QpayInvoice.updateOne(
+        { _id: invoice._id },
+        { $set: { qpayInvoiceId, qrText } }
+      );
+    }
+  }
+  qpayInvoiceSchema.loadClass(QpayInvoice);
+  return qpayInvoiceSchema;
+};
