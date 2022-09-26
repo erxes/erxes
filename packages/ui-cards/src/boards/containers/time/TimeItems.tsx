@@ -186,7 +186,6 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
 }
 
 const withQuery = ({ options }) => {
-  console.log(options, '---------------options------------');
   return withProps<Props>(
     compose(
       graphql<Props, TagsQueryResponse, { type: string }>(
