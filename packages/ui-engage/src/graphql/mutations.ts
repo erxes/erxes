@@ -52,6 +52,7 @@ const commonVariables = `
   $scheduleDate: EngageScheduleDateInput,
   $messenger: EngageMessageMessenger,
   $shortMessage: EngageMessageSmsInput,
+  $forceCreateConversation: Boolean,
 `;
 
 const commonParams = `
@@ -70,6 +71,7 @@ const commonParams = `
   messenger: $messenger,
   scheduleDate: $scheduleDate,
   shortMessage: $shortMessage,
+  forceCreateConversation: $forceCreateConversation,
 `;
 
 const messagesAdd = `

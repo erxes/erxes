@@ -15,6 +15,7 @@ type Props = {
 };
 
 export default (props: Props) => {
+  console.log('messages list')
   return (
     <AppConsumer>
       {({

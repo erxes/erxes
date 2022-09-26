@@ -1,12 +1,12 @@
-import gql from 'graphql-tag';
-import * as React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
-import { IBrowserInfo, IIntegrationUiOptions } from '../../types';
-import DumpLauncher from '../components/Launcher';
-import { connection } from '../connection';
-import graphqlTypes from '../graphql';
-import { IMessage } from '../types';
-import { AppConsumer } from './AppContext';
+import gql from "graphql-tag";
+import * as React from "react";
+import { ChildProps, graphql } from "react-apollo";
+import { IBrowserInfo, IIntegrationUiOptions } from "../../types";
+import DumpLauncher from "../components/Launcher";
+import { connection } from "../connection";
+import graphqlTypes from "../graphql";
+import { IMessage } from "../types";
+import { AppConsumer } from "./AppContext";
 
 type BaseProps = {
   isMessengerVisible: boolean;
@@ -46,6 +46,15 @@ class Launcher extends React.Component<Props, {}> {
     const cData = this.props.data;
 
     if (data && data.loading && cData && !cData.loading) {
+      if (cData.widgetsTotalUnreadCount !== 0) {
+        window &&
+          window.top &&
+          window.top.postMessage(
+            { unreadCount: cData.widgetsTotalUnreadCount },
+            "*"
+          );
+      }
+
       this.props.setUnreadCount(cData.widgetsTotalUnreadCount || 0);
     }
   }

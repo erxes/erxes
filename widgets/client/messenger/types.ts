@@ -61,6 +61,11 @@ export type EngageMessageQueryResponse = {
   widgetsGetEngageMessage: IMessage;
 };
 
+export type ConversationsQueryResponse = {
+  widgetsConversations: IConversation[];
+  loading: boolean;
+};
+
 export interface IConversation {
   _id: string;
   content: string;

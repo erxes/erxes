@@ -40,7 +40,7 @@ class Widget extends React.Component<Props> {
     return (
       <ModalTrigger
         size="lg"
-        title="Quick message"
+        title="Quick message3"
         trigger={this.getTrigger()}
         content={content}
         enforceFocus={false}
