@@ -29,7 +29,7 @@ export const getFullDate = (date: Date) => {
   const day = ndate.getDate();
 
   const today = new Date(year, month, day);
-  today.setHours(0, 0, 0, 0);
+  today.setHours(Number(process.env.TIMEZONE) || 0, 0, 0, 0);
   return today;
 };
 
