@@ -46,15 +46,6 @@ class Launcher extends React.Component<Props, {}> {
     const cData = this.props.data;
 
     if (data && data.loading && cData && !cData.loading) {
-      if (cData.widgetsTotalUnreadCount !== 0) {
-        window &&
-          window.top &&
-          window.top.postMessage(
-            { unreadCount: cData.widgetsTotalUnreadCount },
-            "*"
-          );
-      }
-
       this.props.setUnreadCount(cData.widgetsTotalUnreadCount || 0);
     }
   }
