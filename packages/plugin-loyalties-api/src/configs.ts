@@ -18,7 +18,9 @@ export default {
   permissions,
   meta: {
     logs: { loyalties: logs },
-    automations
+    automations,
+    // for fixing permissions
+    permissions
   },
   graphql: async sd => {
     serviceDiscovery = sd;

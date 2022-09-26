@@ -85,6 +85,7 @@ export const commonListFields = `
   hasNotified
   score
   number
+  customProperties
 `;
 
 export const commonFields = `
@@ -176,6 +177,7 @@ export const commonFields = `
     startDate
   }
   number
+  customProperties
 `;
 
 const pipelinesWatch = `

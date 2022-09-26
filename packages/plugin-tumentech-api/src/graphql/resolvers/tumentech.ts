@@ -16,16 +16,11 @@ const Cars = {
     );
   },
 
-  async parentCategory(car: ICarDocument, _args, { models }: IContext) {
-    const category =
-      car.categoryId &&
-      (await models.CarCategories.findOne({ _id: car.categoryId }));
-
-    if (!category || !category.parentId) {
-      return null;
-    }
-
-    return models.CarCategories.findOne({ _id: category.parentId });
+  parentCategory(car: ICarDocument, _args, { models }: IContext) {
+    return (
+      car.parentCategoryId &&
+      models.CarCategories.findOne({ _id: car.parentCategoryId })
+    );
   },
 
   async customers(car: ICarDocument, {}, { subdomain }: IContext) {

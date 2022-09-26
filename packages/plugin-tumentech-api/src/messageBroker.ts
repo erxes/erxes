@@ -129,6 +129,15 @@ export const sendClientPortalMessage = (args: ISendMessageArgs) => {
   });
 };
 
+export const sendFormsMessage = (args: ISendMessageArgs) => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    serviceName: 'forms',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

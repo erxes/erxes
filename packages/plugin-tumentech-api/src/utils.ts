@@ -144,20 +144,42 @@ export const generateFields = async ({ subdomain }) => {
     }
   }
 
+  fields = fields.filter(field => {
+    if (field.name === 'parentCategoryId' || field.name === 'categoryId') {
+      return false;
+    }
+
+    return true;
+  });
+
+  const parentCategories = await models.CarCategories.find({
+    $or: [{ parentId: null }, { parentId: '' }]
+  });
+
+  const categories = await models.CarCategories.find({
+    $or: [{ parentId: { $ne: null } }, { parentId: { $ne: '' } }]
+  });
+
   const additionalFields = [
     {
       _id: Math.random(),
-      name: 'parentCategory',
+      name: 'parentCategoryId',
       label: 'Category',
       type: 'String',
-      selectOptions: undefined
+      selectOptions: parentCategories.map(category => ({
+        value: category._id,
+        label: category.name
+      }))
     },
     {
       _id: Math.random(),
-      name: 'category',
+      name: 'categoryId',
       label: 'Sub category',
       type: 'String',
-      selectOptions: undefined
+      selectOptions: categories.map(category => ({
+        value: category._id,
+        label: category.name
+      }))
     },
     {
       _id: Math.random(),

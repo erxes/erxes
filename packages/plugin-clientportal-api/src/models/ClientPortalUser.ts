@@ -211,7 +211,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
         await user.save();
 
-        const link = `${clientPortal.url}/register?token=${token}`;
+        const link = `${clientPortal.url}/verify?token=${token}`;
 
         const content = (
           clientPortal.mailConfig.registrationContent ||
@@ -739,7 +739,7 @@ export const loadClientPortalUserClass = (models: IModels) => {
         invitationContent: DEFAULT_MAIL_CONFIG.INVITE
       };
 
-      const link = `${clientPortal.url}/register?token=${token}`;
+      const link = `${clientPortal.url}/verify?token=${token}`;
 
       let content = config.invitationContent.replace(/{{ link }}/, link);
       content = content.replace(/{{ password }}/, plainPassword);

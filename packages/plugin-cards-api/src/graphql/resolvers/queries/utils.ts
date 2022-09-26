@@ -12,6 +12,7 @@ import {
   fetchSegment,
   sendContactsMessage,
   sendCoreMessage,
+  sendFormsMessage,
   sendNotificationsMessage,
   sendSegmentsMessage
 } from '../../../messageBroker';
@@ -951,7 +952,40 @@ export const getItemList = async (
     serverTiming.endTime('getItemsNotifications');
   }
 
+  const fields = await sendFormsMessage({
+    subdomain,
+    action: 'fields.find',
+    data: {
+      query: {
+        showInCard: true,
+        contentType: `cards:${type}`
+      }
+    },
+    isRPC: true,
+    defaultValue: []
+  });
+
   for (const item of list) {
+    if (
+      item.customFieldsData &&
+      item.customFieldsData.length > 0 &&
+      fields.length > 0
+    ) {
+      item.customProperties = [];
+
+      fields.forEach(field => {
+        const fieldData = item.customFieldsData.find(
+          f => f.field === field._id
+        );
+
+        if (fieldData) {
+          item.customProperties.push({
+            name: `${field.text} - ${fieldData.value}`
+          });
+        }
+      });
+    }
+
     const notification = notifications.find(n => n.contentTypeId === item._id);
 
     updatedList.push({

@@ -94,7 +94,7 @@ const internalNoteMutations = serviceDiscovery => ({
         subdomain,
         serviceName,
         item,
-        notifDoc,
+        updatedNotifDoc,
         type,
         [...mentionedUserIds, user._id]
       );

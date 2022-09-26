@@ -1,6 +1,8 @@
+import { IUser } from '@erxes/api-utils/src/types';
 import { validSearchText } from 'erxes-api-utils';
 import { Model } from 'mongoose';
 
+import { IModels } from '../connectionResolver';
 import { sendCoreMessage, sendInternalNotesMessage } from '../messageBroker';
 import {
   carCategorySchema,
@@ -13,11 +15,21 @@ import {
 } from './definitions/tumentech';
 
 export interface ICarModel extends Model<ICarDocument> {
-  createCar(doc: ICar, user: any): Promise<ICarDocument>;
+  createCar(doc: ICar, user: IUser): Promise<ICarDocument>;
   getCar(_id: string): Promise<ICarDocument>;
   updateCar(_id: string, doc: ICar): Promise<ICarDocument>;
-  removeCars(carIds: string[]): Promise<ICarDocument>;
-  mergeCars(carIds: string, carFields: any): Promise<ICarDocument>;
+  removeCars(subdomain: string, carIds: string[]): Promise<ICarDocument>;
+  mergeCars(
+    subdomain: string,
+    carIds: string,
+    carFields: any,
+    user: IUser
+  ): Promise<ICarDocument>;
+  checkDuplication(
+    carFields: any,
+    idsToExclude?: string[]
+  ): Promise<ICarDocument>;
+  fillSearchText(doc: ICar): Promise<void>;
 }
 
 export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
@@ -36,7 +48,7 @@ export interface ICarCategoryModel extends Model<ICarCategoryDocument> {
 export interface IProductCarCategoryModel
   extends Model<IProductCarCategoryDocument> {}
 
-export const loadCarsClass = models => {
+export const loadCarsClass = (models: IModels) => {
   class Cars {
     /**
      * Checking if car has duplicated unique properties
@@ -116,6 +128,14 @@ export const loadCarsClass = models => {
       // Checking duplicated fields of car
       await models.Cars.checkDuplication(doc);
 
+      const category = await models.CarCategories.getCarCatogery({
+        _id: doc.categoryId
+      });
+
+      if (category.parentId) {
+        doc.parentCategoryId = category.parentId;
+      }
+
       const car = await models.Cars.create({
         ...doc,
         createdAt: new Date(),
@@ -136,6 +156,19 @@ export const loadCarsClass = models => {
       const searchText = models.Cars.fillSearchText(
         Object.assign(await models.Cars.getCar(_id), doc)
       );
+
+      const car = await models.Cars.getCar(_id);
+
+      if (car.categoryId !== doc.categoryId) {
+        const category = await models.CarCategories.getCarCatogery({
+          _id: doc.categoryId
+        });
+
+        if (category.parentId) {
+          doc.parentCategoryId = category.parentId;
+        }
+      }
+
       await models.Cars.updateOne(
         { _id },
         { $set: { ...doc, searchText, modifiedAt: new Date() } }
@@ -147,10 +180,10 @@ export const loadCarsClass = models => {
     /**
      * Remove car
      */
-    public static async removeCars(carIds) {
+    public static async removeCars(subdomain: string, carIds) {
       for (const carId of carIds) {
         await sendInternalNotesMessage({
-          subdomain: models.subdomain,
+          subdomain: subdomain,
           action: 'removeInternalNotes',
           data: {
             contentType: 'car',
@@ -160,7 +193,7 @@ export const loadCarsClass = models => {
         });
 
         await sendCoreMessage({
-          subdomain: models.subdomain,
+          subdomain: subdomain,
           action: 'conformities.removeConformity',
           data: {
             mainType: 'car',
@@ -176,7 +209,7 @@ export const loadCarsClass = models => {
     /**
      * Merge cars
      */
-    public static async mergeCars(carIds, carFields) {
+    public static async mergeCars(subdomain: string, carIds, carFields, user) {
       // Checking duplicated fields of car
       await this.checkDuplication(carFields, carIds);
 
@@ -189,14 +222,17 @@ export const loadCarsClass = models => {
       }
 
       // Creating car with properties
-      const car = await models.Cars.createCar({
-        ...carFields,
-        mergedIds: carIds
-      });
+      const car = await models.Cars.createCar(
+        {
+          ...carFields,
+          mergedIds: carIds
+        },
+        user
+      );
 
       // Updating customer cars, deals, tasks, tickets
       await sendCoreMessage({
-        subdomain: models.subdomain,
+        subdomain: subdomain,
         action: 'conformities.changeConformity',
         data: {
           type: 'car',

@@ -2,7 +2,7 @@ import { IModels } from './connectionResolver';
 import { IPageDocument } from './models/pages';
 import { ISiteDocument } from './models/sites';
 
-const pathReplacer = (html: any, site: ISiteDocument) => {
+const pathReplacer = (subdomain: string, html: any, site: ISiteDocument) => {
   const siteHolder = `{{sitename}}`;
   const path = `{{pl:webbuilder}}/`;
 
@@ -15,7 +15,11 @@ const pathReplacer = (html: any, site: ISiteDocument) => {
       html = html.replace(new RegExp(path, 'g'), '');
     }
 
-    html = html.replace(new RegExp(path, 'g'), 'gateway/pl:webbuilder/');
+    // path replacer
+    const replacer =
+      subdomain === 'localhost' ? `pl:webbuilder/` : `gateway/pl:webbuilder/`;
+
+    html = html.replace(new RegExp(path, 'g'), replacer);
   }
 
   return html;
@@ -23,13 +27,14 @@ const pathReplacer = (html: any, site: ISiteDocument) => {
 
 const entryReplacer = async (
   models: IModels,
+  subdomain: string,
   site: ISiteDocument,
   page: IPageDocument,
   limit: any,
   skip: any
 ) => {
   let subHtml = '';
-  const html = pathReplacer(page.html, site);
+  const html = pathReplacer(subdomain, page.html, site);
 
   if (page.name.includes('_entry')) {
     const contentTypeCode = page.name.replace('_entry', '');
@@ -67,10 +72,11 @@ const entryReplacer = async (
 
 const pageReplacer = async (
   models: IModels,
+  subdomain: string,
   page: IPageDocument,
   site: ISiteDocument
 ) => {
-  let html = pathReplacer(page.html, site);
+  let html = pathReplacer(subdomain, page.html, site);
 
   const pages = await models.Pages.find({
     siteId: site._id,
@@ -104,7 +110,7 @@ const pageReplacer = async (
 
       html = html.replace(
         new RegExp(holder, 'g'),
-        await entryReplacer(models, site, p, limit, skip)
+        await entryReplacer(models, subdomain, site, p, limit, skip)
       );
     }
   }

@@ -9,7 +9,13 @@ import {
   ITripDocument,
   tripSchema
 } from './definitions/trips';
-import { filterDeals, filterDealsByCar, filterDealsByRoute } from './utils';
+import {
+  filterDeals,
+  filterDealsByCar,
+  filterDealsByRoute,
+  locationFilter,
+  prepareDateFilter
+} from './utils';
 
 export interface ITripModel extends Model<ITripDocument> {
   getTrip(doc: any): ITripDocument;
@@ -22,7 +28,10 @@ export interface ITripModel extends Model<ITripDocument> {
     carId?: string,
     routeId?: string,
     categoryIds?: string[],
-    date?: Date
+    dateType?: 'createdAt' | 'ShipmentTime',
+    date?: string,
+    currentLocation?: { lat: number; lng: number },
+    searchRadius?: number
   ): any[];
 }
 
@@ -83,22 +92,61 @@ export const loadTripClass = (models: IModels) => {
       carId?: string,
       routeId?: string,
       categoryIds?: string[],
-      date?: Date
+      dateType: 'createdAt' | 'ShipmentTime' = 'ShipmentTime',
+      date?: string,
+      currentLocation?: { lat: number; lng: number },
+      searchRadius?: number
     ) {
-      if (!carId && !routeId) {
-        throw new Error('carId or routeId is required');
+      const stage = await sendCardsMessage({
+        subdomain,
+        action: 'stages.findOne',
+        data: { code: 'newOrder', type: 'deal' },
+        isRPC: true,
+        defaultValue: null
+      });
+
+      if (!stage) {
+        throw new Error('stage not found');
       }
 
       if (carId && routeId) {
-        return filterDeals(models, subdomain, carId, routeId, date);
+        return filterDeals(
+          models,
+          subdomain,
+          stage._id,
+          carId,
+          routeId,
+          date,
+          dateType,
+          currentLocation,
+          searchRadius
+        );
       }
 
       if (routeId) {
-        return filterDealsByRoute(models, subdomain, routeId, date);
+        return filterDealsByRoute(
+          models,
+          subdomain,
+          stage._id,
+          routeId,
+          date,
+          dateType,
+          currentLocation,
+          searchRadius
+        );
       }
 
       if (carId) {
-        return filterDealsByCar(models, subdomain, carId, date);
+        return filterDealsByCar(
+          models,
+          subdomain,
+          stage._id,
+          carId,
+          date,
+          dateType,
+          currentLocation,
+          searchRadius
+        );
       }
 
       if (categoryIds) {
@@ -106,11 +154,31 @@ export const loadTripClass = (models: IModels) => {
           subdomain,
           action: 'deals.find',
           data: {
-            'customFieldsData.value': { $in: categoryIds }
+            'customFieldsData.value': { $in: categoryIds },
+            stageId: stage._id
           },
-          isRPC: true
+          isRPC: true,
+          defaultValue: []
         });
       }
+
+      const data: any = {
+        stageId: stage._id,
+        ...(await prepareDateFilter(
+          subdomain,
+          dateType || 'ShipmentTime',
+          date
+        )),
+        ...(await locationFilter(subdomain, currentLocation, searchRadius))
+      };
+
+      return sendCardsMessage({
+        subdomain,
+        action: 'deals.find',
+        data,
+        isRPC: true,
+        defaultValue: []
+      });
     }
   }
 

@@ -13,6 +13,7 @@ export interface ICar {
   color: string;
   intervalValue: string;
   categoryId: string;
+  parentCategoryId?: string;
   vintageYear: Number;
   importYear: Number;
   diagnosisDate: Date;
@@ -219,6 +220,11 @@ export const carSchema = schemaHooksWrapper(
       optional: true
     }),
     categoryId: field({ type: String, label: 'Category', index: true }),
+    parentCategoryId: field({
+      type: String,
+      label: 'Parent category',
+      index: true
+    }),
 
     vintageYear: field({
       type: Number,

@@ -14,7 +14,7 @@ const commonEnvs = configs => {
 
   return {
     ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
-    DEBUG: 'erxes*',
+    DEBUG: configs.debug_level || '*error*',
     NODE_ENV: 'production',
     DOMAIN: configs.domain,
     WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
@@ -715,14 +715,14 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (name === 'coreui') {
         await execCommand(
-          `docker service update erxes_coreui --image erxes/erxes:federation`
+          `docker service update erxes_coreui --image erxes/erxes:${image_tag}`
         );
         continue;
       }
 
       if (name === 'widgets') {
         await execCommand(
-          `docker service update erxes_widgets --image erxes/widgets:federation`
+          `docker service update erxes_widgets --image erxes/widgets:${image_tag}`
         );
         continue;
       }

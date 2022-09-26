@@ -40,12 +40,12 @@ function ActionRow({
   };
 
   const onNameClick = () => {
-    history.push(`/dashboards/details/${dashboard._id}`);
+    history.push(`/dashboard/details/${dashboard._id}`);
   };
 
   const editAction = () => {
     return (
-      <Link to={`/dashboards/details/${dashboard._id}`}>
+      <Link to={`/dashboard/details/${dashboard._id}`}>
         <Button btnStyle="link">
           <Tip text={__('Edit')} placement="top">
             <Icon icon="edit-3" />
