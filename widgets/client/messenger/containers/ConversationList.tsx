@@ -1,39 +1,27 @@
 import gql from "graphql-tag";
 import * as React from "react";
-import { ChildProps, compose, graphql } from "react-apollo";
-import { IBrowserInfo } from "../../types";
+import { ChildProps, graphql } from "react-apollo";
 import DumbConversationList from "../components/ConversationList";
 import { connection } from "../connection";
-import graphqlTypes from "../graphql";
-import { EngageMessageQueryResponse, IConversation } from "../types";
+import graphqTypes from "../graphql";
+import { IConversation } from "../types";
 import { AppConsumer } from "./AppContext";
 
 type QueryResponse = {
-  loading: boolean;
   widgetsConversations: IConversation[];
 };
 
-type Props = {
-  browserInfo?: IBrowserInfo;
-  engageMessageQuery: EngageMessageQueryResponse;
-  conversationsQuery: QueryResponse;
-};
-
-class ConversationList extends React.PureComponent<ChildProps<Props>, QueryResponse> {
+class ConversationList extends React.PureComponent<
+  ChildProps<{}, QueryResponse>,
+  {}
+> {
   render() {
-    const { conversationsQuery, engageMessageQuery } = this.props;
+    const { data = { widgetsConversations: [], loading: true } } = this.props;
 
-
-    const message = engageMessageQuery.widgetsGetEngageMessage;
-
-    console.log('message', message);
-
-    let conversations = conversationsQuery.widgetsConversations || [];
-
-    console.log('conversations', conversations);
+    let conversations = data.widgetsConversations || [];
 
     // show empty list while waiting
-    if (conversationsQuery.loading) {
+    if (data.loading) {
       conversations = [];
     }
 
@@ -50,7 +38,7 @@ class ConversationList extends React.PureComponent<ChildProps<Props>, QueryRespo
           return (
             <DumbConversationList
               {...this.props}
-              loading={conversationsQuery.loading}
+              loading={data.loading}
               conversations={conversations}
               goToConversation={goToConversation}
               createConversation={createConversation}
@@ -63,34 +51,8 @@ class ConversationList extends React.PureComponent<ChildProps<Props>, QueryRespo
   }
 }
 
-// const ListWithData = graphql<{}, QueryResponse>(
-//   gql(graphqTypes.allConversations),
-//   {
-//     options: () => ({
-//       fetchPolicy: "network-only",
-//       variables: connection.data
-//     })
-//   }
-// )(ConversationList);
-
-const withPollInterval = compose(
-  graphql<Props>(gql(graphqlTypes.getEngageMessage), {
-    name: "engageMessageQuery",
-    options: ownProps => ({
-      variables: {
-        integrationId: connection.data.integrationId,
-        customerId: connection.data.customerId,
-        visitorId: connection.data.visitorId,
-        browserInfo: ownProps.browserInfo
-      },
-      notifyOnNetworkStatusChange: true,
-      fetchPolicy: "network-only",
-      skip: !connection.data.customerId,
-      // every minute
-      pollInterval: 10000
-    })
-  }),
-  gql(graphqlTypes.allConversations),
+const ListWithData = graphql<{}, QueryResponse>(
+  gql(graphqTypes.allConversations),
   {
     options: () => ({
       fetchPolicy: "network-only",
@@ -99,4 +61,4 @@ const withPollInterval = compose(
   }
 )(ConversationList);
 
-export default withPollInterval;
+export default ListWithData;
