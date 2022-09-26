@@ -2,32 +2,31 @@ import { fetchByQuery } from '@erxes/api-utils/src/elasticsearch';
 import { generateModels } from './connectionResolver';
 import { sendCoreMessage } from './messageBroker';
 import { generateConditionStageIds } from './utils';
-
-const indexesTypeContentType = {
-  'contacts:lead': 'customers',
-  'contacts:customer': 'customers',
-  'contacts:company': 'companies',
-  'cards:deal': 'deals',
-  'cards:ticket': 'tickets',
-  'cards:task': 'tasks',
-  'inbox:conversation': 'conversations'
-};
-
-const getName = type => type.replace('contacts:', '').replace('cards:', '');
+import {
+  gatherAssociatedTypes,
+  getEsIndexByContentType,
+  getName
+} from '@erxes/api-utils/src/segments';
 
 export default {
-  indexesTypeContentType,
+  dependentServices: [
+    { name: 'contacts', twoWay: true, associated: true },
+    { name: 'inbox', twoWay: true }
+  ],
 
-  contentTypes: ['deal', 'ticket', 'task'],
-
-  descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    customer: 'Customer',
-    company: 'Company',
-    converstaion: 'Conversation'
-  },
+  contentTypes: [
+    {
+      type: 'deal',
+      description: 'Deal',
+      esIndex: 'deals'
+    },
+    {
+      type: 'ticket',
+      description: 'Ticket',
+      esIndex: 'tickets'
+    },
+    { type: 'task', description: 'Task', esIndex: 'tasks' }
+  ],
 
   propertyConditionExtender: async ({ subdomain, data: { condition } }) => {
     const models = await generateModels(subdomain);
@@ -50,54 +49,18 @@ export default {
     return { data: { positive }, status: 'success' };
   },
 
-  associationTypes: [
-    'cards:deal',
-    'contacts:customer',
-    'contacts:company',
-    'cards:ticket',
-    'cards:task',
-    'inbox:conversation'
-  ],
-
   associationFilter: async ({
     subdomain,
     data: { mainType, propertyType, positiveQuery, negativeQuery }
   }) => {
-    let associatedTypes: string[] = [];
-
-    if (mainType === 'cards:deal') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:task'
-      ];
-    }
-
-    if (mainType === 'cards:task') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:ticket',
-        'cards:deal'
-      ];
-    }
-
-    if (mainType === 'cards:ticket') {
-      associatedTypes = [
-        'contacts:customer',
-        'contacts:company',
-        'cards:deal',
-        'cards:task'
-      ];
-    }
+    const associatedTypes: string[] = await gatherAssociatedTypes(mainType);
 
     let ids: string[] = [];
 
     if (associatedTypes.includes(propertyType)) {
       const mainTypeIds = await fetchByQuery({
         subdomain,
-        index: indexesTypeContentType[propertyType],
+        index: await getEsIndexByContentType(propertyType),
         positiveQuery,
         negativeQuery
       });

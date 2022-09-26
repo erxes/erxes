@@ -7,6 +7,7 @@ import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import forms from './forms';
 import initialSetup from './initialSetup';
+import segments from './segments';
 
 export let mainDb;
 export let debug;
@@ -19,7 +20,8 @@ export default {
     forms,
     initialSetup,
     // for fixing permissions
-    permissions
+    permissions,
+    segments
   },
   graphql: async sd => {
     serviceDiscovery = sd;
