@@ -83,7 +83,7 @@ var createApi = async (name, isEmpty) => {
 
 const addIntoUIConfigs = (name, location, callback) => {
   const menu =
-    location == 'main navigation'
+    location === 'main navigation'
       ? {
           text: '{Name}s',
           url: '/{name}s',
@@ -173,7 +173,7 @@ const main = async () => {
         .run()
         .then(location => {
           const name = input.name;
-          const isEmpty = defaultTemplate == 'no';
+          const isEmpty = defaultTemplate === 'no';
           createUi(name, location, isEmpty);
           createApi(name, isEmpty);
           addIntoConfigs(name);

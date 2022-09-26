@@ -58,14 +58,14 @@ class SideBar extends React.Component<Props, State> {
 
   ListItem = (type, currentTypeName) => {
     const { remove } = this.props;
-    const className = type && currentTypeName == type._id ? 'active' : '';
+    const className = type && currentTypeName === type._id ? 'active' : '';
 
     if (className) {
       this.state = { type: type };
     }
 
     return (
-      <SidebarListItem isActive={className == 'active'} key={type._id}>
+      <SidebarListItem isActive={className === 'active'} key={type._id}>
         <Link to={`/{name}s?type=${type._id}`}>{__(type.name)}</Link>
         {className && (
           <ActionButtons>
