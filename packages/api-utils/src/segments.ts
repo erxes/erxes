@@ -26,9 +26,9 @@ export const getEsIndexByContentType = async (contentType: string) => {
   if (segmentMeta) {
     const { contentTypes } = segmentMeta;
 
-    for (const contentType of contentTypes) {
-      if (contentType.type === type && contentType.esIndex) {
-        return contentType.esIndex;
+    for (const ct of contentTypes) {
+      if (ct.type === type && ct.esIndex) {
+        return ct.esIndex;
       }
     }
   }
@@ -80,9 +80,9 @@ export const gatherAssociatedTypes = async (contentType: string) => {
     const { contentTypes } = segmentMeta;
 
     // gather current services associatedTypes
-    for (const contentType of contentTypes) {
-      if (contentType.type !== currentType && !contentType.notAssociated) {
-        associatedTypes.push(`${serviceName}:${contentType.type}`);
+    for (const ct of contentTypes) {
+      if (ct.type !== currentType && !ct.notAssociated) {
+        associatedTypes.push(`${serviceName}:${ct.type}`);
       }
     }
 

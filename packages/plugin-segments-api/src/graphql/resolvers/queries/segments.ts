@@ -83,11 +83,11 @@ const segmentQueries = {
         continue;
       }
 
-      const service = await serviceDiscovery.getService(dService.name, true);
-      const meta = service.config.meta || {};
+      const depService = await serviceDiscovery.getService(dService.name, true);
+      const depServiceMeta = depService.config.meta || {};
 
-      if (meta.segments) {
-        const contentTypes = meta.segments.contentTypes || [];
+      if (depServiceMeta.segments) {
+        const contentTypes = depServiceMeta.segments.contentTypes || [];
 
         contentTypes.forEach((ct: ISegmentContentType) => {
           associatedTypes.push({
