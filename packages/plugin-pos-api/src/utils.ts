@@ -24,12 +24,13 @@ export const getPureDate = (date: Date) => {
 
 export const getFullDate = (date: Date) => {
   const ndate = getPureDate(date);
+  console.log(ndate, '3333333333333', process.env.TIMEZONE, process.env.TZ);
   const year = ndate.getFullYear();
   const month = ndate.getMonth();
   const day = ndate.getDate();
 
   const today = new Date(year, month, day);
-
+  console.log('444444444444', today);
   return today;
 };
 
