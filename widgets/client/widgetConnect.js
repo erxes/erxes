@@ -14,7 +14,7 @@ const widgetConnect = params => {
 
     // call connect mutation
     connectMutation(event)
-      .then(async response => {
+      .then(async (response) => {
         const { ApolloProvider } = await import('react-apollo');
 
         if (!response) {
