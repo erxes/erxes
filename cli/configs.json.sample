@@ -1,11 +1,10 @@
 {
 	"jwt_token_secret": "token",
-	"dashboard": {
-	},
+	"dashboard": {},
 	"client_portal_domains": "",
 	"elasticsearch": {},
 	"redis": {
-		"password": ""
+		"password": "redis"
 	},
 	"mongo": {
 		"username": "",
@@ -17,9 +16,51 @@
 		"pass": "",
 		"vhost": ""
 	},
+	"allowed_origins": ".*",
+	"ui_remote_url": "https://office.erxes.io/js/plugins/plugin-<name>-ui/remoteEntry.js",
 	"plugins": [
 		{
-			"name": "logs"
+			"name": "tags",
+			"ui": "remote"
+		},
+		{
+			"name": "contacts",
+			"ui": "remote"
+		},
+		{
+			"name": "cards",
+			"ui": "remote"
+		},
+		{
+			"name": "products",
+			"ui": "local"
+		},
+		{
+			"name": "processes",
+			"ui": "local"
+		},
+		{
+			"name": "salesplans",
+			"ui": "local"
+		},
+		{
+			"name": "inventories",
+			"ui": "local"
+		},
+		{
+			"name": "ebarimt",
+			"ui": "local"
+		},
+		{
+			"name": "pos",
+			"ui": "local"
+		},
+		{
+			"name": "syncerkhet",
+			"ui": "local"
+		},
+		{
+			"name": "posclient"
 		}
 	]
 }
