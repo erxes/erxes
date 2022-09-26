@@ -14,8 +14,8 @@ import { ISocialPayInvoiceDocument } from './models/definitions/socialPay';
 
 export interface IModels {
   PaymentConfigs: IPaymentConfigModel;
-  QpayInvoice: IQpayInvoiceModel;
-  SocialPayInvoice: ISocialPayInvoiceModel;
+  QpayInvoices: IQpayInvoiceModel;
+  SocialPayInvoices: ISocialPayInvoiceModel;
 }
 
 export interface IContext extends IMainContext {
@@ -33,15 +33,15 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     loadPaymentConfigClass(models)
   );
 
-  models.QpayInvoice = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
+  models.QpayInvoices = db.model<IQpayInvoiceDocument, IQpayInvoiceModel>(
     'qpay_invoice',
     loadQpayInvoiceClass(models)
   );
 
-  models.SocialPayInvoice = db.model<
+  models.SocialPayInvoices = db.model<
     ISocialPayInvoiceDocument,
     ISocialPayInvoiceModel
-  >('socialpay_invoices', loadSocialPayInvoiceClass(models));
+  >('socialpay_invoice', loadSocialPayInvoiceClass(models));
 
   return models;
 };

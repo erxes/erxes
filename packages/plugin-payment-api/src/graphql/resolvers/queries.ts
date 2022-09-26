@@ -1,9 +1,24 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
+import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../connectionResolver';
 import { IPaymentConfigDocument } from './../../models/definitions/payment';
 
 const paymentConfigQueries = {
+  async invoices(_root, args, { models }: IContext) {
+    const filter = {};
+
+    const qpay = await paginate(
+      models.QpayInvoices.find(filter).sort({ createdAt: 1 }),
+      args
+    );
+    const socialPay = await paginate(
+      models.SocialPayInvoices.find(filter).sort({ createdAt: 1 }),
+      args
+    );
+    return [...qpay, ...socialPay];
+  },
+
   paymentConfigs(_root, args, { models }: IContext) {
     const paymentIds: string[] = args.paymentIds;
 
@@ -49,8 +64,8 @@ const paymentConfigQueries = {
 
     const response =
       type.toLowerCase() === 'qpay'
-        ? await models.QpayInvoice.checkInvoice(data)
-        : await models.SocialPayInvoice.checkInvoice(data);
+        ? await models.QpayInvoices.checkInvoice(data)
+        : await models.SocialPayInvoices.checkInvoice(data);
 
     return response;
   }

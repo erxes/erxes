@@ -86,8 +86,8 @@ const paymentConfigMutations = {
 
     const response =
       type.toLowerCase() === 'qpay'
-        ? await models.QpayInvoice.createInvoice(data)
-        : await models.SocialPayInvoice.createInvoice(data);
+        ? await models.QpayInvoices.createInvoice(data)
+        : await models.SocialPayInvoices.createInvoice(data);
 
     return [response];
   }

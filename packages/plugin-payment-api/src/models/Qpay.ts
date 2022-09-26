@@ -17,9 +17,9 @@ export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
 }
 
 export const loadQpayInvoiceClass = models => {
-  class QpayInvoice {
+  class QpayInvoices {
     public static async getQpayInvoice(_id: string) {
-      const invoice = await models.QpayInvoice.findOne({ _id });
+      const invoice = await models.QpayInvoices.findOne({ _id });
 
       if (!invoice) {
         throw new Error('Invoice not found');
@@ -29,7 +29,7 @@ export const loadQpayInvoiceClass = models => {
     }
 
     public static async qpayInvoiceCreate(doc) {
-      const invoice = await models.QpayInvoice.findOne({
+      const invoice = await models.QpayInvoices.findOne({
         senderInvoiceNo: doc.senderInvoiceNo
       });
 
@@ -37,7 +37,7 @@ export const loadQpayInvoiceClass = models => {
         throw new Error('senderInvoiceNo duplicated');
       }
 
-      return await models.QpayInvoice.create({
+      return await models.QpayInvoices.create({
         ...doc
       });
     }
@@ -45,7 +45,7 @@ export const loadQpayInvoiceClass = models => {
     public static async checkInvoice(data) {
       const { config, invoiceId } = data;
       const token = await qpayToken(config);
-      const invoice = await models.QpayInvoice.findOne({
+      const invoice = await models.QpayInvoices.findOne({
         qpayInvoiceId: invoiceId
       });
 
@@ -61,7 +61,7 @@ export const loadQpayInvoiceClass = models => {
         payments.map(async e => {
           const paymentId = e.payment_id;
 
-          await models.QpayInvoice.updateOne(
+          await models.QpayInvoices.updateOne(
             { qpayInvoiceId: invoiceId },
             {
               $set: {
@@ -104,7 +104,7 @@ export const loadQpayInvoiceClass = models => {
         contentTypeId
       };
 
-      const invoice = await models.QpayInvoice.qpayInvoiceCreate(invoiceDoc);
+      const invoice = await models.QpayInvoices.qpayInvoiceCreate(invoiceDoc);
 
       const varData = {
         invoice_code: qpayInvoiceCode,
@@ -115,7 +115,7 @@ export const loadQpayInvoiceClass = models => {
         callback_url: `${callbackUrl}/callBackQpay?payment_id=${sender_invoice_no}`
       };
       const invoiceData = await createQpayInvoice(varData, token, config);
-      await models.QpayInvoice.qpayInvoiceUpdate(invoice, invoiceData);
+      await models.QpayInvoices.qpayInvoiceUpdate(invoice, invoiceData);
 
       return {
         status: 'qpay success',
@@ -126,12 +126,12 @@ export const loadQpayInvoiceClass = models => {
     public static async qpayInvoiceUpdate(invoice, invoiceData) {
       const qpayInvoiceId = invoiceData.invoice_id;
       const qrText = invoiceData.qr_text;
-      await models.QpayInvoice.updateOne(
+      await models.QpayInvoices.updateOne(
         { _id: invoice._id },
         { $set: { qpayInvoiceId, qrText } }
       );
     }
   }
-  qpayInvoiceSchema.loadClass(QpayInvoice);
+  qpayInvoiceSchema.loadClass(QpayInvoices);
   return qpayInvoiceSchema;
 };

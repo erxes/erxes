@@ -7,13 +7,13 @@ export const initBroker = async cl => {
   client = cl;
 };
 
-export const sendSocialPayMessage = async (
+export const sendContactsMessage = async (
   args: ISendMessageArgs
 ): Promise<any> => {
   return sendMessage({
     client,
     serviceDiscovery,
-    serviceName: 'socialPay',
+    serviceName: 'contacts',
     ...args
   });
 };

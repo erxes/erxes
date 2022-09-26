@@ -25,11 +25,11 @@ export interface ISocialPayInvoiceModel
 }
 
 export const loadSocialPayInvoiceClass = models => {
-  class SocialPayInvoice {
+  class SocialPayInvoices {
     public static async checkInvoice(data) {
       const { config, invoiceId } = data;
       const { inStoreSPTerminal, inStoreSPKey } = config;
-      const invoice = await models.SocialPayInvoice.getSocialPayInvoice(
+      const invoice = await models.SocialPayInvoices.getSocialPayInvoice(
         invoiceId
       );
 
@@ -53,7 +53,7 @@ export const loadSocialPayInvoiceClass = models => {
         response.body.response.resp_desc &&
         response.body.response.resp_desc === 'Амжилттай'
       ) {
-        await models.SocialPayInvoice.socialPayInvoiceStatusUpdate(
+        await models.SocialPayInvoices.socialPayInvoiceStatusUpdate(
           invoice,
           'paid'
         );
@@ -95,7 +95,7 @@ export const loadSocialPayInvoiceClass = models => {
       };
       const docLast = phone ? { ...doc, phone } : doc;
 
-      const invoiceLog = await models.SocialPayInvoice.socialPayInvoiceCreate(
+      const invoiceLog = await models.SocialPayInvoices.socialPayInvoiceCreate(
         docLast
       );
 
@@ -122,7 +122,7 @@ export const loadSocialPayInvoiceClass = models => {
       console.log(requestBody, invoiceQrData);
 
       if (qrText) {
-        await models.SocialPayInvoice.socialPayInvoiceUpdate(
+        await models.SocialPayInvoices.socialPayInvoiceUpdate(
           invoiceLog,
           qrText
         );
@@ -138,7 +138,7 @@ export const loadSocialPayInvoiceClass = models => {
     }
 
     public static async getSocialPayInvoice(invoiceNo: string) {
-      const invoice = await models.SocialPayInvoice.findOne({ invoiceNo });
+      const invoice = await models.SocialPayInvoices.findOne({ invoiceNo });
 
       if (!invoice) {
         throw new Error('Invoice not found');
@@ -148,7 +148,7 @@ export const loadSocialPayInvoiceClass = models => {
     }
 
     public static async socialPayInvoiceCreate(doc) {
-      const invoice = await models.SocialPayInvoice.create({
+      const invoice = await models.SocialPayInvoices.create({
         ...doc
       });
 
@@ -163,14 +163,14 @@ export const loadSocialPayInvoiceClass = models => {
       console.log('invoiceQrData');
       console.log(qrText);
 
-      await models.SocialPayInvoice.updateOne(
+      await models.SocialPayInvoices.updateOne(
         { _id: invoice._id },
         { $set: { qrText } }
       );
     }
 
     public static async socialPayInvoiceStatusUpdate(invoice, status) {
-      const invoiceOne = await models.SocialPayInvoice.findOne({
+      const invoiceOne = await models.SocialPayInvoices.findOne({
         _id: invoice._id
       });
 
@@ -178,7 +178,7 @@ export const loadSocialPayInvoiceClass = models => {
         console.log('status');
         console.log(status, invoice._id);
 
-        await models.SocialPayInvoice.updateOne(
+        await models.SocialPayInvoices.updateOne(
           { _id: invoice._id },
           { $set: { status } }
         );
@@ -187,6 +187,6 @@ export const loadSocialPayInvoiceClass = models => {
       }
     }
   }
-  socialPayInvoiceSchema.loadClass(SocialPayInvoice);
+  socialPayInvoiceSchema.loadClass(SocialPayInvoices);
   return socialPayInvoiceSchema;
 };

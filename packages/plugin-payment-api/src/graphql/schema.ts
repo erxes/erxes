@@ -43,6 +43,21 @@ export const types = `
     contentTypeId: String
     status: String
   }
+
+  type Invoice {
+    _id: String
+    type: String
+    amount: String
+    qrText: String
+    customer: JSON
+    company: JSON
+    contentType: String
+    comment: String
+    status: String
+    createdAt: Date
+    paymentDate: Date
+    paymentId: String
+  }
 `;
 
 export const queries = `
@@ -50,6 +65,8 @@ export const queries = `
   paymentConfigsCountByType: PaymentTypeCount
   checkInvoice(paymentId: String!, invoiceId: String!): JSON
   getPaymentOptions(paymentIds: JSON,amount: Float, customerId: String, companyId: String,contentType: String, contentTypeId: String, description: String): String
+
+  invoices(searchValue: String, page: Int, perPage: Int): [Invoice]
 `;
 
 const params = `
