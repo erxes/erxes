@@ -1,16 +1,7 @@
 export default {
-  indexesTypeContentType: {
-    'tumentech:car': 'cars'
-  },
+  contentTypes: [{ type: 'car', description: 'Car', esIndex: 'cars' }],
 
-  contentTypes: ['car'],
-
-  descriptionMap: {
-    car: 'Car',
-    customer: 'Customer'
-  },
-
-  associationTypes: ['tumentech:car', 'contacts:customer'],
+  dependentServices: [{ name: 'contacts', twoWay: true, associated: true }],
 
   esTypesMap: async () => {
     return { data: { typesMap: {} }, status: 'success' };
