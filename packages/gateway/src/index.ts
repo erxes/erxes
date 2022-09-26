@@ -39,6 +39,7 @@ const {
   DOMAIN,
   WIDGETS_DOMAIN,
   CLIENT_PORTAL_DOMAINS,
+  PAYMENTS_DOMAIN,
   PORT,
   RABBITMQ_HOST,
   MESSAGE_BROKER_PREFIX
@@ -59,6 +60,7 @@ const {
     origin: [
       DOMAIN ? DOMAIN : 'http://localhost:3000',
       WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
+      PAYMENTS_DOMAIN ? PAYMENTS_DOMAIN : 'http://localhost:3600',
       ...(CLIENT_PORTAL_DOMAINS || '').split(','),
       'https://studio.apollographql.com',
       ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
