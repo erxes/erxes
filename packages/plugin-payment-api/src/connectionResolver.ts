@@ -9,7 +9,7 @@ import { IQpayInvoiceModel, loadQpayInvoiceClass } from './models/Qpay';
 import {
   ISocialPayInvoiceModel,
   loadSocialPayInvoiceClass
-} from './models/socialPay';
+} from './models/SocialPay';
 import { ISocialPayInvoiceDocument } from './models/definitions/socialPay';
 
 export interface IModels {

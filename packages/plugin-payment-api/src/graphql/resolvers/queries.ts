@@ -1,7 +1,6 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../connectionResolver';
-import { sendSocialPayMessage } from './../../messageBroker';
 import { IPaymentConfigDocument } from './../../models/definitions/payment';
 
 const paymentConfigQueries = {
@@ -22,7 +21,7 @@ const paymentConfigQueries = {
     }).countDocuments();
   },
 
-  getPaymentOptions(_root, params, { models }: IContext) {
+  getPaymentOptions(_root, params, _args) {
     console.log('Process: ', JSON.stringify(process.env));
     const mainUrl = process.env.PAYMENT_APP_URL || 'http://localhost:3600';
     const route = '/payment_options';
@@ -34,7 +33,7 @@ const paymentConfigQueries = {
   async checkInvoice(
     _root,
     { paymentId, invoiceId }: { paymentId: string; invoiceId: string },
-    { subdomain, models }: IContext
+    { models }: IContext
   ) {
     const paymentConfig = await models.PaymentConfigs.findOne({
       _id: paymentId

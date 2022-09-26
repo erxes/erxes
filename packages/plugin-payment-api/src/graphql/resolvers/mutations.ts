@@ -1,7 +1,6 @@
 import { IContext } from '../../connectionResolver';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { IPaymentConfig } from '../../models/definitions/payment';
-import { sendSocialPayMessage } from '../../messageBroker';
 
 const paymentConfigMutations = {
   /**
@@ -52,7 +51,7 @@ const paymentConfigMutations = {
   /**
    *  create an invoice
    */
-  async createInvoice(_root, params, { subdomain, models }: IContext) {
+  async createInvoice(_root, params, { models }: IContext) {
     const {
       paymentId,
       amount,
