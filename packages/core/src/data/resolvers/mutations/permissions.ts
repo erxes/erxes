@@ -11,6 +11,7 @@ import { fixPermissions, resetPermissionsCache } from '../../permissions/utils';
 import { moduleCheckPermission } from '../../permissions/wrappers';
 import { MODULE_NAMES } from '../../constants';
 import { IContext, IModels } from '../../../connectionResolver';
+import { getService, getServices } from '../../../serviceDiscovery';
 
 interface IParams {
   memberIds?: string[];
@@ -326,11 +327,23 @@ const usersGroupMutations = {
   },
 
   async permissionsFix(_root, _params, { models }: IContext) {
-    const result = await fixPermissions(models);
+    const services = await getServices();
+    let messages: string[] = [];
+
+    for (const name of services) {
+      const service = await getService(name, true);
+      const meta = service && service.config && service.config.meta;
+
+      if (meta && meta.permissions) {
+        const result = await fixPermissions(models, meta.permissions);
+
+        messages = [...messages, ...result];
+      }
+    }
 
     await resetPermissionsCache(models);
 
-    return result;
+    return messages;
   }
 };
 
