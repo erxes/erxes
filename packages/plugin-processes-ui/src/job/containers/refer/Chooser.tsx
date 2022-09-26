@@ -1,4 +1,3 @@
-import queryString from 'query-string';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
 import React from 'react';
@@ -21,6 +20,7 @@ import JobForm from './Form';
 
 type Props = {
   data: { name: string; jobRefers: IJobRefer[] };
+  types: string[];
   categoryId: string;
   onChangeCategory: (catgeoryId: string) => void;
   closeModal: () => void;
@@ -47,6 +47,7 @@ class JobReferChooser extends React.Component<FinalProps, { perPage: number }> {
 
     this.setState({ perPage: this.state.perPage + 20 }, () =>
       this.props.jobsQuery.refetch({
+        types: this.props.types,
         searchValue: value,
         perPage: this.state.perPage
       })
@@ -90,12 +91,12 @@ class JobReferChooser extends React.Component<FinalProps, { perPage: number }> {
       data: { name: data.name, datas: data.jobRefers },
       search: this.search,
       title: 'Job',
-      renderName: (product: IJobRefer) => {
-        if (product.code) {
-          return product.code.concat(' - ', product.name);
+      renderName: (job: IJobRefer) => {
+        if (job.code) {
+          return job.code.concat(' - ', job.name);
         }
 
-        return product.name;
+        return job.name;
       },
       renderForm: ({ closeModal }: { closeModal: () => void }) => (
         <JobForm closeModal={closeModal} />
@@ -116,17 +117,16 @@ class JobReferChooser extends React.Component<FinalProps, { perPage: number }> {
 export default withProps<Props>(
   compose(
     graphql<
-      { categoryId: string },
+      { categoryId: string; types: string[] },
       JobRefersQueryResponse,
-      { perPage: number; categoryId: string }
+      { perPage: number; categoryId: string; types: string[] }
     >(gql(jobQueries.jobRefers), {
       name: 'jobsQuery',
       options: props => ({
         variables: {
           perPage: 20,
           categoryId: props.categoryId,
-          pipelineId: queryString.parse(location.search).pipelineId,
-          boardId: queryString.parse(location.search).boardId
+          types: props.types
         },
         fetchPolicy: 'network-only'
       })

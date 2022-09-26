@@ -10,6 +10,7 @@ import { JobRefersQueryResponse } from '../../../../../job/types';
 import { queries } from '../../../../../job/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
+import Spinner from '@erxes/ui/src/components/Spinner';
 
 type Props = {
   id: string;
@@ -18,6 +19,7 @@ type Props = {
   flowJobs: IJob[];
   addFlowJob: (job: IJob, id?: string, config?: any) => void;
   closeModal: () => void;
+  setUsedPopup: (check: boolean) => void;
 };
 
 type FinalProps = {
@@ -30,6 +32,10 @@ const EndPointFormContainer = (props: FinalProps) => {
   const { currentUser, jobRefersQuery } = props;
 
   const [saveLoading] = useState(false);
+
+  if (jobRefersQuery.loading) {
+    return <Spinner />;
+  }
 
   const jobRefers = jobRefersQuery.jobRefers || [];
 
@@ -49,8 +55,7 @@ export default withProps<Props>(
       name: 'jobRefersQuery',
       options: ({ activeFlowJob }) => ({
         variables: {
-          ids: [activeFlowJob.config.jobReferId],
-          type: 'endPoint'
+          ids: [activeFlowJob.config.jobReferId]
         }
       })
     })

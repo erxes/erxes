@@ -12,6 +12,7 @@ type Props = {
   closeModal: () => void;
   activeFlowJob?: IJob;
   addFlowJob: (job: IJob, id?: string, config?: any) => void;
+  name: string;
   description: string;
   config: any;
   children: React.ReactNode;
@@ -23,6 +24,7 @@ function Common(props: Props) {
     activeFlowJob,
     closeModal,
     children,
+    name,
     description,
     config
   } = props;
@@ -32,7 +34,11 @@ function Common(props: Props) {
       return Alert.error('has not active FlowJob');
     }
 
-    addFlowJob({ ...activeFlowJob, description }, activeFlowJob.id, config);
+    addFlowJob(
+      { ...activeFlowJob, label: name, description },
+      activeFlowJob.id,
+      config
+    );
 
     closeModal();
   };

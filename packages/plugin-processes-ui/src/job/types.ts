@@ -73,7 +73,12 @@ export type JobRefersAllQueryResponse = {
 
 export type JobRefersQueryResponse = {
   jobRefers: IJobRefer[];
-  refetch: (variables?: { searchValue?: string; perPage?: number }) => void;
+  refetch: (variables?: {
+    searchValue?: string;
+    perPage?: number;
+    categoryId?: string;
+    types?: string[];
+  }) => void;
 } & QueryResponse;
 
 export type jobReferTotalCountQueryResponse = {

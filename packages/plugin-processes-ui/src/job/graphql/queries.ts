@@ -7,20 +7,16 @@ const productCategories = productQueries.productCategories;
 const products = productQueries.products;
 
 const jobRefersParamsDef = `
-  $page: Int,
-  $perPage: Int,
   $categoryId: String,
   $searchValue: String,
   $ids: [String],
-  $type: String,
+  $types: [String],
 `;
 const jobRefersParams = `
-  page: $page,
-  perPage: $perPage,
   categoryId: $categoryId,
   searchValue: $searchValue,
   ids: $ids,
-  type: $type,
+  types: $types,
 `;
 
 const jobRefersFields = `
@@ -100,16 +96,16 @@ query jobRefersAll {
 `;
 
 const jobRefers = `
-query jobRefers(${jobRefersParamsDef}) {
-  jobRefers(${jobRefersParams}) {
+query jobRefers($page: Int, $perPage: Int, ${jobRefersParamsDef}) {
+  jobRefers(page: $page, perPage: $perPage, ${jobRefersParams}) {
     ${jobRefersFields}
   }
 }
 `;
 
 const jobReferTotalCount = `
-query jobReferTotalCount($categoryId: String, $searchValue: String) {
-  jobReferTotalCount(categoryId: $categoryId, searchValue: $searchValue)
+query jobReferTotalCount(${jobRefersParamsDef}) {
+  jobReferTotalCount(${jobRefersParams})
 }
 `;
 

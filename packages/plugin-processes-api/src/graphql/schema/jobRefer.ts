@@ -38,6 +38,7 @@ const qryParams = `
   categoryId: String,
   searchValue: String,
   ids: [String],
+  types: [String],
   type: String,
   excludeIds: Boolean
 `;

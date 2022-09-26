@@ -7,6 +7,7 @@ type Props = {
   flowJobs: IJob[];
   addFlowJob: (job: IJob, jobId?: string, config?: any) => void;
   closeModal: () => void;
+  setUsedPopup: (check: boolean) => void;
 };
 
 class JobDetailForm extends React.Component<Props> {
@@ -21,11 +22,11 @@ class JobDetailForm extends React.Component<Props> {
   render() {
     const { activeFlowJob } = this.props;
 
-    let { type } = activeFlowJob;
+    const { type } = activeFlowJob;
 
     const Content = ActionForms[type] || ActionForms.default;
 
-    return <Content onSave={this.onSave} {...this.props} />;
+    return <Content onSave={this.onSave} {...this.props} type={type} />;
   }
 }
 

@@ -89,6 +89,7 @@ type State = {
 
 class FlowForm extends React.Component<Props, State> {
   private wrapperRef;
+  private usedPopup;
   private setZoom;
 
   constructor(props) {
@@ -183,6 +184,10 @@ class FlowForm extends React.Component<Props, State> {
 
   setWrapperRef = node => {
     this.wrapperRef = node;
+  };
+
+  setUsedPopup = check => {
+    this.usedPopup = check;
   };
 
   componentDidMount() {
@@ -486,7 +491,10 @@ class FlowForm extends React.Component<Props, State> {
   };
 
   handleClickOutside = event => {
-    if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
+    if (
+      !this.usedPopup &&
+      this.wrapperRef && !this.wrapperRef.contains(event.target)
+    ) {
       this.setState({ showDrawer: false });
     }
   };
@@ -539,7 +547,9 @@ class FlowForm extends React.Component<Props, State> {
     this.setState(
       { flowJobs, activeFlowJob: flowJob, flowJobEdited: true },
       () => {
-        if (!jobId) {
+        if (jobId) {
+          this.reRenderControl('flowJob', flowJob, this.onClickFlowJob);
+        } else {
           this.renderControl('flowJob', flowJob, this.onClickFlowJob);
         }
       }
@@ -572,11 +582,10 @@ class FlowForm extends React.Component<Props, State> {
                 }
               ).icon
             }"></i>
-            ${item.label}
+            <span class='job-label'>${item.label}</span>
           </div>
         </div>
-        <p>${item.description}</p>
-
+        <p class='job-description'>${item.description}</p>
       </div>
     `);
 
@@ -597,6 +606,19 @@ class FlowForm extends React.Component<Props, State> {
 
       instance.draggable(instance.getSelector(`#${idElm}`));
     }
+  };
+
+  reRenderControl = (key: string, item: IJob, onClick: any) => {
+    const idElm = `${key}-${item.id}`;
+
+    jquery(`#canvas #${idElm} .job-label`).html(item.label || 'Unknown');
+    jquery(`#canvas #${idElm} .job-description`).html(item.description || '');
+
+    jquery('#canvas').on('dblclick', `#${idElm}`, event => {
+      event.preventDefault();
+
+      onClick(item);
+    });
   };
 
   renderButtons() {
@@ -709,6 +731,7 @@ class FlowForm extends React.Component<Props, State> {
             addFlowJob={this.addFlowJob}
             closeModal={this.onBackFlowJob}
             flowJobs={flowJobs}
+            setUsedPopup={this.setUsedPopup}
           />
         </>
       );

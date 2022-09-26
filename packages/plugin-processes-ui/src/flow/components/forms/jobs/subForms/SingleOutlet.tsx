@@ -1,22 +1,21 @@
-import Common from '../Common';
+import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
+import { IProduct } from '@erxes/ui-products/src/types';
+import { ControlLabel } from '@erxes/ui/src/components/form';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Icon from '@erxes/ui/src/components/Icon';
-import JobReferChooser from '../../../../../job/containers/refer/Chooser';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
-import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
-import { ControlLabel } from '@erxes/ui/src/components/form';
+import React from 'react';
 import { DrawerDetail } from '../../../../styles';
 import { IJob } from '../../../../types';
-import { IJobRefer } from '../../../../../job/types';
-import { IProduct } from '@erxes/ui-products/src/types';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
+import Common from '../Common';
 
 type Props = {
   closeModal: () => void;
   activeFlowJob: IJob;
-  jobRefers: IJobRefer[];
+  products: IProduct[];
   flowJobs: IJob[];
   lastFlowJob?: IJob;
   flowProduct?: IProduct;
@@ -25,9 +24,10 @@ type Props = {
 };
 
 type State = {
-  jobReferId: string;
-  jobRefer?: IJobRefer;
+  productId: string;
+  product?: IProduct;
   description: string;
+  name: string;
   inBranchId: string;
   inDepartmentId: string;
   outBranchId: string;
@@ -40,13 +40,13 @@ class JobForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { jobRefers, activeFlowJob } = props;
+    const { products, activeFlowJob } = props;
     const { config, description } = activeFlowJob;
 
-    const jobRefer = jobRefers.length && jobRefers[0];
+    const product = products.length && products[0];
 
     const {
-      jobReferId,
+      productId,
       inBranchId,
       inDepartmentId,
       outBranchId,
@@ -54,9 +54,10 @@ class JobForm extends React.Component<Props, State> {
     } = config;
 
     this.state = {
-      jobReferId: jobReferId || '',
-      jobRefer,
+      productId: productId || '',
+      product,
       description: description || '',
+      name: products.length ? products[0].name : '' || '',
       inBranchId: inBranchId || '',
       inDepartmentId: inDepartmentId || '',
       outBranchId: outBranchId || '',
@@ -70,27 +71,28 @@ class JobForm extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
       this.setState({
-        jobReferId: nextProps.activeFlowJob.jobReferId,
+        productId: nextProps.activeFlowJob.productId,
         description: nextProps.activeFlowJob.description
       });
     }
   }
 
-  renderJobTrigger(job?: IJobRefer) {
+  renderProductServiceTrigger(product?: IProduct) {
     const onClick = () => {
       this.props.setUsedPopup(true);
     };
 
     let content = (
       <div onClick={onClick}>
-        {__('Choose Job')} <Icon icon="plus-circle" />
+        {__('Choose Product & Service')} <Icon icon="plus-circle" />
       </div>
     );
 
-    if (job) {
+    // if product selected
+    if (product) {
       content = (
         <div onClick={onClick}>
-          {job.name} <Icon icon="pen-1" />
+          {product.name} <Icon icon="pen-1" />
         </div>
       );
     }
@@ -99,22 +101,24 @@ class JobForm extends React.Component<Props, State> {
   }
 
   renderContent() {
-    const { jobRefer, description } = this.state;
+    const { product } = this.state;
 
     const onChangeValue = (type, e) => {
       this.setState({ [type]: e.target.value } as any);
     };
 
-    const onChangeJob = prs => {
-      let pr: any;
+    const productOnChange = prs => {
+      let pr: any = {};
       if (!prs.length) {
-        this.setState({ jobReferId: '', jobRefer: undefined });
+        this.setState({ productId: '', product: undefined });
         return;
       }
 
       pr = prs[0];
-      this.setState({ jobReferId: pr._id, jobRefer: pr });
+      this.setState({ productId: pr._id, product: pr });
     };
+
+    const { description } = this.state;
 
     const content = props => {
       const onCloseModal = () => {
@@ -123,16 +127,15 @@ class JobForm extends React.Component<Props, State> {
       };
 
       return (
-        <JobReferChooser
+        <ProductChooser
           {...props}
           closeModal={onCloseModal}
-          onSelect={onChangeJob}
+          onSelect={productOnChange}
           onChangeCategory={categoryId => this.setState({ categoryId })}
-          types={['end']}
           categoryId={this.state.categoryId}
           data={{
-            name: 'Jobs',
-            jobRefers: jobRefer ? [jobRefer] : []
+            name: 'Product',
+            products: product ? [product] : []
           }}
           limit={1}
         />
@@ -142,10 +145,10 @@ class JobForm extends React.Component<Props, State> {
     return (
       <DrawerDetail>
         <FormGroup>
-          <ControlLabel>Jobs</ControlLabel>
+          <ControlLabel>Outlet Product</ControlLabel>
           <ModalTrigger
-            title="Choose a JOB"
-            trigger={this.renderJobTrigger(jobRefer)}
+            title="Choose product & service"
+            trigger={this.renderProductServiceTrigger(product)}
             size="lg"
             content={content}
           />
@@ -164,8 +167,8 @@ class JobForm extends React.Component<Props, State> {
 
   render() {
     const {
-      jobReferId,
-      jobRefer,
+      productId,
+      product,
       description,
       inBranchId,
       inDepartmentId,
@@ -176,15 +179,16 @@ class JobForm extends React.Component<Props, State> {
     return (
       <Common
         {...this.props}
-        name={(jobRefer && jobRefer.name) || 'Unknown'}
+        name={(product && product.name) || 'Unknown'}
         description={description}
         config={{
-          jobReferId,
+          productId,
           inBranchId,
           inDepartmentId,
           outBranchId,
           outDepartmentId
         }}
+        {...this.props}
       >
         {this.renderContent()}
       </Common>
