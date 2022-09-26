@@ -36,7 +36,7 @@ connect()
       }
     );
 
-    console.log(doc);
+    console.log(doc, '1111111111111111111111');
 
     parentPort.postMessage({
       action: 'remove',
