@@ -35,7 +35,7 @@ class ServiceBox extends React.Component<Props, {}> {
       <Service>
         <div>
           <Price>
-            ${price.oneTime || price.monthly}
+            ${price ? price.oneTime || price.monthly : 0}
             <span>{__('Per month')}</span>
           </Price>
           <h5>{title}</h5>
