@@ -10,24 +10,23 @@ With erxes, you can create your own plugins or extend the existing ones, which w
 
 - Before you start developing your own plugins, ensure there is no plugins with the same name or similar name in our marketplace that would bring any confusion as the name would be used many places starting from your `API`, `GraphQL`, `query`, `mutation`, etc.
 - Name must be in small letters with no symbols and space in between.
-- Name of All your `GraphQL` type, `query`, `mutation` must start with your plugin name. 
-- Names of your database collection also must start with your plugin name. 
-- Name of your **UIroutes** or `url`-s also must be start with you pluging name. 
+- Name of All your `GraphQL` type, `query`, `mutation` must start with your plugin name.
+- Names of your database collection also must start with your plugin name.
+- Name of your **UIroutes** or `url`-s also must be start with you pluging name.
 
 :::
 
-
 ## Installing erxes
+
 ---
 
-Please go to **<a href="https://docs.erxes.io/development/developing-plugins">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction. 
+Please go to **<a href="https://docs.erxes.io/development/developing-plugins">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction.
 
 :::warning
 
 Before running erxes you need several other actions required to develop your own plugins at erxes XOS. Please make sure you should be back straight after you install erxes XOS using **<a href="https://docs.erxes.io/development/developing-plugins">the installation guideline</a>**.
 
 :::
-
 
 ### Plugin API
 
@@ -40,13 +39,6 @@ Plugin development in API part requires the following software prerequisites to 
 - **[Redis](https://redis.io)**
 - **[RabbitMQ](https://www.rabbitmq.com)**
 
-1. Create new `API` folder using the following command.
-
-```
-cd erxes
-yarn create-plugin-api demo
-```
-
 ### Plugin UI
 
 Plugin development in UI part requires the following software prerequisites to be already installed on your computer.
@@ -55,14 +47,17 @@ Plugin development in UI part requires the following software prerequisites to b
 - **[Webpack](https://webpack.js.org/)**
 - **[ReactJS](https://reactjs.org)**
 
-2. Create new `UI` folder.
+### Creating New Plugin
 
 ```
 cd erxes
-yarn create-plugin-ui demo
+yarn create-plugin
 ```
 
+The command above starts CLI which promts for few questions as shown below
+
 ## Running erxes
+
 ---
 
 3. Run the following command
@@ -109,7 +104,6 @@ yarn dev
 
 6. Stop by pressing `ctl + c` with the following command.
 
-
 ```
 cd ../../cli
 ```
@@ -127,9 +121,10 @@ Or MacOS
 ```
 
 ## Configuring UI
+
 ---
 
-### Placing new menu in UI navigation part 
+### Placing new menu in UI navigation part
 
 1. Add new block in menu part of `packages/plugin-demo-ui/src/configs.js` file using the foloowing command.
 
@@ -154,7 +149,7 @@ Or MacOS
   ]
 ```
 
-2. Change `packages/plugin-demo-ui/src/routes.tsx` using the following command. 
+2. Change `packages/plugin-demo-ui/src/routes.tsx` using the following command.
 
 ```
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
@@ -190,7 +185,7 @@ export default routes;
 
 ```
 
-3. Create `packages/plugin-demo-ui/src/containers/New.tsx` file with following content.  
+3. Create `packages/plugin-demo-ui/src/containers/New.tsx` file with following content.
 
 ```
 import React from 'react';
@@ -205,7 +200,7 @@ class NewContainer extends React.Component {
 export default NewContainer;
 ```
 
-4. Then run the following command to create your new `packages/plugin-demo-ui/src/components/New.tsx`file. 
+4. Then run the following command to create your new `packages/plugin-demo-ui/src/components/New.tsx`file.
 
 ```
 import React from 'react';

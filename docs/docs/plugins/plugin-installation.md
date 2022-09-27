@@ -126,7 +126,7 @@ All erxes plugins are located in the erxes/packages directory.
 
 :::
 
-7. To install each plugins, run the following command within the UI of each plugin.
+7. To install certain plugin, run the following command within the UI part of that plugin.
 
 ```
       cd ../packages/plugin-products-ui
@@ -136,6 +136,6 @@ All erxes plugins are located in the erxes/packages directory.
 8. Run your erxes project by going to your new erxes/cli directory with the following command.
 
 ```
-/bin/erxes.js dev
+./bin/erxes.js dev
 
 ```
