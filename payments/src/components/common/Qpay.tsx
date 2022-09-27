@@ -1,15 +1,19 @@
 import './styles/common.css';
 
-import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import * as QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
 
+import client from '../../apolloClient';
 import { mutations, queries } from '../../graphql';
 import { IQueryParams } from '../../types';
 
 const INVOICE_SUBSCRIPTION = gql`
   subscription invoiceUpdated($_id: String!) {
-    invoiceUpdated(_id: $_id)
+    invoiceUpdated(_id: $_id) {
+      _id
+      status
+    }
   }
 `;
 
@@ -25,17 +29,27 @@ const QpaySection = ({ query, paymentConfigId }: Props) => {
   const [qrInvoiceNo, setQrInvoiceNo] = useState('');
   const [description, setDescription] = useState(query.description || '');
   const [qrPaymentStatus, setQrPaymentStatus] = useState('CREATED');
-  const {
-    data: { invoiceUpdated },
-  } = useSubscription(INVOICE_SUBSCRIPTION, { variables: { _id: invoiceId } });
 
   useEffect(() => {
-    if (invoiceUpdated) {
-      console.log('invoiceUpdated', invoiceUpdated);
-      setQrPaymentStatus(invoiceUpdated);
+    if (invoiceId) {
+      client
+        .subscribe({
+          query: INVOICE_SUBSCRIPTION,
+          variables: { _id: invoiceId },
+        })
+        .subscribe({
+          next({ data }) {
+            if (data.invoiceUpdated && data.invoiceUpdated.status === 'PAID') {
+              setQrPaymentStatus('PAID');
+            }
+          },
+          error(err: any) {
+            console.error('err', err);
+            setQrPaymentStatus('ERROR');
+          },
+        });
     }
-  }, [invoiceUpdated, invoiceId]);
-
+  }, [invoiceId]);
 
   const useCheckInvoiceQuery = () => {
     const { refetch } = useQuery(gql(queries.checkInvoiceQuery), {

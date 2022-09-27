@@ -82,7 +82,10 @@ export const callBackQpay = async (models: IModels, queryParams) => {
   );
 
   graphqlPubsub.publish('invoiceUpdated', {
-    _id: invoice._id
+    invoiceUpdated: {
+      _id: invoice._id,
+      status: 'PAID'
+    }
   });
 };
 
