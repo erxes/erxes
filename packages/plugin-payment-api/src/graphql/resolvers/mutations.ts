@@ -1,5 +1,6 @@
-import { IContext } from '../../connectionResolver';
 import { requireLogin } from '@erxes/api-utils/src/permissions';
+
+import { IContext } from '../../connectionResolver';
 import { IPaymentConfig } from '../../models/definitions/payment';
 
 const paymentConfigMutations = {
@@ -67,7 +68,6 @@ const paymentConfigMutations = {
     });
 
     if (!paymentConfig) {
-      console.log(`/pl:posclient/callBackQpay`);
       throw new Error(`Not found payment config`);
     }
 

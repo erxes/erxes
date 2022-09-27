@@ -1,8 +1,9 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
-import { sendQpayMessage } from './messageBroker';
-import fetch from 'node-fetch';
 import * as crypto from 'crypto';
+import fetch from 'node-fetch';
+
+import { QPAY_URL } from '../constants';
+import { generateModels, IModels } from './connectionResolver';
 
 export const fetchUrl = async (url, requestOptions) => {
   let returnData;
@@ -21,6 +22,29 @@ export const fetchUrl = async (url, requestOptions) => {
   return returnData;
 };
 
+export const paymentCallback = async (req, res) => {
+  const subdomain = getSubdomain(req);
+  const models = await generateModels(subdomain);
+
+  const { query } = req;
+  const { type } = query;
+
+  if (!type) {
+    return res.status(400).send('Type is required');
+  }
+
+  try {
+    switch (type) {
+      case 'qpay':
+        return callBackQpay(models, query);
+    }
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+
+  return res.status(200).send('OK');
+};
+
 export const callBackSocialPay = async (req, res) => {
   const subdomain = getSubdomain(req);
 
@@ -29,34 +53,23 @@ export const callBackSocialPay = async (req, res) => {
 
   const models = await generateModels(subdomain);
 
-  return;
+  return res.status(200).send('OK');
 };
 
-export const callBackQpay = async (req, res) => {
-  const subdomain = getSubdomain(req);
-
+export const callBackQpay = async (models: IModels, queryParams) => {
   console.log('call back url ...');
 
-  const models = await generateModels(subdomain);
-
-  const { payment_id, qpay_payment_id } = req.query;
+  const { payment_id, qpay_payment_id } = queryParams;
 
   console.log('payment_id, qpay_payment_id:', payment_id, qpay_payment_id);
 
   if (!payment_id || !qpay_payment_id) {
-    return;
+    throw new Error('payment_id or qpay_payment_id is required');
   }
 
-  const requestData = { payment_id, qpay_payment_id };
+  // const requestData = { payment_id, qpay_payment_id };
 
-  const response = await sendQpayMessage({
-    subdomain,
-    action: 'updateInvoice',
-    data: requestData,
-    isRPC: true
-  });
-
-  return response;
+  // models.QpayInvoices.qpayInvoiceUpdate(requestData);
 };
 
 export const makeInvoiceNo = length => {
@@ -89,7 +102,7 @@ export const qpayToken = async config => {
     redirect: 'follow'
   };
 
-  const tokenInfo = await fetchUrl(`${qpayUrl}${port}`, requestOptions);
+  const tokenInfo = await fetchUrl(`${QPAY_URL}${port}`, requestOptions);
 
   return tokenInfo.access_token;
 };
@@ -97,18 +110,20 @@ export const qpayToken = async config => {
 export const createQpayInvoice = async (varData, token, config) => {
   const { qpayUrl } = config;
   const port = '/v2/invoice';
-  const raw = JSON.stringify(varData);
+  // const raw = JSON.stringify(varData);
+
+  console.log('varData: ', varData);
   const requestOptions = {
     method: 'POST',
     headers: {
       Authorization: 'Bearer ' + token,
       'Content-Type': 'application/json'
     },
-    body: raw,
+    body: varData,
     redirect: 'follow'
   };
 
-  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
+  return fetchUrl(`${QPAY_URL}${port}`, requestOptions);
 };
 
 export const getQpayInvoice = async (invoiceId, token, config) => {
@@ -121,7 +136,7 @@ export const getQpayInvoice = async (invoiceId, token, config) => {
     redirect: 'follow'
   };
 
-  return fetchUrl(`${qpayUrl}${port}`, requestOptions);
+  return fetchUrl(`${QPAY_URL}${port}`, requestOptions);
 };
 
 export const hmac256 = (key, message) => {

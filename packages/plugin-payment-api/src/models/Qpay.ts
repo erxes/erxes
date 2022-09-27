@@ -1,12 +1,13 @@
 import { Model } from 'mongoose';
-import { qpayInvoiceSchema, IQpayInvoiceDocument } from './definitions/qpay';
 
 import {
-  makeInvoiceNo,
-  qpayToken,
   createQpayInvoice,
-  getQpayInvoice
+  getQpayInvoice,
+  makeInvoiceNo,
+  qpayToken
 } from '../utils';
+import { IModels } from './../connectionResolver';
+import { IQpayInvoiceDocument, qpayInvoiceSchema } from './definitions/qpay';
 
 export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   getQpayInvoice(_id: string): IQpayInvoiceDocument;
@@ -16,7 +17,7 @@ export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   createInvoice(data: any): any;
 }
 
-export const loadQpayInvoiceClass = models => {
+export const loadQpayInvoiceClass = (models: IModels) => {
   class QpayInvoices {
     public static async getQpayInvoice(_id: string) {
       const invoice = await models.QpayInvoices.findOne({ _id });
@@ -83,7 +84,7 @@ export const loadQpayInvoiceClass = models => {
     public static async createInvoice(data) {
       const {
         config,
-        invoice_description,
+        description,
         amount,
         customerId,
         companyId,
@@ -106,15 +107,21 @@ export const loadQpayInvoiceClass = models => {
 
       const invoice = await models.QpayInvoices.qpayInvoiceCreate(invoiceDoc);
 
+      const MAIN_API_DOMAIN =
+        process.env.MAIN_API_DOMAIN || 'https://b1be-66-181-178-61.ap.ngrok.io';
+
       const varData = {
         invoice_code: qpayInvoiceCode,
         sender_invoice_no,
         invoice_receiver_code,
-        invoice_description,
+        invoice_description: description || 'test invoice',
         amount,
-        callback_url: `${callbackUrl}/callBackQpay?payment_id=${sender_invoice_no}`
+        callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback?type=qpay&payment_id=${invoice._id}`
       };
       const invoiceData = await createQpayInvoice(varData, token, config);
+
+      console.log('invoiceData: ', invoiceData);
+
       await models.QpayInvoices.qpayInvoiceUpdate(invoice, invoiceData);
 
       return {

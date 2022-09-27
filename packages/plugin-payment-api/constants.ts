@@ -1,0 +1,1 @@
+export const QPAY_URL = 'https://merchant.qpay.mn';
