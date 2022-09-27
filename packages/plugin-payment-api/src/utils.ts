@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import fetch from 'node-fetch';
 
 import { QPAY_URL } from '../constants';
+import { graphqlPubsub } from './configs';
 import { generateModels, IModels } from './connectionResolver';
 
 export const fetchUrl = async (url, requestOptions) => {
@@ -51,25 +52,38 @@ export const callBackSocialPay = async (req, res) => {
   console.log('call back socialPay url ...');
   console.log(req.query);
 
-  const models = await generateModels(subdomain);
-
-  return res.status(200).send('OK');
+  // const models = await generateModels(subdomain);
 };
 
 export const callBackQpay = async (models: IModels, queryParams) => {
-  console.log('call back url ...');
-
   const { payment_id, qpay_payment_id } = queryParams;
-
-  console.log('payment_id, qpay_payment_id:', payment_id, qpay_payment_id);
 
   if (!payment_id || !qpay_payment_id) {
     throw new Error('payment_id or qpay_payment_id is required');
   }
 
-  // const requestData = { payment_id, qpay_payment_id };
+  const invoice = await models.QpayInvoices.findOne({
+    _id: payment_id
+  }).lean();
 
-  // models.QpayInvoices.qpayInvoiceUpdate(requestData);
+  if (!invoice) {
+    throw new Error('Invoice not found');
+  }
+
+  await models.QpayInvoices.updateOne(
+    { _id: payment_id },
+    {
+      $set: {
+        paymentDate: new Date(),
+        qpayPaymentId: qpay_payment_id,
+        status: 'PAID'
+      }
+    }
+  );
+
+  graphqlPubsub.publish('invoiceUpdated', {
+    _id: invoice._id
+  });
 };
 
 export const makeInvoiceNo = length => {
@@ -83,7 +97,7 @@ export const makeInvoiceNo = length => {
 };
 
 export const qpayToken = async config => {
-  const { qpayUrl, qpayMerchantUser, qpayMerchantPassword } = config;
+  const { qpayMerchantUser, qpayMerchantPassword } = config;
 
   const port = '/v2/auth/token';
 
@@ -107,8 +121,7 @@ export const qpayToken = async config => {
   return tokenInfo.access_token;
 };
 
-export const createQpayInvoice = async (varData, token, config) => {
-  const { qpayUrl } = config;
+export const createQpayInvoice = async (varData, token) => {
   const port = '/v2/invoice';
   // const raw = JSON.stringify(varData);
 
@@ -126,8 +139,7 @@ export const createQpayInvoice = async (varData, token, config) => {
   return fetchUrl(`${QPAY_URL}${port}`, requestOptions);
 };
 
-export const getQpayInvoice = async (invoiceId, token, config) => {
-  const { qpayUrl } = config;
+export const getQpayInvoice = async (invoiceId, token) => {
   const port = `/v2/invoice/${invoiceId}`;
 
   const requestOptions = {

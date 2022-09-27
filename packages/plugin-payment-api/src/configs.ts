@@ -26,7 +26,7 @@ export default {
     { path: `/callBackQpay`, method: callBackQpay },
     { path: `/pl:payment/callBackSocialPay`, method: callBackSocialPay },
     { path: `/callBackSocialPay`, method: callBackSocialPay },
-    { path: `/pl:payment/callback`, method: paymentCallback }
+    { path: `/callback`, method: paymentCallback }
   ],
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
