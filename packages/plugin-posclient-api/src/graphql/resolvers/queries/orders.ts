@@ -84,6 +84,42 @@ const orderQueries = {
     );
   },
 
+  async fullOrderItems(
+    _root,
+    {
+      searchValue,
+      statuses,
+      page,
+      perPage,
+      sortField,
+      sortDirection
+    }: IFullOrderParams,
+    { models }: IContext
+  ) {
+    const filter: any = {};
+
+    if (searchValue) {
+      filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };
+    }
+    const sort: { [key: string]: any } = {};
+
+    if (sortField) {
+      sort[sortField] = sortDirection;
+    } else {
+      sort.createdAt = 1;
+    }
+
+    return paginate(
+      models.OrderItems.find({
+        ...filter,
+        status: { $in: statuses }
+      })
+        .sort(sort)
+        .lean(),
+      { page, perPage }
+    );
+  },
+
   async orderDetail(
     _root,
     { _id, customerId }: { _id: string; customerId?: string },

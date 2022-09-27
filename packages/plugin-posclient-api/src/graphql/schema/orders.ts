@@ -143,4 +143,5 @@ export const queries = `
   orderDetail(_id: String, customerId: String): Order
   ordersCheckCompany(registerNumber: String!): JSON
   ordersDeliveryInfo(orderId: String!): JSON
+  fullOrderItems(searchValue: String, statuses: [String], page: Int, perPage: Int, sortField: String, sortDirection: Int): [PosOrderItem]
 `;
