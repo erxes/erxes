@@ -1,7 +1,10 @@
 import { generateModels, IModels } from './connectionResolver';
 import { EXPORT_TYPES, MODULE_NAMES } from './constants';
-import { fetchSegment, sendFormsMessage } from './messageBroker';
-import * as moment from 'moment';
+import {
+  fetchSegment,
+  sendFormsMessage
+  // sendProductsMessage
+} from './messageBroker';
 
 const prepareData = async (
   models: IModels,
@@ -59,8 +62,117 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
+// const fillDealProductValue = async (
+//   subdomain,
+//   column,
+//   item,
+//   sheet,
+//   columnNames,
+//   rowIndex,
+//   dealIds,
+//   dealRowIndex
+// ) => {
+//   const productsData = item.productsData;
+
+//   if (productsData.length === 0) {
+//     rowIndex++;
+//     dealRowIndex++;
+
+//     addCell(column, '-', sheet, columnNames, dealRowIndex);
+
+//     return { rowIndex, dealRowIndex };
+//   }
+
+//   if (dealIds.length === 0) {
+//     dealIds.push(item._id);
+//   } else if (!dealIds.includes(item._id)) {
+//     dealIds.push(item._id);
+//     rowIndex = dealRowIndex;
+//   }
+
+//   dealRowIndex = rowIndex;
+
+//   for (const productData of productsData) {
+//     let cellValue = '';
+//     let product;
+
+//     switch (column.name) {
+//       case 'productsData.amount':
+//         cellValue = productData.amount;
+//         break;
+
+//       case 'productsData.name':
+//         product =
+//           (await sendProductsMessage({
+//             subdomain,
+//             action: 'findOne',
+//             data: { _id: productData.productId },
+//             isRPC: true
+//           })) || {};
+
+//         cellValue = product.name;
+//         break;
+
+//       case 'productsData.code':
+//         product =
+//           (await sendProductsMessage({
+//             subdomain,
+//             action: 'findOne',
+//             data: { _id: productData.productId },
+//             isRPC: true
+//           })) || {};
+
+//         cellValue = product.code;
+//         break;
+
+//       case 'productsData.discount':
+//         cellValue = productData.discount;
+//         break;
+
+//       case 'productsData.discountPercent':
+//         cellValue = productData.discountPercent;
+//         break;
+
+//       case 'productsData.currency':
+//         cellValue = productData.amount;
+//         break;
+
+//       case 'productsData.tax':
+//         cellValue = productData.tax;
+//         break;
+
+//       case 'productsData.taxPercent':
+//         cellValue = productData.taxPercent;
+//         break;
+//     }
+
+//     if (cellValue) {
+//       addCell(column, cellValue, sheet, columnNames, dealRowIndex);
+
+//       dealRowIndex++;
+//     }
+//   }
+
+//   return { rowIndex, dealRowIndex };
+// };
+
 export default {
   exportTypes: EXPORT_TYPES,
+
+  insertttttExportItems: async ({ subdomain, data }) => {
+    console.log('dddddddddddddddddddddddddddddddddddddddddd');
+    const models = await generateModels(subdomain);
+
+    const { docs, contentType } = data;
+
+    try {
+      return console.log('333333333333333333333');
+    } catch (e) {
+      console.log(e, '333333333333333333333');
+      return { error: e.message };
+    }
+  },
+
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -85,7 +197,24 @@ export default {
           });
 
           finalColumnsConfigs.push(`customFieldsData.${field.text}.${fieldId}`);
-        } else {
+        }
+        // else if (column.startsWith('productsData')) {
+        //   const indexes = await fillDealProductValue(
+        //     subdomain,
+        //     column,
+        //     item,
+        //     sheet,
+        //     columnNames,
+        //     rowIndex,
+        //     dealIds,
+        //     dealRowIndex
+        //   );
+
+        //   rowIndex = indexes?.rowIndex;
+        //   dealRowIndex = indexes?.dealRowIndex;
+
+        // }
+        else {
           finalColumnsConfigs.push(column);
         }
       }
@@ -110,7 +239,6 @@ export default {
     } catch (e) {
       return { error: e.message };
     }
-
     return { finalValue, columnsConfig };
   }
 };
