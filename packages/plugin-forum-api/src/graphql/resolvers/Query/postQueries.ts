@@ -35,9 +35,12 @@ const PostQueries: IObjectTypeResolver<any, IContext> = {
     const { Post } = models;
 
     const query: any = await buildPostsQuery(models, params);
-    const { limit = 0, offset = 0 } = params;
+    const { limit = 0, offset = 0, sort = {} } = params;
+
+    console.log(params);
 
     return Post.find(query)
+      .sort(sort)
       .skip(offset)
       .limit(limit)
       .lean();

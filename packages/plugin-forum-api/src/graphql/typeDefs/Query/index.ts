@@ -1,6 +1,7 @@
 export const commonPostsParams = `
   state: [ForumPostState!]
   categoryIncludeDescendants: Boolean
+  sort: JSON
   offset: Int
   limit: Int
 `;

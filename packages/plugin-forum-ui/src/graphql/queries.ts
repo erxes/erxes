@@ -47,8 +47,23 @@ export const CATEGORY_POSSIBLE_PARENTS = gql`
   }
 `;
 
-const forumPostsParam = `$_id: [ID!], $categoryId: [ID!], $categoryIncludeDescendants: Boolean, $limit: Int, $offset: Int, $state: [ForumPostState!]`;
-const forumPostsArg = `_id: $_id, categoryId: $categoryId, categoryIncludeDescendants: $categoryIncludeDescendants, limit: $limit, offset: $offset, state: $state`;
+const forumPostsParam = `
+  $_id: [ID!] 
+  $categoryId: [ID!] 
+  $categoryIncludeDescendants: Boolean 
+  $limit: Int 
+  $offset: Int 
+  $state: [ForumPostState!]
+  $sort: JSON`;
+
+const forumPostsArg = `
+  _id: $_id
+  categoryId: $categoryId
+  categoryIncludeDescendants: $categoryIncludeDescendants
+  limit: $limit
+  offset: $offset
+  state: $state
+  sort: $sort`;
 
 export const POST_REFETCH_AFTER_CREATE_DELETE = [
   'ForumPostsQuery',

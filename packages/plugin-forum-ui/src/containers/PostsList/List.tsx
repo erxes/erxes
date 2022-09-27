@@ -18,7 +18,8 @@ const List: React.FC = () => {
   const variables = {
     categoryId,
     state,
-    categoryIncludeDescendants: !!categoryIncludeDescendants
+    categoryIncludeDescendants: !!categoryIncludeDescendants,
+    sort: { _id: -1 }
   };
 
   const postQuery = useQuery(FORUM_POSTS_QUERY, {
