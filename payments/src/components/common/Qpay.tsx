@@ -39,8 +39,8 @@ const QpaySection = ({ query, paymentConfigId }: Props) => {
         })
         .subscribe({
           next({ data }) {
-            if (data.invoiceUpdated && data.invoiceUpdated.status === 'PAID') {
-              setQrPaymentStatus('PAID');
+            if (data.invoiceUpdated && data.invoiceUpdated.status === 'paid') {
+              setQrPaymentStatus('paid');
             }
           },
           error(err: any) {

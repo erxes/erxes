@@ -53,31 +53,37 @@ export const loadQpayInvoiceClass = (models: IModels) => {
       const detail: any = await getQpayInvoice(invoiceId, token);
 
       if (
-        invoice &&
-        !invoice.qpayPaymentId &&
-        detail.invoice_status === 'CLOSED'
+        !invoice ||
+        !invoice.qpayPaymentId ||
+        detail.error ||
+        detail.invoice_status !== 'CLOSED'
       ) {
-        const payments = detail.payments;
-
-        payments.map(async e => {
-          const paymentId = e.payment_id;
-
-          await models.QpayInvoices.updateOne(
-            { qpayInvoiceId: invoiceId },
-            {
-              $set: {
-                paymentDate: new Date(),
-                qpayPaymentId: paymentId,
-                status: 'PAID'
-              }
-            }
-          );
-        });
+        return {
+          status: 'failed',
+          data: { ...detail }
+        };
       }
+
+      const payments = detail.payments;
+
+      payments.map(async e => {
+        const paymentId = e.payment_id;
+
+        await models.QpayInvoices.updateOne(
+          { qpayInvoiceId: invoiceId },
+          {
+            $set: {
+              paymentDate: new Date(),
+              qpayPaymentId: paymentId,
+              status: 'paid'
+            }
+          }
+        );
+      });
 
       return {
         status: 'success',
-        data: detail
+        data: { ...detail, status: 'paid' }
       };
     }
 

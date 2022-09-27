@@ -76,7 +76,7 @@ export const callBackQpay = async (models: IModels, queryParams) => {
       $set: {
         paymentDate: new Date(),
         qpayPaymentId: qpay_payment_id,
-        status: 'PAID'
+        status: 'paid'
       }
     }
   );
@@ -84,7 +84,7 @@ export const callBackQpay = async (models: IModels, queryParams) => {
   graphqlPubsub.publish('invoiceUpdated', {
     invoiceUpdated: {
       _id: invoice._id,
-      status: 'PAID'
+      status: 'paid'
     }
   });
 };
