@@ -16,9 +16,7 @@ const categoryMutations = `
     ${params}
   ): ForumCategory
 
-  forumDeleteCategory(_id: ID!, adopterCategoryId: ID): ForumCategory
-
-  forumForceDeleteCategory(_id: ID!): ForumCategory
+  forumDeleteCategory(_id: ID!): ForumCategory
 `;
 
 export default categoryMutations;

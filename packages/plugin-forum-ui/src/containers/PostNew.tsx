@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 
 const MUTATION = gql`
   mutation ForumCreatePost(
-    $categoryId: ID!
+    $categoryId: [ID!]!
     $content: String!
     $title: String!
     $thumbnail: String

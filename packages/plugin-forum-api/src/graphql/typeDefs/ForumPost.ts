@@ -39,8 +39,8 @@ export default `
     stateChangedByCp: ClientPortalUser
 
     
-    categoryId: ID!
-    category: ForumCategory
+    categoryId: [ID!]
+    category: [ForumCategory!]
 
     upVoteCount: Int
     downVoteCount: Int

@@ -5,13 +5,14 @@ import CategoryForm from '../components/CategoryForm';
 import { allCategoryQueries, CATEGORY_DETAIL } from '../graphql/queries';
 import { UPDATE_CATEGORY, CREATE_CATEGORY } from '../graphql/mutations';
 import CategoryDelete from './CategoryDelete';
-import CategoryForceDelete from './CategoryForceDelete';
+import { useHistory } from 'react-router-dom';
 
 export default function CategoryDetail() {
   const { categoryId } = useParams();
   const { data, loading, error } = useQuery(CATEGORY_DETAIL, {
     variables: { id: categoryId }
   });
+  const history = useHistory();
 
   const [updateCategory] = useMutation(UPDATE_CATEGORY, {
     // onCompleted: () => alert('updated'),
@@ -103,16 +104,8 @@ export default function CategoryDetail() {
         <CategoryDelete
           key={'delete' + forumCategory._id}
           _id={forumCategory._id}
+          onDelete={() => history.push(`/forums/categories/`)}
         />
-
-        <hr />
-
-        <h4>Force delete</h4>
-        <p>
-          This will delete all descendant categories, their posts and their
-          comments
-        </p>
-        <CategoryForceDelete _id={forumCategory._id} />
       </div>
     </div>
   );

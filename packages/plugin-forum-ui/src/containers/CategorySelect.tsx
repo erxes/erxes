@@ -1,15 +1,7 @@
 import React from 'react';
 import { useQuery } from 'react-apollo';
 import gql from 'graphql-tag';
-
-const CATEGORIES_ALL = gql`
-  query allCategories {
-    forumCategories {
-      _id
-      name
-    }
-  }
-`;
+import { CATEGORIES_ALL } from '../graphql/queries';
 
 const CategorySelect: React.FC<{
   value: string;

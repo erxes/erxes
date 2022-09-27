@@ -11,7 +11,7 @@ export type PostStates = typeof POST_STATES[number];
 
 export interface IPost {
   _id: any;
-  categoryId: string;
+  categoryId?: string[] | null;
   content: string;
   description?: string | null;
   title: string;
@@ -100,7 +100,7 @@ export interface IPostModel extends Model<PostDocument> {
 }
 
 export const postSchema = new Schema<PostDocument>({
-  categoryId: { type: Types.ObjectId },
+  categoryId: { type: [Types.ObjectId] },
   title: { type: String },
   content: { type: String },
   description: String,

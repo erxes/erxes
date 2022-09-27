@@ -8,7 +8,7 @@ import gql from 'graphql-tag';
 const PATCH_POST = gql`
   mutation ForumPatchPost(
     $id: ID!
-    $categoryId: ID
+    $categoryId: [ID!]
     $content: String
     $thumbnail: String
     $title: String

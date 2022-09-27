@@ -19,7 +19,7 @@ const PostForm: React.FC<{ post?: any; onSubmit?: (any) => any }> = ({
         title,
         thumbnail,
         content,
-        categoryId: categoryId || null
+        categoryId: categoryId ? [categoryId] : []
       });
     }
   };

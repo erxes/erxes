@@ -3,8 +3,18 @@ import gql from 'graphql-tag';
 export const allCategoryQueries = [
   'ForumCategoriesByParentIds',
   'ForumCategoryDetail',
-  'ForumCategoryPossibleParents'
+  'ForumCategoryPossibleParents',
+  'allCategories'
 ];
+
+export const CATEGORIES_ALL = gql`
+  query allCategories {
+    forumCategories {
+      _id
+      name
+    }
+  }
+`;
 
 export const CATEGORIES_BY_PARENT_IDS = gql`
   query ForumCategoriesByParentIds($parentId: [ID]) {

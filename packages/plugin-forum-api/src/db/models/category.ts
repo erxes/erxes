@@ -16,16 +16,12 @@ export type InputCategoryPatch = Partial<InputCategoryInsert>;
 export type CategoryDocument = ICategory & Document;
 export interface ICategoryModel extends Model<CategoryDocument> {
   findByIdOrThrow(_id: string): Promise<CategoryDocument>;
-  forceDeleteCategory(_id: string): Promise<CategoryDocument>;
   createCategory(input: InputCategoryInsert): Promise<CategoryDocument>;
   patchCategory(
     _id: string,
     input: InputCategoryPatch
   ): Promise<CategoryDocument>;
-  deleteCategory(
-    _id: string,
-    adopterCategoryId: string | null
-  ): Promise<CategoryDocument>;
+  deleteCategory(_id: string): Promise<CategoryDocument>;
   getDescendantsOf(_id: string[]): Promise<ICategory[]>;
   getAncestorsOf(_id: string): Promise<ICategory[]>;
   isDescendantRelationship(
@@ -90,79 +86,29 @@ export const generateCategoryModel = (
       return models.Category.findByIdOrThrow(_id);
     }
 
-    public static async deleteCategory(
-      _id: string,
-      adopterCategoryId: string | null = null
-    ): Promise<CategoryDocument> {
+    public static async deleteCategory(_id: string): Promise<CategoryDocument> {
       const cat = await models.Category.findByIdOrThrow(_id);
+
+      // const posts = await models.Post.find({ categoryId: { $elemMatch: { $eq: _id } } }).lean();
+
+      // console.log(posts);
 
       const session = await con.startSession();
       session.startTransaction();
 
       try {
-        const postsCount = await models.Post.countDocuments({
-          categoryId: _id
-        });
-
-        if (postsCount > 0 && !adopterCategoryId) {
-          throw new Error(
-            `Cannot delete a category that has existing posts without specifying a different category to transfer its existing posts`
-          );
-        }
-
         await models.Post.updateMany(
-          { categoryId: _id },
-          { categoryId: adopterCategoryId }
+          { categoryId: { $elemMatch: { $eq: _id } } },
+          { $pull: { categoryId: Types.ObjectId(_id) } }
         );
-        await models.Category.updateMany(
-          { parentId: _id },
-          { parentId: adopterCategoryId }
-        );
-        await models.Category.deleteOne({ _id });
+        await models.Category.updateMany({ parentId: _id }, { parentId: null });
+        await cat.remove();
       } catch (e) {
         await session.abortTransaction();
         throw e;
       }
 
       await session.commitTransaction();
-      return cat;
-    }
-
-    public static async forceDeleteCategory(
-      _id: string
-    ): Promise<CategoryDocument> {
-      const cat = await models.Category.findByIdOrThrow(_id);
-
-      const session = await con.startSession();
-      session.startTransaction();
-
-      try {
-        const allCatIdsToDelete = (
-          await models.Category.getDescendantsOf([_id])
-        ).map(d => d._id);
-        allCatIdsToDelete.push(cat._id);
-
-        const postIdsToDelete = (
-          await models.Post.find({
-            categoryId: { $in: allCatIdsToDelete }
-          }).select({ _id: 1 })
-        ).map(p => p._id);
-        const commentsToDelete = (
-          await models.Comment.find({
-            postId: { $in: postIdsToDelete }
-          }).select({ _id: 1 })
-        ).map(c => c._id);
-
-        await models.Comment.deleteMany({ _id: { $in: commentsToDelete } });
-        await models.Post.deleteMany({ _id: { $in: postIdsToDelete } });
-        await models.Category.deleteMany({ _id: { $in: allCatIdsToDelete } });
-      } catch (e) {
-        await session.abortTransaction();
-        throw e;
-      }
-
-      await session.commitTransaction();
-
       return cat;
     }
 

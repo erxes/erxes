@@ -39,16 +39,8 @@ export const CREATE_CATEGORY = gql`
 `;
 
 export const DELETE_CATEGORY = gql`
-  mutation ForumDeleteCategory($id: ID!, $adopterCategoryId: ID) {
-    forumDeleteCategory(_id: $id, adopterCategoryId: $adopterCategoryId) {
-      _id
-    }
-  }
-`;
-
-export const FORCE_DELETE_CATEGORY = gql`
-  mutation ForumForceDeleteCategory($id: ID!) {
-    forumForceDeleteCategory(_id: $id) {
+  mutation ForumDeleteCategory($id: ID!) {
+    forumDeleteCategory(_id: $id) {
       _id
     }
   }

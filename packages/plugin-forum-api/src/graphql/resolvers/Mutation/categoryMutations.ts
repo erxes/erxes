@@ -10,15 +10,8 @@ const categoryMutations: IObjectTypeResolver<any, IContext> = {
     const { _id, ...patch } = args;
     return await Category.patchCategory(_id, patch);
   },
-  async forumDeleteCategory(
-    _,
-    { _id, adopterCategoryId },
-    { models: { Category } }
-  ) {
-    return Category.deleteCategory(_id, adopterCategoryId);
-  },
-  async forumForceDeleteCategory(_, { _id }, { models: { Category } }) {
-    return Category.forceDeleteCategory(_id);
+  async forumDeleteCategory(_, { _id }, { models: { Category } }) {
+    return Category.deleteCategory(_id);
   }
 };
 
