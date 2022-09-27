@@ -119,7 +119,7 @@ export const createQpayInvoice = async (varData, token, config) => {
       Authorization: 'Bearer ' + token,
       'Content-Type': 'application/json'
     },
-    body: varData,
+    body: JSON.stringify(varData),
     redirect: 'follow'
   };
 

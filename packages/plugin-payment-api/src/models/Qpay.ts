@@ -118,15 +118,20 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         amount,
         callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback?type=qpay&payment_id=${invoice._id}`
       };
-      const invoiceData = await createQpayInvoice(varData, token, config);
+      const response = await createQpayInvoice(varData, token, config);
 
-      console.log('invoiceData: ', invoiceData);
+      console.log('invoiceResponse: ', response);
 
-      await models.QpayInvoices.qpayInvoiceUpdate(invoice, invoiceData);
+      if (response.error) {
+        await models.QpayInvoices.remove({ _id: invoice._id });
+        throw new Error(response.error);
+      }
+
+      await models.QpayInvoices.qpayInvoiceUpdate(invoice, response);
 
       return {
         status: 'qpay success',
-        data: { response: invoiceData }
+        data: { response }
       };
     }
 
