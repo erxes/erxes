@@ -50,7 +50,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         qpayInvoiceId: invoiceId
       });
 
-      const detail: any = await getQpayInvoice(invoiceId, token, config);
+      const detail: any = await getQpayInvoice(invoiceId, token);
 
       if (
         invoice &&
@@ -91,7 +91,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         contentType,
         contentTypeId
       } = data;
-      const { qpayInvoiceCode, callbackUrl } = config;
+      const { qpayInvoiceCode } = config;
       const invoice_receiver_code = 'terminal';
       const token = await qpayToken(config);
       const sender_invoice_no = await makeInvoiceNo(16);
@@ -108,7 +108,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
       const invoice = await models.QpayInvoices.qpayInvoiceCreate(invoiceDoc);
 
       const MAIN_API_DOMAIN =
-        process.env.MAIN_API_DOMAIN || 'https://b1be-66-181-178-61.ap.ngrok.io';
+        process.env.MAIN_API_DOMAIN || 'https://4d89-66-181-178-61.ap.ngrok.io';
 
       const varData = {
         invoice_code: qpayInvoiceCode,
@@ -118,9 +118,8 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         amount,
         callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback?type=qpay&payment_id=${invoice._id}`
       };
-      const response = await createQpayInvoice(varData, token, config);
 
-      console.log('invoiceResponse: ', response);
+      const response = await createQpayInvoice(varData, token);
 
       if (response.error) {
         await models.QpayInvoices.remove({ _id: invoice._id });
@@ -130,8 +129,8 @@ export const loadQpayInvoiceClass = (models: IModels) => {
       await models.QpayInvoices.qpayInvoiceUpdate(invoice, response);
 
       return {
-        status: 'qpay success',
-        data: { response }
+        status: 'success',
+        data: { _id: invoice._id, ...response }
       };
     }
 

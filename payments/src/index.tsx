@@ -1,21 +1,16 @@
 import './index.css';
 
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 import { render } from 'react-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import PaymentsContainer from './containers/Payments';
 import reportWebVitals from './reportWebVitals';
 
-const client = new ApolloClient({
-  uri: process.env.REACT_APP_API_URL
-    ? `${process.env.REACT_APP_API_URL}/graphql`
-    : 'http://localhost:3303/graphql',
-  cache: new InMemoryCache()
-});
+const apolloClient = require('./apolloClient').default;
 
 render(
-  <ApolloProvider client={client}>
+  <ApolloProvider client={apolloClient}>
     <Router>
       <PaymentsContainer />
     </Router>

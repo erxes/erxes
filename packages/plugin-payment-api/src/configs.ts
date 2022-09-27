@@ -21,6 +21,9 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
+
+  hasSubscriptions: true,
+
   getHandlers: [
     { path: `/pl:payment/callBackQpay`, method: callBackQpay },
     { path: `/callBackQpay`, method: callBackQpay },

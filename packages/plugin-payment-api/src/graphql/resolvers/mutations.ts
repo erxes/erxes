@@ -89,7 +89,7 @@ const paymentConfigMutations = {
         ? await models.QpayInvoices.createInvoice(data)
         : await models.SocialPayInvoices.createInvoice(data);
 
-    return [response];
+    return response;
   }
 };
 

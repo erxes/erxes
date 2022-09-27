@@ -12,3 +12,15 @@ export interface IQueryParams {
   contentType: string;
   contentTypeId: string;
 }
+
+
+export type QueryResponse = {
+  loading: boolean;
+  refetch: () => Promise<any>;
+  error?: string;
+};
+
+// export type ActivityLogQueryResponse = {
+//   activityLogs: IActivityLog[];
+//   subscribeToMore: any;
+// } & QueryResponse;
