@@ -9,6 +9,10 @@ cube(`Conformities`, {
   },
 
   joins: {
+    Cars: {
+      sql: `${CUBE}.relTypeId = ${Cars}._id`,
+      relationship: `belongsTo`
+    },
     Customers: {
       sql: `${CUBE}.relTypeId = ${Customers}._id`,
       relationship: `belongsTo`

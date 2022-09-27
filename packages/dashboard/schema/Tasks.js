@@ -120,6 +120,12 @@ cube(`Tasks`, {
       type: `time`,
       title: 'Modified Date',
       shown: false
+    },
+
+    closedat: {
+      sql: `${CUBE}.\`closedAt\``,
+      type: `time`,
+      title: 'Closed Date'
     }
   },
 

@@ -22,8 +22,8 @@ cube(`Customers`, {
 
   dimensions: {
     _id: {
-      sql: `_id`,
-      type: `number`,
+      sql: `CONCAT(${CUBE}._id)`,
+      type: `string`,
       primaryKey: true
     },
 
