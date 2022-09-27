@@ -37,11 +37,10 @@ const paymentConfigQueries = {
   },
 
   getPaymentOptions(_root, params, _args) {
-    console.log('Process: ', JSON.stringify(process.env));
     const mainUrl = process.env.PAYMENT_APP_URL || 'http://localhost:3600';
     const route = '/payment_options';
     const base64 = Buffer.from(JSON.stringify(params)).toString('base64');
-    console.log(Buffer.from(base64, 'base64').toString('ascii'));
+
     return mainUrl + route + '?q=' + base64;
   },
 

@@ -19,13 +19,9 @@ const PaymentsContainer = (props: IRouterProps) => {
   ).toString('ascii');
   const query = JSON.parse(parsedData);
 
-  console.log('payments container: ', query);
-
   const { data = {} as any, loading } = useQuery(gql(queries.paymentConfigs), {
     variables: { paymentIds: query.paymentIds },
   });
-
-  console.log('loading: ', loading);
 
   if (loading) {
     return null;

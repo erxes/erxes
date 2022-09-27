@@ -19,15 +19,15 @@ const INVOICE_SUBSCRIPTION = gql`
 
 type Props = {
   paymentConfigId: string;
-  query: IQueryParams;
+  params: IQueryParams;
 };
 
-const QpaySection = ({ query, paymentConfigId }: Props) => {
-  const [amount, setAmount] = useState(query.amount || '0');
+const QpaySection = ({ params, paymentConfigId }: Props) => {
+  const [amount, setAmount] = useState(params.amount || '0');
   const [invoiceId, setInvoiceId] = useState('');
   const [qr, setQr] = useState('');
   const [qrInvoiceNo, setQrInvoiceNo] = useState('');
-  const [description, setDescription] = useState(query.description || '');
+  const [description, setDescription] = useState(params.description || '');
   const [qrPaymentStatus, setQrPaymentStatus] = useState('CREATED');
 
   useEffect(() => {
@@ -49,7 +49,13 @@ const QpaySection = ({ query, paymentConfigId }: Props) => {
           },
         });
     }
-  }, [invoiceId]);
+
+    if (qrPaymentStatus === 'paid') {
+      if (window.confirm('Payment process is completed.')) {
+        (window as any).location.href = params.redirectUri;
+      }
+    }
+  }, [invoiceId, qrPaymentStatus]);
 
   const useCheckInvoiceQuery = () => {
     const { refetch } = useQuery(gql(queries.checkInvoiceQuery), {
@@ -94,7 +100,7 @@ const QpaySection = ({ query, paymentConfigId }: Props) => {
 
     const buttonText = qrInvoiceNo ? 'Reset window' : 'Create invoice';
 
-    const { customerId, companyId, contentType, contentTypeId } = query;
+    const { customerId, companyId, contentType, contentTypeId } = params;
     return (
       <div>
         <form

@@ -52,12 +52,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
 
       const detail: any = await getQpayInvoice(invoiceId, token);
 
-      if (
-        !invoice ||
-        !invoice.qpayPaymentId ||
-        detail.error ||
-        detail.invoice_status !== 'CLOSED'
-      ) {
+      if (!invoice || detail.error || detail.invoice_status !== 'CLOSED') {
         return {
           status: 'failed',
           data: { ...detail }
@@ -83,7 +78,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
 
       return {
         status: 'success',
-        data: { ...detail, status: 'paid' }
+        data: { ...detail, invoice_status: 'paid' }
       };
     }
 

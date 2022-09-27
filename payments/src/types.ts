@@ -11,6 +11,7 @@ export interface IQueryParams {
   companyId: string;
   contentType: string;
   contentTypeId: string;
+  redirectUri?: string;
 }
 
 

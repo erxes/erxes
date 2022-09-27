@@ -53,8 +53,6 @@ class Modal extends Component<Props, State> {
     const parsedData: string = Buffer.from(base64, 'base64').toString('ascii');
     const query: IQueryParams = JSON.parse(parsedData);
 
-    console.log(query);
-
     const paymentData = id ? datas.find(d => d._id === id) : null;
     const type = paymentData ? paymentData.type : null;
 
@@ -77,7 +75,7 @@ class Modal extends Component<Props, State> {
           {id && type === 'qpay' &&
             <QpaySection
               paymentConfigId={id}
-              query={query}
+              params={query}
             />}
 
           {id && type === 'socialPay' &&
