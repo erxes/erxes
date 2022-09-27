@@ -32,7 +32,9 @@ export default {
     return checkQpay ? checkQpay.qpayPaymentId : '';
   },
 
-  async customerId(invoice: any, {}, { subdomain }: IContext) {
+  async customer(invoice: any, {}, { subdomain }: IContext) {
+    console.log('invoice.customerId:', invoice.customerId);
+
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -43,11 +45,13 @@ export default {
     return customer;
   },
 
-  async companyId(invoice: any, {}, { subdomain }: IContext) {
+  async company(invoice: any, {}, { subdomain }: IContext) {
+    console.log('invoice.customerId:', invoice.companyId);
+
     const company = await sendContactsMessage({
       subdomain,
       action: 'companies.findOne',
-      data: { _id: invoice.customerId },
+      data: { _id: invoice.companyId },
       isRPC: true
     });
 
