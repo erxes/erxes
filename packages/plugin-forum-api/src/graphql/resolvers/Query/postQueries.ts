@@ -5,7 +5,7 @@ import { IModels } from '../../../db/models';
 export const buildPostsQuery = async ({ Category }: IModels, params: any) => {
   const query: any = {};
 
-  for (const field of ['_id', 'state']) {
+  for (const field of ['_id', 'state', 'createdById', 'createdByCpId']) {
     const param = params[field];
 
     if (param) {

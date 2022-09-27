@@ -1,6 +1,9 @@
 export const commonPostsParams = `
   state: [ForumPostState!]
   categoryIncludeDescendants: Boolean
+  createdById: [String!]
+  createdByCpId: [String!]
+
   sort: JSON
   offset: Int
   limit: Int
