@@ -20,11 +20,11 @@ With erxes, you can create your own plugins or extend the existing ones, which w
 
 ---
 
-Please go to **<a href="https://docs.erxes.io/development/developing-plugins">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction.
+Please go to **<a href="https://docs.erxes.io/docs/developer/ubuntu">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction.
 
 :::warning
 
-Before running erxes you need several other actions required to develop your own plugins at erxes XOS. Please make sure you should be back straight after you install erxes XOS using **<a href="https://docs.erxes.io/development/developing-plugins">the installation guideline</a>**.
+We assume you've already installed erxes XOS on your device. Otherwise the guideline below would not work out properly. Please make sure you should be back after you install erxes XOS using **<a href="https://docs.erxes.io/docs/developer/ubuntu">the installation guideline</a>**.
 
 :::
 
@@ -49,25 +49,32 @@ Plugin development in UI part requires the following software prerequisites to b
 
 ### Creating New Plugin
 
+Each plugin is composed of two parts, `API` and `UI`
+
+1. Create new folders for both using the following command.
+
 ```
 cd erxes
 yarn create-plugin
 ```
 
-The command above starts CLI which promts for few questions as shown below
+The command above starts CLI, prompting for few questions to create a new plugin as shown below.
+
+<img src="/img/developing-plugins/plugin1.png" width ="100%"alt="CLI screenshot"></img>
+
+The example below is a new plugin, created from an example template, placed at the main navigation.
+
+<img src="/img/developing-plugins/plugin2.png" width ="100%"alt="CLI screenshot"></img>
+
+Creating from an empty template will result in as shown below, as we give you the freedom and space to develop your own plugin on erxes.
+
+<img src="/img/developing-plugins/plugin3.png" width ="100%"alt="CLI screenshot"></img>
 
 ## Running erxes
 
 ---
 
-3. Run the following command
-
-```
-cd erxes/cli
-yarn install
-```
-
-4. Change the `configs.json` using the following command.
+Please note that `create-plugin` command automatically adds a new line inside `cli/configs.json`, as well as installs the dependencies necessary.
 
 ```
 {
@@ -89,163 +96,148 @@ yarn install
 	},
 	"plugins": [
 		{
-			"name": "demo", "ui": "local"
+	    "name": "new_plugin", "ui": "local"
 		}
 	]
 }
 ```
 
-5. Then run the following command.
+2. Run the following command
 
 ```
-cd packages/gateway
-yarn dev
+cd erxes/cli
+yarn install
 ```
 
-6. Stop by pressing `ctl + c` with the following command.
+3. Then run the following command to start erxes with your newly installed plugin
 
 ```
-cd ../../cli
-```
-
-7.  Run the following command to start if you're using Ubuntu.
-
-```
-./bin/erxes.js dev --bash --deps
-```
-
-Or MacOS
-
-```
-./bin/erxes.js dev --deps
+./bin/erxes.js dev
 ```
 
 ## Configuring UI
 
 ---
 
-### Placing new menu in UI navigation part
+### Running port for plugin
 
-1. Add new block in menu part of `packages/plugin-demo-ui/src/configs.js` file using the foloowing command.
-
-```
- menus: [
-    {
-      text: 'Demos',
-      to: '/demos',
-      image: '/images/icons/erxes-18.svg',
-      location: 'settings',
-      scope: 'demo'
-    },
-
-
-    {
-      text: 'Demo new menu',
-      to: '/demos-new',
-      image: '/images/icons/erxes-18.svg',
-      location: 'mainNavigation',
-      scope: 'demo'
-    }
-  ]
-```
-
-2. Change `packages/plugin-demo-ui/src/routes.tsx` using the following command.
+Inside `packages/plugin-<new_plugin>-ui/src/configs.js`, running port for plugin UI is set as shown below. Default value is 3017. Please note that each plugin has to have its UI running on an unique port. You may need to change the port manually (inside `configs.js`) if developing multiple plugins.
 
 ```
-import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
-import React from 'react';
-import { Route } from 'react-router-dom';
-
-const List = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Demos" */ './containers/List')
-);
-
-const New = asyncComponent(() =>
-  import(/* webpackChunkName: "List - Demos" */ './containers/New')
-);
-
-const demos = ({ history }) => {
-  return <List history={history} />;
+module.exports = {
+  name: 'new_plugin',
+  port: 3017,
+  scope: 'new_plugin',
+  exposes: {
+    './routes': './src/routes.tsx'
+  },
+  routes: {
+    url: 'http://localhost:3017/remoteEntry.js',
+    scope: 'new_plugin',
+    module: './routes'
+  },
+  menus: []
 };
-
-const demoNew = ({ history }) => {
-  return <New />;
-};
-
-const routes = () => {
-  return (
-    <>
-      <Route path="/demos/" component={demos} />;
-      <Route path="/demos-new/" component={demoNew} />;
-    </>
-  );
-};
-
-export default routes;
-
 ```
 
-3. Create `packages/plugin-demo-ui/src/containers/New.tsx` file with following content.
+### Location for plugin
+
+Inside `packages/plugin-<new_plugin>-ui/src/configs.js`, we have a configuration section. The example below places new plugin at the main navigation menu.
 
 ```
-import React from 'react';
-import New from '../components/New';
-
-class NewContainer extends React.Component {
-  render() {
-    return <New {...this.props} />;
+menus: [
+  {
+    text: 'New plugin',
+    url: '/new_plugins',
+    icon: 'icon-star',
+    location: 'mainNavigation',
   }
+]
+```
+
+If you want to place it only inside settings, example is illustrated below.
+
+```
+menus: [
+  {
+    text: 'New plugin',
+    to: '/new_plugins',
+    image: '/images/icons/erxes-18.svg',
+    location: 'settings',
+    scope: 'new_plugin'
+  }
+]
+```
+
+### Enabling plugins
+
+"plugins" section inside `cli/configs.json` contains plugin names that run when erxes starts. Please note to configure this section if you decide to enable other plugins, remove or recreate plugins.
+
+```
+{
+ "jwt_token_secret": "token",
+ "dashboard": {},
+ "client_portal_domains": "",
+ "elasticsearch": {},
+ "redis": {
+   "password": ""
+ },
+ "mongo": {
+   "username": "",
+   "password": ""
+ },
+ "rabbitmq": {
+   "cookie": "",
+   "user": "",
+   "pass": "",
+   "vhost": ""
+ },
+ "plugins": [
+   {
+     "name": "logs"
+   },
+   {
+     "name": "new_plugin",
+     "ui": "local"
+   }
+ ]
 }
 
-export default NewContainer;
-```
-
-4. Then run the following command to create your new `packages/plugin-demo-ui/src/components/New.tsx`file.
-
-```
-import React from 'react';
-
-class New extends React.Component {
-  render() {
-    return (
-      <div>New</div>
-    );
-  }
-}
-
-export default New;
-
-```
-
-```
-./bin/erxes.js dev --ignoreRun
 ```
 
 ### Installing dependencies using home brew
 
 1. `redis`
 
-```
+````
+
 brew update
 brew install redis
 brew services start redis
+
 ```
 
 2. `rabbitmq`
 
 ```
+
 brew update
 brew install rabbitmq
 brew services start rabbitmq
+
 ```
 
 3. `mongodb`
 
 ```
+
 brew tap mongodb/brew
 brew update
 brew install mongodb-community@5.0
 brew services start mongodb-community@5.0
+
 ```
 
 Here you have everything in hand to develop your own plugins. If you still have questions, please contact us through **<a href="https://github.com/erxes/erxes/discussionsGithub" target="_blank">our community discussion</a>** or start conversation on **<a href="https://discord.com/invite/aaGzy3gQK5" target="_blank" target="_blank">Discord</a>**! We are happy to help 🤗🤗🤗
+```
+````

@@ -73,9 +73,9 @@ If you choose **Remote** option to install, please add the following code in you
 
 ```
 {
-                “name”: “products”,
-                “ui”: “local”
-            }
+  “name”: “products”,
+  “ui”: “local”
+}
 ```
 
 :::info
