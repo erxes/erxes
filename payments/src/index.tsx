@@ -1,21 +1,23 @@
 import './index.css';
 
 import { ApolloProvider } from '@apollo/client';
-import { render } from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 
+import apolloClient from './apolloClient';
 import PaymentsContainer from './containers/Payments';
 import reportWebVitals from './reportWebVitals';
 
-const apolloClient = require('./apolloClient').default;
+const root = ReactDOM.createRoot(
+  document.getElementById('root') as HTMLElement
+);
 
-render(
+root.render(
   <ApolloProvider client={apolloClient}>
     <Router>
       <PaymentsContainer />
     </Router>
-  </ApolloProvider>,
-  document.querySelector('#root')
+  </ApolloProvider>
 );
 
 reportWebVitals();
