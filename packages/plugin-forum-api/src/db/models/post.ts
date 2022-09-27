@@ -18,6 +18,8 @@ export interface IPost {
   state: PostStates;
   thumbnail?: string | null;
 
+  viewCount: number;
+
   createdAt: Date;
   createdUserType: UserTypes;
   createdById?: string;
@@ -38,6 +40,8 @@ export type PostDocument = IPost & Document;
 
 const OMIT_FROM_INPUT = [
   '_id',
+
+  'viewCount',
 
   'createdUserType',
   'createdAt',
@@ -111,6 +115,8 @@ export const postSchema = new Schema<PostDocument>({
     default: POST_STATES[0]
   },
   thumbnail: String,
+
+  viewCount: { type: Number, default: 0 },
 
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },

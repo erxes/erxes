@@ -167,6 +167,7 @@ const PostDetail: React.FC = () => {
         <button onClick={onClickDelete}>Delete</button>
       </div>
       <hr />
+      <h1>View count: {forumPost.viewCount}</h1>
       <h1>Comments: {forumPost.commentCount}</h1>
       <Comments postId={postId} />
     </div>

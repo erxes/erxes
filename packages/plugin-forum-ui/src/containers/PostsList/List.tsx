@@ -56,6 +56,7 @@ const List: React.FC = () => {
             <th>Comment(s) count</th>
             <th>Up vote count</th>
             <th>Down vote count</th>
+            <th>View count</th>
           </tr>
         </thead>
         <tbody>
@@ -95,6 +96,7 @@ const List: React.FC = () => {
               <td style={{ textAlign: 'right' }}>{p.commentCount}</td>
               <td style={{ textAlign: 'right' }}>{p.upVoteCount}</td>
               <td style={{ textAlign: 'right' }}>{p.downVoteCount}</td>
+              <td style={{ textAlign: 'right' }}>{p.viewCount}</td>
             </tr>
           ))}
         </tbody>

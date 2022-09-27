@@ -8,6 +8,7 @@ export default `
     state: ForumPostState
     commentCount: Int!
 
+    viewCount: Int!
     
     createdUserType: ForumUserType!
     createdAt: Date!

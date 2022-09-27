@@ -86,6 +86,8 @@ export const FORUM_POSTS_QUERY = gql`
       updatedAt
       commentCount
 
+      viewCount
+
       upVoteCount
       downVoteCount
 
@@ -154,6 +156,8 @@ export const FORUM_POST_DETAIL = gql`
       updatedAt
       stateChangedAt
       commentCount
+
+      viewCount
 
       upVoteCount
       downVoteCount

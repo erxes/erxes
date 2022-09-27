@@ -28,7 +28,8 @@ export const buildPostsQuery = async ({ Category }: IModels, params: any) => {
 };
 
 const PostQueries: IObjectTypeResolver<any, IContext> = {
-  forumPost(_, { _id }, { models: { Post } }) {
+  async forumPost(_, { _id }, { models: { Post } }) {
+    await Post.updateOne({ _id }, { $inc: { viewCount: 1 } });
     return Post.findById(_id);
   },
   async forumPosts(_, params, { models }) {
