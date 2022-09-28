@@ -57,7 +57,7 @@ export const qpayToken = async config => {
   }
 };
 
-export const createQpayInvoice = async (data, token: string) => {
+export const createQpayInvoice = async (body, token: string) => {
   const requestOptions = {
     url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}`,
     method: 'POST',
@@ -65,7 +65,7 @@ export const createQpayInvoice = async (data, token: string) => {
       Authorization: 'Bearer ' + token,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(data) as any
+    body
   };
 
   try {

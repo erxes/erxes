@@ -2,7 +2,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 
 import { PAYMENT_TYPES } from '../constants';
 import { graphqlPubsub } from './configs';
-import { generateModels } from './connectionResolver';
+import { generateModels, IModels } from './connectionResolver';
 import { qPayHandler } from './payments/qPay/utils';
 import { socialPayHandler } from './payments/socialPay/utils';
 
@@ -82,4 +82,50 @@ export const makeInvoiceNo = length => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+};
+
+const getModel = (type: string, models: IModels) => {
+  switch (type) {
+    case PAYMENT_TYPES.QPAY:
+      return models.QpayInvoices;
+    case PAYMENT_TYPES.SOCIAL_PAY:
+      return models.SocialPayInvoices;
+  }
+};
+
+export const createInvoice = async (models: IModels, params) => {
+  const {
+    paymentId,
+    amount,
+    description,
+    phone,
+    customerId,
+    companyId,
+    contentType,
+    contentTypeId
+  } = params;
+  const paymentConfig = await models.PaymentConfigs.findOne({
+    _id: paymentId
+  });
+
+  if (!paymentConfig) {
+    throw new Error(`Config not found with id ${paymentId}`);
+  }
+
+  const { config, type } = paymentConfig;
+
+  const data = {
+    config,
+    amount,
+    invoice_description: description,
+    phone,
+    customerId,
+    companyId,
+    contentType,
+    contentTypeId
+  };
+
+  const model: any = getModel(type, models);
+
+  return model.createInvoice(data);
 };

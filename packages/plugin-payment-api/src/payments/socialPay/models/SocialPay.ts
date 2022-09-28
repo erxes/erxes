@@ -97,7 +97,7 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
       };
       const docLast = phone ? { ...doc, phone } : doc;
 
-      const invoiceLog = await models.SocialPayInvoices.socialPayInvoiceCreate(
+      const invoice = await models.SocialPayInvoices.socialPayInvoiceCreate(
         docLast
       );
 
@@ -115,11 +115,6 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
           ? await socialPayInvoicePhone(requestBodyPhone)
           : await socialPayInvoiceQR(requestBody);
 
-        console.log(
-          '*******************************************',
-          invoiceQrData
-        );
-
         const qrText =
           invoiceQrData.body &&
           invoiceQrData.body.response &&
@@ -129,16 +124,14 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
 
         if (qrText) {
           await models.SocialPayInvoices.socialPayInvoiceUpdate(
-            invoiceLog,
+            invoice,
             qrText
           );
         }
+
         return {
           status: 'success',
-          data: {
-            status: 'socialPay success',
-            data: { qr: qrText, invoiceNo }
-          }
+          data: { _id: invoice._id, qr: qrText, invoiceNo }
         };
       } catch (e) {
         throw new Error(e.message);

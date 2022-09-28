@@ -2,6 +2,7 @@ import { requireLogin } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../connectionResolver';
 import { IPaymentConfig } from '../../models/definitions/payments';
+import { createInvoice } from '../../utils';
 
 const paymentConfigMutations = {
   async paymentConfigsAdd(_root, doc: IPaymentConfig, { models }: IContext) {
@@ -43,43 +44,11 @@ const paymentConfigMutations = {
    *  create an invoice
    */
   async createInvoice(_root, params, { models }: IContext) {
-    const {
-      paymentId,
-      amount,
-      description,
-      phone,
-      customerId,
-      companyId,
-      contentType,
-      contentTypeId
-    } = params;
-    const paymentConfig = await models.PaymentConfigs.findOne({
-      _id: paymentId
-    });
+    const res = await createInvoice(models, params);
 
-    if (!paymentConfig) {
-      throw new Error(`Config not found with id ${paymentId}`);
-    }
+    console.log('res', res);
 
-    const { config, type } = paymentConfig;
-
-    const data = {
-      config,
-      amount,
-      invoice_description: description,
-      phone,
-      customerId,
-      companyId,
-      contentType,
-      contentTypeId
-    };
-
-    const response =
-      type.toLowerCase() === 'qpay'
-        ? await models.QpayInvoices.createInvoice(data)
-        : await models.SocialPayInvoices.createInvoice(data);
-
-    return response;
+    return res;
   }
 };
 
