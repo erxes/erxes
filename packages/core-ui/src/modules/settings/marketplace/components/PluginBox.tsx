@@ -16,35 +16,45 @@ import React from 'react';
 import { __ } from 'modules/common/utils';
 
 type Props = {
-  plugin?: any;
+  plugin: any;
+  plugins: any[];
   isAddon?: boolean;
 };
 
 class PluginBox extends React.Component<Props, {}> {
-  renderPrice(price) {
-    if (!price) {
+  renderPrice(prices) {
+    if (!prices) {
       return <b>{__('Free')}</b>;
     }
 
     return (
       <PerPrice>
-        <h2>${price.monthly || 20}</h2>
+        <h2>${prices.monthly || 20}</h2>
         <span>{__('per month')}</span>
       </PerPrice>
     );
   }
 
   renderAddon() {
-    return (
-      <Addon>
-        <img src={'/images/no-plugin.png'} alt="plugin" />
-        {__('Team Inbox')}
-      </Addon>
+    const { dependencies } = this.props.plugin || {};
+
+    const dependentPlugins = this.props.plugins.filter(item =>
+      dependencies.includes(item._id)
     );
+
+    return (dependentPlugins || []).map(dependency => (
+      <Addon key={dependency._id}>
+        <img
+          src={dependency.icon || '/images/no-plugin.png'}
+          alt="dependency-plugin"
+        />
+        {__(dependency.title)}
+      </Addon>
+    ));
   }
 
   renderFooterLeftItems() {
-    const { isAddon } = this.props;
+    const { isAddon, plugin } = this.props;
 
     if (isAddon) {
       return (
@@ -59,7 +69,7 @@ class PluginBox extends React.Component<Props, {}> {
       <>
         <FooterItem>
           <Icon icon="user" size={14} />
-          <span>erxes Inc</span>
+          <span>{plugin.creator || __('erxes Inc')}</span>
         </FooterItem>
         <FooterItem>
           <Icon icon="chart-bar" size={14} />
@@ -85,7 +95,7 @@ class PluginBox extends React.Component<Props, {}> {
                 src={plugin.image || '/images/no-plugin.png'}
                 alt={plugin.title}
               />
-              {this.renderPrice(plugin.price)}
+              {this.renderPrice(plugin.prices)}
             </PluginBoxHeader>
             <h5>{__(plugin.title)}</h5>
             <div

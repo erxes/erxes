@@ -367,6 +367,7 @@ export const Addon = styled.div`
   font-size: 10px;
   font-weight: 700;
   padding: 3px 5px 3px 3px;
+  margin-right: 5px;
 
   > img {
     max-width: 20px;

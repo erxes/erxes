@@ -33,7 +33,7 @@ type State = {
 class Store extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-
+    console.log(props.plugins);
     this.state = {
       plugins: props.plugins || [],
       status: 'All',
@@ -103,9 +103,9 @@ class Store extends React.Component<Props, State> {
     });
   }
 
-  renderPlugins(hasAddon?: boolean) {
+  renderPlugins(type?: string) {
     const { plugins } = this.state;
-    const isAddon = hasAddon ? true : false;
+    const isAddon = type === 'addon' ? true : false;
 
     if (!plugins || plugins.length === 0) {
       return (
@@ -127,7 +127,14 @@ class Store extends React.Component<Props, State> {
         return null;
       }
 
-      return <PluginBox key={index} plugin={plugin} isAddon={isAddon} />;
+      return (
+        <PluginBox
+          key={index}
+          plugin={plugin}
+          isAddon={isAddon}
+          plugins={plugins}
+        />
+      );
     });
   }
 
@@ -232,7 +239,7 @@ class Store extends React.Component<Props, State> {
               'Increase the limits of individual plug-ins depending on your use'
             )}
           </p>
-          <FlexWrapContainer>{this.renderPlugins(true)}</FlexWrapContainer>
+          <FlexWrapContainer>{this.renderPlugins('addon')}</FlexWrapContainer>
         </StoreBlock>
       </Container>
     );

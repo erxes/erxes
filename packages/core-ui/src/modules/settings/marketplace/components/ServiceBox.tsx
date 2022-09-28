@@ -29,20 +29,14 @@ class ServiceBox extends React.Component<Props, {}> {
       return null;
     }
 
-    const { price, description, title } = service || {};
+    const { prices, description, title } = service || {};
 
     return (
       <Service>
         <div>
-          <Price>
-            ${price ? price.oneTime || price.monthly : 0}
-            <span>{__('Per month')}</span>
-          </Price>
+          <Price>${prices ? prices.oneTime || prices.monthly : 0}</Price>
           <h5>{title}</h5>
-          <p>
-            {description} <br />
-            {/* {this.renderSubService(type)} */}
-          </p>
+          <div dangerouslySetInnerHTML={{ __html: description }} />
         </div>
         <ReadMore>
           <span>{__('Read more')}</span> <Icon icon="rightarrow" size={16} />
