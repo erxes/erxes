@@ -15,6 +15,15 @@ const forumPostsQueryParams = `
   ${commonPostsParams}
 `;
 
+export const commentQParams = `
+  _id: [ID!]
+  postId: [ID!]
+  replyToId: [ID]
+  sort: JSON
+  offset: Int
+  limit: Int
+`;
+
 const Query = ` 
   extend type Query {
     forumCategoryByCode(code: String!): ForumCategory
@@ -27,7 +36,8 @@ const Query = `
     forumPosts(${forumPostsQueryParams}): [ForumPost!]
     forumPostsCount(${forumPostsQueryParams}): Int
 
-    forumComments(_id: [ID!], postId: [ID!], replyToId: [ID], offset: Int, limit: Int): [ForumComment!]
+    forumComments(${commentQParams}): [ForumComment!]
+    forumCommentsCount(${commentQParams}): Int
     forumComment(_id: ID!): ForumComment
 
     forumCateogryIsDescendantRelationship(ancestorId: ID!, descendantId: ID!): Boolean

@@ -11,7 +11,8 @@ const Comment: React.FC<{ comment: any; onDeleted?: (string) => any }> = ({
   const [showReplyForm, setShowReplyForm] = useState(false);
   const repliesQuery = useQuery(FORUM_COMMENTS, {
     variables: {
-      replyToId: [comment._id]
+      replyToId: [comment._id],
+      sort: { _id: -1 }
     }
   });
 
