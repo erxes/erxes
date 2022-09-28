@@ -1,10 +1,13 @@
-import { Component } from 'react';
+import { Component } from "react";
+import { IPaymentParams } from "../types";
 
-import PaymentOption from './common/PaymentOption';
+import PaymentOption from "./PaymentOption";
 
 type Props = {
   datas: any[];
-  queryParams?: any;
+  params: IPaymentParams;
+  invoice?: any;
+  onClickInvoiceCreate: (paymentConfigId: string, params: IPaymentParams) => void;
 };
 
 type State = {
@@ -15,7 +18,7 @@ class Dashboard extends Component<Props, State> {
     super(props);
 
     this.state = {
-      show: true,
+      show: true
     };
   }
 
@@ -24,14 +27,18 @@ class Dashboard extends Component<Props, State> {
   };
 
   render() {
-    const { datas, queryParams } = this.props;
+    const { datas, params } = this.props;
     const { show } = this.state;
 
-    return (
-      <div>
-        <PaymentOption show={show} handleClose={this.hideModal} datas={datas} queryParams={queryParams} />
-      </div>
-    );
+    const updatedProps = {
+      ...this.props,
+      show,
+      handleClose: this.hideModal,
+      datas,
+      params
+    };
+
+    return <PaymentOption {...updatedProps} />;
   }
 }
 

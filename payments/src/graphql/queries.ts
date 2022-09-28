@@ -2,8 +2,12 @@ const checkInvoiceQuery = `query checkInvoice($paymentId: String!, $invoiceId: S
   checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
 }`;
 
+const getInvoiceQuery = `query getInvoice($paymentId: String!, $invoiceId: String!) {
+  getInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
+}`;
+
 const paymentConfigs = `
-query paymentConfigs($paymentIds: JSON) {
+query paymentConfigs($paymentIds: [String]) {
   paymentConfigs(paymentIds: $paymentIds) {
     _id
     name
@@ -14,6 +18,6 @@ query paymentConfigs($paymentIds: JSON) {
 }
 `;
 
-const queries = { checkInvoiceQuery, paymentConfigs };
+const queries = { checkInvoiceQuery, paymentConfigs, getInvoiceQuery };
 
 export default queries;

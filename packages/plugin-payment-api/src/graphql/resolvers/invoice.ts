@@ -33,8 +33,6 @@ export default {
   },
 
   async customer(invoice: any, {}, { subdomain }: IContext) {
-    console.log('invoice.customerId:', invoice.customerId);
-
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
@@ -46,8 +44,6 @@ export default {
   },
 
   async company(invoice: any, {}, { subdomain }: IContext) {
-    console.log('invoice.customerId:', invoice.companyId);
-
     const company = await sendContactsMessage({
       subdomain,
       action: 'companies.findOne',

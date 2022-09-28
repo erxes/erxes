@@ -84,7 +84,7 @@ export const makeInvoiceNo = length => {
   return result;
 };
 
-const getModel = (type: string, models: IModels) => {
+export const getModel = (type: string, models: IModels) => {
   switch (type) {
     case PAYMENT_TYPES.QPAY:
       return models.QpayInvoices;

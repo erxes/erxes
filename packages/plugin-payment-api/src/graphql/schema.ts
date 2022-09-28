@@ -61,10 +61,11 @@ export const types = `
 `;
 
 export const queries = `
-  paymentConfigs(paymentIds: JSON): [PaymentConfig]
+  paymentConfigs(paymentIds: [String]): [PaymentConfig]
   paymentConfigsCountByType: PaymentTypeCount
   checkInvoice(paymentId: String!, invoiceId: String!): JSON
-  getPaymentOptions(paymentIds: JSON,amount: Float, customerId: String, companyId: String,contentType: String, contentTypeId: String, description: String, redirectUri:String ): String
+  getInvoice(paymentId: String!, invoiceId: String!): JSON
+  getPaymentOptions(paymentIds: [String],amount: Float, customerId: String, companyId: String,contentType: String, contentTypeId: String, description: String, redirectUri:String ): String
 
   invoices(searchValue: String, page: Int, perPage: Int): [Invoice]
 `;

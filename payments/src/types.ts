@@ -4,16 +4,16 @@ export interface IRouterProps {
   match: any;
 }
 
-export interface IQueryParams {
-  amount: number;
-  description: string;
-  customerId: string;
-  companyId: string;
+export interface IPaymentParams {
   contentType: string;
   contentTypeId: string;
+  amount: number;
+  companyId?: string;
+  customerId?: string;
+  description: string;
+  paymentIds?: string[];
   redirectUri?: string;
 }
-
 
 export type QueryResponse = {
   loading: boolean;
@@ -21,7 +21,8 @@ export type QueryResponse = {
   error?: string;
 };
 
-// export type ActivityLogQueryResponse = {
-//   activityLogs: IActivityLog[];
-//   subscribeToMore: any;
-// } & QueryResponse;
+
+export interface IGetInvoiceQueryParams  {
+  invoiceId:string;
+  paymentId:string;
+}

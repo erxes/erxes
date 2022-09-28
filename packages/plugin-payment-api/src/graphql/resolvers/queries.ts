@@ -3,6 +3,7 @@ import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../connectionResolver';
 import { IPaymentConfigDocument } from '../../models/definitions/payments';
+import { getModel } from '../../utils';
 
 const paymentConfigQueries = {
   async invoices(_root, args, { models }: IContext) {
@@ -67,6 +68,22 @@ const paymentConfigQueries = {
         : await models.SocialPayInvoices.checkInvoice(data);
 
     return response;
+  },
+
+  async getInvoice(
+    _root,
+    { paymentId, invoiceId }: { paymentId: string; invoiceId: string },
+    { models }: IContext
+  ) {
+    const paymentConfig = await models.PaymentConfigs.findOne({
+      _id: paymentId
+    });
+
+    const { type } = paymentConfig || ({} as IPaymentConfigDocument);
+
+    const model: any = getModel(type, models);
+
+    return model.findOne({ _id: invoiceId });
   }
 };
 
