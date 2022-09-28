@@ -1,9 +1,13 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { commonCampaignSchema, ICommonCampaignFields, ICommonCampaignDocument } from './common';
+import {
+  commonCampaignSchema,
+  ICommonCampaignFields,
+  ICommonCampaignDocument
+} from './common';
 
 export interface ILotteryAward extends Document {
-  _id: string,
+  _id: string;
   name: string;
   voucherCampaignId: string;
   count: number;
@@ -14,10 +18,13 @@ export interface ILotteryCampaign extends ICommonCampaignFields {
   numberFormat: string;
   buyScore: number;
 
-  awards: ILotteryAward[]
+  awards: ILotteryAward[];
 }
 
-export interface ILotteryCampaignDocument extends ILotteryCampaign, ICommonCampaignDocument, Document {
+export interface ILotteryCampaignDocument
+  extends ILotteryCampaign,
+    ICommonCampaignDocument,
+    Document {
   _id: string;
 }
 
@@ -30,7 +37,7 @@ const lotteryAwardSchema = new Schema(
     wonLotteryIds: { type: [String], optional: true }
   },
   { _id: false }
-)
+);
 
 export const lotteryCampaignSchema = new Schema({
   ...commonCampaignSchema,

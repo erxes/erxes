@@ -69,7 +69,7 @@ const engageMutations = {
       }
     });
 
-    await send(models, subdomain, engageMessage);
+    await send(models, subdomain, engageMessage, doc.forceCreateConversation);
 
     const logDoc = {
       type: MODULE_ENGAGE,

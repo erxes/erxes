@@ -2,6 +2,14 @@ import * as amqplib from 'amqplib';
 import { v4 as uuid } from 'uuid';
 import { debugError, debugInfo } from './debuggers';
 
+const showInfoDebug = () => {
+  if ((process.env.DEBUG || '').includes('error')) {
+    return false;
+  }
+
+  return true;
+};
+
 let channel;
 let queuePrefix;
 let redisClient;
@@ -45,6 +53,7 @@ export const doesQueueExist = async (
 
 export const consumeQueue = async (queueName, callback) => {
   queueName = queueName.concat(queuePrefix);
+
   debugInfo(`consumeQueue ${queueName}`);
 
   await checkQueueName(queueName);
@@ -94,7 +103,9 @@ export const consumeRPCQueue = async (queueName, callback) => {
 
     channel.consume(queueName, async msg => {
       if (msg !== null) {
-        debugInfo(`Received rpc queue message ${msg.content.toString()}`);
+        if (showInfoDebug()) {
+          debugInfo(`Received rpc queue message ${msg.content.toString()}`);
+        }
 
         let response;
 
@@ -139,9 +150,11 @@ export const sendRPCMessage = async (
     await checkQueueName(queueName, true);
   }
 
-  debugInfo(
-    `Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`
-  );
+  if (showInfoDebug()) {
+    debugInfo(
+      `Sending rpc message ${JSON.stringify(message)} to queue ${queueName}`
+    );
+  }
 
   const response = await new Promise((resolve, reject) => {
     const correlationId = uuid();
@@ -158,16 +171,20 @@ export const sendRPCMessage = async (
             const res = JSON.parse(msg.content.toString());
 
             if (res.status === 'success') {
-              debugInfo(
-                `RPC success response for queue ${queueName} ${JSON.stringify(
-                  res
-                )}`
-              );
+              if (showInfoDebug()) {
+                debugInfo(
+                  `RPC success response for queue ${queueName} ${JSON.stringify(
+                    res
+                  )}`
+                );
+              }
+
               resolve(res.data);
             } else {
               debugInfo(
                 `RPC error response for queue ${queueName} ${res.errorMessage})}`
               );
+
               reject(new Error(res.errorMessage));
             }
 
@@ -197,7 +214,9 @@ export const sendMessage = async (queueName: string, data?: any) => {
   try {
     const message = JSON.stringify(data || {});
 
-    debugInfo(`Sending message ${message} to ${queueName}`);
+    if (showInfoDebug()) {
+      debugInfo(`Sending message ${message} to ${queueName}`);
+    }
 
     await channel.assertQueue(queueName);
     await channel.sendToQueue(queueName, Buffer.from(message));
@@ -206,12 +225,58 @@ export const sendMessage = async (queueName: string, data?: any) => {
   }
 };
 
+function RabbitListener() {}
+
+RabbitListener.prototype.connect = function(RABBITMQ_HOST) {
+  const me = this;
+
+  return new Promise(function(resolve) {
+    amqplib
+      .connect(RABBITMQ_HOST, { noDelay: true })
+      .then(
+        function(conn) {
+          console.log(`Connected to rabbitmq server ${RABBITMQ_HOST}`);
+
+          conn.on('error', me.reconnect.bind(me, RABBITMQ_HOST));
+
+          return conn.createChannel().then(function(chan) {
+            channel = chan;
+            resolve(chan);
+          });
+        },
+        function connectionFailed(err) {
+          console.log('Failed to connect to rabbitmq server', err);
+          me.reconnect(RABBITMQ_HOST);
+        }
+      )
+      .catch(function(error) {
+        console.log('RabbitMQ: ', error);
+      });
+  });
+};
+
+RabbitListener.prototype.reconnect = function(RABBITMQ_HOST) {
+  const reconnectTimeout = 1000 * 60;
+
+  const me = this;
+
+  channel = undefined;
+
+  console.log(
+    `Scheduling reconnect to rabbitmq in ${reconnectTimeout / 1000}s`
+  );
+
+  setTimeout(function() {
+    console.log(`Now attempting reconnect to rabbitmq ...`);
+    me.connect(RABBITMQ_HOST);
+  }, reconnectTimeout);
+};
+
 export const init = async ({ RABBITMQ_HOST, MESSAGE_BROKER_PREFIX, redis }) => {
   redisClient = redis;
 
-  const connection = await amqplib.connect(RABBITMQ_HOST, { noDelay: true });
-
-  channel = await connection.createChannel();
+  const listener = new RabbitListener();
+  await listener.connect(`${RABBITMQ_HOST}?heartbeat=60`);
 
   queuePrefix = MESSAGE_BROKER_PREFIX || '';
 

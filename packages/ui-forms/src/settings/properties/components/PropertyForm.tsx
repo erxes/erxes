@@ -119,7 +119,8 @@ class PropertyForm extends React.Component<Props, State> {
       ...doc,
       currentLocation: { lat: 0, lng: 0 },
       add: false,
-      logics: props.field && props.field.logics ? props.field.logics : []
+      logics: props.field && props.field.logics ? props.field.logics : [],
+      logicAction: props.field && props.field.logicAction
     };
   }
 
@@ -401,9 +402,6 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="file">File</option>
             <option value="customer">Customer</option>
             <option value="map">Location/Map</option>
-            <option value="selectProductCategory">
-              Select Product Category
-            </option>
           </FormControl>
         </FormGroup>
         {this.renderOptions()}

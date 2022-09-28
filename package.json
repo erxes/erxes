@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "private": true,
-  "version": "0.22.3",
+  "version": "0.3.26",
   "workspaces": [
     "packages/*"
   ],
@@ -44,7 +44,8 @@
     "lint": "func () { if [ -z \"$1\" ]; then tslint '@(email-verifier|widgets)/src/**/*.ts?(x)'; else echo \"${1}/src/**/*.ts?(x)\" && tslint ${1}'/src/**/*.ts?(x)'; fi ;}; func",
     "lintp": "func () { if [ -z \"$1\" ]; then tslint 'packages/gateway/src/**/*.ts?(x)'; else echo \"packages/${1}/src/**/*.ts?(x)\" && tslint \"packages/${1}/src/**/*.ts?(x)\"; fi ;}; func",
     "generateVersion": "node commands/generateVersion.js",
-    "release": "release-it"
+    "release": "release-it",
+    "create-release-ci": "node scripts/create-release-ci"
   },
   "devDependencies": {
     "@release-it/conventional-changelog": "^1.1.0",

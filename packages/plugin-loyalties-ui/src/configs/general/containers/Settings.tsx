@@ -44,13 +44,7 @@ class SettingsContainer extends React.Component<FinalProps> {
       configsMap[config.code] = config.value;
     }
 
-    return (
-      <Settings
-        {...this.props}
-        configsMap={configsMap}
-        save={save}
-      />
-    );
+    return <Settings {...this.props} configsMap={configsMap} save={save} />;
   }
 }
 

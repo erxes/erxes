@@ -1,7 +1,7 @@
 import { ICommonDoc } from '../common/types';
 
 export interface ISpinDoc extends ICommonDoc {
-  status: string
+  status: string;
 }
 
 export interface ISpin extends ISpinDoc {

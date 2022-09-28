@@ -1,5 +1,5 @@
-import React from "react";
-import LoyaltySectionContainer from "../loyalties/containers/LoyaltySection";
+import React from 'react';
+import LoyaltySectionContainer from '../loyalties/containers/LoyaltySection';
 
 type Props = {
   id: string;

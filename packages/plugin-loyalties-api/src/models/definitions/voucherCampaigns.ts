@@ -1,6 +1,10 @@
 import { Document, Schema } from 'mongoose';
 import { field } from './utils';
-import { commonCampaignSchema, ICommonCampaignFields, ICommonCampaignDocument } from './common';
+import {
+  commonCampaignSchema,
+  ICommonCampaignFields,
+  ICommonCampaignDocument
+} from './common';
 
 export interface IVoucherCampaign extends ICommonCampaignFields {
   buyScore: number;
@@ -26,7 +30,10 @@ export interface IVoucherCampaign extends ICommonCampaignFields {
   lotteryCount: number;
 }
 
-export interface IVoucherCampaignDocument extends IVoucherCampaign, ICommonCampaignDocument, Document {
+export interface IVoucherCampaignDocument
+  extends IVoucherCampaign,
+    ICommonCampaignDocument,
+    Document {
   _id: string;
 }
 
@@ -53,5 +60,5 @@ export const voucherCampaignSchema = new Schema({
   spinCount: field({ type: Number }),
 
   lotteryCampaignId: field({ type: String }),
-  lotteryCount: field({ type: Number }),
+  lotteryCount: field({ type: Number })
 });

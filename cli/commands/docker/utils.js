@@ -14,7 +14,7 @@ const commonEnvs = configs => {
 
   return {
     ELASTIC_APM_HOST_NAME: configs.elastic_apm_host_name,
-    DEBUG: 'erxes*',
+    DEBUG: configs.debug_level || '*error*',
     NODE_ENV: 'production',
     DOMAIN: configs.domain,
     WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
@@ -94,14 +94,16 @@ const generatePluginBlock = (configs, plugin) => {
 
   if (plugin.replicas) {
     conf.deploy = {
-      replicas: plugin.replicas,
-    }
+      replicas: plugin.replicas
+    };
   }
 
   return conf;
 };
 
 const syncUI = async ({ name, ui_location }) => {
+  const configs = await fse.readJSON(filePath('configs.json'));
+
   const plName = `plugin-${name}-ui`;
 
   if (ui_location) {
@@ -115,8 +117,20 @@ const syncUI = async ({ name, ui_location }) => {
   } else {
     log(`Downloading ${name} ui build.tar from s3`);
 
+    let s3_location = '';
+
+    if (!configs.image_tag) {
+      s3_location = `s3://erxes-plugins/uis/${plName}`;
+    } else {
+      if (configs.image_tag === 'dev') {
+        s3_location = `s3://erxes-dev-plugins/uis/${plName}`;
+      } else {
+        s3_location = `s3://erxes-release-plugins/uis/${plName}/${configs.image_tag}`;
+      }
+    }
+
     await execCommand(
-      `aws s3 sync s3://erxes-plugins/uis/${plName} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
+      `aws s3 sync ${s3_location} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
     );
   }
 
@@ -160,7 +174,7 @@ const deployDbs = async program => {
     dockerComposeConfig.services.mongo = {
       hostname: 'mongo',
       image: 'mongo:4.0.20',
-      ports: ['27017:27017'],
+      ports: ['0.0.0.0:27017:27017'],
       environment: {
         MONGO_INITDB_ROOT_USERNAME: configs.mongo.username,
         MONGO_INITDB_ROOT_PASSWORD: configs.mongo.password
@@ -170,6 +184,33 @@ const deployDbs = async program => {
       command: ['--replSet', 'rs0', '--bind_ip_all'],
       extra_hosts: ['mongo:127.0.0.1']
     };
+  }
+
+  if (configs.mongo.replication) {
+    if (!(await fse.exists(filePath(`mongo-key`)))) {
+      log('mongo-key file not found ....', 'red');
+
+      return log(
+        `Create this file using
+          openssl rand -base64 756 > <path-to-keyfile>
+          chmod 400 <path-to-keyfile>
+          chmod 999:999 <path-to-keyfile>
+      `,
+        'red'
+      );
+    }
+
+    dockerComposeConfig.services.mongo.volumes.push(
+      './mongo-key:/etc/mongodb/keys/mongo-key'
+    );
+    dockerComposeConfig.services.mongo.command.push('--keyFile');
+    dockerComposeConfig.services.mongo.command.push(
+      '/etc/mongodb/keys/mongo-key'
+    );
+    dockerComposeConfig.services.mongo.extra_hosts = [
+      `mongo:${configs.db_server_address}`,
+      `mongo-secondary:${configs.secondary_server_address}`
+    ];
   }
 
   if (configs.elasticsearch) {
@@ -257,8 +298,7 @@ const up = async ({ uis, fromInstaller }) => {
   const widgets = configs.widgets || {};
   const dashboard = configs.dashboard;
   const widgets_domain = widgets.domain || `${domain}/widgets`;
-  const dashboard_domain = `${domain}/dashboard/front`;
-  const dashboard_api_domain = `${domain}/dashboard/api`;
+  const dashboard_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
 
   const NGINX_HOST = domain.replace('https://', '');
@@ -368,7 +408,7 @@ const up = async ({ uis, fromInstaller }) => {
         networks: ['erxes']
       },
       essyncer: {
-        image: `erxes/erxes-essyncer:${image_tag}`,
+        image: `erxes/essyncer:${image_tag}`,
         environment: {
           ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
           MONGO_URL: mongoEnv(configs)
@@ -382,7 +422,7 @@ const up = async ({ uis, fromInstaller }) => {
 
   if (configs.widgets) {
     dockerComposeConfig.services.widgets = {
-      image: `erxes/erxes-widgets:${image_tag}`,
+      image: `erxes/widgets:${image_tag}`,
       environment: {
         PORT: '3200',
         ROOT_URL: widgets_domain,
@@ -395,35 +435,24 @@ const up = async ({ uis, fromInstaller }) => {
   }
 
   if (dashboard) {
-    dockerComposeConfig.services['dashboard-api'] = {
-      image: 'erxes/erxes-dashboard-api:develop',
+    dockerComposeConfig.services.dashboard = {
+      image: `erxes/dashboard:${image_tag}`,
       ports: ['4300:80'],
       environment: {
         PORT: '80',
-        CUBEJS_DB_TYPE: 'elasticsearch',
-        CUBEJS_DB_URL: `http://${db_server_address || 'elasticsearch'}:9200`,
-        CUBEJS_URL: dashboard_api_domain,
+        CUBEJS_DB_TYPE: 'mongobi',
+        CUBEJS_DB_HOST: `${dashboard.dashboard_db_host || 'mongosqld'}`,
+        CUBEJS_DB_PORT: `${dashboard.dashboard_db_port || '3307'}`,
+
+        CUBEJS_URL: dashboard_domain,
         CUBEJS_TOKEN: dashboard.api_token,
         CUBEJS_API_SECRET: dashboard.api_secret,
         REDIS_URL: `redis://${db_server_address || 'redis'}:6379`,
         REDIS_PASSWORD: configs.redis.password || '',
-        DB_NAME: configs.mongo.db_name || 'erxes'
+        ...(dashboard.extra_env || {})
       },
       volumes: ['./enabled-services.js:/data/enabled-services.js'],
       extra_hosts,
-      networks: ['erxes']
-    };
-
-    dockerComposeConfig.services['dashboard-front'] = {
-      image: 'erxes/erxes-dashboard-front:develop',
-      ports: ['4200:80'],
-      environment: {
-        REACT_APP_API_URL: gateway_url,
-        REACT_APP_API_SUBSCRIPTION_URL: subscription_url,
-        REACT_APP_DASHBOARD_API_URL: `https://${NGINX_HOST}/dashboard/api`,
-        REACT_APP_DASHBOARD_API_TOKEN: configs.dashboard.api_token,
-        NGINX_HOST
-      },
       networks: ['erxes']
     };
   }
@@ -435,26 +464,33 @@ const up = async ({ uis, fromInstaller }) => {
 
     if (!fromInstaller) {
       await execCommand(`cd installer && npm run pm2 delete all`, true);
-      await execCommand(`cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`);
+      await execCommand(
+        `cd installer && RABBITMQ_HOST=${RABBITMQ_HOST} npm run pm2 start index.js`
+      );
     }
   }
 
-  log('Downloading pluginsMap.js from s3 ....');
+  let pluginsMapLocation =
+    'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
 
-  await execCurl(
-    'https://erxes-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js',
-    'pluginsMap.js'
-  );
+  if (configs.image_tag) {
+    if (configs.image_tag === 'dev') {
+      pluginsMapLocation =
+        'https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/pluginsMap.js';
+    } else {
+      pluginsMapLocation = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/${image_tag}/pluginsMap.js`;
+    }
+  }
+
+  log(`Downloading pluginsMap.js from ${pluginsMapLocation} ....`);
+  await execCurl(pluginsMapLocation, 'pluginsMap.js');
 
   const pluginsMap = require(filePath('pluginsMap.js'));
 
   if (configs.private_plugins_map) {
     log('Downloading private plugins map ....');
 
-    await execCurl(
-      configs.private_plugins_map,
-      'privatePluginsMap.js'
-    );
+    await execCurl(configs.private_plugins_map, 'privatePluginsMap.js');
 
     log('Merging plugin maps ....');
 
@@ -606,10 +642,12 @@ const up = async ({ uis, fromInstaller }) => {
 
   const commonParams = `
     proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Server $host;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
     proxy_http_version 1.1;
   `;
 
@@ -645,11 +683,6 @@ const up = async ({ uis, fromInstaller }) => {
                 proxy_pass http://127.0.0.1:4300/;
                 ${commonConfig}
             }
-
-            location /dashboard/front {
-                proxy_pass http://127.0.0.1:4200/;
-                ${commonConfig}
-            }
     }
   `
   );
@@ -673,14 +706,7 @@ const update = async ({ serviceNames, noimage, uis }) => {
     if (!noimage) {
       log(`Updating image ${name}......`);
 
-      if (['crons', 'dashboard-front', 'gateway', 'client-portal'].includes(name)) {
-        await execCommand(
-          `docker service update erxes_${name} --image erxes/${name}:${image_tag}`
-        );
-        continue;
-      }
-
-      if (name === 'dashboard-api') {
+      if (['crons', 'dashboard', 'gateway', 'client-portal'].includes(name)) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:${image_tag}`
         );
@@ -689,14 +715,14 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (name === 'coreui') {
         await execCommand(
-          `docker service update erxes_coreui --image erxes/erxes:federation`
+          `docker service update erxes_coreui --image erxes/erxes:${image_tag}`
         );
         continue;
       }
 
       if (name === 'widgets') {
         await execCommand(
-          `docker service update erxes_widgets --image erxes/erxes-widgets:federation`
+          `docker service update erxes_widgets --image erxes/widgets:${image_tag}`
         );
         continue;
       }
@@ -717,7 +743,9 @@ const update = async ({ serviceNames, noimage, uis }) => {
 
       if (pluginConfig) {
         const tag = pluginConfig.image_tag || configs.image_tag || 'federation';
-        const registry = pluginConfig.registry ? `${pluginConfig.registry}/` : '';
+        const registry = pluginConfig.registry
+          ? `${pluginConfig.registry}/`
+          : '';
 
         await execCommand(
           `docker service update erxes_plugin_${name}_api --image ${registry}erxes/plugin-${name}-api:${tag} --with-registry-auth`
@@ -751,7 +779,7 @@ const restart = async name => {
 
   log(`Restarting .... ${name}`);
 
-  if (['gateway', 'coreui', 'workers', 'crons'].includes(name)) {
+  if (['gateway', 'coreui', 'crons'].includes(name)) {
     await execCommand(`docker service update --force erxes_${name}`);
     return;
   }
@@ -817,9 +845,146 @@ module.exports.up = program => {
   return up({ uis: program.uis });
 };
 
-module.exports.deployDbs = deployDbs;
+const dumpDb = async program => {
+  if (process.argv.length < 4) {
+    return console.log('Pass db name !!!');
+  }
 
-module.exports.update = (program) => {
+  const dbName = process.argv[3];
+
+  const configs = await fse.readJSON(filePath('configs.json'));
+
+  await execCommand(
+    `docker ps --format "{{.Names}}" | grep mongo > docker-mongo-name.txt`
+  );
+  const dockerMongoName = fs
+    .readFileSync('docker-mongo-name.txt')
+    .toString()
+    .replace('\n', '');
+
+  log('Running mongodump ....');
+  await execCommand(
+    `docker exec ${dockerMongoName} mongodump -u ${configs.mongo.username} -p ${configs.mongo.password} --authenticationDatabase admin --db ${dbName}`
+  );
+
+  if (program.copydump) {
+    log('Copying dump ....');
+    await execCommand(`docker cp ${dockerMongoName}:/dump .`);
+
+    log('Compressing dump ....');
+    await execCommand(`tar -cf dump.tar dump`);
+
+    log('Removing dump from container ....');
+    await execCommand(`docker exec ${dockerMongoName} rm -rf dump`);
+
+    log('Removing uncompressed dump folder ....');
+    await execCommand(`rm -rf dump`);
+  }
+};
+
+const deployMongoBi = async program => {
+  let configs = {};
+
+  try {
+    configs = await fse.readJSON(filePath('dashboard-configs.json'));
+  } catch (e) {
+    return log('dashboard-configs.json file not found');
+  }
+
+  log(`
+    Do not forget to add following lines in dashboard.extra_envs section of the configs.json in app server
+
+    CUBEJS_DB_SSL: "true",
+    CUBEJS_DB_SSL_REJECT_UNAUTHORIZED: "false",
+    CUBEJS_DB_USER: "${configs.mongo_username}",
+    CUBEJS_DB_PASS: "${configs.mongo_password}"
+  `);
+
+  if (!(await fse.exists(filePath(`mongo.pem`)))) {
+    log('mongo.pem file not found. creating new one ....');
+    await execCommand(
+      'openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem --batch'
+    );
+    await execCommand('cat key.pem certificate.pem > mongo.pem');
+  }
+
+  if (!(await fse.exists(filePath(`mongo-key`)))) {
+    log('mongo-key file not found ....', 'red');
+
+    return log(
+      `Create this file using
+        openssl rand -base64 756 > <path-to-keyfile>
+        chmod 400 <path-to-keyfile>
+        chmod 999:999 <path-to-keyfile>
+        on primary mongo server then it here
+    `,
+      'red'
+    );
+  }
+
+  const dockerComposeConfig = {
+    version: '2.1',
+    networks: {
+      erxes: {
+        driver: 'bridge'
+      }
+    },
+    services: {}
+  };
+
+  dockerComposeConfig.services.mongo = {
+    hostname: 'mongo-secondary',
+    image: 'mongo:4.0.20',
+    ports: ['0.0.0.0:27017:27017'],
+    environment: {
+      MONGO_INITDB_ROOT_USERNAME: configs.mongo_username,
+      MONGO_INITDB_ROOT_PASSWORD: configs.mongo_password
+    },
+    networks: ['erxes'],
+    volumes: [
+      './mongodata:/data/db',
+      './mongo-key:/etc/mongodb/keys/mongo-key'
+    ],
+    command: [
+      '--replSet',
+      'rs0',
+      '--bind_ip_all',
+      '--keyFile',
+      '/etc/mongodb/keys/mongo-key'
+    ],
+    extra_hosts: [
+      `mongo:${configs.primary_server_ip}`,
+      `mongo-secondary: ${configs.server_ip}`
+    ]
+  };
+
+  dockerComposeConfig.services['mongo-bi-connector'] = {
+    image: 'erxes/mongobi-connector:dev',
+    container_name: 'mongosqld',
+    ports: ['3307:3307'],
+    environment: {
+      MONGODB_HOST: 'mongo-secondary',
+      MONGO_USERNAME: configs.mongo_username,
+      MONGO_PASSWORD: configs.mongo_password
+    },
+    networks: ['erxes'],
+    volumes: ['./mongo.pem:/mongosqld/mongo.pem']
+  };
+
+  const yamlString = yaml.stringify(dockerComposeConfig);
+
+  log('Generating docker-compose.yml ....');
+  fs.writeFileSync(filePath('docker-compose.yml'), yamlString);
+
+  log('Deploy ......');
+  await execCommand(`docker-compose up -d`);
+};
+
+module.exports.deployDbs = deployDbs;
+module.exports.dumpDb = dumpDb;
+module.exports.deployMongoBi = deployMongoBi;
+
+module.exports.update = program => {
   if (process.argv.length < 4) {
     return console.log('Pass service names !!!');
   }

@@ -94,3 +94,8 @@ export const PHONE_VALIDATION_STATUSES = [
   { label: 'Unverifiable', value: 'unverifiable' },
   { label: 'Mobile phone', value: 'receives_sms' }
 ];
+
+export const CUSTOMER_STATE_OPTIONS = [
+  { label: 'Customer', value: 'customer' },
+  { label: 'Lead', value: 'lead' }
+];

@@ -1,35 +1,30 @@
 const { tableSchema } = require('../tablePrefix');
 
 cube(`Channels`, {
-  sql: `SELECT * FROM ${tableSchema()}__channels`,
+  sql: `SELECT * FROM ${tableSchema()}.channels`,
 
   joins: {},
 
   measures: {
     count: {
       type: `count`,
-      drillMembers: [integrationids, memberids, name, userid, createdDate]
+      drillMembers: [name, userid, createdat]
+    },
+
+    conversationcount: {
+      sql: `${CUBE}.\`conversationCount\``,
+      type: `sum`
+    },
+
+    openconversationcount: {
+      sql: `${CUBE}.\`openConversationCount\``,
+      type: `sum`
     }
   },
 
   dimensions: {
-    conversationcount: {
-      sql: `${CUBE}."conversationCount"`,
-      type: `string`
-    },
-
     description: {
       sql: `description`,
-      type: `string`
-    },
-
-    integrationids: {
-      sql: `${CUBE}."integrationIds"`,
-      type: `string`
-    },
-
-    memberids: {
-      sql: `${CUBE}."memberIds"`,
       type: `string`
     },
 
@@ -38,18 +33,13 @@ cube(`Channels`, {
       type: `string`
     },
 
-    openconversationcount: {
-      sql: `${CUBE}."openConversationCount"`,
-      type: `string`
-    },
-
     userid: {
-      sql: `${CUBE}."userId"`,
+      sql: `${CUBE}.\`userId\``,
       type: `string`
     },
 
-    createdDate: {
-      sql: `${CUBE}."createdAt"`,
+    createdat: {
+      sql: `${CUBE}.\`createdAt\``,
       type: `time`
     }
   }

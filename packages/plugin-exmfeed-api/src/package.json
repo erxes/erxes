@@ -1,9 +1,0 @@
-{
-  "name": "erxes-npm-package",
-  "version": "0.0.1",
-  "main": "ui/index.js",
-  "dependencies": {
-    "erxes-api-utils": "^0.0.39",
-    "moment": "^2.18.1"
-  }
-}

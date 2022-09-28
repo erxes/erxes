@@ -3,7 +3,7 @@ import EmptyState from './EmptyState';
 import FormControl from './form/Control';
 import Icon from './Icon';
 import ModalTrigger from './ModalTrigger';
-import { isEnabled, __ } from '../utils/core';
+import { __ } from '../utils/core';
 import React from 'react';
 import { ActionTop, Column, Columns, Footer, Title } from '../styles/chooser';
 import { CenterContent, ModalFooter } from '../styles/main';

@@ -1,313 +1,506 @@
 name: Publish Release
-
 on:
   push:
     tags:
-      - '*'
-
+      - "*"
 jobs:
   release:
     runs-on: ubuntu-18.04
-
-    services:
-      mongodb:
-        image: mongo:4.0
-        ports:
-          - 27017:27017
-
     steps:
       - uses: actions/checkout@v2
-
-      - name: Use Node.js 12.19.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.19.x
-
       - name: Get release version
         id: get_release_version
         run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
-
-      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      - name: erxes
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Main - Install dependencies
-        run: |
-          yarn install
+          docker image pull erxes/erxes:dev 
 
-      - name: Api - Install dependencies
-        run: |
-          cd api
-          yarn install --frozen-lockfile
+          docker tag erxes/erxes:dev erxes/erxes:${GITHUB_REF#refs/tags/} 
 
-      - name: Api - Lint
-        run: |
-          yarn lint api
+          docker push erxes/erxes:${GITHUB_REF#refs/tags/} 
+      - name: core
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Api - Tsc
-        run: |
-          cd api
-          yarn tsc -p tsconfig.prod.json
+          docker image pull erxes/core:dev 
 
-      - name: Api - Build
-        run: |
-          cd api
-          rm -rf node_modules
-          yarn install --frozen-lockfile --production
-          yarn build
+          docker tag erxes/core:dev erxes/core:${GITHUB_REF#refs/tags/} 
 
-      - name: Api - Build docker image
-        env:
-          BASE_IMAGE: erxes/erxes-api:base-12.19.1-slim
-        run: |
-          cd api
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes-api:${GITHUB_REF#refs/tags/} -t erxes/erxes-api:latest -f api.Dockerfile .
-          docker push erxes/erxes-api:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-api:latest
+          docker push erxes/core:${GITHUB_REF#refs/tags/} 
+      - name: gateway
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: elkSyncer - Build docker image
-        run: |
-          cd elkSyncer
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/} -t erxes/erxes-elksyncer:latest -f Dockerfile .
-          docker push erxes/erxes-elksyncer:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-elksyncer:latest
+          docker image pull erxes/gateway:dev 
 
-      - name: Email Verifier - Install dependencies
-        run: |
-          cd email-verifier
-          yarn install --frozen-lockfile --production
+          docker tag erxes/gateway:dev erxes/gateway:${GITHUB_REF#refs/tags/} 
 
-      - name: Email Verifier - Build
-        run: |
-          cd email-verifier
-          yarn build
+          docker push erxes/gateway:${GITHUB_REF#refs/tags/} 
+      - name: crons
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Email Verifier - Build docker image
-        run: |
-          cd email-verifier
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/} -t erxes/erxes-email-verifier:latest -f Dockerfile .
-          docker push erxes/erxes-email-verifier:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-email-verifier:latest
+          docker image pull erxes/crons:dev 
 
-      - name: Engages - Install dependencies
-        run: |
-          cd engages-email-sender
-          yarn install --frozen-lockfile --production
+          docker tag erxes/crons:dev erxes/crons:${GITHUB_REF#refs/tags/} 
 
-      - name: Engages - Build
-        run: |
-          cd engages-email-sender
-          yarn build
+          docker push erxes/crons:${GITHUB_REF#refs/tags/} 
+      - name: workers
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Engages - Build docker image
-        run: |
-          cd engages-email-sender
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/} -t erxes/erxes-engages-email-sender:latest -f Dockerfile .
-          docker push erxes/erxes-engages-email-sender:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-engages-email-sender:latest
+          docker image pull erxes/workers:dev 
 
-      - name: Logger - Install dependencies
-        run: |
-          cd logger
-          yarn install --frozen-lockfile --production
+          docker tag erxes/workers:dev erxes/workers:${GITHUB_REF#refs/tags/} 
 
-      - name: Logger - Build
-        run: |
-          cd logger
-          yarn build
+          docker push erxes/workers:${GITHUB_REF#refs/tags/} 
+      - name: essyncer
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Logger - Build docker image
-        run: |
-          cd logger
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-logger:${GITHUB_REF#refs/tags/} -t erxes/erxes-logger:latest -f Dockerfile .
-          docker push erxes/erxes-logger:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-logger:latest
+          docker image pull erxes/essyncer:dev 
 
-      - name: Integrations - Install dependencies
-        run: |
-          cd integrations
-          yarn install --frozen-lockfile
+          docker tag erxes/essyncer:dev erxes/essyncer:${GITHUB_REF#refs/tags/} 
 
-      - name: Integrations - Lint
-        run: |
-          yarn lint integrations
+          docker push erxes/essyncer:${GITHUB_REF#refs/tags/} 
+      - name: widgets
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Integrations - Test
-        run: |
-          cd integrations
-          yarn test
-        env:
-          TEST_MONGO_URL: mongodb://localhost/test
-          GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID
-          GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET
-          ENCRYPTION_KEY: aksljdklwjdaklsjdkwljaslkdjwkljd
-          DOMAIN: http://localhost:3400
-          MAIN_APP_DOMAIN: http://localhost:3400
+          docker image pull erxes/widgets:dev 
 
-      - name: Integrations - Build
-        run: |
-          cd integrations
-          rm -rf node_modules
-          yarn install --frozen-lockfile --production
-          yarn build
+          docker tag erxes/widgets:dev erxes/widgets:${GITHUB_REF#refs/tags/} 
 
-      - name: Integrations - Build docker image
-        run: |
-          cd integrations
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-integrations:${GITHUB_REF#refs/tags/} -t erxes/erxes-integrations:latest -f Dockerfile .
-          docker push erxes/erxes-integrations:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-integrations:latest
+          docker push erxes/widgets:${GITHUB_REF#refs/tags/} 
+      - name: client-portal
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: UI - Install dependencies
-        run: |
-          cd ui
-          yarn install --frozen-lockfile
+          docker image pull erxes/client-portal:dev 
 
-      - name: UI - Lint
-        run: |
-          yarn lint ui
+          docker tag erxes/client-portal:dev erxes/client-portal:${GITHUB_REF#refs/tags/} 
 
-      - name: UI - Tsc
-        run: |
-          cd ui
-          yarn tsc
+          docker push erxes/client-portal:${GITHUB_REF#refs/tags/} 
+      - name: plugin-inbox-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: UI - Build
-        run: |
-          cd ui
-          rm -rf node_modules
-          rm -rf src/__tests__
-          rm src/setupTests.ts
-          yarn install --frozen-lockfile --production
-          yarn build
+          docker image pull erxes/plugin-inbox-api:dev 
 
-      - name: UI - Build docker image
-        env:
-          BASE_IMAGE: erxes/erxes:base-1.18-alpine
-        run: |
-          cd ui
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/tags/} -t erxes/erxes:latest -f ui.Dockerfile .
-          docker push erxes/erxes:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes:latest
+          docker tag erxes/plugin-inbox-api:dev erxes/plugin-inbox-api:${GITHUB_REF#refs/tags/} 
 
-      - name: Widgets - Install dependencies
-        run: |
-          cd widgets
-          yarn install --frozen-lockfile
+          docker push erxes/plugin-inbox-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-automations-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Widgets - Lint
-        run: |
-          yarn lint widgets
+          docker image pull erxes/plugin-automations-api:dev 
 
-      - name: Widgets - Build
-        run: |
-          cd widgets
-          rm -rf node_modules
-          yarn install --frozen-lockfile --production
-          yarn build
+          docker tag erxes/plugin-automations-api:dev erxes/plugin-automations-api:${GITHUB_REF#refs/tags/} 
 
-      - name: Widgets - Build docker image
-        run: |
-          cd widgets
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-widgets:${GITHUB_REF#refs/tags/} -t erxes/erxes-widgets:latest -f Dockerfile .
-          docker push erxes/erxes-widgets:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-widgets:latest
+          docker push erxes/plugin-automations-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-cards-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Dashobard - UI - Build
-        run: |
-          mkdir dashboard-ui-build-local
-          cd dashboard-ui
-          rm -rf node_modules
-          yarn install --frozen-lockfile --production
-          yarn build-local
-          cd ..
-          cp -r dashboard-ui/build dashboard-ui-build-local
-          cd dashboard-ui
-          rm -rf build
-          yarn build
+          docker image pull erxes/plugin-cards-api:dev 
 
-      - name: Dashobard - UI - Build docker image
-        run: |
-          cd dashboard-ui
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/} -t erxes/erxes-dashboard-front:latest -f Dockerfile .
-          docker push erxes/erxes-dashboard-front:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-dashboard-front:latest
+          docker tag erxes/plugin-cards-api:dev erxes/plugin-cards-api:${GITHUB_REF#refs/tags/} 
 
-      - name: Dashboard - API - Build
-        run: |
-          cd dashboard-api
-          yarn install --frozen-lockfile
+          docker push erxes/plugin-cards-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-chats-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-      - name: Dashobard - API - Build docker image
-        run: |
-          cd dashboard-api
-          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          docker build -t erxes/erxes-dashboard-api:${GITHUB_REF#refs/tags/} -t erxes/erxes-dashboard-api:latest -f Dockerfile .
-          docker push erxes/erxes-dashboard-api:${GITHUB_REF#refs/tags/}
-          docker push erxes/erxes-dashboard-api:latest
+          docker image pull erxes/plugin-chats-api:dev 
 
-      - name: Prepare release assets
-        run: |
-          mkdir build
-          mkdir build-local
+          docker tag erxes/plugin-chats-api:dev erxes/plugin-chats-api:${GITHUB_REF#refs/tags/} 
 
-          rm -rf node_modules
+          docker push erxes/plugin-chats-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-clientportal-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          mv ui/build build/ui
+          docker image pull erxes/plugin-clientportal-api:dev 
 
-          mkdir build/widgets
-          mv widgets/dist widgets/node_modules widgets/locales widgets/static widgets/package.json build/widgets
+          docker tag erxes/plugin-clientportal-api:dev erxes/plugin-clientportal-api:${GITHUB_REF#refs/tags/} 
 
-          mv api/dist build/api
-          mv api/node_modules api/package.json build/api
+          docker push erxes/plugin-clientportal-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-contacts-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          mv email-verifier/dist build/email-verifier
-          mv email-verifier/node_modules email-verifier/package.json build/email-verifier
+          docker image pull erxes/plugin-contacts-api:dev 
 
-          mv engages-email-sender/dist build/engages
-          mv engages-email-sender/node_modules engages-email-sender/package.json build/engages
+          docker tag erxes/plugin-contacts-api:dev erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/} 
 
-          mv logger/dist build/logger
-          mv logger/node_modules logger/package.json build/logger
+          docker push erxes/plugin-contacts-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-dashboard-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          mv integrations/dist build/integrations
-          mv integrations/node_modules integrations/package.json build/integrations
+          docker image pull erxes/plugin-dashboard-api:dev 
 
-          mv elkSyncer build/elkSyncer
-          mv dashboard-api build/dashboard-api
-          mv dashboard-ui/build build/dashboard-ui
+          docker tag erxes/plugin-dashboard-api:dev erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/} 
 
-          cp -a build/. build-local
-          rm -rf build-local/dashboard-ui
-          mv dashboard-ui-build-local/build build-local/dashboard-ui
+          docker push erxes/plugin-dashboard-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-ebarimt-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
 
-          tar -zcf erxes-${GITHUB_REF#refs/tags/}.tar.gz build
-          tar -zcf erxes-${GITHUB_REF#refs/tags/}-local.tar.gz build-local
+          docker image pull erxes/plugin-ebarimt-api:dev 
 
-      - name: Upload release assets
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            erxes-${{ steps.get_release_version.outputs.VERSION }}.tar.gz
-            erxes-${{ steps.get_release_version.outputs.VERSION }}-local.tar.gz
-          name: Release ${{ steps.get_release_version.outputs.VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          docker tag erxes/plugin-ebarimt-api:dev erxes/plugin-ebarimt-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-ebarimt-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-emailtemplates-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-emailtemplates-api:dev 
+
+          docker tag erxes/plugin-emailtemplates-api:dev erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-emailtemplates-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-engages-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-engages-api:dev 
+
+          docker tag erxes/plugin-engages-api:dev erxes/plugin-engages-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-engages-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-exm-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-exm-api:dev 
+
+          docker tag erxes/plugin-exm-api:dev erxes/plugin-exm-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-exm-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-exmfeed-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-exmfeed-api:dev 
+
+          docker tag erxes/plugin-exmfeed-api:dev erxes/plugin-exmfeed-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-exmfeed-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-forms-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-forms-api:dev 
+
+          docker tag erxes/plugin-forms-api:dev erxes/plugin-forms-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-forms-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-integrations-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-integrations-api:dev 
+
+          docker tag erxes/plugin-integrations-api:dev erxes/plugin-integrations-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-integrations-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-internalnotes-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-internalnotes-api:dev 
+
+          docker tag erxes/plugin-internalnotes-api:dev erxes/plugin-internalnotes-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-internalnotes-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-knowledgebase-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-knowledgebase-api:dev 
+
+          docker tag erxes/plugin-knowledgebase-api:dev erxes/plugin-knowledgebase-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-knowledgebase-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-logs-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-logs-api:dev 
+
+          docker tag erxes/plugin-logs-api:dev erxes/plugin-logs-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-logs-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-loyalties-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-loyalties-api:dev 
+
+          docker tag erxes/plugin-loyalties-api:dev erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-loyalties-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-notifications-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-notifications-api:dev 
+
+          docker tag erxes/plugin-notifications-api:dev erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-notifications-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-webhooks-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-webhooks-api:dev 
+
+          docker tag erxes/plugin-webhooks-api:dev erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-webhooks-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-pos-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-pos-api:dev 
+
+          docker tag erxes/plugin-pos-api:dev erxes/plugin-pos-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-pos-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-products-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-products-api:dev 
+
+          docker tag erxes/plugin-products-api:dev erxes/plugin-products-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-products-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-qpay-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-qpay-api:dev 
+
+          docker tag erxes/plugin-qpay-api:dev erxes/plugin-qpay-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-qpay-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-reactions-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-reactions-api:dev 
+
+          docker tag erxes/plugin-reactions-api:dev erxes/plugin-reactions-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-reactions-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-segments-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-segments-api:dev 
+
+          docker tag erxes/plugin-segments-api:dev erxes/plugin-segments-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-segments-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-syncerkhet-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-syncerkhet-api:dev 
+
+          docker tag erxes/plugin-syncerkhet-api:dev erxes/plugin-syncerkhet-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-syncerkhet-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-tags-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-tags-api:dev 
+
+          docker tag erxes/plugin-tags-api:dev erxes/plugin-tags-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-tags-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-salesplans-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-salesplans-api:dev 
+
+          docker tag erxes/plugin-salesplans-api:dev erxes/plugin-salesplans-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-salesplans-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-processes-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-processes-api:dev 
+
+          docker tag erxes/plugin-processes-api:dev erxes/plugin-processes-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-processes-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-inventories-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-inventories-api:dev 
+
+          docker tag erxes/plugin-inventories-api:dev erxes/plugin-inventories-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-inventories-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-posclient-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-posclient-api:dev 
+
+          docker tag erxes/plugin-posclient-api:dev erxes/plugin-posclient-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-posclient-api:${GITHUB_REF#refs/tags/} 
+      - name: plugin-webbuilder-api
+        run: >
+          echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{
+          secrets.DOCKERHUB_USERNAME }} --password-stdin 
+
+          docker image pull erxes/plugin-webbuilder-api:dev 
+
+          docker tag erxes/plugin-webbuilder-api:dev erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/} 
+
+          docker push erxes/plugin-webbuilder-api:${GITHUB_REF#refs/tags/} 
+      - name: inbox ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-inbox-ui
+          s3://erxes-release-plugins/uis/plugin-inbox-ui/${GITHUB_REF#refs/tags/}/
+      - name: automations ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-automations-ui
+          s3://erxes-release-plugins/uis/plugin-automations-ui/${GITHUB_REF#refs/tags/}/
+      - name: calendar ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-calendar-ui
+          s3://erxes-release-plugins/uis/plugin-calendar-ui/${GITHUB_REF#refs/tags/}/
+      - name: cards ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-cards-ui
+          s3://erxes-release-plugins/uis/plugin-cards-ui/${GITHUB_REF#refs/tags/}/
+      - name: chats ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-chats-ui
+          s3://erxes-release-plugins/uis/plugin-chats-ui/${GITHUB_REF#refs/tags/}/
+      - name: clientportal ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-clientportal-ui
+          s3://erxes-release-plugins/uis/plugin-clientportal-ui/${GITHUB_REF#refs/tags/}/
+      - name: contacts ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-contacts-ui
+          s3://erxes-release-plugins/uis/plugin-contacts-ui/${GITHUB_REF#refs/tags/}/
+      - name: dashboard ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-dashboard-ui
+          s3://erxes-release-plugins/uis/plugin-dashboard-ui/${GITHUB_REF#refs/tags/}/
+      - name: ebarimt ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-ebarimt-ui
+          s3://erxes-release-plugins/uis/plugin-ebarimt-ui/${GITHUB_REF#refs/tags/}/
+      - name: emailtemplates ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-emailtemplates-ui
+          s3://erxes-release-plugins/uis/plugin-emailtemplates-ui/${GITHUB_REF#refs/tags/}/
+      - name: engages ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-engages-ui
+          s3://erxes-release-plugins/uis/plugin-engages-ui/${GITHUB_REF#refs/tags/}/
+      - name: exm ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-exm-ui
+          s3://erxes-release-plugins/uis/plugin-exm-ui/${GITHUB_REF#refs/tags/}/
+      - name: exmfeed ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-exmfeed-ui
+          s3://erxes-release-plugins/uis/plugin-exmfeed-ui/${GITHUB_REF#refs/tags/}/
+      - name: forms ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-forms-ui
+          s3://erxes-release-plugins/uis/plugin-forms-ui/${GITHUB_REF#refs/tags/}/
+      - name: knowledgebase ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-knowledgebase-ui
+          s3://erxes-release-plugins/uis/plugin-knowledgebase-ui/${GITHUB_REF#refs/tags/}/
+      - name: logs ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-logs-ui
+          s3://erxes-release-plugins/uis/plugin-logs-ui/${GITHUB_REF#refs/tags/}/
+      - name: loyalties ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-loyalties-ui
+          s3://erxes-release-plugins/uis/plugin-loyalties-ui/${GITHUB_REF#refs/tags/}/
+      - name: notifications ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-notifications-ui
+          s3://erxes-release-plugins/uis/plugin-notifications-ui/${GITHUB_REF#refs/tags/}/
+      - name: webhooks ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-webhooks-ui
+          s3://erxes-release-plugins/uis/plugin-webhooks-ui/${GITHUB_REF#refs/tags/}/
+      - name: pos ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-pos-ui
+          s3://erxes-release-plugins/uis/plugin-pos-ui/${GITHUB_REF#refs/tags/}/
+      - name: products ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-products-ui
+          s3://erxes-release-plugins/uis/plugin-products-ui/${GITHUB_REF#refs/tags/}/
+      - name: qpay ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-qpay-ui
+          s3://erxes-release-plugins/uis/plugin-qpay-ui/${GITHUB_REF#refs/tags/}/
+      - name: segments ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-segments-ui
+          s3://erxes-release-plugins/uis/plugin-segments-ui/${GITHUB_REF#refs/tags/}/
+      - name: syncerkhet ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-syncerkhet-ui
+          s3://erxes-release-plugins/uis/plugin-syncerkhet-ui/${GITHUB_REF#refs/tags/}/
+      - name: tags ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-tags-ui
+          s3://erxes-release-plugins/uis/plugin-tags-ui/${GITHUB_REF#refs/tags/}/
+      - name: salesplans ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-salesplans-ui
+          s3://erxes-release-plugins/uis/plugin-salesplans-ui/${GITHUB_REF#refs/tags/}/
+      - name: processes ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-processes-ui
+          s3://erxes-release-plugins/uis/plugin-processes-ui/${GITHUB_REF#refs/tags/}/
+      - name: inventories ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-inventories-ui
+          s3://erxes-release-plugins/uis/plugin-inventories-ui/${GITHUB_REF#refs/tags/}/
+      - name: webbuilder ui
+        run: aws s3 sync s3://erxes-dev-plugins/uis/plugin-webbuilder-ui
+          s3://erxes-release-plugins/uis/plugin-webbuilder-ui/${GITHUB_REF#refs/tags/}/

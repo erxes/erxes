@@ -95,11 +95,17 @@ const customersVerify = `
 `;
 
 const customersChangeVerificationStatus = `
-mutation customersChangeVerificationStatus($customerIds: [String],$type: String!, $status: String!){
-  customersChangeVerificationStatus(customerIds:$customerIds,type:$type,status:$status){
-    _id
+  mutation customersChangeVerificationStatus($customerIds: [String], $type: String!, $status: String!){
+    customersChangeVerificationStatus(customerIds: $customerIds, type: $type, status: $status) {
+      _id
+    }
   }
-}
+`;
+
+const customersChangeStateBulk = `
+  mutation customersChangeStateBulk($_ids: [String]!, $value: String!) {
+    customersChangeStateBulk(_ids: $_ids, value: $value)
+  }
 `;
 
 export default {
@@ -109,5 +115,6 @@ export default {
   customersChangeState,
   customersMerge,
   customersVerify,
-  customersChangeVerificationStatus
+  customersChangeVerificationStatus,
+  customersChangeStateBulk
 };

@@ -1,13 +1,15 @@
-import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
-import Spinner from '@erxes/ui/src/components/Spinner';
+
+import { ChildProps, graphql } from 'react-apollo';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { mutations, queries } from '../../channels/graphql';
+
+import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { ChannelsQueryResponse } from '../../channels/types';
 import React from 'react';
-import { ChildProps, graphql } from 'react-apollo';
 import SelectChannels from '../components/SelectChannels';
+import Spinner from '@erxes/ui/src/components/Spinner';
+import gql from 'graphql-tag';
 
 type Props = {
   onChange: (values: string[]) => void;

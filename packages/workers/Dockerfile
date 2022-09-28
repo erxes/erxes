@@ -1,4 +1,4 @@
-FROM node:12.19-alpine
+FROM node:14.20-alpine
 WORKDIR /workers
 RUN chown -R node:node /workers \
  && apk add --no-cache tzdata

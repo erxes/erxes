@@ -5,6 +5,7 @@ import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { buildFile } from './exporter';
 import segments from './segments';
+import dashboards from './dashboards';
 import forms from './forms';
 import { generateModels } from './connectionResolver';
 import logs from './logUtils';
@@ -45,7 +46,10 @@ export default {
     tags,
     search,
     internalNotes,
-    webhooks
+    webhooks,
+    dashboards,
+    // for fixing permissions
+    permissions
   },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);

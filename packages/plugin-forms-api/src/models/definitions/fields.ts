@@ -70,6 +70,7 @@ export interface IField extends IVisibility {
   options?: string[];
   locationOptions?: ILocationOption[];
   objectListConfigs?: IObjectListConfig[];
+  optionsValues?: string;
   isRequired?: boolean;
   isDefinedByErxes?: boolean;
   isVisibleToCreate?: boolean;
@@ -103,6 +104,9 @@ export interface IFieldGroup extends IVisibility {
   lastUpdatedUserId?: string;
   code?: string;
   config?: any;
+
+  logics?: ILogic[];
+  logicAction?: string;
 }
 
 export interface IFieldGroupDocument extends IFieldGroup, Document {
@@ -152,6 +156,10 @@ export const fieldSchema = schemaWrapper(
       type: [ObjectListSchema],
       optional: true,
       label: 'object list config'
+    }),
+    optionsValues: field({
+      type: String,
+      label: 'Field Options object'
     }),
     isRequired: field({ type: Boolean, label: 'Is required' }),
     isDefinedByErxes: field({ type: Boolean, label: 'Is defined by erxes' }),
@@ -245,6 +253,14 @@ export const fieldGroupSchema = schemaWrapper(
       default: true,
       label: 'Is group visible in detail'
     }),
-    config: { type: Object }
+    config: { type: Object },
+
+    logics: field({ type: [logicSchema] }),
+
+    logicAction: field({
+      type: String,
+      label:
+        'If action is show field will appear when logics fulfilled, if action is hide it will disappear when logic fulfilled'
+    })
   })
 );

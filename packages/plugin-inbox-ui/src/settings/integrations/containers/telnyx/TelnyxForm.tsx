@@ -4,8 +4,8 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import { INTEGRATION_KINDS } from '@erxes/ui/src/constants/integrations';
 import React from 'react';
 import TelnyxForm from '../../components/telnyx/TelnyxForm';
-import { getRefetchQueries } from '../utils';
-import { mutations } from '../../graphql';
+import { getRefetchQueries } from '@erxes/ui-inbox/src/settings/integrations/containers/utils';
+import { mutations } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 import { withRouter } from 'react-router-dom';
 
 type Props = {

@@ -1,10 +1,10 @@
 import Button from '@erxes/ui/src/components/Button';
-import ChannelForm from '../containers/ChannelForm';
+import ChannelForm from '@erxes/ui-inbox/src/settings/channels/containers/ChannelForm';
 import ChannelRow from './ChannelRow';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import { Header } from '@erxes/ui-settings/src/styles';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { IChannel } from '../types';
+import { IChannel } from '@erxes/ui-inbox/src/settings/channels/types';
 import LeftSidebar from '@erxes/ui/src/layout/components/Sidebar';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
@@ -66,10 +66,9 @@ class Sidebar extends React.Component<Props, {}> {
 
     return (
       <LeftSidebar
-        wide={false}
-        header={this.renderSidebarHeader()}
+        wide={true}
         hasBorder={true}
-        noMargin
+        header={this.renderSidebarHeader()}
       >
         <SidebarList noTextColor noBackground>
           {this.renderItems()}

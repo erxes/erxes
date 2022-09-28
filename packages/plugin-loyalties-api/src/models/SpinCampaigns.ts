@@ -1,6 +1,10 @@
 import * as _ from 'underscore';
 import { CAMPAIGN_STATUS } from './definitions/constants';
-import { spinCampaignSchema, ISpinCampaign, ISpinCampaignDocument } from './definitions/spinCampaigns';
+import {
+  spinCampaignSchema,
+  ISpinCampaign,
+  ISpinCampaignDocument
+} from './definitions/spinCampaigns';
 import { Model, model } from 'mongoose';
 import { validCampaign } from './utils';
 import { IModels } from '../connectionResolver';
@@ -8,12 +12,15 @@ import { IModels } from '../connectionResolver';
 export interface ISpinCampaignModel extends Model<ISpinCampaignDocument> {
   getSpinCampaign(_id: string): Promise<ISpinCampaignDocument>;
   createSpinCampaign(doc: ISpinCampaign): Promise<ISpinCampaignDocument>;
-  updateSpinCampaign(_id: string, doc: ISpinCampaign): Promise<ISpinCampaignDocument>;
+  updateSpinCampaign(
+    _id: string,
+    doc: ISpinCampaign
+  ): Promise<ISpinCampaignDocument>;
   removeSpinCampaigns(_ids: string[]): void;
-};
+}
 
-const getSortAwards = (awards) => {
-  return awards.sort((a, b) => a.minScore - b.minScore)
+const getSortAwards = awards => {
+  return awards.sort((a, b) => a.minScore - b.minScore);
 };
 
 export const loadSpinCampaignClass = (models: IModels, _subdomain: string) => {
@@ -36,7 +43,7 @@ export const loadSpinCampaignClass = (models: IModels, _subdomain: string) => {
       }
 
       if (sumProbability < 0 || sumProbability > 100) {
-        throw new Error('must sum probability has between 0 to 100')
+        throw new Error('must sum probability has between 0 to 100');
       }
     }
 
@@ -50,8 +57,8 @@ export const loadSpinCampaignClass = (models: IModels, _subdomain: string) => {
       const modifier = {
         ...doc,
         createdAt: new Date(),
-        modifiedAt: new Date(),
-      }
+        modifiedAt: new Date()
+      };
 
       return models.SpinCampaigns.create(modifier);
     }
@@ -65,8 +72,8 @@ export const loadSpinCampaignClass = (models: IModels, _subdomain: string) => {
 
       const modifier = {
         ...doc,
-        modifiedAt: new Date(),
-      }
+        modifiedAt: new Date()
+      };
 
       return models.SpinCampaigns.updateOne({ _id }, { $set: modifier });
     }
@@ -81,7 +88,7 @@ export const loadSpinCampaignClass = (models: IModels, _subdomain: string) => {
       }).distinct('spinCampaignId');
 
       const campaignIds = [...atSpinIds, ...atVoucherIds];
-      const usedCampaignIds = ids.filter(id => (campaignIds.includes(id)));
+      const usedCampaignIds = ids.filter(id => campaignIds.includes(id));
 
       const deleteCampaignIds = ids.map(id => !usedCampaignIds.includes(id));
       const now = new Date();
@@ -91,9 +98,11 @@ export const loadSpinCampaignClass = (models: IModels, _subdomain: string) => {
         { $set: { status: CAMPAIGN_STATUS.TRASH, modifiedAt: now } }
       );
 
-      return models.SpinCampaigns.deleteMany({ _id: { $in: deleteCampaignIds } });
+      return models.SpinCampaigns.deleteMany({
+        _id: { $in: deleteCampaignIds }
+      });
     }
-  };
+  }
 
   spinCampaignSchema.loadClass(SpinCampaign);
 

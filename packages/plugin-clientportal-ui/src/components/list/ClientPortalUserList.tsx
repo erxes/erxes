@@ -1,24 +1,24 @@
-import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
+import { Alert, confirm, router } from '@erxes/ui/src/utils';
+
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import Button from '@erxes/ui/src/components/Button';
+import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
+import ClientPortalUserRow from './ClientPortalUserRow';
 import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
+import { EMPTY_CONTENT_CONTACTS } from '@erxes/ui-settings/src/constants';
 import EmptyContent from '@erxes/ui/src/components/empty/EmptyContent';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import { IClientPortalUser } from '../../types';
+import { IRouterProps } from '@erxes/ui/src/types';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
+import React from 'react';
+import Sidebar from './Sidebar';
 import Table from '@erxes/ui/src/components/table';
-import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
-import { IRouterProps } from '@erxes/ui/src/types';
-import { Alert, confirm, router } from '@erxes/ui/src/utils';
 import { __ } from '@erxes/ui/src/utils/core';
 import { menuContacts } from '@erxes/ui/src/utils/menus';
-import React from 'react';
-
-import ClientPortalUserForm from '../../containers/ClientPortalUserForm';
-import { IClientPortalUser } from '../../types';
-import ClientPortalUserRow from './ClientPortalUserRow';
-import Sidebar from './Sidebar';
+import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -299,6 +299,8 @@ class ClientportalUserList extends React.Component<IProps, State> {
             emptyContent={<EmptyContent content={EMPTY_CONTENT_CONTACTS} />}
           />
         }
+        transparent={true}
+        hasBorder={true}
       />
     );
   }

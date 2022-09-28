@@ -37,10 +37,6 @@ export default function BlockList(props: Props) {
       isOpen={true}
       extraButtons={extraButtons}
       collapsible={allDatas.length > 6}
-      noShadow={true}
-      noMarginBottom={true}
-      noBackground
-      noSpacing
     >
       <SidebarList noTextColor noBackground className="no-link">
         {renderItems}

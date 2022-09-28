@@ -2,8 +2,13 @@ import { Schema, Document } from 'mongoose';
 
 import { ruleSchema } from '@erxes/api-utils/src/definitions/common';
 import { field, schemaWrapper } from '@erxes/api-utils/src/definitions/utils';
-import { IRule } from "@erxes/api-utils/src/types";
-import { MESSENGER_KINDS, CAMPAIGN_METHODS, CAMPAIGN_KINDS, SENT_AS_CHOICES } from '../../constants';
+import { IRule } from '@erxes/api-utils/src/types';
+import {
+  MESSENGER_KINDS,
+  CAMPAIGN_METHODS,
+  CAMPAIGN_KINDS,
+  SENT_AS_CHOICES
+} from '../../constants';
 
 interface IEmail {
   attachments?: any;
@@ -22,7 +27,6 @@ interface IScheduleDate {
   day?: string | number;
   dateTime?: string | Date;
 }
-
 
 interface IScheduleDateDocument extends IScheduleDate, Document {}
 
@@ -68,6 +72,7 @@ export interface IEngageMessage {
   validCustomersCount?: number;
   runCount?: number;
   createdBy?: string;
+  forceCreateConversation?: boolean;
 }
 
 export interface IEngageMessageDocument extends IEngageMessage, Document {
