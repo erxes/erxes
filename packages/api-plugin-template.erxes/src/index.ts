@@ -90,18 +90,6 @@ app.get('/health', async (_req, res) => {
   res.end('ok');
 });
 
-app.get('/call-gc', async (_req, res) => {
-  let response = '';
-
-  if (global.gc) {
-    global.gc();
-
-    response = 'called gc';
-  }
-
-  res.end(response);
-});
-
 if (configs.hasSubscriptions) {
   app.get('/subscriptionPlugin.js', async (req, res) => {
     res.sendFile(

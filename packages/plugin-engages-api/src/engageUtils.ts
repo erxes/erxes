@@ -133,7 +133,8 @@ export const generateCustomerSelector = async (
 export const send = async (
   models: IModels,
   subdomain: string,
-  engageMessage: IEngageMessageDocument
+  engageMessage: IEngageMessageDocument,
+  forceCreateConversation?: boolean
 ) => {
   const {
     customerIds,
@@ -208,6 +209,40 @@ export const send = async (
       { engageMessage, customersSelector, user },
       'sendEngageSms'
     );
+  }
+
+  if (
+    engageMessage.method === CAMPAIGN_METHODS.MESSENGER &&
+    forceCreateConversation
+  ) {
+    const brandId =
+      (engageMessage.messenger && engageMessage.messenger.brandId) || '';
+    const integration = await sendInboxMessage({
+      subdomain,
+      action: 'integrations.findOne',
+      data: { brandId },
+      isRPC: true,
+      defaultValue: null
+    });
+    if (!integration || !brandId) {
+      throw new Error('Integration not found or brandId is not provided');
+    }
+
+    for (const customerId of customerIds || []) {
+      await models.EngageMessages.createVisitorOrCustomerMessages({
+        brandId,
+        integrationId: integration._id,
+        customer: await sendContactsMessage({
+          subdomain,
+          action: 'customers.findOne',
+          data: { _id: customerId },
+          isRPC: true,
+          defaultValue: null
+        }),
+        visitorId: undefined,
+        browserInfo: {}
+      });
+    }
   }
 };
 
