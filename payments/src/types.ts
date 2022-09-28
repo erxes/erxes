@@ -20,9 +20,3 @@ export type QueryResponse = {
   refetch: () => Promise<any>;
   error?: string;
 };
-
-
-export interface IGetInvoiceQueryParams  {
-  invoiceId:string;
-  paymentId:string;
-}

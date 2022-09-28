@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import * as QRCode from "qrcode";
 import { IPaymentParams } from "../types";
 
@@ -22,9 +22,6 @@ const QpaySection = (props: Props) => {
   const [amount, setAmount] = useState(params.amount || "0");
   const [qr, setQr] = useState("");
   const [description, setDescription] = useState(params.description || "");
-  const [qrPaymentStatus, setQrPaymentStatus] = useState(
-    invoice && invoice.status
-  );
 
   const generateQrCode = (text: string) => {
     QRCode.toDataURL(text).then(qrImage => {
@@ -47,7 +44,7 @@ const QpaySection = (props: Props) => {
           <img src={qr} alt="" className="center" id="qpay" />
           <div>
             <label className="labelSpecial centerStatus" htmlFor="qpay">
-              Status: {qrPaymentStatus}
+              Status: {invoice && invoice.status}
             </label>
           </div>
         </div>

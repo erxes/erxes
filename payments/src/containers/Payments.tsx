@@ -6,7 +6,7 @@ import { withRouter } from "react-router-dom";
 
 import Payments from "../components/Payments";
 import { mutations, queries } from "../graphql";
-import { IGetInvoiceQueryParams, IPaymentParams, IRouterProps } from "../types";
+import { IPaymentParams, IRouterProps } from "../types";
 
 const PaymentsContainer = (props: IRouterProps) => {
   const { history } = props;

@@ -1,7 +1,7 @@
-import { Component } from "react";
-import { IPaymentParams } from "../types";
+import { Component } from 'react';
 
-import PaymentOption from "./PaymentOption";
+import { IPaymentParams } from '../types';
+import PaymentOption from './PaymentOption';
 
 type Props = {
   datas: any[];
@@ -13,7 +13,7 @@ type Props = {
 type State = {
   show: boolean;
 };
-class Dashboard extends Component<Props, State> {
+class Payments extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
@@ -42,4 +42,4 @@ class Dashboard extends Component<Props, State> {
   }
 }
 
-export default Dashboard;
+export default Payments;
