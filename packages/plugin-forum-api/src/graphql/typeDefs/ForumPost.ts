@@ -9,6 +9,7 @@ export default `
     commentCount: Int!
 
     viewCount: Int!
+    trendScore: Float
     
     createdUserType: ForumUserType!
     createdAt: Date!
