@@ -22,6 +22,7 @@ type State = {
   id: string;
   description: string;
   amount: number;
+  phone: string;
 };
 
 class Payment extends Component<Props, State> {
@@ -32,14 +33,12 @@ class Payment extends Component<Props, State> {
       id: (props.paymentId && props.paymentId) || '',
       description: (props.params.description && props.params.description) || '',
       amount: (props.params.amount && props.params.amount) || 0,
+      phone: props.params.phone || '',
     };
   }
 
   onChange = (key: string, value:any) => {
-    console.log(key, value);
     this.setState({ [key]: value } as any);
-
-    console.log(this.state);
   };
 
   onClick = (id: string) => {
@@ -112,10 +111,15 @@ class Payment extends Component<Props, State> {
 
   paymentOptionRender = (datas: any[]) => {
     const { id } = this.state;
-    const { params } = this.props;
-
+  
     const paymentData = id ? datas.find((d) => d._id === id) : null;
     const type = paymentData ? paymentData.type : null;
+
+    const updatedProps = {
+      ...this.props,
+      phone: this.state.phone,
+      onChange: this.onChange,
+    }
 
     return (
       <div className='grid-container'>
@@ -135,8 +139,8 @@ class Payment extends Component<Props, State> {
           </div>
         </div>
         <div className='grid-item'>
-          {id && type === 'qpay' && <QpaySection {...this.props} onChange={this.onChange} />}
-          {id && type === 'socialPay' && <SocialPaySection {...this.props} />}
+          {id && type === 'qpay' && <QpaySection {...updatedProps }  />}
+          {id && type === 'socialPay' && <SocialPaySection {...updatedProps} />}
           {this.renderButtons()}
         </div>
       </div>

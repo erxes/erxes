@@ -5,27 +5,25 @@ import { IPaymentParams } from '../types';
 type Props = {
   params: IPaymentParams;
   invoice?: any;
+  onChange: (key: string, value: any) => void;
 };
 
 const SocialPaySection = (props: Props) => {
   const { params, invoice } = props;
 
-  const [amount, setAmount] = useState(params.amount || '0');
-  const [qr, setQr] = useState(invoice && invoice.qrText || '');
-  const [description, setDescription] = useState(params.description || '');
   const [phone, setPhone] = useState(params.phone || '');
   const [invoiceByPhone, setInvoiceByPhone] = useState<boolean>(
     params.phone ? true : false
   );
 
   const renderInvoiceData = () => {
-    if (!qr || invoiceByPhone) {
+    if (!invoice || !invoice.qrText || invoiceByPhone) {
       return null;
     }
 
     return (
       <div className='border'>
-        <img src={qr} alt='' width='150px' className='center' id='qpay' />
+        <img src={invoice.qrTexts} alt='' width='150px' className='center' id='qpay' />
 
         <div>
           <label className='labelSpecial centerStatus'>
@@ -37,15 +35,20 @@ const SocialPaySection = (props: Props) => {
   };
 
   const onChange = (e: any) => {
-    if (e.target._id === 'amount') {
-      return setAmount(e.target.value);
+    if (e.target.id === 'phone') {
+      setPhone(e.target.value);
     }
 
-    if (e.target._id === 'phone') {
-      return setPhone(e.target.value);
+    if (e.target.id !== 'invoiceByPhone') {
+      return props.onChange(e.target.id, e.target.value);
     }
 
-    setDescription(e.target.value);
+    setInvoiceByPhone(e.target.checked);
+
+    if (!e.target.checked) {
+      setPhone('');
+      props.onChange('phone', '');
+    }
   };
 
   return (
@@ -53,14 +56,15 @@ const SocialPaySection = (props: Props) => {
       {renderInvoiceData()}
       <div className='border'>
         <div style={{ marginBottom: '5px' }}>
-          <label className='label' htmlFor='withPhone'>
+          <label className='label' htmlFor='invoiceByPhone'>
             Create invoice with phone number:
           </label>
           <input
             type='checkbox'
-            onClick={(e: any) => setInvoiceByPhone(e.target.checked)}
-            id='withPhone'
-            name='withPhone'
+            onClick={onChange}
+            id='invoiceByPhone'
+            name='invoiceByPhone'
+            checked={invoiceByPhone}
           />
         </div>
         {invoiceByPhone && (
@@ -74,7 +78,7 @@ const SocialPaySection = (props: Props) => {
         </label>
         <input
           type='text'
-          value={amount}
+          value={params.amount}
           onChange={onChange}
           disabled={true}
           name='amount'
@@ -86,7 +90,7 @@ const SocialPaySection = (props: Props) => {
         </label>
         <input
           type='text'
-          value={description}
+          value={params.description}
           onChange={onChange}
           name='description'
           id='description'

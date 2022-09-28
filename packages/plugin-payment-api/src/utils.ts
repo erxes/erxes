@@ -94,22 +94,12 @@ export const getModel = (type: string, models: IModels) => {
 };
 
 export const createInvoice = async (models: IModels, params) => {
-  const {
-    paymentId,
-    amount,
-    description,
-    phone,
-    customerId,
-    companyId,
-    contentType,
-    contentTypeId
-  } = params;
   const paymentConfig = await models.PaymentConfigs.findOne({
-    _id: paymentId
+    _id: params.paymentId
   });
 
   if (!paymentConfig) {
-    throw new Error(`Config not found with id ${paymentId}`);
+    throw new Error(`Config not found with id ${params.paymentId}`);
   }
 
   const { config, type } = paymentConfig;
