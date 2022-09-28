@@ -1,5 +1,4 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import * as crypto from 'crypto';
 import fetch from 'node-fetch';
 
 import { PAYMENT_TYPES } from '../constants';
@@ -101,9 +100,4 @@ export const makeInvoiceNo = length => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
-};
-
-export const hmac256 = (key, message) => {
-  const hash = crypto.createHmac('sha256', key).update(message);
-  return hash.digest('hex');
 };

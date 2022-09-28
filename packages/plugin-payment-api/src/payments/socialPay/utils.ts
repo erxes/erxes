@@ -1,7 +1,8 @@
-import { SOCIALPAY_ACTIONS } from '../../../constants';
-import { IModels } from '../../connectionResolver';
 import { sendRequest } from '@erxes/api-utils/src';
-import { SOCIALPAY_ENDPOINT } from '../../../constants';
+import * as crypto from 'crypto';
+
+import { SOCIALPAY_ACTIONS, SOCIALPAY_ENDPOINT } from '../../../constants';
+import { IModels } from '../../connectionResolver';
 
 export const socialPayHandler = async (models: IModels, body) => {
   console.log('body', body);
@@ -43,4 +44,9 @@ export const socialPayInvoiceQR = async data => {
   };
 
   return sendRequest(requestOptions);
+};
+
+export const hmac256 = (key, message) => {
+  const hash = crypto.createHmac('sha256', key).update(message);
+  return hash.digest('hex');
 };

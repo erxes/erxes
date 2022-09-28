@@ -1,5 +1,8 @@
 import { Schema, Document } from 'mongoose';
-import { field, schemaHooksWrapper } from './utils';
+import {
+  field,
+  schemaHooksWrapper
+} from '../../../../models/definitions/utils';
 
 export interface ISocialPayInvoice {
   invoiceNo: string;

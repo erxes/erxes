@@ -1,7 +1,8 @@
 import { Model } from 'mongoose';
 
-import { hmac256, makeInvoiceNo } from '../../../utils';
+import { makeInvoiceNo } from '../../../utils';
 import {
+  hmac256,
   socialPayInvoiceCheck,
   socialPayInvoicePhone,
   socialPayInvoiceQR

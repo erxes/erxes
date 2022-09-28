@@ -1,16 +1,12 @@
 import { Model } from 'mongoose';
 
-import {
-  createQpayInvoice,
-  getQpayInvoice,
-  makeInvoiceNo,
-  qpayToken
-} from '../../../utils';
+import { makeInvoiceNo } from '../../../utils';
 import { IModels } from '../../../connectionResolver';
 import {
   IQpayInvoiceDocument,
   qpayInvoiceSchema
 } from './definitions/qpayInvoices';
+import { qpayToken, getQpayInvoice, createQpayInvoice } from '../utils';
 
 export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   getQpayInvoice(_id: string): IQpayInvoiceDocument;
