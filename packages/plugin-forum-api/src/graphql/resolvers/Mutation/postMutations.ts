@@ -2,6 +2,13 @@ import { IContext } from '../..';
 import { IObjectTypeResolver } from '@graphql-tools/utils';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
+const noLoginRequiredTest: IObjectTypeResolver<any, IContext> = {
+  async updateTrendScoreOfPublished(_, __, { models: { Post } }) {
+    await Post.updateTrendScoreOfPublished({});
+    return true;
+  }
+};
+
 const crmPostMutations: IObjectTypeResolver<any, IContext> = {
   async forumCreatePost(_, args, { models: { Post }, user }) {
     return Post.createPost(args, user);
@@ -43,6 +50,7 @@ const cpPostMutations: IObjectTypeResolver<any, IContext> = {
 };
 
 export default {
+  ...noLoginRequiredTest,
   ...crmPostMutations,
   ...cpPostMutations
 };

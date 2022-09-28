@@ -10,6 +10,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import cpUserMiddleware from './middlewares/cpUserMiddleware';
 import { generateModels } from './db/models';
 import { IContext } from './graphql';
+import cronjobs from './cronjobs';
 
 export let mainDb;
 export let graphqlPubsub;
@@ -30,7 +31,9 @@ export default {
   },
   hasSubscriptions: false,
 
-  meta: {},
+  meta: {
+    cronjobs
+  },
 
   apolloServerContext: async (context, req, res): Promise<IContext> => {
     const subdomain = getSubdomain(req);

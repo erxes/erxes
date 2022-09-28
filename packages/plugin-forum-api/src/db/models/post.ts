@@ -4,6 +4,7 @@ import { USER_TYPES, UserTypes } from '../../consts';
 import { ICpUser } from '../../graphql';
 import { IModels } from './index';
 import * as _ from 'lodash';
+import { posts } from '../../permissions';
 
 export const POST_STATES = ['DRAFT', 'PUBLISHED'] as const;
 
@@ -19,6 +20,8 @@ export interface IPost {
   thumbnail?: string | null;
 
   viewCount: number;
+
+  trendScore: number;
 
   createdAt: Date;
   createdUserType: UserTypes;
@@ -42,6 +45,7 @@ const OMIT_FROM_INPUT = [
   '_id',
 
   'viewCount',
+  'trendScore',
 
   'createdUserType',
   'createdAt',
@@ -82,6 +86,8 @@ export interface IPostModel extends Model<PostDocument> {
   draft(_id: string, user: IUserDocument): Promise<PostDocument>;
   publish(_id: string, user: IUserDocument): Promise<PostDocument>;
 
+  updateTrendScoreOfPublished(query: any);
+
   /* <<< Client portal */
   findByIdOrThrowCp(_id: string, cpUser?: ICpUser): Promise<PostDocument>;
   createPostCp(c: PostCreateInput, user?: ICpUser): Promise<PostDocument>;
@@ -112,11 +118,13 @@ export const postSchema = new Schema<PostDocument>({
     type: String,
     required: true,
     enum: POST_STATES,
-    default: POST_STATES[0]
+    default: 'DRAFT',
+    index: true
   },
   thumbnail: String,
 
   viewCount: { type: Number, default: 0 },
+  trendScore: { type: Number, default: 0 },
 
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
@@ -134,6 +142,8 @@ export const postSchema = new Schema<PostDocument>({
   stateChangedByCpId: String
 });
 postSchema.index({ categoryId: 1, state: 1 });
+// mostly used by update query of updateTrendScoreOfPublished
+postSchema.index({ state: 1, stateChangedAt: 1 });
 
 export const generatePostModel = (
   subdomain: string,
@@ -296,14 +306,32 @@ export const generatePostModel = (
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new Error(`Unauthorized`);
-      return models.Post.changeStateCp(_id, POST_STATES[0], cpUser);
+      return models.Post.changeStateCp(_id, 'DRAFT', cpUser);
     }
     public static async publishCp(
       _id: string,
       cpUser?: ICpUser
     ): Promise<PostDocument> {
       if (!cpUser) throw new Error(`Unauthorized`);
-      return models.Post.changeStateCp(_id, POST_STATES[1], cpUser);
+      return models.Post.changeStateCp(_id, 'PUBLISHED', cpUser);
+    }
+
+    public static async updateTrendScoreOfPublished(query = {}) {
+      const now = Date.now();
+      console.log(
+        '.....................asdfasdfasdf...........................'
+      );
+      await models.Post.find(
+        { ...query, state: 'PUBLISHED' },
+        { viewCount: 1, stateChangedAt: 1, trendScore: 1 }
+      )
+        .cursor()
+        .eachAsync(async function updateTrendScores(post: PostDocument) {
+          console.log(post);
+          const elapsedSeconds = (now - post.stateChangedAt.getTime()) / 1000;
+          post.trendScore = post.viewCount / elapsedSeconds;
+          await post.save();
+        });
     }
     /* >>> Client portal */
   }

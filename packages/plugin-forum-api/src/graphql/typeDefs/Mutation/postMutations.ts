@@ -10,6 +10,8 @@ const postMutations = `
   forumDeletePostCp(_id: ID!): ForumPost!
   forumPostDraftCp(_id: ID!): ForumPost!
   forumPostPublishCp(_id: ID!): ForumPost!
+
+  updateTrendScoreOfPublished: Boolean
 `;
 
 export default postMutations;
