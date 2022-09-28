@@ -60,12 +60,24 @@ export const types = `
   }
 `;
 
+const paymentOptionsParams = `
+  paymentIds: [String]
+  amount: Float
+  contentType: String
+  contentTypeId: String
+  customerId: String
+  companyId: String
+  description: String
+  redirectUri: String
+  phone: String
+`;
+
 export const queries = `
   paymentConfigs(paymentIds: [String]): [PaymentConfig]
   paymentConfigsCountByType: PaymentTypeCount
   checkInvoice(paymentId: String!, invoiceId: String!): JSON
   getInvoice(paymentId: String!, invoiceId: String!): JSON
-  getPaymentOptions(paymentIds: [String],amount: Float, customerId: String, companyId: String,contentType: String, contentTypeId: String, description: String, redirectUri:String ): String
+  getPaymentOptions(${paymentOptionsParams} ): String
 
   invoices(searchValue: String, page: Int, perPage: Int): [Invoice]
 `;

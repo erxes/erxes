@@ -1,6 +1,6 @@
-import { useState } from "react";
-import * as QRCode from "qrcode";
-import { IPaymentParams } from "../types";
+import { useState } from 'react';
+import * as QRCode from 'qrcode';
+import { IPaymentParams } from '../types';
 
 // const INVOICE_SUBSCRIPTION = gql`
 //   subscription invoiceUpdated($_id: String!) {
@@ -14,17 +14,16 @@ import { IPaymentParams } from "../types";
 type Props = {
   params: IPaymentParams;
   invoice?: any;
+  onChange: (key: string, value: any) => void;
 };
 
 const QpaySection = (props: Props) => {
   const { params, invoice } = props;
 
-  const [amount, setAmount] = useState(params.amount || "0");
-  const [qr, setQr] = useState("");
-  const [description, setDescription] = useState(params.description || "");
+  const [qr, setQr] = useState('');
 
   const generateQrCode = (text: string) => {
-    QRCode.toDataURL(text).then(qrImage => {
+    QRCode.toDataURL(text).then((qrImage) => {
       setQr(qrImage);
     });
   };
@@ -40,10 +39,10 @@ const QpaySection = (props: Props) => {
 
     return (
       <>
-        <div className="border">
-          <img src={qr} alt="" className="center" id="qpay" />
+        <div className='border'>
+          <img src={qr} alt='' className='center' id='qpay' />
           <div>
-            <label className="labelSpecial centerStatus" htmlFor="qpay">
+            <label className='labelSpecial centerStatus' htmlFor='qpay'>
               Status: {invoice && invoice.status}
             </label>
           </div>
@@ -53,40 +52,36 @@ const QpaySection = (props: Props) => {
   };
 
   const onChange = (e: any) => {
-    if (e.target._id === "amount") {
-      return setAmount(e.target.value);
-    }
-
-    setDescription(e.target.value);
+    props.onChange(e.target.id, e.target.value);
   };
 
   return (
-    <div style={{ height: "30em", overflow: "auto" }}>
+    <div style={{ height: '30em', overflow: 'auto' }}>
       {renderQR()}
 
       {invoice && invoice.qrText ? null : (
-        <div className="border">
+        <div className='border'>
           <div>
-            <label className="label" htmlFor="amount">
-              Amount:{" "}
+            <label className='label' htmlFor='amount'>
+              Amount:{' '}
             </label>
             <input
-              type="text"
-              value={amount}
-              onChange={e => onChange(e)}
-              name="amount"
-              id="amount"
+              type='text'
+              value={params.amount}
+              onChange={(e) => onChange(e)}
+              name='amount'
+              id='amount'
               disabled={true}
             />
-            <label className="label" htmlFor="description">
-              Description:{" "}
+            <label className='label' htmlFor='description'>
+              Description:{' '}
             </label>
             <input
-              type="text"
-              value={description}
-              onChange={e => onChange(e)}
-              name="description"
-              id="description"
+              type='text'
+              value={params.description}
+              onChange={(e) => onChange(e)}
+              name='description'
+              id='description'
             />
           </div>
         </div>

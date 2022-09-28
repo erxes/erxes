@@ -23,7 +23,7 @@ export interface ISocialPayInvoiceModel
     status: any
   ): ISocialPayInvoiceDocument;
   checkInvoice(data: any): any;
-  createInvoice(data: any): any;
+  createInvoice(data: any, config: any): any;
 }
 
 export const loadSocialPayInvoiceClass = (models: IModels) => {
@@ -67,11 +67,10 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
       };
     }
 
-    public static async createInvoice(data) {
+    public static async createInvoice(data, config) {
       const {
         amount,
         phone,
-        config,
         customerId,
         companyId,
         contentType,

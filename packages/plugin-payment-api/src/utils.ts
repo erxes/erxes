@@ -114,18 +114,7 @@ export const createInvoice = async (models: IModels, params) => {
 
   const { config, type } = paymentConfig;
 
-  const data = {
-    config,
-    amount,
-    invoice_description: description,
-    phone,
-    customerId,
-    companyId,
-    contentType,
-    contentTypeId
-  };
-
   const model: any = getModel(type, models);
 
-  return model.createInvoice(data);
+  return model.createInvoice(params, config);
 };

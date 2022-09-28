@@ -1,8 +1,9 @@
-import { Component } from "react";
+import { Component } from 'react';
 
-import { PAYMENTS } from "./common/constants";
-import { IPaymentParams } from "../types";
-import QpaySection from "./Qpay";
+import { PAYMENTS } from '../constants';
+import { IPaymentParams } from '../types';
+import QpaySection from './Qpay';
+import SocialPaySection from './SocialPay';
 
 type Props = {
   handleClose: any;
@@ -19,6 +20,8 @@ type Props = {
 
 type State = {
   id: string;
+  description: string;
+  amount: number;
 };
 
 class Payment extends Component<Props, State> {
@@ -26,23 +29,31 @@ class Payment extends Component<Props, State> {
     super(props);
 
     this.state = {
-      id: (props.paymentId && props.paymentId) || ""
+      id: (props.paymentId && props.paymentId) || '',
+      description: (props.params.description && props.params.description) || '',
+      amount: (props.params.amount && props.params.amount) || 0,
     };
   }
+
+  onChange = (key: string, value:any) => {
+    console.log(key, value);
+    this.setState({ [key]: value } as any);
+
+    console.log(this.state);
+  };
 
   onClick = (id: string) => {
     this.setState({ id });
   };
 
   onClickButton = (e: any) => {
-    console.log('onClickButton', e.target.id);
     const { id } = this.state;
     const { params, onClickInvoiceCreate } = this.props;
 
-    if (e.target.id === "create") {
-      return onClickInvoiceCreate(id, params);
+    if (e.target.id === 'create') {
+      return onClickInvoiceCreate(id, {...params, ...this.state});
     } else {
-      console.log("check");
+      console.log('check');
     }
   };
 
@@ -53,21 +64,21 @@ class Payment extends Component<Props, State> {
     return (
       <div
         key={paymentConfigId}
-        className="grid-sub-container"
+        className='grid-sub-container'
         onClick={this.onClick.bind(this, paymentConfigId)}
       >
-        <div className="grid-radio-item">
+        <div className='grid-radio-item'>
           <input
-            type="radio"
-            name="payment"
+            type='radio'
+            name='payment'
             checked={checked}
             onChange={this.onClick.bind(this, paymentConfigId)}
           />
         </div>
-        <div className="grid-image-item">
-          <img src={url} alt="payment config" width="100px" />
+        <div className='grid-image-item'>
+          <img src={url} alt='payment config' width='100px' />
         </div>
-        <div className="grid-name-item">{name}</div>
+        <div className='grid-name-item'>{name}</div>
       </div>
     );
   };
@@ -79,61 +90,55 @@ class Payment extends Component<Props, State> {
       return null;
     }
 
-    let text = "Create Invoice";
-    let buttonId = "create";
+    let text = 'Create Invoice';
+    let buttonId = 'create';
 
-    if (invoice && invoice.status === "open") {
-      text = "Check invoice";
-      buttonId = "check";
+    if (invoice && invoice.status === 'open') {
+      text = 'Check invoice';
+      buttonId = 'check';
     }
 
     return (
       <input
         id={buttonId}
-        type="submit"
+        type='submit'
         value={text}
         onClick={this.onClickButton}
       />
     );
   };
 
+  
+
   paymentOptionRender = (datas: any[]) => {
     const { id } = this.state;
     const { params } = this.props;
 
-    const paymentData = id ? datas.find(d => d._id === id) : null;
+    const paymentData = id ? datas.find((d) => d._id === id) : null;
     const type = paymentData ? paymentData.type : null;
 
     return (
-      <div className="grid-container">
-        <div className="grid-item">
-          <div style={{ height: "30em", overflow: "auto" }}>
+      <div className='grid-container'>
+        <div className='grid-item'>
+          <div style={{ height: '30em', overflow: 'auto' }}>
             {datas.map((data: any) => {
-              const paymentConstant = PAYMENTS.find(p => p.type === data.type);
+              const paymentConstant = PAYMENTS.find(
+                (p) => p.type === data.type
+              );
 
               return this.imageRender(
-                paymentConstant ? paymentConstant.logo : "",
+                paymentConstant ? paymentConstant.logo : '',
                 data.name,
                 data._id
               );
             })}
           </div>
         </div>
-        <div className="grid-item">
-          {id && type === "qpay" && (
-            <QpaySection params={params} invoice={this.props.invoice} />
-          )}
-
-          {/* {id && type === "socialPay" && (
-            <SocialPaySection
-              paymentConfigId={id}
-              query={query}
-              phoneValue=""
-            />
-          )} */}
+        <div className='grid-item'>
+          {id && type === 'qpay' && <QpaySection {...this.props} onChange={this.onChange} />}
+          {id && type === 'socialPay' && <SocialPaySection {...this.props} />}
           {this.renderButtons()}
         </div>
-        
       </div>
     );
   };
@@ -141,14 +146,13 @@ class Payment extends Component<Props, State> {
   render() {
     const { show, datas } = this.props;
     const showHideClassName = show
-      ? "modal display-block"
-      : "modal display-none";
+      ? 'modal display-block'
+      : 'modal display-none';
 
     return (
       <div className={showHideClassName}>
-        <section className="modal-main">
+        <section className='modal-main'>
           {this.paymentOptionRender(datas)}
-          
         </section>
       </div>
     );

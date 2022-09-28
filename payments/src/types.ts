@@ -13,6 +13,7 @@ export interface IPaymentParams {
   description: string;
   paymentIds?: string[];
   redirectUri?: string;
+  phone?: string;
 }
 
 export type QueryResponse = {

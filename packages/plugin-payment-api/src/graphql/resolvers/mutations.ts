@@ -44,11 +44,7 @@ const paymentConfigMutations = {
    *  create an invoice
    */
   async createInvoice(_root, params, { models }: IContext) {
-    const res = await createInvoice(models, params);
-
-    console.log('res', res);
-
-    return res;
+    return createInvoice(models, params);
   }
 };
 

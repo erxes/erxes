@@ -13,7 +13,7 @@ export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   qpayInvoiceCreate(doc: any): IQpayInvoiceDocument;
   qpayInvoiceUpdate(invoice: any, invoiceData: any): IQpayInvoiceDocument;
   checkInvoice(data: any): any;
-  createInvoice(data: any): any;
+  createInvoice(params: any, config: any): any;
 }
 
 export const loadQpayInvoiceClass = (models: IModels) => {
@@ -81,9 +81,8 @@ export const loadQpayInvoiceClass = (models: IModels) => {
       };
     }
 
-    public static async createInvoice(data) {
+    public static async createInvoice(data: any, config: any) {
       const {
-        config,
         description,
         amount,
         customerId,
@@ -91,6 +90,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         contentType,
         contentTypeId
       } = data;
+
       const { qpayInvoiceCode } = config;
       const invoice_receiver_code = 'terminal';
       const token = await qpayToken(config);
