@@ -9,8 +9,6 @@ export interface IQpayConfig {
   qpayMerchantUser: string;
   qpayMerchantPassword: string;
   qpayInvoiceCode: string;
-  qpayUrl: string;
-  callbackUrl: string;
 }
 
 export interface ISocialPayConfig {
