@@ -1,5 +1,5 @@
 const paymentConfigs = `
-query paymentConfigs($paymentIds: JSON!) {
+query paymentConfigs($paymentIds: [String]!) {
   paymentConfigs(paymentIds: $paymentIds) {
     _id
     name
