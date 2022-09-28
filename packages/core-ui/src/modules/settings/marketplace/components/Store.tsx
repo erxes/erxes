@@ -33,7 +33,7 @@ type State = {
 class Store extends React.Component<Props, State> {
   constructor(props) {
     super(props);
-    console.log(props.plugins);
+
     this.state = {
       plugins: props.plugins || [],
       status: 'All',
@@ -123,7 +123,7 @@ class Store extends React.Component<Props, State> {
     }
 
     return plugins.map((plugin, index) => {
-      if ((isAddon ? !plugin.isAddon : plugin.isAddon) || plugin.isService) {
+      if (isAddon || plugin.mainType === 'service') {
         return null;
       }
 
