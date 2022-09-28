@@ -5,8 +5,8 @@ import fetch from 'node-fetch';
 import { PAYMENT_TYPES } from '../constants';
 import { graphqlPubsub } from './configs';
 import { generateModels } from './connectionResolver';
-import { qPayHandler } from './paymentTypes/qPay/utils';
-import { socialPayHandler } from './paymentTypes/socialPay/utils';
+import { qPayHandler } from './payments/qPay/utils';
+import { socialPayHandler } from './payments/socialPay/utils';
 
 export const fetchUrl = async (url, requestOptions) => {
   let returnData;
