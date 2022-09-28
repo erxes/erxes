@@ -1,10 +1,11 @@
-import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
-
-import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
+import { POST_CALLBACK_TYPES } from '../constants';
+
 import { generateModels } from './connectionResolver';
-import { callBackQpay, callBackSocialPay, paymentCallback } from './utils';
+import resolvers from './graphql/resolvers';
+import typeDefs from './graphql/typeDefs';
+import { initBroker } from './messageBroker';
+import { getHandler, postHandler } from './utils';
 
 export let mainDb;
 export let debug;
@@ -24,13 +25,12 @@ export default {
 
   hasSubscriptions: true,
 
-  getHandlers: [
-    { path: `/pl:payment/callBackQpay`, method: callBackQpay },
-    { path: `/callBackQpay`, method: callBackQpay },
-    { path: `/pl:payment/callBackSocialPay`, method: callBackSocialPay },
-    { path: `/callBackSocialPay`, method: callBackSocialPay },
-    { path: `/callback`, method: paymentCallback }
-  ],
+  getHandlers: [{ path: `/callback`, method: getHandler }],
+
+  postHandlers: POST_CALLBACK_TYPES.ALL.map(type => ({
+    path: `/callback/${type}`,
+    method: postHandler
+  })),
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);

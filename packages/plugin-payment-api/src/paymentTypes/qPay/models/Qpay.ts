@@ -5,9 +5,12 @@ import {
   getQpayInvoice,
   makeInvoiceNo,
   qpayToken
-} from '../utils';
-import { IModels } from './../connectionResolver';
-import { IQpayInvoiceDocument, qpayInvoiceSchema } from './definitions/qpay';
+} from '../../../utils';
+import { IModels } from '../../../connectionResolver';
+import {
+  IQpayInvoiceDocument,
+  qpayInvoiceSchema
+} from './definitions/qpayInvoices';
 
 export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   getQpayInvoice(_id: string): IQpayInvoiceDocument;

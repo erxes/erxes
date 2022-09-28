@@ -1,7 +1,7 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../connectionResolver';
-import { IPaymentConfig } from '../../models/definitions/payment';
+import { IPaymentConfig } from '../../models/definitions/payments';
 
 const paymentConfigMutations = {
   /**

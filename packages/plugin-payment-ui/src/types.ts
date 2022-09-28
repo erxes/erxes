@@ -14,8 +14,6 @@ export interface IQpayConfig {
 export interface ISocialPayConfig {
   inStoreSPTerminal: string;
   inStoreSPKey: string;
-  inStoreSPUrl: string;
-  pushNotification: string;
 }
 
 export interface IPaymentConfigDocument extends IPaymentConfig, Document {

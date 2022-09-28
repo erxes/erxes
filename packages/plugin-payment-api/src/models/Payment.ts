@@ -5,7 +5,7 @@ import {
   IPaymentConfig,
   IPaymentConfigDocument,
   paymentConfigSchema
-} from './definitions/payment';
+} from './definitions/payments';
 
 export interface IPaymentConfigModel extends Model<IPaymentConfigDocument> {
   createPaymentConfig(doc: IPaymentConfig): Promise<IPaymentConfigDocument>;

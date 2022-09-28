@@ -1,15 +1,15 @@
 import { Model } from 'mongoose';
+
+import { hmac256, makeInvoiceNo } from '../../../utils';
 import {
-  hmac256,
-  makeInvoiceNo,
   socialPayInvoiceCheck,
   socialPayInvoicePhone,
   socialPayInvoiceQR
 } from '../utils';
 import {
-  socialPayInvoiceSchema,
-  ISocialPayInvoiceDocument
-} from './definitions/socialPay';
+  ISocialPayInvoiceDocument,
+  socialPayInvoiceSchema
+} from './definitions/socialPayInvoices';
 
 export interface ISocialPayInvoiceModel
   extends Model<ISocialPayInvoiceDocument> {
@@ -45,7 +45,7 @@ export const loadSocialPayInvoiceClass = models => {
         invoice: invoiceId,
         terminal: inStoreSPTerminal
       };
-      const response: any = await socialPayInvoiceCheck(requestBody, config);
+      const response: any = await socialPayInvoiceCheck(requestBody);
 
       if (
         response &&
@@ -109,8 +109,8 @@ export const loadSocialPayInvoiceClass = models => {
       const requestBodyPhone = phone ? { ...requestBody, phone } : requestBody;
 
       const invoiceQrData: any = phone
-        ? await socialPayInvoicePhone(requestBodyPhone, config)
-        : await socialPayInvoiceQR(requestBody, config);
+        ? await socialPayInvoicePhone(requestBodyPhone)
+        : await socialPayInvoiceQR(requestBody);
 
       const qrText =
         invoiceQrData.body &&

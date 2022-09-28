@@ -1,16 +1,19 @@
-import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IPaymentConfigModel, loadPaymentConfigClass } from './models/Payment';
-import { IPaymentConfigDocument } from './models/definitions/payment';
-import { IQpayInvoiceDocument } from './models/definitions/qpay';
+import * as mongoose from 'mongoose';
 
-import { IQpayInvoiceModel, loadQpayInvoiceClass } from './models/Qpay';
+import { IPaymentConfigDocument } from './models/definitions/payments';
+import { IPaymentConfigModel, loadPaymentConfigClass } from './models/Payment';
+import { IQpayInvoiceDocument } from './paymentTypes/qPay/models/definitions/qpayInvoices';
+import {
+  IQpayInvoiceModel,
+  loadQpayInvoiceClass
+} from './paymentTypes/qPay/models/Qpay';
+import { ISocialPayInvoiceDocument } from './paymentTypes/socialPay/models/definitions/socialPayInvoices';
 import {
   ISocialPayInvoiceModel,
   loadSocialPayInvoiceClass
-} from './models/SocialPay';
-import { ISocialPayInvoiceDocument } from './models/definitions/socialPay';
+} from './paymentTypes/socialPay/models/SocialPay';
 
 export interface IModels {
   PaymentConfigs: IPaymentConfigModel;

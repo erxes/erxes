@@ -2,7 +2,7 @@ import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../connectionResolver';
-import { IPaymentConfigDocument } from './../../models/definitions/payment';
+import { IPaymentConfigDocument } from '../../models/definitions/payments';
 
 const paymentConfigQueries = {
   async invoices(_root, args, { models }: IContext) {
