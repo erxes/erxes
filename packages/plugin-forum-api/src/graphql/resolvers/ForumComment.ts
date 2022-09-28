@@ -31,7 +31,6 @@ const ForumComment: IObjectTypeResolver<IComment, IContext> = {
 
   async upVotes({ _id }, _, { models: { CommentUpVote } }) {
     const upVotes = await CommentUpVote.find({ contentId: _id }).lean();
-    console.log({ upVotes });
     return upVotes.map(v => ({
       __typename: 'ClientPortalUser',
       _id: v.userId

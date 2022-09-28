@@ -318,16 +318,13 @@ export const generatePostModel = (
 
     public static async updateTrendScoreOfPublished(query = {}) {
       const now = Date.now();
-      console.log(
-        '.....................asdfasdfasdf...........................'
-      );
       await models.Post.find(
         { ...query, state: 'PUBLISHED' },
-        { viewCount: 1, stateChangedAt: 1, trendScore: 1 }
+        { viewCount: 1, stateChangedAt: 1, trendScore: 1 },
+        { readPreference: 'secondaryPreferred' }
       )
         .cursor()
         .eachAsync(async function updateTrendScores(post: PostDocument) {
-          console.log(post);
           const elapsedSeconds = (now - post.stateChangedAt.getTime()) / 1000;
           post.trendScore = post.viewCount / elapsedSeconds;
           await post.save();

@@ -89,10 +89,6 @@ export const generateCategoryModel = (
     public static async deleteCategory(_id: string): Promise<CategoryDocument> {
       const cat = await models.Category.findByIdOrThrow(_id);
 
-      // const posts = await models.Post.find({ categoryId: { $elemMatch: { $eq: _id } } }).lean();
-
-      // console.log(posts);
-
       const session = await con.startSession();
       session.startTransaction();
 
@@ -103,12 +99,13 @@ export const generateCategoryModel = (
         );
         await models.Category.updateMany({ parentId: _id }, { parentId: null });
         await cat.remove();
+
+        await session.commitTransaction();
       } catch (e) {
         await session.abortTransaction();
         throw e;
       }
 
-      await session.commitTransaction();
       return cat;
     }
 
