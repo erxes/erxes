@@ -4,17 +4,12 @@ import { IContext } from '../../connectionResolver';
 import { IPaymentConfig } from '../../models/definitions/payments';
 
 const paymentConfigMutations = {
-  /**
-   * Creates a new template
-   */
   async paymentConfigsAdd(_root, doc: IPaymentConfig, { models }: IContext) {
     const paymentConfig = await models.PaymentConfigs.createPaymentConfig(doc);
 
     return paymentConfig;
   },
-  /**
-   * remove a template
-   */
+
   async paymentConfigRemove(
     _root,
     { id }: { id: string },
@@ -25,9 +20,6 @@ const paymentConfigMutations = {
     return 'success';
   },
 
-  /**
-   * remove a template
-   */
   async paymentConfigsEdit(
     _root,
     {
@@ -66,7 +58,7 @@ const paymentConfigMutations = {
     });
 
     if (!paymentConfig) {
-      throw new Error(`Not found payment config`);
+      throw new Error(`Config not found with id ${paymentId}`);
     }
 
     const { config, type } = paymentConfig;
