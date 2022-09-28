@@ -35,6 +35,8 @@ export default class ErxesGatewayDataSource extends GatewayDataSource {
     buildQueryUsingSelections: (selections: any) => DocumentNode;
   }): Promise<any> {
     const selections = this.buildNonPayloadSelections(payload, info);
+
+    // TODO: use info.fieldName instead of Object.values(payload)[0]
     const payloadData = Object.values(payload)[0];
 
     if (!selections) {
