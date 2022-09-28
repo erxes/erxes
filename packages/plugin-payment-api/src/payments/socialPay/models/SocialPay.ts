@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
-import { IModels } from '../../../connectionResolver';
 
+import { IModels } from '../../../connectionResolver';
 import { makeInvoiceNo } from '../../../utils';
 import {
   hmac256,
@@ -110,33 +110,39 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
 
       const requestBodyPhone = phone ? { ...requestBody, phone } : requestBody;
 
-      const invoiceQrData: any = phone
-        ? await socialPayInvoicePhone(requestBodyPhone)
-        : await socialPayInvoiceQR(requestBody);
+      try {
+        const invoiceQrData: any = phone
+          ? await socialPayInvoicePhone(requestBodyPhone)
+          : await socialPayInvoiceQR(requestBody);
 
-      const qrText =
-        invoiceQrData.body &&
-        invoiceQrData.body.response &&
-        invoiceQrData.body.response.desc
-          ? invoiceQrData.body.response.desc
-          : '';
-
-      console.log(requestBody, invoiceQrData);
-
-      if (qrText) {
-        await models.SocialPayInvoices.socialPayInvoiceUpdate(
-          invoiceLog,
-          qrText
+        console.log(
+          '*******************************************',
+          invoiceQrData
         );
-      }
 
-      return {
-        status: 'success',
-        data: {
-          status: 'socialPay success',
-          data: { qr: qrText, invoiceNo }
+        const qrText =
+          invoiceQrData.body &&
+          invoiceQrData.body.response &&
+          invoiceQrData.body.response.desc
+            ? invoiceQrData.body.response.desc
+            : '';
+
+        if (qrText) {
+          await models.SocialPayInvoices.socialPayInvoiceUpdate(
+            invoiceLog,
+            qrText
+          );
         }
-      };
+        return {
+          status: 'success',
+          data: {
+            status: 'socialPay success',
+            data: { qr: qrText, invoiceNo }
+          }
+        };
+      } catch (e) {
+        throw new Error(e.message);
+      }
     }
 
     public static async getSocialPayInvoice(invoiceNo: string) {

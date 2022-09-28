@@ -43,36 +43,36 @@ export const socialPayHandler = async (models: IModels, data) => {
   }
 };
 
-export const socialPayInvoiceCheck = async data => {
+export const socialPayInvoiceCheck = async body => {
   const requestOptions = {
     url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_CHECK}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data) as any,
+    body,
     redirect: 'follow'
   };
 
   return sendRequest(requestOptions);
 };
 
-export const socialPayInvoicePhone = async data => {
+export const socialPayInvoicePhone = async body => {
   const requestOptions = {
     url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_PHONE}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data) as any,
+    body,
     redirect: 'follow'
   };
 
   return sendRequest(requestOptions);
 };
 
-export const socialPayInvoiceQR = async data => {
+export const socialPayInvoiceQR = async body => {
   const requestOptions = {
     url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_QR}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data) as any,
+    body,
     redirect: 'follow'
   };
 
