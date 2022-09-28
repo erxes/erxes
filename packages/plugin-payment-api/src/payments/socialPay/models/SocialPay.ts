@@ -1,4 +1,5 @@
 import { Model } from 'mongoose';
+import { IModels } from '../../../connectionResolver';
 
 import { makeInvoiceNo } from '../../../utils';
 import {
@@ -25,7 +26,7 @@ export interface ISocialPayInvoiceModel
   createInvoice(data: any): any;
 }
 
-export const loadSocialPayInvoiceClass = models => {
+export const loadSocialPayInvoiceClass = (models: IModels) => {
   class SocialPayInvoices {
     public static async checkInvoice(data) {
       const { config, invoiceId } = data;
@@ -161,9 +162,6 @@ export const loadSocialPayInvoiceClass = models => {
     }
 
     public static async socialPayInvoiceUpdate(invoice, qrText) {
-      console.log('invoiceQrData');
-      console.log(qrText);
-
       await models.SocialPayInvoices.updateOne(
         { _id: invoice._id },
         { $set: { qrText } }
@@ -171,14 +169,7 @@ export const loadSocialPayInvoiceClass = models => {
     }
 
     public static async socialPayInvoiceStatusUpdate(invoice, status) {
-      const invoiceOne = await models.SocialPayInvoices.findOne({
-        _id: invoice._id
-      });
-
-      if (invoiceOne.status !== 'canceled payment') {
-        console.log('status');
-        console.log(status, invoice._id);
-
+      if (invoice.status !== 'canceled payment') {
         await models.SocialPayInvoices.updateOne(
           { _id: invoice._id },
           { $set: { status } }

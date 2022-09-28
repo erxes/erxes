@@ -39,8 +39,6 @@ const paymentConfigMutations = {
     }: { id: string; name: string; status: string; type: string; config: any },
     { models }: IContext
   ) {
-    console.log('paymentConfigsEdit: ', id, name, status, type, config);
-
     return await models.PaymentConfigs.updatePaymentConfig(id, {
       name,
       status,
