@@ -1,4 +1,4 @@
-import { SOCIALPAY_ACTIONS } from './../../../constants';
+import { SOCIALPAY_ACTIONS } from '../../../constants';
 import { IModels } from '../../connectionResolver';
 import { sendRequest } from '@erxes/api-utils/src';
 import { SOCIALPAY_ENDPOINT } from '../../../constants';

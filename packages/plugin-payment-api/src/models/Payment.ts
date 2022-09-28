@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
+
 import { IModels } from '../connectionResolver';
 import {
   IPaymentConfig,
@@ -27,7 +27,6 @@ export const loadPaymentConfigClass = (models: IModels) => {
     }
 
     public static async updatePaymentConfig(_id: string, doc: IPaymentConfig) {
-      console.log('updatePaymentConfig: ', _id, doc);
       await models.PaymentConfigs.updateOne({ _id }, { $set: { ...doc } });
 
       const updated = await models.PaymentConfigs.findOne({ _id });

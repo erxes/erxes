@@ -4,16 +4,16 @@ import * as mongoose from 'mongoose';
 
 import { IPaymentConfigDocument } from './models/definitions/payments';
 import { IPaymentConfigModel, loadPaymentConfigClass } from './models/Payment';
-import { IQpayInvoiceDocument } from './paymentTypes/qPay/models/definitions/qpayInvoices';
+import { IQpayInvoiceDocument } from './payments/qPay/models/definitions/qpayInvoices';
 import {
   IQpayInvoiceModel,
   loadQpayInvoiceClass
-} from './paymentTypes/qPay/models/Qpay';
-import { ISocialPayInvoiceDocument } from './paymentTypes/socialPay/models/definitions/socialPayInvoices';
+} from './payments/qPay/models/Qpay';
+import { ISocialPayInvoiceDocument } from './payments/socialPay/models/definitions/socialPayInvoices';
 import {
   ISocialPayInvoiceModel,
   loadSocialPayInvoiceClass
-} from './paymentTypes/socialPay/models/SocialPay';
+} from './payments/socialPay/models/SocialPay';
 
 export interface IModels {
   PaymentConfigs: IPaymentConfigModel;
