@@ -87,7 +87,7 @@ const PostDetail: React.FC = () => {
             <th>State: </th>
             <td>{forumPost.state}</td>
             <th>Category: </th>
-            <td>{forumPost.category.name}</td>
+            <td>{(forumPost.category || []).map(c => c.name).join(', ')}</td>
           </tr>
           <tr>
             <th>Thumbnail: </th>
