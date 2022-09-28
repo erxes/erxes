@@ -1,28 +1,10 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import fetch from 'node-fetch';
 
 import { PAYMENT_TYPES } from '../constants';
 import { graphqlPubsub } from './configs';
 import { generateModels } from './connectionResolver';
 import { qPayHandler } from './payments/qPay/utils';
 import { socialPayHandler } from './payments/socialPay/utils';
-
-export const fetchUrl = async (url, requestOptions) => {
-  let returnData;
-
-  await fetch(`${url}`, requestOptions)
-    .then(response => response.text())
-    .then(result => {
-      try {
-        returnData = JSON.parse(result);
-      } catch (error) {
-        returnData = { error: result };
-      }
-    })
-    .catch(error => console.log('error', error));
-
-  return returnData;
-};
 
 export const getHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
