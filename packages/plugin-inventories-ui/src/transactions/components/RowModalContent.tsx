@@ -22,7 +22,7 @@ export default function RowModalContent(props: Props) {
     return (data.transactionItems || []).map((item: any, index: number) => {
       return (
         <tr key={index}>
-          <td>{item.productId || ''}</td>
+          <td>{(item.product && item.product.name) || ''}</td>
           <td>{item.count || ''}</td>
           <td>
             {item.isDebit ? (
@@ -72,7 +72,7 @@ export default function RowModalContent(props: Props) {
       <Table>
         <thead>
           <tr>
-            <th>{__('PRODUCT ID')}</th>
+            <th>{__('PRODUCT TITLE')}</th>
             <th>{__('COUNT')}</th>
             <th>{__('DEBIT')}</th>
             <th>{__('MODIFIED AT')}</th>

@@ -259,6 +259,7 @@ export const extractConfig = async (subdomain, doc) => {
     maxSkipNumber: doc.maxSkipNumber,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
+    erkhetConfig: doc.erkhetConfig,
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,
@@ -271,7 +272,8 @@ export const extractConfig = async (subdomain, doc) => {
     onServer: doc.onServer,
     branchId: doc.branchId,
     departmentId: doc.departmentId,
-    allowBranchIds: doc.allowBranchIds
+    allowBranchIds: doc.allowBranchIds,
+    checkRemainder: doc.checkRemainder
   };
 };
 

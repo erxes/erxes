@@ -7,15 +7,16 @@ const transactionQueries = {
 
     return await models.Transactions.find()
       .skip(skip || 0)
-      .limit(limit || 100);
+      .limit(limit || 100)
+      .sort({ createdAt: -1 });
   },
 
   transactionDetail: async (
     _root: any,
     { _id }: { _id: string },
-    { models }: IContext
+    { subdomain, models }: IContext
   ) => {
-    return await models.Transactions.getTransactionDetail(_id);
+    return await models.Transactions.getTransactionDetail(subdomain, _id);
   }
 };
 

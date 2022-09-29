@@ -53,6 +53,7 @@ type State = {
   erkhetConfig: any;
   deliveryConfig: any;
   cardsConfig: any;
+  checkRemainder: boolean;
 };
 
 class Pos extends React.Component<Props, State> {
@@ -86,7 +87,8 @@ class Pos extends React.Component<Props, State> {
       erkhetConfig: pos.erkhetConfig,
       deliveryConfig: pos.deliveryConfig,
       cardsConfig: pos.cardsConfig,
-      slots: props.slots || []
+      slots: props.slots || [],
+      checkRemainder: pos.checkRemainder || false
     };
   }
 
@@ -98,6 +100,7 @@ class Pos extends React.Component<Props, State> {
       slots,
       groups,
       uiOptions,
+      checkRemainder,
       ebarimtConfig,
       erkhetConfig,
       deliveryConfig,
@@ -154,7 +157,8 @@ class Pos extends React.Component<Props, State> {
       initialCategoryIds: pos.initialCategoryIds || [],
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
       deliveryConfig,
-      cardsConfig
+      cardsConfig,
+      checkRemainder
     };
 
     if (pos.isOnline) {
@@ -251,7 +255,7 @@ class Pos extends React.Component<Props, State> {
   };
 
   render() {
-    const { pos, slots, groups, uiOptions } = this.state;
+    const { pos, slots, groups, uiOptions, checkRemainder } = this.state;
     const { productCategories, envs } = this.props;
     const breadcrumb = [{ title: 'POS List', link: `/pos` }, { title: 'POS' }];
 
@@ -311,11 +315,15 @@ class Pos extends React.Component<Props, State> {
               </Step>
               <Step
                 img="/images/icons/erxes-07.svg"
-                title={'erkhet Config'}
+                title={'finance Config'}
                 onClick={this.onStepClick}
                 noButton={true}
               >
-                <ErkhetConfig onChange={this.onChange} pos={pos} />
+                <ErkhetConfig
+                  onChange={this.onChange}
+                  pos={pos}
+                  checkRemainder={checkRemainder}
+                />
               </Step>
               <Step
                 img="/images/icons/erxes-09.svg"

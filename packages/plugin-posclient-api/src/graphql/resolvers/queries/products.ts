@@ -1,13 +1,17 @@
-import { IProductCategoryDocument } from '../../../models/definitions/products';
-import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
+import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { IContext } from '../../types';
 import { IModels } from '../../../connectionResolver';
-import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
+import { IProductCategoryDocument } from '../../../models/definitions/products';
+import { PRODUCT_STATUSES } from '../../../models/definitions/constants';
+import { sendInventoriesMessage } from '../../../messageBroker';
+import { sendRequest } from '@erxes/api-utils/src/requests';
+import { debugError } from '@erxes/api-utils/src/debuggers';
 
 interface IProductParams {
   type?: string;
   categoryId?: string;
   searchValue?: string;
+  branchId?: string;
   page?: number;
   perPage?: number;
 }
@@ -71,8 +75,14 @@ const generateFilterCat = ({ token, parentId, searchValue }) => {
 const productQueries = {
   async poscProducts(
     _root,
-    { type, categoryId, searchValue, ...paginationArgs }: IProductParams,
-    { models, config }: IContext
+    {
+      type,
+      categoryId,
+      branchId,
+      searchValue,
+      ...paginationArgs
+    }: IProductParams,
+    { models, subdomain, config }: IContext
   ) {
     let filter = await generateFilter(models, config.token, {
       type,
@@ -80,12 +90,106 @@ const productQueries = {
       searchValue
     });
 
-    return paginate(
+    const paginatedProducts = await paginate(
       models.Products.find(filter)
         .sort('code')
         .lean(),
       paginationArgs
     );
+
+    if (!config.isOnline || branchId) {
+      const latestBranchId = config.isOnline ? branchId : config.branchId;
+
+      if (config.checkRemainder) {
+        try {
+          const productIds = paginatedProducts.map(p => p._id);
+
+          const inventoryResponse = await sendInventoriesMessage({
+            subdomain,
+            action: 'remainders',
+            data: {
+              productIds,
+              departmentId: config.departmentId,
+              branchId: latestBranchId
+            },
+            isRPC: true,
+            defaultValue: []
+          });
+
+          const remainderByProductId = {};
+          for (const rem of inventoryResponse) {
+            remainderByProductId[rem.productId] = rem;
+          }
+
+          paginatedProducts.map((item: any) => {
+            item.remainder = remainderByProductId[item._id]
+              ? remainderByProductId[item._id].count
+              : undefined;
+            return item;
+          });
+        } catch (e) {
+          debugError(`fetch remainder from inventories, Error: ${e.message}`);
+        }
+      }
+
+      if (config.erkhetConfig.getRemainder) {
+        const configs = config.erkhetConfig;
+        if (
+          configs &&
+          configs.getRemainderApiUrl &&
+          configs.apiKey &&
+          configs.apiSecret
+        ) {
+          try {
+            let account = configs.account;
+            let location = configs.location;
+
+            if (config.isOnline && branchId) {
+              const accLocConf = configs[branchId];
+
+              if (accLocConf) {
+                account = accLocConf.account;
+                location = accLocConf.location;
+              }
+            }
+
+            if (account && location) {
+              const response = await sendRequest({
+                url: configs.getRemainderApiUrl,
+                method: 'GET',
+                params: {
+                  kind: 'remainder',
+                  api_key: configs.apiKey,
+                  api_secret: configs.apiSecret,
+                  check_relate: paginatedProducts.length < 4 ? '1' : '',
+                  accounts: account,
+                  locations: location,
+                  inventories: paginatedProducts.map(p => p.code).join(',')
+                }
+              });
+
+              const jsonRes = JSON.parse(response);
+
+              let responseByCode = jsonRes;
+
+              responseByCode =
+                (jsonRes[account] && jsonRes[account][location]) || {};
+
+              paginatedProducts.map((item: any) => {
+                item.remainder = responseByCode[item.code]
+                  ? responseByCode[item.code]
+                  : undefined;
+                return item;
+              });
+            }
+          } catch (e) {
+            debugError(`fetch remainder from erkhet, Error: ${e.message}`);
+          }
+        }
+      }
+    }
+
+    return paginatedProducts;
   },
 
   /**

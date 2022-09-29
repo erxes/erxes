@@ -56,6 +56,7 @@ export type IPos = {
   kioskExcludeProductIds?: string[];
   deliveryConfig?: any;
   cardsConfig?: any;
+  checkRemainder?: boolean;
 };
 
 export type ISlot = {

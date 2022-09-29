@@ -1,5 +1,6 @@
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
+import { IRemainderDocument } from '../../../models/definitions/remainders';
 
 export default {
   async uom(product: any, _, {}: IContext) {
@@ -18,5 +19,16 @@ export default {
     // }
 
     // return models.Uoms.getUom({ _id: uomId });
+  },
+
+  async category(remainder: any, _, { subdomain }: IContext) {
+    return sendProductsMessage({
+      subdomain,
+      action: 'categories.findOne',
+      data: {
+        _id: remainder.categoryId
+      },
+      isRPC: true
+    });
   }
 };

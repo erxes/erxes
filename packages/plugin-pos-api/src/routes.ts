@@ -54,6 +54,30 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
     });
   }
 
+  if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
+    const configs = await sendCoreMessage({
+      subdomain,
+      action: 'getConfig',
+      data: { code: 'ERKHET', defaultValue: {} },
+      isRPC: true
+    });
+
+    const remConfigs = await sendCoreMessage({
+      subdomain,
+      action: 'getConfig',
+      data: { code: 'remainderConfig', defaultValue: {} },
+      isRPC: true
+    });
+
+    pos.erkhetConfig = {
+      ...pos.erkhetConfig,
+      getRemainderApiUrl: configs.getRemainderApiUrl,
+      apiKey: configs.apiKey,
+      apiSecret: configs.apiSecret,
+      apiToken: configs.apiToken
+    };
+  }
+
   return data;
 };
 

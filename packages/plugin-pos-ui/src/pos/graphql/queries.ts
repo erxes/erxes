@@ -38,6 +38,7 @@ export const posCommonFields = `
   initialCategoryIds
   kioskExcludeProductIds
   deliveryConfig
+  checkRemainder
 `;
 
 const commonParamDefs = `

@@ -49,6 +49,10 @@ const transactionDetail = `
         isDebit
         modifiedAt
         productId
+        product {
+          _id
+          name
+        }
         transactionId
         uomId
       }

@@ -36,6 +36,7 @@ const posCommonFields = `
   kioskExcludeProductIds: [String]
   deliveryConfig: JSON
   cardsConfig: JSON
+  checkRemainder: Boolean
 `;
 
 const catProd = `
@@ -228,7 +229,7 @@ export const queries = `
   posProducts(${queryParams} categoryId: String, searchValue: String): PosProducts
   posOrdersSummary(${queryParams}): JSON
   ecommerceGetBranches(posToken: String): [JSON]
-  posOrdersTotalCount(${queryParams}): JSON 
+  posOrdersTotalCount(${queryParams}): JSON
 `;
 
 export const mutations = `

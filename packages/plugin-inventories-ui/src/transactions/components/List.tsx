@@ -8,7 +8,6 @@ import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 // local
 import Row from './Row';
-import Actionbar from './Actionbar';
 import { SUBMENU } from '../../constants';
 
 type Props = {
@@ -40,7 +39,6 @@ const List = (props: Props) => {
   return (
     <Wrapper
       header={<Wrapper.Header title={__('Transactions')} submenu={SUBMENU} />}
-      actionBar={<Actionbar />}
       footer={<Pagination count={data.length || 0} />}
       content={
         <DataWithLoader

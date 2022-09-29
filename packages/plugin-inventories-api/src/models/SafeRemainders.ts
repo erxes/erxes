@@ -103,9 +103,12 @@ export const loadSafeRemainderClass = (models: IModels) => {
 
       return {
         totalCount: await models.SafeRemainders.find(query).count(),
-        remainders: await paginate(models.SafeRemainders.find(query), {
-          ...params
-        })
+        remainders: await paginate(
+          models.SafeRemainders.find(query).sort({ modifiedAt: -1 }),
+          {
+            ...params
+          }
+        )
       };
     }
 

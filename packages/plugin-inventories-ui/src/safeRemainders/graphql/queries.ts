@@ -62,7 +62,6 @@ export const safeRemainderFields = `
       fullName
     }
   }
-
 `;
 
 const safeRemainders = `

@@ -29,7 +29,7 @@ export default {
     });
   },
 
-  async product(transaction: any, _, { subdomain }: IContext) {
+  async transactionItems_product(transaction: any, _, { subdomain }: IContext) {
     const result: any = [];
 
     transaction.transactionItems.map((item: any) => {
@@ -44,8 +44,6 @@ export default {
         })
       );
     });
-
-    console.log(result);
 
     return result;
   }

@@ -69,6 +69,7 @@ export const types = `
     deliveryConfig: JSON
     branchId: String
     departmentId: String
+    checkRemainder: Boolean
   }
 `;
 
