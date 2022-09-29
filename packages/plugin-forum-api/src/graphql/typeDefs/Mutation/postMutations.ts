@@ -11,7 +11,7 @@ const postMutations = `
   forumPostDraftCp(_id: ID!): ForumPost!
   forumPostPublishCp(_id: ID!): ForumPost!
 
-  updateTrendScoreOfPublished: Boolean
+  #updateTrendScoreOfPublished: Boolean
 `;
 
 export default postMutations;
