@@ -46,6 +46,7 @@ const generateFilterQuery = async ({ isOnline }, commonQuerySelector) => {
 };
 
 const generateFilterPosQuery = async (
+  models,
   params,
   commonQuerySelector,
   currentUserId
@@ -59,7 +60,8 @@ const generateFilterPosQuery = async (
     createdEndDate,
     paidDate,
     userId,
-    customerId
+    customerId,
+    posId
   } = params;
 
   if (search) {
@@ -68,6 +70,11 @@ const generateFilterPosQuery = async (
 
   if (customerId) {
     query.customerId = customerId;
+  }
+
+  if (posId) {
+    const pos = await models.Pos.findOne({ _id: posId }).lean();
+    query.posToken = pos.token;
   }
 
   if (userId) {
@@ -165,16 +172,11 @@ const queries = {
     { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id
     );
-
-    const { posId } = params;
-    if (posId) {
-      const pos = await models.Pos.findOne({ _id: posId }).lean();
-      query.posToken = pos.token;
-    }
 
     let sort: any = { number: 1 };
     if (params.sortField && params.sortDirection) {
@@ -195,6 +197,7 @@ const queries = {
     { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id
@@ -235,6 +238,7 @@ const queries = {
     { models, commonQuerySelector, user }: IContext
   ) => {
     const query = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id
@@ -279,6 +283,7 @@ const queries = {
     { models, commonQuerySelector, user, subdomain }: IContext
   ) => {
     const orderQuery = await generateFilterPosQuery(
+      models,
       params,
       commonQuerySelector,
       user._id
