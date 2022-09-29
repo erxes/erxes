@@ -69,13 +69,13 @@ const tagQueries = {
       let ids = [parentId, ...parentTag];
 
       const getChildTags = async parentTag => {
-        const dorj = await models.Tags.find({
+        const childTag = await models.Tags.find({
           parentId: { $in: parentTag }
         }).distinct('_id');
 
-        if (dorj.length > 0) {
-          ids = [...ids, ...dorj];
-          await getChildTags(dorj);
+        if (childTag.length > 0) {
+          ids = [...ids, ...childTag];
+          await getChildTags(childTag);
         }
 
         return;
