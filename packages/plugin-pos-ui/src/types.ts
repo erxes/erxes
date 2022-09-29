@@ -35,6 +35,7 @@ export type IPos = {
   description?: string;
   createdAt: Date;
   productDetails?: string[];
+  token: string;
   adminIds: [string];
   cashierIds: [string];
   user: IUser;

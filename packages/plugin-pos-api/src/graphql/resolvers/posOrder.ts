@@ -1,4 +1,4 @@
-import { sendEbarimtMessage } from '../../messageBroker';
+import { sendCoreMessage, sendEbarimtMessage } from '../../messageBroker';
 
 const resolvers = {
   putResponses: async (order, {}, { subdomain }) => {
@@ -11,6 +11,21 @@ const resolvers = {
           contentId: order._id
         }
       },
+      isRPC: true
+    });
+  },
+  posName: async (order, {}, { models }) => {
+    const pos = await models.Pos.findOne({ token: order.posToken }).lean();
+    return pos ? pos.name : '';
+  },
+  user: async (order, {}, { subdomain }) => {
+    if (!order.userId) {
+      return null;
+    }
+    return sendCoreMessage({
+      subdomain,
+      action: 'users.findOne',
+      data: { _id: order.userId },
       isRPC: true
     });
   }

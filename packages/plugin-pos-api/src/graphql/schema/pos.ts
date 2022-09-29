@@ -215,7 +215,7 @@ const queryParams = `
   paidDate: String
   userId: String
   customerId: String
-  posToken: String
+  posId: String
 `;
 
 export const queries = `

@@ -14,6 +14,7 @@ const listParamsDef = `
   $paidDate: String
   $userId: String
   $customerId: String
+  $posId: String
 `;
 
 const listParamsValue = `
@@ -29,6 +30,7 @@ const listParamsValue = `
   paidDate: $paidDate
   userId: $userId
   customerId: $customerId
+  posId: $posId
 `;
 
 export const orderFields = `
