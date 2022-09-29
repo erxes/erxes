@@ -1,6 +1,5 @@
 import * as compose from 'lodash.flowright';
 
-import { Alert, withProps } from 'coreui/utils';
 import {
   ITagTypes,
   TagMutationResponse,
@@ -12,6 +11,7 @@ import React from 'react';
 import Tagger from '../components/Tagger';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
+import { Alert, withProps } from '@erxes/ui/src/utils';
 
 type Props = {
   // targets can be conversation, customer, company etc ...
@@ -22,6 +22,7 @@ type Props = {
   className?: string;
   refetchQueries?: any[];
   parentTagId?: string;
+  singleSelect?: boolean;
 };
 
 type FinalProps = {

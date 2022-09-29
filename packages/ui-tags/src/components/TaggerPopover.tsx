@@ -2,7 +2,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
 import Tagger from '../containers/Tagger';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   type: string;
@@ -12,6 +12,7 @@ type Props = {
   container?: Element | Node | React.Component<any, {}, any>;
   refetchQueries?: any[];
   parentTagId?: string;
+  singleSelect?: boolean;
 };
 
 function TaggerPopover(props: Props) {

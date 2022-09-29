@@ -109,6 +109,8 @@ export class TimeView extends React.Component<Props, State> {
     });
   };
 
+  addItem = (groupId, time, e) => {};
+
   render() {
     const { resources, events, refetch } = this.props;
 
@@ -122,6 +124,7 @@ export class TimeView extends React.Component<Props, State> {
           onItemResize={this.handleItemResize}
           onItemClick={this.onSelectItem}
           onItemMove={this.handleItemMove}
+          onCanvasDoubleClick={this.addItem}
           canResize={'both'}
           refetch={refetch}
           stackItems

@@ -129,6 +129,7 @@ class Actions extends React.Component<Props> {
             refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
             targets={[item]}
             parentTagId={pipelineTagId}
+            singleSelect={true}
           />
         )}
       </ActionContainer>
