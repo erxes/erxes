@@ -1,6 +1,4 @@
 import React from 'react';
-import FullCalendar from '@fullcalendar/react'; // must go before plugins
-import resourceTimelinePlugin from '@fullcalendar/resource-timeline';
 import { ITag } from '@erxes/ui-tags/src/types';
 import { IOptions, IPipeline, IItem, ITimeData } from '../types';
 import { CalendarContainer } from '../styles/view';
@@ -15,6 +13,10 @@ import Timeline, {
 // make sure you include the timeline stylesheet or the timeline will not be styled
 import 'react-calendar-timeline/lib/Timeline.css';
 import moment from 'moment';
+import { __ } from '@erxes/ui/src/utils';
+import { Modal } from 'react-bootstrap';
+import RTG from 'react-transition-group';
+import AddForm from '../containers/portable/AddForm';
 
 type Props = {
   tags: ITag[];
@@ -31,6 +33,8 @@ type State = {
   selectedItem: any;
   closeTime: any;
   startTime: any;
+  isModalOpen: boolean;
+  groupId: string;
 };
 export class TimeView extends React.Component<Props, State> {
   constructor(props) {
@@ -39,7 +43,9 @@ export class TimeView extends React.Component<Props, State> {
     this.state = {
       selectedItem: null,
       closeTime: null,
-      startTime: null
+      startTime: null,
+      isModalOpen: false,
+      groupId: ''
     };
   }
 
@@ -90,8 +96,8 @@ export class TimeView extends React.Component<Props, State> {
 
     const newTagId = [] as any;
 
-    let startDate;
-    let endDate;
+    let startDate: any;
+    let endDate: any;
 
     newTagId.push(resources[newGroupOrder].id);
 
@@ -109,7 +115,44 @@ export class TimeView extends React.Component<Props, State> {
     });
   };
 
-  addItem = (groupId, time, e) => {};
+  addItem = (groupId, time, e) => {
+    this.setState({ isModalOpen: true, groupId, startTime: time });
+  };
+
+  closeModal = () => {
+    this.setState({ isModalOpen: false });
+  };
+
+  renderModal() {
+    const { options, pipeline } = this.props;
+    const { isModalOpen, groupId, startTime, closeTime } = this.state;
+
+    const addText = options.texts.addText;
+
+    const formProps = {
+      options,
+      showSelect: false,
+      pipelineId: pipeline._id,
+      tagIds: [groupId],
+      startDate: new Date(startTime),
+      closeDate: new Date(startTime + 3600000)
+    };
+
+    const content = props => <AddForm {...props} {...formProps} />;
+
+    return (
+      <Modal size="lg" show={isModalOpen} onHide={this.closeModal}>
+        <Modal.Header closeButton={true}>
+          <Modal.Title>{__(addText)}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <RTG.Transition in={isModalOpen} timeout={300} unmountOnExit={true}>
+            {content({ closeModal: this.closeModal })}
+          </RTG.Transition>
+        </Modal.Body>
+      </Modal>
+    );
+  }
 
   render() {
     const { resources, events, refetch } = this.props;
@@ -157,6 +200,7 @@ export class TimeView extends React.Component<Props, State> {
           </TimelineMarkers>
         </Timeline>
         {this.renderForm()}
+        {this.renderModal()}
       </CalendarContainer>
     );
   }

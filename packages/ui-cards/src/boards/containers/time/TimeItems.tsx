@@ -15,7 +15,7 @@ import {
   SaveItemMutation
 } from '../../types';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { subscriptions } from '../../graphql';
+import { queries, subscriptions } from '../../graphql';
 import { getFilterParams } from '../../utils';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import moment from 'moment';
