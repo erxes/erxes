@@ -264,12 +264,15 @@ class Form extends React.Component<Props, State> {
           </thead>
           <tbody>
             {products.map(product => {
-              const subUoms = product.product.subUoms
-                ? product.product.subUoms
-                : [];
-              const defaultUomId = product.product.uomId
-                ? product.product.uomId
-                : (configsMap || {}).default_uom;
+              console.log(product, 'ddddddddddddddddd');
+              const subUoms =
+                product.product && product.product.subUoms
+                  ? product.product.subUoms || []
+                  : [];
+              const defaultUomId =
+                product.product && product.product.uomId
+                  ? product.product.uomId
+                  : (configsMap || {}).default_uom;
 
               const productUoms = subUoms.map(e => e.uomId);
               const mergedUoms = [...productUoms, defaultUomId];
@@ -284,7 +287,9 @@ class Form extends React.Component<Props, State> {
                 <tr>
                   <td>
                     <FormControl
-                      value={product ? product.product.name : ''}
+                      value={
+                        product && product.product ? product.product.name : ''
+                      }
                       disabled={true}
                     />
                   </td>
