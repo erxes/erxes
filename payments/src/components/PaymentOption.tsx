@@ -16,6 +16,7 @@ type Props = {
     paymentConfigId: string,
     params: IPaymentParams
   ) => void;
+  onClickCheck: () => void;
 };
 
 type State = {
@@ -53,6 +54,7 @@ class Payment extends Component<Props, State> {
       return onClickInvoiceCreate(id, {...params, ...this.state});
     } else {
       console.log('check');
+      return this.props.onClickCheck();
     }
   };
 

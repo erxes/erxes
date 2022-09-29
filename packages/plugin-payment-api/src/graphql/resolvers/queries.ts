@@ -62,12 +62,9 @@ const paymentConfigQueries = {
       invoiceId
     };
 
-    const response =
-      type.toLowerCase() === 'qpay'
-        ? await models.QpayInvoices.checkInvoice(data)
-        : await models.SocialPayInvoices.checkInvoice(data);
+    const model: any = getModel(type, models);
 
-    return response;
+    return model.checkInvoice(data);
   },
 
   async getInvoice(

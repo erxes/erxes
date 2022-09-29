@@ -15,7 +15,7 @@ import {
 
 export interface ISocialPayInvoiceModel
   extends Model<ISocialPayInvoiceDocument> {
-  getSocialPayInvoice(invoiceNo: string): ISocialPayInvoiceDocument;
+  getSocialPayInvoice(doc: any): ISocialPayInvoiceDocument;
   socialPayInvoiceCreate(doc: any): ISocialPayInvoiceDocument;
   socialPayInvoiceUpdate(invoice: any, qrText: any): ISocialPayInvoiceDocument;
   socialPayInvoiceStatusUpdate(
@@ -31,20 +31,20 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
     public static async checkInvoice(data) {
       const { config, invoiceId } = data;
       const { inStoreSPTerminal, inStoreSPKey } = config;
-      const invoice = await models.SocialPayInvoices.getSocialPayInvoice(
-        invoiceId
-      );
+      const invoice = await models.SocialPayInvoices.getSocialPayInvoice({
+        _id: invoiceId
+      });
 
       const amount = invoice.amount;
       const checksum = await hmac256(
         inStoreSPKey,
-        inStoreSPTerminal + invoiceId + amount
+        inStoreSPTerminal + invoice.invoiceNo + amount
       );
 
       const requestBody = {
         amount,
         checksum,
-        invoice: invoiceId,
+        invoice: invoice.invoiceNo,
         terminal: inStoreSPTerminal
       };
       const response: any = await socialPayInvoiceCheck(requestBody);
@@ -59,12 +59,13 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
           invoice,
           'paid'
         );
+
+        return { status: 'paid', _id: invoice._id };
       }
 
-      return {
-        status: 'success',
-        data: response
-      };
+      if (response.body.error) {
+        return { status: 'open', message: response.body.error.errorDesc };
+      }
     }
 
     public static async createInvoice(data, config) {
@@ -137,8 +138,8 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
       }
     }
 
-    public static async getSocialPayInvoice(invoiceNo: string) {
-      const invoice = await models.SocialPayInvoices.findOne({ invoiceNo });
+    public static async getSocialPayInvoice(doc: any) {
+      const invoice = await models.SocialPayInvoices.findOne(doc);
 
       if (!invoice) {
         throw new Error('Invoice not found');

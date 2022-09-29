@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery, useLazyQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 
@@ -33,11 +33,16 @@ const PaymentsContainer = (props: IRouterProps) => {
     skip: !paymentConfigId || !invoiceId,
   });
 
-  const { data = {} as any, loading } = useQuery(gql(queries.paymentConfigs), {
+  const paymentsQuery = useQuery(gql(queries.paymentConfigs), {
     variables: { paymentIds: params.paymentIds },
   });
 
-  let iSloading = loading || getInvoiceQuery.loading;
+  const [checkInvoice, { called, data, loading }] = useLazyQuery(
+    gql(queries.checkInvoiceQuery),
+    { variables: { invoiceId, paymentId: paymentConfigId } }
+  );
+
+  let iSloading = loading || getInvoiceQuery.loading || paymentsQuery.loading;
 
   useEffect(() => {}, [invoiceId, paymentConfigId]);
 
@@ -64,6 +69,11 @@ const PaymentsContainer = (props: IRouterProps) => {
       });
   };
 
+  const onClickCheck = () => {
+
+    checkInvoice();
+  };
+
   if (iSloading) {
     return <>...loading</>;
   }
@@ -73,10 +83,11 @@ const PaymentsContainer = (props: IRouterProps) => {
   const updatedProps = {
     ...props,
     invoice,
-    datas: data.paymentConfigs,
+    datas: paymentsQuery.data.paymentConfigs,
     params,
     paymentId: paymentConfigId,
     onClickInvoiceCreate,
+    onClickCheck,
   };
 
   return <Payments {...updatedProps} />;

@@ -46,15 +46,19 @@ export const loadQpayInvoiceClass = (models: IModels) => {
       const { config, invoiceId } = data;
       const token = await qpayToken(config);
       const invoice = await models.QpayInvoices.findOne({
-        qpayInvoiceId: invoiceId
+        _id: invoiceId
       });
 
-      const detail: any = await getQpayInvoice(invoiceId, token);
+      if (!invoice) {
+        throw new Error('Invoice not found');
+      }
+
+      const detail: any = await getQpayInvoice(invoice.qpayInvoiceId, token);
 
       if (!invoice || detail.error || detail.invoice_status !== 'CLOSED') {
         return {
-          status: 'failed',
-          data: { ...detail }
+          status: 'open',
+          message: 'Not paid'
         };
       }
 
@@ -64,7 +68,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         const paymentId = e.payment_id;
 
         await models.QpayInvoices.updateOne(
-          { qpayInvoiceId: invoiceId },
+          { qpayInvoiceId: invoice.qpayInvoiceId },
           {
             $set: {
               paymentDate: new Date(),
@@ -76,8 +80,8 @@ export const loadQpayInvoiceClass = (models: IModels) => {
       });
 
       return {
-        status: 'success',
-        data: { ...detail, invoice_status: 'paid' }
+        status: 'paid',
+        message: 'Paid'
       };
     }
 

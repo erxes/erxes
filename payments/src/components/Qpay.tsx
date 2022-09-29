@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import * as QRCode from 'qrcode';
+import {QRCodeSVG} from 'qrcode.react';
 import { IPaymentParams } from '../types';
 
 // const INVOICE_SUBSCRIPTION = gql`
@@ -20,18 +20,6 @@ type Props = {
 const QpaySection = (props: Props) => {
   const { params, invoice } = props;
 
-  const [qr, setQr] = useState('');
-
-  const generateQrCode = (text: string) => {
-    QRCode.toDataURL(text).then((qrImage) => {
-      setQr(qrImage);
-    });
-  };
-
-  if (invoice && invoice.qrText) {
-    generateQrCode(invoice.qrText);
-  }
-
   const renderQR = () => {
     if (!props.invoice) {
       return null;
@@ -40,7 +28,11 @@ const QpaySection = (props: Props) => {
     return (
       <>
         <div className='border'>
-          <img src={qr} alt='' className='center' id='qpay' />
+           {invoice.qrText && (
+            <div>
+             <QRCodeSVG value={invoice.qrText} />
+            </div>
+          )}
           <div>
             <label className='labelSpecial centerStatus' htmlFor='qpay'>
               Status: {invoice && invoice.status}

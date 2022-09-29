@@ -8,6 +8,7 @@ type Props = {
   params: IPaymentParams;
   invoice?: any;
   onClickInvoiceCreate: (paymentConfigId: string, params: IPaymentParams) => void;
+  onClickCheck:()=>void;
 };
 
 type State = {

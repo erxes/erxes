@@ -1,3 +1,4 @@
+import { QRCodeSVG } from 'qrcode.react';
 import { useState } from 'react';
 
 import { IPaymentParams } from '../types';
@@ -16,24 +17,6 @@ const SocialPaySection = (props: Props) => {
     params.phone ? true : false
   );
 
-  const renderInvoiceData = () => {
-    if (!invoice || !invoice.qrText || invoiceByPhone) {
-      return null;
-    }
-
-    return (
-      <div className='border'>
-        <img src={invoice.qrTexts} alt='' width='150px' className='center' id='qpay' />
-
-        <div>
-          <label className='labelSpecial centerStatus'>
-            Status: {invoice.status}
-          </label>
-        </div>
-      </div>
-    );
-  };
-
   const onChange = (e: any) => {
     if (e.target.id === 'phone') {
       setPhone(e.target.value);
@@ -51,51 +34,89 @@ const SocialPaySection = (props: Props) => {
     }
   };
 
+  const renderInvoiceData = () => {
+    if (!invoice || !invoice.qrText) {
+      return null;
+    }
+
+    return (
+      <>
+        <div className='border'>
+          {invoice.qrText.includes('socialpay-payment') ? (
+            <div>
+              <QRCodeSVG value={invoice.qrText} />
+            </div>
+          ): 
+          <div>
+            Invoice has been created. Please check your phone.
+          </div>
+          }
+
+          <div>
+            <label className='labelSpecial centerStatus'>
+              Status: {invoice.status}
+            </label>
+          </div>
+        </div>
+      </>
+    );
+  };
+
+  const renderInputs = () => {
+    if (invoice){
+      return null;
+    }
+
+    return (
+      <div className='border'>
+      <div style={{ marginBottom: '5px' }}>
+        <label className='label' htmlFor='invoiceByPhone'>
+          Create invoice with phone number:
+        </label>
+        <input
+          type='checkbox'
+          onClick={onChange}
+          id='invoiceByPhone'
+          name='invoiceByPhone'
+          checked={invoiceByPhone}
+        />
+      </div>
+      {invoiceByPhone && (
+        <>
+          <label className='label'>phone:</label>
+          <input type='text' value={phone} onChange={onChange} id='phone' />
+        </>
+      )}
+      <label className='label' htmlFor='amount'>
+        Amount:{' '}
+      </label>
+      <input
+        type='text'
+        value={params.amount}
+        onChange={onChange}
+        disabled={true}
+        name='amount'
+        id='amount'
+      />
+
+      <label className='label' htmlFor='description'>
+        Description:{' '}
+      </label>
+      <input
+        type='text'
+        value={params.description}
+        onChange={onChange}
+        name='description'
+        id='description'
+      />
+    </div>
+    )
+  }
+
   return (
     <div style={{ height: '30em', overflow: 'auto' }}>
       {renderInvoiceData()}
-      <div className='border'>
-        <div style={{ marginBottom: '5px' }}>
-          <label className='label' htmlFor='invoiceByPhone'>
-            Create invoice with phone number:
-          </label>
-          <input
-            type='checkbox'
-            onClick={onChange}
-            id='invoiceByPhone'
-            name='invoiceByPhone'
-            checked={invoiceByPhone}
-          />
-        </div>
-        {invoiceByPhone && (
-          <>
-            <label className='label'>phone:</label>
-            <input type='text' value={phone} onChange={onChange} id='phone' />
-          </>
-        )}
-        <label className='label' htmlFor='amount'>
-          Amount:{' '}
-        </label>
-        <input
-          type='text'
-          value={params.amount}
-          onChange={onChange}
-          disabled={true}
-          name='amount'
-          id='amount'
-        />
-
-        <label className='label' htmlFor='description'>
-          Description:{' '}
-        </label>
-        <input
-          type='text'
-          value={params.description}
-          onChange={onChange}
-          name='description'
-          id='description'
-        />
-      </div>
+      {renderInputs()}
     </div>
   );
 };
