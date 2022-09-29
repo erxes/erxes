@@ -78,7 +78,7 @@ export const afterMutationHandlers = async (
             userId: user._id,
             responseId: ebarimtResponse._id,
             sessionCode: user.sessionCode || '',
-            content: { ...config, ...ebarimtResponse }
+            content: { ...config, ...ebarimtResponse, number: deal.number }
           }
         });
       } catch (e) {

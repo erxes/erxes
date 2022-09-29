@@ -35,6 +35,7 @@ export default (response, error?) => {
             <p>ТТД: ${response.registerNo}</p>
             ${response.billId && `<p>ДДТД: ${response.billId}</p>`}
             <p>Огноо: ${response.date}</p>
+            ${response.number && `<p>№: ${response.number}</p>`}
 
           </div>
 
