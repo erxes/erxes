@@ -35,7 +35,7 @@ export const postsHourly = async (subdomain: string, { Post }: IModels) => {
     const weekAgo = new Date(now - oneWeekDuration);
 
     await Post.updateTrendScoreOfPublished({
-      stateChangedAt: { $lte: oneDayAgo, $gte: weekAgo }
+      stateChangedAt: { $lt: oneDayAgo, $gte: weekAgo }
     });
   } catch (e) {
     console.error('postsHourly failed');
@@ -49,7 +49,7 @@ export const postsDaily = async (subdomain: string, { Post }: IModels) => {
     const weekAgo = new Date(now - oneWeekDuration - oneHourDuration);
 
     await Post.updateTrendScoreOfPublished({
-      stateChangedAt: { $lte: weekAgo }
+      stateChangedAt: { $lt: weekAgo }
     });
   } catch (e) {
     console.error('postsDaily failed');
