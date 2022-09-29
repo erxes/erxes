@@ -143,7 +143,7 @@ export const postSchema = new Schema<PostDocument>({
 });
 postSchema.index({ categoryId: 1, state: 1 });
 // mostly used by update query of updateTrendScoreOfPublished
-postSchema.index({ state: 1, stateChangedAt: 1 });
+postSchema.index({ stateChangedAt: 1, state: 1 });
 
 export const generatePostModel = (
   subdomain: string,
