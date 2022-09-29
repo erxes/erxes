@@ -28,7 +28,7 @@ class Payments extends Component<Props, State> {
   };
 
   render() {
-    const { datas, params } = this.props;
+    const { datas, params, invoice } = this.props;
     const { show } = this.state;
 
     const updatedProps = {
@@ -36,8 +36,20 @@ class Payments extends Component<Props, State> {
       show,
       handleClose: this.hideModal,
       datas,
-      params
+      params,
+      invoice
     };
+
+    if (invoice && invoice.status === 'paid') {
+      if (window.confirm('Payment process is completed.')) {
+        if (params.redirectUri){
+          return window.location.href = params.redirectUri;
+        }
+
+        window.close();
+      }
+
+    }
 
     return <PaymentOption {...updatedProps} />;
   }

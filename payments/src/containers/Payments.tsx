@@ -57,12 +57,12 @@ const PaymentsContainer = (props: IRouterProps) => {
         })
         .subscribe({
           next({ data }) {
-            if (data.invoiceUpdated && data.invoiceUpdated.status === "PAID") {
-              invoice.status = "PAID";
+            if (data.invoiceUpdated && data.invoiceUpdated.status === "paid") {
+              invoice.status = "paid";
             }
           },
           error(_err: any) {
-            invoice.status = "ERROR";
+            invoice.status = "error";
           }
         });
     }
@@ -99,7 +99,11 @@ const PaymentsContainer = (props: IRouterProps) => {
     return <>...loading</>;
   }
 
-  const invoice = getInvoiceQuery.data && getInvoiceQuery.data.getInvoice;
+  const invoice = getInvoiceQuery.data && {...getInvoiceQuery.data.getInvoice};
+
+  if (data && data.checkInvoice) {
+    invoice.status = data.checkInvoice.status;
+  }
 
   const updatedProps = {
     ...props,
