@@ -1,11 +1,13 @@
-import { gql, useMutation, useQuery, useLazyQuery } from '@apollo/client';
-import { useEffect, useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
+import { withRouter } from "react-router-dom";
+import client from "../apolloClient";
 
-import Payments from '../components/Payments';
-import { mutations, queries } from '../graphql';
-import { IPaymentParams, IRouterProps } from '../types';
-import { docodeQueryParams } from '../utils';
+import Payments from "../components/Payments";
+import { mutations, queries } from "../graphql";
+import subscriptions from "../graphql/subscriptions";
+import { IPaymentParams, IRouterProps } from "../types";
+import { docodeQueryParams } from "../utils";
 
 const PaymentsContainer = (props: IRouterProps) => {
   const { history } = props;
@@ -13,64 +15,83 @@ const PaymentsContainer = (props: IRouterProps) => {
 
   const params = docodeQueryParams(location.search);
 
-  const [paymentConfigId, setPaymentConfigId] = useState('');
-  const [invoiceId, setInvoiceId] = useState('');
+  const [paymentConfigId, setPaymentConfigId] = useState("");
+  const [invoiceId, setInvoiceId] = useState("");
 
-  const [createMutation] = useMutation(gql(mutations.createInvoice), {
+  const [createMutation] = useMutation(mutations.createInvoice, {
     refetchQueries: [
       {
-        query: gql(queries.getInvoiceQuery),
-        variables: { invoiceId, paymentId: paymentConfigId },
-      },
-    ],
+        query: queries.getInvoiceQuery,
+        variables: { invoiceId, paymentId: paymentConfigId }
+      }
+    ]
   });
 
-  const getInvoiceQuery = useQuery(gql(queries.getInvoiceQuery), {
+  const getInvoiceQuery = useQuery(queries.getInvoiceQuery, {
     variables: {
       invoiceId,
-      paymentId: paymentConfigId,
+      paymentId: paymentConfigId
     },
-    skip: !paymentConfigId || !invoiceId,
+    skip: !paymentConfigId || !invoiceId
   });
 
-  const paymentsQuery = useQuery(gql(queries.paymentConfigs), {
-    variables: { paymentIds: params.paymentIds },
+  const paymentsQuery = useQuery(queries.paymentConfigs, {
+    variables: { paymentIds: params.paymentIds }
   });
 
-  const [checkInvoice, { called, data, loading }] = useLazyQuery(
-    gql(queries.checkInvoiceQuery),
-    { variables: { invoiceId, paymentId: paymentConfigId } }
+  const [checkInvoice, { data, loading }] = useLazyQuery(
+    queries.checkInvoiceQuery,
+    {
+      variables: { invoiceId, paymentId: paymentConfigId }
+    }
   );
 
   let iSloading = loading || getInvoiceQuery.loading || paymentsQuery.loading;
 
-  useEffect(() => {}, [invoiceId, paymentConfigId]);
+  useEffect(() => {
+    if (invoiceId) {
+      client
+        .subscribe({
+          query: subscriptions.invoiceSubscription,
+          variables: { _id: invoiceId }
+        })
+        .subscribe({
+          next({ data }) {
+            if (data.invoiceUpdated && data.invoiceUpdated.status === "PAID") {
+              invoice.status = "PAID";
+            }
+          },
+          error(_err: any) {
+            invoice.status = "ERROR";
+          }
+        });
+    }
+  }, [invoiceId, paymentConfigId]);
 
   const onClickInvoiceCreate = (paymentId: string, params: IPaymentParams) => {
     createMutation({
       variables: {
         paymentId,
-        ...params,
-      },
+        ...params
+      }
     })
       .then(({ data }) => {
         const { createInvoice } = data;
         const { status } = createInvoice;
 
-        if (status !== 'success') {
-          return window.alert('Failed to create invoice');
+        if (status !== "success") {
+          return window.alert("Failed to create invoice");
         }
 
         setInvoiceId(createInvoice.data._id);
         setPaymentConfigId(paymentId);
       })
-      .catch((error) => {
+      .catch(error => {
         window.alert(error.message);
       });
   };
 
   const onClickCheck = () => {
-
     checkInvoice();
   };
 
@@ -87,7 +108,7 @@ const PaymentsContainer = (props: IRouterProps) => {
     params,
     paymentId: paymentConfigId,
     onClickInvoiceCreate,
-    onClickCheck,
+    onClickCheck
   };
 
   return <Payments {...updatedProps} />;

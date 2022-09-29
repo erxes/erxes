@@ -1,15 +1,6 @@
-import { useState } from 'react';
-import {QRCodeSVG} from 'qrcode.react';
-import { IPaymentParams } from '../types';
+import { QRCodeSVG } from 'qrcode.react';
 
-// const INVOICE_SUBSCRIPTION = gql`
-//   subscription invoiceUpdated($_id: String!) {
-//     invoiceUpdated(_id: $_id) {
-//       _id
-//       status
-//     }
-//   }
-// `;
+import { IPaymentParams } from '../types';
 
 type Props = {
   params: IPaymentParams;
@@ -27,14 +18,14 @@ const QpaySection = (props: Props) => {
 
     return (
       <>
-        <div className='border'>
-           {invoice.qrText && (
+        <div className="border">
+          {invoice.qrText && (
             <div>
-             <QRCodeSVG value={invoice.qrText} />
+              <QRCodeSVG value={invoice.qrText} />
             </div>
           )}
           <div>
-            <label className='labelSpecial centerStatus' htmlFor='qpay'>
+            <label className="labelSpecial centerStatus" htmlFor="qpay">
               Status: {invoice && invoice.status}
             </label>
           </div>
@@ -48,32 +39,32 @@ const QpaySection = (props: Props) => {
   };
 
   return (
-    <div style={{ height: '30em', overflow: 'auto' }}>
+    <div style={{ height: "30em", overflow: "auto" }}>
       {renderQR()}
 
       {invoice && invoice.qrText ? null : (
-        <div className='border'>
+        <div className="border">
           <div>
-            <label className='label' htmlFor='amount'>
-              Amount:{' '}
+            <label className="label" htmlFor="amount">
+              Amount:{" "}
             </label>
             <input
-              type='text'
+              type="text"
               value={params.amount}
-              onChange={(e) => onChange(e)}
-              name='amount'
-              id='amount'
+              onChange={e => onChange(e)}
+              name="amount"
+              id="amount"
               disabled={true}
             />
-            <label className='label' htmlFor='description'>
-              Description:{' '}
+            <label className="label" htmlFor="description">
+              Description:{" "}
             </label>
             <input
-              type='text'
+              type="text"
               value={params.description}
-              onChange={(e) => onChange(e)}
-              name='description'
-              id='description'
+              onChange={e => onChange(e)}
+              name="description"
+              id="description"
             />
           </div>
         </div>
