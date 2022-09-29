@@ -1,19 +1,22 @@
-import * as _ from 'underscore';
-import { generateModels, IModels } from '../db/models';
+import { IModels } from '../db/models';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-export const postsMinutely = async (subdomain: string) => {
+const oneMinuteDuration = 1 * 60 * 1000;
+const oneHourDuration = 1 * 60 * 60 * 1000;
+const oneDayDuration = 1 * 24 * 60 * 1000 * 1000;
+const oneWeekDuration = 7 * 24 * 60 * 1000 * 1000;
+
+export const postsMinutely = async (subdomain: string, { Post }: IModels) => {
   try {
-    const models = await generateModels(subdomain);
     if (process.env.NODE_ENV === 'development') {
-      await models.Post.updateTrendScoreOfPublished({});
+      await Post.updateTrendScoreOfPublished({});
     } else {
       const now = Date.now();
-      const oneDayDuration = 1 * 24 * 60 * 1000 * 1000;
+
       const oneDayAgo = new Date(now - oneDayDuration);
 
-      await models.Post.updateTrendScoreOfPublished({
+      await Post.updateTrendScoreOfPublished({
         stateChangedAt: { $gte: oneDayAgo }
       });
     }
@@ -23,16 +26,16 @@ export const postsMinutely = async (subdomain: string) => {
   }
 };
 
-export const postsHourly = async (subdomain: string) => {
+export const postsHourly = async (subdomain: string, { Post }: IModels) => {
   try {
-    const models = await generateModels(subdomain);
-
     const now = Date.now();
-    const weekDuration = 7 * 24 * 60 * 1000 * 1000;
-    const weekAgo = new Date(now - weekDuration);
 
-    await models.Post.updateTrendScoreOfPublished({
-      stateChangedAt: { $gte: weekAgo }
+    const oneDayAgo = new Date(now - oneDayDuration - oneMinuteDuration);
+
+    const weekAgo = new Date(now - oneWeekDuration);
+
+    await Post.updateTrendScoreOfPublished({
+      stateChangedAt: { $lte: oneDayAgo, $gte: weekAgo }
     });
   } catch (e) {
     console.error('postsHourly failed');
@@ -40,11 +43,14 @@ export const postsHourly = async (subdomain: string) => {
   }
 };
 
-export const postsDaily = async (subdomain: string) => {
+export const postsDaily = async (subdomain: string, { Post }: IModels) => {
   try {
-    const models = await generateModels(subdomain);
+    const now = Date.now();
+    const weekAgo = new Date(now - oneWeekDuration - oneHourDuration);
 
-    await models.Post.updateTrendScoreOfPublished({});
+    await Post.updateTrendScoreOfPublished({
+      stateChangedAt: { $lte: weekAgo }
+    });
   } catch (e) {
     console.error('postsDaily failed');
     console.error(e);

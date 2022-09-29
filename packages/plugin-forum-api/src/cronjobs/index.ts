@@ -1,13 +1,17 @@
+import { generateModels } from '../db/models';
 import { postsDaily, postsHourly, postsMinutely } from './posts';
 
 export default {
   handleMinutelyJob: async ({ subdomain }) => {
-    await postsMinutely(subdomain);
+    const models = await generateModels(subdomain);
+    await postsMinutely(subdomain, models);
   },
   handleHourlyJob: async ({ subdomain }) => {
-    await postsHourly(subdomain);
+    const models = await generateModels(subdomain);
+    await postsHourly(subdomain, models);
   },
   handleDailyJob: async ({ subdomain }) => {
-    await postsDaily(subdomain);
+    const models = await generateModels(subdomain);
+    await postsDaily(subdomain, models);
   }
 };
