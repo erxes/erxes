@@ -7,8 +7,11 @@ type Props = {
   datas: any[];
   params: IPaymentParams;
   invoice?: any;
-  onClickInvoiceCreate: (paymentConfigId: string, params: IPaymentParams) => void;
-  onClickCheck:()=>void;
+  onClickInvoiceCreate: (
+    paymentConfigId: string,
+    params: IPaymentParams
+  ) => void;
+  onClickCheck: () => void;
 };
 
 type State = {
@@ -40,15 +43,14 @@ class Payments extends Component<Props, State> {
       invoice
     };
 
-    if (invoice && invoice.status === 'paid') {
-      if (window.confirm('Payment process is completed.')) {
-        if (params.redirectUri){
-          return window.location.href = params.redirectUri;
+    if (invoice && invoice.status === "paid") {
+      if (window.confirm("Payment process is completed.")) {
+        if (params.redirectUri) {
+          return (window.location.href = params.redirectUri);
         }
 
         window.close();
       }
-
     }
 
     return <PaymentOption {...updatedProps} />;
