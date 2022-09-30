@@ -139,8 +139,8 @@ export default {
 
     const { columnsConfig, contentType } = data;
 
-    const finalValue = [] as any;
-    const finalColumnsConfigs = [] as string[];
+    const docs = [] as any;
+    const headers = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -157,24 +157,25 @@ export default {
             isRPC: true
           });
 
-          finalColumnsConfigs.push(`customFieldsData.${field.text}.${fieldId}`);
+          headers.push(`customFieldsData.${field.text}.${fieldId}`);
         } else if (column.startsWith('productsData')) {
-          finalColumnsConfigs.push(column);
+          headers.push(column);
         } else {
-          finalColumnsConfigs.push(column);
+          headers.push(column);
         }
       }
 
       for (const item of results) {
         const result = {};
 
-        for (const column of finalColumnsConfigs) {
+        for (const column of headers) {
           if (column.startsWith('customFieldsData')) {
             const fieldId = column.split('.')[2];
+            const fieldName = column.split('.')[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[column] = value || '-';
+            result[fieldName] = value || '-';
           } else if (column.startsWith('productsData')) {
             const { value } = await fillDealProductValue(
               subdomain,
@@ -188,11 +189,19 @@ export default {
           }
         }
 
-        finalValue.push(result);
+        headers.forEach((header, index) => {
+          if (header.startsWith('customFieldsData')) {
+            headers[index] = header.split('.')[1];
+          }
+        });
+
+        console.log(headers);
+
+        docs.push(result);
       }
     } catch (e) {
       return { error: e.message };
     }
-    return { finalValue, columnsConfig };
+    return { docs, headers };
   }
 };

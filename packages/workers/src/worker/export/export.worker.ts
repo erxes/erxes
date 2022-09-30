@@ -66,11 +66,9 @@ connect()
 
     const models = await generateModels(subdomain);
 
-    // const serviceName = contentType.split(':')[0];
-
     const [serviceName, type] = contentType.split(':');
 
-    const bulkDoc = await messageBroker().sendRPCMessage(
+    const { headers, docs } = await messageBroker().sendRPCMessage(
       `${serviceName}:exporter:prepareExportData`,
       {
         subdomain,
@@ -81,10 +79,26 @@ connect()
       }
     );
 
-    console.log(bulkDoc, 'bulkDoc');
-
     const { workbook, sheet } = await createXlsFile();
-    sheet.cell(1, 1).value('sda');
+
+    for (let i = 1; i <= headers.length; i++) {
+      sheet.cell(1, i).value(headers[i - 1]);
+    }
+
+    let rowIndex = 2;
+
+    for (const doc of docs) {
+      let columnIndex = 0;
+
+      for (const header of headers) {
+        const value = doc[header];
+
+        sheet.cell(rowIndex, columnIndex + 1).value(value || '-');
+        columnIndex++;
+      }
+
+      rowIndex++;
+    }
 
     const hi = await generateXlsx(workbook);
 
