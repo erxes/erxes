@@ -2,8 +2,8 @@ import { generateModels, IModels } from './connectionResolver';
 import { EXPORT_TYPES, MODULE_NAMES } from './constants';
 import {
   fetchSegment,
-  sendFormsMessage
-  // sendProductsMessage
+  sendFormsMessage,
+  sendProductsMessage
 } from './messageBroker';
 
 const prepareData = async (
@@ -62,116 +62,77 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
-// const fillDealProductValue = async (
-//   subdomain,
-//   column,
-//   item,
-//   sheet,
-//   columnNames,
-//   rowIndex,
-//   dealIds,
-//   dealRowIndex
-// ) => {
-//   const productsData = item.productsData;
+const fillDealProductValue = async (subdomain, column, item) => {
+  const productsData = item.productsData;
+  let value;
 
-//   if (productsData.length === 0) {
-//     rowIndex++;
-//     dealRowIndex++;
+  // if (productsData.length === 0) {
+  //   return value;
+  // }
 
-//     addCell(column, '-', sheet, columnNames, dealRowIndex);
+  for (const productData of productsData) {
+    let product;
 
-//     return { rowIndex, dealRowIndex };
-//   }
+    switch (column) {
+      case 'productsData.amount':
+        value = productData.amount;
+        break;
 
-//   if (dealIds.length === 0) {
-//     dealIds.push(item._id);
-//   } else if (!dealIds.includes(item._id)) {
-//     dealIds.push(item._id);
-//     rowIndex = dealRowIndex;
-//   }
+      case 'productsData.name':
+        product =
+          (await sendProductsMessage({
+            subdomain,
+            action: 'findOne',
+            data: {
+              _id: productData.productId
+            },
+            isRPC: true
+          })) || {};
 
-//   dealRowIndex = rowIndex;
+        value = product.name;
+        break;
 
-//   for (const productData of productsData) {
-//     let cellValue = '';
-//     let product;
+      case 'productsData.code':
+        product =
+          (await sendProductsMessage({
+            subdomain,
+            action: 'findOne',
+            data: {
+              _id: productData.productId
+            },
+            isRPC: true
+          })) || {};
 
-//     switch (column.name) {
-//       case 'productsData.amount':
-//         cellValue = productData.amount;
-//         break;
+        value = product.code;
+        break;
 
-//       case 'productsData.name':
-//         product =
-//           (await sendProductsMessage({
-//             subdomain,
-//             action: 'findOne',
-//             data: { _id: productData.productId },
-//             isRPC: true
-//           })) || {};
+      case 'productsData.discount':
+        value = productData.discount;
+        break;
 
-//         cellValue = product.name;
-//         break;
+      case 'productsData.discountPercent':
+        value = productData.discountPercent;
+        break;
 
-//       case 'productsData.code':
-//         product =
-//           (await sendProductsMessage({
-//             subdomain,
-//             action: 'findOne',
-//             data: { _id: productData.productId },
-//             isRPC: true
-//           })) || {};
+      case 'productsData.currency':
+        value = productData.amount;
+        break;
 
-//         cellValue = product.code;
-//         break;
+      case 'productsData.tax':
+        value = productData.tax;
+        break;
 
-//       case 'productsData.discount':
-//         cellValue = productData.discount;
-//         break;
+      case 'productsData.taxPercent':
+        value = productData.taxPercent;
+        break;
+    }
+  }
 
-//       case 'productsData.discountPercent':
-//         cellValue = productData.discountPercent;
-//         break;
-
-//       case 'productsData.currency':
-//         cellValue = productData.amount;
-//         break;
-
-//       case 'productsData.tax':
-//         cellValue = productData.tax;
-//         break;
-
-//       case 'productsData.taxPercent':
-//         cellValue = productData.taxPercent;
-//         break;
-//     }
-
-//     if (cellValue) {
-//       addCell(column, cellValue, sheet, columnNames, dealRowIndex);
-
-//       dealRowIndex++;
-//     }
-//   }
-
-//   return { rowIndex, dealRowIndex };
-// };
+  return { value };
+};
 
 export default {
   exportTypes: EXPORT_TYPES,
-
-  insertttttExportItems: async ({ subdomain, data }) => {
-    console.log('dddddddddddddddddddddddddddddddddddddddddd');
-    const models = await generateModels(subdomain);
-
-    const { docs, contentType } = data;
-
-    try {
-      return console.log('333333333333333333333');
-    } catch (e) {
-      console.log(e, '333333333333333333333');
-      return { error: e.message };
-    }
-  },
 
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -197,24 +158,9 @@ export default {
           });
 
           finalColumnsConfigs.push(`customFieldsData.${field.text}.${fieldId}`);
-        }
-        // else if (column.startsWith('productsData')) {
-        //   const indexes = await fillDealProductValue(
-        //     subdomain,
-        //     column,
-        //     item,
-        //     sheet,
-        //     columnNames,
-        //     rowIndex,
-        //     dealIds,
-        //     dealRowIndex
-        //   );
-
-        //   rowIndex = indexes?.rowIndex;
-        //   dealRowIndex = indexes?.dealRowIndex;
-
-        // }
-        else {
+        } else if (column.startsWith('productsData')) {
+          finalColumnsConfigs.push(column);
+        } else {
           finalColumnsConfigs.push(column);
         }
       }
@@ -227,6 +173,14 @@ export default {
             const fieldId = column.split('.')[2];
 
             const { value } = await getCustomFieldsData(item, fieldId);
+
+            result[column] = value || '-';
+          } else if (column.startsWith('productsData')) {
+            const { value } = await fillDealProductValue(
+              subdomain,
+              column,
+              item
+            );
 
             result[column] = value || '-';
           } else {

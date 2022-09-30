@@ -1,44 +1,53 @@
+import * as xlsxPopulate from 'xlsx-populate';
+import * as mongoose from 'mongoose';
+import * as moment from 'moment';
 import { connect } from '../utils';
+import { createAWS } from '../../data/utils';
 import messageBroker from '../../messageBroker';
+import { generateModels, IModels } from '../../connectionResolvers';
+
+export const createXlsFile = async () => {
+  // Generating blank workbook
+  const workbook = await xlsxPopulate.fromBlankAsync();
+
+  return { workbook, sheet: workbook.sheet(0) };
+};
+
+/**
+ * Generates downloadable xls file on the url
+ */
+export const generateXlsx = async (workbook: any): Promise<string> => {
+  return workbook.outputAsync();
+};
 
 // tslint:disable-next-line
 const { parentPort, workerData } = require('worker_threads');
+
 const { subdomain } = workerData;
 
-const create = async ({
-  docs,
-  contentType
-}: {
-  docs: any;
-  contentType: any;
-}) => {
-  console.log('Exporting  dataaa');
+export const getConfigs = async models => {
+  const configsMap = {};
+  const configs = await models.Configs.find({}).lean();
 
-  const [serviceName, type] = contentType.split(':');
-  try {
-    console.log(serviceName);
-    const result = await messageBroker().sendRPCMessage(
-      `${serviceName}:exporter:insertttttExportItems`,
-      {
-        subdomain,
-        data: {
-          docs,
-          contentType: type
-        }
-      }
-    );
-
-    console.log(result, 'ajajajjajajajajajjajaja');
-
-    const { objects, error } = result;
-
-    if (error) {
-      throw new Error(error);
-    }
-    return { objects };
-  } catch (e) {
-    console.log(e);
+  for (const config of configs) {
+    configsMap[config.code] = config.value;
   }
+
+  return configsMap;
+};
+
+export const getConfig = async (
+  code: string,
+  defaultValue?: string,
+  models?: IModels
+) => {
+  const configs = await getConfigs(models);
+
+  if (!configs[code]) {
+    return defaultValue;
+  }
+
+  return configs[code];
 };
 
 connect()
@@ -48,16 +57,18 @@ connect()
     const {
       contentType,
       exportHistoryId,
-      columnsConfig,
-      subdomain
+      columnsConfig
     }: {
       contentType: string;
       exportHistoryId: string;
       columnsConfig: string[];
-      subdomain: string;
     } = workerData;
 
-    const serviceName = contentType.split(':')[0];
+    const models = await generateModels(subdomain);
+
+    // const serviceName = contentType.split(':')[0];
+
+    const [serviceName, type] = contentType.split(':');
 
     const bulkDoc = await messageBroker().sendRPCMessage(
       `${serviceName}:exporter:prepareExportData`,
@@ -70,16 +81,44 @@ connect()
       }
     );
 
-    try {
-      const { objects } = await create({
-        docs: bulkDoc,
-        contentType
-      });
+    console.log(bulkDoc, 'bulkDoc');
 
-      console.log(objects, 'data');
-    } catch (e) {
-      console.log(e, '23');
-    }
+    const { workbook, sheet } = await createXlsFile();
+    sheet.cell(1, 1).value('sda');
+
+    const hi = await generateXlsx(workbook);
+
+    // const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
+
+    const s3 = await createAWS();
+
+    const response: any = await new Promise((resolve, reject) => {
+      s3.upload(
+        {
+          ContentType:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          Bucket: 'erxes',
+          Key: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,
+          Body: hi,
+          ACL: 'public-read'
+        },
+        (err, res) => {
+          if (err) {
+            return reject(err);
+          }
+
+          return resolve(res);
+        }
+      );
+    });
+
+    console.log(response, 'response');
+
+    await models.ExportHistory.updateOne({ _id: exportHistoryId }, 'test');
+
+    mongoose.connection.close();
+
+    console.log(`Worker done`);
 
     parentPort.postMessage({
       action: 'remove',
