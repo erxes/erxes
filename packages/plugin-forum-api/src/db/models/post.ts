@@ -205,12 +205,7 @@ export const generatePostModel = (
       user: IUserDocument
     ): Promise<PostDocument> {
       const post = await models.Post.findByIdOrThrow(_id);
-      post.state = state;
-      post.stateChangedAt = new Date();
-      post.stateChangedById = user._id;
-      post.stateChangedUserType = USER_TYPES[0];
-      await post.save();
-      return post;
+      return changeStateCommon(post, state, user._id, 'CRM');
     }
 
     public static async draft(
@@ -293,12 +288,7 @@ export const generatePostModel = (
     ): Promise<PostDocument> {
       if (!cpUser) throw new Error(`Unauthorized`);
       const post = await models.Post.findByIdOrThrowCp(_id, cpUser);
-      post.state = state;
-      post.stateChangedAt = new Date();
-      post.stateChangedById = cpUser.userId;
-      post.stateChangedUserType = USER_TYPES[1];
-      await post.save();
-      return post;
+      return changeStateCommon(post, state, cpUser.userId, 'CP');
     }
 
     public static async draftCp(
@@ -336,3 +326,19 @@ export const generatePostModel = (
 
   models.Post = con.model<PostDocument, IPostModel>('forum_posts', postSchema);
 };
+
+async function changeStateCommon(
+  post: PostDocument,
+  state: PostStates,
+  userId: string,
+  userType: UserTypes
+) {
+  post.state = state;
+  post.stateChangedById = userId;
+  post.stateChangedUserType = userType;
+
+  post.viewCount = 0;
+  post.stateChangedAt = new Date();
+  await post.save();
+  return post;
+}
