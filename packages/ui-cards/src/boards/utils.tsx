@@ -6,7 +6,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { ColumnProps, getCommonParams } from './components/Calendar';
 import PriorityIndicator from './components/editForm/PriorityIndicator';
-import { IDraggableLocation, IItem, IItemMap } from './types';
+import { IDraggableLocation, IFilterParams, IItem, IItemMap } from './types';
 
 type Options = {
   _id: string;
@@ -307,4 +307,33 @@ export const getBoardViewType = () => {
 
 export const getWarningMessage = (type: string): string => {
   return `This will permanently delete the current ${type}. Are you absolutely sure?`;
+};
+
+export const getFilterParams = (
+  queryParams: IFilterParams,
+  getExtraParams: (queryParams) => any
+) => {
+  if (!queryParams) {
+    return {};
+  }
+
+  const selectType = {
+    search: queryParams.search,
+    customerIds: queryParams.customerIds,
+    companyIds: queryParams.companyIds,
+    assignedUserIds: queryParams.assignedUserIds,
+    labelIds: queryParams.labelIds,
+    userIds: queryParams.userIds,
+    segment: queryParams.segment,
+    assignedToMe: queryParams.assignedToMe,
+    startDate: queryParams.startDate,
+    endDate: queryParams.endDate,
+    pipelineId: queryParams.pipelineId,
+    hasStartAndCloseDate: true,
+    tagIds: queryParams.tagIds,
+    limit: 100,
+    ...getExtraParams(queryParams)
+  };
+
+  return selectType;
 };

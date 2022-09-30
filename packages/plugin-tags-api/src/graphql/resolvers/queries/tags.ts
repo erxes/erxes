@@ -38,9 +38,15 @@ const tagQueries = {
     {
       type,
       searchValue,
-      tagIds
-    }: { type: string; searchValue?: string; tagIds?: string[] },
-    { models, commonQuerySelector }
+      tagIds,
+      parentId
+    }: {
+      type: string;
+      searchValue?: string;
+      tagIds?: string[];
+      parentId?: string;
+    },
+    { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
 
@@ -54,6 +60,30 @@ const tagQueries = {
 
     if (tagIds) {
       selector._id = { $in: tagIds };
+    }
+
+    if (parentId) {
+      let parentTag = await models.Tags.find({ parentId: parentId }).distinct(
+        '_id'
+      );
+      let ids = [parentId, ...parentTag];
+
+      const getChildTags = async parentTag => {
+        const childTag = await models.Tags.find({
+          parentId: { $in: parentTag }
+        }).distinct('_id');
+
+        if (childTag.length > 0) {
+          ids = [...ids, ...childTag];
+          await getChildTags(childTag);
+        }
+
+        return;
+      };
+
+      await getChildTags(parentTag);
+
+      selector._id = { $in: ids };
     }
 
     return models.Tags.find(selector).sort({
