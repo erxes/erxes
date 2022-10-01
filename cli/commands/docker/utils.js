@@ -975,7 +975,7 @@ const deployMongoBi = async program => {
 
   dockerComposeConfig.services['mongo-bi-connector'] = {
     image: 'erxes/mongobi-connector:dev',
-    container_name: 'mongosqld',
+    hostname: 'mongosqld',
     ports: ['3307:3307'],
     environment: {
       MONGODB_HOST: 'mongo-secondary',
