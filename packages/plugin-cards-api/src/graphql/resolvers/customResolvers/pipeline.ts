@@ -118,9 +118,11 @@ export default {
   },
 
   async tag(pipeline: IPipelineDocument) {
-    return {
-      __typename: 'Tag',
-      _id: pipeline.tagId
-    };
+    if (pipeline.tagId) {
+      return {
+        __typename: 'Tag',
+        _id: pipeline.tagId
+      };
+    }
   }
 };
