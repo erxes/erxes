@@ -366,6 +366,14 @@ export const itemsEdit = async (
 
   const oldStage = await models.Stages.getStage(oldItem.stageId);
 
+  if (doc.tagIds || doc.startDate || doc.closeDate || doc.name) {
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId
+      }
+    });
+  }
+
   if (oldStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish('pipelinesChanged', {
       pipelinesChanged: {

@@ -1,7 +1,7 @@
 {
   "name": "erxes",
   "private": true,
-  "version": "0.3.26",
+  "version": "0.3.39",
   "workspaces": [
     "packages/*"
   ],

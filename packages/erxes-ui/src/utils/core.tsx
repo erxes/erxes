@@ -268,7 +268,12 @@ export const isEnabled = (service: string) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes('http')) {
+  if (
+    !value ||
+    urlParser.isValidURL(value) ||
+    value.includes('http') ||
+    value.startsWith('/')
+  ) {
     return value;
   }
 

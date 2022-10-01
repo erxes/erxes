@@ -125,6 +125,10 @@ export default {
     return PipelineLabels.find({ _id: { $in: ticket.labelIds || [] } });
   },
 
+  async tags(ticket: ITicketDocument) {
+    return (ticket.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+  },
+
   createdUser(ticket: ITicketDocument) {
     if (!ticket.userId) {
       return;
