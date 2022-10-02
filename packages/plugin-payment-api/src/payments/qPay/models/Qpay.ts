@@ -106,7 +106,8 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         customerId,
         companyId,
         contentType,
-        contentTypeId
+        contentTypeId,
+        searchValue: `qpay ${amount} ${contentType}`
       };
 
       const invoice = await models.QpayInvoices.qpayInvoiceCreate(invoiceDoc);

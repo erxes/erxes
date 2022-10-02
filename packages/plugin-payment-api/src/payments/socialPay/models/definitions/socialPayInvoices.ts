@@ -14,6 +14,7 @@ export interface ISocialPayInvoice {
   customerId: string;
   contentType: string;
   contentTypeId: string;
+  searchValue: string;
   createdAt: Date;
 }
 export interface ISocialPayInvoiceDocument extends ISocialPayInvoice, Document {
@@ -32,6 +33,7 @@ export const socialPayInvoiceSchema = schemaHooksWrapper(
     customerId: field({ type: String, label: 'customer id' }),
     contentType: field({ type: String, label: 'content type' }),
     contentTypeId: field({ type: String, label: 'content type id' }),
+    searchValue: field({ type: String, label: 'search value' }),
     createdAt: field({
       type: Date,
       default: new Date(),

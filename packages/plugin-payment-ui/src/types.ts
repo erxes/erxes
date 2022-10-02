@@ -1,3 +1,5 @@
+import { QueryResponse } from '@erxes/ui/src/types';
+
 export interface IPaymentConfig {
   name: string;
   type: string;
@@ -25,6 +27,33 @@ export interface IPaymentTypeCount {
   socialPay: number;
   total: number;
 }
+
+export interface IInvoice {
+  _id: string;
+  type: string;
+  amount: number;
+  qrText: string;
+  contentType: string;
+  comment: string;
+  status: string;
+  createdAt: Date;
+  paymentDate: Date;
+  paymentId: string;
+  customer: any;
+  company: any;
+}
+
+export type InvoicesQueryResponse = {
+  invoices: (params: {
+    variables: { searchValue: string; page: number; perPage: number };
+  }) => IInvoice[];
+  loading: boolean;
+  refetch: () => void;
+};
+
+export type InvoicesTotalCountQueryResponse = {
+  invoicesTotalCount: number;
+} & QueryResponse;
 
 export type PaymentConfigsRemoveMutationResponse = {
   paymentConfigsRemove: (params: { variables: { id: string } }) => Promise<any>;

@@ -25,8 +25,39 @@ query checkInvoice($paymentId: String!, $invoiceId: String!) {
   checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
 }`;
 
+const invoicesResponse = `
+_id
+type
+amount
+qrText
+contentType
+comment
+status
+createdAt
+paymentDate
+paymentId
+customer
+company
+`;
+
+const invoices = `
+query invoices($searchValue: String, $perPage: Int, $page: Int) {
+  invoices(searchValue: $searchValue, perPage: $perPage, page: $page) {
+    ${invoicesResponse}
+  }
+}
+`;
+
+const invoicesTotalCount = `
+query invoicesTotalCount($searchValue: String) {
+  invoicesTotalCount(searchValue: $searchValue)
+}
+`;
+
 export default {
   paymentConfigs,
   paymentConfigsCountByType,
-  checkInvoice
+  checkInvoice,
+  invoices,
+  invoicesTotalCount
 };

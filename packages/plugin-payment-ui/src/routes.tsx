@@ -10,16 +10,33 @@ const PaymentConfigStore = asyncComponent(() =>
   )
 );
 
+const InvoiceList = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Navigation - Invoice List" */ './containers/invoiceList'
+  )
+);
+
 const paymentConfigStore = ({ location }) => {
   return (
     <PaymentConfigStore queryParams={queryString.parse(location.search)} />
   );
 };
 
+const emailDeliveryList = ({ location, history }) => {
+  const queryParams = queryString.parse(location.search);
+
+  return <InvoiceList queryParams={queryParams} history={history} />;
+};
+
 const routes = () => {
   return (
     <React.Fragment>
       <Route path="/payments/" component={paymentConfigStore} />;
+      <Route
+        exact={true}
+        path="/payment-invoices"
+        component={emailDeliveryList}
+      />
     </React.Fragment>
   );
 };

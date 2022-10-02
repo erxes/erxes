@@ -12,6 +12,13 @@ module.exports = {
   },
   menus: [
     {
+      text: 'Invoices',
+      url: '/payment-invoices',
+      icon: 'icon-list',
+      location: 'mainNavigation',
+      permission: 'paymentConfigRemove'
+    },
+    {
       text: 'Payments',
       to: '/payments',
       image: '/images/icons/erxes-18.svg',

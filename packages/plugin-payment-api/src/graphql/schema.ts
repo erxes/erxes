@@ -28,6 +28,7 @@ export const types = `
     contentType: String
     contentTypeId: String
     status: String
+    searchValue: String
   }
 
   type SocialPayInvoice {
@@ -42,6 +43,7 @@ export const types = `
     contentType: String
     contentTypeId: String
     status: String
+    searchValue: String
   }
 
   type Invoice {
@@ -80,6 +82,7 @@ export const queries = `
   getPaymentOptions(${paymentOptionsParams} ): String
 
   invoices(searchValue: String, page: Int, perPage: Int): [Invoice]
+  invoicesTotalCount(searchValue: String): Int
 `;
 
 const params = `
@@ -98,6 +101,7 @@ customerId: String
 companyId: String
 contentType: String
 contentTypeId: String
+searchValue: String
 `;
 
 export const mutations = `

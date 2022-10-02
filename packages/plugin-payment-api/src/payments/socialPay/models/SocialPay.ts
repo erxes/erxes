@@ -93,7 +93,8 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
         customerId,
         companyId,
         contentType,
-        contentTypeId
+        contentTypeId,
+        searchValue: `socialPay ${amount} ${contentType}`
       };
       const docLast = phone ? { ...doc, phone } : doc;
 

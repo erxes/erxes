@@ -15,6 +15,7 @@ export interface IQpayInvoice {
   customerId: string;
   contentType: string;
   contentTypeId: string;
+  searchValue: string;
   createdAt: Date;
 }
 
@@ -51,6 +52,7 @@ export const qpayInvoiceSchema = schemaHooksWrapper(
     customerId: field({ type: String, label: 'customer id' }),
     contentType: field({ type: String, label: 'content type' }),
     contentTypeId: field({ type: String, label: 'content type id' }),
+    searchValue: field({ type: String, label: 'search value' }),
     createdAt: field({
       type: Date,
       default: new Date(),

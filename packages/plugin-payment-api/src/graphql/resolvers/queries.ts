@@ -5,19 +5,52 @@ import { IContext } from '../../connectionResolver';
 import { IPaymentConfigDocument } from '../../models/definitions/payments';
 import { getModel } from '../../utils';
 
-const paymentConfigQueries = {
-  async invoices(_root, args, { models }: IContext) {
-    const filter = {};
+interface IParam {
+  searchValue?: string;
+}
 
+const generateFilter = (params: IParam, commonQuerySelector) => {
+  const { searchValue } = params;
+  const selector: any = { ...commonQuerySelector };
+
+  if (searchValue) {
+    selector.searchValue = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+
+  return selector;
+};
+
+const paymentConfigQueries = {
+  async invoices(
+    _root,
+    params: IParam & {
+      page: number;
+      perPage: number;
+    },
+    { models, commonQuerySelector }: IContext
+  ) {
+    const selector = generateFilter(params, commonQuerySelector);
     const qpay = await paginate(
-      models.QpayInvoices.find(filter).sort({ createdAt: 1 }),
-      args
+      models.QpayInvoices.find(selector).sort({ createdAt: 1 }),
+      { ...params }
     );
     const socialPay = await paginate(
-      models.SocialPayInvoices.find(filter).sort({ createdAt: 1 }),
-      args
+      models.SocialPayInvoices.find(selector).sort({ createdAt: 1 }),
+      { ...params }
     );
     return [...qpay, ...socialPay];
+  },
+
+  async invoicesTotalCount(
+    _root,
+    params: IParam,
+    { commonQuerySelector, models }: IContext
+  ) {
+    const selector = generateFilter(params, commonQuerySelector);
+    const invoiceCnt = await models.QpayInvoices.find(selector);
+    const socialPayCnt = await models.SocialPayInvoices.find(selector);
+
+    return invoiceCnt.length + socialPayCnt.length;
   },
 
   paymentConfigs(_root, args, { models }: IContext) {
