@@ -39,7 +39,7 @@ class PluginDetails extends React.Component<Props, State> {
 
     this.state = {
       tabType: 'Description',
-      plugin: props.plugin,
+      plugin: props.plugin || {},
       loading: {}
     };
   }
@@ -69,31 +69,52 @@ class PluginDetails extends React.Component<Props, State> {
           </Detail>
         </>
       );
-    } else if (tabType === 'Guide') {
+    }
+
+    if (tabType === 'Guide') {
       return <div dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />;
     }
+
     return null;
   };
+
+  renderCategories() {
+    const categories = this.state.plugin.categories || [];
+
+    if (categories.length === 0) {
+      return <Hashtag>#Free</Hashtag>;
+    }
+
+    return categories.map((category, index) => (
+      <Hashtag key={index}>
+        {'#'}
+        {category}
+      </Hashtag>
+    ));
+  }
+
+  renderScreenshots() {
+    const { screenShots } = this.state.plugin;
+    const items = screenShots.split(',');
+
+    if (!items || items.length === 0) {
+      return null;
+    }
+
+    return items.map((item, index) => {
+      const attachment = {
+        name: item,
+        type: 'image',
+        url: item
+      };
+
+      return <Attachment key={index} simple={true} attachment={attachment} />;
+    });
+  }
 
   render() {
     const { enabledServicesQuery } = this.props;
     const { loading, plugin, tabType } = this.state;
-
-    // fake data
-    const pluginCategories = 'Free Marketing'.split(' ');
-
-    const dataSlider = [
-      {
-        url: 'https://wallpaperaccess.com/full/1760844.jpg',
-        name: 'image-1',
-        type: 'image'
-      },
-      {
-        url: 'https://wallpaperaccess.com/full/1282257.jpg',
-        name: 'image-2',
-        type: 'image'
-      }
-    ];
 
     const breadcrumb = [
       { title: __('Store'), link: '/settings/installer' },
@@ -129,14 +150,7 @@ class PluginDetails extends React.Component<Props, State> {
             <img src={plugin.image} />
             <DetailInformation>
               <b>{plugin.title}</b>
-              <Flex>
-                {pluginCategories.map((category, index) => (
-                  <Hashtag key={index}>
-                    {'#'}
-                    {category}
-                  </Hashtag>
-                ))}
-              </Flex>
+              <Flex>{this.renderCategories()}</Flex>
             </DetailInformation>
           </Center>
           {plugin.title && enabledServices[plugin.title.toLowerCase()] ? (
@@ -188,19 +202,7 @@ class PluginDetails extends React.Component<Props, State> {
           )}
         </PluginTitle>
 
-        <AttachmentContainer>
-          {dataSlider.length !== 0 &&
-            dataSlider.map((data, index) =>
-              data.type === 'video' ? (
-                <video key={index} controls={true} loop={true}>
-                  <source src={data.url} type="video/mp4" />
-                  {__('Your browser does not support the video tag')}.
-                </video>
-              ) : (
-                <Attachment key={index} simple={true} attachment={data} />
-              )
-            )}
-        </AttachmentContainer>
+        <AttachmentContainer>{this.renderScreenshots()}</AttachmentContainer>
 
         <Tabs>
           <TabTitle
@@ -229,7 +231,9 @@ class PluginDetails extends React.Component<Props, State> {
 
     return (
       <Wrapper
-        mainHead={<Wrapper.Header title="" breadcrumb={breadcrumb} />}
+        mainHead={
+          <Wrapper.Header title={plugin.title} breadcrumb={breadcrumb} />
+        }
         rightSidebar={<RightSidebar plugin={plugin} />}
         content={content}
       />

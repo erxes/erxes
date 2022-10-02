@@ -246,7 +246,7 @@ const DetailInformation = styled.div`
 const Hashtag = styled.div`
   border-radius: 4px;
   color: ${colors.colorWhite};
-  background: ${colors.colorSecondary};
+  background: #000;
   padding: 2px 6px;
   margin-right: 5px;
   font-size: 11px;
