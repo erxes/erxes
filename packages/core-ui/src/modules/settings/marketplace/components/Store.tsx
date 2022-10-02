@@ -121,7 +121,9 @@ class Store extends React.Component<Props, State> {
     }
 
     return plugins.map((plugin, index) => {
-      if (isAddon || plugin.mainType === 'service') {
+      const addon = plugin.mainType === 'addon';
+
+      if ((isAddon ? !addon : addon) || plugin.mainType === 'service') {
         return null;
       }
 
@@ -131,6 +133,7 @@ class Store extends React.Component<Props, State> {
           plugin={plugin}
           isAddon={isAddon}
           plugins={plugins}
+          isOpenSource={true}
         />
       );
     });

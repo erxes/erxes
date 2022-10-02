@@ -38,7 +38,11 @@ class ServiceBox extends React.Component<Props, {}> {
           <h5>{title}</h5>
           <div dangerouslySetInnerHTML={{ __html: description }} />
         </div>
-        <ReadMore>
+        <ReadMore
+          href="https://erxes.io/addons#selfHosted"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           <span>{__('Read more')}</span> <Icon icon="rightarrow" size={16} />
         </ReadMore>
       </Service>

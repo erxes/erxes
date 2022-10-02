@@ -19,11 +19,12 @@ type Props = {
   plugin: any;
   plugins: any[];
   isAddon?: boolean;
+  isOpenSource?: boolean;
 };
 
 class PluginBox extends React.Component<Props, {}> {
   renderPrice(prices) {
-    if (!prices) {
+    if (!prices || this.props.isOpenSource) {
       return <b>{__('Free')}</b>;
     }
 

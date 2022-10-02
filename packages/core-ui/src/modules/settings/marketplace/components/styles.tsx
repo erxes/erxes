@@ -37,9 +37,11 @@ export const FlexWrapContainer = styled.div`
   }
 `;
 
-export const ReadMore = styled.div`
+export const ReadMore = styled.a`
   display: flex;
   align-items: center;
+  color: ${colors.colorWhite};
+  cursor: pointer;
 
   > span {
     width: 0%;
@@ -69,7 +71,6 @@ export const Service = styled.div`
   min-height: 200px;
   border: 1px solid ${colors.borderPrimary};
   color: ${colors.colorWhite};
-  cursor: pointer;
   transition: all ease 0.3s;
 
   h5 {

@@ -130,8 +130,8 @@ class PluginDetails extends React.Component<Props, State> {
             <DetailInformation>
               <b>{plugin.title}</b>
               <Flex>
-                {pluginCategories.map(category => (
-                  <Hashtag>
+                {pluginCategories.map((category, index) => (
+                  <Hashtag key={index}>
                     {'#'}
                     {category}
                   </Hashtag>
@@ -190,14 +190,14 @@ class PluginDetails extends React.Component<Props, State> {
 
         <AttachmentContainer>
           {dataSlider.length !== 0 &&
-            dataSlider.map(data =>
+            dataSlider.map((data, index) =>
               data.type === 'video' ? (
-                <video controls={true} loop={true}>
+                <video key={index} controls={true} loop={true}>
                   <source src={data.url} type="video/mp4" />
                   {__('Your browser does not support the video tag')}.
                 </video>
               ) : (
-                <Attachment simple={true} attachment={data} />
+                <Attachment key={index} simple={true} attachment={data} />
               )
             )}
         </AttachmentContainer>
