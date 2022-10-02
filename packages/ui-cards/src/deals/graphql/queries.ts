@@ -3,7 +3,6 @@ import {
   conformityQueryFieldDefs,
   conformityQueryFields
 } from '../../conformity/graphql/queries';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 
 const commonParams = `
   $companyIds: [String],
@@ -23,6 +22,7 @@ const commonParams = `
   $assignedToMe: String,
   $startDate: String,
   $endDate: String,
+  $tagIds: [String],
   ${conformityQueryFields}
 `;
 
@@ -44,6 +44,8 @@ const commonParamDefs = `
   assignedToMe: $assignedToMe,
   startDate: $startDate,
   endDate: $endDate,
+  tagIds: $tagIds,
+  
   ${conformityQueryFieldDefs}
 `;
 
@@ -52,18 +54,6 @@ export const dealFields = `
   productsData
   paymentsData
   amount
-  ${
-    isEnabled('tags')
-      ? `
-  tags {
-    _id
-    name
-    colorCode
-  }
-  `
-      : ``
-  }
-  tagIds
 `;
 
 const dealsTotalAmounts = `

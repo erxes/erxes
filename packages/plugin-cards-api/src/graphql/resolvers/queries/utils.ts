@@ -151,6 +151,7 @@ export const generateCommonFilters = async (
     labelIds,
     priority,
     userIds,
+    tagIds,
     segment,
     assignedToMe,
     startDate,
@@ -312,6 +313,10 @@ export const generateCommonFilters = async (
 
   if (priority) {
     filter.priority = contains(priority);
+  }
+
+  if (tagIds) {
+    filter.tagIds = { $in: tagIds };
   }
 
   if (pipelineId) {
@@ -759,6 +764,7 @@ export const getItemList = async (
         watchedUserIds: 1,
         customFieldsData: 1,
         stageChangedDate: 1,
+        tagIds: 1,
         ...(extraFields || {})
       }
     }

@@ -205,6 +205,7 @@ const pipelineDetail = `
       bgColor
       isWatched
       hackScoringType
+      tagId
     }
   }
 `;
@@ -328,20 +329,27 @@ const cardFields = `
   customers
   companies
   assignedUsers
+  startDate
+  closeDate
+  tagIds
 `;
 
 const boardItemQueryParamsDef = `
   $_ids: [String],
   $pipelineId: String,
   $stageId: String,
-  $limit: Int
+  $skip: Int,
+  $limit: Int,
+  $tagIds: [String],
 `;
 
 const boardItemQueryParams = `
   _ids: $_ids,
   pipelineId: $pipelineId,
   stageId: $stageId,
-  limit: $limit
+  skip: $skip,
+  limit: $limit,
+  tagIds: $tagIds,
 `;
 
 const tasks = `
