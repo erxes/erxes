@@ -12,6 +12,24 @@ export default {
     return checkQpay ? 'qpay' : 'socialPay';
   },
 
+  async invoiceNo(invoice: any, {}, { models }: IContext) {
+    const checkQpay = await models.QpayInvoices.findOne({ _id: invoice._id });
+    const checkSpay = await models.SocialPayInvoices.findOne({
+      _id: invoice._id
+    });
+
+    return checkQpay ? checkQpay.qpayInvoiceId : checkSpay?.invoiceNo;
+  },
+
+  async paymentId(invoice: any, {}, { models }: IContext) {
+    const checkQpay = await models.QpayInvoices.findOne({ _id: invoice._id });
+    const checkSpay = await models.SocialPayInvoices.findOne({
+      _id: invoice._id
+    });
+
+    return checkQpay ? checkQpay.paymentId : checkSpay?.paymentId;
+  },
+
   async comment(invoice: any, {}, { models }: IContext) {
     const checkSpay = await models.SocialPayInvoices.findOne({
       _id: invoice._id
@@ -22,14 +40,6 @@ export default {
         ? `${checkSpay.phone} mobile invoice`
         : 'socialPay invoice'
       : 'qpay invoice';
-  },
-
-  async paymentId(invoice: any, {}, { models }: IContext) {
-    const checkQpay = await models.QpayInvoices.findOne({
-      _id: invoice._id
-    });
-
-    return checkQpay ? checkQpay.qpayPaymentId : '';
   },
 
   async customer(invoice: any, {}, { subdomain }: IContext) {

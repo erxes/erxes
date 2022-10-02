@@ -20,6 +20,7 @@ export const types = `
     senderInvoiceNo: String
     amount: String
     qpayInvoiceId: String
+    paymentId: String
     qrText: String
     qpayPaymentId: String
     paymentDate: Date
@@ -35,6 +36,7 @@ export const types = `
     _id: String!
     createdAt: Date
     invoiceNo: String
+    paymentId: String
     amount: String
     phone: String
     qrText: String
@@ -51,6 +53,8 @@ export const types = `
     type: String
     amount: String
     qrText: String
+    invoiceNo: String
+    paymentId: String
     customer: JSON
     company: JSON
     contentType: String
@@ -58,7 +62,6 @@ export const types = `
     status: String
     createdAt: Date
     paymentDate: Date
-    paymentId: String
   }
 `;
 
@@ -109,4 +112,5 @@ export const mutations = `
   paymentConfigsEdit(id: String!,${params}): PaymentConfig
   paymentConfigRemove(id: String!): String
   createInvoice(${invoiceParams}): JSON
+  cancelInvoice(paymentId: String!, invoiceId: String!): JSON
 `;

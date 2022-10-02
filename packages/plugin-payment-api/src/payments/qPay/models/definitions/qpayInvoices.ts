@@ -8,6 +8,7 @@ export interface IQpayInvoice {
   senderInvoiceNo: string;
   amount: string;
   qpayInvoiceId: string;
+  paymentId: string;
   qrText: string;
   qpayPaymentId: string;
   status: string;
@@ -33,6 +34,7 @@ export const qpayInvoiceSchema = schemaHooksWrapper(
       optional: true,
       label: 'new invoiceId'
     }),
+    paymentId: field({ type: String, label: 'payment config id' }),
     qrText: field({
       type: String,
       optional: true,

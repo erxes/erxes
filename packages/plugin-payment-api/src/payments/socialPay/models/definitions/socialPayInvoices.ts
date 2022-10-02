@@ -6,6 +6,7 @@ import {
 
 export interface ISocialPayInvoice {
   invoiceNo: string;
+  paymentId: string;
   amount: string;
   phone: string;
   qrText: string;
@@ -25,6 +26,7 @@ export const socialPayInvoiceSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
     invoiceNo: field({ type: String, optional: true, unique: true }),
+    paymentId: field({ type: String, label: 'payment config id' }),
     amount: field({ type: String, optional: true, label: 'amount' }),
     phone: field({ type: String, optional: true, label: 'phone' }),
     qrText: field({ type: String, optional: true, label: 'qr text' }),

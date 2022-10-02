@@ -1,5 +1,4 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-
 import { PAYMENT_TYPES } from '../constants';
 import { graphqlPubsub } from './configs';
 import { generateModels, IModels } from './connectionResolver';
@@ -107,4 +106,20 @@ export const createInvoice = async (models: IModels, params) => {
   const model: any = getModel(type, models);
 
   return model.createInvoice(params, config);
+};
+
+export const cancelInvoice = async (models: IModels, params) => {
+  const paymentConfig = await models.PaymentConfigs.findOne({
+    _id: params.paymentId
+  });
+
+  if (!paymentConfig) {
+    throw new Error(`Config not found with id ${params.paymentId}`);
+  }
+
+  const { config, type } = paymentConfig;
+
+  const model: any = getModel(type, models);
+
+  return model.cancelInvoice(params.invoiceId, config);
 };

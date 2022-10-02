@@ -11,6 +11,9 @@ import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import { IInvoice } from 'types';
 import Row from './InvoiceListRow';
+import client from '@erxes/ui/src/apolloClient';
+import gql from 'graphql-tag';
+import { mutations } from '../graphql';
 
 interface IProps extends IRouterProps {
   history: any;
@@ -20,7 +23,6 @@ interface IProps extends IRouterProps {
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
-  remove: (doc: { flowIds: string[] }, emptyBulk: () => void) => void;
   toggleBulk: () => void;
   toggleAll: (targets: IInvoice[], containerId: string) => void;
   loading: boolean;
@@ -61,14 +63,39 @@ class List extends React.Component<IProps, State> {
     toggleAll(invoices, 'invoices');
   };
 
-  removeProducts = flows => {
-    const flowIds: string[] = [];
+  cancelInvoice = invoices => {
+    const invoice = invoices[0];
 
-    flows.forEach(jobRefer => {
-      flowIds.push(jobRefer._id);
-    });
+    if (invoices.length > 1) {
+      alert('Please cancel invoice one by one!');
+      return;
+    }
 
-    this.props.remove({ flowIds }, this.props.emptyBulk);
+    console.log('invoice:', invoice);
+
+    if (!invoice.paymentId) {
+      alert('Payment config id not defined');
+      return;
+    }
+
+    client
+      .query({
+        query: gql(mutations.cancelInvoice),
+        fetchPolicy: 'network-only',
+        variables: {
+          invoiceId: invoice.invoiceNo,
+          paymentId: invoice.paymentId
+        }
+      })
+      .then(async response => {
+        const data = response.data.cancelInvoice;
+        console.log('data: ', data);
+
+        alert('Successfully canceled.');
+      })
+      .catch(error => {
+        alert(error);
+      });
   };
 
   renderCount = invoicesCount => {
@@ -150,7 +177,7 @@ class List extends React.Component<IProps, State> {
       const onClick = () =>
         confirm()
           .then(() => {
-            this.removeProducts(bulk);
+            this.cancelInvoice(bulk);
           })
           .catch(error => {
             Alert.error(error.message);
@@ -164,7 +191,7 @@ class List extends React.Component<IProps, State> {
             icon="cancel-1"
             onClick={onClick}
           >
-            Remove
+            Cancel invoice
           </Button>
         </BarItems>
       );
@@ -174,7 +201,12 @@ class List extends React.Component<IProps, State> {
       <Wrapper
         header={<Wrapper.Header title={__('Flow')} />}
         footer={<Pagination count={invoicesTotalCount} />}
-        actionBar={<Wrapper.ActionBar right={invoiceBarRight} />}
+        actionBar={
+          <Wrapper.ActionBar
+            left={this.renderCount(invoicesTotalCount)}
+            right={invoiceBarRight}
+          />
+        }
         content={
           <DataWithLoader
             data={content}

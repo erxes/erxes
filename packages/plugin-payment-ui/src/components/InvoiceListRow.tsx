@@ -12,7 +12,7 @@ type Props = {
 
 class Row extends React.Component<Props> {
   render() {
-    const { invoice, history, toggleBulk, isChecked } = this.props;
+    const { invoice, toggleBulk, isChecked } = this.props;
 
     const onChange = e => {
       if (toggleBulk) {
@@ -22,10 +22,6 @@ class Row extends React.Component<Props> {
 
     const onClick = e => {
       e.stopPropagation();
-    };
-
-    const onTrClick = () => {
-      history.push(`/processes/flows/details/${invoice._id}`);
     };
 
     const {
@@ -41,7 +37,7 @@ class Row extends React.Component<Props> {
     } = invoice;
 
     return (
-      <tr onClick={onTrClick}>
+      <tr>
         <td onClick={onClick}>
           <FormControl
             checked={isChecked}

@@ -6,7 +6,8 @@ import {
   hmac256,
   socialPayInvoiceCheck,
   socialPayInvoicePhone,
-  socialPayInvoiceQR
+  socialPayInvoiceQR,
+  socialPayPaymentCancel
 } from '../utils';
 import {
   ISocialPayInvoiceDocument,
@@ -24,6 +25,7 @@ export interface ISocialPayInvoiceModel
   ): ISocialPayInvoiceDocument;
   checkInvoice(data: any): any;
   createInvoice(data: any, config: any): any;
+  cancelInvoice(invoiceNo: string, config: any): any;
 }
 
 export const loadSocialPayInvoiceClass = (models: IModels) => {
@@ -75,7 +77,8 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
         customerId,
         companyId,
         contentType,
-        contentTypeId
+        contentTypeId,
+        paymentId
       } = data;
       const invoiceNo = await makeInvoiceNo(32);
       const { inStoreSPTerminal, inStoreSPKey } = config;
@@ -94,6 +97,7 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
         companyId,
         contentType,
         contentTypeId,
+        paymentId,
         searchValue: `socialPay ${amount} ${contentType}`
       };
       const docLast = phone ? { ...doc, phone } : doc;
@@ -159,6 +163,34 @@ export const loadSocialPayInvoiceClass = (models: IModels) => {
       }
 
       return invoice;
+    }
+
+    public static async cancelInvoice(invoiceNo: string, config: any) {
+      const { inStoreSPTerminal, inStoreSPKey } = config;
+      const invoice = await this.getSocialPayInvoice({ invoiceNo });
+      const amount = invoice.amount;
+      const checksum = await hmac256(
+        inStoreSPKey,
+        amount + invoiceNo + inStoreSPTerminal
+      );
+
+      const requestBody = {
+        amount,
+        checksum,
+        invoice: invoiceNo,
+        terminal: inStoreSPTerminal
+      };
+      const invoiceQrData = await socialPayPaymentCancel(requestBody);
+      const response =
+        invoiceQrData.header && invoiceQrData.header.code
+          ? invoiceQrData.header.code
+          : 0;
+
+      if (response === 200) {
+        await this.socialPayInvoiceStatusUpdate(invoice, 'canceled payment');
+      }
+
+      return invoiceQrData;
     }
 
     public static async socialPayInvoiceUpdate(invoice, qrText) {

@@ -6,7 +6,12 @@ import {
   IQpayInvoiceDocument,
   qpayInvoiceSchema
 } from './definitions/qpayInvoices';
-import { qpayToken, getQpayInvoice, createQpayInvoice } from '../utils';
+import {
+  qpayToken,
+  getQpayInvoice,
+  createQpayInvoice,
+  cancelQpayPayment
+} from '../utils';
 
 export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   getQpayInvoice(_id: string): IQpayInvoiceDocument;
@@ -14,6 +19,7 @@ export interface IQpayInvoiceModel extends Model<IQpayInvoiceDocument> {
   qpayInvoiceUpdate(invoice: any, invoiceData: any): IQpayInvoiceDocument;
   checkInvoice(data: any): any;
   createInvoice(params: any, config: any): any;
+  cancelInvoice(invoiceNo: string, config: any): any;
 }
 
 export const loadQpayInvoiceClass = (models: IModels) => {
@@ -92,7 +98,8 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         customerId,
         companyId,
         contentType,
-        contentTypeId
+        contentTypeId,
+        paymentId
       } = data;
 
       const { qpayInvoiceCode } = config;
@@ -107,6 +114,7 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         companyId,
         contentType,
         contentTypeId,
+        paymentId,
         searchValue: `qpay ${amount} ${contentType}`
       };
 
@@ -137,6 +145,27 @@ export const loadQpayInvoiceClass = (models: IModels) => {
         status: 'success',
         data: { _id: invoice._id, ...response }
       };
+    }
+
+    public static async cancelInvoice(invoiceNo: string, config: any) {
+      const invoice = await models.QpayInvoices.remove({ _id: invoiceNo });
+      const token = await qpayToken(config);
+      const MAIN_API_DOMAIN =
+        process.env.MAIN_API_DOMAIN || 'https://4d89-66-181-178-61.ap.ngrok.io';
+
+      const invoiceData = await cancelQpayPayment(
+        invoice.paymentId,
+        'cancel invoice',
+        token,
+        MAIN_API_DOMAIN
+      );
+
+      await models.QpayInvoices.updateOne(
+        { _id: invoiceNo },
+        { $set: { status: 'canceled payment' } }
+      );
+
+      return invoiceData;
     }
 
     public static async qpayInvoiceUpdate(invoice, invoiceData) {

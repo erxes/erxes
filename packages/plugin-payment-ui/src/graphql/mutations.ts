@@ -32,9 +32,16 @@ mutation createInvoice(${createInvoiceParamDefs}) {
 }
 `;
 
+const cancelInvoice = `
+mutation CancelInvoice($paymentId: String!, $invoiceId: String!) {
+  cancelInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
+}
+`;
+
 export default {
   paymentConfigsAdd,
   paymentConfigsEdit,
   paymentConfigRemove,
-  createInvoice
+  createInvoice,
+  cancelInvoice
 };

@@ -89,3 +89,26 @@ export const getQpayInvoice = async (invoiceId: string, token: string) => {
     throw new Error(e.message);
   }
 };
+
+export const cancelQpayPayment = async (
+  paymentId,
+  description,
+  token,
+  MAIN_API_DOMAIN
+) => {
+  const requestOptions = {
+    url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.CANCEL}/${paymentId}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: {
+      callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback?type=qpay&payment_id=${paymentId}`,
+      note: description
+    },
+    redirect: 'follow'
+  };
+
+  return sendRequest(requestOptions);
+};

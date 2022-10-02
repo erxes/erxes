@@ -83,3 +83,15 @@ export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
   return hash.digest('hex');
 };
+
+export const socialPayPaymentCancel = async body => {
+  const requestOptions = {
+    url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_CANCEL}`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+    redirect: 'follow'
+  };
+
+  return sendRequest(requestOptions);
+};
