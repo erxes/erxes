@@ -77,17 +77,15 @@ class Store extends React.Component<Props, State> {
       datas.push(...selectedCategories, cat);
     }
 
-    this.setState({
-      selectedCategories: datas
-    });
+    this.setState({ selectedCategories: datas });
   };
 
   onFilterByCategories() {
     const { selectedCategories } = this.state;
     let plugins = [];
 
-    plugins = this.props.plugins.filter(plugin => {
-      const categories = plugin.categories.filter(cat =>
+    plugins = (this.props.plugins || []).filter(plugin => {
+      const categories = (plugin.categories || []).filter(cat =>
         selectedCategories.includes(cat)
       );
 
@@ -160,22 +158,20 @@ class Store extends React.Component<Props, State> {
   }
 
   renderCategories(cat: any, index: number) {
-    const isActive = this.state.selectedCategories.includes(
-      cat.value.toLowerCase()
-    );
+    const isActive = this.state.selectedCategories.includes(cat.value);
 
     return (
       <Tag
         key={index}
-        onClick={() => this.handleCategory(cat.value.toLowerCase())}
+        onClick={() => this.handleCategory(cat.value)}
         isActive={isActive}
       >
-        {cat.value}
+        {cat.label}
         {isActive && (
           <Icon
             icon="cancel-1"
             size={11}
-            onClick={() => this.handleCategory(cat.value.toLowerCase())}
+            onClick={() => this.handleCategory(cat.value)}
           />
         )}
       </Tag>

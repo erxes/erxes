@@ -47,20 +47,20 @@ export const SUB_KINDS = {
 };
 
 export const CATEGORIES = [
-  { value: 'Marketing' },
-  { value: 'Sales' },
-  { value: 'Services' },
-  { value: 'Operations' },
-  { value: 'Communications' },
-  { value: 'Productivity' },
-  { value: 'Website' },
-  { value: 'ECommerce' },
-  { value: 'Document management' },
-  { value: 'Human resource' },
-  { value: 'Finance' },
-  { value: 'Inventory' },
-  { value: 'Analytics' },
-  { value: 'Reporting' }
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'sales', label: 'Sales' },
+  { value: 'services', label: 'Services' },
+  { value: 'operations', label: 'Operations' },
+  { value: 'communications', label: 'Communications' },
+  { value: 'productivity', label: 'Productivity' },
+  { value: 'website', label: 'Website' },
+  { value: 'e-commerce', label: 'E-Commerce' },
+  { value: 'document', label: 'Document management' },
+  { value: 'hr', label: 'Human resource' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'inventory', label: 'Inventory' },
+  { value: 'analytics', label: 'Analytics' },
+  { value: 'reporting', label: 'Reporting' }
 ];
 
 export const STATUS_TYPES = [
