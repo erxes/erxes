@@ -71,20 +71,16 @@ const PaymentsContainer = (props: IRouterProps) => {
   const onClickInvoiceCreate = (paymentId: string, params: IPaymentParams) => {
     createMutation({
       variables: {
-        paymentId,
+        paymentConfigId: paymentId,
         ...params
       }
     })
       .then(({ data }) => {
         const { createInvoice } = data;
-        const { status } = createInvoice;
 
-        if (status !== "success") {
-          return window.alert("Failed to create invoice");
-        }
-
-        setInvoiceId(createInvoice.data._id);
+        setInvoiceId(createInvoice._id);
         setPaymentConfigId(paymentId);
+        console.log(data);
       })
       .catch(error => {
         window.alert(error.message);

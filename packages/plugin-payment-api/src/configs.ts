@@ -31,6 +31,7 @@ export default {
     path: `/callback/${type}`,
     method: postHandler
   })),
+
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
@@ -40,6 +41,7 @@ export default {
 
     return context;
   },
+
   onServerInit: async options => {
     mainDb = options.db;
 

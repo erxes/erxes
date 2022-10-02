@@ -28,11 +28,11 @@ export const socialPayHandler = async (models: IModels, data) => {
       throw new Error(body.response.resp_desc);
     }
 
-    const invoiceObj = await models.SocialPayInvoices.getSocialPayInvoice(
-      invoice
-    );
+    const invoiceObj = await models.Invoices.getInvoice({
+      _id: invoice._id
+    });
 
-    await models.SocialPayInvoices.updateOne(
+    await models.Invoices.updateOne(
       { _id: invoiceObj._id },
       { status: 'paid' }
     );
@@ -82,16 +82,4 @@ export const socialPayInvoiceQR = async body => {
 export const hmac256 = (key, message) => {
   const hash = crypto.createHmac('sha256', key).update(message);
   return hash.digest('hex');
-};
-
-export const socialPayPaymentCancel = async body => {
-  const requestOptions = {
-    url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_CANCEL}`,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-    redirect: 'follow'
-  };
-
-  return sendRequest(requestOptions);
 };

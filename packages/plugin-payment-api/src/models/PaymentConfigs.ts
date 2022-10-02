@@ -5,7 +5,7 @@ import {
   IPaymentConfig,
   IPaymentConfigDocument,
   paymentConfigSchema
-} from './definitions/payments';
+} from './definitions/paymentConfigs';
 
 export interface IPaymentConfigModel extends Model<IPaymentConfigDocument> {
   createPaymentConfig(doc: IPaymentConfig): Promise<IPaymentConfigDocument>;
@@ -14,6 +14,7 @@ export interface IPaymentConfigModel extends Model<IPaymentConfigDocument> {
     _id: string,
     doc: IPaymentConfig
   ): Promise<IPaymentConfigDocument>;
+  getPaymentConfig(_id: string): Promise<IPaymentConfigDocument>;
 }
 
 export const loadPaymentConfigClass = (models: IModels) => {
@@ -32,6 +33,16 @@ export const loadPaymentConfigClass = (models: IModels) => {
       const updated = await models.PaymentConfigs.findOne({ _id });
 
       return updated;
+    }
+
+    public static async getPaymentConfig(_id: string) {
+      const paymentConfig = await models.PaymentConfigs.findOne({ _id });
+
+      if (!paymentConfig) {
+        throw new Error('Payment config not found');
+      }
+
+      return paymentConfig;
     }
   }
 

@@ -1,8 +1,8 @@
 import { requireLogin } from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../connectionResolver';
-import { IPaymentConfig } from '../../models/definitions/payments';
-import { cancelInvoice, createInvoice } from '../../utils';
+import { IInvoice } from '../../models/definitions/invoices';
+import { IPaymentConfig } from '../../models/definitions/paymentConfigs';
 
 const paymentConfigMutations = {
   async paymentConfigsAdd(_root, doc: IPaymentConfig, { models }: IContext) {
@@ -43,14 +43,12 @@ const paymentConfigMutations = {
   /**
    *  create an invoice
    */
-  async createInvoice(_root, params, { models }: IContext) {
-    return createInvoice(models, params);
-  },
-  /**
-   * cancel an invoice
-   */
-  async cancelInvoice(_root, params, { models }: IContext) {
-    return cancelInvoice(models, params);
+  async createInvoice(_root, params: IInvoice, { models }: IContext) {
+    try {
+      return models.Invoices.createInvoice(params);
+    } catch (e) {
+      throw new Error(e.message);
+    }
   }
 };
 

@@ -1,26 +1,41 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 const createInvoice = gql`
-  mutation CreateInvoice(
-    $paymentId: String!
-    $amount: Float!
-    $description: String!
-    $phone: String
-    $customerId: String
+  mutation createInvoice(
+    $paymentConfigId: String!
+    $amount: Float
     $companyId: String
     $contentType: String
     $contentTypeId: String
+    $customerId: String
+    $description: String
+    $email: String
+    $phone: String
   ) {
     createInvoice(
-      paymentId: $paymentId
+      paymentConfigId: $paymentConfigId
       amount: $amount
-      description: $description
-      phone: $phone
-      customerId: $customerId
       companyId: $companyId
       contentType: $contentType
       contentTypeId: $contentTypeId
-    )
+      customerId: $customerId
+      description: $description
+      email: $email
+      phone: $phone
+    ) {
+      _id
+      amount
+      apiResponse
+      companyId
+      contentType
+      contentTypeId
+      customerId
+      description
+      email
+      paymentConfigId
+      phone
+      status
+    }
   }
 `;
 

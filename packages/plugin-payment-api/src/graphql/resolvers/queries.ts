@@ -2,8 +2,7 @@ import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
 
 import { IContext } from '../../connectionResolver';
-import { IPaymentConfigDocument } from '../../models/definitions/payments';
-import { getModel } from '../../utils';
+import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs';
 
 interface IParam {
   searchValue?: string;
@@ -30,15 +29,15 @@ const paymentConfigQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
-    const qpay = await paginate(
-      models.QpayInvoices.find(selector).sort({ createdAt: 1 }),
-      { ...params }
-    );
-    const socialPay = await paginate(
-      models.SocialPayInvoices.find(selector).sort({ createdAt: 1 }),
-      { ...params }
-    );
-    return [...qpay, ...socialPay];
+    // const qpay = await paginate(
+    //   models.QpayInvoices.find(selector).sort({ createdAt: 1 }),
+    //   { ...params }
+    // );
+    // const socialPay = await paginate(
+    //   models.SocialPayInvoices.find(selector).sort({ createdAt: 1 }),
+    //   { ...params }
+    // );
+    return [];
   },
 
   async invoicesTotalCount(
@@ -47,10 +46,10 @@ const paymentConfigQueries = {
     { commonQuerySelector, models }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
-    const invoiceCnt = await models.QpayInvoices.find(selector);
-    const socialPayCnt = await models.SocialPayInvoices.find(selector);
+    // const invoiceCnt = await models.QpayInvoices.find(selector);
+    // const socialPayCnt = await models.SocialPayInvoices.find(selector);
 
-    return invoiceCnt.length + socialPayCnt.length;
+    return 0;
   },
 
   paymentConfigs(_root, args, { models }: IContext) {
@@ -95,9 +94,10 @@ const paymentConfigQueries = {
       invoiceId
     };
 
-    const model: any = getModel(type, models);
+    // const model: any = getModel(type, models);
 
-    return model.checkInvoice(data);
+    // return model.checkInvoice(data);
+    return null;
   },
 
   async getInvoice(
@@ -111,9 +111,10 @@ const paymentConfigQueries = {
 
     const { type } = paymentConfig || ({} as IPaymentConfigDocument);
 
-    const model: any = getModel(type, models);
+    // const model: any = getModel(type, models);
 
-    return model.findOne({ _id: invoiceId });
+    // return model.findOne({ _id: invoiceId });
+    return null;
   }
 };
 

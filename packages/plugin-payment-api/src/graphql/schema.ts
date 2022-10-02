@@ -5,7 +5,7 @@ export const types = `
     type: String!
     status: String
     config: JSON
-    craetedAt: Date
+    createdAt: Date
   }
 
   type PaymentTypeCount {
@@ -14,54 +14,23 @@ export const types = `
     total: Int
   }
 
-  type QpayInvoice {
-    _id: String!
-    createdAt: Date
-    senderInvoiceNo: String
-    amount: String
-    qpayInvoiceId: String
-    paymentId: String
-    qrText: String
-    qpayPaymentId: String
-    paymentDate: Date
-    customerId: String
-    companyId: String
-    contentType: String
-    contentTypeId: String
-    status: String
-    searchValue: String
-  }
-
-  type SocialPayInvoice {
-    _id: String!
-    createdAt: Date
-    invoiceNo: String
-    paymentId: String
-    amount: String
-    phone: String
-    qrText: String
-    customerId: String
-    companyId: String
-    contentType: String
-    contentTypeId: String
-    status: String
-    searchValue: String
-  }
-
   type Invoice {
     _id: String
-    type: String
-    amount: String
-    qrText: String
-    invoiceNo: String
-    paymentId: String
-    customer: JSON
-    company: JSON
-    contentType: String
-    comment: String
+    paymentConfigId: String
+    amount: Float
+    phone: String
+    email: String
+    description: String
     status: String
+    companyId: String
+    customerId: String
+    contentType: String
+    contentTypeId: String
     createdAt: Date
-    paymentDate: Date
+    resolvedAt: Date
+    paymentConfig: PaymentConfig
+
+    apiResponse: JSON
   }
 `;
 
@@ -96,21 +65,20 @@ const params = `
 `;
 
 const invoiceParams = `
-paymentId: String!
-amount: Float!
-description: String!
-phone: String
-customerId: String
-companyId: String
-contentType: String
-contentTypeId: String
-searchValue: String
+  paymentConfigId: String!
+  amount: Float
+  phone: String 
+  email: String
+  description: String
+  companyId: String
+  customerId: String
+  contentType: String
+  contentTypeId: String
 `;
 
 export const mutations = `
   paymentConfigsAdd(${params}): PaymentConfig
   paymentConfigsEdit(id: String!,${params}): PaymentConfig
   paymentConfigRemove(id: String!): String
-  createInvoice(${invoiceParams}): JSON
-  cancelInvoice(paymentId: String!, invoiceId: String!): JSON
+  createInvoice(${invoiceParams}): Invoice
 `;

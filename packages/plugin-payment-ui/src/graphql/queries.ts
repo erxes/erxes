@@ -33,10 +33,9 @@ qrText
 contentType
 comment
 status
-invoiceNo
-paymentId
 createdAt
 paymentDate
+paymentId
 customer
 company
 `;

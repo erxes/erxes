@@ -1,9 +1,10 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
+
 import { PAYMENT_TYPES } from '../constants';
+import { qPayHandler } from './api/qPay/utils';
+import { socialPayHandler } from './api/socialPay/utils';
 import { graphqlPubsub } from './configs';
-import { generateModels, IModels } from './connectionResolver';
-import { qPayHandler } from './payments/qPay/utils';
-import { socialPayHandler } from './payments/socialPay/utils';
+import { generateModels } from './connectionResolver';
 
 export const getHandler = async (req, res) => {
   const subdomain = getSubdomain(req);
@@ -81,45 +82,4 @@ export const makeInvoiceNo = length => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
-};
-
-export const getModel = (type: string, models: IModels) => {
-  switch (type) {
-    case PAYMENT_TYPES.QPAY:
-      return models.QpayInvoices;
-    case PAYMENT_TYPES.SOCIAL_PAY:
-      return models.SocialPayInvoices;
-  }
-};
-
-export const createInvoice = async (models: IModels, params) => {
-  const paymentConfig = await models.PaymentConfigs.findOne({
-    _id: params.paymentId
-  });
-
-  if (!paymentConfig) {
-    throw new Error(`Config not found with id ${params.paymentId}`);
-  }
-
-  const { config, type } = paymentConfig;
-
-  const model: any = getModel(type, models);
-
-  return model.createInvoice(params, config);
-};
-
-export const cancelInvoice = async (models: IModels, params) => {
-  const paymentConfig = await models.PaymentConfigs.findOne({
-    _id: params.paymentId
-  });
-
-  if (!paymentConfig) {
-    throw new Error(`Config not found with id ${params.paymentId}`);
-  }
-
-  const { config, type } = paymentConfig;
-
-  const model: any = getModel(type, models);
-
-  return model.cancelInvoice(params.invoiceId, config);
 };
