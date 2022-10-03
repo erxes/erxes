@@ -43,14 +43,20 @@ Technically you can not do anything with erxes XOS on its own without plugins, e
 
 erxes plugins contains a wide range of concept, which are:
 
-- Core plugins play a role as features that can independently operate to fulfill their purposes. 
-- More plugins are the tools to extend the functionalities of core plugins. They offer specific functions and features so that users can customize their plugins to their specific needs.
+
+- Plugins can play a major role as feature that can independently operate to fulfill their purposes. 
+
+:::tip
+
+You can create your own plugin using <a href="https://docs.erxes.io/docs/developer/developing-plugins">**the guideline**</a> and place it on our <a href="https://erxes.io/marketplace">**our marketplace**</a> to generate more income for yourself. 
+
+:::
 
 
 ### Add-ons
 
 
-Add-ons are the third-party softwares that can be integrated and work with the erxes Inbox & Contact plugins. 
+Add-ons are the sub-features/integrations that can work with plugins to enhance the experience of plugins.
 
 
 All plugins and add-ons are available on <a href="https://erxes.io/marketplace">**our marketplace**</a> for you to learn and intsall after you’ve finished installing erxes XOS if you’re on the self-hosted version or you’ll have it already if you're on our SaaS version. 
@@ -62,6 +68,11 @@ Want to join the community?
 You can join <a href="https://github.com/erxes/erxes" target="_blank">**GitHub**</a>, <a href="https://github.com/erxes/erxes/discussions" >**Community forum**</a>, and <a href="https://discord.com/invite/aaGzy3gQK5" >**Discord**</a> to share your ideas and opinions with other community members and members of the erxes team. If you're looking for news and updates about erxes, <a href="https://twitter.com/erxesHQ" target="_blank">**Twitter**</a> and the <a href="https://erxes.io/blog" target="_blank">**blog**</a> are the places to start!
 
 :::
+
+### Service
+
+Service includes all services related to creating your unique experiences with erxes.
+
 
 ## Developing your own plugins
 
