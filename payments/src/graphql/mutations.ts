@@ -1,7 +1,7 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 const createInvoice = gql`
-  mutation createInvoice(
+  mutation invoiceCreate(
     $paymentConfigId: String!
     $amount: Float
     $companyId: String
@@ -12,7 +12,7 @@ const createInvoice = gql`
     $email: String
     $phone: String
   ) {
-    createInvoice(
+    invoiceCreate(
       paymentConfigId: $paymentConfigId
       amount: $amount
       companyId: $companyId
@@ -39,6 +39,12 @@ const createInvoice = gql`
   }
 `;
 
-const mutations = { createInvoice };
+const cancelInvoice = gql`
+  mutation invoiceCancel($_id: String!) {
+    invoiceCancel(_id: $_id)
+  }
+`;
+
+const mutations = { createInvoice, cancelInvoice };
 
 export default mutations;

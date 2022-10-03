@@ -1,9 +1,9 @@
 const commonParamDefs = `$name: String!, $type: String!, $status: String, $config: JSON`;
 const commonParams = `name: $name, type: $type, status: $status, config: $config`;
 
-const createInvoiceParamDefs = `$paymentId: String!, $amount: Float!, $description: String!, $phone: String, $customerId: String, $companyId: String`;
+const createInvoiceParamDefs = `$paymentConfigId: String!, $amount: Float!, $description: String!, $phone: String, $customerId: String, $companyId: String`;
 
-const createInvoiceParams = `paymentId: $paymentId, amount: $amount, description: $description, phone: $phone, customerId: $customerId, companyId: $companyId`;
+const createInvoiceParams = `paymentConfigId: $paymentConfigId, amount: $amount, description: $description, phone: $phone, customerId: $customerId, companyId: $companyId`;
 
 const paymentConfigsAdd = `
 mutation paymentConfigsAdd(${commonParamDefs}) {

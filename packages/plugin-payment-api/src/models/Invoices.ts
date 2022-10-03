@@ -3,6 +3,7 @@ import { Model } from 'mongoose';
 import { PAYMENT_TYPES } from '../../constants';
 import { IModels } from '../connectionResolver';
 import * as qpayUtils from '../api/qPay/utils';
+import * as socialPayUtils from '../api/socialPay/utils';
 import {
   IInvoice,
   IInvoiceDocument,
@@ -12,6 +13,7 @@ import {
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(doc: any): IInvoiceDocument;
   createInvoice(doc: IInvoice): Promise<IInvoiceDocument>;
+  cancelInvoice(_id: string): Promise<String>;
 
   //   InvoiceCreate(doc: any): IInvoiceDocument;
   //   InvoiceUpdate(invoice: any, qrText: any): IInvoiceDocument;
@@ -61,6 +63,10 @@ export const loadInvoiceClass = (models: IModels) => {
             break;
           case PAYMENT_TYPES.SOCIAL_PAY:
             // create socialpay invoice
+            invoice.apiResponse = await socialPayUtils.createInvoice(
+              invoice,
+              paymentConfig
+            );
             break;
           default:
             break;
@@ -75,6 +81,34 @@ export const loadInvoiceClass = (models: IModels) => {
 
         throw new Error(e.message);
       }
+    }
+
+    public static async cancelInvoice(_id: string) {
+      const invoice = await models.Invoices.getInvoice({ _id });
+
+      const paymentConfig = await models.PaymentConfigs.getPaymentConfig(
+        invoice.paymentConfigId
+      );
+
+      switch (paymentConfig.type) {
+        case PAYMENT_TYPES.QPAY:
+          // cancel qpay invoice
+          qpayUtils.cancelInvoice(
+            invoice.apiResponse.invoice_id,
+            paymentConfig
+          );
+          break;
+        case PAYMENT_TYPES.SOCIAL_PAY:
+          // cancel socialpay invoice
+          socialPayUtils.cancelInvoice(invoice, paymentConfig);
+          break;
+        default:
+          break;
+      }
+
+      await models.Invoices.deleteOne({ _id });
+
+      return 'success';
     }
   }
   invoiceSchema.loadClass(Invoices);

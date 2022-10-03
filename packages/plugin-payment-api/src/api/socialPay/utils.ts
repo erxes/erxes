@@ -3,6 +3,9 @@ import * as crypto from 'crypto';
 
 import { SOCIALPAY_ACTIONS, SOCIALPAY_ENDPOINT } from '../../../constants';
 import { IModels } from '../../connectionResolver';
+import { IInvoiceDocument } from '../../models/definitions/invoices';
+import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs';
+import { ISocialPayInvoice } from '../types';
 
 export const socialPayHandler = async (models: IModels, data) => {
   const { resp_code, resp_desc, amount, checksum, invoice, terminal } = data;
@@ -55,24 +58,76 @@ export const socialPayInvoiceCheck = async body => {
   return sendRequest(requestOptions);
 };
 
-export const socialPayInvoicePhone = async body => {
+export const createInvoice = async (
+  invoice: IInvoiceDocument,
+  paymentConfig: IPaymentConfigDocument
+) => {
+  const { inStoreSPTerminal, inStoreSPKey } = paymentConfig.config;
+
+  const amount = invoice.amount.toString();
+  let url = `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_QR}`;
+
+  const data: ISocialPayInvoice = {
+    amount,
+    checksum: hmac256(inStoreSPKey, inStoreSPTerminal + invoice._id + amount),
+    invoice: invoice._id,
+    terminal: inStoreSPTerminal
+  };
+
+  if (invoice.phone) {
+    data.phone = invoice.phone;
+    url = `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_PHONE}`;
+    data.checksum = hmac256(
+      inStoreSPKey,
+      inStoreSPTerminal + invoice._id + amount + invoice.phone
+    );
+  }
+
   const requestOptions = {
-    url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_PHONE}`,
+    url,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body,
+    body: data,
     redirect: 'follow'
   };
 
-  return sendRequest(requestOptions);
+  try {
+    const { header, body } = await sendRequest(requestOptions);
+
+    if (header.code !== 200) {
+      throw new Error(body.response.desc);
+    }
+
+    if (body.response.desc.includes('socialpay-payment')) {
+      return { text: body.response.desc };
+    } else {
+      return { text: 'Нэхэмжлэхийг SocialPay-руу илгээлээ.' };
+    }
+  } catch (e) {
+    throw new Error(e.message);
+  }
 };
 
-export const socialPayInvoiceQR = async body => {
+export const cancelInvoice = async (
+  invoice: IInvoiceDocument,
+  paymentConfig: IPaymentConfigDocument
+) => {
+  const { inStoreSPTerminal, inStoreSPKey } = paymentConfig.config;
+
+  const amount = invoice.amount.toString();
+
+  const data: ISocialPayInvoice = {
+    amount,
+    checksum: hmac256(inStoreSPKey, inStoreSPTerminal + invoice._id + amount),
+    invoice: invoice._id,
+    terminal: inStoreSPTerminal
+  };
+
   const requestOptions = {
-    url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_QR}`,
+    url: `${SOCIALPAY_ENDPOINT}${SOCIALPAY_ACTIONS.INVOICE_CANCEL}`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body,
+    body: data,
     redirect: 'follow'
   };
 

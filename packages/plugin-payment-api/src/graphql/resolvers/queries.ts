@@ -53,14 +53,14 @@ const paymentConfigQueries = {
   },
 
   paymentConfigs(_root, args, { models }: IContext) {
-    const paymentIds: string[] = args.paymentIds;
+    const paymentConfigIds: string[] = args.paymentConfigIds;
 
     const filter: any = { status: 'active' };
-    if (paymentIds && paymentIds.length) {
-      filter._id = { $in: paymentIds };
+    if (paymentConfigIds && paymentConfigIds.length) {
+      filter._id = { $in: paymentConfigIds };
     }
 
-    return models.PaymentConfigs.find(filter);
+    return models.PaymentConfigs.find(filter).sort({ type: 1 });
   },
 
   paymentConfigsCountByType(_root, _args, { models }: IContext) {
@@ -79,18 +79,21 @@ const paymentConfigQueries = {
 
   async checkInvoice(
     _root,
-    { paymentId, invoiceId }: { paymentId: string; invoiceId: string },
+    {
+      paymentConfigId,
+      invoiceId
+    }: { paymentConfigId: string; invoiceId: string },
     { models }: IContext
   ) {
     const paymentConfig = await models.PaymentConfigs.findOne({
-      _id: paymentId
+      _id: paymentConfigId
     });
 
     const { config, type } = paymentConfig || ({} as IPaymentConfigDocument);
 
     const data = {
       config,
-      paymentId,
+      paymentConfigId,
       invoiceId
     };
 
@@ -102,11 +105,14 @@ const paymentConfigQueries = {
 
   async getInvoice(
     _root,
-    { paymentId, invoiceId }: { paymentId: string; invoiceId: string },
+    {
+      paymentConfigId,
+      invoiceId
+    }: { paymentConfigId: string; invoiceId: string },
     { models }: IContext
   ) {
     const paymentConfig = await models.PaymentConfigs.findOne({
-      _id: paymentId
+      _id: paymentConfigId
     });
 
     const { type } = paymentConfig || ({} as IPaymentConfigDocument);

@@ -1,20 +1,27 @@
 import { gql } from "@apollo/client";
 
 const checkInvoiceQuery = gql`
-  query checkInvoice($paymentId: String!, $invoiceId: String!) {
-    checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
+  query checkInvoice($paymentConfigId: String!, $_id: String!) {
+    checkInvoice(paymentConfigId: $paymentConfigId, _id: $_id) {
+      _id
+      amount
+      apiResponse
+      companyId
+      contentType
+      contentTypeId
+      customerId
+      description
+      email
+      paymentConfigId
+      phone
+      status
+    }
   }
 `;
 
-const getInvoiceQuery = gql`
-  query getInvoice($paymentId: String!, $invoiceId: String!) {
-    getInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
-  }
-`;
-
-const paymentConfigs = gql`
-  query paymentConfigs($paymentIds: [String]) {
-    paymentConfigs(paymentIds: $paymentIds) {
+const paymentConfigsQuery = gql`
+  query paymentConfigs($paymentConfigIds: [String]) {
+    paymentConfigs(paymentConfigIds: $paymentConfigIds) {
       _id
       name
       type
@@ -24,6 +31,6 @@ const paymentConfigs = gql`
   }
 `;
 
-const queries = { checkInvoiceQuery, paymentConfigs, getInvoiceQuery };
+const queries = { checkInvoiceQuery, paymentConfigsQuery };
 
 export default queries;

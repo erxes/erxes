@@ -38,7 +38,7 @@ export interface IInvoice {
   status: string;
   createdAt: Date;
   paymentDate: Date;
-  paymentId: string;
+  paymentConfigId: string;
   customer: any;
   company: any;
 }

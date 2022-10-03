@@ -3,7 +3,7 @@ import { sendRequest } from '@erxes/api-utils/src';
 
 import { QPAY_ACTIONS, QPAY_ENDPOINT } from '../../../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
-import { IQpayInvoice } from './types';
+import { IQpayInvoice } from '../types';
 import { IModels } from '../../connectionResolver';
 
 export const qPayHandler = async (models: IModels, queryParams) => {
@@ -14,7 +14,7 @@ export const qPayHandler = async (models: IModels, queryParams) => {
   }
 
   const invoice = await models.Invoices.getInvoice({
-    _id: invoiceId
+    'apiResponse.invoice_id': invoiceId
   });
 
   const paymentConfig = await models.PaymentConfigs.getPaymentConfig(
@@ -122,4 +122,19 @@ export const getInvoice = async (
   } catch (e) {
     throw new Error(e.message);
   }
+};
+
+export const cancelInvoice = async (
+  invoiceId: string,
+  paymentConfig: IPaymentConfigDocument
+) => {
+  const token = await getToken(paymentConfig.config);
+  const requestOptions = {
+    url: `${QPAY_ENDPOINT}${QPAY_ACTIONS.INVOICE}/${invoiceId}`,
+    method: 'DELETE',
+    headers: { Authorization: 'Bearer ' + token },
+    redirect: 'follow'
+  };
+
+  return sendRequest(requestOptions);
 };

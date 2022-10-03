@@ -6,7 +6,7 @@ export const getRefetchQueries = () => {
     {
       query: gql(queries.paymentConfigs),
       variables: {
-        paymentIds: []
+        paymentConfigIds: []
       }
     },
     {

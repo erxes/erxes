@@ -68,7 +68,7 @@ const mutationOptions = () => ({
     {
       query: gql(queries.paymentConfigs),
       variables: {
-        paymentIds: []
+        paymentConfigIds: []
       }
     },
     {
@@ -92,7 +92,7 @@ export default withProps<Props>(
         return {
           notifyOnNetworkStatusChange: true,
           variables: {
-            paymentIds: []
+            paymentConfigIds: []
           },
           fetchPolicy: 'network-only'
         };

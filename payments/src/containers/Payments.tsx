@@ -6,7 +6,7 @@ import client from "../apolloClient";
 import Payments from "../components/Payments";
 import { mutations, queries } from "../graphql";
 import subscriptions from "../graphql/subscriptions";
-import { IPaymentParams, IRouterProps } from "../types";
+import { IInvoice, IPaymentParams, IRouterProps } from "../types";
 import { docodeQueryParams } from "../utils";
 
 const PaymentsContainer = (props: IRouterProps) => {
@@ -17,36 +17,29 @@ const PaymentsContainer = (props: IRouterProps) => {
 
   const [paymentConfigId, setPaymentConfigId] = useState("");
   const [invoiceId, setInvoiceId] = useState("");
+  const [invoice, setInvoice] = useState<IInvoice | undefined>(undefined);
 
-  const [createMutation] = useMutation(mutations.createInvoice, {
-    refetchQueries: [
-      {
-        query: queries.getInvoiceQuery,
-        variables: { invoiceId, paymentId: paymentConfigId }
-      }
-    ]
-  });
+  const [createMutation, createMutationResponse] = useMutation(
+    mutations.createInvoice
+  );
 
-  const getInvoiceQuery = useQuery(queries.getInvoiceQuery, {
-    variables: {
-      invoiceId,
-      paymentId: paymentConfigId
-    },
-    skip: !paymentConfigId || !invoiceId
-  });
+  const [cancelMutation, cancelMutationResponse] = useMutation(
+    mutations.cancelInvoice
+  );
 
-  const paymentsQuery = useQuery(queries.paymentConfigs, {
-    variables: { paymentIds: params.paymentIds }
+  const paymentsQuery = useQuery(queries.paymentConfigsQuery, {
+    variables: { paymentConfigIds: params.paymentConfigIds }
   });
 
   const [checkInvoice, { data, loading }] = useLazyQuery(
     queries.checkInvoiceQuery,
     {
-      variables: { invoiceId, paymentId: paymentConfigId }
+      variables: { invoiceId, paymentConfigId: paymentConfigId }
     }
   );
 
-  let iSloading = loading || getInvoiceQuery.loading || paymentsQuery.loading;
+  let isLoading =
+    loading || paymentsQuery.loading || createMutationResponse.loading;
 
   useEffect(() => {
     if (invoiceId) {
@@ -57,18 +50,29 @@ const PaymentsContainer = (props: IRouterProps) => {
         })
         .subscribe({
           next({ data }) {
-            if (data.invoiceUpdated && data.invoiceUpdated.status === "paid") {
-              invoice.status = "paid";
-            }
+            // if (data.invoiceUpdated && data.invoiceUpdated.status === "paid") {
+            //   invoice.status = "paid";
+            // }
           },
           error(_err: any) {
-            invoice.status = "error";
+            // invoice.status = "error";
           }
         });
     }
   }, [invoiceId, paymentConfigId]);
 
   const onClickInvoiceCreate = (paymentId: string, params: IPaymentParams) => {
+    if (paymentConfigId && invoiceId && paymentId !== paymentConfigId) {
+      cancelMutation({
+        variables: { _id: invoiceId }
+      });
+
+      setInvoiceId("");
+      setInvoice(undefined);
+    }
+
+    setPaymentConfigId(paymentId);
+
     createMutation({
       variables: {
         paymentConfigId: paymentId,
@@ -76,11 +80,10 @@ const PaymentsContainer = (props: IRouterProps) => {
       }
     })
       .then(({ data }) => {
-        const { createInvoice } = data;
+        const { invoiceCreate } = data;
 
-        setInvoiceId(createInvoice._id);
-        setPaymentConfigId(paymentId);
-        console.log(data);
+        setInvoice(invoiceCreate);
+        setInvoiceId(invoiceCreate._id);
       })
       .catch(error => {
         window.alert(error.message);
@@ -91,22 +94,13 @@ const PaymentsContainer = (props: IRouterProps) => {
     checkInvoice();
   };
 
-  if (iSloading) {
-    return <>...loading</>;
-  }
-
-  const invoice = getInvoiceQuery.data && {...getInvoiceQuery.data.getInvoice};
-
-  if (data && data.checkInvoice) {
-    invoice.status = data.checkInvoice.status;
-  }
-
   const updatedProps = {
     ...props,
     invoice,
-    datas: paymentsQuery.data.paymentConfigs,
+    datas: (paymentsQuery.data && paymentsQuery.data.paymentConfigs) || [],
     params,
-    paymentId: paymentConfigId,
+    paymentConfigId: paymentConfigId,
+    isLoading,
     onClickInvoiceCreate,
     onClickCheck
   };

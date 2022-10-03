@@ -1,6 +1,6 @@
 const paymentConfigs = `
-query paymentConfigs($paymentIds: [String]!) {
-  paymentConfigs(paymentIds: $paymentIds) {
+query paymentConfigs($paymentConfigIds: [String]!) {
+  paymentConfigs(paymentConfigIds: $paymentConfigIds) {
     _id
     name
     type
@@ -21,8 +21,8 @@ query PaymentConfigsCountByType {
 `;
 
 const checkInvoice = `
-query checkInvoice($paymentId: String!, $invoiceId: String!) {
-  checkInvoice(paymentId: $paymentId, invoiceId: $invoiceId)
+query checkInvoice($paymentConfigId: String!, $invoiceId: String!) {
+  checkInvoice(paymentConfigId: $paymentConfigId, invoiceId: $invoiceId)
 }`;
 
 const invoicesResponse = `
@@ -35,7 +35,7 @@ comment
 status
 createdAt
 paymentDate
-paymentId
+paymentConfigId
 customer
 company
 `;

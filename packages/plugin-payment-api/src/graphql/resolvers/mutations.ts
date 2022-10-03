@@ -43,9 +43,21 @@ const paymentConfigMutations = {
   /**
    *  create an invoice
    */
-  async createInvoice(_root, params: IInvoice, { models }: IContext) {
+  async invoiceCreate(_root, params: IInvoice, { models }: IContext) {
     try {
       return models.Invoices.createInvoice(params);
+    } catch (e) {
+      throw new Error(e.message);
+    }
+  },
+
+  /**
+   * cancel an invoice
+   */
+
+  async invoiceCancel(_root, { _id }: { _id: string }, { models }: IContext) {
+    try {
+      return models.Invoices.cancelInvoice(_id);
     } catch (e) {
       throw new Error(e.message);
     }

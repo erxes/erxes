@@ -1,27 +1,29 @@
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeSVG } from "qrcode.react";
 
-import { IPaymentParams } from '../types';
+import { IInvoice, IPaymentParams, IQpayResponse } from "../types";
 
 type Props = {
   params: IPaymentParams;
-  invoice?: any;
+  invoice?: IInvoice;
   onChange: (key: string, value: any) => void;
 };
 
 const QpaySection = (props: Props) => {
   const { params, invoice } = props;
 
+  const qpayResponse = invoice && (invoice.apiResponse as IQpayResponse);
+
   const renderQR = () => {
-    if (!props.invoice) {
+    if (!invoice) {
       return null;
     }
 
     return (
       <>
         <div className="border">
-          {invoice.qrText && (
+          {qpayResponse && (
             <div>
-              <QRCodeSVG value={invoice.qrText} />
+              <QRCodeSVG value={qpayResponse.qr_text} />
             </div>
           )}
           <div>
@@ -41,34 +43,6 @@ const QpaySection = (props: Props) => {
   return (
     <div style={{ height: "30em", overflow: "auto" }}>
       {renderQR()}
-
-      {invoice && invoice.qrText ? null : (
-        <div className="border">
-          <div>
-            <label className="label" htmlFor="amount">
-              Amount:{" "}
-            </label>
-            <input
-              type="text"
-              value={params.amount}
-              onChange={e => onChange(e)}
-              name="amount"
-              id="amount"
-              disabled={true}
-            />
-            <label className="label" htmlFor="description">
-              Description:{" "}
-            </label>
-            <input
-              type="text"
-              value={params.description}
-              onChange={e => onChange(e)}
-              name="description"
-              id="description"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

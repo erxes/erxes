@@ -11,7 +11,7 @@ export interface IPaymentParams {
   companyId?: string;
   customerId?: string;
   description: string;
-  paymentIds?: string[];
+  paymentConfigIds?: string[];
   redirectUri?: string;
   phone?: string;
 }
@@ -21,3 +21,36 @@ export type QueryResponse = {
   refetch: () => Promise<any>;
   error?: string;
 };
+
+export interface IQpayUrl {
+  name: string;
+  description: string;
+  logo: string;
+  link: string;
+}
+export interface IQpayResponse {
+  invoice_id: string;
+  qr_text: string;
+  qr_image: string;
+  qPay_shortUrl: string;
+  urls: IQpayUrl[];
+}
+
+export interface ISocialPayResponse {
+  text: string;
+}
+
+export interface IInvoice {
+  _id: string;
+  amount: number;
+  apiResponse: IQpayResponse | ISocialPayResponse;
+  companyId: string;
+  contentType: string;
+  contentTypeId: string;
+  customerId: string;
+  description: string;
+  email: string;
+  paymentConfigId: string;
+  phone: string;
+  status: string;
+}

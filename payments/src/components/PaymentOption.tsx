@@ -1,7 +1,7 @@
 import { Component } from "react";
 
 import { PAYMENTS } from "../constants";
-import { IPaymentParams } from "../types";
+import { IInvoice, IPaymentParams } from "../types";
 import QpaySection from "./Qpay";
 import SocialPaySection from "./SocialPay";
 
@@ -10,8 +10,9 @@ type Props = {
   params: IPaymentParams;
   show: boolean;
   datas: any[];
-  paymentId?: string;
-  invoice?: any;
+  isLoading: boolean;
+  paymentConfigId?: string;
+  invoice?: IInvoice;
   onClickInvoiceCreate: (
     paymentConfigId: string,
     params: IPaymentParams
@@ -31,7 +32,7 @@ class Payment extends Component<Props, State> {
     super(props);
 
     this.state = {
-      id: (props.paymentId && props.paymentId) || "",
+      id: (props.paymentConfigId && props.paymentConfigId) || "",
       description: (props.params.description && props.params.description) || "",
       amount: (props.params.amount && props.params.amount) || 0,
       phone: props.params.phone || ""
@@ -44,6 +45,9 @@ class Payment extends Component<Props, State> {
 
   onClick = (id: string) => {
     this.setState({ id });
+    const { params, onClickInvoiceCreate } = this.props;
+
+    onClickInvoiceCreate(id, { ...params, ...this.state });
   };
 
   onClickContinue = (e: any) => {
@@ -83,34 +87,6 @@ class Payment extends Component<Props, State> {
     );
   };
 
-  renderButtons = () => {
-    const { invoice } = this.props;
-
-    if (!this.state.id) {
-      return null;
-    }
-
-    if (invoice && invoice.status === "open") {
-      return (
-        <input
-          id="check"
-          type="submit"
-          value="check"
-          onClick={this.onClickCheck}
-        />
-      );
-    }
-
-    return (
-      <input
-        id="create"
-        type="submit"
-        value="continue"
-        onClick={this.onClickContinue}
-      />
-    );
-  };
-
   paymentOptionRender = (datas: any[]) => {
     const { id } = this.state;
 
@@ -139,9 +115,37 @@ class Payment extends Component<Props, State> {
           </div>
         </div>
         <div className="grid-item">
+          {this.props.isLoading && <div>Loading...</div>}
+
           {id && type === "qpay" && <QpaySection {...updatedProps} />}
           {id && type === "socialPay" && <SocialPaySection {...updatedProps} />}
-          {this.renderButtons()}
+
+          <div className="border">
+            <div>
+              <label className="label" htmlFor="amount">
+                Amount:{" "}
+              </label>
+              <p>{this.props.params.amount}</p>
+            </div>
+
+            {this.props.params.phone && type === 'socialPay' && (
+              <div>
+                <label className="label" htmlFor="phone">
+                  Phone:{" "}
+                </label>
+                <p>{this.props.params.phone}</p>
+              </div>
+            )}
+          </div>
+
+          {this.props.invoice && (
+            <input
+              id="check"
+              type="submit"
+              value="check"
+              onClick={this.onClickCheck}
+            />
+          )}
         </div>
       </div>
     );

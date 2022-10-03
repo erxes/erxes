@@ -16,7 +16,8 @@ export const QPAY_ACTIONS = {
 export const SOCIALPAY_ACTIONS = {
   INVOICE_PHONE: "/pos/invoice/phone",
   INVOICE_QR: "/pos/invoice/qr",
-  INVOICE_CHECK: "/pos/invoice/check"
+  INVOICE_CHECK: "/pos/invoice/check",
+  INVOICE_CANCEL: "/pos/invoice/cancel"
 };
 
 export const POST_CALLBACK_TYPES = {

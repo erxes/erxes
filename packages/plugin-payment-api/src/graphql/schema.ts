@@ -35,7 +35,7 @@ export const types = `
 `;
 
 const paymentOptionsParams = `
-  paymentIds: [String]
+  paymentConfigIds: [String]
   amount: Float
   contentType: String
   contentTypeId: String
@@ -47,10 +47,9 @@ const paymentOptionsParams = `
 `;
 
 export const queries = `
-  paymentConfigs(paymentIds: [String]): [PaymentConfig]
+  paymentConfigs(paymentConfigIds: [String]): [PaymentConfig]
   paymentConfigsCountByType: PaymentTypeCount
-  checkInvoice(paymentId: String!, invoiceId: String!): JSON
-  getInvoice(paymentId: String!, invoiceId: String!): JSON
+  checkInvoice(_id:String!, paymentConfigId: String!): Invoice
   getPaymentOptions(${paymentOptionsParams} ): String
 
   invoices(searchValue: String, page: Int, perPage: Int): [Invoice]
@@ -80,5 +79,6 @@ export const mutations = `
   paymentConfigsAdd(${params}): PaymentConfig
   paymentConfigsEdit(id: String!,${params}): PaymentConfig
   paymentConfigRemove(id: String!): String
-  createInvoice(${invoiceParams}): Invoice
+  invoiceCreate(${invoiceParams}): Invoice
+  invoiceCancel(_id: String!): String
 `;

@@ -1,12 +1,13 @@
 import { Component } from 'react';
 
-import { IPaymentParams } from '../types';
+import { IInvoice, IPaymentParams } from '../types';
 import PaymentOption from './PaymentOption';
 
 type Props = {
   datas: any[];
   params: IPaymentParams;
-  invoice?: any;
+  isLoading: boolean;
+  invoice?: IInvoice;
   onClickInvoiceCreate: (
     paymentConfigId: string,
     params: IPaymentParams
@@ -31,7 +32,7 @@ class Payments extends Component<Props, State> {
   };
 
   render() {
-    const { datas, params, invoice } = this.props;
+    const { datas, params, invoice, isLoading } = this.props;
     const { show } = this.state;
 
     const updatedProps = {

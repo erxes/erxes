@@ -6,3 +6,11 @@ export interface IQpayInvoice {
   amount: number;
   callback_url: string;
 }
+
+export interface ISocialPayInvoice {
+  amount: string;
+  checksum: string;
+  invoice: string;
+  terminal: string;
+  phone?: string;
+}
