@@ -90,6 +90,17 @@ const PaymentsContainer = (props: IRouterProps) => {
       });
   };
 
+  if (cancelMutationResponse.error) {
+    const { message } = cancelMutationResponse.error;
+    window.alert(message);
+
+    if (["Invoice not found", "Already settled"].includes(message)) {
+      window.close();
+    }
+
+    return null;
+  }
+
   const onClickCheck = () => {
     checkInvoice();
   };

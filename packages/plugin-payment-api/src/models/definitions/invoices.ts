@@ -62,3 +62,13 @@ export const invoiceSchema = schemaHooksWrapper(
   }),
   'erxes_invoices'
 );
+
+invoiceSchema.index({
+  expireAfterSeconds: 24 * 60 * 60,
+  partialFilterExpression: {
+    $and: [
+      { resolvedAt: { $exists: false } },
+      { status: PAYMENT_STATUS.PENDING }
+    ]
+  }
+});

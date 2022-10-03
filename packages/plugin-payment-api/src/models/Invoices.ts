@@ -86,6 +86,10 @@ export const loadInvoiceClass = (models: IModels) => {
     public static async cancelInvoice(_id: string) {
       const invoice = await models.Invoices.getInvoice({ _id });
 
+      if (invoice.status !== 'pending') {
+        throw new Error('Already settled');
+      }
+
       const paymentConfig = await models.PaymentConfigs.getPaymentConfig(
         invoice.paymentConfigId
       );
