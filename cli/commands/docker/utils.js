@@ -451,7 +451,7 @@ const up = async ({ uis, fromInstaller }) => {
 
   if (dashboard) {
     dockerComposeConfig.services.dashboard = {
-      image: `erxes/dashboard:${image_tag}`,
+      image: `erxes/dashboard:${dashboard.image_tag || image_tag}`,
       ports: ['4300:80'],
       environment: {
         PORT: '80',
