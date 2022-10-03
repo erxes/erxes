@@ -1,7 +1,9 @@
 var pluginTutorialSideBar = require('./plugin.tutorial.sidebars');
 var userGuideSidebar = require('./user.guide.sidebar');
 
-var sideBar  = {  
+// 'deployment/deployment
+
+var sideBar = {
   docs: [
     {
       type: 'category',
@@ -19,7 +21,13 @@ var sideBar  = {
         type: 'generated-index'
       },
       collapsed: true,
-      items: ['deployment/deployment']
+      items: [
+        {
+          Installation: ['deployment/installation/installationUbuntu']
+        },
+
+        { Deployment: ['deployment/deployment/deploymentDocker'] }
+      ]
     },
     {
       type: 'category',
@@ -121,10 +129,7 @@ var sideBar  = {
       },
       collapsed: true,
       items: ['developer/erxes-xos-user-guide']
-    },
-
-
-  
+    }
   ],
   ...pluginTutorialSideBar,
   ...userGuideSidebar
