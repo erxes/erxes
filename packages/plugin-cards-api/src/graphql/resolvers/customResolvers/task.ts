@@ -128,6 +128,10 @@ export default {
     });
   },
 
+  async tags(task: ITaskDocument) {
+    return (task.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+  },
+
   labels(task: ITaskDocument, _args, { models: { PipelineLabels } }: IContext) {
     return PipelineLabels.find({ _id: { $in: task.labelIds || [] } });
   }
