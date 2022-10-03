@@ -2,10 +2,8 @@ import { Document, Schema } from 'mongoose';
 import { field } from './utils';
 
 export interface IExportHistory {
-  success: number;
   total: number;
   status?: string;
-  percentage?: number;
   exportLink?: string;
   contentType: string;
   columnsConfig: string[];
@@ -31,11 +29,5 @@ export const exportHistorySchema = new Schema({
     default: 'In Progress',
     label: 'Status'
   }),
-  success: field({
-    type: Number,
-    default: 0,
-    label: 'Successful attempts'
-  }),
-  total: field({ type: Number, label: 'Total attempts' }),
-  percentage: field({ type: Number, default: 0, label: 'Percentage' })
+  total: field({ type: Number, label: 'Total attempts' })
 });

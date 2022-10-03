@@ -100,7 +100,7 @@ connect()
       rowIndex++;
     }
 
-    const hi = await generateXlsx(workbook);
+    const excelData = await generateXlsx(workbook);
 
     // const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
 
@@ -113,7 +113,7 @@ connect()
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           Bucket: 'erxes',
           Key: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,
-          Body: hi,
+          Body: excelData,
           ACL: 'public-read'
         },
         (err, res) => {
@@ -127,7 +127,9 @@ connect()
     });
 
     const finalResponse = {
-      exportLink: response.Location
+      exportLink: response.Location,
+      total: rowIndex - 1,
+      status: 'Success'
     };
 
     await models.ExportHistory.updateOne(
