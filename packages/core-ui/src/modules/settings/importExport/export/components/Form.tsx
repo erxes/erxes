@@ -12,6 +12,7 @@ import { IExportHistoryContentType } from '../../types';
 import queryString from 'query-string';
 import { StepButton } from '@erxes/ui/src/components/step/styles';
 import Details from './Details';
+import { Flex } from '@erxes/ui/src/styles/main';
 
 type Props = {
   contentType: string;
@@ -196,16 +197,18 @@ class Form extends React.Component<Props, State> {
             </Step>
             {
               <Step title="Content">
-                <ConfigsForm
-                  columns={columns}
-                  onClickField={this.onClickField}
-                  onSearch={this.onSearch}
-                  searchValue={searchValue}
-                />
+                <FlexPad direction="column" overflow="auto" thinner={true}>
+                  <ConfigsForm
+                    columns={columns}
+                    onClickField={this.onClickField}
+                    onSearch={this.onSearch}
+                    searchValue={searchValue}
+                  />
+                </FlexPad>
               </Step>
             }
             <Step title="Filter">
-              <FlexPad direction="column" overflow="auto">
+              <FlexPad direction="column" overflow="auto" thinner={true}>
                 <SubHeading>{__('Filter')}</SubHeading>
                 <Description>
                   {__('Skip this step if you wish to export all items')}
