@@ -7,9 +7,8 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import { loadDynamicComponent, getEnv } from 'modules/common/utils';
+import { loadDynamicComponent } from 'modules/common/utils';
 import { IExportHistoryContentType } from '../../types';
-import queryString from 'query-string';
 import { StepButton } from '@erxes/ui/src/components/step/styles';
 import Details from './Details';
 
@@ -19,6 +18,7 @@ type Props = {
   count: string;
   loading: boolean;
   previewCount: (segmentId?: string) => void;
+  saveExport: (contentType) => void;
 };
 
 type State = {
@@ -31,8 +31,6 @@ type State = {
   disclaimer: boolean;
   exportName: string;
 };
-
-const { REACT_APP_API_URL } = getEnv();
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
@@ -49,6 +47,11 @@ class Form extends React.Component<Props, State> {
       exportName: ''
     };
   }
+  saveExport = e => {
+    e.preventDefault();
+
+    const {} = this.state;
+  };
 
   onChangeColumn = (column, value, contentType) => {
     const { columnWithChosenField } = this.state;
@@ -131,7 +134,7 @@ class Form extends React.Component<Props, State> {
     const { contentType } = this.props;
     const { columns, segmentId } = this.state;
 
-    const serviceType = contentType.split(':')[0];
+    // const serviceType = contentType.split(':')[0];
 
     let columnsConfig = columns.filter(conf => conf.checked) as any;
 
@@ -139,12 +142,12 @@ class Form extends React.Component<Props, State> {
       return conf.name;
     });
 
-    const stringified = queryString.stringify({
-      configs: JSON.stringify(columnsConfig),
-      type: contentType.split(':')[1],
-      segment: segmentId,
-      unlimited: true
-    });
+    // const stringified = queryString.stringify({
+    //   configs: JSON.stringify(columnsConfig),
+    //   type: contentType.split(':')[1],
+    //   segment: segmentId,
+    //   unlimited: true
+    // });
 
     console.log(columnsConfig, contentType, segmentId);
 
@@ -194,18 +197,18 @@ class Form extends React.Component<Props, State> {
                 contentTypes={contentTypes}
               />
             </Step>
-            {
-              <Step title="Content">
+            <Step title="Content">
+              <FlexPad direction="column" overflow="scroll" thinner={true}>
                 <ConfigsForm
                   columns={columns}
                   onClickField={this.onClickField}
                   onSearch={this.onSearch}
                   searchValue={searchValue}
                 />
-              </Step>
-            }
+              </FlexPad>
+            </Step>
             <Step title="Filter">
-              <FlexPad direction="column" overflow="auto">
+              <FlexPad direction="column" overflow="scroll" thinner={true}>
                 <SubHeading>{__('Filter')}</SubHeading>
                 <Description>
                   {__('Skip this step if you wish to export all items')}

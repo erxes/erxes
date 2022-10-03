@@ -293,6 +293,7 @@ const FlexItem = styledTS<{
   h?: string;
   direction?: string;
   slimmer?: boolean;
+  thinner?: boolean;
 }>(styled.div)`
   display: flex;
   height: 100%;
@@ -335,6 +336,15 @@ const FlexItem = styledTS<{
     if (props.slimmer) {
       return `
         width: 50%;
+        margin: 0 auto;
+      `;
+    }
+    return null;
+  }};
+  ${props => {
+    if (props.thinner) {
+      return `
+        width: 60%;
         margin: 0 auto;
       `;
     }

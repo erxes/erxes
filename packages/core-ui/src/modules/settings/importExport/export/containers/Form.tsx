@@ -6,8 +6,8 @@ import Spinner from 'modules/common/components/Spinner';
 import client from 'apolloClient';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries } from '../../graphql';
-import { withProps } from 'modules/common/utils';
+import { queries, mutations } from '../../graphql';
+import { Alert, withProps } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
@@ -15,6 +15,7 @@ type Props = {
 
 type FinalProps = {
   fieldsQuery: any; //check
+  exportHistoriesCreate: (contentType) => Promise<void>;
 } & Props;
 
 class FormContainer extends React.Component<
@@ -53,7 +54,7 @@ class FormContainer extends React.Component<
   };
 
   render() {
-    const { fieldsQuery } = this.props;
+    const { fieldsQuery, exportHistoriesCreate } = this.props;
     const { count, loading } = this.state;
 
     if (!fieldsQuery || fieldsQuery.loading) {
@@ -71,6 +72,22 @@ class FormContainer extends React.Component<
       }
     ) as any[]; //check type - IConfigColumn
 
+    const saveExport = e => {
+      console.log(e, 'MAPPPPPPPPPPPPPPPPPPPP');
+
+      exportHistoriesCreate({
+        variables: {
+          contentType: ''
+        }
+      })
+        .then(() => {
+          Alert.success('You successfully exported');
+        })
+        .catch(error => {
+          Alert.error(error.message);
+        });
+    };
+
     return (
       <Form
         {...this.props}
@@ -78,6 +95,7 @@ class FormContainer extends React.Component<
         count={count}
         loading={loading}
         previewCount={this.previewCount}
+        saveExport={saveExport}
       />
     );
   }
@@ -97,6 +115,9 @@ export default withProps<Props>(
           }
         };
       }
+    }),
+    graphql<{}>(gql(mutations.exportHistoriesCreate), {
+      name: 'exportHistories'
     })
   )(FormContainer)
 );
