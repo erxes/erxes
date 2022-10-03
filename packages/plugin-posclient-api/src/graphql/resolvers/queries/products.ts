@@ -132,7 +132,7 @@ const productQueries = {
         }
       }
 
-      if (config.erkhetConfig.getRemainder) {
+      if (config.erkhetConfig && config.erkhetConfig.getRemainder) {
         const configs = config.erkhetConfig;
         if (
           configs &&
