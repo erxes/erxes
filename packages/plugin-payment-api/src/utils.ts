@@ -83,3 +83,40 @@ export const makeInvoiceNo = length => {
   }
   return result;
 };
+
+// const pathReplacer = (subdomain: string, html: any, site: ISiteDocument) => {
+//   const siteHolder = `{{sitename}}`;
+//   const path = `{{pl:webbuilder}}/`;
+
+//   if (html.includes(siteHolder)) {
+//     html = html.replace(new RegExp(siteHolder, 'g'), site.name);
+//   }
+
+//   if (html.includes(path)) {
+//     if (site.domain && site.domain.includes('http')) {
+//       html = html.replace(new RegExp(path, 'g'), '');
+//     }
+
+//     // path replacer
+//     const replacer =
+//       subdomain === 'localhost' ? `pl:webbuilder/` : `gateway/pl:webbuilder/`;
+
+//     html = html.replace(new RegExp(path, 'g'), replacer);
+//   }
+
+//   return html;
+// };
+
+const html = ({ body }: { body: string }) => `
+  <!DOCTYPE html>
+  <html>
+    <head>
+    </head>
+    <body style="margin:0">
+      <div id="app">${body}</div>
+    </body>
+    <script src="js/client.js" defer></script>
+  </html>
+`;
+
+export default html;

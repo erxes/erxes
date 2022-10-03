@@ -1,24 +1,25 @@
-import { useLazyQuery, useMutation, useQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
-import { withRouter } from "react-router-dom";
-import client from "../apolloClient";
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { useEffect, useState } from 'react';
+import { withRouter } from 'react-router-dom';
+import client from '../apolloClient';
+import * as React from 'react';
 
-import Payments from "../components/Payments";
-import { mutations, queries } from "../graphql";
-import subscriptions from "../graphql/subscriptions";
-import { IInvoice, IPaymentParams, IRouterProps } from "../types";
-import { docodeQueryParams } from "../utils";
+import Payments from '../components/Payments';
+import { mutations, queries } from '../graphql';
+import subscriptions from '../graphql/subscriptions';
+import { IInvoice, IPaymentParams, IRouterProps } from '../types';
+import { docodeQueryParams } from '../utils';
 
 const PaymentsContainer = (props: IRouterProps) => {
   const { history } = props;
   const { location } = history;
 
-  console.log('container')
+  console.log('container');
 
   const params = docodeQueryParams(location.search);
 
-  const [paymentConfigId, setPaymentConfigId] = useState("");
-  const [invoiceId, setInvoiceId] = useState("");
+  const [paymentConfigId, setPaymentConfigId] = useState('');
+  const [invoiceId, setInvoiceId] = useState('');
   const [invoice, setInvoice] = useState<IInvoice | undefined>(undefined);
 
   const [createMutation, createMutationResponse] = useMutation(
@@ -69,7 +70,7 @@ const PaymentsContainer = (props: IRouterProps) => {
         variables: { _id: invoiceId }
       });
 
-      setInvoiceId("");
+      setInvoiceId('');
       setInvoice(undefined);
     }
 
@@ -96,7 +97,7 @@ const PaymentsContainer = (props: IRouterProps) => {
     const { message } = cancelMutationResponse.error;
     window.alert(message);
 
-    if (["Invoice not found", "Already settled"].includes(message)) {
+    if (['Invoice not found', 'Already settled'].includes(message)) {
       window.close();
     }
 
