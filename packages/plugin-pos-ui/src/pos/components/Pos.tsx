@@ -25,6 +25,7 @@ import GeneralStep from './step/GeneralStep';
 import { IProductCategory } from '@erxes/ui-products/src/types';
 import { Link } from 'react-router-dom';
 import React from 'react';
+import PermissionStep from './step/Permission';
 
 type Props = {
   pos?: IPos;
@@ -158,7 +159,8 @@ class Pos extends React.Component<Props, State> {
       kioskExcludeProductIds: pos.kioskExcludeProductIds || [],
       deliveryConfig,
       cardsConfig,
-      checkRemainder
+      checkRemainder,
+      permissionConfig: pos.permissionConfig || {}
     };
 
     if (pos.isOnline) {
@@ -277,6 +279,17 @@ class Pos extends React.Component<Props, State> {
                   onChange={this.onChange}
                   pos={pos}
                   posSlots={slots}
+                  envs={envs}
+                />
+              </Step>
+              <Step
+                img="/images/icons/erxes-02.svg"
+                title={`Permission`}
+                onClick={this.onStepClick}
+              >
+                <PermissionStep
+                  onChange={this.onChange}
+                  pos={pos}
                   envs={envs}
                 />
               </Step>

@@ -62,14 +62,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
       isRPC: true
     });
 
-    const remConfigs = await sendCoreMessage({
-      subdomain,
-      action: 'getConfig',
-      data: { code: 'remainderConfig', defaultValue: {} },
-      isRPC: true
-    });
-
-    pos.erkhetConfig = {
+    data.erkhetConfig = {
       ...pos.erkhetConfig,
       getRemainderApiUrl: configs.getRemainderApiUrl,
       apiKey: configs.apiKey,

@@ -24,6 +24,7 @@ export interface IOrder {
   customerId?: string;
   cardAmount?: number;
   cashAmount?: number;
+  receivableAmount?: number;
   mobileAmount?: number;
   totalAmount: number;
   finalAmount?: number;
@@ -47,6 +48,7 @@ export interface IOrder {
 
   //posSlot
   slotCode?: string;
+  taxInfo?: any;
 }
 
 const commonAttributes = { positive: true, default: 0 };
@@ -91,6 +93,10 @@ export const orderSchema = schemaHooksWrapper(
       label: 'Card amount'
     }),
     cashAmount: getNumberFieldDefinition({
+      ...commonAttributes,
+      label: 'Cash amount'
+    }),
+    receivableAmount: getNumberFieldDefinition({
       ...commonAttributes,
       label: 'Cash amount'
     }),
@@ -194,7 +200,8 @@ export const orderSchema = schemaHooksWrapper(
       type: String,
       optional: true,
       label: 'Slot code'
-    })
+    }),
+    taxInfo: field({ type: Object, optional: true })
   }),
   'erxes_orders'
 );

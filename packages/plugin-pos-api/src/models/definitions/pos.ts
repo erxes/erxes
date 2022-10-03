@@ -19,27 +19,29 @@ export interface IPosOrderItemDocument extends IPosOrderItem, Document {
 export interface IPosOrder {
   createdAt: Date;
   status: string;
-  paidDate: Date;
+  paidDate?: Date;
   number: string;
-  customerId: string;
-  cardAmount: number;
-  cashAmount: number;
-  mobileAmount: number;
-  totalAmount: number;
-  finalAmount: number;
-  shouldPrintEbarimt: Boolean;
-  printedEbarimt: Boolean;
-  billType: string;
-  billId: string;
-  oldBillId: string;
+  customerId?: string;
+  cardAmount?: number;
+  cashAmount?: number;
+  receivableAmount?: number;
+  mobileAmount?: number;
+  totalAmount?: number;
+  finalAmount?: number;
+  shouldPrintEbarimt?: Boolean;
+  printedEbarimt?: Boolean;
+  billType?: string;
+  billId?: string;
+  oldBillId?: string;
   type: string;
-  userId: string;
-  items: IPosOrderItem[];
+  userId?: string;
+  items?: IPosOrderItem[];
   branchId: string;
   departmentId: string;
   posToken: string;
-  syncedErkhet: Boolean;
-  deliveryInfo: Object;
+  syncedErkhet?: Boolean;
+  deliveryInfo?: any;
+  taxInfo?: any;
 }
 export interface IPosOrderDocument extends IPosOrder, Document {
   _id: string;
@@ -73,6 +75,7 @@ export interface IPos {
   deliveryConfig?: any;
   cardsConfig?: any;
   checkRemainder?: boolean;
+  permissionConfig?: any;
 }
 export interface IPosDocument extends IPos, Document {
   _id: string;
@@ -140,6 +143,7 @@ export const posOrderSchema = schemaHooksWrapper(
     customerId: field({ type: String, label: 'Customer' }),
     cardAmount: field({ type: Number }),
     cashAmount: field({ type: Number }),
+    receivableAmount: field({ type: Number }),
     mobileAmount: field({ type: Number }),
     totalAmount: field({ type: Number }),
     finalAmount: field({ type: Number }),
@@ -178,7 +182,8 @@ export const posOrderSchema = schemaHooksWrapper(
       type: Object,
       optional: true,
       label: 'Delivery Info, address, map, etc'
-    })
+    }),
+    taxInfo: field({ type: Object, optional: true })
   }),
   'erxes_posOrders'
 );
@@ -235,7 +240,12 @@ export const posSchema = schemaHooksWrapper(
     }),
     deliveryConfig: field({ type: Object, label: 'Delivery Config' }),
     cardsConfig: field({ type: Object, label: 'Cards Config' }),
-    checkRemainder: field({ type: Boolean, optional: true })
+    checkRemainder: field({ type: Boolean, optional: true }),
+    permissionConfig: field({
+      type: Object,
+      optional: true,
+      label: 'Permission'
+    })
   }),
   'erxes_pos'
 );

@@ -11,6 +11,7 @@ const orderFields = `
 
 const paymentInputDefs = `
   cashAmount: Float
+  receivableAmount: Float
   billType: String
   registerNumber: String
   mobileAmount: Float

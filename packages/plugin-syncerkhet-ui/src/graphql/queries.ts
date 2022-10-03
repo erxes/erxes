@@ -45,6 +45,8 @@ const commonOrderParams = `
   $perPage: Int,
   $sortField: String,
   $sortDirection: Int,
+  $paidStartDate: Date
+  $paidEndDate: Date
   $createdStartDate: Date
   $createdEndDate: Date
 `;
@@ -56,6 +58,8 @@ const commonOrderParamDefs = `
   sortDirection: $sortDirection
   createdStartDate: $createdStartDate
   createdEndDate: $createdEndDate
+  paidStartDate: $paidStartDate
+  paidEndDate: $paidEndDate
 `;
 
 const commonProductParams = `
@@ -64,7 +68,7 @@ const commonProductParams = `
   $searchValue: String,
   $tag: String,
   $page: Int,
-  $perPage: Int, 
+  $perPage: Int,
   $ids: [String],
   $excludeIds: Boolean,
   $pipelineId: String,
@@ -77,11 +81,11 @@ const commonProductParamsDefs = `
   searchValue: $searchValue,
   tag: $tag,
   page: $page,
-  perPage: $perPage, 
+  perPage: $perPage,
   ids: $ids,
   excludeIds: $excludeIds,
   pipelineId: $pipelineId,
-  boardId: $boardId 
+  boardId: $boardId
 `;
 
 const checkSyncDeals = `

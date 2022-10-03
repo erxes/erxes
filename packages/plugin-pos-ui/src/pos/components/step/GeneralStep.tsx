@@ -1,7 +1,6 @@
 import Modal from 'react-bootstrap/Modal';
 import PosSlotItem from '../productGroup/PosSlotItem';
 import React from 'react';
-import Select from 'react-select-plus';
 import SelectDepartments from '@erxes/ui/src/team/containers/SelectDepartments';
 import {
   __,
@@ -10,7 +9,6 @@ import {
   FormControl,
   FormGroup,
   ModalTrigger,
-  SelectTeamMembers,
   Toggle
 } from '@erxes/ui/src';
 import { IPos, IScreenConfig, ISlot } from '../../../types';
@@ -69,10 +67,6 @@ class GeneralStep extends React.Component<Props, State> {
       slots: props.posSlots || []
     };
   }
-
-  onChangeConfig = (code: string, value) => {
-    this.setState({}, () => {});
-  };
 
   renderMapping(slot: ISlot, props) {
     const { slots } = this.state;
@@ -157,16 +151,9 @@ class GeneralStep extends React.Component<Props, State> {
     this.props.onChange(name, value);
   };
 
-  onChangeSwitchIsOnline = e => {
+  onChangeSwitchMain = e => {
     const { pos } = this.props;
-    pos.isOnline = e.target.checked;
-
-    this.onChangeFunction('pos', pos);
-  };
-
-  onChangeSwitchOnServer = e => {
-    const { pos } = this.props;
-    pos.onServer = e.target.checked;
+    pos[e.target.id] = e.target.checked;
 
     this.onChangeFunction('pos', pos);
   };
@@ -477,16 +464,6 @@ class GeneralStep extends React.Component<Props, State> {
       </div>
     );
 
-    const onAdminSelect = users => {
-      pos.adminIds = users;
-      this.onChangeFunction('pos', pos);
-    };
-
-    const onCashierSelect = users => {
-      pos.cashierIds = users;
-      this.onChangeFunction('pos', pos);
-    };
-
     let name = 'POS name';
     let description: any = 'description';
     let cashierIds: any = [];
@@ -553,38 +530,13 @@ class GeneralStep extends React.Component<Props, State> {
             </Block>
 
             <Block>
-              <h4>{__('Permission')}</h4>
-              <BlockRow>
-                <FormGroup>
-                  <ControlLabel required={true}>POS admin</ControlLabel>
-                  <SelectTeamMembers
-                    label={__('Choose team member')}
-                    name="adminIds"
-                    initialValue={adminIds}
-                    onSelect={onAdminSelect}
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <ControlLabel required={true}>POS cashier</ControlLabel>
-                  <SelectTeamMembers
-                    label={__('Choose team member')}
-                    name="cashierIds"
-                    initialValue={cashierIds}
-                    onSelect={onCashierSelect}
-                  />
-                </FormGroup>
-              </BlockRow>
-            </Block>
-
-            <Block>
               <BlockRow>
                 <FormGroup>
                   <ControlLabel>Is Online</ControlLabel>
                   <Toggle
                     id={'isOnline'}
                     checked={pos && pos.isOnline ? true : false}
-                    onChange={this.onChangeSwitchIsOnline}
+                    onChange={this.onChangeSwitchMain}
                     icons={{
                       checked: <span>Yes</span>,
                       unchecked: <span>No</span>
@@ -595,9 +547,9 @@ class GeneralStep extends React.Component<Props, State> {
                   <FormGroup>
                     <ControlLabel>On Server</ControlLabel>
                     <Toggle
-                      id={'on Server'}
+                      id={'onServer'}
                       checked={pos && pos.onServer ? true : false}
-                      onChange={this.onChangeSwitchOnServer}
+                      onChange={this.onChangeSwitchMain}
                       icons={{
                         checked: <span>Yes</span>,
                         unchecked: <span>No</span>

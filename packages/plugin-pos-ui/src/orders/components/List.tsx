@@ -113,6 +113,12 @@ class Orders extends React.Component<IProps, {}> {
               </th>
               <th>
                 <SortHandler
+                  sortField={'receivableAmount'}
+                  label={__('Receivable Amount')}
+                />
+              </th>
+              <th>
+                <SortHandler
                   sortField={'cardAmount'}
                   label={__('Card Amount')}
                 />

@@ -250,6 +250,7 @@ const queries = {
         $project: {
           cardAmount: '$cardAmount',
           cashAmount: '$cashAmount',
+          receivableAmount: '$receivableAmount',
           mobileAmount: '$mobileAmount',
           totalAmount: '$totalAmount',
           finalAmount: '$finalAmount '
@@ -260,6 +261,7 @@ const queries = {
           _id: '',
           cardAmount: { $sum: '$cardAmount' },
           cashAmount: { $sum: '$cashAmount' },
+          receivableAmount: { $sum: '$receivableAmount' },
           mobileAmount: { $sum: '$mobileAmount' },
           totalAmount: { $sum: '$totalAmount' },
           finalAmount: { $sum: '$finalAmount ' }

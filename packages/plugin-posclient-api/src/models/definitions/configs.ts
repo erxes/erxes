@@ -77,6 +77,7 @@ export interface IConfig {
   departmentId?: string;
   allowBranchIds?: string[];
   checkRemainder?: boolean;
+  permissionConfig?: any;
 }
 
 export interface IConfigDocument extends Document, IConfig {
@@ -165,7 +166,8 @@ export const configSchema = new Schema({
     optional: true,
     label: 'Allow branches'
   }),
-  checkRemainder: field({ type: Boolean, optional: true })
+  checkRemainder: field({ type: Boolean, optional: true }),
+  permissionConfig: field({ type: Object, optional: true })
 });
 
 export const productGroupSchema = new Schema({
