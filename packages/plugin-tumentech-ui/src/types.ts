@@ -76,7 +76,7 @@ export interface ITrailer {
   barrel8?: number;
   importYear?: number;
 
-  meterWarranty?: Date;
+  barrelWarranty?: Date;
   diagnosisDate?: Date;
   taxDate?: Date;
 
@@ -86,7 +86,6 @@ export interface ITrailer {
   totalAxis?: string;
   steeringAxis?: string;
   barrelNumber?: string;
-  pumpCapacity?: string;
   wagonCapacityValue?: string;
   liftWagonCapacityValue?: string;
 }
@@ -140,7 +139,6 @@ export interface ICarDoc {
   seats: string;
   doors: string;
   barrelNumber?: string;
-  pumpCapacity?: string;
   floorType?: string;
   interval?: string[];
   intervalValue?: string;
@@ -158,9 +156,10 @@ export interface ICarDoc {
   backAttachments?: any;
   floorAttachments?: any;
   transformationAttachments?: any;
-  meterWarranty?: Date;
+  barrelWarranty?: Date;
   diagnosisDate?: Date;
   taxDate?: Date;
+  valve?: string;
 
   weight?: number;
   engineCapacity?: string;

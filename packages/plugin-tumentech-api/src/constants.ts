@@ -164,6 +164,17 @@ export const CAR_SELECT_OPTIONS = {
     { label: 'м3', value: 'M3' }
   ],
 
+  VALVE_TYPES: [
+    {
+      label: 'Байгаа',
+      value: 'Have'
+    },
+    {
+      label: 'Байхгүй',
+      value: 'NotHave'
+    }
+  ],
+
   COLLAPSE_CONTENT_SELECTOR: [
     { label: '', value: '' },
     { label: 'Ерөнхий мэдээлэл', value: 'renderMain' },

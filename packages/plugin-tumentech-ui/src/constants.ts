@@ -359,6 +359,17 @@ export const PROVINCES = [
   }
 ];
 
+export const VALVE_TYPES = [
+  {
+    label: 'Байгаа',
+    value: 'Have'
+  },
+  {
+    label: 'Байхгүй',
+    value: 'NotHave'
+  }
+];
+
 export const FILTER_PARAMS = [
   'plateNumber',
   'vinNumber',

@@ -52,6 +52,7 @@ export interface ICar {
   barrelNumber: String;
   status: String;
   description: String;
+  valve: String;
 
   // Merged car ids
   mergedIds: String[];
@@ -64,7 +65,7 @@ export interface ICar {
   floorAttachments?: any;
   transformationAttachments?: any;
 
-  meterWarranty: Date;
+  barrelWarranty: Date;
   liftHeight: Number;
   height: Number;
   weight: Number;
@@ -244,7 +245,11 @@ export const carSchema = schemaHooksWrapper(
       optional: true,
       label: 'Оношлогоо огноо'
     }),
-    taxDate: field({ type: Date, optional: true, label: 'Татвар огноо' }),
+    taxDate: field({
+      type: Date,
+      optional: true,
+      label: 'Татвар огноо'
+    }),
 
     manufacture: field({
       type: String,
@@ -421,6 +426,16 @@ export const carSchema = schemaHooksWrapper(
       selectOptions: CAR_SELECT_OPTIONS.TIRE_LOAD_TYPES
     }),
 
+    valve: field({
+      type: String,
+      enum: getEnum('VALVE_TYPES'),
+      default: '',
+      optional: true,
+      label: 'Valve',
+      esType: 'keyword',
+      selectOptions: CAR_SELECT_OPTIONS.VALVE_TYPES
+    }),
+
     bowType: field({
       type: String,
       enum: getEnum('BOW_TYPES'),
@@ -534,10 +549,18 @@ export const carSchema = schemaHooksWrapper(
       index: true
     }),
 
-    description: field({ type: String, optional: true, label: 'Description' }),
+    description: field({
+      type: String,
+      optional: true,
+      label: 'Description'
+    }),
 
     // Merged car ids
-    mergedIds: field({ type: [String], optional: true, label: 'Merged cars' }),
+    mergedIds: field({
+      type: [String],
+      optional: true,
+      label: 'Merged cars'
+    }),
 
     searchText: field({ type: String, optional: true, index: true }),
 
@@ -551,10 +574,10 @@ export const carSchema = schemaHooksWrapper(
       type: [transformationAttachmentSchema]
     }),
 
-    meterWarranty: field({
+    barrelWarranty: field({
       type: Date,
       optional: true,
-      label: 'Тоолуурын баталгаа'
+      label: 'Торхны баталгаа'
     }),
 
     liftHeight: field({
@@ -592,7 +615,11 @@ export const carSchema = schemaHooksWrapper(
       optional: true,
       label: 'Гүйлтийн төрөл'
     }),
-    volume: field({ type: Number, optional: true, label: 'Эзлэхүүн /м3/' }),
+    volume: field({
+      type: Number,
+      optional: true,
+      label: 'Эзлэхүүн /м3/'
+    }),
     capacityL: field({ type: Number, label: 'Багтаамж /л/' }),
     barrel1: field({ type: Number, optional: true, label: 'Торх #1' }),
     barrel2: field({ type: Number, optional: true, label: 'Торх #2' }),
@@ -607,7 +634,11 @@ export const carSchema = schemaHooksWrapper(
       optional: true,
       label: 'Даац багтаамж'
     }),
-    forceValue: field({ type: Number, optional: true, label: 'Зүтгэх хүч' })
+    forceValue: field({
+      type: Number,
+      optional: true,
+      label: 'Зүтгэх хүч'
+    })
   }),
   'erxes_carSchema'
 );

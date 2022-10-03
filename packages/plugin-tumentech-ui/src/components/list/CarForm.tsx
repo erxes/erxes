@@ -43,6 +43,7 @@ import {
   TIRE_LOAD_TYPES,
   TRAILER_TYPES,
   TRANSMISSION_TYPES,
+  VALVE_TYPES,
   WAGON_CAPACITY_TYPES
 } from '../../constants';
 import { ICar, ICarCategory, ICarDoc } from '../../types';
@@ -102,6 +103,7 @@ type State = {
   wagonCapacity: string[];
   liftWagonCapacity: string[];
   listChange: string;
+  valve: string;
 
   generalClassification: string;
 
@@ -169,6 +171,7 @@ class CarForm extends React.Component<Props, State> {
       wagonCapacity: car.wagonCapacity || [],
       liftWagonCapacity: car.liftWagonCapacity || [],
       listChange: car.listChange || '',
+      valve: car.valve || '',
 
       wagonLength: car.wagonLength || 0,
       wagonWidth: car.wagonWidth || 0,
@@ -232,6 +235,7 @@ class CarForm extends React.Component<Props, State> {
       liftWagonCapacity: finalValues.liftWagonCapacity,
       floorType: finalValues.floorType,
       listChange: finalValues.listChange,
+      valve: finalValues.valve,
       wagonLength: Number(this.state.wagonLength),
       wagonWidth: Number(this.state.wagonWidth),
       height: Number(this.state.height),
@@ -968,15 +972,19 @@ class CarForm extends React.Component<Props, State> {
               required: true
             })}
 
-            {this.renderFormGroup('Насосны чадал /л/мин/', {
-              ...formProps,
-              name: 'pumpCapacity',
-              defaultValue: car.pumpCapacity || ''
-            })}
+            {this.renderFormSelect(
+              'Угын хаалт',
+              {
+                ...formProps,
+                name: 'valve',
+                defaultValue: car.valve
+              },
+              VALVE_TYPES
+            )}
 
             <FormGroup>
-              <ControlLabel>Тоолуурын баталгаа</ControlLabel>
-              {this.renderDate('meterWarranty', formProps)}
+              <ControlLabel>Торхны баталгаа</ControlLabel>
+              {this.renderDate('barrelWarranty', formProps)}
             </FormGroup>
           </FormColumn>
           <FormColumn>

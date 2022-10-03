@@ -86,7 +86,7 @@ type Car {
   importYear: Float
 
   taxDate: Date
-  meterWarranty: Date
+  barrelWarranty: Date
   diagnosisDate: Date
 
   weight: Float
@@ -142,6 +142,7 @@ type Car {
   barrel6: Float
   barrel7: Float
   barrel8: Float
+  valve: String
 
   forceCapacityValue: Float
   forceValue: Float
@@ -266,7 +267,7 @@ const tumentechCommonFields = `
   vintageYear: Float
   importYear: Float
   taxDate: Date
-  meterWarranty: Date
+  barrelWarranty: Date
   diagnosisDate: Date
 
   weight: Float
@@ -322,6 +323,7 @@ const tumentechCommonFields = `
   barrel6: Float
   barrel7: Float
   barrel8: Float
+  valve: String
 
   forceCapacityValue: Float
   forceValue: Float

@@ -104,11 +104,11 @@ export const carFields = `
   color
   fuelType
   engineChange
-  listChange
+  valve
   vintageYear
   importYear
   taxDate
-  meterWarranty
+  barrelWarranty
   diagnosisDate
 
   weight

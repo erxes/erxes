@@ -17,7 +17,7 @@ const commonFields = `
 
   $diagnosisDate: Date
   $taxDate: Date
-  $meterWarranty: Date
+  $barrelWarranty: Date
 
   $weight: Float
   $engineCapacity: String
@@ -46,7 +46,7 @@ const commonFields = `
   $forceAxis: String
   $floorType: String
   $barrelNumber: String
-  $pumpCapacity: String
+  $valve: String
   $interval: [String]
   $intervalValue: String
   $wagonCapacity: [String]
@@ -99,7 +99,7 @@ const commonVariables = `
   importYear: $importYear,
 
   taxDate: $taxDate,
-  meterWarranty: $meterWarranty,
+  barrelWarranty: $barrelWarranty,
   diagnosisDate: $diagnosisDate,
 
   weight: $weight,
@@ -129,7 +129,7 @@ const commonVariables = `
   forceAxis: $forceAxis,
   floorType: $floorType,
   barrelNumber: $barrelNumber,
-  pumpCapacity: $pumpCapacity,
+  valve: $valve,
   interval: $interval,
   intervalValue: $intervalValue,
   wagonCapacity: $wagonCapacity,

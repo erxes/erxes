@@ -87,8 +87,8 @@ class DetailInfo extends React.Component<Props> {
 
         {this.renderRow('Торхны дугаар', car.barrelNumber)}
         {this.renderRow('Багтаамж /л/', car.capacityL)}
-        {this.renderRow('Насосны чадал /л/мин/', car.pumpCapacity)}
-        {this.renderRow('Тоолуурын баталгаа', car.meterWarranty)}
+        {this.renderRow('Угын хаалт', car.valve)}
+        {this.renderRow('Торхны баталгаа', car.barrelWarranty)}
         {this.renderRow('Торх #1', car.barrel1)}
         {this.renderRow('Торх #2', car.barrel2)}
         {this.renderRow('Торх #3', car.barrel3)}
