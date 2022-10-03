@@ -48,7 +48,7 @@ erxes plugins contains a wide range of concept, which are:
 
 :::tip
 
-You can create your own plugin using <a href="https://docs.erxes.io/docs/developer/developing-plugins">**the guideline**</a> and place it on our <a href="https://erxes.io/marketplace">**our marketplace**</a> to generate more income for yourself. 
+You can create your own plugin using <a href="https://docs.erxes.io/docs/developer/developing-plugins">**the guideline**</a> and place it on <a href="https://erxes.io/marketplace">**our marketplace**</a> to generate more income for yourself. 
 
 :::
 
