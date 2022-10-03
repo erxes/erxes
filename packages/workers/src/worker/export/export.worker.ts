@@ -126,9 +126,14 @@ connect()
       );
     });
 
-    console.log(response, 'response');
+    const finalResponse = {
+      exportLink: response.Location
+    };
 
-    await models.ExportHistory.updateOne({ _id: exportHistoryId }, 'test');
+    await models.ExportHistory.updateOne(
+      { _id: exportHistoryId },
+      finalResponse
+    );
 
     mongoose.connection.close();
 

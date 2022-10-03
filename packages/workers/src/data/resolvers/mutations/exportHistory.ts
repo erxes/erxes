@@ -61,8 +61,6 @@ const exportHistoryMutations = {
       segmentId
     });
 
-    console.log(columnsConfig);
-
     try {
       await receiveExportCreate(
         {

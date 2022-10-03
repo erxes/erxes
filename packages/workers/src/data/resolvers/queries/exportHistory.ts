@@ -48,7 +48,7 @@ const exportHistoryQueries = {
     });
 
     const count = models.ImportHistory.find(filter).countDocuments();
-    console.log('xxxxxxxxxxxxxxxxxx', list, count);
+
     return { list, count };
   },
 

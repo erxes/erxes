@@ -175,7 +175,7 @@ export default {
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[fieldName] = value || '-';
+            result[column] = value || '-';
           } else if (column.startsWith('productsData')) {
             const { value } = await fillDealProductValue(
               subdomain,
@@ -188,14 +188,6 @@ export default {
             result[column] = item[column];
           }
         }
-
-        headers.forEach((header, index) => {
-          if (header.startsWith('customFieldsData')) {
-            headers[index] = header.split('.')[1];
-          }
-        });
-
-        console.log(headers);
 
         docs.push(result);
       }
