@@ -65,7 +65,7 @@ const generateFilter = async (
         }
       }
       if (params.dealName) {
-        Object.assign(dealsFilter, regexSearchText(params.dealName));
+        Object.assign(dealsFilter, regexSearchText(params.dealName, 'name'));
       }
 
       if (Object.keys(dealsFilter).length) {
