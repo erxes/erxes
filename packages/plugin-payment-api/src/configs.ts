@@ -80,7 +80,7 @@ export default {
     //   );
     // })
 
-    app.use(controllers);
+    // app.use(controllers);
 
     // renderPaymentGateway(app);
   }
