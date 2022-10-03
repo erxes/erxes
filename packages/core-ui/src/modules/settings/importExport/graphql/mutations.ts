@@ -1,6 +1,6 @@
 const exportHistoriesCreate = `
-  mutation exportHistoriesCreate($contentTypes: [JSON], $files: JSON, $columnsConfig: JSON, $importName: String, $associatedContentType: String, $associatedField: String) {
-    exportHistoriesCreate(contentTypes: $contentTypes, files: $files, columnsConfig: $columnsConfig, importName: $importName,  associatedContentType: $associatedContentType, associatedField: $associatedField)
+  mutation exportHistoriesCreate($contentType: String!, $columnsConfig: JSON, $segmentId: String) {
+    exportHistoriesCreate(contentType: $contentType, columnsConfig: $columnsConfig, segmentId: $segmentId) 
   }
 `;
 

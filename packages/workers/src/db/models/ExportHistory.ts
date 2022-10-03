@@ -30,6 +30,7 @@ export const loadExportHistoryClass = (models: IModels) => {
     /*
      * Create new history
      */
+
     public static async createHistory(doc: IExportHistory) {
       return models.ExportHistory.create({
         date: new Date(),
