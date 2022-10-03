@@ -59,7 +59,7 @@ You can create your own plugin using <a href="https://docs.erxes.io/docs/develop
 Add-ons are the sub-features/integrations that can work with plugins to enhance the experience of plugins.
 
 
-All plugins and add-ons are available on <a href="https://erxes.io/marketplace">**our marketplace**</a> for you to learn and intsall after you’ve finished installing erxes XOS if you’re on the self-hosted version or you’ll have it already if you're on our SaaS version. 
+All plugins and add-ons are available on <a href="https://erxes.io/marketplace">**our marketplace**</a> for you to learn and install after you’ve finished installing erxes XOS if you’re on the self-hosted version or you’ll have it already if you're on our SaaS version. 
 
 :::tip
 
