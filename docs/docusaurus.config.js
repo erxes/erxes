@@ -46,7 +46,6 @@ const config = {
       navbar: {
         logo: {
           alt: 'erxes logo',
-          src: 'img/logo_dark.svg',
           src: 'img/logo_dark.svg'
         },
         items: [
@@ -68,6 +67,10 @@ const config = {
               {
                 label: 'User Guide',
                 href: '/docs/user-guide'
+              },
+              {
+                label: '└─ Welcome',
+                to: '/docs/category/welcome'
               },
               {
                 label: '└─ Get Started',

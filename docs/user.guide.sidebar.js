@@ -1,7 +1,6 @@
 module.exports = {
   'user-guide': [
     'user-guide/get-started',
-    'user-guide/user-guide',
     {
       type: 'category',
       label: 'Welcome',
