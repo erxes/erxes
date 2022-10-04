@@ -17,8 +17,12 @@ class StoreContainer extends React.Component<Props, State> {
   }
 
   async componentDidMount() {
-    // fetch('https://erxes.io/plugins')
-    fetch('http://127.0.0.1:3500/plugins')
+    const url =
+      process.env.NODE_ENV === 'production'
+        ? 'https://erxes.io/plugins'
+        : 'http://127.0.0.1:3500/plugins';
+
+    fetch(url)
       .then(async response => {
         const plugins = await response.json();
 
