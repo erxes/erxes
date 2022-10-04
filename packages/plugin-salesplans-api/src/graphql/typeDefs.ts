@@ -10,13 +10,24 @@ const typeDefs = async () => {
   return gql`
     scalar JSON
     scalar Date
-    
-    ${await salesLogTypes()}
-    
+
+    enum CacheControlScope {
+      PUBLIC
+      PRIVATE
+    }
+
+    directive @cacheControl(
+      maxAge: Int
+      scope: CacheControlScope
+      inheritMaxAge: Boolean
+    ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+    ${salesLogTypes()}
+
     extend type Query {
       ${salesLogQueries}
     }
-    
+
     extend type Mutation {
       ${salesLogMutations}
     }

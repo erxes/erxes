@@ -20,7 +20,7 @@ export default {
     serviceDiscovery = sd;
     return {
       typeDefs: await typeDefs(sd),
-      resolvers: await resolvers(sd)
+      resolvers: await resolvers()
     };
   },
   apolloServerContext: async (context, req) => {
@@ -32,8 +32,6 @@ export default {
     return context;
   },
   onServerInit: async options => {
-    mainDb = options.db;
-
     await generateModels('os');
 
     initBroker(options.messageBrokerClient);
@@ -42,5 +40,6 @@ export default {
     graphqlPubsub = options.pubsubClient;
     // es = options.elasticsearch;
   },
+
   meta: { logs: { consumers: logs }, beforeResolvers }
 };
