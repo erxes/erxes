@@ -56,7 +56,6 @@ const {
   JWT_TOKEN_SECRET,
   WIDGETS_DOMAIN,
   DOMAIN,
-  PAYMENTS_DOMAIN,
   CLIENT_PORTAL_DOMAINS
 } = process.env;
 
@@ -84,7 +83,6 @@ const corsOptions = {
   origin: [
     DOMAIN ? DOMAIN : 'http://localhost:3000',
     WIDGETS_DOMAIN ? WIDGETS_DOMAIN : 'http://localhost:3200',
-    PAYMENTS_DOMAIN ? PAYMENTS_DOMAIN : 'http://localhost:3600',
     ...(CLIENT_PORTAL_DOMAINS || '').split(','),
     ...(process.env.ALLOWED_ORIGINS || '').split(',').map(c => c && RegExp(c))
   ]
