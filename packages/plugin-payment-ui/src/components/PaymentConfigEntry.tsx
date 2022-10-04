@@ -40,7 +40,7 @@ function renderType(type: string) {
 
   return (
     <Type>
-      <Icon icon="comment-alt-lines" /> {__('Works with messenger')}
+      <Icon icon="comment-alt-lines" /> {__('Payment type')}
     </Type>
   );
 }
