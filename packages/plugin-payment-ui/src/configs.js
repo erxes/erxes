@@ -13,18 +13,18 @@ module.exports = {
   menus: [
     {
       text: 'Invoices',
-      url: '/payment-invoices',
+      url: '/payment/invoices',
       icon: 'icon-list',
       location: 'mainNavigation',
-      permission: 'paymentConfigRemove'
+      permission: 'invoiceList'
     },
     {
       text: 'Payments',
-      to: '/payments',
+      to: '/settings/payments',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
       scope: 'payment',
       permission: 'paymentConfigRemove'
     }
   ]
-};
+}

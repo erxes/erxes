@@ -29,15 +29,10 @@ const paymentConfigQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
-    // const qpay = await paginate(
-    //   models.QpayInvoices.find(selector).sort({ createdAt: 1 }),
-    //   { ...params }
-    // );
-    // const socialPay = await paginate(
-    //   models.SocialPayInvoices.find(selector).sort({ createdAt: 1 }),
-    //   { ...params }
-    // );
-    return [];
+
+    return paginate(models.Invoices.find(selector).sort({ createdAt: 1 }), {
+      ...params
+    });
   },
 
   async invoicesTotalCount(
@@ -46,10 +41,7 @@ const paymentConfigQueries = {
     { commonQuerySelector, models }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
-    // const invoiceCnt = await models.QpayInvoices.find(selector);
-    // const socialPayCnt = await models.SocialPayInvoices.find(selector);
-
-    return 0;
+    return models.Invoices.find(selector).countDocuments();
   },
 
   paymentConfigs(_root, args, { models }: IContext) {

@@ -26,23 +26,39 @@ query checkInvoice($paymentConfigId: String!, $invoiceId: String!) {
 }`;
 
 const invoicesResponse = `
-_id
-type
-amount
-qrText
-contentType
-comment
-status
-createdAt
-paymentDate
-paymentConfigId
-customer
-company
+    _id
+    amount
+    contentType
+    contentTypeId
+    createdAt
+    customerId
+    description
+    email
+    paymentConfig {
+      name
+      type
+    }
+    phone
+    resolvedAt
+    status
+    company {
+      _id
+      primaryName
+    }
+    customer {
+      _id
+      firstName
+      lastName
+      middleName
+      primaryEmail
+      primaryPhone
+    }
+    pluginData
 `;
 
 const invoices = `
-query invoices($searchValue: String, $perPage: Int, $page: Int) {
-  invoices(searchValue: $searchValue, perPage: $perPage, page: $page) {
+query invoices($page: Int, $perPage: Int) {
+  invoices(page: $page, perPage: $perPage) {
     ${invoicesResponse}
   }
 }

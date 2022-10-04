@@ -4,7 +4,7 @@ import Bulk from '@erxes/ui/src/components/Bulk';
 import { withProps } from '@erxes/ui/src/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import List from '../components/InvoiceList';
+import List from '../components/invoice/List';
 import { queries } from '../graphql';
 import {
   InvoicesQueryResponse,

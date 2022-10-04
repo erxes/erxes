@@ -1,3 +1,5 @@
+import { ICompany } from '@erxes/ui-contacts/src/companies/types';
+import { ICustomer } from '@erxes/ui/src/customers/types';
 import { QueryResponse } from '@erxes/ui/src/types';
 
 export interface IPaymentConfig {
@@ -30,22 +32,25 @@ export interface IPaymentTypeCount {
 
 export interface IInvoice {
   _id: string;
-  type: string;
   amount: number;
-  qrText: string;
   contentType: string;
-  comment: string;
-  status: string;
+  contentTypeId: string;
   createdAt: Date;
-  paymentDate: Date;
-  paymentConfigId: string;
-  customer: any;
-  company: any;
+  customerId: string;
+  description: string;
+  email: string;
+  paymentConfig: IPaymentConfig;
+  phone: string;
+  resolvedAt: Date;
+  status: string;
+  company?: ICompany;
+  customer?: ICustomer;
+  pluginData?: any;
 }
 
 export type InvoicesQueryResponse = {
   invoices: (params: {
-    variables: { searchValue: string; page: number; perPage: number };
+    variables: { page: number; perPage: number };
   }) => IInvoice[];
   loading: boolean;
   refetch: () => void;
@@ -92,3 +97,5 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
+
+export const submenu = [{ title: 'Invoices', link: '/payment/invoices' }];

@@ -22,7 +22,8 @@ const paymentConfigStore = ({ location }) => {
   );
 };
 
-const emailDeliveryList = ({ location, history }) => {
+const invoiceList = history => {
+  const { location } = history;
   const queryParams = queryString.parse(location.search);
 
   return <InvoiceList queryParams={queryParams} history={history} />;
@@ -31,12 +32,8 @@ const emailDeliveryList = ({ location, history }) => {
 const routes = () => {
   return (
     <React.Fragment>
-      <Route path="/payments/" component={paymentConfigStore} />;
-      <Route
-        exact={true}
-        path="/payment-invoices"
-        component={emailDeliveryList}
-      />
+      <Route path="/settings/payments/" component={paymentConfigStore} />
+      <Route exact={true} path="/payment/invoices/" component={invoiceList} />
     </React.Fragment>
   );
 };

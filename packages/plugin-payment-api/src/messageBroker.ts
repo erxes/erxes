@@ -18,6 +18,18 @@ export const sendContactsMessage = async (
   });
 };
 
+export const sendPluginsMessage = async (
+  serviceName: string,
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName,
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

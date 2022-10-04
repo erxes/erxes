@@ -1,4 +1,19 @@
-export const types = `
+export const types = ({ contacts }) => `
+${
+  contacts
+    ? `
+      extend type Customer @key(fields: "_id") {
+        _id: String! @external
+      }
+
+      extend type Company @key(fields: "_id") {
+        _id: String! @external
+      }
+      `
+    : ''
+}
+
+
   type PaymentConfig {
     _id: String!
     name: String!
@@ -14,7 +29,7 @@ export const types = `
     total: Int
   }
 
-  type Invoice {
+  type Invoice @key(fields: "_id") {
     _id: String
     paymentConfigId: String
     amount: Float
@@ -29,8 +44,18 @@ export const types = `
     createdAt: Date
     resolvedAt: Date
     paymentConfig: PaymentConfig
-
     apiResponse: JSON
+
+    ${
+      contacts
+        ? `
+        customer: Customer
+        company: Company
+        `
+        : ''
+    }
+
+    pluginData: JSON
   }
 `;
 
