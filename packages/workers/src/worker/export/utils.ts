@@ -22,7 +22,13 @@ export const receiveExportCreate = async (
   models: IModels,
   subdomain: string
 ) => {
-  const { contentType, user, columnsConfig, exportHistoryId } = content;
+  const {
+    contentType,
+    user,
+    columnsConfig,
+    exportHistoryId,
+    segmentId
+  } = content;
 
   debugWorkers(`Export called`);
 
@@ -39,6 +45,7 @@ export const receiveExportCreate = async (
       contentType,
       exportHistoryId,
       columnsConfig,
+      segmentId,
       user,
       subdomain
     });

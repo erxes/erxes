@@ -57,11 +57,13 @@ connect()
     const {
       contentType,
       exportHistoryId,
-      columnsConfig
+      columnsConfig,
+      segmentId
     }: {
       contentType: string;
       exportHistoryId: string;
       columnsConfig: string[];
+      segmentId: string;
     } = workerData;
 
     const models = await generateModels(subdomain);
@@ -74,7 +76,8 @@ connect()
         subdomain,
         data: {
           contentType,
-          columnsConfig
+          columnsConfig,
+          segmentId
         }
       }
     );
@@ -125,6 +128,8 @@ connect()
         }
       );
     });
+
+    console.log(response);
 
     const finalResponse = {
       exportLink: response.Location,

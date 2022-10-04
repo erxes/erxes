@@ -8,6 +8,7 @@ export interface IExportHistory {
   contentType: string;
   columnsConfig: string[];
   segmentId: string;
+  name?: string;
 }
 
 export interface IExportHistoryDocument extends IExportHistory, Document {
@@ -18,6 +19,7 @@ export interface IExportHistoryDocument extends IExportHistory, Document {
 
 export const exportHistorySchema = new Schema({
   _id: field({ pkey: true }),
+  name: field({ type: String, label: 'Name' }),
   contentType: field({ type: String, label: 'Content type' }),
   columnsConfig: field({ type: [String], label: 'Columns config' }),
   exportLink: field({ type: String, label: 'Content type' }),

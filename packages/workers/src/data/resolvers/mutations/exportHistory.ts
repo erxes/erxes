@@ -66,6 +66,7 @@ const exportHistoryMutations = {
           contentType,
           columnsConfig,
           exportHistoryId: exportHistory._id,
+          segmentId,
           user
         },
         models,
