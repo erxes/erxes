@@ -11,16 +11,21 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { contentType, segment } = query;
+  const { contentType, segmentId } = query;
 
   let data: any[] = [];
 
   const type = contentType.split(':')[1];
 
   const boardItemsFilter: any = {};
+  let itemIds = [];
 
-  if (segment) {
-    const itemIds = await fetchSegment(subdomain, segment);
+  if (segmentId) {
+    try {
+      itemIds = await fetchSegment(subdomain, segmentId);
+    } catch (e) {
+      console.log(e);
+    }
 
     boardItemsFilter._id = { $in: itemIds };
   }
@@ -65,10 +70,6 @@ const getCustomFieldsData = async (item, fieldId) => {
 const fillDealProductValue = async (subdomain, column, item) => {
   const productsData = item.productsData;
   let value;
-
-  // if (productsData.length === 0) {
-  //   return value;
-  // }
 
   for (const productData of productsData) {
     let product;
@@ -137,7 +138,7 @@ export default {
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { columnsConfig, contentType } = data;
+    const { columnsConfig, contentType, segmentId } = data;
 
     const docs = [] as any;
     const headers = [] as any;

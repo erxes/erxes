@@ -19,7 +19,7 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { contentType, unlimited = false, segment } = query;
+  const { contentType, unlimited = true, segment } = query;
 
   const type = contentType.split(':')[1];
 
@@ -35,7 +35,6 @@ const prepareData = async (
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
-      console.log('bnuuuu company');
       const companyParams: ICompanyListArgs = query;
 
       const companyQb = new CompanyBuildQuery(
@@ -53,7 +52,6 @@ const prepareData = async (
       break;
 
     case 'lead':
-      console.log('bnuuuu lead');
       const leadParams: ICustomerListArgs = query;
       const leadQp = new CustomerBuildQuery(models, subdomain, leadParams, {});
       await leadQp.buildAllQueries();
@@ -64,7 +62,6 @@ const prepareData = async (
       break;
 
     case 'visitor':
-      console.log('bnuuuu visitor');
       const visitorParams: ICustomerListArgs = query;
       const visitorQp = new CustomerBuildQuery(
         models,
@@ -95,8 +92,6 @@ const prepareData = async (
           isRPC: true,
           defaultValue: []
         });
-
-        console.log(fields, 'bnuuuu customer');
 
         if (fields.length === 0) {
           return [];
@@ -167,7 +162,6 @@ const prepareData = async (
             formDatas.push(formData);
           }
         }
-        console.log(formDatas);
         data = formDatas;
       } else {
         const qb = new CustomerBuildQuery(
@@ -255,14 +249,16 @@ export default {
             const { value } = await getCustomFieldsData(item, fieldId);
 
             result[column] = value || '-';
+          } else if (column.startsWith('location')) {
+            const location = item.location || {};
+
+            result[column] = location[column.split('.')[1]];
           } else {
             result[column] = item[column];
           }
         }
 
         docs.push(result);
-
-        // console.log(docs, headers, 'jajajajajajjajajajajaj');
       }
     } catch (e) {
       return { error: e.message };
