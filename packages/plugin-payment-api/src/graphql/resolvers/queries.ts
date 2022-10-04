@@ -70,11 +70,17 @@ const paymentConfigQueries = {
   },
 
   getPaymentOptions(_root, params, _args) {
-    const mainUrl = process.env.PAYMENT_APP_URL || 'http://localhost:3600';
-    const route = '/payment_options';
-    const base64 = Buffer.from(JSON.stringify(params)).toString('base64');
+    const MAIN_API_DOMAIN =
+      process.env.MAIN_API_DOMAIN || 'http://localhost:4000';
 
-    return mainUrl + route + '?q=' + base64;
+    const base64 = Buffer.from(
+      JSON.stringify({
+        ...params,
+        date: Math.round(new Date().getTime() / 1000)
+      })
+    ).toString('base64');
+
+    return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${base64}`;
   },
 
   async checkInvoice(

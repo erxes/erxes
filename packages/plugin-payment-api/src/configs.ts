@@ -1,8 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { Router } from 'express';
 import * as express from 'express';
 import * as path from 'path';
-import * as React from 'react';
+import * as pug from 'pug';
 
 import { POST_CALLBACK_TYPES } from '../constants';
 import { generateModels } from './connectionResolver';
@@ -11,8 +10,6 @@ import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
 import { getHandler, postHandler } from './utils';
 import controllers from './controllers';
-
-const router = Router();
 
 export let mainDb;
 export let debug;
@@ -60,28 +57,15 @@ export default {
 
     const { app } = options;
 
-    app.use(express.static('public'));
-    app.use(express.static(path.join(__dirname, 'public')));
+    app.set('views', path.join(__dirname, 'views'));
+    app.set('view engine', 'pug');
 
-    // app.get('*', (_req, res) => {
-    //   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    // });
-    // app.get('/gateway', (req, res) => {
-    //   return res.send('gateway');
-    // });
+    // serve static files
+    app.use('/static', express.static(path.join(__dirname, '/public')));
 
-    // app.get('/', (req, res) => {
-    //   const body = renderToString(React.createElement(App));
+    // generated scripts
+    app.use('/build', express.static(path.join(__dirname, '../static')));
 
-    //   res.send(
-    //     html({
-    //       body
-    //     })
-    //   );
-    // })
-
-    // app.use(controllers);
-
-    // renderPaymentGateway(app);
+    app.use(controllers);
   }
 };

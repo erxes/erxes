@@ -17,6 +17,7 @@ export interface IInvoice {
   resolvedAt?: Date;
 
   apiResponse?: any;
+  token: string;
 }
 export interface IInvoiceDocument extends IInvoice, Document {
   _id: string;
@@ -58,7 +59,8 @@ export const invoiceSchema = schemaHooksWrapper(
       type: Date,
       optional: true,
       label: 'Resolved Date for invoice'
-    })
+    }),
+    token: field({ type: String, label: 'token' })
   }),
   'erxes_invoices'
 );
