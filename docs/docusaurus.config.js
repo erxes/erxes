@@ -74,16 +74,12 @@ const config = {
                 to: '/docs/user-guide/get-started'
               },
               {
-                label: '└─ Products',
-                to: '/docs/category/products'
+                label: '└─ Plugins',
+                to: '/docs/category/plugins'
               },
               {
-                label: '└─ Industries',
-                to: '/docs/category/industries'
-              },
-              {
-                label: '└─ Teams',
-                to: '/docs/category/teams'
+                label: '└─ Use Cases',
+                to: '/docs/category/use-cases'
               }
             ]
           },

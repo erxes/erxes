@@ -1,10 +1,10 @@
 ---
-id: installation-ubuntu
-title: Installation on Ubuntu
-sidebar_label: Ubuntu
+id: installation-mac
+title: Installation on MacOS
+sidebar_label: Mac
 ---
 
-The following documentation will guide you through the installation of an erxes project using <a href="https://www.docker.com/" target="_blank">**Docker**</a> on <a href="https://ubuntu.com/" target="_blank">**Ubuntu**</a>.
+The following documentation will guide you through the installation of an erxes project using **<a href="https://www.docker.com/" target="_blank">Docker</a>** on **<a href="https://www.apple.com/macos/monterey/" target="_blank">MacOs</a>**.
 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
@@ -26,6 +26,8 @@ Erxes code takes approximately 12GB storage space, make sure you have enough spa
 - [**Node.js**](https://nodejs.org): only LTS versions are supported (v14 and v16). Other versions of Node.js may not be compatible with the latest release of erxes. The 14.x version is most recommended by erxes. The easier way to install **<a href="https://github.com/nvm-sh/nvm#installing-and-updating " target="_blank">nvm</a>** is here.
 - [**npm**](https://docs.npmjs.com/cli/v6/commands/npm-install) and [**yarn**](https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable) (latest version) to run the erxes.
 - **<a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a>** (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker compose (v2.5.0 and higher)
+- [**Homebrew**](https://brew.sh/) latest version
+- [**Xcode**](https://www.freecodecamp.org/news/install-xcode-command-line-tools/) latest version
 
 ## Installing erxes
 
@@ -132,6 +134,14 @@ Please find the useful **<a href="https://docs.docker.com/engine/reference/comma
 sudo docker-compose up -d
 ```
 
+## Running erxes
+
+---
+
+:::caution
+Please make sure you have to change your directory to erxes/cli.
+:::
+
 8. Go back to erxes folder using following command.
 
 ```
@@ -156,33 +166,25 @@ yarn install
 sudo npm install -g pm2
 ```
 
-## Running erxes
-
----
-
-:::caution
-Run erxes in erxes/cli directory
-:::
-
-1. Run following command to change the folder.
+12. Run following command to change the folder.
 
 ```
 cd cli
 ```
 
-2. Install node modules in the erxes/cli directory.
+13. Install `node` modules in the `erxes/cli` directory.
 
 ```
 yarn install
 ```
 
-3. Copy `configs.json.sample`, then convert it to `configs.json`.
+14. Copy `configs.json.sample`, then convert it to `configs.json`.
 
 ```
 cp configs.json.sample configs.json
 ```
 
-4. Run following command to start your erxes project.
+15. Run following command to start your erxes project.
 
 ```
 ./bin/erxes.js dev

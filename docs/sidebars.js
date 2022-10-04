@@ -7,7 +7,7 @@ var sideBar = {
   docs: [
     {
       type: 'category',
-      label: '🚀 Getting started',
+      label: 'Getting started',
       link: {
         type: 'generated-index'
       },
@@ -16,96 +16,45 @@ var sideBar = {
     },
     {
       type: 'category',
-      label: '⚙️ Setup & Deployment',
+      label: 'Setup & Deployment',
       link: {
         type: 'generated-index'
       },
       collapsed: true,
       items: [
         {
-          Installation: ['deployment/installation/installationUbuntu']
+          type: 'category',
+          label: 'Installation',
+          link: {
+            type: 'generated-index'
+          },
+          collapsed: true,
+          items: [
+            'deployment/installation/installation-ubuntu',
+            'deployment/installation/installation-mac'
+          ]
         },
 
-        { Deployment: ['deployment/deployment/deploymentDocker'] }
-      ]
-    },
-    {
-      type: 'category',
-      label: '📦 Plugins',
-      link: {
-        type: 'generated-index'
-      },
-      collapsed: true,
-      items: ['plugins/plugin-installation']
-    },
-    {
-      type: 'category',
-      label: 'Configuration',
-      link: {
-        type: 'generated-index'
-      },
-      collapsed: true,
-      items: [
         {
-          "Administrator's Guide": [
-            'administrator/creating-first-user',
-            'administrator/environment-variables',
-            'administrator/system-config',
-            'administrator/migration'
-          ]
-        },
-        {
-          Integrations: [
-            'integrations-overview/facebook',
-            'integrations-overview/gmail',
-            'integrations-overview/google-cloud-storage',
-            'integrations-overview/aws-s3',
-            'integrations-overview/aws-ses'
-          ]
-        },
-        'developer/webhook',
-
-        {
-          'GraphQL API': [
-            'api/introduction',
-            'api/types',
-            'api/inputTypes',
-            'api/enums',
-            'api/scalars',
-            'api/queries',
-            'api/mutations'
-          ]
-        },
-        'developer/push-notifications',
-        'developer/script-install'
-      ]
-    },
-    {
-      type: 'category',
-      label: '🛠️ Development',
-      link: {
-        type: 'generated-index'
-      },
-      collapsed: true,
-      items: [
-        {
-          'XOS Installation': [
-            { Docker: ['developer/ubuntu', 'developer/mac'] }
-          ]
-        },
-        'developer/developing-plugins',
-        'developer/upgrade',
-        'developer/troubleshooting',
-        {
-          Changelog: [
-            {
-              type: 'link',
-              label: 'Release Notes', // The link label
-              href: 'https://github.com/erxes/erxes/releases' // The external URL
-            }
-          ]
+          type: 'category',
+          label: 'Deployment',
+          link: {
+            type: 'generated-index'
+          },
+          collapsed: true,
+          items: ['deployment/deployment/deploymentDocker']
         }
       ]
+    },
+
+    {
+      type: 'category',
+      label: 'Development',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
+      items: ['developer/developing-plugins']
     },
     {
       type: 'category',
@@ -120,6 +69,15 @@ var sideBar = {
         'contribute/contribute-to-documentation',
         'contribute/documentation-style-guide'
       ]
+    },
+    {
+      type: 'category',
+      label: 'Update & Migration',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
+      items: ['update/update', 'update/migration']
     },
     {
       type: 'category',
