@@ -34,10 +34,8 @@ const importForm = ({ location }) => {
 
   return <Import contentType={queryParams.type} />;
 };
-const exportForm = ({ location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Export contentType={queryParams.type} />;
+const exportForm = () => {
+  return <Export />;
 };
 
 const importHistories = ({ location }) => {

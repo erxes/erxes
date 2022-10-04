@@ -3,33 +3,30 @@ import { __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import React from 'react';
 import { Box, TypeContent, ImportHeader } from '../../styles';
-import { IExportHistoryContentType } from '../../types';
 
 type Props = {
-  onChangeContentType: (value: IExportHistoryContentType) => void;
-  contentTypes: IExportHistoryContentType[];
+  onChangeContentType: (contentType: string) => void;
+  contentType: string;
   typeOptions: any[];
 };
 
 class TypeForm extends React.Component<Props> {
   renderSelected = selectedType => {
-    const { contentTypes } = this.props;
+    const { contentType } = this.props;
 
-    if (contentTypes.length > 0) {
-      const contentType = contentTypes[0].contentType;
-
-      return contentType === selectedType.contentType ? true : false;
+    if (contentType) {
+      return contentType === selectedType ? true : false;
     }
 
     return false;
   };
 
-  renderBox(name, icon, selectedType) {
+  renderBox(name, icon, contentType) {
     return (
       <Box
         key={Math.random()}
-        selected={this.renderSelected(selectedType)}
-        onClick={() => this.props.onChangeContentType(selectedType)}
+        selected={this.renderSelected(contentType)}
+        onClick={() => this.props.onChangeContentType(contentType)}
       >
         <Icon icon={icon} />
         <span>{__(name)}</span>
@@ -45,7 +42,7 @@ class TypeForm extends React.Component<Props> {
     const { typeOptions } = this.props;
 
     return typeOptions.map(option => {
-      return this.renderBox(option.text, option.icon, option);
+      return this.renderBox(option.text, option.icon, option.contentType);
     });
   };
 

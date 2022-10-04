@@ -3,7 +3,7 @@ export const types = `
     _id: String!
     success: String!
     total: String
-    contentTypes: JSON
+    contentType: String
     errorMsgs: [String]
     status: String
     percentage: Float
