@@ -42,10 +42,7 @@
     "styled-components": "^3.2.6",
     "styled-components-ts": "^0.0.14",
     "underscore.string": "^3.3.5",
-    "xss": "^1.0.3",
-    "isomorphic-unfetch": "^3.1.0",
-    "qrcode.react": "^3.1.0",
-    "websocket": "^1.0.34"
+    "xss": "^1.0.3"
   },
   "scripts": {
     "generate-doterxes": "node commands/generate-doterxes.js",
@@ -83,8 +80,7 @@
     "util": "^0.12.4",
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.7.1",
-    "@types/websocket": "^1.0.5"
+    "webpack-dev-server": "^4.7.1"
   },
   "browserslist": [
     ">0.2%",
