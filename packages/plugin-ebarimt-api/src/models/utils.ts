@@ -1,6 +1,7 @@
 import { DISTRICTS } from './constants';
 import { sendRequest } from '@erxes/api-utils/src';
 import { IPutResponse } from './definitions/ebarimt';
+import { IModels } from '../connectionResolver';
 
 const format_number = (num: number) => {
   try {
@@ -11,17 +12,17 @@ const format_number = (num: number) => {
 };
 
 export interface IPutDataArgs {
-  date: Date;
-  orderId: string;
-  hasVat: boolean;
-  hasCitytax: boolean;
-  billType: string;
-  customerCode: string;
-  customerName: string;
-  productsById: any;
-  details: any[];
-  cashAmount: number;
-  nonCashAmount: number;
+  date?: string;
+  orderId?: string;
+  hasVat?: boolean;
+  hasCitytax?: boolean;
+  billType?: string;
+  customerCode?: string;
+  customerName?: string;
+  productsById?: any;
+  details?: any[];
+  cashAmount?: number;
+  nonCashAmount?: number;
 
   transaction?;
   records?;
@@ -145,7 +146,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
 
     const taxPercent = this.vatPercent + this.cityTaxPercent;
 
-    for (const detail of this.params.details) {
+    for (const detail of this.params.details || []) {
       sumAmount += detail.amount;
 
       const vat = (detail.amount / (100 + taxPercent)) * this.vatPercent;
@@ -170,7 +171,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     } = await this.generateStocks();
 
     return {
-      date: this.params.date.toISOString().slice(0, 10),
+      date: this.params.date,
       cashAmount: format_number(sumAmount),
       nonCashAmount: format_number(0),
 
@@ -192,7 +193,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
   }
 }
 
-export const returnBill = async (models, doc, config) => {
+export const returnBill = async (models: IModels, doc, config) => {
   const url = config.ebarimtUrl || '';
   const { contentType, contentId } = doc;
 
@@ -208,9 +209,17 @@ export const returnBill = async (models, doc, config) => {
   }
 
   const rd = prePutResponse.registerNo;
+  const date = prePutResponse.date;
+
+  if (!prePutResponse.billId || !rd || !date) {
+    return {
+      error: 'Буцаалт гүйцэтгэх шаардлагагүй баримт байна.'
+    };
+  }
+
   const data = {
     returnBillId: prePutResponse.billId,
-    date: prePutResponse.date
+    date: date
   };
 
   const resObj = await models.PutResponses.createPutResponse({
