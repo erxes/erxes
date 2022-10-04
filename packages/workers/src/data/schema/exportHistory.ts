@@ -1,20 +1,15 @@
 export const types = `
   type ExportHistory {
     _id: String!
-    success: String!
     total: String
     contentType: String
-    errorMsgs: [String]
     status: String
-    percentage: Float
     name: String
-    attachments: JSON
     removed: [String]
-    ids: [String]
+    exportLink: String
     
     date: Date
     user: JSON
-    error: String
   }
 
   type ExportHistoryList {
