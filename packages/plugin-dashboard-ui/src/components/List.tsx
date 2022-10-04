@@ -13,8 +13,10 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { IDashboard, DashboardsCount } from '../types';
 import { EmptyContent } from '../styles';
 import Row from './Row';
+import Sidebar from './Sidebar';
 
 interface IProps extends IRouterProps {
+  type: string;
   dashboards: IDashboard[];
   loading: boolean;
   searchValue: string;
@@ -111,6 +113,7 @@ class DashboardsList extends React.Component<IProps, State> {
       queryParams,
       isExpand,
       counts,
+      type,
       addDashboard
     } = this.props;
 
@@ -206,6 +209,7 @@ class DashboardsList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
+        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
         content={
           <DataWithLoader
             data={mainContent}
