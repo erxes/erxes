@@ -81,11 +81,15 @@ class Form extends React.Component<Props, State> {
   };
 
   renderExportButton = () => {
-    return (
-      <StepButton next={true} onClick={this.onSubmit}>
-        Export
-      </StepButton>
-    );
+    const { disclaimer, exportName } = this.state;
+    if (disclaimer && exportName) {
+      return (
+        <StepButton next={true} onClick={this.onSubmit}>
+          Export
+        </StepButton>
+      );
+    }
+    return <></>;
   };
 
   render() {

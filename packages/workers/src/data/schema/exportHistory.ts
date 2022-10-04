@@ -11,7 +11,6 @@ export const types = `
     attachments: JSON
     removed: [String]
     ids: [String]
-    
     date: Date
     user: JSON
     error: String

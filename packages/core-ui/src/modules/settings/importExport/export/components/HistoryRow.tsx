@@ -28,9 +28,9 @@ class HistoryRow extends React.Component<Props> {
   renderView = () => {
     const { history } = this.props;
 
-    const { contentTypes } = history;
+    const { contentType } = history;
 
-    if (contentTypes.length > 1) {
+    if (contentType) {
       return (
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
@@ -39,7 +39,7 @@ class HistoryRow extends React.Component<Props> {
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {contentTypes.map(value => {
+            {contentType.map(value => {
               return (
                 <li key={Math.random()}>
                   <Link to={`/contacts/${value.contentType}`}>
@@ -55,8 +55,8 @@ class HistoryRow extends React.Component<Props> {
 
     return (
       <Button btnStyle="simple" size="small">
-        <Link to={`/contacts/${contentTypes[0]}`} style={{ color: '#888' }}>
-          {__(`View ${renderText(contentTypes[0])}`)}
+        <Link to={`/contacts/${contentType}`} style={{ color: '#888' }}>
+          {__(`View ${renderText(contentType)}`)}
         </Link>
       </Button>
     );
@@ -64,28 +64,10 @@ class HistoryRow extends React.Component<Props> {
 
   renderAction = () => {
     const { history } = this.props;
-    const { attachments, contentTypes } = history;
-
-    const renderDownloadFile = () => {
-      return contentTypes.map(value => {
-        const attachment = attachments[value.contentType][0];
-
-        return (
-          <li key={Math.random()}>
-            <a
-              rel="noopener noreferrer"
-              href={readFile(attachment.url)}
-              target="_blank"
-            >
-              {__(`Download ${renderText(value.contentType)} file`)}
-            </a>
-          </li>
-        );
-      });
-    };
+    const { contentType } = history;
 
     const renderDownloadErrorFile = () => {
-      return contentTypes.map(value => {
+      return contentType.map(value => {
         const stringified = queryString.stringify({
           importHistoryId: history._id,
           contentType: value.contentType
@@ -106,7 +88,7 @@ class HistoryRow extends React.Component<Props> {
     const renderDelete = () => {
       const { removeHistory } = this.props;
 
-      return contentTypes.map(value => {
+      return contentType.map(value => {
         const onClick = () => {
           removeHistory(history._id, value.contentType);
         };
@@ -129,7 +111,6 @@ class HistoryRow extends React.Component<Props> {
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          {renderDownloadFile()}
           {renderDownloadErrorFile()}
           {renderDelete()}
         </Dropdown.Menu>
@@ -139,7 +120,7 @@ class HistoryRow extends React.Component<Props> {
 
   renderStatus = history => {
     if (history.status === 'Done' || history.percentage === 100) {
-      return history.contentTypes.map(value => {
+      return history.contentType.map(value => {
         const { removed = [] } = history;
 
         const isRemoved = removed.find(
