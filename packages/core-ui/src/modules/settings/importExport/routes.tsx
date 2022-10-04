@@ -3,12 +3,6 @@ import queryString from 'query-string';
 import React from 'react';
 import { Route } from 'react-router-dom';
 
-// const Export = asyncComponent(() =>
-//   import(
-//     /* webpackChunkName: "Export" */ './export/containers/ExportFormContainer'
-//   )
-// );
-
 const Import = asyncComponent(() =>
   import(
     /* webpackChunkName: "Form container" */ './import/containers/FormContainer'
@@ -19,14 +13,14 @@ const Export = asyncComponent(() =>
   import(/* webpackChunkName: "Form container" */ './export/containers/Form')
 );
 
-const Histories = asyncComponent(() =>
+const ImportHistories = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings Histories" */ './import/containers/list/Histories'
+    /* webpackChunkName: "Settings Import Histories" */ './import/containers/list/Histories'
   )
 );
 const ExportHistories = asyncComponent(() =>
   import(
-    /* webpackChunkName: "Settings Histories" */ './export/containers/Histories'
+    /* webpackChunkName: "Settings Export Histories" */ './export/containers/Histories'
   )
 );
 const Menu = asyncComponent(() =>
@@ -40,16 +34,14 @@ const importForm = ({ location }) => {
 
   return <Import contentType={queryParams.type} />;
 };
-const exportForm = ({ location }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Export contentType={queryParams.type} />;
+const exportForm = () => {
+  return <Export />;
 };
 
 const importHistories = ({ location }) => {
   const queryParams = queryString.parse(location.search);
 
-  return <Histories queryParams={queryParams} />;
+  return <ImportHistories queryParams={queryParams} />;
 };
 const exportHistories = ({ location }) => {
   const queryParams = queryString.parse(location.search);

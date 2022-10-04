@@ -82,25 +82,6 @@ class Histories extends React.Component<Props & IRouterProps> {
     return buttonText;
   }
 
-  // renderExportButton = () => {
-  //   const { currentType } = this.props;
-
-  //   if (currentType)
-  //     return (
-  //       <Link to={`/settings/export?type=${currentType}`}>
-  //         <Button icon="export" btnStyle="primary">
-  //           {__(`Export ${this.getButtonText()}`)}
-  //         </Button>
-  //       </Link>
-  //     );
-
-  //   return (
-  //     <Button icon="export" btnStyle="primary" disabled>
-  //       {__('Export')}
-  //     </Button>
-  //   );
-  // };
-
   renderDataImporter() {
     return (
       <Link to={`/settings/import`}>

@@ -1,9 +1,3 @@
-const exportHistoryGetColumns = `
-  query exportHistoryGetColumns($attachmentName: String) {
-    importHistoryGetColumns(attachmentName: $attachmentName)
-  }
-`;
-
 const exportHistoryGetDuplicatedHeaders = `
   query exportHistoryGetDuplicatedHeaders($attachmentNames: [String]) {
     exportHistoryGetDuplicatedHeaders(attachmentNames: $attachmentNames)
@@ -54,7 +48,6 @@ export default {
   exportHistoryGetExportableServices,
   exportHistoryGetTypes,
   exportHistories,
-  exportHistoryGetColumns,
   exportHistoryGetDuplicatedHeaders,
   fieldsCombinedByContentType
 };
