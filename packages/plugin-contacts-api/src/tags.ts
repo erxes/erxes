@@ -20,7 +20,7 @@ export default {
     },
     {
       description: 'Dashboard',
-      type:'dashboard'
+      type: 'dashboard'
     }
   ],
   tag: async ({ subdomain, data }) => {

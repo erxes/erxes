@@ -1,6 +1,6 @@
-import React from "react";
-import Wrapper from "@erxes/ui/src/layout/components/Wrapper";
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import React from 'react';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 function Sidebar({
   loadingMainQuery,
@@ -11,10 +11,9 @@ function Sidebar({
 }) {
   return (
     <Wrapper.Sidebar hasBorder>
-      {isEnabled("tags") && <div>lalla</div>}
+      {isEnabled('tags') && <div>lalla</div>}
     </Wrapper.Sidebar>
   );
 }
-
 
 export default Sidebar;
