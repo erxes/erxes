@@ -26,7 +26,7 @@ class ConfigsFormContainer extends React.Component<FinalProps, State> {
     const { fieldsQuery } = this.props;
 
     if (!fieldsQuery) {
-      return <div>choose content type</div>;
+      return <div></div>;
     }
 
     if (fieldsQuery.loading) {
