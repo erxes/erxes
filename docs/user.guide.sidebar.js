@@ -1,7 +1,21 @@
 module.exports = {
   'user-guide': [
-    'user-guide/user-guide',
     'user-guide/get-started',
+    'user-guide/user-guide',
+    {
+      type: 'category',
+      label: 'Welcome',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
+      items: [
+        'user-guide/welcome/admin-panel',
+        'user-guide/welcome/billing',
+        'user-guide/welcome/marketplace',
+        'user-guide/welcome/orginization'
+      ]
+    },
     {
       type: 'category',
       label: 'Plugins',
