@@ -213,20 +213,20 @@ class IntegrationConfigs extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons config') }
+      { title: __('Integrations config') }
     ];
 
     return (
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Add-ons config')}
+            title={__('Integrations config')}
             breadcrumb={breadcrumb}
           />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{__('Add-ons config')}</Title>}
+            left={<Title>{__('Integrations config')}</Title>}
             right={actionButtons}
           />
         }
