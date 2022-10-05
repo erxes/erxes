@@ -5,7 +5,7 @@ module.exports = {
       label: 'Get Started with User Guide!',
       link: {
         type: 'doc',
-        id: 'user-guide/user-guide'
+        id: 'user-guide/get-started'
       },
       items: [
         'user-guide/welcome/admin-panel',
@@ -18,7 +18,8 @@ module.exports = {
       type: 'category',
       label: 'Plugins',
       link: {
-        type: 'generated-index'
+        type: 'doc',
+        id: 'user-guide/plugins-intro'
       },
       collapsed: true,
       items: [
@@ -26,7 +27,8 @@ module.exports = {
           type: 'category',
           label: 'XOS',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/xos/xos-intro'
           },
           collapsed: true,
           items: [
@@ -36,6 +38,7 @@ module.exports = {
             'user-guide/xos/import-export',
             'user-guide/xos/apps',
             'user-guide/xos/marketplace',
+            'user-guide/xos/channel',
             'user-guide/xos/script-installation'
           ]
         },
@@ -43,16 +46,17 @@ module.exports = {
           type: 'category',
           label: 'Plugins',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/plugins/intro-plugins'
           },
           collapsed: true,
           items: [
-            'user-guide/plugins/intro-plugins',
             {
               type: 'category',
               label: 'Team Inbox',
               link: {
-                type: 'generated-index'
+                type: 'doc',
+                id: 'user-guide/plugins/team-inbox/inbox-intro'
               },
               collapsed: true,
               items: [
@@ -68,37 +72,31 @@ module.exports = {
           type: 'category',
           label: 'Add-ons',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/adds-on/intro-addon'
           },
           collapsed: true,
-          items: [
-            'user-guide/adds-on/intro-addon',
-            'user-guide/adds-on/list-addon'
-          ]
+          items: ['user-guide/adds-on/list-addon']
         },
         {
           type: 'category',
           label: 'Services',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/services/intro-service'
           },
           collapsed: true,
-          items: [
-            'user-guide/services/intro-service',
-            'user-guide/services/list-service'
-          ]
+          items: ['user-guide/services/list-service']
         },
         {
           type: 'category',
           label: 'Power-ups',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/power-ups/intro-powerup'
           },
           collapsed: true,
-          items: [
-            'user-guide/power-ups/intro-powerup',
-            'user-guide/power-ups/list-powerup'
-          ]
+          items: ['user-guide/power-ups/list-powerup']
         }
       ]
     },
@@ -106,7 +104,8 @@ module.exports = {
       type: 'category',
       label: 'Use-Cases',
       link: {
-        type: 'generated-index'
+        type: 'doc',
+        id: 'user-guide/use-case'
       },
       collapsed: true,
       items: [
@@ -114,7 +113,8 @@ module.exports = {
           type: 'category',
           label: 'Products',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/products/products-intro'
           },
           collapsed: true,
           items: [
@@ -130,7 +130,8 @@ module.exports = {
           type: 'category',
           label: 'Industries',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/industries/industries-intro'
           },
           collapsed: true,
           items: [
@@ -150,7 +151,8 @@ module.exports = {
           type: 'category',
           label: 'Teams',
           link: {
-            type: 'generated-index'
+            type: 'doc',
+            id: 'user-guide/teams/teams-intro'
           },
           collapsed: true,
           items: [

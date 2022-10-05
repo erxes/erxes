@@ -66,19 +66,19 @@ const config = {
               },
               {
                 label: 'User Guide',
-                href: '/docs/user-guide/'
+                href: '/docs/user-guide/get-started'
               },
               {
                 label: '└─ Get Started',
-                to: '/docs/user-guide/'
+                to: '/docs/user-guide/get-started'
               },
               {
                 label: '└─ Plugins',
-                to: '/docs/category/plugins'
+                to: '/docs/user-guide/plugins-intro'
               },
               {
                 label: '└─ Use Cases',
-                to: '/docs/category/use-cases'
+                to: '/docs/user-guide/use-case'
               }
             ]
           },
