@@ -65,25 +65,3 @@ block layout-content
                                             window.close();
                                         }
                                     }
-    block extraScript
-        script.
-            (() => {
-                check()
-            })()
-            function check() {
-                let isMobile;
-                const toMatch = [
-                    /Android/i,
-                    /webOS/i,
-                    /iPhone/i,
-                    /iPad/i,
-                    /iPod/i,
-                    /BlackBerry/i,
-                    /Windows Phone/i,
-                ];
-                let mobile = toMatch.some((toMatchItem) => {
-                    console.log(navigator.userAgent.match(toMatchItem), "navigator.userAgent.match(toMatchItem)")
-                    return navigator.userAgent.match(toMatchItem);
-                });
-                return mobile;
-            }
