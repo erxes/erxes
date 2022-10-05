@@ -11,7 +11,7 @@ import { withProps } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  onClickField: (columns: any[]) => void;
+  onClickField: (column) => void;
 };
 
 type State = {};
@@ -26,7 +26,7 @@ class ConfigsFormContainer extends React.Component<FinalProps, State> {
     const { fieldsQuery } = this.props;
 
     if (!fieldsQuery) {
-      return <div>choose content type</div>;
+      return <div></div>;
     }
 
     if (fieldsQuery.loading) {

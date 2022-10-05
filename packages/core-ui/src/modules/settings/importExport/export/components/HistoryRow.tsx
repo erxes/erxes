@@ -28,9 +28,9 @@ class HistoryRow extends React.Component<Props> {
   renderView = () => {
     const { history } = this.props;
 
-    const { contentTypes } = history;
+    const { contentType } = history;
 
-    if (contentTypes.length > 1) {
+    if (contentType) {
       return (
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
@@ -39,7 +39,7 @@ class HistoryRow extends React.Component<Props> {
             </Button>
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            {contentTypes.map(value => {
+            {contentType.map(value => {
               return (
                 <li key={Math.random()}>
                   <Link to={`/contacts/${value.contentType}`}>
@@ -55,8 +55,8 @@ class HistoryRow extends React.Component<Props> {
 
     return (
       <Button btnStyle="simple" size="small">
-        <Link to={`/contacts/${contentTypes[0]}`} style={{ color: '#888' }}>
-          {__(`View ${renderText(contentTypes[0])}`)}
+        <Link to={`/contacts/${contentType}`} style={{ color: '#888' }}>
+          {__(`View ${renderText(contentType)}`)}
         </Link>
       </Button>
     );
@@ -64,62 +64,47 @@ class HistoryRow extends React.Component<Props> {
 
   renderAction = () => {
     const { history } = this.props;
-    const { attachments, contentTypes } = history;
 
-    const renderDownloadFile = () => {
-      return contentTypes.map(value => {
-        const attachment = attachments[value.contentType][0];
+    console.log(history, 'HISTORY::::::::::::::::::::');
 
-        return (
-          <li key={Math.random()}>
-            <a
-              rel="noopener noreferrer"
-              href={readFile(attachment.url)}
-              target="_blank"
-            >
-              {__(`Download ${renderText(value.contentType)} file`)}
-            </a>
-          </li>
-        );
-      });
-    };
+    const { contentTypes } = history;
 
-    const renderDownloadErrorFile = () => {
-      return contentTypes.map(value => {
-        const stringified = queryString.stringify({
-          importHistoryId: history._id,
-          contentType: value.contentType
-        });
+    // const renderDownloadErrorFile = () => {
+    //   return contentTypes.map(value => {
+    //     const stringified = queryString.stringify({
+    //       importHistoryId: history._id,
+    //       contentType: value.contentType
+    //     });
 
-        const reqUrl = `${REACT_APP_API_URL}/pl:workers/download-import-error?${stringified}`;
+    //     const reqUrl = `${REACT_APP_API_URL}/pl:workers/download-import-error?${stringified}`;
 
-        return (
-          <li key={Math.random()}>
-            <a rel="noopener noreferrer" href={reqUrl} target="_blank">
-              {__(`Download ${renderText(value.contentType)} errors`)}
-            </a>
-          </li>
-        );
-      });
-    };
+    //     return (
+    //       <li key={Math.random()}>
+    //         <a rel="noopener noreferrer" href={reqUrl} target="_blank">
+    //           {__(`Download ${renderText(value.contentType)} errors`)}
+    //         </a>
+    //       </li>
+    //     );
+    //   });
+    // };
 
-    const renderDelete = () => {
-      const { removeHistory } = this.props;
+    // const renderDelete = () => {
+    //   const { removeHistory } = this.props;
 
-      return contentTypes.map(value => {
-        const onClick = () => {
-          removeHistory(history._id, value.contentType);
-        };
+    //   return contentTypes.map(value => {
+    //     const onClick = () => {
+    //       removeHistory(history._id, value.contentType);
+    //     };
 
-        return (
-          <li key={Math.random()}>
-            <a onClick={onClick} href="# ">
-              {__(`Delete ${renderText(value.contentType)}`)}
-            </a>
-          </li>
-        );
-      });
-    };
+    //     return (
+    //       <li key={Math.random()}>
+    //         <a onClick={onClick} href="# ">
+    //           {__(`Delete ${renderText(value.contentType)}`)}
+    //         </a>
+    //       </li>
+    //     );
+    //   });
+    // };
 
     return (
       <Dropdown className="dropdown-btn" alignRight={true}>
@@ -129,47 +114,46 @@ class HistoryRow extends React.Component<Props> {
           </Button>
         </Dropdown.Toggle>
         <Dropdown.Menu>
-          {renderDownloadFile()}
-          {renderDownloadErrorFile()}
-          {renderDelete()}
+          {/* {renderDownloadErrorFile()}
+          {renderDelete()} */}
         </Dropdown.Menu>
       </Dropdown>
     );
   };
 
-  renderStatus = history => {
-    if (history.status === 'Done' || history.percentage === 100) {
-      return history.contentTypes.map(value => {
-        const { removed = [] } = history;
+  // renderStatus = history => {
+  //   if (history.status === 'Done' || history.percentage === 100) {
+  //     return history.contentTypes.map(value => {
+  //       const { removed = [] } = history;
 
-        const isRemoved = removed.find(
-          removedItem => removedItem === value.contentType
-        );
+  //       const isRemoved = removed.find(
+  //         removedItem => removedItem === value.contentType
+  //       );
 
-        if (isRemoved) {
-          return (
-            <span key={Math.random()}>{value.contentType}(deleted) &nbsp;</span>
-          );
-        } else {
-          return <span key={Math.random()}>{value.contentType} &nbsp;</span>;
-        }
-      });
-    }
+  //       if (isRemoved) {
+  //         return (
+  //           <span key={Math.random()}>{value.contentType}(deleted) &nbsp;</span>
+  //         );
+  //       } else {
+  //         return <span key={Math.random()}>{value.contentType} &nbsp;</span>;
+  //       }
+  //     });
+  //   }
 
-    if (history.error) {
-      return (
-        <Tip placement="top" text={history.error}>
-          <TextInfo textStyle="danger"> failed </TextInfo>
-        </Tip>
-      );
-    }
+  //   if (history.error) {
+  //     return (
+  //       <Tip placement="top" text={history.error}>
+  //         <TextInfo textStyle="danger"> failed </TextInfo>
+  //       </Tip>
+  //     );
+  //   }
 
-    return (
-      <TextInfo textStyle="warning">
-        {`${history.status}  ${history.percentage}%`}
-      </TextInfo>
-    );
-  };
+  //   return (
+  //     <TextInfo textStyle="warning">
+  //       {`${history.status}  ${history.percentage}%`}
+  //     </TextInfo>
+  //   );
+  // };
 
   render() {
     const { history } = this.props;
@@ -190,7 +174,7 @@ class HistoryRow extends React.Component<Props> {
         <td>
           <ImportTitle>
             <h6>{history.name || '-'}</h6>
-            {this.renderStatus(history)}
+            {/* {this.renderStatus(history)} */}
           </ImportTitle>
         </td>
         <td>

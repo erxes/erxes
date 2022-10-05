@@ -12,7 +12,7 @@ import { OperatorList } from '../../styles';
 type Props = {
   columns: any[];
   contentType: string;
-  onClickField: (columns: any[]) => void;
+  onClickField: (column) => void;
 };
 
 type State = {
@@ -56,26 +56,21 @@ class ConfigsForm extends React.Component<Props, State> {
     }, {});
   };
 
-  onClickField = (checked, field) => {
-    const { columns } = this.state;
-
-    for (const column of columns) {
-      if (column._id === field._id) {
-        column.checked = checked;
-      }
-    }
-
-    this.setState(
-      {
-        columns
-      },
-      () => {
-        this.props.onClickField(columns);
-      }
-    );
-  };
-
   renderFields = fields => {
+    const onClickField = field => {
+      const { columns } = this.state;
+
+      for (const column of columns) {
+        if (column._id === field._id) {
+          column.checked = !column.checked;
+        }
+      }
+
+      this.setState({ columns });
+
+      this.props.onClickField(columns);
+    };
+
     return fields.map(field => {
       return (
         <FormControl
@@ -83,7 +78,7 @@ class ConfigsForm extends React.Component<Props, State> {
           id={String(fields._id)}
           defaultChecked={fields.checked}
           componentClass="checkbox"
-          onChange={e => this.onClickField(e, field)}
+          onChange={() => onClickField(field)}
           checked={field.checked}
         >
           {field.label}

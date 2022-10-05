@@ -1,4 +1,4 @@
-import { Content, LeftContent } from '../../styles';
+import { Content, LeftContent, ImportHeader } from '../../styles';
 import { Step, Steps } from '@erxes/ui/src/components/step';
 import ConfigsForm from '../containers/ConfigsForm';
 import React from 'react';
@@ -81,11 +81,15 @@ class Form extends React.Component<Props, State> {
   };
 
   renderExportButton = () => {
-    return (
-      <StepButton next={true} onClick={this.onSubmit}>
-        Export
-      </StepButton>
-    );
+    const { disclaimer, exportName } = this.state;
+    if (disclaimer && exportName) {
+      return (
+        <StepButton next={true} onClick={this.onSubmit}>
+          Export
+        </StepButton>
+      );
+    }
+    return <></>;
   };
 
   render() {
@@ -110,7 +114,18 @@ class Form extends React.Component<Props, State> {
               />
             </Step>
             <Step title="Content">
-              <FlexPad direction="column" overflow="scroll" thinner={true}>
+              <FlexPad
+                direction="column"
+                overflow="auto"
+                thinner={true}
+                vh={70}
+              >
+                <ImportHeader>{__(`Choose your content type`)}</ImportHeader>
+                <ImportHeader fontSize="small">
+                  {__(
+                    'Before you choose content fields, make sure your content type is ready to be selected.'
+                  )}
+                </ImportHeader>
                 <ConfigsForm
                   onClickField={this.onClickField}
                   contentType={contentType}
@@ -118,7 +133,12 @@ class Form extends React.Component<Props, State> {
               </FlexPad>
             </Step>
             <Step title="Filter">
-              <FlexPad direction="column" overflow="scroll" thinner={true}>
+              <FlexPad
+                direction="column"
+                overflow="auto"
+                thinner={true}
+                vh={70}
+              >
                 <SubHeading>{__('Filter')}</SubHeading>
                 <Description>
                   {__('Skip this step if you wish to export all items')}
