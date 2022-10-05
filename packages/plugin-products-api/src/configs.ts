@@ -11,6 +11,7 @@ import forms from './forms';
 import * as permissions from './permissions';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import imports from './imports';
+import exporter from './exporter';
 
 export let debug;
 export let mainDb;
@@ -41,7 +42,14 @@ export default {
     return context;
   },
 
-  meta: { logs: { consumers: logs }, tags, internalNotes, forms, imports },
+  meta: {
+    logs: { consumers: logs },
+    tags,
+    internalNotes,
+    forms,
+    imports,
+    exporter
+  },
 
   onServerInit: async options => {
     initBroker(options.messageBrokerClient);

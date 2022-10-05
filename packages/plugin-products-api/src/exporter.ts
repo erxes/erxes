@@ -1,43 +1,18 @@
 import { generateModels, IModels } from './connectionResolver';
-import { EXPORT_TYPES, MODULE_NAMES } from './constants';
-import { fetchSegment, sendFormsMessage } from './messageBroker';
+import { sendFormsMessage, sendTagsMessage } from './messageBroker';
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { contentType, unlimited = true, segmentId } = query;
-
-  const type = contentType.split(':')[1];
+  const { contentType, segmentId } = query;
 
   let data: any[] = [];
 
-  const contactsFilter: any = {};
+  const productsFilter: any = {};
 
-  if (segmentId) {
-    const itemIds = await fetchSegment(subdomain, segmentId);
-
-    contactsFilter._id = { $in: itemIds };
-  }
-
-  switch (type) {
-    case MODULE_NAMES.COMPANY:
-      data = await models.Companies.find(contactsFilter).lean();
-
-      break;
-    case 'lead':
-      data = await models.Customers.find(contactsFilter).lean();
-
-      break;
-    case 'visitor':
-      data = await models.Customers.find(contactsFilter).lean();
-
-      break;
-    case MODULE_NAMES.CUSTOMER:
-      data = await models.Customers.find(contactsFilter).lean();
-      break;
-  }
+  data = await models.Products.find(productsFilter).lean();
 
   return data;
 };
@@ -62,13 +37,14 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
-const getTrackedData = async (item, fieldname) => {
+const getUomData = async (item, fieldName) => {
   let value;
 
-  if (item.trackedData && item.trackedData.length > 0) {
-    for (const data of item.trackedData) {
-      if (data.field === fieldname) {
-        value = data.value;
+  if (item.subUoms && item.subUoms.length > 0) {
+    for (const subUom of item.subUoms) {
+      if (subUom.uomId === fieldName || subUom.ratio === fieldName) {
+        // console.log(subUom.uomId);
+        value = subUom.uomId || subUom.ratio;
 
         if (Array.isArray(value)) {
           value = value.join(', ');
@@ -83,8 +59,6 @@ const getTrackedData = async (item, fieldname) => {
 };
 
 export default {
-  exportTypes: EXPORT_TYPES,
-
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
@@ -125,20 +99,36 @@ export default {
             const { value } = await getCustomFieldsData(item, fieldId);
 
             result[column] = value || '-';
-          } else if (column.startsWith('location')) {
-            const location = item.location || {};
-
-            result[column] = location[column.split('.')[1]];
-          } else if (column.startsWith('visitorContactInfo')) {
-            const visitorContactInfo = item.visitorContactInfo || {};
-
-            result[column] = visitorContactInfo[column.split('.')[1]];
-          } else if (column.startsWith('trackedData')) {
+          } else if (column.startsWith('subUoms')) {
             const fieldName = column.split('.')[1];
 
-            const { value } = await getTrackedData(item, fieldName);
+            const { value } = await getUomData(item, fieldName);
 
             result[column] = value || '-';
+          } else if (column === 'categoryName') {
+            const value = await models.ProductCategories.findOne({
+              _id: item.categoryId
+            }).lean();
+
+            result[column] = value?.name || '-';
+          } else if (column === 'tag') {
+            const tags = await sendTagsMessage({
+              subdomain,
+              action: 'find',
+              data: {
+                _id: { $in: item.tagIds || [] }
+              },
+              isRPC: true,
+              defaultValue: []
+            });
+
+            let tagNames = '';
+
+            for (const tag of tags) {
+              tagNames = tagNames.concat(tag.name, ', ');
+            }
+
+            result[column] = tagNames ? tagNames : '';
           } else {
             result[column] = item[column];
           }
