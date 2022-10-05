@@ -1,5 +1,6 @@
 import { generateModels, IModels } from './connectionResolver';
 import { sendFormsMessage, sendTagsMessage } from './messageBroker';
+import * as moment from 'moment';
 
 const prepareData = async (
   models: IModels,
@@ -57,6 +58,64 @@ const getUomData = async (item, fieldName) => {
   return { value };
 };
 
+export const fillValue = async (
+  models: IModels,
+  subdomain: string,
+  column: string,
+  item: any
+): Promise<string> => {
+  let value = item[column];
+
+  switch (column) {
+    case 'createdAt':
+      value = moment(value).format('YYYY-MM-DD HH:mm');
+      break;
+
+    case 'categoryName':
+      const category = await models.ProductCategories.findOne({
+        _id: item.categoryId
+      }).lean();
+
+      value = category?.name || '-';
+
+      break;
+
+    case 'tag':
+      const tags = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: item.tagIds || [] }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      let tagNames = '';
+
+      for (const tag of tags) {
+        tagNames = tagNames.concat(tag.name, ', ');
+      }
+
+      value = tags ? tagNames : '-';
+
+      break;
+
+    case 'uomId':
+      const uom = await models.Uoms.findOne({
+        _id: item.uomId
+      }).lean();
+
+      value = uom?.name || '-';
+      break;
+
+    default:
+      break;
+  }
+
+  return value || '-';
+};
+
 export default {
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
@@ -104,32 +163,10 @@ export default {
             const { value } = await getUomData(item, fieldName);
 
             result[column] = value || '-';
-          } else if (column === 'categoryName') {
-            const value = await models.ProductCategories.findOne({
-              _id: item.categoryId
-            }).lean();
-
-            result[column] = value?.name || '-';
-          } else if (column === 'tag') {
-            const tags = await sendTagsMessage({
-              subdomain,
-              action: 'find',
-              data: {
-                _id: { $in: item.tagIds || [] }
-              },
-              isRPC: true,
-              defaultValue: []
-            });
-
-            let tagNames = '';
-
-            for (const tag of tags) {
-              tagNames = tagNames.concat(tag.name, ', ');
-            }
-
-            result[column] = tagNames ? tagNames : '';
           } else {
-            result[column] = item[column];
+            const value = await fillValue(models, subdomain, column, item);
+
+            result[column] = value || '-';
           }
         }
 
