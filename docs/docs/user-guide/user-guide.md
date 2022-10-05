@@ -14,13 +14,13 @@ Before going any further into this user guide, we recommend you acknowledge the 
 
 erxes provides 3 different packages for our clients, which include:
 
-**A self-hosted version** that is suitable for SaaS providers or enterprises operating in highly regulated industries, like insurance, mobile network providers, banking and etc. As it is self-hosted, you must ensure you and your organization have a skilled DevOps person/team to look after the server to maintain the smooth operation of your erxes operating system daily.  
+1. **A self-hosted version** that is suitable for SaaS providers or enterprises operating in highly regulated industries, like insurance, mobile network providers, banking and etc. As it is self-hosted, you must ensure you and your organization have a skilled DevOps person/team to look after the server to maintain the smooth operation of your erxes operating system daily.  
 
 As an erxes user, you can choose between using the Community Edition, which is entirely free, or paid plan of the Enterprise Edition.  
 
-**SaaS version** that is suitable for small to medium enterprises who want to leave all your tech-related work to us and only focus on your main operation that is non-technical. **<a href="https://erxes.io/pricing" >Pricing</a>** is super simple in that you can get access to erxes for free and use it as long as you want as an individual. Then as your business grows, you can only pay for what you need, rather than having a bunch of junk that comes within the package. 
+2. **SaaS version** that is suitable for small to medium enterprises who want to leave all your tech-related work to us and only focus on your main operation that is non-technical. **<a href="https://erxes.io/pricing" >Pricing</a>** is super simple in that you can get access to erxes for free and use it as long as you want as an individual. Then as your business grows, you can only pay for what you need, rather than having a bunch of junk that comes within the package. 
 
-**An infrastructure version** is for is the best choice for starting a platform business. You can white-label the design or change every line of code to make it work for you, and this is where you can leverage erxes core plugins, components, and enterprise features to power your entire platform business that includes some of the very specific, high-level paid plugins.
+3. **An infrastructure version** is for is the best choice for starting a platform business. You can white-label the design or change every line of code to make it work for you, and this is where you can leverage erxes core plugins, components, and enterprise features to power your entire platform business that includes some of the very specific, high-level paid plugins.
 
 
 Visit **<a href="https://erxes.io/pricing" >our pricing page</a>** to get more information, as you must carefully decide which version is most suitable for you and your organization. And whichever version you choose, we promise to change how your businesses grow by delivering breakthrough value to our clients and community. 
