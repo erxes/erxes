@@ -30,13 +30,15 @@ export interface IExportHistory {
   _id: string;
   success: string;
   total: string;
-  contentTypes: string;
+  name: string;
+  contentType: string;
   date: Date;
-  user: IUser;
   status: string;
   percentage: number;
-  errorMsgs: string[];
+  removed: string[];
+  user: IUser;
   error: string;
+  exportLink: string;
 }
 
 export interface IExportHistoryItem {

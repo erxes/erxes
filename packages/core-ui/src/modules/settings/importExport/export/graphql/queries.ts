@@ -30,14 +30,14 @@ const exportHistories = `
         success
         total
         name
-        contentTypes 
+        contentType
         date
         status
         percentage
-        attachments
         removed
         user 
         error
+        exportLink
         }
       count 
     }

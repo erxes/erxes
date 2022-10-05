@@ -1,15 +1,17 @@
 export const types = `
   type ExportHistory {
     _id: String!
+    success: Boolean!
     total: String
-    contentType: String
-    status: String
     name: String
-    removed: [String]
-    exportLink: String
-    
+    contentType: String
     date: Date
+    status: String
+    percentage: Int
+    removed: [String]
     user: JSON
+    error: String
+    exportLink: String
   }
 
   type ExportHistoryList {
