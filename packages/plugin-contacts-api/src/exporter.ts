@@ -206,6 +206,26 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
+const getTrackedData = async (item, fieldname) => {
+  let value;
+
+  if (item.trackedData && item.trackedData.length > 0) {
+    for (const data of item.trackedData) {
+      if (data.field === fieldname) {
+        value = data.value;
+
+        if (Array.isArray(value)) {
+          value = value.join(', ');
+        }
+
+        return { value };
+      }
+    }
+  }
+
+  return { value };
+};
+
 export default {
   exportTypes: EXPORT_TYPES,
 
@@ -253,6 +273,16 @@ export default {
             const location = item.location || {};
 
             result[column] = location[column.split('.')[1]];
+          } else if (column.startsWith('visitorContactInfo')) {
+            const visitorContactInfo = item.visitorContactInfo || {};
+
+            result[column] = visitorContactInfo[column.split('.')[1]];
+          } else if (column.startsWith('trackedData')) {
+            const fieldName = column.split('.')[1];
+
+            const { value } = await getTrackedData(item, fieldName);
+
+            result[column] = value || '-';
           } else {
             result[column] = item[column];
           }
