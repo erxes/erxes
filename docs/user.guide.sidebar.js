@@ -4,9 +4,9 @@ module.exports = {
       type: 'category',
       label: 'Get Started with User Guide!',
       link: {
-        type: 'generated-index'
+        type: 'doc',
+        id: 'user-guide/user-guide'
       },
-      collapsed: true,
       items: [
         'user-guide/welcome/admin-panel',
         'user-guide/welcome/billing',

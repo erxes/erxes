@@ -1,5 +1,5 @@
 ---
 id: channel
 title: Channel
-sidebar_label: 'Brands'
+sidebar_label: 'Channel'
 ---
