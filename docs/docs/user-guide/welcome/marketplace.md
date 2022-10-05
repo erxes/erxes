@@ -17,14 +17,21 @@ You can also develop your own plugins and place them on **<a href="https://erxes
 :::
 
 
-The plugins in erxes Marketplace are divided into the following categories:
+The plugins are divided into the following categories:
 
+- **<a href="https://docs.erxes.io/docs/user-guide/xos/xos-intro" >XOS features</a>** comes with erxes XOS core code that allow users to customize, improve speed, and enhance the experience along with plugins. However, you can not do anything on their own, unless it works with plugins of your choices.
 - **<a href="https://docs.erxes.io/docs/user-guide/plugins/intro-plugins" >Plugins</a>** the features that can work independently to fulfill a particular purpose.
 - **<a href="https://docs.erxes.io/docs/user-guide/adds-on/intro-addon" >Add-ons</a>** are the sub-features/integrations that can work with plugins to enhance their experience.
 - **<a href="https://docs.erxes.io/docs/user-guide/services/intro-service" >Services</a>** include all services related to creating your unique experiences with erxes.
 - **<a href="https://docs.erxes.io/docs/user-guide/power-ups/intro-powerup" >Power-up</a>** is the boost to power up plugins.
 
-Each plugin has;
+:::info
+
+All of the above are available on **<a href="https://erxes.io/marketplace">our Marketplace</a>** except the XOS features that comes with core code when you install or signup to erxes. 
+
+:::
+
+Each plugin available at Marketplace has;
 
 - dependent plugins, which can not work without them, 
 - additional plugins that can work to bring out better experiences.
