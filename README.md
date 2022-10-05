@@ -92,11 +92,11 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
  
 ## Getting Started
 
-Read **<a href="https://docs.erxes.io/docs/deployment/" >the documentation<a>** to install erxes locally.
+Read **<a href="https://docs.erxes.io/docs/category/installation" >the documentation<a>** to install erxes locally.
 
 **🖐 Requirements**
 
-Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/deployment/" >installation requirements</a>**.
+Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/category/installation" >installation requirements</a>**.
 
 Supported operating systems:
 
@@ -145,7 +145,7 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## Upgrade Guides
 
-Follow our **<a href="https://github.com/orgs/erxes/repositories">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/docs/intro">documentation here</a>**.
+Follow our **<a href="https://docs.erxes.io/docs/update/">upgrade guides</a>** on the documentation to keep your erxes code up-to-date. See our dedicated repository for the erxes documentation, or view our **<a href="https://docs.erxes.io/docs/intro">documentation here</a>**.
 
  
 ## License
