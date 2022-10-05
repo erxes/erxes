@@ -54,4 +54,4 @@ erxes is composed of 2 main components: XOS & Plugins
 - **Task Management** - Create a more collaborative, self-reliant, and cross-linked team. See more on **<a href="https://erxes.io/marketplace" >our website</a>**.
 
 
-Well, I’ll stop here as you can learn more about erxes along with your journey with us. I hope it helped you make up your mind, and you should be ready to start your erxes experience!
+Well, I’ll stop here as you can learn more about erxes along with your journey with us. I hope it helped you to make up your mind, and you should be ready to start your erxes experience!
