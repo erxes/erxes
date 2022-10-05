@@ -133,6 +133,8 @@ const generateParams = ({ queryParams }) => {
   const pageInfo = router.generatePaginationParams(queryParams || {});
 
   return {
+    paidStartDate: queryParams.paidStartDate,
+    paidEndDate: queryParams.paidEndDate,
     createdStartDate: queryParams.createdStartDate,
     createdEndDate: queryParams.createdEndDate,
     posToken: queryParams.posToken,

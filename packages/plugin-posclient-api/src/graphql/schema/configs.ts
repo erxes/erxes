@@ -70,6 +70,7 @@ export const types = `
     branchId: String
     departmentId: String
     checkRemainder: Boolean
+    permissionConfig: JSON
   }
 `;
 

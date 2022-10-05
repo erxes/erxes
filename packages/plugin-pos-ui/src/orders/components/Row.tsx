@@ -57,6 +57,9 @@ class PutResponseRow extends React.Component<Props> {
           {dayjs(order.paidDate || order.createdAt).format('lll')}
         </td>
         <td key={'cashAmount'}>{this.displayValue(order, 'cashAmount')}</td>
+        <td key={'receivableAmount'}>
+          {this.displayValue(order, 'receivableAmount')}
+        </td>
         <td key={'cardAmount'}>{this.displayValue(order, 'cardAmount')}</td>
         <td key={'mobileAmount'}>{this.displayValue(order, 'mobileAmount')}</td>
         <td key={'totalAmount'}>{this.displayValue(order, 'totalAmount')}</td>

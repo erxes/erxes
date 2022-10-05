@@ -19,6 +19,7 @@ type Props = {
   onChangePayments: (
     _id: string,
     cashAmount: number,
+    receivableAmount: number,
     cardAmount: number,
     mobileAmount: number
   ) => void;
@@ -27,6 +28,7 @@ type Props = {
 
 type State = {
   cashAmount: number;
+  receivableAmount: number;
   cardAmount: number;
   mobileAmount: number;
 };
@@ -38,6 +40,7 @@ class PutResponseDetail extends React.Component<Props, State> {
     const { order } = this.props;
     this.state = {
       cashAmount: order.cashAmount,
+      receivableAmount: order.receivableAmount,
       cardAmount: order.cardAmount,
       mobileAmount: order.mobileAmount
     };
@@ -87,9 +90,17 @@ class PutResponseDetail extends React.Component<Props, State> {
   save = () => {
     const { order } = this.props;
     const { totalAmount } = order;
-    const { cashAmount, cardAmount, mobileAmount } = this.state;
+    const {
+      cashAmount,
+      receivableAmount,
+      cardAmount,
+      mobileAmount
+    } = this.state;
 
-    if (cashAmount + cardAmount + mobileAmount !== totalAmount) {
+    if (
+      cashAmount + receivableAmount + cardAmount + mobileAmount !==
+      totalAmount
+    ) {
       Alert.error('Is not balanced');
       return;
     }
@@ -97,6 +108,7 @@ class PutResponseDetail extends React.Component<Props, State> {
     this.props.onChangePayments(
       this.props.order._id,
       cashAmount,
+      receivableAmount,
       cardAmount,
       mobileAmount
     );
@@ -177,6 +189,7 @@ class PutResponseDetail extends React.Component<Props, State> {
           {this.renderEditRow('Cash Amount', 'cashAmount')}
           {this.renderEditRow('Card Amount', 'cardAmount')}
           {this.renderEditRow('Mobile Amount', 'mobileAmount')}
+          {this.renderEditRow('Receivable Amount', 'receivableAmount')}
         </ul>
 
         <Button btnStyle="success" size="small" onClick={this.save} icon="edit">

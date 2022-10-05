@@ -109,7 +109,8 @@ export const BILL_TYPES = {
   CITIZEN: '1', // иргэнд өгөх баримт
   ENTITY: '3', // байгууллагад өгөх баримт
   INVOICE: '5', // нэхэмжлэхээр өгөх баримт
-  ALL: ['1', '3', '5']
+  INNER: '9', // дотоод буюу түр
+  ALL: ['1', '3', '5', '9']
 };
 
 export const ORDER_RETURN_TYPES = {

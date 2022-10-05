@@ -37,6 +37,7 @@ const posCommonFields = `
   deliveryConfig: JSON
   cardsConfig: JSON
   checkRemainder: Boolean
+  permissionConfig: JSON
 `;
 
 const catProd = `
@@ -54,6 +55,7 @@ const posOrderFields = contactsEnabled => `
   customerId: String,
   cardAmount: Float,
   cashAmount: Float,
+  receivableAmount: Float,
   mobileAmount: Float,
   totalAmount: Float,
   finalAmount: Float,
@@ -241,5 +243,5 @@ export const mutations = `
   posSlotBulkUpdate(posId: String, slots: [SlotInput]): [PosSlot]
   posOrderSyncErkhet(_id: String!): PosOrder
   posOrderReturnBill(_id: String!): PosOrder
-  posOrderChangePayments(_id: String!, cashAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
+  posOrderChangePayments(_id: String!, cashAmount: Float, receivableAmount: Float, cardAmount: Float, mobileAmount: Float): PosOrder
 `;

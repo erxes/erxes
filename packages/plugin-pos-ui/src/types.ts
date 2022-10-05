@@ -58,6 +58,7 @@ export type IPos = {
   deliveryConfig?: any;
   cardsConfig?: any;
   checkRemainder?: boolean;
+  permissionConfig?: any;
 };
 
 export type ISlot = {
@@ -183,6 +184,7 @@ export type SchemaLabelsQueryResponse = {
 export interface IOrdersSummary {
   cardAmount: number;
   cashAmount: number;
+  receivableAmount: number;
   mobileAmount: number;
   totalAmount: number;
   finalAmount: number;

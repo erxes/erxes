@@ -27,11 +27,23 @@ class OrdersDetailContainer extends React.Component<FinalProps> {
     };
   }
 
-  onChangePayments = (orderId, cashAmount, cardAmount, mobileAmount) => {
+  onChangePayments = (
+    orderId,
+    cashAmount,
+    receivableAmount,
+    cardAmount,
+    mobileAmount
+  ) => {
     const { posOrderChangePayments } = this.props;
 
     posOrderChangePayments({
-      variables: { _id: orderId, cashAmount, cardAmount, mobileAmount }
+      variables: {
+        _id: orderId,
+        cashAmount,
+        receivableAmount,
+        cardAmount,
+        mobileAmount
+      }
     })
       .then(() => {
         Alert.success('You successfully synced erkhet.');
@@ -80,6 +92,7 @@ export default withProps<Props>(
       {
         _id: string;
         cashAmount: number;
+        receivableAmount: number;
         cardAmount: number;
         mobileAmount: number;
       }

@@ -42,6 +42,7 @@ export const orderFields = `
   customerId
   cardAmount
   cashAmount
+  receivableAmount
   mobileAmount
   totalAmount
   finalAmount

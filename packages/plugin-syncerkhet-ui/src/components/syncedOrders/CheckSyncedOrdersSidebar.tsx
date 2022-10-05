@@ -17,6 +17,8 @@ interface IProps {
 
 interface State {
   posToken: string;
+  paidStartDate: Date;
+  paidEndDate: Date;
   createdStartDate: Date;
   createdEndDate: Date;
 }
@@ -28,6 +30,8 @@ class CheckerSidebar extends React.Component<IProps, State> {
     const { queryParams } = this.props;
     this.state = {
       posToken: queryParams.posToken,
+      paidStartDate: queryParams.paidStartDate,
+      paidEndDate: queryParams.paidEndDate,
       createdStartDate: queryParams.createdStartDate,
       createdEndDate: queryParams.createdEndDate
     };
@@ -37,11 +41,19 @@ class CheckerSidebar extends React.Component<IProps, State> {
   };
 
   onFilter = () => {
-    const { posToken, createdStartDate, createdEndDate } = this.state;
+    const {
+      posToken,
+      paidStartDate,
+      paidEndDate,
+      createdStartDate,
+      createdEndDate
+    } = this.state;
 
     router.setParams(this.props.history, {
       page: 1,
       posToken,
+      paidStartDate,
+      paidEndDate,
       createdStartDate,
       createdEndDate
     });
@@ -114,6 +126,7 @@ class CheckerSidebar extends React.Component<IProps, State> {
                 autoFocus={true}
               />
             </FormGroup>
+            {this.renderRange('paid')}
             {this.renderRange('created')}
           </Section>
 

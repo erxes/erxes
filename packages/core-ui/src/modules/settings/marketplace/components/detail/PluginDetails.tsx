@@ -1,28 +1,30 @@
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from './Wrapper';
-import RightSidebar from './RightSidebar';
+import {
+  AttachmentContainer,
+  Center,
+  ColorHeader,
+  Detail,
+  DetailInformation,
+  DetailMainContainer,
+  Hashtag,
+  PluginTitle
+} from '../../styles';
+
 import { Alert } from 'modules/common/utils';
-import { Tabs } from './tabs/index';
-import { TabTitle } from './tabs/index';
+import { Attachment } from '@erxes/ui/src/components';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { ListHeader } from '../../styles';
-import {
-  DetailMainContainer,
-  PluginTitle,
-  Center,
-  DetailInformation,
-  Hashtag,
-  Detail,
-  ColorHeader,
-  AttachmentContainer
-} from '../../styles';
-import { Attachment } from '@erxes/ui/src/components';
+import React from 'react';
+import RightSidebar from './RightSidebar';
+import { TabTitle } from './tabs/index';
+import { Tabs } from './tabs/index';
+import Wrapper from './Wrapper';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   id: string;
-  enabledServicesQuery;
-  manageInstall;
+  enabledServicesQuery: any;
+  manageInstall: any;
+  plugin: any;
 };
 
 type State = {
@@ -37,21 +39,9 @@ class PluginDetails extends React.Component<Props, State> {
 
     this.state = {
       tabType: 'Description',
-      plugin: {},
+      plugin: props.plugin,
       loading: {}
     };
-  }
-
-  async componentDidMount() {
-    await fetch(`https://erxes.io/pluginDetail/${this.props.id}`)
-      .then(async response => {
-        const plugin = await response.json();
-
-        this.setState({ plugin });
-      })
-      .catch(e => {
-        console.log(e);
-      });
   }
 
   renderContent = () => {
@@ -140,8 +130,8 @@ class PluginDetails extends React.Component<Props, State> {
             <DetailInformation>
               <b>{plugin.title}</b>
               <Flex>
-                {pluginCategories.map(category => (
-                  <Hashtag>
+                {pluginCategories.map((category, index) => (
+                  <Hashtag key={index}>
                     {'#'}
                     {category}
                   </Hashtag>
@@ -200,14 +190,14 @@ class PluginDetails extends React.Component<Props, State> {
 
         <AttachmentContainer>
           {dataSlider.length !== 0 &&
-            dataSlider.map(data =>
+            dataSlider.map((data, index) =>
               data.type === 'video' ? (
-                <video controls={true} loop={true}>
+                <video key={index} controls={true} loop={true}>
                   <source src={data.url} type="video/mp4" />
                   {__('Your browser does not support the video tag')}.
                 </video>
               ) : (
-                <Attachment simple={true} attachment={data} />
+                <Attachment key={index} simple={true} attachment={data} />
               )
             )}
         </AttachmentContainer>
