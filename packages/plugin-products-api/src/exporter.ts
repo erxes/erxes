@@ -43,7 +43,6 @@ const getUomData = async (item, fieldName) => {
   if (item.subUoms && item.subUoms.length > 0) {
     for (const subUom of item.subUoms) {
       if (subUom.uomId === fieldName || subUom.ratio === fieldName) {
-        // console.log(subUom.uomId);
         value = subUom.uomId || subUom.ratio;
 
         if (Array.isArray(value)) {

@@ -2,9 +2,14 @@ import { generateModels, IModels } from './connectionResolver';
 import { EXPORT_TYPES, MODULE_NAMES } from './constants';
 import {
   fetchSegment,
+  sendCoreMessage,
   sendFormsMessage,
   sendProductsMessage
 } from './messageBroker';
+import * as moment from 'moment';
+import { IUserDocument } from '@erxes/api-utils/src/types';
+import { IPipelineLabelDocument } from './models/definitions/pipelineLabels';
+import { IStageDocument } from './models/definitions/boards';
 
 const prepareData = async (
   models: IModels,
@@ -132,6 +137,158 @@ const fillDealProductValue = async (subdomain, column, item) => {
   return { value };
 };
 
+const fillValue = async (
+  models: IModels,
+  subdomain: string,
+  column: string,
+  item: any
+): Promise<string> => {
+  let value = item[column];
+
+  switch (column) {
+    case 'createdAt':
+    case 'closeDate':
+    case 'modifiedAt':
+      value = moment(value).format('YYYY-MM-DD HH:mm');
+
+      console.log(value, '1234567890-098765432');
+
+      break;
+    case 'userId':
+      const createdUser: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: item.userId
+        },
+        isRPC: true
+      });
+
+      value = createdUser ? createdUser.username : 'user not found';
+
+      break;
+    // deal, task, ticket fields
+    case 'assignedUserIds':
+      const assignedUsers: IUserDocument[] = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: item.assignedUserIds || [] }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = assignedUsers.map(user => user.username || user.email).join(', ');
+
+      break;
+
+    case 'watchedUserIds':
+      const watchedUsers: IUserDocument[] = await sendCoreMessage({
+        subdomain,
+        action: 'users.find',
+        data: {
+          query: {
+            _id: { $in: item.watchedUserIds || [] }
+          }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = watchedUsers.map(user => user.username || user.email).join(', ');
+
+      break;
+
+    case 'labelIds':
+      const labels: IPipelineLabelDocument[] = await models.PipelineLabels.find(
+        {
+          _id: { $in: item.labelIds }
+        }
+      );
+
+      value = labels.map(label => label.name).join(', ');
+
+      break;
+    case 'stageId':
+      const stage: IStageDocument | null = await models.Stages.findOne({
+        _id: item.stageId
+      });
+
+      value = stage ? stage.name : '-';
+
+      break;
+
+    case 'boardId':
+      const stageForBoard = await models.Stages.findOne({
+        _id: item.stageId
+      });
+
+      value = '-';
+
+      if (stageForBoard) {
+        const pipeline = await models.Pipelines.findOne({
+          _id: stageForBoard.pipelineId
+        });
+
+        if (pipeline) {
+          const board = await models.Boards.findOne({ _id: pipeline.boardId });
+
+          value = board ? board.name : '-';
+        }
+      }
+
+      break;
+
+    case 'pipelineId':
+      const stageForPipeline = await models.Stages.findOne({
+        _id: item.stageId
+      });
+
+      value = '-';
+
+      if (stageForPipeline) {
+        const pipeline = await models.Pipelines.findOne({
+          _id: stageForPipeline.pipelineId
+        });
+
+        value = pipeline ? pipeline.name : '-';
+      }
+
+      break;
+
+    case 'initialStageId':
+      const initialStage: IStageDocument | null = await models.Stages.findOne({
+        _id: item.initialStageId
+      });
+
+      value = initialStage ? initialStage.name : '-';
+
+      break;
+
+    case 'modifiedBy':
+      const modifiedBy: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: item.modifiedBy
+        },
+        isRPC: true
+      });
+
+      value = modifiedBy ? modifiedBy.username : '-';
+
+      break;
+
+    default:
+      break;
+  }
+
+  return value || '-';
+};
+
 export default {
   exportTypes: EXPORT_TYPES,
 
@@ -186,13 +343,16 @@ export default {
 
             result[column] = value || '-';
           } else {
-            result[column] = item[column];
+            const value = await fillValue(models, subdomain, column, item);
+
+            result[column] = value || '-';
           }
         }
 
         docs.push(result);
       }
     } catch (e) {
+      console.log(e.message);
       return { error: e.message };
     }
     return { docs, headers };

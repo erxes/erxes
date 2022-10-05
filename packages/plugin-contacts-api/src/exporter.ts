@@ -1,6 +1,16 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { generateModels, IModels } from './connectionResolver';
 import { EXPORT_TYPES, MODULE_NAMES } from './constants';
-import { fetchSegment, sendFormsMessage } from './messageBroker';
+import {
+  fetchSegment,
+  sendCoreMessage,
+  sendFormsMessage,
+  sendInboxMessage,
+  sendTagsMessage
+} from './messageBroker';
+import { ICompanyDocument } from './models/definitions/companies';
+import { ICustomerDocument } from './models/definitions/customers';
+import * as moment from 'moment';
 
 const prepareData = async (
   models: IModels,
@@ -82,6 +92,113 @@ const getTrackedData = async (item, fieldname) => {
   return { value };
 };
 
+export const fillValue = async (
+  models: IModels,
+  subdomain: string,
+  column: string,
+  item: any
+): Promise<string> => {
+  let value = item[column];
+
+  switch (column) {
+    case 'createdAt':
+      value = moment(value).format('YYYY-MM-DD HH:mm');
+      break;
+
+    case 'modifiedAt':
+      value = moment(value).format('YYYY-MM-DD HH:mm');
+
+      break;
+
+    // customer fields
+
+    case 'emails':
+      value = (item.emails || []).join(', ');
+      break;
+    case 'phones':
+      value = (item.phones || []).join(', ');
+      break;
+    case 'mergedIds':
+      const customers: ICustomerDocument[] | null = await models.Customers.find(
+        {
+          _id: { $in: item.mergedIds || [] }
+        }
+      );
+
+      value = customers
+        .map(cus => cus.firstName || cus.primaryEmail)
+        .join(', ');
+
+      break;
+    // company fields
+    case 'names':
+      value = (item.names || []).join(', ');
+
+      break;
+    case 'parentCompanyId':
+      const parent: ICompanyDocument | null = await models.Companies.findOne({
+        _id: item.parentCompanyId
+      });
+
+      value = parent ? parent.primaryName : '';
+
+      break;
+
+    case 'tag':
+      const tags = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: item.tagIds || [] }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      let tagNames = '';
+
+      for (const tag of tags) {
+        tagNames = tagNames.concat(tag.name, ', ');
+      }
+
+      value = tags ? tagNames : '-';
+
+      break;
+
+    case 'relatedIntegrationIds':
+      const integration = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.findOne',
+        data: { _id: item.integrationId || [] },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = integration ? integration.name : '-';
+
+      break;
+
+    case 'ownerEmail':
+      const owner: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: item.ownerId
+        },
+        isRPC: true
+      });
+
+      value = owner ? owner.email : '-';
+
+      break;
+
+    default:
+      break;
+  }
+
+  return value || '-';
+};
+
 export default {
   exportTypes: EXPORT_TYPES,
 
@@ -140,13 +257,16 @@ export default {
 
             result[column] = value || '-';
           } else {
-            result[column] = item[column];
+            const value = await fillValue(models, subdomain, column, item);
+
+            result[column] = value || '-';
           }
         }
 
         docs.push(result);
       }
     } catch (e) {
+      console.log(e.message);
       return { error: e.message };
     }
     return { docs, headers };
