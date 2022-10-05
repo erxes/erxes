@@ -1,185 +1,51 @@
+import { IUserDocument } from '@erxes/api-utils/src/types';
 import { generateModels, IModels } from './connectionResolver';
 import { EXPORT_TYPES, MODULE_NAMES } from './constants';
 import {
   fetchSegment,
+  sendCoreMessage,
   sendFormsMessage,
-  sendInboxMessage
+  sendInboxMessage,
+  sendTagsMessage
 } from './messageBroker';
-import {
-  Builder as CompanyBuildQuery,
-  IListArgs as ICompanyListArgs
-} from './coc/companies';
-import {
-  Builder as CustomerBuildQuery,
-  IListArgs as ICustomerListArgs
-} from './coc/customers';
+import { ICompanyDocument } from './models/definitions/companies';
+import { ICustomerDocument } from './models/definitions/customers';
+import * as moment from 'moment';
 
 const prepareData = async (
   models: IModels,
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { contentType, unlimited = true, segment } = query;
+  const { contentType, unlimited = true, segmentId } = query;
 
   const type = contentType.split(':')[1];
 
   let data: any[] = [];
 
-  const boardItemsFilter: any = {};
+  const contactsFilter: any = {};
 
-  if (segment) {
-    const itemIds = await fetchSegment(subdomain, segment);
+  if (segmentId) {
+    const itemIds = await fetchSegment(subdomain, segmentId);
 
-    boardItemsFilter._id = { $in: itemIds };
+    contactsFilter._id = { $in: itemIds };
   }
 
   switch (type) {
     case MODULE_NAMES.COMPANY:
-      const companyParams: ICompanyListArgs = query;
-
-      const companyQb = new CompanyBuildQuery(
-        models,
-        subdomain,
-        companyParams,
-        {}
-      );
-      await companyQb.buildAllQueries();
-
-      const companyResponse = await companyQb.runQueries('search', unlimited);
-
-      data = companyResponse.list;
+      data = await models.Companies.find(contactsFilter).lean();
 
       break;
-
     case 'lead':
-      const leadParams: ICustomerListArgs = query;
-      const leadQp = new CustomerBuildQuery(models, subdomain, leadParams, {});
-      await leadQp.buildAllQueries();
+      data = await models.Customers.find(contactsFilter).lean();
 
-      const leadResponse = await leadQp.runQueries('search');
-
-      data = leadResponse.list;
       break;
-
     case 'visitor':
-      const visitorParams: ICustomerListArgs = query;
-      const visitorQp = new CustomerBuildQuery(
-        models,
-        subdomain,
-        visitorParams,
-        {}
-      );
-      await visitorQp.buildAllQueries();
+      data = await models.Customers.find(contactsFilter).lean();
 
-      const visitorResponse = await visitorQp.runQueries('search', unlimited);
-
-      data = visitorResponse.list;
       break;
-
     case MODULE_NAMES.CUSTOMER:
-      const customerParams: ICustomerListArgs = query;
-
-      if (customerParams.form && customerParams.popupData) {
-        const fields = await sendFormsMessage({
-          subdomain,
-          action: 'fields.find',
-          data: {
-            query: {
-              contentType: 'form',
-              contentTypeId: customerParams.form
-            }
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        if (fields.length === 0) {
-          return [];
-        }
-
-        const messageQuery: any = {
-          'formWidgetData._id': { $in: fields.map(field => field._id) },
-          customerId: { $exists: true }
-        };
-
-        const messages = await sendInboxMessage({
-          subdomain,
-          action: 'conversationMessages.find',
-          data: messageQuery,
-          isRPC: true,
-          defaultValue: []
-        });
-
-        const messagesMap: { [key: string]: any[] } = {};
-
-        for (const message of messages) {
-          const customerId = message.customerId || '';
-
-          if (!messagesMap[customerId]) {
-            messagesMap[customerId] = [];
-          }
-
-          messagesMap[customerId].push({
-            datas: message.formWidgetData,
-            createdInfo: {
-              _id: 'created',
-              type: 'input',
-              validation: 'date',
-              text: 'Created',
-              value: message.createdAt
-            }
-          });
-        }
-
-        const formSubmissions = await sendFormsMessage({
-          subdomain,
-          action: 'submissions.find',
-          data: {
-            query: {
-              formId: customerParams.form
-            }
-          },
-          isRPC: true,
-          defaultValue: []
-        });
-
-        const customerIds = formSubmissions.map(
-          submission => submission.customerId
-        );
-
-        const uniqueCustomerIds = [...new Set(customerIds)] as any;
-
-        const formDatas: any[] = [];
-
-        for (const customerId of uniqueCustomerIds) {
-          const filteredMessages = messagesMap[customerId] || [];
-
-          for (const { datas, createdInfo } of filteredMessages) {
-            const formData: any[] = datas;
-
-            formData.push(createdInfo);
-
-            formDatas.push(formData);
-          }
-        }
-        data = formDatas;
-      } else {
-        const qb = new CustomerBuildQuery(
-          models,
-          subdomain,
-          customerParams,
-          {}
-        );
-        await qb.buildAllQueries();
-
-        const customerResponse = await qb.runQueries('search', unlimited);
-
-        data = customerResponse.list;
-      }
-
-      break;
-
-    default:
+      data = await models.Customers.find(contactsFilter).lean();
       break;
   }
 
@@ -206,13 +72,140 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
+const getTrackedData = async (item, fieldname) => {
+  let value;
+
+  if (item.trackedData && item.trackedData.length > 0) {
+    for (const data of item.trackedData) {
+      if (data.field === fieldname) {
+        value = data.value;
+
+        if (Array.isArray(value)) {
+          value = value.join(', ');
+        }
+
+        return { value };
+      }
+    }
+  }
+
+  return { value };
+};
+
+export const fillValue = async (
+  models: IModels,
+  subdomain: string,
+  column: string,
+  item: any
+): Promise<string> => {
+  let value = item[column];
+
+  switch (column) {
+    case 'createdAt':
+      value = moment(value).format('YYYY-MM-DD HH:mm');
+      break;
+
+    case 'modifiedAt':
+      value = moment(value).format('YYYY-MM-DD HH:mm');
+
+      break;
+
+    // customer fields
+
+    case 'emails':
+      value = (item.emails || []).join(', ');
+      break;
+    case 'phones':
+      value = (item.phones || []).join(', ');
+      break;
+    case 'mergedIds':
+      const customers: ICustomerDocument[] | null = await models.Customers.find(
+        {
+          _id: { $in: item.mergedIds || [] }
+        }
+      );
+
+      value = customers
+        .map(cus => cus.firstName || cus.primaryEmail)
+        .join(', ');
+
+      break;
+    // company fields
+    case 'names':
+      value = (item.names || []).join(', ');
+
+      break;
+    case 'parentCompanyId':
+      const parent: ICompanyDocument | null = await models.Companies.findOne({
+        _id: item.parentCompanyId
+      });
+
+      value = parent ? parent.primaryName : '';
+
+      break;
+
+    case 'tag':
+      const tags = await sendTagsMessage({
+        subdomain,
+        action: 'find',
+        data: {
+          _id: { $in: item.tagIds || [] }
+        },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      let tagNames = '';
+
+      for (const tag of tags) {
+        tagNames = tagNames.concat(tag.name, ', ');
+      }
+
+      value = tags ? tagNames : '-';
+
+      break;
+
+    case 'relatedIntegrationIds':
+      const integration = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.findOne',
+        data: { _id: item.integrationId || [] },
+        isRPC: true,
+        defaultValue: []
+      });
+
+      value = integration ? integration.name : '-';
+
+      break;
+
+    case 'ownerEmail':
+      const owner: IUserDocument | null = await sendCoreMessage({
+        subdomain,
+        action: 'users.findOne',
+        data: {
+          _id: item.ownerId
+        },
+        isRPC: true
+      });
+
+      value = owner ? owner.email : '-';
+
+      break;
+
+    default:
+      break;
+  }
+
+  return value || '-';
+};
+
 export default {
   exportTypes: EXPORT_TYPES,
 
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { columnsConfig, contentType } = data;
+    const { columnsConfig, contentType, segmentId } = data;
 
     const docs = [] as any;
     const headers = [] as any;
@@ -253,14 +246,27 @@ export default {
             const location = item.location || {};
 
             result[column] = location[column.split('.')[1]];
+          } else if (column.startsWith('visitorContactInfo')) {
+            const visitorContactInfo = item.visitorContactInfo || {};
+
+            result[column] = visitorContactInfo[column.split('.')[1]];
+          } else if (column.startsWith('trackedData')) {
+            const fieldName = column.split('.')[1];
+
+            const { value } = await getTrackedData(item, fieldName);
+
+            result[column] = value || '-';
           } else {
-            result[column] = item[column];
+            const value = await fillValue(models, subdomain, column, item);
+
+            result[column] = value || '-';
           }
         }
 
         docs.push(result);
       }
     } catch (e) {
+      console.log(e.message);
       return { error: e.message };
     }
     return { docs, headers };
