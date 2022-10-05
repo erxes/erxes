@@ -14,9 +14,7 @@ Before going any further into this user guide, we recommend you acknowledge the 
 
 erxes provides 3 different packages for our clients, which include:
 
-1. **A self-hosted version** that is suitable for SaaS providers or enterprises operating in highly regulated industries, like insurance, mobile network providers, banking and etc. As it is self-hosted, you must ensure you and your organization have a skilled DevOps person/team to look after the server to maintain the smooth operation of your erxes operating system daily.
-
-As an erxes user, you can choose between using the Community Edition, which is entirely free, or paid plan of the Enterprise Edition.
+1. **A self-hosted version** that is suitable for SaaS providers or enterprises operating in highly regulated industries, like insurance, mobile network providers, banking and etc. As it is self-hosted, you must ensure you and your organization have a skilled DevOps person/team to look after the server to maintain the smooth operation of your erxes operating system daily. As an erxes user, you can choose between using the Community Edition, which is entirely free, or paid plan of the Enterprise Edition.
 
 2. **SaaS version** that is suitable for small to medium enterprises who want to leave all your tech-related work to us and only focus on your main operation that is non-technical. **<a href="https://erxes.io/pricing" >Pricing</a>** is super simple in that you can get access to erxes for free and use it as long as you want as an individual. Then as your business grows, you can only pay for what you need, rather than having a bunch of junk that comes within the package.
 
