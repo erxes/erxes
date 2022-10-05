@@ -24,6 +24,7 @@ import gql from 'graphql-tag';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, withRouter } from 'react-router-dom';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 
 import { queries } from '../../graphql';
 import { ICompany } from '../../types';
@@ -285,6 +286,10 @@ class CompaniesList extends React.Component<IProps, State> {
 
         {renderExpandButton()}
 
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`contacts:company`} />
+        )}
+
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
             <Button btnStyle="simple" size="small">
@@ -352,7 +357,7 @@ class CompaniesList extends React.Component<IProps, State> {
             emptyImage="/images/actions/1.svg"
           />
         }
-        hasBorder
+        hasBorder={true}
       />
     );
   }

@@ -36,7 +36,7 @@ class Home extends React.Component<Props, State> {
     this.state = {
       searchValue: '',
       integrations: INTEGRATIONS.filter(
-        integration => integration.category.indexOf('All add-ons') !== -1
+        integration => integration.category.indexOf('All integrations') !== -1
       )
     };
   }
@@ -53,8 +53,9 @@ class Home extends React.Component<Props, State> {
         integrations: INTEGRATIONS.filter(
           integration =>
             integration.name.toLowerCase().indexOf(searchValue) !== -1 &&
-            integration.category.indexOf(queryParams.type || 'All add-ons') !==
-              -1
+            integration.category.indexOf(
+              queryParams.type || 'All integrations'
+            ) !== -1
         )
       });
     }
@@ -103,7 +104,7 @@ class Home extends React.Component<Props, State> {
         <Icon icon="search-1" />
         <FormControl
           type="text"
-          placeholder={__('Type to search for an add-ons') + '...'}
+          placeholder={__('Type to search for an integrations') + '...'}
           onChange={this.onSearch}
         />
       </SearchInput>
@@ -115,16 +116,16 @@ class Home extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons') },
-      { title: `${this.props.queryParams.type || __('All add-ons')}` }
+      { title: __('Integrations') },
+      { title: `${this.props.queryParams.type || __('All integrations')}` }
     ];
 
     const headerDescription = (
       <HeaderDescription
         icon="/images/actions/33.svg"
-        title="Add-ons"
+        title="Integrations"
         description={`${__(
-          'Set up your add-ons and start connecting with your customers'
+          'Set up your integrations and start connecting with your customers'
         )}.${__(
           'Now you can reach them on wherever platform they feel most comfortable'
         )}`}
@@ -134,11 +135,11 @@ class Home extends React.Component<Props, State> {
     return (
       <Wrapper
         header={
-          <Wrapper.Header title={__('Add-ons')} breadcrumb={breadcrumb} />
+          <Wrapper.Header title={__('Integrations')} breadcrumb={breadcrumb} />
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{queryParams.type || 'All Add-ons'}</Title>}
+            left={<Title>{queryParams.type || 'All Integrations'}</Title>}
             right={this.renderSearch()}
             wideSpacing
           />

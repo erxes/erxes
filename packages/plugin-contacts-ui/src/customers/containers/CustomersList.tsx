@@ -282,6 +282,7 @@ const generateParams = ({ queryParams, type }) => {
   return {
     ...generatePaginationParams(queryParams),
     segment: queryParams.segment,
+    segmentData: queryParams.segmentData,
     tag: queryParams.tag,
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
