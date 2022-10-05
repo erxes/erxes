@@ -31,9 +31,12 @@ Visit **<a href="https://erxes.io/pricing" >our pricing page</a>** to get more i
 
 Erxes have **<a href="https://erxes.io/resource-center" >Resource Center</a>** where you find everything you need to optimize how you work with erxes.
 
-**<a href="https://docs.erxes.io/docs/intro/" >Developer documentation</a>** is for developers, SaaS providers, and digital marketing agencies that all you need to do is get erxes up and running & developing your own project and plugins 
+:::tip
 
-**<a href="https://docs.erxes.io/docs/user-guide/" >User guide</a>** is for everyone who wants to use erxes to create their own experience and get the most out of settings, configuration & usage of plugins.
+- **<a href="https://docs.erxes.io/docs/intro/" >Developer documentation</a>** is for developers, SaaS providers, and digital marketing agencies that all you need to do is get erxes up and running & developing your own project and plugins 
+- **<a href="https://docs.erxes.io/docs/user-guide/" >User guide</a>** is for everyone who wants to use erxes to create their own experience and get the most out of settings, configuration & usage of plugins.
+
+:::
 
 ## erxes XOS & Plugins
 
