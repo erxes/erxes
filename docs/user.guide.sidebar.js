@@ -9,9 +9,9 @@ module.exports = {
       },
       items: [
         'user-guide/welcome/admin-panel',
-        'user-guide/welcome/billing',
+        'user-guide/welcome/orginization',
         'user-guide/welcome/marketplace',
-        'user-guide/welcome/orginization'
+        'user-guide/welcome/billing'
       ]
     },
     {
