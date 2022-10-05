@@ -19,10 +19,10 @@ You can also develop your own plugins and place them on **<a href="https://erxes
 
 The plugins in erxes Marketplace are divided into the following categories:
 
-- Plugins the features that can work independently to fulfill a particular purpose.
-- Add-ons are the sub-features/integrations that can work with plugins to enhance their experience.
-- Services include all services related to creating your unique experiences with erxes.
-- Power-up is the boost to power up plugins.
+- **<a href="https://docs.erxes.io/docs/user-guide/plugins/intro-plugins" >Plugins</a>** the features that can work independently to fulfill a particular purpose.
+- **<a href="https://docs.erxes.io/docs/user-guide/adds-on/intro-addon" >Add-ons</a>** are the sub-features/integrations that can work with plugins to enhance their experience.
+- **<a href="https://docs.erxes.io/docs/user-guide/services/intro-service" >Services</a>** include all services related to creating your unique experiences with erxes.
+- **<a href="https://docs.erxes.io/docs/user-guide/power-ups/intro-powerup" >Power-up</a>** is the boost to power up plugins.
 
 Each plugin has;
 
