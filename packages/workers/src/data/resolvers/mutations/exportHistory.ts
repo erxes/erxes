@@ -1,4 +1,3 @@
-import { receiveImportRemove } from '../../../worker/import/utils';
 import { IContext } from '../../../connectionResolvers';
 import messageBroker from '../../../messageBroker';
 import { RABBITMQ_QUEUES } from '../../constants';
@@ -11,22 +10,12 @@ const exportHistoryMutations = {
    */
   async exportHistoriesRemove(
     _root,
-    { _id, contentType }: { _id: string; contentType },
-    { models, subdomain }: IContext
+    { _id }: { _id: string; contentType },
+    { models }: IContext
   ) {
-    const importHistory = await models.ImportHistory.getImportHistory(_id);
+    const exportHistory = await models.ExportHistory.getExportHistory(_id);
 
-    await models.ImportHistory.updateOne(
-      { _id: importHistory._id },
-      { $push: { removed: contentType } }
-    );
-    const content = {
-      action: 'removeImport',
-      importHistoryId: importHistory._id,
-      contentType
-    };
-
-    return receiveImportRemove(content, models, subdomain);
+    return await models.ExportHistory.deleteOne({ _id: exportHistory._id });
   },
 
   /**
