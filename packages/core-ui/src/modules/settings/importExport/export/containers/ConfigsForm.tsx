@@ -11,7 +11,7 @@ import { withProps } from 'modules/common/utils';
 
 type Props = {
   contentType: string;
-  onClickField: (columns: any[]) => void;
+  onClickField: (column) => void;
 };
 
 type State = {};
