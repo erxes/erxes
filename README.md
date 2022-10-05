@@ -92,11 +92,11 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
  
 ## Getting Started
 
-Read **<a href="https://docs.erxes.io/docs/category/installation" >the documentation<a>** to install erxes locally.
+Read **<a href="https://docs.erxes.io/docs/intro" >the documentation<a>** to install erxes locally.
 
 **🖐 Requirements**
 
-Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/category/installation" >installation requirements</a>**.
+Complete installation requirements can be found in the documentation under **<a href="https://docs.erxes.io/docs/intro" >installation requirements</a>**.
 
 Supported operating systems:
 
