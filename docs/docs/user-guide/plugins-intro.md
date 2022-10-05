@@ -4,6 +4,7 @@ title: Plugins
 sidebar_label: 'Plugins'
 ---
 
+This section focuses on explaining the different types of plugins and how to install and manage plugins. At this moment, we have 30+ plugins available on our marketplace right now, and more plugins will be added daily. 
 erxes plugins contain a wide range of concepts at erxes that can play a major role as features that can independently operate to fulfill their purposes.
 
 :::tip
@@ -12,19 +13,17 @@ You can create your own plugin using **<a href="https://docs.erxes.io/docs/devel
 
 :::
 
-Every default erxes XOS code comes with the following pre-installed plugins:
+- Every default erxes XOS code comes with the following pre-installed plugins, which are essential for your erxes XOS can function and cannot be uninstalled, though technically you can not do anything with them on their own. So you need to install additional plugins available at erxes marketplace from erxes global profile. 
 
-- **<a href="https://docs.erxes.io/docs/user-guide/xos/system-configuration" >System configuration</a>**
-- **<a href="https://docs.erxes.io/docs/user-guide/xos/permission" >Permission</a>**
-- **<a href="https://docs.erxes.io/docs/user-guide/xos/team-members" >Team members</a>**
-- **<a href="D" >Brands</a>**
-- **<a href="https://docs.erxes.io/docs/user-guide/xos/import-export/" >Import/Export</a>**
-- **<a href="https://docs.erxes.io/docs/user-guide/xos/apps" >Apps</a>**
-- **<a href="https://docs.erxes.io/docs/user-guide/xos/marketplace" >Marketplace</a>**
+:::info
 
-These plugins are essential for your erxes XOS to function and cannot be uninstalled, though technically you can not do anything with them on their own. So you need to install additional plugins available at erxes marketplace from erxes global profile. This section focuses on how to install and manage these plugins. At this moment, we have 30+ plugins available on our marketplace right now, and more plugins will be added daily. From the admin panel, administrators are allowed to:
+Depending on where you're accesing the marketplace from, you can see different pricing options for each plugin. For example, if you on Self-hosted version you'll can intsall the most of available plugins for free, but if you're SaaS client then you'll have choice of power-ups which help you toost the plugins usage for the limited amount. 
 
-- discover additional plugins and providers in the Marketplace 
+:::
+
+From the admin panel, administrators are allowed to:
+
+- discover plugins and providers in the Marketplace 
 - review the currently installed plugins and providers in Plugins
 
 ## Providers
