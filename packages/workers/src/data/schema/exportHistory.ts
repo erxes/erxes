@@ -1,16 +1,12 @@
 export const types = `
   type ExportHistory {
     _id: String!
-    success: Boolean!
     total: String
     name: String
     contentType: String
     date: Date
     status: String
-    percentage: Int
-    removed: [String]
     user: JSON
-    error: String
     exportLink: String
   }
 
@@ -31,7 +27,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  exportHistoriesRemove(_id: String!, contentType: String!): JSON
-  exportHistoriesCancel(_id: String!): Boolean
   exportHistoriesCreate(contentType: String!, columnsConfig: [String], segmentId: String): JSON
 `;

@@ -26,11 +26,7 @@ const prepareData = async (
   let itemIds = [];
 
   if (segmentId) {
-    try {
-      itemIds = await fetchSegment(subdomain, segmentId);
-    } catch (e) {
-      console.log(e);
-    }
+    itemIds = await fetchSegment(subdomain, segmentId);
 
     boardItemsFilter._id = { $in: itemIds };
   }
@@ -150,8 +146,6 @@ const fillValue = async (
     case 'closeDate':
     case 'modifiedAt':
       value = moment(value).format('YYYY-MM-DD HH:mm');
-
-      console.log(value, '1234567890-098765432');
 
       break;
     case 'userId':
@@ -299,6 +293,7 @@ export default {
 
     const docs = [] as any;
     const headers = [] as any;
+    const excelHeader = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -333,7 +328,7 @@ export default {
 
             const { value } = await getCustomFieldsData(item, fieldId);
 
-            result[column] = value || '-';
+            result[fieldName] = value || '-';
           } else if (column.startsWith('productsData')) {
             const { value } = await fillDealProductValue(
               subdomain,
@@ -351,10 +346,17 @@ export default {
 
         docs.push(result);
       }
+
+      for (const header of headers) {
+        if (header.startsWith('customFieldsData')) {
+          excelHeader.push(header.split('.')[1]);
+        } else {
+          excelHeader.push(header);
+        }
+      }
     } catch (e) {
-      console.log(e.message);
       return { error: e.message };
     }
-    return { docs, headers };
+    return { docs, excelHeader };
   }
 };
