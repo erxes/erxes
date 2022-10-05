@@ -35,6 +35,7 @@ module.exports = {
             'user-guide/xos/system-configuration',
             'user-guide/xos/permission',
             'user-guide/xos/team-members',
+            'user-guide/xos/brands',
             'user-guide/xos/import-export',
             'user-guide/xos/apps',
             'user-guide/xos/marketplace',
