@@ -1,10 +1,16 @@
+const { tableSchema } = require('../tablePrefix');
+
 cube(`Customers`, {
-  sql: `SELECT * FROM erxes.customers`,
+  sql: `SELECT * FROM ${tableSchema()}.customers`,
 
   joins: {
     Integrations: {
       relationship: `belongsTo`,
       sql: `${Customers}.integrationId = ${Integrations}._id`
+    },
+    CustomersCustomfieldsdata: {
+      sql: `${CUBE}._id = ${CustomersCustomfieldsdata}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -33,7 +39,30 @@ cube(`Customers`, {
 
     createdAt: {
       sql: `${CUBE}.\`createdAt\``,
-      type: `time`
+      type: `time`,
+      title: 'Created Date'
+    },
+
+    firstName: {
+      sql: `firstName`,
+      type: `string`
+    },
+
+    customField: {
+      sql: `${CustomersCustomfieldsdata.customfieldsdataField}`,
+      type: `string`,
+      title: 'Fields Name'
+    },
+
+    customFieldValue: {
+      sql: `${CustomersCustomfieldsdata.customfieldsdataStringvalue}`,
+      type: `string`,
+      title: 'Field Value'
+    },
+
+    state: {
+      sql: `${CUBE}.\`state\``,
+      type: `string`
     }
   }
 });

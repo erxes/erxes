@@ -131,16 +131,16 @@ function Welcome({ currentUser }: Props) {
         <Boxes>
           {renderDocContent(
             'Documentation',
-            'https://www.erxes.org/overview/deployment-overview'
+            'https://docs.erxes.io/docs/deployment/'
           )}
           {renderDocContent(
             "User's guide",
-            'https://www.erxes.org/user/subscription-getting-started'
+            'https://docs.erxes.io/docs/user-guide/'
           )}
         </Boxes>
         <Boxes>
-          {renderDocContent('Invest', 'https://www.erxes.org/invest')}
-          {renderDocContent('Service', 'https://www.erxes.org/service')}
+          {renderDocContent('Invest', 'https://erxes.io/invest')}
+          {renderDocContent('Service', 'https://www.erxes.io/service')}
         </Boxes>
       </WidgetBackgrounds>
     );

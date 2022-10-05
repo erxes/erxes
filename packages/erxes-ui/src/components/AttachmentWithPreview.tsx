@@ -1,10 +1,10 @@
-import React from "react";
-import styled from "styled-components";
-import { readFile, __ } from "../utils/core";
-import CommonPortal from "./CommonPortal";
-import Icon from "./Icon";
-import { IAttachment } from "../types";
-import { PreviewWrapper, Image } from "./ImageWithPreview";
+import React from 'react';
+import styled from 'styled-components';
+import { readFile, __ } from '../utils/core';
+import CommonPortal from './CommonPortal';
+import Icon from './Icon';
+import { IAttachment } from '../types';
+import { PreviewWrapper, Image } from './ImageWithPreview';
 
 const PreviewOverlay = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
@@ -108,7 +108,7 @@ const CloseAttachment = styled.div`
 const KEYCODES = {
   ESCAPE: 27,
   ARROWRIGHT: 39,
-  ARROWLEFT: 37,
+  ARROWLEFT: 37
 };
 
 type Props = {
@@ -129,14 +129,14 @@ class AttachmentWithPreview extends React.Component<Props, State> {
   state = { visible: false, currentIndex: 0 };
 
   componentDidMount() {
-    document.addEventListener("keydown", this.handleKeydown);
+    document.addEventListener('keydown', this.handleKeydown);
   }
 
   componentWillUnmount() {
-    document.removeEventListener("keydown", this.handleKeydown);
+    document.removeEventListener('keydown', this.handleKeydown);
   }
 
-  handleKeydown = (e) => {
+  handleKeydown = e => {
     const { currentIndex, visible } = this.state;
     const activeIndex =
       currentIndex !== 0 ? currentIndex : this.props.index || 0;
@@ -146,11 +146,11 @@ class AttachmentWithPreview extends React.Component<Props, State> {
     }
 
     if (e.keyCode === KEYCODES.ARROWRIGHT && visible) {
-      this.onSlide("right", activeIndex);
+      this.onSlide('right', activeIndex);
     }
 
     if (e.keyCode === KEYCODES.ARROWLEFT && visible) {
-      this.onSlide("left", activeIndex);
+      this.onSlide('left', activeIndex);
     }
   };
 
@@ -166,9 +166,9 @@ class AttachmentWithPreview extends React.Component<Props, State> {
     }
 
     const condition =
-      type === "left" ? index - 1 === -1 : index + 1 === attachments.length;
-    const conditionValue = type === "left" ? attachments.length - 1 : 0;
-    const indexValue = type === "left" ? index - 1 : index + 1;
+      type === 'left' ? index - 1 === -1 : index + 1 === attachments.length;
+    const conditionValue = type === 'left' ? attachments.length - 1 : 0;
+    const indexValue = type === 'left' ? index - 1 : index + 1;
 
     if (condition) {
       return this.setState({ currentIndex: conditionValue });
@@ -177,13 +177,13 @@ class AttachmentWithPreview extends React.Component<Props, State> {
     return this.setState({ currentIndex: indexValue });
   };
 
-  renderDocViewer = (url) => {
+  renderDocViewer = url => {
     return (
       <iframe
         src={
-          "https://docs.google.com/viewer?url=" +
-          readFile(url || "") +
-          "&embedded=true"
+          'https://docs.google.com/viewer?url=' +
+          readFile(url || '') +
+          '&embedded=true'
         }
         width="100%"
       ></iframe>
@@ -198,11 +198,11 @@ class AttachmentWithPreview extends React.Component<Props, State> {
       const galleryAttachment =
         attachments[currentIndex !== 0 ? currentIndex : index || 0];
 
-      if (galleryAttachment.type.startsWith("image")) {
+      if (galleryAttachment.type.startsWith('image')) {
         return (
           <img
             alt={galleryAttachment.name}
-            src={readFile(galleryAttachment.url || "")}
+            src={readFile(galleryAttachment.url || '')}
           />
         );
       }
@@ -230,7 +230,7 @@ class AttachmentWithPreview extends React.Component<Props, State> {
           <div>
             <h4>{galleryAttachment.name}</h4>
             <p>
-              {__("Size")} -{" "}
+              {__('Size')} -{' '}
               {galleryAttachment.size &&
                 Math.round(galleryAttachment.size / 1000)}
               kB
@@ -238,19 +238,19 @@ class AttachmentWithPreview extends React.Component<Props, State> {
             <Actions>
               <a
                 href={`https://docs.google.com/viewerng/viewer?url=${readFile(
-                  galleryAttachment.url || ""
+                  galleryAttachment.url || ''
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Icon icon="external-link-alt" size={12} />{" "}
-                {__("Open in new tab")}
+                <Icon icon="external-link-alt" size={12} />{' '}
+                {__('Open in new tab')}
               </a>
               <a
-                href={readFile(galleryAttachment.url || "")}
+                href={readFile(galleryAttachment.url || '')}
                 rel="noopener noreferrer"
               >
-                <Icon icon="download-1" size={12} /> {__("Download")}
+                <Icon icon="download-1" size={12} /> {__('Download')}
               </a>
             </Actions>
           </div>
@@ -258,7 +258,7 @@ class AttachmentWithPreview extends React.Component<Props, State> {
         <PreviewBtn
           className="left"
           onClick={() =>
-            this.onSlide("left", currentIndex !== 0 ? currentIndex : index || 0)
+            this.onSlide('left', currentIndex !== 0 ? currentIndex : index || 0)
           }
         >
           <Icon icon="angle-left" size={32} />
@@ -267,7 +267,7 @@ class AttachmentWithPreview extends React.Component<Props, State> {
           className="right"
           onClick={() =>
             this.onSlide(
-              "right",
+              'right',
               currentIndex !== 0 ? currentIndex : index || 0
             )
           }
@@ -308,7 +308,7 @@ class AttachmentWithPreview extends React.Component<Props, State> {
 
     return (
       <Image
-        src={readFile(attachment.url || "")}
+        src={readFile(attachment.url || '')}
         onLoad={onLoad}
         onClick={this.onToggle}
       />

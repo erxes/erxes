@@ -5,7 +5,7 @@ import {
   ImageWrapper,
   MessengerPreview,
   TextWrapper
-} from '../../styles';
+} from '@erxes/ui-inbox/src/settings/integrations/styles';
 import {
   ControlWrapper,
   FlexItem,
@@ -25,8 +25,8 @@ import FormControl from '@erxes/ui/src/components/form/Control';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import Info from '@erxes/ui/src/components/Info';
 import { Link } from 'react-router-dom';
-import SelectBrand from '../../containers/SelectBrand';
-import SelectChannels from '../../containers/SelectChannels';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from 'coreui/utils';
 
@@ -142,7 +142,7 @@ class Gmail extends React.Component<Props, State> {
             <strong> {__('Gmail')}</strong> {__('integration')}
           </Indicator>
           <Button.Group>
-            <Link to="/settings/add-ons">
+            <Link to="/settings/integrations">
               <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>
@@ -168,7 +168,7 @@ class Gmail extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons'), link: '/settings/add-ons' },
+      { title: __('integrations'), link: '/settings/integrations' },
       { title }
     ];
 

@@ -88,6 +88,7 @@ class DashboardContainer extends React.Component<FinalProps, {}> {
           Alert.success(
             `You successfully updated a ${doc.name || 'visibility'}`
           );
+          dashboardDetailsQuery.refetch();
         })
 
         .catch(error => {
@@ -130,6 +131,7 @@ export default compose(
     {
       name: 'dashboardDetailsQuery',
       options: ({ id }: { id: string }) => ({
+        fetchPolicy: 'network-only',
         variables: {
           _id: id
         }
@@ -150,7 +152,10 @@ export default compose(
   graphql<{}, EditDashboardMutationResponse, IDashboard>(
     gql(mutations.dashboardsEdit),
     {
-      name: 'editDashboardMutation'
+      name: 'editDashboardMutation',
+      options: () => ({
+        refetchQueries: ['dashboardDetailsQuery']
+      })
     }
   ),
 

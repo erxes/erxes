@@ -91,20 +91,29 @@ connect().then(async () => {
 
   // tslint:disable-next-line:no-eval
 
-  const bulkDoc = await messageBroker().sendRPCMessage(
-    `${serviceName}:imports:prepareImportDocs`,
-    {
-      subdomain,
-      data: {
-        result,
-        properties,
-        contentType: type,
-        user,
-        scopeBrandIds,
-        useElkSyncer
+  let bulkDoc = [];
+
+  try {
+    bulkDoc = await messageBroker().sendRPCMessage(
+      `${serviceName}:imports:prepareImportDocs`,
+      {
+        subdomain,
+        data: {
+          result,
+          properties,
+          contentType: type,
+          user,
+          scopeBrandIds,
+          useElkSyncer
+        }
       }
-    }
-  );
+    );
+  } catch (e) {
+    return models.ImportHistory.updateOne(
+      { _id: importHistoryId },
+      { error: e.message }
+    );
+  }
 
   const modifier: { $inc?; $push? } = {
     $inc: { percentage }

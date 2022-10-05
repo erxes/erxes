@@ -253,14 +253,14 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { type, segment } = query;
+  const { type, segmentData } = query;
 
   let data: any[] = [];
 
   const boardItemsFilter: any = {};
 
-  if (segment) {
-    const itemIds = await fetchSegment(subdomain, segment);
+  if (segmentData) {
+    const itemIds = await fetchSegment(subdomain, '', {}, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
   }

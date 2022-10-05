@@ -36,6 +36,7 @@ const sendMessage = async (
 initBroker({ RABBITMQ_HOST, redis })
   .then(async () => {
     console.log('Crons is running ....');
+
     const services = await getServices();
     const subdomain = 'os';
 
@@ -44,6 +45,13 @@ initBroker({ RABBITMQ_HOST, redis })
       console.log('every minute ....', services);
 
       await sendMessage(subdomain, 'handleMinutelyJob', services);
+    });
+
+    // every 10 minute at 1sec
+    schedule.scheduleJob('*/10 * * * *', async () => {
+      console.log('every 10 minute ....', services);
+
+      await sendMessage(subdomain, 'handle10MinutelyJob', services);
     });
 
     // every hour at 10min:10sec

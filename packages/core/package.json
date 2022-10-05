@@ -11,10 +11,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "start": "node dist",
-    "start-crons": "node dist/cronJobs",
-    "start-workers": "node dist/workers",
-    "dev": "ERXES_TELEMETRY_DISABLED=1 DEBUG=erxes* NODE_ENV=development nodemon src/index.ts",
-    "dev-crons": "PROCESS_NAME=crons DEBUG=erxes-crons:* NODE_ENV=development nodemon src/cronJobs",
+    "dev": "ERXES_TELEMETRY_DISABLED=1 NODE_ENV=development nodemon src/index.ts",
     "loadTestData": "ts-node ./src/commands/loadTestData.ts",
     "build": "tsc -p tsconfig.prod.json && tsc-alias -p tsconfig.prod.json && node fix-build.js",
     "test": "node --expose-gc --max_old_space_size=8000 ./node_modules/.bin/jest --forceExit --silent --logHeapUsage --w=1",
@@ -32,7 +29,8 @@
     "migrateFieldsGroups": "node_modules/.bin/ts-node src/commands/migrateFieldsGroups.ts",
     "migrateApps": "node_modules/.bin/ts-node src/commands/migrateApps.ts",
     "migrateDirections": "node_modules/.bin/ts-node src/commands/migrateDirections.ts",
-    "migrateRoutes": "node_modules/.bin/ts-node src/commands/migrateRoutes.ts"
+    "migrateRoutes": "node_modules/.bin/ts-node src/commands/migrateRoutes.ts",
+    "migrateFields": "node_modules/.bin/ts-node src/commands/migrateFields.ts"
   },
   "dependencies": {
     "apollo-datasource-rest": "^0.5.1",

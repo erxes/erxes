@@ -218,7 +218,7 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { type, unlimited = false, segment } = query;
+  const { type, unlimited = false, segmentData } = query;
 
   const contentType = type.split(':')[0];
 
@@ -226,8 +226,13 @@ const prepareData = async (
 
   const boardItemsFilter: any = {};
 
-  if (segment) {
-    const itemIds = await fetchSegment(subdomain, segment);
+  if (segmentData) {
+    const itemIds = await fetchSegment(
+      subdomain,
+      '',
+      {},
+      JSON.parse(segmentData)
+    );
 
     boardItemsFilter._id = { $in: itemIds };
   }

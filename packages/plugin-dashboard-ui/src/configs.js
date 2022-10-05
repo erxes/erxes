@@ -11,8 +11,8 @@ module.exports = {
   },
   menus: [
     {
-      text: 'Dashboards',
-      url: '/dashboards',
+      text: 'Reports',
+      url: '/dashboard',
       icon: 'icon-dashboard',
       location: 'mainNavigation',
       permission: 'showDashboards'

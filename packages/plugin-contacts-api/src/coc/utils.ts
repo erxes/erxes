@@ -177,6 +177,7 @@ interface ICommonListArgs {
   conformityIsRelated?: boolean;
   conformityIsSaved?: boolean;
   source?: string;
+  segmentData?: any;
 }
 
 export class CommonBuilder<IListArgs extends ICommonListArgs> {
@@ -222,7 +223,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by segment
-  public async segmentFilter(segment: any, source?: string) {
+  public async segmentFilter(segment: any, source?: string, segmentData?: any) {
     const selector = await fetchSegment(
       this.subdomain,
       segment._id,
@@ -234,7 +235,8 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
             },
             returnSelector: true
           }
-        : { returnSelector: true }
+        : { returnSelector: true },
+      segmentData
     );
 
     this.positiveList = [...this.positiveList, selector];
@@ -386,6 +388,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public async buildAllQueries(): Promise<void> {
     this.resetPositiveList();
     this.resetNegativeList();
+
+    // filter by segment data
+    if (this.params.segmentData) {
+      const segment = JSON.parse(this.params.segmentData);
+
+      await this.segmentFilter({}, '', segment);
+    }
 
     // filter by segment
     if (this.params.segment) {

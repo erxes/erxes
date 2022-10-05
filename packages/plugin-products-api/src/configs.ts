@@ -48,7 +48,8 @@ export default {
     internalNotes,
     forms,
     imports,
-    exporter
+    exporter,
+    permissions
   },
 
   onServerInit: async options => {

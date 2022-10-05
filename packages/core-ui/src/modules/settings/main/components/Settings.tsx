@@ -138,7 +138,7 @@ class Settings extends React.PureComponent {
             )}
             {this.renderBox(
               'Apps',
-              '/images/icons/erxes-04.svg',
+              '/images/icons/erxes-20.svg',
               '/settings/apps',
               '',
               []

@@ -14,6 +14,7 @@ type Props = {
   fields: any[];
   events: IEvent[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  filterContent?: (values: any) => void;
   segment: ISegment;
   headSegments: ISegment[];
   segments: ISegment[];
@@ -27,7 +28,6 @@ type Props = {
   counterLoading: boolean;
   isModal: boolean;
   hideDetailForm?: boolean;
-  usageType?: string;
   closeModal: () => void;
   closeParentModal?: () => void;
   activeTrigger?: ITrigger;
@@ -51,7 +51,7 @@ const SegmentsForm = (props: Props) => {
     segments,
     previewCount,
     count,
-    usageType
+    filterContent
   } = props;
 
   const renderSidebar = () => {
@@ -99,7 +99,7 @@ const SegmentsForm = (props: Props) => {
       hideDetailForm={hideDetailForm}
       previewCount={previewCount}
       count={count}
-      usageType={usageType}
+      filterContent={filterContent}
     />
   );
 

@@ -4,6 +4,9 @@ import {
   fetchEs,
   fetchEsWithScroll
 } from '@erxes/api-utils/src/elasticsearch';
+
+import { getEsIndexByContentType } from '@erxes/api-utils/src/segments';
+
 import {
   SEGMENT_DATE_OPERATORS,
   SEGMENT_NUMBER_OPERATORS
@@ -69,7 +72,7 @@ export const fetchSegment = async (
     }
   }
 
-  let index = await getIndexByContentType(serviceConfigs, contentType);
+  let index = await getEsIndexByContentType(contentType);
   let selector = { bool: {} };
 
   await generateQueryBySegment(models, subdomain, {
@@ -83,18 +86,12 @@ export const fetchSegment = async (
   const { returnAssociated } = options;
 
   if (returnAssociated && contentType !== returnAssociated.relType) {
-    index = await getIndexByContentType(
-      serviceConfigs,
-      returnAssociated.relType
-    );
+    index = await getEsIndexByContentType(returnAssociated.relType);
 
     const itemsResponse = await fetchEs({
       subdomain,
       action: 'search',
-      index: await getIndexByContentType(
-        serviceConfigs,
-        returnAssociated.mainType
-      ),
+      index: await getEsIndexByContentType(returnAssociated.mainType),
       body: {
         query: selector,
         _source: '_id'
@@ -314,34 +311,45 @@ export const generateQueryBySegment = async (
       initialSelectorAvailable
     } = serviceConfig;
 
-    if (contentTypes && contentTypes.includes(collectionType)) {
-      if (esTypesMapAvailable) {
-        const response = await sendMessage({
-          subdomain,
-          serviceName,
-          isRPC: true,
-          action: 'segments.esTypesMap',
-          data: { collectionType }
-        });
-
-        typesMap = response.typesMap;
-      }
-
-      if (initialSelectorAvailable) {
-        const { negative, positive } = await sendMessage({
-          subdomain,
-          serviceName,
-          isRPC: true,
-          action: 'segments.initialSelector',
-          data: { segment, options }
-        });
-
-        if (negative) {
-          propertiesNegative.push(negative);
+    if (contentTypes) {
+      for (const ct of contentTypes) {
+        if (ct.type !== collectionType) {
+          continue;
         }
 
-        if (positive) {
-          propertiesPositive.push(positive);
+        if (esTypesMapAvailable) {
+          const response = await sendMessage({
+            subdomain,
+            serviceName,
+            isRPC: true,
+            action: 'segments.esTypesMap',
+            data: {
+              collectionType
+            }
+          });
+
+          typesMap = response.typesMap;
+        }
+
+        if (initialSelectorAvailable) {
+          const { negative, positive } = await sendMessage({
+            subdomain,
+            serviceName,
+            isRPC: true,
+            action: 'segments.initialSelector',
+            data: {
+              segment,
+              options
+            }
+          });
+
+          if (negative) {
+            propertiesNegative.push(negative);
+          }
+
+          if (positive) {
+            propertiesPositive.push(positive);
+          }
         }
       }
     }
@@ -424,25 +432,27 @@ export const generateQueryBySegment = async (
           propertyContentType
         ] = condition.propertyType.split(':');
 
-        if (
-          contentTypes &&
-          propertyConditionExtenderAvailable &&
-          contentTypes.includes(propertyContentType)
-        ) {
-          const { positive } = await sendMessage({
-            subdomain,
-            serviceName: propertyServiceName,
-            isRPC: true,
-            action: 'segments.propertyConditionExtender',
-            data: { condition }
-          });
+        if (contentTypes && propertyConditionExtenderAvailable) {
+          for (const ct of contentTypes) {
+            if (ct.type !== propertyContentType) {
+              continue;
+            }
 
-          if (positive) {
-            positiveQuery = {
-              bool: {
-                must: [positiveQuery, positive]
-              }
-            };
+            const { positive } = await sendMessage({
+              subdomain,
+              serviceName: propertyServiceName,
+              isRPC: true,
+              action: 'segments.propertyConditionExtender',
+              data: { condition }
+            });
+
+            if (positive) {
+              positiveQuery = {
+                bool: {
+                  must: [positiveQuery, positive]
+                }
+              };
+            }
           }
         }
       }
@@ -790,24 +800,6 @@ export function elkConvertConditionToQuery(args: {
 
   return [positiveQuery, negativeQuery];
 }
-
-const getIndexByContentType = async (
-  serviceConfigs: any,
-  contentType: string
-) => {
-  let index = '';
-
-  for (const serviceConfig of serviceConfigs) {
-    const { indexesTypeContentType } = serviceConfig;
-
-    if (indexesTypeContentType && indexesTypeContentType[contentType]) {
-      index = indexesTypeContentType[contentType];
-      break;
-    }
-  }
-
-  return index;
-};
 
 const associationPropertyFilter = async (
   subdomain: string,

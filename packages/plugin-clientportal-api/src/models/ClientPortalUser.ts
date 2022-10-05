@@ -8,7 +8,7 @@ import * as sha256 from 'sha256';
 import { createJwtToken } from '../auth/authUtils';
 import { IModels } from '../connectionResolver';
 import { IVerificationParams } from '../graphql/resolvers/mutations/clientPortalUser';
-import messageBroker, { sendCoreMessage } from '../messageBroker';
+import { sendCoreMessage } from '../messageBroker';
 import { generateRandomPassword, sendSms } from '../utils';
 import { IClientPortalDocument, IOTPConfig } from './definitions/clientPortal';
 import {
@@ -16,6 +16,7 @@ import {
   IUser,
   IUserDocument
 } from './definitions/clientPortalUser';
+import { DEFAULT_MAIL_CONFIG } from './definitions/constants';
 import { handleContacts, putActivityLog } from './utils';
 
 const SALT_WORK_FACTOR = 10;
@@ -100,13 +101,6 @@ export interface IUserModel extends Model<IUserDocument> {
   }): string;
   verifyUser(args: IVerificationParams): string;
   verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
-  sendVerification(
-    subdomain: string,
-    clientPortalId: string,
-    config?: IOTPConfig,
-    phone?: string,
-    email?: string
-  ): string;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   updateSession(_id: string): Promise<IUserDocument>;
 }
@@ -174,17 +168,93 @@ export const loadClientPortalUserClass = (models: IModels) => {
       subdomain: string,
       { password, clientPortalId, ...doc }: IUser
     ) {
+      const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
+
+      if (!clientPortal.otpConfig && !clientPortal.mailConfig && !password) {
+        throw new Error('Password is required');
+      }
+
       if (password) {
         this.checkPassword(password);
       }
 
-      return handleContacts({
+      const document = {
+        ...doc,
+        isEmailVerified: false,
+        isPhoneVerified: false
+      };
+
+      if (doc.email && !clientPortal.mailConfig) {
+        document.isEmailVerified = true;
+      }
+
+      if (doc.phone && !clientPortal.otpConfig) {
+        document.isPhoneVerified = true;
+      }
+
+      const user = await handleContacts({
         subdomain,
         models,
         clientPortalId,
-        document: doc,
+        document,
         password
       });
+
+      if (user.email && clientPortal.mailConfig) {
+        const {
+          token,
+          expires
+        } = await models.ClientPortalUsers.generateToken();
+
+        user.registrationToken = token;
+        user.registrationTokenExpires = expires;
+
+        await user.save();
+
+        const link = `${clientPortal.url}/verify?token=${token}`;
+
+        const content = (
+          clientPortal.mailConfig.registrationContent ||
+          DEFAULT_MAIL_CONFIG.REGISTER
+        ).replace(/{{.*}}/, link);
+
+        await sendCoreMessage({
+          subdomain,
+          action: 'sendEmail',
+          data: {
+            toEmails: [user.email],
+            title:
+              clientPortal.mailConfig.subject || 'Registration confirmation',
+            template: {
+              name: 'base',
+              data: {
+                content
+              }
+            }
+          }
+        });
+      }
+
+      if (user.phone && clientPortal.otpConfig) {
+        const phoneCode = await this.imposeVerificationCode({
+          clientPortalId,
+          codeLength: clientPortal.otpConfig.codeLength,
+          phone: user.phone
+        });
+
+        const smsBody =
+          clientPortal.otpConfig.content.replace(/{{.*}}/, phoneCode) ||
+          `Your verification code is ${phoneCode}`;
+
+        await sendSms(
+          subdomain,
+          clientPortal.otpConfig.smsTransporterType,
+          user.phone,
+          smsBody
+        );
+      }
+
+      return user;
     }
 
     public static async updateUser(_id, doc: IUser) {
@@ -249,57 +319,6 @@ export const loadClientPortalUserClass = (models: IModels) => {
           'Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters'
         );
       }
-    }
-
-    public static async sendVerification(
-      subdomain: string,
-      clientPortalId: string,
-      config: IOTPConfig,
-      phone?: string,
-      email?: string
-    ) {
-      if (email) {
-        const emailCode = await this.imposeVerificationCode({
-          clientPortalId,
-          codeLength: config.codeLength,
-          email: (email || '').toLowerCase().trim()
-        });
-
-        const content =
-          config.content.replace(/{.*}/, emailCode) ||
-          `Your verification code is ${emailCode}`;
-
-        await sendCoreMessage({
-          subdomain,
-          action: 'sendEmail',
-          data: {
-            toEmails: [email],
-            title: 'One Time Password',
-            template: {
-              name: 'base',
-              data: {
-                content
-              }
-            }
-          }
-        });
-      }
-
-      if (!email && phone) {
-        const phoneCode = await this.imposeVerificationCode({
-          clientPortalId,
-          codeLength: config.codeLength,
-          phone
-        });
-
-        const body =
-          config.content.replace(/{.*}/, phoneCode) ||
-          `Your verification code is ${phoneCode}`;
-
-        await sendSms(subdomain, config.smsTransporterType, phone, body);
-      }
-
-      return 'sent';
     }
 
     public static async clientPortalResetPassword({
@@ -716,7 +735,14 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       const clientPortal = await models.ClientPortals.getConfig(clientPortalId);
 
-      const content = `Here is your verification link: ${clientPortal.url}/verify?token=${token}  Please click on the link to verify your account. Your password is: ${plainPassword}. Please change your password after you login.`;
+      const config = clientPortal.mailConfig || {
+        invitationContent: DEFAULT_MAIL_CONFIG.INVITE
+      };
+
+      const link = `${clientPortal.url}/verify?token=${token}`;
+
+      let content = config.invitationContent.replace(/{{ link }}/, link);
+      content = content.replace(/{{ password }}/, plainPassword);
 
       await sendCoreMessage({
         subdomain,

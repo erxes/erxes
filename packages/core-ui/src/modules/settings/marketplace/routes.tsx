@@ -2,8 +2,8 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 
-const Installer = asyncComponent(() =>
-  import(/* webpackChunkName: "Installer" */ './components/Installer')
+const Store = asyncComponent(() =>
+  import(/* webpackChunkName: "Store" */ './containers/Store')
 );
 
 const PluginDetails = asyncComponent(() =>
@@ -30,7 +30,7 @@ const routes = () => {
         path="/settings/installer"
         exact={true}
         key="/settings/installer"
-        component={Installer}
+        component={Store}
       />
     </React.Fragment>
   );

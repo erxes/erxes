@@ -1,7 +1,8 @@
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+
+import { rgba } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
 import styledTS from 'styled-components-ts';
-import { colors, dimensions, typography } from '@erxes/ui/src/styles';
-import { rgba } from '@erxes/ui/src/styles/ecolor';
 
 // Main page
 
@@ -245,7 +246,7 @@ const DetailInformation = styled.div`
 const Hashtag = styled.div`
   border-radius: 4px;
   color: ${colors.colorWhite};
-  background: ${colors.colorPrimary};
+  background: #000;
   padding: 2px 6px;
   margin-right: 5px;
   font-size: 11px;
@@ -341,7 +342,6 @@ const SidebarWrapper = styled.div`
   max-width: 350px;
 
   a {
-    padding: 12px;
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -553,6 +553,24 @@ const Checkbox = styledTS<{ color?: string }>(styled(inputStyle))`
   }
 `;
 
+const AttachmentContainer = styled.div`
+  display: flex;
+  height: 300px;
+  margin-top: 30px;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  img {
+    width: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 8px;
+  }
+`;
+
 export {
   ImageWrapper,
   MainContainer,
@@ -594,5 +612,6 @@ export {
   SmallText,
   WidgetApperance,
   FormLabel,
-  Checkbox
+  Checkbox,
+  AttachmentContainer
 };

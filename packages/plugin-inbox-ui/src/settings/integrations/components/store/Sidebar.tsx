@@ -13,7 +13,7 @@ type Props = {
 class SideBar extends React.Component<Props> {
   renderCategory(item) {
     const className =
-      (this.props.currentType || 'All add-ons') === item ? 'active' : '';
+      (this.props.currentType || 'All integrations') === item ? 'active' : '';
 
     return (
       <li key={item}>

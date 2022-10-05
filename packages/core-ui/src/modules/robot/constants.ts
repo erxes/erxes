@@ -279,7 +279,7 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       integrationsCreate: {
         name: 'Choose which integrations you would like to add',
-        url: '/settings/add-ons/'
+        url: '/settings/integrations/'
       },
       connectIntegrationsToChannel: {
         name:
@@ -548,7 +548,7 @@ export const ROLE_SETUP_DETAILS = {
     settingsDetails: {
       messengerIntegrationCreate: {
         name: 'Add the erxes messenger',
-        url: '/settings/add-ons/createMessenger'
+        url: '/settings/integrations/createMessenger'
       }
     }
   },

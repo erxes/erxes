@@ -92,6 +92,7 @@ const listParamsDef = `
   $sortField: String,
   $sortDirection: Int,
   $dateFilters: String,
+  $segmentData: String
   ${conformityQueryFields}
 `;
 
@@ -115,6 +116,7 @@ const listParamsValue = `
   sortField: $sortField,
   sortDirection: $sortDirection,
   dateFilters: $dateFilters,
+  segmentData: $segmentData
   ${conformityQueryFieldDefs}
 `;
 

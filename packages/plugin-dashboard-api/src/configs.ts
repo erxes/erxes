@@ -26,7 +26,7 @@ export default {
   hasSubscriptions: false,
 
   segment: {},
-  meta: { logs: {} },
+  meta: { logs: {}, permissions },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
 

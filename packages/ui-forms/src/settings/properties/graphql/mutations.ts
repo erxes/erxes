@@ -7,6 +7,8 @@ const commonFields = `
   $isVisible: Boolean,
   $isVisibleInDetail: Boolean,
   $config: JSON,
+  $logicAction: String,
+  $logics: [LogicInput],
 `;
 
 const commonTypes = `
@@ -18,6 +20,8 @@ const commonTypes = `
   isVisible: $isVisible,
   isVisibleInDetail: $isVisibleInDetail,
   config: $config
+  logicAction: $logicAction,
+  logics: $logics,
 `;
 
 const updateVisibleFields = `
@@ -77,6 +81,8 @@ const commonVariables = `
   $searchable: Boolean,
   $showInCard: Boolean,
   $objectListConfigs: [objectListConfigInput],
+  $logicAction: String,
+  $logics: [LogicInput],
 `;
 
 const commonParams = `
@@ -94,6 +100,8 @@ const commonParams = `
   searchable: $searchable,
   showInCard: $showInCard,
   objectListConfigs: $objectListConfigs,
+  logicAction: $logicAction,
+  logics: $logics,
 `;
 
 const fieldsAdd = `

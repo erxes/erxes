@@ -49,7 +49,8 @@ export default {
     internalNotes,
     search,
     webhooks,
-    tags
+    tags,
+    permissions
   },
 
   apolloServerContext: async (context, req, res) => {
@@ -76,7 +77,6 @@ export default {
       '/file-export',
       routeErrorHandling(async (req: any, res) => {
         const { query } = req;
-        const { segment } = query;
 
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
@@ -84,18 +84,6 @@ export default {
         const result = await buildFile(models, subdomain, query);
 
         res.attachment(`${result.name}.xlsx`);
-
-        if (segment) {
-          try {
-            sendSegmentsMessage({
-              subdomain,
-              action: 'removeSegment',
-              data: { segmentId: segment }
-            });
-          } catch (e) {
-            console.log((e as Error).message);
-          }
-        }
 
         return res.send(result.response);
       })

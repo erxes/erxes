@@ -4,13 +4,14 @@ import ConfigsForm from '../containers/ConfigsForm';
 import React from 'react';
 import TypeForm from '../containers/TypeForm';
 import Wrapper from 'modules/layout/components/Wrapper';
-import { __ } from 'modules/common/utils';
+import { Alert, __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
 import { loadDynamicComponent, getEnv } from 'modules/common/utils';
 import { StepButton } from '@erxes/ui/src/components/step/styles';
 import Details from './Details';
 import queryString from 'query-string';
+import Button from 'modules/common/components/Button';
 
 type Props = {
   count: string;
@@ -19,7 +20,7 @@ type Props = {
 };
 
 type State = {
-  segmentId: string;
+  segmentData: any;
   contentType: string;
   disclaimer: boolean;
   exportName: string;
@@ -33,13 +34,22 @@ class Form extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      segmentId: '',
+      segmentData: {},
       contentType: '',
       disclaimer: false,
       exportName: '',
       columns: []
     };
   }
+
+  shouldComponentUpdate(_nextProps, nextState) {
+    if (nextState.segmentData !== this.state.segmentData) {
+      return false;
+    }
+
+    return true;
+  }
+
   saveExport = e => {
     e.preventDefault();
 
@@ -54,10 +64,6 @@ class Form extends React.Component<Props, State> {
     this.setState({ columns });
   };
 
-  addFilter = segmentId => {
-    this.setState({ segmentId });
-  };
-
   onChangeExportName = value => {
     this.setState({ exportName: value });
   };
@@ -67,12 +73,12 @@ class Form extends React.Component<Props, State> {
   };
 
   segmentCloseModal = () => {
-    this.setState({ segmentId: '' });
+    this.setState({ segmentData: {} });
   };
 
   onSubmit = () => {
     const { contentType } = this.state;
-    const { columns, segmentId } = this.state;
+    const { columns, segmentData } = this.state;
     const serviceType = contentType.split(':')[0];
 
     let columnsConfig = columns.filter(conf => conf.checked) as any;
@@ -80,10 +86,11 @@ class Form extends React.Component<Props, State> {
     columnsConfig = columnsConfig.map(conf => {
       return conf.name;
     });
+
     const stringified = queryString.stringify({
       configs: JSON.stringify(columnsConfig),
       type: contentType.split(':')[1],
-      segment: segmentId,
+      segmentData: JSON.stringify(segmentData),
       unlimited: true
     });
 
@@ -92,9 +99,9 @@ class Form extends React.Component<Props, State> {
       '_blank'
     );
 
-    window.location.href = `/settings/importHistories?type=${contentType}`;
+    window.location.href = `/settings/exportHistories?type=${contentType}`;
 
-    console.log(columnsConfig, contentType, segmentId);
+    console.log(columnsConfig, contentType, segmentData);
   };
 
   renderExportButton = () => {
@@ -109,8 +116,33 @@ class Form extends React.Component<Props, State> {
     return <></>;
   };
 
+  filterContent = (values: any) => {
+    return (
+      <>
+        <Button
+          id="segment-filter"
+          onClick={() => {
+            const data = {
+              ...values,
+              conditions: values.conditionSegments[0].conditions
+            };
+
+            delete data.conditionSegments;
+
+            this.setState({ segmentData: data });
+
+            Alert.success('Success');
+          }}
+          icon="filter"
+        >
+          {'Apply Filter'}
+        </Button>
+      </>
+    );
+  };
+
   render() {
-    const { segmentId, contentType, disclaimer, exportName } = this.state;
+    const { contentType, disclaimer, exportName } = this.state;
 
     const title = __('Import');
 
@@ -162,12 +194,10 @@ class Form extends React.Component<Props, State> {
                 </Description>
                 {loadDynamicComponent('importExportFilterForm', {
                   ...this.props,
-                  id: segmentId,
                   contentType: contentType,
                   closeModal: this.segmentCloseModal,
-                  addFilter: this.addFilter,
-                  hideDetailForm: true,
-                  usageType: 'export'
+                  filterContent: this.filterContent,
+                  hideDetailForm: true
                 })}
               </FlexPad>
             </Step>
