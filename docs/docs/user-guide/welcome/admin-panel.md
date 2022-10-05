@@ -6,13 +6,13 @@ sidebar_label: 'Admin panel'
 
 The admin panel is where everything happens at erxes. Whether you’re using erxes in self-hosted, SaaS, or Enterprise versions, once you join or set up your erxes XOS, your next step would be getting access to the admin panel.
 
-From the admin panel, you can manage all your operations which include communicating your customer conversations, gathering the data that can be organized and used for campaigns, onboarding automation, writing content for your knowledge base and marketing, etc. It is also from the admin panel that you will manage users, both administrators, and end-users, of your erxes operation system.
-
 :::caution
 
 To access the admin panel, your erxes must be launched, and you must be aware of the URL to its admin panel `(e.g. erxes.example.com/admin)`.
 
 :::
+
+From the admin panel, you can manage all your operations which include communicating your customer conversations, gathering the data that can be organized and used for campaigns, onboarding automation, writing content for your knowledge base and marketing, etc. It is also from the admin panel that you will manage users, both administrators, and end-users, of your erxes operation system.
 
 <div align="center">
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/login+screen.png" width="60%" alt="erxes: Free and open fair-code licensed experience operating system (XOS)" ></img>
