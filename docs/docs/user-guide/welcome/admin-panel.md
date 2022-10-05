@@ -29,12 +29,20 @@ To access the admin panel:
 If you are new to erxes, we recommend making sure your profile is all set before diving into your system. From your administrator profile, you can modify your user information, such as name, username, email, or password. It’s a super simple step that can take a minute to fill out.
 To modify your user information:
 
+<div align="center">
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Update+your+profile.png" width="70%" alt="updating profile" ></img>
+</div>
+
 1. Click on your profile field located on top right corner of the screen with anonymous avator picture.
 2. In the drop-down menu, click on My profile.
 3. Modify the information of your choice
 4. Click Save button.
 
 ### To change the password of your account:
+
+<div align="center">
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Change+your+password.png" width="70%" alt="change password" ></img>
+</div>
 
 1. Go to your administrator profile.
 2. Fill in the password-related options:
