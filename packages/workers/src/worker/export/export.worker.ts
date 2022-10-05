@@ -70,7 +70,7 @@ connect()
 
     const [serviceName, type] = contentType.split(':');
 
-    const { headers, docs } = await messageBroker().sendRPCMessage(
+    const { excelHeader, docs } = await messageBroker().sendRPCMessage(
       `${serviceName}:exporter:prepareExportData`,
       {
         subdomain,
@@ -84,8 +84,8 @@ connect()
 
     const { workbook, sheet } = await createXlsFile();
 
-    for (let i = 1; i <= headers.length; i++) {
-      sheet.cell(1, i).value(headers[i - 1]);
+    for (let i = 1; i <= excelHeader.length; i++) {
+      sheet.cell(1, i).value(excelHeader[i - 1]);
     }
 
     let rowIndex = 2;
@@ -93,7 +93,7 @@ connect()
     for (const doc of docs) {
       let columnIndex = 0;
 
-      for (const header of headers) {
+      for (const header of excelHeader) {
         const value = doc[header];
 
         sheet.cell(rowIndex, columnIndex + 1).value(value || '-');
@@ -104,8 +104,6 @@ connect()
     }
 
     const excelData = await generateXlsx(workbook);
-
-    // const AWS_BUCKET = await getConfig('AWS_BUCKET', '', models);
 
     const s3 = await createAWS();
 
@@ -152,6 +150,5 @@ connect()
     });
   })
   .catch(e => {
-    console.log(e);
     throw e;
   });

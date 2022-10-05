@@ -209,6 +209,7 @@ export default {
 
     const docs = [] as any;
     const headers = [] as any;
+    const excelHeader = [] as any;
 
     try {
       const results = await prepareData(models, subdomain, data);
@@ -265,10 +266,17 @@ export default {
 
         docs.push(result);
       }
+
+      for (const header of headers) {
+        if (header.startsWith('customFieldsData')) {
+          excelHeader.push(header.split('.')[1]);
+        } else {
+          excelHeader.push(header);
+        }
+      }
     } catch (e) {
-      console.log(e.message);
       return { error: e.message };
     }
-    return { docs, headers };
+    return { docs, excelHeader };
   }
 };
