@@ -30,9 +30,23 @@ block layout-content
                         .isMobile
                             .label Choose 
                             .border 
-                                each url in invoice.apiResponse.urls
-                                    a(href=url.link class="bank")
-                                        img(src=url.logo class="urlLogo")
+                                if invoice.apiResponse.qr_image
+                                    each url in (invoice.apiResponse.urls || [])
+                                        a(href=url.link class="bank")
+                                            img(src=url.logo class="urlLogo")
+                                if invoice.apiResponse.socialPayQrCode
+                                    img(src=`${invoice.apiResponse.socialPayQrCode}`)
+                                .label.status status: 
+                                    |  #{invoice.status}
+                            if invoice.status === 'paid'
+                                script. 
+                                    if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                        if (`#{invoiceData.redirectUri}`) {
+                                            window.location.href = `#{invoiceData.redirectUri}`;
+                                        } else {
+                                            window.close();
+                                        }
+                                    }
                         .desktop
                             .label QR code 
                             .border
