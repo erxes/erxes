@@ -9,7 +9,7 @@ module.exports = {
       },
       items: [
         'user-guide/welcome/admin-panel',
-        'user-guide/welcome/orginization',
+        'user-guide/welcome/organization',
         'user-guide/welcome/marketplace',
         'user-guide/welcome/billing'
       ]

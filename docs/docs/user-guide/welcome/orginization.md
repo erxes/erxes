@@ -1,5 +1,5 @@
 ---
-id: orginization
-title: Orginization
-sidebar_label: 'Orginization'
+id: organization
+title: Organization
+sidebar_label: 'Organization'
 ---
