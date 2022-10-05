@@ -5,7 +5,7 @@ module.exports = {
       label: 'Get Started with User Guide!',
       link: {
         type: 'doc',
-        id: 'user-guide/get-started'
+        id: 'user-guide/user-guide'
       },
       items: [
         'user-guide/welcome/admin-panel',
