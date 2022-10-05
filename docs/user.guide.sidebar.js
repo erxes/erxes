@@ -1,9 +1,8 @@
 module.exports = {
   'user-guide': [
-    'user-guide/get-started',
     {
       type: 'category',
-      label: 'Welcome',
+      label: 'Get Started with User Guide!',
       link: {
         type: 'generated-index'
       },
@@ -30,7 +29,15 @@ module.exports = {
             type: 'generated-index'
           },
           collapsed: true,
-          items: ['user-guide/xos/xos-plugins']
+          items: [
+            'user-guide/xos/system-configuration',
+            'user-guide/xos/permission',
+            'user-guide/xos/team-members',
+            'user-guide/xos/import-export',
+            'user-guide/xos/apps',
+            'user-guide/xos/marketplace',
+            'user-guide/xos/script-installation'
+          ]
         },
         {
           type: 'category',
@@ -41,8 +48,20 @@ module.exports = {
           collapsed: true,
           items: [
             'user-guide/plugins/intro-plugins',
-            'user-guide/plugins/using-marketplace',
-            'user-guide/plugins/list-plugins'
+            {
+              type: 'category',
+              label: 'Team Inbox',
+              link: {
+                type: 'generated-index'
+              },
+              collapsed: true,
+              items: [
+                'user-guide/plugins/team-inbox/inbox-channels',
+                'user-guide/plugins/team-inbox/inbox-skills',
+                'user-guide/plugins/team-inbox/inbox-response-template',
+                'user-guide/plugins/team-inbox/inbox-add-ons'
+              ]
+            }
           ]
         },
         {

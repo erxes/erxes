@@ -65,16 +65,12 @@ const config = {
                 href: '/docs/intro'
               },
               {
-                label: 'User Guide',
-                href: '/docs/user-guide'
+                label: 'Get Started with User Guide!',
+                href: '/docs/category/get-started-with-user-guide'
               },
               {
                 label: '└─ Welcome',
-                to: '/docs/category/welcome'
-              },
-              {
-                label: '└─ Get Started',
-                to: '/docs/user-guide/get-started'
+                to: '/docs/category/get-started-with-user-guide'
               },
               {
                 label: '└─ Plugins',
