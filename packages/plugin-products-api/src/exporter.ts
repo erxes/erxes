@@ -38,26 +38,6 @@ const getCustomFieldsData = async (item, fieldId) => {
   return { value };
 };
 
-const getUomData = async (item, fieldName) => {
-  let value;
-
-  if (item.subUoms && item.subUoms.length > 0) {
-    for (const subUom of item.subUoms) {
-      if (subUom.uomId === fieldName || subUom.ratio === fieldName) {
-        value = subUom.uomId || subUom.ratio;
-
-        if (Array.isArray(value)) {
-          value = value.join(', ');
-        }
-
-        return { value };
-      }
-    }
-  }
-
-  return { value };
-};
-
 export const fillValue = async (
   models: IModels,
   subdomain: string,
@@ -155,12 +135,6 @@ export default {
             const fieldName = column.split('.')[1];
 
             const { value } = await getCustomFieldsData(item, fieldId);
-
-            result[column] = value || '-';
-          } else if (column.startsWith('subUoms')) {
-            const fieldName = column.split('.')[1];
-
-            const { value } = await getUomData(item, fieldName);
 
             result[column] = value || '-';
           } else {
