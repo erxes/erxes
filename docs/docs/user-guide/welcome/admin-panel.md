@@ -30,7 +30,7 @@ If you are new to erxes, we recommend making sure your profile is all set before
 To modify your user information:
 
 <div align="center">
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Update+your+profile.png" width="70%" alt="updating profile" ></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Update+your+profile.png" width="80%" alt="updating profile" ></img>
 </div>
 
 1. Click on your profile field located on top right corner of the screen with anonymous avator picture.
@@ -41,7 +41,7 @@ To modify your user information:
 ### To change the password of your account:
 
 <div align="center">
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Change+your+password.png" width="70%" alt="change password" ></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Change+your+password.png" width="80%" alt="change password" ></img>
 </div>
 
 1. Go to your administrator profile.
