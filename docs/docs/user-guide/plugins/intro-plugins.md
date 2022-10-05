@@ -30,3 +30,9 @@ erxes builds and maintains plugins that play an important role as the main featu
 | <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Internal+notes.png" style={{height: "40px"}}/>  | Internal notes | Plguns have an opportunity that can allow end-users to write and leave notes within a certain field. |
 | <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Templates.png" style={{height: "40px"}}/>  | Email template | Professional email templates are a great starting point for any business to grow its email marketing efforts.|
 | <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/sentiment-analysis.png" style={{height: "40px"}}/>  | Sentiment Analysis | It’s a natural language processing (NLP) technique used to determine whether data is positive, negative or neutral. |
+
+:::tip
+ 
+Go to **<a href="https://erxes.io/marketplace" >our marketplace</a>** to learn about what each of these plugin can do. For their use cases of different industies, teams, and products, please visit **<a href="https://docs.erxes.io/docs/user-guide/use-case" >this User guide </a>**.
+
+:::
