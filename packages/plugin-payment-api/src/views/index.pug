@@ -28,7 +28,7 @@ block layout-content
                 if invoice
                     .qr
                         .isMobile
-                            .label Choose 
+                            .label Choose your bank
                             .border 
                                 if invoice.apiResponse.qr_image
                                     each url in (invoice.apiResponse.urls || [])
