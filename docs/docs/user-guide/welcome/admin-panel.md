@@ -41,8 +41,6 @@ To modify your user information:
 3. Password modification
 4. Click on the Save button.
 
-🎉 Congratulations on being a new erxes user! You're now ready to discover all the features and options that erxes offers!
-
 :::tip
 
 Want to join the community?
@@ -51,4 +49,4 @@ If you have any trouble with your erxes experience, you can join <a href="https:
 
 :::
 
-🤓 Welcome to the erxes community!
+🎉 Congratulations on being a new erxes user! You're now ready to discover all the features and options that erxes offers!
