@@ -77,7 +77,7 @@ export const loadInvoiceClass = (models: IModels) => {
         return invoice;
       } catch (e) {
         // remove invoice if error
-        await models.Invoices.deleteOne({ _id: invoice._id });
+        models.Invoices.deleteOne({ _id: invoice._id });
 
         throw new Error(e.message);
       }

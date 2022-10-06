@@ -48,8 +48,6 @@ router.post('/gateway', async (req, res) => {
 
   const filter: any = {};
 
-  console.log('data', data);
-
   if (data.paymentConfigIds) {
     filter._id = { $in: data.paymentConfigIds };
   }
@@ -93,26 +91,36 @@ router.post('/gateway', async (req, res) => {
     models.Invoices.cancelInvoice(invoice._id);
   }
 
-  invoice = await models.Invoices.createInvoice({
-    ...data,
-    token: params,
-    paymentConfigId
-  });
+  try {
+    invoice = await models.Invoices.createInvoice({
+      ...data,
+      token: params,
+      paymentConfigId
+    });
 
-  const selectedPayment = payments.find(p => p.selected);
+    const selectedPayment = payments.find(p => p.selected);
 
-  if (selectedPayment.type === PAYMENT_TYPES.SOCIAL_PAY && !invoice.phone) {
-    invoice.apiResponse.socialPayQrCode = await QRCode.toDataURL(
-      invoice.apiResponse.text
-    );
+    if (selectedPayment.type === PAYMENT_TYPES.SOCIAL_PAY && !invoice.phone) {
+      invoice.apiResponse.socialPayQrCode = await QRCode.toDataURL(
+        invoice.apiResponse.text
+      );
+    }
+
+    res.render('index', {
+      title: 'Payment gateway',
+      payments,
+      invoiceData: data,
+      invoice
+    });
+  } catch (e) {
+    console.log(e.message);
+    res.render('index', {
+      title: 'Payment gateway',
+      payments,
+      invoiceData: data,
+      error: e.message
+    });
   }
-
-  res.render('index', {
-    title: 'Payment gateway',
-    payments,
-    invoiceData: data,
-    invoice
-  });
 });
 
 export default router;
