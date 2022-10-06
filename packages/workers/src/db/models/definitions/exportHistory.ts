@@ -9,6 +9,8 @@ export interface IExportHistory {
   columnsConfig: string[];
   segmentData: string[];
   name?: string;
+  exportName: string;
+  disclaimer: boolean;
 }
 
 export interface IExportHistoryDocument extends IExportHistory, Document {
@@ -31,5 +33,7 @@ export const exportHistorySchema = new Schema({
     default: 'inProcess',
     label: 'Status'
   }),
-  total: field({ type: Number, label: 'Total attempts' })
+  total: field({ type: Number, label: 'Total attempts' }),
+  exportName: field({ type: String, label: 'Export name' }),
+  disclaimer: field({ type: Boolean, label: 'Disclaimer' })
 });

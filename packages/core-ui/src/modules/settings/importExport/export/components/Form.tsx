@@ -67,7 +67,13 @@ class Form extends React.Component<Props, State> {
     this.setState({ segmentData: {} });
   };
   onSubmit = () => {
-    const { contentType, columns, segmentData } = this.state;
+    const {
+      contentType,
+      columns,
+      segmentData,
+      exportName,
+      disclaimer
+    } = this.state;
 
     let columnsConfig = columns.filter(conf => conf.checked) as any;
 
@@ -78,7 +84,9 @@ class Form extends React.Component<Props, State> {
     const doc = {
       contentType: contentType,
       columnsConfig: columnsConfig,
-      segmentData: segmentData
+      segmentData: segmentData,
+      exportName,
+      disclaimer
     };
     console.log(columnsConfig, '<===========columnsConfig');
     console.log(contentType, '<===========contentType');

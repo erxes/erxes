@@ -13,16 +13,20 @@ type FinalProps = {
   exportHistoriesCreate: any;
 } & Props;
 
-class FormContainer extends React.Component<
-  FinalProps,
-  { loading: boolean; count: string }
-> {
+type State = {
+  loading: boolean;
+  count: string;
+  exportName: string;
+};
+
+class FormContainer extends React.Component<FinalProps, State> {
   constructor(props) {
     super(props);
 
     this.state = {
       loading: false,
-      count: ''
+      count: '',
+      exportName: ''
     };
   }
 
@@ -32,9 +36,7 @@ class FormContainer extends React.Component<
 
     const saveExport = doc => {
       exportHistoriesCreate({
-        variables: {
-          doc
-        }
+        variables: doc
       })
         .then(() => {
           Alert.success('You successfully exported');

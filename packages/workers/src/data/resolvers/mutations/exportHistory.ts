@@ -7,22 +7,29 @@ const exportHistoryMutations = {
     {
       contentType,
       columnsConfig,
-      segmentData
+      segmentData,
+      exportName,
+      disclaimer
     }: {
       contentType: string;
       columnsConfig: string[];
       segmentData: string[];
+      exportName: string;
+      disclaimer: boolean;
     },
     { user, models, subdomain }: IContext
   ) {
     console.log(contentType, 'contentTYpe');
     console.log(columnsConfig, 'columnsConfig');
+    console.log(segmentData, 'segmentData');
 
     const exportHistory = await models.ExportHistory.createHistory({
       total: 0,
       contentType,
       columnsConfig,
-      segmentData
+      segmentData,
+      exportName,
+      disclaimer
     });
 
     try {
@@ -32,7 +39,9 @@ const exportHistoryMutations = {
           columnsConfig,
           exportHistoryId: exportHistory._id,
           segmentData,
-          user
+          user,
+          exportName,
+          disclaimer
         },
         models,
         subdomain

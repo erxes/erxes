@@ -8,6 +8,8 @@ export const types = `
     status: String
     user: JSON
     exportLink: String
+    exportName: String
+    disclaimer: Boolean
   }
 
   type ExportHistoryList {
