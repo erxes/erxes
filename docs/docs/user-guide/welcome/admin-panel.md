@@ -38,7 +38,7 @@ To modify your user information:
 3. Modify the information of your choice
 4. Click Save button.
 
-### To change the password of your account:
+### Changing the password of your account
 
 <div align="center">
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Change+your+password.png" width="80%" alt="change password" ></img>
@@ -58,3 +58,27 @@ If you have any trouble with your erxes experience, you can join <a href="https:
 :::
 
 🎉 Congratulations on being a new erxes user! You're now ready to discover all the features and options that erxes offers!
+
+### Creating your organization
+
+You can create and manage several organizations that are both SaaS & Self-hosted environments at erxes and you can get access to each organization with different email addresses. The organization is where you can create and overview the lists of your created organizations, which located left top side of the admin panel.
+
+<div align="center">
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Create+organization.png" width="80%" alt="Create organization" ></img>
+</div>
+
+- To create your organization on a SaaS version, click into the field it says “Create a new organization” within the lists of your SaaS organizations.
+- To create a new organization on a Self-hosted version, click on the green sign “Add self-hosted installation” within the lists of your Self-hosted organizations.
+
+### Billing 
+
+
+Billing section is where you can see the billing information and payment history as well as choose the payment method and provide the information to make a payment. To make a payment:
+
+<div align="center">
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Billing.png" width="80%" alt="Billing" ></img>
+</div>
+
+1. Click on +Add payment method 
+2. Insert your cart details
+3. Press the botton below to confirm.
