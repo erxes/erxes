@@ -3,7 +3,7 @@ import * as mongoose from 'mongoose';
 import * as moment from 'moment';
 import { connect } from '../utils';
 import { createAWS } from '../../data/utils';
-import messageBroker from '../../messageBroker';
+import messageBroker, { getFileUploadConfigs } from '../../messageBroker';
 import { generateModels, IModels } from '../../connectionResolvers';
 
 export const createXlsFile = async () => {
@@ -50,6 +50,74 @@ export const getConfig = async (
   return configs[code];
 };
 
+/*
+ * Save binary data to amazon s3
+ */
+export const uploadFileAWS = async (
+  excelHeader: any,
+  docs: any,
+  type: string,
+  forcePrivate: boolean = false,
+  models?: IModels
+): Promise<{ file: string; rowIndex: number }> => {
+  const { FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
+  const IS_PUBLIC = forcePrivate ? false : FILE_SYSTEM_PUBLIC;
+
+  const { AWS_BUCKET } = await getFileUploadConfigs();
+
+  // initialize s3
+  const s3 = await createAWS();
+
+  const { workbook, sheet } = await createXlsFile();
+
+  for (let i = 1; i <= excelHeader.length; i++) {
+    sheet.cell(1, i).value(excelHeader[i - 1]);
+  }
+
+  let rowIndex = 2;
+
+  for (const doc of docs) {
+    let columnIndex = 0;
+
+    for (const header of excelHeader) {
+      const value = doc[header];
+
+      sheet.cell(rowIndex, columnIndex + 1).value(value || '-');
+      columnIndex++;
+    }
+
+    rowIndex++;
+  }
+
+  const excelData = await generateXlsx(workbook);
+
+  const fileName = `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`;
+
+  const response: any = await new Promise((resolve, reject) => {
+    s3.upload(
+      {
+        ContentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        Bucket: AWS_BUCKET,
+        Key: fileName,
+        Body: excelData,
+        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined
+      },
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(res);
+      }
+    );
+  });
+  console.log(response.Location);
+  const file = IS_PUBLIC === 'true' ? response.Location : fileName;
+
+  return { file, rowIndex };
+};
+
 connect()
   .then(async () => {
     console.log(`Worker message recieved`);
@@ -82,56 +150,19 @@ connect()
       }
     );
 
-    const { workbook, sheet } = await createXlsFile();
+    console.log(docs, '45678');
 
-    for (let i = 1; i <= excelHeader.length; i++) {
-      sheet.cell(1, i).value(excelHeader[i - 1]);
+    const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+
+    let result = {} as any;
+
+    if (UPLOAD_SERVICE_TYPE === 'AWS') {
+      result = await uploadFileAWS(excelHeader, docs, type, true, models);
     }
-
-    let rowIndex = 2;
-
-    for (const doc of docs) {
-      let columnIndex = 0;
-
-      for (const header of excelHeader) {
-        const value = doc[header];
-
-        sheet.cell(rowIndex, columnIndex + 1).value(value || '-');
-        columnIndex++;
-      }
-
-      rowIndex++;
-    }
-
-    const excelData = await generateXlsx(workbook);
-
-    const s3 = await createAWS();
-
-    const response: any = await new Promise((resolve, reject) => {
-      s3.upload(
-        {
-          ContentType:
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          Bucket: 'erxes',
-          Key: `${type} - ${moment().format('YYYY-MM-DD HH:mm')}`,
-          Body: excelData,
-          ACL: 'public-read'
-        },
-        (err, res) => {
-          if (err) {
-            return reject(err);
-          }
-
-          return resolve(res);
-        }
-      );
-    });
-
-    console.log(response);
 
     const finalResponse = {
-      exportLink: response.Location,
-      total: rowIndex - 1,
+      exportLink: result.file,
+      total: result.rowIndex - 1,
       status: 'Success'
     };
 

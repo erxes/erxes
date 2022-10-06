@@ -27,5 +27,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  exportHistoriesCreate(contentType: String!, columnsConfig: [String], segmentId: String): JSON
+  exportHistoriesCreate(contentType: String!, columnsConfig: [String], segmentData: String): JSON
 `;

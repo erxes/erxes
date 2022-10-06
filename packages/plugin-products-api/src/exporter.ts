@@ -100,7 +100,7 @@ export default {
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { columnsConfig, contentType, segmentId } = data;
+    const { columnsConfig } = data;
 
     const docs = [] as any;
     const headers = [] as any;

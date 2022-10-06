@@ -7,7 +7,7 @@ export interface IExportHistory {
   exportLink?: string;
   contentType: string;
   columnsConfig: string[];
-  segmentId: string;
+  segmentData: string;
   name?: string;
 }
 
