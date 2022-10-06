@@ -27,16 +27,12 @@ const exportHistories = `
     exportHistories(type: $type, perPage: $perPage, page: $page) {
       list {
          _id
-        success
         total
         name
         contentType
         date
         status
-        percentage
-        removed
         user 
-        error
         exportLink
         }
       count 
