@@ -73,6 +73,10 @@ const config = {
                 to: '/docs/user-guide'
               },
               {
+                label: '└─ XOS',
+                to: '/docs/user-guide/xos/xos-intro'
+              },
+              {
                 label: '└─ Plugins',
                 to: '/docs/user-guide/plugins-intro'
               },

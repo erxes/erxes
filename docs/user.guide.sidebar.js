@@ -16,6 +16,26 @@ module.exports = {
     },
     {
       type: 'category',
+      label: 'XOS',
+      link: {
+        type: 'doc',
+        id: 'user-guide/xos/xos-intro'
+      },
+      collapsed: true,
+      items: [
+        'user-guide/xos/system-configuration',
+        'user-guide/xos/permission',
+        'user-guide/xos/team-members',
+        'user-guide/xos/brands',
+        'user-guide/xos/import-export',
+        'user-guide/xos/apps',
+        'user-guide/xos/marketplace',
+        'user-guide/xos/channel',
+        'user-guide/xos/script-installation'
+      ]
+    },
+    {
+      type: 'category',
       label: 'Plugins',
       link: {
         type: 'doc',
@@ -23,26 +43,6 @@ module.exports = {
       },
       collapsed: true,
       items: [
-        {
-          type: 'category',
-          label: 'XOS',
-          link: {
-            type: 'doc',
-            id: 'user-guide/xos/xos-intro'
-          },
-          collapsed: true,
-          items: [
-            'user-guide/xos/system-configuration',
-            'user-guide/xos/permission',
-            'user-guide/xos/team-members',
-            'user-guide/xos/brands',
-            'user-guide/xos/import-export',
-            'user-guide/xos/apps',
-            'user-guide/xos/marketplace',
-            'user-guide/xos/channel',
-            'user-guide/xos/script-installation'
-          ]
-        },
         {
           type: 'category',
           label: 'Plugins',
@@ -63,42 +63,14 @@ module.exports = {
               items: [
                 'user-guide/plugins/team-inbox/inbox-channels',
                 'user-guide/plugins/team-inbox/inbox-skills',
-                'user-guide/plugins/team-inbox/inbox-response-template',
-                'user-guide/plugins/team-inbox/inbox-add-ons'
+                'user-guide/plugins/team-inbox/inbox-response-template'
               ]
             }
           ]
         },
-        {
-          type: 'category',
-          label: 'Add-ons',
-          link: {
-            type: 'doc',
-            id: 'user-guide/adds-on/intro-addon'
-          },
-          collapsed: true,
-          items: ['user-guide/adds-on/list-addon']
-        },
-        {
-          type: 'category',
-          label: 'Services',
-          link: {
-            type: 'doc',
-            id: 'user-guide/services/intro-service'
-          },
-          collapsed: true,
-          items: ['user-guide/services/list-service']
-        },
-        {
-          type: 'category',
-          label: 'Power-ups',
-          link: {
-            type: 'doc',
-            id: 'user-guide/power-ups/intro-powerup'
-          },
-          collapsed: true,
-          items: ['user-guide/power-ups/list-powerup']
-        }
+        'user-guide/adds-on/intro-addon',
+        'user-guide/services/intro-service',
+        'user-guide/power-ups/intro-powerup'
       ]
     },
     {
