@@ -7,7 +7,7 @@ export interface IExportHistory {
   exportLink?: string;
   contentType: string;
   columnsConfig: string[];
-  segmentData: string;
+  segmentData: string[];
   name?: string;
 }
 
@@ -23,7 +23,7 @@ export const exportHistorySchema = new Schema({
   contentType: field({ type: String, label: 'Content type' }),
   columnsConfig: field({ type: [String], label: 'Columns config' }),
   exportLink: field({ type: String, label: 'Content type' }),
-  segmentId: field({ type: String, label: 'Segment Id' }),
+  segmentData: field({ type: [String], label: 'Segment data' }),
   userId: field({ type: String, label: 'Created by' }),
   date: field({ type: Date, label: 'Date of export' }),
   status: field({

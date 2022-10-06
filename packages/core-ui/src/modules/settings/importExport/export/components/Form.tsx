@@ -15,11 +15,7 @@ import Button from 'modules/common/components/Button';
 type Props = {
   count: string;
   loading: boolean;
-  saveExport: (
-    contentType: string,
-    segmentData: any[],
-    columnsConfig: any[]
-  ) => void;
+  saveExport: (doc: any) => void;
 };
 
 type State = {
@@ -70,11 +66,6 @@ class Form extends React.Component<Props, State> {
   segmentCloseModal = () => {
     this.setState({ segmentData: {} });
   };
-
-  saveExport = e => {
-    e.preventDefault();
-  };
-
   onSubmit = () => {
     const { contentType, columns, segmentData } = this.state;
 
@@ -84,9 +75,17 @@ class Form extends React.Component<Props, State> {
       return conf.name;
     });
 
-    this.props.saveExport(contentType, segmentData, columnsConfig);
+    const doc = {
+      contentType: contentType,
+      columnsConfig: columnsConfig,
+      segmentData: segmentData
+    };
+    console.log(columnsConfig, '<===========columnsConfig');
+    console.log(contentType, '<===========contentType');
+    console.log(segmentData, '<===========segmentData');
+    window.location.href = `/settings/exportHistories?type=${contentType}`;
 
-    console.log(columnsConfig, contentType, segmentData);
+    return this.props.saveExport(doc);
   };
 
   renderExportButton = () => {
@@ -113,6 +112,8 @@ class Form extends React.Component<Props, State> {
             };
 
             delete data.conditionSegments;
+
+            console.log(data.conditions, '<------------------DA');
 
             this.setState({ segmentData: data });
 

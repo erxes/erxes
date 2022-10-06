@@ -10,11 +10,14 @@ const exportHistoryMutations = {
       segmentData
     }: {
       contentType: string;
-      columnsConfig: any;
-      segmentData: string;
+      columnsConfig: string[];
+      segmentData: string[];
     },
     { user, models, subdomain }: IContext
   ) {
+    console.log(contentType, 'contentTYpe');
+    console.log(columnsConfig, 'columnsConfig');
+
     const exportHistory = await models.ExportHistory.createHistory({
       total: 0,
       contentType,

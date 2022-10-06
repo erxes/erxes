@@ -10,7 +10,7 @@ type Props = {};
 
 type FinalProps = {
   fieldsQuery: any; //check
-  exportHistoriesCreate: (contentType) => Promise<void>;
+  exportHistoriesCreate: any;
 } & Props;
 
 class FormContainer extends React.Component<
@@ -30,16 +30,10 @@ class FormContainer extends React.Component<
     const { exportHistoriesCreate } = this.props;
     const { count, loading } = this.state;
 
-    const saveExport = (
-      contentType: string,
-      columnsConfig: any[],
-      segmentData: any[]
-    ) => {
+    const saveExport = doc => {
       exportHistoriesCreate({
         variables: {
-          contentType: contentType,
-          columnsConfig: columnsConfig,
-          segmentData: segmentData
+          doc
         }
       })
         .then(() => {
