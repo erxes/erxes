@@ -19,7 +19,6 @@ export type ITagTypes =
   | 'integration';
 
 // queries
-
 export type TagsQueryResponse = {
   tags: ITag[];
   loading: boolean;

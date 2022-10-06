@@ -48,6 +48,7 @@ const tagQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
+    console.log('type', type);
 
     if (type) {
       selector.type = type;
