@@ -167,7 +167,9 @@ const fieldsGroupQueries = {
     },
     { commonQuerySelector, models, subdomain }: IContext
   ) {
-    let query: any = commonQuerySelector;
+    let query: any = {
+      $or: [{ ...commonQuerySelector }, { isDefinedByErxes: true }]
+    };
 
     // querying by content type
     query.contentType = contentType;
