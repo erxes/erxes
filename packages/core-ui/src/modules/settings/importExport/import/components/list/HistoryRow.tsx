@@ -68,6 +68,10 @@ class HistoryRow extends React.Component<Props> {
 
     const renderDownloadFile = () => {
       return contentTypes.map(value => {
+        if (!attachments) {
+          return null;
+        }
+
         const attachment = attachments[value.contentType][0];
 
         return (

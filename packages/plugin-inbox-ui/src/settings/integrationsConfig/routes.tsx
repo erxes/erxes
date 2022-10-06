@@ -9,7 +9,7 @@ const IntegrationsConfig = asyncComponent(() =>
 );
 
 const routes = () => (
-  <Route path="/settings/add-ons-config/" component={IntegrationsConfig} />
+  <Route path="/settings/integrations-config/" component={IntegrationsConfig} />
 );
 
 export default routes;
