@@ -14,6 +14,7 @@ type Props = {
   fields: any[];
   events: IEvent[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  filterContent?: (values: any) => void;
   segment: ISegment;
   headSegments: ISegment[];
   segments: ISegment[];
@@ -51,7 +52,8 @@ const SegmentsForm = (props: Props) => {
     segments,
     previewCount,
     count,
-    usageType
+    usageType,
+    filterContent
   } = props;
 
   const renderSidebar = () => {
@@ -100,6 +102,7 @@ const SegmentsForm = (props: Props) => {
       previewCount={previewCount}
       count={count}
       usageType={usageType}
+      filterContent={filterContent}
     />
   );
 

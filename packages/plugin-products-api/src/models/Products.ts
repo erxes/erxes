@@ -17,11 +17,6 @@ import {
 } from './definitions/products';
 
 export interface IProductModel extends Model<IProductDocument> {
-  updateProductCategory(
-    productIds: any,
-    productFields: any,
-    user: IUserDocument
-  );
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;

@@ -75,6 +75,8 @@ export class RenderDynamicComponent extends React.Component<
   { scope: string; component: any; injectedProps: any },
   { showComponent: boolean }
 > {
+  private Component;
+
   constructor(props) {
     super(props);
 
@@ -97,11 +99,16 @@ export class RenderDynamicComponent extends React.Component<
 
     const { scope, component, injectedProps } = this.props;
 
-    const Component = React.lazy(loadComponent(scope, component));
+    let Comp = this.Component;
+
+    if (!Comp) {
+      this.Component = React.lazy(loadComponent(scope, component));
+      Comp = this.Component;
+    }
 
     return (
       <React.Suspense fallback="">
-        <Component {...injectedProps} />
+        <Comp {...injectedProps} />
       </React.Suspense>
     );
   };
@@ -268,7 +275,12 @@ export const isEnabled = (service: string) => {
  * @return {String} - URL
  */
 export const readFile = (value: string): string => {
-  if (!value || urlParser.isValidURL(value) || value.includes('http')) {
+  if (
+    !value ||
+    urlParser.isValidURL(value) ||
+    value.includes('http') ||
+    value.startsWith('/')
+  ) {
     return value;
   }
 

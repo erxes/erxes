@@ -3,7 +3,7 @@ import { ITag, ITagTypes } from '../types';
 import FilterableList from '@erxes/ui/src/components/filterableList/FilterableList';
 import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   type: ITagTypes | string;
@@ -16,6 +16,7 @@ type Props = {
   loading: boolean;
   tags: ITag[];
   tag: (tags: ITag[]) => void;
+  singleSelect?: boolean;
 };
 
 class Tagger extends React.Component<Props, { tagsForList: any[] }> {
@@ -104,7 +105,8 @@ class Tagger extends React.Component<Props, { tagsForList: any[] }> {
       selectable: true,
       treeView: true,
       items: JSON.parse(JSON.stringify(this.state.tagsForList)),
-      isIndented: true
+      isIndented: true,
+      singleSelect: this.props.singleSelect
     };
 
     if (event) {

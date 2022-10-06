@@ -186,6 +186,21 @@ const deployDbs = async program => {
     };
   }
 
+  if (configs.mongobi) {
+    dockerComposeConfig.services['mongo-bi-connector'] = {
+      image: 'erxes/mongobi-connector:dev',
+      container_name: 'mongosqld',
+      ports: ['3307:3307'],
+      environment: {
+        MONGODB_HOST: 'mongo',
+        MONGO_USERNAME: configs.mongo.username,
+        MONGO_PASSWORD: configs.mongo.password
+      },
+      networks: ['erxes'],
+      volumes: ['./mongo.pem:/mongosqld/mongo.pem']
+    };
+  }
+
   if (configs.mongo.replication) {
     if (!(await fse.exists(filePath(`mongo-key`)))) {
       log('mongo-key file not found ....', 'red');
@@ -436,7 +451,7 @@ const up = async ({ uis, fromInstaller }) => {
 
   if (dashboard) {
     dockerComposeConfig.services.dashboard = {
-      image: `erxes/dashboard:${image_tag}`,
+      image: `erxes/dashboard:${dashboard.image_tag || image_tag}`,
       ports: ['4300:80'],
       environment: {
         PORT: '80',
@@ -960,7 +975,7 @@ const deployMongoBi = async program => {
 
   dockerComposeConfig.services['mongo-bi-connector'] = {
     image: 'erxes/mongobi-connector:dev',
-    container_name: 'mongosqld',
+    hostname: 'mongosqld',
     ports: ['3307:3307'],
     environment: {
       MONGODB_HOST: 'mongo-secondary',

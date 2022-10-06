@@ -83,16 +83,27 @@ export interface IDeliveryReportsDocument extends IDeliveryReports, Document {
 }
 
 export const deliveryReportsSchema = new Schema({
-  customerId: { type: String, label: 'Customer id at erxes-api' },
-  mailId: { type: String, optional: true, label: 'AWS SES mail id' },
-  status: { type: String, optional: true, label: 'Delivery status' },
+  customerId: { type: String, label: 'Customer id at erxes-api', index: true },
+  mailId: {
+    type: String,
+    optional: true,
+    label: 'AWS SES mail id',
+    index: true
+  },
+  status: {
+    type: String,
+    optional: true,
+    label: 'Delivery status',
+    index: true
+  },
   engageMessageId: {
     type: String,
     optional: true,
-    label: 'Engage message id at erxes-api'
+    label: 'Engage message id at erxes-api',
+    index: true
   },
   createdAt: { type: Date, label: 'Created at', default: new Date() },
-  email: { type: String, label: 'Customer email' }
+  email: { type: String, label: 'Customer email', index: true }
 });
 
 export interface IStatsModel extends Model<IStatsDocument> {
@@ -105,7 +116,10 @@ export const loadStatsClass = (models: IModels) => {
      * Increase stat by 1
      */
     public static async updateStats(engageMessageId: string, stat: string) {
-      return models.Stats.updateOne({ engageMessageId }, { $inc: { [stat]: 1 } });
+      return models.Stats.updateOne(
+        { engageMessageId },
+        { $inc: { [stat]: 1 } }
+      );
     }
   }
 
@@ -113,7 +127,6 @@ export const loadStatsClass = (models: IModels) => {
 
   return statsSchema;
 };
-
 
 export interface IDeliveryReportModel extends Model<IDeliveryReportsDocument> {
   updateOrCreateReport(headers: any, status: string): Promise<boolean | string>;

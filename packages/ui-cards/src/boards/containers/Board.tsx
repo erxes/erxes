@@ -16,7 +16,7 @@ import Pipeline from './Pipeline';
 import PipelineActivity from './PipelineActivity';
 import ViewGroupBy from './ViewGroupBy';
 import ChartStack from './chart/ChartRenderer';
-import TimeView from '../components/Time';
+import TimeItems from './time/TimeItems';
 
 type Props = {
   pipelineDetailQuery: PipelineDetailQueryResponse;
@@ -106,9 +106,15 @@ class Board extends React.Component<Props> {
 
     if (viewType === 'time') {
       return (
-        <RootBack style={{ backgroundColor: pipeline.bgColor }}>
+        <RootBack style={{ backgroundColor: '#fff' }}>
           <ScrolledContent>
-            <TimeView date={this.props.date} />
+            <TimeItems
+              key={pipeline._id}
+              pipeline={pipeline}
+              queryParams={queryParams}
+              options={options}
+              type={options.type}
+            />
           </ScrolledContent>
         </RootBack>
       );

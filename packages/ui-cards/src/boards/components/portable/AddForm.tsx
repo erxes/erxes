@@ -4,7 +4,7 @@ import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { IAttachment, IField } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-
+import Select from 'react-select-plus';
 import BoardSelect from '../../containers/BoardSelect';
 import {
   SelectInput,
@@ -13,9 +13,8 @@ import {
   HeaderRow,
   BoardSelectWrapper
 } from '../../styles/item';
-import { IItem, IItemParams, IOptions } from '../../types';
+import { IItem, IItemParams, IOptions, IStage } from '../../types';
 import { invalidateCache } from '../../utils';
-import CardSelect from './CardSelect';
 import GenerateAddFormFields from './GenerateAddFormFields';
 
 type Props = {
@@ -32,6 +31,10 @@ type Props = {
   callback?: (item?: IItem) => void;
   fields: IField[];
   refetchFields: ({ pipelineId }: { pipelineId: string }) => void;
+  stages?: IStage[];
+  tagIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
 };
 
 type State = {
@@ -50,6 +53,7 @@ type State = {
   assignedUserIds?: string[];
   attachments?: IAttachment[];
   description?: string;
+  tagIds?: string[];
 };
 
 class AddForm extends React.Component<Props, State> {
@@ -67,7 +71,10 @@ class AddForm extends React.Component<Props, State> {
         localStorage.getItem(`${props.options.type}Name`) ||
         props.mailSubject ||
         '',
-      customFieldsData: []
+      customFieldsData: [],
+      tagIds: props.tagIds || '',
+      startDate: props.startDate || null,
+      closeDate: props.closeDate || null
     };
   }
 
@@ -104,7 +111,8 @@ class AddForm extends React.Component<Props, State> {
       closeDate,
       assignedUserIds,
       description,
-      attachments
+      attachments,
+      tagIds
     } = this.state;
     const { saveItem, closeModal, callback, fields } = this.props;
 
@@ -168,6 +176,10 @@ class AddForm extends React.Component<Props, State> {
 
     if (description) {
       doc.description = description;
+    }
+
+    if (tagIds) {
+      doc.tagIds = tagIds;
     }
 
     // before save, disable save button
@@ -239,7 +251,22 @@ class AddForm extends React.Component<Props, State> {
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
+  onSelectStage = ({ value }) => {
+    this.setState({ stageId: value });
+  };
+
   render() {
+    const { stages, stageId } = this.props;
+
+    let stageValues: any;
+
+    if (stages && stages.length > 0) {
+      stageValues = stages.map(stage => ({
+        label: stage.name,
+        value: stage._id
+      }));
+    }
+
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
@@ -256,6 +283,21 @@ class AddForm extends React.Component<Props, State> {
             </SelectInput>
           </HeaderContent>
         </HeaderRow>
+        {!stageId && (
+          <HeaderRow>
+            <HeaderContent>
+              <ControlLabel required={true}>Stage</ControlLabel>
+              <Select
+                placeholder="Select a stage"
+                value={this.state.stageId}
+                options={stageValues}
+                name="stage"
+                onChange={e => this.onSelectStage(e)}
+              />
+            </HeaderContent>
+          </HeaderRow>
+        )}
+
         <GenerateAddFormFields
           object={this.state}
           pipelineId={this.state.pipelineId}
