@@ -1,0 +1,23 @@
+@media screen and (max-width: 1000px) {
+  .qr{
+    width: 40%;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .qr{
+    width: 100%;
+  }
+  #info {
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .isMobile {
+    display: block;
+  }
+  .desktop {
+    display: none;
+  }
+}

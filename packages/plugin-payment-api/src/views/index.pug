@@ -4,46 +4,64 @@ block layout-content
 
     .my-layout
 
-        .row
-            .col-1 
-                div.View
-                each val in payments
-                    div.Payment
-                        div.Payment__button
-                            form(method="post")
-                                input(type="hidden" name="paymentConfigId", value=val._id)
-                                button(type="submit")
-                                    div.Payment__logo
-                                        if val.selected === true
-                                            img(src=`/pl:payment/static/images/${val.type}.png`)
-                                        else
-                                            img(src=`/pl:payment/static/images/${val.type}.png`, style="filter: grayscale(100%)")
-
-            .col-2         
-                p amount:
-                    strong 
-                        |  #{invoiceData.amount}
-                if invoiceData.description
-                    p description:
+        .header Payment method
+        .paymentContainer
+            h3 Choose payment method
+            div.View.paymentMethod
+                each val in payments 
+                    form(method="post")
+                        input(type="hidden" name="paymentConfigId", value=val._id)
+                        button(typupe="submit").button
+                            div.Payment__logo( class=`payments ${val.selected === true && 'active'}`)
+                                img(src=`/pl:payment/static/images/${val.type}.png`)
+                                .uppercase  !{val.name}
+            h3 Information of invoice
+            .flex#info
+                .info       
+                    .label(htmlFor="amount") Amount
                         strong 
-                            |  #{invoiceData.description}
-
-
+                            p  #{invoiceData.amount}
+                    if invoiceData.description
+                        .label Description
+                            strong 
+                                p  #{invoiceData.description}
                 if invoice
-                    if invoice.apiResponse.qr_image
-                        img(src="data:image/jpg;base64," + invoice.apiResponse.qr_image) 
-
-                    if invoice.apiResponse.socialPayQrCode
-                        img(src=`${invoice.apiResponse.socialPayQrCode}`)
-
-                    p status: 
-                        |  #{invoice.status}
-                    if invoice.status === 'paid'
-                        script. 
-                            if (window.confirm('Payment is completed. Do you want to close this window?')) {
-                                if (`#{invoiceData.redirectUri}`) {
-                                    window.location.href = `#{invoiceData.redirectUri}`;
-                                } else {
-                                    window.close();
-                                }
-                            }
+                    .qr
+                        .isMobile
+                            .label Choose your bank
+                            .border 
+                                if invoice.apiResponse.qr_image
+                                    each url in (invoice.apiResponse.urls || [])
+                                        a(href=url.link class="bank")
+                                            img(src=url.logo class="urlLogo")
+                                if invoice.apiResponse.socialPayQrCode
+                                    img(src=`${invoice.apiResponse.socialPayQrCode}`)
+                                .label.status status: 
+                                    |  #{invoice.status}
+                            if invoice.status === 'paid'
+                                script. 
+                                    if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                        if (`#{invoiceData.redirectUri}`) {
+                                            window.location.href = `#{invoiceData.redirectUri}`;
+                                        } else {
+                                            window.close();
+                                        }
+                                    }
+                        .desktop
+                            .label QR code 
+                            .border
+                                if invoice.apiResponse.qr_image
+                                    img(src="data:image/jpg;base64," + invoice.apiResponse.qr_image)
+                                if invoice.apiResponse.socialPayQrCode
+                                    img(src=`${invoice.apiResponse.socialPayQrCode}`)
+                                .label.status status: 
+                                    |  #{invoice.status}
+                            if invoice.status === 'paid'
+                                script. 
+                                    if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                        if (`#{invoiceData.redirectUri}`) {
+                                            window.location.href = `#{invoiceData.redirectUri}`;
+                                        } else {
+                                            window.close();
+                                        }
+                                    }

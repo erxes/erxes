@@ -5,8 +5,8 @@ html {
     font-weight: normal;
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
-    background: $white;
-    color: $text-color;
+    background: #fff;
+    color: #666;
     overflow-x: hidden;
 }
 
@@ -38,7 +38,7 @@ h6 {
 }
 
 a {
-    color: $blue;
+    color: #1e87f0;
     cursor: pointer;
 
     &.white {
@@ -70,7 +70,7 @@ h4 {
 }
 
 hr {
-    border: 1px solid $light-border-color;
+    border: 1px solid #eee;
     border-bottom: 0;
 }
 
@@ -79,10 +79,10 @@ hr {
     width: 100px;
     margin: 20px auto;
     height: 3px;
-    background: $yellow;
+    background: #fda50f;
 
     &.red {
-        background: $red;
+        background: #ec2147;
     }
 
     &.white {
@@ -103,12 +103,12 @@ hr {
 }
 
 .link {
-    margin-top: $unit-spacing;
+    margin-top: 10px;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.8);
 
     a {
-        color: $white;
+        color: #fff;
     }
 }
 
@@ -132,7 +132,7 @@ hr {
     padding: 5px 25px;
     line-height: 28px;
     text-transform: uppercase;
-    color: $white;
+    color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 28px rgba(0, 0, 0, 0.1);
     border: 1px solid transparent;
@@ -158,30 +158,30 @@ hr {
 
 .btn-none {
     background: transparent !important;
-    border: 1px solid $white  !important;
+    border: 1px solid #fff  !important;
     box-shadow: none !important;
 }
 
 .btn-yellow {
-    background: $yellow;
+    background: #fda50f;
 
     &.dropdown-trigger {
         padding-right: 40px;
 
         i {
             position: absolute;
-            right: $unit-spacing;
+            right: 10px;
             top: 4px;
         }
     }
 
     &:hover {
-        background-color: $yellow;
+        background-color: #fda50f;
     }
 }
 
 .btn-white {
-    background: $white;
+    background: #fff;
     color: #4F33AF;
 
     &.dropdown-trigger {
@@ -189,7 +189,7 @@ hr {
 
         i {
             position: absolute;
-            right: $unit-spacing;
+            right: 10px;
             top: 4px;
         }
     }
@@ -213,7 +213,7 @@ hr {
 
 .btn-demo {
     margin-right: 0;
-    background: $light-red;
+    background: #f0506e;
 
     &:hover {
         background: #ee395b;
@@ -221,9 +221,9 @@ hr {
 }
 
 .btn-warning {
-    background-color: $yellow;
-    color: $white;
-    border: 1px solid $yellow;
+    background-color: #fda50f;
+    color: #fff;
+    border: 1px solid #fda50f;
     padding: 0 50px;
     text-transform: inherit;
     font-weight: 500;
@@ -236,8 +236,8 @@ hr {
     line-height: 35px;
     padding: 0 50px;
     background: transparent;
-    color: $purple;
-    border: 1px solid $purple;
+    color: #5629b6;
+    border: 1px solid #5629b6;
     font-weight: 500;
 }
 
@@ -263,7 +263,7 @@ section {
     overflow: hidden;
 
     &.muted {
-        background: $base-grey;
+        background: #f8f8f8;
     }
 }
 
@@ -275,8 +275,8 @@ input {
     height: 45px;
     border-radius: 8px;
     padding: 0 10px;
-    background: $white;
-    color: $text-color;
+    background: #fff;
+    color: #666;
     border: 1px solid #e5e5e5;
     transition: 0.2s ease-in-out;
     transition-property: color, background-color, border;
@@ -285,14 +285,14 @@ input {
     margin: 0;
 
     &::placeholder {
-        color: $light-grey;
+        color: #999;
     }
 
     &:focus {
         outline: none;
-        background-color: $white;
-        color: $text-color;
-        border-color: $blue;
+        background-color: #fff;
+        color: #666;
+        border-color: #1e87f0;
     }
 }
 
@@ -357,7 +357,7 @@ span.red {
 }
 
 .alert-danger {
-    background: $white;
+    background: #fff;
     border: 1px solid #ffccc7;
 }
 
@@ -387,7 +387,7 @@ span.red {
     background-color: rgb(163, 163, 163);
     font-size: 12px;
     font-weight: normal;
-    color: $white;
+    color: #fff;
     text-align: center;
     border-radius: 5px;
     padding: 3px;
@@ -414,9 +414,9 @@ span.red {
 }
 
 .card {
-    padding: $core-spacing;
-    background: $white;
-    color: $text-color;
+    padding: 20px;
+    background: #fff;
+    color: #666;
     box-shadow: 0px 12px 24px rgba(79, 51, 175, 0.24), 0px 2px 6px rgba(79, 51, 175, 0.16),
         0px 0px 1px rgba(79, 51, 175, 0.08);
     transition: box-shadow 0.1s ease-in-out;
@@ -474,24 +474,24 @@ span.red {
     border-radius: 2px;
     top: 35px;
     width: auto;
-    margin-top: $unit-spacing;
+    margin-top: 10px;
     position: relative;
     min-width: 500px;
     height: auto;
     min-height: 48px;
     line-height: 1.5em;
     background-color: rgba(60, 204, 56, 0.8);
-    padding: $unit-spacing 25px;
+    padding: 10px 25px;
     font-size: 1.1rem;
     font-weight: 300;
-    color: $white;
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: default;
 
     .toast-action {
-        color: $white;
+        color: #fff;
         font-weight: 500;
         margin-right: -25px;
         margin-left: 3rem;
@@ -576,7 +576,16 @@ span.red {
 }
 
 .my-layout {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 20px);
+    position:fixed;
+    background: white;
+    width: 70%;
+    height: auto;
+    max-height: 100vh;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+    border-radius: 10px;
+    overflow: auto;
+    border: 1px solid #ededed;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
