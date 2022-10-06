@@ -56,13 +56,8 @@ export const getConfig = async (
 export const uploadFileAWS = async (
   excelHeader: any,
   docs: any,
-  type: string,
-  forcePrivate: boolean = false,
-  models?: IModels
+  type: string
 ): Promise<{ file: string; rowIndex: number }> => {
-  const { FILE_SYSTEM_PUBLIC } = await getFileUploadConfigs();
-  const IS_PUBLIC = forcePrivate ? false : FILE_SYSTEM_PUBLIC;
-
   const { AWS_BUCKET } = await getFileUploadConfigs();
 
   // initialize s3
@@ -101,7 +96,7 @@ export const uploadFileAWS = async (
         Bucket: AWS_BUCKET,
         Key: fileName,
         Body: excelData,
-        ACL: IS_PUBLIC === 'true' ? 'public-read' : undefined
+        ACL: 'public-read'
       },
       (err, res) => {
         if (err) {
@@ -112,8 +107,8 @@ export const uploadFileAWS = async (
       }
     );
   });
-  console.log(response.Location);
-  const file = IS_PUBLIC === 'true' ? response.Location : fileName;
+
+  const file = response.Location;
 
   return { file, rowIndex };
 };
@@ -150,20 +145,18 @@ connect()
       }
     );
 
-    console.log(docs, '45678');
-
     const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
 
     let result = {} as any;
 
     if (UPLOAD_SERVICE_TYPE === 'AWS') {
-      result = await uploadFileAWS(excelHeader, docs, type, true, models);
+      result = await uploadFileAWS(excelHeader, docs, type);
     }
 
     const finalResponse = {
       exportLink: result.file,
       total: result.rowIndex - 1,
-      status: 'Success'
+      status: 'success'
     };
 
     await models.ExportHistory.updateOne(

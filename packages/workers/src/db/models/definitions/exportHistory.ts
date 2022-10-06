@@ -28,7 +28,7 @@ export const exportHistorySchema = new Schema({
   date: field({ type: Date, label: 'Date of export' }),
   status: field({
     type: String,
-    default: 'In Progress',
+    default: 'inProcess',
     label: 'Status'
   }),
   total: field({ type: Number, label: 'Total attempts' })
