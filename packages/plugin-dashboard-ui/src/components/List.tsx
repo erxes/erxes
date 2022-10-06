@@ -14,6 +14,9 @@ import { IDashboard, DashboardsCount } from '../types';
 import { EmptyContent } from '../styles';
 import Row from './Row';
 import Sidebar from './Sidebar';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+import TaggerPopover from '@erxes/ui-tags/src/components/TaggerPopover';
+import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 
 interface IProps extends IRouterProps {
   type: string;
@@ -137,6 +140,8 @@ class DashboardsList extends React.Component<IProps, State> {
               <th>{__('Created by')}</th>
               <th>{__('Updated Date')}</th>
               <th>{__('Created date')}</th>
+              <th>{__('Tags')}</th>
+              <th>{}</th>
             </tr>
           </thead>
           <tbody id="dashboards" className={isExpand ? 'expand' : ''}>
@@ -158,6 +163,13 @@ class DashboardsList extends React.Component<IProps, State> {
     let actionBarLeft: React.ReactNode;
 
     if (bulk.length > 0) {
+      const tagButton = (
+        <Button btnStyle="simple" size="small" icon="tag-alt">
+          Tag
+        </Button>
+      );
+
+      const refetchQuery = {};
       actionBarLeft = (
         <BarItems>
           <Button
@@ -168,6 +180,16 @@ class DashboardsList extends React.Component<IProps, State> {
           >
             Remove
           </Button>
+
+          {isEnabled('tags') && (
+            <TaggerPopover
+              type={TAG_TYPES.DASHBOARD}
+              successCallback={this.afterTag}
+              targets={bulk}
+              trigger={tagButton}
+              refetchQueries={['dashboardCountByTags']}
+            />
+          )}
         </BarItems>
       );
     }
@@ -209,7 +231,7 @@ class DashboardsList extends React.Component<IProps, State> {
         }
         actionBar={actionBar}
         footer={<Pagination count={totalCount} />}
-        leftSidebar={<Sidebar loadingMainQuery={loading} type={type} />}
+        leftSidebar={<Sidebar />}
         content={
           <DataWithLoader
             data={mainContent}

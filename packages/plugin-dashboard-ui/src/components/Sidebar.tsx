@@ -1,17 +1,12 @@
 import React from 'react';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { isEnabled } from '@erxes/ui/src/utils/core';
+import TagFilter from '../containers/filters/TagFilter';
 
-function Sidebar({
-  loadingMainQuery,
-  type
-}: {
-  loadingMainQuery?: boolean;
-  type?: string;
-}) {
+function Sidebar() {
   return (
     <Wrapper.Sidebar hasBorder>
-      {isEnabled('tags') && <div>lalla</div>}
+      {isEnabled('tags') && <TagFilter />}
     </Wrapper.Sidebar>
   );
 }
