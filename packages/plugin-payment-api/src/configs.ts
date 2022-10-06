@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as path from 'path';
 import * as pug from 'pug';
 
-import { POST_CALLBACK_TYPES } from '../constants';
+import { GET_CALLBACK_TYPES, POST_CALLBACK_TYPES } from '../constants';
 import { generateModels } from './connectionResolver';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
@@ -29,7 +29,10 @@ export default {
 
   hasSubscriptions: true,
 
-  getHandlers: [{ path: `/callback`, method: getHandler }],
+  getHandlers: GET_CALLBACK_TYPES.ALL.map(type => ({
+    path: `/callback/${type}`,
+    method: getHandler
+  })),
 
   postHandlers: POST_CALLBACK_TYPES.ALL.map(type => ({
     path: `/callback/${type}`,

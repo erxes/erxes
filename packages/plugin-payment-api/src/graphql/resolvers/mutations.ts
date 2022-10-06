@@ -27,15 +27,15 @@ const paymentConfigMutations = {
       id,
       name,
       status,
-      type,
+      kind,
       config
-    }: { id: string; name: string; status: string; type: string; config: any },
+    }: { id: string; name: string; status: string; kind: string; config: any },
     { models }: IContext
   ) {
     return await models.PaymentConfigs.updatePaymentConfig(id, {
       name,
       status,
-      type,
+      kind,
       config
     });
   },

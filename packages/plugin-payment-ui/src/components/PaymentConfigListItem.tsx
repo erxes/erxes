@@ -15,6 +15,7 @@ import { IPaymentConfigDocument } from '../types';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
 import { getRefetchQueries } from '../containers/utils';
+import { PAYMENT_KINDS } from './constants';
 
 type Props = {
   _id?: string;
@@ -53,7 +54,7 @@ class IntegrationListItem extends React.Component<Props, State> {
 
   renderEditAction() {
     const { paymentConfig } = this.props;
-    const { type } = paymentConfig;
+    const { kind } = paymentConfig;
 
     const renderButton = ({
       name,
@@ -82,22 +83,29 @@ class IntegrationListItem extends React.Component<Props, State> {
       </Button>
     );
 
-    let content = props => (
-      <QpayForm
-        {...props}
-        paymentConfig={paymentConfig}
-        renderButton={renderButton}
-      />
-    );
+    let content;
 
-    if (type.toLowerCase().includes('social')) {
-      content = props => (
-        <SocialPayForm
-          {...props}
-          paymentConfig={paymentConfig}
-          renderButton={renderButton}
-        />
-      );
+    switch (kind) {
+      case PAYMENT_KINDS.QPAY:
+        content = props => (
+          <QpayForm
+            {...props}
+            paymentConfig={paymentConfig}
+            renderButton={renderButton}
+          />
+        );
+        break;
+      case PAYMENT_KINDS.SOCIALPAY:
+        content = props => (
+          <SocialPayForm
+            {...props}
+            paymentConfig={paymentConfig}
+            renderButton={renderButton}
+          />
+        );
+        break;
+      default:
+        content = () => null;
     }
 
     return (

@@ -1,31 +1,28 @@
+import { ButtonMutate } from '@erxes/ui/src/components';
+import Icon from '@erxes/ui/src/components/Icon';
+import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 
-import Icon from '@erxes/ui/src/components/Icon';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
+import { getRefetchQueries } from '../containers/utils';
+import { mutations } from '../graphql';
+import { ByKindTotalCount } from '../types';
+import { PAYMENT_KINDS, PAYMENTCONFIGS } from './constants';
 import QpayForm from './form/QpayForm';
 import SocialPayForm from './form/SocialPayForm';
 import { Box, PaymentConfigItem, Ribbon, Type } from './styles';
-import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { ButtonMutate } from '@erxes/ui/src/components';
-import { mutations } from '../graphql';
-import { IPaymentTypeCount } from 'types';
-import { getRefetchQueries } from '../containers/utils';
 
 type Props = {
   paymentConfig: any;
   getClassName: (type: string) => string;
   toggleBox: (kind: string) => void;
   queryParams: any;
-  paymentConfigsCount?: IPaymentTypeCount;
+  paymentConfigsCount?: ByKindTotalCount;
 };
 
-function getCount(type: string, paymentConfigsCount?: IPaymentTypeCount) {
-  const countByType = paymentConfigsCount
-    ? type.toLowerCase().includes('social')
-      ? paymentConfigsCount.socialPay
-      : paymentConfigsCount.qpay
-    : 0;
+function getCount(type: string, paymentConfigsCount?: ByKindTotalCount) {
+  const countByType = (paymentConfigsCount && paymentConfigsCount[type]) || 0;
 
   if (typeof countByType === 'undefined') {
     return null;
@@ -64,26 +61,36 @@ const renderButton = ({
   );
 };
 
-function renderCreate(type: string) {
-  const trigger = <button>+ {__('Add')}</button>;
-
-  let formContent = props => (
-    <QpayForm {...props} renderButton={renderButton} />
-  );
-
-  if (type.toLowerCase().includes('social')) {
-    formContent = props => (
-      <SocialPayForm {...props} renderButton={renderButton} />
-    );
+function renderCreate(kind: string) {
+  if (!kind) {
+    return null;
   }
 
-  return (
-    <ModalTrigger
-      title={`Add ${type}`}
-      trigger={trigger}
-      content={formContent}
-    />
-  );
+  const trigger = <button>+ {__('Add')}</button>;
+
+  let formContent;
+
+  switch (kind) {
+    case PAYMENT_KINDS.QPAY:
+      formContent = props => (
+        <QpayForm {...props} renderButton={renderButton} />
+      );
+      break;
+    case PAYMENT_KINDS.SOCIALPAY:
+      formContent = props => (
+        <SocialPayForm {...props} renderButton={renderButton} />
+      );
+      break;
+    default:
+      formContent = () => null;
+      break;
+  }
+
+  const meta = PAYMENTCONFIGS.find(p => p.kind === kind);
+
+  const title = meta ? `Add ${meta.name}` : 'Add payment config';
+
+  return <ModalTrigger title={title} trigger={trigger} content={formContent} />;
 }
 
 function Entry({
@@ -93,7 +100,7 @@ function Entry({
   paymentConfigsCount
 }: Props) {
   const {
-    type,
+    kind,
     isAvailable,
     name,
     description,
@@ -102,11 +109,11 @@ function Entry({
   } = paymentConfig;
 
   return (
-    <PaymentConfigItem key={name} className={getClassName(type)}>
-      <Box onClick={() => toggleBox(type)} isInMessenger={inMessenger}>
+    <PaymentConfigItem key={name} className={getClassName(kind)}>
+      <Box onClick={() => toggleBox(kind)} isInMessenger={inMessenger}>
         <img alt="logo" src={logo} />
         <h5>
-          {name} {getCount(name, paymentConfigsCount)}
+          {name} {getCount(kind, paymentConfigsCount)}
         </h5>
         <p>
           {__(description)}
@@ -118,7 +125,7 @@ function Entry({
           </Ribbon>
         )}
       </Box>
-      {renderCreate(name)}
+      {renderCreate(kind)}
     </PaymentConfigItem>
   );
 }

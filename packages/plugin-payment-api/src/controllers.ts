@@ -1,13 +1,24 @@
-import { PAYMENT_TYPES } from './../constants';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import * as dotenv from 'dotenv';
 import { Router } from 'express';
-import { generateModels } from './connectionResolver';
 import * as QRCode from 'qrcode';
 
-dotenv.config();
+import { PAYMENT_KINDS } from './../constants';
+import { generateModels } from './connectionResolver';
+import redisUtils from './redisUtils';
 
 const router = Router();
+
+router.post('/checkInvoice', async (req, res) => {
+  const { invoiceId } = req.body;
+
+  const status = await redisUtils.getInvoiceStatus(invoiceId);
+
+  if (status === 'paid') {
+    redisUtils.removeInvoice(invoiceId);
+  }
+
+  return res.json({ status });
+});
 
 router.get('/gateway', async (req, res) => {
   const { params } = req.query;
@@ -92,19 +103,21 @@ router.post('/gateway', async (req, res) => {
   }
 
   try {
+    const selectedPayment = payments.find(p => p.selected);
     invoice = await models.Invoices.createInvoice({
       ...data,
       token: params,
-      paymentConfigId
+      paymentConfigId,
+      paymentKind: selectedPayment.kind
     });
 
-    const selectedPayment = payments.find(p => p.selected);
-
-    if (selectedPayment.type === PAYMENT_TYPES.SOCIAL_PAY && !invoice.phone) {
+    if (selectedPayment.kind === PAYMENT_KINDS.SOCIAL_PAY && !invoice.phone) {
       invoice.apiResponse.socialPayQrCode = await QRCode.toDataURL(
         invoice.apiResponse.text
       );
     }
+
+    redisUtils.updateInvoiceStatus(invoice._id, 'pending');
 
     res.render('index', {
       title: 'Payment gateway',
@@ -113,7 +126,6 @@ router.post('/gateway', async (req, res) => {
       invoice
     });
   } catch (e) {
-    console.log(e.message);
     res.render('index', {
       title: 'Payment gateway',
       payments,

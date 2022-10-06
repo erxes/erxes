@@ -1,4 +1,4 @@
-import { PAYMENT_STATUS, PAYMENT_TYPES } from '../../../constants';
+import { PAYMENT_STATUS, PAYMENT_KINDS } from '../../../constants';
 import { Schema, Document } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 
@@ -15,6 +15,7 @@ export interface IInvoice {
   contentTypeId: string;
   createdAt: Date;
   resolvedAt?: Date;
+  paymentKind: string;
 
   apiResponse?: any;
   token: string;
@@ -40,6 +41,11 @@ export const invoiceSchema = schemaHooksWrapper(
       default: PAYMENT_STATUS.PENDING,
       label: 'status',
       enum: PAYMENT_STATUS.ALL
+    }),
+    paymentKind: field({
+      type: String,
+      label: 'payment kind',
+      enum: PAYMENT_KINDS.ALL
     }),
     companyId: field({ type: String, label: 'company id' }),
     customerId: field({ type: String, label: 'customer id' }),
@@ -67,10 +73,5 @@ export const invoiceSchema = schemaHooksWrapper(
 
 invoiceSchema.index({
   expireAfterSeconds: 24 * 60 * 60,
-  partialFilterExpression: {
-    $and: [
-      { resolvedAt: { $exists: false } },
-      { status: PAYMENT_STATUS.PENDING }
-    ]
-  }
+  partialFilterExpression: { status: PAYMENT_STATUS.PENDING }
 });

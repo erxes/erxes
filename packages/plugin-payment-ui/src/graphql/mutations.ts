@@ -1,5 +1,5 @@
-const commonParamDefs = `$name: String!, $type: String!, $status: String, $config: JSON`;
-const commonParams = `name: $name, type: $type, status: $status, config: $config`;
+const commonParamDefs = `$name: String!, $kind: String!, $status: String, $config: JSON`;
+const commonParams = `name: $name, kind: $kind, status: $status, config: $config`;
 
 const createInvoiceParamDefs = `$paymentConfigId: String!, $amount: Float!, $description: String!, $phone: String, $customerId: String, $companyId: String`;
 

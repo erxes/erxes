@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 
-import { PAYMENT_TYPES } from '../../constants';
+import { PAYMENT_KINDS } from '../../constants';
 import { IModels } from '../connectionResolver';
 import * as qpayUtils from '../api/qPay/utils';
 import * as socialPayUtils from '../api/socialPay/utils';
@@ -9,20 +9,12 @@ import {
   IInvoiceDocument,
   invoiceSchema
 } from './definitions/invoices';
+import redisUtils from '../redisUtils';
 
 export interface IInvoiceModel extends Model<IInvoiceDocument> {
   getInvoice(doc: any): IInvoiceDocument;
   createInvoice(doc: IInvoice): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<String>;
-
-  //   InvoiceCreate(doc: any): IInvoiceDocument;
-  //   InvoiceUpdate(invoice: any, qrText: any): IInvoiceDocument;
-  //   InvoiceStatusUpdate(
-  //     invoice: any,
-  //     status: any
-  //   ): IInvoiceDocument;
-  //   checkInvoice(data: any): any;
-  //   createInvoice(data: any, config: any): any;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -53,15 +45,15 @@ export const loadInvoiceClass = (models: IModels) => {
       const invoice = await models.Invoices.create(doc);
 
       try {
-        switch (paymentConfig.type) {
-          case PAYMENT_TYPES.QPAY:
+        switch (paymentConfig.kind) {
+          case PAYMENT_KINDS.QPAY:
             // create qpay invoice
             invoice.apiResponse = await qpayUtils.createInvoice(
               invoice,
               paymentConfig
             );
             break;
-          case PAYMENT_TYPES.SOCIAL_PAY:
+          case PAYMENT_KINDS.SOCIAL_PAY:
             // create socialpay invoice
             invoice.apiResponse = await socialPayUtils.createInvoice(
               invoice,
@@ -94,15 +86,15 @@ export const loadInvoiceClass = (models: IModels) => {
         invoice.paymentConfigId
       );
 
-      switch (paymentConfig.type) {
-        case PAYMENT_TYPES.QPAY:
+      switch (paymentConfig.kind) {
+        case PAYMENT_KINDS.QPAY:
           // cancel qpay invoice
           qpayUtils.cancelInvoice(
             invoice.apiResponse.invoice_id,
             paymentConfig
           );
           break;
-        case PAYMENT_TYPES.SOCIAL_PAY:
+        case PAYMENT_KINDS.SOCIAL_PAY:
           // cancel socialpay invoice
           socialPayUtils.cancelInvoice(invoice, paymentConfig);
           break;
@@ -111,6 +103,8 @@ export const loadInvoiceClass = (models: IModels) => {
       }
 
       await models.Invoices.deleteOne({ _id });
+
+      redisUtils.removeInvoice(_id);
 
       return 'success';
     }

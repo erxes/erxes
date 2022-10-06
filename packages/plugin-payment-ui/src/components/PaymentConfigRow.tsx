@@ -1,17 +1,16 @@
+import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import React from 'react';
 import Collapse from 'react-bootstrap/Collapse';
-import { IPaymentTypeCount } from 'types';
-
-import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 
 import PaymentConfigList from '../containers/PaymentConfigList';
+import { ByKindTotalCount } from '../types';
 import PaymentConfigEntry from './PaymentConfigEntry';
 import { CollapsibleContent, PaymentConfigRow } from './styles';
 
 type Props = {
   paymentConfigs: any[];
   queryParams: any;
-  paymentConfigsCount?: IPaymentTypeCount;
+  paymentConfigsCount?: ByKindTotalCount;
 };
 
 type State = {
@@ -95,18 +94,13 @@ class Row extends React.Component<Props, State> {
 
   renderList() {
     const { queryParams, paymentConfigsCount } = this.props;
-    const { kind } = this.state;
-    const count =
-      paymentConfigsCount && kind
-        ? kind.toLowerCase().includes('social')
-          ? paymentConfigsCount.socialPay
-          : paymentConfigsCount.qpay
-        : 0;
+    const kind = this.state.kind || '';
+    const count = (paymentConfigsCount && paymentConfigsCount[kind]) || 0;
 
     return (
       <>
         <PaymentConfigList
-          type={kind}
+          kind={kind}
           queryParams={queryParams}
           paymentConfigsCount={count}
         />
@@ -116,10 +110,11 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
+    console.log('this.props', this.props);
     const { paymentConfigs, paymentConfigsCount, queryParams } = this.props;
 
     const selected = paymentConfigs.find(
-      paymentConfig => paymentConfig.type === this.state.kind
+      paymentConfig => paymentConfig.kind === this.state.kind
     );
 
     return (

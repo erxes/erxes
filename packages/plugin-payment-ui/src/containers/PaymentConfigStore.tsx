@@ -7,7 +7,10 @@ import { withProps } from '@erxes/ui/src/utils';
 
 import PaymentConfigHome from '../components/PaymentConfigHome';
 import { queries } from '../graphql';
-import { PaymentConfigsCountByTypeQueryResponse } from '../types';
+import {
+  ByKindTotalCount,
+  PaymentConfigsCountByTypeQueryResponse
+} from '../types';
 
 type Props = {
   queryParams: any;
@@ -15,22 +18,23 @@ type Props = {
 };
 
 type FinalProps = {
-  paymentConfigsCountByTypeQuery: PaymentConfigsCountByTypeQueryResponse;
+  paymentsTotalCountQuery: PaymentConfigsCountByTypeQueryResponse;
 } & Props;
 
 const Store = (props: FinalProps) => {
-  const { paymentConfigsCountByTypeQuery } = props;
+  const { paymentsTotalCountQuery } = props;
 
-  if (paymentConfigsCountByTypeQuery.loading) {
+  if (paymentsTotalCountQuery.loading) {
     return null;
   }
 
-  const paymentConfigsCount =
-    paymentConfigsCountByTypeQuery.paymentConfigsCountByType;
+  const totalCount =
+    (paymentsTotalCountQuery.paymentsTotalCount || {}).byKind ||
+    ({} as ByKindTotalCount);
 
   const updatedProps = {
     ...props,
-    paymentConfigsCount
+    totalCount
   };
 
   return <PaymentConfigHome {...updatedProps} />;
@@ -39,9 +43,9 @@ const Store = (props: FinalProps) => {
 export default withProps<Props>(
   compose(
     graphql<Props, PaymentConfigsCountByTypeQueryResponse, {}>(
-      gql(queries.paymentConfigsCountByType),
+      gql(queries.paymentsTotalCountQuery),
       {
-        name: 'paymentConfigsCountByTypeQuery'
+        name: 'paymentsTotalCountQuery'
       }
     )
   )(Store)

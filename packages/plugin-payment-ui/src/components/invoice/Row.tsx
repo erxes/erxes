@@ -5,7 +5,8 @@ import { DateWrapper } from '@erxes/ui/src/styles/main';
 import { renderFullName } from '@erxes/ui/src/utils/core';
 import dayjs from 'dayjs';
 import React from 'react';
-import { IInvoice } from 'types';
+
+import { IInvoice } from '../../types';
 
 type Props = {
   invoice: IInvoice;
@@ -80,7 +81,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{paymentConfig.name}</td>
-        <td>{paymentConfig.type}</td>
+        <td>{paymentConfig.kind}</td>
         <td>{amount.toFixed(2)}</td>
 
         <td>{`${contentType.split(':')[0]} - ${pluginData &&

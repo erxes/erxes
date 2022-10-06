@@ -2,9 +2,8 @@ export const PAYMENTCONFIGS = [
   {
     name: 'Qpay',
     description: 'Qpay payment method',
-    inMessenger: false,
     isAvailable: true,
-    type: 'qpay',
+    kind: 'qpay',
     logo: '/images/payments/qpay.png',
     createModal: 'qpay',
     createUrl: '/settings/payments/createQpay',
@@ -13,12 +12,27 @@ export const PAYMENTCONFIGS = [
   {
     name: 'Social pay',
     description: 'SocialPay payment method',
-    inMessenger: false,
     isAvailable: true,
-    type: 'socialPay',
+    kind: 'socialPay',
     logo: '/images/payments/socialPay.png',
     createModal: 'socialPay',
     createUrl: '/settings/payments/createSocialPay',
     category: 'Payment method'
   }
 ];
+
+export const PAYMENT_KINDS = {
+  QPAY: 'qpay',
+  SOCIALPAY: 'socialPay',
+
+  ALL: ['qpay', 'socialPay']
+};
+
+export const PAYMENT_STATUS = {
+  PAID: 'paid',
+  PENDING: 'pending',
+  REFUNDED: 'refunded',
+  FAILED: 'failed',
+
+  ALL: ['paid', 'pending', 'refunded', 'failed']
+};

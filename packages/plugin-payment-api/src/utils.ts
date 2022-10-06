@@ -1,26 +1,34 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-import { PAYMENT_TYPES } from '../constants';
+import { PAYMENT_KINDS } from '../constants';
 import { qPayHandler } from './api/qPay/utils';
 import { socialPayHandler } from './api/socialPay/utils';
 import { graphqlPubsub } from './configs';
 import { generateModels } from './connectionResolver';
+import redisUtils from './redisUtils';
 
 export const getHandler = async (req, res) => {
+  const { route } = req;
+
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
   const { query } = req;
-  const { type } = query;
+  let kind =
+    query.kind ||
+    route.path
+      .split('/')
+      .slice(-1)
+      .pop();
 
-  if (!type) {
-    return res.status(400).send('Type is required');
+  if (!kind) {
+    return res.status(400).send('kind is required');
   }
 
   try {
     let invoice: any;
-    switch (type) {
-      case PAYMENT_TYPES.QPAY:
+    switch (kind) {
+      case PAYMENT_KINDS.QPAY:
         invoice = await qPayHandler(models, query);
     }
 
@@ -32,6 +40,8 @@ export const getHandler = async (req, res) => {
         }
       });
     }
+
+    redisUtils.updateInvoiceStatus(invoice._id, 'paid');
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -55,7 +65,7 @@ export const postHandler = async (req, res) => {
   try {
     let invoice: any;
     switch (type) {
-      case PAYMENT_TYPES.SOCIAL_PAY:
+      case PAYMENT_KINDS.SOCIAL_PAY:
         invoice = await socialPayHandler(models, body);
     }
 
@@ -67,6 +77,8 @@ export const postHandler = async (req, res) => {
         }
       });
     }
+
+    redisUtils.updateInvoiceStatus(invoice._id, 'paid');
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -83,40 +95,3 @@ export const makeInvoiceNo = length => {
   }
   return result;
 };
-
-// const pathReplacer = (subdomain: string, html: any, site: ISiteDocument) => {
-//   const siteHolder = `{{sitename}}`;
-//   const path = `{{pl:webbuilder}}/`;
-
-//   if (html.includes(siteHolder)) {
-//     html = html.replace(new RegExp(siteHolder, 'g'), site.name);
-//   }
-
-//   if (html.includes(path)) {
-//     if (site.domain && site.domain.includes('http')) {
-//       html = html.replace(new RegExp(path, 'g'), '');
-//     }
-
-//     // path replacer
-//     const replacer =
-//       subdomain === 'localhost' ? `pl:webbuilder/` : `gateway/pl:webbuilder/`;
-
-//     html = html.replace(new RegExp(path, 'g'), replacer);
-//   }
-
-//   return html;
-// };
-
-const html = ({ body }: { body: string }) => `
-  <!DOCTYPE html>
-  <html>
-    <head>
-    </head>
-    <body style="margin:0">
-      <div id="app">${body}</div>
-    </body>
-    <script src="js/client.js" defer></script>
-  </html>
-`;
-
-export default html;

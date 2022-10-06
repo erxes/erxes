@@ -40,13 +40,17 @@ class InvoiceListContainer extends React.Component<FinalProps> {
 
     const invoices = invoicesQuery.invoices || [];
 
+    const counts = invoicesTotalCountQuery.invoicesTotalCount || {
+      total: 0
+    };
+
     const updatedProps = {
       ...this.props,
       queryParams,
       invoices,
       loading: invoicesQuery.loading,
       searchValue: this.props.queryParams.searchValue || '',
-      invoicesTotalCount: invoicesTotalCountQuery.invoicesTotalCount || 0
+      counts
     };
 
     const invoiceList = props => {
@@ -73,7 +77,9 @@ export default withProps<Props>(
             page: queryParams.page ? parseInt(queryParams.page, 10) : 1,
             perPage: queryParams.perPage
               ? parseInt(queryParams.perPage, 10)
-              : 10
+              : 10,
+            kind: queryParams.kind,
+            status: queryParams.status
           },
           fetchPolicy: 'network-only'
         })
@@ -85,7 +91,9 @@ export default withProps<Props>(
         name: 'invoicesTotalCountQuery',
         options: ({ queryParams }) => ({
           variables: {
-            searchValue: queryParams.searchValue
+            searchValue: queryParams.searchValue,
+            kind: queryParams.kind,
+            status: queryParams.status
           },
           fetchPolicy: 'network-only'
         })

@@ -1,47 +1,90 @@
-import { requireLogin } from '@erxes/api-utils/src/permissions';
 import { paginate } from '@erxes/api-utils/src';
+import { requireLogin } from '@erxes/api-utils/src/permissions';
 
+import { PAYMENT_KINDS } from '../../../constants';
 import { IContext } from '../../connectionResolver';
-import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs';
+import { PAYMENT_STATUS } from './../../../constants';
 
 interface IParam {
   searchValue?: string;
+  kind?: string;
+  status?: string;
 }
 
-const generateFilter = (params: IParam, commonQuerySelector) => {
-  const { searchValue } = params;
-  const selector: any = { ...commonQuerySelector };
+const generateFilterQuery = (params: IParam, isInvoice?: boolean) => {
+  const query: any = {};
+  const { searchValue, kind, status } = params;
 
-  if (searchValue) {
-    selector.searchValue = new RegExp(`.*${searchValue}.*`, 'i');
+  if (kind) {
+    isInvoice ? (query.paymentKind = kind) : (query.kind = kind);
   }
 
-  return selector;
+  if (status) {
+    isInvoice
+      ? (query.status = status)
+      : (query.isActive = status === 'active' ? true : false);
+  }
+
+  if (searchValue) {
+    const regex = new RegExp(`.*${searchValue}.*`, 'i');
+    isInvoice ? (query.description = regex) : (query.name = regex);
+  }
+
+  return query;
 };
 
-const paymentConfigQueries = {
+const queries = {
   async invoices(
     _root,
     params: IParam & {
       page: number;
       perPage: number;
     },
-    { models, commonQuerySelector }: IContext
+    { models }: IContext
   ) {
-    const selector = generateFilter(params, commonQuerySelector);
+    const selector = generateFilterQuery(params, true);
 
     return paginate(models.Invoices.find(selector).sort({ createdAt: 1 }), {
       ...params
     });
   },
 
-  async invoicesTotalCount(
-    _root,
-    params: IParam,
-    { commonQuerySelector, models }: IContext
-  ) {
-    const selector = generateFilter(params, commonQuerySelector);
-    return models.Invoices.find(selector).countDocuments();
+  async invoicesTotalCount(_root, params: IParam, { models }: IContext) {
+    const counts = {
+      total: 0,
+      byKind: {},
+      byStatus: { paid: 0, pending: 0, refunded: 0, failed: 0 }
+    };
+
+    const qry = {
+      ...(await generateFilterQuery(params, true))
+    };
+
+    const count = async query => {
+      return models.Invoices.find(query).countDocuments();
+    };
+
+    for (const kind of PAYMENT_KINDS.ALL) {
+      const countQueryResult = await count({ paymentKind: kind, ...qry });
+      counts.byKind[kind] = !params.kind
+        ? countQueryResult
+        : params.kind === kind
+        ? countQueryResult
+        : 0;
+    }
+
+    for (const status of PAYMENT_STATUS.ALL) {
+      const countQueryResult = await count({ status, ...qry });
+      counts.byStatus[status] = !params.status
+        ? countQueryResult
+        : params.status === status
+        ? countQueryResult
+        : 0;
+    }
+
+    counts.total = await count(qry);
+
+    return counts;
   },
 
   paymentConfigs(_root, args, { models }: IContext) {
@@ -55,10 +98,52 @@ const paymentConfigQueries = {
     return models.PaymentConfigs.find(filter).sort({ type: 1 });
   },
 
-  paymentConfigsCountByType(_root, _args, { models }: IContext) {
-    return models.PaymentConfigs.find({
-      status: 'active'
-    }).countDocuments();
+  async paymentsTotalCount(
+    _root,
+    args: {
+      kind: string;
+      status: string;
+      searchValue: string;
+    },
+    { models }: IContext
+  ) {
+    const counts = {
+      total: 0,
+      byKind: {},
+      byStatus: { active: 0, archived: 0 }
+    };
+
+    const qry = {
+      ...(await generateFilterQuery(args))
+    };
+
+    const count = async query => {
+      return models.PaymentConfigs.find(query).countDocuments();
+    };
+
+    for (const kind of PAYMENT_KINDS.ALL) {
+      const countQueryResult = await count({ kind, ...qry });
+      counts.byKind[kind] = !args.kind
+        ? countQueryResult
+        : args.kind === kind
+        ? countQueryResult
+        : 0;
+    }
+
+    counts.byStatus.active = await count({ isActive: true, ...qry });
+    counts.byStatus.archived = await count({ isActive: false, ...qry });
+
+    if (args.status) {
+      if (args.status === 'active') {
+        counts.byStatus.archived = 0;
+      } else {
+        counts.byStatus.active = 0;
+      }
+    }
+
+    counts.total = await count(qry);
+
+    return counts;
   },
 
   getPaymentOptions(_root, params, _args) {
@@ -73,56 +158,10 @@ const paymentConfigQueries = {
     ).toString('base64');
 
     return `${MAIN_API_DOMAIN}/pl:payment/gateway?params=${base64}`;
-  },
-
-  async checkInvoice(
-    _root,
-    {
-      paymentConfigId,
-      invoiceId
-    }: { paymentConfigId: string; invoiceId: string },
-    { models }: IContext
-  ) {
-    const paymentConfig = await models.PaymentConfigs.findOne({
-      _id: paymentConfigId
-    });
-
-    const { config, type } = paymentConfig || ({} as IPaymentConfigDocument);
-
-    const data = {
-      config,
-      paymentConfigId,
-      invoiceId
-    };
-
-    // const model: any = getModel(type, models);
-
-    // return model.checkInvoice(data);
-    return null;
-  },
-
-  async getInvoice(
-    _root,
-    {
-      paymentConfigId,
-      invoiceId
-    }: { paymentConfigId: string; invoiceId: string },
-    { models }: IContext
-  ) {
-    const paymentConfig = await models.PaymentConfigs.findOne({
-      _id: paymentConfigId
-    });
-
-    const { type } = paymentConfig || ({} as IPaymentConfigDocument);
-
-    // const model: any = getModel(type, models);
-
-    // return model.findOne({ _id: invoiceId });
-    return null;
   }
 };
 
 // requireLogin(paymentConfigQueries, 'paymentConfigs');
-requireLogin(paymentConfigQueries, 'paymentConfigsCountByType');
+requireLogin(queries, 'paymentConfigsCountByType');
 
-export default paymentConfigQueries;
+export default queries;

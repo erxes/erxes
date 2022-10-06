@@ -1,16 +1,16 @@
-import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-
 import Button from '@erxes/ui/src/components/Button';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import Form from '@erxes/ui/src/components/form/Form';
 import FormControl from '@erxes/ui/src/components/form/Control';
+import Form from '@erxes/ui/src/components/form/Form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import { ModalFooter } from '@erxes/ui/src/styles/main';
+import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
+import { __, getEnv } from '@erxes/ui/src/utils';
 import React from 'react';
+import { IPaymentConfigDocument, ISocialPayConfig } from 'types';
 
-import { getEnv, __ } from '@erxes/ui/src/utils';
+import { PAYMENT_KINDS } from '../constants';
 import { SettingsContent } from './styles';
-import { ISocialPayConfig, IPaymentConfigDocument } from 'types';
 
 type Props = {
   renderButton: (props: IButtonMutateProps) => JSX.Element;
@@ -48,7 +48,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     const { paymentConfig } = this.props;
     const generatedValues = {
       name: values.paymentConfigName,
-      type: 'socialPay',
+      type: PAYMENT_KINDS.SOCIALPAY,
       status: 'active',
       config: {
         inStoreSPTerminal: values.inStoreSPTerminal,

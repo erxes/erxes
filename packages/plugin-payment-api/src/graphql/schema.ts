@@ -17,16 +17,22 @@ ${
   type PaymentConfig {
     _id: String!
     name: String!
-    type: String!
+    kind: String!
     status: String
     config: JSON
     createdAt: Date
   }
 
-  type PaymentTypeCount {
-    qpay: Int
-    socialPay: Int
+  type paymentsTotalCount {
+    byKind: JSON
+    byStatus: JSON
     total: Int
+  }
+
+  type invoicesTotalCount {
+    total: Int
+    byKind: JSON
+    byStatus: JSON
   }
 
   type Invoice @key(fields: "_id") {
@@ -44,6 +50,7 @@ ${
     createdAt: Date
     resolvedAt: Date
     paymentConfig: PaymentConfig
+    paymentKind: String
     apiResponse: JSON
 
     ${
@@ -73,17 +80,18 @@ const paymentOptionsParams = `
 
 export const queries = `
   paymentConfigs(paymentConfigIds: [String]): [PaymentConfig]
-  paymentConfigsCountByType: PaymentTypeCount
+  paymentConfigsCountByType: paymentsTotalCount
+  paymentsTotalCount(kind: String, status: String): paymentsTotalCount
   checkInvoice(_id:String!, paymentConfigId: String!): Invoice
   getPaymentOptions(${paymentOptionsParams} ): String
 
-  invoices(searchValue: String, page: Int, perPage: Int): [Invoice]
-  invoicesTotalCount(searchValue: String): Int
+  invoices(searchValue: String, kind: String, status: String, page: Int, perPage: Int): [Invoice]
+  invoicesTotalCount(searchValue: String, kind: String, status: String): invoicesTotalCount
 `;
 
 const params = `
   name: String!
-  type: String!
+  kind: String!
   status: String
   config: JSON
 `;
@@ -98,6 +106,7 @@ const invoiceParams = `
   customerId: String
   contentType: String
   contentTypeId: String
+  paymentKind: String
 `;
 
 export const mutations = `

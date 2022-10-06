@@ -3,20 +3,21 @@ import DataWithLoader from '@erxes/ui/src/components/DataWithLoader';
 import FormControl from '@erxes/ui/src/components/form/Control';
 import Pagination from '@erxes/ui/src/components/pagination/Pagination';
 import Table from '@erxes/ui/src/components/table';
+import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
+import { BarItems } from '@erxes/ui/src/layout/styles';
 import { Count } from '@erxes/ui/src/styles/main';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { __, Alert, confirm, router } from '@erxes/ui/src/utils';
-import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
-import { IInvoice, submenu } from '../../types';
+
+import { IInvoice, InvoicesCount } from '../../types';
 import Row from './Row';
+import Sidebar from './SideBar';
 
 interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
   invoices: IInvoice[];
-  invoicesTotalCount: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
@@ -25,6 +26,7 @@ interface IProps extends IRouterProps {
   toggleAll: (targets: IInvoice[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
+  counts: InvoicesCount;
 }
 
 type State = {
@@ -103,7 +105,7 @@ class List extends React.Component<IProps, State> {
   }
 
   render() {
-    const { invoicesTotalCount, loading, isAllSelected, bulk } = this.props;
+    const { counts, loading, isAllSelected, bulk } = this.props;
 
     let invoiceBarRight = (
       <BarItems>
@@ -173,14 +175,23 @@ class List extends React.Component<IProps, State> {
 
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Invoices')} submenu={submenu} />}
-        footer={<Pagination count={invoicesTotalCount} />}
+        header={
+          <Wrapper.Header
+            title={__('Invoices')}
+            breadcrumb={[{ title: __('Invoices') }]}
+            queryParams={this.props.queryParams}
+          />
+        }
+        leftSidebar={
+          <Sidebar counts={this.props.counts || ({} as InvoicesCount)} />
+        }
+        footer={<Pagination count={counts.total} />}
         actionBar={<Wrapper.ActionBar right={invoiceBarRight} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={invoicesTotalCount}
+            count={counts.total}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />

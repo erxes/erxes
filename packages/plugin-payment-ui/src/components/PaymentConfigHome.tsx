@@ -1,6 +1,3 @@
-import React from 'react';
-import { IPaymentTypeCount } from 'types';
-
 import { Title } from '@erxes/ui-settings/src/styles';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import FormControl from '@erxes/ui/src/components/form/Control';
@@ -8,8 +5,10 @@ import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import Icon from '@erxes/ui/src/components/Icon';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
+import React from 'react';
 
-import { PAYMENTCONFIGS } from './constants/paymentConfigs';
+import { ByKindTotalCount } from '../types';
+import { PAYMENTCONFIGS } from './constants';
 import PaymentConfigRow from './PaymentConfigRow';
 import {
   Content,
@@ -20,7 +19,7 @@ import {
 
 type Props = {
   queryParams: any;
-  paymentConfigsCount: IPaymentTypeCount;
+  totalCount: ByKindTotalCount;
 };
 
 type State = {
@@ -44,7 +43,7 @@ class Home extends React.Component<Props, State> {
     const { queryParams } = this.props;
 
     if (
-      prevProps.queryParams.type !== queryParams.type ||
+      prevProps.queryParams.kind !== queryParams.kind ||
       prevState.searchValue !== searchValue
     ) {
       this.setState({
@@ -52,7 +51,7 @@ class Home extends React.Component<Props, State> {
           paymentConfig =>
             paymentConfig.name.toLowerCase().indexOf(searchValue) !== -1 &&
             paymentConfig.category.indexOf(
-              queryParams.type || 'Payment method'
+              queryParams.kind || 'Payment method'
             ) !== -1
         )
       });
@@ -65,7 +64,7 @@ class Home extends React.Component<Props, State> {
 
   renderPaymentConfigs() {
     const { paymentConfigs, searchValue } = this.state;
-    const { paymentConfigsCount, queryParams } = this.props;
+    const { totalCount, queryParams } = this.props;
     const datas = [] as any;
     const rows = [...paymentConfigs];
 
@@ -74,7 +73,7 @@ class Home extends React.Component<Props, State> {
         <PaymentConfigRow
           key={rows.length}
           paymentConfigs={rows.splice(0, 4)}
-          paymentConfigsCount={paymentConfigsCount}
+          paymentConfigsCount={totalCount}
           queryParams={queryParams}
         />
       );
@@ -112,7 +111,7 @@ class Home extends React.Component<Props, State> {
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
       { title: __('Payments') },
-      { title: `${this.props.queryParams.type || __('All payments')}` }
+      { title: `${this.props.queryParams.kind || __('All payments')}` }
     ];
 
     const headerDescription = (
@@ -132,10 +131,8 @@ class Home extends React.Component<Props, State> {
         }
         actionBar={
           <Wrapper.ActionBar
-            left={<Title>{queryParams.type || 'All Payments'}</Title>}
+            left={<Title>{queryParams.kind || 'All Payments'}</Title>}
             right={this.renderSearch()}
-            withMargin={true}
-            wide={true}
             background="colorWhite"
           />
         }
@@ -149,7 +146,6 @@ class Home extends React.Component<Props, State> {
         }
         hasBorder={true}
         transparent={true}
-        noPadding={true}
       />
     );
   }

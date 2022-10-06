@@ -1,3 +1,4 @@
+import { PAYMENT_STATUS } from './../../../constants';
 import { sendRequest } from '@erxes/api-utils/src';
 import * as crypto from 'crypto';
 
@@ -8,13 +9,12 @@ import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs'
 import { ISocialPayInvoice } from '../types';
 
 export const socialPayHandler = async (models: IModels, data) => {
-  const { resp_code, resp_desc, amount, checksum, invoice, terminal } = data;
+  const { resp_code, amount, checksum, invoice, terminal } = data;
 
-  let status = 'success';
-  let description = resp_desc;
+  let status = PAYMENT_STATUS.PAID;
 
   if (resp_code !== '00') {
-    status = 'failed';
+    status = PAYMENT_STATUS.PENDING;
   }
   try {
     const { body } = await socialPayInvoiceCheck({
@@ -25,9 +25,7 @@ export const socialPayHandler = async (models: IModels, data) => {
     });
 
     if (body.response.resp_code !== '00') {
-      status = 'failed';
-      description = body.response.resp_desc;
-
+      status = PAYMENT_STATUS.PENDING;
       throw new Error(body.response.resp_desc);
     }
 
@@ -37,7 +35,7 @@ export const socialPayHandler = async (models: IModels, data) => {
 
     await models.Invoices.updateOne(
       { _id: invoiceObj._id },
-      { status: 'paid' }
+      { $set: { status, resolvedAt: new Date() } }
     );
 
     return invoiceObj;

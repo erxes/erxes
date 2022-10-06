@@ -10,7 +10,7 @@ export const getRefetchQueries = () => {
       }
     },
     {
-      query: gql(queries.paymentConfigsCountByType)
+      query: gql(queries.paymentsTotalCountQuery)
     }
   ];
 };

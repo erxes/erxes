@@ -9,6 +9,7 @@ import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 import { IPaymentConfigDocument, IQpayConfig } from 'types';
 
+import { PAYMENT_KINDS } from '../constants';
 import { SettingsContent } from './styles';
 
 type Props = {
@@ -51,7 +52,7 @@ class QpayConfigForm extends React.Component<Props, State> {
     const { paymentConfig } = this.props;
     const generatedValues = {
       name: values.paymentConfigName,
-      type: 'qpay',
+      kind: PAYMENT_KINDS.QPAY,
       status: 'active',
       config: {
         qpayMerchantUser: values.qpayMerchantUser,

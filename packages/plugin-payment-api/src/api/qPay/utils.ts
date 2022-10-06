@@ -1,3 +1,4 @@
+import { PAYMENT_STATUS, PAYMENT_KINDS } from './../../../constants';
 import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs';
 import { sendRequest } from '@erxes/api-utils/src';
 
@@ -14,23 +15,35 @@ export const qPayHandler = async (models: IModels, queryParams) => {
   }
 
   const invoice = await models.Invoices.getInvoice({
-    'apiResponse.invoice_id': invoiceId
+    _id: invoiceId
   });
 
   const paymentConfig = await models.PaymentConfigs.getPaymentConfig(
     invoice.paymentConfigId
   );
 
-  if (paymentConfig.type !== 'qpay') {
+  if (paymentConfig.kind !== 'qpay') {
     throw new Error('Payment config type is mismatched');
   }
 
   try {
-    const response = await getInvoice(invoiceId, paymentConfig);
-    await models.Invoices.updateOne(
-      { _id: invoiceId },
-      { $set: { status: response.status } }
+    const response = await getInvoice(
+      invoice.apiResponse.invoice_id,
+      paymentConfig
     );
+
+    if (response.invoice_status === 'CLOSED') {
+      await models.Invoices.updateOne(
+        { _id: invoiceId },
+        {
+          $set: {
+            status: PAYMENT_STATUS.PAID,
+            resolvedAt: new Date(),
+            description: response.invoice_description
+          }
+        }
+      );
+    }
   } catch (e) {
     throw new Error(e.message);
   }
@@ -78,7 +91,7 @@ export const createInvoice = async (
       invoice_receiver_code: 'terminal',
       invoice_description: invoice.description || 'test invoice',
       amount: invoice.amount,
-      callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback?type=qpay&invoiceId=${invoice._id}`
+      callback_url: `${MAIN_API_DOMAIN}/pl:payment/callback/${PAYMENT_KINDS.QPAY}?invoiceId=${invoice._id}`
     };
 
     const requestOptions = {

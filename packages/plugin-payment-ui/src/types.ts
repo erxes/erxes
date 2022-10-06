@@ -1,10 +1,11 @@
 import { ICompany } from '@erxes/ui-contacts/src/companies/types';
-import { ICustomer } from '@erxes/ui/src/customers/types';
-import { QueryResponse } from '@erxes/ui/src/types';
+import { ICustomer } from '@erxes/ui-contacts/src/customers/types';
+
+import { Counts, QueryResponse } from '@erxes/ui/src/types';
 
 export interface IPaymentConfig {
   name: string;
-  type: string;
+  kind: string;
   status: string;
   config: any;
 }
@@ -24,11 +25,16 @@ export interface IPaymentConfigDocument extends IPaymentConfig, Document {
   _id: string;
 }
 
-export interface IPaymentTypeCount {
+export type ByKindTotalCount = {
   qpay: number;
   socialPay: number;
+};
+
+export type InvoicesCount = {
   total: number;
-}
+  byKind: Counts;
+  byStatus: Counts;
+};
 
 export interface IInvoice {
   _id: string;
@@ -57,7 +63,7 @@ export type InvoicesQueryResponse = {
 };
 
 export type InvoicesTotalCountQueryResponse = {
-  invoicesTotalCount: number;
+  invoicesTotalCount: InvoicesCount;
 } & QueryResponse;
 
 export type PaymentConfigsRemoveMutationResponse = {
@@ -77,7 +83,7 @@ export type PaymentConfigsQueryResponse = {
 };
 
 export type PaymentConfigsCountByTypeQueryResponse = {
-  paymentConfigsCountByType: IPaymentTypeCount;
+  paymentsTotalCount: any;
   loading: boolean;
   refetch: () => void;
 };
@@ -97,5 +103,3 @@ export type ConfigsQueryResponse = {
   loading: boolean;
   refetch: () => void;
 };
-
-export const submenu = [{ title: 'Invoices', link: '/payment/invoices' }];

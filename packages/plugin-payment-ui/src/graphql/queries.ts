@@ -3,18 +3,17 @@ query paymentConfigs($paymentConfigIds: [String]!) {
   paymentConfigs(paymentConfigIds: $paymentConfigIds) {
     _id
     name
-    type
+    kind
     status
     config
   }
 }
 `;
 
-const paymentConfigsCountByType = `
-query PaymentConfigsCountByType {
-  paymentConfigsCountByType {
-    qpay
-    socialPay
+const paymentsTotalCountQuery = `
+query paymentsTotalCount($kind: String, $status: String) {
+  paymentsTotalCount(kind: $kind, status: $status) {
+    byKind
     total
   }
 }
@@ -36,7 +35,7 @@ const invoicesResponse = `
     email
     paymentConfig {
       name
-      type
+      kind
     }
     phone
     resolvedAt
@@ -57,22 +56,26 @@ const invoicesResponse = `
 `;
 
 const invoices = `
-query invoices($page: Int, $perPage: Int) {
-  invoices(page: $page, perPage: $perPage) {
+query invoices($page: Int, $perPage: Int, $kind: String, $searchValue: String, $status: String) {
+  invoices(page: $page, perPage: $perPage, kind: $kind, searchValue: $searchValue, status: $status) {
     ${invoicesResponse}
   }
 }
 `;
 
 const invoicesTotalCount = `
-query invoicesTotalCount($searchValue: String) {
-  invoicesTotalCount(searchValue: $searchValue)
+query invoicesTotalCount($kind: String, $searchValue: String, $status: String) {
+  invoicesTotalCount(kind: $kind, searchValue: $searchValue, status: $status) {
+    byKind
+    byStatus
+    total
+  }
 }
 `;
 
 export default {
   paymentConfigs,
-  paymentConfigsCountByType,
+  paymentsTotalCountQuery,
   checkInvoice,
   invoices,
   invoicesTotalCount
