@@ -1,7 +1,7 @@
 import { AppConsumer } from 'appContext';
 import gql from 'graphql-tag';
 import * as compose from 'lodash.flowright';
-import { Alert, router, withProps } from 'modules/common/utils';
+import { router, withProps } from 'modules/common/utils';
 import { generatePaginationParams } from 'modules/common/utils/router';
 import React from 'react';
 import { graphql } from 'react-apollo';
@@ -42,7 +42,7 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { historiesQuery, importHistoriesRemove, history } = this.props;
+    const { historiesQuery, history } = this.props;
 
     const histories = historiesQuery.exportHistories || {};
     const list = histories.list || [];
@@ -61,27 +61,11 @@ class HistoriesContainer extends React.Component<FinalProps, State> {
 
     const currentType = router.getParam(history, 'type');
 
-    const removeHistory = (historyId: string, contentType: string) => {
-      importHistoriesRemove({
-        variables: { _id: historyId, contentType }
-      })
-        .then(() => {
-          if (historiesQuery) {
-            historiesQuery.refetch();
-            Alert.success('success');
-          }
-        })
-        .catch(e => {
-          Alert.error(e.message);
-        });
-    };
-
     const updatedProps = {
       ...this.props,
       histories: histories.list || [],
       loading: historiesQuery.loading || this.state.loading,
       totalCount: histories.count || 0,
-      removeHistory,
       currentType
     };
 
@@ -116,7 +100,7 @@ const HistoriesWithProps = withProps<Props>(
       RemoveMutationResponse,
       { _id: string; contentType: string }
     >(gql(mutations.exportHistoriesRemove), {
-      name: 'importHistoriesRemove'
+      name: 'exportHistoriesRemove'
     })
   )(withRouter<FinalProps>(HistoriesContainer))
 );
