@@ -19,11 +19,10 @@ You can also develop your own plugins and place them on **<a href="https://erxes
 
 The plugins are divided into the following categories:
 
-- **<a href="https://docs.erxes.io/docs/user-guide/xos/xos-intro" >XOS features</a>** comes with erxes XOS core code that allow users to customize, improve speed, and enhance the experience along with plugins. However, you can not do anything on their own, unless it works with plugins of your choices.
 - **<a href="https://docs.erxes.io/docs/user-guide/plugins/intro-plugins" >Plugins</a>** the features that can work independently to fulfill a particular purpose.
 - **<a href="https://docs.erxes.io/docs/user-guide/adds-on/intro-addon" >Add-ons</a>** are the sub-features/integrations that can work with plugins to enhance their experience.
 - **<a href="https://docs.erxes.io/docs/user-guide/services/intro-service" >Services</a>** include all services related to creating your unique experiences with erxes.
-- **<a href="https://docs.erxes.io/docs/user-guide/power-ups/intro-powerup" >Power-up</a>** is the boost to power up plugins.
+- **<a href="https://docs.erxes.io/docs/user-guide/power-ups/intro-powerup" >Power-up</a>** is the boost to power up plugins. The most of the power-ups applied for SaaS clients as we set the certian use limits for some of the plugins require extra data regarding its usage.
 
 :::info
 
@@ -38,10 +37,10 @@ Each plugin available at Marketplace has;
 
 This will allow you to create your unique experiences using the plugins you need. With this informaiton, lists of the plugins work together to fullfil the certion needs as well as additional plugins to create even better experiences. You will see many use cases of each plugin that can help you learn what you can do with a combination of different plugins **<a href="https://docs.erxes.io/docs/category/use-cases" >here</a>**. 
 
-When you get access to the Marketplace from organizations in different versions, there will be the slight difference regarding the actions required on each versions, which are:
+When you get access to the Marketplace from organizations in different versions, there will be the slight difference regarding the actions can be taken by you, which are:
 
-**Self-hosted version** - You can install the plugins straight from each plugin.
-**SaaS version** - You'll have new category on the Marketplace called "power-up", which apply for the amount of uses for each plugins. On SaaS version, we provide limits on uses of each plugin purely related to the server pricing and capacity.
+- **Self-hosted version** You can install the plugins straight from each plugin.
+- **SaaS version** You'll have new category on the Marketplace called "power-up", which apply for the amount of uses for each plugins. On SaaS version, we provide limits on uses of each plugin purely related to the server pricing and capacity.
 
 We will explain more about plugins further on **<a href="https://docs.erxes.io/docs/category/plugins" >this documentation</a>**, so please stay with us.  
 
