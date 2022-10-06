@@ -17,7 +17,6 @@ const tagQueries = {
     for (const serviceName of services) {
       const service = await serviceDiscovery.getService(serviceName, true);
       const meta = service.config.meta || {};
-
       if (meta && meta.tags) {
         const types = meta.tags.types || [];
 
@@ -63,7 +62,7 @@ const tagQueries = {
     }
 
     if (parentId) {
-      let parentTag = await models.Tags.find({ parentId: parentId }).distinct(
+      const parentTag = await models.Tags.find({ parentId: parentId }).distinct(
         '_id'
       );
       let ids = [parentId, ...parentTag];

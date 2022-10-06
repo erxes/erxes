@@ -1,4 +1,5 @@
 import { IContext } from '../../connectionResolver';
+import { sendTagsMessage } from '../../messageBroker';
 import { IDashboardDocument } from '../../models/definitions/dashboard';
 
 export default {
@@ -18,6 +19,17 @@ export default {
         _id: dashboard.updatedBy
       }
     );
+  },
+
+  async getTags(dashboard: IDashboardDocument, _, { subdomain }: IContext) {
+    return sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        _id: { $in: dashboard.tagIds }
+      },
+      isRPC: true
+    });
   },
 
   members(dashboard: IDashboardDocument) {
