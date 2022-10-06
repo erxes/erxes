@@ -136,7 +136,7 @@ const EditMessenger = (props: FinalProps) => {
       .then(() => {
         Alert.success('You successfully updated a messenger');
 
-        history.push('/settings/add-ons?refetch=true');
+        history.push('/settings/integrations?refetch=true');
       })
       .catch(error => {
         if (error.message.includes('Duplicated messenger for single brand')) {

@@ -7,6 +7,7 @@ export interface IDashboard {
   selectedMemberIds?: string[];
   description?: string;
   parentId?: string;
+  tagIds?: string[];
   childsDashboard?: [IDashboard];
   createdBy?: string;
   updatedBy?: string;
@@ -61,7 +62,12 @@ export const dashboardSchema = schemaWrapper(
     parentId: field({ type: String, optional: true }),
     childsDashboard: field({ type: [String] }),
     order: field({ type: String }),
-
+    tagIds: field({
+      type: [String],
+      optional: true,
+      label: 'Tags',
+      index: true
+    }),
     code: field({ type: String }),
     dashboardCount: field({ type: Number }),
     relatedIds: field({ type: [String] }),

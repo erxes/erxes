@@ -11,6 +11,7 @@ export const TAG_TYPES = {
   DEAL: __('cards:deal'),
   TICKET: __('cards:ticket'),
   TASK: __('cards:task'),
+  DASHBOARD: __('dashboard:dashboard'),
   ALL_LIST: [
     'conversation',
     'customer',
