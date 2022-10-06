@@ -12,7 +12,7 @@ import { BarItems } from 'modules/layout/styles';
 import React from 'react';
 import { IExportHistory } from '../../types';
 import HistoryRow from './HistoryRow';
-import Sidebar from '../../import/containers/list/SideBar';
+import Sidebar from '../containers/SideBar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { Link } from 'react-router-dom';
 import { EMPTY_IMPORT_CONTENT } from '@erxes/ui-settings/src/constants';
@@ -25,12 +25,11 @@ type Props = {
   loading: boolean;
   totalCount: number;
   currentType: string;
-  removeHistory: (historyId: string, contentType: string) => void;
 };
 
 class ExportHistories extends React.Component<Props & IRouterProps> {
   renderHistories = () => {
-    const { histories, removeHistory } = this.props;
+    const { histories } = this.props;
 
     return (
       <Table hover={true}>
@@ -45,13 +44,7 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
         </thead>
         <tbody>
           {histories.map(history => {
-            return (
-              <HistoryRow
-                key={history._id}
-                history={history}
-                removeHistory={removeHistory}
-              />
-            );
+            return <HistoryRow key={history._id} history={history} />;
           })}
         </tbody>
       </Table>
