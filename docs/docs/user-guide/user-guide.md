@@ -6,8 +6,12 @@ description: User docs into
 
 This user guide contains the functional documentation related to erxes XOS and all plugins available at **<a href="https://erxes.io/marketplace" >the erxes marketplace</a>**.
 
-`
-**erxes** is an open-source Hubspot/Qualtrics alternative that enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business that work for most industries. It's a secure, self-hosted, and scalable open-source experience operating system (XOS), which you can learn more about it on this documentation.`
+
+:::info
+
+erxes is an open-source Hubspot/Qualtrics alternative that enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business that work for most industries. It's a secure, self-hosted, and scalable open-source experience operating system (XOS), which you can learn more about it on this documentation.
+
+:::
 
 Before going any further into this user guide, we recommend you acknowledge the main concepts below. They will help you to understand how erxes work and ensure a smooth experience with erxes.
 
