@@ -7,16 +7,19 @@ import Wrapper from 'modules/layout/components/Wrapper';
 import { Alert, __ } from 'modules/common/utils';
 import { FlexPad } from 'modules/common/components/step/styles';
 import { Description, SubHeading } from '@erxes/ui-settings/src/styles';
-import { loadDynamicComponent, getEnv } from 'modules/common/utils';
+import { loadDynamicComponent } from 'modules/common/utils';
 import { StepButton } from '@erxes/ui/src/components/step/styles';
 import Details from './Details';
-import queryString from 'query-string';
 import Button from 'modules/common/components/Button';
 
 type Props = {
   count: string;
   loading: boolean;
-  saveExport: (contentType) => void;
+  saveExport: (
+    contentType: string,
+    segmentData: any[],
+    columnsConfig: any[]
+  ) => void;
 };
 
 type State = {
@@ -26,8 +29,6 @@ type State = {
   exportName: string;
   columns: any[];
 };
-
-const { REACT_APP_API_URL } = getEnv();
 
 class Form extends React.Component<Props, State> {
   constructor(props) {
@@ -50,12 +51,6 @@ class Form extends React.Component<Props, State> {
     return true;
   }
 
-  saveExport = e => {
-    e.preventDefault();
-
-    const {} = this.state;
-  };
-
   onChangeContentType = (contentType: string) => {
     this.setState({ contentType });
   };
@@ -76,10 +71,12 @@ class Form extends React.Component<Props, State> {
     this.setState({ segmentData: {} });
   };
 
+  saveExport = e => {
+    e.preventDefault();
+  };
+
   onSubmit = () => {
-    const { contentType } = this.state;
-    const { columns, segmentData } = this.state;
-    const serviceType = contentType.split(':')[0];
+    const { contentType, columns, segmentData } = this.state;
 
     let columnsConfig = columns.filter(conf => conf.checked) as any;
 
@@ -87,19 +84,7 @@ class Form extends React.Component<Props, State> {
       return conf.name;
     });
 
-    const stringified = queryString.stringify({
-      configs: JSON.stringify(columnsConfig),
-      type: contentType.split(':')[1],
-      segmentData: JSON.stringify(segmentData),
-      unlimited: true
-    });
-
-    window.open(
-      `${REACT_APP_API_URL}/pl:${serviceType}/file-export?${stringified}`,
-      '_blank'
-    );
-
-    window.location.href = `/settings/exportHistories?type=${contentType}`;
+    this.props.saveExport(contentType, segmentData, columnsConfig);
 
     console.log(columnsConfig, contentType, segmentData);
   };

@@ -30,10 +30,16 @@ class FormContainer extends React.Component<
     const { exportHistoriesCreate } = this.props;
     const { count, loading } = this.state;
 
-    const saveExport = e => {
+    const saveExport = (
+      contentType: string,
+      columnsConfig: any[],
+      segmentData: any[]
+    ) => {
       exportHistoriesCreate({
         variables: {
-          contentType: ''
+          contentType: contentType,
+          columnsConfig: columnsConfig,
+          segmentData: segmentData
         }
       })
         .then(() => {
