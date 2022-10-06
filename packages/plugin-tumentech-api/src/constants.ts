@@ -165,6 +165,7 @@ export const CAR_SELECT_OPTIONS = {
   ],
 
   VALVE_TYPES: [
+    { label: '', value: '' },
     {
       label: 'Байгаа',
       value: 'Have'
