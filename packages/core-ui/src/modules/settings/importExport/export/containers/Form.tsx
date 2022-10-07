@@ -40,6 +40,8 @@ class FormContainer extends React.Component<FinalProps, State> {
       })
         .then(() => {
           Alert.success('You successfully exported');
+
+          window.location.href = `/settings/exportHistories?type=${doc.contentType}`;
         })
         .catch(error => {
           Alert.error(error.message);

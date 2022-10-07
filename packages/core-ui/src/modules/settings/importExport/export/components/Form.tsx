@@ -81,7 +81,6 @@ class Form extends React.Component<Props, State> {
       segmentData,
       name
     };
-    window.location.href = `/settings/exportHistories?type=${contentType}`;
 
     return this.props.saveExport(doc);
   };

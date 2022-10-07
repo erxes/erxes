@@ -6,7 +6,7 @@ import resolvers from './graphql/resolvers';
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import * as permissions from './permissions';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { buildFile } from './exporter1';
+import { buildFile } from './exporterByUrl';
 import segments from './segments';
 import forms from './forms';
 import logs from './logUtils';

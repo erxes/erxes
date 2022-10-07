@@ -126,7 +126,7 @@ connect()
       contentType: string;
       exportHistoryId: string;
       columnsConfig: string[];
-      segmentData: string[];
+      segmentData: string;
     } = workerData;
 
     const models = await generateModels(subdomain);

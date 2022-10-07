@@ -166,7 +166,6 @@ export default {
         }
       }
     } catch (e) {
-      console.log(e.message);
       return { error: e.message };
     }
     return { docs, excelHeader };
