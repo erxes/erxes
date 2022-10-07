@@ -9,9 +9,7 @@ module.exports = {
       },
       items: [
         'user-guide/welcome/admin-panel',
-        'user-guide/welcome/organization',
-        'user-guide/welcome/marketplace',
-        'user-guide/welcome/billing'
+        'user-guide/welcome/marketplace'
       ]
     },
     {
@@ -29,7 +27,6 @@ module.exports = {
         'user-guide/xos/brands',
         'user-guide/xos/import-export',
         'user-guide/xos/apps',
-        'user-guide/xos/marketplace',
         'user-guide/xos/channel',
         'user-guide/xos/script-installation'
       ]
