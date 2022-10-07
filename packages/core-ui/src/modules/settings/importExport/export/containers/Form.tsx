@@ -60,7 +60,7 @@ class FormContainer extends React.Component<FinalProps, State> {
 export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.exportHistoriesCreate), {
-      name: 'exportHistories'
+      name: 'exportHistoriesCreate'
     })
   )(FormContainer)
 );

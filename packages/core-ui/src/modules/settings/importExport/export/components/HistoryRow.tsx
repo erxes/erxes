@@ -1,18 +1,14 @@
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { DateWrapper } from 'modules/common/styles/main';
 import { readFile, __ } from 'modules/common/utils';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import Icon from 'modules/common/components/Icon';
 
 import {
   ImportTitle,
   ImportHistoryActions
 } from 'modules/settings/importExport/styles';
-import { renderText } from 'modules/settings/importExport/utils';
-import Icon from 'modules/common/components/Icon';
 import TextInfo from '@erxes/ui/src/components/TextInfo';
 import Tip from 'modules/common/components/Tip';
 
@@ -21,74 +17,14 @@ type Props = {
 };
 
 class HistoryRow extends React.Component<Props> {
-  renderView = () => {
-    const { history } = this.props;
-
-    const { contentType } = history;
-
-    if (contentType) {
-      return (
-        <Dropdown className="dropdown-btn" alignRight={true}>
-          <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-            <Button btnStyle="simple" size="small">
-              {__('View')} <Icon icon="angle-down" />
-            </Button>
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {contentType.map(value => {
-              return (
-                <li key={Math.random()}>
-                  <Link to={`/contacts/${value.contentType}`}>
-                    {__(`View ${renderText(value.contentType)}`)}
-                  </Link>
-                </li>
-              );
-            })}
-          </Dropdown.Menu>
-        </Dropdown>
-      );
-    }
-
-    return (
-      <Button btnStyle="simple" size="small">
-        <Link to={`/contacts/${contentType}`} style={{ color: '#888' }}>
-          {__(`View ${renderText(contentType)}`)}
-        </Link>
-      </Button>
-    );
-  };
-
   renderAction = () => {
     const { history } = this.props;
-
-    const { contentType } = history;
-
-    const renderDownloadFile = () => {
-      const { exportLink } = history;
-      return contentType.map(value => {
-        return (
-          <li key={Math.random()}>
-            <a
-              rel="noopener noreferrer"
-              href={readFile(exportLink)}
-              target="_blank"
-            >
-              {__(`Download ${renderText(value.contentType)} file`)}
-            </a>
-          </li>
-        );
-      });
-    };
+    const { exportLink } = history;
 
     return (
-      <Dropdown className="dropdown-btn" alignRight={true}>
-        <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">
-          <Button btnStyle="simple" size="small">
-            {__('Actions')} <Icon icon="angle-down" />
-          </Button>
-        </Dropdown.Toggle>
-        <Dropdown.Menu>{renderDownloadFile()}</Dropdown.Menu>
-      </Dropdown>
+      <Button btnStyle="simple" size="small" href={readFile(exportLink)}>
+        {__(`Download result`)}
+      </Button>
     );
   };
 
@@ -119,11 +55,7 @@ class HistoryRow extends React.Component<Props> {
       );
     }
 
-    return (
-      <TextInfo textStyle="warning">
-        {`${history.status}  ${history.percentage}%`}
-      </TextInfo>
-    );
+    return;
   };
 
   render() {
@@ -145,7 +77,6 @@ class HistoryRow extends React.Component<Props> {
         <td>
           <ImportTitle>
             <h6>{history.name || '-'}</h6>
-            {this.renderStatus(history)}
           </ImportTitle>
         </td>
         <td>
