@@ -9,6 +9,7 @@ import {
   postMessage,
   saveLead,
   sendEmail,
+  getPaymentLink
 } from "./utils";
 import * as QRCode from "qrcode";
 interface IState {
@@ -22,6 +23,8 @@ interface IState {
   invoiceResponse?: string;
   invoiceType?: string;
   lastMessageId?: string;
+  invoiceAmount?: number;
+  paymentsUrl?: string;
 }
 
 interface IStore extends IState {
@@ -41,6 +44,7 @@ interface IStore extends IState {
   getIntegrationConfigs: () => IIntegrationLeadData;
   cancelOrder: (customerId: string, messageId: string) => void;
   onChangeCurrentStatus: (status: string) => void;
+  onCallPayments: (amount: number) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -59,7 +63,7 @@ export class AppProvider extends React.Component<{}, IState> {
       extraContent: "",
       callSubmit: false,
       invoiceResponse: "",
-      invoiceType: "",
+      invoiceType: ""
     };
   }
 
@@ -83,7 +87,7 @@ export class AppProvider extends React.Component<{}, IState> {
       return this.setState({
         isPopupVisible: false,
         isFormVisible: false,
-        isCalloutVisible: false,
+        isCalloutVisible: false
       });
     }
 
@@ -113,7 +117,7 @@ export class AppProvider extends React.Component<{}, IState> {
   showForm = () => {
     this.setState({
       isCalloutVisible: false,
-      isFormVisible: true,
+      isFormVisible: true
     });
   };
 
@@ -128,7 +132,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     this.setState({
       isCalloutVisible: false,
-      isFormVisible: !isVisible,
+      isFormVisible: !isVisible
     });
   };
 
@@ -162,7 +166,7 @@ export class AppProvider extends React.Component<{}, IState> {
       isPopupVisible: false,
       isCalloutVisible: false,
       isFormVisible: false,
-      currentStatus: { status: "INITIAL" },
+      currentStatus: { status: "INITIAL" }
     });
 
     // Increasing view count
@@ -201,7 +205,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
         postMessage({
           message: "submitResponse",
-          status,
+          status
         });
 
         if (invoiceType === "socialPay") {
@@ -221,10 +225,10 @@ export class AppProvider extends React.Component<{}, IState> {
           lastMessageId: response.messageId,
           currentStatus: {
             status,
-            errors,
-          },
+            errors
+          }
         });
-      },
+      }
     });
   };
 
@@ -254,7 +258,7 @@ export class AppProvider extends React.Component<{}, IState> {
 
     postMessage({
       message: "changeContainerStyle",
-      style: `height: ${elementsHeight}px;`,
+      style: `height: ${elementsHeight}px;`
     });
   };
 
@@ -276,12 +280,20 @@ export class AppProvider extends React.Component<{}, IState> {
       messageId,
       cancelCallback: (response: string) => {
         this.setState({ currentStatus: { status: response } });
-      },
+      }
     });
   };
 
   onChangeCurrentStatus = (status: string) => {
     this.setState({ currentStatus: { status } });
+  };
+
+  onCallPayments = (amount: number) => {
+    getPaymentLink({ amount }).then((response: any) => {
+      const paymentsUrl = response.data.getPaymentOptions;
+      console.log("paymentsUrl", paymentsUrl);
+      this.setState({ paymentsUrl });
+    });
   };
 
   render() {
@@ -305,6 +317,7 @@ export class AppProvider extends React.Component<{}, IState> {
           getIntegrationConfigs: this.getIntegrationConfigs,
           cancelOrder: this.cancelOrder,
           onChangeCurrentStatus: this.onChangeCurrentStatus,
+          onCallPayments: this.onCallPayments
         }}
       >
         {this.props.children}

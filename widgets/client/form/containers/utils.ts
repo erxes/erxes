@@ -1,15 +1,11 @@
 import gql from 'graphql-tag';
+
 import client from '../../apollo-client';
 import { getLocalStorageItem } from '../../common';
 import { IBrowserInfo, IEmailParams } from '../../types';
 import { requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
-import {
-  cancelOrderMutation,
-  increaseViewCountMutation,
-  saveFormMutation,
-  sendEmailMutation
-} from '../graphql';
+import { cancelOrderMutation, increaseViewCountMutation, saveFormMutation, sendEmailMutation, getPaymentOptions } from '../graphql';
 import { IFormDoc, ISaveFormResponse } from '../types';
 
 /*
@@ -20,17 +16,17 @@ export const postMessage = (options: any) => {
   window.parent.postMessage(
     {
       fromErxes: true,
-      source: 'fromForms',
+      source: "fromForms",
       setting: connection.setting,
       ...options
     },
-    '*'
+    "*"
   );
 };
 
 export const saveBrowserInfo = () => {
   requestBrowserInfo({
-    source: 'fromForms',
+    source: "fromForms",
     postData: {
       setting: connection.setting
     },
@@ -53,7 +49,7 @@ export const sendEmail = ({
 }: IEmailParams) => {
   const customerId = connection.customerId
     ? connection.customerId
-    : getLocalStorageItem('customerId');
+    : getLocalStorageItem("customerId");
 
   client.mutate({
     mutation: gql(sendEmailMutation),
@@ -133,7 +129,7 @@ export const saveLead = (params: {
 
   const cachedCustomerId = connection.customerId
     ? connection.customerId
-    : getLocalStorageItem('customerId');
+    : getLocalStorageItem("customerId");
 
   const variables = {
     integrationId,
@@ -159,17 +155,17 @@ export const saveLead = (params: {
 
           postMessage({
             fromErxes: true,
-            message: 'setLocalStorageItem',
-            key: 'customerId',
+            message: "setLocalStorageItem",
+            key: "customerId",
             value: widgetsSaveLead.customerId
           });
         }
 
         saveCallback(widgetsSaveLead);
 
-        if (widgetsSaveLead && widgetsSaveLead.status === 'ok') {
+        if (widgetsSaveLead && widgetsSaveLead.status === "ok") {
           postMessage({
-            message: 'formSuccess',
+            message: "formSuccess",
             variables
           });
         }
@@ -177,7 +173,7 @@ export const saveLead = (params: {
     })
 
     .catch(e => {
-      saveCallback({ status: 'error', errors: [{ text: e.message }] });
+      saveCallback({ status: "error", errors: [{ text: e.message }] });
     });
 };
 
@@ -197,9 +193,25 @@ export const cancelOrder = (params: {
       }
     })
     .then(res => {
-      cancelCallback('CANCELLED');
+      cancelCallback("CANCELLED");
     })
     .catch(_e => {
-      cancelCallback('CANCEL_FAILED');
+      cancelCallback("CANCEL_FAILED");
     });
+};
+
+export const getPaymentLink = (params: {
+  amount: number;
+}) => {
+  const { amount } = params;
+
+  return client.query({
+    query: gql(getPaymentOptions),
+    variables: {
+      customerId: connection.customerId,
+      amount,
+      contentType: "form:forms",
+      contentTypeId: connection.formId
+    }
+  });
 };

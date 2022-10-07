@@ -62,6 +62,7 @@ export const formConnectMutation = `
         name
         leadData
         languageCode
+        paymentConfigIds
       }
     }
   }
@@ -107,3 +108,29 @@ export const formInvoiceUpdated = `
     formInvoiceUpdated(messageId: $messageId) 
   }
 `;
+
+export const getPaymentOptions = `
+query getPaymentOptions(
+  $amount: Float
+  $companyId: String
+  $contentType: String
+  $contentTypeId: String
+  $customerId: String
+  $description: String
+  $paymentConfigIds: [String]
+  $redirectUri: String
+  $phone: String
+) {
+  getPaymentOptions(
+    amount: $amount
+    companyId: $companyId
+    contentType: $contentType
+    contentTypeId: $contentTypeId
+    customerId: $customerId
+    description: $description
+    paymentConfigIds: $paymentConfigIds
+    redirectUri: $redirectUri
+    phone: $phone
+  )
+}
+`

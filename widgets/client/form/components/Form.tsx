@@ -26,11 +26,7 @@ type Props = {
   integration: IIntegration;
   currentStatus: ICurrentStatus;
   callSubmit?: boolean;
-  onSubmit: (doc: IFormDoc, formCode: string) => void;
-  onCancelOrder: (customerId: string, messageId: string) => void;
-  onCreateNew: () => void;
-  sendEmail: (params: IEmailParams) => void;
-  setHeight?: () => void;
+
   hasTopBar: boolean;
   isSubmitting?: boolean;
   color?: string;
@@ -38,6 +34,14 @@ type Props = {
   invoiceResponse?: any;
   invoiceType?: string;
   lastMessageId?: string;
+  paymentsUrl?: string;
+
+  onCallPayments: (amount: number) => void;
+  onSubmit: (doc: IFormDoc, formCode: string) => void;
+  onCancelOrder: (customerId: string, messageId: string) => void;
+  onCreateNew: () => void;
+  sendEmail: (params: IEmailParams) => void;
+  setHeight?: () => void;
 };
 
 type State = {
@@ -195,6 +199,24 @@ class Form extends React.Component<Props, State> {
       alert(__("Please fill out required fields"));
     }
   };
+
+  onContinueClick = () => {
+   const { fields } = this.props.form;
+
+   const productFields = fields.filter((f) => (f.type === "productCategory" && f.isRequired));
+
+   let subTotal = 0;
+    for (const field of productFields) {
+      const productId = this.state.doc[field._id].value;
+      const product = (field.products || []).find(p => p._id === productId);
+      if (product) {
+        subTotal += product.unitPrice;
+      }
+    }
+
+    console.log('subTotal', subTotal);
+    this.props.onCallPayments(subTotal);
+  }
 
   onbackClick = () => {
     this.setState({ currentPage: this.state.currentPage - 1 });
@@ -380,6 +402,7 @@ class Form extends React.Component<Props, State> {
     const { currentPage } = this.state;
     const { form, isSubmitting, color } = this.props;
     const numberOfPages = form.numberOfPages || 1;
+    const fields = form.fields || [];
 
     const button = (
       title: any,
@@ -401,6 +424,14 @@ class Form extends React.Component<Props, State> {
         </button>
       );
     };
+
+    const productFields = fields.filter((f) => (f.type === "productCategory" && f.isRequired));
+
+
+
+    if (productFields.length > 0) {
+      return button(__("Continue"), this.onContinueClick, isSubmitting);
+    }
 
     if (numberOfPages === 1) {
       return button(
@@ -429,6 +460,9 @@ class Form extends React.Component<Props, State> {
       return button(__("Next"), this.onNextClick, isSubmitting);
     }
 
+
+
+
     return (
       <div style={{ width: "100%" }}>
         <div style={{ display: "flex" }}>
@@ -437,6 +471,33 @@ class Form extends React.Component<Props, State> {
         </div>
       </div>
     );
+  }
+
+  renderPayments() {
+    const PaymentIframe = ({
+      src,
+      width,
+      height
+    }: {
+      src: string;
+      width: string;
+      height: string;
+    }) => (
+      <iframe
+        src={src}
+        width={width}
+        height={height}
+        scrolling="yes"
+      ></iframe>
+    );
+
+    const paymentsUrl = this.props.paymentsUrl;
+
+    if (!paymentsUrl) {
+      return null;
+    }
+
+    return <PaymentIframe src={paymentsUrl} width="100%" height="600px" />;
   }
 
   renderForm() {
@@ -588,6 +649,8 @@ class Form extends React.Component<Props, State> {
     } = this.props;
     const doc = this.state.doc;
 
+    console.log('payment', this.props.paymentsUrl);
+
     if (currentStatus.status === "SUCCESS") {
       const {
         successAction,
@@ -653,6 +716,10 @@ class Form extends React.Component<Props, State> {
 
     if (currentStatus.status === "CANCELLED") {
       return this.renderCancelledForm();
+    }
+
+    if (this.props.paymentsUrl) {
+      return this.renderPayments();
     }
 
     return this.renderForm();
