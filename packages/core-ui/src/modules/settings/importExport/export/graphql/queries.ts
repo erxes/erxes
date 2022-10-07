@@ -28,7 +28,7 @@ const exportHistories = `
       list {
          _id
         total
-        exportName
+        name
         contentType
         date
         status

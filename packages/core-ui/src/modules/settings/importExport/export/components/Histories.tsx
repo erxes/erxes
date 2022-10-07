@@ -36,8 +36,8 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
         <thead>
           <tr>
             <th>{__('Name')}</th>
-            <th>{__('Records')}</th>
-            <th>{__('User')}</th>
+            <th>{__('Status')}</th>
+            <th>{__('Total')}</th>
             <th>{__('Date')}</th>
             <th>{__('Action')}</th>
           </tr>
