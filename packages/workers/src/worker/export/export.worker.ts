@@ -140,7 +140,7 @@ connect()
         data: {
           contentType,
           columnsConfig,
-          segmentData: JSON.parse(segmentData)
+          segmentData
         }
       }
     );

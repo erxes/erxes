@@ -16,7 +16,7 @@ const prepareData = async (
   subdomain: string,
   query: any
 ): Promise<any[]> => {
-  const { contentType, segmentId } = query;
+  const { contentType, segmentData } = query;
 
   let data: any[] = [];
 
@@ -25,8 +25,8 @@ const prepareData = async (
   const boardItemsFilter: any = {};
   let itemIds = [];
 
-  if (segmentId) {
-    itemIds = await fetchSegment(subdomain, segmentId);
+  if (segmentData.conditions) {
+    itemIds = await fetchSegment(subdomain, '', {}, segmentData);
 
     boardItemsFilter._id = { $in: itemIds };
   }
@@ -289,7 +289,7 @@ export default {
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { columnsConfig, contentType, segmentId } = data;
+    const { columnsConfig } = data;
 
     const docs = [] as any;
     const headers = [] as any;
