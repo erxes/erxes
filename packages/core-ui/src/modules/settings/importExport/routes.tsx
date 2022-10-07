@@ -24,9 +24,7 @@ const ExportHistories = asyncComponent(() =>
   )
 );
 const Menu = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings Menu" */ './import/containers/SelectMenu'
-  )
+  import(/* webpackChunkName: "Settings Menu" */ './SelectMenu')
 );
 
 const importForm = ({ location }) => {

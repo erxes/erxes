@@ -5,7 +5,7 @@ import { colors } from '@erxes/ui/src/styles';
 import { BoxRoot, FullContent } from '@erxes/ui/src/styles/main';
 import { __ } from '@erxes/ui/src/utils';
 import { Link } from 'react-router-dom';
-import { IImportHistory } from '../../types';
+import { IImportHistory } from './types';
 import Wrapper from 'modules/layout/components/Wrapper';
 
 const Box = styled(BoxRoot)`
@@ -75,18 +75,8 @@ class SelectMenu extends React.Component<Props> {
           transparent={true}
         />
         <FullContent center={true}>
-          {this.renderBox(
-            'Import',
-            'envelope-edit',
-            ` `,
-            `/settings/importHistories`
-          )}
-          {this.renderBox(
-            'Export',
-            'comment-edit',
-            ' ',
-            `/settings/exportHistories`
-          )}
+          {this.renderBox('Import', 'import', ` `, `/settings/importHistories`)}
+          {this.renderBox('Export', 'export', ' ', `/settings/exportHistories`)}
         </FullContent>
       </>
     );
