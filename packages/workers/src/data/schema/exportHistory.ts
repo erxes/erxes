@@ -2,13 +2,12 @@ export const types = `
   type ExportHistory {
     _id: String!
     total: String
-    name: String
     contentType: String
     date: Date
     status: String
     user: JSON
     exportLink: String
-    exportName: String
+    name: String
   }
 
   type ExportHistoryList {
@@ -28,5 +27,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  exportHistoriesCreate(contentType: String!, columnsConfig: [String], segmentData: JSON, exportName: String): JSON
+  exportHistoriesCreate(contentType: String!, columnsConfig: [String], segmentData: JSON, name: String): JSON
 `;

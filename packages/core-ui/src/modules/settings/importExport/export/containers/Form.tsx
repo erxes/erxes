@@ -16,7 +16,7 @@ type FinalProps = {
 type State = {
   loading: boolean;
   count: string;
-  exportName: string;
+  name: string;
 };
 
 class FormContainer extends React.Component<FinalProps, State> {
@@ -26,7 +26,7 @@ class FormContainer extends React.Component<FinalProps, State> {
     this.state = {
       loading: false,
       count: '',
-      exportName: ''
+      name: ''
     };
   }
 

@@ -22,7 +22,7 @@ type State = {
   segmentData: any;
   contentType: string;
   disclaimer: boolean;
-  exportName: string;
+  name: string;
   columns: any[];
 };
 
@@ -34,7 +34,7 @@ class Form extends React.Component<Props, State> {
       segmentData: {},
       contentType: '',
       disclaimer: false,
-      exportName: '',
+      name: '',
       columns: []
     };
   }
@@ -56,7 +56,7 @@ class Form extends React.Component<Props, State> {
   };
 
   onChangeExportName = value => {
-    this.setState({ exportName: value });
+    this.setState({ name: value });
   };
 
   onChangeDisclaimer = value => {
@@ -67,7 +67,7 @@ class Form extends React.Component<Props, State> {
     this.setState({ segmentData: {} });
   };
   onSubmit = () => {
-    const { contentType, columns, segmentData, exportName } = this.state;
+    const { contentType, columns, segmentData, name } = this.state;
 
     let columnsConfig = columns.filter(conf => conf.checked) as any;
 
@@ -76,10 +76,10 @@ class Form extends React.Component<Props, State> {
     });
 
     const doc = {
-      contentType: contentType,
-      columnsConfig: columnsConfig,
-      segmentData: segmentData,
-      exportName
+      contentType,
+      columnsConfig,
+      segmentData,
+      name
     };
     window.location.href = `/settings/exportHistories?type=${contentType}`;
 
@@ -87,8 +87,8 @@ class Form extends React.Component<Props, State> {
   };
 
   renderExportButton = () => {
-    const { disclaimer, exportName } = this.state;
-    if (disclaimer && exportName) {
+    const { disclaimer, name } = this.state;
+    if (disclaimer && name) {
       return (
         <StepButton next={true} onClick={this.onSubmit}>
           Export
@@ -100,31 +100,29 @@ class Form extends React.Component<Props, State> {
 
   filterContent = (values: any) => {
     return (
-      <>
-        <Button
-          id="segment-filter"
-          onClick={() => {
-            const data = {
-              ...values,
-              conditions: values.conditionSegments[0].conditions
-            };
+      <Button
+        id="segment-filter"
+        onClick={() => {
+          const data = {
+            ...values,
+            conditions: values.conditionSegments[0].conditions
+          };
 
-            delete data.conditionSegments;
+          delete data.conditionSegments;
 
-            this.setState({ segmentData: data });
+          this.setState({ segmentData: data });
 
-            Alert.success('Success');
-          }}
-          icon="filter"
-        >
-          {'Apply Filter'}
-        </Button>
-      </>
+          Alert.success('Success');
+        }}
+        icon="filter"
+      >
+        {'Apply Filter'}
+      </Button>
     );
   };
 
   render() {
-    const { contentType, disclaimer, exportName } = this.state;
+    const { contentType, disclaimer, name } = this.state;
 
     const title = __('Import');
 
@@ -187,7 +185,7 @@ class Form extends React.Component<Props, State> {
               <Details
                 type="stepper"
                 disclaimer={disclaimer}
-                exportName={exportName}
+                name={name}
                 onChangeExportName={this.onChangeExportName}
                 onChangeDisclaimer={this.onChangeDisclaimer}
               />
