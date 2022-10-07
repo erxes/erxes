@@ -38,7 +38,7 @@ const exportHistoryQueries = {
     const filter: { [key: string]: any } = {};
 
     if (type) {
-      filter['contentTypes.contentType'] = type;
+      filter.contentType = type;
     }
 
     const list = await paginate(models.ExportHistory.find(filter), args).sort({
