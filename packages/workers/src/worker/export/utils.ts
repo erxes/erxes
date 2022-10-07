@@ -27,7 +27,7 @@ export const receiveExportCreate = async (
     user,
     columnsConfig,
     exportHistoryId,
-    segmentId
+    segmentData
   } = content;
 
   debugWorkers(`Export called`);
@@ -45,7 +45,7 @@ export const receiveExportCreate = async (
       contentType,
       exportHistoryId,
       columnsConfig,
-      segmentId,
+      segmentData,
       user,
       subdomain
     });

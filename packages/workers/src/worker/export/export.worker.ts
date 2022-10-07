@@ -121,12 +121,12 @@ connect()
       contentType,
       exportHistoryId,
       columnsConfig,
-      segmentId
+      segmentData
     }: {
       contentType: string;
       exportHistoryId: string;
       columnsConfig: string[];
-      segmentId: string;
+      segmentData: string;
     } = workerData;
 
     const models = await generateModels(subdomain);
@@ -140,7 +140,7 @@ connect()
         data: {
           contentType,
           columnsConfig,
-          segmentId
+          segmentData: JSON.parse(segmentData)
         }
       }
     );
