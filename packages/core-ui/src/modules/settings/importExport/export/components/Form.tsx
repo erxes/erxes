@@ -124,7 +124,7 @@ class Form extends React.Component<Props, State> {
   render() {
     const { contentType, disclaimer, name } = this.state;
 
-    const title = __('Import');
+    const title = __('Export');
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
