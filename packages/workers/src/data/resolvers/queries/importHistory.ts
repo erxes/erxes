@@ -127,8 +127,6 @@ const importHistoryQueries = {
       const service = await getService(serviceName, true);
       const meta = service.config?.meta || {};
 
-      console.log(meta);
-
       if (meta && meta.imports) {
         const types = meta.imports.exportTypes || [];
 

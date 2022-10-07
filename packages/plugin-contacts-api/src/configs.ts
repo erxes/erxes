@@ -3,7 +3,7 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker, sendSegmentsMessage } from './messageBroker';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
-import { buildFile } from './exporter1';
+import { buildFile } from './exporterByUrl';
 import segments from './segments';
 import dashboards from './dashboards';
 import forms from './forms';
