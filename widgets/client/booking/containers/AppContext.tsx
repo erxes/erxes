@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cancelOrder, sendEmail } from "../../form/containers/utils";
+import { sendEmail } from "../../form/containers/utils";
 import { ICurrentStatus, ISaveFormResponse } from "../../form/types";
 import { IEmailParams, IIntegration } from "../../types";
 import { connection } from "../connection";
@@ -19,9 +19,6 @@ interface IState {
   selectedItem: string;
 
   currentStatus: ICurrentStatus;
-  invoiceResponse?: string;
-  invoiceType?: string;
-  lastMessageId?: string;
 }
 
 interface IStore extends IState {
@@ -38,7 +35,6 @@ interface IStore extends IState {
   sendEmail: (params: IEmailParams) => void;
   save: (params: any) => void;
   getIntegration: () => IIntegration;
-  cancelOrder: (customerId: string, messageId: string) => void;
   onChangeCurrentStatus: (status: string) => void;
 }
 
@@ -166,53 +162,9 @@ export class AppProvider extends React.Component<{}, IState> {
       formId: this.getIntegration().formId,
       productId: this.state.activeProduct,
       saveCallback: async (response: ISaveFormResponse) => {
-        const { errors, invoiceType } = response;
-
-        let { invoiceResponse } = response;
-
-        let status = "ERROR";
-
-        switch (response.status) {
-          case "ok":
-            status = "SUCCESS";
-            break;
-          case "pending":
-            status = "PENDING";
-            break;
-          default:
-            status = "ERROR";
-            break;
-        }
-
-        if (invoiceType === "socialPay") {
-          if (
-            invoiceResponse &&
-            invoiceResponse.includes("socialpay-payment")
-          ) {
-            invoiceResponse = await QRCode.toDataURL(invoiceResponse);
-          }
-        }
-
         this.setState({
           isSubmitting: false,
-          invoiceResponse,
-          invoiceType,
-          lastMessageId: response.messageId,
-          currentStatus: {
-            status,
-            errors
-          }
         });
-      }
-    });
-  };
-
-  cancelOrder = (customerId: string, messageId: string) => {
-    cancelOrder({
-      customerId,
-      messageId,
-      cancelCallback: (response: string) => {
-        this.setState({ currentStatus: { status: response } });
       }
     });
   };
@@ -239,7 +191,6 @@ export class AppProvider extends React.Component<{}, IState> {
           sendEmail,
           save: this.save,
           getIntegration: this.getIntegration,
-          cancelOrder: this.cancelOrder,
           onChangeCurrentStatus: this.onChangeCurrentStatus
         }}
       >

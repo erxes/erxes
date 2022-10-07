@@ -183,6 +183,7 @@ const createFormConversation = async (
     browserInfo: any;
     cachedCustomerId?: string;
     userId?: string;
+    invoiceId?: string;
   },
   generateContent: (form) => string,
   generateConvData: () => {
@@ -237,6 +238,7 @@ const createFormConversation = async (
     conversationId: conversation._id,
     customerId: cachedCustomer._id,
     content,
+    invoiceId: args.invoiceId,
     ...conversationData.message
   });
 
@@ -425,6 +427,7 @@ const widgetMutations = {
       browserInfo: any;
       cachedCustomerId?: string;
       userId?: string;
+      invoiceId?: string;
     },
     { models, subdomain, user }: IContext
   ) {

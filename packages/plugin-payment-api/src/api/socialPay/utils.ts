@@ -17,20 +17,22 @@ export const socialPayHandler = async (models: IModels, data) => {
     status = PAYMENT_STATUS.PENDING;
   }
   try {
-    const { body } = await socialPayInvoiceCheck({
-      amount,
-      checksum,
-      invoice,
-      terminal
-    });
+    // const { body } = await socialPayInvoiceCheck({
+    //   amount,
+    //   checksum,
+    //   invoice,
+    //   terminal
+    // });
 
-    if (body.response.resp_code !== '00') {
-      status = PAYMENT_STATUS.PENDING;
-      throw new Error(body.response.resp_desc);
-    }
+    // console.log('resp_code', body.response.resp_code);
+
+    // if (body.response.resp_code !== '00') {
+    //   status = PAYMENT_STATUS.PENDING;
+    //   throw new Error(body.response.resp_desc);
+    // }
 
     const invoiceObj = await models.Invoices.getInvoice({
-      _id: invoice._id
+      _id: invoice
     });
 
     await models.Invoices.updateOne(

@@ -4,7 +4,7 @@ import { ChildProps, graphql } from "react-apollo";
 import client from "../../apollo-client";
 import { IEmailParams, IIntegration } from "../../types";
 import DumbForm from "../components/Form";
-import { formDetailQuery, formInvoiceUpdated } from "../graphql";
+import { formDetailQuery } from "../graphql";
 import { ICurrentStatus, IForm, IFormDoc } from "../types";
 import { AppConsumer } from "./AppContext";
 
@@ -24,24 +24,6 @@ const Form = (props: ChildProps<IProps, QueryResponse>) => {
     form: data.formDetail,
   };
 
-  React.useEffect(() => {
-    client
-      .subscribe({
-        query: gql(formInvoiceUpdated),
-        variables: { messageId: props.lastMessageId || "" },
-      })
-      .subscribe({
-        next({ data }) {
-          if (data.formInvoiceUpdated.status === "success") {
-            props.onChangeCurrentStatus("SUCCESS");
-          }
-        },
-        error(err: any) {
-          console.error("err", err);
-        },
-      });
-  });
-
   return <DumbForm {...extendedProps} hasTopBar={true} />;
 };
 
@@ -60,12 +42,9 @@ interface IProps {
   callSubmit: boolean;
   extraContent?: string;
   isSubmitting?: boolean;
-  invoiceResponse?: any;
-  invoiceType?: string;
   invoiceAmount?: number;
-  lastMessageId?: string;
   paymentsUrl?: string;
-  onCancelOrder: (customerId: string, messageId: string) => void;
+  invoice?: any;
   onChangeCurrentStatus: (status: string) => void;
   onCallPayments: (amount:number) => void;
 }
@@ -96,13 +75,10 @@ const WithContext = () => (
       extraContent,
       isSubmitting,
       getForm,
-      invoiceResponse,
-      invoiceType,
-      lastMessageId,
-      cancelOrder,
       onChangeCurrentStatus,
       onCallPayments,
-      paymentsUrl
+      paymentsUrl,
+      invoice,
     }) => {
       const integration = getIntegration();
       const form = getForm();
@@ -119,13 +95,10 @@ const WithContext = () => (
           integration={integration}
           extraContent={extraContent}
           callSubmit={callSubmit}
-          invoiceResponse={invoiceResponse}
-          invoiceType={invoiceType}
-          lastMessageId={lastMessageId}
-          onCancelOrder={cancelOrder}
           onChangeCurrentStatus={onChangeCurrentStatus}
           onCallPayments={onCallPayments}
           paymentsUrl={paymentsUrl}
+          invoice={invoice}
         />
       );
     }}

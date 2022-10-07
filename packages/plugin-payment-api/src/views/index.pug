@@ -41,6 +41,11 @@ block layout-content
                             if invoice.status === 'paid'
                                 script. 
                                     if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                        window.parent.postMessage({
+                                            fromPayment: true,
+                                            message:"paymentSuccess",
+                                            invoice
+                                        },'*');
                                         if (`#{invoiceData.redirectUri}`) {
                                             window.location.href = `#{invoiceData.redirectUri}`;
                                         } else {
@@ -63,6 +68,11 @@ block layout-content
                             if invoice.status === 'paid'
                                 script. 
                                     if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                        window.parent.postMessage({
+                                            fromPayment: true,
+                                            message:"paymentSuccess",
+                                            invoice
+                                        },'*');
                                         if (`#{invoiceData.redirectUri}`) {
                                             window.location.href = `#{invoiceData.redirectUri}`;
                                         } else {
@@ -84,6 +94,11 @@ block layout-content
                     .then(json => {
                         if (json.status === 'paid') {
                             if (window.confirm('Payment is completed. Do you want to close this window?')) {
+                                 window.parent.postMessage({
+                                        fromPayment: true,
+                                        message:"paymentSuccess",
+                                        invoice: `#{invoice}`
+                                    },'*');
                                 if (`#{invoiceData.redirectUri}`) {
                                     window.location.href = `#{invoiceData.redirectUri}`;
                                 } else {

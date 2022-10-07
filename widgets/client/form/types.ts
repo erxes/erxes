@@ -115,9 +115,6 @@ export interface IFormDoc {
 export interface ISaveFormResponse {
   status: string;
   errors?: IFieldError[];
-  invoiceType?: string;
-  invoiceResponse?: string;
-  messageId?: string;
 }
 
 export interface ILocationOption {

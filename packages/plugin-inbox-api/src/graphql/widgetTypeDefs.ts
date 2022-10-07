@@ -67,8 +67,6 @@ export const types = ({ products, forms, knowledgeBase }) => `
     messageId: String
     customerId: String
     userId: String
-    invoiceType: String
-    invoiceResponse: String
   }
 
   type Error {
@@ -208,6 +206,7 @@ export const mutations = ({ forms }) => `
       browserInfo: JSON!
       cachedCustomerId: String
       userId: String
+      invoiceId: String
     ): SaveFormResponse
 
     widgetsBookingConnect(_id: String): Integration

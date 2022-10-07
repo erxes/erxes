@@ -1,25 +1,12 @@
-import * as React from "react";
-import { AppConsumer } from "../../messenger/containers/AppContext";
-import { IEmailParams, IIntegration } from "../../types";
-import {
-  __,
-  checkLogicFulfilled,
-  fixErrorMessage,
-  LogicParams,
-  readFile,
-  loadMapApi,
-} from "../../utils";
-import { connection } from "../connection";
-import {
-  FieldValue,
-  ICurrentStatus,
-  IFieldError,
-  IForm,
-  IFormDoc,
-  ILocationOption,
-} from "../types";
-import TopBar from "./TopBar";
-import Field from "./Field";
+import * as React from 'react';
+
+import { AppConsumer } from '../../messenger/containers/AppContext';
+import { IEmailParams, IIntegration } from '../../types';
+import { __, checkLogicFulfilled, fixErrorMessage, loadMapApi, LogicParams, readFile } from '../../utils';
+import { connection } from '../connection';
+import { FieldValue, ICurrentStatus, IFieldError, IForm, IFormDoc, ILocationOption } from '../types';
+import Field from './Field';
+import TopBar from './TopBar';
 
 type Props = {
   form: IForm;
@@ -31,14 +18,11 @@ type Props = {
   isSubmitting?: boolean;
   color?: string;
   extraContent?: string;
-  invoiceResponse?: any;
-  invoiceType?: string;
-  lastMessageId?: string;
   paymentsUrl?: string;
+  invoice?: any;
 
   onCallPayments: (amount: number) => void;
   onSubmit: (doc: IFormDoc, formCode: string) => void;
-  onCancelOrder: (customerId: string, messageId: string) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
@@ -57,10 +41,10 @@ class Form extends React.Component<Props, State> {
 
     let currentLocation: ILocationOption | undefined;
 
-    if (props.form.fields.findIndex((e) => e.type === "map") !== -1) {
+    if (props.form.fields.findIndex(e => e.type === "map") !== -1) {
       currentLocation = {
         lat: connection.browserInfo.latitude,
-        lng: connection.browserInfo.longitude,
+        lng: connection.browserInfo.longitude
       };
     }
 
@@ -84,7 +68,7 @@ class Form extends React.Component<Props, State> {
       head.appendChild(style);
     }
 
-    if (form.fields.findIndex((e) => e.type === "map") !== -1) {
+    if (form.fields.findIndex(e => e.type === "map") !== -1) {
       const googleMapScript = loadMapApi(
         form.googleMapApiKey || "test",
         integration.languageCode || "en"
@@ -120,7 +104,7 @@ class Form extends React.Component<Props, State> {
   onFieldValueChange = ({
     fieldId,
     value,
-    groupId,
+    groupId
   }: {
     fieldId: string;
     value: FieldValue;
@@ -145,6 +129,8 @@ class Form extends React.Component<Props, State> {
     const doc: any = {};
     const { fields } = this.props.form;
 
+    let subTotal = 0;
+
     for (const key of Object.keys(this.state.doc)) {
       const field = this.state.doc[key];
 
@@ -153,29 +139,41 @@ class Form extends React.Component<Props, State> {
       if (field.type === "multiSelect" || field.type === "check") {
         doc[key] = {
           ...field,
-          value: String(field.value).replace(new RegExp(",,", "g"), ", "),
+          value: String(field.value).replace(new RegExp(",,", "g"), ", ")
         };
       }
 
       if (field.type === "productCategory") {
-        const formField = fields.find((f) => f._id === key);
+        const formField = fields.find(f => f._id === key);
+        if (!formField) {
+          continue;
+        }
+
         const products = (formField && formField.products) || [];
-        const selectedProduct = products.find((p) => p._id === field.value);
+        const selectedProduct = products.find(p => p._id === field.value);
         doc[key] = selectedProduct && {
           ...field,
           value: `${
             selectedProduct.name
           } - ${selectedProduct.unitPrice.toLocaleString()}`,
-          productId: selectedProduct._id,
+          productId: selectedProduct._id
         };
+
+        if (formField.isRequired && field.value && selectedProduct) {
+          subTotal += selectedProduct.unitPrice;
+        }
       }
+    }
+
+    if (subTotal > 0) {
+      this.props.onCallPayments(subTotal);
     }
 
     this.props.onSubmit(doc, this.props.form.code);
   };
 
   canChangePage = () => {
-    const requiredFields = this.getCurrentFields().filter((f) => f.isRequired);
+    const requiredFields = this.getCurrentFields().filter(f => f.isRequired);
 
     for (const field of requiredFields) {
       const value = this.state.doc[field._id].value;
@@ -200,24 +198,6 @@ class Form extends React.Component<Props, State> {
     }
   };
 
-  onContinueClick = () => {
-   const { fields } = this.props.form;
-
-   const productFields = fields.filter((f) => (f.type === "productCategory" && f.isRequired));
-
-   let subTotal = 0;
-    for (const field of productFields) {
-      const productId = this.state.doc[field._id].value;
-      const product = (field.products || []).find(p => p._id === productId);
-      if (product) {
-        subTotal += product.unitPrice;
-      }
-    }
-
-    console.log('subTotal', subTotal);
-    this.props.onCallPayments(subTotal);
-  }
-
   onbackClick = () => {
     this.setState({ currentPage: this.state.currentPage - 1 });
   };
@@ -226,7 +206,7 @@ class Form extends React.Component<Props, State> {
     const { form } = this.props;
     const doc: any = {};
 
-    form.fields.forEach((field) => {
+    form.fields.forEach(field => {
       let isHidden = false;
       if (
         field.logicAction &&
@@ -258,7 +238,7 @@ class Form extends React.Component<Props, State> {
   }
 
   getCurrentFields() {
-    return this.props.form.fields.filter((f) => {
+    return this.props.form.fields.filter(f => {
       const pageNumber = f.pageNumber || 1;
       if (pageNumber === this.state.currentPage) {
         return f;
@@ -314,14 +294,14 @@ class Form extends React.Component<Props, State> {
           background: this.props.color,
           opacity: 0.7,
           height: "13px",
-          width: `${percentage}%`,
+          width: `${percentage}%`
         }}
       >
         <div
           style={{
             textAlign: "center",
             color: "white",
-            fontSize: 10,
+            fontSize: 10
           }}
         >{`${percentage}%`}</div>
       </div>
@@ -334,16 +314,17 @@ class Form extends React.Component<Props, State> {
     const fields = this.getCurrentFields();
 
     const errors = currentStatus.errors || [];
-    const nonFieldError = errors.find((error) => !error.fieldId);
+    const nonFieldError = errors.find(error => !error.fieldId);
 
-    const renderedFields = fields.map((field) => {
+    const renderedFields = fields.map(field => {
       const fieldError = errors.find(
         (error: IFieldError) => error.fieldId === field._id
       );
 
       if (field.logics && field.logics.length > 0) {
-        const logics: LogicParams[] = field.logics.map((logic) => {
-          const { validation, value, type } = this.state.doc[logic.fieldId] || {};
+        const logics: LogicParams[] = field.logics.map(logic => {
+          const { validation, value, type } =
+            this.state.doc[logic.fieldId] || {};
 
           return {
             fieldId: logic.fieldId,
@@ -351,7 +332,7 @@ class Form extends React.Component<Props, State> {
             logicValue: logic.logicValue,
             fieldValue: value,
             validation,
-            type,
+            type
           };
         });
 
@@ -400,7 +381,7 @@ class Form extends React.Component<Props, State> {
 
   renderButtons() {
     const { currentPage } = this.state;
-    const { form, isSubmitting, color } = this.props;
+    const { form, isSubmitting, color, invoice } = this.props;
     const numberOfPages = form.numberOfPages || 1;
     const fields = form.fields || [];
 
@@ -424,14 +405,6 @@ class Form extends React.Component<Props, State> {
         </button>
       );
     };
-
-    const productFields = fields.filter((f) => (f.type === "productCategory" && f.isRequired));
-
-
-
-    if (productFields.length > 0) {
-      return button(__("Continue"), this.onContinueClick, isSubmitting);
-    }
 
     if (numberOfPages === 1) {
       return button(
@@ -460,9 +433,6 @@ class Form extends React.Component<Props, State> {
       return button(__("Next"), this.onNextClick, isSubmitting);
     }
 
-
-
-
     return (
       <div style={{ width: "100%" }}>
         <div style={{ display: "flex" }}>
@@ -474,6 +444,9 @@ class Form extends React.Component<Props, State> {
   }
 
   renderPayments() {
+    const paymentsUrl = this.props.paymentsUrl;
+    const { currentStatus } = this.props;
+
     const PaymentIframe = ({
       src,
       width,
@@ -483,17 +456,10 @@ class Form extends React.Component<Props, State> {
       width: string;
       height: string;
     }) => (
-      <iframe
-        src={src}
-        width={width}
-        height={height}
-        scrolling="yes"
-      ></iframe>
+      <iframe src={src} width={width} height={height} scrolling="yes"></iframe>
     );
 
-    const paymentsUrl = this.props.paymentsUrl;
-
-    if (!paymentsUrl) {
+    if (!paymentsUrl || currentStatus.status !== "PAYMENT_PENDING") {
       return null;
     }
 
@@ -537,7 +503,7 @@ class Form extends React.Component<Props, State> {
     thankContent?: string,
     successImage?: string
   ) {
-    const { integration, form } = this.props;
+    const { form } = this.props;
 
     return (
       <div className="erxes-form">
@@ -553,103 +519,9 @@ class Form extends React.Component<Props, State> {
     );
   }
 
-  renderinvoiceResponse(response: string) {
-    if (this.props.invoiceType === "golomtEcommerce") {
-      const GolomtFrame = ({
-        src,
-        width,
-        height,
-      }: {
-        src: string;
-        width: string;
-        height: string;
-      }) => (
-        <iframe
-          src={src}
-          width={width}
-          height={height}
-          scrolling="yes"
-        />
-      );
-
-      return <GolomtFrame src={response} width="100%" height="600px" />;
-    }
-
-    const onClick = () => {
-      this.props.onCancelOrder(
-        connection.customerId,
-        this.props.lastMessageId || ""
-      );
-    };
-
-    const button = () => {
-      return (
-        <button
-          style={{ background: this.props.color, margin: "5px" }}
-          type="button"
-          onClick={onClick}
-          className={"erxes-button btn-block"}
-        >
-          Cancel
-        </button>
-      );
-    };
-
-    if (response.includes("data:image")) {
-      return (
-        <div className="erxes-form">
-          {this.renderHead("Open social pay and scan qr code")}
-          <div className="erxes-form-content">
-            <div
-              style={{
-                verticalAlign: "middle",
-                textAlign: "center",
-                display: "table-cell",
-              }}
-            >
-              <img src={response} width="200px" height={"200px"} />
-            </div>
-            {button()}
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="erxes-form">
-        {this.renderHead("finish order")}
-        <div className="erxes-form-content">
-          <div className="erxes-callout-body">
-            {"open social pay and finalize payment"}
-          </div>
-          {button()}
-        </div>
-      </div>
-    );
-  }
-
-  renderCancelledForm() {
-    return (
-      <div className="erxes-form">
-        {this.renderHead("Order has cancelled")}
-        <div className="erxes-form-content">
-          <div className="erxes-callout-body">{__("Order has cancelled.")}</div>
-        </div>
-      </div>
-    );
-  }
-
   render() {
-    const {
-      form,
-      currentStatus,
-      sendEmail,
-      integration,
-      invoiceResponse,
-    } = this.props;
+    const { form, currentStatus, sendEmail, integration } = this.props;
     const doc = this.state.doc;
-
-    console.log('payment', this.props.paymentsUrl);
 
     if (currentStatus.status === "SUCCESS") {
       const {
@@ -664,7 +536,7 @@ class Form extends React.Component<Props, State> {
         thankTitle,
         thankContent,
         attachments,
-        successImage,
+        successImage
       } = integration.leadData;
 
       // redirect to some url
@@ -675,7 +547,7 @@ class Form extends React.Component<Props, State> {
       // send email to user and admins
       if (successAction === "email") {
         const emailField = form.fields.find(
-          (f) => f.validation === "email" || f.type === "email"
+          f => f.validation === "email" || f.type === "email"
         );
 
         if (emailField) {
@@ -689,7 +561,7 @@ class Form extends React.Component<Props, State> {
               title: userEmailTitle,
               content: userEmailContent,
               formId: connection.data.form._id,
-              attachments,
+              attachments
             });
           }
         }
@@ -702,20 +574,12 @@ class Form extends React.Component<Props, State> {
             title: adminEmailTitle,
             content: adminEmailContent,
             formId: connection.data.form._id,
-            attachments,
+            attachments
           });
         }
       } // end successAction = "email"
 
       return this.renderSuccessForm(thankTitle, thankContent, successImage);
-    }
-
-    if (currentStatus.status === "PENDING" && invoiceResponse) {
-      return this.renderinvoiceResponse(invoiceResponse);
-    }
-
-    if (currentStatus.status === "CANCELLED") {
-      return this.renderCancelledForm();
     }
 
     if (this.props.paymentsUrl) {

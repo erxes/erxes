@@ -5,7 +5,12 @@ import { getLocalStorageItem } from '../../common';
 import { IBrowserInfo, IEmailParams } from '../../types';
 import { requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
-import { cancelOrderMutation, increaseViewCountMutation, saveFormMutation, sendEmailMutation, getPaymentOptions } from '../graphql';
+import {
+  getPaymentOptions,
+  increaseViewCountMutation,
+  saveFormMutation,
+  sendEmailMutation,
+} from '../graphql';
 import { IFormDoc, ISaveFormResponse } from '../types';
 
 /*
@@ -177,41 +182,20 @@ export const saveLead = (params: {
     });
 };
 
-export const cancelOrder = (params: {
-  customerId: string;
-  messageId: string;
-  cancelCallback: (response: string) => void;
-}) => {
-  const { customerId, messageId, cancelCallback } = params;
-
-  client
-    .mutate({
-      mutation: gql(cancelOrderMutation),
-      variables: {
-        customerId,
-        messageId
-      }
-    })
-    .then(res => {
-      cancelCallback("CANCELLED");
-    })
-    .catch(_e => {
-      cancelCallback("CANCEL_FAILED");
-    });
-};
-
-export const getPaymentLink = (params: {
-  amount: number;
-}) => {
+export const getPaymentLink = (params: { amount: number }) => {
   const { amount } = params;
+
+  const customerId = getLocalStorageItem("customerId");
+  const messengerDataJson = getLocalStorageItem("messengerDataJson");
+  const messengerData = JSON.parse(messengerDataJson);
 
   return client.query({
     query: gql(getPaymentOptions),
     variables: {
-      customerId: connection.customerId,
+      customerId,
       amount,
-      contentType: "form:forms",
-      contentTypeId: connection.formId
+      contentType: "inbox:integrations",
+      contentTypeId: messengerData.integrationId
     }
   });
 };
