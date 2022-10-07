@@ -89,7 +89,7 @@ Benefits of having power-ups, you’ll power up your usage according to your nee
   </tr>
   <tr>
     <td>500 phone number verifications/month</td>
-    <td>500 phone number verifications</td>
+    <td>500 phone number verifications/month</td>
   </tr>
   <tr>
     <td></td>
