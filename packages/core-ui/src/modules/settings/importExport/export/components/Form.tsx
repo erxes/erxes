@@ -67,13 +67,7 @@ class Form extends React.Component<Props, State> {
     this.setState({ segmentData: {} });
   };
   onSubmit = () => {
-    const {
-      contentType,
-      columns,
-      segmentData,
-      exportName,
-      disclaimer
-    } = this.state;
+    const { contentType, columns, segmentData, exportName } = this.state;
 
     let columnsConfig = columns.filter(conf => conf.checked) as any;
 
@@ -85,13 +79,9 @@ class Form extends React.Component<Props, State> {
       contentType: contentType,
       columnsConfig: columnsConfig,
       segmentData: segmentData,
-      exportName,
-      disclaimer
+      exportName
     };
-    console.log(columnsConfig, '<===========columnsConfig');
-    console.log(contentType, '<===========contentType');
-    console.log(segmentData, '<===========segmentData');
-    window.location.href = `/settings/exportHistories?type=${contentType}`;
+    // window.location.href = `/settings/exportHistories?type=${contentType}`;
 
     return this.props.saveExport(doc);
   };
@@ -120,8 +110,6 @@ class Form extends React.Component<Props, State> {
             };
 
             delete data.conditionSegments;
-
-            console.log(data.conditions, '<------------------DA');
 
             this.setState({ segmentData: data });
 

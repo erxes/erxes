@@ -9,7 +9,6 @@ export const types = `
     user: JSON
     exportLink: String
     exportName: String
-    disclaimer: Boolean
   }
 
   type ExportHistoryList {
@@ -29,5 +28,5 @@ export const queries = `
 `;
 
 export const mutations = `
-  exportHistoriesCreate(contentType: String!, columnsConfig: [String], segmentData: String): JSON
+  exportHistoriesCreate(contentType: String!, columnsConfig: [String], segmentData: JSON, exportName: String): JSON
 `;
