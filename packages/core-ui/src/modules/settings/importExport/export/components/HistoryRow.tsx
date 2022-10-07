@@ -1,10 +1,9 @@
 import dayjs from 'dayjs';
 import Button from 'modules/common/components/Button';
-import DropdownToggle from 'modules/common/components/DropdownToggle';
 import { DateWrapper } from 'modules/common/styles/main';
 import { readFile, __ } from 'modules/common/utils';
 import React from 'react';
-import { Dropdown } from 'react-bootstrap';
+import Icon from 'modules/common/components/Icon';
 
 import {
   ImportTitle,
@@ -23,9 +22,9 @@ class HistoryRow extends React.Component<Props> {
     const { exportLink } = history;
 
     return (
-      <a rel="noopener noreferrer" href={readFile(exportLink)} target="_blank">
+      <Button btnStyle="simple" size="small" href={readFile(exportLink)}>
         {__(`Download result`)}
-      </a>
+      </Button>
     );
   };
 
