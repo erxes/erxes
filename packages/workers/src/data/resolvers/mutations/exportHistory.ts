@@ -8,12 +8,12 @@ const exportHistoryMutations = {
       contentType,
       columnsConfig,
       segmentData,
-      exportName
+      name
     }: {
       contentType: string;
       columnsConfig: string[];
       segmentData: any;
-      exportName: string;
+      name: string;
     },
     { user, models, subdomain }: IContext
   ) {
@@ -22,7 +22,7 @@ const exportHistoryMutations = {
       contentType,
       columnsConfig,
       segmentData,
-      exportName
+      name
     });
 
     try {
@@ -33,7 +33,7 @@ const exportHistoryMutations = {
           exportHistoryId: exportHistory._id,
           segmentData,
           user,
-          exportName
+          name
         },
         models,
         subdomain

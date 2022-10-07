@@ -12,7 +12,7 @@ import { ImportHeader } from '../../styles';
 
 type Props = {
   disclaimer: boolean;
-  exportName: string;
+  name: string;
   type?: string;
 
   onChangeExportName: (value) => void;
@@ -33,15 +33,10 @@ class Details extends React.Component<Props, {}> {
   };
 
   render() {
-    const { disclaimer, exportName, type } = this.props;
+    const { disclaimer, name, type } = this.props;
     return (
       <FlexItem slimmer={true}>
-        <FlexPad
-          type={type}
-          direction="column"
-          overflow="auto"
-          value={exportName}
-        >
+        <FlexPad type={type} direction="column" overflow="auto" value={name}>
           <FormGroup>
             <ImportHeader>
               {__(
@@ -53,7 +48,7 @@ class Details extends React.Component<Props, {}> {
               <FormControl
                 required={true}
                 name="title"
-                value={exportName}
+                value={name}
                 onChange={this.onChangeName}
                 placeholder={__('Export Name')}
               />

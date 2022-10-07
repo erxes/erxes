@@ -78,13 +78,13 @@ class SelectMenu extends React.Component<Props> {
           {this.renderBox(
             'Import',
             'envelope-edit',
-            `Lorem Ipsum is simply dummy text of the printing and typesetting industry. `,
+            ` `,
             `/settings/importHistories`
           )}
           {this.renderBox(
             'Export',
             'comment-edit',
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. ',
+            ' ',
             `/settings/exportHistories`
           )}
         </FullContent>
