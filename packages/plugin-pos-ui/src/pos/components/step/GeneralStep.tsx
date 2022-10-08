@@ -443,6 +443,7 @@ class GeneralStep extends React.Component<Props, State> {
               name="branchId"
               initialValue={pos.branchId}
               onSelect={onChangeBranches}
+              customOption={{ value: '', label: 'No branch...' }}
               multi={false}
             />
           </FormGroup>
@@ -466,14 +467,10 @@ class GeneralStep extends React.Component<Props, State> {
 
     let name = 'POS name';
     let description: any = 'description';
-    let cashierIds: any = [];
-    let adminIds: any = [];
 
     if (pos) {
       name = pos.name;
       description = pos.description;
-      cashierIds = pos.cashierIds;
-      adminIds = pos.adminIds;
     }
 
     const onChangeDepartments = departmentId => {
@@ -565,7 +562,7 @@ class GeneralStep extends React.Component<Props, State> {
                     initialValue={pos.departmentId}
                     onSelect={onChangeDepartments}
                     multi={false}
-                    customOption={{ value: '', label: 'Choose department' }}
+                    customOption={{ value: '', label: 'No department...' }}
                   />
                 </FormGroup>
               </BlockRow>
