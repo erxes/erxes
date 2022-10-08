@@ -55,7 +55,7 @@
 </p>
 
 
-Achieving growth and unity within your company is possible with erxes, because it is: 
+Achieving growth and unity within your company is possible with erxes because it is: 
 
 
 
@@ -71,7 +71,7 @@ Achieving growth and unity within your company is possible with erxes, because i
 erxes (pronounced 'erk-sis') means "heavenly bodies" in Mongolian. It is branded as “erxes” with all lowercase letters.
 
 ## What is erxes?
-erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of business. You can learn more about **<a href="https://docs.erxes.io/docs/introduction/architecture">erxes architecture in our documentation</a>.**
+erxes is a secure, self-hosted, and scalable open-source experience operating system (XOS) that enables SaaS providers and digital marketing agencies/developers to create unique experiences that work for all types of businesses. You can learn more about **<a href="https://docs.erxes.io/docs/introduction/architecture">erxes architecture in our documentation</a>.**
 
 ## erxes XOS & Plugins
 erxes is composed of 2 main components: **XOS** & **Plugins**
@@ -82,13 +82,13 @@ erxes is composed of 2 main components: **XOS** & **Plugins**
 **Plugins:** erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
 
 - **Team Inbox** - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">  
-- **Messenger** - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
+- **Messenger** - Enable businesses to capture every single customer feedback and educate customers through a knowledge-base right from the erxes Messenger.
 - **Sales Management** - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
-- **Lead generation** - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
+- **Lead generation** - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-ups, or embed placements.
 - **Engage** - Start converting your prospects into potential customers through email, SMS, messenger, or more interactions to drive them to a successful close.
 - **Contact Management** - Access our all-in-one CRM system in one go, so it’s easier to coordinate and manage your customer interactions.
 - **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
-- **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
+- **Task Management** - Create a more collaborative, self-reliant, and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
  
 ## Getting Started
 
