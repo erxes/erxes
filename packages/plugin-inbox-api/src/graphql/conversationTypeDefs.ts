@@ -3,7 +3,7 @@ import {
   attachmentType
 } from '@erxes/api-utils/src/commonTypeDefs';
 
-export const types = ({ tags, forms, payment }) => `
+export const types = ({ tags, forms }) => `
   ${attachmentType}
   ${attachmentInput}
 
@@ -20,16 +20,6 @@ export const types = ({ tags, forms, payment }) => `
     tags
       ? `
       extend type Tag @key(fields: "_id") {
-        _id: String! @external
-      }
-    `
-      : ''
-  }
-
-  ${
-    payment
-      ? `
-      extend type Invoice @key(fields: "_id") {
         _id: String! @external
       }
     `
@@ -118,8 +108,6 @@ export const types = ({ tags, forms, payment }) => `
     videoCallData: VideoCallData
     contentType: String
     bookingWidgetData: JSON
-    invoiceId: String
-    ${payment ? `invoice: Invoice` : ''}
   }
 
   type FacebookPost {

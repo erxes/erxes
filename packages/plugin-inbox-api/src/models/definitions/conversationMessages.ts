@@ -43,7 +43,6 @@ export interface IMessage {
   engageData?: IEngageData;
   contentType?: string;
   bookingWidgetData?: any;
-  invoiceId?: string;
 }
 
 export interface IResolveAllConversationParam {
@@ -118,6 +117,5 @@ export const messageSchema = new Schema({
     enum: MESSAGE_TYPES.ALL,
     default: MESSAGE_TYPES.TEXT
   }),
-  bookingWidgetData: field({ type: Object }),
-  invoiceId: field({ type: String })
+  bookingWidgetData: field({ type: Object })
 });

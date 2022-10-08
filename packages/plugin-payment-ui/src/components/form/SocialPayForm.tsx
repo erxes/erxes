@@ -48,7 +48,7 @@ class SocialPayConfigForm extends React.Component<Props, State> {
     const { paymentConfig } = this.props;
     const generatedValues = {
       name: values.paymentConfigName,
-      type: PAYMENT_KINDS.SOCIALPAY,
+      kind: PAYMENT_KINDS.SOCIALPAY,
       status: 'active',
       config: {
         inStoreSPTerminal: values.inStoreSPTerminal,

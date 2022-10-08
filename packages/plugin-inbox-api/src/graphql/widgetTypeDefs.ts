@@ -206,7 +206,6 @@ export const mutations = ({ forms }) => `
       browserInfo: JSON!
       cachedCustomerId: String
       userId: String
-      invoiceId: String
     ): SaveFormResponse
 
     widgetsBookingConnect(_id: String): Integration
