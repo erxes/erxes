@@ -26,7 +26,12 @@ const prepareData = async (
   const contactsFilter: any = {};
 
   if (segmentData.conditions) {
-    const itemIds = await fetchSegment(subdomain, '', {}, segmentData);
+    const itemIds = await fetchSegment(
+      subdomain,
+      '',
+      { scroll: true, page: 1, perPage: 10000 },
+      segmentData
+    );
 
     contactsFilter._id = { $in: itemIds };
   }

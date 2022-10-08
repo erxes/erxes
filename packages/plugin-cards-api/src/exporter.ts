@@ -26,7 +26,12 @@ const prepareData = async (
   let itemIds = [];
 
   if (segmentData.conditions) {
-    itemIds = await fetchSegment(subdomain, '', {}, segmentData);
+    itemIds = await fetchSegment(
+      subdomain,
+      '',
+      { scroll: true, page: 1, perPage: 10000 },
+      segmentData
+    );
 
     boardItemsFilter._id = { $in: itemIds };
   }
