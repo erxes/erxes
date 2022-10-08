@@ -92,13 +92,9 @@ const main = async () => {
   console.log('Replacing yarn.lock with global yarn.lock ...........');
 
   await execute(() =>
-    fse.copy(
-      '../yarn.lock',
-      `./yarn.lock`,
-      {
-        overwrite: true
-      }
-    )
+    fse.copy('../yarn.lock', `./yarn.lock`, {
+      overwrite: true
+    })
   );
 
   console.log('Yarn install ....');
@@ -127,13 +123,15 @@ const main = async () => {
       fse.move('./node_modules', `./${folderName}/.erxes/dist/node_modules`)
     );
   } else {
-    await execute(() => fse.move('./node_modules', `./${folderName}/dist/node_modules`));
+    await execute(() =>
+      fse.move('./node_modules', `./${folderName}/dist/node_modules`)
+    );
   }
 };
 
 main()
   .then(() => process.exit())
-  .catch((e) => {
-    console.log(e)
-    process.exit(1)
+  .catch(e => {
+    console.log(e);
+    process.exit(1);
   });
