@@ -1,8 +1,8 @@
-import { PAYMENT_STATUS } from './../../../constants';
+import { PAYMENT_STATUS } from '../../constants';
 import { sendRequest } from '@erxes/api-utils/src';
 import * as crypto from 'crypto';
 
-import { SOCIALPAY_ACTIONS, SOCIALPAY_ENDPOINT } from '../../../constants';
+import { SOCIALPAY_ACTIONS, SOCIALPAY_ENDPOINT } from '../../constants';
 import { IModels } from '../../connectionResolver';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs';

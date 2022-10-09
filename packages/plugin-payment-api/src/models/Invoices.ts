@@ -1,6 +1,6 @@
 import { Model } from 'mongoose';
 
-import { PAYMENT_KINDS } from '../../constants';
+import { PAYMENT_KINDS } from '../constants';
 import { IModels } from '../connectionResolver';
 import * as qpayUtils from '../api/qPay/utils';
 import * as socialPayUtils from '../api/socialPay/utils';
