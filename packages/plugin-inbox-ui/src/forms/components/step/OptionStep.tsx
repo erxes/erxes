@@ -130,7 +130,6 @@ class OptionStep extends React.Component<Props, State> {
     };
 
     const paymentConfigOnChange = (values: string[]) => {
-      console.log(values);
       this.onChangeFunction('paymentConfigIds', values);
     };
 
