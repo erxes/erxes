@@ -110,7 +110,6 @@ class Row extends React.Component<Props, State> {
   }
 
   render() {
-    console.log('this.props', this.props);
     const { paymentConfigs, paymentConfigsCount, queryParams } = this.props;
 
     const selected = paymentConfigs.find(
