@@ -178,7 +178,7 @@ export const saveLead = (params: {
     })
 
     .catch(e => {
-      saveCallback({ status: "error", errors: [{ text: e.message }] });
+      saveCallback({ status: "error", conversationId: "" ,errors: [{ text: e.message }] });
     });
 };
 
