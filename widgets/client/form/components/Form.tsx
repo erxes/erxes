@@ -19,10 +19,8 @@ type Props = {
   color?: string;
   extraContent?: string;
   paymentsUrl?: string;
-  invoice?: any;
 
-  onCallPayments: (amount: number) => void;
-  onSubmit: (doc: IFormDoc, formCode: string) => void;
+  onSubmit: (doc: IFormDoc, requiredPaymentAmount?:number ) => void;
   onCreateNew: () => void;
   sendEmail: (params: IEmailParams) => void;
   setHeight?: () => void;
@@ -165,11 +163,11 @@ class Form extends React.Component<Props, State> {
       }
     }
 
-    if (subTotal > 0) {
-      this.props.onCallPayments(subTotal);
-    }
+    this.props.onSubmit(doc, subTotal);
 
-    this.props.onSubmit(doc, this.props.form.code);
+    // if (subTotal > 0) {
+    //   this.props.onCallPayments(subTotal);
+    // }
   };
 
   canChangePage = () => {
@@ -381,9 +379,8 @@ class Form extends React.Component<Props, State> {
 
   renderButtons() {
     const { currentPage } = this.state;
-    const { form, isSubmitting, color, invoice } = this.props;
+    const { form, isSubmitting, color,  } = this.props;
     const numberOfPages = form.numberOfPages || 1;
-    const fields = form.fields || [];
 
     const button = (
       title: any,

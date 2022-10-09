@@ -40,3 +40,8 @@ export const PAYMENT_STATUS = {
 
   ALL: ['paid', 'pending', 'refunded', 'failed'],
 };
+
+export const PLUGIN_RESOLVERS_META = {
+  'inbox:conversations': { action: 'getConversation', queryKey: 'conversationId'},
+  'cards:deals': { action: 'deals.findOne', queryKey: '_id'},
+}

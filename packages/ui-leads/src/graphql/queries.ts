@@ -52,6 +52,8 @@ export const commonFields = `
 
   visibility
   departmentIds
+
+  paymentConfigIds
 `;
 
 const integrations = `

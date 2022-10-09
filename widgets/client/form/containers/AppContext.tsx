@@ -19,9 +19,7 @@ interface IState {
   isSubmitting?: boolean;
   extraContent?: string;
   callSubmit: boolean;
-  invoiceAmount?: number;
   paymentsUrl?: string;
-  invoice?: any;
 }
 
 interface IStore extends IState {
@@ -40,8 +38,6 @@ interface IStore extends IState {
   getForm: () => IForm;
   getIntegrationConfigs: () => IIntegrationLeadData;
   onChangeCurrentStatus: (status: string) => void;
-  onCallPayments: (amount: number) => void;
-  setInvoice: (invoice: any) => void;
 }
 
 const AppContext = React.createContext({} as IStore);
@@ -171,7 +167,7 @@ export class AppProvider extends React.Component<{}, IState> {
   /*
    * Save user submissions
    */
-  save = (doc: IFormDoc) => {
+  save = (doc: IFormDoc, requiredPaymentAmount?: number) => {
     this.setState({ isSubmitting: true });
 
     saveLead({
@@ -194,15 +190,19 @@ export class AppProvider extends React.Component<{}, IState> {
             break;
         }
 
-        if (status !== "ERROR" && this.state.paymentsUrl) {
+        if (status !== "ERROR" && requiredPaymentAmount && requiredPaymentAmount > 0) {
           status = 'PAYMENT_PENDING';
+
+          getPaymentLink(requiredPaymentAmount, response.conversationId).then((response: any) => {
+            const paymentsUrl = response.data.getPaymentOptions;
+            this.setState({ paymentsUrl });
+          });
         }
 
         postMessage({
           message: "submitResponse",
           status
         });
-
 
         this.setState({
           callSubmit: false,
@@ -262,20 +262,6 @@ export class AppProvider extends React.Component<{}, IState> {
     this.setState({ currentStatus: { status } });
   };
 
-  onCallPayments = (amount: number) => {
-    getPaymentLink({ amount }).then((response: any) => {
-      const paymentsUrl = response.data.getPaymentOptions;
-      this.setState({ paymentsUrl });
-    });
-  };
-
-  setInvoice = (invoice: any) => {
-    if (invoice.status === 'paid') {
-      this.setState({ currentStatus: { status: 'SUCCESS' } });
-    }
-    this.setState({ invoice });
-  }
-
   render() {
     return (
       <AppContext.Provider
@@ -296,8 +282,6 @@ export class AppProvider extends React.Component<{}, IState> {
           getForm: this.getForm,
           getIntegrationConfigs: this.getIntegrationConfigs,
           onChangeCurrentStatus: this.onChangeCurrentStatus,
-          onCallPayments: this.onCallPayments,
-          setInvoice: this.setInvoice,
         }}
       >
         {this.props.children}

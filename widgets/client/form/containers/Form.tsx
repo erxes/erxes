@@ -42,11 +42,8 @@ interface IProps {
   callSubmit: boolean;
   extraContent?: string;
   isSubmitting?: boolean;
-  invoiceAmount?: number;
   paymentsUrl?: string;
-  invoice?: any;
   onChangeCurrentStatus: (status: string) => void;
-  onCallPayments: (amount:number) => void;
 }
 
 const FormWithData = graphql<IProps, QueryResponse>(
@@ -76,9 +73,7 @@ const WithContext = () => (
       isSubmitting,
       getForm,
       onChangeCurrentStatus,
-      onCallPayments,
       paymentsUrl,
-      invoice,
     }) => {
       const integration = getIntegration();
       const form = getForm();
@@ -96,9 +91,7 @@ const WithContext = () => (
           extraContent={extraContent}
           callSubmit={callSubmit}
           onChangeCurrentStatus={onChangeCurrentStatus}
-          onCallPayments={onCallPayments}
           paymentsUrl={paymentsUrl}
-          invoice={invoice}
         />
       );
     }}

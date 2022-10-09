@@ -34,7 +34,7 @@ class Row extends React.Component<Props> {
     };
 
     const renderPluginItemName = data => {
-      const keys = ['title', 'name', 'text'];
+      const keys = ['title', 'name', 'text', 'content', 'description'];
 
       for (const key of keys) {
         if (data[key]) {

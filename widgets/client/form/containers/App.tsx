@@ -16,7 +16,7 @@ type Props = {
   setHeight: () => void;
   setCallSubmit: (state: boolean) => void;
   setExtraContent: (content: string) => void;
-  setInvoice: (invoice: any) => void;
+  onChangeCurrentStatus: (status: string) => void;
 };
 
 class App extends React.Component<Props> {
@@ -50,8 +50,8 @@ class App extends React.Component<Props> {
       }
 
       if (fromPayment) {
-        if (message === "paymentSuccess" && invoice) {
-          this.props.setInvoice({...invoice, status: 'paid'});
+        if (message === "paymentSuccessfull") {
+          this.props.onChangeCurrentStatus("SUCCESS");
         }
       }
 
@@ -145,7 +145,7 @@ const WithContext = () => (
           getIntegrationConfigs,
           setCallSubmit,
           setExtraContent,
-          setInvoice
+          onChangeCurrentStatus
         } = value;
 
         return (
@@ -160,7 +160,7 @@ const WithContext = () => (
             setHeight={setHeight}
             closePopup={closePopup}
             showPopup={showPopup}
-            setInvoice={setInvoice}
+            onChangeCurrentStatus={onChangeCurrentStatus}
           />
         );
       }}

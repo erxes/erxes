@@ -182,20 +182,16 @@ export const saveLead = (params: {
     });
 };
 
-export const getPaymentLink = (params: { amount: number }) => {
-  const { amount } = params;
-
+export const getPaymentLink = ( amount: number, conversationId: string ) => {
   const customerId = getLocalStorageItem("customerId");
-  const messengerDataJson = getLocalStorageItem("messengerDataJson");
-  const messengerData = JSON.parse(messengerDataJson);
 
   return client.query({
     query: gql(getPaymentOptions),
     variables: {
       customerId,
       amount,
-      contentType: "inbox:integrations",
-      contentTypeId: messengerData.integrationId
+      contentType: "inbox:conversations",
+      contentTypeId: conversationId
     }
   });
 };

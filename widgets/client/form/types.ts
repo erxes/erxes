@@ -114,6 +114,7 @@ export interface IFormDoc {
 
 export interface ISaveFormResponse {
   status: string;
+  conversationId: string;
   errors?: IFieldError[];
 }
 
