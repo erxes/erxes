@@ -89,7 +89,6 @@ module.exports = {
           path.resolve(__dirname, "../ui-internalnotes/src"),
           path.resolve(__dirname, "../ui-leads/src"),
           path.resolve(__dirname, "../ui-tags/src"),
-          path.resolve(__dirname, "../ui-payment/src"),
         ],
         use: {
           loader: "babel-loader",
