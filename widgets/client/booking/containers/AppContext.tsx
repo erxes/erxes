@@ -5,7 +5,6 @@ import { IEmailParams, IIntegration } from "../../types";
 import { connection } from "../connection";
 import { IBookingData } from "../types";
 import { saveBooking } from "./utils";
-import * as QRCode from "qrcode";
 
 interface IState {
   activeRoute: string;
