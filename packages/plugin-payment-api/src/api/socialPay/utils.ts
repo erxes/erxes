@@ -24,8 +24,6 @@ export const socialPayHandler = async (models: IModels, data) => {
       terminal
     });
 
-    console.log('resp_code', body.response.resp_code);
-
     if (body.response.resp_code !== '00') {
       status = PAYMENT_STATUS.PENDING;
       throw new Error(body.response.resp_desc);
