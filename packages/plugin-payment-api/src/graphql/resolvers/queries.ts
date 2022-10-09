@@ -4,9 +4,8 @@ import {
   requireLogin
 } from '@erxes/api-utils/src/permissions';
 
-import { PAYMENT_KINDS } from '../../../constants';
 import { IContext } from '../../connectionResolver';
-import { PAYMENT_STATUS } from './../../../constants';
+import { PAYMENT_KINDS, PAYMENT_STATUS } from '../../constants';
 
 interface IParam {
   searchValue?: string;
@@ -149,11 +148,11 @@ const queries = {
   }
 };
 
-// requireLogin(queries, 'paymentConfigs');
-// requireLogin(queries, 'invoices');
+requireLogin(queries, 'paymentConfigs');
+requireLogin(queries, 'invoices');
 
-// checkPermission(queries, 'paymentConfigs', 'showPayments', []);
-// checkPermission(queries, 'invoices', 'showInvoices', []);
+checkPermission(queries, 'paymentConfigs', 'showPayments', []);
+checkPermission(queries, 'invoices', 'showInvoices', []);
 
 const paymentQueries = {
   getPaymentOptions(_root, params, _args) {
