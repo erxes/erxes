@@ -2,7 +2,7 @@ import { serviceDiscovery } from './../../configs';
 import { IContext } from '../../connectionResolver';
 import { IInvoice } from '../../models/definitions/invoices';
 import { sendPluginsMessage } from '../../messageBroker';
-import { PLUGIN_RESOLVERS_META } from '../../../constants';
+import { PLUGIN_RESOLVERS_META } from '../../constants';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {

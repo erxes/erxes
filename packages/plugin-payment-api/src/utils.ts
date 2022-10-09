@@ -1,10 +1,10 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 
-import { PAYMENT_KINDS } from '../constants';
 import { qPayHandler } from './api/qPay/utils';
 import { socialPayHandler } from './api/socialPay/utils';
 import { graphqlPubsub } from './configs';
 import { generateModels } from './connectionResolver';
+import { PAYMENT_KINDS } from './constants';
 import redisUtils from './redisUtils';
 
 export const getHandler = async (req, res) => {

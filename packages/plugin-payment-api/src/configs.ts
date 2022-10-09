@@ -1,15 +1,14 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as express from 'express';
 import * as path from 'path';
-import * as pug from 'pug';
 
-import { GET_CALLBACK_TYPES, POST_CALLBACK_TYPES } from '../constants';
 import { generateModels } from './connectionResolver';
+import { GET_CALLBACK_TYPES, POST_CALLBACK_TYPES } from './constants';
+import controllers from './controllers';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
 import { getHandler, postHandler } from './utils';
-import controllers from './controllers';
 
 export let mainDb;
 export let debug;
