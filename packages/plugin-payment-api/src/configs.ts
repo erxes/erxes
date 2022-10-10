@@ -1,7 +1,7 @@
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import * as express from 'express';
 import * as path from 'path';
-
+import * as permissions from './permissions';
 import { generateModels } from './connectionResolver';
 import { GET_CALLBACK_TYPES, POST_CALLBACK_TYPES } from './constants';
 import controllers from './controllers';
@@ -17,6 +17,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'payment',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
 
@@ -27,6 +28,9 @@ export default {
   },
 
   hasSubscriptions: true,
+  meta: {
+    permissions
+  },
 
   getHandlers: GET_CALLBACK_TYPES.ALL.map(type => ({
     path: `/callback/${type}`,
