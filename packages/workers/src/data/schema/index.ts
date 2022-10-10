@@ -25,6 +25,10 @@ export let types = `
     inheritMaxAge: Boolean
   ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
   
+  extend type User @key(fields: "_id") {
+    _id: String! @external
+  }
+  
   ${ImportHistoryTypes}
    ${ExportHistoryTypes}
 `;

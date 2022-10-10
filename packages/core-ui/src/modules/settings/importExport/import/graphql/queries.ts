@@ -44,7 +44,12 @@ const importHistories = `
         percentage
         attachments
         removed
-        user 
+        user {
+          _id
+          details {
+            fullName
+          }
+        }
         error
         }
       count 

@@ -5,7 +5,7 @@ export const types = `
     contentType: String
     date: Date
     status: String
-    user: JSON
+    user: User
     exportLink: String
     name: String
   }

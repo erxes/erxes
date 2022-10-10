@@ -15,7 +15,7 @@ export const types = `
     ids: [String]
     
     date: Date
-    user: JSON
+    user: User
     error: String
   }
 

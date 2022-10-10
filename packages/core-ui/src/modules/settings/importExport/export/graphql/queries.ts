@@ -32,7 +32,11 @@ const exportHistories = `
         contentType
         date
         status
-        user 
+        user {
+          details {
+            fullName
+          }
+        }
         exportLink
         }
       count 

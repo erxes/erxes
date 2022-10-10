@@ -5,8 +5,6 @@ import { IContext } from '../../../connectionResolvers';
 
 const importHistoryQueries = {
   async importHistoryGetTypes() {
-    // return servicesImportTypes;
-
     const services = await getServices();
     const importTypes: Array<{ text: string; contentType: string }> = [];
 
