@@ -35,7 +35,7 @@ const tripsQuery = {
     }
 
     return {
-      list: paginate(models.Trips.find(filter).lean(), {
+      list: paginate(models.Trips.find(filter).sort({createdAt: -1}).lean(), {
         page: page || 1,
         perPage: perPage || 20
       }),
