@@ -2,6 +2,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
+import { sendTagsMessage } from '../../messageBroker';
 
 interface IListArgs {
   status: string;
@@ -11,10 +12,11 @@ interface IListArgs {
   perPage?: number;
   sortField: string;
   sortDirection: number;
+  tag: string;
 }
 
 const generateFilter = (params: IListArgs, user: IUserDocument) => {
-  const { searchValue } = params;
+  const { searchValue, tag } = params;
 
   const filter: any = user.isOwner
     ? {}
@@ -35,6 +37,9 @@ const generateFilter = (params: IListArgs, user: IUserDocument) => {
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
   }
 
   return filter;
@@ -88,7 +93,36 @@ const dashBoardQueries = {
       }
     }
 
-    return ['Customers', 'Deals', 'Conversations', 'Tasks', 'Tickets'];
+    const types = ['Customers', 'Deals', 'Conversations', 'Tasks', 'Tickets'];
+
+    if (services.includes('pos')) {
+      types.push('Pos');
+    }
+
+    return types;
+  },
+
+  async dashboardCountByTags(_root, _params, { models, subdomain }: IContext) {
+    const counts = {};
+
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'dashboard:dashboard'
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const tag of tags) {
+      counts[tag._id] = await models.Dashboards.find({
+        tagIds: tag._id,
+        status: { $ne: 'deleted' }
+      }).countDocuments();
+    }
+
+    return counts;
   },
 
   async dashboardItems(
