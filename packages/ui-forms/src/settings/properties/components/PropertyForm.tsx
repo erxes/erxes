@@ -401,6 +401,7 @@ class PropertyForm extends React.Component<Props, State> {
             <option value="radio">Radio button</option>
             <option value="file">File</option>
             <option value="customer">Customer</option>
+            <option value="product">Product</option>
             <option value="map">Location/Map</option>
           </FormControl>
         </FormGroup>
