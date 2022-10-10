@@ -14,25 +14,21 @@ Benefits of having power-ups, you’ll power up your usage according to your nee
     <th> Power-ups for $5</th>    
   </tr>
   <tr>
-    <td rowspan="15" style={{textAlign:"center"}}>Plugins</td>
+    <td rowspan="14" style={{textAlign:"center"}}>Plugins</td>
     <td>5000 contacts</td>    
-    <td>5000 contacts </td>
-  </tr>
-  <tr>
-    <td>1 brand</td>    
-    <td>1 knowledge base </td>
+    <td>+ 5000 contacts </td>
   </tr>
   <tr>
     <td>1 automations</td>    
-    <td>1 automations </td>
+    <td>+ 1 automations </td>
   </tr>
   <tr>
     <td>2 ticket pipeline / ticket  management</td>    
-    <td>5 ticket pipeline/ ticket management</td>
+    <td>5 ticket pipeline / ticket management</td>
   </tr>
   <tr>
-    <td>1 help center</td>    
-    <td></td>
+    <td>1 client portal</td>    
+    <td>+ 1 client portal</td>
   </tr>
   <tr>
     <td>2 task Pipeline / project management</td>    
@@ -44,10 +40,10 @@ Benefits of having power-ups, you’ll power up your usage according to your nee
   </tr>
   <tr>
     <td>Chat support</td>    
-    <td></td>
+    <td>Chat support</td>
   </tr>
   <tr>
-    <td></td>    
+    <td>1 booking</td>    
     <td>5 booking</td>
   </tr>
   <tr>
@@ -59,8 +55,8 @@ Benefits of having power-ups, you’ll power up your usage according to your nee
     <td>5 team member</td>
   </tr>
   <tr>
-    <td>5 forms</td>    
-    <td>5 popups & forms</td>
+    <td>5 popups & forms</td>    
+    <td>+ 5 popups & forms</td>
   </tr>
   <tr>
     <td>2 growth hacking pipeline / growth hacking planner</td>    
@@ -75,21 +71,25 @@ Benefits of having power-ups, you’ll power up your usage according to your nee
     <td>5 segments </td>
   </tr>
   <tr>
-    <td rowspan="8" style={{textAlign:"center"}}> Add-ons</td>
+    <td rowspan="9" style={{textAlign:"center"}}> Add-ons</td>
+    <td>1 brand</td>
+    <td>Unlimited brands</td>
+  </tr>
+  <tr>
     <td></td>
     <td>1 callpro</td>
   </tr>
   <tr>
     <td>1 account with 3 Organizations</td>
-    <td>1 account with 4 Organizations</td>
+    <td>+ 1 Organization</td>
   </tr>
   <tr>
     <td>5,000 emails/month</td>
-    <td>5,000 emails/month</td>
+    <td>+ 5,000 emails/month</td>
   </tr>
   <tr>
     <td>500 phone number verifications/month</td>
-    <td>500 phone number verifications/month</td>
+    <td>+ 500 phone number verifications/month</td>
   </tr>
   <tr>
     <td></td>
@@ -108,7 +108,7 @@ Benefits of having power-ups, you’ll power up your usage according to your nee
     <td>5000 email verifications</td>
   </tr>
   <tr>
-    <td>Onboarding</td>
+    <td style={{textAlign:"center"}}>Onboarding</td>
     <td style={{textAlign:"center"}}>❌</td>
     <td></td>
   </tr>
