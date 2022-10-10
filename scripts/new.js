@@ -366,6 +366,50 @@ module.exports = {
       }
     }
   },
+  calendar: {
+    ui: {
+      name: 'calendar',
+      exposes: {
+        './routes': './src/routes.tsx',
+        './settings': './src/Settings.tsx'
+      },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-calendar-ui/remoteEntry.js',
+        scope: 'calendar',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Calendar',
+          url: '/calendar',
+          icon: 'icon-calendar-alt',
+          location: 'mainNavigation',
+          permission: 'showCalendars'
+        },
+        {
+          text: 'Calendar settings',
+          to: '/settings/calendars',
+          image: '/images/icons/erxes-21.svg',
+          location: 'settings',
+          scope: 'calendar',
+          action: 'calendarsAll',
+          permissions: [
+            'calendarsAdd',
+            'calendarsEdit',
+            'calendarsRemove',
+            'showCalendars',
+            'showCalendarGroups',
+            'calendarGroupsAdd',
+            'calendarGroupsEdit',
+            'calendarGroupsRemove'
+          ]
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-calendar-ui/remoteEntry.js'
+    }
+  },
   cards: {
     ui: {
       name: 'cards',
@@ -913,6 +957,46 @@ module.exports = {
       ]
     }
   },
+  chats: {
+    ui: {
+      name: 'chats',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-chats-ui/remoteEntry.js',
+        scope: 'chats',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Chat',
+          url: '/erxes-plugin-chat/home',
+          icon: 'icon-cog',
+          location: 'mainNavigation',
+          permission: 'showChats'
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-chats-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        chats: {
+          name: 'chats',
+          description: 'Chats',
+          actions: [
+            {
+              name: 'chatsAll',
+              description: 'All',
+              use: ['showChats', 'manageChats']
+            },
+            { name: 'showChats', description: 'Show chats' },
+            { name: 'manageChats', description: 'Manage Chats' }
+          ]
+        }
+      }
+    }
+  },
   clientportal: {
     ui: {
       name: 'clientportal',
@@ -1112,6 +1196,65 @@ module.exports = {
       }
     }
   },
+  ebarimt: {
+    ui: {
+      name: 'ebarimt',
+      exposes: {
+        './routes': './src/routes.tsx',
+        './response': './src/response.tsx'
+      },
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-ebarimt-ui/remoteEntry.js',
+      scope: 'ebarimt',
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-ebarimt-ui/remoteEntry.js',
+        scope: 'ebarimt',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Put Responses',
+          url: '/put-responses',
+          icon: 'icon-lamp',
+          location: 'mainNavigation',
+          permission: 'managePutResponses'
+        },
+        {
+          text: 'Ebarimt config',
+          to: '/erxes-plugin-ebarimt/settings/general',
+          image: '/images/icons/erxes-04.svg',
+          location: 'settings',
+          scope: 'ebarimt',
+          action: 'syncEbarimtConfig',
+          permission: 'syncEbarimtConfig'
+        }
+      ],
+      layout: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-ebarimt-ui/remoteEntry.js',
+        scope: 'ebarimt',
+        module: './response'
+      }
+    },
+    api: {
+      permissions: {
+        ebarimt: {
+          name: 'ebarimt',
+          description: 'Ebarimt',
+          actions: [
+            {
+              name: 'ebarimtAll',
+              description: 'All',
+              use: ['managePutResponses', 'syncEbarimtConfig']
+            },
+            { name: 'managePutResponses', description: 'Manage Put responses' },
+            { name: 'syncEbarimtConfig', description: 'Manage ebarimt config' }
+          ]
+        }
+      }
+    }
+  },
   emailtemplates: {
     ui: {
       name: 'emailtemplates',
@@ -1224,6 +1367,93 @@ module.exports = {
         }
       },
       essyncer: [{ name: 'engage_messages', schema: '{}', script: '' }]
+    }
+  },
+  exm: {
+    ui: {
+      name: 'exm',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-exm-ui/remoteEntry.js',
+        scope: 'exm',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Exm core',
+          to: '/erxes-plugin-exm/home',
+          image: '/images/icons/erxes-30.png',
+          location: 'settings',
+          action: '',
+          permissions: ['showExms']
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-exm-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        exm: {
+          name: 'exm',
+          description: 'Exm core',
+          actions: [
+            { name: 'showExms', description: 'Show exm' },
+            { name: 'manageExms', description: 'Manage exm' },
+            {
+              name: 'exmsAll',
+              description: 'All',
+              use: ['showExms', 'manageExms']
+            }
+          ]
+        }
+      }
+    }
+  },
+  exmfeed: {
+    ui: {
+      name: 'exmfeed',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-exmfeed-ui/remoteEntry.js',
+        scope: 'exmfeed',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Exm feed',
+          url: '/erxes-plugin-exm-feed/home',
+          icon: 'icon-list-2',
+          location: 'mainNavigation',
+          permission: 'showExmActivityFeed'
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-exmfeed-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        engages: {
+          name: 'exmfeed',
+          description: 'Exm feed',
+          actions: [
+            {
+              name: 'showExmActivityFeed',
+              description: 'Show exm activity feed'
+            },
+            {
+              name: 'manageExmActivityFeed',
+              description: 'Manage exm activity feed'
+            },
+            {
+              name: 'exmActivityFeedAll',
+              description: 'All',
+              use: ['showExmActivityFeed', 'manageExmActivityFeed']
+            }
+          ]
+        }
+      }
     }
   },
   forms: {
@@ -1385,6 +1615,77 @@ module.exports = {
       }
     }
   },
+  loyalties: {
+    ui: {
+      name: 'loyalties',
+      exposes: {
+        './routes': './src/routes.tsx',
+        './customerSidebar': './src/containers/CustomerSidebar.tsx',
+        './companySidebar': './src/containers/CompanySidebar.tsx',
+        './userSidebar': './src/containers/UserSidebar.tsx'
+      },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loyalties-ui/remoteEntry.js',
+        scope: 'loyalties',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Loyalties',
+          url: '/vouchers',
+          icon: 'icon-piggybank',
+          location: 'mainNavigation',
+          permission: 'showLoyalties'
+        },
+        {
+          text: 'Loyalties config',
+          to: '/erxes-plugin-loyalty/settings/general',
+          image: '/images/icons/erxes-16.svg',
+          location: 'settings',
+          scope: 'loyalties',
+          action: 'loyaltyConfig',
+          permissions: ['manageLoyalties', 'showLoyalties']
+        }
+      ],
+      customerRightSidebarSection: [
+        {
+          text: 'customerSection',
+          component: './customerSidebar',
+          scope: 'loyalties'
+        }
+      ],
+      companyRightSidebarSection: [
+        {
+          text: 'companySection',
+          component: './companySidebar',
+          scope: 'loyalties'
+        }
+      ],
+      userRightSidebarSection: [
+        { text: 'userSection', component: './userSidebar', scope: 'loyalties' }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loyalties-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        loyalties: {
+          name: 'loyalties',
+          description: 'Loyalties',
+          actions: [
+            {
+              name: 'loyaltyAll',
+              description: 'All',
+              use: ['showLoyalties', 'manageLoyalties']
+            },
+            { name: 'showLoyalties', description: 'Show loyalties' },
+            { name: 'manageLoyalties', description: 'Manage loyalties' }
+          ]
+        }
+      }
+    }
+  },
   notifications: {
     ui: {
       name: 'notifications',
@@ -1462,6 +1763,55 @@ module.exports = {
       }
     }
   },
+  pos: {
+    ui: {
+      name: 'pos',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-pos-ui/remoteEntry.js',
+        scope: 'pos',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Pos Orders',
+          url: '/pos-orders',
+          icon: 'icon-lamp',
+          location: 'mainNavigation',
+          permission: 'showPos'
+        },
+        {
+          text: 'POS',
+          to: '/pos',
+          image: '/images/icons/erxes-05.svg',
+          location: 'settings',
+          scope: 'pos',
+          action: 'posConfig',
+          permissions: ['showPos']
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-pos-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        pos: {
+          name: 'pos',
+          description: 'POS',
+          actions: [
+            {
+              name: 'posAll',
+              description: 'All',
+              use: ['managePos', 'showPos']
+            },
+            { name: 'managePos', description: 'Manage POS' },
+            { name: 'showPos', description: 'Show' }
+          ]
+        }
+      }
+    }
+  },
   products: {
     ui: {
       name: 'products',
@@ -1518,6 +1868,54 @@ module.exports = {
       }
     }
   },
+  qpay: {
+    ui: {
+      name: 'qpay',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-qpay-ui/remoteEntry.js',
+        scope: 'qpay',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Qpay config',
+          to: '/erxes-plugin-qpay/settings/',
+          image: '/images/icons/erxes-16.svg',
+          location: 'settings',
+          scope: 'qpay',
+          action: 'pluginQpayConfig',
+          permissions: ['manageQr', 'allQr']
+        },
+        {
+          text: 'SocialPay config',
+          to: '/erxes-plugin-qpay/settings_socialPay/',
+          image: '/images/icons/erxes-16.svg',
+          location: 'settings',
+          scope: 'qpay',
+          action: 'pluginQpayConfig',
+          permissions: ['manageQr', 'allQr']
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-qpay-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        qpay: {
+          name: 'qpay',
+          description: 'QPAY',
+          actions: [
+            { name: 'qpayAll', description: 'All', use: ['manageQr', 'allQr'] },
+            { name: 'manageQr', description: 'Manage QR' },
+            { name: 'allQr', description: 'All QR' }
+          ]
+        }
+      }
+    }
+  },
+  reactions: {},
   segments: {
     ui: {
       name: 'segments',
@@ -1560,6 +1958,50 @@ module.exports = {
             },
             { name: 'manageSegments', description: 'Manage segments' },
             { name: 'showSegments', description: 'Show segments list' }
+          ]
+        }
+      }
+    }
+  },
+  syncerkhet: {
+    ui: {
+      name: 'syncerkhet',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-syncerkhet-ui/remoteEntry.js',
+        scope: 'syncerkhet',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Sync Erkhet',
+          to: '/erxes-plugin-sync-erkhet/settings/general',
+          image: '/images/icons/erxes-04.svg',
+          location: 'settings',
+          scope: 'syncerkhet',
+          action: 'syncErkhetConfig',
+          permission: 'syncErkhetConfig'
+        },
+        {
+          text: 'Sync Erkhet',
+          url: '/check-synced-deals',
+          icon: 'icon-file-check-alt',
+          location: 'mainNavigation',
+          scope: 'syncerkhet',
+          permission: 'syncErkhetConfig'
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-syncerkhet-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        syncerkhet: {
+          name: 'erkhet',
+          description: 'Erkhet',
+          actions: [
+            { name: 'syncErkhetConfig', description: 'Manage erkhet config' }
           ]
         }
       }
@@ -1613,77 +2055,144 @@ module.exports = {
       essyncer: [{ name: 'tags', schema: '{}', script: '' }]
     }
   },
-  loyalties: {
+  salesplans: {
     ui: {
-      name: 'loyalties',
-      exposes: {
-        './routes': './src/routes.tsx',
-        './customerSidebar': './src/containers/CustomerSidebar.tsx',
-        './companySidebar': './src/containers/CompanySidebar.tsx',
-        './userSidebar': './src/containers/UserSidebar.tsx'
-      },
+      name: 'salesplans',
+      exposes: { './routes': './src/routes.tsx' },
       routes: {
         url:
-          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loyalties-ui/remoteEntry.js',
-        scope: 'loyalties',
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-salesplans-ui/remoteEntry.js',
+        scope: 'salesplans',
         module: './routes'
       },
       menus: [
         {
-          text: 'Loyalties',
-          url: '/vouchers',
-          icon: 'icon-piggybank',
+          text: 'Sales Plans',
+          url: '/sales-plans',
+          icon: 'icon-file-check-alt',
           location: 'mainNavigation',
-          permission: 'showLoyalties'
-        },
-        {
-          text: 'Loyalties config',
-          to: '/erxes-plugin-loyalty/settings/general',
-          image: '/images/icons/erxes-16.svg',
-          location: 'settings',
-          scope: 'loyalties',
-          action: 'loyaltyConfig',
-          permissions: ['manageLoyalties', 'showLoyalties']
+          scope: 'salesplans',
+          permission: 'showSalesPlans'
         }
-      ],
-      customerRightSidebarSection: [
-        {
-          text: 'customerSection',
-          component: './customerSidebar',
-          scope: 'loyalties'
-        }
-      ],
-      companyRightSidebarSection: [
-        {
-          text: 'companySection',
-          component: './companySidebar',
-          scope: 'loyalties'
-        }
-      ],
-      userRightSidebarSection: [
-        { text: 'userSection', component: './userSidebar', scope: 'loyalties' }
       ],
       url:
-        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-loyalties-ui/remoteEntry.js'
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-salesplans-ui/remoteEntry.js'
     },
     api: {
       permissions: {
-        loyalties: {
-          name: 'loyalties',
-          description: 'Loyalties',
+        salesplans: {
+          name: 'salesplans',
+          description: 'Sales Plans',
           actions: [
             {
-              name: 'loyaltyAll',
+              name: 'salesplansAll',
               description: 'All',
-              use: ['showLoyalties', 'manageLoyalties']
+              use: ['showSalesPlans', 'manageSalesPlans']
             },
-            { name: 'showLoyalties', description: 'Show loyalties' },
-            { name: 'manageLoyalties', description: 'Manage loyalties' }
+            {
+              name: 'manageSalesPlans',
+              description: 'Manage Sales Plans',
+              use: ['showSalesPlans']
+            },
+            { name: 'showSalesPlans', description: 'Show Sales Plans' }
           ]
         }
       }
     }
   },
+  processes: {
+    ui: {
+      name: 'processes',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-processes-ui/remoteEntry.js',
+        scope: 'processes',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Processes',
+          to: '/processes/jobs',
+          image: '/images/icons/erxes-31.png',
+          location: 'settings',
+          scope: 'processes',
+          action: '',
+          permissions: ['showJobs', 'manageJobs']
+        },
+        {
+          text: 'Processes',
+          url: '/processes/performances',
+          icon: 'icon-file-check-alt',
+          location: 'mainNavigation',
+          permission: 'showWorks'
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-processes-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        processes: {
+          name: 'processes',
+          description: 'Processes',
+          actions: [
+            {
+              name: 'processesAll',
+              description: 'All',
+              use: ['showJobs', 'manageJobs', 'showWorks', 'manageWorks']
+            },
+            { name: 'showJobs', description: 'Show Jobs' },
+            { name: 'manageJobs', description: 'Manage Jobs' },
+            { name: 'showWorks', description: 'Show Works' },
+            { name: 'manageWorks', description: 'Manage Works' }
+          ]
+        }
+      }
+    }
+  },
+  inventories: {
+    ui: {
+      name: 'inventories',
+      exposes: { './routes': './src/routes.tsx' },
+      routes: {
+        url:
+          'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-inventories-ui/remoteEntry.js',
+        scope: 'inventories',
+        module: './routes'
+      },
+      menus: [
+        {
+          text: 'Remainders',
+          url: '/inventories/remainders',
+          icon: 'icon-box',
+          location: 'mainNavigation',
+          scope: 'inventories',
+          action: 'inventoriesAll',
+          permissions: ['showProducts', 'manageProducts']
+        }
+      ],
+      url:
+        'https://plugin-uis.s3.us-west-2.amazonaws.com/js/plugins/plugin-inventories-ui/remoteEntry.js'
+    },
+    api: {
+      permissions: {
+        inventories: {
+          name: 'inventories',
+          description: 'Inventories',
+          actions: [
+            {
+              name: 'inventoriesAll',
+              description: 'All',
+              use: ['manageRemainders']
+            },
+            { name: 'manageRemainder', description: 'Manage remainders' }
+          ]
+        }
+      }
+    }
+  },
+  posclient: {},
   webbuilder: {
     ui: {
       name: 'webbuilder',
