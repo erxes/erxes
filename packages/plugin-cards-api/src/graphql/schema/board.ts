@@ -4,7 +4,7 @@ const commonTypes = `
   type: String
 `;
 
-export const types = ({}) => `
+export const types = ({ tags }) => `
 
   type Board @key(fields: "_id") {
     _id: String!
@@ -18,6 +18,8 @@ export const types = ({}) => `
     name: String!
     status: String
     boardId: String!
+    tagId: String
+    ${tags ? `tag: Tag` : ''}
     visibility: String!
     memberIds: [String]
     departmentIds: [String]
@@ -138,6 +140,7 @@ const pipelineParams = `
   stages: JSON,
   visibility: String!,
   memberIds: [String],
+  tagId: String,
   bgColor: String,
   startDate: Date,
   endDate: Date,

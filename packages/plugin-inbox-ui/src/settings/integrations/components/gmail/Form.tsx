@@ -142,7 +142,7 @@ class Gmail extends React.Component<Props, State> {
             <strong> {__('Gmail')}</strong> {__('integration')}
           </Indicator>
           <Button.Group>
-            <Link to="/settings/add-ons">
+            <Link to="/settings/integrations">
               <Button btnStyle="simple" icon="times-circle">
                 Cancel
               </Button>
@@ -168,7 +168,7 @@ class Gmail extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons'), link: '/settings/add-ons' },
+      { title: __('integrations'), link: '/settings/integrations' },
       { title }
     ];
 
