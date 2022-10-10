@@ -31,7 +31,7 @@ class QpayConfigForm extends React.Component<Props, State> {
 
     const { paymentConfig } = this.props;
     const { name, config } = paymentConfig || ({} as IPaymentConfigDocument);
-    console.log(name, config);
+
     const { qpayMerchantUser, qpayMerchantPassword, qpayInvoiceCode } =
       config || ({} as IQpayConfig);
 
@@ -121,7 +121,7 @@ class QpayConfigForm extends React.Component<Props, State> {
             Cancel
           </Button>
           {renderButton({
-            name: 'integration',
+            passedName: 'payment',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal

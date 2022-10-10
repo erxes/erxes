@@ -1,8 +1,8 @@
-import { PAYMENT_STATUS, PAYMENT_KINDS } from './../../../constants';
+import { PAYMENT_STATUS, PAYMENT_KINDS } from '../../constants';
 import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs';
 import { sendRequest } from '@erxes/api-utils/src';
 
-import { QPAY_ACTIONS, QPAY_ENDPOINT } from '../../../constants';
+import { QPAY_ACTIONS, QPAY_ENDPOINT } from '../../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import { IQpayInvoice } from '../types';
 import { IModels } from '../../connectionResolver';

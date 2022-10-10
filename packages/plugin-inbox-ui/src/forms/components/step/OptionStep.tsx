@@ -1,24 +1,24 @@
+import { IFormData } from '@erxes/ui-forms/src/forms/types';
+import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
+import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
+import SelectPayments from '@erxes/ui-settings/src/payment/containers/SelectPayments';
+import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
+import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
+import { Description } from '@erxes/ui-settings/src/styles';
+import { IBrand } from '@erxes/ui/src/brands/types';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
 import {
   BackgroundSelector,
   FlexItem
 } from '@erxes/ui/src/components/step/style';
-
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import { Description } from '@erxes/ui-settings/src/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IBrand } from '@erxes/ui/src/brands/types';
-import { IField } from '@erxes/ui/src/types';
-import { IFormData } from '@erxes/ui-forms/src/forms/types';
-import { LANGUAGES } from '@erxes/ui-settings/src/general/constants';
 import { LeftItem } from '@erxes/ui/src/components/step/styles';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { IField } from '@erxes/ui/src/types';
+import { __ } from 'coreui/utils';
 import React from 'react';
 import Select from 'react-select-plus';
-import SelectBrand from '@erxes/ui-inbox/src/settings/integrations/containers/SelectBrand';
-import SelectChannels from '@erxes/ui-inbox/src/settings/integrations/containers/SelectChannels';
-import SelectDepartments from '@erxes/ui-settings/src/departments/containers/SelectDepartments';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from 'coreui/utils';
 
 type Props = {
   onChange: (
@@ -30,7 +30,8 @@ type Props = {
       | 'theme'
       | 'saveAsCustomer'
       | 'visibility'
-      | 'departmentIds',
+      | 'departmentIds'
+      | 'paymentConfigIds',
     value: any
   ) => void;
   type: string;
@@ -46,6 +47,7 @@ type Props = {
   channelIds?: string[];
   visibility?: string;
   departmentIds?: string[];
+  paymentConfigIds?: string[];
   onFieldEdit?: () => void;
 };
 
@@ -109,7 +111,13 @@ class OptionStep extends React.Component<Props, State> {
   }
 
   render() {
-    const { language, brand, isRequireOnce, saveAsCustomer } = this.props;
+    const {
+      language,
+      brand,
+      isRequireOnce,
+      saveAsCustomer,
+      formData
+    } = this.props;
 
     const onChange = e =>
       this.onChangeFunction(
@@ -119,6 +127,10 @@ class OptionStep extends React.Component<Props, State> {
 
     const channelOnChange = (values: string[]) => {
       this.onChangeFunction('channelIds', values);
+    };
+
+    const paymentConfigOnChange = (values: string[]) => {
+      this.onChangeFunction('paymentConfigIds', values);
     };
 
     const onChangeLanguage = e => this.onSelectChange(e, 'language');
@@ -131,6 +143,17 @@ class OptionStep extends React.Component<Props, State> {
       const visibility = (e.currentTarget as HTMLInputElement).value;
       this.onChangeFunction('visibility', visibility);
     };
+
+    let renderPayments = false;
+
+    const fields = formData.fields || [];
+
+    if (
+      fields &&
+      fields.findIndex(f => f.type === 'productCategory' && f.isRequired) !== -1
+    ) {
+      renderPayments = true;
+    }
 
     return (
       <FlexItem>
@@ -163,6 +186,14 @@ class OptionStep extends React.Component<Props, State> {
             description="Choose a channel, if you wish to see every new form in your Team Inbox."
             onChange={channelOnChange}
           />
+
+          {renderPayments && (
+            <SelectPayments
+              defaultValue={this.props.paymentConfigIds}
+              isRequired={false}
+              onChange={paymentConfigOnChange}
+            />
+          )}
 
           <FormGroup>
             <ControlLabel required={true}>Visibility</ControlLabel>

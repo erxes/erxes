@@ -133,7 +133,7 @@ class List extends React.Component<IProps, State> {
                 />
               </th>
               <th>{__('Payment name')}</th>
-              <th>{__('Type')}</th>
+              <th>{__('Kind')}</th>
               <th>{__('Amount')}</th>
               <th>{__('From')}</th>
               <th>{__('Status')}</th>

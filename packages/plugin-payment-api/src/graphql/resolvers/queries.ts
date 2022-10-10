@@ -1,9 +1,11 @@
 import { paginate } from '@erxes/api-utils/src';
-import { requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
-import { PAYMENT_KINDS } from '../../../constants';
 import { IContext } from '../../connectionResolver';
-import { PAYMENT_STATUS } from './../../../constants';
+import { PAYMENT_KINDS, PAYMENT_STATUS } from '../../constants';
 
 interface IParam {
   searchValue?: string;
@@ -88,11 +90,10 @@ const queries = {
   },
 
   paymentConfigs(_root, args, { models }: IContext) {
-    const paymentConfigIds: string[] = args.paymentConfigIds;
+    const filter: any = {};
 
-    const filter: any = { status: 'active' };
-    if (paymentConfigIds && paymentConfigIds.length) {
-      filter._id = { $in: paymentConfigIds };
+    if (args.status) {
+      filter.status = args.status;
     }
 
     return models.PaymentConfigs.find(filter).sort({ type: 1 });
@@ -144,8 +145,16 @@ const queries = {
     counts.total = await count(qry);
 
     return counts;
-  },
+  }
+};
 
+requireLogin(queries, 'paymentConfigs');
+requireLogin(queries, 'invoices');
+
+checkPermission(queries, 'paymentConfigs', 'showPayments', []);
+checkPermission(queries, 'invoices', 'showInvoices', []);
+
+const paymentQueries = {
   getPaymentOptions(_root, params, _args) {
     const MAIN_API_DOMAIN =
       process.env.MAIN_API_DOMAIN || 'http://localhost:4000';
@@ -161,7 +170,4 @@ const queries = {
   }
 };
 
-// requireLogin(paymentConfigQueries, 'paymentConfigs');
-requireLogin(queries, 'paymentConfigsCountByType');
-
-export default queries;
+export { queries, paymentQueries };

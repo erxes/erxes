@@ -45,6 +45,7 @@ type Props = {
     channelIds?: string[];
     visibility?: string;
     departmentIds?: string[];
+    paymentConfigIds?: string[];
   }) => void;
 };
 
@@ -92,6 +93,7 @@ type State = {
   successPreviewStyle?: { opacity?: string };
   successImageSize?: string;
   departmentIds?: string[];
+  paymentConfigIds?: string[];
   visibility?: string;
 };
 
@@ -156,7 +158,8 @@ class Lead extends React.Component<Props, State> {
       successImageSize: leadData.successImageSize || '',
       successPreviewStyle: {},
       departmentIds: integration.departmentIds || [],
-      visibility: integration.visibility || 'public'
+      visibility: integration.visibility || 'public',
+      paymentConfigIds: integration.paymentConfigIds || []
     };
   }
 
@@ -171,7 +174,8 @@ class Lead extends React.Component<Props, State> {
       formData,
       channelIds,
       departmentIds,
-      visibility
+      visibility,
+      paymentConfigIds
     } = this.state;
 
     if (!title) {
@@ -192,6 +196,7 @@ class Lead extends React.Component<Props, State> {
       channelIds,
       languageCode: this.state.language,
       departmentIds,
+      paymentConfigIds,
       visibility,
       leadData: {
         loadType: this.state.type,
@@ -320,7 +325,8 @@ class Lead extends React.Component<Props, State> {
       successImageSize,
       successPreviewStyle,
       departmentIds,
-      visibility
+      visibility,
+      paymentConfigIds
     } = this.state;
 
     const { integration = {} as any, emailTemplates, configs } = this.props;
@@ -410,6 +416,7 @@ class Lead extends React.Component<Props, State> {
                   channelIds={channelIds}
                   visibility={visibility}
                   departmentIds={departmentIds}
+                  paymentConfigIds={paymentConfigIds}
                   onChange={this.onChange}
                 />
               </Step>

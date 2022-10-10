@@ -2,7 +2,7 @@ import { getSubdomain } from '@erxes/api-utils/src/core';
 import { Router } from 'express';
 import * as QRCode from 'qrcode';
 
-import { PAYMENT_KINDS } from './../constants';
+import { PAYMENT_KINDS } from './constants';
 import { generateModels } from './connectionResolver';
 import redisUtils from './redisUtils';
 

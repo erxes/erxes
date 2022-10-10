@@ -5,7 +5,12 @@ import { getLocalStorageItem } from '../../common';
 import { IBrowserInfo, IEmailParams } from '../../types';
 import { requestBrowserInfo } from '../../utils';
 import { connection } from '../connection';
-import { cancelOrderMutation, increaseViewCountMutation, saveFormMutation, sendEmailMutation, getPaymentOptions } from '../graphql';
+import {
+  getPaymentOptions,
+  increaseViewCountMutation,
+  saveFormMutation,
+  sendEmailMutation,
+} from '../graphql';
 import { IFormDoc, ISaveFormResponse } from '../types';
 
 /*
@@ -173,45 +178,20 @@ export const saveLead = (params: {
     })
 
     .catch(e => {
-      saveCallback({ status: "error", errors: [{ text: e.message }] });
+      saveCallback({ status: "error", conversationId: "" ,errors: [{ text: e.message }] });
     });
 };
 
-export const cancelOrder = (params: {
-  customerId: string;
-  messageId: string;
-  cancelCallback: (response: string) => void;
-}) => {
-  const { customerId, messageId, cancelCallback } = params;
-
-  client
-    .mutate({
-      mutation: gql(cancelOrderMutation),
-      variables: {
-        customerId,
-        messageId
-      }
-    })
-    .then(res => {
-      cancelCallback("CANCELLED");
-    })
-    .catch(_e => {
-      cancelCallback("CANCEL_FAILED");
-    });
-};
-
-export const getPaymentLink = (params: {
-  amount: number;
-}) => {
-  const { amount } = params;
+export const getPaymentLink = ( amount: number, conversationId: string ) => {
+  const customerId = getLocalStorageItem("customerId");
 
   return client.query({
     query: gql(getPaymentOptions),
     variables: {
-      customerId: connection.customerId,
+      customerId,
       amount,
-      contentType: "form:forms",
-      contentTypeId: connection.formId
+      contentType: "inbox:conversations",
+      contentTypeId: conversationId
     }
   });
 };

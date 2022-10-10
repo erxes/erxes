@@ -79,7 +79,7 @@ const paymentOptionsParams = `
 `;
 
 export const queries = `
-  paymentConfigs(paymentConfigIds: [String]): [PaymentConfig]
+  paymentConfigs(status: String): [PaymentConfig]
   paymentConfigsCountByType: paymentsTotalCount
   paymentsTotalCount(kind: String, status: String): paymentsTotalCount
   checkInvoice(_id:String!, paymentConfigId: String!): Invoice
@@ -113,6 +113,4 @@ export const mutations = `
   paymentConfigsAdd(${params}): PaymentConfig
   paymentConfigsEdit(id: String!,${params}): PaymentConfig
   paymentConfigRemove(id: String!): String
-  invoiceCreate(${invoiceParams}): Invoice
-  invoiceCancel(_id: String!): String
 `;

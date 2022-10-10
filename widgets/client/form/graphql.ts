@@ -72,15 +72,13 @@ export const saveFormMutation = `
   mutation widgetsSaveLead($integrationId: String!, $formId: String!, $submissions: [FieldValueInput], $browserInfo: JSON!, $cachedCustomerId: String, $userId: String) {
     widgetsSaveLead(integrationId: $integrationId, formId: $formId, submissions: $submissions, browserInfo: $browserInfo, cachedCustomerId: $cachedCustomerId, userId: $userId) {
       status
-      messageId
+      conversationId
       customerId
       errors {
         fieldId
         code
         text
       }
-      invoiceResponse
-      invoiceType
     }
   }
 `;
@@ -94,18 +92,6 @@ export const sendEmailMutation = `
 export const increaseViewCountMutation = `
   mutation widgetsLeadIncreaseViewCount($formId: String!) {
     widgetsLeadIncreaseViewCount(formId: $formId)
-  }
-`;
-
-export const cancelOrderMutation = `
-  mutation widgetsCancelOrder($customerId: String!, $messageId: String!) {
-    widgetsCancelOrder(customerId: $customerId, messageId: $messageId)
-  }
-`;
-
-export const formInvoiceUpdated = `
-  subscription formInvoiceUpdated($messageId: String) {
-    formInvoiceUpdated(messageId: $messageId) 
   }
 `;
 

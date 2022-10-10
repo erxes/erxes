@@ -1,6 +1,6 @@
 const paymentConfigs = `
-query paymentConfigs($paymentConfigIds: [String]!) {
-  paymentConfigs(paymentConfigIds: $paymentConfigIds) {
+query paymentConfigs($status: String) {
+  paymentConfigs(status: $status) {
     _id
     name
     kind

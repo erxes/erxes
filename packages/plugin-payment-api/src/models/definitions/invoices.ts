@@ -1,4 +1,4 @@
-import { PAYMENT_STATUS, PAYMENT_KINDS } from '../../../constants';
+import { PAYMENT_STATUS, PAYMENT_KINDS } from '../../constants';
 import { Schema, Document } from 'mongoose';
 import { field, schemaHooksWrapper } from './utils';
 

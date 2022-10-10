@@ -114,10 +114,8 @@ export interface IFormDoc {
 
 export interface ISaveFormResponse {
   status: string;
+  conversationId: string;
   errors?: IFieldError[];
-  invoiceType?: string;
-  invoiceResponse?: string;
-  messageId?: string;
 }
 
 export interface ILocationOption {

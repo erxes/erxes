@@ -1,4 +1,7 @@
-import { requireLogin } from '@erxes/api-utils/src/permissions';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
 import { IContext } from '../../connectionResolver';
 import { IInvoice } from '../../models/definitions/invoices';
@@ -65,6 +68,22 @@ const paymentConfigMutations = {
 };
 
 requireLogin(paymentConfigMutations, 'paymentConfigsAdd');
+requireLogin(paymentConfigMutations, 'paymentConfigsEdit');
 requireLogin(paymentConfigMutations, 'paymentConfigRemove');
+
+checkPermission(paymentConfigMutations, 'paymentConfigsAdd', 'addPayment', []);
+checkPermission(
+  paymentConfigMutations,
+  'paymentConfigsEdit',
+  'editPayment',
+  []
+);
+checkPermission(
+  paymentConfigMutations,
+  'paymentConfigRemove',
+  'removePayment',
+  []
+);
+checkPermission(paymentConfigMutations, 'paymentConfigsAdd', 'addPayment', []);
 
 export default paymentConfigMutations;

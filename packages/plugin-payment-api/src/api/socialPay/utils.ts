@@ -1,9 +1,12 @@
-import { PAYMENT_STATUS } from './../../../constants';
 import { sendRequest } from '@erxes/api-utils/src';
 import * as crypto from 'crypto';
 
-import { SOCIALPAY_ACTIONS, SOCIALPAY_ENDPOINT } from '../../../constants';
 import { IModels } from '../../connectionResolver';
+import {
+  PAYMENT_STATUS,
+  SOCIALPAY_ACTIONS,
+  SOCIALPAY_ENDPOINT
+} from '../../constants';
 import { IInvoiceDocument } from '../../models/definitions/invoices';
 import { IPaymentConfigDocument } from '../../models/definitions/paymentConfigs';
 import { ISocialPayInvoice } from '../types';
@@ -30,7 +33,7 @@ export const socialPayHandler = async (models: IModels, data) => {
     }
 
     const invoiceObj = await models.Invoices.getInvoice({
-      _id: invoice._id
+      _id: invoice
     });
 
     await models.Invoices.updateOne(

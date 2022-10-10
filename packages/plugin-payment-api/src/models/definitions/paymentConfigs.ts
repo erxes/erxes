@@ -1,5 +1,5 @@
 import { Document, Schema } from 'mongoose';
-import { PAYMENT_KINDS } from '../../../constants';
+import { PAYMENT_KINDS } from '../../constants';
 import { field } from './utils';
 
 export interface IPaymentConfig {

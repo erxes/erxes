@@ -43,7 +43,6 @@ function renderType(type: string) {
 }
 
 const renderButton = ({
-  name,
   values,
   isSubmitted,
   callback
@@ -56,7 +55,7 @@ const renderButton = ({
       refetchQueries={getRefetchQueries()}
       isSubmitted={isSubmitted}
       type="submit"
-      successMessage={__(`You successfully added a`) + `${name}`}
+      successMessage={__(`You successfully added a`) + `${values.kind}`}
     />
   );
 };
