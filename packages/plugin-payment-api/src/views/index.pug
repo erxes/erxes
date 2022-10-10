@@ -1,9 +1,7 @@
 extends layout
 
 block layout-content
-
-    .my-layout
-
+    .my-layout  
         .header Payment method
         .paymentContainer
             h3 Choose payment method
@@ -27,7 +25,7 @@ block layout-content
                                 p  #{invoiceData.description}
                 if invoice
                     .qr
-                        .isMobile
+                        .isMobile#isMobile
                             .label Choose your bank
                             .border 
                                 if invoice.apiResponse.qr_image
@@ -47,8 +45,7 @@ block layout-content
                                             window.close();
                                         }
                                     }
-                        .desktop
-
+                        .desktop#desktop
                             if invoice.paymentKind === 'socialPay' && invoice.phone
                                 .label #{invoice.apiResponse.text}
                             else 
@@ -93,3 +90,33 @@ block layout-content
                         }
                     });
                 }, 5000);
+
+    block extraScript
+        script.
+            (() => {
+                match();
+                })()
+            function match() {
+                const toMatch = [
+                    /Android/i,
+                    /webOS/i,
+                    /iPhone/i,
+                    /iPad/i,
+                    /iPod/i,
+                    /BlackBerry/i,
+                    /Windows Phone/i
+                ];
+                let mobile = toMatch.some((toMatchItem) => {
+                    return navigator.userAgent.match(toMatchItem);
+                });
+                let element = mobile ? document.getElementById("isMobile") : document.getElementById("desktop");
+                AddClass(element, "show")
+            }
+            function AddClass(element, name) {
+                var i, arr1, arr2;
+                arr1 = element.className.split(" ");
+                arr2 = name.split(" ");
+                for (i = 0; i < arr2.length; i++) {
+                    if (arr1.indexOf(arr2[i]) == -1) {element.className += " " + arr2[i];}
+                }
+            }

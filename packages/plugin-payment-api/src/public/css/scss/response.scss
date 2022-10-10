@@ -11,13 +11,8 @@
   #info {
     flex-direction: column;
   }
-}
-
-@media screen and (max-width: 500px) {
-  .isMobile {
-    display: block;
-  }
-  .desktop {
-    display: none;
+  .my-layout {
+    width: 100%;
+    height: 100%;
   }
 }

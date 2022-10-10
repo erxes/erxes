@@ -158,6 +158,15 @@ h3 {
     flex-wrap: wrap;
     justify-content: center;
   }
+  &.show {
+    display: block;
+  }
+}
+.desktop {
+  display: none;
+  &.show {
+    display: block;
+  }
 }
 .urlLogo {
   width: 30px !important;

@@ -639,6 +639,15 @@ h3 {
   flex-wrap: wrap;
   justify-content: center;
 }
+.isMobile.show {
+  display: block;
+}
+.desktop {
+  display: none;
+}
+.desktop.show {
+  display: block;
+}
 .urlLogo {
   width: 30px !important;
   height: 30px !important;
@@ -663,12 +672,8 @@ h3 {
   #info {
     flex-direction: column;
   }
-}
-@media screen and (max-width: 500px) {
-  .isMobile {
-    display: block;
-  }
-  .desktop {
-    display: none;
+  .my-layout {
+    width: 100%;
+    height: 100%;
   }
 } /*# sourceMappingURL=style.min.css.map */
