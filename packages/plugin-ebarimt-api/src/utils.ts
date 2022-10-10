@@ -180,6 +180,7 @@ export const getPostData = async (subdomain, config, deal) => {
 
   const date = new Date();
   const orderInfo = {
+    number: deal.number,
     date:
       date.toISOString().split('T')[0] +
       ' ' +

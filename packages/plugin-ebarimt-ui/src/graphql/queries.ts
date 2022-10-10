@@ -56,6 +56,7 @@ const responseFields = `
   modifiedAt
   contentType
   contentId
+  number
   success
   billId
   date

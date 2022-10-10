@@ -31,84 +31,83 @@ export default (response, error?) => {
         ${
           response.billId
             ? `
-          <div>
-            <p>ТТД: ${response.registerNo}</p>
-            ${response.billId && `<p>ДДТД: ${response.billId}</p>`}
-            <p>Огноо: ${response.date}</p>
-            ${(response.number && `<p>№: ${response.number}</p>`) || ''}
+              <div>
+                <p>ТТД: ${response.registerNo}</p>
+                ${response.billId && `<p>ДДТД: ${response.billId}</p>`}
+                <p>Огноо: ${response.date}</p>
+                ${(response.number && `<p>№: ${response.number}</p>`) || ''}
+              </div>
 
-          </div>
-
-          ${
-            response.billType === '3'
-              ? `
-            <div>
-              <br />
-              <p><strong>Худалдан авагч:</strong></p>
-              <p>ТТД: ${response.customerNo}</p>
               ${
-                response.customerName
-                  ? `<p>Нэр: ${response.customerName} </p>`
+                response.billType === '3'
+                  ? `
+                <div>
+                  <br />
+                  <p><strong>Худалдан авагч:</strong></p>
+                  <p>ТТД: ${response.customerNo}</p>
+                  ${
+                    response.customerName
+                      ? `<p>Нэр: ${response.customerName} </p>`
+                      : ''
+                  }
+                  <br />
+                </div>
+              `
                   : ''
               }
-              <br />
-            </div>
-          `
-              : ''
-          }
 
-          <table class="tb" cellpadding="0" cellspacing="0">
-            <thead>
-              <tr class="text-center">
-                <th>Нэгж үнэ</th>
-                <th>Тоо</th>
-                <th>НӨАТ</th>
-                <th>Нийт үнэ</th>
-              </tr>
-            </thead>
-            ${(response.stocks || []).map(
-              (stock, index) => `
-              <tr class="inventory-info">
-                <td colspan="4">
-                  ${index + 1}. ${stock.code} - ${stock.name}
-                </td>
-              </tr>
-              <tr>
-                <td>${stock.unitPrice}</td>
-                <td colspan="1">${stock.qty}</td>
-                <td>${stock.vat}</td>
-                <td>${stock.totalAmount}</td>
-              </tr>
+              <table class="tb" cellpadding="0" cellspacing="0">
+                <thead>
+                  <tr class="text-center">
+                    <th>Нэгж үнэ</th>
+                    <th>Тоо</th>
+                    <th>НӨАТ</th>
+                    <th>Нийт үнэ</th>
+                  </tr>
+                </thead>
+                ${(response.stocks || []).map(
+                  (stock, index) => `
+                    <tr class="inventory-info">
+                      <td colspan="4">
+                        ${index + 1}. ${stock.code} - ${stock.name}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>${stock.unitPrice}</td>
+                      <td colspan="1">${stock.qty}</td>
+                      <td>${stock.vat || 0}</td>
+                      <td>${stock.totalAmount}</td>
+                    </tr>
+                  `
+                )}
+              </table>
+
+              <div class="total">
+                <p><label>НӨАТ:</label> ${response.vat}</p>
+                <p><label>НХАТ:</label> ${response.cityTax}</p>
+                <p><label>Бүгд үнэ:</label> ${response.amount}</p>
+              </div>
+
+              <div class="center barcode">
+                <div class="lottery">
+                  ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
+                </div>
+
+                ${
+                  response.qrData
+                    ? `
+                      <canvas id="qrcode"></canvas>
+                    `
+                    : ''
+                }
+
+                <img id="barcode" width="90%" />
+                <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
+              </div>
             `
-            )}
-          </table>
-
-          <div class="total">
-            <p><label>НӨАТ:</label> ${response.vat}</p>
-            <p><label>НХАТ:</label> ${response.cityTax}</p>
-            <p><label>Бүгд үнэ:</label> ${response.amount}</p>
-          </div>
-
-          <div class="center barcode">
-            <div class="lottery">
-              ${response.lottery ? `Сугалаа: ${response.lottery}` : ''}
-            </div>
-
-            ${
-              response.qrData
-                ? `
-              <canvas id="qrcode"></canvas>
-            `
-                : ''
-            }
-
-            <img id="barcode" width="90%" />
-            <p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>
-          </div>
-        `
             : `
-          Буцаалт амжилттай.
-        `
+              Буцаалт амжилттай.
+            `
         }
       </div>
       <script>

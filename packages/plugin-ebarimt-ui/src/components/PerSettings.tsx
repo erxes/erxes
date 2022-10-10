@@ -159,8 +159,13 @@ class PerSettings extends React.Component<Props, State> {
         {this.renderInput('cityTaxPercent', 'cityTaxPercent', '')}
         {this.renderInput('defaultGSCode', 'defaultGSCode', '')}
 
-        {this.renderCheckbox('hasVat', 'hasVat', '')}
-        {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
+        {this.renderCheckbox('hasVat', 'has Vat', '')}
+        {this.renderCheckbox('hasCitytax', 'has Citytax', '')}
+        {this.renderCheckbox(
+          'skipPutData',
+          'skip Ebarimt',
+          'When checked only  print inner bill'
+        )}
 
         <ModalFooter>
           <Button

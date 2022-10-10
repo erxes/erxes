@@ -242,6 +242,7 @@ export const prepareEbarimtData = async (
   const orderInfo = {
     date: new Date().toISOString().slice(0, 10),
     orderId: order._id,
+    number: order.number,
     hasVat: config.hasVat || false,
     hasCitytax: config.hasCitytax || false,
     billType,

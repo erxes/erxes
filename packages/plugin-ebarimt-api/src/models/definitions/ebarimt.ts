@@ -11,6 +11,7 @@ export interface IPutResponseConfig {
 }
 
 export interface IPutResponse {
+  number?: string;
   billId?: string;
   date?: string;
   hasVat?: boolean;
@@ -46,6 +47,7 @@ export const putResponseSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: field({ type: Date, label: 'Created at' }),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
+    number: field({ type: String, label: 'Inner bill number' }),
 
     // Холбогдох обьект
     contentType: field({ type: String, label: 'Content Type' }),
