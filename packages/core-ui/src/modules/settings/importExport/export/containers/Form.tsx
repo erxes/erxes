@@ -9,7 +9,7 @@ import { Alert, withProps } from 'modules/common/utils';
 type Props = {};
 
 type FinalProps = {
-  fieldsQuery: any; //check
+  fieldsQuery: any;
   exportHistoriesCreate: any;
 } & Props;
 

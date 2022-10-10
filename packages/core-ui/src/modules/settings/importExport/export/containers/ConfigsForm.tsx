@@ -17,7 +17,7 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  fieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
+  fieldsQuery: any;
   importHistoryGetColumns: any;
 } & Props;
 
@@ -26,7 +26,7 @@ class ConfigsFormContainer extends React.Component<FinalProps, State> {
     const { fieldsQuery } = this.props;
 
     if (!fieldsQuery) {
-      return <div></div>;
+      return <div />;
     }
 
     if (fieldsQuery.loading) {

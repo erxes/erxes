@@ -54,7 +54,7 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
   renderExportButton = () => {
     const { currentType } = this.props;
 
-    if (currentType)
+    if (currentType) {
       return (
         <Link to={`/settings/export?type=${currentType}`}>
           <Button icon="export" btnStyle="primary">
@@ -62,9 +62,10 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
           </Button>
         </Link>
       );
+    }
 
     return (
-      <Button icon="export" btnStyle="primary" disabled>
+      <Button icon="export" btnStyle="primary" disabled={true}>
         {__('Export')}
       </Button>
     );
@@ -104,7 +105,7 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Exports')}</Title>}
             right={this.renderImportButton()}
-            wideSpacing
+            wideSpacing={true}
           />
         }
         leftSidebar={<Sidebar history={history} currentType={currentType} />}
@@ -119,7 +120,7 @@ class ExportHistories extends React.Component<Props & IRouterProps> {
           />
         }
         transparent={true}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

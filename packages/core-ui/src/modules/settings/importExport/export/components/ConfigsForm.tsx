@@ -16,7 +16,7 @@ type Props = {
 };
 
 type State = {
-  columns: any[]; //check
+  columns: any[];
   searchValue: string;
 };
 
