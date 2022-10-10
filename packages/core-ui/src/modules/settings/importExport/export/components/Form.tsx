@@ -173,7 +173,7 @@ class Form extends React.Component<Props, State> {
                 </Description>
                 {loadDynamicComponent('importExportFilterForm', {
                   ...this.props,
-                  contentType: contentType,
+                  contentType,
                   closeModal: this.segmentCloseModal,
                   filterContent: this.filterContent,
                   hideDetailForm: true
