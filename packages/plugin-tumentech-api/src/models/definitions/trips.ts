@@ -35,7 +35,7 @@ export const tripSchema = schemaHooksWrapper(
     dealIds: field({ type: [String], label: 'Deal ids' }),
     routeId: field({ type: String, label: 'Route id' }),
     routeReversed: field({ type: Boolean, label: 'Route reversed' }),
-    createdAt: field({ type: Date, label: 'Created at', default: new Date() }),
+    createdAt: field({ type: Date, label: 'Created at', default: Date.now }),
     startedDate: field({ type: Date, label: 'Started at', optional: true }),
     estimatedCloseDate: field({
       type: Date,
