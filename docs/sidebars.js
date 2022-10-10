@@ -58,6 +58,27 @@ var sideBar = {
     },
     {
       type: 'category',
+      label: 'Developer Resources',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
+      items: [
+        {
+          'GraphQL API': [
+            'api/introduction',
+            'api/types',
+            'api/inputTypes',
+            'api/enums',
+            'api/scalars',
+            'api/queries',
+            'api/mutations'
+          ]
+        }
+      ]
+    },
+    {
+      type: 'category',
       label: 'Contributing to open source',
       link: {
         type: 'generated-index'
