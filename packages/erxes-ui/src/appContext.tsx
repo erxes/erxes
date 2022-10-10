@@ -39,6 +39,7 @@ export class AppProvider extends React.Component<
       currentLanguage,
       isShownIndicator: false,
       isRemovingImport: false,
+
       isDoneIndicatorAction: false
     };
 

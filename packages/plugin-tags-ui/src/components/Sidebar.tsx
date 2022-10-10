@@ -7,6 +7,8 @@ import SidebarHeader from '@erxes/ui-settings/src/common/components/SidebarHeade
 
 function ListItem(value, type) {
   const className = type && type === value.contentType ? 'active' : '';
+  console.log('tags type: ', type);
+  console.log('tags value: ', value.contentType);
 
   return (
     <li key={value.contentType}>

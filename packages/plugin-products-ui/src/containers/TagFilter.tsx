@@ -7,7 +7,6 @@ import { TAG_TYPES } from '@erxes/ui-tags/src/constants';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { isEnabled } from '@erxes/ui/src/utils/core';
 import { queries } from '../graphql';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 
