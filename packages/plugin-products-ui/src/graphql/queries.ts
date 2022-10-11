@@ -12,6 +12,12 @@ const productsCount = `
   }
 `;
 
+const segmentProductsCounts = `
+  query productCounts($only: String) {
+    productCounts(only: $only)
+  }
+`;
+
 const productCountByTags = `
   query productCountByTags {
     productCountByTags
@@ -54,9 +60,8 @@ export default {
   productCategories,
   productCategoriesCount,
   productCategoryDetail,
-
   uoms,
   uomsTotalCount,
-
-  productsConfigs
+  productsConfigs,
+  segmentProductsCounts
 };
