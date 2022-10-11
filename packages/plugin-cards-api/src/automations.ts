@@ -125,6 +125,57 @@ export default {
       triggerType,
       sendCommonMessage
     });
+  },
+  constants: {
+    triggers: [
+      {
+        type: 'cards:task',
+        img: 'automation3.svg',
+        icon: 'file-plus-alt',
+        label: 'Task',
+        description:
+          'Start with a blank workflow that enralls and is triggered off task'
+      },
+      {
+        type: 'cards:ticket',
+        img: 'automation3.svg',
+        icon: 'file-plus',
+        label: 'Ticket',
+        description:
+          'Start with a blank workflow that enralls and is triggered off ticket'
+      },
+      {
+        type: 'cards:deal',
+        img: 'automation3.svg',
+        icon: 'piggy-bank',
+        label: 'Sales pipeline',
+        description:
+          'Start with a blank workflow that enralls and is triggered off sales pipeline item'
+      }
+    ],
+    actions: [
+      {
+        type: 'cards:task.create',
+        icon: 'file-plus-alt',
+        label: 'Create task',
+        description: 'Create task',
+        isAvailable: true
+      },
+      {
+        type: 'cards:deal.create',
+        icon: 'piggy-bank',
+        label: 'Create deal',
+        description: 'Create deal',
+        isAvailable: true
+      },
+      {
+        type: 'cards:ticket.create',
+        icon: 'file-plus',
+        label: 'Create ticket',
+        description: 'Create ticket',
+        isAvailable: true
+      }
+    ]
   }
 };
 
@@ -229,7 +280,13 @@ const actionCreate = async ({
       });
     }
 
-    return item;
+    return {
+      name: item.name,
+      itemId: item._id,
+      stageId: item.stageId,
+      pipelineId: newData.pipelineId,
+      boardId: newData.boardId
+    };
   } catch (e) {
     return { error: e.message };
   }

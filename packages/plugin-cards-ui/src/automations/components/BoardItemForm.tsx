@@ -1,15 +1,15 @@
 import client from '@erxes/ui/src/apolloClient';
 import gql from 'graphql-tag';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { IAction } from '../../../../types';
+import { IAction } from '@erxes/ui-automations/src/types';
 import { PRIORITIES } from '@erxes/ui-cards/src/boards/constants';
 import BoardSelect from '@erxes/ui-cards/src/boards/containers/BoardSelect';
 import { queries as pipelineQuery } from '@erxes/ui-cards/src/boards/graphql';
 import { IPipelineLabel } from '@erxes/ui-cards/src/boards/types';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
-import Common from '../Common';
-import PlaceHolderInput from '../placeHolder/PlaceHolderInput';
+import Common from '@erxes/ui-automations/src/components/forms/actions/Common';
+import PlaceHolderInput from '@erxes/ui-automations/src/components/forms/actions/placeHolder/PlaceHolderInput';
 import { BoardItemWrapper } from '../styles';
 
 type Props = {
