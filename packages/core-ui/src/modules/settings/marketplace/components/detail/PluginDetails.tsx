@@ -1,14 +1,14 @@
 import {
+  AdditionalDesc,
   AttachmentContainer,
   Center,
   ColorHeader,
   Detail,
   DetailInformation,
   DetailMainContainer,
-  Hashtag,
-  PluginTitle,
   DetailStyle,
-  AdditionalDesc
+  Hashtag,
+  PluginTitle
 } from '../../styles';
 
 import { Alert } from 'modules/common/utils';
@@ -125,7 +125,7 @@ class PluginDetails extends React.Component<Props, State> {
     const { loading, plugin, tabType } = this.state;
 
     const breadcrumb = [
-      { title: __('Store'), link: '/settings/installer' },
+      { title: __('Marketplace'), link: '/settings/installer' },
       { title: plugin.title || '' }
     ];
 

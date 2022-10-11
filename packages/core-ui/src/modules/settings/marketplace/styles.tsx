@@ -490,8 +490,6 @@ const SmallText = styledTS<{ withMargin?: boolean }>(styled.span)`
   margin-top: ${props => props.withMargin && '5'}px;
 `;
 
-//**************
-
 const inputPadding = '0px';
 const inputHeight = '15px';
 const inputScale = '12px';

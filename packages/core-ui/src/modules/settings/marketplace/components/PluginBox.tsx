@@ -92,10 +92,12 @@ class PluginBox extends React.Component<Props, {}> {
         <Link to={`installer/details/${plugin._id}`}>
           <PluginContent>
             <PluginBoxHeader>
-              <img
-                src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
-                alt={plugin.title}
-              />
+              <div className="image-wrapper">
+                <img
+                  src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
+                  alt={plugin.title}
+                />
+              </div>
               {this.renderPrice(plugin.prices)}
             </PluginBoxHeader>
             <h5>{__(plugin.title)}</h5>
