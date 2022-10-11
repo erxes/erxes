@@ -28,6 +28,7 @@ const engageReportsList = `
 
         engage {
           title
+          _id
         }
 
         customerName
