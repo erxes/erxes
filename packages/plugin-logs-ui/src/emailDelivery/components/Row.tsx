@@ -46,6 +46,7 @@ export default function Row(props: Props) {
   return (
     <tr key={item._id}>
       <td>{item.customerName || item.customerId || '-'}</td>
+      <td>{item.email}</td>
       <td>{item.engage ? item.engage.title : '-'}</td>
       <td>{renderStatus(item.status)}</td>
       <td>
