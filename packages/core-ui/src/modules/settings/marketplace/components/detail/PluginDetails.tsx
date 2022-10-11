@@ -6,7 +6,9 @@ import {
   DetailInformation,
   DetailMainContainer,
   Hashtag,
-  PluginTitle
+  PluginTitle,
+  DetailStyle,
+  AdditionalDesc
 } from '../../styles';
 
 import { Alert } from 'modules/common/utils';
@@ -62,17 +64,19 @@ class PluginDetails extends React.Component<Props, State> {
           <Detail>
             <ListHeader>
               <ColorHeader>
-                <b>✨ FEATURES</b>
+                <b>✨ BENEFITS</b>
               </ColorHeader>
             </ListHeader>
-            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
+            <AdditionalDesc
+              dangerouslySetInnerHTML={{ __html: plugin.features }}
+            />
           </Detail>
         </>
       );
     }
 
     if (tabType === 'Guide') {
-      return <div dangerouslySetInnerHTML={{ __html: plugin.tango }} />;
+      return <DetailStyle dangerouslySetInnerHTML={{ __html: plugin.tango }} />;
     }
 
     if (tabType === 'Changelog') {

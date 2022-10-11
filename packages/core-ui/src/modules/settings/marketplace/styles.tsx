@@ -378,6 +378,90 @@ const ColorHeader = styled.p`
   margin: 0;
 `;
 
+const DetailStyle = styled.div`
+  .section-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5629b6 !important;
+    display: flex;
+    align-items: center;
+  }
+  .intro {
+    border-radius: 10px;
+    background: #6569df;
+    color: #ffffff;
+    padding: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: auto;
+    height: auto;
+    line-height: 24px;
+  }
+  .intro p,
+  .danger p,
+  .info p,
+  .protip p {
+    color: white;
+  }
+  .protip {
+    border-radius: 10px;
+    background: #63d2d6;
+    color: #ffffff;
+    padding: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: auto;
+    height: auto;
+    line-height: 24px;
+  }
+  .caution {
+    border-radius: 10px;
+    background: #fda50d;
+    color: #333;
+    padding: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: auto;
+    height: auto;
+    line-height: 24px;
+  }
+  .caution p {
+    color: #333;
+  }
+  .danger {
+    border-radius: 10px;
+    background: #ea475d;
+    color: #ffffff;
+    padding: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: auto;
+    height: auto;
+    line-height: 24px;
+  }
+  .info {
+    border-radius: 10px;
+    background: #3b85f4;
+    color: #ffffff;
+    padding: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    width: auto;
+    height: auto;
+    line-height: 24px;
+  }
+`;
+
+const AdditionalDesc = styled.p`
+  .section-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #5629b6 !important;
+    display: flex;
+    align-items: center;
+  }
+`;
+
 const DetailCard = styled.div`
   display: flex;
   margin-top: ${dimensions.unitSpacing}px;
@@ -614,5 +698,7 @@ export {
   WidgetApperance,
   FormLabel,
   Checkbox,
-  AttachmentContainer
+  AttachmentContainer,
+  DetailStyle,
+  AdditionalDesc
 };
