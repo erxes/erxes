@@ -17,13 +17,11 @@ export const types = `
 `;
 
 export const queries = `
-  exportHistoryGetTypes: JSON
   exportHistories(perPage: Int, page: Int, type: String): ExportHistoryList
   exportHistoryDetail(_id: String!): ImportHistory
   exportHistoryPreviewExportCount(segmentId: String, contentType: String!): String
   exportHistoryGetColumns(attachmentName: String): JSON
   exportHistoryGetDuplicatedHeaders(attachmentNames: [String]): JSON
-  exportHistoryGetExportableServices: JSON
 `;
 
 export const mutations = `

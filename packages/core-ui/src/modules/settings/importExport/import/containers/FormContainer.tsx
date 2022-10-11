@@ -4,7 +4,8 @@ import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Form from '../components/Form';
-import { mutations, queries } from '../graphql';
+import { mutations } from '../graphql';
+import { queries } from '../../graphql';
 
 type Props = {
   contentType: string;
@@ -44,8 +45,8 @@ export default withProps<Props>(
     graphql<Props>(gql(mutations.importHistoriesCreate), {
       name: 'importHistoriesCreate'
     }),
-    graphql<Props>(gql(queries.importHistoryGetTypes), {
-      name: 'importHistoryGetTypes'
+    graphql<Props>(gql(queries.historyGetTypes), {
+      name: 'historyGetTypes'
     })
   )(FormContainer)
 );

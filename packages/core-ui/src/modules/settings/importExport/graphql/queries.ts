@@ -15,8 +15,22 @@ const fieldsCombinedByContentType = `
   }
 `;
 
+const historyGetTypes = `
+  query historyGetTypes {
+    historyGetTypes
+  }
+`;
+
+const historyGetExportableServices = `
+  query historyGetExportableServices {
+    historyGetExportableServices
+  }
+`;
+
 export default {
   importHistoryPreviewExportCount,
   exportHistoryPreviewExportCount,
-  fieldsCombinedByContentType
+  fieldsCombinedByContentType,
+  historyGetTypes,
+  historyGetExportableServices
 };

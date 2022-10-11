@@ -10,6 +10,8 @@ import {
   types as ExportHistoryTypes
 } from './exportHistory';
 
+import { queries as GeneralHistoryQueries } from './generalHistory';
+
 export let types = `
   scalar JSON
   scalar Date
@@ -36,6 +38,7 @@ export let types = `
 export let queries = `
   ${ImportHistoryQueries}
    ${ExportHistoryQueries}
+   ${GeneralHistoryQueries}
 `;
 
 export let mutations = `

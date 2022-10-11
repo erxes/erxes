@@ -529,8 +529,7 @@ async function startServer() {
       port: PORT || '',
       dbConnectionString: mongoUrl,
       hasSubscriptions: configs.hasSubscriptions,
-      importTypes: configs.importTypes,
-      exportTypes: configs.exportTypes,
+      importExportTypes: configs.importExportTypes,
       meta: configs.meta
     });
 

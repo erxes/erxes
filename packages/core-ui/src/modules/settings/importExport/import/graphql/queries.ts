@@ -10,18 +10,6 @@ const importHistoryGetDuplicatedHeaders = `
   }
 `;
 
-const importHistoryGetTypes = `
-  query importHistoryGetTypes {
-    importHistoryGetTypes
-  }
-`;
-
-const importHistoryGetExportableServices = `
-  query importHistoryGetExportableServices {
-    importHistoryGetExportableServices
-  }
-`;
-
 const fieldsCombinedByContentType = `
   query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $config: JSON) {
     fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames, segmentId: $segmentId, config: $config)
@@ -58,8 +46,6 @@ const importHistories = `
 `;
 
 export default {
-  importHistoryGetExportableServices,
-  importHistoryGetTypes,
   importHistories,
   importHistoryGetColumns,
   importHistoryGetDuplicatedHeaders,

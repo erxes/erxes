@@ -5,7 +5,7 @@ import { router, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import Sidebar from '../../components/list/SideBar';
-import { queries } from '../../graphql';
+import { queries } from '../../../graphql';
 
 type Props = {
   currentType: string;
@@ -15,24 +15,19 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  importHistoryGetExportableServices: any;
+  historyGetExportableServices: any;
 } & Props;
 
 class SideBarContainer extends React.Component<FinalProps, State> {
   render() {
-    const {
-      importHistoryGetExportableServices,
-      currentType,
-      history
-    } = this.props;
+    const { historyGetExportableServices, currentType, history } = this.props;
 
-    if (importHistoryGetExportableServices.loading) {
+    if (historyGetExportableServices.loading) {
       return <Spinner />;
     }
 
     const services =
-      importHistoryGetExportableServices.importHistoryGetExportableServices ||
-      [];
+      historyGetExportableServices.historyGetExportableServices || [];
 
     if (!router.getParam(history, 'type') && services.length !== 0) {
       router.setParams(history, { type: services[0].contentType }, true);
@@ -44,8 +39,8 @@ class SideBarContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.importHistoryGetExportableServices), {
-      name: 'importHistoryGetExportableServices'
+    graphql<Props>(gql(queries.historyGetExportableServices), {
+      name: 'historyGetExportableServices'
     })
   )(SideBarContainer)
 );

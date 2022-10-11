@@ -1,5 +1,5 @@
 import { generateModels, IModels } from './connectionResolver';
-import { EXPORT_TYPES, MODULE_NAMES } from './constants';
+import { IMPORT_EXPORT_TYPES, MODULE_NAMES } from './constants';
 import {
   fetchSegment,
   sendCoreMessage,
@@ -289,7 +289,7 @@ const fillValue = async (
 };
 
 export default {
-  exportTypes: EXPORT_TYPES,
+  importExportTypes: IMPORT_EXPORT_TYPES,
 
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

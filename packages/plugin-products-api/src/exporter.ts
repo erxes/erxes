@@ -96,16 +96,26 @@ export const fillValue = async (
   return value || '-';
 };
 
-export const EXPORT_TYPES = [
+export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Product & Services',
-    contentType: 'product',
-    icon: 'server-alt'
+    text: 'Customers',
+    contentType: 'customer',
+    icon: 'users-alt'
+  },
+  {
+    text: 'Leads',
+    contentType: 'lead',
+    icon: 'file-alt'
+  },
+  {
+    text: 'Companies',
+    contentType: 'company',
+    icon: 'building'
   }
 ];
 
 export default {
-  exportTypes: EXPORT_TYPES,
+  importExportTypes: IMPORT_EXPORT_TYPES,
 
   prepareExportData: async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);

@@ -18,42 +18,23 @@ import { pipelineLabelSchema } from './models/definitions/pipelineLabels';
 import { taskSchema } from './models/definitions/tasks';
 import { ticketSchema } from './models/definitions/tickets';
 
-export const IMPORT_TYPES = [
+export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Deal',
-    contentType: 'deal',
-    icon: 'signal-alt-3'
+    text: 'Customers',
+    contentType: 'customer',
+    icon: 'users-alt'
   },
   {
-    text: 'Task',
-    contentType: 'task',
-    icon: 'laptop'
+    text: 'Leads',
+    contentType: 'lead',
+    icon: 'file-alt'
   },
   {
-    text: 'Ticket',
-    contentType: 'ticket',
-    icon: 'ticket'
+    text: 'Companies',
+    contentType: 'company',
+    icon: 'building'
   }
 ];
-
-export const EXPORT_TYPES = [
-  {
-    text: 'Deal',
-    contentType: 'deal',
-    icon: 'signal-alt-3'
-  },
-  {
-    text: 'Task',
-    contentType: 'task',
-    icon: 'laptop'
-  },
-  {
-    text: 'Ticket',
-    contentType: 'ticket',
-    icon: 'ticket'
-  }
-];
-
 export const PRIORITIES = {
   CRITICAL: 'Critical',
   HIGH: 'High',
