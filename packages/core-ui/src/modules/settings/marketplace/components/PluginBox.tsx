@@ -81,9 +81,9 @@ class PluginBox extends React.Component<Props, {}> {
   }
 
   render() {
-    const { plugin } = this.props;
+    const { plugin, isAddon } = this.props;
 
-    if (!plugin) {
+    if (!plugin || (isAddon && !plugin.selfHosted)) {
       return null;
     }
 
