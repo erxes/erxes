@@ -25,18 +25,18 @@ class ServiceBox extends React.Component<Props, {}> {
   render() {
     const { service } = this.props;
 
-    if (!service || !service.selfHosted) {
+    if (!service || service.mainType !== 'service' || !service.selfHosted) {
       return null;
     }
 
-    const { prices, description, title } = service || {};
+    const { prices, shortDescription, title } = service || {};
 
     return (
       <Service>
         <div>
           <Price>${prices ? prices.oneTime || prices.monthly : 0}</Price>
           <h5>{title}</h5>
-          <div dangerouslySetInnerHTML={{ __html: description }} />
+          <div dangerouslySetInnerHTML={{ __html: shortDescription }} />
         </div>
         <ReadMore
           href="https://erxes.io/addons#selfHosted"
