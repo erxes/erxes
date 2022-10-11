@@ -151,7 +151,9 @@ class PluginDetails extends React.Component<Props, State> {
       <DetailMainContainer>
         <PluginTitle>
           <Center>
-            <img src={plugin.image} />
+            <img
+              src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
+            />
             <DetailInformation>
               <b>{plugin.title}</b>
               <Flex>{this.renderCategories()}</Flex>

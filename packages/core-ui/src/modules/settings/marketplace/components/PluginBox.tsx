@@ -46,7 +46,7 @@ class PluginBox extends React.Component<Props, {}> {
     return (dependentPlugins || []).map(dependency => (
       <Addon key={dependency._id}>
         <img
-          src={dependency.icon || '/images/no-plugin.png'}
+          src={dependency.avatar || dependency.icon || '/images/no-plugin.png'}
           alt="dependency-plugin"
         />
         {__(dependency.title)}
@@ -93,7 +93,7 @@ class PluginBox extends React.Component<Props, {}> {
           <PluginContent>
             <PluginBoxHeader>
               <img
-                src={plugin.image || '/images/no-plugin.png'}
+                src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
                 alt={plugin.title}
               />
               {this.renderPrice(plugin.prices)}
