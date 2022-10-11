@@ -32,7 +32,12 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
   }
 
   async componentDidMount() {
-    await fetch(`https://erxes.io/pluginDetail/${this.props.id}`)
+    const url =
+      process.env.NODE_ENV === 'production'
+        ? `https://erxes.io/pluginDetail/${this.props.id}`
+        : `http://127.0.0.1:3500/pluginDetail/${this.props.id}`;
+
+    fetch(url)
       .then(async response => {
         const plugin = await response.json();
 
