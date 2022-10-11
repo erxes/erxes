@@ -72,7 +72,11 @@ class PluginDetails extends React.Component<Props, State> {
     }
 
     if (tabType === 'Guide') {
-      return <div dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />;
+      return <div dangerouslySetInnerHTML={{ __html: plugin.tango }} />;
+    }
+
+    if (tabType === 'Changelog') {
+      return <div dangerouslySetInnerHTML={{ __html: plugin.changeLog }} />;
     }
 
     return null;

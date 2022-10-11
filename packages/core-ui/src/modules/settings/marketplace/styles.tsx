@@ -565,6 +565,7 @@ const AttachmentContainer = styled.div`
 
   img {
     width: 50%;
+    border: 1px solid ${colors.borderPrimary};
     object-fit: cover;
     margin-right: 10px;
     border-radius: 8px;
