@@ -6,7 +6,9 @@ import { graphql } from 'react-apollo';
 import { mutations } from '../../graphql';
 import { Alert, withProps } from 'modules/common/utils';
 
-type Props = {};
+type Props = {
+  contentType: string;
+};
 
 type FinalProps = {
   fieldsQuery: any;

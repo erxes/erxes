@@ -16,6 +16,7 @@ type Props = {
   count: string;
   loading: boolean;
   saveExport: (doc: any) => void;
+  contentType: string;
 };
 
 type State = {
@@ -27,12 +28,12 @@ type State = {
 };
 
 class Form extends React.Component<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
 
     this.state = {
       segmentData: {},
-      contentType: '',
+      contentType: props.contentType || '',
       disclaimer: false,
       name: '',
       columns: []
@@ -66,6 +67,7 @@ class Form extends React.Component<Props, State> {
   segmentCloseModal = () => {
     this.setState({ segmentData: {} });
   };
+
   onSubmit = () => {
     const { contentType, columns, segmentData, name } = this.state;
 

@@ -52,14 +52,14 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(queries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      skip: ({ contentType }) => !contentType,
       options: ({ contentType }) => {
         return {
           variables: {
             contentType,
             usageType: 'export',
             excludedNames: COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.EXPORT
-          }
+          },
+          fetchPolicy: 'network-only'
         };
       }
     })
