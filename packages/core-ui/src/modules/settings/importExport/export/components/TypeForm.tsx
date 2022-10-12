@@ -41,8 +41,6 @@ class TypeForm extends React.Component<Props> {
   renderOptions = () => {
     const { typeOptions } = this.props;
 
-    console.log(typeOptions, 'Yu we ene?');
-
     return typeOptions.map(option => {
       return this.renderBox(
         option.text,
