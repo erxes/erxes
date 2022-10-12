@@ -249,8 +249,8 @@ class Store extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Store')}
-            breadcrumb={[{ title: __('Store') }]}
+            title={__('Marketplace')}
+            breadcrumb={[{ title: __('Marketplace') }]}
           />
         }
         content={this.renderContent()}

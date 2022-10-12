@@ -301,12 +301,17 @@ export const PluginBoxHeader = styled.div`
   display: flex;
   justify-content: space-between;
 
-  > img {
-    max-width: 60px;
-    max-height: 60px;
+  > .image-wrapper {
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    > img {
+      max-width: 60px;
+      max-height: 60px;
+    }
   }
 `;
 
