@@ -140,7 +140,7 @@ export type IOption = {
 };
 
 export type IButtonMutateProps = {
-  name?: string;
+  passedName?: string;
   values: any;
   isSubmitted: boolean;
   confirmationUpdate?: boolean;

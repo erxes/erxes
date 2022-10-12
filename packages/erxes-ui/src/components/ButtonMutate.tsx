@@ -86,6 +86,7 @@ class ButtonMutate extends React.Component<Props, { isLoading: boolean }> {
       this.setState({ isLoading: true });
     }
 
+    console.log('edit', mutation, variables);
     client
       .mutate({
         mutation: gql(mutation),

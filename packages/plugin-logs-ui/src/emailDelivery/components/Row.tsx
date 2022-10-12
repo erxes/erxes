@@ -1,4 +1,6 @@
 import dayjs from 'dayjs';
+import { Link } from 'react-router-dom';
+
 import Label from '@erxes/ui/src/components/Label';
 import { DateWrapper } from '@erxes/ui/src/styles/main';
 import React from 'react';
@@ -43,10 +45,21 @@ export default function Row(props: Props) {
     );
   }
 
+  let title: any = <span>-</span>;
+
+  if (item.engage) {
+    title = (
+      <Link to={`/campaigns/show/${item.engage._id}`} target="_blank">
+        {item.engage.title}
+      </Link>
+    );
+  }
+
   return (
     <tr key={item._id}>
       <td>{item.customerName || item.customerId || '-'}</td>
-      <td>{item.engage ? item.engage.title : '-'}</td>
+      <td>{item.email}</td>
+      <td>{title}</td>
       <td>{renderStatus(item.status)}</td>
       <td>
         <DateWrapper>

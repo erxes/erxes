@@ -1,6 +1,23 @@
 const list = `
-  query {name}sQuery {
-    {name}s {
+  query listQuery($typeId: String) {
+    {name}s(typeId: $typeId) {
+      _id
+      name
+      expiryDate
+      createdAt
+      checked
+      typeId
+      currentType{
+        _id
+        name
+      }
+    }
+  }
+`;
+
+const list{Name}Types = `
+  query list{Name}TypeQuery{
+    {name}Types{
       _id
       name
     }
@@ -8,12 +25,13 @@ const list = `
 `;
 
 const totalCount = `
-  query {name}sTotalCountQuery {
+  query {name}sTotalCount{
     {name}sTotalCount
   }
 `;
 
 export default {
   list,
-  totalCount
+  totalCount,
+  list{Name}Types
 };

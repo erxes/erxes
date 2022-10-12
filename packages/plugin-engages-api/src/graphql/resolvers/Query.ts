@@ -41,6 +41,7 @@ interface ICount {
 interface IReportParams extends IPaged {
   customerId?: string;
   status?: string;
+  searchValue?: string;
 }
 
 interface ISmsDeliveryParams extends IPaged {
@@ -264,7 +265,7 @@ const engageQueries = {
     params: IReportParams,
     { models, subdomain }: IContext
   ) {
-    const { page, perPage, customerId, status } = params;
+    const { page, perPage, customerId, status, searchValue } = params;
     const _page = Number(page || '1');
     const _limit = Number(perPage || '20');
     const filter: any = {};
@@ -274,6 +275,9 @@ const engageQueries = {
     }
     if (status) {
       filter.status = status;
+    }
+    if (searchValue) {
+      filter.email = { $regex: searchValue, $options: '$i' };
     }
 
     const deliveryReports = await models.DeliveryReports.find(filter)
@@ -285,7 +289,7 @@ const engageQueries = {
       return { list: [], totalCount: 0 };
     }
 
-    const totalCount = await models.DeliveryReports.countDocuments();
+    const totalCount = await models.DeliveryReports.countDocuments(filter);
 
     const modifiedList: any[] = [];
 

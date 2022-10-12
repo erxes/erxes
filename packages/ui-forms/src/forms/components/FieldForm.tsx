@@ -314,18 +314,17 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderOptionsValue(){
-
-    const {field} = this.state
+  renderOptionsValue() {
+    const { field } = this.state;
     const { optionsValues } = this.props.field;
 
-    const handleChange = (e) =>{
-      const {value} = e.currentTarget as HTMLInputElement
-      
-      this.onFieldChange('optionsValues', value);
-    }
+    const handleChange = e => {
+      const { value } = e.currentTarget as HTMLInputElement;
 
-    if(['select','radio'].includes(field.type)){
+      this.onFieldChange('optionsValues', value);
+    };
+
+    if (['select', 'radio'].includes(field.type)) {
       return (
         <CollapseContent title={__('Field Value')}>
           <FormGroup>
@@ -338,7 +337,7 @@ class FieldForm extends React.Component<Props, State> {
             />
           </FormGroup>
         </CollapseContent>
-      )
+      );
     }
   }
 

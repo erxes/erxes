@@ -101,13 +101,14 @@ export const types = async serviceDiscovery => {
     }
 
     type DeliveryReport ${keyFields} {
-      _id: String!,
-      customerId: String,
-      mailId: String,
-      status: String,
-      engage: EngageMessage,
-      createdAt: Date,
+      _id: String!
+      customerId: String
+      mailId: String
+      status: String
+      engage: EngageMessage
+      createdAt: Date
       customerName: String
+      email: String
     }
 
     type EngageDeliveryReport {
@@ -224,7 +225,7 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
-  engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport
+  engageReportsList(page: Int, perPage: Int, customerId: String, status: String, searchValue: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
 `;

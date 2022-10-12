@@ -200,7 +200,9 @@ class IntegrationListItem extends React.Component<Props, State> {
       return (
         <ActionButtons>
           <Tip text={__('Edit messenger integration')} placement="top">
-            <Link to={`/settings/add-ons/editMessenger/${integration._id}`}>
+            <Link
+              to={`/settings/integrations/editMessenger/${integration._id}`}
+            >
               <Button btnStyle="link" icon="edit-3" />
             </Link>
           </Tip>
