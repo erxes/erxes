@@ -283,7 +283,8 @@ const engageQueries = {
     const deliveryReports = await models.DeliveryReports.find(filter)
       .limit(_limit)
       .skip((_page - 1) * _limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     if (!deliveryReports) {
       return { list: [], totalCount: 0 };

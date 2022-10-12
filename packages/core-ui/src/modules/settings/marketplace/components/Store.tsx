@@ -230,16 +230,6 @@ class Store extends React.Component<Props, State> {
           <p>{__('Customize and enhance your plugins limits')}</p>
           <FlexWrapContainer>{this.renderPlugins()}</FlexWrapContainer>
         </StoreBlock>
-
-        <StoreBlock>
-          <h4>{__('Add-ons')}</h4>
-          <p>
-            {__(
-              'Increase the limits of individual plug-ins depending on your use'
-            )}
-          </p>
-          <FlexWrapContainer>{this.renderPlugins('addon')}</FlexWrapContainer>
-        </StoreBlock>
       </Container>
     );
   }
