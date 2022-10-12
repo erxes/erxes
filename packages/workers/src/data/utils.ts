@@ -94,7 +94,9 @@ export const createAWS = async () => {
 };
 
 export const getImportCsvInfo = async (fileName: string) => {
+  console.log('1111111111111111111111111');
   const { UPLOAD_SERVICE_TYPE } = await getFileUploadConfigs();
+  console.log('2222222222222222222222222', UPLOAD_SERVICE_TYPE);
 
   return new Promise(async (resolve, reject) => {
     if (UPLOAD_SERVICE_TYPE === 'local') {
