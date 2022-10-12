@@ -78,7 +78,8 @@ const posOrderFields = contactsEnabled => `
     `
       : ''
   }
-  syncedErkhet: Boolean
+  syncedErkhet: Boolean,
+  origin: String
 `;
 
 export const types = ({ contactsEnabled, productsEnabled }) => `

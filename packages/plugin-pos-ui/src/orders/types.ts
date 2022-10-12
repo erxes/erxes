@@ -31,7 +31,7 @@ export type IOrder = {
   posName: string;
   user: IUser;
   customer: ICustomer;
-
+  origin?: string;
   syncedErkhet: boolean;
 };
 

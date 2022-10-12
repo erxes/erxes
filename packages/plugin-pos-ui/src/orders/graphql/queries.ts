@@ -60,6 +60,7 @@ export const orderFields = `
   syncedErkhet
 
   posName
+  origin
   user {
     _id
     email

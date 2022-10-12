@@ -2,9 +2,12 @@ import { IContext } from '../../types';
 import { escapeRegExp, paginate } from '@erxes/api-utils/src/core';
 import { sendRequest } from '@erxes/api-utils/src/requests';
 import { sendPosMessage } from '../../../messageBroker';
+import { IConfig } from '../../../models/definitions/configs';
 
 interface ISearchParams {
   searchValue?: string;
+  startDate?: Date;
+  endDate?: Date;
   page?: number;
   perPage?: number;
   sortField?: string;
@@ -15,6 +18,46 @@ interface ISearchParams {
 interface IFullOrderParams extends ISearchParams {
   statuses: string[];
 }
+
+export const getPureDate = (date: Date, multiplier = 1) => {
+  const ndate = new Date(date);
+  const diffTimeZone =
+    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+  return new Date(ndate.getTime() - diffTimeZone);
+};
+
+const generateFilter = (config: IConfig, params: IFullOrderParams) => {
+  const { searchValue, statuses, customerId, startDate, endDate } = params;
+  const filter: any = {
+    $or: [
+      { posToken: config.token },
+      { type: 'delivery', branchId: config.branchId }
+    ]
+  };
+
+  if (searchValue) {
+    filter.$or = [
+      { number: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } },
+      { origin: { $regex: new RegExp(escapeRegExp(searchValue), 'i') } }
+    ];
+  }
+  if (customerId) {
+    filter.customerId = customerId;
+  }
+
+  const dateQry: any = {};
+  if (startDate) {
+    dateQry.$gte = getPureDate(startDate);
+  }
+  if (endDate) {
+    dateQry.$lte = getPureDate(endDate);
+  }
+  if (Object.keys(dateQry).length) {
+    filter.modifiedAt = dateQry;
+  }
+
+  return { ...filter, status: { $in: statuses } };
+};
 
 const orderQueries = {
   orders(
@@ -41,30 +84,11 @@ const orderQueries = {
 
   async fullOrders(
     _root,
-    {
-      searchValue,
-      statuses,
-      page,
-      perPage,
-      sortField,
-      sortDirection,
-      customerId
-    }: IFullOrderParams,
+    params: IFullOrderParams,
     { models, config }: IContext
   ) {
-    const filter: any = {
-      $or: [
-        { posToken: config.token },
-        { type: 'delivery', branchId: config.branchId }
-      ]
-    };
-
-    if (searchValue) {
-      filter.number = { $regex: new RegExp(escapeRegExp(searchValue), 'i') };
-    }
-    if (customerId) {
-      filter.customerId = customerId;
-    }
+    const filter = generateFilter(config, params);
+    const { sortField, sortDirection, page, perPage } = params;
     const sort: { [key: string]: any } = {};
 
     if (sortField) {
@@ -75,13 +99,23 @@ const orderQueries = {
 
     return paginate(
       models.Orders.find({
-        ...filter,
-        status: { $in: statuses }
+        ...filter
       })
         .sort(sort)
         .lean(),
       { page, perPage }
     );
+  },
+
+  async ordersTotalCount(
+    _root,
+    params: IFullOrderParams,
+    { models, config }: IContext
+  ) {
+    const filter = generateFilter(config, params);
+    return await models.Orders.find({
+      ...filter
+    }).count();
   },
 
   async fullOrderItems(

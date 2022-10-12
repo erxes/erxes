@@ -123,6 +123,7 @@ export const initBroker = async cl => {
 
       await graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
+          ...(await models.Orders.findOne({ _id: order._id }).lean()),
           _id: order._id,
           status: order.status,
           customerId: order.customerId
