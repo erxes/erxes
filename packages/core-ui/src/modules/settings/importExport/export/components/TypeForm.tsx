@@ -11,21 +11,25 @@ type Props = {
 };
 
 class TypeForm extends React.Component<Props> {
-  renderSelected = selectedType => {
-    const { contentType } = this.props;
+  componentDidMount() {
+    const { contentType, typeOptions, onChangeContentType } = this.props;
+    const type = typeOptions.find(t => t.contentType === contentType);
 
-    if (contentType) {
-      return contentType === selectedType ? true : false;
+    if (type) {
+      onChangeContentType(contentType, type.skipFilter);
     }
+  }
 
-    return false;
-  };
-
-  renderBox(name, icon, contentType, skipFilter) {
+  renderBox(
+    name: string,
+    icon: string,
+    contentType: string,
+    skipFilter: boolean
+  ) {
     return (
       <Box
         key={Math.random()}
-        selected={this.renderSelected(contentType)}
+        selected={this.props.contentType === contentType}
         onClick={() => this.props.onChangeContentType(contentType, skipFilter)}
       >
         <Icon icon={icon} />

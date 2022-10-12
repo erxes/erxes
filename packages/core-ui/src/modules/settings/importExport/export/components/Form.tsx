@@ -17,7 +17,6 @@ type Props = {
   loading: boolean;
   saveExport: (doc: any) => void;
   contentType: string;
-  isSegment: boolean;
 };
 
 type State = {
@@ -167,7 +166,7 @@ class Form extends React.Component<Props, State> {
               </FlexPad>
             </Step>
 
-            {skipFilter ? null : (
+            {!skipFilter && (
               <Step title="Filter">
                 <FlexPad
                   direction="column"
