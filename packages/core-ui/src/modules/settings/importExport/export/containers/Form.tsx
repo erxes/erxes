@@ -3,7 +3,7 @@ import Form from '../components/Form';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { mutations } from '../../graphql';
+import { mutations, queries } from '../../graphql';
 import { Alert, withProps } from 'modules/common/utils';
 
 type Props = {
@@ -13,6 +13,7 @@ type Props = {
 type FinalProps = {
   fieldsQuery: any;
   exportHistoriesCreate: any;
+  historyGetTypes: any;
 } & Props;
 
 type State = {
@@ -33,8 +34,10 @@ class FormContainer extends React.Component<FinalProps, State> {
   }
 
   render() {
-    const { exportHistoriesCreate } = this.props;
+    const { exportHistoriesCreate, historyGetTypes } = this.props;
     const { count, loading } = this.state;
+
+    const isSegment = historyGetTypes.isSegment;
 
     const saveExport = doc => {
       exportHistoriesCreate({
@@ -56,6 +59,7 @@ class FormContainer extends React.Component<FinalProps, State> {
         count={count}
         loading={loading}
         saveExport={saveExport}
+        isSegment={isSegment}
       />
     );
   }
@@ -65,6 +69,9 @@ export default withProps<Props>(
   compose(
     graphql<Props>(gql(mutations.exportHistoriesCreate), {
       name: 'exportHistoriesCreate'
+    }),
+    graphql<Props>(gql(queries.historyGetTypes), {
+      name: 'historyGetTypes'
     })
   )(FormContainer)
 );

@@ -15,19 +15,18 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  historyGetExportableServices: any;
+  historyGetTypes: any;
 } & Props;
 
 class SideBarContainer extends React.Component<FinalProps, State> {
   render() {
-    const { historyGetExportableServices, currentType, history } = this.props;
+    const { historyGetTypes, currentType, history } = this.props;
 
-    if (historyGetExportableServices.loading) {
+    if (historyGetTypes.loading) {
       return <Spinner />;
     }
 
-    const services =
-      historyGetExportableServices.historyGetExportableServices || [];
+    const services = historyGetTypes.historyGetTypes || [];
 
     if (!router.getParam(history, 'type') && services.length !== 0) {
       router.setParams(history, { type: services[0].contentType }, true);
@@ -39,8 +38,8 @@ class SideBarContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(queries.historyGetExportableServices), {
-      name: 'historyGetExportableServices'
+    graphql<Props>(gql(queries.historyGetTypes), {
+      name: 'historyGetTypes'
     })
   )(SideBarContainer)
 );

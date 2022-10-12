@@ -5,7 +5,7 @@ import React from 'react';
 import { Box, TypeContent, ImportHeader } from '../../styles';
 
 type Props = {
-  onChangeContentType: (contentType: string) => void;
+  onChangeContentType: (contentType: string, skipFilter: boolean) => void;
   contentType: string;
   typeOptions: any[];
 };
@@ -21,12 +21,12 @@ class TypeForm extends React.Component<Props> {
     return false;
   };
 
-  renderBox(name, icon, contentType) {
+  renderBox(name, icon, contentType, skipFilter) {
     return (
       <Box
         key={Math.random()}
         selected={this.renderSelected(contentType)}
-        onClick={() => this.props.onChangeContentType(contentType)}
+        onClick={() => this.props.onChangeContentType(contentType, skipFilter)}
       >
         <Icon icon={icon} />
         <span>{__(name)}</span>
@@ -41,8 +41,15 @@ class TypeForm extends React.Component<Props> {
   renderOptions = () => {
     const { typeOptions } = this.props;
 
+    console.log(typeOptions, 'Yu we ene?');
+
     return typeOptions.map(option => {
-      return this.renderBox(option.text, option.icon, option.contentType);
+      return this.renderBox(
+        option.text,
+        option.icon,
+        option.contentType,
+        option.skipFilter
+      );
     });
   };
 

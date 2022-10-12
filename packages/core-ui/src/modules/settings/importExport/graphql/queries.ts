@@ -21,16 +21,9 @@ const historyGetTypes = `
   }
 `;
 
-const historyGetExportableServices = `
-  query historyGetExportableServices {
-    historyGetExportableServices
-  }
-`;
-
 export default {
   importHistoryPreviewExportCount,
   exportHistoryPreviewExportCount,
   fieldsCombinedByContentType,
-  historyGetTypes,
-  historyGetExportableServices
+  historyGetTypes
 };

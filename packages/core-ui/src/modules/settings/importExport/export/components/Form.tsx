@@ -17,6 +17,7 @@ type Props = {
   loading: boolean;
   saveExport: (doc: any) => void;
   contentType: string;
+  isSegment: boolean;
 };
 
 type State = {
@@ -25,6 +26,7 @@ type State = {
   disclaimer: boolean;
   name: string;
   columns: any[];
+  skipFilter: boolean;
 };
 
 class Form extends React.Component<Props, State> {
@@ -36,7 +38,8 @@ class Form extends React.Component<Props, State> {
       contentType: props.contentType || '',
       disclaimer: false,
       name: '',
-      columns: []
+      columns: [],
+      skipFilter: false
     };
   }
 
@@ -48,8 +51,9 @@ class Form extends React.Component<Props, State> {
     return true;
   }
 
-  onChangeContentType = (contentType: string) => {
+  onChangeContentType = (contentType: string, skipFilter: boolean) => {
     this.setState({ contentType });
+    this.setState({ skipFilter });
   };
 
   onClickField = columns => {
@@ -123,7 +127,7 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    const { contentType, disclaimer, name } = this.state;
+    const { contentType, disclaimer, name, skipFilter } = this.state;
 
     const title = __('Export');
 
@@ -162,26 +166,30 @@ class Form extends React.Component<Props, State> {
                 />
               </FlexPad>
             </Step>
-            <Step title="Filter">
-              <FlexPad
-                direction="column"
-                overflow="auto"
-                thinner={true}
-                vh={70}
-              >
-                <SubHeading>{__('Filter')}</SubHeading>
-                <Description>
-                  {__('Skip this step if you wish to export all items')}
-                </Description>
-                {loadDynamicComponent('importExportFilterForm', {
-                  ...this.props,
-                  contentType,
-                  closeModal: this.segmentCloseModal,
-                  filterContent: this.filterContent,
-                  hideDetailForm: true
-                })}
-              </FlexPad>
-            </Step>
+
+            {skipFilter ? null : (
+              <Step title="Filter">
+                <FlexPad
+                  direction="column"
+                  overflow="auto"
+                  thinner={true}
+                  vh={70}
+                >
+                  <SubHeading>{__('Filter')}</SubHeading>
+                  <Description>
+                    {__('Skip this step if you wish to export all items')}
+                  </Description>
+                  {loadDynamicComponent('importExportFilterForm', {
+                    ...this.props,
+                    contentType,
+                    closeModal: this.segmentCloseModal,
+                    filterContent: this.filterContent,
+                    hideDetailForm: true
+                  })}
+                </FlexPad>
+              </Step>
+            )}
+
             <Step title="Detail" additionalButton={this.renderExportButton()}>
               <Details
                 type="stepper"

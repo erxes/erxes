@@ -8,7 +8,7 @@ import TypeForm from '../components/TypeForm';
 import { queries } from '../../graphql';
 
 type Props = {
-  onChangeContentType: (contentType: string) => void;
+  onChangeContentType: (contentType: string, skipFilter: boolean) => void;
   contentType: string;
 };
 
