@@ -37,7 +37,7 @@ const emailTypeOptions = [
 
 const tableHeaders = {
   transaction: ['Subject', 'To', 'Cc', 'Bcc', 'From', 'Status', 'Created at'],
-  engage: ['Customer', 'Title', 'Status', 'Created at']
+  engage: ['Customer', 'Email', 'Title', 'Status', 'Created at']
 };
 
 export const STATUS_OPTIONS = [
@@ -114,14 +114,12 @@ function EmailDelivery({
 
     const content = (
       <BarItems>
-        {isTransaction ? (
-          <FormControl
-            type="text"
-            placeholder={__('Type to search')}
-            onChange={handleSearch}
-            value={search}
-          />
-        ) : null}
+        <FormControl
+          type="text"
+          placeholder={__('Type to search')}
+          onChange={handleSearch}
+          value={search}
+        />
 
         <React.Fragment>
           {isEnabled('engages') && (
@@ -173,7 +171,7 @@ function EmailDelivery({
           emptyImage="/images/actions/21.svg"
         />
       }
-      hasBorder
+      hasBorder={true}
     />
   );
 }
