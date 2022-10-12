@@ -93,12 +93,7 @@ class Histories extends React.Component<Props & IRouterProps> {
   }
 
   renderImportButton = () => {
-    return (
-      <BarItems>
-        {this.renderDataImporter()}
-        {/* {this.renderExportButton()} */}
-      </BarItems>
-    );
+    return <BarItems>{this.renderDataImporter()}</BarItems>;
   };
 
   render() {
@@ -131,7 +126,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           <Wrapper.ActionBar
             left={<Title capitalize={true}>{__('Imports')}</Title>}
             right={this.renderImportButton()}
-            wideSpacing
+            wideSpacing={true}
           />
         }
         leftSidebar={<Sidebar history={history} currentType={currentType} />}
@@ -146,7 +141,7 @@ class Histories extends React.Component<Props & IRouterProps> {
           />
         }
         transparent={true}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

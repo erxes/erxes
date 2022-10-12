@@ -18,7 +18,7 @@ const generalHistoryQueries = {
           importExportTypes.push({
             ...type,
             contentType: `${serviceName}:${type.contentType}`,
-            skipFilter: !type.isSegment ? false : true
+            skipFilter: type.skipFilter || false
           });
         }
       }

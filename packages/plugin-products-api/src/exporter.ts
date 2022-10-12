@@ -101,7 +101,7 @@ export const IMPORT_EXPORT_TYPES = [
     text: 'Product & Services',
     contentType: 'product',
     icon: 'server-alt',
-    isSegment: true
+    skipFilter: true
   }
 ];
 
