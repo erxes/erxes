@@ -98,19 +98,9 @@ export const fillValue = async (
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Customers',
-    contentType: 'customer',
-    icon: 'users-alt'
-  },
-  {
-    text: 'Leads',
-    contentType: 'lead',
-    icon: 'file-alt'
-  },
-  {
-    text: 'Companies',
-    contentType: 'company',
-    icon: 'building'
+    text: 'Product & Services',
+    contentType: 'product',
+    icon: 'server-alt'
   }
 ];
 

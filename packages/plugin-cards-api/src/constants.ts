@@ -20,19 +20,19 @@ import { ticketSchema } from './models/definitions/tickets';
 
 export const IMPORT_EXPORT_TYPES = [
   {
-    text: 'Customers',
-    contentType: 'customer',
-    icon: 'users-alt'
+    text: 'Deal',
+    contentType: 'deal',
+    icon: 'signal-alt-3'
   },
   {
-    text: 'Leads',
-    contentType: 'lead',
-    icon: 'file-alt'
+    text: 'Task',
+    contentType: 'task',
+    icon: 'laptop'
   },
   {
-    text: 'Companies',
-    contentType: 'company',
-    icon: 'building'
+    text: 'Ticket',
+    contentType: 'ticket',
+    icon: 'ticket'
   }
 ];
 export const PRIORITIES = {
