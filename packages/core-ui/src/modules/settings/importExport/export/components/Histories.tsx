@@ -12,7 +12,7 @@ import { BarItems } from 'modules/layout/styles';
 import React from 'react';
 import { IExportHistory } from '../../types';
 import HistoryRow from './HistoryRow';
-import Sidebar from '../containers/SideBar';
+import Sidebar from '../../import/containers/list/SideBar';
 import { Title } from '@erxes/ui-settings/src/styles';
 import { Link } from 'react-router-dom';
 import { EMPTY_IMPORT_CONTENT } from '@erxes/ui-settings/src/constants';
