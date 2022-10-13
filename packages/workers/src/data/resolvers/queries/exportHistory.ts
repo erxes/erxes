@@ -1,4 +1,3 @@
-import { fetchSegment } from '../../../messageBroker';
 import { paginate } from '../../utils';
 import { IContext } from '../../../connectionResolvers';
 
@@ -24,21 +23,6 @@ const exportHistoryQueries = {
     const count = models.ExportHistory.find(filter).countDocuments();
 
     return { list, count };
-  },
-
-  async exportHistoryPreviewExportCount(
-    _root,
-    { segmentId }: { segmentId: string; contentType: string },
-    { subdomain }
-  ) {
-    if (segmentId) {
-      return fetchSegment(subdomain, segmentId, {
-        returnCount: true,
-        subdomain
-      });
-    }
-
-    return 'All';
   }
 };
 

@@ -4,12 +4,6 @@ const exportHistoryGetDuplicatedHeaders = `
   }
 `;
 
-const fieldsCombinedByContentType = `
-  query fieldsCombinedByContentType($contentType: String!,$usageType: String, $excludedNames: [String], $segmentId: String, $config: JSON) {
-    fieldsCombinedByContentType(contentType: $contentType,usageType: $usageType, excludedNames: $excludedNames, segmentId: $segmentId, config: $config)
-  }
-`;
-
 const exportHistories = `
   query exportHistories($type: String, $perPage: Int, $page: Int) {
     exportHistories(type: $type, perPage: $perPage, page: $page) {
@@ -34,6 +28,5 @@ const exportHistories = `
 
 export default {
   exportHistories,
-  exportHistoryGetDuplicatedHeaders,
-  fieldsCombinedByContentType
+  exportHistoryGetDuplicatedHeaders
 };

@@ -1,4 +1,5 @@
 import { getService, getServices } from '@erxes/api-utils/src/serviceDiscovery';
+import { fetchSegment } from '../../../messageBroker';
 
 const generalHistoryQueries = {
   async historyGetTypes() {
@@ -25,6 +26,20 @@ const generalHistoryQueries = {
     }
 
     return importExportTypes;
+  },
+  async historyPreviewCount(
+    _root,
+    { segmentId }: { segmentId: string; contentType: string },
+    { subdomain }
+  ) {
+    if (segmentId) {
+      return fetchSegment(subdomain, segmentId, {
+        returnCount: true,
+        subdomain
+      });
+    }
+
+    return 'All';
   }
 };
 export default generalHistoryQueries;

@@ -1,4 +1,3 @@
-import { fetchSegment } from '../../../messageBroker';
 import { paginate, getImportCsvInfo, getCsvHeadersInfo } from '../../utils';
 import { IContext } from '../../../connectionResolvers';
 
@@ -76,21 +75,6 @@ const importHistoryQueries = {
     );
 
     return duplicates;
-  },
-
-  async importHistoryPreviewExportCount(
-    _root,
-    { segmentId }: { segmentId: string; contentType: string },
-    { subdomain }
-  ) {
-    if (segmentId) {
-      return fetchSegment(subdomain, segmentId, {
-        returnCount: true,
-        subdomain
-      });
-    }
-
-    return 'All';
   }
 };
 
