@@ -1,4 +1,15 @@
-export const types = `
+export const types = tagsAvailable => `
+
+  ${
+    tagsAvailable
+      ? `
+      extend type Tag @key(fields: "_id"){
+        _id: String! @external
+      }
+    `
+      : ``
+  }
+
   extend type User @key(fields: "_id") {
     _id: String! @external
   }
@@ -19,7 +30,9 @@ export const types = `
     updatedAt: Date
     createdBy: String
     updatedBy: String
+    tagIds: [String]
 
+    ${tagsAvailable ? `getTags: [Tag]` : ''}
     createdUser: User
     updatedUser: User
     members: [User]
@@ -50,6 +63,7 @@ const queryParams = `
   searchValue: String
   sortField: String
   sortDirection: Int
+  tag: String
 `;
 
 export const queries = `
@@ -57,6 +71,7 @@ export const queries = `
   dashboardsMain(${queryParams}): DashboardListResponse
   dashboardDetails(_id: String!): Dashboard
   dashboardsTotalCount: Int
+  dashboardCountByTags : JSON
   dashboardItems(dashboardId: String!): [DashboardItem]
   dashboardItemDetail(_id: String!): DashboardItem
   dashboardGetTypes: [String]
