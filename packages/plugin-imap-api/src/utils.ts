@@ -225,6 +225,17 @@ export const listenIntegration = async (
   imap.on('mail', async response => {
     console.log('new messages ========', response);
 
+    const models = await generateModels(subdomain);
+
+    const updatedIntegration = await models.Integrations.findOne({
+      _id: integration._id
+    });
+
+    if (!updatedIntegration) {
+      console.log(`ending ${integration.user} imap`);
+      return imap.end();
+    }
+
     try {
       await saveMessages(subdomain, imap, integration, ['UNSEEN']);
     } catch (e) {
