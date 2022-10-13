@@ -288,9 +288,13 @@ export default class WorkArea extends React.Component<Props, State> {
     );
 
     if (
-      !['messenger', 'facebook-messenger', 'lead', 'booking'].includes(
-        currentConversation.integration.kind
-      )
+      ![
+        'messenger',
+        'facebook-messenger',
+        'lead',
+        'booking',
+        'webhook'
+      ].includes(currentConversation.integration.kind)
     ) {
       content = loadDynamicComponent('inboxConversationDetail', {
         ...this.props
