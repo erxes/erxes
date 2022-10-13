@@ -114,23 +114,36 @@ const saveMessages = async (
     let customerId;
 
     if (!prev) {
-      const apiCustomerResponse = await sendContactsMessage({
+      const customer = await sendContactsMessage({
         subdomain,
-        action: 'customers.createCustomer',
+        action: 'customers.findOne',
         data: {
-          integrationId: integration.inboxId,
           primaryEmail: from
         },
         isRPC: true
       });
 
+      if (customer) {
+        customerId = customer._id;
+      } else {
+        const apiCustomerResponse = await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            integrationId: integration.inboxId,
+            primaryEmail: from
+          },
+          isRPC: true
+        });
+
+        customerId = apiCustomerResponse._id;
+      }
+
       await models.Customers.create({
         inboxIntegrationId: integration.inboxId,
-        contactsId: apiCustomerResponse._id,
+        contactsId: customerId,
         email: from
       });
-
-      customerId = apiCustomerResponse._id;
     } else {
       customerId = prev.contactsId;
     }
