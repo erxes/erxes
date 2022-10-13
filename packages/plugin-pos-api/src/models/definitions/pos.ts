@@ -41,6 +41,7 @@ export interface IPosOrder {
   posToken: string;
   syncedErkhet?: Boolean;
   deliveryInfo?: any;
+  origin?: string;
   taxInfo?: any;
 }
 export interface IPosOrderDocument extends IPosOrder, Document {
@@ -183,6 +184,7 @@ export const posOrderSchema = schemaHooksWrapper(
       optional: true,
       label: 'Delivery Info, address, map, etc'
     }),
+    origin: field({ type: String, optional: true }),
     taxInfo: field({ type: Object, optional: true })
   }),
   'erxes_posOrders'

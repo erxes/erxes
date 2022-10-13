@@ -13,6 +13,7 @@ const format_number = (num: number) => {
 
 export interface IPutDataArgs {
   date?: string;
+  number?: string;
   orderId?: string;
   hasVat?: boolean;
   hasCitytax?: boolean;
@@ -49,17 +50,18 @@ export class PutData<IListArgs extends IPutDataArgs> {
     this.params = params;
     this.models = params.models;
     this.config = params.config;
+    this.districtCode = DISTRICTS[this.config.districtName] || '';
+    this.vatPercent = Number(this.config.vatPercent) || 0;
+    this.cityTaxPercent = Number(this.config.cityTaxPercent) || 0;
+    this.defaultGScode = this.config.defaultGSCode || '';
   }
 
   public async run(): Promise<IPutResponse> {
     const url = this.config.ebarimtUrl || '';
     this.districtCode = DISTRICTS[this.config.districtName] || '';
     const rd = this.config.companyRD || '';
-    this.vatPercent = Number(this.config.vatPercent) || 0;
-    this.cityTaxPercent = Number(this.config.cityTaxPercent) || 0;
-    this.defaultGScode = this.config.defaultGSCode || '';
 
-    const { contentType, contentId } = this.params;
+    const { contentType, contentId, number } = this.params;
 
     if (!this.districtCode) {
       throw new Error('Not validate District');
@@ -79,7 +81,8 @@ export class PutData<IListArgs extends IPutDataArgs> {
     const resObj = await this.models.PutResponses.createPutResponse({
       sendInfo: { ...this.transactionInfo },
       contentId,
-      contentType
+      contentType,
+      number
     });
 
     const responseStr = await sendRequest({
@@ -162,7 +165,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     return { stocks, sumAmount, vatAmount, citytaxAmount };
   }
 
-  private async generateTransactionInfo() {
+  public async generateTransactionInfo() {
     const {
       stocks,
       sumAmount,

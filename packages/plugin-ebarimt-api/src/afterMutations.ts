@@ -1,5 +1,6 @@
 import { graphqlPubsub } from './configs';
 import { IModels } from './connectionResolver';
+import { PutData } from './models/utils';
 import { getConfig, getPostData } from './utils';
 
 export default {
@@ -67,20 +68,39 @@ export const afterMutationHandlers = async (
 
       const ebarimtData = await getPostData(subdomain, config, deal);
 
-      const ebarimtResponse = await models.PutResponses.putData(
-        ebarimtData,
-        config
-      );
+      let ebarimtResponse;
+
+      if (config.skipPutData) {
+        const putData = new PutData({
+          ...config,
+          ...ebarimtData,
+          config,
+          models
+        });
+        ebarimtResponse = {
+          _id: Math.random(),
+          billId: 'Түр баримт',
+          ...(await putData.generateTransactionInfo()),
+          registerNo: config.companyRD || ''
+        };
+      } else {
+        ebarimtResponse = await models.PutResponses.putData(
+          ebarimtData,
+          config
+        );
+      }
 
       try {
-        await graphqlPubsub.publish('automationResponded', {
-          automationResponded: {
-            userId: user._id,
-            responseId: ebarimtResponse._id,
-            sessionCode: user.sessionCode || '',
-            content: { ...config, ...ebarimtResponse, number: deal.number }
-          }
-        });
+        if (ebarimtResponse._id) {
+          await graphqlPubsub.publish('automationResponded', {
+            automationResponded: {
+              userId: user._id,
+              responseId: ebarimtResponse._id,
+              sessionCode: user.sessionCode || '',
+              content: { ...config, ...ebarimtResponse }
+            }
+          });
+        }
       } catch (e) {
         throw new Error(e.message);
       }

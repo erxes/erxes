@@ -1,3 +1,5 @@
+import { ordersQueryParams } from '../graphql/schema/orders';
+
 const commonFields = `
   _id: String!
   createdAt: Date
@@ -98,5 +100,5 @@ export const types = `
 `;
 
 export const queries = `
-  fullOrders(searchValue: String, statuses: [String], customerId: String, page: Int, perPage: Int, sortField: String, sortDirection: Int): [Order]
+  fullOrders(${ordersQueryParams}): [Order]
 `;

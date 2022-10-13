@@ -65,7 +65,10 @@ const generateFilterPosQuery = async (
   } = params;
 
   if (search) {
-    query.number = { $regex: new RegExp(search) };
+    query.$or = [
+      { number: { $regex: new RegExp(search) } },
+      { origin: { $regex: new RegExp(search) } }
+    ];
   }
 
   if (customerId) {

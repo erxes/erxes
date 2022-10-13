@@ -121,26 +121,21 @@ export const ORDER_RETURN_TYPES = {
 
 export const ORDER_STATUSES = {
   NEW: 'new',
-  PAID: 'paid',
   DOING: 'doing',
+  REDOING: 'reDoing',
   DONE: 'done',
-  CONFIRM: 'confirm',
-  ROAD: 'road',
   COMPLETE: 'complete',
 
-  ALL: ['new', 'paid', 'doing', 'done', 'road', 'complete', 'confirm'],
+  ALL: ['new', 'doing', 'done', 'complete', 'reDoing'],
   FULL: ['paid', 'done', 'complete']
 };
 
 export const ORDER_ITEM_STATUSES = {
   NEW: 'new',
-  PAID: 'paid',
   CONFIRM: 'confirm',
   DONE: 'done',
-  COMPLETE: 'complete',
 
-  ALL: ['new', 'paid', 'done', 'complete', 'confirm'],
-  FULL: ['paid', 'done', 'complete']
+  ALL: ['new', 'done', 'confirm']
 };
 
 export const DISTRICTS = {

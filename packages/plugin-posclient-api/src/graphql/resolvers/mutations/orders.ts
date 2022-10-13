@@ -107,9 +107,18 @@ const orderMutations = {
           orderId: order._id,
           isPackage: item.isPackage,
           isTake: item.isTake,
-          status: ORDER_ITEM_STATUSES.CONFIRM
+          status: ORDER_ITEM_STATUSES.NEW
         });
       }
+
+      await graphqlPubsub.publish('ordersOrdered', {
+        ordersOrdered: {
+          ...order,
+          _id: order._id,
+          status: order.status,
+          customerId: order.customerId
+        }
+      });
 
       return order;
     } catch (e) {
@@ -120,6 +129,7 @@ const orderMutations = {
       return e;
     }
   },
+
   async ordersEdit(
     _root,
     doc: IOrderEditParams,
@@ -140,6 +150,20 @@ const orderMutations = {
 
     await updateOrderItems(doc._id, preparedDoc.items, models);
 
+    let status = order.status;
+
+    if (
+      [ORDER_STATUSES.COMPLETE, ORDER_STATUSES.DONE].includes(
+        order.status || ''
+      )
+    ) {
+      const newItems =
+        doc.items.filter(i => i.status === ORDER_ITEM_STATUSES.NEW) || [];
+      if (newItems.length) {
+        status = ORDER_STATUSES.REDOING;
+      }
+    }
+
     const updatedOrder = await models.Orders.updateOrder(doc._id, {
       deliveryInfo: doc.deliveryInfo,
       branchId: doc.branchId,
@@ -151,7 +175,17 @@ const orderMutations = {
       slotCode: doc.slotCode,
       posToken: config.token,
       departmentId: config.departmentId,
-      taxInfo: getTaxInfo(config)
+      taxInfo: getTaxInfo(config),
+      status
+    });
+
+    await graphqlPubsub.publish('ordersOrdered', {
+      ordersOrdered: {
+        ...updatedOrder,
+        _id: updatedOrder._id,
+        status: updatedOrder.status,
+        customerId: updatedOrder.customerId
+      }
     });
 
     return updatedOrder;
@@ -164,10 +198,29 @@ const orderMutations = {
   ) {
     const oldOrder = await models.Orders.getOrder(_id);
 
-    const order = await models.Orders.updateOrder(_id, { ...oldOrder, status });
+    const order = await models.Orders.updateOrder(_id, {
+      ...oldOrder,
+      status,
+      modifiedAt: new Date()
+    });
+
+    if (status === ORDER_STATUSES.REDOING) {
+      await models.OrderItems.updateMany(
+        { orderId: order._id },
+        { $set: { status: ORDER_ITEM_STATUSES.CONFIRM } }
+      );
+    }
+
+    if (status === ORDER_STATUSES.DONE) {
+      await models.OrderItems.updateMany(
+        { orderId: order._id },
+        { $set: { status: ORDER_ITEM_STATUSES.DONE } }
+      );
+    }
 
     await graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
+        ...order,
         _id,
         status: order.status,
         customerId: order.customerId
@@ -184,6 +237,7 @@ const orderMutations = {
       } catch (e) {}
     }
   },
+
   async orderItemChangeStatus(
     _root,
     { _id, status }: { _id: string; status: string },
@@ -253,7 +307,6 @@ const orderMutations = {
             $set: {
               ...doc,
               paidDate: now,
-              status: ORDER_STATUSES.PAID,
               modifiedAt: now
             }
           }
@@ -263,6 +316,7 @@ const orderMutations = {
       order = await models.Orders.getOrder(_id);
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
+          ...order,
           _id,
           status: order.status,
           customerId: order.customerId
@@ -419,7 +473,6 @@ const orderMutations = {
               billType,
               registerNumber,
               paidDate: now,
-              status: ORDER_STATUSES.PAID,
               modifiedAt: now
             }
           }
@@ -430,6 +483,7 @@ const orderMutations = {
 
       graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
+          ...order,
           _id,
           status: order.status,
           customerId: order.customerId

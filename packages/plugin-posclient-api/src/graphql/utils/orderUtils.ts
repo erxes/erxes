@@ -242,6 +242,7 @@ export const prepareEbarimtData = async (
   const orderInfo = {
     date: new Date().toISOString().slice(0, 10),
     orderId: order._id,
+    number: order.number,
     hasVat: config.hasVat || false,
     hasCitytax: config.hasCitytax || false,
     billType,
@@ -372,7 +373,7 @@ export const prepareOrderDoc = async (
 };
 
 export const checkOrderStatus = (order: IOrderDocument) => {
-  if (order.status === ORDER_STATUSES.PAID || order.paidDate) {
+  if (order.paidDate) {
     throw new Error('Order is already paid');
   }
 };
@@ -502,7 +503,6 @@ export const commonCheckPayment = async (
           $set: {
             ...doc,
             paidDate: now,
-            status: ORDER_STATUSES.PAID,
             modifiedAt: now
           }
         }
@@ -512,6 +512,7 @@ export const commonCheckPayment = async (
     order = await models.Orders.getOrder(orderId);
     graphqlPubsub.publish('ordersOrdered', {
       ordersOrdered: {
+        ...order,
         _id: orderId,
         status: order.status,
         customerId: order.customerId
