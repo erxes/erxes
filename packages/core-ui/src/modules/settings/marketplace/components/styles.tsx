@@ -404,3 +404,12 @@ export const EmptyContent = styled.div`
   flex: 1;
   margin-right: ${dimensions.coreSpacing}px;
 `;
+
+export const SearchBar = styled.input`
+  flex: 1;
+  border: none;
+`;
+
+export const SearchIcon = styled.div`
+  margin: 4px 6px;
+`;

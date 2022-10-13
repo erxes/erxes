@@ -1,4 +1,4 @@
-import { CATEGORIES, STATUS_TYPES } from '../constants';
+import { CATEGORIES } from '../constants';
 import {
   Container,
   EmptyContent,
@@ -6,12 +6,13 @@ import {
   FlexWrapContainer,
   Labels,
   StoreBlock,
-  Tag
+  Tag,
+  SearchBar,
+  SearchIcon
 } from './styles';
 
 import EmptyState from 'modules/common/components/EmptyState';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
-import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import PluginBox from './PluginBox';
 import React from 'react';
@@ -28,6 +29,7 @@ type State = {
   searchValue: string;
   plugins: any;
   selectedCategories: any[];
+  isSearching: boolean;
 };
 
 class Store extends React.Component<Props, State> {
@@ -38,7 +40,8 @@ class Store extends React.Component<Props, State> {
       plugins: props.plugins || [],
       status: 'All',
       searchValue: '',
-      selectedCategories: []
+      selectedCategories: [],
+      isSearching: false
     };
   }
 
@@ -64,6 +67,10 @@ class Store extends React.Component<Props, State> {
 
   handleStatus = (status: string) => {
     this.setState({ status });
+  };
+
+  handleSearch = (state: boolean) => {
+    this.setState({ isSearching: state });
   };
 
   handleCategory = (cat: any) => {
@@ -185,35 +192,34 @@ class Store extends React.Component<Props, State> {
     return (
       <Container>
         <FlexRow>
-          <FilterContainer width={300}>
-            <Tag>{__('Status')}</Tag>
-            {STATUS_TYPES.map(status => (
-              <FormControl
-                key={status.value}
-                componentClass="radio"
-                onChange={() => {
-                  this.handleStatus(status.value);
-                }}
-                checked={status.value === this.state.status}
-              >
-                {status.value}
-              </FormControl>
-            ))}
+          <FilterContainer
+            onMouseOver={() => this.handleSearch(true)}
+            onMouseLeave={() => this.handleSearch(false)}
+          >
+            <FlexRow>
+              <SearchIcon>
+                <Icon icon="search" />
+              </SearchIcon>
+              {this.state.isSearching && (
+                <SearchBar
+                  placeholder={__('Type to search for an results') + '...'}
+                  type="text"
+                  onChange={this.onSearch}
+                />
+              )}
+            </FlexRow>
           </FilterContainer>
-          <FilterContainer>
-            <input
-              placeholder={__('Type to search for an results') + '...'}
-              type="text"
-              onChange={this.onSearch}
-            />
-          </FilterContainer>
-        </FlexRow>
 
-        <FilterContainer noPadding={true}>
-          <Labels>
-            {CATEGORIES.map((cat, index) => this.renderCategories(cat, index))}
-          </Labels>
-        </FilterContainer>
+          {!this.state.isSearching && (
+            <FilterContainer noPadding={true}>
+              <Labels>
+                {CATEGORIES.map((cat, index) =>
+                  this.renderCategories(cat, index)
+                )}
+              </Labels>
+            </FilterContainer>
+          )}
+        </FlexRow>
 
         <StoreBlock>
           <h4>{__('Services')}</h4>
