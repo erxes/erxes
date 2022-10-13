@@ -82,6 +82,7 @@ const notificationMutations = {
     const transporter = nodemailer.createTransport({
       host: integration.smtpHost,
       port: integration.smtpPort,
+      secure: true,
       auth: {
         user: integration.user,
         pass: integration.password
