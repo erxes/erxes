@@ -288,7 +288,7 @@ export default class WorkArea extends React.Component<Props, State> {
     );
 
     if (
-      !['messenger', 'facebook_messenger'].includes(
+      !['messenger', 'facebook-messenger', 'lead', 'booking'].includes(
         currentConversation.integration.kind
       )
     ) {
