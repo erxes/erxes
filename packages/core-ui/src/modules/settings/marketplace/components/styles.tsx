@@ -363,6 +363,7 @@ export const FooterItem = styled.div`
 export const AddOns = styled.div`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 
   > a {
     border: 0;
