@@ -100,7 +100,7 @@ export const Service = styled.div`
     transform: rotate(-150deg);
   }
 
-  &:nth-child(1) {
+  &:nth-child(1n) {
     background: linear-gradient(118.62deg, #f42251 1.08%, #ec6535 101.09%);
 
     &:after {
@@ -110,7 +110,7 @@ export const Service = styled.div`
     }
   }
 
-  &:nth-child(2) {
+  &:nth-child(2n) {
     background: linear-gradient(112.98deg, #7919f6 1.84%, #3584ed 100%);
 
     &:after {
@@ -120,7 +120,7 @@ export const Service = styled.div`
     }
   }
 
-  &:nth-child(3) {
+  &:nth-child(3n) {
     background: linear-gradient(117.96deg, #00c3fb 0%, #0060eb 98.73%);
 
     &:after {
@@ -130,7 +130,7 @@ export const Service = styled.div`
     }
   }
 
-  &:nth-child(4) {
+  &:nth-child(4n) {
     background: linear-gradient(117.5deg, #179b8d 0%, #add268 100%);
 
     &:after {
@@ -140,6 +140,16 @@ export const Service = styled.div`
       width: 200px;
       height: 200px;
       border-radius: 200px;
+    }
+  }
+
+  &:nth-child(5n) {
+    background: linear-gradient(118.62deg, #ffc107 1.08%, #ec35d1 101.09%);
+
+    &:after {
+      right: -65px;
+      top: -70px;
+      background: linear-gradient(180deg, #f57a7d 0%, #ea3d11 100%);
     }
   }
 
@@ -353,6 +363,12 @@ export const FooterItem = styled.div`
 export const AddOns = styled.div`
   display: flex;
   align-items: center;
+
+  > a {
+    border: 0;
+    padding: 0;
+    margin: 5px 5px 5px 0;
+  }
 
   > span {
     text-transform: uppercase;

@@ -185,11 +185,20 @@ const DetailMainContainer = styled.div`
   border: 1px solid ${colors.borderPrimary};
   padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
   overflow-x: hidden;
+
   ::-webkit-scrollbar {
     display: none;
   }
+
   p {
     margin: 0;
+  }
+
+  .plugin-detail-tabs {
+    margin-top: ${dimensions.unitSpacing}px;
+  }
+  .plugin-detail-content {
+    margin-top: ${dimensions.coreSpacing}px;
   }
 `;
 
