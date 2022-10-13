@@ -4,13 +4,6 @@ const exportHistoriesCreate = `
   }
 `;
 
-const exportHistoriesRemove = `
-  mutation exportHistoriesRemove($_id: String!, $contentType: String!) {
-    exportHistoriesRemove(_id: $_id, contentType: $contentType)
-  }
-`;
-
 export default {
-  exportHistoriesCreate,
-  exportHistoriesRemove
+  exportHistoriesCreate
 };

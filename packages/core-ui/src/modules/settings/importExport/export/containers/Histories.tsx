@@ -7,7 +7,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { withRouter } from 'react-router-dom';
 import ExportHistories from '../components/Histories';
-import { mutations, queries } from '../graphql';
+import { queries } from '../graphql';
 import {
   ExportHistoriesQueryResponse,
   RemoveMutationResponse
@@ -94,14 +94,7 @@ const HistoriesWithProps = withProps<Props>(
           pollInterval: 3000
         })
       }
-    ),
-    graphql<
-      Props,
-      RemoveMutationResponse,
-      { _id: string; contentType: string }
-    >(gql(mutations.exportHistoriesRemove), {
-      name: 'exportHistoriesRemove'
-    })
+    )
   )(withRouter<FinalProps>(HistoriesContainer))
 );
 

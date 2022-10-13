@@ -1,9 +1,3 @@
-const exportHistoryGetDuplicatedHeaders = `
-  query exportHistoryGetDuplicatedHeaders($attachmentNames: [String]) {
-    exportHistoryGetDuplicatedHeaders(attachmentNames: $attachmentNames)
-  }
-`;
-
 const exportHistories = `
   query exportHistories($type: String, $perPage: Int, $page: Int) {
     exportHistories(type: $type, perPage: $perPage, page: $page) {
@@ -27,6 +21,5 @@ const exportHistories = `
 `;
 
 export default {
-  exportHistories,
-  exportHistoryGetDuplicatedHeaders
+  exportHistories
 };
