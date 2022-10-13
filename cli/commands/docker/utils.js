@@ -72,6 +72,16 @@ const generatePluginBlock = (configs, plugin) => {
   const image_tag = plugin.image_tag || configs.image_tag || 'federation';
   const registry = plugin.registry ? `${plugin.registry}/` : '';
 
+  const extra_hosts = [
+    `mongo:${plugin.db_server_address ||
+      configs.db_server_address ||
+      '127.0.0.1'}`
+  ]
+
+  if (configs.secondary_db_server_address) {
+    extra_hosts.push(`mongo-secondary:${configs.secondary_db_server_address}`);
+  }
+
   const conf = {
     image: `${registry}erxes/plugin-${plugin.name}-api:${image_tag}`,
     environment: {
@@ -85,11 +95,7 @@ const generatePluginBlock = (configs, plugin) => {
     },
     volumes: ['./enabled-services.js:/data/enabled-services.js'],
     networks: ['erxes'],
-    extra_hosts: [
-      `mongo:${plugin.db_server_address ||
-        configs.db_server_address ||
-        '127.0.0.1'}`
-    ]
+    extra_hosts
   };
 
   if (plugin.replicas) {
@@ -315,9 +321,15 @@ const up = async ({ uis, fromInstaller }) => {
   const widgets_domain = widgets.domain || `${domain}/widgets`;
   const dashboard_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
+  const secondary_db_server_address = configs.db_server_address;
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
+
+  if (secondary_db_server_address) {
+    extra_hosts.push(`mongo-secondary:${secondary_db_server_address}`);
+  }
+
   const { RABBITMQ_HOST } = commonEnvs(configs);
 
   // update the directory on the Docker system to have 0777 or drwxrwxrwx permssion, so that all users have read/write/execute permission.
