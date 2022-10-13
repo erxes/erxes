@@ -94,7 +94,7 @@ const orderQueries = {
     if (sortField) {
       sort[sortField] = sortDirection;
     } else {
-      sort.createdAt = 1;
+      sort.createdAt = sortDirection || 1;
     }
 
     return paginate(
