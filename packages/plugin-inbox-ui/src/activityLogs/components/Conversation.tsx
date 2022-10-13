@@ -158,9 +158,6 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
     let item = 'message';
 
     switch (condition) {
-      case 'chatfuel':
-        kind = 'chatfuel';
-        break;
       case 'callpro':
         action = 'made a';
         kind = 'phone call';
@@ -184,16 +181,6 @@ class Conversation extends React.Component<Props, { toggleMessage: boolean }> {
         action = 'submitted a';
         kind = 'Form';
         item = '';
-        break;
-      case 'nylas-gmail':
-        action = 'send';
-        kind = 'email';
-        item = 'by gmail';
-        break;
-      case 'nylas-imap':
-        action = 'send';
-        kind = 'email';
-        item = 'by imap';
         break;
     }
 

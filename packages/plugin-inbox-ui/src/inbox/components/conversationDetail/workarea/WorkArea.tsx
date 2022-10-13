@@ -32,10 +32,13 @@ import {
   MailSubject
 } from './styles';
 import TypingIndicator from './TypingIndicator';
-import { isEnabled } from "@erxes/ui/src/utils/core";
+import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 
 const Participators = asyncComponent(
-  () => import(/* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'),
+  () =>
+    import(
+      /* webpackChunkName:"Inbox-Participators" */ '@erxes/ui-inbox/src/inbox/components/conversationDetail/workarea/Participators'
+    ),
   { height: '30px', width: '30px', round: true }
 );
 
@@ -98,7 +101,9 @@ export default class WorkArea extends React.Component<Props, State> {
     if (prevProps.conversationMessages.length < conversationMessages.length) {
       const { current } = this.node;
 
-      return current.scrollHeight - current.scrollTop;
+      if (current) {
+        return current.scrollHeight - current.scrollTop;
+      }
     }
 
     return null;
@@ -112,7 +117,10 @@ export default class WorkArea extends React.Component<Props, State> {
 
     if (snapshot !== null) {
       const { current } = this.node;
-      current.scrollTop = current.scrollHeight - snapshot;
+
+      if (current) {
+        current.scrollTop = current.scrollHeight - snapshot;
+      }
     }
 
     if (prevMessageCount + 1 === messageCount || typingInfo) {
@@ -134,7 +142,9 @@ export default class WorkArea extends React.Component<Props, State> {
   scrollBottom = () => {
     const { current } = this.node;
 
-    return (current.scrollTop = current.scrollHeight);
+    if (current) {
+      return (current.scrollTop = current.scrollHeight);
+    }
   };
 
   setAttachmentPreview = attachmentPreview => {
@@ -181,24 +191,24 @@ export default class WorkArea extends React.Component<Props, State> {
       kind === 'webhook';
 
     const tagTrigger = (
-      <PopoverButton id='conversationTags'>
+      <PopoverButton id="conversationTags">
         {tags.length ? (
           <Tags tags={tags} limit={1} />
         ) : (
-          <Label lblStyle='default'>No tags</Label>
+          <Label lblStyle="default">No tags</Label>
         )}
-        <Icon icon='angle-down' />
+        <Icon icon="angle-down" />
       </PopoverButton>
     );
 
     const assignTrigger = (
-      <AssignTrigger id='conversationAssignTrigger'>
+      <AssignTrigger id="conversationAssignTrigger">
         {assignedUser && assignedUser._id ? (
           <AvatarImg src={getUserAvatar(assignedUser)} />
         ) : (
-          <Button id='conversationAssignTo' btnStyle='simple' size='small'>
+          <Button id="conversationAssignTo" btnStyle="simple" size="small">
             {__('Member')}
-            <Icon icon='angle-down' />
+            <Icon icon="angle-down" />
           </Button>
         )}
       </AssignTrigger>
@@ -206,10 +216,10 @@ export default class WorkArea extends React.Component<Props, State> {
 
     const actionBarRight = (
       <BarItems>
-        {isEnabled("tags") &&
+        {isEnabled('tags') && (
           <Tagger targets={[currentConversation]} trigger={tagTrigger} />
-        }
-        {isEnabled("cards") && 
+        )}
+        {isEnabled('cards') && (
           <ConvertTo
             conversation={currentConversation}
             conversationMessage={
@@ -218,7 +228,7 @@ export default class WorkArea extends React.Component<Props, State> {
                 : {}
             }
           />
-        }
+        )}
 
         <Resolver conversations={[currentConversation]} />
       </BarItems>
@@ -241,7 +251,7 @@ export default class WorkArea extends React.Component<Props, State> {
       <Wrapper.ActionBar
         right={actionBarRight}
         left={actionBarLeft}
-        background='colorWhite'
+        background="colorWhite"
         bottom={this.renderExtraHeading(kind, conversationMessages[0])}
       />
     );
@@ -250,9 +260,9 @@ export default class WorkArea extends React.Component<Props, State> {
       <TypingIndicator>{typingInfo}</TypingIndicator>
     ) : null;
 
-    const content = (
+    let content = (
       <ConversationWrapper
-        id='conversationWrapper'
+        id="conversationWrapper"
         innerRef={this.node}
         onScroll={this.onScroll}
       >
@@ -266,6 +276,32 @@ export default class WorkArea extends React.Component<Props, State> {
       </ConversationWrapper>
     );
 
+    const respondBox = (
+      <RespondBox
+        showInternal={isEnabled('internalnotes') ? showInternal : false}
+        conversation={currentConversation}
+        setAttachmentPreview={this.setAttachmentPreview}
+        addMessage={addMessage}
+        refetchMessages={refetchMessages}
+        refetchDetail={refetchDetail}
+      />
+    );
+
+    if (
+      ![
+        'messenger',
+        'facebook-messenger',
+        'facebook-post',
+        'lead',
+        'booking',
+        'webhook'
+      ].includes(currentConversation.integration.kind)
+    ) {
+      content = loadDynamicComponent('inboxConversationDetail', {
+        ...this.props
+      });
+    }
+
     return (
       <>
         {actionBar}
@@ -273,14 +309,7 @@ export default class WorkArea extends React.Component<Props, State> {
         {currentConversation._id && (
           <ContenFooter>
             {typingIndicator}
-            <RespondBox
-              showInternal={isEnabled("internalnotes") ? showInternal : false}
-              conversation={currentConversation}
-              setAttachmentPreview={this.setAttachmentPreview}
-              addMessage={addMessage}
-              refetchMessages={refetchMessages}
-              refetchDetail={refetchDetail}
-            />
+            {respondBox}
           </ContenFooter>
         )}
       </>

@@ -26,12 +26,6 @@ const CreateFacebook = asyncComponent(() =>
   )
 );
 
-const CreateGmail = asyncComponent(() =>
-  import(
-    /* webpackChunkName: "Settings CreateGmail" */ './containers/gmail/Form'
-  )
-);
-
 const IntegrationConfigs = asyncComponent(() =>
   import(
     /* webpackChunkName: "Integration configs" */ '../integrationsConfig/containers/IntegrationConfigs'
@@ -52,22 +46,8 @@ const createFacebook = ({ location, history }) => {
   return <CreateFacebook callBack={callBack} kind={queryParams.kind} />;
 };
 
-const createGmail = ({ history }) => {
-  const callBack = () => {
-    history.push('/settings/integrations/');
-  };
-
-  return <CreateGmail callBack={callBack} />;
-};
-
 const editMessenger = ({ match }) => {
   return <EditMessenger integrationId={match.params._id} />;
-};
-
-const twitterCallback = ({ location, history }) => {
-  const queryParams = queryString.parse(location.search);
-
-  return <Store history={history} queryParams={queryParams} />;
 };
 
 const store = ({ location }) => (
@@ -99,19 +79,6 @@ const routes = () => (
       exact={true}
       path="/settings/integrations/createFacebook"
       component={createFacebook}
-    />
-
-    <Route
-      key="/settings/integrations/createGmail"
-      exact={true}
-      path="/settings/integrations/createGmail"
-      component={createGmail}
-    />
-
-    <Route
-      key="/service/oauth/twitter_callback"
-      path="/service/oauth/twitter_callback"
-      component={twitterCallback}
     />
 
     <Route
