@@ -4,8 +4,8 @@ import * as compose from 'lodash.flowright';
 import { router, withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
-import Sidebar from '../../components/list/SideBar';
-import { queries } from '../../../graphql';
+import Sidebar from '../components/SideBar';
+import { queries } from '../graphql';
 
 type Props = {
   currentType: string;

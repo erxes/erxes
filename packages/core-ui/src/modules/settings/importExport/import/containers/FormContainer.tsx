@@ -5,7 +5,7 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import Form from '../components/Form';
 import { mutations } from '../graphql';
-import { queries } from '../../graphql';
+import { queries } from '../../common/graphql';
 
 type Props = {
   contentType: string;

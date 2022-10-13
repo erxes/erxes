@@ -38,10 +38,6 @@ class TypeForm extends React.Component<Props> {
     );
   }
 
-  renderText = () => {
-    return 'Select an object you would like to export';
-  };
-
   renderOptions = () => {
     const { typeOptions } = this.props;
 
@@ -58,7 +54,9 @@ class TypeForm extends React.Component<Props> {
   render() {
     return (
       <FlexPad type="stepper" direction="column">
-        <ImportHeader>{__(this.renderText())}</ImportHeader>
+        <ImportHeader>
+          {__('Select an object you would like to export')}
+        </ImportHeader>
 
         <TypeContent center={true}>{this.renderOptions()}</TypeContent>
       </FlexPad>

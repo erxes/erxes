@@ -3,7 +3,7 @@ import Form from '../components/Form';
 import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { mutations } from '../../graphql';
+import { mutations } from '../../common/graphql';
 import { Alert, withProps } from 'modules/common/utils';
 
 type Props = {

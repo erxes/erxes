@@ -5,7 +5,7 @@ import { withProps } from 'modules/common/utils';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import TypeForm from '../components/TypeForm';
-import { queries } from '../../graphql';
+import { queries } from '../../common/graphql';
 
 type Props = {
   onChangeContentType: (contentType: string, skipFilter: boolean) => void;

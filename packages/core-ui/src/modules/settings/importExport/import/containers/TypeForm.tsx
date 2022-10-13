@@ -7,7 +7,7 @@ import { graphql } from 'react-apollo';
 import { IImportHistoryContentType } from '../../types';
 import TypeForm from '../components/TypeForm';
 import { mutations } from '../graphql';
-import { queries } from '../../graphql';
+import { queries } from '../../common/graphql';
 
 type Props = {
   onChangeContentType: (value: IImportHistoryContentType) => void;
