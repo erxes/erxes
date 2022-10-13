@@ -6,7 +6,6 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import { IImportHistoryContentType } from '../../types';
 import TypeForm from '../components/TypeForm';
-import { mutations } from '../graphql';
 import { queries } from '../../common/graphql';
 
 type Props = {
@@ -44,9 +43,6 @@ class FormContainer extends React.Component<FinalProps, State> {
 
 export default withProps<Props>(
   compose(
-    graphql<Props>(gql(mutations.importHistoriesCreate), {
-      name: 'importHistoriesCreate'
-    }),
     graphql<Props>(gql(queries.historyGetTypes), {
       name: 'historyGetTypes'
     })

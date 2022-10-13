@@ -8,7 +8,7 @@ import Spinner from 'modules/common/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { queries } from '../graphql';
-import { commonQueries } from '../../common/graphql';
+import { queries as commonQueries } from '../../common/graphql';
 import { withProps } from 'modules/common/utils';
 
 type Props = {
@@ -22,7 +22,7 @@ type Props = {
 type State = {};
 
 type FinalProps = {
-  fieldsQuery: any; //check - FieldsCombinedByTypeQueryResponse
+  fieldsQuery: any; // check - FieldsCombinedByTypeQueryResponse
   importHistoryGetColumns: any;
 } & Props;
 
