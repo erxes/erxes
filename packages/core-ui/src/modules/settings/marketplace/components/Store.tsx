@@ -30,7 +30,6 @@ type State = {
   searchValue: string;
   plugins: any;
   selectedCategories: any[];
-  isSearching: boolean;
 };
 
 class Store extends React.Component<Props, State> {
@@ -41,8 +40,7 @@ class Store extends React.Component<Props, State> {
       plugins: props.plugins || [],
       status: 'All',
       searchValue: '',
-      selectedCategories: [],
-      isSearching: false
+      selectedCategories: []
     };
   }
 
@@ -68,10 +66,6 @@ class Store extends React.Component<Props, State> {
 
   handleStatus = (status: string) => {
     this.setState({ status });
-  };
-
-  handleSearch = (state: boolean) => {
-    this.setState({ isSearching: state });
   };
 
   handleCategory = (cat: any) => {
@@ -193,10 +187,7 @@ class Store extends React.Component<Props, State> {
     return (
       <Container>
         <FlexRow>
-          <SearchBar
-            onMouseOver={() => this.handleSearch(true)}
-            onMouseLeave={() => this.handleSearch(false)}
-          >
+          <SearchBar>
             <FlexRow>
               <SearchIcon>
                 <Icon icon="search" />
