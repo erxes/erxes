@@ -8,7 +8,8 @@ import {
   StoreBlock,
   Tag,
   SearchBar,
-  SearchIcon
+  SearchIcon,
+  SearchInput
 } from './styles';
 
 import EmptyState from 'modules/common/components/EmptyState';
@@ -192,7 +193,7 @@ class Store extends React.Component<Props, State> {
     return (
       <Container>
         <FlexRow>
-          <FilterContainer
+          <SearchBar
             onMouseOver={() => this.handleSearch(true)}
             onMouseLeave={() => this.handleSearch(false)}
           >
@@ -200,25 +201,21 @@ class Store extends React.Component<Props, State> {
               <SearchIcon>
                 <Icon icon="search" />
               </SearchIcon>
-              {this.state.isSearching && (
-                <SearchBar
-                  placeholder={__('Type to search for an results') + '...'}
-                  type="text"
-                  onChange={this.onSearch}
-                />
-              )}
+              <SearchInput
+                placeholder={__('Type to search for an results') + '...'}
+                type="text"
+                onChange={this.onSearch}
+              />
             </FlexRow>
-          </FilterContainer>
+          </SearchBar>
 
-          {!this.state.isSearching && (
-            <FilterContainer noPadding={true}>
-              <Labels>
-                {CATEGORIES.map((cat, index) =>
-                  this.renderCategories(cat, index)
-                )}
-              </Labels>
-            </FilterContainer>
-          )}
+          <FilterContainer noPadding={true}>
+            <Labels>
+              {CATEGORIES.map((cat, index) =>
+                this.renderCategories(cat, index)
+              )}
+            </Labels>
+          </FilterContainer>
         </FlexRow>
 
         <StoreBlock>
