@@ -17,7 +17,7 @@ const SegmentFilterContainer = (props: {
     : null) || { bySegment: {} };
 
   return (
-    <Segments contentType="contacts:product" counts={counts.bySegment || {}} />
+    <Segments contentType="products:product" counts={counts.bySegment || {}} />
   );
 };
 

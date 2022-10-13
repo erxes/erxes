@@ -198,6 +198,40 @@ const productQueries = {
 
     return counts;
   }
+  /*
+   * Group product counts by segments
+   */
+  // async productCounts(
+  //   _root,
+  //   params,
+  //   { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
+  // ) {
+  //   const counts = {
+  //     bySegment: {},
+  //     byTag: {},
+  //     byBrand: {},
+  //     byLeadStatus: {},
+  //   };
+
+  //   const { only } = params;
+
+  //   const qb = new Builder(models, subdomain, params, {
+  //     commonQuerySelector,
+  //     commonQuerySelectorElk
+  //   });
+
+  //   switch (only) {
+  //     case "byTag":
+  //       counts.byTag = await countByTag(subdomain, TAG_TYPES.COMPANY, qb);
+  //       break;
+
+  //     case "bySegment":
+  //       counts.bySegment = await countBySegment(subdomain, 'contacts:company', qb);
+  //       break;
+  //   }
+
+  //   return counts;
+  // }
 };
 
 requireLogin(productQueries, 'productsTotalCount');
