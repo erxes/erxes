@@ -7,6 +7,8 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
+import { Builder } from '../../../coc/products';
+import { countBySegment, countByTag } from '../../../coc/utils';
 
 const productQueries = {
   /**
@@ -197,41 +199,43 @@ const productQueries = {
     }
 
     return counts;
-  }
+  },
   /*
    * Group product counts by segments
    */
-  // async productCounts(
-  //   _root,
-  //   params,
-  //   { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
-  // ) {
-  //   const counts = {
-  //     bySegment: {},
-  //     byTag: {},
-  //     byBrand: {},
-  //     byLeadStatus: {},
-  //   };
+  async productCounts(
+    _root,
+    params,
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
+  ) {
+    const counts = {
+      bySegment: {},
+      byTag: {}
+    };
 
-  //   const { only } = params;
+    const { only } = params;
 
-  //   const qb = new Builder(models, subdomain, params, {
-  //     commonQuerySelector,
-  //     commonQuerySelectorElk
-  //   });
+    const qb = new Builder(models, subdomain, params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
 
-  //   switch (only) {
-  //     case "byTag":
-  //       counts.byTag = await countByTag(subdomain, TAG_TYPES.COMPANY, qb);
-  //       break;
+    switch (only) {
+      case 'byTag':
+        counts.byTag = await countByTag(subdomain, 'products:product', qb);
+        break;
 
-  //     case "bySegment":
-  //       counts.bySegment = await countBySegment(subdomain, 'contacts:company', qb);
-  //       break;
-  //   }
+      case 'bySegment':
+        counts.bySegment = await countBySegment(
+          subdomain,
+          'products:product',
+          qb
+        );
+        break;
+    }
 
-  //   return counts;
-  // }
+    return counts;
+  }
 };
 
 requireLogin(productQueries, 'productsTotalCount');

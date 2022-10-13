@@ -6,6 +6,36 @@ const productCategories = productQueries.productCategories;
 
 const products = productQueries.products;
 
+const listParamsDef = `
+    $type: String,
+    $categoryId: String,
+    $tag: String,
+    $searchValue: String,
+    $perPage: Int,
+    $page: Int, 
+    $ids: [String],
+    $excludeIds: Boolean,
+    $pipelineId: String,
+    $boardId: String,
+    $segment: String,
+    $segmentData: String
+`;
+
+const listParamsValue = `
+    type: $type,
+    categoryId: $categoryId,
+    tag: $tag,
+    searchValue: $searchValue,
+    perPage: $perPage,
+    page: $page, 
+    ids: $ids,
+    excludeIds: $excludeIds,
+    pipelineId: $pipelineId,
+    boardId: $boardId,
+    segment: $segment,
+    segmentData: $segmentData 
+`;
+
 const productsCount = `
   query productsTotalCount($type: String) {
     productsTotalCount(type: $type)
@@ -13,8 +43,8 @@ const productsCount = `
 `;
 
 const segmentProductsCounts = `
-  query productCounts($only: String) {
-    productCounts(only: $only)
+  query productCounts(${listParamsDef}, $only: String) {
+    productCounts(${listParamsValue}, only: $only)
   }
 `;
 
