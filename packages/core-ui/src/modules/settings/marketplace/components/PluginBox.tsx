@@ -46,7 +46,7 @@ class PluginBox extends React.Component<Props, {}> {
     return (dependentPlugins || []).map(dependency => (
       <Addon key={dependency._id}>
         <img
-          src={dependency.icon || '/images/no-plugin.png'}
+          src={dependency.avatar || dependency.icon || '/images/no-plugin.png'}
           alt="dependency-plugin"
         />
         {__(dependency.title)}
@@ -81,9 +81,9 @@ class PluginBox extends React.Component<Props, {}> {
   }
 
   render() {
-    const { plugin } = this.props;
+    const { plugin, isAddon } = this.props;
 
-    if (!plugin) {
+    if (!plugin || (isAddon && !plugin.selfHosted)) {
       return null;
     }
 
@@ -92,10 +92,12 @@ class PluginBox extends React.Component<Props, {}> {
         <Link to={`installer/details/${plugin._id}`}>
           <PluginContent>
             <PluginBoxHeader>
-              <img
-                src={plugin.image || '/images/no-plugin.png'}
-                alt={plugin.title}
-              />
+              <div className="image-wrapper">
+                <img
+                  src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
+                  alt={plugin.title}
+                />
+              </div>
               {this.renderPrice(plugin.prices)}
             </PluginBoxHeader>
             <h5>{__(plugin.title)}</h5>

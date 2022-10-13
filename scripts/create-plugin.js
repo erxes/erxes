@@ -60,23 +60,41 @@ const loopDirFiles = async (dir, name) => {
 };
 
 var createUi = async (name, location, isEmpty) => {
+  const dir = filePath('./packages/ui-plugin-template');
   const newDir = filePath(`./packages/plugin-${name}-ui`);
+  const sourceDir = isEmpty
+    ? filePath(`./packages/ui-plugin-template/source-empty`)
+    : filePath(`./packages/ui-plugin-template/source-default`);
+
   fs.copySync(
-    isEmpty
-      ? filePath('./packages/ui-plugin-template-empty')
-      : filePath('./packages/ui-plugin-template'),
-    newDir
+    dir,
+    newDir,
+    {
+      filter: path => {
+        return !/.*source.*/g.test(path);
+      }
+    },
+    fs.copySync(sourceDir, `${newDir}/src`)
   );
   addIntoUIConfigs(name, location, () => loopDirFiles(newDir, name));
 };
 
 var createApi = async (name, isEmpty) => {
+  const dir = filePath('./packages/api-plugin-templ');
   const newDir = filePath(`./packages/plugin-${name}-api`);
+  const sourceDir = isEmpty
+    ? filePath(`./packages/api-plugin-templ/source-empty`)
+    : filePath(`./packages/api-plugin-templ/source-default`);
+
   fs.copySync(
-    isEmpty
-      ? filePath('./packages/api-plugin-templ-empty')
-      : filePath('./packages/api-plugin-templ'),
-    newDir
+    dir,
+    newDir,
+    {
+      filter: path => {
+        return !/.*source.*/g.test(path);
+      }
+    },
+    fs.copySync(sourceDir, `${newDir}/src`)
   );
   loopDirFiles(newDir, name);
 };

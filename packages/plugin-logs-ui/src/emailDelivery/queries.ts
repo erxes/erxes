@@ -16,17 +16,19 @@ const transactionEmailDeliveries = `
 `;
 
 const engageReportsList = `
-  query engageReportsList($page: Int, $perPage: Int, $customerId: String, $status: String) {
-    engageReportsList(page: $page, perPage: $perPage, customerId: $customerId, status: $status) {
+  query engageReportsList($page: Int, $perPage: Int, $customerId: String, $status: String, $searchValue: String) {
+    engageReportsList(page: $page, perPage: $perPage, customerId: $customerId, status: $status, searchValue: $searchValue) {
       totalCount
       list {
         _id
         status
         createdAt
         customerId
+        email
 
         engage {
           title
+          _id
         }
 
         customerName
