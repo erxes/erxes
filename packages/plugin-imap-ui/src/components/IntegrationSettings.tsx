@@ -103,8 +103,6 @@ class Logs extends React.Component<any> {
 
     const logs = logsQuery.imapLogs || [];
 
-    console.log('fdsfljdskfjdslkfjdsflds', logs);
-
     return (
       <CollapseContent title="IMAP">
         <Shell>
