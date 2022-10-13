@@ -424,6 +424,7 @@ class PropertyForm extends React.Component<Props, State> {
               <option value="email">Email</option>
               <option value="number">Number</option>
               <option value="date">Date</option>
+              <option value="datetime">Date Time</option>
             </FormControl>
           </FormGroup>
         )}

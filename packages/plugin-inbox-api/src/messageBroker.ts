@@ -11,6 +11,7 @@ import {
 } from '@erxes/api-utils/src/core';
 import { receiveVisitorDetail } from './widgetUtils';
 import { sendToWebhook as sendWebhook } from '@erxes/api-utils/src';
+import { getIntegrationsKinds } from './utils';
 
 export let client;
 
@@ -194,6 +195,18 @@ export const initBroker = cl => {
   );
 
   consumeRPCQueue(
+    'inbox:conversations.findOne',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Conversations.findOne(query)
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'inbox:conversations.count',
     async ({ subdomain, data: { query } }) => {
       const models = await generateModels(subdomain);
@@ -229,6 +242,23 @@ export const initBroker = cl => {
       status: 'success',
       data: await models.Channels.updateUserChannels(channelIds, userId)
     };
+  });
+
+  consumeRPCQueue('inbox:getIntegrationKinds', async () => {
+    return {
+      status: 'success',
+      data: await getIntegrationsKinds()
+    };
+  });
+};
+
+export const sendCommonMessage = async (
+  args: ISendMessageArgs & { serviceName: string }
+): Promise<any> => {
+  return sendMessage({
+    serviceDiscovery,
+    client,
+    ...args
   });
 };
 
