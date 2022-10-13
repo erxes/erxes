@@ -8,6 +8,7 @@ import { checkCampaignDoc, send } from '../../engageUtils';
 import {
   sendContactsMessage,
   sendCoreMessage,
+  sendLogsMessage,
   sendToWebhook
 } from '../../messageBroker';
 import {
@@ -17,6 +18,7 @@ import {
 } from '../../utils';
 import { awsRequests } from '../../trackers/engageTracker';
 import { debug } from '../../configs';
+import { sendEmail } from '../../sender';
 
 interface IEngageMessageEdit extends IEngageMessage {
   _id: string;
@@ -339,10 +341,79 @@ const engageMutations = {
     );
 
     return copy;
+  },
+
+  /**
+   * Send mail
+   */
+  async engageSendMail(
+    _root,
+    args: any,
+    { user, models, subdomain }: IContext
+  ) {
+    const { body, customerId, ...doc } = args;
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: { _id: customerId },
+      isRPC: true
+    });
+
+    doc.body = body || '';
+
+    try {
+      await sendEmail(models, {
+        fromEmail: doc.from || '',
+        email: {
+          content: doc.body,
+          subject: doc.subject,
+          attachments: doc.attachments,
+          sender: doc.from || '',
+          cc: doc.cc || [],
+          bcc: doc.bcc || []
+        },
+        customers: [customer],
+        customer,
+        createdBy: user._id,
+        title: doc.subject
+      });
+    } catch (e) {
+      debug.error(e);
+      throw e;
+    }
+
+    const customerIds = await sendContactsMessage({
+      subdomain,
+      action: 'customers.getCustomerIds',
+      data: {
+        primaryEmail: { $in: doc.to }
+      },
+      isRPC: true
+    });
+
+    doc.userId = user._id;
+
+    for (const cusId of customerIds) {
+      await sendLogsMessage({
+        subdomain,
+        action: 'emailDeliveries.create',
+        data: {
+          ...doc,
+          customerId: cusId,
+          kind: 'transaction',
+          status: 'pending'
+        },
+        isRPC: true
+      });
+    }
+
+    return;
   }
 };
 
 checkPermission(engageMutations, 'engageMessageAdd', 'engageMessageAdd');
+checkPermission(engageMutations, 'engageSendMail', 'engageMessageAdd');
 checkPermission(engageMutations, 'engageMessageEdit', 'engageMessageEdit');
 checkPermission(engageMutations, 'engageMessageRemove', 'engageMessageRemove');
 checkPermission(
@@ -370,11 +441,13 @@ checkPermission(
   'engageMessageRemoveVerifiedEmail',
   'engageMessageRemove'
 );
+
 checkPermission(
   engageMutations,
   'engageMessageSendTestEmail',
   'engageMessageRemove'
 );
+
 checkPermission(engageMutations, 'engageMessageCopy', 'engageMessageAdd');
 
 export default engageMutations;
