@@ -24,6 +24,7 @@ export const getIntegrationsKinds = async () => {
     lead: 'Lead',
     webhook: 'Webhook',
     booking: 'Booking',
+    'facebook-post': 'Facebook post',
     'facebook-messenger': 'Facebook messenger'
   };
 

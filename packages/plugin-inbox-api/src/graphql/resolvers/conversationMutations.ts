@@ -378,7 +378,7 @@ const conversationMutations = {
     let type;
     let action;
 
-    if (kind === 'facebook_post') {
+    if (kind === 'facebook-post') {
       type = 'facebook';
       action = 'reply-post';
 
