@@ -39,7 +39,7 @@ class ServiceBox extends React.Component<Props, {}> {
           <div dangerouslySetInnerHTML={{ __html: shortDescription }} />
         </div>
         <ReadMore
-          href="https://erxes.io/addons#selfHosted"
+          href="https://erxes.io/marketplace-global#selfHosted"
           target="_blank"
           rel="noopener noreferrer"
         >
