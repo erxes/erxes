@@ -366,9 +366,9 @@ export const AddOns = styled.div`
   flex-wrap: wrap;
 
   > a {
-    border: 0;
-    padding: 0;
-    margin: 5px 5px 5px 0;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 5px 5px 5px 0 !important;
   }
 
   > span {
