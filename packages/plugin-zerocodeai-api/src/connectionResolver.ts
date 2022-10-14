@@ -7,12 +7,16 @@ import {
   IConfigModel,
   loadConfigClass,
   ITrainingDocument,
-  loadTrainingClass
+  loadTrainingClass,
+  IAnalysisModel,
+  IAnalysisDocument,
+  loadAnalysisClass
 } from './models';
 
 export interface IModels {
   Configs: IConfigModel;
   Trainings: ITrainingModel;
+  Analysis: IAnalysisModel;
 }
 
 export interface IContext extends IMainContext {
@@ -36,6 +40,11 @@ export const loadClasses = (
   models.Trainings = db.model<ITrainingDocument, ITrainingModel>(
     'zerocodeai_trainings',
     loadTrainingClass(models)
+  );
+
+  models.Analysis = db.model<IAnalysisDocument, IAnalysisModel>(
+    'zerocodeai_analysis',
+    loadAnalysisClass(models)
   );
 
   return models;

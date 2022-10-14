@@ -1,7 +1,7 @@
 import * as request from 'request';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
-import { generateAttachmentUrl } from '@erxes/api-utils/src/core';
+// import { generateAttachmentUrl } from '@erxes/api-utils/src/core';
 
 const mutations = {
   async zerocodeaiSaveConfig(_root, args: any, { models }: IContext) {
