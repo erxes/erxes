@@ -62,7 +62,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
       isRPC: true
     });
 
-    data.erkhetConfig = {
+    data.pos.erkhetConfig = {
       ...pos.erkhetConfig,
       getRemainderApiUrl: configs.getRemainderApiUrl,
       apiKey: configs.apiKey,
