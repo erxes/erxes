@@ -8,12 +8,9 @@ export const queries = {
         }
     `,
 
-  trainings: `
-        query zerocodeaiTrainings {
-            zerocodeaiTrainings {
-                date
-                file
-            }
+  getAnalysis: `
+        query zerocodeaiGetAnalysis($contentType: String, $contentTypeId: String) {
+            zerocodeaiGetAnalysis(contentType: $contentType, contentTypeId: $contentTypeId)
         }
     `
 };

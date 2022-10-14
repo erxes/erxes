@@ -3,8 +3,10 @@ module.exports = {
   scope: 'zerocodeai',
   port: 3014,
   exposes: {
-    './routes': './src/routes.tsx'
+    './routes': './src/routes.tsx',
+    "./inboxConversationDetailActionBar": "./src/containers/ConversationDetailActionBar.tsx",
   },
+  inboxConversationDetailActionBar: './inboxConversationDetailActionBar',
   menus: [
     {
       text: "Zerocode AI",

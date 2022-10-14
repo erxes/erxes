@@ -15,6 +15,7 @@ const types = `
 const queries = `
   zerocodeaiGetConfig: ZerocodeaiConfig
   zerocodeaiTrainings: [ZerocodeaiTraining]
+  zerocodeaiGetAnalysis(contentType: String, contentTypeId: String): String
 `;
 
 const mutations = `
