@@ -26,7 +26,8 @@ class Config extends React.Component<Props, any> {
     const { config } = props;
 
     this.state = {
-      apiKey: config.apiKey
+      apiKey: config.apiKey,
+      projectName: config.projectName
     };
   }
 
@@ -35,15 +36,16 @@ class Config extends React.Component<Props, any> {
   };
 
   save = () => {
-    const { apiKey } = this.state;
+    const { apiKey, projectName } = this.state;
 
     this.props.save({
-      apiKey
+      apiKey,
+      projectName
     });
   };
 
   render() {
-    const { apiKey } = this.state;
+    const { apiKey, projectName } = this.state;
 
     const content = (
       <ContentBox>
@@ -53,6 +55,17 @@ class Config extends React.Component<Props, any> {
             onChange={this.onChange.bind(this, 'apiKey')}
             name="apiKey"
             value={apiKey}
+            required={true}
+            autoFocus={true}
+          />
+        </FormGroup>
+
+        <FormGroup>
+          <ControlLabel required={true}>Project name</ControlLabel>
+          <FormControl
+            onChange={this.onChange.bind(this, 'projectName')}
+            name="projectName"
+            value={projectName}
             required={true}
             autoFocus={true}
           />

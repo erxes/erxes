@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-express';
 const types = `
   type ZerocodeaiConfig {
     apiKey: String
+    projectName: String
   }
 `;
 
@@ -13,6 +14,7 @@ const queries = `
 const mutations = `
   zerocodeaiSaveConfig(
     apiKey: String
+    projectName: String
   ): JSON
 `;
 

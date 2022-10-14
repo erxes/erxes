@@ -3,6 +3,7 @@ export const queries = {
         query zerocodeaiGetConfig {
             zerocodeaiGetConfig {
                 apiKey
+                projectName
             }
         }
     `
@@ -10,8 +11,8 @@ export const queries = {
 
 export const mutations = {
   saveConfig: `
-        mutation zerocodeaiSaveConfig($apiKey: String) {
-            zerocodeaiSaveConfig(apiKey: $apiKey)
+        mutation zerocodeaiSaveConfig($apiKey: String, $projectName: String) {
+            zerocodeaiSaveConfig(apiKey: $apiKey, projectName: $projectName)
         }
     `
 };
