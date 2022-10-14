@@ -75,7 +75,7 @@ class IntegrationForm extends React.Component<Props> {
           <ul>
             <li>Host: imap.gmail.com</li>
             <li>Smpt host: smtp.gmail.com</li>
-            <li>Smpt port: 587</li>
+            <li>Smpt port: 465</li>
             <li>
               Password:{' '}
               <a
