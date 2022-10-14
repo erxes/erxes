@@ -7,6 +7,13 @@ module.exports = {
   },
   menus: [
     {
+      text: "Zerocode AI",
+      url: "/zerocodeai/train",
+      icon: "icon-lamp",
+      location: "mainNavigation",
+      permission: "zerocodeaiManage",
+    },
+    {
       text: 'Zerocode AI',
       to: '/zerocodeai/config',
       image: '/images/icons/erxes-18.svg',

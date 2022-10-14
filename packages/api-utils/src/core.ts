@@ -312,6 +312,19 @@ export const userActionsMap = async (
   return allowedActions;
 };
 
+/*
+ * Generate url depending on given file upload publicly or not
+ */
+export const generateAttachmentUrl = (urlOrName: string) => {
+  const DOMAIN = getEnv({ name: 'DOMAIN' });
+
+  if (urlOrName.startsWith('http')) {
+    return urlOrName;
+  }
+
+  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
+};
+
 export const getSubdomain = (req): string => {
   const hostname = req.headers.hostname || req.hostname;
   return hostname.replace(/(^\w+:|^)\/\//, '').split('.')[0];

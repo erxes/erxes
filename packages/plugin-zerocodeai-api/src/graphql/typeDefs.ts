@@ -5,10 +5,16 @@ const types = `
     apiKey: String
     projectName: String
   }
+
+  type ZerocodeaiTraining {
+    date: Date
+    file: String
+  }
 `;
 
 const queries = `
   zerocodeaiGetConfig: ZerocodeaiConfig
+  zerocodeaiTrainings: [ZerocodeaiTraining]
 `;
 
 const mutations = `
@@ -16,6 +22,10 @@ const mutations = `
     apiKey: String
     projectName: String
   ): JSON
+
+  zerocodeaiTrain(
+    file: String
+  ): String
 `;
 
 const typeDefs = gql`

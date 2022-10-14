@@ -1,10 +1,18 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import { IConfigDocument, IConfigModel, loadConfigClass } from './models';
+import {
+  IConfigDocument,
+  ITrainingModel,
+  IConfigModel,
+  loadConfigClass,
+  ITrainingDocument,
+  loadTrainingClass
+} from './models';
 
 export interface IModels {
   Configs: IConfigModel;
+  Trainings: ITrainingModel;
 }
 
 export interface IContext extends IMainContext {
@@ -23,6 +31,11 @@ export const loadClasses = (
   models.Configs = db.model<IConfigDocument, IConfigModel>(
     'zerocodeai_configs',
     loadConfigClass(models)
+  );
+
+  models.Trainings = db.model<ITrainingDocument, ITrainingModel>(
+    'zerocodeai_trainings',
+    loadTrainingClass(models)
   );
 
   return models;

@@ -25,3 +25,25 @@ export const loadConfigClass = models => {
 
   return configSchema;
 };
+
+export interface ITraining {
+  date: Date;
+  file: string;
+}
+
+export interface ITrainingDocument extends ITraining, Document {}
+
+export const trainingSchema = new Schema({
+  date: Date,
+  file: String
+});
+
+export interface ITrainingModel extends Model<ITrainingDocument> {}
+
+export const loadTrainingClass = models => {
+  class Training {}
+
+  trainingSchema.loadClass(Training);
+
+  return trainingSchema;
+};
