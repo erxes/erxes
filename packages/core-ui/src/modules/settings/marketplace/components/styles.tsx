@@ -421,3 +421,26 @@ export const EmptyContent = styled.div`
   flex: 1;
   margin-right: ${dimensions.coreSpacing}px;
 `;
+
+export const SearchInput = styled.input`
+  flex: 1;
+  border: none;
+  width: 0px;
+  transition: width 1s;
+
+  &:focus-visible {
+    outline: none !important;
+  }
+`;
+
+export const SearchBar = styled(FilterContainer)`
+  &:hover {
+    ${SearchInput} {
+      width: 295px;
+    }
+  }
+`;
+
+export const SearchIcon = styled.div`
+  margin: 4px 6px;
+`;
