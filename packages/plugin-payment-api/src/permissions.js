@@ -1,5 +1,5 @@
 module.exports = {
-  companies: {
+  payments: {
     name: 'payments',
     description: 'Payments',
     actions: [
@@ -31,7 +31,7 @@ module.exports = {
       },
     ],
   },
-  customers: {
+  invoices: {
     name: 'invoices',
     description: 'Invoices',
     actions: [
