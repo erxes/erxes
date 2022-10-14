@@ -20,7 +20,7 @@ import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectProductCategory from '../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils/core';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
 import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
@@ -582,6 +582,9 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'product': {
+        if (!isEnabled('product')) {
+          return <p>Products service is not enabled</p>;
+        }
         return this.renderProduct(attrs);
       }
 
@@ -598,6 +601,9 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'selectProductCategory': {
+        if (!isEnabled('products')) {
+          return <p>Products service is not enabled</p>;
+        }
         return this.renderSelectCategory(attrs);
       }
 

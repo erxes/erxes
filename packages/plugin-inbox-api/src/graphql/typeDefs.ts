@@ -1,4 +1,4 @@
-import { gql } from "apollo-server-express";
+import { gql } from 'apollo-server-express';
 
 import {
   types as ChannelTypes,
@@ -39,16 +39,16 @@ import {
 import {
   types as SkillTypes,
   queries as SkillQueries,
-  mutations as SkillMutations,
+  mutations as SkillMutations
 } from './skillTypeDefs';
 
 import {
   types as ScriptTypes,
   queries as ScriptQueries,
   mutations as ScriptMutations
-} from './scriptTypeDefs'
+} from './scriptTypeDefs';
 
-const typeDefs = async (serviceDiscovery) => {
+const typeDefs = async serviceDiscovery => {
   const isProductsEnabled = await serviceDiscovery.isEnabled('products');
   const isTagsEnabled = await serviceDiscovery.isEnabled('tags');
   const isFormsEnabled = await serviceDiscovery.isEnabled('forms');
@@ -96,7 +96,7 @@ const typeDefs = async (serviceDiscovery) => {
       ${SkillMutations}
       ${ScriptMutations}
     }
-  `
+  `;
 };
 
 export default typeDefs;

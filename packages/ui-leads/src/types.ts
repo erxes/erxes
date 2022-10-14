@@ -60,7 +60,10 @@ export interface IWebhookData {
   token: string;
 }
 
-export interface IIntegration {}
+export interface IIntegration {
+  _id: string;
+  name: string;
+}
 export interface ILeadIntegration extends IIntegration {
   brand: IBrand;
   tags: ITag[];
