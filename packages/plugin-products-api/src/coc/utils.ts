@@ -247,13 +247,34 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
   }
 
-  // filter by leadStatus
-  public leadStatusFilter(leadStatus: string): void {
-    this.positiveList.push({
-      term: {
-        leadStatus
-      }
+  // filter by categoryId
+  public async categoryIdFilter(categoryId: string): Promise<void> {
+    const category = await this.models.ProductCategories.getProductCatogery({
+      _id: categoryId,
+      status: { $in: [null, 'active'] }
     });
+
+    const product_category_ids = await this.models.ProductCategories.find(
+      { order: { $regex: new RegExp(category.order) } },
+      { _id: 1 }
+    );
+
+    this.positiveList.push({
+      terms: { categoryId: { $in: product_category_ids } }
+    });
+  }
+
+  public async excludeCategoryIdFilter(): Promise<void> {
+    const notActiveCategories = await this.models.ProductCategories.find({
+      status: { $nin: [null, 'active'] }
+    });
+
+    this.negativeList.push({ $in: notActiveCategories.map(e => e._id) });
+  }
+
+  // filter by type
+  public async typeFilter(type: string): Promise<void> {
+    this.positiveList.push({ terms: { type: type } });
   }
 
   public getRelType() {
@@ -266,6 +287,18 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public async buildAllQueries(): Promise<void> {
     this.resetPositiveList();
     this.resetNegativeList();
+
+    if (this.params.type) {
+      await this.typeFilter(this.params.type);
+    }
+
+    if (this.params.categoryId) {
+      await this.categoryIdFilter(this.params.categoryId);
+    }
+
+    if (!this.params.categoryId) {
+      await this.excludeCategoryIdFilter();
+    }
 
     // filter by segment data
     if (this.params.segmentData) {

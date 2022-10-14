@@ -7,7 +7,7 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
-import { Builder } from '../../../coc/products';
+import { Builder, IListArgs } from '../../../coc/products';
 import { countBySegment, countByTag } from '../../../coc/utils';
 
 const productQueries = {
@@ -16,123 +16,62 @@ const productQueries = {
    */
   async products(
     _root,
+    params: IListArgs,
     {
-      type,
-      categoryId,
-      searchValue,
-      tag,
-      ids,
-      excludeIds,
-      pipelineId,
-      boardId,
-      ...pagintationArgs
-    }: {
-      ids: string[];
-      excludeIds: boolean;
-      type: string;
-      categoryId: string;
-      searchValue: string;
-      tag: string;
-      page: number;
-      perPage: number;
-      pipelineId: string;
-      boardId: string;
-    },
-    { commonQuerySelector, models, subdomain, user }: IContext
-  ) {
-    const filter: any = commonQuerySelector;
-
-    filter.status = { $ne: PRODUCT_STATUSES.DELETED };
-
-    if (type) {
-      filter.type = type;
-    }
-
-    if (categoryId) {
-      const category = await models.ProductCategories.getProductCatogery({
-        _id: categoryId,
-        status: { $in: [null, 'active'] }
-      });
-
-      const product_category_ids = await models.ProductCategories.find(
-        { order: { $regex: new RegExp(category.order) } },
-        { _id: 1 }
-      );
-      filter.categoryId = { $in: product_category_ids };
-    } else {
-      const notActiveCategories = await models.ProductCategories.find({
-        status: { $nin: [null, 'active'] }
-      });
-
-      filter.categoryId = { $nin: notActiveCategories.map(e => e._id) };
-    }
-
-    if (ids && ids.length > 0) {
-      filter._id = { [excludeIds ? '$nin' : '$in']: ids };
-      if (!pagintationArgs.page && !pagintationArgs.perPage) {
-        pagintationArgs.page = 1;
-        pagintationArgs.perPage = 100;
-      }
-    }
-
-    if (tag) {
-      filter.tagIds = { $in: [tag] };
-    }
-
-    // search =========
-    if (searchValue) {
-      const fields = [
-        {
-          name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
-        },
-        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
-      ];
-
-      filter.$or = fields;
-    }
-
-    return afterQueryWrapper(
+      commonQuerySelector,
+      commonQuerySelectorElk,
+      models,
       subdomain,
-      'products',
-      {
-        type,
-        categoryId,
-        searchValue,
-        tag,
-        ids,
-        excludeIds,
-        pipelineId,
-        boardId,
-        ...pagintationArgs
-      },
-      await paginate(
-        models.Products.find(filter)
-          .sort('code')
-          .lean(),
-        pagintationArgs
-      ),
-      messageBroker(),
       user
-    );
+    }: IContext
+  ) {
+    const qb = new Builder(models, subdomain, params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
+
+    await qb.buildAllQueries();
+
+    const { list, totalCount } = await qb.runQueries();
+
+    return { list, totalCount };
   },
 
   /**
    * Get all products count. We will use it in pager
    */
-  productsTotalCount(
+  async productsTotalCount(
     _root,
-    { type }: { type: string },
-    { commonQuerySelector, models }: IContext
+    params,
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
   ) {
-    const filter: any = commonQuerySelector;
+    const counts = {
+      bySegment: {},
+      byTag: {}
+    };
 
-    filter.status = { $ne: PRODUCT_STATUSES.DELETED };
+    const { only } = params;
 
-    if (type) {
-      filter.type = type;
+    const qb = new Builder(models, subdomain, params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
+
+    switch (only) {
+      case 'byTag':
+        counts.byTag = await countByTag(subdomain, 'products:product', qb);
+        break;
+
+      case 'bySegment':
+        counts.bySegment = await countBySegment(
+          subdomain,
+          'products:product',
+          qb
+        );
+        break;
     }
 
-    return models.Products.find(filter).countDocuments();
+    return counts;
   },
 
   productCategories(
@@ -196,42 +135,6 @@ const productQueries = {
         tagIds: tag._id,
         status: { $ne: PRODUCT_STATUSES.DELETED }
       }).countDocuments();
-    }
-
-    return counts;
-  },
-  /*
-   * Group product counts by segments
-   */
-  async productCounts(
-    _root,
-    params,
-    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
-  ) {
-    const counts = {
-      bySegment: {},
-      byTag: {}
-    };
-
-    const { only } = params;
-
-    const qb = new Builder(models, subdomain, params, {
-      commonQuerySelector,
-      commonQuerySelectorElk
-    });
-
-    switch (only) {
-      case 'byTag':
-        counts.byTag = await countByTag(subdomain, 'products:product', qb);
-        break;
-
-      case 'bySegment':
-        counts.bySegment = await countBySegment(
-          subdomain,
-          'products:product',
-          qb
-        );
-        break;
     }
 
     return counts;

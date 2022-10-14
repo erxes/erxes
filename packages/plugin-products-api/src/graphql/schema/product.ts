@@ -86,6 +86,14 @@ const productParams = `
   segment: String,
   segmentData: String,
   uomId: String,
+  tag: String,
+  searchValue: String,
+  perPage: Int,
+  page: Int, 
+  ids: [String],
+  excludeIds: Boolean,
+  pipelineId: String,
+  boardId: String,
   subUoms: JSON
 `;
 
@@ -98,41 +106,16 @@ const productCategoryParams = `
   status: String
 `;
 
-const productSegmentParams = `
-  type: String,
-  categoryId: String,
-  tag: String,
-  searchValue: String,
-  perPage: Int,
-  page: Int, 
-  ids: [String],
-  excludeIds: Boolean,
-  pipelineId: String,
-  boardId: String,
-  segment: String,
-  segmentData: String
-`;
-
 export const queries = `
   productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
 
-  products(
-    type: String,
-    categoryId: String,
-    searchValue: String,
-    tag: String,
-    page: Int,
-    perPage: Int ids: [String],
-    excludeIds: Boolean,
-    pipelineId: String,
-    boardId: String
-  ): [Product]
+  products(${productParams}): [Product]
   productsTotalCount(type: String): Int
   productDetail(_id: String): Product
   productCountByTags: JSON
-  productCounts(${productSegmentParams}, only: String): JSON
+  productCounts(${productParams}, only: String): JSON
 `;
 
 export const mutations = `
