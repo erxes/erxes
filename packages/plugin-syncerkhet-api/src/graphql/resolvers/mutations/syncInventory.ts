@@ -8,7 +8,7 @@ import {
 } from '../../../utils/consumeInventory';
 
 const inventoryMutations = {
-  async toCheckProducts(_root, { subdomain }: IContext) {
+  async toCheckProducts(_root, _params, { subdomain }: IContext) {
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
@@ -92,7 +92,7 @@ const inventoryMutations = {
     };
   },
 
-  async toCheckCategories(_root, { subdomain }: IContext) {
+  async toCheckCategories(_root, _params, { subdomain }: IContext) {
     const config = await getConfig(subdomain, 'ERKHET', {});
 
     if (!config.apiToken || !config.apiKey || !config.apiSecret) {
