@@ -5,16 +5,16 @@ import { createGenerateModels } from '@erxes/api-utils/src/core';
 import { IContentTypeDocument } from './models/definitions/contentTypes';
 import { IContentTypeModel, loadTypeClass } from './models/ContentTypes';
 
-import { IEntryModel, loadEntryClass } from './models/entries';
+import { IEntryModel, loadEntryClass } from './models/Entries';
 import { IEntryDocument } from './models/definitions/entries';
 
-import { IPageModel, loadPageClass } from './models/pages';
+import { IPageModel, loadPageClass } from './models/Pages';
 import { IPageDocument } from './models/definitions/pages';
 
-import { ITemplateModel, loadTemplateClass } from './models/templates';
+import { ITemplateModel, loadTemplateClass } from './models/Templates';
 import { ITemplateDocument } from './models/definitions/templates';
 
-import { ISiteModel, loadSiteClass } from './models/sites';
+import { ISiteModel, loadSiteClass } from './models/Sites';
 import { ISiteDocument } from './models/definitions/sites';
 
 export interface IModels {
