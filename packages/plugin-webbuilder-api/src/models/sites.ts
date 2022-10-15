@@ -1,36 +1,6 @@
 import { Model } from 'mongoose';
-import * as _ from 'underscore';
-import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { field } from './utils';
-
-export interface ISite {
-  name: string;
-  domain?: string;
-  templateId?: string;
-
-  createdBy?: string;
-  modifiedBy?: string;
-}
-
-export interface ISiteDocument extends ISite, Document {
-  _id: string;
-
-  createdAt: Date;
-  modifiedAt: Date;
-}
-
-export const siteSchema = new Schema({
-  name: field({ type: String, label: 'Name', unique: true }),
-  domain: field({ type: String, optional: true, label: 'Domain' }),
-  templateId: field({ type: String, optional: true, label: 'Template id' }),
-
-  createdBy: field({ type: String, optional: true, label: 'Created by' }),
-  modifiedBy: field({ type: String, optional: true, label: 'Modified by' }),
-
-  createdAt: field({ type: Date, label: 'Created at', esType: 'date' }),
-  modifiedAt: field({ type: Date, label: 'Modified at', esType: 'date' })
-});
+import { ISite, ISiteDocument, siteSchema } from './definitions/sites';
 
 export interface ISiteModel extends Model<ISiteDocument> {
   checkDuplication(doc: ISite, _id?: string): void;

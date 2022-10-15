@@ -10,7 +10,7 @@ const generateCommonFilter = ({
   searchValue?: string;
   siteId?: string;
 }) => {
-  let filter: any = {};
+  const filter: any = {};
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
@@ -54,7 +54,7 @@ const webbuilderQueries = {
     { siteId }: { siteId: string },
     { models }: IContext
   ) {
-    let filter: any = {};
+    const filter: any = {};
 
     if (siteId) {
       filter.siteId = siteId;
