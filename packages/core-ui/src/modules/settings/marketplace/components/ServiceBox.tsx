@@ -25,7 +25,11 @@ class ServiceBox extends React.Component<Props, {}> {
   render() {
     const { service } = this.props;
 
-    if (!service || service.mainType !== 'service' || !service.selfHosted) {
+    if (
+      !service ||
+      !(service.mainType || [] || '').includes('service') ||
+      !service.selfHosted
+    ) {
       return null;
     }
 
