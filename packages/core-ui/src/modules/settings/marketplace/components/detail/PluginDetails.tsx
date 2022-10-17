@@ -7,13 +7,14 @@ import {
   DetailInformation,
   DetailMainContainer,
   DetailStyle,
+  HashtagWrapper,
   Hashtag,
   PluginTitle
 } from '../../styles';
-import { Attachment, TabTitle, Tabs } from '@erxes/ui/src/components';
+import { TabTitle, Tabs } from '@erxes/ui/src/components';
+import AttachmentWithPreview from '@erxes/ui/src/components/AttachmentWithPreview';
 
 import { Alert } from 'modules/common/utils';
-import { Flex } from '@erxes/ui/src/styles/main';
 import { ListHeader } from '../../styles';
 import React from 'react';
 import RightSidebar from './RightSidebar';
@@ -112,14 +113,20 @@ class PluginDetails extends React.Component<Props, State> {
       return null;
     }
 
-    return items.map((item, index) => {
-      const attachment = {
-        name: item,
-        type: 'image',
-        url: item
-      };
+    const attachments = items.map((item: any) => ({
+      name: item,
+      type: 'image',
+      url: item
+    }));
 
-      return <Attachment key={index} simple={true} attachment={attachment} />;
+    return attachments.map((attachment: any, index: number) => {
+      return (
+        <AttachmentWithPreview
+          key={index}
+          attachment={attachment}
+          attachments={attachments}
+        />
+      );
     });
   }
 
@@ -163,7 +170,7 @@ class PluginDetails extends React.Component<Props, State> {
             />
             <DetailInformation>
               <b>{plugin.title}</b>
-              <Flex>{this.renderCategories()}</Flex>
+              <HashtagWrapper>{this.renderCategories()}</HashtagWrapper>
             </DetailInformation>
           </Center>
           {plugin.title && enabledServices[plugin.title.toLowerCase()] ? (

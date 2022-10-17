@@ -252,12 +252,17 @@ const DetailInformation = styled.div`
   }
 `;
 
+const HashtagWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
 const Hashtag = styled.div`
   border-radius: 4px;
   color: ${colors.colorWhite};
   background: #000;
   padding: 2px 6px;
-  margin-right: 5px;
+  margin: 0 5px 5px 0;
   font-size: 11px;
 
   $:nth-last-child(1) {
@@ -693,6 +698,7 @@ export {
   Dot,
   Image,
   DetailInformation,
+  HashtagWrapper,
   Hashtag,
   Detail,
   SidebarWrapper,
