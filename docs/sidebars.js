@@ -1,5 +1,6 @@
 var pluginTutorialSideBar = require('./plugin.tutorial.sidebars');
 var userGuideSidebar = require('./user.guide.sidebar');
+var componentsSidebar = require('./components.sidebar');
 
 // 'deployment/deployment
 
@@ -119,6 +120,93 @@ var sideBar = {
       },
       collapsed: true,
       items: ['developer/erxes-xos-user-guide']
+    },
+    {
+      type: 'category',
+      label: 'Components',
+      link: {
+        type: 'generated-index'
+      },
+      collapsed: true,
+      items: [
+        {
+          type: 'category',
+          label: 'Components',
+          collapsed: true,
+          items: [
+            'components/AnimatedLoader/animatedLoader',
+            'components/Attachment/attachment',
+            'components/AvatarUpload/avatarUpload',
+            'components/BreadCrumb/breadcrumbs',
+            'components/Button/button',
+            'components/Chip/chip',
+            'components/DatawithLoader/datawithloader',
+            'components/EmptyContent/emptycontent',
+            'components/EmptyState/emptystate',
+            'components/ErrorMsg/errormsg',
+            'components/FilePreview/filepreview',
+            'components/FilterByParams/filterbyparams',
+            'components/HelpPopOver/helppopover',
+            'components/Icon/icon',
+            'components/Info/info',
+            'components/Label/label',
+            'components/ModalTrigger/modaltrigger',
+            'components/Namecard/namecard',
+            'components/Pagination/pagination',
+            'components/ProgressBar/progressbar',
+            'components/SortableList/sortablelist',
+            'components/SortHandler/sorthandler',
+            'components/Spinner/spinner',
+            'components/SubMenu/submenu',
+            'components/Table/table',
+            'components/Tab/tab',
+            'components/Tag/tag',
+            'components/TextDivider/textdivider',
+            'components/TextInfo/textinfo',
+            'components/Tip/tip',
+            'components/Toggle/toggle',
+            'components/Uploader/uploader'
+          ]
+        },
+
+        {
+          type: 'category',
+          label: 'Icons',
+          collapsed: true,
+          items: ['icons/usage', 'icons/icons']
+        },
+        {
+          type: 'category',
+          label: 'Utilities',
+          collapsed: true,
+          items: [
+            'utilities/Alert/alert',
+            'utilities/Box/box',
+            'utilities/CollapseContent/collapsecontent',
+            'utilities/CountsByTag/countsbytag',
+            'utilities/FilterableList/filterablelist',
+            'utilities/Form/form',
+            'utilities/HeaderDescription/headerdescription',
+            'utilities/ModifiableList/modifiablelist',
+            {
+              Step: ['utilities/Step/Step/step', 'utilities/Step/Steps/steps']
+            },
+            'utilities/Timer/timer',
+            'utilities/Rule/rule'
+          ]
+        },
+
+        {
+          type: 'category',
+          label: 'Styles',
+          collapsed: true,
+          items: [
+            'styles/Color/color',
+            'styles/Dimension/dimension',
+            'styles/Typography/typography'
+          ]
+        }
+      ]
     }
   ],
   components: [
@@ -127,81 +215,6 @@ var sideBar = {
       label: 'Getting Started',
       collapsed: false,
       items: ['components/GettingStarted/introduction']
-    },
-    {
-      type: 'category',
-      label: 'Components',
-      collapsed: false,
-      items: [
-        'components/AnimatedLoader/animatedLoader',
-        'components/Attachment/attachment',
-        'components/AvatarUpload/avatarUpload',
-        'components/BreadCrumb/breadcrumbs',
-        'components/Button/button',
-        'components/Chip/chip',
-        'components/DatawithLoader/datawithloader',
-        'components/EmptyContent/emptycontent',
-        'components/EmptyState/emptystate',
-        'components/ErrorMsg/errormsg',
-        'components/FilePreview/filepreview',
-        'components/FilterByParams/filterbyparams',
-        'components/HelpPopOver/helppopover',
-        'components/Icon/icon',
-        'components/Info/info',
-        'components/Label/label',
-        'components/ModalTrigger/modaltrigger',
-        'components/Namecard/namecard',
-        'components/Pagination/pagination',
-        'components/ProgressBar/progressbar',
-        'components/SortableList/sortablelist',
-        'components/SortHandler/sorthandler',
-        'components/Spinner/spinner',
-        'components/SubMenu/submenu',
-        'components/Table/table',
-        'components/Tab/tab',
-        'components/Tag/tag',
-        'components/TextDivider/textdivider',
-        'components/TextInfo/textinfo',
-        'components/Tip/tip',
-        'components/Toggle/toggle',
-        'components/Uploader/uploader'
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Utilities',
-      collapsed: false,
-      items: [
-        'utilities/Alert/alert',
-        'utilities/Box/box',
-        'utilities/CollapseContent/collapsecontent',
-        'utilities/CountsByTag/countsbytag',
-        'utilities/FilterableList/filterablelist',
-        'utilities/Form/form',
-        'utilities/HeaderDescription/headerdescription',
-        'utilities/ModifiableList/modifiablelist',
-        {
-          Step: ['utilities/Step/Step/step', 'utilities/Step/Steps/steps']
-        },
-        'utilities/Timer/timer',
-        'utilities/Rule/rule'
-      ]
-    },
-    {
-      type: 'category',
-      label: 'Icons',
-      collapsed: false,
-      items: ['icons/usage', 'icons/icons']
-    },
-    {
-      type: 'category',
-      label: 'Styles',
-      collapsed: false,
-      items: [
-        'styles/Color/color',
-        'styles/Dimension/dimension',
-        'styles/Typography/typography'
-      ]
     }
   ],
   ...pluginTutorialSideBar,
