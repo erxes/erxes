@@ -13,7 +13,6 @@ import {
 } from './utils';
 import { IContext } from '../../../connectionResolver';
 import { sendProductsMessage } from '../../../messageBroker';
-import { connected } from 'process';
 
 interface IDealsEdit extends IDeal {
   _id: string;
