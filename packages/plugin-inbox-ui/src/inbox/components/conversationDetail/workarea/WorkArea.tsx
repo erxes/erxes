@@ -291,9 +291,11 @@ export default class WorkArea extends React.Component<Props, State> {
       ![
         'messenger',
         'facebook-messenger',
+        'facebook-post',
         'lead',
         'booking',
-        'webhook'
+        'webhook',
+        'callpro'
       ].includes(currentConversation.integration.kind)
     ) {
       content = loadDynamicComponent('inboxConversationDetail', {

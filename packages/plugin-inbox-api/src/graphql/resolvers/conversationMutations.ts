@@ -23,7 +23,6 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { splitStr } from '@erxes/api-utils/src/core';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -59,13 +58,13 @@ interface IConversationConvert {
   itemName: string;
   bookingProductId?: string;
   customFieldsData?: { [key: string]: any };
-  priority?: String;
-  assignedUserIds?: [String];
-  labelIds?: [String];
+  priority?: string;
+  assignedUserIds?: string[];
+  labelIds?: string[];
   startDate?: Date;
   closeDate?: Date;
   attachments?: IAttachment[];
-  description?: String;
+  description?: string;
 }
 
 /**
@@ -374,11 +373,11 @@ const conversationMutations = {
       });
     }
 
-    let requestName;
+    const requestName = '';
     let type;
     let action;
 
-    if (kind === 'facebook_post') {
+    if (kind === 'facebook-post') {
       type = 'facebook';
       action = 'reply-post';
 
