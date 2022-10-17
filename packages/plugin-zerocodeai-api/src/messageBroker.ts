@@ -32,13 +32,8 @@ export const initBroker = async cl => {
               method: 'POST',
               url: 'https://zero-ai.com/inference',
               formData: {
-                // api_key: config.apiKey,
-                // token: config.token,
-                // values: message.content
-                api_key: '621cdaffe1655b48d3573bc8',
-                token: '61ea8538f5971f9cd11805a6::6294dbb4c52888681f37f8a2',
-                // api_key: '62c28b1ca92a75129cf0f914',
-                // token: '61ea8538f5971f9cd11805a6::6348d5efb329d7d584f2fbae',
+                api_key: config.apiKey,
+                token: config.token,
                 values: message.content
               }
             },
