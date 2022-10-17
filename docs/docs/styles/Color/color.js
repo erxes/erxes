@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-// import Button from "erxes-ui/lib/components/Button";
 import styles from '../../../src/components/styles.module.css';
 import CodeBlock from '@theme/CodeBlock';
 import 'erxes-icon/css/erxes.min.css';
 import { rgb, rgba, darken, lighten } from 'erxes-ui/lib/styles/ecolor';
-// import color from "erxes-ui/lib/styles/colors";
 import Alert from 'erxes-ui/lib/utils/Alert/index';
 
 export function ColorComponent(props) {
@@ -20,44 +18,6 @@ export function ColorComponent(props) {
       setCopySuccess('Failed to copy!');
     }
   };
-
-  const items = colors.map((clr, i) => {
-    return (
-      <div
-        style={{
-          // background: color[clr],
-          height: '80px',
-          width: '240px',
-          color:
-            clr.includes('colorLightBlue') ||
-            clr.includes('colorShadowGray') ||
-            clr.includes('colorWhite') ||
-            clr.includes('border') ||
-            clr.includes('hadow') ||
-            clr.includes('bg') ||
-            clr.includes('link')
-              ? clr.includes('bgDark')
-                ? 'white'
-                : 'black'
-              : 'white',
-          borderRadius: '10px',
-          fontWeight: 500,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          padding: '10px'
-        }}
-        onClick={() => {
-          copyToClipBoard(clr);
-        }}
-        key={i}
-      >
-        <span>{clr}</span>
-        <span>{color[clr]}</span>
-      </div>
-      // </div>
-    );
-  });
 
   if (type === 'import') {
     return (
@@ -138,5 +98,5 @@ export function ColorComponent(props) {
     );
   }
 
-  return <div className={styles.test}>{items}</div>;
+  return <div className={styles.test}>test</div>;
 }

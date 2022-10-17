@@ -3,7 +3,7 @@ id: color
 title: Color
 ---
 
-<!-- import { ColorComponent } from "./color.js" -->
+import { ColorComponent } from "./color.js"
 
 <p>Our main colors for text, background, border and so on. And you can also costumize the colors with specific functions.</p>
 
