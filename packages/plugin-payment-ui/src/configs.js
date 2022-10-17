@@ -18,7 +18,7 @@ module.exports = {
       url: '/payment/invoices',
       icon: 'icon-list',
       location: 'mainNavigation',
-      permission: 'invoiceList'
+      permission: 'showInvoices',
     },
     {
       text: 'Payments',
