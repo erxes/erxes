@@ -60,7 +60,7 @@ export default function ListComponent(props: Props) {
         autoFocus={true}
       />
       <ModalTrigger
-        title="Add Product/Services"
+        title="Add Safe Remainder"
         trigger={trigger}
         autoOpenKey="showAddSafeRemainderModal"
         content={modalContent}
