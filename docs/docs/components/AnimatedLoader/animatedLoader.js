@@ -1,21 +1,20 @@
-import React from "react";
-import AnimatedLoader from "erxes-ui/lib/components/AnimatedLoader";
-import styles from "../../../src/components/styles.module.css";
-import CodeBlock from "@theme/CodeBlock";
-import Table from "erxes-ui/lib/components/table/index";
-import { colors } from "../../../../dashboard-ui/src/modules/common/styles/index";
-import { renderApiTable } from "../common.js";
+import React from 'react';
+import AnimatedLoader from 'erxes-ui/lib/components/AnimatedLoader';
+import styles from '../../../src/components/styles.module.css';
+import CodeBlock from '@theme/CodeBlock';
+import Table from 'erxes-ui/lib/components/table/index';
+import { renderApiTable } from '../common.js';
 
 export function AnimatedLoaderComponent(props) {
   const { type, propName } = props;
 
-  const stringify = (datas) => {
+  const stringify = datas => {
     let string = JSON.stringify(datas);
-    string = string.replace(/":/g, ":");
-    string = string.replace(/{"/g, "{{");
+    string = string.replace(/":/g, ':');
+    string = string.replace(/{"/g, '{{');
     string = string.slice(2, string.length);
-    string = string.replace(/,"/g, ", ");
-    string = string.replace(/loaderStyle:/g, "loaderStyle=");
+    string = string.replace(/,"/g, ', ');
+    string = string.replace(/loaderStyle:/g, 'loaderStyle=');
 
     return string;
   };
@@ -24,14 +23,14 @@ export function AnimatedLoaderComponent(props) {
     const datas = {
       loaderStyle: {
         [propName]:
-          propName === "color"
-            ? colors.colorPrimary
-            : propName === "width"
-            ? "500px"
+          propName === 'color'
+            ? '#673fbd'
+            : propName === 'width'
+            ? '500px'
             : true,
-        height: propName === "round" ? "100px" : "20px",
-        width: propName === "round" ? "100px" : "100%",
-      },
+        height: propName === 'round' ? '100px' : '20px',
+        width: propName === 'round' ? '100px' : '100%'
+      }
     };
 
     return datas;
@@ -50,10 +49,10 @@ export function AnimatedLoaderComponent(props) {
     );
   };
 
-  if (type === "APIanimatedLoader") {
+  if (type === 'APIanimatedLoader') {
     return (
       <>
-        {renderApiTable("AnimatedLoader")}
+        {renderApiTable('AnimatedLoader')}
         <p>
           required prop - <span className={styles.required}>* </span>
         </p>
