@@ -4,6 +4,7 @@ import Icon from 'modules/common/components/Icon';
 import React from 'react';
 import { SUB_KINDS } from '../constants';
 import { __ } from 'modules/common/utils';
+import queryString from 'query-string';
 
 type Props = {
   service: any;
@@ -34,6 +35,7 @@ class ServiceBox extends React.Component<Props, {}> {
     }
 
     const { prices, shortDescription, title } = service || {};
+    const domain = window.location.host;
 
     return (
       <Service>
@@ -43,7 +45,7 @@ class ServiceBox extends React.Component<Props, {}> {
           <div dangerouslySetInnerHTML={{ __html: shortDescription }} />
         </div>
         <ReadMore
-          href="https://erxes.io/marketplace-global#selfHosted"
+          href={`https://erxes.io/marketplace-global?domain=${domain}`}
           target="_blank"
           rel="noopener noreferrer"
         >
