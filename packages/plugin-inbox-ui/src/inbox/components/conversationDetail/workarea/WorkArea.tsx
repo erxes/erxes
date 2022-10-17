@@ -291,6 +291,7 @@ export default class WorkArea extends React.Component<Props, State> {
       ![
         'messenger',
         'facebook-messenger',
+        'facebook-post',
         'lead',
         'booking',
         'webhook'

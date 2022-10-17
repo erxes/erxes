@@ -345,7 +345,7 @@ export const itemsEdit = async (
           user?.details?.shortName} has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {
-          type: type,
+          type,
           id: _id
         }
       }
@@ -570,7 +570,7 @@ export const itemsChange = async (
           content}`,
         receivers: item?.assignedUserIds,
         data: {
-          type: type,
+          type,
           id: item._id
         }
       }
@@ -659,7 +659,7 @@ export const itemsRemove = async (
           user?.details?.shortName} deleted the ${type}`,
         receivers: item?.assignedUserIds,
         data: {
-          type: type,
+          type,
           id: item._id
         }
       }

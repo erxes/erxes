@@ -1,22 +1,10 @@
-import { Model } from 'mongoose';
-import * as _ from 'underscore';
-import { Document, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
-import { field } from './utils';
-
-export interface ITemplate {
-  name: string;
-  html: string;
-}
-
-export interface ITemplateDocument extends ITemplate, Document {
-  _id: string;
-}
-
-export const templateSchema = new Schema({
-  name: field({ type: String, label: 'Name' }),
-  html: field({ type: String, label: 'Html' })
-});
+import { Model } from 'mongoose';
+import {
+  ITemplate,
+  ITemplateDocument,
+  templateSchema
+} from './definitions/templates';
 
 export interface ITemplateModel extends Model<ITemplateDocument> {
   createTemplate(doc: ITemplate): Promise<ITemplateDocument>;
