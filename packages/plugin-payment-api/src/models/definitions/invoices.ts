@@ -30,10 +30,8 @@ export const invoiceSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     identifier: field({
       type: String,
-      unique: true,
       index: true,
-      label: 'Identifier',
-      default: makeInvoiceNo(32)
+      label: 'Identifier'
     }),
     paymentId: field({
       type: String,
@@ -77,7 +75,10 @@ export const invoiceSchema = schemaHooksWrapper(
   'erxes_invoices'
 );
 
-invoiceSchema.index({
-  expireAfterSeconds: 24 * 60 * 60,
-  partialFilterExpression: { status: PAYMENT_STATUS.PENDING }
-});
+invoiceSchema.index(
+  { createdAt: 1 },
+  {
+    expireAfterSeconds: 24 * 60 * 60,
+    partialFilterExpression: { status: PAYMENT_STATUS.PENDING }
+  }
+);
