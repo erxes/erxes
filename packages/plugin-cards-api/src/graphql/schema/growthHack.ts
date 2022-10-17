@@ -26,6 +26,7 @@ export const types = `
 const commonQueryFields = `
   _ids: [String]
   pipelineId: String
+  pipelineIds: [String]
   initialStageId: String
   stageId: String
   skip: Int
