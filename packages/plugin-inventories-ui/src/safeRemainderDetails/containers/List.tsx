@@ -96,8 +96,7 @@ function ListContainer() {
       if (item.count - item.preCount !== 0)
         products.push({
           productId: item.productId,
-          count: item.count,
-          preCount: item.preCount,
+          count: item.count - item.preCount,
           uomId: item.uomId,
           isDebit: true
         });
@@ -112,7 +111,7 @@ function ListContainer() {
       variables: {
         branchId: safeRemainder.branchId,
         departmentId: safeRemainder.departmentId,
-        contentType: 'safe remainder',
+        contentType: 'Safe Remainder',
         contentId: 'safe_remainder_id',
         status: 'checked',
         products: products
