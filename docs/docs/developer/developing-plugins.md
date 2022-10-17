@@ -60,7 +60,7 @@ yarn create-plugin
 
 The command above starts CLI, prompting for few questions to create a new plugin as shown below.
 
-<img src="https://demo-erxes.s3.amazonaws.com/plugin1.png" width ="100%"alt="CLI screenshot"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/create-plugin.gif" width ="100%"alt="CLI screenshot"></img>
 
 The example below is a new plugin, created from an example template, placed at the main navigation.
 
