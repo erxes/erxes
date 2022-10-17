@@ -1,17 +1,17 @@
-import { CATEGORIES } from '../constants';
 import {
   Container,
   EmptyContent,
   FilterContainer,
   FlexWrapContainer,
   Labels,
-  StoreBlock,
-  Tag,
   SearchBar,
   SearchIcon,
-  SearchInput
+  SearchInput,
+  StoreBlock,
+  Tag
 } from './styles';
 
+import { CATEGORIES } from '../constants';
 import EmptyState from 'modules/common/components/EmptyState';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
 import Icon from 'modules/common/components/Icon';
@@ -125,7 +125,10 @@ class Store extends React.Component<Props, State> {
     return plugins.map((plugin, index) => {
       const addon = plugin.mainType === 'addon';
 
-      if ((isAddon ? !addon : addon) || plugin.mainType === 'service') {
+      if (
+        (isAddon ? !addon : addon) ||
+        (plugin.mainType || [] || '').includes('service')
+      ) {
         return null;
       }
 
