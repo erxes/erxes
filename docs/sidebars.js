@@ -1,6 +1,5 @@
 var pluginTutorialSideBar = require('./plugin.tutorial.sidebars');
 var userGuideSidebar = require('./user.guide.sidebar');
-var componentsSidebar = require('./components.sidebar');
 
 // 'deployment/deployment
 
