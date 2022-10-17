@@ -57,14 +57,14 @@ class IntegrationListItem extends React.Component<Props, State> {
     const { kind } = payment;
 
     const renderButton = ({
-      name,
+      passedName: name,
       values,
       isSubmitted,
       callback
     }: IButtonMutateProps) => {
       return (
         <ButtonMutate
-          mutation={mutations.paymentsEdit}
+          mutation={mutations.paymentEdit}
           variables={values}
           callback={callback}
           refetchQueries={getRefetchQueries()}

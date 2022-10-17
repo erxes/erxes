@@ -36,7 +36,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     const message = 'Are you sure?';
 
     confirm(message).then(() => {
-      paymentsRemove({ variables: { id: payment._id } })
+      paymentsRemove({ variables: { _id: payment._id } })
         .then(() => {
           Alert.success('Your config not found');
         })

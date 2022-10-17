@@ -11,8 +11,8 @@ const mutations = {
     return models.Payments.createPayment(doc);
   },
 
-  async paymentRemove(_root, { id }: { id: string }, { models }: IContext) {
-    await models.Payments.removePayment(id);
+  async paymentRemove(_root, { _id }: { _id: string }, { models }: IContext) {
+    await models.Payments.removePayment(_id);
 
     return 'success';
   },
