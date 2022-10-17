@@ -6,11 +6,11 @@ import { COC_LEAD_STATUS_TYPES } from '../constants';
 import {
   fetchSegment,
   sendCoreMessage,
+  sendInboxMessage,
   sendSegmentsMessage,
   sendTagsMessage
 } from '../messageBroker';
 import { companySchema } from '../models/definitions/companies';
-import { KIND_CHOICES } from '../models/definitions/constants';
 import { customerSchema } from '../models/definitions/customers';
 
 export interface ICountBy {
@@ -144,10 +144,21 @@ export const countByLeadStatus = async (qb): Promise<ICountBy> => {
   return counts;
 };
 
-export const countByIntegrationType = async (qb): Promise<ICountBy> => {
+export const countByIntegrationType = async (
+  subdomain: string,
+  qb
+): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  for (const type of KIND_CHOICES.ALL) {
+  const kindsMap = await sendInboxMessage({
+    subdomain,
+    data: {},
+    action: 'getIntegrationKinds',
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  for (const type of Object.keys(kindsMap)) {
     await qb.buildAllQueries();
     await qb.integrationTypeFilter(type);
 

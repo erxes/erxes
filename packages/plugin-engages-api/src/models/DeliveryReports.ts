@@ -102,7 +102,12 @@ export const deliveryReportsSchema = new Schema({
     label: 'Engage message id at erxes-api',
     index: true
   },
-  createdAt: { type: Date, label: 'Created at', default: new Date() },
+  createdAt: {
+    type: Date,
+    label: 'Created at',
+    default: new Date(),
+    index: true
+  },
   email: { type: String, label: 'Customer email', index: true }
 });
 

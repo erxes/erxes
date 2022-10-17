@@ -1,17 +1,19 @@
-import { CATEGORIES, STATUS_TYPES } from '../constants';
 import {
   Container,
   EmptyContent,
   FilterContainer,
   FlexWrapContainer,
   Labels,
+  SearchBar,
+  SearchIcon,
+  SearchInput,
   StoreBlock,
   Tag
 } from './styles';
 
+import { CATEGORIES } from '../constants';
 import EmptyState from 'modules/common/components/EmptyState';
 import { FlexRow } from '@erxes/ui/src/components/filterableList/styles';
-import { FormControl } from 'modules/common/components/form';
 import Icon from 'modules/common/components/Icon';
 import PluginBox from './PluginBox';
 import React from 'react';
@@ -123,7 +125,10 @@ class Store extends React.Component<Props, State> {
     return plugins.map((plugin, index) => {
       const addon = plugin.mainType === 'addon';
 
-      if ((isAddon ? !addon : addon) || plugin.mainType === 'service') {
+      if (
+        (isAddon ? !addon : addon) ||
+        (plugin.mainType || [] || '').includes('service')
+      ) {
         return null;
       }
 
@@ -185,35 +190,27 @@ class Store extends React.Component<Props, State> {
     return (
       <Container>
         <FlexRow>
-          <FilterContainer width={300}>
-            <Tag>{__('Status')}</Tag>
-            {STATUS_TYPES.map(status => (
-              <FormControl
-                key={status.value}
-                componentClass="radio"
-                onChange={() => {
-                  this.handleStatus(status.value);
-                }}
-                checked={status.value === this.state.status}
-              >
-                {status.value}
-              </FormControl>
-            ))}
-          </FilterContainer>
-          <FilterContainer>
-            <input
-              placeholder={__('Type to search for an results') + '...'}
-              type="text"
-              onChange={this.onSearch}
-            />
+          <SearchBar>
+            <FlexRow>
+              <SearchIcon>
+                <Icon icon="search" />
+              </SearchIcon>
+              <SearchInput
+                placeholder={__('Type to search for an results') + '...'}
+                type="text"
+                onChange={this.onSearch}
+              />
+            </FlexRow>
+          </SearchBar>
+
+          <FilterContainer noPadding={true}>
+            <Labels>
+              {CATEGORIES.map((cat, index) =>
+                this.renderCategories(cat, index)
+              )}
+            </Labels>
           </FilterContainer>
         </FlexRow>
-
-        <FilterContainer noPadding={true}>
-          <Labels>
-            {CATEGORIES.map((cat, index) => this.renderCategories(cat, index))}
-          </Labels>
-        </FilterContainer>
 
         <StoreBlock>
           <h4>{__('Services')}</h4>
@@ -230,16 +227,6 @@ class Store extends React.Component<Props, State> {
           <p>{__('Customize and enhance your plugins limits')}</p>
           <FlexWrapContainer>{this.renderPlugins()}</FlexWrapContainer>
         </StoreBlock>
-
-        <StoreBlock>
-          <h4>{__('Add-ons')}</h4>
-          <p>
-            {__(
-              'Increase the limits of individual plug-ins depending on your use'
-            )}
-          </p>
-          <FlexWrapContainer>{this.renderPlugins('addon')}</FlexWrapContainer>
-        </StoreBlock>
       </Container>
     );
   }
@@ -249,8 +236,8 @@ class Store extends React.Component<Props, State> {
       <Wrapper
         header={
           <Wrapper.Header
-            title={__('Store')}
-            breadcrumb={[{ title: __('Store') }]}
+            title={__('Marketplace')}
+            breadcrumb={[{ title: __('Marketplace') }]}
           />
         }
         content={this.renderContent()}

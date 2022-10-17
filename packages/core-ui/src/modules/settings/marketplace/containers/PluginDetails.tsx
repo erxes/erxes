@@ -20,6 +20,7 @@ type FinalProps = {
 
 type State = {
   plugin: any;
+  plugins: any[];
 };
 
 class PluginDetailsContainer extends React.Component<FinalProps, State> {
@@ -27,12 +28,18 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
     super(props);
 
     this.state = {
-      plugin: {}
+      plugin: {},
+      plugins: []
     };
   }
 
   async componentDidMount() {
-    await fetch(`https://erxes.io/pluginDetail/${this.props.id}`)
+    const url =
+      process.env.NODE_ENV === 'production'
+        ? `https://erxes.io/pluginDetail/${this.props.id}`
+        : `http://127.0.0.1:3500/pluginDetail/${this.props.id}`;
+
+    fetch(url)
       .then(async response => {
         const plugin = await response.json();
 
@@ -41,16 +48,33 @@ class PluginDetailsContainer extends React.Component<FinalProps, State> {
       .catch(e => {
         console.log(e);
       });
+
+    const pluginsUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://erxes.io/plugins'
+        : 'http://127.0.0.1:3500/plugins';
+
+    fetch(pluginsUrl)
+      .then(async response => {
+        const plugins = await response.json();
+
+        this.setState({ plugins });
+      })
+      .catch(e => {
+        console.log(e, 'error');
+      });
   }
 
   render() {
-    const { plugin } = this.state;
+    const { plugin, plugins } = this.state;
 
     if (!plugin || Object.keys(plugin).length === 0) {
       return <Spinner objective={true} />;
     }
 
-    return <PluginDetails {...this.props} plugin={plugin || {}} />;
+    return (
+      <PluginDetails {...this.props} plugin={plugin || {}} plugins={plugins} />
+    );
   }
 }
 

@@ -1,22 +1,22 @@
 import {
+  AdditionalDesc,
   AttachmentContainer,
   Center,
   ColorHeader,
   Detail,
   DetailInformation,
   DetailMainContainer,
+  DetailStyle,
   Hashtag,
   PluginTitle
 } from '../../styles';
+import { Attachment, TabTitle, Tabs } from '@erxes/ui/src/components';
 
 import { Alert } from 'modules/common/utils';
-import { Attachment } from '@erxes/ui/src/components';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { ListHeader } from '../../styles';
 import React from 'react';
 import RightSidebar from './RightSidebar';
-import { TabTitle } from './tabs/index';
-import { Tabs } from './tabs/index';
 import Wrapper from './Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 
@@ -25,6 +25,7 @@ type Props = {
   enabledServicesQuery: any;
   manageInstall: any;
   plugin: any;
+  plugins: any[];
 };
 
 type State = {
@@ -62,17 +63,27 @@ class PluginDetails extends React.Component<Props, State> {
           <Detail>
             <ListHeader>
               <ColorHeader>
-                <b>✨ FEATURES</b>
+                <b>✨ BENEFITS</b>
               </ColorHeader>
             </ListHeader>
-            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
+            <AdditionalDesc
+              dangerouslySetInnerHTML={{ __html: plugin.features }}
+            />
           </Detail>
         </>
       );
     }
 
     if (tabType === 'Guide') {
-      return <div dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />;
+      return (
+        <>
+          <DetailStyle dangerouslySetInnerHTML={{ __html: plugin.tango }} />
+        </>
+      );
+    }
+
+    if (tabType === 'Changelog') {
+      return <div dangerouslySetInnerHTML={{ __html: plugin.changeLog }} />;
     }
 
     return null;
@@ -113,11 +124,11 @@ class PluginDetails extends React.Component<Props, State> {
   }
 
   render() {
-    const { enabledServicesQuery } = this.props;
+    const { enabledServicesQuery, plugins } = this.props;
     const { loading, plugin, tabType } = this.state;
 
     const breadcrumb = [
-      { title: __('Store'), link: '/settings/installer' },
+      { title: __('Marketplace'), link: '/settings/installer' },
       { title: plugin.title || '' }
     ];
 
@@ -147,7 +158,9 @@ class PluginDetails extends React.Component<Props, State> {
       <DetailMainContainer>
         <PluginTitle>
           <Center>
-            <img src={plugin.image} />
+            <img
+              src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
+            />
             <DetailInformation>
               <b>{plugin.title}</b>
               <Flex>{this.renderCategories()}</Flex>
@@ -204,28 +217,30 @@ class PluginDetails extends React.Component<Props, State> {
 
         <AttachmentContainer>{this.renderScreenshots()}</AttachmentContainer>
 
-        <Tabs>
-          <TabTitle
-            onClick={() => handleSelect('Description')}
-            className={tabType === 'Description' ? 'active' : ''}
-          >
-            Description
-          </TabTitle>
-          <TabTitle
-            onClick={() => handleSelect('Guide')}
-            className={tabType === 'Guide' ? 'active' : ''}
-          >
-            Guide
-          </TabTitle>
-          <TabTitle
-            onClick={() => handleSelect('Changelog')}
-            className={tabType === 'Changelog' ? 'active' : ''}
-          >
-            Changelog
-          </TabTitle>
-        </Tabs>
+        <div className="plugin-detail-tabs">
+          <Tabs>
+            <TabTitle
+              onClick={() => handleSelect('Description')}
+              className={tabType === 'Description' ? 'active' : ''}
+            >
+              Description
+            </TabTitle>
+            <TabTitle
+              onClick={() => handleSelect('Guide')}
+              className={tabType === 'Guide' ? 'active' : ''}
+            >
+              Guide
+            </TabTitle>
+            <TabTitle
+              onClick={() => handleSelect('Changelog')}
+              className={tabType === 'Changelog' ? 'active' : ''}
+            >
+              Changelog
+            </TabTitle>
+          </Tabs>
 
-        {this.renderContent()}
+          <div className="plugin-detail-content">{this.renderContent()}</div>
+        </div>
       </DetailMainContainer>
     );
 
@@ -234,7 +249,7 @@ class PluginDetails extends React.Component<Props, State> {
         mainHead={
           <Wrapper.Header title={plugin.title} breadcrumb={breadcrumb} />
         }
-        rightSidebar={<RightSidebar plugin={plugin} />}
+        rightSidebar={<RightSidebar plugin={plugin} plugins={plugins} />}
         content={content}
       />
     );

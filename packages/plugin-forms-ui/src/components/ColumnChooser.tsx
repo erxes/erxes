@@ -11,18 +11,20 @@ const ManageColumns = asyncComponent(() =>
 );
 
 type Props = {
-  currentType: string;
+  contentType: string;
 };
 
 class ColumnChooser extends React.Component<Props> {
   render() {
-    if (!isEnabled('forms')) return null;
+    if (!isEnabled('forms')) {
+      return null;
+    }
 
     const manageColumns = props => {
       return (
         <ManageColumns
           {...props}
-          contentType={this.props.currentType}
+          contentType={this.props.contentType}
           type={'import'}
           isImport={true}
         />

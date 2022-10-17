@@ -95,7 +95,7 @@ class Row extends React.Component<Props, State> {
       queryParams
     };
 
-    return <Entry {...commonProp} customLink={this.props.customLink} />;
+    return <Entry {...commonProp} />;
   }
 
   renderList() {

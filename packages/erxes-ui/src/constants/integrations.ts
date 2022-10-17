@@ -69,23 +69,8 @@ export const INTEGRATION_KINDS = {
   MESSENGER: 'messenger',
   FACEBOOK_MESSENGER: 'facebook-messenger',
   FACEBOOK_POST: 'facebook-post',
-  GMAIL: 'gmail',
-  NYLAS_GMAIL: 'nylas-gmail',
-  NYLAS_IMAP: 'nylas-imap',
-  NYLAS_OUTLOOK: 'nylas-outlook',
-  NYLAS_EXCHANGE: 'nylas-exchange',
-  NYLAS_OFFICE365: 'nylas-office365',
-  NYLAS_YAHOO: 'nylas-yahoo',
   FORMS: 'lead',
   CALLPRO: 'callpro',
-  TWITTER_DM: 'twitter-dm',
-  CHATFUEL: 'chatfuel',
-  SMOOCH_TELEGRAM: 'smooch-telegram',
-  SMOOCH_VIBER: 'smooch-viber',
-  SMOOCH_LINE: 'smooch-line',
-  SMOOCH_TWILIO: 'smooch-twilio',
-  WHATSAPP: 'whatsapp',
-  TELNYX: 'telnyx',
   WEBHOOK: 'webhook',
   BOOKING: 'booking',
   ALL: [
@@ -96,25 +81,8 @@ export const INTEGRATION_KINDS = {
       value: 'facebook-messenger'
     },
     { text: 'Facebook Post', value: 'facebook-post' },
-    { text: 'Gmail', value: 'gmail' },
     { text: 'Webhook', value: 'webhook' },
     { text: 'Callpro', value: 'callpro' },
-    { text: 'Chatfuel', value: 'chatfuel' },
-
-    { text: 'WhatsApp by Smooch', value: 'whatsapp' },
-    { text: 'Telegram by Smooch', value: 'smooch-telegram' },
-    { text: 'Viber by Smooch', value: 'smooch-viber' },
-    { text: 'Line by Smooch', value: 'smooch-line' },
-    { text: 'SMS Twilio by Smooch', value: 'smooch-twilio' },
-
-    { text: 'IMAP by Nylas', value: 'nylas-imap' },
-    { text: 'Gmail by Nylas', value: 'nylas-gmail' },
-    { text: 'Office 365 by Nylas', value: 'nylas-office365' },
-    { text: 'Microsoft Exchange by Nylas', value: 'nylas-exchange' },
-    { text: 'Outlook by Nylas', value: 'nylas-outlook' },
-    { text: 'Yahoo by Nylas', value: 'nylas-yahoo' },
-
-    { text: 'SMS by Telnyx', value: 'telnyx' },
     { text: 'Booking', value: 'booking' }
   ]
 };
@@ -205,163 +173,6 @@ export const INTEGRATIONS = [
       'All integrations, For support teams, Marketing automation, Phone and video, Conversation'
   },
   {
-    name: 'Gmail',
-    description: __(
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com'
-    ),
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'gmail',
-    logo: '/images/integrations/gmail.png',
-    createModal: 'gmail',
-    createUrl: '/settings/integrations/createGmail',
-    category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
-  },
-  {
-    name: 'IMAP by Nylas',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'nylas-imap',
-    logo: '/images/integrations/email.png',
-    createModal: 'nylas-imap',
-    createUrl: '/settings/integrations/nylas-imap',
-    category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
-  },
-  {
-    name: 'Office 365 by Nylas',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'nylas-office365',
-    logo: '/images/integrations/office365.png',
-    createModal: 'nylas-office365',
-    createUrl: 'nylas/oauth2/callback',
-    category:
-      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
-  },
-  {
-    name: 'Gmail by Nylas',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'nylas-gmail',
-    logo: '/images/integrations/gmail.png',
-    createModal: 'nylas-gmail',
-    createUrl: 'nylas/oauth2/callback',
-    category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
-  },
-  {
-    name: 'Microsoft Exchange by Nylas',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'nylas-exchange',
-    logo: '/images/integrations/exchange.png',
-    createModal: 'nylas-exchange',
-    createUrl: '/settings/integrations/nylas-exchange',
-    category:
-      'All integrations, For support teams, Email marketing, Marketing automation, Conversation'
-  },
-  {
-    name: 'Outlook by Nylas',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'nylas-outlook',
-    logo: '/images/integrations/outlook.png',
-    createModal: 'nylas-outlook',
-    createUrl: '/settings/integrations/nylas-outlook',
-    category:
-      'All integrations, For support teams, Marketing automation, Email marketing'
-  },
-  {
-    name: 'Yahoo by Nylas',
-    description:
-      'Connect a company email address such as sales@mycompany.com or info@mycompany.com',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'nylas-yahoo',
-    logo: '/images/integrations/yahoo.png',
-    createModal: 'nylas-yahoo',
-    createUrl: '/settings/integrations/nylas-yahoo',
-    category:
-      'All integrations, For support teams, Marketing automation, Email marketing, Conversation'
-  },
-  {
-    name: 'Chatfuel',
-    description: 'Connect your chatfuel account',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'chatfuel',
-    logo: '/images/integrations/chatfuel.png',
-    createModal: 'chatfuel',
-    category:
-      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
-  },
-  {
-    name: 'WhatsApp by Smooch',
-    description: 'Get a hold of your Whatsapp messages through your Team Inbox',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'whatsapp',
-    logo: '/images/integrations/whatsapp.png',
-    createModal: 'whatsapp',
-    category: 'All integrations, For support teams, Messaging, Conversation'
-  },
-  {
-    name: 'Telegram by Smooch',
-    description:
-      'Connect to your Telegram, a cloud-based mobile and desktop messaging app',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'smooch-telegram',
-    logo: '/images/integrations/telegram.png',
-    createModal: 'smooch-telegram',
-    category: 'All integrations, For support teams, Messaging, Conversation'
-  },
-  {
-    name: 'Viber by Smooch',
-    description: 'Connect Viber to your Team Inbox',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'smooch-viber',
-    logo: '/images/integrations/viber.png',
-    createModal: 'smooch-viber',
-    category:
-      'All integrations, For support teams, Marketing automation, Messaging, Conversation'
-  },
-  {
-    name: 'Line by Smooch',
-    description: 'See and reply to Line messages in your Team Inbox',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'smooch-line',
-    logo: '/images/integrations/line.png',
-    createModal: 'smooch-line',
-    category:
-      'All integrations, For support teams, For sales teams, For marketing teams, Marketing automation, Messaging, Phone and video, Conversation'
-  },
-  {
-    name: 'SMS by Telnyx',
-    description: 'Connect your Telnyx account to send & receive SMS',
-    inMessenger: false,
-    isAvailable: false,
-    kind: 'telnyx',
-    logo: '/images/integrations/telnyx.png',
-    createModal: 'telnyx',
-    category:
-      'All integrations, For support teams, For marketing teams, Conversation'
-  },
-  {
     name: 'Incoming Webhook',
     description: 'Configure incoming webhooks',
     inMessenger: false,
@@ -371,45 +182,6 @@ export const INTEGRATIONS = [
     createModal: 'webhook',
     category:
       'All integrations, For support teams, Conversation, Marketing automation'
-  }
-  // {
-  //   name: 'Outgoing Webhook',
-  //   description: 'Configure outging webhooks',
-  //   inMessenger: false,
-  //   isAvailable: false,
-  //   kind: 'outgoing-webhook',
-  //   logo: '/images/integrations/webhook.png',
-  //   createModal: 'outgoing-webhook',
-  //   category:
-  //     'All integrations, For support teams, Conversation, Marketing automation'
-  // }
-];
-
-export const INTEGRATION_FILTERS = [
-  {
-    name: 'Featured',
-    items: [
-      'All integrations',
-      'For support teams',
-      'For sales teams',
-      'For marketing teams'
-    ]
-  },
-
-  {
-    name: 'Works with',
-    items: ['Conversation', 'Forms']
-  },
-  {
-    name: 'Categories',
-    items: [
-      'Email marketing',
-      'Messaging',
-      'Marketing automation',
-      'Phone and video',
-      'Social media',
-      'Surveys and Feedback'
-    ]
   }
 ];
 
