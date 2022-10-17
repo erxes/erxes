@@ -37,7 +37,6 @@ jobs:
           BASE_IMAGE: erxes/erxes:base-1.18-alpine
         run: |
           cd packages/core-ui
-          ls dist/images
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
           DOCKER_BUILDKIT=1 docker build --build-arg BASE_IMAGE=$BASE_IMAGE -t erxes/erxes:${GITHUB_REF#refs/heads/} -f Dockerfile .
           docker push erxes/erxes:${GITHUB_REF#refs/heads/}
