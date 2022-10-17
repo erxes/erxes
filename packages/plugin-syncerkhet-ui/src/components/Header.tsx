@@ -5,7 +5,7 @@ function Header() {
   return (
     <HeaderDescription
       icon="/images/actions/25.svg"
-      title="Ebarimt config"
+      title="Sync erkhet config"
       description=""
     />
   );

@@ -97,9 +97,8 @@ const productQueries = {
       paginationArgs
     );
 
-    if (!config.isOnline || branchId) {
-      const latestBranchId = config.isOnline ? branchId : config.branchId;
-
+    const latestBranchId = config.isOnline ? branchId : config.branchId;
+    if (latestBranchId) {
       if (config.checkRemainder) {
         try {
           const productIds = paginatedProducts.map(p => p._id);

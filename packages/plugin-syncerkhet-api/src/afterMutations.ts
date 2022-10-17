@@ -1,4 +1,4 @@
-import { sendCommonMessage, sendRPCMessage } from './messageBrokerErkhet';
+import { sendCommonMessage } from './messageBrokerErkhet';
 import { getPostData } from './utils/ebarimtData';
 import {
   productToErkhet,
@@ -6,7 +6,6 @@ import {
 } from './utils/productToErkhet';
 import { getConfig } from './utils/utils';
 import { customerToErkhet, companyToErkhet } from './utils/customerToErkhet';
-import { graphqlPubsub } from './configs';
 
 export default {
   'cards:deal': ['update'],

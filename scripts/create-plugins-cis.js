@@ -46,6 +46,7 @@ var plugins = [
   { name: 'inventories', ui: true, api: true },
   { name: 'posclient', api: true },
   { name: 'webbuilder', ui: true, api: true },
+  { name: 'payment', ui: true, api: true },
   { name: 'imap', ui: true, api: true },
 ];
 

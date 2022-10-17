@@ -31,7 +31,9 @@ class SettingsContainer extends React.Component<FinalProps> {
         .then(() => {
           configsQuery.refetch();
 
-          Alert.success('You successfully updated stage in ebarimt settings');
+          Alert.success(
+            'You successfully updated stage in syncerkhet settings'
+          );
         })
         .catch(error => {
           Alert.error(error.message);

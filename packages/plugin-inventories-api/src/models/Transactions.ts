@@ -114,11 +114,11 @@ export const loadTransactionClass = (models: IModels) => {
           return new Error('Safe remainder item not found!');
 
         await models.SafeRemainderItems.updateMany(filter, {
-          $set: { preCount: item.count }
+          $set: { preCount: remainder.count + item.count }
         });
 
         const result = await models.Remainders.updateRemainder(remainder._id, {
-          count: item.isDebit ? item.count : -1 * item.count
+          count: remainder.count + item.count
         });
 
         if (!result) return new Error('Remainder update failed!');
@@ -126,9 +126,9 @@ export const loadTransactionClass = (models: IModels) => {
         bulkOps.push({
           transactionId: transaction._id,
           productId: item.productId,
-          count: item.count - item.preCount,
+          count: item.count,
           uomId: item.uomId,
-          isDebit: item.count - item.preCount > 0,
+          isDebit: item.isDebit,
 
           modifiedAt: new Date()
         });

@@ -1,3 +1,20 @@
+import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/SelectProperty';
+import { IProductCategory } from '@erxes/ui-products/src/types';
+import Button from '@erxes/ui/src/components/Button';
+import CollapseContent from '@erxes/ui/src/components/CollapseContent';
+import EditorCK from '@erxes/ui/src/components/EditorCK';
+import FormControl from '@erxes/ui/src/components/form/Control';
+import FormGroup from '@erxes/ui/src/components/form/Group';
+import ControlLabel from '@erxes/ui/src/components/form/Label';
+import Icon from '@erxes/ui/src/components/Icon';
+import { FlexItem } from '@erxes/ui/src/components/step/styles';
+import Toggle from '@erxes/ui/src/components/Toggle';
+import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
+import { __, loadDynamicComponent } from 'coreui/utils';
+import React from 'react';
+import Modal from 'react-bootstrap/Modal';
+import Select from 'react-select-plus';
+
 import {
   FlexRow,
   LeftSection,
@@ -5,28 +22,10 @@ import {
   PreviewSection,
   ShowPreview
 } from '../styles';
-import { IField, IFieldLogic, IOption } from '@erxes/ui/src/types';
-
-import Button from '@erxes/ui/src/components/Button';
-import CollapseContent from '@erxes/ui/src/components/CollapseContent';
-import ControlLabel from '@erxes/ui/src/components/form/Label';
-import EditorCK from '@erxes/ui/src/components/EditorCK';
 import FieldLogics from './FieldLogics';
 import FieldPreview from './FieldPreview';
-import { FlexItem } from '@erxes/ui/src/components/step/styles';
-import FormControl from '@erxes/ui/src/components/form/Control';
-import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IConfig } from '@erxes/ui-settings/src/general/types';
-import { IProductCategory } from '@erxes/ui-products/src/types';
-import Icon from '@erxes/ui/src/components/Icon';
 import LocationOptions from './LocationOptions';
-import Modal from 'react-bootstrap/Modal';
 import ObjectListConfigs from './ObjectListConfigs';
-import React from 'react';
-import Select from 'react-select-plus';
-import SelectProperty from '@erxes/ui-forms/src/settings/properties/containers/SelectProperty';
-import Toggle from '@erxes/ui/src/components/Toggle';
-import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   onSubmit: (field: IField) => void;
@@ -398,6 +397,13 @@ class FieldForm extends React.Component<Props, State> {
         (e.currentTarget as HTMLInputElement).checked
       );
 
+    const onCategoryChange = e => {
+      this.onFieldChange(
+        'productCategoryId',
+        (e.currentTarget as HTMLInputElement).value
+      );
+    };
+
     return (
       <>
         <CollapseContent
@@ -470,7 +476,11 @@ class FieldForm extends React.Component<Props, State> {
           </FormGroup>
 
           {this.renderColumn()}
-          {this.renderProductCategory()}
+
+          {loadDynamicComponent('extendFormField', {
+            field,
+            onChange: this.onFieldChange
+          })}
           {this.renderHtml()}
           {this.renderCustomPropertyGroup()}
           {this.renderCustomProperty()}
@@ -569,42 +579,42 @@ class FieldForm extends React.Component<Props, State> {
     );
   }
 
-  renderProductCategory() {
-    const { field } = this.state;
-    const { productCategories = [] } = this.props;
+  // renderProductCategory() {
+  //   const { field } = this.state;
+  //   const { productCategories = [] } = this.props;
 
-    if (field.type !== 'productCategory') {
-      return null;
-    }
+  //   if (field.type !== 'productCategory') {
+  //     return null;
+  //   }
 
-    const onCategoryChange = e => {
-      this.onFieldChange(
-        'productCategoryId',
-        (e.currentTarget as HTMLInputElement).value
-      );
-    };
+  //   const onCategoryChange = e => {
+  //     this.onFieldChange(
+  //       'productCategoryId',
+  //       (e.currentTarget as HTMLInputElement).value
+  //     );
+  //   };
 
-    return (
-      <>
-        <FormGroup>
-          <ControlLabel>Categories:</ControlLabel>
-          <FormControl
-            id="productCategories"
-            componentClass="select"
-            defaultValue={field.productCategoryId || ''}
-            onChange={onCategoryChange}
-          >
-            <option>-</option>
-            {productCategories.map(category => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </FormControl>
-        </FormGroup>
-      </>
-    );
-  }
+  //   return (
+  //     <>
+  //       <FormGroup>
+  //         <ControlLabel>Categories:</ControlLabel>
+  //         <FormControl
+  //           id="productCategories"
+  //           componentClass="select"
+  //           defaultValue={field.productCategoryId || ''}
+  //           onChange={onCategoryChange}
+  //         >
+  //           <option>-</option>
+  //           {productCategories.map(category => (
+  //             <option key={category._id} value={category._id}>
+  //               {category.name}
+  //             </option>
+  //           ))}
+  //         </FormControl>
+  //       </FormGroup>
+  //     </>
+  //   );
+  // }
 
   renderColumn() {
     const { field } = this.state;
