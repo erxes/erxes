@@ -71,12 +71,8 @@ export interface ISetConfigParams {
 }
 
 export type InvoicesQueryResponse = {
-  invoices: (params: {
-    variables: { page: number; perPage: number };
-  }) => IInvoice[];
-  loading: boolean;
-  refetch: () => void;
-};
+  invoices: IInvoice[];
+} & QueryResponse;
 
 export type InvoicesTotalCountQueryResponse = {
   invoicesTotalCount: InvoicesCount;

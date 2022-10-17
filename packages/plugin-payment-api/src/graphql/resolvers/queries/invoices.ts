@@ -11,11 +11,13 @@ interface IParam {
   searchValue?: string;
   kind?: string;
   status?: string;
+  contentType?: string;
+  contentTypeId?: string;
 }
 
 const generateFilterQuery = (params: IParam) => {
   const query: any = {};
-  const { searchValue, kind, status } = params;
+  const { searchValue, kind, status, contentType, contentTypeId } = params;
 
   if (kind) {
     query.paymentKind = kind;
@@ -28,6 +30,14 @@ const generateFilterQuery = (params: IParam) => {
   if (searchValue) {
     const regex = new RegExp(`.*${searchValue}.*`, 'i');
     query.description = regex;
+  }
+
+  if (contentType) {
+    query.contentType = contentType;
+  }
+
+  if (contentTypeId) {
+    query.contentTypeId = contentTypeId;
   }
 
   query.paymentId = { $exists: true };
