@@ -38,7 +38,7 @@ const IntegrationListContainer = (props: FinalProps) => {
     confirm(message).then(() => {
       paymentsRemove({ variables: { _id: payment._id } })
         .then(() => {
-          Alert.success('Your config not found');
+          Alert.success('You successfully deleted a payment method');
         })
 
         .catch(error => {

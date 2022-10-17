@@ -8,6 +8,7 @@ import { IPayment } from '../../../models/definitions/payments';
 
 const mutations = {
   async paymentAdd(_root, doc: IPayment, { models }: IContext) {
+    console.log('paymentAdd', doc);
     return models.Payments.createPayment(doc);
   },
 
@@ -41,9 +42,8 @@ requireLogin(mutations, 'paymentAdd');
 requireLogin(mutations, 'paymentEdit');
 requireLogin(mutations, 'paymentRemove');
 
-checkPermission(mutations, 'paymentAdd', 'addPayment', []);
-checkPermission(mutations, 'paymentEdit', 'editPayment', []);
-checkPermission(mutations, 'paymentRemove', 'removePayment', []);
-checkPermission(mutations, 'paymentAdd', 'addPayment', []);
+checkPermission(mutations, 'paymentAdd', 'paymentAdd', []);
+checkPermission(mutations, 'paymentEdit', 'paymentEdit', []);
+checkPermission(mutations, 'paymentRemove', 'paymentRemove', []);
 
 export default mutations;
