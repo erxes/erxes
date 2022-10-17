@@ -83,10 +83,16 @@ export const orderSchema = schemaHooksWrapper(
       type: String,
       label: 'Status of the order',
       enum: ORDER_STATUSES.ALL,
-      default: ORDER_STATUSES.NEW
+      default: ORDER_STATUSES.NEW,
+      index: true
     }),
     paidDate: field({ type: Date, label: 'Paid date' }),
-    number: field({ type: String, label: 'Order number', unique: true }),
+    number: field({
+      type: String,
+      label: 'Order number',
+      unique: true,
+      index: true
+    }),
     customerId: field({ type: String, optional: true, label: 'Customer' }),
     cardAmount: getNumberFieldDefinition({
       ...commonAttributes,
@@ -166,7 +172,8 @@ export const orderSchema = schemaHooksWrapper(
     posToken: field({
       type: String,
       optional: true,
-      label: 'If From online posToken'
+      label: 'If From online posToken',
+      index: true
     }),
     // {
     //   description: '',
