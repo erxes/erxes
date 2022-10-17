@@ -5,7 +5,7 @@ import { IButtonMutateProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
 
-import { getRefetchQueries } from '../containers/utils';
+import { getGqlString, getRefetchQueries } from '../containers/utils';
 import { mutations } from '../graphql';
 import { ByKindTotalCount } from '../types';
 import { PAYMENT_KINDS, PAYMENTCONFIGS } from './constants';
@@ -49,7 +49,7 @@ const renderButton = ({
 }: IButtonMutateProps) => {
   return (
     <ButtonMutate
-      mutation={mutations.paymentsAdd}
+      mutation={getGqlString(mutations.paymentAdd)}
       variables={values}
       callback={callback}
       refetchQueries={getRefetchQueries()}

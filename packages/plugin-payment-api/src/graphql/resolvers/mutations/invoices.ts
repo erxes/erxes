@@ -1,4 +1,5 @@
 import { IContext } from '../../../connectionResolver';
+import { makeInvoiceNo } from '../../../utils';
 
 type InvoiceParams = {
   amount: number;
@@ -15,7 +16,10 @@ type InvoiceParams = {
 
 const mutations = {
   async generateInvoiceUrl(_root, params: InvoiceParams, { models }: IContext) {
-    const invoice = await models.Invoices.create(params);
+    const invoice = await models.Invoices.create({
+      ...params,
+      identifier: makeInvoiceNo(32)
+    });
 
     const MAIN_API_DOMAIN =
       process.env.MAIN_API_DOMAIN || 'http://localhost:4000';
