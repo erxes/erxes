@@ -24,7 +24,9 @@ export const getIntegrationsKinds = async () => {
     lead: 'Lead',
     webhook: 'Webhook',
     booking: 'Booking',
-    'facebook-messenger': 'Facebook messenger'
+    'facebook-post': 'Facebook post',
+    'facebook-messenger': 'Facebook messenger',
+    callpro: 'Callpro'
   };
 
   for (const meta of metas) {

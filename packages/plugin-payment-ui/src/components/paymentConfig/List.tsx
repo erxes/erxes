@@ -8,8 +8,8 @@ import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import React from 'react';
 
 import ConfigForm from '../../containers/paymentConfig/Form';
+import { getSubMenu } from '../../containers/utils';
 import { IPaymentConfig } from '../../types';
-import { subMenu } from '../PaymentHome';
 
 import Row from './Row';
 
@@ -24,13 +24,6 @@ type Props = {
 
 const List = (props: Props) => {
   const { totalCount, queryParams, loading, configs, remove } = props;
-
-  if (isEnabled('products') && isEnabled('inbox')) {
-    subMenu.push({
-      title: 'Lead Integration Configs',
-      link: '/payment/configs'
-    });
-  }
 
   const renderRow = () => {
     const { configs } = props;
@@ -85,7 +78,7 @@ const List = (props: Props) => {
         <Wrapper.Header
           title={__('Configs')}
           queryParams={queryParams}
-          submenu={subMenu}
+          submenu={getSubMenu()}
         />
       }
       actionBar={actionBar}

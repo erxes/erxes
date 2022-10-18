@@ -7,7 +7,7 @@ import { ModalFooter } from '@erxes/ui/src/styles/main';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __ } from '@erxes/ui/src/utils';
 import React from 'react';
-import { IPaymentDocument, IQpayConfig } from 'types';
+import { IPaymentDocument, IQpayConfig } from '../../types';
 
 import { PAYMENT_KINDS } from '../constants';
 import { SettingsContent } from './styles';

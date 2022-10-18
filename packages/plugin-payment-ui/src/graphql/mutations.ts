@@ -8,17 +8,17 @@ import {
   paymentConfigFields
 } from './common';
 
-const paymentsAdd = gql`
-mutation paymentsAdd(${commonPaymentParamDefs}) {
-  paymentsAdd(${commonPaymentParams}) {
+const paymentAdd = gql`
+mutation paymentAdd(${commonPaymentParamDefs}) {
+  paymentAdd(${commonPaymentParams}) {
     _id
   }
 }
 `;
 
-const paymentsEdit = gql`
+const paymentEdit = gql`
 mutation PaymentEdit($_id: String!, ${commonPaymentParamDefs}) {
-  paymentsEdit(_id: $_id, ${commonPaymentParams}) {
+  paymentEdit(_id: $_id, ${commonPaymentParams}) {
     _id
   }
 }
@@ -68,8 +68,8 @@ const paymentConfigsRemove = gql`
 `;
 
 export default {
-  paymentsAdd,
-  paymentsEdit,
+  paymentAdd,
+  paymentEdit,
   paymentRemove,
   createInvoice,
   setPaymentConfig,

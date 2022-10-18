@@ -71,19 +71,15 @@ export interface ISetConfigParams {
 }
 
 export type InvoicesQueryResponse = {
-  invoices: (params: {
-    variables: { page: number; perPage: number };
-  }) => IInvoice[];
-  loading: boolean;
-  refetch: () => void;
-};
+  invoices: IInvoice[];
+} & QueryResponse;
 
 export type InvoicesTotalCountQueryResponse = {
   invoicesTotalCount: InvoicesCount;
 } & QueryResponse;
 
 export type PaymentRemoveMutationResponse = {
-  paymentsRemove: (params: { variables: { id: string } }) => Promise<any>;
+  paymentsRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type SetPaymentConfigMutationResponse = {
@@ -93,7 +89,7 @@ export type SetPaymentConfigMutationResponse = {
 };
 
 export type PaymentEditMutationResponse = {
-  paymentsEdit: (params: {
+  paymentEdit: (params: {
     variables: { id: string; doc: IPayment };
   }) => Promise<any>;
 };

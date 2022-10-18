@@ -5,6 +5,7 @@ module.exports = {
   exposes: {
     './routes': './src/routes.tsx',
     './SelectPayments': './src/containers/SelectPayments.tsx',
+    "./invoiceSection": "./src/containers/InvoiceSection.tsx",
   },
   routes: {
     url: 'http://localhost:3012/remoteEntry.js',
@@ -18,7 +19,7 @@ module.exports = {
       url: '/payment/invoices',
       icon: 'icon-list',
       location: 'mainNavigation',
-      permission: 'invoiceList'
+      permission: 'showInvoices',
     },
     {
       text: 'Payments',
@@ -28,6 +29,13 @@ module.exports = {
       scope: 'payment',
       action: "paymentsAll",
       permissions: ['showPayments']
+    }
+  ],
+  dealRightSidebarSection: [
+    {
+      text: "invoiceSection",
+      component: "./invoiceSection",
+      scope: "payment"
     }
   ]
 }
