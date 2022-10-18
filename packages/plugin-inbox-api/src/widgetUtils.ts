@@ -1,5 +1,4 @@
 import { IBrowserInfo } from '@erxes/api-utils/src/definitions/common';
-import { KIND_CHOICES } from './models/definitions/constants';
 import { debug } from './configs';
 
 import {
@@ -38,7 +37,7 @@ export const getOrCreateEngageMessage = async (
 
   const integration = await models.Integrations.getIntegration({
     _id: integrationId,
-    kind: KIND_CHOICES.MESSENGER
+    kind: 'messenger'
   });
 
   const brand = await sendCoreMessage({

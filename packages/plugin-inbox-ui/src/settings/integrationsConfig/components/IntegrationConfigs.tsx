@@ -4,7 +4,7 @@ import { FormControl } from '@erxes/ui/src/components/form';
 import FormGroup from '@erxes/ui/src/components/form/Group';
 import ControlLabel from '@erxes/ui/src/components/form/Label';
 import Info from '@erxes/ui/src/components/Info';
-import { __ } from '@erxes/ui/src/utils/core';
+import { loadDynamicComponent, __ } from '@erxes/ui/src/utils/core';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import React from 'react';
 import { ContentBox, Title } from '@erxes/ui-settings/src/styles';
@@ -49,17 +49,18 @@ class IntegrationConfigs extends React.Component<Props, State> {
     this.onChangeConfig(code, e.target.value);
   };
 
-  renderItem(
+  renderItem = (
     key: string,
     type?: string,
     description?: string,
-    defaultValue?: string
-  ) {
+    defaultValue?: string,
+    label?: string
+  ) => {
     const { configsMap } = this.state;
 
     return (
       <FormGroup>
-        <ControlLabel>{KEY_LABELS[key]}</ControlLabel>
+        <ControlLabel>{label || KEY_LABELS[key]}</ControlLabel>
         {description && <p>{__(description)}</p>}
         <FormControl
           type={type || 'text'}
@@ -68,7 +69,7 @@ class IntegrationConfigs extends React.Component<Props, State> {
         />
       </FormGroup>
     );
-  }
+  };
 
   renderContent = () => {
     const { configsMap } = this.state;
@@ -200,6 +201,14 @@ class IntegrationConfigs extends React.Component<Props, State> {
         <CollapseContent title="Telnyx SMS">
           {this.renderItem('TELNYX_API_KEY')}
         </CollapseContent>
+
+        {loadDynamicComponent(
+          'inboxIntegrationSettings',
+          {
+            renderItem: this.renderItem
+          },
+          true
+        )}
       </ContentBox>
     );
   };

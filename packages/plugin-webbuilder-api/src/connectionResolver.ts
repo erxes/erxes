@@ -1,19 +1,21 @@
 import * as mongoose from 'mongoose';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
-import {
-  IContentTypeDocument,
-  IContentTypeModel,
-  loadTypeClass
-} from './models/contentTypes';
-import { IEntryDocument, IEntryModel, loadEntryClass } from './models/entries';
-import { IPageDocument, IPageModel, loadPageClass } from './models/pages';
-import {
-  ITemplateModel,
-  loadTemplateClass,
-  ITemplateDocument
-} from './models/templates';
-import { ISiteDocument, ISiteModel, loadSiteClass } from './models/sites';
+
+import { IContentTypeDocument } from './models/definitions/contentTypes';
+import { IContentTypeModel, loadTypeClass } from './models/ContentTypes';
+
+import { IEntryModel, loadEntryClass } from './models/Entries';
+import { IEntryDocument } from './models/definitions/entries';
+
+import { IPageModel, loadPageClass } from './models/Pages';
+import { IPageDocument } from './models/definitions/pages';
+
+import { ITemplateModel, loadTemplateClass } from './models/Templates';
+import { ITemplateDocument } from './models/definitions/templates';
+
+import { ISiteModel, loadSiteClass } from './models/Sites';
+import { ISiteDocument } from './models/definitions/sites';
 
 export interface IModels {
   Sites: ISiteModel;

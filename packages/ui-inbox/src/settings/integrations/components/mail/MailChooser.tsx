@@ -28,7 +28,10 @@ type Props = {
 class MailChooser extends React.Component<Props> {
   render() {
     const { verifiedEmails = [], selectedItem = '', onChange } = this.props;
-    const onSelectChange = val => onChange(val.value);
+
+    const onSelectChange = val => {
+      onChange(val && val.value);
+    };
 
     return (
       <Wrapper>
