@@ -1,6 +1,6 @@
 module.exports = {
   name: 'block',
-  port: 3017,
+  port: 3020,
   scope: 'block',
   exposes: {
     './routes': './src/routes.tsx'
