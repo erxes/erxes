@@ -54,6 +54,7 @@ const listQueryParams = `
   startDate: String
   endDate: String
   hasStartAndCloseDate: Boolean
+  tagIds: [String]
   ${conformityQueryFields}
 `;
 
