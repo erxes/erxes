@@ -1,5 +1,5 @@
 {
-  "name": "@erxes/plugin-blockempty-api",
+  "name": "@erxes/plugin-block-api",
   "version": "1.0.0",
   "scripts": {
     "install-deps": "cd .erxes && yarn install",
