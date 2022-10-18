@@ -243,8 +243,6 @@ class AddForm extends React.Component<Props, State> {
     this.onChangeField('cardId', '');
     this.onChangeField('name', name);
 
-    console.log('onChangeCardSelect', option);
-
     localStorage.setItem(`${this.props.options.type}Name`, name);
   };
 
