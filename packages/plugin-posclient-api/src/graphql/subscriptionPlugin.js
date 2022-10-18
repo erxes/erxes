@@ -4,6 +4,7 @@ module.exports = {
   name: "posclient",
   typeDefs: `
     ordersOrdered(statuses: [String], customerId: String): Order
+    orderItemsOrdered(statuses: [String]): PosOrderItem
   `,
 
   generateResolvers: (graphqlPubsub) => {
@@ -25,6 +26,15 @@ module.exports = {
             return (
               variables.statuses.includes(status)
             );
+          }
+        )
+      }, 
+      orderItemsOrdered: {
+        subscribe: withFilter(
+          () => graphqlPubsub.asyncIterator('orderItemsOrdered'),
+          (payload, variables) => {
+            const { status } = payload.orderItemsOrdered;
+            return variables.statuses.includes(status);
           }
         )
       }

@@ -147,21 +147,8 @@ const mutations = {
     }
     const pos = await models.Pos.findOne({ token: order.posToken }).lean();
 
-    const putRes = await sendEbarimtMessage({
-      subdomain,
-      action: 'putresponses.putHistories',
-      data: {
-        contentType: 'pos',
-        contentId: _id
-      },
-      isRPC: true
-    });
-
     if (!pos) {
       throw new Error('not found pos');
-    }
-    if (!putRes) {
-      throw new Error('not found put response');
     }
 
     await sendSyncerkhetMessage({
@@ -169,8 +156,7 @@ const mutations = {
       action: 'toOrder',
       data: {
         pos,
-        order,
-        putRes
+        order
       }
     });
 
@@ -216,7 +202,7 @@ const mutations = {
   },
   posOrderChangePayments: async (
     _root,
-    { _id, cashAmount, cardAmount, mobileAmount },
+    { _id, receivableAmount, cashAmount, cardAmount, mobileAmount },
     { models }
   ) => {
     const order = await models.PosOrders.findOne({ _id }).lean();
@@ -224,13 +210,16 @@ const mutations = {
       throw new Error('not found order');
     }
 
-    if (order.totalAmount !== cashAmount + cardAmount + mobileAmount) {
+    if (
+      order.totalAmount !==
+      receivableAmount + cashAmount + cardAmount + mobileAmount
+    ) {
       throw new Error('not balanced');
     }
 
     await models.PosOrders.updateOne(
       { _id },
-      { $set: { cashAmount, cardAmount, mobileAmount } }
+      { $set: { cashAmount, receivableAmount, cardAmount, mobileAmount } }
     );
     return models.PosOrders.findOne({ _id }).lean();
   }

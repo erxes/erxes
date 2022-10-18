@@ -17,7 +17,7 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
   if (qpayConfig) {
     data.qpayConfig = {
       url: qpayConfig.qpayUrl,
-      callbackUrl: qpayConfig.callbackUrl,
+      callbackUrl: pos.isOnline ? qpayConfig.callbackUrl : '',
       username: qpayConfig.qpayMerchantUser,
       password: qpayConfig.qpayMerchantPassword,
       invoiceCode: qpayConfig.qpayInvoiceCode
@@ -52,6 +52,23 @@ export const getConfigData = async (subdomain: string, pos: IPosDocument) => {
       },
       isRPC: true
     });
+  }
+
+  if (pos.erkhetConfig && pos.erkhetConfig.isSyncErkhet) {
+    const configs = await sendCoreMessage({
+      subdomain,
+      action: 'getConfig',
+      data: { code: 'ERKHET', defaultValue: {} },
+      isRPC: true
+    });
+
+    data.pos.erkhetConfig = {
+      ...pos.erkhetConfig,
+      getRemainderApiUrl: configs.getRemainderApiUrl,
+      apiKey: configs.apiKey,
+      apiSecret: configs.apiSecret,
+      apiToken: configs.apiToken
+    };
   }
 
   return data;

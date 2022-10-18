@@ -345,7 +345,7 @@ export const itemsEdit = async (
           user?.details?.shortName} has updated`,
         receivers: notificationDoc?.item?.assignedUserIds,
         data: {
-          type: type,
+          type,
           id: _id
         }
       }
@@ -365,6 +365,14 @@ export const itemsEdit = async (
   );
 
   const oldStage = await models.Stages.getStage(oldItem.stageId);
+
+  if (doc.tagIds || doc.startDate || doc.closeDate || doc.name) {
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId
+      }
+    });
+  }
 
   if (oldStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish('pipelinesChanged', {
@@ -562,7 +570,7 @@ export const itemsChange = async (
           content}`,
         receivers: item?.assignedUserIds,
         data: {
-          type: type,
+          type,
           id: item._id
         }
       }
@@ -651,7 +659,7 @@ export const itemsRemove = async (
           user?.details?.shortName} deleted the ${type}`,
         receivers: item?.assignedUserIds,
         data: {
-          type: type,
+          type,
           id: item._id
         }
       }

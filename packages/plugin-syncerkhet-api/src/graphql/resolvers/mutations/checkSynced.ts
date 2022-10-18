@@ -145,7 +145,7 @@ const checkSyncedMutations = {
         isRPC: true
       });
 
-      const postData = await getPostDataOrders(subdomain, pos, order, putRes);
+      const postData = await getPostDataOrders(subdomain, pos, order);
 
       const response = await sendRPCMessage(
         'rpc_queue:erxes-automation-erkhet',

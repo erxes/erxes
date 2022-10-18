@@ -6,34 +6,44 @@ const productCategories = productQueries.productCategories;
 
 const products = productQueries.products;
 
-const jobRefersParamsDef = `$page: Int, $perPage: Int, $categoryId: String, $searchValue: String`;
-const jobRefersParams = `page: $page, perPage: $perPage, categoryId: $categoryId, searchValue: $searchValue`;
+const jobRefersParamsDef = `
+  $categoryId: String,
+  $searchValue: String,
+  $ids: [String],
+  $types: [String],
+`;
+const jobRefersParams = `
+  categoryId: $categoryId,
+  searchValue: $searchValue,
+  ids: $ids,
+  types: $types,
+`;
 
 const jobRefersFields = `
-_id
-createdAt
-code
-name
-type
-status
-duration
-durationType
-categoryId
-needProducts
-resultProducts
-      `;
+  _id
+  createdAt
+  code
+  name
+  type
+  status
+  duration
+  durationType
+  categoryId
+  needProducts
+  resultProducts
+`;
 
 const jobCategoryFields = `
-      _id
-      createdAt
-      name
-      code
-      order
-      description
-      parentId
-      status
-      productCount
-      `;
+  _id
+  createdAt
+  name
+  code
+  order
+  description
+  parentId
+  status
+  productCount
+`;
 
 const productsCount = `
   query productsTotalCount($type: String) {
@@ -86,16 +96,16 @@ query jobRefersAll {
 `;
 
 const jobRefers = `
-query jobRefers(${jobRefersParamsDef}) {
-  jobRefers(${jobRefersParams}) {
+query jobRefers($page: Int, $perPage: Int, ${jobRefersParamsDef}) {
+  jobRefers(page: $page, perPage: $perPage, ${jobRefersParams}) {
     ${jobRefersFields}
   }
 }
 `;
 
 const jobReferTotalCount = `
-query jobReferTotalCount($categoryId: String, $searchValue: String) {
-  jobReferTotalCount(categoryId: $categoryId, searchValue: $searchValue)
+query jobReferTotalCount(${jobRefersParamsDef}) {
+  jobReferTotalCount(${jobRefersParams})
 }
 `;
 

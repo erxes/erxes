@@ -21,6 +21,7 @@ export type IPutResponse = {
   modifiedAt: Date;
   contentType: string;
   contentId: string;
+  number: string;
   success: string;
   billId: string;
   date: string;

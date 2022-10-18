@@ -14,6 +14,7 @@ const listParamsDef = `
   $paidDate: String
   $userId: String
   $customerId: String
+  $posId: String
 `;
 
 const listParamsValue = `
@@ -29,6 +30,7 @@ const listParamsValue = `
   paidDate: $paidDate
   userId: $userId
   customerId: $customerId
+  posId: $posId
 `;
 
 export const orderFields = `
@@ -40,6 +42,7 @@ export const orderFields = `
   customerId
   cardAmount
   cashAmount
+  receivableAmount
   mobileAmount
   totalAmount
   finalAmount
@@ -57,6 +60,7 @@ export const orderFields = `
   syncedErkhet
 
   posName
+  origin
   user {
     _id
     email

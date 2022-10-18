@@ -72,13 +72,11 @@ export const types = () => `
     list: [ChatMessage]
     totalCount: Int
   }
-
   type UserStatus {
     _id: String!
     onlineDate: Date
     userId: String
   }
-  
   enum ChatType {
     direct
     group

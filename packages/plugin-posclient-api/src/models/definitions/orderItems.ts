@@ -1,4 +1,5 @@
 import { Document, Schema } from 'mongoose';
+import { ORDER_ITEM_STATUSES } from './constants';
 import {
   field,
   getDateFieldDefinition,
@@ -18,6 +19,7 @@ export interface IOrderItem {
   orderId?: string;
   isPackage?: boolean;
   isTake?: boolean;
+  status?: string;
 }
 
 export interface IOrderItemDocument extends Document, IOrderItem {
@@ -52,7 +54,7 @@ export const orderItemSchema = schemaHooksWrapper(
       optional: true
     }),
     bonusVoucherId: field({ type: String, label: 'Bonus Voucher' }),
-    orderId: field({ type: String, label: 'Order id' }),
+    orderId: field({ type: String, label: 'Order id', index: true }),
     isPackage: field({
       type: Boolean,
       default: false,
@@ -62,6 +64,12 @@ export const orderItemSchema = schemaHooksWrapper(
       type: Boolean,
       label: 'order eat but some take',
       default: false
+    }),
+    status: field({
+      type: String,
+      label: 'status of order item',
+      enum: ORDER_ITEM_STATUSES.ALL,
+      default: ORDER_ITEM_STATUSES.NEW
     })
   }),
   'erxes_orderItem'

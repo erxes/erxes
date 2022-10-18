@@ -3,7 +3,6 @@ import * as strip from 'strip';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  KIND_CHOICES,
   MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
@@ -331,7 +330,7 @@ const createFormConversation = async (
 
   return {
     status: 'ok',
-    messageId: message._id,
+    conversationId: conversation._id,
     customerId: cachedCustomer._id
   };
 };
@@ -515,7 +514,7 @@ const widgetMutations = {
     // find integration
     const integration = await models.Integrations.findOne({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: 'messenger'
     });
 
     if (!integration) {

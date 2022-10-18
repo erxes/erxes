@@ -36,6 +36,18 @@ const CheckSyncedOrders = asyncComponent(() =>
   )
 );
 
+const InventoryProducts = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './containers/InventoryProducts'
+  )
+);
+
+const InventoryCategory = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "KnowledgeBase" */ './containers/InventoryCategory'
+  )
+);
+
 const GeneralSetting = () => {
   return <Settings component={GeneralSettings} />;
 };
@@ -51,6 +63,7 @@ const ReturnStageSetting = () => {
 const PipelineSetting = () => {
   return <Settings component={PipelineSettings} />;
 };
+
 const checkSyncedDealList = ({ location, history }) => {
   return (
     <CheckSyncedDeals
@@ -63,6 +76,24 @@ const checkSyncedDealList = ({ location, history }) => {
 const CheckSyncedOrderList = ({ location, history }) => {
   return (
     <CheckSyncedOrders
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const InventoryProductList = ({ location, history }) => {
+  return (
+    <InventoryProducts
+      queryParams={queryString.parse(location.search)}
+      history={history}
+    />
+  );
+};
+
+const InventoryCategoryList = ({ location, history }) => {
+  return (
+    <InventoryCategory
       queryParams={queryString.parse(location.search)}
       history={history}
     />
@@ -111,6 +142,20 @@ const routes = () => {
         exact={true}
         path="/check-pos-orders"
         component={CheckSyncedOrderList}
+      />
+
+      <Route
+        key="/inventory-products"
+        exact={true}
+        path="/inventory-products"
+        component={InventoryProductList}
+      />
+
+      <Route
+        key="/inventory-category"
+        exact={true}
+        path="/inventory-category"
+        component={InventoryCategoryList}
       />
     </React.Fragment>
   );

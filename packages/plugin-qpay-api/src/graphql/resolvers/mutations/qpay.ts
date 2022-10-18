@@ -367,7 +367,9 @@ const Mutations = {
       invoice_receiver_code,
       invoice_description,
       amount,
-      callback_url: `${callbackUrl}?payment_id=${sender_invoice_no}`
+      callback_url: callbackUrl
+        ? `${callbackUrl}?payment_id=${sender_invoice_no}`
+        : ''
     };
 
     const invoiceData = await createInvoice(varData, token, config);

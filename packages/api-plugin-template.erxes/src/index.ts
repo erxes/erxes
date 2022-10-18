@@ -27,6 +27,7 @@ import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
@@ -88,18 +89,6 @@ app.use(cookieParser());
 // for health checking
 app.get('/health', async (_req, res) => {
   res.end('ok');
-});
-
-app.get('/call-gc', async (_req, res) => {
-  let response = '';
-
-  if (global.gc) {
-    global.gc();
-
-    response = 'called gc';
-  }
-
-  res.end(response);
 });
 
 if (configs.hasSubscriptions) {
@@ -485,6 +474,11 @@ async function startServer() {
             status: 'success',
             data: await initialSetup.generate(args)
           }));
+
+          app.post('/initial-setup', async (req, res) => {
+            await initialSetup.generate({ subdomain: getSubdomain(req) });
+            return res.end('ok');
+          });
         }
       }
 

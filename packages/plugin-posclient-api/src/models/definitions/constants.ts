@@ -109,7 +109,8 @@ export const BILL_TYPES = {
   CITIZEN: '1', // иргэнд өгөх баримт
   ENTITY: '3', // байгууллагад өгөх баримт
   INVOICE: '5', // нэхэмжлэхээр өгөх баримт
-  ALL: ['1', '3', '5']
+  INNER: '9', // дотоод буюу түр
+  ALL: ['1', '3', '5', '9']
 };
 
 export const ORDER_RETURN_TYPES = {
@@ -120,14 +121,21 @@ export const ORDER_RETURN_TYPES = {
 
 export const ORDER_STATUSES = {
   NEW: 'new',
-  PAID: 'paid',
   DOING: 'doing',
+  REDOING: 'reDoing',
   DONE: 'done',
-  ROAD: 'road',
   COMPLETE: 'complete',
 
-  ALL: ['new', 'paid', 'doing', 'done', 'road', 'complete'],
+  ALL: ['new', 'doing', 'done', 'complete', 'reDoing'],
   FULL: ['paid', 'done', 'complete']
+};
+
+export const ORDER_ITEM_STATUSES = {
+  NEW: 'new',
+  CONFIRM: 'confirm',
+  DONE: 'done',
+
+  ALL: ['new', 'done', 'confirm']
 };
 
 export const DISTRICTS = {

@@ -10,6 +10,7 @@ import BoardSelectContainer from '@erxes/ui-cards/src/boards/containers/BoardSel
 import { MainStyleModalFooter as ModalFooter } from '@erxes/ui/src/styles/eindex';
 import React from 'react';
 import { IConfigsMap } from '../types';
+import { DISTRICTS } from '../constants';
 
 type Props = {
   configsMap: IConfigsMap;
@@ -141,14 +142,30 @@ class PerSettings extends React.Component<Props, State> {
         </FormGroup>
 
         {this.renderInput('userEmail', 'userEmail', '')}
-        {this.renderInput('districtName', 'districtName', '')}
+
+        <FormGroup>
+          <ControlLabel>{__('Provice/District')}</ControlLabel>
+          <FormControl
+            componentClass="select"
+            defaultValue={this.state.config.districtName}
+            options={DISTRICTS}
+            onChange={this.onChangeInput.bind(this, 'districtName')}
+            required={true}
+          />
+        </FormGroup>
+
         {this.renderInput('companyRD', 'companyRD', '')}
         {this.renderInput('vatPercent', 'vatPercent', '')}
         {this.renderInput('cityTaxPercent', 'cityTaxPercent', '')}
         {this.renderInput('defaultGSCode', 'defaultGSCode', '')}
 
-        {this.renderCheckbox('hasVat', 'hasVat', '')}
-        {this.renderCheckbox('hasCitytax', 'hasCitytax', '')}
+        {this.renderCheckbox('hasVat', 'has Vat', '')}
+        {this.renderCheckbox('hasCitytax', 'has Citytax', '')}
+        {this.renderCheckbox(
+          'skipPutData',
+          'skip Ebarimt',
+          'When checked only  print inner bill'
+        )}
 
         <ModalFooter>
           <Button

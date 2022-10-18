@@ -39,6 +39,7 @@ type Props = {
   fields: IField[];
   events: IEvent[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
+  filterContent?: (values: any) => void;
   edit?: (params: { _id: string; doc: ISegmentWithConditionDoc }) => void;
   segment?: ISegment;
   headSegments: ISegment[];
@@ -656,7 +657,8 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       closeModal,
       previewCount,
       isModal,
-      usageType
+      usageType,
+      filterContent
     } = this.props;
 
     const onPreviewCount = () => {
@@ -684,6 +686,22 @@ class SegmentFormAutomations extends React.Component<Props, State> {
       segments[0].conditions.length > 0 &&
       state === 'list'
     ) {
+      if (filterContent) {
+        return (
+          <>
+            <Button
+              id="segment-show-count"
+              onClick={onPreviewCount}
+              icon="refresh-1"
+            >
+              {__('Count')}
+            </Button>
+
+            {filterContent(this.generateDoc(values))}
+          </>
+        );
+      }
+
       if (usageType && usageType === 'export') {
         return (
           <>

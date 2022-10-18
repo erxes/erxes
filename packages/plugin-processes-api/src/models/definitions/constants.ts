@@ -26,9 +26,12 @@ export const DURATION_TYPES = {
 };
 
 export const JOB_TYPES = {
-  PRODUCT: 'product',
-  SERVICE: 'service',
-  ALL: ['product', 'service']
+  FACTURE: 'facture',
+  END: 'end',
+  INCOME: 'income',
+  MOVE: 'move',
+  OUTLET: 'outlet',
+  ALL: ['facture', 'end', 'income', 'move', 'outlet']
 };
 
 export const JOB_STATUSES = {

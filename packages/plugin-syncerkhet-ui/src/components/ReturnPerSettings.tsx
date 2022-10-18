@@ -145,7 +145,6 @@ class PerSettings extends React.Component<Props, State> {
         </FormGroup>
 
         {this.renderInput('userEmail', 'userEmail', '')}
-        {this.renderCheckbox('isEbarimt', 'isEbarimt', '')}
 
         <ModalFooter>
           <Button

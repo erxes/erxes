@@ -30,6 +30,7 @@ type Props = {
   modalTrigger?: React.ReactNode;
   channelType?: string;
   totalCountQuery?: any;
+  forceCreateConversation?: boolean;
 };
 
 type FinalProps = {
@@ -60,6 +61,7 @@ const WidgetContainer = (props: FinalProps) => {
     doc.kind = MESSAGE_KINDS.MANUAL;
     doc.isLive = true;
     doc.fromUserId = currentUser._id;
+    doc.forceCreateConversation = props.forceCreateConversation;
 
     if (doc.method === METHODS.EMAIL && !doc.email.content) {
       return Alert.warning('Please fill in email content');

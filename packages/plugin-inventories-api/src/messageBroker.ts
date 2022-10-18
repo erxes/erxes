@@ -67,6 +67,17 @@ export const sendProductsMessage = async (
   });
 };
 
+export const sendInventoriesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'inventories',
+    ...args
+  });
+};
+
 export default function() {
   return client;
 }

@@ -27,6 +27,7 @@ type Props = {
   className?: string;
   treeView?: boolean;
   isIndented?: boolean;
+  singleSelect?: boolean;
 
   // hooks
   onClick?: (items: any[], id: string) => void;
@@ -78,6 +79,18 @@ class FilterableList extends React.Component<Props, State> {
 
     items[items.indexOf(item)].selectedBy =
       item.selectedBy === 'all' ? 'none' : 'all';
+
+    if (this.props.singleSelect) {
+      items.map(i => {
+        if (i._id === id) {
+          i.selectedBy === 'all' ? 'none' : 'all';
+        } else {
+          i.selectedBy = 'none';
+        }
+
+        return i;
+      });
+    }
 
     this.setState({ items });
 

@@ -17,16 +17,12 @@ export const types = `
 
   input JobInput {
     id: String,
+    type: String,
     nextJobIds: [String],
-    jobReferId: String,
     style: JSON,
     label: String,
     description: String,
-    quantity: Int,
-    inBranchId: String,
-    inDepartmentId: String,
-    outBranchId: String,
-    outDepartmentId: String
+    config: JSON
   }
 `;
 

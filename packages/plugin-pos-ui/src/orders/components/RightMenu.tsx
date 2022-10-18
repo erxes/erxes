@@ -20,10 +20,10 @@ import Datetime from '@nateradebaugh/react-datetime';
 import { IQueryParams } from '@erxes/ui/src/types';
 import RTG from 'react-transition-group';
 import React from 'react';
-import { __ } from 'coreui/utils';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import dayjs from 'dayjs';
-import { isEnabled } from '@erxes/ui/src/utils/core';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
+import SelectPos from './SelectPos';
 
 const SelectCustomers = asyncComponent(
   () =>
@@ -150,7 +150,7 @@ export default class RightMenu extends React.Component<Props, State> {
               inputProps={{ placeholder: __('Click to select a date') }}
               dateFormat="YYYY-MM-DD"
               timeFormat="HH:mm"
-              value={filterParams[lblStart] || null}
+              value={filterParams[lblStart]}
               closeOnSelect={true}
               utc={true}
               input={true}
@@ -208,6 +208,15 @@ export default class RightMenu extends React.Component<Props, State> {
           label="Choose users"
           name="userId"
           initialValue={filterParams.userId}
+          onSelect={this.onSelect}
+          customOption={{ value: '', label: '...Clear user filter' }}
+          multi={false}
+        />
+
+        <SelectPos
+          label="Choose pos"
+          name="posId"
+          initialValue={filterParams.posId}
           onSelect={this.onSelect}
           customOption={{ value: '', label: '...Clear user filter' }}
           multi={false}

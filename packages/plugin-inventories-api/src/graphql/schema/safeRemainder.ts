@@ -1,20 +1,4 @@
 export const types = `
-  extend type Branch @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type Department @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type User @key(fields: "_id") {
-    _id: String! @external
-  }
-
-  extend type Product @key(fields: "_id") {
-    _id: String! @external
-  }
-
   type SafeRemainder @key(fields: "_id") {
     _id: String!
     branch: Branch
@@ -39,12 +23,21 @@ export const types = `
     remainders: [SafeRemainder],
     totalCount: Float,
   }
+
+  input SafeRemainderSubmitProduct {
+    transactionId: String
+    productId: String
+    preCount: Float
+    count: Float
+    uomId: String
+    isDebit: Boolean
+  }
 `;
 
 export const queries = `
   safeRemainders(
+    branchId: String,
     departmentId: String,
-    branchId: String
     productId: String,
     searchValue: String,
     beginDate: Date,
@@ -66,4 +59,12 @@ export const mutations = `
     productCategoryId: String
   ): SafeRemainder
   safeRemainderRemove(_id: String!): JSON
+  safeRemainderSubmit(
+    branchId: String,
+    departmentId: String,
+    status: String,
+    contentType: String,
+    contentId: String,
+    products: [SafeRemainderSubmitProduct]
+  ): JSON
 `;

@@ -15,6 +15,10 @@ cube(`Tasks`, {
     Conformities: {
       sql: `${CUBE}._id = ${Conformities}.relTypeId or ${CUBE}._id = ${Conformities}.mainTypeId `,
       relationship: `belongsTo`
+    },
+    TasksCustomfieldsdata: {
+      sql: `${CUBE}._id = ${TasksCustomfieldsdata}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -95,6 +99,18 @@ cube(`Tasks`, {
       sql: `${Stages.pipelineName}`,
       type: `string`,
       title: `Pipeline name`
+    },
+
+    taskCustomField: {
+      sql: `${TasksCustomfieldsdata.customfieldsdataField}`,
+      type: `string`,
+      title: 'Fields Name'
+    },
+
+    taskCustomFieldValue: {
+      sql: `${TasksCustomfieldsdata.customfieldsdataStringvalue}`,
+      type: `string`,
+      title: 'Field Value'
     },
 
     stageid: {

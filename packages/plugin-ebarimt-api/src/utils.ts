@@ -178,8 +178,13 @@ export const getPostData = async (subdomain, config, deal) => {
   const cashAmount = (deal.paymentsData || {}).cashAmount || 0;
   const nonCashAmount = sumSaleAmount - cashAmount;
 
+  const date = new Date();
   const orderInfo = {
-    date: new Date(),
+    number: deal.number,
+    date:
+      date.toISOString().split('T')[0] +
+      ' ' +
+      date.toTimeString().split(' ')[0],
     orderId: deal._id,
     hasVat: config.hasVat || false,
     hasCitytax: config.hasCitytax || false,

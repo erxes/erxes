@@ -45,6 +45,7 @@ export const loadOrderClass = models => {
       return (
         (order.cardAmount || 0) +
         (order.cashAmount || 0) +
+        (order.receivableAmount || 0) +
         (order.mobileAmount || 0)
       );
     }

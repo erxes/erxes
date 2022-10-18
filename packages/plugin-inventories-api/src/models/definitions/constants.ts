@@ -7,6 +7,5 @@ export const SAFE_REMAINDER_STATUSES = {
 export const SAFE_REMAINDER_ITEM_STATUSES = {
   NEW: 'new',
   CHECKED: 'checked',
-  DONE: 'done',
-  ALL: ['new', 'checked', 'done']
+  ALL: ['new', 'checked']
 };

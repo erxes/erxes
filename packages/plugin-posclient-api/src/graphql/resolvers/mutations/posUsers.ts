@@ -44,26 +44,21 @@ const posUserMutations = {
   /*
    * Login
    */
-  async posLogin(
-    _root,
-    args: IPosLogin,
-    { res, requestInfo, models, config }: IContext
-  ) {
+  async posLogin(_root, args: IPosLogin, { res, models, config }: IContext) {
     const response = await models.PosUsers.posLogin(args, config);
 
     const { token } = response;
-    const { secure } = requestInfo;
-
-    res.cookie('pos-auth-token', token, authCookieOptions(secure));
+    res.cookie(
+      'pos-auth-token',
+      token,
+      authCookieOptions({ sameSite: 'none' })
+    );
 
     return 'loggedIn';
   },
 
-  async posLogout(_root, _args, { res, requestInfo }: IContext) {
-    res.cookie('pos-auth-token', '1', {
-      maxAge: 0,
-      secure: requestInfo.secure
-    });
+  async posLogout(_root, _args, { res }: IContext) {
+    res.clearCookie('pos-auth-token', authCookieOptions({ sameSite: 'none' }));
 
     return 'loggedout';
   }

@@ -34,6 +34,7 @@ const reportQueries = {
           $project: {
             cardAmount: '$cardAmount',
             cashAmount: '$cashAmount',
+            receivableAmount: '$receivableAmount',
             mobileAmount: '$mobileAmount',
             totalAmount: '$totalAmount'
           }
@@ -43,6 +44,7 @@ const reportQueries = {
             _id: '',
             cardAmount: { $sum: '$cardAmount' },
             cashAmount: { $sum: '$cashAmount' },
+            receivableAmount: { $sum: '$receivableAmount' },
             mobileAmount: { $sum: '$mobileAmount' },
             totalAmount: { $sum: '$totalAmount' }
           }
@@ -97,7 +99,11 @@ const reportQueries = {
       const items = {};
       for (const groupedItem of groupedItems) {
         const product = productById[groupedItem._id];
-        const category = categoryById[product.categoryId];
+        const category = categoryById[product.categoryId] || {
+          _id: 'undefined',
+          code: 'Unknown',
+          name: 'Unknown'
+        };
 
         if (!Object.keys(items).includes(category._id)) {
           items[category._id] = {

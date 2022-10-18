@@ -37,7 +37,7 @@ class PutResponseRow extends React.Component<Props> {
     });
   };
 
-  modalContent = props => {
+  modalContent = _props => {
     const { order } = this.props;
 
     return <Detail order={order} />;
@@ -57,6 +57,9 @@ class PutResponseRow extends React.Component<Props> {
           {dayjs(order.paidDate || order.createdAt).format('lll')}
         </td>
         <td key={'cashAmount'}>{this.displayValue(order, 'cashAmount')}</td>
+        <td key={'receivableAmount'}>
+          {this.displayValue(order, 'receivableAmount')}
+        </td>
         <td key={'cardAmount'}>{this.displayValue(order, 'cardAmount')}</td>
         <td key={'mobileAmount'}>{this.displayValue(order, 'mobileAmount')}</td>
         <td key={'totalAmount'}>{this.displayValue(order, 'totalAmount')}</td>
@@ -67,7 +70,10 @@ class PutResponseRow extends React.Component<Props> {
               order.customer.firstName
             : ''}
         </td>
-        <td key={'pos'}>{order.posName || ''}</td>
+        <td key={'pos'}>
+          {order.posName || ''}
+          {order.origin === 'kiosk' ? '*' : ''}
+        </td>
         <td key={'user'}>{order.user ? order.user.email : ''}</td>
         <td key={'actions'} onClick={onClick}>
           <Button

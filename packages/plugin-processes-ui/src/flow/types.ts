@@ -3,19 +3,31 @@ import {
   IProduct,
   IProductCategory as IProductCategoryC
 } from '@erxes/ui-products/src/types';
+
 export type IProductCategory = IProductCategoryC & {};
-export interface IJob {
-  id: string;
-  nextJobIds?: string[];
+
+interface IConfig {
   jobReferId?: string;
-  style?: object;
-  label?: string;
-  description?: string;
+  productId?: string;
+  flowId?: string;
+
   quantity?: number;
+
   inBranchId?: string;
   inDepartmentId?: string;
   outBranchId?: string;
   outDepartmentId?: string;
+}
+
+export interface IJob {
+  id: string;
+  type: string;
+  config: IConfig;
+  nextJobIds?: string[];
+  style?: any;
+  label?: string;
+  description?: string;
+  icon?: string;
 }
 
 export interface IJobDocument extends IJob {

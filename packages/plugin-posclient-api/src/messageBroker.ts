@@ -10,6 +10,7 @@ import {
   receiveProductCategory,
   receiveUser
 } from './graphql/utils/syncUtils';
+import { sendRPCMessage } from '@erxes/api-utils/src/messageBroker';
 
 let client;
 
@@ -122,6 +123,7 @@ export const initBroker = async cl => {
 
       await graphqlPubsub.publish('ordersOrdered', {
         ordersOrdered: {
+          ...(await models.Orders.findOne({ _id: order._id }).lean()),
           _id: order._id,
           status: order.status,
           customerId: order.customerId
@@ -164,7 +166,28 @@ const sendMessageWrapper = async (
 ): Promise<any> => {
   const { SKIP_REDIS } = process.env;
   if (SKIP_REDIS) {
-    const { action } = args;
+    const { action, isRPC } = args;
+
+    // check connected gateway on server and check some plugins isAvailable
+    if (isRPC) {
+      const longTask = async () =>
+        await sendRPCMessage('gateway:isServiceAvailable', serviceName);
+
+      const timeout = (cb, interval) => () =>
+        new Promise(resolve => setTimeout(() => cb(resolve), interval));
+
+      const onTimeout = timeout(resolve => resolve(false), 1000);
+
+      let response = false;
+      await Promise.race([longTask, onTimeout].map(f => f())).then(
+        result => (response = result as boolean)
+      );
+
+      if (!response) {
+        return args.defaultValue;
+      }
+    }
+
     return sendMessage({
       client,
       serviceDiscovery,
@@ -188,6 +211,12 @@ export const sendPosMessage = async (args: ISendMessageArgs): Promise<any> => {
 
 export const sendCoreMessage = async (args: ISendMessageArgs): Promise<any> => {
   return sendMessageWrapper('core', args);
+};
+
+export const sendInventoriesMessage = async (
+  args: ISendMessageArgs
+): Promise<any> => {
+  return sendMessageWrapper('inventories', args);
 };
 
 export const sendContactsMessage = async (

@@ -1,7 +1,7 @@
 const externalId = '_id: String! @external';
 const keyFields = '@key(fields: "_id")';
 
-export const types = async (serviceDiscovery) => {
+export const types = async serviceDiscovery => {
   const enabledTags = await serviceDiscovery.isEnabled('tags');
   const enabledContacts = await serviceDiscovery.isEnabled('contacts');
   const enabledSegments = await serviceDiscovery.isEnabled('segments');
@@ -101,13 +101,14 @@ export const types = async (serviceDiscovery) => {
     }
 
     type DeliveryReport ${keyFields} {
-      _id: String!,
-      customerId: String,
-      mailId: String,
-      status: String,
-      engage: EngageMessage,
-      createdAt: Date,
+      _id: String!
+      customerId: String
+      mailId: String
+      status: String
+      engage: EngageMessage
+      createdAt: Date
       customerName: String
+      email: String
     }
 
     type EngageDeliveryReport {
@@ -224,7 +225,7 @@ export const queries = `
   engageMessageCounts(name: String!, kind: String, status: String): JSON
   engagesConfigDetail: JSON
   engageVerifiedEmails: [String]
-  engageReportsList(page: Int, perPage: Int, customerId: String, status: String): EngageDeliveryReport
+  engageReportsList(page: Int, perPage: Int, customerId: String, status: String, searchValue: String): EngageDeliveryReport
   engageEmailPercentages: AvgEmailStats
   engageSmsDeliveries(type: String!, to: String, page: Int, perPage: Int): DeliveryList
 `;
@@ -247,6 +248,7 @@ const commonParams = `
   scheduleDate: EngageScheduleDateInput,
   messenger: EngageMessageMessenger,
   shortMessage: EngageMessageSmsInput
+  forceCreateConversation: Boolean
 `;
 
 export const mutations = `
@@ -261,4 +263,15 @@ export const mutations = `
   engageMessageRemoveVerifiedEmail(email: String!): String
   engageMessageSendTestEmail(from: String!, to: String!, content: String!, title: String!): String
   engageMessageCopy(_id: String!): EngageMessage
+
+  engageSendMail(
+    subject: String!
+    body: String
+    to: [String]!
+    cc: [String]
+    bcc: [String]
+    from: String!
+    attachments: [JSON]
+    customerId: String
+  ): JSON
 `;

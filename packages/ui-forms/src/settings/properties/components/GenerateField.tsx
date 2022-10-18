@@ -20,8 +20,9 @@ import Select from 'react-select-plus';
 import SelectCustomers from '@erxes/ui-contacts/src/customers/containers/SelectCustomers';
 import SelectProductCategory from '../containers/SelectProductCategory';
 import Uploader from '@erxes/ui/src/components/Uploader';
-import { __ } from '@erxes/ui/src/utils/core';
+import { isEnabled, __ } from '@erxes/ui/src/utils/core';
 import ErrorBoundary from '@erxes/ui/src/components/ErrorBoundary';
+import SelectProducts from '@erxes/ui-products/src/containers/SelectProducts';
 
 type Props = {
   field: IField;
@@ -274,6 +275,27 @@ export default class GenerateField extends React.Component<Props, State> {
     );
   }
 
+  renderProduct({ id, value }) {
+    const onSelect = e => {
+      const { onValueChange } = this.props;
+
+      if (onValueChange) {
+        this.setState({ value: e });
+
+        onValueChange({ _id: id, value: e });
+      }
+    };
+
+    return (
+      <SelectProducts
+        label="Filter by products"
+        name="productIds"
+        multi={false}
+        initialValue={value}
+        onSelect={onSelect}
+      />
+    );
+  }
   renderHtml() {
     const { content } = this.props.field;
     return (
@@ -559,6 +581,13 @@ export default class GenerateField extends React.Component<Props, State> {
         return this.renderCustomer(attrs);
       }
 
+      case 'product': {
+        if (!isEnabled('product')) {
+          return <p>Products service is not enabled</p>;
+        }
+        return this.renderProduct(attrs);
+      }
+
       case 'list': {
         return this.renderList(attrs);
       }
@@ -572,6 +601,9 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'selectProductCategory': {
+        if (!isEnabled('products')) {
+          return <p>Products service is not enabled</p>;
+        }
         return this.renderSelectCategory(attrs);
       }
 

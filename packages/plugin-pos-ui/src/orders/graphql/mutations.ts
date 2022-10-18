@@ -17,8 +17,8 @@ const posOrderReturnBill = `
 `;
 
 const posOrderChangePayments = `
-  mutation posOrderChangePayments($_id: String!, $cashAmount: Float, $cardAmount: Float, $mobileAmount: Float) {
-    posOrderChangePayments(_id: $_id, cashAmount: $cashAmount, cardAmount: $cardAmount, mobileAmount: $mobileAmount){
+  mutation posOrderChangePayments($_id: String!, $cashAmount: Float, $receivableAmount: Float, $cardAmount: Float, $mobileAmount: Float) {
+    posOrderChangePayments(_id: $_id, cashAmount: $cashAmount, receivableAmount: $receivableAmount, cardAmount: $cardAmount, mobileAmount: $mobileAmount){
       ${orderFields}
     }
   }

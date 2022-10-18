@@ -80,6 +80,7 @@ class CustomerDetails extends React.Component<Props> {
             customers={[this.props.customer]}
             modalTrigger={triggerMessenger}
             channelType="messenger"
+            forceCreateConversation={true}
           />
           {this.renderEmailTab()}
         </>

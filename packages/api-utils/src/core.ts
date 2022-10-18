@@ -81,7 +81,9 @@ export const regexSearchText = (
   const words = searchValue.split(' ');
 
   for (const word of words) {
-    result.push({ [searchKey]: new RegExp(`${stringToRegex(word)}`, 'mui') });
+    result.push({
+      [searchKey]: { $regex: `${stringToRegex(word)}`, $options: 'mui' }
+    });
   }
 
   return { $and: result };

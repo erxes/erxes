@@ -1,9 +1,4 @@
 import {
-  INTEGRATION_NAMES_MAP,
-  KIND_CHOICES
-} from '../../models/definitions/constants';
-
-import {
   checkPermission,
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
@@ -15,6 +10,7 @@ import {
 } from '../../messageBroker';
 import { paginate } from '@erxes/api-utils/src';
 import { IContext } from '../../connectionResolver';
+import { getIntegrationsKinds } from '../../utils';
 /**
  * Common helper for integrations & integrationsTotalCount
  */
@@ -27,20 +23,6 @@ const generateFilterQuery = async (
 
   if (kind) {
     query.kind = kind;
-  }
-
-  if (kind === 'mail') {
-    query.kind = {
-      $in: [
-        'gmail',
-        'nylas-gmail',
-        'nylas-imap',
-        'nylas-office365',
-        'nylas-outlook',
-        'nylas-yahoo',
-        'nylas-exchange'
-      ]
-    };
   }
 
   // filter integrations by channel
@@ -176,14 +158,15 @@ const integrationQueries = {
    */
   async integrationsGetUsedTypes(_root, {}, { models }: IContext) {
     const usedTypes: Array<{ _id: string; name: string }> = [];
+    const kindMap = await getIntegrationsKinds();
 
-    for (const kind of KIND_CHOICES.ALL) {
+    for (const kind of Object.keys(kindMap)) {
       if (
         (await models.Integrations.findIntegrations({
           kind
         }).countDocuments()) > 0
       ) {
-        usedTypes.push({ _id: kind, name: INTEGRATION_NAMES_MAP[kind] });
+        usedTypes.push({ _id: kind, name: kindMap[kind] });
       }
     }
 
@@ -252,8 +235,9 @@ const integrationQueries = {
     }
 
     // Counting integrations by kind
+    const kindMap = await getIntegrationsKinds();
 
-    for (const kind of KIND_CHOICES.ALL) {
+    for (const kind of Object.keys(kindMap)) {
       const countQueryResult = await count({ kind, ...qry });
       counts.byKind[kind] = !args.kind
         ? countQueryResult

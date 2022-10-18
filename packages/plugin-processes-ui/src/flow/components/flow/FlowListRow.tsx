@@ -30,22 +30,6 @@ class Row extends React.Component<Props> {
       return <Label lblStyle={style}>{text}</Label>;
     };
 
-    // const renderProducts = products => {
-    //   if (products.length) {
-    //     return products.map(e => (
-    //       <>
-    //         <FormGroup>
-    //           <TextInfo>
-    //             {e.product.name + ' - ' + e.quantity + ' /Qty/'}
-    //           </TextInfo>
-    //         </FormGroup>
-    //       </>
-    //     ));
-    //   } else {
-    //     return '';
-    //   }
-    // };
-
     const onTrClick = () => {
       history.push(`/processes/flows/details/${flow._id}`);
     };

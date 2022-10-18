@@ -16,20 +16,21 @@ export const getConfig = async (subdomain, code, defaultValue?) => {
   });
 };
 
-export const getPureDate = (date: Date) => {
+export const getPureDate = (date: Date, multiplier = 1) => {
   const ndate = new Date(date);
-  const diffTimeZone = Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
+  const diffTimeZone =
+    multiplier * Number(process.env.TIMEZONE || 0) * 1000 * 60 * 60;
   return new Date(ndate.getTime() - diffTimeZone);
 };
 
 export const getFullDate = (date: Date) => {
-  const ndate = getPureDate(date);
+  const ndate = getPureDate(date, -1);
   const year = ndate.getFullYear();
   const month = ndate.getMonth();
   const day = ndate.getDate();
 
   const today = new Date(year, month, day);
-  today.setHours(0, 0, 0, 0);
+
   return today;
 };
 
@@ -108,7 +109,7 @@ export const getBranchesUtil = async (
 };
 
 export const confirmLoyalties = async (subdomain: string, order: IPosOrder) => {
-  const confirmItems = order.items.filter(i => i.bonusCount) || [];
+  const confirmItems = (order.items || []).filter(i => i.bonusCount) || [];
 
   if (!confirmItems.length) {
     return;

@@ -24,6 +24,7 @@ import {
   COMPANY_INFO,
   CUSTOMER_BASIC_INFO,
   DEVICE_PROPERTIES_INFO,
+  EMAIL_VALIDATION_STATUSES,
   MODULE_NAMES
 } from './constants';
 import { companySchema } from './models/definitions/companies';
@@ -478,6 +479,18 @@ export const prepareEngageCustomers = async (
     emailContent
   );
 
+  const exists = { $exists: true, $nin: [null, '', undefined] };
+
+  // make sure email & phone are valid
+  if (engageMessage.method === 'email') {
+    customersSelector.primaryEmail = exists;
+    customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
+  }
+  if (engageMessage.method === 'sms') {
+    customersSelector.primaryPhone = exists;
+    customersSelector.phoneValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
+  }
+
   const onFinishPiping = async () => {
     await sendEngagesMessage({
       subdomain,
@@ -487,13 +500,10 @@ export const prepareEngageCustomers = async (
 
     if (customerInfos.length > 0) {
       const data: any = {
+        ...engageMessage,
         customers: [],
         fromEmail: user.email,
-        engageMessageId: engageMessage._id,
-        shortMessage: engageMessage.shortMessage || {},
-        createdBy: engageMessage.createdBy,
-        title: engageMessage.title,
-        kind: engageMessage.kind
+        engageMessageId: engageMessage._id
       };
 
       if (engageMessage.method === 'email' && engageMessage.email) {

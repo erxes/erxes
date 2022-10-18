@@ -7,7 +7,7 @@ import {
   copyParams
 } from './common';
 
-export const types = ({ contacts }) => `
+export const types = ({ contacts, tags }) => `
   type TicketListItem {
     ${commonListTypes}
   }
@@ -24,6 +24,8 @@ export const types = ({ contacts }) => `
         : ''
     }
 
+    ${tags ? `tags: [Tag]` : ''}
+
     ${commonTypes}
   }
 `;
@@ -31,6 +33,7 @@ export const types = ({ contacts }) => `
 const listQueryParams = `
   _ids: [String]
   pipelineId: String
+  pipelineIds: [String]
   stageId: String
   customerIds: [String]
   companyIds: [String]

@@ -56,44 +56,11 @@ class IntegrationIcon extends React.PureComponent<Props> {
       case 'facebook-post':
         icon = 'facebook';
         break;
-      case 'twitter-dm':
-        icon = 'twitter';
-        break;
       case 'messenger':
         icon = 'comment';
         break;
-      case 'nylas-gmail':
-      case 'gmail':
-        icon = 'gmail';
-        break;
-      case 'nylas-imap':
-      case 'nylas-exchange':
-      case 'nylas-office365':
-      case 'nylas-outlook':
-      case 'nylas-yahoo':
-        icon = 'mail-alt';
-        break;
       case 'callpro':
         icon = 'phone-volume';
-        break;
-      case 'chatfuel':
-        icon = 'comment-dots';
-        break;
-      case 'smooch-line':
-        icon = 'line';
-        break;
-      case 'smooch-telegram':
-        icon = 'telegram-alt';
-        break;
-      case 'smooch-viber':
-        icon = 'viber';
-        break;
-      case 'smooch-twilio':
-        icon = 'twilio';
-        break;
-
-      case 'whatsapp':
-        icon = 'whatsapp-fill';
         break;
       default:
         icon = 'doc-text-inv-1';

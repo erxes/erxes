@@ -35,6 +35,7 @@ import gql from 'graphql-tag';
 import React from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { Link, withRouter } from 'react-router-dom';
+import TemporarySegment from '@erxes/ui-segments/src/components/filter/TemporarySegment';
 
 import { ICustomer } from '../../types';
 import CustomerRow from './CustomerRow';
@@ -389,6 +390,10 @@ class CustomersList extends React.Component<IProps, State> {
         {renderExpandButton()}
 
         {dateFilter}
+
+        {isEnabled('segments') && (
+          <TemporarySegment contentType={`contacts:${type}`} />
+        )}
 
         <Dropdown className="dropdown-btn" alignRight={true}>
           <Dropdown.Toggle as={DropdownToggle} id="dropdown-customize">

@@ -5,7 +5,6 @@ import {
   ruleSchema
 } from '@erxes/api-utils/src/definitions/common';
 import {
-  KIND_CHOICES,
   LEAD_LOAD_TYPES,
   LEAD_SUCCESS_ACTIONS,
   MESSENGER_DATA_AVAILABILITY
@@ -476,7 +475,6 @@ export const integrationSchema = schemaHooksWrapper(
 
     kind: field({
       type: String,
-      enum: KIND_CHOICES.ALL,
       label: 'Kind'
     }),
 

@@ -229,7 +229,11 @@ const configMutations = {
       throw new Error('token not found');
     }
 
-    res.cookie('pos-config-token', token);
+    res.cookie(
+      'pos-config-token',
+      token,
+      authCookieOptions({ sameSite: 'none' })
+    );
 
     return 'chosen';
   }

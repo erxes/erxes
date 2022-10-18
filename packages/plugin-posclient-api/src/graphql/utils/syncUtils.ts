@@ -210,37 +210,39 @@ export const extractConfig = async (subdomain, doc) => {
 
   try {
     uiOptions.favIcon =
-      (uiOptions.favIcon || '').indexOf('http') === -1
+      uiOptions.favIcon && uiOptions.favIcon.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.favIcon}`
         : uiOptions.favIcon;
 
     uiOptions.logo =
-      (uiOptions.logo || '').indexOf('http') === -1
+      uiOptions.logo && uiOptions.logo.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.logo}`
         : uiOptions.logo;
 
     uiOptions.bgImage =
-      (uiOptions.bgImage || '').indexOf('http') === -1
+      uiOptions.bgImage && uiOptions.bgImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.bgImage}`
         : uiOptions.bgImage;
 
     uiOptions.receiptIcon =
-      (uiOptions.receiptIcon || '').indexOf('http') === -1
+      uiOptions.receiptIcon && uiOptions.receiptIcon.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.receiptIcon}`
         : uiOptions.receiptIcon;
 
     uiOptions.kioskHeaderImage =
-      (uiOptions.kioskHeaderImage || '').indexOf('http') === -1
+      uiOptions.kioskHeaderImage &&
+      uiOptions.kioskHeaderImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.kioskHeaderImage}`
         : uiOptions.kioskHeaderImage;
 
     uiOptions.mobileAppImage =
-      (uiOptions.mobileAppImage || '').indexOf('http') === -1
+      uiOptions.mobileAppImage &&
+      uiOptions.mobileAppImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.mobileAppImage}`
         : uiOptions.mobileAppImage;
 
     uiOptions.qrCodeImage =
-      (uiOptions.qrCodeImage || '').indexOf('http') === -1
+      uiOptions.qrCodeImage && uiOptions.qrCodeImage.indexOf('http') === -1
         ? `${FILE_PATH}?key=${uiOptions.qrCodeImage}`
         : uiOptions.qrCodeImage;
   } catch (e) {
@@ -257,6 +259,7 @@ export const extractConfig = async (subdomain, doc) => {
     maxSkipNumber: doc.maxSkipNumber,
     uiOptions,
     ebarimtConfig: doc.ebarimtConfig,
+    erkhetConfig: doc.erkhetConfig,
     kitchenScreen: doc.kitchenScreen,
     waitingScreen: doc.waitingScreen,
     catProdMappings: doc.catProdMappings,
@@ -265,9 +268,13 @@ export const extractConfig = async (subdomain, doc) => {
     kioskExcludeProductIds: doc.kioskExcludeProductIds,
     deliveryConfig: doc.deliveryConfig,
     posId: doc._id,
+    isOnline: doc.isOnline,
+    onServer: doc.onServer,
     branchId: doc.branchId,
     departmentId: doc.departmentId,
-    allowBranchIds: doc.allowBranchIds
+    allowBranchIds: doc.allowBranchIds,
+    checkRemainder: doc.checkRemainder,
+    permissionConfig: doc.permissionConfig
   };
 };
 
@@ -394,7 +401,7 @@ export const receivePosConfig = async (
   models: IModels,
   data
 ) => {
-  const { token, pos = {}, adminUsers = [], cashiers = [] } = data;
+  const { token, pos = {}, adminUsers = [], cashiers = [], qpayConfig } = data;
 
   let config: IConfigDocument | null = await models.Configs.findOne({
     token
@@ -416,6 +423,7 @@ export const receivePosConfig = async (
   await models.Configs.updateConfig(config._id, {
     ...config,
     ...(await extractConfig(subdomain, pos)),
+    qpayConfig,
     token
   });
 

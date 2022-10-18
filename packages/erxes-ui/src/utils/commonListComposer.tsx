@@ -25,7 +25,7 @@ function commonListComposer<ComponentProps>(options) {
     ListComponent,
     gqlConfigsQuery,
     confirmProps,
-    gqlGetActionsQuery,
+    gqlGetActionsQuery
   } = options;
 
   type Props = {
@@ -138,7 +138,7 @@ function commonListComposer<ComponentProps>(options) {
           variables={values}
           callback={afterMutate}
           isSubmitted={isSubmitted}
-          type='submit'
+          type="submit"
           confirmationUpdate={confirmationUpdate}
           successMessage={`You successfully ${successAction} a ${name}`}
         />
@@ -177,6 +177,8 @@ function commonListComposer<ComponentProps>(options) {
   if (gqlGetActionsQuery) {
     composeAttr.push(gqlGetActionsQuery);
   }
+
+  console.log(...composeAttr, gqlListQuery, gqlTotalCountQuery);
 
   return withProps<ComponentProps>(
     compose(...composeAttr, gqlListQuery, gqlTotalCountQuery)(ListContainer)

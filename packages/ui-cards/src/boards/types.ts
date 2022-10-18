@@ -64,6 +64,7 @@ export interface IPipeline {
   _id: string;
   name: string;
   boardId: string;
+  tagId?: string;
   visibility: string;
   status: string;
   createdAt: Date;
@@ -208,6 +209,7 @@ export interface IItem {
   number?: string;
   relations: any[];
   tags: ITag[];
+  tagIds: string[];
   customProperties?: any;
 }
 
@@ -330,6 +332,7 @@ export type CopyMutation = ({ variables: CopyVariables }) => Promise<any>;
 
 export type ItemsQueryResponse = {
   fetchMore: any;
+  subscribeToMore: any;
 } & QueryResponse;
 
 export type DetailQueryResponse = {
@@ -386,6 +389,7 @@ export interface IFilterParams extends ISavedConformity {
   startDate?: string;
   endDate?: string;
   pipelineId?: string;
+  tagIds?: string[];
 }
 
 export interface INonFilterParams {
@@ -453,4 +457,10 @@ export type TicketCommentAddMutationResponse = {
   ticketCommentAdd: (params: {
     variables: TicketCommentAddMutationVariables;
   }) => Promise<any>;
+};
+
+export type ITimeData = {
+  closeDate?: Date;
+  startDate?: Date;
+  tagId?: string[];
 };

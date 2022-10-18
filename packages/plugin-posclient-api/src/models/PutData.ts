@@ -8,6 +8,7 @@ const formatNumber = (num: number): string => {
 
 export interface IPutDataArgs {
   models: IModels;
+  number?: string;
   date?: string;
   orderId?: string;
   hasVat?: boolean;
@@ -145,7 +146,7 @@ export class PutData<IListArgs extends IPutDataArgs> {
     const url = this.config.ebarimtUrl || '';
     const rd = this.config.companyRD || '';
 
-    const { contentType, contentId } = this.params;
+    const { contentType, contentId, number } = this.params;
 
     if (!Object.keys(DISTRICTS).includes(this.config.districtCode)) {
       throw new Error(`Invalid district code: ${this.config.districtCode}`);
@@ -165,7 +166,8 @@ export class PutData<IListArgs extends IPutDataArgs> {
     const resObj = await this.models.PutResponses.createPutResponse({
       sendInfo: { ...this.transactionInfo },
       contentId,
-      contentType
+      contentType,
+      number
     });
 
     const responseStr = await sendRequest({

@@ -5,9 +5,8 @@ import {
   IUom as IUomC
 } from '@erxes/ui-products/src/types';
 
-import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
-
 import { QueryResponse } from '@erxes/ui/src/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 export type IProductDoc = IProductDocC & {};
 
@@ -39,8 +38,8 @@ export interface IJobRefer {
   type: string;
   status?: string;
   categoryId?: string;
-  duration: number;
-  durationType: string;
+  duration?: number;
+  durationType?: string;
   needProducts?: any[];
   resultProducts?: any[];
 }
@@ -52,8 +51,7 @@ export interface IProductsData {
   quantity: number;
   uomId: string;
   uom?: any;
-  branchId?: string;
-  departmentId?: string;
+  proportion?: number;
 }
 
 export interface IProductsDataDocument extends IProductsData {
@@ -75,6 +73,12 @@ export type JobRefersAllQueryResponse = {
 
 export type JobRefersQueryResponse = {
   jobRefers: IJobRefer[];
+  refetch: (variables?: {
+    searchValue?: string;
+    perPage?: number;
+    categoryId?: string;
+    types?: string[];
+  }) => void;
 } & QueryResponse;
 
 export type jobReferTotalCountQueryResponse = {

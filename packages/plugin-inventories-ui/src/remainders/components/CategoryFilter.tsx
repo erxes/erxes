@@ -1,6 +1,9 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { __, Box, Icon, router } from '@erxes/ui/src';
+// erxes
+import { __, router } from '@erxes/ui/src/utils/core';
+import Box from '@erxes/ui/src/components/Box';
+import Icon from '@erxes/ui/src/components/Icon';
 import { FieldStyle, SidebarList } from '@erxes/ui/src/layout/styles';
 
 type Props = {
@@ -8,7 +11,7 @@ type Props = {
   loading: boolean;
 };
 
-const CategoryFilter = (props: Props) => {
+export default function CategoryFilter(props: Props) {
   const { categories = [] } = props;
   const history = useHistory();
   const paramKey = 'categoryId';
@@ -21,15 +24,16 @@ const CategoryFilter = (props: Props) => {
     router.setParams(history, { [key]: value });
   };
 
-  const extraButtons = router.getParam(history, 'categoryId') && (
-    <a href="#cancel" tabIndex={0} onClick={handleClear}>
-      <Icon icon="cancel-1" />
-    </a>
-  );
+  const renderExtraButtons = () =>
+    router.getParam(history, 'categoryId') && (
+      <a href="#cancel" tabIndex={0} onClick={handleClear}>
+        <Icon icon="cancel-1" />
+      </a>
+    );
 
   return (
     <Box
-      extraButtons={extraButtons}
+      extraButtons={renderExtraButtons()}
       title={__('Filter by category')}
       name="showFilterByCategory"
       isOpen={true}
@@ -46,7 +50,7 @@ const CategoryFilter = (props: Props) => {
                     ? 'active'
                     : ''
                 }
-                onClick={handleOnClick.bind(this, paramKey, item._id)}
+                onClick={() => handleOnClick(paramKey, item._id)}
               >
                 <FieldStyle>{item.name}</FieldStyle>
               </a>
@@ -56,6 +60,4 @@ const CategoryFilter = (props: Props) => {
       </SidebarList>
     </Box>
   );
-};
-
-export default CategoryFilter;
+}

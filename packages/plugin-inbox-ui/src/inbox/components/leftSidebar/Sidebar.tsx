@@ -240,9 +240,9 @@ class LeftSidebar extends React.Component<Props, State> {
             </FilterToggler>
 
             <FilterToggler
-              groupText="Add-ons"
+              groupText="Integrations"
               toggleName="showIntegrations"
-              manageUrl="/settings/add-ons"
+              manageUrl="/settings/integrations"
             >
               <FilterList
                 query={{

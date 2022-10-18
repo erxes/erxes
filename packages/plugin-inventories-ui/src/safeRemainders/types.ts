@@ -64,7 +64,7 @@ export type SafeRemainderItemsCountQueryResponse = {
 } & QueryResponse;
 
 export type RemoveSafeRemainderMutationResponse = {
-  removeSafeRemainder: (params: { variables: { _id: string } }) => Promise<any>;
+  safeRemainderRemove: (params: { variables: { _id: string } }) => Promise<any>;
 };
 
 export type UpdateSafeRemainderItemsMutationVariables = {
@@ -74,13 +74,13 @@ export type UpdateSafeRemainderItemsMutationVariables = {
 };
 
 export type UpdateSafeRemainderItemMutationResponse = {
-  updateSafeRemainderItem: (params: {
+  safeRemainderItemEdit: (params: {
     variables: UpdateSafeRemainderItemsMutationVariables;
   }) => Promise<any>;
 };
 
 export type RemoveSafeRemainderItemMutationResponse = {
-  removeSafeRemainderItem: (params: {
+  safeRemainderItemRemove: (params: {
     variables: { _id: string };
   }) => Promise<any>;
 };

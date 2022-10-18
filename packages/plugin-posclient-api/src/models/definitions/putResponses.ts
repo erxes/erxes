@@ -5,6 +5,7 @@ import { field, schemaHooksWrapper } from './utils';
 export interface IPutResponse {
   contentType: string;
   contentId: string;
+  number?: string;
   success?: string;
   billId?: string;
   date?: string;
@@ -43,7 +44,7 @@ export const putResponseSchema = schemaHooksWrapper(
     _id: field({ pkey: true }),
     createdAt: getDateFieldDefinition('Created at'),
     modifiedAt: field({ type: Date, label: 'Modified at' }),
-
+    number: field({ type: String, label: 'Inner bill number' }),
     contentType: field({ type: String, label: 'Content Type' }),
     contentId: field({ type: String, label: 'Pos order id' }),
 

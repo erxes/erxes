@@ -33,7 +33,7 @@ const SelectChannelContainer = (props: ChildProps<FinalProps>) => {
   }
 
   const renderButton = ({
-    name,
+    passedName: name,
     values,
     isSubmitted,
     callback
