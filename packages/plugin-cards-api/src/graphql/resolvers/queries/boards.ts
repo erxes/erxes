@@ -30,6 +30,7 @@ export interface IConformityQueryParams {
 
 export interface IListParams extends IConformityQueryParams {
   pipelineId: string;
+  pipelineIds: string[];
   stageId: string;
   _ids?: string;
   skip?: number;
