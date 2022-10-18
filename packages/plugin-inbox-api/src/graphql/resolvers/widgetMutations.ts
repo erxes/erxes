@@ -3,7 +3,6 @@ import * as strip from 'strip';
 import {
   CONVERSATION_OPERATOR_STATUS,
   CONVERSATION_STATUSES,
-  KIND_CHOICES,
   MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
@@ -515,7 +514,7 @@ const widgetMutations = {
     // find integration
     const integration = await models.Integrations.findOne({
       brandId: brand._id,
-      kind: KIND_CHOICES.MESSENGER
+      kind: 'messenger'
     });
 
     if (!integration) {
@@ -949,7 +948,11 @@ const widgetMutations = {
             body: conversationContent,
             customerId,
             conversationId: conversation._id,
-            receivers: conversationNotifReceivers(conversation, customerId)
+            receivers: conversationNotifReceivers(conversation, customerId),
+            data: {
+              type: 'messenger',
+              id: conversation._id
+            }
           }
         });
       } catch (e) {

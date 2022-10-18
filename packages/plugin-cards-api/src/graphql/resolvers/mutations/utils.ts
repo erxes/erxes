@@ -343,7 +343,11 @@ export const itemsEdit = async (
         title: notificationDoc?.item?.name,
         body: `${user?.details?.fullName ||
           user?.details?.shortName} has updated`,
-        receivers: notificationDoc?.item?.assignedUserIds
+        receivers: notificationDoc?.item?.assignedUserIds,
+        data: {
+          type,
+          id: _id
+        }
       }
     });
   }
@@ -361,6 +365,14 @@ export const itemsEdit = async (
   );
 
   const oldStage = await models.Stages.getStage(oldItem.stageId);
+
+  if (doc.tagIds || doc.startDate || doc.closeDate || doc.name) {
+    graphqlPubsub.publish('pipelinesChanged', {
+      pipelinesChanged: {
+        _id: stage.pipelineId
+      }
+    });
+  }
 
   if (oldStage.pipelineId !== stage.pipelineId) {
     graphqlPubsub.publish('pipelinesChanged', {
@@ -556,7 +568,11 @@ export const itemsChange = async (
         title: `${item.name}`,
         body: `${user?.details?.fullName || user?.details?.shortName} ${action +
           content}`,
-        receivers: item?.assignedUserIds
+        receivers: item?.assignedUserIds,
+        data: {
+          type,
+          id: item._id
+        }
       }
     });
   }
@@ -641,7 +657,11 @@ export const itemsRemove = async (
         title: `${item.name}`,
         body: `${user?.details?.fullName ||
           user?.details?.shortName} deleted the ${type}`,
-        receivers: item?.assignedUserIds
+        receivers: item?.assignedUserIds,
+        data: {
+          type,
+          id: item._id
+        }
       }
     });
   }

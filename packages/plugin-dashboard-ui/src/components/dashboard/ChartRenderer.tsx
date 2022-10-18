@@ -271,7 +271,7 @@ const renderChart = Component => ({ resultSet, dateType, error, height }) => {
 
 const ChartRenderer = (props: Props) => {
   const { query, chartType, chartHeight, filters, validatedQuery } = props;
-  const component = TypeToMemoChartComponent[chartType];
+  const component = TypeToMemoChartComponent[chartType || 'table'];
   let finalQuery = query;
 
   if (filters && filters.length > 0) {

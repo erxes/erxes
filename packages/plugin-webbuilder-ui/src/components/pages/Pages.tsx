@@ -91,6 +91,8 @@ class Pages extends React.Component<Props, State> {
               <th>{__('Name')}</th>
               <th>{__('Description')}</th>
               <th>{__('Site')}</th>
+              <th>{__('Created By')}</th>
+              <th>{__('Last updated By')}</th>
               <th>{__('Actions')}</th>
             </tr>
           </thead>
@@ -103,7 +105,7 @@ class Pages extends React.Component<Props, State> {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
-          text="No Entries"
+          text="No Pages"
           size="small"
         />
       );

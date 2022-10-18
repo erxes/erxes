@@ -1,7 +1,7 @@
 import { paginate } from '@erxes/api-utils/src';
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
-import { getInitialData } from './utils';
+import { readHelpersData } from './utils';
 
 const generateCommonFilter = ({
   searchValue,
@@ -10,7 +10,7 @@ const generateCommonFilter = ({
   searchValue?: string;
   siteId?: string;
 }) => {
-  let filter: any = {};
+  const filter: any = {};
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
@@ -54,7 +54,7 @@ const webbuilderQueries = {
     { siteId }: { siteId: string },
     { models }: IContext
   ) {
-    let filter: any = {};
+    const filter: any = {};
 
     if (siteId) {
       filter.siteId = siteId;
@@ -114,7 +114,7 @@ const webbuilderQueries = {
   },
 
   async webbuilderTemplates(_root, _args) {
-    return getInitialData('templates');
+    return readHelpersData('templates');
   },
 
   webbuilderTemplatesTotalCount(_root, _args, { models }: IContext) {

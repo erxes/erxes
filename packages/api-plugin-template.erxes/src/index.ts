@@ -27,6 +27,7 @@ import { connect } from './connection';
 import { debugInfo, debugError } from './debuggers';
 import { init as initBroker } from '@erxes/api-utils/src/messageBroker';
 import { logConsumers } from '@erxes/api-utils/src/logUtils';
+import { getSubdomain } from '@erxes/api-utils/src/core';
 import { internalNoteConsumers } from '@erxes/api-utils/src/internalNotes';
 import pubsub from './pubsub';
 import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
@@ -473,6 +474,11 @@ async function startServer() {
             status: 'success',
             data: await initialSetup.generate(args)
           }));
+
+          app.post('/initial-setup', async (req, res) => {
+            await initialSetup.generate({ subdomain: getSubdomain(req) });
+            return res.end('ok');
+          });
         }
       }
 
@@ -494,6 +500,16 @@ async function startServer() {
             data: await cronjobs.handleMinutelyJob(args)
           }));
         }
+
+        if (cronjobs.handle10MinutelyJob) {
+          cronjobs.handle10MinutelyJobAvailable = true;
+
+          consumeQueue(`${configs.name}:handle10MinutelyJob`, async args => ({
+            status: 'success',
+            data: await cronjobs.handle10MinutelyJob(args)
+          }));
+        }
+
         if (cronjobs.handleHourlyJob) {
           cronjobs.handleHourlyJobAvailable = true;
 
@@ -502,6 +518,7 @@ async function startServer() {
             data: await cronjobs.handleHourlyJob(args)
           }));
         }
+
         if (cronjobs.handleDailyJob) {
           cronjobs.handleDailyJobAvailable = true;
 

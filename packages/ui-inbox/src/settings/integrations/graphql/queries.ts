@@ -174,21 +174,9 @@ const integrationsGetIntegrations = `
   }
 `;
 
-const integrationsGetNylasEvents = `
-  query integrationsGetNylasEvents($calendarIds: [String] $startTime: Date $endTime: Date) {
-    integrationsGetNylasEvents(calendarIds: $calendarIds startTime: $startTime endTime: $endTime)
-  }
-`;
-
 const integrationsGetTwitterAccount = `
   query integrationsGetTwitterAccount($accountId: String!) {
     integrationsGetTwitterAccount(accountId: $accountId)
-  }
-`;
-
-const integrationsGetGmailEmail = `
-  query integrationsGetGmailEmail($accountId: String!) {
-    integrationsGetGmailEmail(accountId: $accountId)
   }
 `;
 
@@ -201,24 +189,6 @@ const integrationsGetFbPages = `
 const integrationsVideoCallUsageStatus = `
   query integrationsVideoCallUsageStatus {
     integrationsVideoCallUsageStatus
-  }
-`;
-
-const integrationsNylasGetCalendars = `
-  query integrationsNylasGetCalendars($accountId: String!, $show: Boolean) {
-    integrationsNylasGetCalendars(accountId: $accountId, show: $show)
-  }
-`;
-
-const integrationsNylasGetSchedulePage = `
-  query integrationsNylasGetSchedulePage($pageId: String!) {
-    integrationsNylasGetSchedulePage(pageId: $pageId)
-  }
-`;
-
-const integrationsNylasGetSchedulePages = `
-  query integrationsNylasGetSchedulePages($accountId: String!) {
-    integrationsNylasGetSchedulePages(accountId: $accountId)
   }
 `;
 
@@ -238,6 +208,15 @@ const templateTotalCount = `
   }
 `;
 
+const imapIntegrations = `
+  query imapGetIntegrations {
+    imapGetIntegrations {
+      user
+      host
+    }
+  }
+`;
+
 export default {
   users,
   brands,
@@ -252,12 +231,8 @@ export default {
   templateTotalCount,
   integrationsGetAccounts,
   integrationsGetIntegrations,
-  integrationsGetNylasEvents,
   integrationsGetTwitterAccount,
-  integrationsGetGmailEmail,
   integrationsGetFbPages,
   integrationsVideoCallUsageStatus,
-  integrationsNylasGetCalendars,
-  integrationsNylasGetSchedulePage,
-  integrationsNylasGetSchedulePages
+  imapIntegrations
 };

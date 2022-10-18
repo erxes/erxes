@@ -241,7 +241,7 @@ class PageForm extends React.Component<Props, State> {
       this.state.description,
       this.state.siteId,
       e.getHtml(),
-      e.getCss()
+      e.getCss({ keepUnusedStyles: true })
     );
   };
 

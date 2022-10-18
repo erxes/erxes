@@ -14,6 +14,8 @@ export let serviceDiscovery;
 export default {
   name: 'automations',
   permissions,
+  // for fixing permissions
+  meta: { permissions },
   graphql: async sd => {
     serviceDiscovery = sd;
 

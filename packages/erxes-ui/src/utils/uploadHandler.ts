@@ -117,7 +117,7 @@ const uploadHandler = async (params: Params) => {
       duration: 0
     } as any;
 
-    if (file.type.includes('audio' || 'mp4')) {
+    if (file.type.includes('audio') || file.type.includes('video')) {
       const duration = await getVideoDuration(file);
 
       fileInfo = { ...fileInfo, duration };

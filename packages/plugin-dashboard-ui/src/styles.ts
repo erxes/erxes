@@ -237,6 +237,7 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
       ${colors.colorWhite} 20%
     );
     ${props => (props.haveChart ? '' : 'height: 100% !important')};
+    min-height: 100%;
     
     background-size: 10px 10px
     .react-grid-layout {
@@ -252,8 +253,6 @@ const DragField = styledTS<{ haveChart?: boolean }>(styled(ReactGridLayout))`
       height: 100%;
       border: 2px solid transparent;
       padding: 10px;
-      padding-top: 30px;
-      padding-right:20px;
       box-shadow: 0px 2px 4px rgba(141, 149, 166, 0.1);
       border-radius: 4px;
       &:hover {
@@ -422,7 +421,13 @@ const ChartTable = styled.div`
 const ChartTitle = styled.div`
   display: flex
   align-items:center;
-  padding: 0 0.25rem 1.25rem 1.25rem;
+  position: relative;
+  width: 100%;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+
+  padding: 0 1.25rem 1.25rem 1.25rem;
   div {
     font-weight: 700;
     font-size: 1rem;

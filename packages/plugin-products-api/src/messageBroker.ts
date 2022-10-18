@@ -155,6 +155,18 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue(
+    'products:categories.count',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.ProductCategories.find(query).countDocuments(),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'products:createProduct',
     async ({ subdomain, data: { doc } }) => {
       const models = await generateModels(subdomain);

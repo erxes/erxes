@@ -80,6 +80,7 @@ export default function ObjectList(props: Props) {
       {(objects || []).map((object, index) => (
         <div className="object-list-item" key={index}>
           <ObjectListItem
+            key={index}
             index={index}
             objectListConfigs={objectListConfigs}
             object={object}

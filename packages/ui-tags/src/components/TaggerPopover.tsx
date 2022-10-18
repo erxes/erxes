@@ -2,7 +2,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import React from 'react';
 import Tagger from '../containers/Tagger';
-import { __ } from 'coreui/utils';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   type: string;
@@ -11,16 +11,25 @@ type Props = {
   targets?: any[];
   container?: Element | Node | React.Component<any, {}, any>;
   refetchQueries?: any[];
+  parentTagId?: string;
+  singleSelect?: boolean;
 };
 
 function TaggerPopover(props: Props) {
-  const { trigger, container, refetchQueries, ...taggerProps } = props;
+  const {
+    trigger,
+    container,
+    refetchQueries,
+    parentTagId,
+    ...taggerProps
+  } = props;
 
   const popover = (
     <Popover id="tags-popover">
       <Popover.Title as="h3">{__('Choose your tags')}</Popover.Title>
       <Popover.Content>
         <Tagger
+          parentTagId={parentTagId}
           event="onExit"
           {...taggerProps}
           refetchQueries={refetchQueries}

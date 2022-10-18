@@ -1,27 +1,31 @@
-import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
-import Wrapper from './Wrapper';
-import RightSidebar from './RightSidebar';
+import {
+  AdditionalDesc,
+  AttachmentContainer,
+  Center,
+  ColorHeader,
+  Detail,
+  DetailInformation,
+  DetailMainContainer,
+  DetailStyle,
+  Hashtag,
+  PluginTitle
+} from '../../styles';
+import { Attachment, TabTitle, Tabs } from '@erxes/ui/src/components';
+
 import { Alert } from 'modules/common/utils';
-import { Tabs } from './tabs/index';
-import { TabTitle } from './tabs/index';
 import { Flex } from '@erxes/ui/src/styles/main';
 import { ListHeader } from '../../styles';
-import {
-  DetailMainContainer,
-  PluginTitle,
-  Center,
-  DetailInformation,
-  Hashtag,
-  Detail,
-  ColorHeader
-} from '../../styles';
-import Carousel from './Carousel';
+import React from 'react';
+import RightSidebar from './RightSidebar';
+import Wrapper from './Wrapper';
+import { __ } from '@erxes/ui/src/utils';
 
 type Props = {
   id: string;
-  enabledServicesQuery;
-  manageInstall;
+  enabledServicesQuery: any;
+  manageInstall: any;
+  plugin: any;
+  plugins: any[];
 };
 
 type State = {
@@ -36,21 +40,9 @@ class PluginDetails extends React.Component<Props, State> {
 
     this.state = {
       tabType: 'Description',
-      plugin: {},
+      plugin: props.plugin || {},
       loading: {}
     };
-  }
-
-  async componentDidMount() {
-    await fetch(`https://erxes.io/pluginDetail/${this.props.id}`)
-      .then(async response => {
-        const plugin = await response.json();
-
-        this.setState({ plugin });
-      })
-      .catch(e => {
-        console.log(e);
-      });
   }
 
   renderContent = () => {
@@ -71,34 +63,72 @@ class PluginDetails extends React.Component<Props, State> {
           <Detail>
             <ListHeader>
               <ColorHeader>
-                <b>✨ FEATURES</b>
+                <b>✨ BENEFITS</b>
               </ColorHeader>
             </ListHeader>
-            <p dangerouslySetInnerHTML={{ __html: plugin.features }} />
+            <AdditionalDesc
+              dangerouslySetInnerHTML={{ __html: plugin.features }}
+            />
           </Detail>
         </>
       );
-    } else if (tabType === 'Guide') {
-      return <div dangerouslySetInnerHTML={{ __html: plugin.userGuide }} />;
     }
+
+    if (tabType === 'Guide') {
+      return (
+        <>
+          <DetailStyle dangerouslySetInnerHTML={{ __html: plugin.tango }} />
+        </>
+      );
+    }
+
+    if (tabType === 'Changelog') {
+      return <div dangerouslySetInnerHTML={{ __html: plugin.changeLog }} />;
+    }
+
     return null;
   };
 
+  renderCategories() {
+    const categories = this.state.plugin.categories || [];
+
+    if (categories.length === 0) {
+      return <Hashtag>#Free</Hashtag>;
+    }
+
+    return categories.map((category, index) => (
+      <Hashtag key={index}>
+        {'#'}
+        {category}
+      </Hashtag>
+    ));
+  }
+
+  renderScreenshots() {
+    const { screenShots } = this.state.plugin;
+    const items = screenShots.split(',');
+
+    if (!items || items.length === 0) {
+      return null;
+    }
+
+    return items.map((item, index) => {
+      const attachment = {
+        name: item,
+        type: 'image',
+        url: item
+      };
+
+      return <Attachment key={index} simple={true} attachment={attachment} />;
+    });
+  }
+
   render() {
-    const { enabledServicesQuery } = this.props;
+    const { enabledServicesQuery, plugins } = this.props;
     const { loading, plugin, tabType } = this.state;
 
-    // fake data
-    const pluginCategories = 'Free Marketing'.split(' ');
-
-    const dataSlider = [
-      'https://wallpaperaccess.com/full/1760844.jpg',
-      'https://wallpaperaccess.com/full/1282257.jpg',
-      'https://wallpaperaccess.com/full/124624.jpg'
-    ];
-
     const breadcrumb = [
-      { title: __('Store'), link: '/settings/installer' },
+      { title: __('Marketplace'), link: '/settings/installer' },
       { title: plugin.title || '' }
     ];
 
@@ -128,17 +158,12 @@ class PluginDetails extends React.Component<Props, State> {
       <DetailMainContainer>
         <PluginTitle>
           <Center>
-            <img src={plugin.image} />
+            <img
+              src={plugin.avatar || plugin.image || '/images/no-plugin.png'}
+            />
             <DetailInformation>
               <b>{plugin.title}</b>
-              <Flex>
-                {pluginCategories.map(category => (
-                  <Hashtag>
-                    {'#'}
-                    {category}
-                  </Hashtag>
-                ))}
-              </Flex>
+              <Flex>{this.renderCategories()}</Flex>
             </DetailInformation>
           </Center>
           {plugin.title && enabledServices[plugin.title.toLowerCase()] ? (
@@ -190,37 +215,41 @@ class PluginDetails extends React.Component<Props, State> {
           )}
         </PluginTitle>
 
-        {dataSlider.length !== 0 && <Carousel dataSlider={dataSlider} />}
+        <AttachmentContainer>{this.renderScreenshots()}</AttachmentContainer>
 
-        <Tabs>
-          <TabTitle
-            onClick={() => handleSelect('Description')}
-            active={tabType === 'Description'}
-          >
-            Description
-          </TabTitle>
-          <TabTitle
-            onClick={() => handleSelect('Guide')}
-            active={tabType === 'Guide'}
-          >
-            Guide
-          </TabTitle>
-          <TabTitle
-            onClick={() => handleSelect('Changelog')}
-            active={tabType === 'Changelog'}
-          >
-            Changelog
-          </TabTitle>
-        </Tabs>
+        <div className="plugin-detail-tabs">
+          <Tabs>
+            <TabTitle
+              onClick={() => handleSelect('Description')}
+              className={tabType === 'Description' ? 'active' : ''}
+            >
+              Description
+            </TabTitle>
+            <TabTitle
+              onClick={() => handleSelect('Guide')}
+              className={tabType === 'Guide' ? 'active' : ''}
+            >
+              Guide
+            </TabTitle>
+            <TabTitle
+              onClick={() => handleSelect('Changelog')}
+              className={tabType === 'Changelog' ? 'active' : ''}
+            >
+              Changelog
+            </TabTitle>
+          </Tabs>
 
-        {this.renderContent()}
+          <div className="plugin-detail-content">{this.renderContent()}</div>
+        </div>
       </DetailMainContainer>
     );
 
     return (
       <Wrapper
-        mainHead={<Wrapper.Header title="" breadcrumb={breadcrumb} />}
-        rightSidebar={<RightSidebar plugin={plugin} />}
+        mainHead={
+          <Wrapper.Header title={plugin.title} breadcrumb={breadcrumb} />
+        }
+        rightSidebar={<RightSidebar plugin={plugin} plugins={plugins} />}
         content={content}
       />
     );

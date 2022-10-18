@@ -1,84 +1,67 @@
-import { resolve } from 'path';
-import * as fse from 'fs-extra';
+import { sendRequest } from '@erxes/api-utils/src';
 import { IModels } from '../../connectionResolver';
-const exec = require('child_process').exec;
-
-const filePath = pathName => {
-  if (pathName) {
-    return resolve(process.cwd(), pathName);
-  }
-
-  return resolve(process.cwd());
-};
-
-export const getInitialData = async (fileName: string) => {
-  return fse.readJSON(filePath(`../src/initialData/${fileName}.json`));
-};
 
 const createSiteEntries = async (
   models: IModels,
-  oldContentTypeId: string,
-  contentTypeId: string
+  entries: any,
+  contentTypeId: string,
+  userId: string
 ) => {
-  const entries = await getInitialData('entries');
-
   for (const entry of entries) {
-    if (entry.contentTypeId !== oldContentTypeId['$oid']) {
-      continue;
-    }
-
-    models.Entries.createEntry({
-      values: entry.values,
-      contentTypeId
-    });
+    models.Entries.createEntry(
+      {
+        values: entry.values,
+        contentTypeId
+      },
+      userId
+    );
   }
 };
 
 export const createSiteContentTypes = async (
   models: IModels,
-  { pageName, siteId }: { pageName; siteId }
+  {
+    siteId,
+    contentTypes,
+    entriesAll,
+    userId
+  }: {
+    siteId: string;
+    contentTypes: any;
+    entriesAll: any;
+    userId: string;
+  }
 ) => {
-  const contentTypes = await getInitialData('contentTypes');
-
   for (const type of contentTypes) {
-    const code = type.code + '_entry';
+    const contentType = await models.ContentTypes.createContentType(
+      {
+        ...type,
+        _id: undefined,
+        siteId
+      },
+      userId
+    );
 
-    if (code !== pageName) {
+    // find entries related to contentType
+    const entries = entriesAll.filter(
+      entry => entry.contentTypeId === type._id.$oid
+    );
+
+    if (!entries.length) {
       continue;
     }
 
-    const contentType = await models.ContentTypes.createContentType({
-      ...type,
-      _id: undefined,
-      siteId: siteId
-    });
-
-    await createSiteEntries(models, type._id, contentType._id);
+    await createSiteEntries(models, entries, contentType._id, userId);
   }
 };
 
-const execCommand = (command, ignoreError?) => {
-  return new Promise((resolve, reject) => {
-    exec(command, { maxBuffer: 1024 * 1000 }, (error, stdout, stderr) => {
-      if (error !== null) {
-        if (ignoreError) {
-          return resolve('done');
-        }
+export const readHelpersData = async (fileName: string, query: string = '') => {
+  const HELPERS_DOMAIN = `https://helper.erxes.io`;
 
-        return reject(error);
-      }
+  const url = `${HELPERS_DOMAIN}/get-webbuilder-${fileName}?${query}`;
 
-      console.log(stdout);
-      console.log(stderr);
-
-      return resolve('done');
-    });
+  return sendRequest({
+    url,
+    method: 'get'
   });
-};
-
-export const readAndWriteHelpersData = async (fileName: string) => {
-  const url = `https://helper.erxes.io/get-webbuilder-${fileName}`;
-  const output = `../src/initialData/${fileName}.json`;
-
-  return execCommand(`curl -L ${url} --output ${output}`);
 };

@@ -2,6 +2,7 @@ import { paginate } from '@erxes/api-utils/src';
 import { IUserDocument } from '@erxes/api-utils/src/types';
 import { serviceDiscovery } from '../../configs';
 import { IContext } from '../../connectionResolver';
+import { sendTagsMessage } from '../../messageBroker';
 
 interface IListArgs {
   status: string;
@@ -11,45 +12,44 @@ interface IListArgs {
   perPage?: number;
   sortField: string;
   sortDirection: number;
+  tag: string;
 }
 
 const generateFilter = (params: IListArgs, user: IUserDocument) => {
-  const { status, searchValue } = params;
+  const { searchValue, tag } = params;
 
-  const filter: any = {};
-
-  if (status) {
-    filter.status = status;
-  } else {
-    filter.status = { $ne: 'template' };
-  }
+  const filter: any = user.isOwner
+    ? {}
+    : {
+        $or: [
+          { visibility: { $exists: null } },
+          { visibility: 'public' },
+          {
+            $and: [
+              { visibility: 'private' },
+              {
+                $or: [{ selectedMemberIds: user._id }, { createdBy: user._id }]
+              }
+            ]
+          }
+        ]
+      };
 
   if (searchValue) {
     filter.name = new RegExp(`.*${searchValue}.*`, 'i');
   }
-  if (!user.isOwner) {
-    filter.$or = {
-      $or: [
-        { visibility: { $exists: null } },
-        { visibility: 'public' },
-        {
-          $and: [
-            { visibility: 'private' },
-            {
-              $or: [{ selectedMemberIds: user._id }]
-            }
-          ]
-        }
-      ]
-    };
+  if (tag) {
+    filter.tagIds = { $in: [tag] };
   }
+
+  return filter;
 };
 
 const dashBoardQueries = {
   async dashboards(_root, params: IListArgs, { models, user }: IContext) {
     const filter = generateFilter(params, user);
 
-    return models.Dashboards.find(filter).lean();
+    return models.Dashboards.find(filter);
   },
 
   async dashboardsMain(_root, params: IListArgs, { models, user }: IContext) {
@@ -58,9 +58,7 @@ const dashBoardQueries = {
     const filter = generateFilter(params, user);
 
     const dashboards = paginate(
-      models.Dashboards.find(filter)
-        .sort({ createdAt: -1 })
-        .lean(),
+      models.Dashboards.find(filter).sort({ createdAt: -1 }),
       { perPage, page }
     );
 
@@ -95,7 +93,30 @@ const dashBoardQueries = {
       }
     }
 
-    return dashboardTypes;
+    return ['Customers', 'Deals', 'Conversations', 'Tasks', 'Tickets'];
+  },
+
+  async dashboardCountByTags(_root, _params, { models, subdomain }: IContext) {
+    const counts = {};
+
+    const tags = await sendTagsMessage({
+      subdomain,
+      action: 'find',
+      data: {
+        type: 'dashboard:dashboard'
+      },
+      isRPC: true,
+      defaultValue: []
+    });
+
+    for (const tag of tags) {
+      counts[tag._id] = await models.Dashboards.find({
+        tagIds: tag._id,
+        status: { $ne: 'deleted' }
+      }).countDocuments();
+    }
+
+    return counts;
   },
 
   async dashboardItems(

@@ -6,19 +6,23 @@ import {
   types as DashboardTypes
 } from './dashboardTypeDefs';
 
-const typeDefs = gql`
+const typeDefs = async serviceDiscovery => {
+  const tagsAvailable = await serviceDiscovery.isEnabled('tags');
+
+  return gql`
   scalar JSON
   scalar Date
-
-  ${DashboardTypes}
-
+  
+  ${DashboardTypes(tagsAvailable)}
+  
   extend type Query {
     ${DashboardQueries}
   }
-
+  
   extend type Mutation {
     ${DashboardMutations}
   }
-`;
+  `;
+};
 
 export default typeDefs;

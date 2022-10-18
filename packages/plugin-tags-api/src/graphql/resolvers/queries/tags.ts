@@ -17,7 +17,6 @@ const tagQueries = {
     for (const serviceName of services) {
       const service = await serviceDiscovery.getService(serviceName, true);
       const meta = service.config.meta || {};
-
       if (meta && meta.tags) {
         const types = meta.tags.types || [];
 
@@ -33,16 +32,23 @@ const tagQueries = {
     return fieldTypes;
   },
 
-  tags(
+  async tags(
     _root,
     {
       type,
       searchValue,
-      tagIds
-    }: { type: string; searchValue?: string; tagIds?: string[] },
+      tagIds,
+      parentId
+    }: {
+      type: string;
+      searchValue?: string;
+      tagIds?: string[];
+      parentId?: string;
+    },
     { models, commonQuerySelector }: IContext
   ) {
     const selector: any = { ...commonQuerySelector };
+    console.log('type', type);
 
     if (type) {
       selector.type = type;
@@ -54,6 +60,28 @@ const tagQueries = {
 
     if (tagIds) {
       selector._id = { $in: tagIds };
+    }
+
+    if (parentId) {
+      const parentTag = await models.Tags.find({ parentId }).distinct('_id');
+      let ids = [parentId, ...parentTag];
+
+      const getChildTags = async (parentTagIds: string[]) => {
+        const childTag = await models.Tags.find({
+          parentId: { $in: parentTagIds }
+        }).distinct('_id');
+
+        if (childTag.length > 0) {
+          ids = [...ids, ...childTag];
+          await getChildTags(childTag);
+        }
+
+        return;
+      };
+
+      await getChildTags(parentTag);
+
+      selector._id = { $in: ids };
     }
 
     return models.Tags.find(selector).sort({

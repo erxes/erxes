@@ -25,7 +25,8 @@ export default {
   },
   hasSubscriptions: false,
   meta: {
-    forms
+    forms,
+    permissions
   },
 
   apolloServerContext: async (context, req, res) => {

@@ -1,6 +1,9 @@
 import * as compose from 'lodash.flowright';
 
-import { ByKindTotalCount, IntegrationsCountQueryResponse } from '../types';
+import {
+  ByKindTotalCount,
+  IntegrationsCountQueryResponse
+} from '@erxes/ui-inbox/src/settings/integrations/types';
 import { getEnv, withProps } from '@erxes/ui/src/utils';
 
 import Home from '../components/store/Home';
@@ -8,7 +11,7 @@ import React from 'react';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
-import { queries } from '../graphql';
+import { queries } from '@erxes/ui-inbox/src/settings/integrations/graphql';
 
 type Props = {
   queryParams: any;

@@ -13,6 +13,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import WithPermission from 'coreui/withPermission';
+import Tags from '@erxes/ui/src/components/Tags';
 
 type Props = {
   dashboard: IDashboard;
@@ -40,12 +41,12 @@ function ActionRow({
   };
 
   const onNameClick = () => {
-    history.push(`/dashboards/details/${dashboard._id}`);
+    history.push(`/dashboard/details/${dashboard._id}`);
   };
 
   const editAction = () => {
     return (
-      <Link to={`/dashboards/details/${dashboard._id}`}>
+      <Link to={`/dashboard/details/${dashboard._id}`}>
         <Button btnStyle="link">
           <Tip text={__('Edit')} placement="top">
             <Icon icon="edit-3" />
@@ -80,6 +81,7 @@ function ActionRow({
     updatedUser,
     itemsCount
   } = dashboard;
+  const tags = dashboard.getTags;
 
   return (
     <tr>
@@ -107,12 +109,13 @@ function ActionRow({
         </FlexCenter>
       </td>
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(updatedAt || new Date()).format('ll')}</DateWrapper>
+        <Icon icon="calender" /> <DateWrapper>{updatedAt}</DateWrapper>
       </td>
       <td>
-        <Icon icon="calender" />{' '}
-        <DateWrapper>{dayjs(createdAt || new Date()).format('ll')}</DateWrapper>
+        <Icon icon="calender" /> <DateWrapper>{createdAt}</DateWrapper>
+      </td>
+      <td>
+        <Tags tags={tags || []} limit={3} />
       </td>
       <td>
         <ActionButtons>

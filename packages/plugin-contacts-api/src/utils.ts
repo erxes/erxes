@@ -24,6 +24,7 @@ import {
   COMPANY_INFO,
   CUSTOMER_BASIC_INFO,
   DEVICE_PROPERTIES_INFO,
+  EMAIL_VALIDATION_STATUSES,
   MODULE_NAMES
 } from './constants';
 import { companySchema } from './models/definitions/companies';
@@ -158,6 +159,35 @@ const generateUsersOptions = async (
   const options: Array<{ label: string; value: any }> = users.map(user => ({
     value: user._id,
     label: user.username || user.email || ''
+  }));
+
+  return {
+    _id: Math.random(),
+    name,
+    label,
+    type,
+    selectOptions: options
+  };
+};
+
+const generateBrandsOptions = async (
+  name: string,
+  label: string,
+  type: string,
+  subdomain: string
+) => {
+  const brands = await sendCoreMessage({
+    subdomain,
+    action: 'brands.find',
+    data: {
+      query: {}
+    },
+    isRPC: true
+  });
+
+  const options: Array<{ label: string; value: any }> = brands.map(brand => ({
+    value: brand._id,
+    label: brand.name
   }));
 
   return {
@@ -328,6 +358,7 @@ export const generateFields = async ({ subdomain, data }) => {
     const integrations = await getIntegrations(subdomain);
 
     fields = [...fields, integrations];
+
     if (usageType === 'import') {
       fields.push({
         _id: Math.random(),
@@ -341,6 +372,17 @@ export const generateFields = async ({ subdomain, data }) => {
         label: 'Company Primary Emails'
       });
     }
+  }
+
+  if (process.env.USE_BRAND_RESTRICTIONS) {
+    const brandsOptions = await generateBrandsOptions(
+      'scopeBrandIds',
+      'Brands',
+      'brand',
+      subdomain
+    );
+
+    fields.push(brandsOptions);
   }
 
   fields = [...fields, ownerOptions];
@@ -437,6 +479,18 @@ export const prepareEngageCustomers = async (
     emailContent
   );
 
+  const exists = { $exists: true, $nin: [null, '', undefined] };
+
+  // make sure email & phone are valid
+  if (engageMessage.method === 'email') {
+    customersSelector.primaryEmail = exists;
+    customersSelector.emailValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
+  }
+  if (engageMessage.method === 'sms') {
+    customersSelector.primaryPhone = exists;
+    customersSelector.phoneValidationStatus = EMAIL_VALIDATION_STATUSES.VALID;
+  }
+
   const onFinishPiping = async () => {
     await sendEngagesMessage({
       subdomain,
@@ -446,13 +500,10 @@ export const prepareEngageCustomers = async (
 
     if (customerInfos.length > 0) {
       const data: any = {
+        ...engageMessage,
         customers: [],
         fromEmail: user.email,
-        engageMessageId: engageMessage._id,
-        shortMessage: engageMessage.shortMessage || {},
-        createdBy: engageMessage.createdBy,
-        title: engageMessage.title,
-        kind: engageMessage.kind
+        engageMessageId: engageMessage._id
       };
 
       if (engageMessage.method === 'email' && engageMessage.email) {

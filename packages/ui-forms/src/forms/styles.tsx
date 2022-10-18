@@ -287,10 +287,9 @@ const FilterContainer = styled.div`
   padding: 10px 10px 10px 20px;
 `;
 
-const SidebarContainer = styled.div`
-  ${SidebarMainContent} {
-    overflow-x: unset;
-    overflow-y: unset;
+const EndDateContainer = styled.div`
+  .rdtPicker {
+    left: -98px !important;
   }
 `;
 
@@ -313,5 +312,5 @@ export {
   RowFill,
   CustomRangeContainer,
   FilterContainer,
-  SidebarContainer
+  EndDateContainer
 };
