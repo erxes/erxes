@@ -670,6 +670,8 @@ export const itemsCopy = async (
 
   const doc = await prepareBoardItemDoc(item, collection, user._id);
 
+  delete doc.sourceConversationIds;
+
   for (const param of extraDocParam) {
     doc[param] = item[param];
   }
