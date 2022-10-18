@@ -95,7 +95,8 @@ export const commonMutationParams = `
   priority: String,
   status: String,
   sourceConversationIds: [String],
-  customFieldsData: JSON
+  customFieldsData: JSON,
+  tagIds: [String]
 `;
 
 export const commonDragParams = `
@@ -128,5 +129,6 @@ export const commonListTypes = `
   score: Float
   number: String
   stageChangedDate: Date
+  tagIds: [String]
   customProperties: JSON
 `;

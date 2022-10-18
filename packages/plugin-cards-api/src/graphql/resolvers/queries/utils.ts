@@ -136,6 +136,7 @@ export const generateCommonFilters = async (
   const {
     _ids,
     pipelineId,
+    pipelineIds,
     stageId,
     search,
     closeDateType,
@@ -151,6 +152,7 @@ export const generateCommonFilters = async (
     labelIds,
     priority,
     userIds,
+    tagIds,
     segment,
     assignedToMe,
     startDate,
@@ -295,9 +297,15 @@ export const generateCommonFilters = async (
 
   if (stageId) {
     filter.stageId = stageId;
-  } else if (pipelineId) {
+  } else if (pipelineId || pipelineIds) {
+    let filterPipeline = pipelineId;
+
+    if (pipelineIds) {
+      filterPipeline = { $in: pipelineIds };
+    }
+
     const stageIds = await models.Stages.find({
-      pipelineId,
+      pipelineId: filterPipeline,
       status: { $ne: BOARD_STATUSES.ARCHIVED }
     }).distinct('_id');
 
@@ -312,6 +320,10 @@ export const generateCommonFilters = async (
 
   if (priority) {
     filter.priority = contains(priority);
+  }
+
+  if (tagIds) {
+    filter.tagIds = { $in: tagIds };
   }
 
   if (pipelineId) {
@@ -759,6 +771,7 @@ export const getItemList = async (
         watchedUserIds: 1,
         customFieldsData: 1,
         stageChangedDate: 1,
+        tagIds: 1,
         ...(extraFields || {})
       }
     }

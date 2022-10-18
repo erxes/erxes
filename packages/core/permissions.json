@@ -39,7 +39,7 @@
 		},
 		"integrations": {
 			"name": "integrations",
-			"description": "Add-ons",
+			"description": "integrations",
 			"actions": [
 				{
 					"name": "integrationsAll",

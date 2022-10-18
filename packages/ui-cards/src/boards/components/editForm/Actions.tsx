@@ -56,6 +56,7 @@ class Actions extends React.Component<Props> {
     const onLabelChange = labels => saveItem({ labels });
 
     const tags = item.tags || [];
+    const pipelineTagId = item.pipeline.tagId || '';
 
     const priorityTrigger = (
       <ColorButton>
@@ -67,6 +68,13 @@ class Actions extends React.Component<Props> {
         {item.priority ? item.priority : __('Priority')}
       </ColorButton>
     );
+
+    const TAG_TYPE =
+      options.type === 'deal'
+        ? TAG_TYPES.DEAL
+        : options.type === 'task'
+        ? TAG_TYPES.TASK
+        : TAG_TYPES.TICKET;
 
     const tagTrigger = (
       <PopoverButton id="conversationTags">
@@ -114,12 +122,14 @@ class Actions extends React.Component<Props> {
           onChangeStage={onChangeStage}
         />
 
-        {options.type === 'deal' && isEnabled('tags') && (
+        {isEnabled('tags') && (
           <TaggerPopover
-            type={TAG_TYPES.DEAL}
+            type={TAG_TYPE}
             trigger={tagTrigger}
-            refetchQueries={['dealDetail']}
+            refetchQueries={['dealDetail', 'taskDetail', 'ticketDetail']}
             targets={[item]}
+            parentTagId={pipelineTagId}
+            singleSelect={true}
           />
         )}
       </ActionContainer>

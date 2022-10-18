@@ -48,9 +48,10 @@ function EmailDeliveryContainer(props: Props) {
     variables: {
       status: queryParams.status,
       customerId: queryParams.customerId,
-      ...generatePaginationParams(queryParams)
+      ...generatePaginationParams(queryParams),
+      searchValue: queryParams.searchValue
     },
-    skip: isEnabled("engages") ? false : true
+    skip: isEnabled('engages') ? false : true
   });
 
   const handleSelectEmailType = (type: string) => {

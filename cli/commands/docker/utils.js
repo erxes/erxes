@@ -72,6 +72,16 @@ const generatePluginBlock = (configs, plugin) => {
   const image_tag = plugin.image_tag || configs.image_tag || 'federation';
   const registry = plugin.registry ? `${plugin.registry}/` : '';
 
+  const extra_hosts = [
+    `mongo:${plugin.db_server_address ||
+      configs.db_server_address ||
+      '127.0.0.1'}`
+  ]
+
+  if (configs.secondary_db_server_address) {
+    extra_hosts.push(`mongo-secondary:${configs.secondary_db_server_address}`);
+  }
+
   const conf = {
     image: `${registry}erxes/plugin-${plugin.name}-api:${image_tag}`,
     environment: {
@@ -85,11 +95,7 @@ const generatePluginBlock = (configs, plugin) => {
     },
     volumes: ['./enabled-services.js:/data/enabled-services.js'],
     networks: ['erxes'],
-    extra_hosts: [
-      `mongo:${plugin.db_server_address ||
-        configs.db_server_address ||
-        '127.0.0.1'}`
-    ]
+    extra_hosts
   };
 
   if (plugin.replicas) {
@@ -183,6 +189,21 @@ const deployDbs = async program => {
       volumes: ['./mongodata:/data/db'],
       command: ['--replSet', 'rs0', '--bind_ip_all'],
       extra_hosts: ['mongo:127.0.0.1']
+    };
+  }
+
+  if (configs.mongobi) {
+    dockerComposeConfig.services['mongo-bi-connector'] = {
+      image: 'erxes/mongobi-connector:dev',
+      container_name: 'mongosqld',
+      ports: ['3307:3307'],
+      environment: {
+        MONGODB_HOST: 'mongo',
+        MONGO_USERNAME: configs.mongo.username,
+        MONGO_PASSWORD: configs.mongo.password
+      },
+      networks: ['erxes'],
+      volumes: ['./mongo.pem:/mongosqld/mongo.pem']
     };
   }
 
@@ -300,9 +321,15 @@ const up = async ({ uis, fromInstaller }) => {
   const widgets_domain = widgets.domain || `${domain}/widgets`;
   const dashboard_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
+  const secondary_db_server_address = configs.db_server_address;
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
+
+  if (secondary_db_server_address) {
+    extra_hosts.push(`mongo-secondary:${secondary_db_server_address}`);
+  }
+
   const { RABBITMQ_HOST } = commonEnvs(configs);
 
   // update the directory on the Docker system to have 0777 or drwxrwxrwx permssion, so that all users have read/write/execute permission.
@@ -436,7 +463,7 @@ const up = async ({ uis, fromInstaller }) => {
 
   if (dashboard) {
     dockerComposeConfig.services.dashboard = {
-      image: `erxes/dashboard:${image_tag}`,
+      image: `erxes/dashboard:${dashboard.image_tag || image_tag}`,
       ports: ['4300:80'],
       environment: {
         PORT: '80',
@@ -706,7 +733,9 @@ const update = async ({ serviceNames, noimage, uis }) => {
     if (!noimage) {
       log(`Updating image ${name}......`);
 
-      if (['crons', 'dashboard', 'gateway', 'client-portal'].includes(name)) {
+      if (
+        ['crons', 'dashboard-api', 'gateway', 'client-portal'].includes(name)
+      ) {
         await execCommand(
           `docker service update erxes_${name} --image erxes/${name}:${image_tag}`
         );
@@ -960,7 +989,7 @@ const deployMongoBi = async program => {
 
   dockerComposeConfig.services['mongo-bi-connector'] = {
     image: 'erxes/mongobi-connector:dev',
-    container_name: 'mongosqld',
+    hostname: 'mongosqld',
     ports: ['3307:3307'],
     environment: {
       MONGODB_HOST: 'mongo-secondary',

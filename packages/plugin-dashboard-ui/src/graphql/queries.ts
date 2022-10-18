@@ -1,3 +1,5 @@
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 const userFields = `
   _id
   username
@@ -11,6 +13,7 @@ const userFields = `
 const listParamsDef = `
   $page: Int
   $perPage: Int
+  $tag: String
   $ids: [String]
   $excludeIds: Boolean
   $searchValue: String
@@ -21,11 +24,18 @@ const listParamsDef = `
 const listParamsValue = `
   page: $page
   perPage: $perPage
+  tag: $tag
   ids: $ids
   excludeIds: $excludeIds
   searchValue: $searchValue
   sortField: $sortField
   sortDirection: $sortDirection
+`;
+
+const dashboardCountByTags = `
+  query dashboardCountByTags{ 
+    dashboardCountByTags
+  }
 `;
 
 const dashboards = `
@@ -73,7 +83,18 @@ export const dashboardsMain = `
         updatedAt
         relatedIds
         itemsCount
-
+        ${
+          isEnabled('tags')
+            ? `
+          getTags {
+            _id
+            name
+            colorCode
+          }
+          `
+            : ``
+        }
+        tagIds
         createdUser {
           ${userFields}
         }
@@ -96,6 +117,18 @@ const dashboardDetails = `
     dashboardDetails(_id: $_id) {
 	    _id
 	    name
+      ${
+        isEnabled('tags')
+          ? `
+        getTags {
+          _id
+          name
+          colorCode
+        }
+        `
+          : ``
+      }
+      tagIds
       description
       visibility
       selectedMemberIds
@@ -154,5 +187,6 @@ export default {
   totalCount,
   dashboards,
   dashboardDetails,
-  dashboardGetTypes
+  dashboardGetTypes,
+  dashboardCountByTags
 };

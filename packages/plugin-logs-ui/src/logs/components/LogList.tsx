@@ -78,7 +78,7 @@ const moduleOptions = [
   { value: 'core:user', label: 'Users' },
   { value: 'core:userGroup', label: 'User groups' },
   // inbox service items
-  { value: 'inbox:integration', label: 'Add-ons' },
+  { value: 'inbox:integration', label: 'Integrations' },
   { value: 'inbox:channel', label: 'Channels' },
   // contacts service items
   { value: 'contacts:company', label: 'Companies' },
