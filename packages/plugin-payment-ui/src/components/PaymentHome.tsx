@@ -6,6 +6,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import React from 'react';
+import { getSubMenu } from '../containers/utils';
 
 import { ByKindTotalCount } from '../types';
 import { PAYMENTCONFIGS } from './constants';
@@ -21,8 +22,6 @@ type State = {
   searchValue: string;
   payments: any;
 };
-
-export const subMenu = [{ title: 'Payments', link: '/settings/payments' }];
 
 class Home extends React.Component<Props, State> {
   constructor(props) {
@@ -105,16 +104,11 @@ class Home extends React.Component<Props, State> {
   render() {
     const { queryParams } = this.props;
 
-    if (isEnabled('products') && isEnabled('inbox')) {
-      subMenu.push({
-        title: 'Lead Integration Configs',
-        link: '/payment/configs'
-      });
-    }
-
     return (
       <Wrapper
-        header={<Wrapper.Header title={__('Payments')} submenu={subMenu} />}
+        header={
+          <Wrapper.Header title={__('Payments')} submenu={getSubMenu()} />
+        }
         actionBar={
           <Wrapper.ActionBar
             left={<Title>{queryParams.kind || 'All Payments'}</Title>}
