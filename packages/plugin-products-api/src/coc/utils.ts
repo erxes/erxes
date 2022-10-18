@@ -4,7 +4,6 @@ import { debug } from '../configs';
 import { IModels } from '../connectionResolver';
 import {
   fetchSegment,
-  sendCoreMessage,
   sendSegmentsMessage,
   sendTagsMessage
 } from '../messageBroker';
@@ -14,7 +13,7 @@ export interface ICountBy {
   [index: string]: number;
 }
 
-export const getEsTypes = (contentType: string) => {
+export const getEsTypes = () => {
   const schema = productSchema;
 
   const typesMap: { [key: string]: any } = {};
@@ -30,35 +29,24 @@ export const getEsTypes = (contentType: string) => {
 export const countBySegment = async (
   subdomain: string,
   contentType: string,
-  qb,
-  source?: string
+  qb
 ): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
   let segments: any[] = [];
 
-  if (source === 'engages') {
-    segments = await sendSegmentsMessage({
-      subdomain,
-      action: 'find',
-      data: { name: { $exists: true } },
-      isRPC: true,
-      defaultValue: []
-    });
-  } else {
-    segments = await sendSegmentsMessage({
-      subdomain,
-      action: 'find',
-      data: { contentType, name: { $exists: true } },
-      isRPC: true,
-      defaultValue: []
-    });
-  }
+  segments = await sendSegmentsMessage({
+    subdomain,
+    action: 'find',
+    data: { contentType, name: { $exists: true } },
+    isRPC: true,
+    defaultValue: []
+  });
 
   for (const s of segments) {
     try {
       await qb.buildAllQueries();
-      await qb.segmentFilter(s, source);
+      await qb.segmentFilter(s);
       counts[s._id] = await qb.runQueries('count');
     } catch (e) {
       debug.error(`Error during segment count ${e.message}`);
@@ -111,7 +99,6 @@ interface ICommonListArgs {
   boardId?: string;
   segment?: string;
   segmentData?: string;
-  dateFilters?: any;
 }
 
 export class CommonBuilder<IListArgs extends ICommonListArgs> {
@@ -157,19 +144,11 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   // filter by segment
-  public async segmentFilter(segment: any, source?: string, segmentData?: any) {
+  public async segmentFilter(segment: any, segmentData?: any) {
     const selector = await fetchSegment(
       this.subdomain,
       segment._id,
-      source === 'engages' && !segment.contentType.includes('products')
-        ? {
-            returnAssociated: {
-              mainType: segment.contentType,
-              relType: `products:${this.getRelType()}`
-            },
-            returnSelector: true
-          }
-        : { returnSelector: true },
+      { returnSelector: true },
       segmentData
     );
 
@@ -193,47 +172,6 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.positiveList.push({
       terms: {
         tagIds
-      }
-    });
-  }
-
-  // filter by search value
-  public searchFilter(value: string): void {
-    if (value.includes('@')) {
-      this.positiveList.push({
-        match_phrase: {
-          searchText: {
-            query: value
-          }
-        }
-      });
-    } else {
-      this.positiveList.push({
-        bool: {
-          should: [
-            {
-              match: {
-                searchText: {
-                  query: value
-                }
-              }
-            },
-            {
-              wildcard: {
-                searchText: `*${value.toLowerCase()}*`
-              }
-            }
-          ]
-        }
-      });
-    }
-  }
-
-  // filter by auto-completion type
-  public searchByAutoCompletionType(value: string, type: string): void {
-    this.positiveList.push({
-      wildcard: {
-        [type]: `*${(value || '').toLowerCase()}*`
       }
     });
   }
@@ -278,7 +216,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
   }
 
   public getRelType() {
-    return this.contentType === 'products' ? 'product' : '';
+    return 'product';
   }
 
   /*
@@ -288,23 +226,23 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.resetPositiveList();
     this.resetNegativeList();
 
-    if (this.params.type) {
-      await this.typeFilter(this.params.type);
-    }
+    // if (this.params.type) {
+    //   await this.typeFilter(this.params.type);
+    // }
 
-    if (this.params.categoryId) {
-      await this.categoryIdFilter(this.params.categoryId);
-    }
+    // if (this.params.categoryId) {
+    //   await this.categoryIdFilter(this.params.categoryId);
+    // }
 
-    if (!this.params.categoryId) {
-      await this.excludeCategoryIdFilter();
-    }
+    // if (!this.params.categoryId) {
+    //   await this.excludeCategoryIdFilter();
+    // }
 
     // filter by segment data
     if (this.params.segmentData) {
       const segment = JSON.parse(this.params.segmentData);
 
-      await this.segmentFilter({}, '', segment);
+      await this.segmentFilter({}, segment);
     }
 
     // filter by segment
@@ -327,16 +265,6 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     // If there are ids and form params, returning ids filter only filter by ids
     if (this.params.ids && this.params.ids.length > 0) {
       this.idsFilter(this.params.ids.filter(id => id));
-    }
-
-    // filter by search value
-    if (this.params.searchValue) {
-      this.params.autoCompletion
-        ? this.searchByAutoCompletionType(
-            this.params.searchValue,
-            this.params.autoCompletionType || ''
-          )
-        : this.searchFilter(this.params.searchValue);
     }
   }
 
@@ -404,13 +332,7 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
       queryOptions.from = (_page - 1) * _limit;
       queryOptions.size = _limit;
 
-      const esTypes = getEsTypes(this.contentType);
-
       let fieldToSort = sortField || 'createdAt';
-
-      if (!esTypes[fieldToSort] || esTypes[fieldToSort] === 'email') {
-        fieldToSort = `${fieldToSort}.keyword`;
-      }
 
       if (!searchValue) {
         queryOptions.sort = {
