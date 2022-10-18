@@ -267,6 +267,7 @@ const integrationMutations = {
           subdomain,
           action: 'createIntegration',
           data: {
+            kind,
             integrationId: integration._id,
             doc: data
           },
