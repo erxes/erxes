@@ -32,8 +32,8 @@ class InventoryProducts extends React.Component<Props, State> {
   }
 
   renderRow = (data: any) => {
-    if (data.length > 50) {
-      data = data.slice(0, 50);
+    if (data.length > 100) {
+      data = data.slice(0, 100);
     }
     return data.map(p => <Row history={history} key={p.code} product={p} />);
   };
@@ -41,8 +41,8 @@ class InventoryProducts extends React.Component<Props, State> {
   renderTable = (data: any, action: string) => {
     const data_len = data.length;
 
-    if (data_len > 50) {
-      data = data.slice(0, 50);
+    if (data_len > 100) {
+      data = data.slice(0, 100);
     }
 
     const onClickSync = () => {
@@ -64,8 +64,8 @@ class InventoryProducts extends React.Component<Props, State> {
     const header = (
       <Wrapper.ActionBar
         left={
-          data_len > 50 ? (
-            <>50 of {data_len} </>
+          data_len > 100 ? (
+            <>100 of {data_len} </>
           ) : (
             <>
               {data_len} of {data_len}
