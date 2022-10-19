@@ -108,12 +108,12 @@ class Board extends React.Component<Props> {
       return (
         <RootBack style={{ backgroundColor: '#fff' }}>
           <ScrolledContent>
-            <TimeItems
+            <ViewGroupBy
               key={pipeline._id}
+              options={options}
               pipeline={pipeline}
               queryParams={queryParams}
-              options={options}
-              type={options.type}
+              viewType={viewType}
             />
           </ScrolledContent>
         </RootBack>
