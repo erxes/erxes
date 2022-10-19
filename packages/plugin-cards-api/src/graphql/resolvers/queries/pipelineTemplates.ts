@@ -9,13 +9,13 @@ const pipelineTemplateQueries = {
   async pipelineTemplates(
     _root,
     { type }: { type: string },
-    { user, models: { PipelineTemplates }, commonQuerySelector }: IContext
+    { user, models, commonQuerySelector }: IContext
   ) {
-    await checkPermission(type, user, 'showTemplates');
+    await checkPermission(models, type, user, 'showTemplates');
 
     const filter = { ...commonQuerySelector, type };
 
-    return PipelineTemplates.find(filter);
+    return models.PipelineTemplates.find(filter);
   },
 
   /**
@@ -24,13 +24,15 @@ const pipelineTemplateQueries = {
   async pipelineTemplateDetail(
     _root,
     { _id }: { _id: string },
-    { user, models: { PipelineTemplates } }: IContext
+    { user, models }: IContext
   ) {
-    const pipelineTemplate = await PipelineTemplates.getPipelineTemplate(_id);
+    const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(
+      _id
+    );
 
-    await checkPermission(pipelineTemplate.type, user, 'showTemplates');
+    await checkPermission(models, pipelineTemplate.type, user, 'showTemplates');
 
-    return PipelineTemplates.findOne({ _id });
+    return models.PipelineTemplates.findOne({ _id });
   },
 
   /**
