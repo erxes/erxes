@@ -22,12 +22,11 @@ export const types = `
 `;
 
 export const queries = `
-  integrationsGetAccounts(kind: String): JSON
-  integrationsGetIntegrations(kind: String): JSON
-  integrationsGetIntegrationDetail(erxesApiId: String): JSON 
-
-  integrationsGetConfigs: JSON
-  integrationsConversationFbComments(
+  facebookGetAccounts(kind: String): JSON
+  facebookGetIntegrations(kind: String): JSON
+  facebookGetIntegrationDetail(erxesApiId: String): JSON 
+  facebookGetConfigs: JSON
+  facebookGetComments(
     postId: String!
     isResolved: Boolean
     commentId: String
@@ -35,13 +34,11 @@ export const queries = `
     skip: Int
     limit: Int
   ): [FacebookComment]
-
-  integrationsConversationFbCommentsCount(postId: String! isResolved: Boolean): JSON
-
-  integrationsGetFbPages(accountId: String! kind: String!): JSON
+  facebookGetCommentCount(postId: String! isResolved: Boolean): JSON
+  facebookGetPages(accountId: String! kind: String!): JSON
 `;
 
 export const mutations = `
-  integrationsUpdateConfigs(configsMap: JSON!): JSON
-  integrationsRepair(_id: String!): JSON
+  facebookUpdateConfigs(configsMap: JSON!): JSON
+  facebookRepair(_id: String!): JSON
 `;

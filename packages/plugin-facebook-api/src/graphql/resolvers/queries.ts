@@ -19,56 +19,32 @@ interface ICommentsParams {
 }
 
 const integrationQueries = {
-  // app.get('/accounts', async (req, res) => {
-  async integrationsGetAccounts(_root, { kind }: IKind, { models }: IContext) {
-    const selector = { kind };
-
-    return models.Accounts.find(selector);
+  async facebookGetAccounts(_root, { kind }: IKind, { models }: IContext) {
+    return models.Accounts.find({ kind });
   },
 
-  // app.get('/integrations', async (req, res) => {
-  async integrationsGetIntegrations(
-    _root,
-    { kind }: IKind,
-    { models }: IContext
-  ) {
+  async facebookGetIntegrations(_root, { kind }: IKind, { models }: IContext) {
     return models.Integrations.find({ kind });
   },
 
-  //  app.get('/integrationDetail', async (req, res) => {
-  async integrationsGetIntegrationDetail(
+  facebookGetIntegrationDetail(
     _root,
     { erxesApiId }: IDetailParams,
     { models }: IContext
   ) {
-    // do not expose fields below
-    const integration = await models.Integrations.findOne(
-      { erxesApiId },
-      {
-        nylasToken: 0,
-        nylasAccountId: 0,
-        nylasBillingState: 0,
-        googleAccessToken: 0
-      }
-    );
-
-    return integration;
+    return models.Integrations.findOne({ erxesApiId });
   },
 
-  // app.get('/configs', async (req, res) => {
-  async integrationsGetConfigs(_root, _args, { models }: IContext) {
-    return models.Configs.find({});
+  async facebookGetConfigs(_root, _args, { models }: IContext) {
+    return models.Configs.find({}).lean();
   },
 
-  // app.get('/facebook/get-comments', async (req, res) => {
-  async integrationsConversationFbComments(
+  async facebookGetComments(
     _root,
     args: ICommentsParams,
     { models }: IContext
   ) {
     const { postId, isResolved, commentId, senderId, limit = 10 } = args;
-    // let { limit = 10 } = args;
-
     const post = await models.Posts.getPost({ erxesApiId: postId });
 
     const query: {
@@ -80,10 +56,6 @@ const integrationQueries = {
       postId: post.postId,
       isResolved
     };
-
-    // query.isResolved = isResolved === 'false' ? false : true;
-
-    // limit = parseInt(limit, 10);
 
     if (senderId !== 'undefined') {
       const customer = await models.Customers.findOne({ erxesApiId: senderId });
@@ -153,12 +125,7 @@ const integrationQueries = {
     return result.reverse();
   },
 
-  // app.get('/facebook/get-comments-count', async (req, res) => {
-  async integrationsConversationFbCommentsCount(
-    _root,
-    args,
-    { models }: IContext
-  ) {
+  async facebookGetCommentCount(_root, args, { models }: IContext) {
     const { postId, isResolved = false } = args;
 
     const post = await models.Posts.getPost({ erxesApiId: postId }, true);
@@ -179,14 +146,10 @@ const integrationQueries = {
     };
   },
 
-  // app.get('/facebook/get-pages', async (req, res, next) => {
-  async integrationsGetFbPages(_root, args, { models }: IContext) {
+  async facebookGetPages(_root, args, { models }: IContext) {
     const { kind, accountId } = args;
-
     const account = await models.Accounts.getAccount({ _id: accountId });
-
     const accessToken = account.token;
-
     let pages: any[] = [];
 
     try {

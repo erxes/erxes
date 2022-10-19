@@ -197,7 +197,7 @@ export const removeCustomers = async (models: IModels, params) => {
   await models.Customers.deleteMany(selector);
 };
 
-export const updateIntegrationConfigs = async (
+export const updateConfigs = async (
   models: IModels,
   configsMap
 ): Promise<void> => {
