@@ -22,7 +22,7 @@ const pipelineTemplateMutations = {
     { stages, ...doc }: IPipelineTemplate,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    await checkPermission(models, doc.type, user, 'templatesAdd');
+    await checkPermission(models, subdomain, doc.type, user, 'templatesAdd');
 
     const pipelineTemplate = await models.PipelineTemplates.createPipelineTemplate(
       docModifier({ createdBy: user._id, ...doc }),
@@ -51,7 +51,7 @@ const pipelineTemplateMutations = {
     { _id, stages, ...doc }: IPipelineTemplatesEdit,
     { user, models, subdomain }: IContext
   ) {
-    await checkPermission(models, doc.type, user, 'templatesEdit');
+    await checkPermission(models, subdomain, doc.type, user, 'templatesEdit');
 
     const pipelineTemplate = await models.PipelineTemplates.getPipelineTemplate(
       _id
@@ -91,6 +91,7 @@ const pipelineTemplateMutations = {
 
     await checkPermission(
       models,
+      subdomain,
       pipelineTemplate.type,
       user,
       'templatesDuplicate'
@@ -122,6 +123,7 @@ const pipelineTemplateMutations = {
 
     await checkPermission(
       models,
+      subdomain,
       pipelineTemplate.type,
       user,
       'templatesRemove'
