@@ -240,6 +240,7 @@ const PERMISSION_MAP = {
 };
 
 export const checkPermission = async (
+  _models: IModels,
   type: string,
   user: IUserDocument,
   mutationName: string
