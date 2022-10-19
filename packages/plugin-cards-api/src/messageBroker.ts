@@ -153,6 +153,30 @@ export const initBroker = async cl => {
     };
   });
 
+  consumeRPCQueue(
+    'cards:boards.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.Boards.count(selector)
+      };
+    }
+  );
+
+  consumeRPCQueue(
+    'cards:growthHacks.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.GrowthHacks.count(selector)
+      };
+    }
+  );
+
   consumeQueue(
     'cards:checklists.removeChecklists',
     async ({ subdomain, data: { type, itemIds } }) => {
