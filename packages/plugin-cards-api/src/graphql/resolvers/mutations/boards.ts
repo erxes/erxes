@@ -61,7 +61,7 @@ const boardMutations = {
     doc: IBoard,
     { user, models, subdomain, docModifier }: IContext
   ) {
-    await checkPermission(models, doc.type, user, 'boardsAdd');
+    await checkPermission(models, subdomain, doc.type, user, 'boardsAdd');
 
     const extendedDoc = docModifier({ userId: user._id, ...doc });
 
@@ -89,7 +89,7 @@ const boardMutations = {
     { _id, ...doc }: IBoardsEdit,
     { user, models, subdomain }: IContext
   ) {
-    await checkPermission(models, doc.type, user, 'boardsEdit');
+    await checkPermission(models, subdomain, doc.type, user, 'boardsEdit');
 
     const board = await models.Boards.getBoard(_id);
     const updated = await models.Boards.updateBoard(_id, doc);
@@ -119,7 +119,7 @@ const boardMutations = {
   ) {
     const board = await models.Boards.getBoard(_id);
 
-    await checkPermission(models, board.type, user, 'boardsRemove');
+    await checkPermission(models, subdomain, board.type, user, 'boardsRemove');
 
     const removed = await models.Boards.removeBoard(_id);
 
@@ -164,7 +164,7 @@ const boardMutations = {
     { stages, ...doc }: IPipelinesAdd,
     { user, models, subdomain }: IContext
   ) {
-    await checkPermission(models, doc.type, user, 'pipelinesAdd');
+    await checkPermission(models, subdomain, doc.type, user, 'pipelinesAdd');
 
     if (doc.numberConfig || doc.numberSize) {
       await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
@@ -197,7 +197,7 @@ const boardMutations = {
     { _id, stages, ...doc }: IPipelinesEdit,
     { user, models, subdomain }: IContext
   ) {
-    await checkPermission(models, doc.type, user, 'pipelinesEdit');
+    await checkPermission(models, subdomain, doc.type, user, 'pipelinesEdit');
 
     if (doc.numberConfig || doc.numberSize) {
       await checkNumberConfig(doc.numberConfig || '', doc.numberSize || '');
@@ -239,9 +239,9 @@ const boardMutations = {
   async pipelinesWatch(
     _root,
     { _id, isAdd, type }: { _id: string; isAdd: boolean; type: string },
-    { user, models }: IContext
+    { user, subdomain, models }: IContext
   ) {
-    await checkPermission(models, type, user, 'pipelinesWatch');
+    await checkPermission(models, subdomain, type, user, 'pipelinesWatch');
 
     return models.Pipelines.watchPipeline(_id, isAdd, user._id);
   },
@@ -256,7 +256,13 @@ const boardMutations = {
   ) {
     const pipeline = await models.Pipelines.getPipeline(_id);
 
-    await checkPermission(models, pipeline.type, user, 'pipelinesRemove');
+    await checkPermission(
+      models,
+      subdomain,
+      pipeline.type,
+      user,
+      'pipelinesRemove'
+    );
 
     const removed = await models.Pipelines.removePipeline(_id);
 
@@ -306,7 +312,13 @@ const boardMutations = {
   ) {
     const pipeline = await models.Pipelines.getPipeline(_id);
 
-    await checkPermission(models, pipeline.type, user, 'pipelinesArchive');
+    await checkPermission(
+      models,
+      subdomain,
+      pipeline.type,
+      user,
+      'pipelinesArchive'
+    );
 
     const archived = await models.Pipelines.archivePipeline(_id, status);
 
@@ -341,7 +353,13 @@ const boardMutations = {
     const sourcePipeline = await models.Pipelines.getPipeline(_id);
     const sourceStages = await models.Stages.find({ pipelineId: _id }).lean();
 
-    await checkPermission(models, sourcePipeline.type, user, 'pipelinesCopied');
+    await checkPermission(
+      models,
+      subdomain,
+      sourcePipeline.type,
+      user,
+      'pipelinesCopied'
+    );
 
     const pipelineDoc = {
       ...sourcePipeline,
@@ -391,7 +409,7 @@ const boardMutations = {
     { _id, ...doc }: IStageEdit,
     { user, models, subdomain }: IContext
   ) {
-    await checkPermission(models, doc.type, user, 'stagesEdit');
+    await checkPermission(models, subdomain, doc.type, user, 'stagesEdit');
 
     const stage = await models.Stages.getStage(_id);
     const updated = await models.Stages.updateStage(_id, doc);
@@ -421,7 +439,7 @@ const boardMutations = {
   ) {
     const stage = await models.Stages.getStage(_id);
 
-    await checkPermission(models, stage.type, user, 'stagesRemove');
+    await checkPermission(models, subdomain, stage.type, user, 'stagesRemove');
 
     const removed = await models.Stages.removeStage(_id);
 
@@ -448,9 +466,9 @@ const boardMutations = {
       proccessId: string;
       sortType: string;
     },
-    { user, models }: IContext
+    { user, subdomain, models }: IContext
   ) {
-    await checkPermission(models, type, user, 'itemsSort');
+    await checkPermission(models, subdomain, type, user, 'itemsSort');
 
     const { collection } = getCollection(models, type);
 
@@ -518,9 +536,9 @@ const boardMutations = {
       timeSpent: number;
       startDate: string;
     },
-    { user, models }: IContext
+    { user, subdomain, models }: IContext
   ) {
-    await checkPermission(models, type, user, 'updateTimeTracking');
+    await checkPermission(models, subdomain, type, user, 'updateTimeTracking');
 
     return models.Boards.updateTimeTracking(
       _id,
