@@ -15,7 +15,6 @@
     "@types/jest": "^23.3.0",
     "@types/node": "^10.12.18",
     "body-parser": "^1.17.1",
-    "botbuilder": "^4.4.0",
     "debug": "^4.1.1",
     "dotenv": "^4.0.0",
     "erxes-inmemory-storage": "^1.0.20",
