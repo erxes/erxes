@@ -122,8 +122,8 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
         variables['closeDate'] = data.closeDate;
       }
 
-      if (data.tagId) {
-        variables['tagIds'] = data.tagId;
+      if (data.tagIds) {
+        variables['tagIds'] = data.tagIds;
       }
 
       if (data.assignedUserIds) {
