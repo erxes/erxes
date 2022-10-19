@@ -214,7 +214,10 @@ export default withProps<Props>(
       })
     }),
     graphql<Props, AllUsersQueryResponse>(gql(userQueries.allUsers), {
-      name: 'usersQuery'
+      name: 'usersQuery',
+      options: () => ({
+        variables: { isActive: true }
+      })
     })
   )(WithStages)
 );
