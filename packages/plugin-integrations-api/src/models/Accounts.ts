@@ -1,4 +1,4 @@
-import { Document, model, Model, Schema } from 'mongoose';
+import { Document, Model, Schema } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import { field } from './utils';
 

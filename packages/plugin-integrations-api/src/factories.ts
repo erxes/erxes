@@ -1,10 +1,3 @@
-import {
-  Comments,
-  ConversationMessages,
-  Conversations,
-  Customers,
-  Posts
-} from './facebook/models';
 import { Accounts } from './models';
 import Configs from './models/Configs';
 import Integrations from './models/Integrations';
@@ -78,15 +71,13 @@ export const integrationFactory = (params: {
   gmailHistoryId?: string;
   nylasAccountId?: string;
   nylasToken?: string;
-  facebookPageIds?: string[];
-  facebookPageTokensMap?: object;
   smoochIntegrationId?: string;
   whatsappinstanceId?: string;
   telegramBotToken?: string;
   whatsappToken?: string;
 }) => {
   const integration = new Integrations({
-    kind: params.kind || 'facebook',
+    kind: params.kind,
     accountId: params.accountId || '_id',
     googleAccessToken: params.googleAccessToken || '',
     email: params.email || 'user@mail.com',
@@ -94,8 +85,6 @@ export const integrationFactory = (params: {
     gmailHistoryId: params.gmailHistoryId || '',
     nylasAccountId: params.nylasAccountId || '',
     nylasToken: params.nylasToken || '',
-    facebookPageIds: params.facebookPageIds || [],
-    facebookPageTokensMap: params.facebookPageTokensMap || {},
     smoochIntegrationId: params.smoochIntegrationId || 'aaksjfhakjsfhkalhf',
     whatsappinstanceId: params.whatsappinstanceId || '123456',
     whatsappToken: params.whatsappToken || 'asdag123',
@@ -103,52 +92,6 @@ export const integrationFactory = (params: {
   });
 
   return integration.save();
-};
-
-export const facebookCustomerFactory = (params: { userId: string }) => {
-  const customer = new Customers({
-    userId: params.userId
-  });
-
-  return customer.save();
-};
-
-export const facebookConversationFactory = (params: {
-  senderId: string;
-  recipientId: string;
-}) => {
-  const conversation = new Conversations({
-    timestamp: new Date(),
-    senderId: params.senderId,
-    recipientId: params.recipientId,
-    content: 'content'
-  });
-
-  return conversation.save();
-};
-
-export const facebookConversationMessagFactory = (params: {
-  conversationId?: string;
-  mid?: string;
-}) => {
-  const message = new ConversationMessages({
-    conversationId: params.conversationId || '',
-    mid: params.mid || ''
-  });
-
-  return message.save();
-};
-
-export const facebookPostFactory = (params: { postId?: string }) => {
-  const post = new Posts({ postId: params.postId || '' });
-
-  return post.save();
-};
-
-export const facebookCommentFactory = (params: { postId?: string }) => {
-  const comment = new Comments({ postId: params.postId || '' });
-
-  return comment.save();
 };
 
 // Nylas gmail customer ===================

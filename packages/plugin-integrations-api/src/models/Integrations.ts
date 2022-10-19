@@ -10,8 +10,6 @@ export interface IIntegration {
   nylasAccountId?: string;
   nylasBillingState?: string;
   erxesApiId: string;
-  facebookPageIds?: string[];
-  facebookPageTokensMap?: { [key: string]: string };
   email: string;
   googleAccessToken?: string;
   phoneNumber: string;
@@ -62,18 +60,9 @@ export const integrationSchema = new Schema({
   nylasToken: String,
   nylasAccountId: String,
   nylasBillingState: String,
-  facebookPageIds: field({
-    type: [String],
-    label: 'Facebook page ids',
-    optional: true
-  }),
   email: String,
   expiration: String,
   gmailHistoryId: String,
-  facebookPageTokensMap: field({
-    type: Object,
-    default: {}
-  }),
   chatfuelConfigs: field({
     type: Object,
     default: {}
