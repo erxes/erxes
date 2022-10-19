@@ -463,4 +463,6 @@ export type ITimeData = {
   closeDate?: Date;
   startDate?: Date;
   tagId?: string[];
+  assignedUserIds?: string[];
+  stageId?: string;
 };

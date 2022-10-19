@@ -34,7 +34,7 @@ type WithStagesProps = {
   stagesQuery: any;
   pipelineLabelsQuery: any;
   pipelineAssigneeQuery: any;
-  tagsQuery: TagsQueryResponse;
+  tagsQuery?: TagsQueryResponse;
   usersQuery: AllUsersQueryResponse;
 } & Props;
 
@@ -103,7 +103,7 @@ class WithStages extends Component<WithStagesProps> {
     }
 
     if (queryParams.groupBy === 'tags') {
-      groups = tagsQuery.tags || [];
+      groups = tagsQuery?.tags || [];
       groupType = 'tags';
     }
 
@@ -205,10 +205,11 @@ export default withProps<Props>(
     }),
     graphql<Props, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
       name: 'tagsQuery',
-      options: (props: Props) => ({
+      skip: ({ pipeline }: Props) => pipeline.tagId === '',
+      options: ({ pipeline, options }: Props) => ({
         variables: {
-          type: `cards:${props.options.type}`,
-          parentId: props.pipeline.tagId || ''
+          type: `cards:${options.type}`,
+          parentId: pipeline.tagId
         }
       })
     }),

@@ -126,6 +126,14 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
         variables['tagIds'] = data.tagId;
       }
 
+      if (data.assignedUserIds) {
+        variables['assignedUserIds'] = data.assignedUserIds;
+      }
+
+      if (data.stageId) {
+        variables['stageId'] = data.stageId;
+      }
+
       editMutation({ variables })
         .then(() => {
           Alert.success(options.texts.changeSuccessText);

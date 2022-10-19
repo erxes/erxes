@@ -91,14 +91,27 @@ export class TimeView extends React.Component<Props, State> {
   };
 
   handleItemMove = (itemId, dragTime, newGroupOrder) => {
-    const { resources, items } = this.props;
+    const { resources, items, groupType } = this.props;
 
-    const newTagId = [] as any;
+    const newResourceId = [] as any;
 
     let startDate: any;
     let endDate: any;
+    let groupBy: any;
 
-    newTagId.push(resources[newGroupOrder].id);
+    if (groupType === 'stage') {
+      groupBy = 'stageId';
+    }
+
+    if (groupType === 'tags') {
+      groupBy = 'tagIds';
+    }
+
+    if (groupType === 'members') {
+      groupBy = 'assignedUserIds';
+    }
+
+    newResourceId.push(resources[newGroupOrder].id);
 
     const filteredItem = items.find(item => (item || {})._id === itemId);
 
@@ -109,7 +122,7 @@ export class TimeView extends React.Component<Props, State> {
 
     this.props.itemMoveResizing(itemId, {
       startDate: new Date(dragTime),
-      tagId: newTagId,
+      [groupBy]: groupBy === 'stageId' ? newResourceId[0] : newResourceId,
       closeDate: dragTime + (endDate - startDate)
     });
   };
