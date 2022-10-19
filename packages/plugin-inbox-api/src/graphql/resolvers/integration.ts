@@ -1,17 +1,18 @@
-import { KIND_CHOICES } from '../../models/definitions/constants';
 import { IIntegrationDocument } from '../../models/definitions/integrations';
 import { sendIntegrationsMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
-  __resolveReference({_id}, { models }: IContext) {
-    return models.Integrations.findOne({ _id })
+  __resolveReference({ _id }, { models }: IContext) {
+    return models.Integrations.findOne({ _id });
   },
-    brand(integration: IIntegrationDocument) {
-      return integration.brandId && {
+  brand(integration: IIntegrationDocument) {
+    return (
+      integration.brandId && {
         __typename: 'Brand',
         _id: integration.brandId
       }
+    );
   },
 
   async form(integration: IIntegrationDocument) {
@@ -19,7 +20,7 @@ export default {
       return null;
     }
 
-    return { __typename: 'Form', _id: integration.formId }
+    return { __typename: 'Form', _id: integration.formId };
   },
 
   channels(integration: IIntegrationDocument, _args, { models }: IContext) {
@@ -29,11 +30,15 @@ export default {
   },
 
   async tags(integration: IIntegrationDocument) {
-    return (integration.tagIds || []).map((_id) => ({ __typename: 'Tag', _id }));
+    return (integration.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
-  websiteMessengerApps(integration: IIntegrationDocument, _args, { models }: IContext) {
-    if (integration.kind === KIND_CHOICES.MESSENGER) {
+  websiteMessengerApps(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext
+  ) {
+    if (integration.kind === 'messenger') {
       return models.MessengerApps.find({
         kind: 'website',
         'credentials.integrationId': integration._id
@@ -42,8 +47,12 @@ export default {
     return [];
   },
 
-  knowledgeBaseMessengerApps(integration: IIntegrationDocument, _args, { models }: IContext) {
-    if (integration.kind === KIND_CHOICES.MESSENGER) {
+  knowledgeBaseMessengerApps(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext
+  ) {
+    if (integration.kind === 'messenger') {
       return models.MessengerApps.find({
         kind: 'knowledgebase',
         'credentials.integrationId': integration._id
@@ -52,8 +61,12 @@ export default {
     return [];
   },
 
-  leadMessengerApps(integration: IIntegrationDocument, _args, { models }: IContext) {
-    if (integration.kind === KIND_CHOICES.MESSENGER) {
+  leadMessengerApps(
+    integration: IIntegrationDocument,
+    _args,
+    { models }: IContext
+  ) {
+    if (integration.kind === 'messenger') {
       return models.MessengerApps.find({
         kind: 'lead',
         'credentials.integrationId': integration._id

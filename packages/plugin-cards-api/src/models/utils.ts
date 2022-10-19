@@ -544,6 +544,7 @@ export const conversationConvertToCard = async (
 
     doc.sourceConversationIds = sourceConversationIds;
 
+    delete doc._id;
     const item = await update(oldItem._id, doc);
 
     item.userId = user._id;

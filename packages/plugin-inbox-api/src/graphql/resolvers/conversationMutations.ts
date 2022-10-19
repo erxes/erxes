@@ -1,10 +1,7 @@
 import * as strip from 'strip';
 import * as _ from 'underscore';
 
-import {
-  KIND_CHOICES,
-  MESSAGE_TYPES
-} from '../../models/definitions/constants';
+import { MESSAGE_TYPES } from '../../models/definitions/constants';
 
 import { IMessageDocument } from '../../models/definitions/conversationMessages';
 import { IConversationDocument } from '../../models/definitions/conversations';
@@ -26,7 +23,6 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
-import { splitStr } from '@erxes/api-utils/src/core';
 import QueryBuilder, { IListArgs } from '../../conversationQueryBuilder';
 import { CONVERSATION_STATUSES } from '../../models/definitions/constants';
 import { IUserDocument } from '@erxes/api-utils/src/types';
@@ -62,13 +58,13 @@ interface IConversationConvert {
   itemName: string;
   bookingProductId?: string;
   customFieldsData?: { [key: string]: any };
-  priority?: String;
-  assignedUserIds?: [String];
-  labelIds?: [String];
+  priority?: string;
+  assignedUserIds?: string[];
+  labelIds?: string[];
   startDate?: Date;
   closeDate?: Date;
   attachments?: IAttachment[];
-  description?: String;
+  description?: string;
 }
 
 /**
@@ -363,7 +359,7 @@ const conversationMutations = {
     // customer's email
     const email = customer ? customer.primaryEmail : '';
 
-    if (kind === KIND_CHOICES.LEAD && email) {
+    if (kind === 'lead' && email) {
       await sendCoreMessage({
         subdomain,
         action: 'sendEmail',
@@ -377,11 +373,11 @@ const conversationMutations = {
       });
     }
 
-    let requestName;
+    const requestName = '';
     let type;
     let action;
 
-    if (kind === KIND_CHOICES.FACEBOOK_POST) {
+    if (kind === 'facebook-post') {
       type = 'facebook';
       action = 'reply-post';
 
@@ -398,66 +394,10 @@ const conversationMutations = {
 
     const message = await models.ConversationMessages.addMessage(doc, user._id);
 
-    /**
-     * Send SMS only when:
-     * - integration is of kind telnyx
-     * - customer has primary phone filled
-     * - customer's primary phone is valid
-     */
-    if (
-      kind === KIND_CHOICES.TELNYX &&
-      customer &&
-      customer.primaryPhone &&
-      customer.phoneValidationStatus === 'valid'
-    ) {
-      /**
-       * SMS part is limited to 160 characters, so we split long content by 160 characters.
-       * See below for details.
-       * https://developers.telnyx.com/docs/v2/messaging/configuration-and-limitations/character-and-rate-limits
-       */
-      const chunks =
-        doc.content.length > 160 ? splitStr(doc.content, 160) : [doc.content];
-
-      for (let i = 0; i < chunks.length; i++) {
-        await sendIntegrationsMessage({
-          subdomain,
-          action: 'notification',
-          data: {
-            action: 'sendConversationSms',
-            payload: JSON.stringify({
-              conversationMessageId: `${message._id}-part${i + 1}`,
-              conversationId,
-              integrationId,
-              toPhone: customer.primaryPhone,
-              content: strip(chunks[i])
-            })
-          }
-        });
-      }
-    }
-
     // send reply to facebook
-    if (kind === KIND_CHOICES.FACEBOOK_MESSENGER) {
+    if (kind === 'facebook-messenger') {
       type = 'facebook';
       action = 'reply-messenger';
-    }
-
-    // send reply to chatfuel
-    if (kind === KIND_CHOICES.CHATFUEL) {
-      requestName = 'replyChatfuel';
-    }
-
-    if (kind === KIND_CHOICES.TWITTER_DM) {
-      requestName = 'replyTwitterDm';
-    }
-
-    if (kind.includes('smooch')) {
-      requestName = 'replySmooch';
-    }
-
-    // send reply to whatsapp
-    if (kind === KIND_CHOICES.WHATSAPP) {
-      requestName = 'replyWhatsApp';
     }
 
     await sendConversationToIntegrations(
