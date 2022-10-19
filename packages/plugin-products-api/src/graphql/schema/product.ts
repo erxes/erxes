@@ -66,6 +66,11 @@ export const types = (tagsAvailable, contactsAvailable) => `
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
   }
+
+  type ProductsListResponse {
+    list: [Product],
+    totalCount: Float,
+  }
 `;
 
 const productParams = `
@@ -112,10 +117,11 @@ export const queries = `
   productCategoryDetail(_id: String): ProductCategory
 
   products(${productParams}): [Product]
+  productsMain(${productParams}): ProductsListResponse
   productsTotalCount(type: String): Int
+  productsCounts(${productParams}, only: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
-  productCounts(${productParams}, only: String): JSON
 `;
 
 export const mutations = `

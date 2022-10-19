@@ -15,7 +15,8 @@ const search = async ({ subdomain, data: { value } }) => {
           'productCount',
           'description',
           'supply',
-          'status'
+          'status',
+          'categoryId'
         ]
       })
     }

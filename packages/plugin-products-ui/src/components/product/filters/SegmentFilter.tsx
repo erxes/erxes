@@ -27,7 +27,7 @@ export default withProps<{ loadingMainQuery: boolean }>(
       { loadingMainQuery: boolean },
       CountQueryResponse,
       { only: string }
-    >(gql(queries.segmentProductsCounts), {
+    >(gql(queries.productCounts), {
       name: 'productCountsQuery',
       skip: ({ loadingMainQuery }) => loadingMainQuery,
       options: {

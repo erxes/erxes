@@ -143,6 +143,47 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     }
   }
 
+  // filter by search value
+  public searchFilter(value: string): void {
+    if (value.includes('@')) {
+      this.positiveList.push({
+        match_phrase: {
+          name: {
+            query: value
+          }
+        }
+      });
+    } else {
+      this.positiveList.push({
+        bool: {
+          should: [
+            {
+              match: {
+                name: {
+                  query: value
+                }
+              }
+            },
+            {
+              wildcard: {
+                name: `*${value.toLowerCase()}*`
+              }
+            }
+          ]
+        }
+      });
+    }
+  }
+
+  // filter by auto-completion type
+  public searchByAutoCompletionType(value: string, type: string): void {
+    this.positiveList.push({
+      wildcard: {
+        [type]: `*${(value || '').toLowerCase()}*`
+      }
+    });
+  }
+
   // filter by segment
   public async segmentFilter(segment: any, segmentData?: any) {
     const selector = await fetchSegment(
@@ -198,21 +239,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     );
 
     this.positiveList.push({
-      terms: { categoryId: { $in: product_category_ids } }
+      terms: { 'categoryId.keyword': product_category_ids }
     });
-  }
-
-  public async excludeCategoryIdFilter(): Promise<void> {
-    const notActiveCategories = await this.models.ProductCategories.find({
-      status: { $nin: [null, 'active'] }
-    });
-
-    this.negativeList.push({ $in: notActiveCategories.map(e => e._id) });
   }
 
   // filter by type
   public async typeFilter(type: string): Promise<void> {
-    this.positiveList.push({ terms: { type: type } });
+    this.positiveList.push({ term: { type: type } });
   }
 
   public getRelType() {
@@ -226,17 +259,13 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     this.resetPositiveList();
     this.resetNegativeList();
 
-    // if (this.params.type) {
-    //   await this.typeFilter(this.params.type);
-    // }
+    if (this.params.type) {
+      await this.typeFilter(this.params.type);
+    }
 
-    // if (this.params.categoryId) {
-    //   await this.categoryIdFilter(this.params.categoryId);
-    // }
-
-    // if (!this.params.categoryId) {
-    //   await this.excludeCategoryIdFilter();
-    // }
+    if (this.params.categoryId) {
+      await this.categoryIdFilter(this.params.categoryId);
+    }
 
     // filter by segment data
     if (this.params.segmentData) {
@@ -265,6 +294,15 @@ export class CommonBuilder<IListArgs extends ICommonListArgs> {
     // If there are ids and form params, returning ids filter only filter by ids
     if (this.params.ids && this.params.ids.length > 0) {
       this.idsFilter(this.params.ids.filter(id => id));
+    }
+
+    if (this.params.searchValue) {
+      this.params.autoCompletion
+        ? this.searchByAutoCompletionType(
+            this.params.searchValue,
+            this.params.autoCompletionType || ''
+          )
+        : this.searchFilter(this.params.searchValue);
     }
   }
 

@@ -1,52 +1,10 @@
 import { queries as productQueries } from '@erxes/ui-products/src/graphql';
 
-const productFields = productQueries.productFields;
-
 const productCategories = productQueries.productCategories;
 
 const products = productQueries.products;
 
-const listParamsDef = `
-    $type: String,
-    $categoryId: String,
-    $tag: String,
-    $searchValue: String,
-    $perPage: Int,
-    $page: Int, 
-    $ids: [String],
-    $excludeIds: Boolean,
-    $pipelineId: String,
-    $boardId: String,
-    $segment: String,
-    $segmentData: String
-`;
-
-const listParamsValue = `
-    type: $type,
-    categoryId: $categoryId,
-    tag: $tag,
-    searchValue: $searchValue,
-    perPage: $perPage,
-    page: $page, 
-    ids: $ids,
-    excludeIds: $excludeIds,
-    pipelineId: $pipelineId,
-    boardId: $boardId,
-    segment: $segment,
-    segmentData: $segmentData 
-`;
-
-const productsCount = `
-  query productsTotalCount($type: String) {
-    productsTotalCount(type: $type)
-  }
-`;
-
-const segmentProductsCounts = `
-  query productCounts(${listParamsDef}, $only: String) {
-    productCounts(${listParamsValue}, only: $only)
-  }
-`;
+const productsMain = productQueries.productsMain;
 
 const productCountByTags = `
   query productCountByTags {
@@ -57,6 +15,38 @@ const productCountByTags = `
 const productCategoriesCount = `
   query productCategoriesTotalCount {
     productCategoriesTotalCount
+  }
+`;
+
+const productCounts = `
+  query productsCounts(
+    $type: String,
+    $categoryId: String,
+    $tag: String,
+    $searchValue: String,
+    $perPage: Int,
+    $page: Int $ids: [String],
+    $excludeIds: Boolean,
+    $pipelineId: String,
+    $boardId: String,
+    $segment: String,
+    $segmentData: String,
+    $only: String
+  ) {
+    productsCounts(
+      type: $type,
+      categoryId: $categoryId,
+      tag: $tag,
+      searchValue: $searchValue,
+      perPage: $perPage,
+      page: $page ids: $ids,
+      excludeIds: $excludeIds,
+      pipelineId: $pipelineId,
+      boardId: $boardId,
+      segment: $segment,
+      segmentData: $segmentData,
+      only: $only
+    )
   }
 `;
 
@@ -84,14 +74,14 @@ const productsConfigs = productQueries.productsConfigs;
 
 export default {
   products,
+  productsMain,
   productDetail,
+  productCounts,
   productCountByTags,
-  productsCount,
   productCategories,
   productCategoriesCount,
   productCategoryDetail,
   uoms,
   uomsTotalCount,
-  productsConfigs,
-  segmentProductsCounts
+  productsConfigs
 };

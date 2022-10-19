@@ -21,14 +21,18 @@ type ProductCounts = {
   bySegment: Counts;
   byTag: Counts;
 };
+type MainProductsResponse = {
+  list: IProduct[];
+  totalCount: number;
+};
 // query types
 
 export type ProductsQueryResponse = {
   products: IProduct[];
 } & QueryResponse;
 
-export type ProductsCountQueryResponse = {
-  productsTotalCount: number;
+export type ProductsMainQueryResponse = {
+  productsMain: MainProductsResponse;
 } & QueryResponse;
 
 export type CountQueryResponse = {
