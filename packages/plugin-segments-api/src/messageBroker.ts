@@ -36,7 +36,10 @@ export const initBroker = async cl => {
     async ({ subdomain, data: { selector } }) => {
       const models = await generateModels(subdomain);
 
-      return { data: await models.Segments.count(selector), status: 'success' };
+      return {
+        data: await models.Segments.find(selector).count(),
+        status: 'success'
+      };
     }
   );
 

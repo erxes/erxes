@@ -160,7 +160,7 @@ export const initBroker = async cl => {
 
       return {
         status: 'success',
-        data: await models.Boards.count(selector)
+        data: await models.Boards.find(selector).count()
       };
     }
   );
