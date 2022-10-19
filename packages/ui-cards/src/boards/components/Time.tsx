@@ -165,7 +165,8 @@ export class TimeView extends React.Component<Props, State> {
       pipelineId: pipeline._id,
       [key]: value,
       startDate: new Date(startTime),
-      closeDate: new Date(startTime + 3600000)
+      closeDate: new Date(startTime + 3600000),
+      showStageSelect: groupType !== 'stage' ? true : false
     };
 
     const content = props => <AddForm {...props} {...formProps} />;

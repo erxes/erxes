@@ -45,6 +45,7 @@ type IProps = {
   tagIds?: string[];
   startDate?: Date;
   closeDate?: Date;
+  showStageSelect?: boolean;
 };
 
 type FinalProps = {

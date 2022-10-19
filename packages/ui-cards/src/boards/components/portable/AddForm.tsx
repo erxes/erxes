@@ -37,7 +37,7 @@ type Props = {
   tagIds?: string[];
   startDate?: Date;
   closeDate?: Date;
-  showSelectStage?: boolean;
+  showStageSelect?: boolean;
 };
 
 type State = {
@@ -259,8 +259,7 @@ class AddForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { stages, showSelectStage } = this.props;
-    const { stageId } = this.state;
+    const { stages, showStageSelect } = this.props;
 
     let stageValues: any;
 
@@ -301,7 +300,7 @@ class AddForm extends React.Component<Props, State> {
           </HeaderContent>
         </HeaderRow>
 
-        {showSelectStage && (
+        {showStageSelect && (
           <HeaderRow>
             <HeaderContent>
               <ControlLabel required={true}>Stage</ControlLabel>
