@@ -42,7 +42,7 @@ class DetailInfo extends React.Component<Props> {
 
     return (
       <SidebarList className="no-link">
-        {this.renderRow('Deal name', deal.name)}
+        {this.renderRow('Deal name', deal.name || 'NA')}
         {isEnabled('contacts') && (
           <>
             <CustomerSection
