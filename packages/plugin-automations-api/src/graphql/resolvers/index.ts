@@ -6,12 +6,12 @@ import { automations as Mutations } from './mutations';
 
 import { Automations as Queries } from './queries';
 
-const resolvers = serviceDiscovery => ({
+const resolvers = _serviceDiscovery => ({
   ...customScalars,
   Automation,
   AutomationNote,
   Mutation: {
-    ...Mutations(serviceDiscovery)
+    ...Mutations
   },
   Query: {
     ...Queries

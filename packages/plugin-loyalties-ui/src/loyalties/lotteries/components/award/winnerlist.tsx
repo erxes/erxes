@@ -15,7 +15,6 @@ class WinnersAwardList extends React.Component<IProps> {
   render() {
     const { lists } = this.props;
 
-    console.log(lists);
     return (
       <TableContainer>
         <Table>

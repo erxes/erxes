@@ -16,7 +16,7 @@ interface IAutomationsEdit extends IAutomation {
   _id: string;
 }
 
-const automationMutations = _serviceDiscovery => ({
+const automationMutations = {
   /**
    * Creates a new automation
    */
@@ -288,7 +288,7 @@ const automationMutations = _serviceDiscovery => ({
 
     return note;
   }
-});
+};
 
 checkPermission(automationMutations, 'automationsAdd', 'automationsAdd');
 checkPermission(automationMutations, 'automationsEdit', 'automationsEdit');

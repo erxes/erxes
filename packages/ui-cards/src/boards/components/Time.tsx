@@ -1,5 +1,4 @@
 import React from 'react';
-import { ITag } from '@erxes/ui-tags/src/types';
 import { IOptions, IPipeline, IItem, ITimeData } from '../types';
 import { CalendarContainer } from '../styles/view';
 import EditForm from '../containers/editForm/EditForm';
@@ -19,7 +18,6 @@ import RTG from 'react-transition-group';
 import AddForm from '../containers/portable/AddForm';
 
 type Props = {
-  tags: ITag[];
   pipeline: IPipeline;
   options: IOptions;
   refetch: () => void;
@@ -27,6 +25,7 @@ type Props = {
   resources: any[];
   events: any[];
   itemMoveResizing: (itemId: string, data: ITimeData) => void;
+  groupType: string;
 };
 
 type State = {
@@ -92,14 +91,27 @@ export class TimeView extends React.Component<Props, State> {
   };
 
   handleItemMove = (itemId, dragTime, newGroupOrder) => {
-    const { resources, items } = this.props;
+    const { resources, items, groupType } = this.props;
 
-    const newTagId = [] as any;
+    const newResourceId = [] as any;
 
     let startDate: any;
     let endDate: any;
+    let groupBy: any;
 
-    newTagId.push(resources[newGroupOrder].id);
+    if (groupType === 'stage') {
+      groupBy = 'stageId';
+    }
+
+    if (groupType === 'tags') {
+      groupBy = 'tagIds';
+    }
+
+    if (groupType === 'members') {
+      groupBy = 'assignedUserIds';
+    }
+
+    newResourceId.push(resources[newGroupOrder].id);
 
     const filteredItem = items.find(item => (item || {})._id === itemId);
 
@@ -110,7 +122,7 @@ export class TimeView extends React.Component<Props, State> {
 
     this.props.itemMoveResizing(itemId, {
       startDate: new Date(dragTime),
-      tagId: newTagId,
+      [groupBy]: groupBy === 'stageId' ? newResourceId[0] : newResourceId,
       closeDate: dragTime + (endDate - startDate)
     });
   };
@@ -124,18 +136,37 @@ export class TimeView extends React.Component<Props, State> {
   };
 
   renderModal() {
-    const { options, pipeline } = this.props;
-    const { isModalOpen, groupId, startTime, closeTime } = this.state;
+    const { options, pipeline, groupType } = this.props;
+    const { isModalOpen, groupId, startTime } = this.state;
 
     const addText = options.texts.addText;
+
+    let key: any;
+    let value: any;
+
+    if (groupType === 'stage') {
+      key = 'stageId';
+      value = groupId;
+    }
+
+    if (groupType === 'tags') {
+      key = 'tagIds';
+      value = [groupId];
+    }
+
+    if (groupType === 'members') {
+      key = 'assignedUserIds';
+      value = [groupId];
+    }
 
     const formProps = {
       options,
       showSelect: false,
       pipelineId: pipeline._id,
-      tagIds: [groupId],
+      [key]: value,
       startDate: new Date(startTime),
-      closeDate: new Date(startTime + 3600000)
+      closeDate: new Date(startTime + 3600000),
+      showStageSelect: groupType !== 'stage' ? true : false
     };
 
     const content = props => <AddForm {...props} {...formProps} />;
@@ -155,7 +186,7 @@ export class TimeView extends React.Component<Props, State> {
   }
 
   render() {
-    const { resources, events, refetch } = this.props;
+    const { resources, events, refetch, groupType } = this.props;
 
     return (
       <CalendarContainer>
@@ -178,7 +209,7 @@ export class TimeView extends React.Component<Props, State> {
               {({ getRootProps }) => {
                 return (
                   <div {...getRootProps({ style: { color: '#fff' } })}>
-                    By Tags
+                    {groupType}
                   </div>
                 );
               }}
