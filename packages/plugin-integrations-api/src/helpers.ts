@@ -115,7 +115,6 @@ export const removeCustomers = async (models: IModels, params) => {
   const { customerIds } = params;
   const selector = { erxesApiId: { $in: customerIds } };
 
-  await models.FbCustomers.deleteMany(selector);
   await models.CallProCustomers.deleteMany(selector);
 };
 
