@@ -65,10 +65,6 @@ const config = {
                 href: '/docs/intro'
               },
               {
-                label: '└─ Components',
-                to: '/docs/category/components'
-              },
-              {
                 label: 'User Guide',
                 href: '/docs/user-guide'
               },
