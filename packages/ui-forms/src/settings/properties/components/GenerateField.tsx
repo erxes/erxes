@@ -582,7 +582,7 @@ export default class GenerateField extends React.Component<Props, State> {
       }
 
       case 'product': {
-        if (!isEnabled('product')) {
+        if (!isEnabled('products')) {
           return <p>Products service is not enabled</p>;
         }
         return this.renderProduct(attrs);
