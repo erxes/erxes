@@ -8,6 +8,7 @@ import forms from './forms';
 import resolvers from './graphql/resolvers';
 import typeDefs from './graphql/typeDefs';
 import { initBroker } from './messageBroker';
+import * as permissions from './permissions';
 import segments from './segments';
 
 export let debug;
@@ -17,6 +18,7 @@ export let serviceDiscovery;
 
 export default {
   name: 'tumentech',
+  permissions,
   graphql: async sd => {
     serviceDiscovery = sd;
     return {
