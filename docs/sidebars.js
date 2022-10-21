@@ -1,6 +1,7 @@
 var pluginTutorialSideBar = require('./plugin.tutorial.sidebars');
 var userGuideSidebar = require('./user.guide.sidebar');
 
+
 // 'deployment/deployment
 
 var sideBar = {
@@ -119,7 +120,8 @@ var sideBar = {
       },
       collapsed: true,
       items: ['developer/erxes-xos-user-guide']
-    }
+    },
+    
   ],
   ...pluginTutorialSideBar,
   ...userGuideSidebar
