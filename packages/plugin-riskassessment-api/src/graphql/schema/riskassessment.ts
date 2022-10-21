@@ -44,6 +44,7 @@ export const types = `
         status: String
         statusColor: String
         createdAt:Date
+        resultScore:Int
         category:RiskAssessmentCategoryInput
         calculateMethod:String
         calculateLogics:[CalculateLogicType]
