@@ -1,9 +1,10 @@
+import { generateAttachmentUrl } from '@erxes/api-utils/src/core';
 import * as dotenv from 'dotenv';
 import * as request from 'request-promise';
 import * as sanitizeHtml from 'sanitize-html';
 import { IModels } from './connectionResolver';
 import { debugBase, debugExternalRequests } from './debuggers';
-import {get, set} from './inmemoryStorage';
+import { get, set } from './inmemoryStorage';
 import { sendInboxMessage } from './messageBroker';
 
 dotenv.config();
@@ -73,7 +74,7 @@ export const sendRequest = ({
       `);
 
     request({
-      uri: encodeURI(url || ""),
+      uri: encodeURI(url || ''),
       method,
       headers: {
         'Content-Type': headerType || 'application/json',
@@ -150,19 +151,6 @@ export const getEnv = ({
 export const compose = (...fns) => arg =>
   fns.reduceRight((p, f) => p.then(f), Promise.resolve(arg));
 
-/*
- * Generate url depending on given file upload publicly or not
- */
-export const generateAttachmentUrl = (urlOrName: string) => {
-  const DOMAIN = getEnv({ name: 'DOMAIN' });
-
-  if (urlOrName.startsWith('http')) {
-    return urlOrName;
-  }
-
-  return `${DOMAIN}/gateway/pl:core/read-file?key=${urlOrName}`;
-};
-
 export const downloadAttachment = urlOrName => {
   return new Promise(async (resolve, reject) => {
     const url = generateAttachmentUrl(urlOrName);
@@ -198,7 +186,7 @@ export const getConfigs = async (models: IModels) => {
     configsMap[config.code] = config.value;
   }
 
- set('configs_erxes_integrations', JSON.stringify(configsMap));
+  set('configs_erxes_integrations', JSON.stringify(configsMap));
 
   return configsMap;
 };

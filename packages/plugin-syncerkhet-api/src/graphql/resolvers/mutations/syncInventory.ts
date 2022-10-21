@@ -48,7 +48,6 @@ const inventoryMutations = {
         is_gen_fk: 'true'
       }
     });
-    console.log(response);
 
     if (!response && Object.keys(JSON.parse(response)).length === 0) {
       throw new Error('Erkhet data not found.');

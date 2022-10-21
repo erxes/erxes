@@ -1,16 +1,16 @@
-const yaml = require("yaml");
-var { resolve } = require("path");
+const yaml = require('yaml');
+var { resolve } = require('path');
 var fs = require('fs-extra');
 
-const filePath = (pathName) => {
+const filePath = pathName => {
   if (pathName) {
     return resolve(__dirname, '..', pathName);
   }
 
   return resolve(__dirname, '..');
-}
+};
 
-var workflowsPath = (fileName) => filePath(`./.github/workflows/${fileName}`);
+var workflowsPath = fileName => filePath(`./.github/workflows/${fileName}`);
 
 var plugins = [
   { name: 'ads', api: true },
@@ -24,17 +24,28 @@ var plugins = [
 const pluginsMap = {};
 
 var main = async () => {
-  const uiContentBuffer = fs.readFileSync(workflowsPath('plugin-sample-ui.yaml'));
-  const apiContentBuffer = fs.readFileSync(workflowsPath('plugin-sample-api.yaml'));
+  const uiContentBuffer = fs.readFileSync(
+    workflowsPath('plugin-sample-ui.yaml')
+  );
+  const apiContentBuffer = fs.readFileSync(
+    workflowsPath('plugin-sample-api.yaml')
+  );
 
   for (const plugin of plugins) {
-    pluginsMap[plugin.name] = {}
+    pluginsMap[plugin.name] = {};
 
     if (plugin.ui) {
-      const uiContent = uiContentBuffer.toString().replace(/{sample}/gi, plugin.name);
-      fs.writeFileSync(workflowsPath(`plugin-${plugin.name}-ui.yaml`), uiContent);
+      const uiContent = uiContentBuffer
+        .toString()
+        .replace(/{sample}/gi, plugin.name);
+      fs.writeFileSync(
+        workflowsPath(`plugin-${plugin.name}-ui.yaml`),
+        uiContent
+      );
 
-      const uiConfigs = require(filePath(`./packages/plugin-${plugin.name}-ui/src/configs.js`));
+      const uiConfigs = require(filePath(
+        `./packages/plugin-${plugin.name}-ui/src/configs.js`
+      ));
 
       delete uiConfigs.port;
 
@@ -51,24 +62,33 @@ var main = async () => {
 
       pluginsMap[plugin.name] = {
         ui: uiConfigs
-      }
+      };
     }
 
     if (plugin.api) {
-      const apiContent = apiContentBuffer.toString().replace(/{sample}/gi, plugin.name);
-      fs.writeFileSync(workflowsPath(`plugin-${plugin.name}-api.yaml`), apiContent);
+      const apiContent = apiContentBuffer
+        .toString()
+        .replace(/{sample}/gi, plugin.name);
+      fs.writeFileSync(
+        workflowsPath(`plugin-${plugin.name}-api.yaml`),
+        apiContent
+      );
 
       let permissions;
       let essyncer;
 
       try {
-        permissions = require(filePath(`./packages/plugin-${plugin.name}-api/src/permissions.js`));
+        permissions = require(filePath(
+          `./packages/plugin-${plugin.name}-api/src/permissions.js`
+        ));
       } catch (e) {
         console.log(`no permissions file found for ${plugin.name}`);
       }
 
       try {
-        essyncer = require(filePath(`./packages/plugin-${plugin.name}-api/src/essyncer.js`));
+        essyncer = require(filePath(
+          `./packages/plugin-${plugin.name}-api/src/essyncer.js`
+        ));
       } catch (e) {
         console.log(`no essyncer file found for ${plugin.name}`);
       }
@@ -87,9 +107,12 @@ var main = async () => {
     }
   }
 
-  fs.writeFileSync(filePath('./scripts/pluginsMap.js'), `
+  fs.writeFileSync(
+    filePath('./scripts/pluginsMap.js'),
+    `
     module.exports = ${JSON.stringify(pluginsMap)}
-  `)
-}
+  `
+  );
+};
 
 main();

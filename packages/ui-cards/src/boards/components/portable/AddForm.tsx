@@ -5,16 +5,18 @@ import { IAttachment, IField } from '@erxes/ui/src/types';
 import { Alert } from '@erxes/ui/src/utils';
 import React from 'react';
 import Select from 'react-select-plus';
+
 import BoardSelect from '../../containers/BoardSelect';
 import {
-  SelectInput,
+  BoardSelectWrapper,
   FormFooter,
   HeaderContent,
   HeaderRow,
-  BoardSelectWrapper
+  SelectInput
 } from '../../styles/item';
 import { IItem, IItemParams, IOptions, IStage } from '../../types';
 import { invalidateCache } from '../../utils';
+import CardSelect from './CardSelect';
 import GenerateAddFormFields from './GenerateAddFormFields';
 
 type Props = {
@@ -256,7 +258,8 @@ class AddForm extends React.Component<Props, State> {
   };
 
   render() {
-    const { stages, stageId } = this.props;
+    const { stages } = this.props;
+    const { stageId } = this.state;
 
     let stageValues: any;
 
@@ -267,20 +270,33 @@ class AddForm extends React.Component<Props, State> {
       }));
     }
 
+    const { type } = this.props.options;
+
     return (
       <form onSubmit={this.save}>
         {this.renderSelect()}
         <HeaderRow>
           <HeaderContent>
             <ControlLabel required={true}>Name</ControlLabel>
-            <SelectInput>
-              <FormControl
-                value={this.state.name}
-                autoFocus={true}
-                placeholder="Create a new card"
-                onChange={this.onChangeName}
+
+            {this.props.showSelect ? (
+              <CardSelect
+                placeholder={`Add a new ${type} or select one`}
+                options={this.state.cards}
+                onChange={this.onChangeCardSelect}
+                type={type}
+                additionalValue={this.state.name}
               />
-            </SelectInput>
+            ) : (
+              <SelectInput>
+                <FormControl
+                  value={this.state.name}
+                  autoFocus={true}
+                  placeholder="Create a new card"
+                  onChange={this.onChangeName}
+                />
+              </SelectInput>
+            )}
           </HeaderContent>
         </HeaderRow>
         {!stageId && (

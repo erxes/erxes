@@ -263,12 +263,18 @@ const integrationMutations = {
     try {
       if ('webhook' !== kind) {
         await sendCommonMessage({
-          serviceName: kind,
+          serviceName: kind.includes('imap') ? kind : 'integrations',
           subdomain,
           action: 'createIntegration',
           data: {
+            kind,
             integrationId: integration._id,
-            doc: data
+            doc: {
+              accountId: doc.accountId,
+              kind: doc.kind,
+              integrationId: integration._id,
+              data: data ? JSON.stringify(data) : ''
+            }
           },
           isRPC: true
         });

@@ -1,8 +1,8 @@
+import { generateAttachmentUrl } from '@erxes/api-utils/src/core';
 import * as graph from 'fbgraph';
 import { IModels } from '../connectionResolver';
 import { debugError, debugFacebook } from '../debuggers';
 import { IIntegrationDocument } from '../models/Integrations';
-import { generateAttachmentUrl } from '../utils';
 import { IAttachment, IAttachmentMessage } from './types';
 
 export const graphRequest = {
@@ -33,13 +33,17 @@ export const graphRequest = {
   }
 };
 
-export const getPageList = async (models: IModels, accessToken?: string, kind?: string) => {
+export const getPageList = async (
+  models: IModels,
+  accessToken?: string,
+  kind?: string
+) => {
   const response: any = await graphRequest.get(
     '/me/accounts?limit=100',
     accessToken
   );
 
-  const pages: any[] = [] 
+  const pages: any[] = [];
 
   for (const page of response.data) {
     const integration = await models.Integrations.findOne({
@@ -74,7 +78,9 @@ export const refreshPageAccesToken = async (
   pageId: string,
   integration: IIntegrationDocument
 ) => {
-  const account = await models.Accounts.getAccount({ _id: integration.accountId });
+  const account = await models.Accounts.getAccount({
+    _id: integration.accountId
+  });
 
   const facebookPageTokensMap = integration.facebookPageTokensMap || {};
 
@@ -241,7 +247,7 @@ export const sendReply = async (
     erxesApiId: integrationId
   });
 
-  const { facebookPageTokensMap = {}  } = integration;
+  const { facebookPageTokensMap = {} } = integration;
 
   let pageAccessToken;
 
