@@ -41,7 +41,7 @@ const Row = (props: Props) => {
       </td>
 
       <td key={Math.random()}>
-        <RowTitle>{trip.deals.map(d => d.name)}</RowTitle>
+        <RowTitle>{trip.deals.map(d => d && d.name)}</RowTitle>
       </td>
 
       <td key={Math.random()}>
