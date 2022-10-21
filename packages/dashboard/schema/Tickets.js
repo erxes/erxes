@@ -20,6 +20,14 @@ cube(`Tickets`, {
     TicketsAssigneduser: {
       sql: `${CUBE}._id = ${TicketsAssigneduser}._id`,
       relationship: `belongsTo`
+    },
+    Conformities: {
+      sql: `${CUBE}._id = ${Conformities}.relTypeId or ${CUBE}._id = ${Conformities}.mainTypeId `,
+      relationship: `belongsTo`
+    },
+    TicketsCustomfieldsdata: {
+      sql: `${CUBE}._id = ${TicketsCustomfieldsdata}._id`,
+      relationship: `belongsTo`
     }
   },
 
@@ -58,6 +66,12 @@ cube(`Tickets`, {
     name: {
       sql: `name`,
       type: `string`
+    },
+
+    reltypecustomer: {
+      sql: `${Conformities.reltypecustomer}`,
+      type: `string`,
+      title: 'Rel-Type Customer'
     },
 
     stageName: {
@@ -111,6 +125,18 @@ cube(`Tickets`, {
       sql: `${Stages.pipelineName}`,
       type: `string`,
       title: `Pipeline name`
+    },
+
+    ticketCustomField: {
+      sql: `${TicketsCustomfieldsdata.customfieldsdataField}`,
+      type: `string`,
+      title: 'Fields Name'
+    },
+
+    ticketCustomFieldValue: {
+      sql: `${TicketsCustomfieldsdata.customfieldsdataStringvalue}`,
+      type: `string`,
+      title: 'Field Value'
     },
 
     stageid: {

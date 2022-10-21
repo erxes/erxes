@@ -22,6 +22,18 @@ export const initBroker = async cl => {
   );
 
   consumeRPCQueue(
+    'knowledgebase:topics.count',
+    async ({ subdomain, data: { query } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        status: 'success',
+        data: await models.KnowledgeBaseTopics.find(query).count()
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'knowledgebase:articles.find',
     async ({ subdomain, data: { query, sort } }) => {
       const models = await generateModels(subdomain);

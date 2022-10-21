@@ -1,9 +1,7 @@
 import { ColorPick, ColorPicker } from '@erxes/ui/src/styles/main';
-import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
 import { IBoard, IPipeline, IStage } from '@erxes/ui-cards/src/boards/types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
 import { __, generateTree } from 'coreui/utils';
-
 import BoardNumberConfigs from './numberConfig/BoardNumberConfigs';
 import Button from '@erxes/ui/src/components/Button';
 import { COLORS } from '@erxes/ui/src/constants/colors';
@@ -23,6 +21,8 @@ import Select from 'react-select-plus';
 import { SelectMemberStyled } from '@erxes/ui-cards/src/settings/boards/styles';
 import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import Stages from './Stages';
+import { FlexContent, FlexItem } from '@erxes/ui/src/layout/styles';
+import { ITag } from '@erxes/ui-tags/src/types';
 import TwitterPicker from 'react-color/lib/Twitter';
 import { colors } from '@erxes/ui/src/styles';
 
@@ -33,6 +33,7 @@ type Props = {
   pipeline?: IPipeline;
   stages?: IStage[];
   boards: IBoard[];
+  tags?: ITag[];
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   closeModal: () => void;
   options?: IOption;
@@ -50,6 +51,7 @@ type State = {
   isCheckDepartment: boolean;
   excludeCheckUserIds: string[];
   boardId: string;
+  tagId?: string;
   numberConfig?: string;
   numberSize?: string;
   departmentIds?: string[];
@@ -71,6 +73,7 @@ class PipelineForm extends React.Component<Props, State> {
       isCheckDepartment: pipeline ? pipeline.isCheckDepartment || false : false,
       excludeCheckUserIds: pipeline ? pipeline.excludeCheckUserIds || [] : [],
       boardId: props.boardId || '',
+      tagId: pipeline ? pipeline.tagId : '',
       numberConfig: (pipeline && pipeline.numberConfig) || '',
       numberSize: (pipeline && pipeline.numberSize) || '',
       departmentIds: pipeline ? pipeline.departmentIds || [] : []
@@ -127,7 +130,8 @@ class PipelineForm extends React.Component<Props, State> {
       boardId,
       numberConfig,
       numberSize,
-      departmentIds
+      departmentIds,
+      tagId
     } = this.state;
 
     const finalValues = values;
@@ -149,7 +153,8 @@ class PipelineForm extends React.Component<Props, State> {
       excludeCheckUserIds,
       numberConfig,
       numberSize,
-      departmentIds
+      departmentIds,
+      tagId
     };
   };
 
@@ -270,6 +275,40 @@ class PipelineForm extends React.Component<Props, State> {
     );
   }
 
+  renderTags() {
+    const { tags } = this.props;
+
+    const filteredTags = tags && tags.filter(tag => !tag.parentId);
+
+    const generateOptions = items => {
+      if (!items || items.length === 0) {
+        return null;
+      }
+
+      return items.map(item => {
+        return {
+          value: item._id,
+          label: item.name
+        };
+      });
+    };
+
+    const onChange = item => this.setState({ tagId: item.value });
+
+    return (
+      <FormGroup>
+        <ControlLabel>Tags</ControlLabel>
+        <Select
+          placeholder={__('Choose a tag')}
+          value={this.state.tagId}
+          options={generateOptions(filteredTags)}
+          clearable={false}
+          onChange={onChange}
+        />
+      </FormGroup>
+    );
+  }
+
   renderContent = (formProps: IFormProps) => {
     const {
       pipeline,
@@ -359,6 +398,8 @@ class PipelineForm extends React.Component<Props, State> {
           </Flex>
 
           {this.renderBoards()}
+
+          {this.renderTags()}
 
           {this.renderSelectMembers()}
 

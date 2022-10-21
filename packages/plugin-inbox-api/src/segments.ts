@@ -1,26 +1,12 @@
 export default {
-  indexesTypeContentType: {
-    'inbox:conversation': 'conversations'
-  },
+  dependentServices: [{ name: 'contacts', twoWay: true }],
 
-  contentTypes: ['conversation'],
-
-  descriptionMap: {
-    deal: 'Deal',
-    ticket: 'Ticket',
-    task: 'Task',
-    customer: 'Customer',
-    company: 'Company',
-    conversation: 'Conversation'
-  },
-
-  associationTypes: [
-    'inbox:conversation',
-    'cards:deal',
-    'contacts:customer',
-    'contacts:company',
-    'cards:ticket',
-    'cards:task'
+  contentTypes: [
+    {
+      type: 'conversation',
+      description: 'Conversation',
+      esIndex: 'conversations'
+    }
   ],
 
   esTypesMap: async () => {

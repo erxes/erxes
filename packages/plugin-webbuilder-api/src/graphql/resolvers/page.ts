@@ -1,4 +1,4 @@
-import { IPageDocument } from '../../models/pages';
+import { IPageDocument } from '../../models/definitions/pages';
 import { IContext } from '../../connectionResolver';
 
 export default {

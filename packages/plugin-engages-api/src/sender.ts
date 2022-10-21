@@ -124,6 +124,22 @@ export const start = async (
   });
 
   for (const customer of cleanCustomers) {
+    // multiple customers could have same emails, so check before sending
+    const delivery = await models.DeliveryReports.findOne({
+      engageMessageId,
+      email: customer.primaryEmail
+    });
+
+    if (delivery) {
+      await models.Logs.createLog(
+        engageMessageId,
+        'regular',
+        `Email has already been sent to ${delivery.email} before. (${delivery.customerId} / ${delivery.customerName})`
+      );
+
+      continue;
+    }
+
     await new Promise(resolve => {
       setTimeout(resolve, 1000);
     });

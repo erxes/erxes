@@ -1,5 +1,6 @@
+import { ITag } from '@erxes/ui-tags/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { MutationVariables, Counts } from '@erxes/ui/src/types';
+import { Counts } from '@erxes/ui/src/types';
 
 export type ListQueryVariables = {
   page?: number;
@@ -10,12 +11,18 @@ export type ListQueryVariables = {
   sortDirection?: number;
 };
 
+export type CountByTagsQueryResponse = {
+  dashboardCountByTags: { [key: string]: number };
+  loading: boolean;
+};
+
 export interface IDashboard {
   _id: string;
   name: string;
   visibility: string;
   selectedMemberIds?: string[];
   description?: string;
+  getTags?: ITag[];
   parentId?: string;
   order?: string;
   updatedAt?: Date;

@@ -1,6 +1,6 @@
 import { IModels } from './connectionResolver';
-import { IPageDocument } from './models/pages';
-import { ISiteDocument } from './models/sites';
+import { IPageDocument } from './models/definitions/pages';
+import { ISiteDocument } from './models/definitions/sites';
 
 const pathReplacer = (subdomain: string, html: any, site: ISiteDocument) => {
   const siteHolder = `{{sitename}}`;

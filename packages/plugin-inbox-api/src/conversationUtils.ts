@@ -1,6 +1,5 @@
 import * as _ from 'underscore';
 import { CONVERSATION_STATUSES } from './models/definitions/constants';
-import { KIND_CHOICES } from './models/definitions/constants';
 
 import { IListArgs } from './conversationQueryBuilder';
 import { fixDate } from '@erxes/api-utils/src';
@@ -13,6 +12,7 @@ import {
 } from './messageBroker';
 import { IModels } from './connectionResolver';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+import { getIntegrationsKinds } from './utils';
 
 export interface ICountBy {
   [index: string]: number;
@@ -98,7 +98,9 @@ const countByIntegrationTypes = async (
   qb: any,
   counts: ICountBy
 ): Promise<ICountBy> => {
-  for (const type of KIND_CHOICES.ALL) {
+  const kindsMap = await getIntegrationsKinds();
+
+  for (const type of Object.keys(kindsMap)) {
     await qb.buildAllQueries();
     await qb.integrationTypeFilter(type);
 

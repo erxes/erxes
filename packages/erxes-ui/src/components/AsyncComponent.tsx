@@ -1,7 +1,7 @@
 import AnimatedLoader from './AnimatedLoader';
-import Spinner from './Spinner';
-import React from 'react';
 import { IAnimatedLoader } from '../types';
+import React from 'react';
+import Spinner from './Spinner';
 
 function retry(fn, retriesLeft = 30, interval = 2000) {
   return new Promise((resolve, reject) => {

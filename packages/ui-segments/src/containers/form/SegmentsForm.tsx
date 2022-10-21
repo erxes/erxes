@@ -27,6 +27,7 @@ type Props = {
   activeTrigger?: ITrigger;
   addConfig?: (trigger: ITrigger, id?: string, config?: any) => void;
   addFilter?: (segmentId: string) => void;
+  filterContent?: (values: any) => void;
   afterSave?: () => void;
   hideDetailForm?: boolean;
   usageType?: string;
@@ -109,7 +110,7 @@ class SegmentsFormContainer extends React.Component<
         type="submit"
         successMessage={`Success`}
       >
-        {text || 'save'}
+        {text || 'Save'}
       </ButtonMutate>
     );
   };
@@ -156,7 +157,8 @@ class SegmentsFormContainer extends React.Component<
       headSegmentsQuery,
       eventsQuery,
       segmentsQuery,
-      history
+      history,
+      filterContent
     } = this.props;
 
     if (segmentDetailQuery.loading) {
@@ -183,7 +185,8 @@ class SegmentsFormContainer extends React.Component<
       fields: this.state.fields,
       count: this.state.count,
       counterLoading: this.state.loading,
-      isModal
+      isModal,
+      filterContent
     };
 
     return <SegmentsForm {...updatedProps} />;

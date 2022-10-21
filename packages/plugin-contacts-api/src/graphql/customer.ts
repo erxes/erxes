@@ -89,6 +89,7 @@ const queryParams = `
   sex:Int
   birthDate: Date
   dateFilters: String
+  segmentData: String
   ${conformityQueryFields}
 `;
 

@@ -38,7 +38,6 @@ class MailConversation extends React.Component<Props, {}> {
       return (
         <Mail
           key={message._id}
-          kind={kind}
           customerId={conversation.customerId}
           conversationId={conversation._id}
           isLast={length === index + 1}

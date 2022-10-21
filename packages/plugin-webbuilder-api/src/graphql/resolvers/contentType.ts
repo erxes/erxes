@@ -1,5 +1,5 @@
 import { IContext } from '../../connectionResolver';
-import { IContentTypeDocument } from '../../models/contentTypes';
+import { IContentTypeDocument } from '../../models/definitions/contentTypes';
 
 export default {
   entries(contentType: IContentTypeDocument, _args, { models }: IContext) {

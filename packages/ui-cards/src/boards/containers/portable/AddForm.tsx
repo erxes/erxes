@@ -18,8 +18,10 @@ import {
   IItem,
   IItemParams,
   IOptions,
-  SaveMutation
+  SaveMutation,
+  StagesQueryResponse
 } from '../../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type IProps = {
   options: IOptions;
@@ -40,6 +42,10 @@ type IProps = {
   description?: string;
   attachments?: any[];
   bookingProductId?: string;
+  tagIds?: string[];
+  startDate?: Date;
+  closeDate?: Date;
+  showStageSelect?: boolean;
 };
 
 type FinalProps = {
@@ -47,6 +53,7 @@ type FinalProps = {
   conversationConvertToCard: ConvertToMutationResponse;
   editConformity: EditConformityMutation;
   fieldsQuery: any;
+  stagesQuery: StagesQueryResponse;
 } & IProps &
   ConvertToMutationResponse;
 
@@ -183,14 +190,15 @@ class AddFormContainer extends React.Component<FinalProps> {
   };
 
   render() {
-    const { fieldsQuery } = this.props;
+    const { fieldsQuery, stagesQuery } = this.props;
 
     const extendedProps = {
       ...this.props,
       fields: fieldsQuery?.fields || [],
       refetchFields: fieldsQuery?.refetch,
       saveItem: this.saveItem,
-      fetchCards: this.fetchCards
+      fetchCards: this.fetchCards,
+      stages: stagesQuery?.stages || []
     };
 
     return <AddForm {...extendedProps} />;
@@ -235,11 +243,20 @@ export default (props: IProps) =>
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
         name: 'fieldsQuery',
+        skip: !isEnabled('forms'),
         options: ({ options, pipelineId }) => ({
           variables: {
             contentType: `cards:${options.type}`,
             isVisibleToCreate: true,
             pipelineId
+          }
+        })
+      }),
+      graphql<FinalProps, StagesQueryResponse>(gql(queries.stages), {
+        name: 'stagesQuery',
+        options: (props: FinalProps) => ({
+          variables: {
+            pipelineId: props.pipelineId || ''
           }
         })
       })
