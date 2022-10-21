@@ -19,6 +19,7 @@ type Props = {
   type: string;
   location?: any;
   history?: any;
+  excludedNames?: string[];
   closeModal: () => void;
 };
 
@@ -147,17 +148,19 @@ export default withProps<Props>(
     graphql<
       Props,
       FieldsCombinedByTypeQueryResponse,
-      { contentType: string; isImport?: boolean }
+      { contentType: string; isImport?: boolean; excludedNames?: string[] }
     >(gql(queries.fieldsCombinedByContentType), {
       name: 'fieldsQuery',
-      options: ({ contentType, type, isImport }) => {
+      options: ({ contentType, type, isImport, excludedNames }) => {
         return {
           variables: {
             contentType: ['lead', 'visitor'].includes(contentType)
               ? 'contacts:customer'
               : contentType,
             usageType: type,
-            excludedNames: renderExcludedNames(isImport)
+            excludedNames: excludedNames
+              ? excludedNames
+              : renderExcludedNames(isImport)
           }
         };
       },
