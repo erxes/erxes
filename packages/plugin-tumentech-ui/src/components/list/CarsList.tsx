@@ -28,6 +28,7 @@ import React from 'react';
 import RightMenu from './RightMenu';
 import Sidebar from './Sidebar';
 import { withRouter } from 'react-router-dom';
+import { COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES } from '@erxes/ui-settings/src/constants';
 
 interface IProps extends IRouterProps {
   cars: ICar[];
@@ -206,6 +207,9 @@ class CarsList extends React.Component<IProps, State> {
           contentType={'tumentech:car'}
           location={location}
           history={history}
+          excludedNames={COLUMN_CHOOSER_EXCLUDED_FIELD_NAMES.LIST.filter(
+            e => e !== 'categoryId'
+          )}
         />
       );
     };
