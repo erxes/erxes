@@ -10,7 +10,6 @@ const List = asyncComponent(() =>
 const tags = ({ location, history }) => {
   const queryParams = queryString.parse(location.search);
 
-  // console.log(queryParams);
   const { type } = queryParams;
 
   return <List type={type} history={history} />;

@@ -11,6 +11,11 @@ import styled from 'styled-components';
 import { PRIORITIES } from '../constants';
 import ListGroupBy from './ListGroupBy';
 import GanttChart from './gantt/GanttChart';
+import TimeItems from './time/TimeItems';
+import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
+import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
+import { AllUsersQueryResponse } from '@erxes/ui/src/auth/types';
+import { queries as userQueries } from '@erxes/ui/src/team/graphql';
 
 const Container = styled.div`
   min-height: 500px;
@@ -29,6 +34,8 @@ type WithStagesProps = {
   stagesQuery: any;
   pipelineLabelsQuery: any;
   pipelineAssigneeQuery: any;
+  tagsQuery?: TagsQueryResponse;
+  usersQuery: AllUsersQueryResponse;
 } & Props;
 
 class WithStages extends Component<WithStagesProps> {
@@ -40,7 +47,9 @@ class WithStages extends Component<WithStagesProps> {
       pipelineLabelsQuery,
       pipelineAssigneeQuery,
       viewType,
-      pipeline
+      pipeline,
+      tagsQuery,
+      usersQuery
     } = this.props;
 
     let groupType = 'stage';
@@ -93,6 +102,16 @@ class WithStages extends Component<WithStagesProps> {
       groupType = 'dueDate';
     }
 
+    if (queryParams.groupBy === 'tags') {
+      groups = tagsQuery?.tags || [];
+      groupType = 'tags';
+    }
+
+    if (queryParams.groupBy === 'members') {
+      groups = usersQuery.allUsers || [];
+      groupType = 'members';
+    }
+
     if (groups.length === 0) {
       return (
         <EmptyState
@@ -112,6 +131,20 @@ class WithStages extends Component<WithStagesProps> {
           queryParams={queryParams}
           groups={groups}
           groupType={groupType}
+        />
+      );
+    }
+
+    if (viewType === 'time') {
+      return (
+        <TimeItems
+          key={pipeline._id}
+          pipeline={pipeline}
+          queryParams={queryParams}
+          options={options}
+          type={options.type}
+          groupType={groupType}
+          groups={groups}
         />
       );
     }
@@ -168,6 +201,22 @@ export default withProps<Props>(
         variables: {
           _id: pipeline._id
         }
+      })
+    }),
+    graphql<Props, TagsQueryResponse, { type: string }>(gql(tagQueries.tags), {
+      name: 'tagsQuery',
+      skip: ({ pipeline }: Props) => pipeline.tagId === '',
+      options: ({ pipeline, options }: Props) => ({
+        variables: {
+          type: `cards:${options.type}`,
+          parentId: pipeline.tagId
+        }
+      })
+    }),
+    graphql<Props, AllUsersQueryResponse>(gql(userQueries.allUsers), {
+      name: 'usersQuery',
+      options: () => ({
+        variables: { isActive: true }
       })
     })
   )(WithStages)
