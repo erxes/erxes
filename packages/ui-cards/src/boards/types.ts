@@ -462,5 +462,7 @@ export type TicketCommentAddMutationResponse = {
 export type ITimeData = {
   closeDate?: Date;
   startDate?: Date;
-  tagId?: string[];
+  tagIds?: string[];
+  assignedUserIds?: string[];
+  stageId?: string;
 };

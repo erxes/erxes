@@ -1,4 +1,4 @@
-import { colors, FormControl, ModalTrigger, Tip, __ } from '@erxes/ui/src';
+import { FormControl, ModalTrigger, Tip, __ } from '@erxes/ui/src';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
 import moment from 'moment';
 import React from 'react';
@@ -39,6 +39,7 @@ class TableRow extends React.Component<IProps> {
         <td>
           <Badge color={object.statusColor}>{__(object.status)}</Badge>
         </td>
+        <td>{object.status !== 'In Progress' ? __(object.resultScore?.toString() || '') : '-'}</td>
         <Tip text={moment(object.createdAt).format('MM/DD/YYYY HH:mm')} placement="bottom">
           <td>{moment(object.createdAt).fromNow()}</td>
         </Tip>
