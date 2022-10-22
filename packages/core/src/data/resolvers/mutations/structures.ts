@@ -1,5 +1,5 @@
+import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../../connectionResolver';
-import { checkPermission } from '../../permissions/wrappers';
 
 const structuresMutations = {
   async structuresAdd(_root, doc, { user, models }: IContext) {
@@ -27,7 +27,11 @@ const structuresMutations = {
   },
 
   async departmentsEdit(_root, { _id, ...doc }, { user, models }: IContext) {
-    const department = await models.Departments.updateDepartment(_id, doc, user);
+    const department = await models.Departments.updateDepartment(
+      _id,
+      doc,
+      user
+    );
 
     return department;
   },

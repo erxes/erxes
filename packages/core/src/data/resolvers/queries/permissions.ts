@@ -6,8 +6,11 @@ import {
   IModuleMap,
   modulesMap
 } from '../../permissions/utils';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import { paginate } from '../../utils';
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
 interface IListArgs {
   page?: number;
