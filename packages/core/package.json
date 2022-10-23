@@ -30,7 +30,8 @@
     "migrateApps": "node_modules/.bin/ts-node src/commands/migrateApps.ts",
     "migrateDirections": "node_modules/.bin/ts-node src/commands/migrateDirections.ts",
     "migrateRoutes": "node_modules/.bin/ts-node src/commands/migrateRoutes.ts",
-    "migrateFields": "node_modules/.bin/ts-node src/commands/migrateFields.ts"
+    "migrateFields": "node_modules/.bin/ts-node src/commands/migrateFields.ts",
+    "migrateProductCategoryOrders": "node_modules/.bin/ts-node src/commands/migrateProductCategoryOrders.ts"
   },
   "dependencies": {
     "apollo-datasource-rest": "^0.5.1",
