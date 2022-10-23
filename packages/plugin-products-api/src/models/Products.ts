@@ -187,6 +187,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       let customFieldsData: ICustomField[] = [];
       let tagIds: string[] = [];
+      let barcodes: string[] = [];
       const name: string = productFields.name || '';
       const type: string = productFields.type || '';
       const description: string = productFields.description || '';
@@ -198,6 +199,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
         const productObj = await models.Products.getProduct({ _id: productId });
 
         const productTags = productObj.tagIds || [];
+        const productBarcodes = productObj.barcodes || [];
 
         // merge custom fields data
         customFieldsData = [
@@ -207,6 +209,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
         // Merging products tagIds
         tagIds = tagIds.concat(productTags);
+
+        // Merging products barcodes
+        barcodes = barcodes.concat(productBarcodes);
 
         await models.Products.findByIdAndUpdate(productId, {
           $set: {
@@ -220,12 +225,14 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
 
       // Removing Duplicates
       tagIds = Array.from(new Set(tagIds));
+      barcodes = Array.from(new Set(barcodes));
 
       // Creating product with properties
       const product = await models.Products.createProduct({
         ...productFields,
         customFieldsData,
         tagIds,
+        barcodes,
         mergedIds: productIds,
         name,
         type,

@@ -18,6 +18,12 @@ const ProductDetails = asyncComponent(() =>
   )
 );
 
+const BarcodeGenerator = asyncComponent(() =>
+  import(
+    /* webpackChunkName: "Settings List - ProductService" */ './components/barcodeGenerator/BarcodeGenerator'
+  )
+);
+
 const details = ({ match }) => {
   const id = match.params.id;
 
@@ -39,6 +45,12 @@ const generalSetting = () => {
 
 const uomManage = () => {
   return <Uom history={history} />;
+};
+
+const barcodeGenerator = ({ match }) => {
+  const code = match.params.code;
+
+  return <BarcodeGenerator code={code} />;
 };
 
 const routes = () => (
@@ -69,6 +81,13 @@ const routes = () => (
       exact={true}
       key="/settings/uoms-manage/"
       component={uomManage}
+    />
+
+    <Route
+      path="/settings/barcode-generator/:code"
+      exact={true}
+      key="/settings/barcode-generator/:code"
+      component={barcodeGenerator}
     />
   </React.Fragment>
 );

@@ -44,6 +44,7 @@ export interface IProduct {
   type?: string;
   description?: string;
   sku?: string;
+  barcodes?: string[];
   unitPrice?: number;
   code: string;
   customFieldsData?: ICustomField[];
@@ -110,6 +111,12 @@ export const productSchema = schemaWrapper(
     }),
     description: field({ type: String, optional: true, label: 'Description' }),
     sku: field({ type: String, optional: true, label: 'Stock keeping unit' }),
+    barcodes: field({
+      type: [String],
+      optional: true,
+      label: 'Barcodes',
+      index: true
+    }),
     unitPrice: field({ type: Number, optional: true, label: 'Unit price' }),
     customFieldsData: field({
       type: [customFieldSchema],
