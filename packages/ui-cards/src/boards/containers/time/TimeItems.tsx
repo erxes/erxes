@@ -15,7 +15,7 @@ import {
   SaveItemMutation
 } from '../../types';
 import { TagsQueryResponse } from '@erxes/ui-tags/src/types';
-import { queries, subscriptions } from '../../graphql';
+import { subscriptions } from '../../graphql';
 import { getFilterParams } from '../../utils';
 import { queries as tagQueries } from '@erxes/ui-tags/src/graphql';
 import moment from 'moment';
@@ -25,13 +25,14 @@ type Props = {
   queryParams: IFilterParams;
   pipeline: IPipeline;
   type: string;
+  groupType: string;
+  groups: any;
 };
 
 type FinalProps = {
   itemsQuery: ItemsQueryResponse;
   addMutation: SaveItemMutation;
   removeStageMutation: RemoveStageMutation;
-  tagsQuery: TagsQueryResponse;
   editMutation: any;
 } & Props;
 
@@ -108,7 +109,7 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
   };
 
   render() {
-    const { itemsQuery, options, tagsQuery, editMutation } = this.props;
+    const { itemsQuery, options, groups, editMutation, groupType } = this.props;
 
     const itemMoveResizing = (itemId: string, data: ITimeData) => {
       const variables: any = { _id: itemId };
@@ -121,8 +122,16 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
         variables['closeDate'] = data.closeDate;
       }
 
-      if (data.tagId) {
-        variables['tagIds'] = data.tagId;
+      if (data.tagIds) {
+        variables['tagIds'] = data.tagIds;
+      }
+
+      if (data.assignedUserIds) {
+        variables['assignedUserIds'] = data.assignedUserIds;
+      }
+
+      if (data.stageId) {
+        variables['stageId'] = data.stageId;
       }
 
       editMutation({ variables })
@@ -142,28 +151,54 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       });
     };
 
-    const tags = tagsQuery.tags || [];
-
-    const tagResources =
-      tags &&
-      tags.map(tag => {
+    const resources =
+      groups &&
+      groups.map(resource => {
         return {
-          id: tag._id,
-          title: tag.name
+          id: resource._id,
+          title: resource.name || resource.username
         };
       });
 
     const events: any[] = [];
 
-    for (const deal of this.state.items) {
-      for (const tagId of deal.tagIds || []) {
+    if (groupType === 'stage') {
+      for (const item of this.state.items) {
         events.push({
-          id: deal._id,
-          group: tagId,
-          start_time: moment.utc(deal.startDate),
-          end_time: moment.utc(deal.closeDate),
-          title: deal.name
+          id: item._id,
+          group: item.stage?._id,
+          start_time: moment.utc(item.startDate),
+          end_time: moment.utc(item.closeDate),
+          title: item.name
         });
+      }
+    }
+
+    if (groupType === 'tags') {
+      for (const item of this.state.items) {
+        for (const tagId of item.tagIds || []) {
+          events.push({
+            id: item._id,
+            group: tagId,
+            start_time: moment.utc(item.startDate),
+            end_time: moment.utc(item.closeDate),
+            title: item.name
+          });
+        }
+      }
+    }
+
+    if (groupType === 'members') {
+      for (const item of this.state.items) {
+        for (const assignedUser of item.assignedUsers || []) {
+          events.push({
+            id: item._id,
+            group: assignedUser._id,
+            start_time: moment.utc(item.startDate),
+            end_time: moment.utc(item.closeDate),
+            title: item.name
+          });
+        }
       }
     }
 
@@ -171,9 +206,8 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
       ...this.props,
       refetch: refetch,
       items: this.state.items,
-      resources: tagResources,
+      resources: resources,
       events: events,
-      tags: tags,
       itemMoveResizing
     };
 
@@ -188,18 +222,6 @@ class TimeItemsContainer extends React.PureComponent<FinalProps, State> {
 const withQuery = ({ options }) => {
   return withProps<Props>(
     compose(
-      graphql<Props, TagsQueryResponse, { type: string }>(
-        gql(tagQueries.tags),
-        {
-          name: 'tagsQuery',
-          options: (props: Props) => ({
-            variables: {
-              type: `cards:${props.type}`,
-              parentId: props.pipeline.tagId || ''
-            }
-          })
-        }
-      ),
       graphql<Props>(gql(options.queries.itemsQuery), {
         name: 'itemsQuery',
         options: ({ queryParams }) => ({

@@ -50,6 +50,7 @@ export const riskAssessmentParams = `
     statusColor,
     categoryId,
     createdAt,
+    resultScore,
     category{
         _id
         formId

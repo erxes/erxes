@@ -33,6 +33,7 @@ type FinalProps = {
 
 const FlowDetailsContainer = (props: FinalProps) => {
   const { flowDetailQuery, currentUser, history, flowsEdit } = props;
+  let flowDetail: IFlowDocument;
 
   const [saveLoading, setLoading] = useState(false);
 
@@ -44,7 +45,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
         ...doc
       }
     })
-      .then(() => {
+      .then(data => {
         router.removeParams(history, 'isCreate');
 
         setTimeout(() => {
@@ -52,6 +53,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
         }, 300);
 
         Alert.success(`You successfully updated a ${doc.name || 'status'}`);
+        flowDetail = data.data.flowsEdit;
       })
 
       .catch(error => {
@@ -62,7 +64,8 @@ const FlowDetailsContainer = (props: FinalProps) => {
   if (flowDetailQuery.loading) {
     return <Spinner />;
   }
-  const flowDetail = flowDetailQuery.flowDetail || {};
+
+  flowDetail = flowDetailQuery.flowDetail || {};
 
   const updatedProps = {
     ...props,
@@ -75,7 +78,7 @@ const FlowDetailsContainer = (props: FinalProps) => {
   return <FlowForm {...updatedProps} />;
 };
 
-const refetchQueries = ['flows', 'flowDetail', 'jobRefersAll'];
+const refetchQueries = ['flows', 'flowDetail'];
 
 export default withProps<Props>(
   compose(

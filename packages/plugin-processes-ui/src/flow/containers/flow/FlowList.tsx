@@ -8,7 +8,6 @@ import { graphql } from 'react-apollo';
 import List from '../../components/flow/FlowList';
 import { mutations, queries } from '../../graphql';
 import {
-  CategoryDetailQueryResponse,
   flowsRemoveMutationResponse,
   flowTotalCountQueryResponse,
   FlowsQueryResponse,
@@ -25,7 +24,6 @@ type Props = {
 type FinalProps = {
   flowsQuery: FlowsQueryResponse;
   flowTotalCountQuery: flowTotalCountQueryResponse;
-  productCategoryDetailQuery: CategoryDetailQueryResponse;
 } & Props &
   flowsRemoveMutationResponse &
   FlowsAddMutationResponse;
@@ -100,8 +98,7 @@ class ProductListContainer extends React.Component<FinalProps> {
       addFlow,
       loading: flowsQuery.loading,
       searchValue: this.props.queryParams.searchValue || '',
-      flowsTotalCount: flowTotalCountQuery.flowTotalCount || 0,
-      currentCategory: {}
+      flowsTotalCount: flowTotalCountQuery.flowTotalCount || 0
     };
 
     const flowList = props => {
@@ -124,6 +121,17 @@ const options = () => ({
   refetchQueries: getRefetchQueries()
 });
 
+const generateFilter = qp => {
+  return {
+    categoryId: qp.categoryId,
+    searchValue: qp.searchValue,
+    branchId: qp.branchId,
+    departmentId: qp.departmentId,
+    status: qp.status,
+    validation: qp.validation
+  };
+};
+
 export default withProps<Props>(
   compose(
     graphql<Props, FlowsQueryResponse, { page: number; perPage: number }>(
@@ -132,8 +140,7 @@ export default withProps<Props>(
         name: 'flowsQuery',
         options: ({ queryParams }) => ({
           variables: {
-            categoryId: queryParams.categoryId,
-            searchValue: queryParams.searchValue,
+            ...generateFilter(queryParams),
             ...generatePaginationParams(queryParams)
           },
           fetchPolicy: 'network-only'
@@ -144,8 +151,7 @@ export default withProps<Props>(
       name: 'flowTotalCountQuery',
       options: ({ queryParams }) => ({
         variables: {
-          searchValue: queryParams.searchValue,
-          ...generatePaginationParams(queryParams)
+          ...generateFilter(queryParams)
         },
         fetchPolicy: 'network-only'
       })

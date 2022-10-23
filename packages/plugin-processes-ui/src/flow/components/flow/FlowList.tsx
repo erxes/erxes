@@ -11,7 +11,7 @@ import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
 import { BarItems } from '@erxes/ui/src/layout/styles';
 import React from 'react';
 import CategoryList from '../../containers/flowCategory/CategoryList';
-import { IProductCategory, IFlowDocument } from '../../types';
+import { IFlowDocument } from '../../types';
 import Row from './FlowListRow';
 import { menuContacts } from '../../../constants';
 
@@ -29,7 +29,6 @@ interface IProps extends IRouterProps {
   toggleAll: (targets: IFlowDocument[], containerId: string) => void;
   loading: boolean;
   searchValue: string;
-  currentCategory: IProductCategory;
 }
 
 type State = {
@@ -115,7 +114,6 @@ class List extends React.Component<IProps, State> {
       isAllSelected,
       history,
       bulk,
-      currentCategory,
       addFlow
     } = this.props;
 
@@ -142,7 +140,7 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        {this.renderCount(currentCategory.productCount || flowsTotalCount)}
+        {this.renderCount(flowsTotalCount)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -154,6 +152,7 @@ class List extends React.Component<IProps, State> {
                 />
               </th>
               <th>{__('Name')}</th>
+              <th>{__('Product')}</th>
               <th>{__('Status')}</th>
               <th>{__('Is match')}</th>
               <th>{__('Jobs count')}</th>
@@ -164,7 +163,7 @@ class List extends React.Component<IProps, State> {
       </>
     );
 
-    if (currentCategory.productCount === 0) {
+    if (flowsTotalCount === 0) {
       content = (
         <EmptyState
           image="/images/actions/8.svg"
@@ -198,18 +197,11 @@ class List extends React.Component<IProps, State> {
       );
     }
 
-    const actionBarLeft = <Title>{currentCategory.name || 'All flows'}</Title>;
+    const actionBarLeft = <Title>{'Flows list'}</Title>;
 
     return (
       <Wrapper
         header={<Wrapper.Header title={__('Flow')} submenu={menuContacts} />}
-        // mainHead={
-        //   <HeaderDescription
-        //     icon="/images/actions/30.svg"
-        //     title={'Flow'}
-        //     description={``}
-        //   />
-        // }
         actionBar={
           <Wrapper.ActionBar left={actionBarLeft} right={actionBarRight} />
         }

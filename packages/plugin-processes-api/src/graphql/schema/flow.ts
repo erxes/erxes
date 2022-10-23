@@ -12,7 +12,8 @@ export const types = `
     product: JSON,
     status: String,
     jobs: JSON,
-    flowJobStatus: Boolean
+    jobCount: Int,
+    flowValidation: String
   }
 
   input JobInput {
@@ -29,11 +30,16 @@ export const types = `
 const qryParams = `
   categoryId: String,
   searchValue: String,
-  excludeIds: Boolean
+  excludeIds: Boolean,
+  ids: [String],
+  branchId: String,
+  departmentId: String,
+  status: String,
+  validation: String,
 `;
 
 export const queries = `
-  flows(page: Int, perPage: Int, ids: [String], ${qryParams}): [Flow]
+  flows(page: Int, perPage: Int, ${qryParams}): [Flow]
   flowsAll: [Flow]
   flowTotalCount(${qryParams}): Int
   flowDetail(_id: String!): Flow
@@ -46,7 +52,7 @@ const flowParams = `
   categoryId: String,
   productId: String,
   status: String,
-  flowJobStatus: Boolean,
+  flowValidation: String,
   jobs: [JobInput],
 `;
 

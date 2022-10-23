@@ -8,14 +8,10 @@ export default {
   },
 
   async productCount(category: IJobCategoryDocument, {}, { models }: IContext) {
-    console.log('resolver start');
-
     const jobRefers = await models.JobRefers.find({
       categoryId: category._id,
       status: { $ne: JOB_CATEGORY_STATUSES.ARCHIVED }
     });
-
-    console.log('resolver: ', jobRefers);
 
     return jobRefers.length;
   }

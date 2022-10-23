@@ -27,9 +27,9 @@ export const rf = async (models: IModels, subdomain: string, params) => {
   for (const intervalData of intervals) {
     const { productId, count, label } = intervalData;
     intervalId = label;
-    const flowJobStatus = true;
+    const flowValidation = '';
     const status = 'active';
-    const filter = { productId, flowJobStatus, status };
+    const filter = { productId, flowValidation, status };
     const flow = (await models.Flows.findOne(filter)) || ({} as IFlowDocument);
     const jobRefers = await models.JobRefers.find({
       status: { $in: ['active', null] }
@@ -38,8 +38,6 @@ export const rf = async (models: IModels, subdomain: string, params) => {
     if (Object.keys(flow).length > 0) {
       const jobs = flow.jobs || [];
 
-      console.log('Flow jobs: ', jobs.length);
-
       const response = findLastJob(
         jobs,
         jobRefers,
@@ -47,30 +45,15 @@ export const rf = async (models: IModels, subdomain: string, params) => {
         branchId,
         departmentId
       );
-      const { flowStatus, lastJobs, lastJob } = response;
+
+      const { flowStatus, lastJob } = response;
       const leftJobs = getLeftJobs(jobs, [lastJob?.id || '']);
-
-      console.log(
-        'Last jobs: ',
-        flowStatus,
-        lastJobs.map(e => e.label),
-        lastJob?.label,
-        lastJobs.length
-      );
-
-      console.log(
-        'left jobs: ',
-        leftJobs.map(e => e.label),
-        leftJobs.length
-      );
 
       if (Object.keys(lastJob || {}).length > 0 && flowStatus) {
         const lastJobRefer = getJobRefers(
-          [lastJob?.jobReferId || ''],
+          [lastJob?.config.jobReferId || ''],
           jobRefers
         );
-
-        console.log('lastJobRefer: ', lastJobRefer[0].name);
 
         const doc: IWork = await initDocWork(
           flow,
@@ -83,20 +66,9 @@ export const rf = async (models: IModels, subdomain: string, params) => {
         );
 
         await worksAdd(doc, models);
-        // console.log('work:', work);
 
         // filtering beforeJobs of lastJob on flow
         const beforeJobs = getBeforeJobs(leftJobs, lastJob?.id || '');
-        const beforeJobRefers = getJobRefers(
-          beforeJobs.map(before => before.jobReferId),
-          jobRefers
-        );
-
-        console.log(
-          'beforeJobRefers: ',
-          beforeJobRefers.map(bef => bef.name)
-        );
-
         const level = 2;
         const recursiveJobs = beforeJobs;
 
@@ -135,24 +107,15 @@ export const rf = async (models: IModels, subdomain: string, params) => {
 
           await worksAdd(docLeft, models);
         }
-
-        console.log('responseleftjobs: ', responseleftjobs);
       } else {
         descriptionForWork = `last job not defined on flow / ${flow.name} / `;
       }
     } else {
       descriptionForWork = 'not found that case: ' + filter;
     }
-
-    descriptionForWork
-      ? console.log('Description for work: ', descriptionForWork)
-      : console.log('Done!');
   }
 
   // OverallWorks
-  // OverallWorks
-  // OverallWorks
-
   const works = await models.Works.find({ status: 'new', intervalId });
   if (works.length > 0) {
     for (const work of works) {
@@ -177,11 +140,9 @@ export const rf = async (models: IModels, subdomain: string, params) => {
 
       if (overallWork) {
         await overallWorksUpdate(overallWork, work, models);
-        console.log('updated overall ...');
       } else {
         const doc = initDocOverallWork(work);
         await overallWorksAdd(doc, models);
-        console.log('created overall ...');
       }
     }
 

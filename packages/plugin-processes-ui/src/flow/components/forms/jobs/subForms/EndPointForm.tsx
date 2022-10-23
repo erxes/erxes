@@ -5,9 +5,8 @@ import Icon from '@erxes/ui/src/components/Icon';
 import JobReferChooser from '../../../../../job/containers/refer/Chooser';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import React from 'react';
-import { __ } from '@erxes/ui/src/utils';
+import { Alert, __ } from '@erxes/ui/src/utils';
 import { ControlLabel } from '@erxes/ui/src/components/form';
-import { DrawerDetail } from '../../../../styles';
 import { IJob } from '../../../../types';
 import { IJobRefer } from '../../../../../job/types';
 import { IProduct } from '@erxes/ui-products/src/types';
@@ -16,22 +15,19 @@ import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 type Props = {
   closeModal: () => void;
   activeFlowJob: IJob;
-  jobRefers: IJobRefer[];
+  jobRefer: IJobRefer;
   flowJobs: IJob[];
   lastFlowJob?: IJob;
   flowProduct?: IProduct;
   addFlowJob: (job: IJob, id?: string, config?: any) => void;
   setUsedPopup: (check: boolean) => void;
+  setMainState: (param: any) => void;
 };
 
 type State = {
   jobReferId: string;
   jobRefer?: IJobRefer;
   description: string;
-  inBranchId: string;
-  inDepartmentId: string;
-  outBranchId: string;
-  outDepartmentId: string;
   currentTab: string;
   categoryId: string;
 };
@@ -40,27 +36,15 @@ class JobForm extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { jobRefers, activeFlowJob } = props;
+    const { jobRefer, activeFlowJob } = props;
     const { config, description } = activeFlowJob;
 
-    const jobRefer = jobRefers.length && jobRefers[0];
-
-    const {
-      jobReferId,
-      inBranchId,
-      inDepartmentId,
-      outBranchId,
-      outDepartmentId
-    } = config;
+    const { jobReferId } = config;
 
     this.state = {
       jobReferId: jobReferId || '',
       jobRefer,
       description: description || '',
-      inBranchId: inBranchId || '',
-      inDepartmentId: inDepartmentId || '',
-      outBranchId: outBranchId || '',
-      outDepartmentId: outDepartmentId || '',
       currentTab: 'inputs',
 
       categoryId: ''
@@ -70,8 +54,9 @@ class JobForm extends React.Component<Props, State> {
   componentWillReceiveProps(nextProps) {
     if (nextProps.activeFlowJob !== this.props.activeFlowJob) {
       this.setState({
+        description: nextProps.activeFlowJob.description,
         jobReferId: nextProps.activeFlowJob.jobReferId,
-        description: nextProps.activeFlowJob.description
+        jobRefer: nextProps.jobRefer
       });
     }
   }
@@ -90,7 +75,7 @@ class JobForm extends React.Component<Props, State> {
     if (job) {
       content = (
         <div onClick={onClick}>
-          {job.name} <Icon icon="pen-1" />
+          {job.code} - {job.name} <Icon icon="pen-1" />
         </div>
       );
     }
@@ -105,15 +90,30 @@ class JobForm extends React.Component<Props, State> {
       this.setState({ [type]: e.target.value } as any);
     };
 
-    const onChangeJob = prs => {
-      let pr: any;
-      if (!prs.length) {
-        this.setState({ jobReferId: '', jobRefer: undefined });
+    const onChangeJob = jobRefers => {
+      let selected: any;
+      if (!jobRefers.length) {
+        this.setState({ jobReferId: '', jobRefer: undefined }, () => {
+          this.props.setMainState({
+            product: undefined,
+            productId: ''
+          });
+        });
         return;
       }
 
-      pr = prs[0];
-      this.setState({ jobReferId: pr._id, jobRefer: pr });
+      selected = jobRefers[0];
+      this.setState({ jobReferId: selected._id, jobRefer: selected }, () => {
+        if (!selected.resultProducts.length) {
+          return Alert.error('This endPoint job has not result products');
+        }
+
+        const endProduct = selected.resultProducts[0].product || {};
+        this.props.setMainState({
+          product: endProduct,
+          productId: endProduct._id
+        });
+      });
     };
 
     const content = props => {
@@ -140,7 +140,7 @@ class JobForm extends React.Component<Props, State> {
     };
 
     return (
-      <DrawerDetail>
+      <>
         <FormGroup>
           <ControlLabel>Jobs</ControlLabel>
           <ModalTrigger
@@ -158,33 +158,20 @@ class JobForm extends React.Component<Props, State> {
             onChange={onChangeValue.bind(this, 'description')}
           />
         </FormGroup>
-      </DrawerDetail>
+      </>
     );
   }
 
   render() {
-    const {
-      jobReferId,
-      jobRefer,
-      description,
-      inBranchId,
-      inDepartmentId,
-      outBranchId,
-      outDepartmentId
-    } = this.state;
+    const { jobReferId, jobRefer, description } = this.state;
 
     return (
       <Common
         {...this.props}
         name={(jobRefer && jobRefer.name) || 'Unknown'}
         description={description}
-        config={{
-          jobReferId,
-          inBranchId,
-          inDepartmentId,
-          outBranchId,
-          outDepartmentId
-        }}
+        jobRefer={jobRefer}
+        config={{ jobReferId }}
       >
         {this.renderContent()}
       </Common>

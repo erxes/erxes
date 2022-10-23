@@ -1,14 +1,16 @@
 import { mutations as productMutations } from '@erxes/ui-products/src/graphql';
+import { flowFields } from './queries';
 
 // FLOW
 
-const flowParamsDef = `$name: String, $categoryId: String, $productId: String, $status: String, $jobs: [JobInput], $flowJobStatus: Boolean`;
-const flowParams = `name: $name, categoryId: $categoryId, productId: $productId, status: $status, jobs: $jobs, flowJobStatus: $flowJobStatus`;
+const flowParamsDef = `$name: String, $categoryId: String, $productId: String, $status: String, $jobs: [JobInput]`;
+const flowParams = `name: $name, categoryId: $categoryId, productId: $productId, status: $status, jobs: $jobs`;
 
 const flowsAdd = `
 mutation flowsAdd(${flowParamsDef}) {
   flowsAdd(${flowParams}) {
-    _id
+    ${flowFields}
+    jobs
   }
 }
 `;
@@ -16,7 +18,8 @@ mutation flowsAdd(${flowParamsDef}) {
 const flowsEdit = `
 mutation flowsEdit($id: String!, ${flowParamsDef} ) {
   flowsEdit(_id: $id, ${flowParams} ) {
-    _id
+    ${flowFields}
+    jobs
   }
 }
 `;

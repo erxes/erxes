@@ -3,45 +3,74 @@
 //   requireLogin
 // } from '@erxes/api-utils/src/permissions';
 
+import { sendProductsMessage } from '../../../messageBroker';
 import { IContext } from '../../../connectionResolver';
 
+const getFilter = ({
+  parentId,
+  searchValue,
+  status
+}: {
+  parentId: string;
+  searchValue: string;
+  status: string;
+}) => {
+  const filter: any = {};
+
+  filter.status = { $nin: ['disabled', 'archived'] };
+
+  if (status && status !== 'active') {
+    filter.status = status;
+  }
+
+  if (parentId) {
+    filter.parentId = parentId;
+  }
+
+  if (searchValue) {
+    filter.name = new RegExp(`.*${searchValue}.*`, 'i');
+  }
+  return filter;
+};
 const flowCategoryQueries = {
-  flowCategories(
+  async flowCategories(
     _root,
     {
       parentId,
       searchValue,
       status
     }: { parentId: string; searchValue: string; status: string },
-    { commonQuerySelector, models }: IContext
+    { subdomain }: IContext
   ) {
-    const filter: any = commonQuerySelector;
+    const query = getFilter({ parentId, searchValue, status });
 
-    filter.status = { $nin: ['disabled', 'archived'] };
-
-    if (status && status !== 'active') {
-      filter.status = status;
-    }
-
-    if (parentId) {
-      filter.parentId = parentId;
-    }
-
-    if (searchValue) {
-      filter.name = new RegExp(`.*${searchValue}.*`, 'i');
-    }
-
-    return models.FlowCategories.find(filter)
-      .sort({ order: 1 })
-      .lean();
+    return await sendProductsMessage({
+      subdomain,
+      action: 'categories.find',
+      data: { query, sort: { order: 1 } },
+      isRPC: true,
+      defaultValue: []
+    });
   },
 
-  flowCategoriesTotalCount(_root, _params, { models }: IContext) {
-    return models.FlowCategories.find().countDocuments();
-  },
+  async flowCategoriesTotalCount(
+    _root,
+    {
+      parentId,
+      searchValue,
+      status
+    }: { parentId: string; searchValue: string; status: string },
+    { subdomain }: IContext
+  ) {
+    const query = getFilter({ parentId, searchValue, status });
 
-  flowCategoryDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return models.FlowCategories.findOne({ _id }).lean();
+    return await sendProductsMessage({
+      subdomain,
+      action: 'categories.count',
+      data: { query },
+      isRPC: true,
+      defaultValue: []
+    });
   }
 };
 
