@@ -5,9 +5,7 @@ import Icon from '@erxes/ui/src/components/Icon';
 import JobDetailForm from './jobs/JobDetailForm';
 import jquery from 'jquery';
 import Label from '@erxes/ui/src/components/Label';
-import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
 import PageContent from '@erxes/ui/src/layout/components/PageContent';
-import ProductChooser from '@erxes/ui-products/src/containers/ProductChooser';
 import React from 'react';
 import RTG from 'react-transition-group';
 import Toggle from '@erxes/ui/src/components/Toggle';
@@ -40,14 +38,12 @@ import {
   sourceEndpoint,
   targetEndpoint
 } from '../../utils';
+import { FLOWJOB_TYPES, FLOWJOBS } from '../../constants';
 import { FormControl } from '@erxes/ui/src/components/form';
 import { IFlowDocument, IJob } from '../../../flow/types';
-import { IJobRefer } from '../../../job/types';
 import { IProduct } from '@erxes/ui-products/src/types';
 import { jsPlumb } from 'jsplumb';
 import { Link } from 'react-router-dom';
-import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
-import { FLOWJOBS } from '../../constants';
 
 const plumb: any = jsPlumb;
 let instance;
@@ -64,27 +60,20 @@ type Props = {
 type State = {
   name: string;
   currentTab: string;
-  activeId: string;
   showDrawer: boolean;
-  showTrigger: boolean;
   showFlowJob: boolean;
   isActive: boolean;
-  showNoteForm: boolean;
-  editNoteForm?: boolean;
-  showTemplateForm: boolean;
   flowJobs: IJob[];
-  activeFlowJob: IJob;
-  selectedContentId?: string;
+  activeFlowJob?: IJob;
   isZoomable: boolean;
   zoomStep: number;
   zoom: number;
   percentage: number;
   flowJobEdited: boolean;
-  categoryId: string;
   productId?: string;
   product?: IProduct;
   lastFlowJob?: IJob;
-  flowStatus: boolean;
+  flowValidation: string;
 };
 
 class FlowForm extends React.Component<Props, State> {
@@ -104,12 +93,8 @@ class FlowForm extends React.Component<Props, State> {
     this.state = {
       name: lenFlow.length ? flow.name : 'Your flow title',
       flowJobs,
-      activeId: '',
       currentTab: 'flowJobs',
-      isActive: lenFlow.length ? flow.status === 'active' : false,
-      showNoteForm: false,
-      showTemplateForm: false,
-      showTrigger: false,
+      isActive: (flow.status === 'active' && true) || false,
       showDrawer: false,
       showFlowJob: false,
       isZoomable: false,
@@ -118,69 +103,12 @@ class FlowForm extends React.Component<Props, State> {
       percentage: 100,
       activeFlowJob: {} as IJob,
       flowJobEdited: false,
-      categoryId: '',
       productId: flow.productId || '',
       product: flow.product,
       lastFlowJob: undefined,
-      flowStatus: false
+      flowValidation: flow.flowValidation || ''
     };
   }
-
-  recursiveFlowJobChecker = (
-    flowJobs: IJob[],
-    jobRefers: IJobRefer[],
-    lastFlowJob: IJob
-  ) => {
-    const lastJobRefer =
-      jobRefers.find(jr => jr._id === (lastFlowJob.config.jobReferId || '')) ||
-      ({} as IJobRefer);
-    const boforeFlowJobs = flowJobs.filter(fj =>
-      (fj.nextJobIds || []).includes(lastFlowJob.id)
-    );
-
-    let response = true;
-
-    const lastNeedProducts = lastJobRefer.needProducts;
-
-    if (boforeFlowJobs.length === 0 && (lastNeedProducts || []).length > 0) {
-      response = false;
-    }
-
-    let productIds: string[] = [];
-    for (const beforeFlowJob of boforeFlowJobs) {
-      const beforeJobRefer = jobRefers.find(
-        jr => jr._id === (beforeFlowJob.config.jobReferId || '')
-      );
-      const resultProducts = beforeJobRefer?.resultProducts;
-      const ids = resultProducts?.map(rp => rp.productId);
-
-      productIds =
-        productIds.length === 0 ? ids || [] : productIds.concat(ids || []);
-    }
-
-    for (const lastNeedProduct of lastNeedProducts || []) {
-      if (!productIds.includes(lastNeedProduct.productId)) {
-        response = false;
-      }
-    }
-
-    if (response) {
-      for (const beforeFlowJob of boforeFlowJobs) {
-        response = this.recursiveFlowJobChecker(
-          flowJobs,
-          jobRefers,
-          beforeFlowJob
-        );
-        if (response) {
-          continue;
-        } else {
-          break;
-        }
-      }
-    }
-
-    return response;
-  };
 
   setWrapperRef = node => {
     this.wrapperRef = node;
@@ -189,6 +117,19 @@ class FlowForm extends React.Component<Props, State> {
   setUsedPopup = check => {
     this.usedPopup = check;
   };
+
+  setMainState = param => {
+    this.setState({ ...param });
+  };
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.flow !== this.props.flow) {
+      this.setState({
+        flowValidation: nextProps.flow.flowValidation,
+        isActive: (nextProps.flow.status === 'active' && true) || false
+      });
+    }
+  }
 
   componentDidMount() {
     this.connectInstance();
@@ -260,8 +201,6 @@ class FlowForm extends React.Component<Props, State> {
       event.preventDefault();
 
       jquery(`div#${event.currentTarget.id}`).toggleClass('show-flowJob-menu');
-
-      this.setState({ activeId: event.currentTarget.id });
     });
 
     // delete control ===================
@@ -288,7 +227,7 @@ class FlowForm extends React.Component<Props, State> {
   };
 
   handleSubmit = () => {
-    const { name, isActive, flowJobs, productId, flowStatus } = this.state;
+    const { name, isActive, flowJobs, productId, flowValidation } = this.state;
     const { flow, save } = this.props;
 
     if (!name || name === 'Your flow title') {
@@ -301,7 +240,7 @@ class FlowForm extends React.Component<Props, State> {
         name,
         status: isActive ? 'active' : 'draft',
         productId,
-        flowJobStatus: flowStatus,
+        flowValidation: flowValidation,
         jobs: flowJobs.map(a => ({
           id: a.id,
           type: a.type,
@@ -319,40 +258,12 @@ class FlowForm extends React.Component<Props, State> {
     return save(generateValues());
   };
 
-  handleNoteModal = (item?) => {
-    this.setState({
-      showNoteForm: !this.state.showNoteForm,
-      editNoteForm: item ? true : false
-    });
-  };
-
-  handleTemplateModal = () => {
-    this.setState({ showTemplateForm: !this.state.showTemplateForm });
-  };
-
   onToggle = e => {
     const isActive = e.target.checked;
 
-    this.setState({ isActive });
-
-    const { save, flow } = this.props;
-
-    if (Object.keys(flow).length) {
-      save({ _id: flow._id, status: isActive ? 'active' : 'draft' });
-    }
-  };
-
-  onAddActionConfig = config => {
-    const { activeFlowJob } = this.state;
-
-    activeFlowJob.config = config;
-    this.setState({ activeFlowJob });
-  };
-
-  onChange = e => {
-    const value = e.target.value;
-
-    this.setState({ categoryId: value });
+    this.setState({ isActive }, () => {
+      this.handleSubmit();
+    });
   };
 
   doZoom = (step: number, inRange: boolean) => {
@@ -436,64 +347,11 @@ class FlowForm extends React.Component<Props, State> {
     });
   };
 
-  onChangeCategory = (categoryId: string) => {
-    this.setState({ categoryId });
-  };
-
-  renderProductServiceTrigger(product?: IProduct) {
-    let content = (
-      <div>
-        {__('Choose Product & service ')} <Icon icon="plus-circle" />
-      </div>
-    );
-
-    // if product selected
-    if (product) {
-      content = (
-        <div>
-          {product.name} <Icon icon="pen-1" />
-        </div>
-      );
-    }
-
-    return <ProductButton>{content}</ProductButton>;
-  }
-
-  renderProductModal = (currentProduct?: IProduct) => {
-    const productOnChange = (products: IProduct[]) => {
-      const product = products[0];
-      const productId = product ? product._id : '';
-      this.setState({ productId, product, name: product.name });
-    };
-
-    const content = props => (
-      <ProductChooser
-        {...props}
-        onSelect={productOnChange}
-        onChangeCategory={this.onChangeCategory}
-        categoryId={this.state.categoryId}
-        data={{
-          name: 'Product',
-          products: currentProduct ? [currentProduct] : []
-        }}
-        limit={1}
-      />
-    );
-
-    return (
-      <ModalTrigger
-        title="Choose product & service"
-        trigger={this.renderProductServiceTrigger(currentProduct)}
-        size="lg"
-        content={content}
-      />
-    );
-  };
-
   handleClickOutside = event => {
     if (
       !this.usedPopup &&
-      this.wrapperRef && !this.wrapperRef.contains(event.target)
+      this.wrapperRef &&
+      !this.wrapperRef.contains(event.target)
     ) {
       this.setState({ showDrawer: false });
     }
@@ -502,6 +360,7 @@ class FlowForm extends React.Component<Props, State> {
   toggleDrawer = (type: string) => {
     this.setState({
       showDrawer: !this.state.showDrawer,
+      activeFlowJob: undefined,
       currentTab: type
     });
   };
@@ -614,6 +473,7 @@ class FlowForm extends React.Component<Props, State> {
     jquery(`#canvas #${idElm} .job-label`).html(item.label || 'Unknown');
     jquery(`#canvas #${idElm} .job-description`).html(item.description || '');
 
+    jquery('#canvas').off('dblclick', `#${idElm}`);
     jquery('#canvas').on('dblclick', `#${idElm}`, event => {
       event.preventDefault();
 
@@ -641,25 +501,32 @@ class FlowForm extends React.Component<Props, State> {
   };
 
   rendeRightActionBar() {
-    const { isActive } = this.state;
+    const { isActive, flowValidation, product } = this.state;
 
     return (
       <BarItems>
         <ToggleWrapper>
           <span>{__('Product: ')}</span>
-          {this.renderProductModal(this.state.product)}
+          {(product &&
+            this.renderLabelInfo(
+              `default`,
+              `${product.code} - ${product.name}`
+            )) ||
+            this.renderLabelInfo(`simple`, 'Not found yet')}
         </ToggleWrapper>
 
         <ToggleWrapper>
-          <span>{__('Flow status: ')}</span>
-          {this.state.flowStatus === true &&
-            this.renderLabelInfo('success', 'True')}
-          {this.state.flowStatus === false &&
-            this.renderLabelInfo('danger', 'False')}
+          <span>{__('Validation status: ')}</span>
+          {flowValidation === '' && this.renderLabelInfo('success', 'True')}
+          {flowValidation && this.renderLabelInfo('danger', flowValidation)}
         </ToggleWrapper>
         <ToggleWrapper>
           <span className={isActive ? 'active' : ''}>{__('Inactive')}</span>
-          <Toggle defaultChecked={isActive} onChange={this.onToggle} />
+          <Toggle
+            defaultChecked={(flowValidation === '' && isActive) || false}
+            onChange={this.onToggle}
+            disabled={flowValidation === '' ? false : true}
+          />
           <span className={!isActive ? 'active' : ''}>{__('Active')}</span>
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
@@ -692,7 +559,6 @@ class FlowForm extends React.Component<Props, State> {
             name="name"
             value={name}
             onChange={this.onNameChange}
-            disabled={true}
             required={true}
             autoFocus={true}
           />
@@ -710,7 +576,7 @@ class FlowForm extends React.Component<Props, State> {
   onSave = () => {
     const { activeFlowJob } = this.state;
 
-    this.addFlowJob(activeFlowJob);
+    this.addFlowJob(activeFlowJob as IJob);
 
     this.onBackFlowJob();
   };
@@ -724,7 +590,7 @@ class FlowForm extends React.Component<Props, State> {
       return (
         <>
           <BackIcon onClick={onBackAction}>
-            <Icon icon="angle-left" size={20} /> {__('Back to actions')}
+            <Icon icon="angle-left" size={20} /> {__('Back to jobs')}
           </BackIcon>
           <JobDetailForm
             activeFlowJob={activeFlowJob}
@@ -732,12 +598,18 @@ class FlowForm extends React.Component<Props, State> {
             closeModal={this.onBackFlowJob}
             flowJobs={flowJobs}
             setUsedPopup={this.setUsedPopup}
+            setMainState={this.setMainState}
           />
         </>
       );
     }
 
-    return <FlowJobsForm onClickFlowJob={this.onClickFlowJob} />;
+    return (
+      <FlowJobsForm
+        onClickFlowJob={this.onClickFlowJob}
+        flowJobsOfEnd={flowJobs.find(fj => fj.type === FLOWJOB_TYPES.ENDPOINT)}
+      />
+    );
   }
 
   renderZoomFlowJobs() {

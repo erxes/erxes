@@ -264,7 +264,6 @@ class Form extends React.Component<Props, State> {
           </thead>
           <tbody>
             {products.map(product => {
-              console.log(product, 'ddddddddddddddddd');
               const subUoms =
                 product.product && product.product.subUoms
                   ? product.product.subUoms || []

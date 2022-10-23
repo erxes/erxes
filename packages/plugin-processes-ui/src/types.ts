@@ -5,9 +5,8 @@ import {
   IUom as IUomC
 } from '@erxes/ui-products/src/types';
 
-import { IBranch, IDepartment } from '@erxes/ui-team/src/types';
-
 import { QueryResponse } from '@erxes/ui/src/types';
+import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
 
 export type IProductDoc = IProductDocC & {};
 
@@ -17,45 +16,18 @@ export type IProductCategory = IProductCategoryC & {};
 
 export type IUom = IUomC & {};
 
-export interface IJobCategory {
-  _id: string;
-  name: string;
-  code: string;
-  description?: string;
-  parentId?: string;
-  attachment?: any;
-  status?: string;
-  order: string;
-  createdAt: Date;
-  isRoot: boolean;
-  productCount: number;
-}
-
-export interface IJobRefer {
-  _id: string;
-  createdAt: Date;
-  code: string;
-  name: string;
-  type: string;
-  status?: string;
-  categoryId?: string;
-  duration: number;
-  durationType: string;
-  needProducts?: any[];
-  resultProducts?: any[];
-}
-
 export interface IProductsData {
   _id: string;
   productId: string;
-  product: any;
   quantity: number;
   uomId: string;
+  proportion?: number;
   branchId?: string;
   departmentId?: string;
 }
 
 export interface IProductsDataDocument extends IProductsData {
+  product?: any;
   branch?: IBranch;
   department?: IDepartment;
   uom?: IUom;
@@ -65,24 +37,6 @@ export interface IProductsDataDocument extends IProductsData {
 
 export type ProductsQueryResponse = {
   products: IProduct[];
-} & QueryResponse;
-
-// JOB
-
-export type JobRefersQueryResponse = {
-  jobRefers: IJobRefer[];
-} & QueryResponse;
-
-export type jobReferTotalCountQueryResponse = {
-  jobReferTotalCount: number;
-} & QueryResponse;
-
-export type JobCategoriesQueryResponse = {
-  jobCategories: IJobCategory[];
-} & QueryResponse;
-
-export type JobCategoriesCountQueryResponse = {
-  jobCategoriesTotalCount: number;
 } & QueryResponse;
 
 // UOM
@@ -110,54 +64,11 @@ export type MutationUomVariables = {
   code: string;
 };
 
-export type MutationJobReferVariables = {};
-
 // mutation types
-
-export type AddMutationResponse = {
-  addMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
-};
-
-export type EditMutationResponse = {
-  editMutation: (mutation: { variables: MutationVariables }) => Promise<any>;
-};
-
-export type jobRefersRemoveMutationResponse = {
-  jobRefersRemove: (mutation: {
-    variables: { jobRefersIds: string[] };
-  }) => Promise<any>;
-};
-
-export type JobCategoriesRemoveMutationResponse = {
-  jobCategoriesRemove: (mutation: {
-    variables: { _id: string };
-  }) => Promise<any>;
-};
-
-export type DetailQueryResponse = {
-  jobReferDetail: IJobRefer;
-  loading: boolean;
-};
-
-export type CategoryDetailQueryResponse = {
-  productCategoryDetail: IProductCategory;
-  loading: boolean;
-};
 
 export type CountByTagsQueryResponse = {
   productCountByTags: { [key: string]: number };
   loading: boolean;
-};
-
-export type MergeMutationVariables = {
-  productIds: string[];
-  productFields: IProduct;
-};
-
-export type MergeMutationResponse = {
-  productsMerge: (params: {
-    variables: MergeMutationVariables;
-  }) => Promise<any>;
 };
 
 // UOM

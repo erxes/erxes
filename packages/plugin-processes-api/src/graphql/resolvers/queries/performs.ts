@@ -43,8 +43,6 @@ const performQueries = {
   ) {
     const selector = generateFilter(params, commonQuerySelector);
 
-    console.log('selector: ', selector);
-
     return paginate(models.Performs.find(selector).lean(), { ...params });
   },
 

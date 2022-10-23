@@ -11,7 +11,6 @@ import { IModels } from './connectionResolver';
 import messageBroker from './messageBroker';
 import { jobReferSchema } from './models/definitions/jobs';
 import { jobCategorySchema } from './models/definitions/jobCategories';
-import { flowCategorySchema } from './models/definitions/flowCategories';
 import { flowSchema } from './models/definitions/flows';
 
 export const LOG_ACTIONS = {
@@ -118,7 +117,6 @@ export default {
     data: getSchemaLabels(type, [
       { name: 'jobRefer', schemas: [jobReferSchema] },
       { name: 'jobCategory', schemas: [jobCategorySchema] },
-      { name: 'flowCategory', schemas: [flowCategorySchema] },
       { name: 'flow', schemas: [flowSchema] }
     ])
   })

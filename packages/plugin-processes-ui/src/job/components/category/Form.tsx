@@ -39,8 +39,6 @@ class CategoryForm extends React.Component<Props, State> {
     const category = props.category || ({} as ICategory);
     const attachment = category.attachment ? category.attachment : undefined;
 
-    console.log('constructor ...');
-
     this.state = {
       attachment
     };
@@ -74,8 +72,6 @@ class CategoryForm extends React.Component<Props, State> {
 
     const attachments =
       (object.attachment && extractAttachment([object.attachment])) || [];
-
-    console.log('attachments here', attachments);
 
     return (
       <>

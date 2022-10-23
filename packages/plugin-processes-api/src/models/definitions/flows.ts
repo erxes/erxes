@@ -5,15 +5,21 @@ import { IJobRefer } from './jobs';
 export interface IJob {
   id: string;
   nextJobIds: string[];
-  jobReferId: string;
+  type: string;
+  config: {
+    jobReferId?: string;
+    productId?: string;
+    inBranchId: string;
+    outBranchId: string;
+    inDepartmentId: string;
+    outDepartmentId: string;
+    durationType: string;
+    duration: number;
+    // quantity: number;
+  };
   style: object;
   label: string;
   description: string;
-  quantity: number;
-  inBranchId: string;
-  inDepartmentId: string;
-  outBranchId: string;
-  outDepartmentId: string;
 }
 
 export interface IJobDocument extends IJob {
@@ -25,7 +31,7 @@ export interface IFlow {
   categoryId?: string;
   productId?: string;
   status: string;
-  flowJobStatus: boolean;
+  flowValidation: string;
   jobs?: IJobDocument[];
 }
 
@@ -68,12 +74,14 @@ export const flowSchema = schemaHooksWrapper(
       index: true
     }),
     status: field({ type: String, label: 'Status' }),
-    flowJobStatus: field({ type: Boolean, label: 'FlowJob status' }),
+    flowValidation: field({ type: String, label: 'FlowJob status' }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String },
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
     updatedBy: { type: String },
-    jobs: field({ type: [jobSchema], optional: true, label: 'Jobs' })
+    jobs: field({ type: [jobSchema], optional: true, label: 'Jobs' }),
+    latestBranchId: { type: String },
+    latestDepartmentId: { type: String }
   }),
   'erxes_flows'
 );

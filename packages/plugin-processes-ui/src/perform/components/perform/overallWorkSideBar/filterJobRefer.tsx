@@ -28,8 +28,6 @@ class JobReferFilter extends React.Component<IProps, State> {
     const { params } = this.props;
     const { jobReferId } = params;
 
-    console.log('params on jobReferFilter: ', params);
-
     this.state = {
       jobReferId
     };
@@ -39,8 +37,6 @@ class JobReferFilter extends React.Component<IProps, State> {
     const value = e.target.value;
     const { history } = this.props;
 
-    console.log('jobReferId on onChangeValue: ', name, value);
-
     router.setParams(history, { jobReferId: value });
     this.setState({ jobReferId: value });
   };
@@ -48,8 +44,6 @@ class JobReferFilter extends React.Component<IProps, State> {
   render() {
     const { history, jobRefers } = this.props;
     const { jobReferId } = this.state;
-
-    console.log('jobReferId on filterJobRefer: ', jobReferId);
 
     const onClear = () => {
       router.setParams(history, { jobReferId: null });
@@ -67,10 +61,6 @@ class JobReferFilter extends React.Component<IProps, State> {
         extraButtons={extraButtons}
         title={__('Filter by Job')}
         name="showFilterByJob"
-        noShadow={true}
-        noMarginBottom={true}
-        noBackground={true}
-        noSpacing={true}
       >
         <SidebarList>
           <OverallWorkSidebar>

@@ -741,3 +741,7 @@ export const MainInfo = styled.div`
     margin-right: ${dimensions.unitSpacing}px;
   }
 `;
+
+export const DisabledSpan = styled.div`
+  color: gray;
+`;
