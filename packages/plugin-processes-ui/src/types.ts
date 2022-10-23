@@ -1,37 +1,17 @@
-import {
-  IProduct as IProductC,
-  IProductCategory as IProductCategoryC,
-  IProductDoc as IProductDocC,
-  IUom as IUomC
-} from '@erxes/ui-products/src/types';
-
+import { IProduct, IUom } from '@erxes/ui-products/src/types';
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IBranch, IDepartment } from '@erxes/ui/src/team/types';
-
-export type IProductDoc = IProductDocC & {};
-
-export type IProduct = IProductC & {};
-
-export type IProductCategory = IProductCategoryC & {};
-
-export type IUom = IUomC & {};
 
 export interface IProductsData {
   _id: string;
   productId: string;
+  product?: any;
   quantity: number;
   uomId: string;
   proportion?: number;
-  branchId?: string;
-  departmentId?: string;
-}
-
-export interface IProductsDataDocument extends IProductsData {
-  product?: any;
-  branch?: IBranch;
-  department?: IDepartment;
   uom?: IUom;
 }
+
+export interface IProductsDataDocument extends IProductsData {}
 
 // query types
 

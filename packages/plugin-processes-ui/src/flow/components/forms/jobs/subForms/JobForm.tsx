@@ -114,7 +114,7 @@ class JobForm extends React.Component<Props, State> {
           onSelect={onChangeJob}
           onChangeCategory={categoryId => this.setState({ categoryId })}
           categoryId={this.state.categoryId}
-          types={['facture', 'income', 'outlet', 'move']}
+          types={['job', 'income', 'outlet', 'move']}
           data={{
             name: 'Jobs',
             jobRefers: jobRefer ? [jobRefer] : []

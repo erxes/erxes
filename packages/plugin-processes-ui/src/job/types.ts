@@ -1,5 +1,4 @@
 import { QueryResponse } from '@erxes/ui/src/types';
-import { IProductCategory } from '../types';
 
 // query types
 export interface IJobCategory {
@@ -34,11 +33,6 @@ export interface IJobRefer {
 
 export type JobReferDetailQueryResponse = {
   jobReferDetail: IJobRefer;
-  loading: boolean;
-};
-
-export type JobCategoryDetailQueryResponse = {
-  productCategoryDetail: IProductCategory;
   loading: boolean;
 };
 

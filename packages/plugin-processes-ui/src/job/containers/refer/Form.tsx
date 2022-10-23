@@ -1,12 +1,8 @@
 import * as compose from 'lodash.flowright';
 
+import { IJobRefer, JobCategoriesQueryResponse } from '../../types';
 import {
   IConfigsMap,
-  IJobRefer,
-  IProductsData,
-  JobCategoriesQueryResponse
-} from '../../types';
-import {
   ProductsConfigsQueryResponse,
   UomsQueryResponse
 } from '@erxes/ui-products/src/types';
@@ -19,6 +15,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { withProps } from '@erxes/ui/src/utils';
+import { IProductsData } from '../../../types';
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -44,7 +41,6 @@ class ProductFormContainer extends React.Component<FinalProps> {
     }
 
     const renderButton = ({
-      name,
       values,
       isSubmitted,
       callback,
