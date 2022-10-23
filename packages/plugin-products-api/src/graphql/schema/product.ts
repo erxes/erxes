@@ -116,8 +116,7 @@ export const queries = `
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
 
-  products(${productParams}): [Product]
-  productsMain(${productParams}): ProductsListResponse
+  products(${productParams}): ProductsListResponse
   productsTotalCount(type: String): Int
   productsCounts(${productParams}, only: String): JSON
   productDetail(_id: String): Product

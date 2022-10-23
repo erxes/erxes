@@ -4,8 +4,6 @@ const productCategories = productQueries.productCategories;
 
 const products = productQueries.products;
 
-const productsMain = productQueries.productsMain;
-
 const productCountByTags = `
   query productCountByTags {
     productCountByTags
@@ -74,7 +72,6 @@ const productsConfigs = productQueries.productsConfigs;
 
 export default {
   products,
-  productsMain,
   productDetail,
   productCounts,
   productCountByTags,
