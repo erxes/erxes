@@ -118,7 +118,7 @@ export const postSchema = new Schema<PostDocument>({
     type: String,
     required: true,
     enum: POST_STATES,
-    default: 'DRAFT',
+    default: (): PostStates => 'DRAFT',
     index: true
   },
   thumbnail: String,
