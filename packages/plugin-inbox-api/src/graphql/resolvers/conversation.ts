@@ -139,7 +139,8 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return [];
+    // return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
   async videoCallData(
