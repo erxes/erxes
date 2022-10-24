@@ -24,6 +24,10 @@ export const buildPostsQuery = async ({ Category }: IModels, params: any) => {
     }
   }
 
+  if (params.search) {
+    query.$text = { $search: params.search };
+  }
+
   return query;
 };
 

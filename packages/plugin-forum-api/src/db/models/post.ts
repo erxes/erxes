@@ -145,6 +145,10 @@ postSchema.index({ categoryId: 1, state: 1 });
 // mostly used by update query of updateTrendScoreOfPublished
 postSchema.index({ stateChangedAt: 1, state: 1 });
 
+postSchema.index({
+  title: 'text'
+});
+
 export const generatePostModel = (
   subdomain: string,
   con: Connection,
