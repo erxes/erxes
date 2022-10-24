@@ -4,6 +4,8 @@ export const commonPostsParams = `
   createdById: [String!]
   createdByCpId: [String!]
 
+  search: String
+
   sort: JSON
   offset: Int
   limit: Int
