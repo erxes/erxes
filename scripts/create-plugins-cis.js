@@ -48,7 +48,8 @@ var plugins = [
   { name: 'webbuilder', ui: true, api: true },
   { name: 'payment', ui: true, api: true },
   { name: 'imap', ui: true, api: true },
-  { name: 'block', ui: true, api: true }
+  { name: 'block', ui: true, api: true },
+  { name: 'assets', ui: true, api: true }
 ];
 
 const pluginsMap = {};
