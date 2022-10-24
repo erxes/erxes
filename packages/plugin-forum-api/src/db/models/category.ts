@@ -21,7 +21,7 @@ export interface ICategory {
   // userLevelReqCommentRead: ReadCpUserLevels;
   userLevelReqCommentWrite: WriteCpUserLevels;
 
-  postsRequireCrmApproval: boolean;
+  postsReqCrmApproval: boolean;
 }
 
 export type InputCategoryInsert = Omit<ICategory, '_id'>;
@@ -77,7 +77,7 @@ export const categorySchema = new Schema<CategoryDocument>({
     default: (): WriteCpUserLevels => 'REGISTERED'
   },
 
-  postsRequireCrmApproval: {
+  postsReqCrmApproval: {
     type: Boolean,
     required: true,
     default: (): boolean => false

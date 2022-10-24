@@ -21,7 +21,7 @@ export default `
     # userLevelReqCommentRead: String!
     userLevelReqCommentWrite: String!
   
-    postsRequireCrmApproval: Boolean!
+    postsReqCrmApproval: Boolean!
 
     postsCount(
       ${commonPostsParams}
