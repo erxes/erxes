@@ -253,6 +253,8 @@ const conversationQueries: any = {
     _args,
     { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('buildQuery');
+
     // initiate query builder
     const qb = new QueryBuilder(
       models,
@@ -263,8 +265,14 @@ const conversationQueries: any = {
 
     await qb.buildAllQueries();
 
+    serverTiming.endTime('buildQuery');
+
+    serverTiming.startTime('integrationFilter');
+
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
+
+    serverTiming.endTime('integrationFilter');
 
     serverTiming.startTime('query');
 
