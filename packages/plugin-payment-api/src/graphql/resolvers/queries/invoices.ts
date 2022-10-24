@@ -40,7 +40,7 @@ const generateFilterQuery = (params: IParam) => {
     query.contentTypeId = contentTypeId;
   }
 
-  query.paymentId = { $exists: true };
+  query.selectedPaymentId = { $exists: true };
 
   return query;
 };
