@@ -44,6 +44,9 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ): Promise<boolean>;
 }
 
+export const getDefaultPostReadCpUserLevel = (): ReadCpUserLevels => 'GUEST';
+export const getDefaultWriteCpUserLevel = (): WriteCpUserLevels => 'REGISTERED';
+
 export const categorySchema = new Schema<CategoryDocument>({
   name: { type: String, required: true },
   code: {
@@ -60,13 +63,13 @@ export const categorySchema = new Schema<CategoryDocument>({
     type: String,
     requried: true,
     enum: _.keys(READ_CP_USER_LEVELS),
-    default: (): ReadCpUserLevels => 'GUEST'
+    default: getDefaultPostReadCpUserLevel
   },
   userLevelReqPostWrite: {
     type: String,
     requried: true,
     enum: _.keys(WRITE_CP_USER_LEVELS),
-    default: (): WriteCpUserLevels => 'REGISTERED'
+    default: getDefaultWriteCpUserLevel
   },
 
   // userLevelReqCommentRead: { type: String, requried: true, enum: _.keys(READ_CP_USER_LEVELS), default: (): ReadCpUserLevels => ('GUEST')},
@@ -74,7 +77,7 @@ export const categorySchema = new Schema<CategoryDocument>({
     type: String,
     requried: true,
     enum: _.keys(WRITE_CP_USER_LEVELS),
-    default: (): WriteCpUserLevels => 'REGISTERED'
+    default: getDefaultWriteCpUserLevel
   },
 
   postsReqCrmApproval: {
