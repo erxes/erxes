@@ -10,9 +10,6 @@ import { getConfigs } from '../utils';
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
     const user = await models.Users.findOne({ _id });
-
-    console.log('============', _id);
-
     return user;
   },
 

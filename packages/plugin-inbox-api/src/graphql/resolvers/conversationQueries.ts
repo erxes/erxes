@@ -36,8 +36,6 @@ const conversationQueries: any = {
     params: IListArgs,
     { user, models, subdomain, serverTiming }: IContext
   ) {
-    console.log('1111111111');
-
     serverTiming.startTime('conversations');
 
     // filter by ids of conversations
@@ -56,11 +54,7 @@ const conversationQueries: any = {
       starredConversationIds: user.starredConversationIds
     });
 
-    console.log('2222222222222');
-
     await qb.buildAllQueries();
-
-    console.log('33333333333333');
 
     serverTiming.endTime('buildQuery');
 
@@ -69,8 +63,6 @@ const conversationQueries: any = {
     const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .limit(params.limit || 0);
-
-    console.log('4444444444');
 
     serverTiming.endTime('conversationsQuery');
 

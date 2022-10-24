@@ -6,9 +6,6 @@ import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 export default {
   async __resolveReference({ _id }, { models }: IContext) {
     const customer = await models.Customers.findOne({ _id });
-
-    console.log('============', _id);
-
     return customer;
   },
 
