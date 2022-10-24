@@ -1,6 +1,12 @@
 import { Document, Schema, Model, Connection, Types } from 'mongoose';
 import { IModels } from './index';
 import * as _ from 'lodash';
+import {
+  ReadCpUserLevels,
+  READ_CP_USER_LEVELS,
+  WriteCpUserLevels,
+  WRITE_CP_USER_LEVELS
+} from '../../consts';
 
 export interface ICategory {
   _id: any;
@@ -8,6 +14,14 @@ export interface ICategory {
   code?: string | null;
   thumbnail?: string | null;
   parentId?: string | null;
+
+  userLevelReqPostRead: ReadCpUserLevels;
+  userLevelReqPostWrite: WriteCpUserLevels;
+
+  // userLevelReqCommentRead: ReadCpUserLevels;
+  userLevelReqCommentWrite: WriteCpUserLevels;
+
+  postsRequireCrmApproval: boolean;
 }
 
 export type InputCategoryInsert = Omit<ICategory, '_id'>;
@@ -30,8 +44,6 @@ export interface ICategoryModel extends Model<CategoryDocument> {
   ): Promise<boolean>;
 }
 
-// true, unique: true, sparse: true,
-
 export const categorySchema = new Schema<CategoryDocument>({
   name: { type: String, required: true },
   code: {
@@ -42,7 +54,34 @@ export const categorySchema = new Schema<CategoryDocument>({
     partialFilterExpression: { code: { $ne: null } }
   },
   thumbnail: String,
-  parentId: { type: Types.ObjectId, index: true }
+  parentId: { type: Types.ObjectId, index: true },
+
+  userLevelReqPostRead: {
+    type: String,
+    requried: true,
+    enum: _.keys(READ_CP_USER_LEVELS),
+    default: (): ReadCpUserLevels => 'GUEST'
+  },
+  userLevelReqPostWrite: {
+    type: String,
+    requried: true,
+    enum: _.keys(WRITE_CP_USER_LEVELS),
+    default: (): WriteCpUserLevels => 'REGISTERED'
+  },
+
+  // userLevelReqCommentRead: { type: String, requried: true, enum: _.keys(READ_CP_USER_LEVELS), default: (): ReadCpUserLevels => ('GUEST')},
+  userLevelReqCommentWrite: {
+    type: String,
+    requried: true,
+    enum: _.keys(WRITE_CP_USER_LEVELS),
+    default: (): WriteCpUserLevels => 'REGISTERED'
+  },
+
+  postsRequireCrmApproval: {
+    type: Boolean,
+    required: true,
+    default: (): boolean => false
+  }
 });
 
 export const generateCategoryModel = (

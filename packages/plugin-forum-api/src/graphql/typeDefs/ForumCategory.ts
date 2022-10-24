@@ -15,6 +15,14 @@ export default `
     descendants: [ForumCategory!]
     ancestors: [ForumCategory!]
 
+    userLevelReqPostRead: String!
+    userLevelReqPostWrite: String!
+  
+    # userLevelReqCommentRead: String!
+    userLevelReqCommentWrite: String!
+  
+    postsRequireCrmApproval: Boolean!
+
     postsCount(
       ${commonPostsParams}
     ): Int
