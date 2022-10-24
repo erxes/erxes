@@ -243,7 +243,7 @@ const conversationQueries: any = {
   async conversationsTotalUnreadCount(
     _root,
     _args,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
     // initiate query builder
     const qb = new QueryBuilder(
@@ -258,13 +258,20 @@ const conversationQueries: any = {
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
 
-    return models.Conversations.find({
+    serverTiming.startTime('query');
+
+    const response = await models.Conversations.find({
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
       $and: [{ $or: qb.userRelevanceQuery() }]
     }).countDocuments();
+
+    serverTiming.endTime('query');
+
+    return response;
   },
+
   async inboxFields(_root, _args, { subdomain }: IContext) {
     const response: {
       customer?: any[];
