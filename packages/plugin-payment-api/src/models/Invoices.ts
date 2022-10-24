@@ -34,11 +34,11 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Amount is required');
       }
 
-      if (!doc.paymentId) {
+      if (!doc.selectedPaymentId) {
         throw new Error('Payment config id is required');
       }
 
-      const payment = await models.Payments.getPayment(doc.paymentId);
+      const payment = await models.Payments.getPayment(doc.selectedPaymentId);
 
       const invoice = await models.Invoices.create({
         ...doc,
@@ -48,7 +48,7 @@ export const loadInvoiceClass = (models: IModels) => {
       try {
         const apiResponse = createNewInvoice(invoice, payment);
         invoice.apiResponse = apiResponse;
-        invoice.paymentId = payment._id;
+        invoice.selectedPaymentId = payment._id;
         invoice.paymentKind = payment.kind;
 
         await invoice.save();
@@ -67,15 +67,17 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Already settled');
       }
 
-      if (!invoice.paymentId) {
+      if (!invoice.selectedPaymentId) {
         try {
-          const payment = await models.Payments.getPayment(doc.paymentId);
+          const payment = await models.Payments.getPayment(
+            doc.selectedPaymentId
+          );
           invoice.identifier = doc.identifier || makeInvoiceNo(32);
 
           const apiResponse = await createNewInvoice(invoice, payment);
           invoice.apiResponse = apiResponse;
           invoice.paymentKind = payment.kind;
-          invoice.paymentId = payment._id;
+          invoice.selectedPaymentId = payment._id;
 
           await invoice.save();
 
@@ -85,14 +87,18 @@ export const loadInvoiceClass = (models: IModels) => {
         }
       }
 
-      if (invoice.paymentId === doc.paymentId) {
+      if (invoice.selectedPaymentId === doc.selectedPaymentId) {
         await models.Invoices.updateOne({ _id }, { $set: doc });
 
         return models.Invoices.getInvoice({ _id });
       }
 
-      const prevPayment = await models.Payments.getPayment(invoice.paymentId);
-      const newPayment = await models.Payments.getPayment(doc.paymentId);
+      const prevPayment = await models.Payments.getPayment(
+        invoice.selectedPaymentId
+      );
+      const newPayment = await models.Payments.getPayment(
+        doc.selectedPaymentId
+      );
 
       cancelPayment(invoice, prevPayment);
 
@@ -100,7 +106,7 @@ export const loadInvoiceClass = (models: IModels) => {
         const apiResponse = await createNewInvoice(invoice, newPayment);
         invoice.apiResponse = apiResponse;
         invoice.paymentKind = newPayment.kind;
-        invoice.paymentId = newPayment._id;
+        invoice.selectedPaymentId = newPayment._id;
 
         await invoice.save();
 
@@ -118,7 +124,9 @@ export const loadInvoiceClass = (models: IModels) => {
         throw new Error('Already settled');
       }
 
-      const payment = await models.Payments.getPayment(invoice.paymentId);
+      const payment = await models.Payments.getPayment(
+        invoice.selectedPaymentId
+      );
 
       cancelPayment(invoice, payment);
 
