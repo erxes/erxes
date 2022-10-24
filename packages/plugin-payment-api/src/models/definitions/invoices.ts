@@ -33,7 +33,7 @@ export const invoiceSchema = schemaHooksWrapper(
       index: true,
       label: 'Identifier'
     }),
-    paymentId: field({
+    selectedPaymentId: field({
       type: String,
       label: 'payment id'
     }),
