@@ -1,3 +1,7 @@
+import {
+  checkPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 import * as telemetry from 'erxes-telemetry';
 import { ILink } from '@erxes/api-utils/src/types';
 import { authCookieOptions } from '@erxes/api-utils/src/core';
@@ -13,7 +17,6 @@ import {
 } from '../../../messageBroker';
 import { putCreateLog, putUpdateLog } from '../../logUtils';
 import { resetPermissionsCache } from '../../permissions/utils';
-import { checkPermission, requireLogin } from '../../permissions/wrappers';
 import utils, { getEnv, sendRequest } from '../../utils';
 import { IContext, IModels } from '../../../connectionResolver';
 
