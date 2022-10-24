@@ -26,6 +26,8 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     extend type ClientPortalUser @key(fields: "_id") {
       _id: String! @external
+      forumSubscriptionEndsAfter: Date
+      forumIsSubscribed: Boolean!
     }
 
     ${ForumCategory}
