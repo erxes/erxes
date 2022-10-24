@@ -36,6 +36,8 @@ const conversationQueries: any = {
     params: IListArgs,
     { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('conversationsQuery');
+
     // filter by ids of conversations
     if (params && params.ids) {
       return models.Conversations.find({ _id: { $in: params.ids } }).sort({
@@ -51,8 +53,6 @@ const conversationQueries: any = {
     });
 
     await qb.buildAllQueries();
-
-    serverTiming.startTime('conversationsQuery');
 
     const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
