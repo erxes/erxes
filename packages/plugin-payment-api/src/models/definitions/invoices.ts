@@ -4,7 +4,7 @@ import { field, schemaHooksWrapper } from './utils';
 import { makeInvoiceNo } from '../../utils';
 
 export interface IInvoice {
-  paymentId: string;
+  selectedPaymentId: string;
   amount: number;
   phone: string;
   email: string;

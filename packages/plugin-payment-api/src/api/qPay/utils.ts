@@ -18,7 +18,7 @@ export const qPayHandler = async (models: IModels, queryParams) => {
     identifier
   });
 
-  const payment = await models.Payments.getPayment(invoice.paymentId);
+  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
 
   if (payment.kind !== 'qpay') {
     throw new Error('Payment config type is mismatched');
