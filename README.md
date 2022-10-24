@@ -4,7 +4,7 @@
  <img src="docs/static/img/logo_dark.svg" alt="erxes logo" width="20%" />
 </p>
 
-<p align="center">An open-source Hubspot/Qualtrics alternative enables SaaS providers and digital marketing agencies/developers to create unique experiences for their entire business
+<p align="center">An open-source Hubspot/Qualtrics alternative that enables SaaS providers and digital marketing agencies/developers to create unique experiences for their businesses
 </p>
 
 <p align="center">
@@ -59,10 +59,10 @@ Achieving growth and unity within your company is possible with erxes, because i
 
 
 
-- **100% free & sustainable:** erxes offers a sustainable business model in which both developers and users win. It is open-source software, but even better.
+- **100% free & sustainable:** erxes offers a sustainable business model in which both developers and users win. It is an open-source software, but better.
 - **100% customizable:** Our plugin-based architecture provides unlimited customization and lets you meet all your needs, no matter how specific they are.
 - **100% privacy:** We've designed the erxes platform to retain complete control over your company's sensitive data with no third-party monitoring.
-- **100% in control:** You can build any experience you want, where all the channels your business operates on are connected and integrated.
+- **100% in control:** You can build any kind of experience you want, where all the channels that your business operates on are connected and integrated.
 
 
 
@@ -76,16 +76,16 @@ erxes is a secure, self-hosted, and scalable open-source experience operating sy
 ## erxes XOS & Plugins
 erxes is composed of 2 main components: **XOS** & **Plugins**
 
-**XOS:** It contains the project's core. You can find the admin panel and the code that runs different plugins. The operating system comes with utility features that allow users to customize, improve speed, and enhance the experience along with plugins/features. 
+**XOS:** It contains the project's core. You can find the admin panel and the code that runs different plugins. The operating system comes with utility features that allows users to customize, improve speed, and enhance the experience along with plugins/features. 
 
 
-**Plugins:** erxes comes with a set of plugins that allow you to create unique customer experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
+**Plugins:** erxes comes with a set of plugins that allows you to create unique customer experiences. Below is a list of some plugins you can choose from our **<a href="https://erxes.io/marketplace" >marketplace</a>** after you’ve finished installing erxes XOS:
 
-- **Team Inbox** - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">  
-- **Messenger** - Enable businesses to capture every single customer feedback and educate customers through knowledge-base right from the erxes Messenger.
+- **Team Inbox** - Combine real-time client and team communication with in-app messaging, live chat, email, and form, so that your customers can reach you, however, and whenever they want.<img src="https://s3.amazonaws.com/erxes/github/features-transparent.png" width="400" align="right" style="max-width: 50%">  
+- **Messenger** - Enable businesses to capture every single customer feedback and educate their customers through knowledge-base right from the erxes Messenger.
 - **Sales Management** - Easy and clear sales funnels allow you to control your sales pipeline from one responsive field by precisely analyzing your progress and determining your next best move for success.
-- **Lead generation** - Turn regular visitors into qualified leads by capturing them with a customizable landing page, forms, pop-up, or embed placements.
-- **Engage** - Start converting your prospects into potential customers through email, SMS, messenger, or more interactions to drive them to a successful close.
+- **Lead generation** - Turn regular visitors into qualified leads by captivating them with a customizable landing page, forms, pop-up, or embed placements.
+- **Engage** - Start converting your prospects into potential customers through emails, SMS, messenger, or more interactions to drive them to a successful close.
 - **Contact Management** - Access our all-in-one CRM system in one go, so it’s easier to coordinate and manage your customer interactions.
 - **Knowledgebase** - Educate your customers and staff by creating a help center related to your brands, products, and services to reach a higher level of satisfaction.
 - **Task Management** - Create a more collaborative, self-reliant and cross-linked team. **<a href="https://erxes.io/marketplace" >See more on our website</a>**.
@@ -121,7 +121,7 @@ Software package managing systems:
 - Yarn
 - Xcode (optional)
 
-We recommend always using the latest version of erxes to start your new projects. Enjoy 🎉
+We recommend always using the latest version of erxes to start new projects. Enjoy 🎉
 
 ## Become a partner
 
