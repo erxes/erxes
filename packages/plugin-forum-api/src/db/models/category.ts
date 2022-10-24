@@ -113,6 +113,8 @@ export const generateCategoryModel = (
     ): Promise<CategoryDocument> {
       const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
 
+      console.log(patch);
+
       if (patch.parentId) {
         if (
           await models.Category.isDescendantRelationship(_id, patch.parentId)

@@ -1,30 +1,28 @@
-const categoryMutations = `
+const requiredIf = (x: boolean): string => (x ? '!' : '');
 
-  forumCreateCategory(
+const commonParams = (isInsert = false): string => {
+  return `
     parentId: String
-    name: String!
+    name: String${requiredIf(isInsert)}
     code: String
     thumbnail: String
-  
-    userLevelReqPostRead: String
-    userLevelReqPostWrite: String
-    userLevelReqCommentWrite: String
-  
-    postsRequireCrmApproval: Boolean
+
+    userLevelReqPostRead: String${requiredIf(isInsert)}
+    userLevelReqPostWrite: String${requiredIf(isInsert)}
+    userLevelReqCommentWrite: String${requiredIf(isInsert)}
+
+    postsReqCrmApproval: Boolean${requiredIf(isInsert)}
+  `;
+};
+
+const categoryMutations = `
+  forumCreateCategory(
+    ${commonParams(true)}
   ): ForumCategory
 
   forumPatchCategory(
     _id: ID!
-    parentId: String
-    name: String
-    code: String
-    thumbnail: String
-  
-    userLevelReqPostRead: String
-    userLevelReqPostWrite: String
-    userLevelReqCommentWrite: String
-  
-    postsRequireCrmApproval: Boolean
+    ${commonParams()}
   ): ForumCategory
 
   forumDeleteCategory(_id: ID!): ForumCategory

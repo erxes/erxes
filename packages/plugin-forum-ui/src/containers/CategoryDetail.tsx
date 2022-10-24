@@ -81,7 +81,7 @@ export default function CategoryDetail() {
       </div>
 
       <div style={{ border: '1px solid #e0e0e0', padding: 20 }}>
-        <h4>Edit</h4>
+        <h1>Edit</h1>
         <CategoryForm
           key={forumCategory._id}
           category={forumCategory}
@@ -90,7 +90,7 @@ export default function CategoryDetail() {
 
         <hr />
 
-        <h4>Add subcategory</h4>
+        <h1>Add subcategory</h1>
         <CategoryForm
           key={'addsub' + forumCategory._id}
           onSubmit={onAddSubCategory}

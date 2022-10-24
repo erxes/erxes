@@ -1,19 +1,35 @@
 import gql from 'graphql-tag';
 
+const forumCreateCategoryParamsCommon = `
+  $name: String!
+  $code: String
+  $thumbnail: String
+  $userLevelReqPostRead: String!
+  $userLevelReqPostWrite: String!
+  $userLevelReqCommentWrite: String!
+  $postsReqCrmApproval: Boolean!
+`;
+
+const forumCreateCategoryArgsCommon = `
+  name: $name
+  code: $code
+  thumbnail: $thumbnail
+  userLevelReqPostRead: $userLevelReqPostRead
+  userLevelReqPostWrite: $userLevelReqPostWrite
+  userLevelReqCommentWrite: $userLevelReqCommentWrite
+  postsReqCrmApproval: $postsReqCrmApproval
+`;
+
 export const UPDATE_CATEGORY = gql`
   mutation ForumPatchCategory(
     $id: ID!
-    $code: String
-    $name: String!
     $parentId: String
-    $thumbnail: String
+    ${forumCreateCategoryParamsCommon}
   ) {
     forumPatchCategory(
       _id: $id
-      code: $code
-      name: $name
       parentId: $parentId
-      thumbnail: $thumbnail
+      ${forumCreateCategoryArgsCommon}
     ) {
       _id
     }
@@ -22,16 +38,12 @@ export const UPDATE_CATEGORY = gql`
 
 export const CREATE_CATEGORY = gql`
   mutation ForumCreateCategory(
-    $name: String!
     $parentId: String
-    $code: String
-    $thumbnail: String
+    ${forumCreateCategoryParamsCommon}
   ) {
     forumCreateCategory(
-      name: $name
       parentId: $parentId
-      code: $code
-      thumbnail: $thumbnail
+      ${forumCreateCategoryArgsCommon}
     ) {
       _id
     }
@@ -48,11 +60,11 @@ export const DELETE_CATEGORY = gql`
 
 export const CREATE_ROOT_CATEGORY = gql`
   mutation ForumCreateRootCategory(
-    $name: String!
-    $code: String
-    $thumbnail: String
+    ${forumCreateCategoryParamsCommon}
   ) {
-    forumCreateCategory(name: $name, code: $code, thumbnail: $thumbnail) {
+    forumCreateCategory(
+      ${forumCreateCategoryArgsCommon}
+      ) {
       _id
     }
   }

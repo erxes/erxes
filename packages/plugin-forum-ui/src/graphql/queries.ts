@@ -34,6 +34,10 @@ export const CATEGORY_DETAIL = gql`
       name
       parentId
       thumbnail
+      userLevelReqPostRead
+      userLevelReqPostWrite
+      userLevelReqCommentWrite
+      postsReqCrmApproval
     }
   }
 `;
