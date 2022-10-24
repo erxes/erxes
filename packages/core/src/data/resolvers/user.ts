@@ -8,8 +8,12 @@ import { getUserActionsMap } from '../permissions/utils';
 import { getConfigs } from '../utils';
 
 export default {
-  __resolveReference: ({ _id }, { models }: IContext) => {
-    return models.Users.findOne({ _id });
+  __resolveReference: async ({ _id }, { models }: IContext) => {
+    const user = await models.Users.findOne({ _id });
+
+    console.log('============', _id);
+
+    return user;
   },
 
   status(user: IUserDocument) {
