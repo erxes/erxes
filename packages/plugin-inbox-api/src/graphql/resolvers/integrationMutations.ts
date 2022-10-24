@@ -267,8 +267,14 @@ const integrationMutations = {
           subdomain,
           action: 'createIntegration',
           data: {
+            kind,
             integrationId: integration._id,
-            doc: data
+            doc: {
+              accountId: doc.accountId,
+              kind: doc.kind,
+              integrationId: integration._id,
+              data: data ? JSON.stringify(data) : ''
+            }
           },
           isRPC: true
         });

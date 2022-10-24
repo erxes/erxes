@@ -1,8 +1,8 @@
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { moduleObjects } from '../../permissions/actions/permission';
 import { getUserAllowedActions, IModuleMap } from '../../permissions/utils';
-import { moduleRequireLogin } from '../../permissions/wrappers';
 import { IContext } from '../../../connectionResolver';
+import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
 
 const features: {
   [key: string]: {

@@ -1,8 +1,4 @@
 import { sendCommonMessage } from '../../../messageBroker';
-import {
-  moduleCheckPermission,
-  requireLogin
-} from '../../permissions/wrappers';
 import { IContext } from '../../../connectionResolver';
 import {
   checkPremiumService,
@@ -12,6 +8,10 @@ import {
   resetConfigsCache,
   sendRequest
 } from '../../utils';
+import {
+  moduleCheckPermission,
+  requireLogin
+} from '@erxes/api-utils/src/permissions';
 
 const configMutations = {
   /**
