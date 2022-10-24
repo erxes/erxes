@@ -34,7 +34,7 @@ const conversationQueries: any = {
   async conversations(
     _root,
     params: IListArgs,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
     // filter by ids of conversations
     if (params && params.ids) {
@@ -52,9 +52,15 @@ const conversationQueries: any = {
 
     await qb.buildAllQueries();
 
-    return models.Conversations.find(qb.mainQuery())
+    serverTiming.startTime('conversationsQuery');
+
+    const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .limit(params.limit || 0);
+
+    serverTiming.endTime('conversationsQuery');
+
+    return conversations;
   },
 
   /**
