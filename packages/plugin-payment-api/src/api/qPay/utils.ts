@@ -8,14 +8,14 @@ import { IQpayInvoice } from '../types';
 import { IModels } from '../../connectionResolver';
 
 export const qPayHandler = async (models: IModels, queryParams) => {
-  const { invoiceId } = queryParams;
+  const { identifier } = queryParams;
 
-  if (!invoiceId) {
+  if (!identifier) {
     throw new Error('Invoice id is required');
   }
 
   const invoice = await models.Invoices.getInvoice({
-    _id: invoiceId
+    identifier
   });
 
   const payment = await models.Payments.getPayment(invoice.paymentId);
@@ -29,7 +29,7 @@ export const qPayHandler = async (models: IModels, queryParams) => {
 
     if (response.invoice_status === 'CLOSED') {
       await models.Invoices.updateOne(
-        { _id: invoiceId },
+        { _id: invoice._id },
         {
           $set: {
             status: PAYMENT_STATUS.PAID,
