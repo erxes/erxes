@@ -45,6 +45,8 @@ const conversationQueries: any = {
       });
     }
 
+    serverTiming.startTime('buildQuery');
+
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, {
       _id: user._id,
@@ -53,6 +55,8 @@ const conversationQueries: any = {
     });
 
     await qb.buildAllQueries();
+
+    serverTiming.endTime('buildQuery');
 
     const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
