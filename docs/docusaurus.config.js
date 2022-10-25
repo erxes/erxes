@@ -46,7 +46,6 @@ const config = {
       navbar: {
         logo: {
           alt: 'erxes logo',
-          src: 'img/logo_dark.svg',
           src: 'img/logo_dark.svg'
         },
         items: [
@@ -71,19 +70,19 @@ const config = {
               },
               {
                 label: '└─ Get Started',
-                to: '/docs/user-guide/get-started'
+                to: '/docs/user-guide'
               },
               {
-                label: '└─ Products',
-                to: '/docs/category/products'
+                label: '└─ XOS',
+                to: '/docs/user-guide/xos/xos-intro'
               },
               {
-                label: '└─ Industries',
-                to: '/docs/category/industries'
+                label: '└─ Plugins',
+                to: '/docs/user-guide/plugins-intro'
               },
               {
-                label: '└─ Teams',
-                to: '/docs/category/teams'
+                label: '└─ Use Cases',
+                to: '/docs/user-guide/use-case'
               }
             ]
           },

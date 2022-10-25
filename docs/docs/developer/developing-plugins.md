@@ -1,7 +1,7 @@
 ---
 id: developing-plugins
-title: Developing Plugins
-sidebar_label: Developing Plugins
+title: Create Plugin
+sidebar_label: Create Plugin
 ---
 
 With erxes, you can create your own plugins or extend the existing ones, which would help you to enhance your experience and increase your revenue by adding the value on your products/services or selling it on our **<a href="https://erxes.io/marketplace" target="_blank">our marketplace</a>**. This guideline will help you to develop your own plugins.
@@ -20,11 +20,11 @@ With erxes, you can create your own plugins or extend the existing ones, which w
 
 ---
 
-Please go to **<a href="https://docs.erxes.io/docs/developer/ubuntu">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction.
+Please go to **<a href="https://docs.erxes.io/docs/category/installation">the installation guideline</a>** to install erxes XOS, but no need to run the erxes with the same direction.
 
 :::warning
 
-We assume you've already installed erxes XOS on your device. Otherwise the guideline below would not work out properly. Please make sure you should be back after you install erxes XOS using **<a href="https://docs.erxes.io/docs/developer/ubuntu">the installation guideline</a>**.
+We assume you've already installed erxes XOS on your device. Otherwise the guideline below would not work out properly. Please make sure you should be back after you install erxes XOS using **<a href="https://docs.erxes.io/docs/category/installation">the installation guideline</a>**.
 
 :::
 
@@ -60,15 +60,15 @@ yarn create-plugin
 
 The command above starts CLI, prompting for few questions to create a new plugin as shown below.
 
-<img src="/img/developing-plugins/plugin1.png" width ="100%"alt="CLI screenshot"></img>
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/create-plugin.gif" width ="100%"alt="CLI screenshot"></img>
 
 The example below is a new plugin, created from an example template, placed at the main navigation.
 
-<img src="/img/developing-plugins/plugin2.png" width ="100%"alt="CLI screenshot"></img>
+<img src="https://demo-erxes.s3.amazonaws.com/plugin2.png" width ="100%"alt="CLI screenshot"></img>
 
 Creating from an empty template will result in as shown below, as we give you the freedom and space to develop your own plugin on erxes.
 
-<img src="/img/developing-plugins/plugin3.png" width ="100%"alt="CLI screenshot"></img>
+<img src="https://demo-erxes.s3.amazonaws.com/plugin3.png" width ="100%"alt="CLI screenshot"></img>
 
 ## Running erxes
 
@@ -205,7 +205,7 @@ menus: [
 
 ```
 
-### Installing dependencies using home brew
+<!-- ### Installing dependencies using home brew
 
 1. `redis`
 
@@ -240,4 +240,4 @@ brew services start mongodb-community@5.0
 
 Here you have everything in hand to develop your own plugins. If you still have questions, please contact us through **<a href="https://github.com/erxes/erxes/discussionsGithub" target="_blank">our community discussion</a>** or start conversation on **<a href="https://discord.com/invite/aaGzy3gQK5" target="_blank" target="_blank">Discord</a>**! We are happy to help 🤗🤗🤗
 ```
-````
+```` -->
