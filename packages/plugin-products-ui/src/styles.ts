@@ -65,6 +65,7 @@ const BarcodeInputWrapper = styled.div`
   gap: 10px;
   align-items: center;
   justify-content: center;
+  margin-bottom: 10px;
 `;
 
 const BarcodePrintWrapper = styled.div`
@@ -74,12 +75,23 @@ const BarcodePrintWrapper = styled.div`
   justify-content: center;
 `;
 
-const BarcodePrintContent = styledTS<{
-  width?: string;
-  height?: string;
-}>(styled.div)`
+const BarcodeColumn = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
+
+const BarcodeWrapper = styledTS<{ width?: number; height?: number }>(
+  styled.div
+)`
+  width: ${props => props.width}mm;
+  height: ${props => props.height}mm;
+  background-color: ${colors.bgActive};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 `;
 
 export {
@@ -89,5 +101,6 @@ export {
   ProductBarcodeContent,
   BarcodeInputWrapper,
   BarcodePrintWrapper,
-  BarcodePrintContent
+  BarcodeColumn,
+  BarcodeWrapper
 };

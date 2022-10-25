@@ -9,7 +9,8 @@ import FormGroup from '@erxes/ui/src/components/form/Group';
 import {
   BarcodeInputWrapper,
   BarcodePrintWrapper,
-  BarcodePrintContent
+  BarcodeColumn,
+  BarcodeWrapper
 } from '../../styles';
 
 type Props = {
@@ -18,21 +19,88 @@ type Props = {
 
 const BarcodeGenerator = (props: Props) => {
   const { code = '' } = props;
-  const [row, setRow] = useState<number>(1);
-  const [column, setColumn] = useState<number>(1);
-  const [width, setWidth] = useState<number>(1);
-  const [height, setHeight] = useState<number>(50);
-  const [fontSize, setFontSize] = useState<number>(13);
+  const config: any = JSON.parse(
+    localStorage.getItem('erxes_product_barcodeGenerator_config') || '{}'
+  );
+
+  const [row, setRow] = useState<number>(config.row ? config.row : 100);
+  const [column, setColumn] = useState<number>(
+    config.column ? config.column : 1
+  );
+  const [width, setWidth] = useState<number>(config.width ? config.width : 1);
+  const [height, setHeight] = useState<number>(
+    config.height ? config.height : 50
+  );
+  const [barWidth, setBarWidth] = useState<number>(
+    config.barWidth ? config.barWidth : 2
+  );
+  const [barHeight, setBarHeight] = useState<number>(
+    config.barHeight ? config.barHeight : 100
+  );
+  const [fontSize, setFontSize] = useState<number>(
+    config.fontSize ? config.fontSize : 13
+  );
+
+  React.useEffect(() => {
+    const config = {
+      row,
+      column,
+      width,
+      height,
+      barWidth,
+      barHeight,
+      fontSize
+    };
+
+    localStorage.setItem(
+      'erxes_product_barcodeGenerator_config',
+      JSON.stringify(config)
+    );
+  }, [row, column, width, height, barWidth, barHeight, fontSize]);
 
   const handleClickPrint = () => {
-    let content: any = document.getElementById('barcodePrintable');
     let printElement: any = document.getElementById('ifmcontentstoprint');
+    let barcode: any = document.getElementById('barcode');
     let printElementCW: any = printElement.contentWindow;
     printElementCW.document.open();
     printElementCW.document.write(
-      `<div style='display: flex; width: 100vw; align-items: center; justify-content: center;'>`
+      `<div style='
+        display: flex;
+        flex-direction: column;
+        width: 100vw;
+        align-items: center;
+        justify-content: center;
+      '>`
     );
-    printElementCW.document.write(content.innerHTML);
+
+    for (let index = 1; index <= column; index++) {
+      printElementCW.document.write(
+        `<div style='
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        '>`
+      );
+
+      for (let index = 1; index <= row; index++) {
+        printElementCW.document.write(
+          `<div style='
+            width: ${width}mm;
+            height: ${height}mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          '>`
+        );
+        printElementCW.document.write(barcode.innerHTML);
+
+        printElementCW.document.write(`</div>`);
+      }
+
+      printElementCW.document.write(`</div>`);
+    }
+
+    // printElementCW.document.write(content.innerHTML);
     printElementCW.document.write(`</div>`);
     printElementCW.document.close();
     printElementCW.focus();
@@ -45,18 +113,20 @@ const BarcodeGenerator = (props: Props) => {
 
     for (let index = 1; index <= column; index++) {
       renderColumn.push(
-        <Barcode
-          type="EAN13"
-          value={code}
-          width={width}
-          height={height}
-          fontSize={fontSize}
-        />
+        <BarcodeWrapper width={width} height={height} id="barcode">
+          <Barcode
+            type="EAN13"
+            value={code}
+            fontSize={fontSize}
+            width={barWidth}
+            height={barHeight}
+          />
+        </BarcodeWrapper>
       );
     }
 
     for (let index = 1; index <= row; index++) {
-      renderRow.push(<BarcodePrintContent>{renderColumn}</BarcodePrintContent>);
+      renderRow.push(<BarcodeColumn>{renderColumn}</BarcodeColumn>);
     }
 
     return renderRow;
@@ -95,7 +165,7 @@ const BarcodeGenerator = (props: Props) => {
       </BarcodeInputWrapper>
       <BarcodeInputWrapper>
         <FormGroup>
-          <FormLabel required={true}>Width</FormLabel>
+          <FormLabel required={true}>Width (mm)</FormLabel>
           <FormControl
             name="width"
             type="number"
@@ -104,12 +174,30 @@ const BarcodeGenerator = (props: Props) => {
           />
         </FormGroup>
         <FormGroup>
-          <FormLabel required={true}>Height</FormLabel>
+          <FormLabel required={true}>Height (mm)</FormLabel>
           <FormControl
             name="height"
             type="number"
             defaultValue={height}
             onChange={(e: any) => setHeight(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <FormLabel required={true}>Bar Width</FormLabel>
+          <FormControl
+            name="barWidth"
+            type="number"
+            defaultValue={barWidth}
+            onChange={(e: any) => setBarWidth(e.target.value)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <FormLabel required={true}>Bar Height</FormLabel>
+          <FormControl
+            name="barHeight"
+            type="number"
+            defaultValue={barHeight}
+            onChange={(e: any) => setBarHeight(e.target.value)}
           />
         </FormGroup>
         <FormGroup>
