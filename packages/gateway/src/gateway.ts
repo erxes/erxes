@@ -115,7 +115,6 @@ class CookieHeaderPassingDataSource extends RemoteGraphQLDataSource<
 export async function createGateway(): Promise<ApolloGateway> {
   const serviceList = await getConfiguredServices();
   const gatewayConfig: GatewayConfig = {
-    debug: true,
     serviceList,
     buildService: (definition: ServiceEndpointDefinition) => {
       return new CookieHeaderPassingDataSource(definition);

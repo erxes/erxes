@@ -301,7 +301,7 @@ module.exports.devCmd = async program => {
     await execCommand(`pm2 start ecosystem.config.js --only gateway`);
     await sleep(10000);
 
-    if (!program.ignoreUI) {
+    if (!program.ignoreCoreUI) {
       log('starting coreui ....');
       await execCommand('pm2 start ecosystem.config.js --only coreui');
 
