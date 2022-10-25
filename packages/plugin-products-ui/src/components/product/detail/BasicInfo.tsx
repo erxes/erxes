@@ -66,8 +66,14 @@ class BasicInfo extends React.Component<Props> {
             <FieldStyle>{__(`Barcodes`)}</FieldStyle>
           </li>
           {barcodes.map(item => (
-            <ProductBarcodeContent isValid={isValidBarcode(item)}>
-              <Link to={`/settings/barcode-generator/${item}`}>{item}</Link>
+            <ProductBarcodeContent
+              isValid={isValidBarcode(item)}
+              href={`/settings/barcode-generator/${item}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Icon icon="print" />
+              {item}
             </ProductBarcodeContent>
           ))}
         </>
