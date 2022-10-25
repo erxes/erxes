@@ -9,6 +9,7 @@ const getEnum = (fieldName: string): string[] => {
 export interface ITransaction {
   erxesCustomerId: string;
   type: string;
+  body: any;
   status: string;
 }
 
@@ -22,7 +23,8 @@ export const transactionSchema = new Schema({
   _id: field({ pkey: true }),
   erxesCustomerId: field({
     type: String,
-    label: 'Customer'
+    label: 'Customer',
+    optional: true
   }),
   type: field({
     type: String,
@@ -36,7 +38,13 @@ export const transactionSchema = new Schema({
   status: field({
     type: String,
     label: 'Status',
-    default: 'processing'
+    default: 'processing',
+    optional: true
+  }),
+  body: field({
+    type: String,
+    label: 'Status',
+    optional: true
   }),
   createdAt: field({
     type: Date,

@@ -1,4 +1,4 @@
-name: Plugin riskassessment UI CI
+name: Plugin assets UI CI
 
 on:
   push:
@@ -18,9 +18,9 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
-      - "packages/ui-riskassessment/**"
-      - "packages/plugin-riskassessment-ui/**"
-      - ".github/workflows/plugin-riskassessment-ui.yaml"
+      - "packages/ui-assets/**"
+      - "packages/plugin-assets-ui/**"
+      - ".github/workflows/plugin-assets-ui.yaml"
   pull_request:
     branches:
       - dev
@@ -38,9 +38,9 @@ on:
       - "packages/ui-segments/**"
       - "packages/ui-settings/**"
       - "packages/ui-team/**"
-      - "packages/ui-riskassessment/**"
-      - "packages/plugin-riskassessment-ui/**"
-      - ".github/workflows/plugin-riskassessment-ui.yaml"
+      - "packages/ui-assets/**"
+      - "packages/plugin-assets-ui/**"
+      - ".github/workflows/plugin-assets-ui.yaml"
 
 jobs:
   ui:
@@ -57,9 +57,9 @@ jobs:
       - name: Build
         run: |
           yarn install --frozen-lockfile
-          cp -r packages/ui-plugin-template/.erxes packages/plugin-riskassessment-ui/.erxes
-          cp -r packages/plugin-riskassessment-ui/src packages/plugin-riskassessment-ui/.erxes/plugin-src
-          cd packages/plugin-riskassessment-ui
+          cp -r packages/ui-plugin-template/.erxes packages/plugin-assets-ui/.erxes
+          cp -r packages/plugin-assets-ui/src packages/plugin-assets-ui/.erxes/plugin-src
+          cd packages/plugin-assets-ui
           yarn install
           yarn install-deps
           yarn build
@@ -75,7 +75,7 @@ jobs:
       - name: Deploy
         if: github.event_name == 'push' && ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev' )
         run: |
-          tar -cf build.tar --directory=packages/plugin-riskassessment-ui/.erxes/dist .
-          cp build.tar packages/plugin-riskassessment-ui/.erxes/dist
-          rm -rf packages/plugin-riskassessment-ui/.erxes/dist/*.js
-          aws s3 sync packages/plugin-riskassessment-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-riskassessment-ui --delete
+          tar -cf build.tar --directory=packages/plugin-assets-ui/.erxes/dist .
+          cp build.tar packages/plugin-assets-ui/.erxes/dist
+          rm -rf packages/plugin-assets-ui/.erxes/dist/*.js
+          aws s3 sync packages/plugin-assets-ui/.erxes/dist s3://erxes-dev-plugins/uis/plugin-assets-ui --delete

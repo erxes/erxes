@@ -1,10 +1,14 @@
 import typeDefs from './graphql/typeDefs';
-import resolvers from './graphql/resolvers';
+import resolvers from './dataloaders/resolvers';
 
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels, models } from './connectionResolver';
-import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { generateModels } from './connectionResolver';
+import { generateAllDataLoaders } from './dataloaders';
+import imports from './imports';
+import forms from './forms';
+import internalNotes from './internalNotes';
+import logUtils from './logUtils';
 
 export let mainDb;
 export let debug;
@@ -12,7 +16,7 @@ export let graphqlPubsub;
 export let serviceDiscovery;
 
 export default {
-  name: 'block',
+  name: 'assets',
   graphql: async sd => {
     serviceDiscovery = sd;
 
@@ -21,7 +25,6 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
-
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);
@@ -29,27 +32,20 @@ export default {
     context.subdomain = req.hostname;
     context.models = models;
 
+    context.dataLoaders = generateAllDataLoaders(models, subdomain);
+
     return context;
+  },
+
+  meta: {
+    logs: { consumers: logUtils },
+    internalNotes,
+    imports,
+    forms
   },
 
   onServerInit: async options => {
     mainDb = options.db;
-    const app = options.app;
-
-    app.post(
-      '/events-receive',
-      routeErrorHandling(async (req, res) => {
-        const body = JSON.stringify(req.body);
-
-        const subdomain = getSubdomain(req);
-
-        const models = await generateModels(subdomain);
-
-        await models.Transactions.create({ body });
-
-        return res.json({ response: 'success' });
-      })
-    );
 
     initBroker(options.messageBrokerClient);
 
