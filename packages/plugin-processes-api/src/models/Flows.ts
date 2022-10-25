@@ -89,6 +89,26 @@ const recursiveChecker = (job: IJob, jobs: IJob[], jobReferById) => {
   return '';
 };
 
+const getLatestLocations = (jobs: any[]) => {
+  if (!jobs.length) {
+    return {};
+  }
+
+  let latestBranchId = '';
+  let latestDepartmentId = '';
+  const latestJobs = jobs.filter(j => !j.nextJobIds.length) || [];
+  if (latestJobs.length === 1) {
+    const latestJob = latestJobs[0];
+    latestBranchId = (latestJob.config || {}).outBranchId;
+    latestDepartmentId = (latestJob.config || {}).outDepartmentId;
+  }
+
+  return {
+    latestBranchId,
+    latestDepartmentId
+  };
+};
+
 export const loadFlowClass = (models: IModels) => {
   class Flow {
     /*
@@ -153,8 +173,17 @@ export const loadFlowClass = (models: IModels) => {
      * Create a flow
      */
     public static async createFlow(doc: IFlow) {
+      const flowValidation = await models.Flows.checkValidation(doc.jobs);
+      const { latestBranchId, latestDepartmentId } = getLatestLocations(
+        doc.jobs || []
+      );
+
       const flow = await models.Flows.create({
         ...doc,
+        status: FLOW_STATUSES.DRAFT,
+        flowValidation,
+        latestBranchId,
+        latestDepartmentId,
         createdAt: new Date()
       });
 
@@ -172,14 +201,9 @@ export const loadFlowClass = (models: IModels) => {
         status = FLOW_STATUSES.DRAFT;
       }
 
-      let latestBranchId = '';
-      let latestDepartmentId = '';
-      const latestJobs = doc.jobs?.filter(j => !j.nextJobIds.length) || [];
-      if (latestJobs.length === 1) {
-        const latestJob = latestJobs[0];
-        latestBranchId = (latestJob.config || {}).outBranchId;
-        latestDepartmentId = (latestJob.config || {}).outDepartmentId;
-      }
+      const { latestBranchId, latestDepartmentId } = getLatestLocations(
+        doc.jobs || []
+      );
 
       await models.Flows.updateOne(
         { _id },
