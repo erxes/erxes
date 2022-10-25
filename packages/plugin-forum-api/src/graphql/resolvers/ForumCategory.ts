@@ -28,6 +28,7 @@ const ForumCategory: IObjectTypeResolver<ICategory, IContext> = {
     const { limit = 0, offset = 0 } = params;
 
     return Post.find(query)
+      .select({ content: -1 })
       .skip(offset)
       .limit(limit)
       .lean();
