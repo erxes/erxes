@@ -5,15 +5,15 @@ import Segments from '@erxes/ui-segments/src/containers/Filter';
 import React from 'react';
 import { graphql } from 'react-apollo';
 import queries from '../../../graphql/queries';
-import { CountQueryResponse } from '../../../types';
+import { ProductsGroupCountsQueryResponse } from '../../../types';
 
 const SegmentFilterContainer = (props: {
-  productsCountsQuery?: CountQueryResponse;
+  productsCountsQuery?: ProductsGroupCountsQueryResponse;
 }) => {
   const { productsCountsQuery } = props;
 
   const counts = (productsCountsQuery
-    ? productsCountsQuery.productCounts
+    ? productsCountsQuery.productsGroupsCounts
     : null) || { bySegment: {} };
 
   return (
@@ -25,9 +25,9 @@ export default withProps<{ loadingMainQuery: boolean }>(
   compose(
     graphql<
       { loadingMainQuery: boolean },
-      CountQueryResponse,
+      ProductsGroupCountsQueryResponse,
       { only: string }
-    >(gql(queries.productCounts), {
+    >(gql(queries.productsGroupCounts), {
       name: 'productCountsQuery',
       skip: ({ loadingMainQuery }) => loadingMainQuery,
       options: {

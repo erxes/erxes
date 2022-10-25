@@ -119,7 +119,7 @@ export const queries = `
   products(${productParams}): [Product]
   productsMain(${productParams}): ProductsListResponse
   productsTotalCount(type: String): Int
-  productsCounts(${productParams}, only: String): JSON
+  productsGroupCounts(${productParams}, only: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
 `;

@@ -35,8 +35,8 @@ export type ProductsMainQueryResponse = {
   productsMain: MainProductsResponse;
 } & QueryResponse;
 
-export type CountQueryResponse = {
-  productCounts: ProductCounts;
+export type ProductsGroupCountsQueryResponse = {
+  productsGroupsCounts: ProductCounts;
 } & QueryResponse;
 
 export type ProductCategoriesCountQueryResponse = {

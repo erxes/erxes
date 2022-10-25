@@ -7,8 +7,7 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
-import { Builder, IListArgs } from '../../../coc/products';
-import { countBySegment, countByTag } from '../../../coc/utils';
+import { Builder, countBySegment, countByTag, IListArgs } from '../../../utils';
 
 const productQueries = {
   /**
@@ -133,10 +132,26 @@ const productQueries = {
     return { list, totalCount };
   },
 
+  productsTotalCount(
+    _root,
+    { type }: { type: string },
+    { commonQuerySelector, models }: IContext
+  ) {
+    const filter: any = commonQuerySelector;
+
+    filter.status = { $ne: PRODUCT_STATUSES.DELETED };
+
+    if (type) {
+      filter.type = type;
+    }
+
+    return models.Products.find(filter).countDocuments();
+  },
+
   /**
    * Group product counts by segment or tag
    */
-  async productsCounts(
+  async productsGroupCounts(
     _root,
     params,
     { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext

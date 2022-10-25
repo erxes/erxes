@@ -18,8 +18,8 @@ const productCategoriesCount = `
   }
 `;
 
-const productCounts = `
-  query productsCounts(
+const productsGroupCounts = `
+  query productsGroupCounts(
     $type: String,
     $categoryId: String,
     $tag: String,
@@ -33,7 +33,7 @@ const productCounts = `
     $segmentData: String,
     $only: String
   ) {
-    productsCounts(
+    productsGroupCounts(
       type: $type,
       categoryId: $categoryId,
       tag: $tag,
@@ -47,6 +47,12 @@ const productCounts = `
       segmentData: $segmentData,
       only: $only
     )
+  }
+`;
+
+const productsCount = `
+  query productsTotalCount($type: String) {
+    productsTotalCount(type: $type)
   }
 `;
 
@@ -76,7 +82,8 @@ export default {
   products,
   productsMain,
   productDetail,
-  productCounts,
+  productsCount,
+  productsGroupCounts,
   productCountByTags,
   productCategories,
   productCategoriesCount,
