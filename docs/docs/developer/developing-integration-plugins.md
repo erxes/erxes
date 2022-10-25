@@ -6,7 +6,7 @@ sidebar_label: Create Integration plugin
 
 Integration is a kind of plugin that extends inbox plugin. Before reading this please checkout the <a href="https://docs.erxes.io/docs/developer/developing-plugins">Create plugin guide</a>.
 
-In order to explain new integration creation let's usage already existing imap integration which can be found <a href="https://github.com/erxes/erxes-community/tree/main/packages">here</a>
+In order to explain new integration creation let's usage already existing imap integration which can be found <a href="https://github.com/erxes/erxes-community/tree/dev/packages">here</a>
 
 So let's assume already created our plugin using above guide and let's say it's name is imap.
 
