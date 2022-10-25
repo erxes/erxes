@@ -1,3 +1,4 @@
+import * as serverTiming from 'server-timing';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 import { generateModels } from './connectionResolver';
@@ -22,14 +23,21 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
-  apolloServerContext: async (context, req) => {
+  apolloServerContext: async (context, req, res) => {
     const subdomain = getSubdomain(req);
 
     context.subdomain = subdomain;
     context.models = await generateModels(subdomain);
 
+    context.serverTiming = {
+      startTime: res.startTime,
+      endTime: res.endTime,
+      setMetric: res.setMetric
+    };
+
     return context;
   },
+  middlewares: [(serverTiming as any)()],
 
   onServerInit: async options => {
     mainDb = options.db;

@@ -405,7 +405,10 @@ const up = async ({ uis, fromInstaller }) => {
         },
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
-        deploy,
+        deploy: {
+          ...deploy,
+          replicas: (configs.gateway || {}).replicas || deploy.replicas,
+        },
         extra_hosts,
         ports: ['3300:80'],
         networks: ['erxes']

@@ -42,7 +42,7 @@ import {
 import { IConversationDocument } from './models/definitions/conversations';
 import { IScriptModel } from './models/Scripts';
 import { IScriptDocument } from './models/definitions/scripts';
-import { loadClass as loadScriptClass } from './models/Scripts'
+import { loadClass as loadScriptClass } from './models/Scripts';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 
 export interface IModels {
@@ -54,11 +54,12 @@ export interface IModels {
   MessengerApps: IMessengerAppModel;
   ConversationMessages: IMessageModel;
   Conversations: IConversationModel;
-  Scripts: IScriptModel
+  Scripts: IScriptModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
+  serverTiming: any;
 }
 
 export let models: IModels | null = null;
@@ -104,9 +105,12 @@ export const loadClasses = (
   models.Scripts = db.model<IScriptDocument, IScriptModel>(
     'scripts',
     loadScriptClass(models, subdomain)
-  )
+  );
 
   return models;
 };
 
-export const generateModels = createGenerateModels<IModels>(models, loadClasses);
+export const generateModels = createGenerateModels<IModels>(
+  models,
+  loadClasses
+);
