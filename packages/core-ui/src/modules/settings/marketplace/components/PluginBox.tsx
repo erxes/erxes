@@ -56,7 +56,7 @@ class PluginBox extends React.Component<Props, {}> {
 
   renderFooterLeftItems() {
     const { isAddon, plugin } = this.props;
-
+    console.log(plugin);
     if (isAddon) {
       return (
         <AddOns>
@@ -70,7 +70,7 @@ class PluginBox extends React.Component<Props, {}> {
       <>
         <FooterItem>
           <Icon icon="user" size={14} />
-          <span>{plugin.creator || __('erxes Inc')}</span>
+          <span>{plugin.creator ? plugin.creator.name : __('erxes Inc')}</span>
         </FooterItem>
         <FooterItem>
           <Icon icon="chart-bar" size={14} />
