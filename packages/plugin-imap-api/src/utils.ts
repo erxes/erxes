@@ -256,7 +256,7 @@ export const listenIntegration = async (
       errorStack: e.stack
     });
 
-    console.log(e);
+    console.log('on imap.once =============', e);
   });
 
   imap.once('end', function() {
