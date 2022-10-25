@@ -52,9 +52,7 @@ export const categorySchema = new Schema<CategoryDocument>({
   code: {
     type: String,
     index: true,
-    unique: true,
-    sparse: true,
-    partialFilterExpression: { code: { $ne: null } }
+    sparse: true
   },
   thumbnail: String,
   parentId: { type: Types.ObjectId, index: true },
@@ -105,6 +103,14 @@ export const generateCategoryModel = (
     public static async createCategory(
       input: InputCategoryInsert
     ): Promise<CategoryDocument> {
+      if (input.code) {
+        const exists = await models.Category.findOne({
+          code: input.code
+        }).lean();
+        if (exists) {
+          throw new Error(`A category with same code already exists`);
+        }
+      }
       return await models.Category.create(input);
     }
     public static async patchCategory(
@@ -113,7 +119,15 @@ export const generateCategoryModel = (
     ): Promise<CategoryDocument> {
       const patch = { ...input } as Partial<Omit<ICategory, '_id'>>;
 
-      console.log(patch);
+      if (patch.code) {
+        const exists = await models.Category.find({
+          _id: { $ne: Types.ObjectId(_id) },
+          code: patch.code
+        });
+        if (exists) {
+          throw new Error(`A category with same code already exists`);
+        }
+      }
 
       if (patch.parentId) {
         if (
