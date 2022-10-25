@@ -441,7 +441,7 @@ const up = async ({ uis, fromInstaller }) => {
         image: `erxes/essyncer:${image_tag}`,
         environment: {
           ELASTICSEARCH_URL: `http://${configs.db_server_address}:9200`,
-          MONGO_URL: mongoEnv(configs)
+          MONGO_URL: `${mongoEnv(configs)}${(configs.essyncer || {}).mongoOptions || ''}`
         },
         volumes: ['./essyncerData:/data/essyncerData'],
         extra_hosts,
