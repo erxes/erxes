@@ -8,6 +8,11 @@ import {
   IForumClientPortalUserModel
 } from './forumClientPortalUser';
 import { generatePostModel, IPostModel } from './post';
+import {
+  generateClientPortalUserGroupModel,
+  IUserGroupModel,
+  IUserGroupUsersModel
+} from './userGroup';
 import { generateVoteModels, VoteModel } from './vote';
 
 export interface IModels {
@@ -19,6 +24,8 @@ export interface IModels {
   CommentUpVote: VoteModel;
   CommentDownVote: VoteModel;
   ForumClientPortalUser: IForumClientPortalUserModel;
+  UserGroup: IUserGroupModel;
+  UserGroupUsers: IUserGroupUsersModel;
 }
 
 export let models: IModels | null = null;
@@ -32,6 +39,7 @@ export const generateModels = createGenerateModels<IModels>(
     generateCommentModel(subdomain, connection, models);
     generateVoteModels(subdomain, connection, models);
     generateForumClientPortalUserModel(subdomain, connection, models);
+    generateClientPortalUserGroupModel(subdomain, connection, models);
     return models;
   }
 );
