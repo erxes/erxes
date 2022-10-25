@@ -43,6 +43,8 @@ program
   .option('--bash', 'Add interpreter:/bin/bash')
   .option('--deps', 'Install ui dependencies')
   .option('--ignoreRun', 'Ignore pm2 start')
+  .option('--ignoreUI', 'Do not stop uis')
+  .option('--ignoreCore', 'Do not stop coreapi')
   .action(devCmd);
 
 program
