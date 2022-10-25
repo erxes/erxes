@@ -8,10 +8,10 @@ import {
 import { IUserDocument } from '../../../db/models/definitions/users';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { fixPermissions, resetPermissionsCache } from '../../permissions/utils';
-import { moduleCheckPermission } from '../../permissions/wrappers';
 import { MODULE_NAMES } from '../../constants';
 import { IContext, IModels } from '../../../connectionResolver';
 import { getService, getServices } from '../../../serviceDiscovery';
+import { moduleCheckPermission } from '@erxes/api-utils/src/permissions';
 
 interface IParams {
   memberIds?: string[];

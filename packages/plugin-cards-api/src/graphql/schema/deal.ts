@@ -63,6 +63,7 @@ const commonQueryParams = `
   _ids: [String]
   date: ItemDate
   pipelineId: String
+  pipelineIds: [String]
   customerIds: [String]
   companyIds: [String]
   assignedUserIds: [String]

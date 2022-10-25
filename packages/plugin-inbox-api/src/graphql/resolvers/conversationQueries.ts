@@ -34,14 +34,18 @@ const conversationQueries: any = {
   async conversations(
     _root,
     params: IListArgs,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('conversations');
+
     // filter by ids of conversations
     if (params && params.ids) {
       return models.Conversations.find({ _id: { $in: params.ids } }).sort({
         updatedAt: -1
       });
     }
+
+    serverTiming.startTime('buildQuery');
 
     // initiate query builder
     const qb = new QueryBuilder(models, subdomain, params, {
@@ -52,9 +56,19 @@ const conversationQueries: any = {
 
     await qb.buildAllQueries();
 
-    return models.Conversations.find(qb.mainQuery())
+    serverTiming.endTime('buildQuery');
+
+    serverTiming.startTime('conversationsQuery');
+
+    const conversations = await models.Conversations.find(qb.mainQuery())
       .sort({ updatedAt: -1 })
       .limit(params.limit || 0);
+
+    serverTiming.endTime('conversationsQuery');
+
+    serverTiming.endTime('conversations');
+
+    return conversations;
   },
 
   /**
@@ -237,8 +251,10 @@ const conversationQueries: any = {
   async conversationsTotalUnreadCount(
     _root,
     _args,
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('buildQuery');
+
     // initiate query builder
     const qb = new QueryBuilder(
       models,
@@ -249,16 +265,29 @@ const conversationQueries: any = {
 
     await qb.buildAllQueries();
 
+    serverTiming.endTime('buildQuery');
+
+    serverTiming.startTime('integrationFilter');
+
     // get all possible integration ids
     const integrationsFilter = await qb.integrationsFilter();
 
-    return models.Conversations.find({
+    serverTiming.endTime('integrationFilter');
+
+    serverTiming.startTime('query');
+
+    const response = await models.Conversations.find({
       ...integrationsFilter,
       status: { $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN] },
       readUserIds: { $ne: user._id },
       $and: [{ $or: qb.userRelevanceQuery() }]
     }).countDocuments();
+
+    serverTiming.endTime('query');
+
+    return response;
   },
+
   async inboxFields(_root, _args, { subdomain }: IContext) {
     const response: {
       customer?: any[];
