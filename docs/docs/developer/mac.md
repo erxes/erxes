@@ -147,10 +147,10 @@ Please make sure you have to change your directory to erxes/cli.
 cd ../erxes
 ```
 
-9. Switch a federation branch by using following command.
+9. Switch a dev branch by using following command.
 
 ```
-git checkout federation
+git checkout dev
 ```
 
 10. In erxes folder, Install node modules by using following command.

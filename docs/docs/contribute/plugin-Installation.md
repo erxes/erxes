@@ -19,7 +19,7 @@ erxes comes with plugins that can be installed from the marketplace or the direc
 ---
 
 1. Before installing plugins, ensure you have installed and had access to your erxes project. If you haven’t done it yet, please go to **<a href="https://www.erxes.org/developer/ubuntu" target="_blank"> the erxes installation guide</a>** to install erxes XOS.
-2. Switch to **the federation branch**.
+2. Switch to **the dev branch**.
 3. Copy the plugins in the `erxes/cli/configs.json`.
 
 ## Installing plugins
