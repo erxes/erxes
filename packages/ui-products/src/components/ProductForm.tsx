@@ -215,6 +215,16 @@ class Form extends React.Component<Props, State> {
     this.setState({ subUoms: others });
   };
 
+  updateBarcodes = (value?: string) => {
+    this.setState({
+      barcodes: [
+        ...this.state.barcodes,
+        value ? value : this.state.barcodeInput
+      ],
+      barcodeInput: ''
+    });
+  };
+
   onClickAddSub = () => {
     const subUoms = this.state.subUoms;
     const count = subUoms.length;
@@ -242,21 +252,24 @@ class Form extends React.Component<Props, State> {
     this.setState({ attachmentMore: files ? files : undefined });
   };
 
-  onChangeBarcodes = e => {
-    this.setState({ barcodeInput: e.target.value });
+  onChangeBarcodeInput = e => {
+    if (e.target.value.length - this.state.barcodeInput.length > 1)
+      this.updateBarcodes(e.target.value);
+    else this.setState({ barcodeInput: e.target.value });
+  };
+
+  onKeyDownBarcodeInput = e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+
+      this.updateBarcodes();
+    }
   };
 
   onClickBarcode = (index: number) => {
     const splicedBarcodes = [...this.state.barcodes];
     splicedBarcodes.splice(index, 1);
     this.setState({ barcodes: [...splicedBarcodes] });
-  };
-
-  onSubmitBarcode = e => {
-    this.setState({
-      barcodes: [...this.state.barcodes, this.state.barcodeInput],
-      barcodeInput: ''
-    });
   };
 
   onSupplyChange = e => {
@@ -359,13 +372,15 @@ class Form extends React.Component<Props, State> {
                 <FormControl
                   {...formProps}
                   name="barcodes"
+                  value={this.state.barcodeInput}
                   autoComplete="off"
-                  onChange={this.onChangeBarcodes}
+                  onChange={this.onChangeBarcodeInput}
+                  onKeyDown={this.onKeyDownBarcodeInput}
                 />
                 <Button
                   btnStyle="primary"
                   icon="plus-circle"
-                  onClick={this.onSubmitBarcode}
+                  onClick={() => this.updateBarcodes()}
                 >
                   Add barcode
                 </Button>
