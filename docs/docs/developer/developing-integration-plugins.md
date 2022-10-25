@@ -4,7 +4,7 @@ title: Create Integration plugin
 sidebar_label: Create Integration plugin
 ---
 
-Integration is a kind of plugin that extends inbox plugin. Before reading this please checkout the <a href="https://docs.erxes.io/docs/developer/developing-plugins">Create plugin guide</a>. Since it extends inbox plugin you have to run inbox plugin before creating integration.
+Integration is a kind of plugin that extends inbox plugin. Before reading this please checkout the <a href="https://docs.erxes.io/docs/developer/developing-plugins">Create plugin guide</a>. Since it extends inbox plugin you have to run inbox,contacts,integrations plugins before creating integration.
 
 ### UI specific configs
 
