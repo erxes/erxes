@@ -173,3 +173,5 @@ and
 ```
 
 will render ```./src/components/ConversationDetail.tsx``` component in conversation detail section of inbox ui
+
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapInboxConversationDetail.png" width ="100%" alt="imapInboxConversationDetail" />
