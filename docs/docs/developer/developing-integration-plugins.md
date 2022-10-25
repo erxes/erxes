@@ -6,18 +6,11 @@ sidebar_label: Create Integration plugin
 
 Integration is a kind of plugin that extends inbox plugin. Before reading this please checkout the <a href="https://docs.erxes.io/docs/developer/developing-plugins">Create plugin guide</a>.
 
-These are the core concepts of the inbox integration
-1. Brand
-2. Channel
-3. Integration
-4. Conversation
-5. Conversation Messages
-
 In order to explain new integration creation let's usage already existing imap integration which can be found <a href="https://github.com/erxes/erxes-community/tree/main/packages">here</a>
 
 So let's assume already created our plugin using above guide and let's say it's name is imap.
 
-Add the flowing inbox related plugins to configs.json 
+Add the following inbox related plugins to configs.json and start the services.
 ```
 	"plugins": [
 		{
@@ -38,9 +31,26 @@ Add the flowing inbox related plugins to configs.json
 		}
 ```
 
-Let's look at configs.js in plugin-imap-ui
+## These are the core concepts of the inbox integration
 
-1.
+1. Brand - Biggest level of data seperation. Let's assume your company is a group company that consists of 3 child companies. In that case each brand will represent each child companies.
+2. Channel - Group of integrations and team members, which represents who is responsible for which integrations
+3. Integration - In imap's case, a set of configs that includes email address, password, smtp host etc ...
+4. Customer - In imap's case, the person to sent the email
+5. Conversation - In imap's case, whole email thread
+6. Conversation Messages - In imap's case, each email entry in single email thread
+
+## Lifecycle of integration
+
+1. Create an integration instance with corresponing configs which will be store in inbox's database and later you will use these to work with the apis you want to connect
+2. Receive data from your desired apis using integration configs in plugin-{integration-name}-api
+3. Store the data as conversations, conversation messages, and customers. You have to store conversations in inbox's and customers in contacts's database and you have to store conversation messages in your plugin's database.
+4. Once you stored the conversations and customers. It will show up in inbox's sidebar. But you will be responsive for the conversation detail in inbox's ui
+5. Since you can show anything in conversation detail will also be responsible for further actions like sending response to customer
+## Let's demonstrate above steps using imap as a example
+### Create an integration
+
+Let's look at configs.js in plugin-imap-ui
 
 ```
   inboxIntegration: {
@@ -61,8 +71,6 @@ It will create following in block in /settings/integrations location
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapInboxIntegration.png" width ="100%" alt="imapInboxIntegration" />
 
-2.
-
 ```
     "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
 ```
@@ -77,7 +85,6 @@ these lines will show ```./src/components/IntegrationForm.tsx``` component when 
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapIntegrationForm.png" width ="100%" alt="imapIntegrationForm" />
 
-4.
 When you click on the save button it will send message to ```plugin-imap-api```. So you have to write a consumer like following
 
 ```
@@ -88,7 +95,7 @@ When you click on the save button it will send message to ```plugin-imap-api```.
 
       const integration = await models.Integrations.create({
         inboxId: integrationId,
-        ...JSON.parse(doc.data || '{}')
+        ...doc
       });
 
       await listenIntegration(subdomain, integration);
@@ -106,3 +113,63 @@ When you click on the save button it will send message to ```plugin-imap-api```.
   ```
 
   <a href="https://github.com/erxes/erxes-community/blob/dev/packages/plugin-imap-api/src/messageBroker.ts">here is the example</a>
+
+### Receive data from your desired apis
+
+<a href="https://github.com/erxes/erxes-community/blob/dev/packages/plugin-imap-api/src/utils.ts">here is the code example</a>
+
+### Store the data
+
+1.
+
+```
+        const apiCustomerResponse = await sendContactsMessage({
+          subdomain,
+          action: 'customers.createCustomer',
+          data: {
+            integrationId: integration.inboxId,
+            primaryEmail: from
+          },
+          isRPC: true
+        });
+```
+
+it will send a createCustomer message to contacts plugin and contact plugin will store it in it's database
+
+2.
+
+```
+      const { _id } = await sendInboxMessage({
+        subdomain,
+        action: 'integrations.receive',
+        data: {
+          action: 'create-or-update-conversation',
+          payload: JSON.stringify({
+            integrationId: integration.inboxId,
+            customerId,
+            createdAt: msg.date,
+            content: msg.subject
+          })
+        },
+        isRPC: true
+      });
+```
+
+it will send a create or update conversation message to inbox plugin and inbox plugin will store it in it's database
+
+### Conversation detail
+
+in configs.js of plugin-imap-ui
+
+
+```
+    "./inboxConversationDetail": "./src/components/ConversationDetail.tsx",
+```
+
+and 
+
+```
+  inboxConversationDetail: './inboxConversationDetail',
+```
+
+will render ```./src/components/ConversationDetail.tsx``` component in conversation detail section of inbox ui
