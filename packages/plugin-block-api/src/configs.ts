@@ -3,7 +3,8 @@ import resolvers from './graphql/resolvers';
 
 import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
+import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 
 export let mainDb;
 export let debug;
@@ -33,6 +34,22 @@ export default {
 
   onServerInit: async options => {
     mainDb = options.db;
+    const app = options.app;
+
+    app.post(
+      '/events-receive',
+      routeErrorHandling(async (req, res) => {
+        const body = JSON.stringify(req.body);
+
+        const subdomain = getSubdomain(req);
+
+        const models = await generateModels(subdomain);
+
+        await models.Transactions.create({ body });
+
+        return res.json({ response: 'success' });
+      })
+    );
 
     initBroker(options.messageBrokerClient);
 
