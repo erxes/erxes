@@ -1,5 +1,7 @@
-import { colors, dimensions } from '@erxes/ui/src/styles';
+import { colors, dimensions, typography } from '@erxes/ui/src/styles';
+import { lighten } from '@erxes/ui/src/styles/ecolor';
 import styled from 'styled-components';
+import styledTS from 'styled-components-ts';
 
 const InfoDetail = styled.p`
   margin: 0;
@@ -38,10 +40,55 @@ const ProductContent = styled.div`
   }
 `;
 
-export const ContentBox = styled.div`
+const ContentBox = styled.div`
   padding: ${dimensions.coreSpacing}px;
   max-width: 640px;
   margin: 0 auto;
 `;
 
-export { InfoDetail, ProductContent };
+const ProductBarcodeContent = styledTS<{ isValid?: boolean }>(styled.li)`
+  padding: 6px 20px;
+  justify-content: flex-end;
+  & a {
+    padding: 0px;
+    color: ${props =>
+      props.isValid ? colors.colorCoreGreen : colors.colorCoreGray};
+  }
+  & a:hover {
+    text-align: left;
+    color: ${props =>
+      props.isValid ? colors.colorCoreGreen : lighten(colors.textPrimary, 40)};
+  }
+`;
+
+const BarcodeInputWrapper = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+`;
+
+const BarcodePrintWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+`;
+
+const BarcodePrintContent = styledTS<{
+  width?: string;
+  height?: string;
+}>(styled.div)`
+  display: flex;
+  flex-direction: column;
+`;
+
+export {
+  InfoDetail,
+  ProductContent,
+  ContentBox,
+  ProductBarcodeContent,
+  BarcodeInputWrapper,
+  BarcodePrintWrapper,
+  BarcodePrintContent
+};

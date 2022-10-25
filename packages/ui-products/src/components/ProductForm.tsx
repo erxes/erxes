@@ -10,6 +10,7 @@ import {
 } from '@erxes/ui/src/types';
 import { IConfigsMap, IProduct, IProductCategory, IUom } from '../types';
 import { PRODUCT_SUPPLY, TYPES } from '../constants';
+import { BarcodeContainer, BarcodeItem } from '../styles';
 import {
   extractAttachment,
   generateCategoryOptions
@@ -40,6 +41,8 @@ type Props = {
 
 type State = {
   disabled: boolean;
+  barcodes: string[];
+  barcodeInput: string;
   productCount: number;
   minimiumCount: number;
   attachment?: IAttachment;
@@ -58,6 +61,7 @@ class Form extends React.Component<Props, State> {
     const {
       attachment,
       attachmentMore,
+      barcodes,
       supply,
       productCount,
       minimiumCount,
@@ -71,6 +75,8 @@ class Form extends React.Component<Props, State> {
 
     this.state = {
       disabled: supply === 'limited' ? false : true,
+      barcodes: barcodes ? barcodes : [],
+      barcodeInput: '',
       productCount: productCount ? productCount : 0,
       minimiumCount: minimiumCount ? minimiumCount : 0,
       attachment: attachment ? attachment : undefined,
@@ -99,6 +105,7 @@ class Form extends React.Component<Props, State> {
       attachment,
       attachmentMore,
       productCount,
+      barcodes,
       minimiumCount,
       vendorId,
       description,
@@ -116,6 +123,7 @@ class Form extends React.Component<Props, State> {
       ...finalValues,
       attachment,
       attachmentMore,
+      barcodes,
       productCount,
       minimiumCount,
       vendorId,
@@ -234,6 +242,23 @@ class Form extends React.Component<Props, State> {
     this.setState({ attachmentMore: files ? files : undefined });
   };
 
+  onChangeBarcodes = e => {
+    this.setState({ barcodeInput: e.target.value });
+  };
+
+  onClickBarcode = (index: number) => {
+    const splicedBarcodes = [...this.state.barcodes];
+    splicedBarcodes.splice(index, 1);
+    this.setState({ barcodes: [...splicedBarcodes] });
+  };
+
+  onSubmitBarcode = e => {
+    this.setState({
+      barcodes: [...this.state.barcodes, this.state.barcodeInput],
+      barcodeInput: ''
+    });
+  };
+
   onSupplyChange = e => {
     const { productCount, minimiumCount } = this.state;
     const islimited = e.target.value === 'limited';
@@ -323,8 +348,40 @@ class Form extends React.Component<Props, State> {
                 {...formProps}
                 name="code"
                 defaultValue={object.code}
+                autoComplete="off"
                 required={true}
               />
+            </FormGroup>
+
+            <FormGroup>
+              <ControlLabel>Barcodes</ControlLabel>
+              <Row>
+                <FormControl
+                  {...formProps}
+                  name="barcodes"
+                  autoComplete="off"
+                  onChange={this.onChangeBarcodes}
+                />
+                <Button
+                  btnStyle="primary"
+                  icon="plus-circle"
+                  onClick={this.onSubmitBarcode}
+                >
+                  Add barcode
+                </Button>
+              </Row>
+              <BarcodeContainer>
+                {this.state.barcodes.map((item: any, index: number) => {
+                  return (
+                    <BarcodeItem
+                      key={index}
+                      onClick={() => this.onClickBarcode(index)}
+                    >
+                      {item}
+                    </BarcodeItem>
+                  );
+                })}
+              </BarcodeContainer>
             </FormGroup>
 
             <FormGroup>
