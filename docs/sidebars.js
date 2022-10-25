@@ -55,7 +55,10 @@ var sideBar = {
         type: 'generated-index'
       },
       collapsed: true,
-      items: ['developer/developing-plugins']
+      items: [
+        'developer/developing-plugins',
+        'developer/developing-integration-plugins'
+      ]
     },
     {
       type: 'category',
