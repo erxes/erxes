@@ -4,7 +4,7 @@ import { IFlow } from '../../../models/definitions/flows';
 
 export default {
   __resolveReference({ _id }, { models }: IContext) {
-    return models.FlowCategories.findOne({ _id });
+    return models.Flows.findOne({ _id });
   },
 
   async product(flow: IFlow, {}, { subdomain }: IContext) {
@@ -16,5 +16,9 @@ export default {
         isRPC: true
       })) || undefined
     );
+  },
+
+  async jobCount(flow: IFlow, {}, {}: IContext) {
+    return (flow.jobs || []).length;
   }
 };

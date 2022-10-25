@@ -1,15 +1,15 @@
 export const FLOWJOBS = [
   {
-    type: 'job',
-    icon: 'puzzle',
-    label: 'Job',
+    type: 'end',
+    icon: 'flower',
+    label: 'End Point Job',
     description: '',
     isAvailable: true
   },
   {
-    type: 'endPoint',
-    icon: 'flower',
-    label: 'End Point Job',
+    type: 'job',
+    icon: 'puzzle',
+    label: 'Job',
     description: '',
     isAvailable: true
   },
@@ -43,6 +43,15 @@ export const FLOWJOBS = [
     isAvailable: true
   }
 ];
+
+export const FLOWJOB_TYPES = {
+  ENDPOINT: 'end',
+  JOB: 'job',
+  INCOME: 'income',
+  OUTLET: 'outlet',
+  MOVE: 'move',
+  FLOW: 'flow'
+};
 
 export const statusFilters = [
   { key: 'active', value: 'Active' },

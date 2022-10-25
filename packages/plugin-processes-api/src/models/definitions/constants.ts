@@ -26,12 +26,15 @@ export const DURATION_TYPES = {
 };
 
 export const JOB_TYPES = {
-  FACTURE: 'facture',
-  END: 'end',
+  JOB: 'job',
+  ENDPOINT: 'end',
   INCOME: 'income',
-  MOVE: 'move',
   OUTLET: 'outlet',
-  ALL: ['facture', 'end', 'income', 'move', 'outlet']
+  MOVE: 'move',
+  FLOW: 'flow',
+  ALL: ['job', 'end', 'income', 'outlet', 'move', 'flow'],
+  SINGLES: ['income', 'outlet', 'move'],
+  JOBS: ['job', 'end']
 };
 
 export const JOB_STATUSES = {

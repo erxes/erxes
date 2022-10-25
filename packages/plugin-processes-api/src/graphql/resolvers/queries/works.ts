@@ -36,7 +36,7 @@ const workQueries = {
     { models, commonQuerySelector }: IContext
   ) {
     const selector = generateFilter(params, commonQuerySelector);
-    console.log('params:', params);
+
     return paginate(models.Works.find(selector).lean(), { ...params });
   },
 

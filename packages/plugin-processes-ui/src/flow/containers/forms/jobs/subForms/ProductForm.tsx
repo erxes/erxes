@@ -10,9 +10,10 @@ import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
 import { withProps } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
-import { ProductsQueryResponse } from '@erxes/ui-products/src/types';
+import { DetailQueryResponse } from '@erxes/ui-products/src/types';
 import queries from '@erxes/ui-products/src/graphql/queries';
 import Spinner from '@erxes/ui/src/components/Spinner';
+import { FLOWJOB_TYPES } from '../../../../constants';
 
 type Props = {
   id: string;
@@ -26,34 +27,34 @@ type Props = {
 };
 
 type FinalProps = {
-  productsQuery: ProductsQueryResponse;
+  productDetailQuery: DetailQueryResponse;
   currentUser: IUser;
 } & Props &
   IRouterProps;
 
 const EndPointFormContainer = (props: FinalProps) => {
-  const { type, currentUser, productsQuery } = props;
+  const { type, currentUser, productDetailQuery } = props;
 
   const [saveLoading] = useState(false);
 
-  if (productsQuery.loading) {
+  if (productDetailQuery.loading) {
     return <Spinner />;
   }
 
-  const products = productsQuery.products || [];
+  const product = productDetailQuery.productDetail;
 
   const updatedProps = {
     ...props,
     currentUser,
     saveLoading,
-    products
+    product
   };
 
-  if (type === 'move') {
+  if (type === FLOWJOB_TYPES.MOVE) {
     return <SingleMove {...updatedProps} />;
   }
 
-  if (type === 'outlet') {
+  if (type === FLOWJOB_TYPES.OUTLET) {
     return <SingleOutlet {...updatedProps} />;
   }
 
@@ -62,11 +63,11 @@ const EndPointFormContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, ProductsQueryResponse>(gql(queries.products), {
-      name: 'productsQuery',
+    graphql<Props, DetailQueryResponse>(gql(queries.productDetail), {
+      name: 'productDetailQuery',
       options: ({ activeFlowJob }) => ({
         variables: {
-          ids: [activeFlowJob.config.productId]
+          _id: activeFlowJob.config.productId
         }
       })
     })

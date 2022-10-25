@@ -23,7 +23,6 @@ export const calculateCount = (
     : [];
 
   const overallWorkResultProducts = resultProducts ? resultProducts : [];
-  console.log('jobReferResultProducts on common:', jobReferResultProducts);
 
   for (const jobReferResultProduct of jobReferResultProducts || []) {
     const { uomId, quantity } = jobReferResultProduct;

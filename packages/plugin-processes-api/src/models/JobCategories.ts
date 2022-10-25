@@ -140,8 +140,8 @@ export const loadJobCategoryClass = (models: IModels) => {
       doc: IJobCategory
     ) {
       const order = parentCategory
-        ? `${parentCategory.order}/${doc.code}`
-        : `${doc.code}`;
+        ? `${parentCategory.order}${doc.code}/`
+        : `${doc.code}/`;
 
       return order;
     }

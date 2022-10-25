@@ -1,22 +1,38 @@
-import { queries as productQueries } from '@erxes/ui-products/src/graphql';
-
-const flowFields = `
+export const flowFields = `
   _id
   createdAt
   createdBy
   updatedAt
   updatedBy
   name
-  categoryId
   productId
   product
   status
-  flowJobStatus
+  flowValidation
+  jobCount
+`;
+
+const flowsQueryDefs = `
+  $categoryId: String,
+  $searchValue: String,
+  $branchId: String,
+  $departmentId: String,
+  $status: String,
+  $validation: String,
+`;
+
+const flowsQueryParams = `
+  categoryId: $categoryId,
+  searchValue: $searchValue,
+  branchId: $branchId,
+  departmentId: $departmentId,
+  status: $status,
+  validation: $validation,
 `;
 
 const flows = `
-query flows($categoryId: String, $searchValue: String) {
-  flows(categoryId: $categoryId, searchValue: $searchValue) {
+query flows($page: Int, $perPage: Int, ${flowsQueryDefs}) {
+  flows(page: $page, perPage: $perPage, ${flowsQueryParams}) {
     ${flowFields}
   }
 }
@@ -40,17 +56,27 @@ query flowDetail($_id: String!) {
 `;
 
 const flowTotalCount = `
-query flowTotalCount($categoryId: String, $searchValue: String) {
-  flowTotalCount(categoryId: $categoryId, searchValue: $searchValue)
+query flowTotalCount(${flowsQueryDefs}) {
+  flowTotalCount(${flowsQueryParams})
 }
 `;
 
-const flowCategories = productQueries.productCategories;
-const uoms = productQueries.uoms;
-const uomsTotalCount = productQueries.uomsTotalCount;
+const flowCategories = `
+  query flowCategories($status: String) {
+    flowCategories(status: $status) {
+      _id
+      name
+      order
+      code
+      parentId
+      description
+      status
 
-const productsConfigs = productQueries.productsConfigs;
-const productDetail = productQueries.productDetail;
+      isRoot
+      flowCount
+    }
+  }
+`;
 
 const flowCategoriesTotalCount = `
   query flowCategoriesTotalCount {
@@ -65,10 +91,5 @@ export default {
   flows,
   flowsAll,
   flowDetail,
-  flowTotalCount,
-
-  uoms,
-  productsConfigs,
-  productDetail,
-  uomsTotalCount
+  flowTotalCount
 };

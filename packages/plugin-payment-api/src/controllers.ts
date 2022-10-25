@@ -69,10 +69,10 @@ router.post('/gateway', async (req, res) => {
     type: 1
   });
 
-  const paymentId = req.body.paymentId;
+  const selectedPaymentId = req.body.selectedPaymentId;
 
   const paymentsModified = payments.map(p => {
-    if (p._id === paymentId) {
+    if (p._id === selectedPaymentId) {
       return {
         ...(p.toJSON() as any),
         selected: true
@@ -93,8 +93,12 @@ router.post('/gateway', async (req, res) => {
     });
   }
 
-  if (invoice && invoice.status !== 'paid' && invoice.paymentId !== paymentId) {
-    await models.Invoices.updateInvoice(invoice._id, { paymentId });
+  if (
+    invoice &&
+    invoice.status !== 'paid' &&
+    invoice.selectedPaymentId !== selectedPaymentId
+  ) {
+    await models.Invoices.updateInvoice(invoice._id, { selectedPaymentId });
 
     invoice = await models.Invoices.findOne({ _id: data._id });
   }
@@ -102,7 +106,7 @@ router.post('/gateway', async (req, res) => {
   if (!invoice) {
     invoice = await models.Invoices.createInvoice({
       ...data,
-      paymentId
+      selectedPaymentId
     });
   }
 

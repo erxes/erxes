@@ -61,8 +61,8 @@ const invoicesFields = `
 `;
 
 const invoices = gql`
-query invoices($page: Int, $perPage: Int, $kind: String, $searchValue: String, $status: String) {
-  invoices(page: $page, perPage: $perPage, kind: $kind, searchValue: $searchValue, status: $status) {
+query invoices($page: Int, $perPage: Int, $kind: String, $searchValue: String, $status: String, $contentType: String, $contentTypeId: String) {
+  invoices(page: $page, perPage: $perPage, kind: $kind, searchValue: $searchValue, status: $status, contentType: $contentType, contentTypeId: $contentTypeId) {
     ${invoicesFields}
   }
 }

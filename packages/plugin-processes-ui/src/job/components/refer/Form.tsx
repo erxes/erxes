@@ -14,14 +14,7 @@ import withTableWrapper from '@erxes/ui/src/components/table/withTableWrapper';
 import { __ } from '@erxes/ui/src/utils';
 import { DURATION_TYPES, JOB_TYPE_CHOISES } from '../../../constants';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import {
-  IConfigsMap,
-  IJobCategory,
-  IJobRefer,
-  IProduct,
-  IProductsData,
-  IUom
-} from '../../types';
+import { IJobCategory, IJobRefer } from '../../types';
 import {
   FormColumn,
   FormWrapper,
@@ -30,6 +23,8 @@ import {
 import { ProductButton } from '@erxes/ui-cards/src/deals/styles';
 import { Row } from '@erxes/ui-inbox/src/settings/integrations/styles';
 import { TableOver } from '../../../styles';
+import { IConfigsMap, IProduct, IUom } from '@erxes/ui-products/src/types';
+import { IProductsData } from '../../../types';
 
 type Props = {
   jobRefer?: IJobRefer;
@@ -55,7 +50,7 @@ class Form extends React.Component<Props, State> {
     const { needProducts, resultProducts } = productRefer;
 
     this.state = {
-      jobType: productRefer.type || 'facture',
+      jobType: productRefer.type || 'job',
       needProducts: needProducts || [],
       resultProducts: resultProducts || [],
       categoryId: ''
@@ -213,7 +208,7 @@ class Form extends React.Component<Props, State> {
         categoryId={this.state.categoryId}
         data={{
           name: 'Product',
-          products: (currentProducts || []).map(p => p.product || p.productId)
+          products: (currentProducts || []).map(p => p.productId)
         }}
         limit={
           this.state.jobType === 'end' && type === 'resultProducts' ? 1 : 50
@@ -257,14 +252,13 @@ class Form extends React.Component<Props, State> {
               <th>{__('Quantity')}</th>
               <th>{__('UOM')}</th>
               {type === 'resultProducts' &&
-                jobType === 'facture' &&
+                jobType === 'job' &&
                 products.length > 1 && <th>{__('Proportion')}</th>}
               <th></th>
             </tr>
           </thead>
           <tbody>
             {products.map(product => {
-              console.log(product, 'ddddddddddddddddd');
               const subUoms =
                 product.product && product.product.subUoms
                   ? product.product.subUoms || []
@@ -326,7 +320,7 @@ class Form extends React.Component<Props, State> {
                     </FormControl>
                   </td>
                   {type === 'resultProducts' &&
-                    jobType === 'facture' &&
+                    jobType === 'job' &&
                     products.length > 1 && (
                       <td>
                         <FormControl
@@ -552,7 +546,6 @@ class Form extends React.Component<Props, State> {
           </Button>
 
           {renderButton({
-            name: 'Job',
             values: this.generateDoc(values),
             isSubmitted,
             callback: closeModal,

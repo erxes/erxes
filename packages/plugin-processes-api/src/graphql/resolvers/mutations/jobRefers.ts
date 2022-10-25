@@ -22,8 +22,6 @@ const jobReferMutations = {
     doc: IJobRefer,
     { user, docModifier, models, subdomain }: IContext
   ) {
-    console.log('jobRefers doc: ', doc);
-
     const jobRefer = await models.JobRefers.createJobRefer(docModifier(doc));
 
     await putCreateLog(
