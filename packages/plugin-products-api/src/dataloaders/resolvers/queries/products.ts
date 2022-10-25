@@ -2,16 +2,121 @@ import {
   checkPermission,
   requireLogin
 } from '@erxes/api-utils/src/permissions';
+import { afterQueryWrapper, paginate } from '@erxes/api-utils/src';
 import { PRODUCT_STATUSES } from '../../../models/definitions/products';
+import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
-import { sendTagsMessage } from '../../../messageBroker';
-import { Builder, countBySegment, countByTag, IListArgs } from '../../../utils';
+import messageBroker, { sendTagsMessage } from '../../../messageBroker';
+import { Builder, IListArgs } from '../../../coc/products';
+import { countBySegment, countByTag } from '../../../coc/utils';
 
 const productQueries = {
   /**
    * Products list
    */
   async products(
+    _root,
+    {
+      type,
+      categoryId,
+      searchValue,
+      tag,
+      ids,
+      excludeIds,
+      pipelineId,
+      boardId,
+      ...pagintationArgs
+    }: {
+      ids: string[];
+      excludeIds: boolean;
+      type: string;
+      categoryId: string;
+      searchValue: string;
+      tag: string;
+      page: number;
+      perPage: number;
+      pipelineId: string;
+      boardId: string;
+    },
+    { commonQuerySelector, models, subdomain, user }: IContext
+  ) {
+    const filter: any = commonQuerySelector;
+
+    filter.status = { $ne: PRODUCT_STATUSES.DELETED };
+
+    if (type) {
+      filter.type = type;
+    }
+
+    if (categoryId) {
+      const category = await models.ProductCategories.getProductCatogery({
+        _id: categoryId,
+        status: { $in: [null, 'active'] }
+      });
+
+      const product_category_ids = await models.ProductCategories.find(
+        { order: { $regex: new RegExp(category.order) } },
+        { _id: 1 }
+      );
+      filter.categoryId = { $in: product_category_ids };
+    } else {
+      const notActiveCategories = await models.ProductCategories.find({
+        status: { $nin: [null, 'active'] }
+      });
+
+      filter.categoryId = { $nin: notActiveCategories.map(e => e._id) };
+    }
+
+    if (ids && ids.length > 0) {
+      filter._id = { [excludeIds ? '$nin' : '$in']: ids };
+      if (!pagintationArgs.page && !pagintationArgs.perPage) {
+        pagintationArgs.page = 1;
+        pagintationArgs.perPage = 100;
+      }
+    }
+
+    if (tag) {
+      filter.tagIds = { $in: [tag] };
+    }
+
+    // search =========
+    if (searchValue) {
+      const fields = [
+        {
+          name: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] }
+        },
+        { code: { $in: [new RegExp(`.*${escapeRegExp(searchValue)}.*`, 'i')] } }
+      ];
+
+      filter.$or = fields;
+    }
+
+    return afterQueryWrapper(
+      subdomain,
+      'products',
+      {
+        type,
+        categoryId,
+        searchValue,
+        tag,
+        ids,
+        excludeIds,
+        pipelineId,
+        boardId,
+        ...pagintationArgs
+      },
+      await paginate(
+        models.Products.find(filter)
+          .sort('code')
+          .lean(),
+        pagintationArgs
+      ),
+      messageBroker(),
+      user
+    );
+  },
+
+  async productsMain(
     _root,
     params: IListArgs,
     { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext

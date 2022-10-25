@@ -1,28 +1,13 @@
-import { debug } from './configs';
-import * as _ from 'underscore';
-import { IModels } from './connectionResolver';
+import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
+
+import { debug } from '../configs';
+import { IModels } from '../connectionResolver';
 import {
   fetchSegment,
   sendSegmentsMessage,
   sendTagsMessage
-} from './messageBroker';
-import { productSchema } from './models/definitions/products';
-import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
-
-type TSortBuilder = { primaryName: number } | { [index: string]: number };
-
-export const sortBuilder = (params: IListArgs): TSortBuilder => {
-  const sortField = params.sortField;
-  const sortDirection = params.sortDirection || 0;
-
-  let sortParams: TSortBuilder = { primaryName: -1 };
-
-  if (sortField) {
-    sortParams = { [sortField]: sortDirection };
-  }
-
-  return sortParams;
-};
+} from '../messageBroker';
+import { productSchema } from '../models/definitions/products';
 
 export interface ICountBy {
   [index: string]: number;
@@ -97,7 +82,7 @@ export const countByTag = async (
   return counts;
 };
 
-export interface IListArgs {
+interface ICommonListArgs {
   type?: string;
   categoryId?: string;
   tag?: string;
@@ -116,7 +101,7 @@ export interface IListArgs {
   segmentData?: string;
 }
 
-export class Builder {
+export class CommonBuilder<IListArgs extends ICommonListArgs> {
   public params: IListArgs;
   public context;
   public positiveList: any[];
@@ -126,8 +111,14 @@ export class Builder {
 
   private contentType: 'products';
 
-  constructor(models: IModels, subdomain: string, params: IListArgs, context) {
-    this.contentType = 'products';
+  constructor(
+    models: IModels,
+    subdomain: string,
+    contentType: 'products',
+    params: IListArgs,
+    context
+  ) {
+    this.contentType = contentType;
     this.context = context;
     this.params = params;
     this.models = models;
@@ -150,24 +141,6 @@ export class Builder {
     if (this.context.commonQuerySelectorElk) {
       this.positiveList.push(this.context.commonQuerySelectorElk);
     }
-  }
-
-  public async findAllMongo(limit: number) {
-    const selector = {
-      ...this.context.commonQuerySelector,
-      status: { $ne: 'deleted' }
-    };
-
-    const products = await this.models.Products.find(selector)
-      .sort({ createdAt: -1 })
-      .limit(limit);
-
-    const count = await this.models.Products.find(selector).countDocuments();
-
-    return {
-      list: products,
-      totalCount: count
-    };
   }
 
   // filter by search value
@@ -333,6 +306,16 @@ export class Builder {
     }
   }
 
+  public async findAllMongo(_limit: number): Promise<any> {
+    return Promise.resolve({
+      list: [],
+      totalCount: 0
+    });
+  }
+
+  /*
+   * Run queries
+   */
   public async runQueries(
     action = 'search',
     unlimited?: boolean

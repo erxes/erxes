@@ -13,6 +13,7 @@ import {
   MergeMutationResponse,
   MergeMutationVariables,
   ProductRemoveMutationResponse,
+  ProductsMainQueryResponse,
   ProductsQueryResponse
 } from '../../types';
 
@@ -23,8 +24,9 @@ type Props = {
 };
 
 type FinalProps = {
-  productCategoryDetailQuery: CategoryDetailQueryResponse;
   productsQuery: ProductsQueryResponse;
+  productCategoryDetailQuery: CategoryDetailQueryResponse;
+  productsMainQuery: ProductsMainQueryResponse;
 } & Props &
   ProductRemoveMutationResponse &
   MergeMutationResponse;
@@ -41,6 +43,7 @@ class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       productsQuery,
+      productsMainQuery,
       productsRemove,
       productsMerge,
       queryParams,
@@ -52,13 +55,17 @@ class ProductListContainer extends React.Component<FinalProps> {
       return false;
     }
 
-    let products: IProduct[] = [];
-    let productsCounts = 0;
+    const products = productsQuery.products || [];
 
-    if (productsQuery.products) {
-      products = productsQuery['products'].list || [];
+    console.log('main', productsMainQuery.productsMain);
 
-      productsCounts = productsQuery['products'].totalCount || 0;
+    let mainProducts: IProduct[] = [];
+    let mainProductsCounts = 0;
+
+    if (productsMainQuery.productsMain) {
+      mainProducts = productsMainQuery['productsMain'].list || [];
+
+      mainProductsCounts = productsMainQuery['productsMain'].totalCount || 0;
     }
 
     // remove action
@@ -109,9 +116,10 @@ class ProductListContainer extends React.Component<FinalProps> {
       ...this.props,
       queryParams,
       products,
-      productsCounts,
+      mainProducts,
+      mainProductsCounts,
       remove,
-      loading: productsQuery.loading,
+      loading: productsMainQuery.loading,
       searchValue,
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
       mergeProducts
@@ -154,14 +162,31 @@ export default withProps<Props>(
             tag: queryParams.tag,
             searchValue: queryParams.searchValue,
             type: queryParams.type,
-            segment: queryParams.segment,
-            segmentData: queryParams.segmentData,
             ...generatePaginationParams(queryParams)
           },
           fetchPolicy: 'network-only'
         })
       }
     ),
+    graphql<
+      Props,
+      ProductsMainQueryResponse,
+      { page: number; perPage: number }
+    >(gql(queries.productsMain), {
+      name: 'productsMainQuery',
+      options: ({ queryParams }) => ({
+        variables: {
+          categoryId: queryParams.categoryId,
+          tag: queryParams.tag,
+          searchValue: queryParams.searchValue,
+          type: queryParams.type,
+          segment: queryParams.segment,
+          segmentData: queryParams.segmentData,
+          ...generatePaginationParams(queryParams)
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
     graphql<Props, ProductRemoveMutationResponse, { productIds: string[] }>(
       gql(mutations.productsRemove),
       {
