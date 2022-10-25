@@ -216,6 +216,14 @@ class Form extends React.Component<Props, State> {
   };
 
   updateBarcodes = (value?: string) => {
+    if (value && value.length === 0) {
+      return;
+    }
+
+    if (this.state.barcodeInput.length === 0) {
+      return;
+    }
+
     this.setState({
       barcodes: [
         ...this.state.barcodes,
