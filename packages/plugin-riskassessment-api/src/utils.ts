@@ -5,13 +5,16 @@ export const validRiskAssessment = async params => {
   if (!params.categoryId) {
     throw new Error('Please select some category');
   }
+  if (!params.calculateMethod) {
+    throw new Error('Please select calculate method');
+  }
   if (await models?.RiskAssessment.findOne({ name: params.name })) {
     throw new Error('This risk assessment is already in use. Please type another name');
   }
 
   const { calculateLogics } = params;
 
-  if (!calculateLogics.length) {
+  if (!calculateLogics || !calculateLogics.length) {
     throw new Error('You must specify at least one logics to calculate the risk assessment');
   }
 

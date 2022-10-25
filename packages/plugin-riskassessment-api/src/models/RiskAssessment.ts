@@ -23,7 +23,8 @@ const statusColors = {
   Error: '#ea475d',
   Warning: '#f7ce53',
   Success: '#3ccc38',
-  In_Progress: '#3B85F4'
+  In_Progress: '#3B85F4',
+  No_Result: '#888'
 };
 
 const generateFilter = (

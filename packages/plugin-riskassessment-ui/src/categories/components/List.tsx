@@ -29,6 +29,8 @@ import {
   Box as StatusBox,
   ClearableBtn,
   ColorBox,
+  CustomRangeContainer,
+  EndDateContainer,
   FormContainer as Container,
   Padding
 } from '../../styles';
@@ -47,6 +49,7 @@ type Props = {
 interface LayoutProps {
   children: React.ReactNode;
   label: string;
+  field: any;
   clearable?: boolean;
   type?: string;
 }
@@ -55,8 +58,8 @@ type State = {
   searchValue: string;
   perPage: number;
   sortDirection: number;
-  From: string;
-  To: string;
+  from: string;
+  to: string;
 };
 
 const generateQueryParamsDate = params => {
@@ -68,14 +71,14 @@ class AssessmentCategories extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const { From, To } = props.queryParams;
+    const { from, to } = props.queryParams;
 
     this.state = {
       searchValue: '',
       perPage: 20,
       sortDirection: -1,
-      From: generateQueryParamsDate(From),
-      To: generateQueryParamsDate(To)
+      from: generateQueryParamsDate(from),
+      to: generateQueryParamsDate(to)
     };
   }
 
@@ -220,24 +223,22 @@ class AssessmentCategories extends React.Component<Props, State> {
 
   renderCategoriesFilter() {
     return (
-      <Box name="filter_category" title={__('Addition Filter Categories')}>
-        <Padding horizontal vertical>
-          <FormGroup>
-            <ControlLabel>Search</ControlLabel>
-            <FormControl
-              type="text"
-              placeholder="type a search"
-              value={this.state.searchValue}
-              onChange={this.handleSearch}
-            />
-          </FormGroup>
-        </Padding>
-      </Box>
+      <Padding horizontal vertical>
+        <FormGroup>
+          <ControlLabel>{__('Search Categories')}</ControlLabel>
+          <FormControl
+            type="text"
+            placeholder="type a search"
+            value={this.state.searchValue}
+            onChange={this.handleSearch}
+          />
+        </FormGroup>
+      </Padding>
     );
   }
 
   renderListFilter() {
-    const { From, To, sortDirection } = this.state;
+    const { from, to, sortDirection } = this.state;
     const { riskAssessmentsRefetch, history, queryParams } = this.props;
 
     const toggleSort = () => {
@@ -249,12 +250,17 @@ class AssessmentCategories extends React.Component<Props, State> {
       router.setParams(history, { [name]: new Date(value).valueOf() });
     };
     const selectStatus = color => {
-      router.setParams(history, { Status: color });
+      router.setParams(history, { status: color });
     };
 
-    const CustomForm = ({ children, label, clearable }: LayoutProps) => {
+    const CustomForm = ({ children, label, field, clearable }: LayoutProps) => {
       const handleClearable = () => {
-        router.removeParams(history, label);
+        if (Array.isArray(field)) {
+          field.forEach(name => {
+            return router.removeParams(history, name);
+          });
+        }
+        router.removeParams(history, field);
       };
 
       return (
@@ -275,7 +281,7 @@ class AssessmentCategories extends React.Component<Props, State> {
     return (
       <Box name="filter_list" title={__('Addition Filter List')}>
         <Padding horizontal vertical>
-          <CustomForm label="Status" clearable={!!this.props.queryParams.Status}>
+          <CustomForm label="Status" field={'status'} clearable={!!this.props.queryParams.status}>
             <Container row>
               {statusColorConstant.map(status => (
                 <StatusBox
@@ -298,25 +304,31 @@ class AssessmentCategories extends React.Component<Props, State> {
               </Tip>
             </Button>
           </Container>
-          <CustomForm label="From" clearable={queryParams.From}>
-            <DateContainer>
-              <DateControl
-                name="from"
-                value={From}
-                placeholder="select from date "
-                onChange={e => dateOrder(e, 'From')}
-              />
-            </DateContainer>
-          </CustomForm>
-          <CustomForm label="To" clearable={queryParams.To}>
-            <DateContainer>
-              <DateControl
-                name="to"
-                value={To}
-                placeholder="select to date "
-                onChange={e => dateOrder(e, 'To')}
-              />
-            </DateContainer>
+          <CustomForm
+            label="Created Date Range"
+            field={['from', 'to']}
+            clearable={queryParams?.from || queryParams?.to}
+          >
+            <CustomRangeContainer>
+              <DateContainer>
+                <DateControl
+                  name="from"
+                  value={from}
+                  placeholder="select from date "
+                  onChange={e => dateOrder(e, 'from')}
+                />
+              </DateContainer>
+              <EndDateContainer>
+                <DateContainer>
+                  <DateControl
+                    name="to"
+                    value={to}
+                    placeholder="select to date "
+                    onChange={e => dateOrder(e, 'to')}
+                  />
+                </DateContainer>
+              </EndDateContainer>
+            </CustomRangeContainer>
           </CustomForm>
         </Padding>
       </Box>

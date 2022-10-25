@@ -44,7 +44,9 @@ class Row extends React.Component<Props> {
           <FormControl checked={isChecked} componentClass="checkbox" onChange={onChange} />
         </td>
         <td>
-          <Link to={`/settings/team/details/${user._id}`}>{user?.details?.fullName}</Link>
+          <Link to={user ? `/settings/team/details/${user._id}` : '/'}>
+            {user?.details?.fullName}
+          </Link>
         </td>
         <td>{moment(movedAt || '').format('YYYY-MM-DD HH:mm')}</td>
         <td>{description}</td>

@@ -4,8 +4,7 @@ export const types = `
         cardId: String,
         cardType: String,
         riskAssessmentId: String,
-        name:String
-        statusColor:String
+        riskAssessment:JSON
     }
     type RiskConfirmityDetail{
         createdAt: String
