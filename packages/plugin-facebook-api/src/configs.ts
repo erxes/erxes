@@ -22,7 +22,18 @@ export default {
       resolvers: await resolvers(sd)
     };
   },
-
+  meta: {
+    inboxIntegrations: [
+      {
+        kind: 'facebook-messenger',
+        label: 'Facebook messenger'
+      },
+      {
+        kind: 'facebook-post',
+        label: 'Facebook post'
+      }
+    ]
+  },
   apolloServerContext: async (context, req) => {
     const subdomain = getSubdomain(req);
     const models = await generateModels(subdomain);

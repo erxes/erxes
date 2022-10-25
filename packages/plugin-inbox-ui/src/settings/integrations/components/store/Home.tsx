@@ -1,17 +1,17 @@
+import React from 'react';
+
 import {
   Content,
   FullHeight,
   IntegrationWrapper
 } from '@erxes/ui-inbox/src/settings/integrations/components/store/styles';
-
+import { __ } from '@erxes/ui/src/utils/core';
 import { ByKindTotalCount } from '@erxes/ui-inbox/src/settings/integrations/types';
 import EmptyState from '@erxes/ui/src/components/EmptyState';
 import HeaderDescription from '@erxes/ui/src/components/HeaderDescription';
 import { INTEGRATIONS } from '@erxes/ui/src/constants/integrations';
-import React from 'react';
 import Row from './Row';
 import Wrapper from '@erxes/ui/src/layout/components/Wrapper';
-import { __ } from 'coreui/utils';
 
 type Props = {
   totalCount: ByKindTotalCount;
@@ -28,13 +28,18 @@ class Home extends React.Component<Props, State> {
   constructor(props) {
     super(props);
 
-    const integrationPlugins = (window as any).plugins
-      .filter(plugin => plugin.inboxIntegration)
-      .map(plugin => plugin.inboxIntegration);
+    let integrations = [...INTEGRATIONS];
+    const pluginsWithIntegrations = (window as any).plugins.filter(
+      plugin => plugin.inboxIntegrations
+    );
+
+    for (const p of pluginsWithIntegrations) {
+      integrations = integrations.concat(p.inboxIntegrations);
+    }
 
     this.state = {
       searchValue: '',
-      integrations: [...INTEGRATIONS, ...integrationPlugins]
+      integrations
     };
   }
 
@@ -46,14 +51,14 @@ class Home extends React.Component<Props, State> {
     const { integrations, searchValue } = this.state;
     const { totalCount, queryParams, customLink } = this.props;
 
-    const datas = [] as any;
+    const list = [] as any;
     const rows = [...integrations];
 
-    while (rows.length > 0) {
-      datas.push(
+    for (const row of rows) {
+      list.push(
         <Row
-          key={rows.length}
-          integrations={rows.splice(0, 4)}
+          key={row.kind}
+          integrations={rows.splice(0, 5)}
           totalCount={totalCount}
           customLink={customLink}
           queryParams={queryParams}
@@ -61,7 +66,7 @@ class Home extends React.Component<Props, State> {
       );
     }
 
-    if (datas.length === 0) {
+    if (list.length === 0) {
       return (
         <FullHeight>
           <EmptyState
@@ -72,7 +77,7 @@ class Home extends React.Component<Props, State> {
       );
     }
 
-    return datas;
+    return list;
   }
 
   render() {
@@ -103,7 +108,7 @@ class Home extends React.Component<Props, State> {
           </Content>
         }
         transparent={true}
-        hasBorder
+        hasBorder={true}
       />
     );
   }

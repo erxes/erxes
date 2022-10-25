@@ -2,14 +2,15 @@ import { serviceDiscovery } from './configs';
 
 export const getIntegrationMeta = async () => {
   const serviceNames = await serviceDiscovery.getServices();
-  const metas: any = [];
+  let metas: any = [];
 
   for (const serviceName of serviceNames) {
     const service = await serviceDiscovery.getService(serviceName, true);
-    const inboxIntegration = (service.config.meta || {}).inboxIntegration;
+    const inboxIntegrations =
+      (service.config.meta || {}).inboxIntegrations || [];
 
-    if (inboxIntegration) {
-      metas.push(inboxIntegration);
+    if (inboxIntegrations && inboxIntegrations.length > 0) {
+      metas = metas.concat(inboxIntegrations);
     }
   }
 
