@@ -304,22 +304,3 @@ sudo certbot –nginx -d domain_name
 33. Please choose redirect option.
 
 Try typing your domain on your browser to see if it's working.
-
-### Default ports
-
-Must be published to host machine network
-
-- erxes main frontend app will run on port 3000
-- erxes-widgets will run on port 3200
-- erxes-api will run on port 3300
-- erxes-integrations will run on port 3400
-- erxes-dashboard-api will run on port 4300
-- erxes-dashboard-front will run on port 4400
-
-Should not published to host machine network, only used internally
-
-- erxes-api (cron) will run on port 3600
-- erxes-api (worker) will run on port 3700
-- erxes-logger will run on port 3800
-- redis server will run on port 6379
-- mongodb server will run on port 27017
