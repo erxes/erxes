@@ -56,7 +56,6 @@ class PluginBox extends React.Component<Props, {}> {
 
   renderFooterLeftItems() {
     const { isAddon, plugin } = this.props;
-    console.log(plugin);
     if (isAddon) {
       return (
         <AddOns>
