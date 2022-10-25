@@ -1,5 +1,5 @@
 import { IIntegrationDocument } from '../../models/definitions/integrations';
-import { sendIntegrationsMessage } from '../../messageBroker';
+import { sendFacebookMessage } from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -82,9 +82,9 @@ export default {
   ) {
     if (integration.kind.includes('facebook')) {
       try {
-        return sendIntegrationsMessage({
+        return sendFacebookMessage({
           subdomain,
-          action: 'getFacebookStatus',
+          action: 'getStatus',
           data: {
             integrationId: integration._id
           },

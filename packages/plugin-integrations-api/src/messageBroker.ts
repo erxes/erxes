@@ -131,7 +131,7 @@ export const initBroker = async cl => {
   consumeQueue('integrations:notification', async ({ subdomain, data }) => {
     const models = await generateModels(subdomain);
 
-    const { action, payload, type } = data;
+    const { payload, type } = data;
 
     switch (type) {
       case 'removeCustomers':

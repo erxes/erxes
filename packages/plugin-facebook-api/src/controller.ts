@@ -41,7 +41,7 @@ export const facebookCreateIntegration = async (
         url: `${ENDPOINT_URL}/register-endpoint`,
         method: 'POST',
         body: {
-          domain: `${DOMAIN}/gateway/pl:integrations`,
+          domain: `${DOMAIN}/gateway/pl:facebook`,
           facebookPageIds,
           fbPageIds: facebookPageIds
         }

@@ -116,7 +116,9 @@ export type RepairMutationResponse = {
 };
 
 export type RemoveAccountMutationResponse = {
-  removeAccount: (params: { variables: { _id: string } }) => Promise<any>;
+  removeAccount: (params: {
+    variables: { _id: string; kind?: string };
+  }) => Promise<any>;
 };
 
 export type CommonFieldsEditResponse = {

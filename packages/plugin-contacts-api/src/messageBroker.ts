@@ -479,6 +479,15 @@ export const sendIntegrationsMessage = (
   });
 };
 
+export const sendFacebookMessage = (args: ISendMessageArgs): Promise<any> => {
+  return sendMessage({
+    client,
+    serviceDiscovery,
+    serviceName: 'facebook',
+    ...args
+  });
+};
+
 export const fetchSegment = (
   subdomain: string,
   segmentId: string,

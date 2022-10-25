@@ -3,8 +3,8 @@ import { CONVERSATION_STATUSES } from './models/definitions/constants';
 import {
   sendContactsMessage,
   sendCoreMessage,
-  sendIntegrationsMessage,
-  sendLogsMessage
+  sendLogsMessage,
+  sendFacebookMessage
 } from './messageBroker';
 import { debugExternalApi } from '@erxes/api-utils/src/debuggers';
 import { generateModels } from './connectionResolver';
@@ -272,12 +272,10 @@ export const collectConversations = async (
     let conversationIds;
 
     try {
-      conversationIds = await sendIntegrationsMessage({
+      conversationIds = await sendFacebookMessage({
         subdomain,
-        action: 'getFbCustomerPosts',
-        data: {
-          customerId: contentId
-        },
+        action: 'getCustomerPosts',
+        data: { customerId: contentId },
         isRPC: true
       });
 

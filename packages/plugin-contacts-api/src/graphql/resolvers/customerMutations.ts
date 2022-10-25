@@ -1,5 +1,9 @@
 import { ICustomer } from '../../models/definitions/customers';
-import { sendCoreMessage, sendIntegrationsMessage } from '../../messageBroker';
+import {
+  sendCoreMessage,
+  sendFacebookMessage,
+  sendIntegrationsMessage
+} from '../../messageBroker';
 import { COC_LIFECYCLE_STATE_TYPES, MODULE_NAMES } from '../../constants';
 import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 import { checkPermission } from '@erxes/api-utils/src/permissions';
@@ -173,14 +177,14 @@ const customerMutations = {
 
     await models.Customers.removeCustomers(customerIds);
 
-    await sendIntegrationsMessage({
+    const commonParams = (ids: string[]) => ({
       subdomain,
       action: 'notification',
-      data: {
-        type: 'removeCustomers',
-        customerIds
-      }
+      data: { type: 'removeCustomers', customerIds: ids }
     });
+
+    await sendIntegrationsMessage({ ...commonParams(customerIds) });
+    await sendFacebookMessage({ ...commonParams(customerIds) });
 
     for (const customer of customers) {
       await putDeleteLog(
@@ -191,14 +195,8 @@ const customerMutations = {
       );
 
       if (customer.mergedIds) {
-        await sendIntegrationsMessage({
-          subdomain,
-          action: 'notification',
-          data: {
-            type: 'removeCustomers',
-            customerIds: customer.mergedIds
-          }
-        });
+        await sendIntegrationsMessage({ ...commonParams(customer.mergedIds) });
+        await sendFacebookMessage({ ...commonParams(customer.mergedIds) });
       }
     }
 

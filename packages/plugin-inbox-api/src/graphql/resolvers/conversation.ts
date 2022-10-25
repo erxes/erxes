@@ -1,7 +1,10 @@
 import { debug } from '../../configs';
 import { IConversationDocument } from '../../models/definitions/conversations';
 import { MESSAGE_TYPES } from '../../models/definitions/constants';
-import { sendIntegrationsMessage } from '../../messageBroker';
+import {
+  sendFacebookMessage,
+  sendIntegrationsMessage
+} from '../../messageBroker';
 import { IContext } from '../../connectionResolver';
 
 export default {
@@ -86,9 +89,9 @@ export default {
     }
 
     try {
-      const response = await sendIntegrationsMessage({
+      const response = await sendFacebookMessage({
         subdomain,
-        action: 'getFacebookPost',
+        action: 'getPost',
         data: {
           erxesApiId: conv._id
         },

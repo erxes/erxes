@@ -12,7 +12,7 @@ import {
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
-import { debug } from '../../configs';
+import { debug, serviceDiscovery } from '../../configs';
 import messageBroker, {
   sendContactsMessage,
   sendIntegrationsMessage,
@@ -115,6 +115,13 @@ const editIntegration = async (
   );
 
   return updated;
+};
+
+const isServiceRunning = async (kind: string): Promise<boolean> => {
+  const serviceNames = await serviceDiscovery.getServices();
+
+  // some kinds are separated by -
+  return kind && serviceNames.includes(kind.split('-')[0]);
 };
 
 const integrationMutations = {
@@ -254,16 +261,12 @@ const integrationMutations = {
       );
     }
 
-    let kind = doc.kind;
-
-    if (kind.includes('facebook')) {
-      kind = 'facebook';
-    }
+    const kind = doc.kind.split('-')[0];
 
     try {
       if ('webhook' !== kind) {
         await sendCommonMessage({
-          serviceName: kind.includes('imap') ? kind : 'integrations',
+          serviceName: (await isServiceRunning(kind)) ? kind : 'integrations',
           subdomain,
           action: 'createIntegration',
           data: {
@@ -359,31 +362,18 @@ const integrationMutations = {
     const integration = await models.Integrations.getIntegration({ _id });
 
     try {
-      if (
-        ['facebook-messenger', 'facebook-post', 'callpro', 'webhook'].includes(
-          integration.kind
-        )
-      ) {
-        await sendIntegrationsMessage({
-          subdomain,
-          action: 'removeIntegrations',
-          data: {
-            integrationId: _id
-          },
-          isRPC: true
-        });
-      }
+      const kind = integration.kind.split('-')[0];
+      const commonParams = {
+        subdomain,
+        data: { integrationId: _id },
+        isRPC: true,
+        action: 'removeIntegration'
+      };
 
-      if (integration.kind === 'imap') {
-        await sendCommonMessage({
-          serviceName: 'imap',
-          subdomain,
-          action: 'removeIntegration',
-          data: {
-            integrationId: _id
-          },
-          isRPC: true
-        });
+      if (await isServiceRunning(kind)) {
+        await sendCommonMessage({ serviceName: kind, ...commonParams });
+      } else {
+        await sendIntegrationsMessage({ ...commonParams });
       }
 
       await putDeleteLog(
@@ -405,11 +395,13 @@ const integrationMutations = {
    */
   async integrationsRemoveAccount(
     _root,
-    { _id }: { _id: string },
+    { _id, kind }: { _id: string; kind?: string },
     { models, subdomain }: IContext
   ) {
     try {
-      const { erxesApiIds } = await sendIntegrationsMessage({
+      const { erxesApiIds } = await sendCommonMessage({
+        serviceName:
+          kind && (await isServiceRunning(kind)) ? kind : 'integrations',
         subdomain,
         action: 'api_to_integrations',
         data: {
