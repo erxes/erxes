@@ -27,7 +27,8 @@ interface IProps extends IRouterProps {
   history: any;
   queryParams: any;
   products: IProduct[];
-  productsCount: number;
+  mainProducts: IProduct[];
+  mainProductsCounts: number;
   isAllSelected: boolean;
   bulk: any[];
   emptyBulk: () => void;
@@ -57,9 +58,9 @@ class List extends React.Component<IProps, State> {
   }
 
   renderRow = () => {
-    const { products, history, toggleBulk, bulk } = this.props;
+    const { mainProducts, history, toggleBulk, bulk } = this.props;
 
-    return products.map(product => (
+    return mainProducts.map(product => (
       <Row
         history={history}
         key={product._id}
@@ -118,7 +119,7 @@ class List extends React.Component<IProps, State> {
 
   render() {
     const {
-      productsCount,
+      mainProductsCounts,
       loading,
       queryParams,
       isAllSelected,
@@ -170,7 +171,7 @@ class List extends React.Component<IProps, State> {
 
     let content = (
       <>
-        {this.renderCount(currentCategory.productCount || productsCount)}
+        {this.renderCount(currentCategory.productCount || mainProductsCounts)}
         <Table hover={true}>
           <thead>
             <tr>
@@ -303,12 +304,12 @@ class List extends React.Component<IProps, State> {
         leftSidebar={
           <CategoryList queryParams={queryParams} history={history} />
         }
-        footer={<Pagination count={productsCount} />}
+        footer={<Pagination count={mainProductsCounts} />}
         content={
           <DataWithLoader
             data={content}
             loading={loading}
-            count={productsCount}
+            count={mainProductsCounts}
             emptyText="There is no data"
             emptyImage="/images/actions/5.svg"
           />
