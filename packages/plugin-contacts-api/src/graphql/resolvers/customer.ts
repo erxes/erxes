@@ -4,8 +4,9 @@ import { IContext } from '../../connectionResolver';
 import { fetchEs } from '@erxes/api-utils/src/elasticsearch';
 
 export default {
-  __resolveReference({ _id }, { models }: IContext) {
-    return models.Customers.findOne({ _id });
+  async __resolveReference({ _id }, { models }: IContext) {
+    const customer = await models.Customers.findOne({ _id });
+    return customer;
   },
 
   integration(customer: ICustomerDocument) {

@@ -1,10 +1,10 @@
 import { moduleRequireLogin } from '@erxes/api-utils/src/permissions';
-import { IPage } from '../../models/pages';
-import { IContentType } from '../../models/contentTypes';
-import { IEntry } from '../../models/entries';
+import { IPage } from '../../models/definitions/pages';
+import { IContentType } from '../../models/definitions/contentTypes';
+import { IEntry } from '../../models/definitions/entries';
 import { IContext } from '../../connectionResolver';
-import { ITemplate } from '../../models/templates';
-import { ISite } from '../../models/sites';
+import { ITemplate } from '../../models/definitions/templates';
+import { ISite } from '../../models/definitions/sites';
 import { createSiteContentTypes, readHelpersData } from './utils';
 
 interface IContentTypeEdit extends IContentType {

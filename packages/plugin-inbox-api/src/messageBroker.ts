@@ -103,6 +103,17 @@ export const initBroker = cl => {
     }
   );
 
+  consumeRPCQueue(
+    'inbox:integrations.count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      const count = await models.Integrations.count(selector);
+
+      return { data: count, status: 'success' };
+    }
+  );
+
   consumeQueue(
     'inbox:changeCustomer',
     async ({ subdomain, data: { customerId, customerIds } }) => {

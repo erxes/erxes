@@ -131,7 +131,6 @@ class Form extends React.Component<Props, State> {
   };
 
   render() {
-    console.log('renderContent', this.props.renderContent);
     return (
       <form
         id={this.formId}
