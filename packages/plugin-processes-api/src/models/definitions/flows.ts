@@ -74,14 +74,18 @@ export const flowSchema = schemaHooksWrapper(
       index: true
     }),
     status: field({ type: String, label: 'Status' }),
-    flowValidation: field({ type: String, label: 'FlowJob status' }),
+    flowValidation: field({
+      type: String,
+      optional: true,
+      label: 'FlowJob status'
+    }),
     createdAt: { type: Date, default: new Date(), label: 'Created date' },
     createdBy: { type: String },
     updatedAt: { type: Date, default: new Date(), label: 'Updated date' },
     updatedBy: { type: String },
     jobs: field({ type: [jobSchema], optional: true, label: 'Jobs' }),
-    latestBranchId: { type: String },
-    latestDepartmentId: { type: String }
+    latestBranchId: { type: String, optional: true },
+    latestDepartmentId: { type: String, optional: true }
   }),
   'erxes_flows'
 );

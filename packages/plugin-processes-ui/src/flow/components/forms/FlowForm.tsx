@@ -51,6 +51,7 @@ let instance;
 type Props = {
   flow: IFlowDocument;
   save: (params: any) => void;
+  copyFlow: (params: any) => void;
   saveLoading: boolean;
   id: string;
   history: any;
@@ -226,36 +227,48 @@ class FlowForm extends React.Component<Props, State> {
     });
   };
 
-  handleSubmit = () => {
+  generateValues = () => {
     const { name, isActive, flowJobs, productId, flowValidation } = this.state;
-    const { flow, save } = this.props;
+    const { flow } = this.props;
 
     if (!name || name === 'Your flow title') {
       return Alert.error('Please choose flow product');
     }
 
-    const generateValues = () => {
-      const finalValues = {
-        _id: flow._id || '',
-        name,
-        status: isActive ? 'active' : 'draft',
-        productId,
-        flowValidation: flowValidation,
-        jobs: flowJobs.map(a => ({
-          id: a.id,
-          type: a.type,
-          nextJobIds: a.nextJobIds,
-          label: a.label,
-          description: a.description || '',
-          config: a.config,
-          style: jquery(`#flowJob-${a.id}`).attr('style')
-        }))
-      };
-
-      return finalValues;
+    const finalValues = {
+      _id: flow._id || '',
+      name,
+      status: isActive ? 'active' : 'draft',
+      productId,
+      flowValidation: flowValidation,
+      jobs: flowJobs.map(a => ({
+        id: a.id,
+        type: a.type,
+        nextJobIds: a.nextJobIds,
+        label: a.label,
+        description: a.description || '',
+        config: a.config,
+        style: jquery(`#flowJob-${a.id}`).attr('style')
+      }))
     };
 
-    return save(generateValues());
+    return finalValues;
+  };
+
+  copySubmit = () => {
+    const { copyFlow } = this.props;
+    const values = this.generateValues();
+    if (values) {
+      return copyFlow(values);
+    }
+  };
+
+  handleSubmit = () => {
+    const { save } = this.props;
+    const values = this.generateValues();
+    if (values) {
+      return save(values);
+    }
   };
 
   onToggle = e => {
@@ -530,6 +543,14 @@ class FlowForm extends React.Component<Props, State> {
           <span className={!isActive ? 'active' : ''}>{__('Active')}</span>
         </ToggleWrapper>
         <ActionBarButtonsWrapper>
+          <Button
+            btnStyle="simple"
+            size="small"
+            icon={'file-copy-alt'}
+            onClick={this.copySubmit}
+          >
+            {__('Copy')}
+          </Button>
           {this.renderButtons()}
           <Button
             btnStyle="success"

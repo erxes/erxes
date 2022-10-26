@@ -40,7 +40,7 @@ export const riskAssessmentSchema = new Schema({
   _id: field({ pkey: true }),
   name: field({ type: String, label: 'Name' }),
   description: field({ type: String, label: 'Description' }),
-  createdAt: field({ type: Date, default: new Date(), label: 'Created At' }),
+  createdAt: field({ type: Date, default: Date.now, label: 'Created At' }),
   categoryId: field({ type: String, label: 'Risk Assessment Category Id' }),
   status: field({ type: String, label: 'Status', default: 'In Progress' }),
   statusColor: field({ type: String, label: 'Status Status Color', default: '#3B85F4' }),

@@ -16,13 +16,17 @@ module.exports = {
       to: '/settings/assets/',
       image: '/images/icons/erxes-18.svg',
       location: 'settings',
-      scope: 'assets'
+      scope: 'assets',
+      action: 'assetsAll',
+      permissions: ['showAssets', 'manageAssets']
     },
     {
       text: 'Asset & Movements',
       url: '/asset-movements',
       icon: 'icon-piggybank',
-      location: 'mainNavigation'
+      location: 'mainNavigation',
+      action: 'assetsAll',
+      permissions: ['showAssets', 'manageAssets']
     }
   ]
 };

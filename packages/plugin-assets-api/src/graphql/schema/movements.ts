@@ -57,7 +57,8 @@ export const types = contactsAvailable => `
         itemIds:[String]
         description:String
         
-        user:JSON
+        ${contactsAvailable ? `user:JSON` : ``}
+        
         items:[MovementItem]
     }
 

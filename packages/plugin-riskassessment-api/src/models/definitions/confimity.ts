@@ -4,7 +4,7 @@ import { field } from './utils';
 export interface IRiskConfirmityDocument extends Document {
   _id: string;
   cardId: string;
-  riskAssessmentIds: string;
+  riskAssessmentId: string;
 }
 
 export interface IRiskFormSubmissionDocument extends Document {
@@ -21,7 +21,7 @@ export const riskConfirmitySchema = new Schema({
   cardId: field({ type: String, label: 'Card Id' }),
   cardType: field({ type: String, label: 'Card Type' }),
   riskAssessmentId: field({ type: String, label: 'Answer Risk assessment Ids' }),
-  createdAt: field({ type: Date, label: 'Created At', default: new Date() })
+  createdAt: field({ type: Date, label: 'Created At', default: Date.now })
 });
 
 export const riskConfirmityFormSubmissionSchema = new Schema({
