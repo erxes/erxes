@@ -99,6 +99,119 @@ const getRelatedValue = async (
   return false;
 };
 
+// module related services
+const relatedServices = (
+  subdomain: string,
+  triggerCollectionType: string,
+  moduleCollectionType: string,
+  target: any
+) => [
+  {
+    name: 'contacts',
+    filter: async () => {
+      if (target.isFormSubmission) {
+        return { sourceConversationIds: { $in: [target.conversationId] } };
+      }
+
+      const relTypeIds = await sendCommonMessage({
+        subdomain,
+        serviceName: 'core',
+        action: 'conformities.savedConformity',
+        data: {
+          mainType: triggerCollectionType,
+          mainTypeId: target._id,
+          relTypes: [moduleCollectionType]
+        },
+        isRPC: true
+      });
+
+      return { _id: { $in: relTypeIds } };
+    }
+  },
+  {
+    name: 'inbox',
+    filter: async () => ({
+      sourceConversationIds: { $in: [target._id] }
+    })
+  }
+];
+
+// find trigger related module items
+const getItems = async (
+  subdomain: string,
+  module: string,
+  execution: any,
+  triggerType: string
+) => {
+  const { target } = execution;
+
+  if (module === triggerType) {
+    return [target];
+  }
+
+  const [moduleService, moduleCollectionType] = module.split(':');
+  const [triggerService, triggerCollectionType] = triggerType.split(':');
+
+  const models = await generateModels(subdomain);
+
+  let model: any;
+
+  switch (moduleCollectionType) {
+    case 'task':
+      model = models.Tasks;
+      break;
+    case 'ticket':
+      model = models.Tickets;
+      break;
+    default:
+      model = models.Deals;
+  }
+
+  if (moduleService === triggerService) {
+    const relTypeIds = await sendCommonMessage({
+      subdomain,
+      serviceName: 'core',
+      action: 'conformities.savedConformity',
+      data: {
+        mainType: triggerCollectionType,
+        mainTypeId: target._id,
+        relTypes: [moduleCollectionType]
+      },
+      isRPC: true
+    });
+
+    return model.find({ _id: { $in: relTypeIds } });
+  }
+
+  // search trigger service relation from relatedServices
+  const relatedService = relatedServices(
+    subdomain,
+    triggerCollectionType,
+    moduleCollectionType,
+    target
+  ).find(service => service.name === triggerService);
+
+  let filter: any = await relatedService?.filter();
+
+  if (!relatedService) {
+    // send message to trigger service to get related value
+    filter = await sendCommonMessage({
+      subdomain,
+      serviceName: triggerService,
+      action: 'getModuleRelation',
+      data: {
+        module,
+        triggerType,
+        target
+      },
+      isRPC: true,
+      defaultValue: null
+    });
+  }
+
+  return filter ? await model.find(filter) : [];
+};
+
 export default {
   receiveActions: async ({
     subdomain,
@@ -116,13 +229,23 @@ export default {
       });
     }
 
+    const { module, rules } = action.config;
+
+    const relatedItems = await getItems(
+      subdomain,
+      module,
+      execution,
+      triggerType
+    );
+
     return setProperty({
       models,
       subdomain,
       getRelatedValue,
-      action,
+      module,
+      rules,
       execution,
-      triggerType,
+      relatedItems,
       sendCommonMessage
     });
   },
