@@ -45,10 +45,11 @@ const tagQueries = {
       tagIds?: string[];
       parentId?: string;
     },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector, serverTiming }: IContext
   ) {
+    serverTiming.startTime('query');
+
     const selector: any = { ...commonQuerySelector };
-    console.log('type', type);
 
     if (type) {
       selector.type = type;
@@ -84,10 +85,14 @@ const tagQueries = {
       selector._id = { $in: ids };
     }
 
-    return models.Tags.find(selector).sort({
+    const tags = await models.Tags.find(selector).sort({
       order: 1,
       name: 1
     });
+
+    serverTiming.endTime('query');
+
+    return tags;
   },
 
   /**

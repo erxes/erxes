@@ -583,13 +583,19 @@ const conversationMutations = {
   async conversationsChangeStatus(
     _root,
     { _ids, status }: { _ids: string[]; status: string },
-    { user, models, subdomain }: IContext
+    { user, models, subdomain, serverTiming }: IContext
   ) {
+    serverTiming.startTime('changeStatus');
+
     const { oldConversationById } = await getConversationById(models, {
       _id: { $in: _ids }
     });
 
     await models.Conversations.changeStatusConversation(_ids, status, user._id);
+
+    serverTiming.endTime('changeStatus');
+
+    serverTiming.startTime('sendNotifications');
 
     // notify graphl subscription
     publishConversationsChanged(_ids, status);
@@ -603,6 +609,10 @@ const conversationMutations = {
       conversations: updatedConversations,
       type: 'conversationStateChange'
     });
+
+    serverTiming.endTime('sendNotifications');
+
+    serverTiming.startTime('putLog');
 
     for (const conversation of updatedConversations) {
       await putUpdateLog(
@@ -618,6 +628,8 @@ const conversationMutations = {
         user
       );
     }
+
+    serverTiming.endTime('putLog');
 
     return updatedConversations;
   },
