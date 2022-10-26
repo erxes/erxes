@@ -3,7 +3,6 @@ import { Model } from 'mongoose';
 import { IModels } from '../connectionResolver';
 import redisUtils from '../redisUtils';
 import { cancelPayment, createNewInvoice, makeInvoiceNo } from '../utils';
-import { getInvoice } from './../api/qPay/utils';
 import {
   IInvoice,
   IInvoiceDocument,
