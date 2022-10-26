@@ -30,7 +30,7 @@ const blockQueries = {
   },
 
   async isVerified(_root, { erxesCustomerId }, { subdomain }: IContext) {
-    let isVerified = false;
+    let isVerified = 'false';
 
     const field = await sendFormsMessage({
       subdomain,
@@ -56,7 +56,7 @@ const blockQueries = {
     if (customFieldsData.length > 0) {
       for (const customField of customFieldsData) {
         if (customField.field === field._id) {
-          isVerified = customField.value === 'true' ? true : false;
+          isVerified = customField.value;
         }
       }
     }

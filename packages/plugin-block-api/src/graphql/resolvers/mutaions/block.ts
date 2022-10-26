@@ -1,5 +1,7 @@
+import { putActivityLog } from '@erxes/api-utils/src/logUtils';
 import { IContext } from '../../../connectionResolver';
-import { getBalance, updateBalance } from '../../../utils';
+import messageBroker, { sendContactsMessage } from '../../../messageBroker';
+import { getBalance, sendSms, updateBalance } from '../../../utils';
 
 const blockMutations = {
   /**
@@ -27,6 +29,31 @@ const blockMutations = {
     const newBalance = balance - amount;
 
     await updateBalance(subdomain, erxesCustomerId, newBalance);
+
+    await putActivityLog(subdomain, {
+      messageBroker: messageBroker(),
+      action: 'add',
+      data: {
+        action: 'invest',
+        contentType: 'block:invest',
+        createdBy: 'service',
+        contentId: erxesCustomerId,
+        content: { packageId, amount }
+      }
+    });
+
+    const customer = await sendContactsMessage({
+      subdomain,
+      action: 'customers.findOne',
+      data: {
+        _id: erxesCustomerId
+      },
+      isRPC: true
+    });
+
+    const body = `Та амжилттай ${amount} төгрөгийн хөрөнгө оруулалт хийлээ.`;
+
+    await sendSms(subdomain, customer.primaryPhone, body);
 
     const investment = await models.Investments.createInvestment(doc);
 
