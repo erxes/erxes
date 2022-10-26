@@ -28,6 +28,9 @@ export default async function genTypeDefs(serviceDiscovery) {
       _id: String! @external
       forumSubscriptionEndsAfter: Date
       forumIsSubscribed: Boolean!
+
+      forumFollowerCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
+      forumFollowingCpUsers(limit: Int, offset: Int): [ClientPortalUser!]
     }
 
     ${ForumCategory}

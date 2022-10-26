@@ -4,12 +4,14 @@ import categoryMutations from './categoryMutations';
 import postMutations from './postMutations';
 import commentMutations from './commentMutations';
 import voteMutations from './voteMutatations';
+import followMutations from './followMutations';
 
 const Mutation: IObjectTypeResolver<any, IContext> = {
   ...categoryMutations,
   ...postMutations,
   ...commentMutations,
-  ...voteMutations
+  ...voteMutations,
+  ...followMutations
 };
 
 export default Mutation;

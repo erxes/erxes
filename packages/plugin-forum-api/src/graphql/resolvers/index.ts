@@ -7,6 +7,7 @@ import { IResolvers } from '@graphql-tools/utils';
 import ForumPost from './ForumPost';
 import ForumComment from './ForumComment';
 import ClientPortalUser from './ClientPortalUser';
+import ClientPortalUser2 from './ClientPortalUser2';
 
 export default async function generateResolvers(
   serviceDiscovery
@@ -18,7 +19,10 @@ export default async function generateResolvers(
     ForumCategory,
     ForumPost,
     ForumComment,
-    ClientPortalUser
+    ClientPortalUser: {
+      ...ClientPortalUser,
+      ...ClientPortalUser2
+    }
   };
 
   return resolvers;

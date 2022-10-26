@@ -7,6 +7,7 @@ import {
   generateForumClientPortalUserModel,
   IForumClientPortalUserModel
 } from './forumClientPortalUser';
+import { generateFollowCpUserModel, IFollowCpUserModel } from './followCpUser';
 import { generatePostModel, IPostModel } from './post';
 import {
   generateClientPortalUserGroupModel,
@@ -26,6 +27,7 @@ export interface IModels {
   ForumClientPortalUser: IForumClientPortalUserModel;
   UserGroup: IUserGroupModel;
   UserGroupUsers: IUserGroupUsersModel;
+  FollowCpUser: IFollowCpUserModel;
 }
 
 export let models: IModels | null = null;
@@ -40,6 +42,7 @@ export const generateModels = createGenerateModels<IModels>(
     generateVoteModels(subdomain, connection, models);
     generateForumClientPortalUserModel(subdomain, connection, models);
     generateClientPortalUserGroupModel(subdomain, connection, models);
+    generateFollowCpUserModel(subdomain, connection, models);
     return models;
   }
 );
