@@ -57,8 +57,6 @@ class ProductListContainer extends React.Component<FinalProps> {
 
     const products = productsQuery.products || [];
 
-    console.log('main', productsMainQuery.productsMain);
-
     let mainProducts: IProduct[] = [];
     let mainProductsCounts = 0;
 
