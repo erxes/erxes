@@ -6,5 +6,7 @@
     "start": "cd .erxes && yarn start",
     "build": "cd .erxes && yarn build"
   },
-  "dependencies": {}
+  "dependencies": {
+    "react-barcode": "^1.4.5"
+  }
 }
