@@ -39,16 +39,16 @@ Add the following inbox related plugins to configs.json and start the services.
 
 ## These are the core concepts of the inbox integration
 
-1. Brand - Biggest level of data seperation. Let's assume your company is a group company that consists of 3 child companies. In that case each brand will represent each child companies.
-2. Channel - Group of integrations and team members, which represents who is responsible for which integrations
-3. Integration - In imap's case, a set of configs that includes email address, password, smtp host etc ...
-4. Customer - In imap's case, the person to sent the email
-5. Conversation - In imap's case, whole email thread
-6. Conversation Messages - In imap's case, each email entry in single email thread
+1. **Brand** - Biggest level of data seperation. Let's assume your company is a group company that consists of 3 child companies. In that case each brand will represent each child companies.
+2. **Channel** - Group of integrations and team members, which represents who is responsible for which integrations
+3. **Integration** - In imap's case, a set of configs that includes email address, password, smtp host etc ...
+4. **Customer** - In imap's case, the person to sent the email
+5. **Conversation** - In imap's case, whole email thread
+6. **Conversation Messages** - In imap's case, each email entry in single email thread
 
 ## Lifecycle of integration
 
-1. Create an integration instance with corresponing configs which will be store in inbox's database and later you will use these to work with the apis you want to connect
+1. Create an integration instance with corresponing configs, which will be store in inbox's database and later you will use these to work with the apis you want to connect
 2. Receive data from your desired apis using integration configs in plugin-{integration-name}-api
 3. Store the data as conversations, conversation messages, and customers. You have to store conversations in inbox's and customers in contacts's database and you have to store conversation messages in your plugin's database.
 4. Once you stored the conversations and customers. It will show up in inbox's sidebar. But you will be responsive for the conversation detail in inbox's ui
