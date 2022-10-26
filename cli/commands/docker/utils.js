@@ -2,6 +2,10 @@ const fs = require('fs');
 const fse = require('fs-extra');
 const yaml = require('yaml');
 const { log, sleep, execCommand, filePath, execCurl } = require('../utils');
+require('dotenv').config()
+
+const { DEPLOYMENT_METHOD, GATEWAY_PORT=3300, UI_PORT=3000 } = process.env;
+const isSwarm = DEPLOYMENT_METHOD !== 'docker-compose';
 
 const commonEnvs = configs => {
   const db_server_address = configs.db_server_address;
@@ -56,15 +60,20 @@ const healthcheck = {
   test: ['CMD', 'curl', '-i', 'http://localhost:80/health']
 };
 
-const deploy = {
-  mode: 'replicated',
-  replicas: 2,
-  update_config: {
-    order: 'start-first',
-    failure_action: 'rollback',
-    delay: '1s'
-  }
-};
+let deploy = undefined;
+
+if (isSwarm) {
+
+  deploy = {
+    mode: 'replicated',
+    replicas: 2,
+    update_config: {
+      order: 'start-first',
+      failure_action: 'rollback',
+      delay: '1s'
+    }
+  };
+}
 
 const generatePluginBlock = (configs, plugin) => {
   const api_mongo_url = mongoEnv(configs, {});
@@ -98,7 +107,7 @@ const generatePluginBlock = (configs, plugin) => {
     extra_hosts
   };
 
-  if (plugin.replicas) {
+  if (isSwarm && plugin.replicas) {
     conf.deploy = {
       replicas: plugin.replicas
     };
@@ -149,7 +158,7 @@ const syncUI = async ({ name, ui_location }) => {
   await execCommand(`rm plugin-uis/${plName}/build.tar`);
 };
 
-const deployDbs = async program => {
+const deployDbs = async () => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
@@ -157,8 +166,8 @@ const deployDbs = async program => {
   const dockerComposeConfig = {
     version: '3.3',
     networks: {
-      erxes: {
-        driver: 'overlay'
+      erxesdb: {
+        driver: isSwarm ? 'overlay' : 'bridge'
       }
     },
     services: {}
@@ -168,7 +177,7 @@ const deployDbs = async program => {
     dockerComposeConfig.services.kibana = {
       image: 'docker.elastic.co/kibana/kibana:7.6.0',
       ports: ['5601:5601'],
-      networks: ['erxes']
+      networks: ['erxesdb']
     };
   }
 
@@ -185,7 +194,7 @@ const deployDbs = async program => {
         MONGO_INITDB_ROOT_USERNAME: configs.mongo.username,
         MONGO_INITDB_ROOT_PASSWORD: configs.mongo.password
       },
-      networks: ['erxes'],
+      networks: ['erxesdb'],
       volumes: ['./mongodata:/data/db'],
       command: ['--replSet', 'rs0', '--bind_ip_all'],
       extra_hosts: ['mongo:127.0.0.1']
@@ -202,7 +211,7 @@ const deployDbs = async program => {
         MONGO_USERNAME: configs.mongo.username,
         MONGO_PASSWORD: configs.mongo.password
       },
-      networks: ['erxes'],
+      networks: ['erxesdb'],
       volumes: ['./mongo.pem:/mongosqld/mongo.pem']
     };
   }
@@ -245,7 +254,7 @@ const deployDbs = async program => {
         'discovery.type': 'single-node'
       },
       ports: ['9200:9200'],
-      networks: ['erxes'],
+      networks: ['erxesdb'],
       volumes: ['./elasticsearchData:/usr/share/elasticsearch/data'],
       ulimits: {
         memlock: {
@@ -265,7 +274,7 @@ const deployDbs = async program => {
       image: 'redis:5.0.5',
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
       ports: ['6379:6379'],
-      networks: ['erxes'],
+      networks: ['erxesdb'],
       volumes: ['./redisdata:/data']
     };
   }
@@ -286,7 +295,7 @@ const deployDbs = async program => {
         RABBITMQ_DEFAULT_VHOST: configs.rabbitmq.vhost
       },
       ports: ['5672:5672', '15672:15672'],
-      networks: ['erxes'],
+      networks: ['erxesdb'],
       volumes: ['./rabbitmq-data:/var/lib/rabbitmq']
     };
   }
@@ -299,16 +308,17 @@ const deployDbs = async program => {
 
   log('Deploy ......');
 
-  return execCommand(
-    'docker stack deploy --compose-file docker-compose-dbs.yml erxes-dbs --with-registry-auth --resolve-image changed'
-  );
+  if (isSwarm) {
+    return execCommand(
+      'docker stack deploy --compose-file docker-compose-dbs.yml erxes-dbs --with-registry-auth --resolve-image changed'
+    );
+  }
 };
 
 const up = async ({ uis, fromInstaller }) => {
   await cleaning();
 
   const configs = await fse.readJSON(filePath('configs.json'));
-
   const image_tag = configs.image_tag || 'federation';
   const domain = configs.domain;
   const gateway_url = `${domain}/gateway`;
@@ -342,7 +352,7 @@ const up = async ({ uis, fromInstaller }) => {
     version: '3.7',
     networks: {
       erxes: {
-        driver: 'overlay'
+        driver: isSwarm ? 'overlay' : 'bridge'
       }
     },
     services: {
@@ -359,7 +369,7 @@ const up = async ({ uis, fromInstaller }) => {
           REACT_APP_FILE_UPLOAD_MAX_SIZE: 524288000,
           ...((configs.coreui || {}).extra_env || {})
         },
-        ports: ['3000:80'],
+        ports: [`${UI_PORT}:80`],
         volumes: [
           './plugins.js:/usr/share/nginx/html/js/plugins.js',
           './plugin-uis:/usr/share/nginx/html/js/plugins'
@@ -405,12 +415,9 @@ const up = async ({ uis, fromInstaller }) => {
         },
         volumes: ['./enabled-services.js:/data/enabled-services.js'],
         healthcheck,
-        deploy: {
-          ...deploy,
-          replicas: (configs.gateway || {}).replicas || deploy.replicas,
-        },
+        deploy,
         extra_hosts,
-        ports: ['3300:80'],
+        ports: [`${GATEWAY_PORT}:80`],
         networks: ['erxes']
       },
       crons: {
@@ -697,7 +704,7 @@ const up = async ({ uis, fromInstaller }) => {
             error_log /var/log/nginx/erxes.error.log;
             access_log /var/log/nginx/erxes.access.log;
             location / {
-                    proxy_pass http://127.0.0.1:3000/;
+                    proxy_pass http://127.0.0.1:${UI_PORT}/;
                     ${commonParams}
             }
             location /widgets/ {
@@ -705,7 +712,7 @@ const up = async ({ uis, fromInstaller }) => {
                     ${commonConfig}
             }
             location /gateway/ {
-                    proxy_pass http://127.0.0.1:3300/;
+                    proxy_pass http://127.0.0.1:${GATEWAY_PORT}/;
                     ${commonConfig}
             }
 
@@ -719,9 +726,11 @@ const up = async ({ uis, fromInstaller }) => {
 
   log('Deploy ......');
 
-  return execCommand(
-    'docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed'
-  );
+  if (isSwarm) {
+    return execCommand(
+      'docker stack deploy --compose-file docker-compose.yml erxes --with-registry-auth --resolve-image changed'
+    );
+  }
 };
 
 const update = async ({ serviceNames, noimage, uis }) => {

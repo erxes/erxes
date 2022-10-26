@@ -92,6 +92,7 @@ const generate = async () => {
 
   const configs = {
     jwt_token_secret: Math.random().toString(),
+    image_tag: "dev",
     db_server_address: "",
     domain,
     main_api_domain: `${domain}/gateway`,
