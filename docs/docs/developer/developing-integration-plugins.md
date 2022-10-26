@@ -76,7 +76,7 @@ Let's look at configs.js in plugin-imap-ui
 
 It will create following in block in /settings/integrations location
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapInboxIntegration.png" width ="100%" alt="imapInboxIntegration" />
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapInboxIntegration.png" width ="85%" alt="imapInboxIntegration" />
 
 ```
     "./inboxIntegrationForm": "./src/components/IntegrationForm.tsx",
@@ -90,7 +90,7 @@ and
 
 these lines will show ```./src/components/IntegrationForm.tsx``` component when you click on the add link in the above picture
 
-<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapIntegrationForm.png" width ="100%" alt="imapIntegrationForm" />
+<img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapIntegrationForm.png" width ="85%" alt="imapIntegrationForm" />
 
 When you click on the save button it will send message to ```plugin-imap-api```. So you have to write a consumer like following
 
