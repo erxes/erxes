@@ -1,4 +1,4 @@
-import { KIND_CHOICES, TAG_TYPES } from '../../models/definitions/constants';
+import { TAG_TYPES } from '../../models/definitions/constants';
 import { Builder as BuildQuery, IListArgs } from '../../coc/customers';
 import {
   countByBrand,
@@ -12,16 +12,27 @@ import {
   moduleRequireLogin
 } from '@erxes/api-utils/src/permissions';
 import { IContext } from '../../connectionResolver';
-import { sendFormsMessage } from '../../messageBroker';
+import { sendFormsMessage, sendInboxMessage } from '../../messageBroker';
 interface ICountParams extends IListArgs {
   only: string;
   source: string;
 }
 
-const countByIntegrationType = async (qb): Promise<ICountBy> => {
+const countByIntegrationType = async (
+  subdomain: string,
+  qb
+): Promise<ICountBy> => {
   const counts: ICountBy = {};
 
-  for (const type of KIND_CHOICES.ALL) {
+  const kindsMap = await sendInboxMessage({
+    subdomain,
+    data: {},
+    action: 'getIntegrationKinds',
+    isRPC: true,
+    defaultValue: {}
+  });
+
+  for (const type of Object.keys(kindsMap)) {
     await qb.buildAllQueries();
     await qb.integrationTypeFilter(type);
 
@@ -151,7 +162,7 @@ const customerQueries = {
         break;
 
       case 'byIntegrationType':
-        counts.byIntegrationType = await countByIntegrationType(qb);
+        counts.byIntegrationType = await countByIntegrationType(subdomain, qb);
         break;
 
       default:

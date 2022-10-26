@@ -10,7 +10,7 @@ cube(`Conversations`, {
 
   joins: {
     Users: {
-      sql: `${CUBE}.firstRespondedUserId = ${Users}._id or ${CUBE}.assignedUserId = ${Users}._id  or ${CUBE}.closedUserId = ${Users}._id or ${CUBE}.visitorId = ${Users}._id`,
+      sql: `${CUBE}.firstRespondedUserId = ${Users}._id or ${CUBE}.assignedUserId = ${Users}._id  or ${CUBE}.closedUserId = ${Users}._id`,
       relationship: `belongsTo`
     },
     Customers: {

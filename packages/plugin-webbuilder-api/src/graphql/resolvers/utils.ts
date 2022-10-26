@@ -37,14 +37,14 @@ export const createSiteContentTypes = async (
       {
         ...type,
         _id: undefined,
-        siteId: siteId
+        siteId
       },
       userId
     );
 
     // find entries related to contentType
     const entries = entriesAll.filter(
-      entry => entry.contentTypeId === type._id['$oid']
+      entry => entry.contentTypeId === type._id.$oid
     );
 
     if (!entries.length) {

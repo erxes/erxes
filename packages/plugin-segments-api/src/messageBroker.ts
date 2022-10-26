@@ -32,6 +32,18 @@ export const initBroker = async cl => {
   });
 
   consumeRPCQueue(
+    'segments:count',
+    async ({ subdomain, data: { selector } }) => {
+      const models = await generateModels(subdomain);
+
+      return {
+        data: await models.Segments.find(selector).count(),
+        status: 'success'
+      };
+    }
+  );
+
+  consumeRPCQueue(
     'segments:fetchSegment',
     async ({ subdomain, data: { segmentId, options, segmentData } }) => {
       const models = await generateModels(subdomain);

@@ -409,8 +409,8 @@ export const loadProductCategoryClass = (models: IModels) => {
       doc: IProductCategory
     ) {
       const order = parentCategory
-        ? `${parentCategory.order}/${doc.code}`
-        : `${doc.code}`;
+        ? `${parentCategory.order}${doc.code}/`
+        : `${doc.code}/`;
 
       return order;
     }
