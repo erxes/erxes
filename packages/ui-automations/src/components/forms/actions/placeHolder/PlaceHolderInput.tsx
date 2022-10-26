@@ -163,6 +163,7 @@ class PlaceHolderInput extends React.Component<Props, State> {
             component={plugin.automation}
             injectedProps={{
               ...this.props,
+              setConfig: conf => this.onSelect(conf),
               triggerType: type,
               componentType: 'selectBoard'
             }}
