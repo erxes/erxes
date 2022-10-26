@@ -27,8 +27,6 @@ router.get('/gateway', async (req, res) => {
     Buffer.from(params as string, 'base64').toString('ascii')
   );
 
-  console.log('data', data);
-
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
@@ -45,7 +43,8 @@ router.get('/gateway', async (req, res) => {
   res.render('index', {
     title: 'Payment gateway',
     payments,
-    invoiceData: data
+    invoiceData: data,
+    prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });
 
@@ -58,6 +57,8 @@ router.post('/gateway', async (req, res) => {
 
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
+
+  const prefix = subdomain === 'localhost' ? '' : `/gateway`;
 
   const filter: any = {};
 
@@ -89,7 +90,8 @@ router.post('/gateway', async (req, res) => {
       title: 'Payment gateway',
       payments: payments,
       invoiceData: data,
-      invoice
+      invoice,
+      prefix
     });
   }
 
@@ -125,14 +127,16 @@ router.post('/gateway', async (req, res) => {
       title: 'Payment gateway',
       payments,
       invoiceData: data,
-      invoice
+      invoice,
+      prefix
     });
   } catch (e) {
     res.render('index', {
       title: 'Payment gateway',
       payments,
       invoiceData: data,
-      error: e.message
+      error: e.message,
+      prefix
     });
   }
 });
