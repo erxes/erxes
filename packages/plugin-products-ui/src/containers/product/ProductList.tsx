@@ -9,11 +9,10 @@ import List from '../../components/product/ProductList';
 import { mutations, queries } from '../../graphql';
 import {
   CategoryDetailQueryResponse,
-  IProduct,
   MergeMutationResponse,
   MergeMutationVariables,
   ProductRemoveMutationResponse,
-  ProductsMainQueryResponse,
+  ProductsCountQueryResponse,
   ProductsQueryResponse
 } from '../../types';
 
@@ -25,8 +24,8 @@ type Props = {
 
 type FinalProps = {
   productsQuery: ProductsQueryResponse;
+  productsCountQuery: ProductsCountQueryResponse;
   productCategoryDetailQuery: CategoryDetailQueryResponse;
-  productsMainQuery: ProductsMainQueryResponse;
 } & Props &
   ProductRemoveMutationResponse &
   MergeMutationResponse;
@@ -43,7 +42,7 @@ class ProductListContainer extends React.Component<FinalProps> {
   render() {
     const {
       productsQuery,
-      productsMainQuery,
+      productsCountQuery,
       productsRemove,
       productsMerge,
       queryParams,
@@ -56,15 +55,6 @@ class ProductListContainer extends React.Component<FinalProps> {
     }
 
     const products = productsQuery.products || [];
-
-    let mainProducts: IProduct[] = [];
-    let mainProductsCounts = 0;
-
-    if (productsMainQuery.productsMain) {
-      mainProducts = productsMainQuery['productsMain'].list || [];
-
-      mainProductsCounts = productsMainQuery['productsMain'].totalCount || 0;
-    }
 
     // remove action
     const remove = ({ productIds }, emptyBulk) => {
@@ -114,11 +104,10 @@ class ProductListContainer extends React.Component<FinalProps> {
       ...this.props,
       queryParams,
       products,
-      mainProducts,
-      mainProductsCounts,
       remove,
-      loading: productsMainQuery.loading,
+      loading: productsQuery.loading,
       searchValue,
+      productsCount: productsCountQuery.productsTotalCount || 0,
       currentCategory: productCategoryDetailQuery.productCategoryDetail || {},
       mergeProducts
     };
@@ -140,6 +129,7 @@ const getRefetchQueries = () => {
     'products',
     'productCategories',
     'productCategoriesCount',
+    'productsTotalCount',
     'productCountByTags'
   ];
 };
@@ -166,22 +156,9 @@ export default withProps<Props>(
         })
       }
     ),
-    graphql<
-      Props,
-      ProductsMainQueryResponse,
-      { page: number; perPage: number }
-    >(gql(queries.productsMain), {
-      name: 'productsMainQuery',
-      options: ({ queryParams }) => ({
-        variables: {
-          categoryId: queryParams.categoryId,
-          tag: queryParams.tag,
-          searchValue: queryParams.searchValue,
-          type: queryParams.type,
-          segment: queryParams.segment,
-          segmentData: queryParams.segmentData,
-          ...generatePaginationParams(queryParams)
-        },
+    graphql<Props, ProductsCountQueryResponse>(gql(queries.productsCount), {
+      name: 'productsCountQuery',
+      options: () => ({
         fetchPolicy: 'network-only'
       })
     }),

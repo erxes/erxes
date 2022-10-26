@@ -65,9 +65,6 @@
     },
     "erxes*.fields_groups": {
       "rename": "erxes*__fields_groups._doc"
-    }, 
-    "erxes*.products": {
-      "rename": "erxes*__products._doc"
     }
   },
   "docManagers": [
