@@ -7,6 +7,7 @@
     "build": "cd .erxes && yarn build"
   },
   "dependencies": {
-    "react-barcode": "^1.4.5"
+    "react-barcode": "^1.4.5",
+    "react-qr-code": "^2.0.8"
   }
 }
