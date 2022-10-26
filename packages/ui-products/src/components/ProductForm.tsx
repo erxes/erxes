@@ -215,22 +215,21 @@ class Form extends React.Component<Props, State> {
     this.setState({ subUoms: others });
   };
 
-  updateBarcodes = (value?: string) => {
-    if (value && value.length === 0) {
+  updateBarcodes = (barcode?: string) => {
+    const value = barcode || this.state.barcodeInput || '';
+    if (!value) {
       return;
     }
 
-    if (this.state.barcodeInput.length === 0) {
+    const { barcodes } = this.state;
+
+    if (barcodes.includes(value)) {
       return;
     }
 
-    this.setState({
-      barcodes: [
-        ...this.state.barcodes,
-        value ? value : this.state.barcodeInput
-      ],
-      barcodeInput: ''
-    });
+    barcodes.push(value);
+
+    this.setState({ barcodes, barcodeInput: '' });
   };
 
   onClickAddSub = () => {
@@ -261,9 +260,10 @@ class Form extends React.Component<Props, State> {
   };
 
   onChangeBarcodeInput = e => {
+    this.setState({ barcodeInput: e.target.value });
+
     if (e.target.value.length - this.state.barcodeInput.length > 1)
       this.updateBarcodes(e.target.value);
-    else this.setState({ barcodeInput: e.target.value });
   };
 
   onKeyDownBarcodeInput = e => {

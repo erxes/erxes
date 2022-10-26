@@ -52,33 +52,24 @@ class BasicInfo extends React.Component<Props> {
   };
 
   renderBarcodes = barcodes => {
-    if (!barcodes || barcodes.length === 0) {
-      return (
+    return (
+      <>
         <li>
           <FieldStyle>{__(`Barcodes`)}</FieldStyle>
-          <SidebarCounter>-</SidebarCounter>
         </li>
-      );
-    } else {
-      return (
-        <>
-          <li>
-            <FieldStyle>{__(`Barcodes`)}</FieldStyle>
-          </li>
-          {barcodes.map(item => (
-            <ProductBarcodeContent
-              isValid={isValidBarcode(item)}
-              href={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Icon icon="print" />
-              {item}
-            </ProductBarcodeContent>
-          ))}
-        </>
-      );
-    }
+        {(barcodes || []).map(item => (
+          <ProductBarcodeContent
+            isValid={isValidBarcode(item)}
+            href={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon icon="print" />
+            {item}
+          </ProductBarcodeContent>
+        ))}
+      </>
+    );
   };
 
   renderView = (name, variable) => {
