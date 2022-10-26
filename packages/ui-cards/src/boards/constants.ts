@@ -124,6 +124,21 @@ export const groupByGantt = [
   }
 ];
 
+export const showByTime = [
+  {
+    name: 'stage',
+    title: 'Stage'
+  },
+  {
+    name: 'tags',
+    title: 'Tags'
+  },
+  {
+    name: 'members',
+    title: 'Members'
+  }
+];
+
 export const stackByChart = [
   {
     name: 'stage',

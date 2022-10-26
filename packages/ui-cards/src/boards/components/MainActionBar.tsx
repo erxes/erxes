@@ -24,7 +24,8 @@ import {
   chartTypes,
   stackByChart,
   groupByList,
-  groupByGantt
+  groupByGantt,
+  showByTime
 } from '../constants';
 import SelectType from './SelectType';
 
@@ -222,6 +223,27 @@ class MainActionBar extends React.Component<Props> {
     );
   };
 
+  renderTimeView = () => {
+    const { viewType, queryParams } = this.props;
+
+    if (viewType !== 'time') {
+      return null;
+    }
+
+    return (
+      <GroupByContent>
+        <SelectType
+          title={__('Group by:')}
+          icon="list-2"
+          list={showByTime}
+          text={__('Stage')}
+          queryParamName="groupBy"
+          queryParams={queryParams}
+        />
+      </GroupByContent>
+    );
+  };
+
   renderViewChooser = () => {
     const { currentBoard, currentPipeline, options, viewType } = this.props;
 
@@ -386,6 +408,8 @@ class MainActionBar extends React.Component<Props> {
         {this.renderGroupBy()}
 
         {this.renderChartView()}
+
+        {this.renderTimeView()}
 
         {this.renderViewChooser()}
 

@@ -1,7 +1,7 @@
 const { tableSchema } = require('../tablePrefix');
 
-cube(`DealsCustomfieldsdata`, {
-  sql: `SELECT * FROM ${tableSchema()}.\`deals_customFieldsData\``,
+cube(`TicketsCustomfieldsdata`, {
+  sql: `SELECT * FROM ${tableSchema()}.\`tickets_customFieldsData\``,
 
   preAggregations: {
     // Pre-Aggregations definitions go here
@@ -33,6 +33,20 @@ cube(`DealsCustomfieldsdata`, {
       sql: `${Fields}.\`text\``,
       type: `string`,
       title: `Customfieldsdata.field`,
+      shown: false
+    },
+
+    customfieldsdataLocationvalueType: {
+      sql: `${CUBE}.\`customFieldsData.locationValue.type\``,
+      type: `string`,
+      title: `Customfieldsdata.locationvalue.type`,
+      shown: false
+    },
+
+    customfieldsdataNumbervalue: {
+      sql: `${CUBE}.\`customFieldsData.numberValue\``,
+      type: `string`,
+      title: `Customfieldsdata.numbervalue`,
       shown: false
     },
 

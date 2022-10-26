@@ -178,8 +178,6 @@ function commonListComposer<ComponentProps>(options) {
     composeAttr.push(gqlGetActionsQuery);
   }
 
-  console.log(...composeAttr, gqlListQuery, gqlTotalCountQuery);
-
   return withProps<ComponentProps>(
     compose(...composeAttr, gqlListQuery, gqlTotalCountQuery)(ListContainer)
   );
