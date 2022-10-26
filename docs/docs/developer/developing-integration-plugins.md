@@ -8,7 +8,7 @@ Integration is the extent of the Inbox plugin, which allows third party software
 
 :::caution
 
-Before you're moving forward, please have a read the **<a href="https://docs.erxes.io/docs/developer/developing-plugins">guideline</a>** how you create your own plugin and check out one of our existing integrations available at the **<a href="https://erxes.io/marketplace">marketplace</a>** called IMAP which can be found **<a href="https://github.com/erxes/erxes-community/tree/dev/packages">here</a>** as we're going to use IMAP integration as example.
+Before you're moving forward, please have a read the **<a href="https://docs.erxes.io/docs/developer/developing-plugins">guideline</a>** how you create your own plugin and check out one of our existing integrations available at the **<a href="https://erxes.io/marketplace">marketplace</a>** called IMAP which can be found **<a href="https://github.com/erxes/erxes-community/tree/dev/packages">here</a>** as we're going to use IMAP integration as an example.
 
 :::
 
@@ -54,7 +54,7 @@ Add the following inbox related plugins to configs.json and start the services.
 4. Once you stored the conversations and customers. It will show up in inbox's sidebar. But you will be responsive for the conversation detail in inbox's ui
 5. Since you can show anything in conversation detail will also be responsible for further actions like sending response to customer
 
-## Let's demonstrate above steps using IMAP as a example
+## Let's demonstrate above steps using IMAP as an example
 ### Create an integration
 
 Let's look at configs.js in plugin-imap-ui
@@ -121,7 +121,7 @@ When you click on the save button it will send message to ```plugin-imap-api```.
 
   <a href="https://github.com/erxes/erxes-community/blob/dev/packages/plugin-imap-api/src/messageBroker.ts">here is the example</a>
 
-### Receive data from your desired apis
+### Receive data from your desired APIs
 
 <a href="https://github.com/erxes/erxes-community/blob/dev/packages/plugin-imap-api/src/utils.ts">here is the code example</a>
 
