@@ -11,16 +11,19 @@ import ButtonMutate from '@erxes/ui/src/components/ButtonMutate';
 import Spinner from '@erxes/ui/src/components/Spinner';
 import withCurrentUser from '@erxes/ui/src/auth/containers/withCurrentUser';
 import { IUser } from '@erxes/ui/src/auth/types';
+import SelectWithSearch from '@erxes/ui/src/components/SelectWithSearch';
 
 type Props = {
   currentUser: IUser;
   queryParams: any;
   history: any;
-  selectedDate: string;
   startTime: Date;
   stopTime: Date;
   timeId: string;
   userId: string;
+  queryStartDate: string;
+  queryEndDate: string;
+  queryUserId: string;
 };
 
 type FinalProps = {
@@ -35,18 +38,16 @@ const ListContainer = (props: FinalProps) => {
     stopTimeMutation,
     currentUser,
     history,
-    selectedDate
-    // shiftStarted
+    queryEndDate,
+    queryStartDate,
+    queryUserId
   } = props;
 
   if (listQuery.loading) {
     return <Spinner />;
   }
 
-  // const [shiftStarted, setShiftStarted] = useState(false);
-
-  const currentUserId =
-    currentUser.onboardingHistory?.userId || currentUser._id;
+  const currentUserId = queryUserId || currentUser._id;
 
   const startClockTime = (currentTime: Date, userId: string) => {
     startTimeMutation({
@@ -73,14 +74,12 @@ const ListContainer = (props: FinalProps) => {
       }
     })
       .then(() => {
-        // setShiftStarted(false);
         localStorage.setItem('shiftStarted', '');
         Alert.success('Successfully clocked out');
       })
       .catch(err => Alert.error(err.message));
   };
 
-  console.log('user', currentUser.onboardingHistory?.userId, currentUser._id);
   const updatedProps = {
     ...props,
     currentUserId,
@@ -95,16 +94,21 @@ const ListContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, TimeClockQueryResponse, { date: string }>(
-      gql(queries.list),
-      {
-        name: 'listQuery',
-        options: ({ selectedDate }) => ({
-          variables: { date: selectedDate },
-          fetchPolicy: 'network-only'
-        })
-      }
-    ),
+    graphql<
+      Props,
+      TimeClockQueryResponse,
+      { startDate: string; endDate: string; userId: string }
+    >(gql(queries.list), {
+      name: 'listQuery',
+      options: ({ queryStartDate, queryEndDate, queryUserId }) => ({
+        variables: {
+          startDate: queryStartDate,
+          endDate: queryEndDate,
+          userId: queryUserId
+        },
+        fetchPolicy: 'network-only'
+      })
+    }),
 
     graphql<Props, TimeClockMutationResponse, { time: Date; userId: string }>(
       gql(mutations.clockStart),

@@ -29,8 +29,7 @@ export const loadTimeClass = (models: IModels) => {
     // create
     public static async createTimeClock(doc: ITimeClock) {
       return models.Templates.create({
-        ...doc,
-        date: new Date().toDateString()
+        ...doc
       });
     }
     // update

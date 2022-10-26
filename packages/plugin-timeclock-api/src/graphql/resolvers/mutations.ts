@@ -50,26 +50,6 @@ const templateMutations = {
   },
 
   /**
-   * Edits a new timeclock
-   */
-  // async timeclocksEdit(
-  //   _root,
-  //   { _id, ...doc }: ITimeClockEdit,
-  //   { models, subdomain, user }: IContext
-  // ) {
-  //   const timeclock = await models.Templates.getTimeClock(_id);
-  //   const updated = await models.Templates.updateTimeClock(_id, doc);
-  //   await putUpdateLog(
-  //     subdomain,
-  //     messageBroker(),
-  //     { type: 'timeclock', object: timeclock, newData: doc },
-  //     user
-  //   );
-
-  //   return updated;
-  // },
-
-  /**
    * Removes a single timeclock
    */
   async timeclockRemove(_root, { _id }, { models }: IContext) {

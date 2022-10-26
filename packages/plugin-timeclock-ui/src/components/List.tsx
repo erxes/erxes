@@ -2,8 +2,8 @@ import Button from '@erxes/ui/src/components/Button';
 import { ITimeclock } from '../types';
 import Row from './Row';
 import { IButtonMutateProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
-import React, { useState, useEffect } from 'react';
+import { router, __ } from '@erxes/ui/src/utils';
+import React, { useState, useEffect, useRef } from 'react';
 import TimeForm from './TimeForm';
 import { Title } from '@erxes/ui-settings/src/styles';
 import ModalTrigger from '@erxes/ui/src/components/ModalTrigger';
@@ -16,14 +16,11 @@ type Props = {
   currentDate?: string;
   currentUserId: string;
   queryParams: any;
+  history: any;
   startTime?: Date;
   timeclocks: ITimeclock[];
-  startClockTime: (startTime: Date, currentUserId: string) => void;
-  stopClockTime: (
-    stopTime: Date,
-    currentUserId: string,
-    timeId: string
-  ) => void;
+  startClockTime: (startTime: Date, userId: string) => void;
+  stopClockTime: (stopTime: Date, userId: string, timeId: string) => void;
   loading: boolean;
 };
 
@@ -44,17 +41,12 @@ function convertMsToTime(milliseconds) {
   return `${hours}:${minutes}:${seconds}`;
 }
 
-function List({
-  timeclocks,
-  currentDate,
-  startClockTime,
-  stopClockTime,
-  currentUserId,
-  queryParams,
-  loading
-}: Props) {
-  const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
+function renderTimeDuration(shiftStartTime): string {
   const [currentTime, setCurrentTime] = useState(new Date());
+  // const currentTime = useRef(new Date());
+
+  // const timer = setInterval(() => (currentTime.current = new Date()), 1000);
+  // clearInterval(timer);
 
   // useEffect(() => {
   //   const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -62,6 +54,23 @@ function List({
   //     clearInterval(timer);
   //   };
   // });
+
+  const timeDiff = currentTime.getTime() - shiftStartTime.getTime();
+  const shiftDuration = convertMsToTime(timeDiff);
+  return shiftDuration;
+}
+
+function List({
+  timeclocks,
+  currentDate,
+  startClockTime,
+  stopClockTime,
+  currentUserId,
+  queryParams,
+  history,
+  loading
+}: Props) {
+  const shiftStarted = localStorage.getItem('shiftStarted') === 'true' || false;
 
   const trigger = shiftStarted ? (
     <Button id="timeClockButton1" btnStyle="danger" icon="plus-circle">
@@ -82,7 +91,11 @@ function List({
       timeclocks={timeclocks}
     />
   );
-  console.log('jajajjaja', localStorage.getItem('shiftStarted'));
+
+  const onUserSelect = userId => {
+    router.setParams(history, { userId: `${userId}` });
+  };
+
   const actionBarRight = shiftStarted ? (
     <ModalTrigger
       title={__('End shift')}
@@ -98,12 +111,15 @@ function List({
   );
 
   let shiftDuration;
-  let shiftStartTime;
 
   if (timeclocks[0]) {
-    shiftStartTime = new Date(timeclocks[0].shiftStart);
-    const timeDiff = currentTime.getTime() - shiftStartTime.getTime();
-    shiftDuration = convertMsToTime(timeDiff);
+    const shiftStartTime = new Date(timeclocks[0].shiftStart);
+    shiftDuration = renderTimeDuration(shiftStartTime);
+    // const timer = setInterval(
+    //   (shiftDuration = renderTimeDuration(shiftStartTime)),
+    //   1000
+    // );
+    // clearInterval(timer);
   }
 
   const title = (
@@ -159,15 +175,15 @@ function List({
   );
 
   const breadcrumb = [
-    { title: __('Settings'), link: '/settings' },
-    { title: __('Timeclocks'), link: '/timeclocks' }
+    { title: __('Admin'), link: '/timeclocks/admin' },
+    { title: __('Timeclocks'), link: '/timeclocks' },
+    { title: __('Absence'), link: '/timeclocks/absence' },
+    { title: __('Schedule'), link: '/timeclocks/schedule' }
   ];
 
   return (
     <Wrapper
-      header={
-        <Wrapper.Header title={__('Timeclocks')} breadcrumb={breadcrumb} />
-      }
+      header={<Wrapper.Header title={__('Timeclocks')} submenu={breadcrumb} />}
       actionBar={actionBar}
       content={
         <DataWithLoader
@@ -178,7 +194,12 @@ function List({
         />
       }
       leftSidebar={
-        <SideBarList currentDate={currentDate} queryParams={queryParams} />
+        <SideBarList
+          onUserSelect={onUserSelect}
+          currentDate={currentDate}
+          queryParams={queryParams}
+          history={history}
+        />
       }
       transparent={true}
       hasBorder={true}

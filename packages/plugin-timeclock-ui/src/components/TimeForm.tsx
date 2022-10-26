@@ -5,32 +5,25 @@ import styledTS from 'styled-components-ts';
 import dayjs from 'dayjs';
 import { ITimeclock } from '../types';
 import { IButtonMutateProps, IFormProps } from '@erxes/ui/src/types';
-import { __ } from '@erxes/ui/src/utils';
+import { router, __ } from '@erxes/ui/src/utils';
 import React, { useEffect, useState } from 'react';
 import { ICommonFormProps } from '@erxes/ui-settings/src/common/types';
 import { darken, lighten } from '@erxes/ui/src/styles/ecolor';
+import { ControlLabel, FormGroup } from '@erxes/ui/src/components/form';
+import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 
 type Props = {
   clockType: string;
   startTime?: Date;
   currentUserId: string;
-  startClockTime: (startTime: Date, currentUserId: string) => void;
-  stopClockTime: (
-    stopTime: Date,
-    currentUserId: string,
-    timeId: string
-  ) => void;
-  // renderTime: (props: IButtonMutateProps) => JSX.Element;
+  startClockTime: (startTime: Date, userId: string) => void;
+  stopClockTime: (stopTime: Date, userId: string, timeId: string) => void;
   closeModal?: () => void;
   afterSave: () => void;
   renderButton: (props: IButtonMutateProps) => JSX.Element;
   timeclock: ITimeclock;
   timeclocks: ITimeclock[];
 } & ICommonFormProps;
-
-type State = {
-  currentTime: Date;
-};
 
 type IItem = {
   order?: string;
@@ -117,6 +110,7 @@ const FormComponent = ({
   timeclocks
 }: Props & ICommonFormProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [userId, setUserId] = useState(currentUserId);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -127,29 +121,18 @@ const FormComponent = ({
     };
   });
 
+  const onTeamMemberSelect = memberId => {
+    setUserId(memberId);
+  };
+
   const startClock = () => {
-    startClockTime(new Date(), currentUserId);
+    startClockTime(new Date(), userId);
   };
 
   const stopClock = () => {
-    console.log('jsjjsj', timeclocks);
-    const last_punch_idx = timeclocks.length - 1;
-    const timeId = timeclocks[last_punch_idx]._id;
-    stopClockTime(new Date(), currentUserId, timeId);
-  };
-
-  const generateTagOptions = (types: IItem[]) => {
-    const result: React.ReactNode[] = [];
-
-    for (const type of types) {
-      result.push(
-        <option key={type._id} value={type._id}>
-          {type.name}
-        </option>
-      );
-    }
-
-    return result;
+    const last_time_idx = timeclocks.length - 1;
+    const timeId = timeclocks[last_time_idx]._id;
+    stopClockTime(new Date(), userId, timeId);
   };
 
   const renderContent = (formProps: IFormProps) => {
@@ -177,6 +160,19 @@ const FormComponent = ({
           <Icon icon="clock" style={{ display: 'block' }} />
           {shiftStarted ? 'Clock out' : 'Clock in'}
         </RoundButtonStyled>
+
+        <div style={{ width: '60%' }}>
+          <FormGroup>
+            <ControlLabel>Team member</ControlLabel>
+            <SelectTeamMembers
+              label="Choose a team member"
+              name="userId"
+              initialValue={userId}
+              onSelect={onTeamMemberSelect}
+              multi={false}
+            />
+          </FormGroup>
+        </div>
       </div>
     );
   };

@@ -2,6 +2,7 @@ import SideBar from '../components/SideBar';
 import React from 'react';
 
 type Props = {
+  onUserSelect: (userId: string) => void;
   history: any;
   currentDate?: string;
   queryParams: any;

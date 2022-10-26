@@ -1,4 +1,4 @@
-import { __ } from '@erxes/ui/src/utils/core';
+import { router, __ } from '@erxes/ui/src/utils';
 import Sidebar from '@erxes/ui/src/layout/components/Sidebar';
 import React from 'react';
 import dayjs from 'dayjs';
@@ -11,7 +11,6 @@ import SelectTeamMembers from '@erxes/ui/src/team/containers/SelectTeamMembers';
 import asyncComponent from '@erxes/ui/src/components/AsyncComponent';
 import Tip from '@erxes/ui/src/components/Tip';
 import Icon from '@erxes/ui/src/components/Icon';
-import { ControlLabel } from '@erxes/ui/src/components';
 
 const DropdownWrapper = styled.div`
   position: relative;
@@ -51,6 +50,7 @@ const DateFilter = asyncComponent(
 );
 
 type Props = {
+  onUserSelect: (userId: string) => void;
   closeModal?: () => void;
   afterSave?: () => void;
   queryParams: any;
@@ -117,8 +117,10 @@ class LeftSideBar extends React.Component<Props, State> {
     // const { currentDate } = this.props;
   }
 
-  onUserSelect = user => {
-    console.log(user);
+  onUserSelect = userId => {
+    console.log(userId);
+
+    this.props.onUserSelect(userId);
   };
   renderSidebarActions() {
     const { queryParams, history } = this.props;
@@ -132,11 +134,6 @@ class LeftSideBar extends React.Component<Props, State> {
               // countQueryParam="conversationsTotalCount"
             />
           </DropdownWrapper>
-          <SelectTeamMembers
-            label="Team member"
-            name="selectedMemberIds"
-            onSelect={this.onUserSelect}
-          />
         </FlexCenter>
       </Sidebar.Header>
     );
@@ -163,9 +160,16 @@ class LeftSideBar extends React.Component<Props, State> {
       thisWeek: addDaysOfWeek(new Date())
     };
 
+    const { queryParams } = this.props;
     return (
       <Sidebar wide={true} full={true} header={this.renderSidebarHeader()}>
-        <div>asdasd</div>
+        <SelectTeamMembers
+          queryParams={queryParams}
+          label="Team member"
+          name="userId"
+          onSelect={this.onUserSelect}
+          multi={false}
+        />
       </Sidebar>
     );
   }

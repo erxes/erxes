@@ -1,6 +1,6 @@
 const list = `
-  query listQuery($date: String) {
-    timeclocks(date: $date) {
+  query listQuery($startDate: String, $endDate: String, $userId: String) {
+    timeclocks(startDate: $startDate, endDate: $endDate, userId: $userId) {
       _id
       shiftStart
       shiftEnd

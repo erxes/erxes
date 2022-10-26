@@ -7,7 +7,7 @@ export const types = `
   }
 `;
 export const queries = `
-  timeclocks(date: String): [Timeclock]
+  timeclocks(startDate: String, endDate: String, userId: String): [Timeclock]
 `;
 
 const params = `
