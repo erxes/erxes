@@ -376,6 +376,34 @@ export const initBroker = async cl => {
       };
     }
   );
+
+  consumeRPCQueue(
+    'cards:getModuleRelation',
+    async ({ subdomain, data: { module, target, triggerType } }) => {
+      let filter;
+
+      if (module.includes('contacts')) {
+        const relTypeIds = await sendCommonMessage({
+          subdomain,
+          serviceName: 'core',
+          action: 'conformities.savedConformity',
+          data: {
+            mainType: triggerType.split(':')[1],
+            mainTypeId: target._id,
+            relTypes: [module.split(':')[1]]
+          },
+          isRPC: true
+        });
+
+        filter = { _id: { $in: relTypeIds } };
+      }
+
+      return {
+        status: 'success',
+        data: filter
+      };
+    }
+  );
 };
 
 export const sendContactsMessage = async (

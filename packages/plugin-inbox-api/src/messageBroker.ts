@@ -250,6 +250,24 @@ export const initBroker = cl => {
       data: await getIntegrationsKinds()
     };
   });
+
+  consumeRPCQueue(
+    'inbox:getModuleRelation',
+    async ({ data: { module, target } }) => {
+      let filter;
+
+      if (module.includes('contacts')) {
+        filter = {
+          _id: target[module.includes('company') ? 'companyId' : 'customerId']
+        };
+      }
+
+      return {
+        status: 'success',
+        data: filter
+      };
+    }
+  );
 };
 
 export const sendCommonMessage = async (
