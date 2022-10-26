@@ -66,6 +66,11 @@ export const types = (tagsAvailable, contactsAvailable) => `
     category: ProductCategory
     ${contactsAvailable ? 'vendor: Company' : ''}
   }
+
+  type ProductsListResponse {
+    list: [Product],
+    totalCount: Float,
+  }
 `;
 
 const productParams = `
@@ -83,8 +88,17 @@ const productParams = `
   productCount: Int,
   minimiumCount: Int,
   vendorId: String,
-
+  segment: String,
+  segmentData: String,
   uomId: String,
+  tag: String,
+  searchValue: String,
+  perPage: Int,
+  page: Int, 
+  ids: [String],
+  excludeIds: Boolean,
+  pipelineId: String,
+  boardId: String,
   subUoms: JSON
 `;
 
@@ -102,18 +116,10 @@ export const queries = `
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
 
-  products(
-    type: String,
-    categoryId: String,
-    searchValue: String,
-    tag: String,
-    page: Int,
-    perPage: Int ids: [String],
-    excludeIds: Boolean,
-    pipelineId: String,
-    boardId: String
-  ): [Product]
+  products(${productParams}): [Product]
+  productsMain(${productParams}): ProductsListResponse
   productsTotalCount(type: String): Int
+  productsGroupCounts(${productParams}, only: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON
 `;

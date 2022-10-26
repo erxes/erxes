@@ -82,10 +82,6 @@ class PluginDetails extends React.Component<Props, State> {
       );
     }
 
-    if (tabType === 'Changelog') {
-      return <div dangerouslySetInnerHTML={{ __html: plugin.changeLog }} />;
-    }
-
     return null;
   };
 
@@ -230,12 +226,6 @@ class PluginDetails extends React.Component<Props, State> {
               className={tabType === 'Guide' ? 'active' : ''}
             >
               Guide
-            </TabTitle>
-            <TabTitle
-              onClick={() => handleSelect('Changelog')}
-              className={tabType === 'Changelog' ? 'active' : ''}
-            >
-              Changelog
             </TabTitle>
           </Tabs>
 

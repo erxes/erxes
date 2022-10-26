@@ -129,7 +129,7 @@ export const postSchema = new Schema<PostDocument>({
   createdAt: { type: Date, required: true, default: () => new Date() },
   createdUserType: { type: String, required: true, enum: USER_TYPES },
   createdById: String,
-  createdByCpId: String,
+  createdByCpId: { type: String, index: true },
 
   updatedAt: { type: Date, required: true, default: () => new Date() },
   updatedUserType: { type: String, required: true, enum: USER_TYPES },

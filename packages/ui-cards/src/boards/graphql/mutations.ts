@@ -100,8 +100,15 @@ export const commonFields = `
     _id
     name
     tagId
-    tag {
-      order
+
+    ${
+      isEnabled('tags')
+        ? `
+        tag {
+          order
+        }
+    `
+        : ``
     }
   }
   boardId
