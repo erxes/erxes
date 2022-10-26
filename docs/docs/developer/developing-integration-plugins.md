@@ -4,13 +4,19 @@ title: Create Integration plugin
 sidebar_label: Create Integration plugin
 ---
 
-Integration is a kind of plugin that extends inbox plugin. Before reading this please checkout the <a href="https://docs.erxes.io/docs/developer/developing-plugins">Create plugin guide</a>.
+Integration is the extent of the Inbox plugin, which allows third party softwares to be integrated to your shared Inbox. 
 
-In order to explain new integration creation let's usage already existing imap integration which can be found <a href="https://github.com/erxes/erxes-community/tree/dev/packages">here</a>
+:::caution
 
-So let's assume already created our plugin using above guide and let's say it's name is imap.
+Before you're moving forward, please have a read the **<a href="https://docs.erxes.io/docs/developer/developing-plugins">guideline</a>** how you create your own plugin and check out one of our existing integrations available at the **<a href="https://erxes.io/marketplace">marketplace</a>** called IMAP which can be found **<a href="https://github.com/erxes/erxes-community/tree/dev/packages">here</a>** as we're going to use IMAP integration as example.
+
+:::
+
+
+So let's assume, you've already created your plugin using the above guideline and the name of your plugin is IMAP.
 
 Add the following inbox related plugins to configs.json and start the services.
+
 ```
 	"plugins": [
 		{
@@ -47,7 +53,8 @@ Add the following inbox related plugins to configs.json and start the services.
 3. Store the data as conversations, conversation messages, and customers. You have to store conversations in inbox's and customers in contacts's database and you have to store conversation messages in your plugin's database.
 4. Once you stored the conversations and customers. It will show up in inbox's sidebar. But you will be responsive for the conversation detail in inbox's ui
 5. Since you can show anything in conversation detail will also be responsible for further actions like sending response to customer
-## Let's demonstrate above steps using imap as a example
+
+## Let's demonstrate above steps using IMAP as a example
 ### Create an integration
 
 Let's look at configs.js in plugin-imap-ui
