@@ -14,29 +14,14 @@ export type IProductCategory = IProductCategoryC & {};
 
 export type IUom = IUomC & {};
 
-export type Counts = {
-  [key: string]: number;
-};
-type ProductCounts = {
-  bySegment: Counts;
-  byTag: Counts;
-};
-type MainProductsResponse = {
-  list: IProduct[];
-  totalCount: number;
-};
 // query types
 
 export type ProductsQueryResponse = {
   products: IProduct[];
 } & QueryResponse;
 
-export type ProductsMainQueryResponse = {
-  productsMain: MainProductsResponse;
-} & QueryResponse;
-
-export type ProductsGroupCountsQueryResponse = {
-  productsGroupsCounts: ProductCounts;
+export type ProductsCountQueryResponse = {
+  productsTotalCount: number;
 } & QueryResponse;
 
 export type ProductCategoriesCountQueryResponse = {

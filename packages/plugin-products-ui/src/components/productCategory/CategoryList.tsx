@@ -16,7 +16,6 @@ import TagFilter from '../../containers/TagFilter';
 import { IProductCategory } from '../../types';
 import ProductTypeFilter from '../product/filters/ProdcutTypeFilter';
 import CategoryStatusFilter from '../product/filters/CategoryStatusFilter';
-import SegmentFilter from '../product/filters/SegmentFilter';
 import { pluginsOfProductCategoryActions } from 'coreui/pluginUtils';
 import { isEnabled } from '@erxes/ui/src/utils/core';
 import { Header } from '@erxes/ui-settings/src/styles';
@@ -183,7 +182,6 @@ class List extends React.Component<IProps> {
           {this.renderCategoryHeader()}
           {this.renderCategoryList()}
         </Section>
-        <SegmentFilter loadingMainQuery={this.props.loading} />
         <CategoryStatusFilter />
         <ProductTypeFilter />
         {isEnabled('tags') && <TagFilter />}

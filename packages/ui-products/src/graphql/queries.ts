@@ -81,42 +81,6 @@ const products = `
   }
 `;
 
-const productsMain = `
-  query productsMain(
-    $type: String,
-    $categoryId: String,
-    $tag: String,
-    $searchValue: String,
-    $perPage: Int,
-    $page: Int $ids: [String],
-    $excludeIds: Boolean,
-    $pipelineId: String,
-    $boardId: String,
-    $segment: String,
-    $segmentData: String,
-  ) {
-    productsMain(
-      type: $type,
-      categoryId: $categoryId,
-      tag: $tag,
-      searchValue: $searchValue,
-      perPage: $perPage,
-      page: $page ids: $ids,
-      excludeIds: $excludeIds,
-      pipelineId: $pipelineId,
-      boardId: $boardId,
-      segment: $segment,
-      segmentData: $segmentData
-    ) {
-      list {
-        ${productFields}
-      }
-      totalCount
-    }
-  }
-
-`;
-
 const productDetail = `
   query productDetail($_id: String) {
     productDetail(_id: $_id) {
@@ -183,7 +147,6 @@ const productsConfigs = `
 export default {
   productFields,
   products,
-  productsMain,
   productDetail,
   productCategories,
   productsConfigs,
