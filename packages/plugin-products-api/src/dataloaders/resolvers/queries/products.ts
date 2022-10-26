@@ -7,6 +7,7 @@ import { PRODUCT_STATUSES } from '../../../models/definitions/products';
 import { escapeRegExp } from '@erxes/api-utils/src/core';
 import { IContext } from '../../../connectionResolver';
 import messageBroker, { sendTagsMessage } from '../../../messageBroker';
+import { Builder, countBySegment, countByTag, IListArgs } from '../../../utils';
 
 const productQueries = {
   /**
@@ -114,9 +115,23 @@ const productQueries = {
     );
   },
 
-  /**
-   * Get all products count. We will use it in pager
-   */
+  async productsMain(
+    _root,
+    params: IListArgs,
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
+  ) {
+    const qb = new Builder(models, subdomain, params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
+
+    await qb.buildAllQueries();
+
+    const { list, totalCount } = await qb.runQueries();
+
+    return { list, totalCount };
+  },
+
   productsTotalCount(
     _root,
     { type }: { type: string },
@@ -131,6 +146,43 @@ const productQueries = {
     }
 
     return models.Products.find(filter).countDocuments();
+  },
+
+  /**
+   * Group product counts by segment or tag
+   */
+  async productsGroupCounts(
+    _root,
+    params,
+    { commonQuerySelector, commonQuerySelectorElk, models, subdomain }: IContext
+  ) {
+    const counts = {
+      bySegment: {},
+      byTag: {}
+    };
+
+    const { only } = params;
+
+    const qb = new Builder(models, subdomain, params, {
+      commonQuerySelector,
+      commonQuerySelectorElk
+    });
+
+    switch (only) {
+      case 'byTag':
+        counts.byTag = await countByTag(subdomain, 'products:product', qb);
+        break;
+
+      case 'bySegment':
+        counts.bySegment = await countBySegment(
+          subdomain,
+          'products:product',
+          qb
+        );
+        break;
+    }
+
+    return counts;
   },
 
   productCategories(
