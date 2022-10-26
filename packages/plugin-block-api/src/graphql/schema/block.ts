@@ -14,7 +14,7 @@ export const types = `
 export const queries = `
   totalInvestment: Float
   getBalance(erxesCustomerId: String): Float
-  isVerified(erxesCustomerId: String): Boolean
+  isVerified(erxesCustomerId: String): String
   investments(erxesCustomerId: String): [Investment]
 `;
 

@@ -52,7 +52,7 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>
-          <Link to={`/settings/team/details/${user._id}`}>
+          <Link to={user ? `/settings/team/details/${user._id}` : '/'}>
             {user?.details?.fullName}
           </Link>
         </td>

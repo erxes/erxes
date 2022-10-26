@@ -8,7 +8,7 @@ import {
   Tip
 } from '@erxes/ui/src/components';
 import React from 'react';
-import { ICardRiskAssements } from '../../common/types';
+import { ICardRiskAssements, RiskAssessmentsType } from '../../common/types';
 import { ColorBox, ProductName } from '../../styles';
 import RiskAssessmentForm from '../container/Form';
 import Submissions from '../container/Submissions';
@@ -58,11 +58,11 @@ function RiskAssessmentSection(props: Props) {
     );
   };
 
-  const renderItem = (text: string, color) => {
+  const renderItem = (item: RiskAssessmentsType) => {
     return (
       <ProductName>
-        {text}
-        <ColorBox color={color} />
+        {item && item?.name}
+        <ColorBox color={item && item?.statusColor} />
       </ProductName>
     );
   };
@@ -124,7 +124,7 @@ function RiskAssessmentSection(props: Props) {
             {list.map(item => (
               <SectionBodyItem key={item.riskAssessmentId}>
                 {renderFormModal(
-                  renderItem(item.name || '', item.statusColor || ''),
+                  renderItem(item.riskAssessment),
                   item.riskAssessmentId
                 )}
               </SectionBodyItem>

@@ -18,6 +18,20 @@ export interface IPackage extends IPackageDoc {
   modifiedAt: Date;
 }
 
+export interface IInvestmentDoc {
+  erxesCustomerId: string;
+  packageId: string;
+  amount: number;
+
+  package: IPackage;
+}
+
+export interface IInvestment extends IInvestmentDoc {
+  _id: string;
+  createdAt: Date;
+  modifiedAt: Date;
+}
+
 export type PackagesQueryResponse = {
   packages: IPackage[];
 } & QueryResponse;
@@ -29,4 +43,10 @@ export type PackageRemoveMutationResponse = {
 export type DetailQueryResponse = {
   packageDetail: IPackage;
   loading: boolean;
+};
+
+export type InvestmentsQueryResponse = {
+  investments: IInvestment[];
+  loading: boolean;
+  refetch: () => void;
 };

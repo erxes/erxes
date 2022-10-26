@@ -55,8 +55,25 @@ export const packageDetail = `
   }
 `;
 
+export const investments = `
+  query investments($erxesCustomerId: String) {
+    investments(erxesCustomerId: $erxesCustomerId) {
+      _id
+      erxesCustomerId
+      packageId
+      createdAt
+      modifiedAt
+      amount
+
+      package { name }
+    }
+  }
+`;
+
 export default {
   packages,
   packageCounts,
-  packageDetail
+  packageDetail,
+
+  investments
 };

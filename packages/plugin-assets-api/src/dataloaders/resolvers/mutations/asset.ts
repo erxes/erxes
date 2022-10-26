@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IAsset, IAssetDocument } from '../../../common/types/asset';
 import { IContext } from '../../../connectionResolver';
 import {
@@ -95,4 +96,8 @@ const assetMutations = {
   }
 };
 
+checkPermission(assetMutations, 'assetsAdd', 'manageAssets');
+checkPermission(assetMutations, 'assetsEdit', 'manageAssets');
+checkPermission(assetMutations, 'assetsRemove', 'manageAssets');
+checkPermission(assetMutations, 'assetsMerge', 'assetsMerge');
 export default assetMutations;

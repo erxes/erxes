@@ -1,3 +1,4 @@
+import { checkPermission } from '@erxes/api-utils/src';
 import { IContext } from '../../../connectionResolver';
 import { MODULE_NAMES, putCreateLog } from '../../../logUtils';
 
@@ -34,5 +35,9 @@ const movementMutations = {
     return await models.Movements.movementEdit(_id, docModifier(doc));
   }
 };
+
+checkPermission(movementMutations, 'assetMovementAdd', 'manageAssets');
+checkPermission(movementMutations, 'assetMovementRemove', 'manageAssets');
+checkPermission(movementMutations, 'assetMovementUpdate', 'manageAssets');
 
 export default movementMutations;

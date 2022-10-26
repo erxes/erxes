@@ -13,8 +13,7 @@ const riskConfirmities = `
       _id
       cardId
       riskAssessmentId
-      name
-      statusColor
+      riskAssessment
     }
   }
 `;

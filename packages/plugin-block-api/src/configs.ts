@@ -37,7 +37,7 @@ export default {
     const app = options.app;
 
     app.post(
-      '/events-receive',
+      '/tdb-receive',
       routeErrorHandling(async (req, res) => {
         const body = JSON.stringify(req.body);
 

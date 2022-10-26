@@ -57,7 +57,7 @@ const movements = `
     modifiedAt
     movedAt
     userId
-    user
+    ${isEnabled('contacts') ? 'user' : ''}
   }
 }
 `;
