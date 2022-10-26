@@ -18,11 +18,11 @@ import { ICustomerDocument } from './models/definitions/customers';
 import { IPostModel, loadPostClass } from './models/Posts';
 import { IPostDocument } from './models/definitions/posts';
 
+import { IConversationMessageDocument } from './models/definitions/conversationMessages';
 import {
-  IConversationMessageDocument,
-  conversationMessageSchema
-} from './models/definitions/conversationMessages';
-import { IConversationMessageModel } from './models/ConversationMessages';
+  IConversationMessageModel,
+  loadConversationMessageClass
+} from './models/ConversationMessages';
 import {
   IAccountDocument,
   IAccountModel,
@@ -99,7 +99,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
   models.ConversationMessages = db.model<
     IConversationMessageDocument,
     IConversationMessageModel
-  >('conversation_messages_facebook', conversationMessageSchema);
+  >('conversation_messages_facebook', loadConversationMessageClass(models));
 
   return models;
 };

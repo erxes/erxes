@@ -13,7 +13,8 @@ import {
   sendCoreMessage,
   sendIntegrationsMessage,
   sendNotificationsMessage,
-  sendToWebhook
+  sendToWebhook,
+  sendFacebookMessage
 } from '../../messageBroker';
 import { graphqlPubsub } from '../../configs';
 
@@ -71,7 +72,7 @@ interface IConversationConvert {
  *  Send conversation to integrations
  */
 
-const sendConversationToIntegrations = async (
+const sendConversationToServices = async (
   subdomain: string,
   type: string,
   integrationId: string,
@@ -81,6 +82,8 @@ const sendConversationToIntegrations = async (
   action?: string,
   facebookMessageTag?: string
 ) => {
+  const commonParams = { subdomain, isRPC: true };
+
   if (type === 'facebook') {
     const regex = new RegExp('<img[^>]* src="([^"]*)"', 'g');
 
@@ -95,8 +98,8 @@ const sendConversationToIntegrations = async (
     const content = strip(doc.content);
 
     try {
-      await sendIntegrationsMessage({
-        subdomain,
+      await sendFacebookMessage({
+        ...commonParams,
         action: 'api_to_integrations',
         data: {
           action,
@@ -108,8 +111,7 @@ const sendConversationToIntegrations = async (
             attachments: doc.attachments || [],
             tag: facebookMessageTag
           })
-        },
-        isRPC: true
+        }
       });
     } catch (e) {
       throw new Error(
@@ -120,7 +122,7 @@ const sendConversationToIntegrations = async (
 
   if (requestName) {
     return sendIntegrationsMessage({
-      subdomain,
+      ...commonParams,
       action: 'reply',
       data: {
         conversationId,
@@ -128,8 +130,7 @@ const sendConversationToIntegrations = async (
         content: strip(doc.content),
         attachments: doc.attachments || [],
         requestName
-      },
-      isRPC: true
+      }
     });
   }
 };
@@ -381,7 +382,7 @@ const conversationMutations = {
       type = 'facebook';
       action = 'reply-post';
 
-      return sendConversationToIntegrations(
+      return sendConversationToServices(
         subdomain,
         type,
         integrationId,
@@ -392,24 +393,24 @@ const conversationMutations = {
       );
     }
 
-    const message = await models.ConversationMessages.addMessage(doc, user._id);
-
     // send reply to facebook
     if (kind === 'facebook-messenger') {
       type = 'facebook';
       action = 'reply-messenger';
+
+      return sendConversationToServices(
+        subdomain,
+        type,
+        integrationId,
+        conversationId,
+        requestName,
+        doc,
+        action,
+        facebookMessageTag
+      );
     }
 
-    await sendConversationToIntegrations(
-      subdomain,
-      type,
-      integrationId,
-      conversationId,
-      requestName,
-      doc,
-      action,
-      facebookMessageTag
-    );
+    const message = await models.ConversationMessages.addMessage(doc, user._id);
 
     const dbMessage = await models.ConversationMessages.getMessage(message._id);
 
@@ -454,7 +455,7 @@ const conversationMutations = {
     const type = 'facebook';
     const action = 'reply-post';
 
-    await sendConversationToIntegrations(
+    await sendConversationToServices(
       subdomain,
       type,
       integrationId,
@@ -476,7 +477,7 @@ const conversationMutations = {
     const conversationId = doc.commentId;
     doc.content = '';
 
-    return sendConversationToIntegrations(
+    return sendConversationToServices(
       subdomain,
       type,
       '',

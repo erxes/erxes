@@ -97,11 +97,12 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
     });
 
     const { recipientId, senderId } = conversation;
+    let localMessage;
 
     try {
       if (content) {
         try {
-          await sendReply(
+          const resp = await sendReply(
             models,
             'me/messages',
             {
@@ -112,7 +113,20 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
             recipientId,
             integrationId
           );
+
+          if (resp) {
+            localMessage = await models.ConversationMessages.addMessage({
+              ...doc,
+              // inbox conv id comes, so override
+              conversationId: conversation._id,
+              mid: resp.message_id
+            });
+          }
         } catch (e) {
+          await models.ConversationMessages.deleteOne({
+            _id: localMessage && localMessage._id
+          });
+
           throw new Error(e.message);
         }
       }

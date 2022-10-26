@@ -101,7 +101,6 @@ const receiveMessage = async (
   });
 
   if (!conversationMessage) {
-    // save on integrations db
     try {
       await models.ConversationMessages.create({
         conversationId: conversation._id,
@@ -115,33 +114,6 @@ const receiveMessage = async (
           ? 'Concurrent request: conversation message duplication'
           : e
       );
-    }
-
-    // save message on api
-    try {
-      await sendInboxMessage({
-        subdomain,
-        action: 'integrations.receive',
-        data: {
-          action: 'create-conversation-message',
-          metaInfo: 'replaceContent',
-          payload: JSON.stringify({
-            content: text || '',
-            attachments: (attachments || [])
-              .filter(att => att.type !== 'fallback')
-              .map(att => ({
-                type: att.type,
-                url: att.payload ? att.payload.url : ''
-              })),
-            conversationId: conversation.erxesApiId,
-            customerId: customer.erxesApiId
-          })
-        },
-        isRPC: true
-      });
-    } catch (e) {
-      await models.ConversationMessages.deleteOne({ mid: message.mid });
-      throw new Error(e);
     }
   }
 };

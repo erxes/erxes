@@ -367,7 +367,7 @@ const integrationMutations = {
         subdomain,
         data: { integrationId: _id },
         isRPC: true,
-        action: 'removeIntegration'
+        action: 'removeIntegrations'
       };
 
       if (await isServiceRunning(kind)) {
