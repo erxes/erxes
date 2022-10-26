@@ -125,6 +125,22 @@ export type IProductsConfig = {
   value: any;
 };
 
+export type BarcodeConfig = {
+  row: number;
+  column: number;
+  width: number;
+  height: number;
+  margin: number;
+  isProductName: boolean;
+  isBarcode: boolean;
+  barWidth: number;
+  barHeight: number;
+  fontSize: number;
+  isQrcode: boolean;
+  qrSize: number;
+  isPrice: boolean;
+};
+
 // query types
 export type ProductsConfigsQueryResponse = {
   productsConfigs: IProductsConfig[];

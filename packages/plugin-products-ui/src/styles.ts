@@ -60,38 +60,17 @@ const ProductBarcodeContent = styledTS<{ isValid?: boolean }>(styled.a)`
   }
 `;
 
-const BarcodeInputWrapper = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
+const BarcodeContentWrapper = styled.div`
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  display: none;
+  pointer-events: none;
 `;
 
-const BarcodePrintWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-`;
-
-const BarcodeColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
-
-const BarcodeWrapper = styledTS<{ width?: number; height?: number }>(
-  styled.div
-)`
-  width: ${props => props.width}mm;
-  height: ${props => props.height}mm;
-  background-color: ${colors.bgActive};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+const SidebarTitle = styled.h5`
+  margin-top: ${dimensions.coreSpacing}px;
+  margin-bottom: ${dimensions.unitSpacing}px;
 `;
 
 export {
@@ -99,8 +78,6 @@ export {
   ProductContent,
   ContentBox,
   ProductBarcodeContent,
-  BarcodeInputWrapper,
-  BarcodePrintWrapper,
-  BarcodeColumn,
-  BarcodeWrapper
+  BarcodeContentWrapper,
+  SidebarTitle
 };

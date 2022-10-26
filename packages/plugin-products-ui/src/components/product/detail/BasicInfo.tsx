@@ -68,7 +68,7 @@ class BasicInfo extends React.Component<Props> {
           {barcodes.map(item => (
             <ProductBarcodeContent
               isValid={isValidBarcode(item)}
-              href={`/settings/barcode-generator/${item}`}
+              href={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
               target="_blank"
               rel="noopener noreferrer"
             >
