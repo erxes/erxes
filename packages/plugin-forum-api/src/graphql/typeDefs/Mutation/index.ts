@@ -2,6 +2,7 @@ import categoryMutations from './categoryMutations';
 import postMutations from './postMutations';
 import commentMutations from './commentMutations';
 import voteMutations from './voteMutations';
+import followMutations from './followMutations';
 
 const Mutation = `
   extend type Mutation {
@@ -9,6 +10,7 @@ const Mutation = `
     ${postMutations}
     ${commentMutations}
     ${voteMutations}
+    ${followMutations}
   }
 `;
 

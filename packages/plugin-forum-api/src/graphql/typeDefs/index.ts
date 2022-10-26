@@ -26,6 +26,9 @@ export default async function genTypeDefs(serviceDiscovery) {
 
     extend type ClientPortalUser @key(fields: "_id") {
       _id: String! @external
+
+      forumFollowerCpUsers: [ClientPortalUser!]
+      forumFollowingCpUsers: [ClientPortalUser!]
     }
 
     ${ForumCategory}
