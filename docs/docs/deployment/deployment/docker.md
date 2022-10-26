@@ -108,10 +108,7 @@ Example: erxes
 Example: erxes
 ```
 
-7. Redis port (6379) will be as default, so press enter.
-8. Set up your password on Redis password (optional).
-9. Elasticsearch url will be as default `localhost:9200`, so just press enter.
-10. Here you have your erxes project successfully installed, then go to your erxes directory with the foloowing command.
+7. Here you have your erxes project successfully installed, then go to your erxes directory with the foloowing command.
 
 ```
 cd erxes
@@ -123,12 +120,11 @@ See the latest version of npm erxes here https://www.npmjs.com/package/erxes
 
 :::
 
-11. Copy the text below instead of configs.json
+8. Copy the text below instead of configs.json
 
 ```
 {
    "jwt_token_secret": "strong_token",
-   "db_server_address": "db_server_ip_address",
    "domain": "https://example.com",
    "elasticsearch": {},
    "redis": {
@@ -157,13 +153,13 @@ See the latest version of npm erxes here https://www.npmjs.com/package/erxes
 
 ```
 
-12. This command installs a package, and any packages that it depends on.
+9. This command installs a package, and any packages that it depends on.
 
 ```
 npm install
 ```
 
-13. Provide docker permission to your user.
+10. Provide docker permission to your user.
 
 ```
 su
@@ -172,13 +168,13 @@ su - erxes
 
 ```
 
-14. Go back to your erxes directory with the following command.
+11. Go back to your erxes directory with the following command.
 
 ```
 cd erxes
 ```
 
-15. Run the following command in your erxes directory.
+12. Run the following command in your erxes directory.
 
 ```
 docker swarm init
@@ -189,56 +185,56 @@ Please note that the following actions can be done once you fully run your Datab
 
 :::
 
-16. Run the following to start database containers
+17. Run the following to start database containers
 
 ```
 sudo npm run erxes deploy-dbs
 ```
 
-17. Run the following to start application containers
+18. Run the following to start application containers
 
 ```
 sudo npm run erxes up
 ```
 
-18. See the generated docker services using the command below.
+19. See the generated docker services using the command below.
 
 ```
 docker service ls
 ```
 
-19. Use the command below to view the finished docker containers
+20. Use the command below to view the finished docker containers
 
 ```
 docker ps -a
 ```
 
-20. Copying below line code from docker-compose.yml
+21. Copying below line code from docker-compose.yml
 
 ```
 mongodb://username:password/erxes?authSource=admin
 ```
 
-21. Copying this container url by using docker ps -a command
+22. Copying this container url by using docker ps -a command
 
 ```
 erxes-dbs_mongo.1.value bash
 ```
 
-22. The mongo database must be started with a replica set.
+23. The mongo database must be started with a replica set.
     Use the following command to access the mongo database running docker container:
 
 ```
 docker exec -it erxes-dbs_mongo.1.value bash
 ```
 
-23. Login using the mongo url generated in the docker-compose.yml file. Copying below line code from docker-compose.yml
+24. Login using the mongo url generated in the docker-compose.yml file. Copying below line code from docker-compose.yml
 
 ```
 mongo "mongodb://username:password/erxes?authSource=admin"
 ```
 
-24. After trying running following command
+25. After trying running following command
 
 ```
 rs.initiate()
@@ -247,7 +243,7 @@ rs.initiate()
 Many times, it becomes "RS0: primary".
 These commands are given as a replica set, and when done correctly, the mongo shell changes to "RS0: primary".
 
-25. After completing the configuration on the mongo database, delete and restart the services through the docker network. First, do the database services.
+26. After completing the configuration on the mongo database, delete and restart the services through the docker network. First, do the database services.
 
 ```
 docker stack rm erxes
@@ -262,7 +258,7 @@ npm run erxes up – –uis
 Containers are generated one by one, so wait until they finish reading.
 :::
 
-26. Check the log file in the erxes_gateway container to make sure the services are working properly.
+27. Check the log file in the erxes_gateway container to make sure the services are working properly.
 
 ```
 docker logs -f erxes_gateway.1.value
@@ -270,37 +266,37 @@ docker logs -f erxes_gateway.1.value
 
 If "plugin_name has no address value" is displayed, it is not connected to the database.
 
-27. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
+28. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
 
 ```
 sudo mv nginx.conf /etc/nginx/sites-enabled/
 ```
 
-28. Go to /etc/nginx/sites-enabled.
+29. Go to /etc/nginx/sites-enabled.
 
 ```
 cd /etc/nginx/sites-enabled
 ```
 
-29. Configure your nginx.
+30. Configure your nginx.
 
 ```
 sudo nginx -t
 ```
 
-30. Restart your Nginx.
+31. Restart your Nginx.
 
 ```
 sudo service nginx restart
 ```
 
-31. Configure your Free Ssl.
+32. Configure your Free Ssl.
 
 ```
 sudo certbot –nginx -d domain_name
 ```
 
-32. Insert your registered email address.
-33. Please choose redirect option.
+33. Insert your registered email address.
+34. Please choose redirect option.
 
 Try typing your domain on your browser to see if it's working.

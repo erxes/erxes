@@ -25,7 +25,7 @@ var sideBar = {
       items: [
         {
           type: 'category',
-          label: 'Installation',
+          label: 'Local installation',
           link: {
             type: 'generated-index'
           },
