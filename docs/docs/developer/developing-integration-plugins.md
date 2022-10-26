@@ -13,9 +13,9 @@ Before you're moving forward, please have a read the **<a href="https://docs.erx
 :::
 
 
-So let's assume, you've already created your plugin using the above guideline and the name of your plugin is IMAP.
+So let's assume, you've already created your plugin by using the above guideline and the name of your plugin is IMAP.
 
-Add the following inbox related plugins to configs.json and start the services.
+Add the following Inbox-related plugins to configs.json and start the services.
 
 ```
 	"plugins": [
@@ -41,10 +41,10 @@ Add the following inbox related plugins to configs.json and start the services.
 
 1. **Brand** - Biggest level of data seperation. Let's assume your company is a group company that consists of 3 child companies. In that case each brand will represent each child companies.
 2. **Channel** - Group of integrations and team members, which represents who is responsible for which integrations.
-3. **Integration** - In imap's case, a set of configs that includes email address, password, smtp host etc.
-4. **Customer** - In imap's case, the person to sent the email.
-5. **Conversation** - In imap's case, whole email thread.
-6. **Conversation Messages** - In imap's case, each email entry in single email thread.
+3. **Integration** - In IMAP's case, a set of configs that includes email address, password, smtp host etc.
+4. **Customer** - In IMAP's case, the person to sent the email.
+5. **Conversation** - In IMAP's case, whole email thread.
+6. **Conversation Messages** - In IMAP's case, each email entry in single email thread.
 
 ## Lifecycle of integration
 
@@ -92,7 +92,7 @@ these lines will show ```./src/components/IntegrationForm.tsx``` component when 
 
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/imapIntegrationForm.png" width ="70%" alt="imapIntegrationForm" />
 
-When you click on the save button it will send message to ```plugin-imap-api```. So you have to write a consumer like following
+When you click on the "Save" button, it will send the message to ```plugin-imap-api```. So you have to write a consumer like the following
 
 ```
   consumeRPCQueue(
@@ -141,7 +141,7 @@ When you click on the save button it will send message to ```plugin-imap-api```.
         });
 ```
 
-it will send a createCustomer message to contacts plugin and contact plugin will store it in it's database
+it will send a createCustomer message to contacts plugin and contact plugin will store it in it's database.
 
 2.
 
@@ -162,7 +162,7 @@ it will send a createCustomer message to contacts plugin and contact plugin will
       });
 ```
 
-it will send a create or update conversation message to inbox plugin and inbox plugin will store it in it's database
+it will send a create or update conversation message to inbox plugin and inbox plugin will store it in it's database.
 
 ### Conversation detail
 
