@@ -58,7 +58,8 @@ export default withProps<Props>(
         options: ({ id }) => ({
           variables: {
             _id: id
-          }
+          },
+          notifyOnNetworkStatusChange: true
         })
       }
     )
