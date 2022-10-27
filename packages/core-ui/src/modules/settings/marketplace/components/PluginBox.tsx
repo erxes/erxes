@@ -7,7 +7,8 @@ import {
   PerPrice,
   PluginBoxFooter,
   PluginBoxHeader,
-  PluginContent
+  PluginContent,
+  Ribbon
 } from './styles';
 
 import Icon from 'modules/common/components/Icon';
@@ -24,6 +25,14 @@ type Props = {
 
 class PluginBox extends React.Component<Props, {}> {
   renderPrice(prices) {
+    if (this.props.plugin.comingSoon) {
+      return (
+        <Ribbon>
+          <span>{__('Coming soon')}</span>
+        </Ribbon>
+      );
+    }
+
     if (!prices || this.props.isOpenSource) {
       return <b>{__('Free')}</b>;
     }
@@ -88,7 +97,7 @@ class PluginBox extends React.Component<Props, {}> {
 
     return (
       <ItemBox>
-        <Link to={`installer/details/${plugin._id}`}>
+        <Link to={plugin.comingSoon ? '#' : `installer/details/${plugin._id}`}>
           <PluginContent>
             <PluginBoxHeader>
               <div className="image-wrapper">
@@ -110,9 +119,11 @@ class PluginBox extends React.Component<Props, {}> {
           <PluginBoxFooter>
             <div>{this.renderFooterLeftItems()}</div>
 
-            <MoreBtn>
-              <Icon icon="arrow-right" size={20} />
-            </MoreBtn>
+            {!plugin.comingSoon && (
+              <MoreBtn>
+                <Icon icon="arrow-right" size={20} />
+              </MoreBtn>
+            )}
           </PluginBoxFooter>
         </Link>
       </ItemBox>

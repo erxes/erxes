@@ -123,11 +123,11 @@ class Store extends React.Component<Props, State> {
     }
 
     return plugins.map((plugin, index) => {
-      const addon = plugin.mainType === 'addon';
+      const addon = (plugin.mainType || []).includes('addon');
 
       if (
         (isAddon ? !addon : addon) ||
-        (plugin.mainType || [] || '').includes('service')
+        (plugin.mainType || []).includes('service')
       ) {
         return null;
       }
