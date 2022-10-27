@@ -123,7 +123,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.barcodes && !_.isEqual(product.barcodes, doc.barcodes)) {
-        await this.checkBarcodeDuplication(doc.barcodes);
+        await this.checkBarcodeDuplication(
+          _.xor(product.barcodes, doc.barcodes)
+        );
       }
 
       if (doc.customFieldsData) {
