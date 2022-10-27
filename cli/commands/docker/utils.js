@@ -162,7 +162,7 @@ const deployDbs = async () => {
   const dockerComposeConfig = {
     version: '3.3',
     networks: {
-      erxesdb: {
+      erxes: {
         driver: isSwarm ? 'overlay' : 'bridge',
       },
     },
@@ -173,7 +173,7 @@ const deployDbs = async () => {
     dockerComposeConfig.services.kibana = {
       image: 'docker.elastic.co/kibana/kibana:7.6.0',
       ports: ['5601:5601'],
-      networks: ['erxesdb'],
+      networks: ['erxes'],
     };
   }
 
@@ -190,7 +190,7 @@ const deployDbs = async () => {
         MONGO_INITDB_ROOT_USERNAME: configs.mongo.username,
         MONGO_INITDB_ROOT_PASSWORD: configs.mongo.password,
       },
-      networks: ['erxesdb'],
+      networks: ['erxes'],
       volumes: ['./mongodata:/data/db'],
       command: ['--replSet', 'rs0', '--bind_ip_all'],
       extra_hosts: ['mongo:127.0.0.1'],
@@ -207,7 +207,7 @@ const deployDbs = async () => {
         MONGO_USERNAME: configs.mongo.username,
         MONGO_PASSWORD: configs.mongo.password,
       },
-      networks: ['erxesdb'],
+      networks: ['erxes'],
       volumes: ['./mongo.pem:/mongosqld/mongo.pem'],
     };
   }
@@ -250,7 +250,7 @@ const deployDbs = async () => {
         'discovery.type': 'single-node',
       },
       ports: ['9200:9200'],
-      networks: ['erxesdb'],
+      networks: ['erxes'],
       volumes: ['./elasticsearchData:/usr/share/elasticsearch/data'],
       ulimits: {
         memlock: {
@@ -270,7 +270,7 @@ const deployDbs = async () => {
       image: 'redis:5.0.5',
       command: `redis-server --appendonly yes --requirepass ${configs.redis.password}`,
       ports: [`${REDIS_PORT}:6379`],
-      networks: ['erxesdb'],
+      networks: ['erxes'],
       volumes: ['./redisdata:/data'],
     };
   }
@@ -291,7 +291,7 @@ const deployDbs = async () => {
         RABBITMQ_DEFAULT_VHOST: configs.rabbitmq.vhost,
       },
       ports: [`${RABBITMQ_PORT}:5672`, '15672:15672'],
-      networks: ['erxesdb'],
+      networks: ['erxes'],
       volumes: ['./rabbitmq-data:/var/lib/rabbitmq'],
     };
   }
