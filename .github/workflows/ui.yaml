@@ -52,7 +52,7 @@ jobs:
           node port: 9300
           discovery type: 'single-node'
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js 12.19.x
         uses: actions/setup-node@v1
