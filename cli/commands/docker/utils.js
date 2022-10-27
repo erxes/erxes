@@ -23,7 +23,7 @@ const commonEnvs = configs => {
   const rabbitmq = configs.rabbitmq || {};
   const rabbitmq_host = `amqp://${rabbitmq.user}:${
     rabbitmq.pass
-  }@${rabbitmq.server_address || db_server_address || '127.0.0.1'}:${RABBITMQ_PORT}/${
+  }@${rabbitmq.server_address || db_server_address || 'rabbitmq'}:${db_server_address ? RABBITMQ_PORT : 5672}/${
     rabbitmq.vhost
   }`;
 
@@ -33,11 +33,11 @@ const commonEnvs = configs => {
     NODE_ENV: 'production',
     DOMAIN: configs.domain,
     WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
-    REDIS_HOST: db_server_address || '127.0.0.1',
-    REDIS_PORT,
+    REDIS_HOST: db_server_address || 'redis',
+    REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || '',
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `${db_server_address}:9200`,
+    ELASTICSEARCH_URL: `${db_server_address || 'elasticsearch'}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
     MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
   };
@@ -62,7 +62,7 @@ const mongoEnv = (configs, plugin) => {
     db_name = plugin.db_name;
   }
 
-  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address}:${MONGO_PORT}/${db_name}?authSource=admin&replicaSet=rs0`;
+  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address || 'mongo'}:${db_server_address ? MONGO_PORT : 27017}/${db_name}?authSource=admin&replicaSet=rs0`;
 
   return mongo_url;
 };
