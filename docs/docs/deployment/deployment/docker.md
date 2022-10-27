@@ -259,6 +259,8 @@ add
 in configs.json
 
 
+Then run
+
 ```
 npm run erxes up -- --uis
 ```
