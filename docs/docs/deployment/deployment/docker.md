@@ -93,210 +93,205 @@ While `Install.sh` is running, the field to insert erxes data will show up.
 4. Type the domain to the field says "Please enter your domain (localhost)".
 
 ```
-Example: erxes-test.com
+Example: https://erxes-test.com
 ```
-
-5. Insert your hostname on Rabbitmq host (optional).
-
-```
-Example: erxes
-```
-
-6. Insert the hostname on Redis host (optional) as well.
-
-```
-Example: erxes
-```
-
-7. Here you have your erxes project successfully installed, then go to your erxes directory with the foloowing command.
 
 ```
 cd erxes
 ```
 
-:::note
-
-See the latest version of npm erxes here https://www.npmjs.com/package/erxes
-
-:::
-
-8. Copy the text below instead of configs.json
+5. Fill db_server_address value of configs.json with your server address
 
 ```
-{
-   "jwt_token_secret": "strong_token",
-   "domain": "https://example.com",
-   "elasticsearch": {},
-   "redis": {
-       "password": "strongest_password"
-   },
-   "mongo": {
-       "username": "mongo_user",
-       "password": "strongest_password"
-   },
-   "rabbitmq": {
-       "cookie": "strongest_value",
-       "user": "rabbitmq_user",
-       "pass": "strongest_password",
-       "vhost": "rabbitmq_host"
-   },
-   "plugins": [
-       {  "name": "contacts" },
-       {  "name": "inbox" },
-       {  "name": "tags"  },
-       {  "name": "cards" },
-       {  "name": "segments" },
-       {  "name": "integrations" }
-   ]
-}
-
-
+"db_server_address": <server_address>,
 ```
 
-9. This command installs a package, and any packages that it depends on.
+6. Choose deployment method
 
-```
-npm install
-```
-
-10. Provide docker permission to your user.
-
-```
-su
-usermod -aG docker erxes
-su - erxes
-
-```
-
-11. Go back to your erxes directory with the following command.
-
-```
-cd erxes
-```
-
-12. Run the following command in your erxes directory.
+If you want to use docker swarm (default preferred method) run
 
 ```
 docker swarm init
 ```
 
-:::note
-Please note that the following actions can be done once you fully run your Database containers.
+Or if you want to use docker-compose create ```.env``` file with following content
 
-:::
+```
+DEPLOYMENT_METHOD=docker-compose
+```
 
-17. Run the following to start database containers
+7. Start databases
 
 ```
 sudo npm run erxes deploy-dbs
 ```
 
-18. Run the following to start application containers
+8. Check and initiate mongodb
 
 ```
-sudo npm run erxes up
+docker ps -a | grep mongo
 ```
 
-19. See the generated docker services using the command below.
-
 ```
-docker service ls
+docker exec -it <mongo container name> bash
 ```
 
-20. Use the command below to view the finished docker containers
-
 ```
-docker ps -a
+mongo -u erxes -p <auto generated password in configs.json>
 ```
 
-21. Copying below line code from docker-compose.yml
-
 ```
-mongodb://username:password/erxes?authSource=admin
-```
-
-22. Copying this container url by using docker ps -a command
-
-```
-erxes-dbs_mongo.1.value bash
-```
-
-23. The mongo database must be started with a replica set.
-    Use the following command to access the mongo database running docker container:
-
-```
-docker exec -it erxes-dbs_mongo.1.value bash
-```
-
-24. Login using the mongo url generated in the docker-compose.yml file. Copying below line code from docker-compose.yml
-
-```
-mongo "mongodb://username:password/erxes?authSource=admin"
-```
-
-25. After trying running following command
-
-```
-rs.initiate()
+rs.initiate();
 ```
 
 Many times, it becomes "RS0: primary".
 These commands are given as a replica set, and when done correctly, the mongo shell changes to "RS0: primary".
 
-26. After completing the configuration on the mongo database, delete and restart the services through the docker network. First, do the database services.
+Quit from mongo
+```
+exit
+```
 
 ```
-docker stack rm erxes
-docker stack rm erxes-dbs
-npm run erxes deploy-dbs
-npm run erxes up
-npm run erxes up – –uis
+exit
+```
+
+9. Start application containers
+
+```
+sudo npm run erxes up
 ```
 
 :::note
 
-Containers are generated one by one, so wait until they finish reading.
+Containers are generated one by one, so wait until they finish reading. Meanwhile check for the status using
+
+```
+docker ps -a
+```
+
+Wait until gateway container status becomes healthy
 :::
 
-27. Check the log file in the erxes_gateway container to make sure the services are working properly.
+10. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
 
 ```
-docker logs -f erxes_gateway.1.value
+sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
 ```
 
-If "plugin_name has no address value" is displayed, it is not connected to the database.
-
-28. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
-
-```
-sudo mv nginx.conf /etc/nginx/sites-enabled/
-```
-
-29. Go to /etc/nginx/sites-enabled.
+11. Go to /etc/nginx/sites-enabled.
 
 ```
 cd /etc/nginx/sites-enabled
 ```
 
-30. Configure your nginx.
+12. Configure your nginx.
 
 ```
 sudo nginx -t
 ```
 
-31. Restart your Nginx.
+13. Restart your Nginx.
 
 ```
 sudo service nginx restart
 ```
 
-32. Configure your Free Ssl.
+14. Configure your Free Ssl.
 
 ```
 sudo certbot –nginx -d domain_name
 ```
 
-33. Insert your registered email address.
-34. Please choose redirect option.
+15. Insert your registered email address.
+16. Please choose redirect option.
 
 Try typing your domain on your browser to see if it's working.
+
+### Adding new plugins
+Update plugins section of the configs.json file
+
+```
+"plugins": [
+        {
+            "name": "products"
+        },
+        {
+            "name": "logs"
+        },
+        {
+            "name": "engages"
+        },
+        {
+            "name": "webbuilder"
+        },
+        {
+            "name": "segments"
+        },
+        {
+            "name": "tags"
+        },
+        {
+            "name": "emailtemplates"
+        },
+        {
+            "name": "internalnotes"
+        },
+        {
+            "name": "forms"
+        },
+        {
+            "name": "contacts"
+        },
+        {
+            "name": "inbox"
+        },
+        {
+            "name": "cards"
+        },
+        {
+            "name": "knowledgebase"
+        }
+    ]
+```
+
+```
+npm run erxes up
+```
+
+With docker-compose
+
+```
+docker-compose down
+```
+
+```
+docker-compose up -d
+```
+
+### Overriding default ports
+
+Update the .env file with following values
+
+```
+GATEWAY_PORT=3300
+UI_PORT=3000
+MONGO_PORT=27017
+REDIS_PORT=6379
+RABBITMQ_PORT=5672
+```
+
+### Removing containers
+
+With docker swarm
+
+```
+docker stack ls
+docker stack rm erxes
+```
+
+With docker-compose
+
+```
+docker-compose -f docker-compose.yml down
+```
