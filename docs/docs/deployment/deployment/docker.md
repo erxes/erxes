@@ -265,6 +265,10 @@ Then run
 npm run erxes up -- --uis
 ```
 
+```
+npm run erxes restart gateway
+```
+
 With docker-compose
 
 ```
