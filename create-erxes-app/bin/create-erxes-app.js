@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
+const generator = require('generate-password');
 const { resolve, join } = require("path");
 const { createInterface } = require("readline");
 
@@ -13,6 +14,11 @@ const execa = require("execa");
 const packageJson = require("../package.json");
 
 const program = new commander.Command(packageJson.name);
+
+const generatePass = () => generator.generate({
+	length: 10,
+	numbers: true
+});
 
 let projectName;
 
@@ -91,23 +97,22 @@ const generate = async () => {
   }
 
   const configs = {
-    jwt_token_secret: Math.random().toString(),
+    jwt_token_secret: generatePass(),
     image_tag: "dev",
     db_server_address: "",
     domain,
     main_api_domain: `${domain}/gateway`,
-    elasticsearch: {},
     redis: {
-      password: "",
+      password: generatePass(),
     },
     mongo: {
-      username: "",
-      password: "",
+      username: "erxes",
+      password: generatePass(),
     },
     rabbitmq: {
       cookie: "",
-      user: "",
-      pass: "",
+      user: "erxes",
+      pass: generatePass(),
       vhost: "",
     },
     plugins: [
@@ -136,7 +141,7 @@ const generate = async () => {
         "amqplib": "^0.8.0",
         "create-erxes-app": "0.0.28",
         "dup": "^1.0.0",
-        "erxes": "^0.3.53",
+        "erxes": "^0.3.58",
         "ip": "^1.1.5",
         "up": "^1.0.2"
       },
