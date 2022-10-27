@@ -44,7 +44,7 @@ router.get('/gateway', async (req, res) => {
     title: 'Payment gateway',
     payments,
     invoiceData: data,
-    domain: process.env.domain || 'http://localhost:3000',
+    domain: process.env.DOMAIN || 'http://localhost:3000',
     prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });
