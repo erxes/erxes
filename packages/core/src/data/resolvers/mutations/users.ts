@@ -80,7 +80,7 @@ const userMutations = {
       lastName?: string;
       subscribeEmail?: boolean;
     },
-    { user, subdomain, models }: IContext
+    { models }: IContext
   ) {
     const userCount = await models.Users.countDocuments();
 
@@ -97,9 +97,7 @@ const userMutations = {
       }
     };
 
-    const newUser = await models.Users.createUser(doc);
-
-    console.log('111111111111', newUser);
+    await models.Users.createUser(doc);
 
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
@@ -114,28 +112,10 @@ const userMutations = {
       });
     }
 
-    console.log('2222222222222');
-
     await models.Configs.createOrUpdateConfig({
       code: 'UPLOAD_SERVICE_TYPE',
       value: 'local'
     });
-
-    console.log('33333333333333');
-
-    await putCreateLog(
-      models,
-      subdomain,
-      {
-        type: 'user',
-        description: 'create user',
-        object: newUser,
-        newData: doc
-      },
-      user
-    );
-
-    console.log('4444444444');
 
     return 'success';
   },
