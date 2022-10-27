@@ -13,7 +13,7 @@ jobs:
   build_base_docker_image:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Build base docker image
       env:
         BASE_IMAGE: node:12.19.1-slim
