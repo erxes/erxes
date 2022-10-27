@@ -21,8 +21,9 @@ const mutations = {
       identifier: makeInvoiceNo(32)
     });
 
-    const MAIN_API_DOMAIN =
-      process.env.MAIN_API_DOMAIN || 'http://localhost:4000';
+    const MAIN_API_DOMAIN = process.env.DOMAIN
+      ? `${process.env.DOMAIN}/gateway`
+      : 'http://localhost:4000';
 
     const base64 = Buffer.from(
       JSON.stringify({ _id: invoice._id, ...params })
