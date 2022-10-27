@@ -168,8 +168,6 @@ sudo chmod +x /usr/local/bin/docker-compose
 echo -e "\e[1mStep 1 $now : Installing nodejs \e[0m"
 #new directory
 sudo apt-get install nodejs -y
-echo -e "\e[1mStep 1 $now : Installing awscli \e[0m"
-sudo apt-get install awscli -y
 echo -e "\e[1mStep 1 $now : Installing npm \e[0m"
 sudo apt install npm -y
 sudo npm install -g create-erxes-app -y
