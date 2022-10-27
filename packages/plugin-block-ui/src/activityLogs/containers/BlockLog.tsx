@@ -11,7 +11,7 @@ import { withProps } from '@erxes/ui/src/utils';
 import { InvestmentsQueryResponse } from '../../types';
 
 type Props = {
-  erxesCustomerId: string;
+  contentId: string;
   packageId: string;
   amount: number;
   activity: IActivityLogItemProps;
@@ -35,8 +35,15 @@ const BlockLogContainer = (props: FinalProps) => {
 
 export default withProps<Props>(
   compose(
-    graphql<Props, InvestmentsQueryResponse>(gql(queries.investments), {
-      name: 'investmentsQuery'
-    })
+    graphql<Props, InvestmentsQueryResponse, { erxesCustomerId: string }>(
+      gql(queries.investments),
+      {
+        name: 'investmentsQuery',
+        options: ({ contentId }) => ({
+          fetchPolicy: 'network-only',
+          variables: { erxesCustomerId: contentId }
+        })
+      }
+    )
   )(BlockLogContainer)
 );

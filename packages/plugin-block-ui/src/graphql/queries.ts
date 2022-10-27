@@ -65,7 +65,7 @@ export const investments = `
       modifiedAt
       amount
 
-      package { name }
+      package { _id, name }
     }
   }
 `;
