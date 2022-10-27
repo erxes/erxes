@@ -117,17 +117,6 @@ const userMutations = {
       value: 'local'
     });
 
-    await sendIntegrationsMessage({
-      subdomain,
-      action: 'notification',
-      data: {
-        type: 'addUserId',
-        payload: {
-          _id: newUser._id
-        }
-      }
-    });
-
     await putCreateLog(
       models,
       subdomain,
