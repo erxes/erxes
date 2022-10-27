@@ -99,6 +99,8 @@ const userMutations = {
 
     const newUser = await models.Users.createUser(doc);
 
+    console.log('111111111111', newUser);
+
     if (subscribeEmail && process.env.NODE_ENV === 'production') {
       await sendRequest({
         url: 'https://erxes.io/subscribe',
@@ -112,10 +114,14 @@ const userMutations = {
       });
     }
 
+    console.log('2222222222222');
+
     await models.Configs.createOrUpdateConfig({
       code: 'UPLOAD_SERVICE_TYPE',
       value: 'local'
     });
+
+    console.log('33333333333333');
 
     await putCreateLog(
       models,
@@ -128,6 +134,8 @@ const userMutations = {
       },
       user
     );
+
+    console.log('4444444444');
 
     return 'success';
   },
