@@ -6,7 +6,11 @@ sidebar_label: 'System configuration'
 
 System Configuration is the place where you set up your general configurations of your erxes XOS, such as email settings, language, files to be attached, etc.
 
+:::tip
+
 When you join erxes, all basic settings required by an average company have been pre-configured. Feel free to check if they meet your business requirements. However, If you need more than what's available, please contact our customer service team for additional support.
+
+:::
 
 The System Configuration has the following fields:
 
@@ -28,7 +32,7 @@ The System Configuration has the following fields:
 <img src="https://erxes-docs.s3.us-west-2.amazonaws.com/Navigate+general+settings.png" width="80%" alt="navigate general setting" ></img>
 </div>
 
-3. General settings
+2. General settings
 
 - **Language** - Select the language used in the erxes XOS
 - **Currency** - Select the currency used for Product & Services and Sales Pipeline plugins.
