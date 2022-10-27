@@ -41,21 +41,7 @@ export const loadRiskConfirmity = (model: IModels, subdomain: string) => {
     public static async riskConfirmityDetails(params: IRiskConfirmityParams) {
       const filter = generateFilter(params);
 
-      const result = await model.RiskConfimity.aggregate([
-        { $match: filter },
-        {
-          $lookup: {
-            from: 'risk_assessments',
-            localField: 'riskAssessmentId',
-            foreignField: '_id',
-            as: 'risk_assessment'
-          }
-        },
-        { $unwind: '$risk_assessment' },
-        { $project: { _id: 0, createdAt: 0, cardId: 0, riskAssessmentId: 0, __v: 0 } },
-        { $replaceWith: { $mergeObjects: ['$$ROOT', '$risk_assessment'] } },
-        { $project: { risk_assessment: 0 } }
-      ]);
+      const result = await model.RiskConfimity.find(filter);
 
       return result;
     }

@@ -93,7 +93,10 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
       riskAssessmentId: item[0]._id
     };
 
-    if (confirmityDetail.riskConfirmityDetails.length > 0) {
+    if (
+      confirmityDetail.riskConfirmityDetails &&
+      confirmityDetail.riskConfirmityDetails.length > 0
+    ) {
       return editconfirmity({ variables })
         .then(() => {
           refetch();
@@ -128,10 +131,13 @@ class RiskAssessmentForm extends React.Component<FinalProps, State> {
 
     const list = riskAssessmentsQuery.riskAssessments?.list || [];
 
-    const selectedItems = confirmityDetail.riskConfirmityDetails || [];
+    const selectedItems: any[] = [];
 
     if (riskAssessmentsQuery.loading || confirmityDetail.loading) {
       return <Spinner objective />;
+    }
+    for (const detail of confirmityDetail?.riskConfirmityDetails) {
+      selectedItems.push(detail.riskAssessment);
     }
 
     return (

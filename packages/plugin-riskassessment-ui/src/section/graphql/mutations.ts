@@ -13,7 +13,6 @@ const editConfimityRiskAssessment = `
       _id
       cardId
       cardType
-      name
       riskAssessmentId
     }
   }

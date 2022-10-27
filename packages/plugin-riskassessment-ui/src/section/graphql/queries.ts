@@ -21,7 +21,10 @@ const riskConfirmities = `
 const riskConfimityDetails = `
   query RiskConfirmityDetails($cardId: String) {
     riskConfirmityDetails(cardId: $cardId){
-      ${riskConfirmityParams}
+      _id
+      cardId
+      riskAssessmentId
+      riskAssessment
     } 
   }`;
 
