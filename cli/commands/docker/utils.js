@@ -23,7 +23,7 @@ const commonEnvs = configs => {
   const rabbitmq = configs.rabbitmq || {};
   const rabbitmq_host = `amqp://${rabbitmq.user}:${
     rabbitmq.pass
-  }@${rabbitmq.server_address || db_server_address}:${RABBITMQ_PORT}/${
+  }@${rabbitmq.server_address || db_server_address || '127.0.0.1'}:${RABBITMQ_PORT}/${
     rabbitmq.vhost
   }`;
 
@@ -33,7 +33,7 @@ const commonEnvs = configs => {
     NODE_ENV: 'production',
     DOMAIN: configs.domain,
     WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
-    REDIS_HOST: db_server_address,
+    REDIS_HOST: db_server_address || '127.0.0.1',
     REDIS_PORT,
     REDIS_PASSWORD: redis.password || '',
     RABBITMQ_HOST: rabbitmq_host,
