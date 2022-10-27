@@ -5,6 +5,7 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels, models } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
+import { debugInfo } from '@erxes/api-utils/src/debuggers';
 
 export let mainDb;
 export let debug;
@@ -39,6 +40,9 @@ export default {
     app.post(
       '/tdb-receive',
       routeErrorHandling(async (req, res) => {
+        debugInfo(`tdb-recieve: `);
+        console.log(JSON.stringify(req));
+
         const body = JSON.stringify(req.body);
 
         const subdomain = getSubdomain(req);
