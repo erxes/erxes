@@ -47,14 +47,12 @@ class ActivityItem extends React.Component<Props> {
 
     const amount = activity.content ? activity.content.amount : [];
 
-    const erxesCustomerId = contentId;
-
     switch ((action && action) || type) {
       case 'invest':
         return this.renderDetail(
           'invest',
           <BlockLog
-            erxesCustomerId={erxesCustomerId}
+            contentId={contentId}
             packageId={packageId}
             amount={amount}
             activity={activity}
