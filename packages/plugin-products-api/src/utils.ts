@@ -260,13 +260,13 @@ export class Builder {
       status: { $in: [null, 'active'] }
     });
 
-    const product_category_ids = await this.models.ProductCategories.find(
+    const categoryIds = await this.models.ProductCategories.find(
       { order: { $regex: new RegExp(category.order) } },
       { _id: 1 }
     );
 
     this.positiveList.push({
-      terms: { 'categoryId.keyword': product_category_ids }
+      terms: { categoryId: categoryIds }
     });
   }
 
