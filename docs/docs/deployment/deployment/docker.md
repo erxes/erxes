@@ -179,32 +179,26 @@ Wait until gateway container status becomes healthy
 sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
 ```
 
-11. Go to /etc/nginx/sites-enabled.
-
-```
-cd /etc/nginx/sites-enabled
-```
-
-12. Configure your nginx.
+11. Configure your nginx.
 
 ```
 sudo nginx -t
 ```
 
-13. Restart your Nginx.
+12. Restart your Nginx.
 
 ```
 sudo service nginx restart
 ```
 
-14. Configure your Free Ssl.
+13. Configure your Free Ssl.
 
 ```
-sudo certbot –nginx -d domain_name
+sudo certbot --nginx
 ```
 
-15. Insert your registered email address.
-16. Please choose redirect option.
+14. Insert your registered email address.
+15. Please choose redirect option.
 
 Try typing your domain on your browser to see if it's working.
 
@@ -254,6 +248,16 @@ Update plugins section of the configs.json file
         }
     ]
 ```
+
+To run inbox with widgets (web messenger, forms)
+add 
+
+```
+    "widgets": {}
+```
+
+in configs.json
+
 
 ```
 npm run erxes up
