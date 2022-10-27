@@ -61,6 +61,33 @@ const facebookGetAccounts = `
   }
 `;
 
+const facebookConversationMessages = `
+  query facebookConversationMessages(
+    $conversationId: String!
+    $skip: Int
+    $limit: Int
+    $getFirst: Boolean
+  ) {
+    facebookConversationMessages(
+      conversationId: $conversationId,
+      skip: $skip,
+      limit: $limit,
+      getFirst: $getFirst
+    ) {
+      _id
+      content
+      conversationId
+      fromBot
+      botData
+      customerId
+      userId
+      createdAt
+      isCustomerRead
+      mid
+    }
+  }
+`;
+
 export default {
   facebookGetConfigs,
   facebookGetIntegrations,
@@ -68,5 +95,6 @@ export default {
   facebookGetComments,
   facebookGetCommentCount,
   facebookGetPages,
-  facebookGetAccounts
+  facebookGetAccounts,
+  facebookConversationMessages
 };

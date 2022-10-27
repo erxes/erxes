@@ -1,4 +1,8 @@
-export const types = `  
+import { attachmentType } from '@erxes/api-utils/src/commonTypeDefs';
+
+export const types = `
+  ${attachmentType}
+
   extend type Customer @key(fields: "_id") {
     _id: String! @external
   }
@@ -19,6 +23,20 @@ export const types = `
     commentCount: Int
     isResolved: Boolean
   }
+
+  type FacebookConversationMessage {
+    _id: String!
+    content: String
+    attachments: [Attachment]
+    conversationId: String
+    fromBot: Boolean
+    botData: JSON
+    customerId: String
+    userId: String
+    createdAt: Date
+    isCustomerRead: Boolean
+    mid: String
+  }
 `;
 
 export const queries = `
@@ -36,6 +54,13 @@ export const queries = `
   ): [FacebookComment]
   facebookGetCommentCount(postId: String! isResolved: Boolean): JSON
   facebookGetPages(accountId: String! kind: String!): JSON
+  facebookConversationDetail(_id: String!): JSON
+  facebookConversationMessages(
+    conversationId: String!
+    skip: Int
+    limit: Int
+    getFirst: Boolean
+  ): [FacebookConversationMessage]
 `;
 
 export const mutations = `

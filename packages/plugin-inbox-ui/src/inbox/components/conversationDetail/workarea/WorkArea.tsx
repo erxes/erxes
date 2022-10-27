@@ -290,7 +290,6 @@ export default class WorkArea extends React.Component<Props, State> {
     if (
       ![
         'messenger',
-        'facebook-messenger',
         'facebook-post',
         'lead',
         'booking',

@@ -1,4 +1,5 @@
 import { IContext } from '../../connectionResolver';
+import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
 import { getPageList } from '../../utils';
 
 interface IKind {
@@ -16,6 +17,13 @@ interface ICommentsParams {
   senderId: string;
   skip?: number;
   limit?: number;
+}
+
+interface IMessagesParams {
+  conversationId: string;
+  skip?: number;
+  limit?: number;
+  getFirst?: boolean;
 }
 
 const integrationQueries = {
@@ -164,6 +172,50 @@ const integrationQueries = {
     }
 
     return pages;
+  },
+
+  facebookConversationDetail(
+    _root,
+    { _id }: { _id: string },
+    { models }: IContext
+  ) {
+    return models.Conversations.findOne({ _id });
+  },
+
+  async facebookConversationMessages(
+    _root,
+    args: IMessagesParams,
+    { models }: IContext
+  ) {
+    const { conversationId, limit, skip, getFirst } = args;
+
+    let messages: IConversationMessageDocument[] = [];
+    const query = { conversationId: '' };
+
+    const conversation = await models.Conversations.findOne({
+      erxesApiId: conversationId
+    });
+
+    if (conversation) {
+      query.conversationId = conversation._id;
+    }
+
+    if (limit) {
+      const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
+
+      messages = await models.ConversationMessages.find(query)
+        .sort(sort)
+        .skip(skip || 0)
+        .limit(limit);
+
+      return getFirst ? messages : messages.reverse();
+    }
+
+    messages = await models.ConversationMessages.find(query)
+      .sort({ createdAt: -1 })
+      .limit(50);
+
+    return messages.reverse();
   }
 };
 
