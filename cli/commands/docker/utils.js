@@ -77,11 +77,11 @@ const generatePluginBlock = (configs, plugin) => {
   const image_tag = plugin.image_tag || configs.image_tag || 'federation';
   const registry = plugin.registry ? `${plugin.registry}/` : '';
 
-  const extra_hosts = [
-    `mongo:${plugin.db_server_address ||
-      configs.db_server_address ||
-      '127.0.0.1'}`,
-  ];
+  const extra_hosts = [];
+
+  if (plugin.db_server_address || configs.db_server_address) {
+    extra_hosts.push(`mongo:${plugin.db_server_address || configs.db_server_address || '127.0.0.1'}`);
+  }
 
   if (configs.secondary_db_server_address) {
     extra_hosts.push(`mongo-secondary:${configs.secondary_db_server_address}`);
@@ -334,7 +334,12 @@ const up = async ({ uis, fromInstaller }) => {
   const secondary_db_server_address = configs.secondary_db_server_address;
 
   const NGINX_HOST = domain.replace('https://', '');
-  const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];
+
+  const extra_hosts = [];
+
+  if (db_server_address) {
+    extra_hosts.push(`mongo:${db_server_address || '127.0.0.1'}`);
+  }
 
   if (secondary_db_server_address) {
     extra_hosts.push(`mongo-secondary:${secondary_db_server_address}`);
