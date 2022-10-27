@@ -394,6 +394,33 @@ docker-compose down
 docker-compose up -d
 ```
 
+### Running elasticsearch
+
+```
+cd erxes
+```
+
+Add following lines to configs.json
+
+```
+"essyncer": {},
+"elasticsearch" : {},
+```
+
+Run
+
+```
+mkdir elasticsearchData && sudo chown -R 1000:1000 elasticsearchData
+```
+
+```
+npm run erxes deploy-dbs
+```
+
+```
+npm run erxes up
+```
+
 ### Overriding default ports
 
 Update the .env file with following values
