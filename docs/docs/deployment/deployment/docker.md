@@ -100,18 +100,18 @@ Example: https://erxes-test.com
 cd erxes
 ```
 
-5. Fill db_server_address value of configs.json with your server address
-
-```
-"db_server_address": <server_address>,
-```
-
-6. Choose deployment method
+5. Choose deployment method
 
 If you want to use docker swarm (default preferred method) run
 
 ```
 docker swarm init
+```
+
+Fill db_server_address value of configs.json with your server address
+
+```
+"db_server_address": <server_address>,
 ```
 
 Or if you want to use docker-compose create ```.env``` file with following content
@@ -120,13 +120,13 @@ Or if you want to use docker-compose create ```.env``` file with following conte
 DEPLOYMENT_METHOD=docker-compose
 ```
 
-7. Start databases
+6. Start databases
 
 ```
 sudo npm run erxes deploy-dbs
 ```
 
-8. Check and initiate mongodb
+7. Check and initiate mongodb
 
 ```
 docker ps -a | grep mongo
@@ -156,7 +156,7 @@ exit
 exit
 ```
 
-9. Start application containers
+8. Start application containers
 
 ```
 npm run erxes up -- --uis
@@ -173,32 +173,32 @@ docker ps -a
 Wait until gateway container status becomes healthy
 :::
 
-10. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
+9. nginx .conf - ийг /etc/nginx/sites-enabled/ руу move хийх
 
 ```
 sudo mv nginx.conf /etc/nginx/sites-enabled/erxes.conf
 ```
 
-11. Configure your nginx.
+10. Configure your nginx.
 
 ```
 sudo nginx -t
 ```
 
-12. Restart your Nginx.
+11. Restart your Nginx.
 
 ```
 sudo service nginx restart
 ```
 
-13. Configure your Free Ssl.
+12. Configure your Free Ssl.
 
 ```
 sudo certbot --nginx
 ```
 
-14. Insert your registered email address.
-15. Please choose redirect option.
+13. Insert your registered email address.
+14. Please choose redirect option.
 
 Try typing your domain on your browser to see if it's working.
 
