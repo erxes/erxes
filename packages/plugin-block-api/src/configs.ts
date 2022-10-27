@@ -41,7 +41,8 @@ export default {
       '/tdb-receive',
       routeErrorHandling(async (req, res) => {
         debugInfo(`tdb-recieve: `);
-        console.log(JSON.stringify(req));
+        console.log('tdb-recieve');
+        console.log(JSON.stringify(req.body));
 
         const body = JSON.stringify(req.body);
 
