@@ -46,15 +46,17 @@ const ContentBox = styled.div`
   margin: 0 auto;
 `;
 
-const ProductBarcodeContent = styledTS<{ isValid?: boolean }>(styled.a)`
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  
-  color: ${props =>
-    props.isValid ? colors.colorCoreGreen : colors.colorCoreGray} !important;
+const ProductBarcodeContent = styledTS<{ isValid?: boolean }>(styled.div)`
+  a {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    
+    color: ${props =>
+      props.isValid ? colors.colorCoreGreen : colors.colorCoreGray} !important;
+  }
 
-  &:hover {
+  a:hover {
     color: ${props =>
       props.isValid ? colors.colorCoreGreen : lighten(colors.textPrimary, 40)};
   }

@@ -57,15 +57,14 @@ class BasicInfo extends React.Component<Props> {
         <li>
           <FieldStyle>{__(`Barcodes`)}</FieldStyle>
         </li>
-        {(barcodes || []).map(item => (
-          <ProductBarcodeContent
-            isValid={isValidBarcode(item)}
-            href={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon icon="print" />
-            {item}
+        {(barcodes || []).map((item: string, iteration: number) => (
+          <ProductBarcodeContent key={iteration} isValid={isValidBarcode(item)}>
+            <Link
+              to={`/settings/barcode-generator/${this.props.product._id}?barcode=${item}`}
+            >
+              <Icon icon="print" />
+              {item}
+            </Link>
           </ProductBarcodeContent>
         ))}
       </>
