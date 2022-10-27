@@ -321,7 +321,7 @@ const up = async ({ uis, fromInstaller }) => {
   const widgets_domain = widgets.domain || `${domain}/widgets`;
   const dashboard_domain = `${domain}/dashboard/api`;
   const db_server_address = configs.db_server_address;
-  const secondary_db_server_address = configs.db_server_address;
+  const secondary_db_server_address = configs.secondary_db_server_address;
 
   const NGINX_HOST = domain.replace('https://', '');
   const extra_hosts = [`mongo:${db_server_address || '127.0.0.1'}`];

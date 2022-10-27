@@ -51,7 +51,7 @@ const blockMutations = {
       isRPC: true
     });
 
-    const body = `Та амжилттай ${amount} төгрөгийн хөрөнгө оруулалт хийлээ.`;
+    const body = `Та ${amount} төгрөгийн хөрөнгө оруулалт амжилттай хийлээ.`;
 
     await sendSms(subdomain, customer.primaryPhone, body);
 
