@@ -14,10 +14,11 @@ import { BarcodeConfig, IProduct } from '../../types';
 type Props = {
   barcode: string;
   product: IProduct;
+  loading: boolean;
 };
 
 const BarcodeGenerator = (props: Props) => {
-  const { barcode, product } = props;
+  const { barcode, product, loading } = props;
 
   const configStored: BarcodeConfig = JSON.parse(
     localStorage.getItem('erxes_product_barcodeGenerator_config') ||
@@ -141,20 +142,16 @@ const BarcodeGenerator = (props: Props) => {
     }
   };
 
-  const content = (
-    <iframe
-      id="ifmcontentstoprint"
-      style={{
-        width: '100%',
-        height: '100%',
-        border: 'none',
-        outline: 'none',
-        backgroundColor: '#F0F0F0'
-      }}
-    />
-  );
+  const title = product ? product.name : 'Unknown';
 
-  return (
+  const breadcrumb = [
+    { title: __('Settings'), link: '/settings' },
+    { title: __('Product & Service'), link: '/settings/product-service' },
+    { title, link: `/settings/product-service/details/${product._id}` },
+    { title: __('Barcode Generator') }
+  ];
+
+  const content = (
     <>
       <BarcodeContentWrapper id="barcodePrintable">
         <div id="barcode">
@@ -170,17 +167,31 @@ const BarcodeGenerator = (props: Props) => {
           <QRCode value={barcode} size={config.qrSize} />
         </div>
       </BarcodeContentWrapper>
-      <Wrapper
-        leftSidebar={
-          <LeftSidebar
-            config={config}
-            handleChangeConfig={handleChangeConfig}
-            handlePrint={handlePrint}
-          />
-        }
-        content={content}
+      <iframe
+        id="ifmcontentstoprint"
+        style={{
+          width: '100%',
+          height: '100%',
+          border: 'none',
+          outline: 'none',
+          backgroundColor: '#F0F0F0'
+        }}
       />
     </>
+  );
+
+  return (
+    <Wrapper
+      header={<Wrapper.Header title={title} breadcrumb={breadcrumb} />}
+      leftSidebar={
+        <LeftSidebar
+          config={config}
+          handleChangeConfig={handleChangeConfig}
+          handlePrint={handlePrint}
+        />
+      }
+      content={content}
+    />
   );
 };
 
