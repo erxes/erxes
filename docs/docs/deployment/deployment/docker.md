@@ -159,7 +159,7 @@ exit
 9. Start application containers
 
 ```
-sudo npm run erxes up
+npm run erxes up -- --uis
 ```
 
 :::note
@@ -260,7 +260,7 @@ in configs.json
 
 
 ```
-npm run erxes up
+npm run erxes up -- --uis
 ```
 
 With docker-compose
