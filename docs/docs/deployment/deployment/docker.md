@@ -8,28 +8,134 @@ The following documentation will guide you through the installation of an erxes 
 
 Docker is an open platform that allows to develop, ship and run applications by using containers (i.e. packages containing all the parts an application needs to function, such as libraries and dependencies).
 
-## Preparing the installation
+## First steps: Setting up a server with Ubuntu 22.10
 
----
+You must have an account with your hosting provider prior to doing these steps.
 
-erxes installation requires at least four software prerequisites to be already installed on your computer:
+- Choose a server size that corresponds with the **minimum** requirements for installing with **Quickstart**:
+  - **Ubuntu 22.10** installed and running
+  - **4 CPU**
+  - **minimum 6GB RAM**
+  - ability to to SSH into the server
+  - If you're using a **subdomain**, then the **subdomain** must be created with your hosting provider hosting your main domain's website or app. The DNS needs to be pointed to your server. (See below)
 
-:::caution
+### Configure your DNS Records to point at your server
 
-Erxes code takes approximately 12GB storage space, make sure you have enough space in your device before going forward.
+Your server will have an **IP address**. You will need to point your domain name to your new server.
+
+- If you are using a **subdomain**, you will need to follow the instructions of updating the `A Records' of the hosting company for your website.
+- If you are NOT using a **subdomain**, then you will need to follow the instructions of your domain name registrar.
+
+:::note Example with a domain called, example.com
+
+If your domain name is **example.com**, and the **IP address** assigned to your server is **44.123.32.12**, then you will have two `A records` that look like this:
+
+| Type | Name            | Value                  |
+| ---- | --------------- | ---------------------- |
+| A    | www.example.com | points to 44.123.32.12 |
+| A    | example.com     | points to 44.123.32.12 |
 
 :::
 
-## Preparing the installation
+:::note Example with a subdomain called, erxes.example.com
 
-### Prerequisites
+You first need to create a subdomain. For example, "erxes.example.com". Then you need to edit the **DNS**.
 
-- **Docker**
-- **<a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04">Docker</a>** (v20.10.14 and higher) The 20.10.14 version is most recommended by erxes. Docker compose (v2.5.0 and higher)
+If your domain name is **erxes.example.com**, and the **IP address** assigned to your server is **44.123.32.12**, then you will have a two `A records` that look like this:
 
-### Installing on server
+| Type | Name                  | Value                  |
+| ---- | --------------------- | ---------------------- |
+| A    | erxes.example.com     | points to 44.123.32.12 |
+| A    | www.erxes.example.com | points to 44.123.32.12 |
 
-1. Create `Install.sh` file and copy the following script in it.
+**Note:** You do not need to create a subdomain called "erxes.example.com", you can use another name of your choice such as "admin.example.com".
+:::
+
+## Log into server as root and create erxes user
+
+Open the terminal or command prompt on your computer. You will need your **IP address**. (In this example, **44.123.32.12**). Type `yes`, when asked if you want to continue connecting.
+
+```bash
+# example ssh root@44.123.32.12
+ssh root@your-ip-address
+```
+
+(**Note**: Some people get an error, **WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!**, please see the solution [here](/installation/ubuntu-troubleshooting).)
+
+You don't want to use the **root** user to administer your server. So everything will be done by a user called, **erxes**. To accomplish this, run the following commands:
+
+Add a user called "erxes". When prompted, enter in a **unique** password. You will need to keep this password available, as later operations will require using it.
+
+```bash
+adduser erxes
+```
+
+(Finish adding the user simply by pressing the `enter` or `return` key through the questions.)
+
+Grant the **erxes** user adminstrative rights.
+
+```bash
+usermod -aG sudo erxes
+```
+## Allow the "erxes" user to **SSH** into server
+
+open the `sshd_config` file to edit
+
+```bash
+nano /etc/ssh/ssh_config
+```
+
+- Scroll down until you see `PasswordAuthentication`. Change it from `PasswordAuthentication no` to `PasswordAuthentication yes`. **NOTE**: Some servers have this line commented out with a `#`, like `# PasswordAuthentication no`. You will need to uncomment it by deleting the `#`.
+
+- The line should look like this:
+
+```bash
+PasswordAuthentication yes
+```
+
+- Save and exit with `ctrl + x` and then `y` to accept the changes.
+
+Reload the SSH config file
+
+```bash
+sudo service ssh restart
+```
+
+Exit from server, so that you can log back in as the **erxes** user
+
+```bash
+exit
+```
+
+You have created a new user called, **erxes** and you set-up a basic firewall to protect your server against malicious attacks.
+
+Please continue with the following steps to log in to your server as the **erxes** user.
+
+## Log in to your server as the "erxes" user.
+
+Before you can log into your new server, we need to **add the SSH key** to your **local** computer.
+
+**NOTE:** You need to use the **IP address** of your server.
+
+- Run the following command and **create a new password**.
+
+```bash
+#ssh-copy-id erxes@44.123.32.12 <--- This is an example. Use your ip address
+ssh-copy-id erxes@your-IP-address
+```
+
+Now you can log into your server as the **erxes** user.
+
+- Log back into the server as the **erxes** user. You will need your IP address. (In this example, **44.123.32.12**). Enter your previously created password, if prompted.
+
+```bash
+# example ssh erxes@44.123.32.12 <--- This is an example. Use your ip address
+ssh erxes@your-ip-address
+```
+
+### Installing prerequisites
+
+1. Create `install.sh` file and copy the following script in it.
 
 ```
 #!/bin/bash
@@ -48,19 +154,17 @@ apt-cache policy docker-ce
 sudo apt install docker-ce -y
 
 echo -e "\e[1mStep 1 $now : Installing certbot \e[0m"
-sudo apt install certbot python3-certbot-nginx
-
-#user config
-#sudo su
-#passwd ubuntu
-#sudo usermod -aG docker ubuntu
-#su - ubuntu
+sudo apt install certbot python3-certbot-nginx -y
 
 #docker-compose install
 echo -e "\e[1mStep 1 $now : Installing docker compose \e[0m"
 sudo apt-get update -y
 sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
+
+sudo usermod -aG docker erxes
+sudo chmod +x /usr/local/bin/docker-compose
+
 echo -e "\e[1mStep 1 $now : Installing nodejs \e[0m"
 #new directory
 sudo apt-get install nodejs -y
@@ -68,29 +172,36 @@ echo -e "\e[1mStep 1 $now : Installing awscli \e[0m"
 sudo apt-get install awscli -y
 echo -e "\e[1mStep 1 $now : Installing npm \e[0m"
 sudo apt install npm -y
-echo -e "\e[1mStep 1 $now : Instert your erxes project\e[0m"
 sudo npm install -g create-erxes-app -y
-create-erxes-app erxes
 ```
 
-2. Run the following command to give a permission to `Install.sh` file.
+2. Run the following command to give a permission to `install.sh` file.
 
 ```
 sudo chmod +x install.sh
 ```
 
-3. Run `Install.sh` file using the following command.
+3. Run `install.sh` file using the following command.
 
 ```
 ./install.sh
 ```
 
-:::caution
+4 After installing relogin using erxes user.
 
-While `Install.sh` is running, the field to insert erxes data will show up.
-:::
+```
+exit
+```
 
-4. Type the domain to the field says "Please enter your domain (localhost)".
+```bash
+ssh erxes@your-ip-address
+```
+
+4. Creating erxes project. Type the domain to the field says "Please enter your domain (localhost)".
+
+```
+create-erxes-app erxes
+```
 
 ```
 Example: https://erxes-test.com
@@ -123,7 +234,7 @@ DEPLOYMENT_METHOD=docker-compose
 6. Start databases
 
 ```
-sudo npm run erxes deploy-dbs
+npm run erxes deploy-dbs
 ```
 
 7. Check and initiate mongodb
@@ -160,6 +271,10 @@ exit
 
 ```
 npm run erxes up -- --uis
+```
+
+```
+npm run erxes restart gateway
 ```
 
 :::note
