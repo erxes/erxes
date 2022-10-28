@@ -21,9 +21,10 @@ const commonEnvs = configs => {
   const widgets = configs.widgets || {};
   const redis = configs.redis || {};
   const rabbitmq = configs.rabbitmq || {};
+
   const rabbitmq_host = `amqp://${rabbitmq.user}:${
     rabbitmq.pass
-  }@${rabbitmq.server_address || db_server_address || 'rabbitmq'}:${db_server_address ? RABBITMQ_PORT : 5672}/${
+  }@${rabbitmq.server_address || db_server_address || (isSwarm ? 'erxes-dbs_rabbitmq' : 'rabbitmq')}:${db_server_address ? RABBITMQ_PORT : 5672}/${
     rabbitmq.vhost
   }`;
 
@@ -33,11 +34,11 @@ const commonEnvs = configs => {
     NODE_ENV: 'production',
     DOMAIN: configs.domain,
     WIDGETS_DOMAIN: widgets.domain || `${configs.domain}/widgets`,
-    REDIS_HOST: db_server_address || 'redis',
+    REDIS_HOST: db_server_address || (isSwarm ? 'erxes-dbs_redis' : 'redis'),
     REDIS_PORT: db_server_address ? REDIS_PORT : 6379,
     REDIS_PASSWORD: redis.password || '',
     RABBITMQ_HOST: rabbitmq_host,
-    ELASTICSEARCH_URL: `${db_server_address || 'elasticsearch'}:9200`,
+    ELASTICSEARCH_URL: `${db_server_address || (isSwarm ? 'erxes-dbs_elasticsearch' : 'elasticsearch')}:9200`,
     ENABLED_SERVICES_PATH: '/data/enabled-services.js',
     MESSAGE_BROKER_PREFIX: rabbitmq.prefix || '',
   };
@@ -62,7 +63,7 @@ const mongoEnv = (configs, plugin) => {
     db_name = plugin.db_name;
   }
 
-  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address || 'mongo'}:${db_server_address ? MONGO_PORT : 27017}/${db_name}?authSource=admin&replicaSet=rs0`;
+  const mongo_url = `mongodb://${mongo.username}:${mongo.password}@${db_server_address || (isSwarm ? 'erxes-dbs_mongo' : 'mongo') }:${db_server_address ? MONGO_PORT : 27017}/${db_name}?authSource=admin&replicaSet=rs0`;
 
   return mongo_url;
 };
@@ -117,11 +118,11 @@ const syncUI = async ({ name, ui_location }) => {
 
   const plName = `plugin-${name}-ui`;
 
-  if (ui_location) {
-    if (!(await fse.exists(filePath(`plugin-uis/${plName}`)))) {
-      await execCommand(`mkdir plugin-uis/${plName}`);
-    }
+  if (!(await fse.exists(filePath(`plugin-uis/${plName}`)))) {
+    await execCommand(`mkdir plugin-uis/${plName}`);
+  }
 
+  if (ui_location) {
     log(`Downloading ${name} ui build.tar from ${ui_location}`);
 
     await execCurl(ui_location, `plugin-uis/${plName}/build.tar`);
@@ -131,18 +132,16 @@ const syncUI = async ({ name, ui_location }) => {
     let s3_location = '';
 
     if (!configs.image_tag) {
-      s3_location = `s3://erxes-plugins/uis/${plName}`;
+      s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
       if (configs.image_tag === 'dev') {
-        s3_location = `s3://erxes-dev-plugins/uis/${plName}`;
+        s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
-        s3_location = `s3://erxes-release-plugins/uis/${plName}/${configs.image_tag}`;
+        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${configs.image_tag}`;
       }
     }
 
-    await execCommand(
-      `aws s3 sync ${s3_location} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
-    );
+    await execCurl(`${s3_location}/build.tar`, `plugin-uis/${plName}/build.tar`);
   }
 
   log(`Extracting build ......`);
@@ -154,6 +153,24 @@ const syncUI = async ({ name, ui_location }) => {
   await execCommand(`rm plugin-uis/${plName}/build.tar`);
 };
 
+const generateNetworks = (configs) => {
+  if (configs.db_server_address) {
+    return {
+      driver: 'overlay'
+    }
+  }
+
+  if (!isSwarm) {
+    return {
+      driver: 'bridge'
+    }
+  }
+
+  return {
+    external: true
+  }
+}
+
 const deployDbs = async () => {
   await cleaning();
 
@@ -162,9 +179,7 @@ const deployDbs = async () => {
   const dockerComposeConfig = {
     version: '3.3',
     networks: {
-      erxes: {
-        driver: isSwarm ? 'overlay' : 'bridge',
-      },
+      erxes: generateNetworks(configs),
     },
     services: {},
   };
@@ -356,9 +371,7 @@ const up = async ({ uis, fromInstaller }) => {
   const dockerComposeConfig = {
     version: '3.7',
     networks: {
-      erxes: {
-        driver: isSwarm ? 'overlay' : 'bridge',
-      },
+      erxes: generateNetworks(configs),
     },
     services: {
       coreui: {
