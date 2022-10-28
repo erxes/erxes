@@ -44,54 +44,63 @@ export default {
         debugInfo(`/tdb/receive': `);
         console.log('/tdb/receive');
         console.log(JSON.stringify(req.body));
-
-        const body = req.body;
-
         const subdomain = getSubdomain(req);
-
         const models = await generateModels(subdomain);
 
-        const customer = await sendContactsMessage({
-          subdomain,
-          action: 'customers.findOne',
-          data: { primaryPhone: body.description },
-          isRPC: true,
-          defaultValue: {}
-        });
+        try {
+          const body = req.body;
 
-        const erxesCustomerId = customer._id;
+          const customer = await sendContactsMessage({
+            subdomain,
+            action: 'customers.findOne',
+            data: { primaryPhone: body.description },
+            isRPC: true,
+            defaultValue: {}
+          });
 
-        if (customer) {
-          const balance = await getBalance(subdomain, erxesCustomerId);
+          const erxesCustomerId = customer._id;
 
-          const newBalance =
-            balance + parseFloat(body.amount.replace(/,/g, ''));
+          if (customer) {
+            const balance = await getBalance(subdomain, erxesCustomerId);
 
-          try {
-            await updateBalance(subdomain, erxesCustomerId, newBalance);
+            const newBalance =
+              balance + parseFloat(body.amount.replace(/,/g, ''));
 
-            await models.Transactions.create({
-              bankStatus: 'success',
-              body: JSON.stringify(req.body)
-            });
+            try {
+              await updateBalance(subdomain, erxesCustomerId, newBalance);
 
-            const msgBody = `Таны ${body.amount} төгрөгийн орлого амжилттай орлоо.`;
+              await models.Transactions.create({
+                bankStatus: 'success',
+                body: JSON.stringify(req.body)
+              });
 
-            await sendSms(subdomain, customer.primaryPhone, msgBody);
-          } catch (e) {
+              const msgBody = `Таны ${body.amount} төгрөгийн орлого амжилттай орлоо.`;
+
+              await sendSms(subdomain, customer.primaryPhone, msgBody);
+
+              return res.json({ response: 'success' });
+            } catch (e) {
+              await models.Transactions.create({
+                bankStatus: 'error',
+                body: JSON.stringify(req.body)
+              });
+              return res.json({ response: 'success' });
+            }
+          } else {
             await models.Transactions.create({
               bankStatus: 'error',
               body: JSON.stringify(req.body)
             });
+            return res.json({ response: 'success' });
           }
-        } else {
+        } catch (e) {
           await models.Transactions.create({
             bankStatus: 'error',
             body: JSON.stringify(req.body)
           });
-        }
 
-        return res.json({ response: 'success' });
+          return res.json({ response: 'success' });
+        }
       })
     );
 
