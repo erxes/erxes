@@ -36,6 +36,7 @@ export interface IConversationMessageAdd {
   internal?: boolean;
   attachments?: any;
   facebookMessageTag?: string;
+  userId?: string;
 }
 
 interface IReplyFacebookComment {
@@ -109,7 +110,8 @@ const sendConversationToServices = async (
             conversationId,
             content: content.replace(/&amp;/g, '&'),
             attachments: doc.attachments || [],
-            tag: facebookMessageTag
+            tag: facebookMessageTag,
+            userId: doc.userId
           })
         }
       });
@@ -388,7 +390,7 @@ const conversationMutations = {
         integrationId,
         conversationId,
         requestName,
-        doc,
+        { ...doc, userId: user._id },
         action
       );
     }
@@ -404,7 +406,7 @@ const conversationMutations = {
         integrationId,
         conversationId,
         requestName,
-        doc,
+        { ...doc, userId: user._id },
         action,
         facebookMessageTag
       );

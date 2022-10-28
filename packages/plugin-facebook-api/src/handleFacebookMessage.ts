@@ -115,12 +115,15 @@ export const handleFacebookMessage = async (models: IModels, msg) => {
           );
 
           if (resp) {
-            localMessage = await models.ConversationMessages.addMessage({
-              ...doc,
-              // inbox conv id comes, so override
-              conversationId: conversation._id,
-              mid: resp.message_id
-            });
+            localMessage = await models.ConversationMessages.addMessage(
+              {
+                ...doc,
+                // inbox conv id comes, so override
+                conversationId: conversation._id,
+                mid: resp.message_id
+              },
+              doc.userId
+            );
           }
         } catch (e) {
           await models.ConversationMessages.deleteOne({

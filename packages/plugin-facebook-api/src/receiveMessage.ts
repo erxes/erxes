@@ -1,4 +1,5 @@
 import { Activity } from 'botbuilder';
+import { graphqlPubsub } from './configs';
 
 import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
@@ -102,11 +103,20 @@ const receiveMessage = async (
 
   if (!conversationMessage) {
     try {
-      await models.ConversationMessages.create({
+      const created = await models.ConversationMessages.create({
         conversationId: conversation._id,
         mid: message.mid,
-        timestamp,
-        content: text
+        createdAt: timestamp,
+        content: text,
+        customerId: customer.erxesApiId
+      });
+
+      graphqlPubsub.publish('conversationClientMessageInserted', {
+        conversationClientMessageInserted: created
+      });
+
+      graphqlPubsub.publish('conversationMessageInserted', {
+        conversationMessageInserted: created
       });
     } catch (e) {
       throw new Error(
