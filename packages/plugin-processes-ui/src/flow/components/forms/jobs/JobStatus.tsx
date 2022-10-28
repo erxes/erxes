@@ -1,12 +1,12 @@
 import Label from '@erxes/ui/src/components/Label';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
+import { DisabledSpan } from '../../../styles';
 import { FLOWJOB_TYPES } from '../../../../flow/constants';
 import { FormColumn, FormWrapper } from '@erxes/ui/src/styles/main';
 import { IJob } from '../../../types';
 import { IJobRefer } from '../../../../job/types';
-import { IProduct } from '../../../../types';
-import { DisabledSpan } from '../../../styles';
+import { IProduct } from '@erxes/ui-products/src/types';
 
 type Props = {
   closeModal: () => void;
