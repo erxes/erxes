@@ -8,7 +8,10 @@ import { graphql } from 'react-apollo';
 import { IJob } from '../../../../types';
 import { IRouterProps } from '@erxes/ui/src/types';
 import { IUser } from '@erxes/ui/src/auth/types';
-import { JobReferDetailQueryResponse } from '../../../../../job/types';
+import {
+  JobReferDetailQueryResponse,
+  IJobRefer
+} from '../../../../../job/types';
 import { queries } from '../../../../../job/graphql';
 import { withProps } from '@erxes/ui/src/utils';
 import { withRouter } from 'react-router-dom';
@@ -34,15 +37,18 @@ type FinalProps = {
   IRouterProps;
 
 const JobFormContainer = (props: FinalProps) => {
-  const { currentUser, jobReferDetailQuery } = props;
+  const { currentUser, jobReferDetailQuery, activeFlowJob } = props;
 
   const [saveLoading] = useState(false);
 
-  if (jobReferDetailQuery.loading) {
+  if (activeFlowJob.config.jobReferId && jobReferDetailQuery.loading) {
     return <Spinner />;
   }
 
-  const jobRefer = jobReferDetailQuery.jobReferDetail;
+  let jobRefer: IJobRefer | undefined = undefined;
+  if (activeFlowJob.config.jobReferId) {
+    jobRefer = jobReferDetailQuery.jobReferDetail;
+  }
 
   const updatedProps = {
     ...props,
@@ -62,6 +68,7 @@ export default withProps<Props>(
   compose(
     graphql<Props, JobReferDetailQueryResponse>(gql(queries.jobReferDetail), {
       name: 'jobReferDetailQuery',
+      skip: ({ activeFlowJob }) => !activeFlowJob.config.jobReferId,
       options: ({ activeFlowJob }) => ({
         variables: {
           id: activeFlowJob.config.jobReferId
