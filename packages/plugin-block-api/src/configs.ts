@@ -38,10 +38,10 @@ export default {
     const app = options.app;
 
     app.post(
-      '/tdb-receive',
+      '/tdb/receive',
       routeErrorHandling(async (req, res) => {
-        debugInfo(`tdb-recieve: `);
-        console.log('tdb-recieve');
+        debugInfo(`/tdb/receive': `);
+        console.log('/tdb/receive');
         console.log(JSON.stringify(req.body));
 
         const body = JSON.stringify(req.body);
