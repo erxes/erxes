@@ -117,11 +117,11 @@ const syncUI = async ({ name, ui_location }) => {
 
   const plName = `plugin-${name}-ui`;
 
-  if (ui_location) {
-    if (!(await fse.exists(filePath(`plugin-uis/${plName}`)))) {
-      await execCommand(`mkdir plugin-uis/${plName}`);
-    }
+  if (!(await fse.exists(filePath(`plugin-uis/${plName}`)))) {
+    await execCommand(`mkdir plugin-uis/${plName}`);
+  }
 
+  if (ui_location) {
     log(`Downloading ${name} ui build.tar from ${ui_location}`);
 
     await execCurl(ui_location, `plugin-uis/${plName}/build.tar`);
@@ -131,18 +131,16 @@ const syncUI = async ({ name, ui_location }) => {
     let s3_location = '';
 
     if (!configs.image_tag) {
-      s3_location = `s3://erxes-plugins/uis/${plName}`;
+      s3_location = `https://erxes-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
     } else {
       if (configs.image_tag === 'dev') {
-        s3_location = `s3://erxes-dev-plugins/uis/${plName}`;
+        s3_location = `https://erxes-dev-plugins.s3.us-west-2.amazonaws.com/uis/${plName}`;
       } else {
-        s3_location = `s3://erxes-release-plugins/uis/${plName}/${configs.image_tag}`;
+        s3_location = `https://erxes-release-plugins.s3.us-west-2.amazonaws.com/uis/${plName}/${configs.image_tag}`;
       }
     }
 
-    await execCommand(
-      `aws s3 sync ${s3_location} plugin-uis/${plName} --no-sign-request --exclude "*" --include build.tar`
-    );
+    await execCurl(`${s3_location}/build.tar`, `plugin-uis/${plName}/build.tar`);
   }
 
   log(`Extracting build ......`);
