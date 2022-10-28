@@ -1,12 +1,12 @@
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
 
-import { initBroker, sendContactsMessage } from './messageBroker';
+import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
-import { generateModels } from './connectionResolver';
+import { generateModels, models } from './connectionResolver';
 import { routeErrorHandling } from '@erxes/api-utils/src/requests';
 import { debugInfo } from '@erxes/api-utils/src/debuggers';
-import { getBalance, sendSms, updateBalance } from './utils';
+// import { getBalance, sendSms, updateBalance } from './utils';
 
 export let mainDb;
 export let debug;
@@ -43,78 +43,84 @@ export default {
       routeErrorHandling(async (req, res) => {
         debugInfo(`/tdb/receive': `);
         console.log('/tdb/receive');
-        console.log(JSON.stringify(req.body));
         const subdomain = getSubdomain(req);
         const models = await generateModels(subdomain);
 
-        try {
-          const body = req.body;
-          console.log('1', body.description);
+        await models.Transactions.create({
+          body: JSON.stringify(req.body)
+        });
 
-          const customer = await sendContactsMessage({
-            subdomain,
-            action: 'customers.findOne',
-            data: { primaryPhone: body.description },
-            isRPC: true,
-            defaultValue: {}
-          });
+        res.json({ success: '200' });
+        // console.log(JSON.stringify(req.body));
 
-          console.log('2');
+        // try {
+        //   const body = req.body;
+        //   console.log('1', body.description);
 
-          const erxesCustomerId = customer._id;
+        //   const customer = await sendContactsMessage({
+        //     subdomain,
+        //     action: 'customers.findOne',
+        //     data: { primaryPhone: body.description },
+        //     isRPC: true,
+        //     defaultValue: {}
+        //   });
 
-          if (customer) {
-            console.log('3', erxesCustomerId);
-            const balance = await getBalance(subdomain, erxesCustomerId);
-            console.log('8', balance);
+        //   console.log('2');
 
-            const newBalance =
-              balance + parseFloat(body.amount.replace(/,/g, ''));
+        //   const erxesCustomerId = customer._id;
 
-            console.log('7', newBalance);
-            try {
-              await updateBalance(subdomain, erxesCustomerId, newBalance);
+        //   if (customer) {
+        //     console.log('3', erxesCustomerId);
+        //     const balance = await getBalance(subdomain, erxesCustomerId);
+        //     console.log('8', balance);
 
-              console.log('10');
+        //     const newBalance =
+        //       balance + parseFloat(body.amount.replace(/,/g, ''));
 
-              await models.Transactions.create({
-                bankStatus: 'success',
-                body: JSON.stringify(req.body)
-              });
+        //     console.log('7', newBalance);
+        //     try {
+        //       await updateBalance(subdomain, erxesCustomerId, newBalance);
 
-              console.log('11');
+        //       console.log('10');
 
-              const msgBody = `Таны ${body.amount} төгрөгийн орлого амжилттай орлоо.`;
+        //       await models.Transactions.create({
+        //         bankStatus: 'success',
+        //         body: JSON.stringify(req.body)
+        //       });
 
-              await sendSms(subdomain, customer.primaryPhone, msgBody);
-              console.log('5');
+        //       console.log('11');
 
-              return res.json({ response: 'success' });
-            } catch (e) {
-              console.log('4');
-              await models.Transactions.create({
-                bankStatus: 'error',
-                body: JSON.stringify(req.body)
-              });
-              return res.json({ response: 'success' });
-            }
-          } else {
-            console.log('6');
-            await models.Transactions.create({
-              bankStatus: 'error',
-              body: JSON.stringify(req.body)
-            });
-            return res.json({ response: 'success' });
-          }
-        } catch (e) {
-          console.log('7');
-          await models.Transactions.create({
-            bankStatus: 'error',
-            body: JSON.stringify(req.body)
-          });
+        //       const msgBody = `Таны ${body.amount} төгрөгийн орлого амжилттай орлоо.`;
 
-          return res.json({ response: 'success' });
-        }
+        //       await sendSms(subdomain, customer.primaryPhone, msgBody);
+        //       console.log('5');
+
+        //       return res.json({ response: 'success' });
+        //     } catch (e) {
+        //       console.log('4');
+        //       await models.Transactions.create({
+        //         bankStatus: 'error',
+        //         body: JSON.stringify(req.body)
+        //       });
+        //       return res.json({ response: 'success' });
+        //     }
+        //   } else {
+        //     console.log('6');
+        //     await models.Transactions.create({
+        //       bankStatus: 'error',
+        //       body: JSON.stringify(req.body)
+        //     });
+        //     return res.json({ response: 'success' });
+        //   }
+        // } catch (e) {
+        //   console.log('7');
+        //   await models.Transactions.create({
+        //     bankStatus: 'error',
+        //     body: JSON.stringify(req.body)
+        //   });
+
+        //   return res.json({ response: 'success' });
+        // }
       })
     );
 
