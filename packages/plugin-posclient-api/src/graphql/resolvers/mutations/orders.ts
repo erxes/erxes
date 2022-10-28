@@ -348,7 +348,14 @@ const orderMutations = {
 
   async ordersAddPayment(
     _root,
-    { _id, cashAmount = 0, receivableAmount = 0, cardAmount = 0, cardInfo },
+    {
+      _id,
+      cashAmount = 0,
+      receivableAmount = 0,
+      cardAmount = 0,
+      mobileAmount = 0,
+      cardInfo
+    },
     { models }: IContext
   ) {
     const order = await models.Orders.getOrder(_id);
@@ -368,15 +375,22 @@ const orderMutations = {
         receivableAmount: receivableAmount
           ? (order.receivableAmount || 0) + Number(receivableAmount.toFixed(2))
           : order.receivableAmount || 0,
+        mobileAmount: mobileAmount
+          ? (order.mobileAmount || 0) + Number(mobileAmount.toFixed(2))
+          : order.mobileAmount || 0,
         cardAmount: cardAmount
           ? (order.cardAmount || 0) + Number(cardAmount.toFixed(2))
           : order.cardAmount || 0
       }
     };
 
-    if (cardAmount) {
+    if (cardInfo) {
       modifier.$push = {
-        cardPayments: { amount: cardAmount, cardInfo, _id: Random.id() }
+        cardPayments: {
+          amount: cardAmount + mobileAmount,
+          cardInfo,
+          _id: Random.id()
+        }
       };
     }
 
