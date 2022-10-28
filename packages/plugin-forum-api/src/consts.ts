@@ -16,3 +16,6 @@ export type WriteCpUserLevels = keyof typeof WRITE_CP_USER_LEVELS;
 
 export const READ_CP_USER_LEVELS = { ...ALL_CP_USER_LEVELS };
 export type ReadCpUserLevels = keyof typeof READ_CP_USER_LEVELS;
+
+export const PERMISSIONS = ['READ', 'WRITE'] as const;
+export type Permissions = typeof PERMISSIONS[number];

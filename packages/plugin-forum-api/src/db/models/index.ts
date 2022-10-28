@@ -9,12 +9,11 @@ import {
 } from './forumClientPortalUser';
 import { generateFollowCpUserModel, IFollowCpUserModel } from './followCpUser';
 import { generatePostModel, IPostModel } from './post';
-import {
-  generateClientPortalUserGroupModel,
-  IUserGroupModel,
-  IUserGroupUsersModel
-} from './userGroup';
+import { generateUserGroupModels } from './permissionGroupModels';
 import { generateVoteModels, VoteModel } from './vote';
+import { IPermissionGroupModel } from './permissionGroupModels/permissionGroup';
+import { IPermissionGroupUserModel } from './permissionGroupModels/permissionGroupUser';
+import { IPermissionGroupCategoryPermitModel } from './permissionGroupModels/permissionGroupCategoryPermit';
 
 export interface IModels {
   Category: ICategoryModel;
@@ -25,8 +24,9 @@ export interface IModels {
   CommentUpVote: VoteModel;
   CommentDownVote: VoteModel;
   ForumClientPortalUser: IForumClientPortalUserModel;
-  UserGroup: IUserGroupModel;
-  UserGroupUsers: IUserGroupUsersModel;
+  PermissionGroup: IPermissionGroupModel;
+  PermissionGroupUser: IPermissionGroupUserModel;
+  PermissionGroupCategoryPermit: IPermissionGroupCategoryPermitModel;
   FollowCpUser: IFollowCpUserModel;
 }
 
@@ -41,7 +41,7 @@ export const generateModels = createGenerateModels<IModels>(
     generateCommentModel(subdomain, connection, models);
     generateVoteModels(subdomain, connection, models);
     generateForumClientPortalUserModel(subdomain, connection, models);
-    generateClientPortalUserGroupModel(subdomain, connection, models);
+    generateUserGroupModels(subdomain, connection, models);
     generateFollowCpUserModel(subdomain, connection, models);
     return models;
   }
