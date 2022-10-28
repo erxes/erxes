@@ -56,8 +56,9 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
     }
 
-    static async checkBarcodeDuplication(barcodes: string[]) {
+    static async checkBarcodeDuplication(barcodes: string[], id?: string) {
       const product = await models.Products.findOne({
+        _id: { $ne: id ? id : '' },
         barcodes: { $in: barcodes },
         status: { $ne: PRODUCT_STATUSES.DELETED }
       });
@@ -123,9 +124,7 @@ export const loadProductClass = (models: IModels, subdomain: string) => {
       }
 
       if (doc.barcodes && !_.isEqual(product.barcodes, doc.barcodes)) {
-        await this.checkBarcodeDuplication(
-          _.xor(product.barcodes, doc.barcodes)
-        );
+        await this.checkBarcodeDuplication(doc.barcodes, product._id);
       }
 
       if (doc.customFieldsData) {
