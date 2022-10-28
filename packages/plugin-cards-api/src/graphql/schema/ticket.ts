@@ -33,6 +33,7 @@ export const types = ({ contacts, tags }) => `
 const listQueryParams = `
   _ids: [String]
   pipelineId: String
+  pipelineIds: [String]
   stageId: String
   customerIds: [String]
   companyIds: [String]
@@ -53,6 +54,7 @@ const listQueryParams = `
   startDate: String
   endDate: String
   hasStartAndCloseDate: Boolean
+  tagIds: [String]
   ${conformityQueryFields}
 `;
 

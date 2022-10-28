@@ -39,6 +39,39 @@
   }
 }
 
+.date-input {
+  .rdtPicker {
+    background: #faf9fb;
+    right: 40px;
+    z-index: 999;
+    border: 1px solid #eee;
+    border-top: 0;
+
+    table {
+      width: 50%;
+
+      .rdtCounters {
+        display: flex;
+        align-items: center;
+
+        .rdtCounterSeparator {
+          padding: 0 5px;
+        }
+      }
+
+      tfoot {
+        background: #eee;
+
+        td {
+          padding: 3px 5px;
+          font-weight: 600;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
 // modal form
 .modal-form {
   width: 100%;

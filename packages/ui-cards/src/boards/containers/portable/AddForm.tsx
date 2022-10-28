@@ -21,6 +21,7 @@ import {
   SaveMutation,
   StagesQueryResponse
 } from '../../types';
+import { isEnabled } from '@erxes/ui/src/utils/core';
 
 type IProps = {
   options: IOptions;
@@ -44,6 +45,7 @@ type IProps = {
   tagIds?: string[];
   startDate?: Date;
   closeDate?: Date;
+  showStageSelect?: boolean;
 };
 
 type FinalProps = {
@@ -241,6 +243,7 @@ export default (props: IProps) =>
       ),
       graphql<FinalProps>(gql(formQueries.fields), {
         name: 'fieldsQuery',
+        skip: !isEnabled('forms'),
         options: ({ options, pipelineId }) => ({
           variables: {
             contentType: `cards:${options.type}`,

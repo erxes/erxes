@@ -13,6 +13,7 @@ import Button from '@erxes/ui/src/components/Button';
 import Tip from '@erxes/ui/src/components/Tip';
 import { __ } from 'coreui/utils';
 import WithPermission from 'coreui/withPermission';
+import Tags from '@erxes/ui/src/components/Tags';
 
 type Props = {
   dashboard: IDashboard;
@@ -80,6 +81,7 @@ function ActionRow({
     updatedUser,
     itemsCount
   } = dashboard;
+  const tags = dashboard.getTags;
 
   return (
     <tr>
@@ -111,6 +113,9 @@ function ActionRow({
       </td>
       <td>
         <Icon icon="calender" /> <DateWrapper>{createdAt}</DateWrapper>
+      </td>
+      <td>
+        <Tags tags={tags || []} limit={3} />
       </td>
       <td>
         <ActionButtons>

@@ -23,12 +23,20 @@ export default {
     );
   },
 
-  integration(
+  async integration(
     conversation: IConversationDocument,
     _args,
-    { models }: IContext
+    { models, serverTiming }: IContext
   ) {
-    return models.Integrations.findOne({ _id: conversation.integrationId });
+    serverTiming.startTime('conversationsIntegration');
+
+    const integration = await models.Integrations.findOne({
+      _id: conversation.integrationId
+    });
+
+    serverTiming.endTime('conversationsIntegration');
+
+    return integration;
   },
 
   user(conversation: IConversationDocument) {
@@ -131,7 +139,8 @@ export default {
   },
 
   async tags(conv: IConversationDocument) {
-    return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
+    return [];
+    // return (conv.tagIds || []).map(_id => ({ __typename: 'Tag', _id }));
   },
 
   async videoCallData(

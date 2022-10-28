@@ -17,7 +17,6 @@ const tagQueries = {
     for (const serviceName of services) {
       const service = await serviceDiscovery.getService(serviceName, true);
       const meta = service.config.meta || {};
-
       if (meta && meta.tags) {
         const types = meta.tags.types || [];
 
@@ -46,8 +45,10 @@ const tagQueries = {
       tagIds?: string[];
       parentId?: string;
     },
-    { models, commonQuerySelector }: IContext
+    { models, commonQuerySelector, serverTiming }: IContext
   ) {
+    serverTiming.startTime('query');
+
     const selector: any = { ...commonQuerySelector };
 
     if (type) {
@@ -63,14 +64,12 @@ const tagQueries = {
     }
 
     if (parentId) {
-      let parentTag = await models.Tags.find({ parentId: parentId }).distinct(
-        '_id'
-      );
+      const parentTag = await models.Tags.find({ parentId }).distinct('_id');
       let ids = [parentId, ...parentTag];
 
-      const getChildTags = async parentTag => {
+      const getChildTags = async (parentTagIds: string[]) => {
         const childTag = await models.Tags.find({
-          parentId: { $in: parentTag }
+          parentId: { $in: parentTagIds }
         }).distinct('_id');
 
         if (childTag.length > 0) {
@@ -86,10 +85,14 @@ const tagQueries = {
       selector._id = { $in: ids };
     }
 
-    return models.Tags.find(selector).sort({
+    const tags = await models.Tags.find(selector).sort({
       order: 1,
       name: 1
     });
+
+    serverTiming.endTime('query');
+
+    return tags;
   },
 
   /**

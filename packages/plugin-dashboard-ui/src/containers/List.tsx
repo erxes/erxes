@@ -143,6 +143,7 @@ const generateParams = ({ queryParams }) => {
     status: queryParams.status,
     ids: queryParams.ids,
     searchValue: queryParams.searchValue,
+    tag: queryParams.tag,
     sortField: queryParams.sortField,
     sortDirection: queryParams.sortDirection
       ? parseInt(queryParams.sortDirection, 10)
@@ -155,7 +156,8 @@ export const getRefetchQueries = (queryParams?: any) => {
     {
       query: gql(queries.dashboardsMain),
       variables: { ...generateParams({ queryParams }) }
-    }
+    },
+    'dashboardCountByTags'
   ];
 };
 
@@ -177,7 +179,7 @@ export default withProps<Props>(
       {
         name: 'addDashboardMutation',
         options: () => ({
-          refetchQueries: ['dashboards', 'dashboardsMain']
+          refetchQueries: ['dashboardsMain']
         })
       }
     ),

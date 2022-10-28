@@ -290,7 +290,7 @@ class CreateMessenger extends React.Component<Props, State> {
     const { isLoading } = this.props;
 
     const cancelButton = (
-      <Link to="/settings/add-ons">
+      <Link to="/settings/integrations">
         <Button btnStyle="simple" icon="times-circle">
           Cancel
         </Button>
@@ -354,7 +354,7 @@ class CreateMessenger extends React.Component<Props, State> {
 
     const breadcrumb = [
       { title: __('Settings'), link: '/settings' },
-      { title: __('Add-ons'), link: '/settings/add-ons' },
+      { title: __('Integrations'), link: '/settings/integrations' },
       { title: __('Messenger') }
     ];
 

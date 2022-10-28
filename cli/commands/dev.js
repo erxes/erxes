@@ -247,6 +247,7 @@ module.exports.devCmd = async program => {
   );
 
   log('Generated ui plugins.js file ....');
+
   await fse.writeFile(
     filePath('../packages/core-ui/public/js/plugins.js'),
     `
@@ -255,17 +256,19 @@ module.exports.devCmd = async program => {
   );
 
   if (!program.ignoreRun) {
-    log('starting core ....');
-
     if (program.deps) {
       log(`Installing dependencies in core-ui .........`);
+
       await execCommand(
         `cd ${filePath(`../packages/core-ui`)} && yarn install`
       );
     }
 
-    await execCommand('pm2 start ecosystem.config.js --only core');
-    await sleep(30000);
+    if (!program.ignoreCore) {
+      log('starting core ....');
+      await execCommand('pm2 start ecosystem.config.js --only core');
+      await sleep(30000);
+    }
 
     for (const plugin of configs.plugins) {
       log(`starting ${plugin.name} ....`);
@@ -298,12 +301,14 @@ module.exports.devCmd = async program => {
     await execCommand(`pm2 start ecosystem.config.js --only gateway`);
     await sleep(10000);
 
-    log('starting coreui ....');
-    await execCommand('pm2 start ecosystem.config.js --only coreui');
+    if (!program.ignoreCoreUI) {
+      log('starting coreui ....');
+      await execCommand('pm2 start ecosystem.config.js --only coreui');
 
-    if (configs.widgets) {
-      log('starting widgets ....');
-      await execCommand('pm2 start ecosystem.config.js --only widgets');
+      if (configs.widgets) {
+        log('starting widgets ....');
+        await execCommand('pm2 start ecosystem.config.js --only widgets');
+      }
     }
   }
 };
