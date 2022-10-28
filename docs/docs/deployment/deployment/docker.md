@@ -217,10 +217,8 @@ If you want to use docker swarm (default preferred method) run
 docker swarm init
 ```
 
-Fill db_server_address value of configs.json with your server address
-
 ```
-"db_server_address": <server_address>,
+docker network create --driver=overlay --attachable erxes
 ```
 
 Or if you want to use docker-compose create ```.env``` file with following content
