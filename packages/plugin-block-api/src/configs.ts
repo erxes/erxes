@@ -49,7 +49,7 @@ export default {
 
         try {
           const body = req.body;
-          console.log('1');
+          console.log('1', body.description);
 
           const customer = await sendContactsMessage({
             subdomain,
@@ -64,19 +64,25 @@ export default {
           const erxesCustomerId = customer._id;
 
           if (customer) {
-            console.log('3');
+            console.log('3', erxesCustomerId);
             const balance = await getBalance(subdomain, erxesCustomerId);
+            console.log('8', balance);
 
             const newBalance =
               balance + parseFloat(body.amount.replace(/,/g, ''));
 
+            console.log('7', newBalance);
             try {
               await updateBalance(subdomain, erxesCustomerId, newBalance);
+
+              console.log('10');
 
               await models.Transactions.create({
                 bankStatus: 'success',
                 body: JSON.stringify(req.body)
               });
+
+              console.log('11');
 
               const msgBody = `Таны ${body.amount} төгрөгийн орлого амжилттай орлоо.`;
 
