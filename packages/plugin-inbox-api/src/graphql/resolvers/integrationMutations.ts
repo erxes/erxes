@@ -12,7 +12,7 @@ import {
 
 import { IExternalIntegrationParams } from '../../models/Integrations';
 
-import { debug, serviceDiscovery } from '../../configs';
+import { debug } from '../../configs';
 import messageBroker, {
   sendContactsMessage,
   sendIntegrationsMessage,
@@ -26,6 +26,7 @@ import { putCreateLog, putDeleteLog, putUpdateLog } from '../../logUtils';
 
 import { checkPermission } from '@erxes/api-utils/src/permissions';
 import { IContext, IModels } from '../../connectionResolver';
+import { isServiceRunning } from '../../utils';
 
 interface IEditIntegration extends IIntegration {
   _id: string;
@@ -115,13 +116,6 @@ const editIntegration = async (
   );
 
   return updated;
-};
-
-const isServiceRunning = async (kind: string): Promise<boolean> => {
-  const serviceNames = await serviceDiscovery.getServices();
-
-  // some kinds are separated by -
-  return kind && serviceNames.includes(kind.split('-')[0]);
 };
 
 const integrationMutations = {

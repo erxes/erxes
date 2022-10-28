@@ -380,25 +380,9 @@ const conversationMutations = {
     let type;
     let action;
 
-    if (kind === 'facebook-post') {
-      type = 'facebook';
-      action = 'reply-post';
-
-      return sendConversationToServices(
-        subdomain,
-        type,
-        integrationId,
-        conversationId,
-        requestName,
-        { ...doc, userId: user._id },
-        action
-      );
-    }
-
-    // send reply to facebook
-    if (kind === 'facebook-messenger') {
-      type = 'facebook';
-      action = 'reply-messenger';
+    if (kind.includes('facebook') && kind.includes('-')) {
+      type = kind.split('-')[0];
+      action = `reply-${kind.split('-')[1]}`;
 
       return sendConversationToServices(
         subdomain,
