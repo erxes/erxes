@@ -117,7 +117,6 @@ export interface ISaveFormResponse {
   errors?: IFieldError[];
   invoiceType?: string;
   invoiceResponse?: string;
-  messageId?: string;
 }
 
 export interface ILocationOption {
