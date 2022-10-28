@@ -49,6 +49,7 @@ export default {
 
         try {
           const body = req.body;
+          console.log('1');
 
           const customer = await sendContactsMessage({
             subdomain,
@@ -58,9 +59,12 @@ export default {
             defaultValue: {}
           });
 
+          console.log('2');
+
           const erxesCustomerId = customer._id;
 
           if (customer) {
+            console.log('3');
             const balance = await getBalance(subdomain, erxesCustomerId);
 
             const newBalance =
@@ -77,9 +81,11 @@ export default {
               const msgBody = `Таны ${body.amount} төгрөгийн орлого амжилттай орлоо.`;
 
               await sendSms(subdomain, customer.primaryPhone, msgBody);
+              console.log('5');
 
               return res.json({ response: 'success' });
             } catch (e) {
+              console.log('4');
               await models.Transactions.create({
                 bankStatus: 'error',
                 body: JSON.stringify(req.body)
@@ -87,6 +93,7 @@ export default {
               return res.json({ response: 'success' });
             }
           } else {
+            console.log('6');
             await models.Transactions.create({
               bankStatus: 'error',
               body: JSON.stringify(req.body)
@@ -94,6 +101,7 @@ export default {
             return res.json({ response: 'success' });
           }
         } catch (e) {
+          console.log('7');
           await models.Transactions.create({
             bankStatus: 'error',
             body: JSON.stringify(req.body)
