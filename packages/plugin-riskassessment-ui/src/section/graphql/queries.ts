@@ -13,8 +13,7 @@ const riskConfirmities = `
       _id
       cardId
       riskAssessmentId
-      name
-      statusColor
+      riskAssessment
     }
   }
 `;
@@ -22,7 +21,10 @@ const riskConfirmities = `
 const riskConfimityDetails = `
   query RiskConfirmityDetails($cardId: String) {
     riskConfirmityDetails(cardId: $cardId){
-      ${riskConfirmityParams}
+      _id
+      cardId
+      riskAssessmentId
+      riskAssessment
     } 
   }`;
 

@@ -8,17 +8,17 @@ import { IQpayInvoice } from '../types';
 import { IModels } from '../../connectionResolver';
 
 export const qPayHandler = async (models: IModels, queryParams) => {
-  const { invoiceId } = queryParams;
+  const { identifier } = queryParams;
 
-  if (!invoiceId) {
+  if (!identifier) {
     throw new Error('Invoice id is required');
   }
 
   const invoice = await models.Invoices.getInvoice({
-    _id: invoiceId
+    identifier
   });
 
-  const payment = await models.Payments.getPayment(invoice.paymentId);
+  const payment = await models.Payments.getPayment(invoice.selectedPaymentId);
 
   if (payment.kind !== 'qpay') {
     throw new Error('Payment config type is mismatched');
@@ -29,7 +29,7 @@ export const qPayHandler = async (models: IModels, queryParams) => {
 
     if (response.invoice_status === 'CLOSED') {
       await models.Invoices.updateOne(
-        { _id: invoiceId },
+        { _id: invoice._id },
         {
           $set: {
             status: PAYMENT_STATUS.PAID,
@@ -74,8 +74,9 @@ export const createInvoice = async (
   invoice: IInvoiceDocument,
   payment: IPaymentDocument
 ) => {
-  const MAIN_API_DOMAIN =
-    process.env.MAIN_API_DOMAIN || 'http://localhost:4000';
+  const MAIN_API_DOMAIN = process.env.DOMAIN
+    ? `${process.env.DOMAIN}/gateway`
+    : 'http://localhost:4000';
 
   try {
     const token = await getToken(payment.config);

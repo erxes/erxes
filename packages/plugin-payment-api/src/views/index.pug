@@ -8,10 +8,10 @@ block layout-content
             div.View.paymentMethod
                 each val in payments 
                     form(method="post")
-                        input(type="hidden" name="paymentId", value=val._id)
+                        input(type="hidden" name="selectedPaymentId", value=val._id)
                         button(typupe="submit").button
                             div.Payment__logo( class=`payments ${val.selected === true && 'active'}`)
-                                img(src=`/pl:payment/static/images/${val.kind}.png`)
+                                img(src=`${domain}/images/payments/${val.kind}.png`)
                                 .uppercase  !{val.name}
             h3 Information of invoice
             .flex#info

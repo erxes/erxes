@@ -17,9 +17,9 @@ export const commonPaginateTypes = `
 export const commonRiskAssessmentTypes = `
     _id: String
     name: String!
-    description: String!
-    categoryId: String!
-    calculateMethod: String!
+    description: String
+    categoryId: String
+    calculateMethod: String
 `;
 
 export const commonRiskConfirmityTypes = `

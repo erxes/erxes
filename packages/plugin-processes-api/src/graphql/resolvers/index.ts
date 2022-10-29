@@ -11,7 +11,6 @@ import {
   JobRefers as JobRefersMutations,
   JobCategories as JobCategoryMutations,
   Flows as FlowsMutations,
-  FlowCategories as FlowCategoryMutations,
   Works as WorkMutation,
   OverallWorks as OverallWorkMutations,
   Performs as PerformMutations
@@ -40,7 +39,6 @@ const resolvers: any = async () => ({
     ...JobRefersMutations,
     ...JobCategoryMutations,
     ...FlowsMutations,
-    ...FlowCategoryMutations,
     ...WorkMutation,
     ...OverallWorkMutations,
     ...PerformMutations

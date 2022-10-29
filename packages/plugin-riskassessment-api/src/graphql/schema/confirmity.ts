@@ -4,8 +4,7 @@ export const types = `
         cardId: String,
         cardType: String,
         riskAssessmentId: String,
-        name:String
-        statusColor:String
+        riskAssessment:JSON
     }
     type RiskConfirmityDetail{
         createdAt: String
@@ -24,7 +23,7 @@ export const types = `
 
 export const queries = `
     riskConfirmities(cardId:String,riskAssessmentId:String):[RiskConfirmity]
-    riskConfirmityDetails(cardId:String) :[RiskConfirmityDetail]
+    riskConfirmityDetails(cardId:String) :[RiskConfirmity]
     riskConfirmitySubmissions(cardId:String,cardType:String) :JSON
     riskConfirmityFormDetail(cardId:String,userId: String,riskAssessmentId:String) :RiskConfirmityFormDetailType
 `;

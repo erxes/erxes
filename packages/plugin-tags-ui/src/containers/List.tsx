@@ -1,3 +1,4 @@
+import { __ } from '@erxes/ui/src/utils/core';
 import * as compose from 'lodash.flowright';
 
 import { Alert, confirm, withProps } from '@erxes/ui/src/utils';
@@ -16,6 +17,7 @@ import Spinner from '@erxes/ui/src/components/Spinner';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import { router } from '@erxes/ui/src/utils';
+import EmptyState from '@erxes/ui/src/components/EmptyState';
 
 type Props = {
   history: any;
@@ -39,11 +41,21 @@ const ListContainer = (props: FinalProps) => {
     history
   } = props;
 
-  if (tagsGetTypes.loading || tagsQuery.loading) {
+  if (tagsGetTypes.loading) {
     return <Spinner />;
   }
 
   const types = tagsGetTypes.tagsGetTypes || [];
+
+  if (types.length === 0) {
+    return (
+      <EmptyState
+        image="/images/actions/5.svg"
+        text={__('No taggable plugin found')}
+        size="full"
+      />
+    );
+  }
 
   if (!router.getParam(history, 'type') || !tagsQuery) {
     router.setParams(
@@ -51,6 +63,20 @@ const ListContainer = (props: FinalProps) => {
       { type: types.length !== 0 ? types[0].contentType.toString() : '' },
       true
     );
+  }
+
+  if (!tagsQuery) {
+    return (
+      <EmptyState
+        image="/images/actions/5.svg"
+        text={__('No taggable plugin found')}
+        size="full"
+      />
+    );
+  }
+
+  if (tagsQuery.loading) {
+    return <Spinner />;
   }
 
   const remove = tag => {
@@ -85,7 +111,6 @@ const ListContainer = (props: FinalProps) => {
   };
 
   const renderButton = ({
-    name,
     values,
     isSubmitted,
     callback,
@@ -137,9 +162,10 @@ export default withProps<Props>(
     graphql<Props, TagsQueryResponse, { type: string }>(gql(queries.tags), {
       name: 'tagsQuery',
       options: ({ type }) => ({
-        variables: { type: type || '' },
+        variables: { type },
         fetchPolicy: 'network-only'
-      })
+      }),
+      skip: ({ type }) => !type
     }),
     graphql<Props, RemoveMutationResponse, { _id: string }>(
       gql(mutations.remove),

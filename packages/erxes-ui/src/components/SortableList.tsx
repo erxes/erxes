@@ -33,18 +33,28 @@ const SortableList = (props: Props) => {
     if (searchValue) {
       const pattern = new RegExp(searchValue, 'i');
       const index = fields.findIndex(field => pattern.test(field.label));
+
       if (index !== -1) {
         const element = document.getElementById(fields[index]._id);
 
-        if (element) {
-          element.scrollIntoView({ block: 'start' });
-
-          element.style.filter = 'brightness(90%)';
-
-          setTimeout(() => {
-            element.style.filter = 'brightness(100%)';
-          }, 1000);
+        if (!element) {
+          return;
         }
+
+        const parent = ((element.parentNode as HTMLElement)
+          .parentNode as HTMLElement).parentNode as HTMLElement;
+
+        if (!parent) {
+          return;
+        }
+
+        parent.scrollIntoView({ block: 'start' });
+
+        parent.style.filter = 'brightness(90%)';
+
+        setTimeout(() => {
+          parent.style.filter = 'brightness(100%)';
+        }, 1000);
       }
     }
   }, [fields, searchValue]);
@@ -93,6 +103,7 @@ const SortableList = (props: Props) => {
           >
             {fields.map((field, index) => (
               <Draggable
+                id={field._id}
                 backgroundColor={colors.colorCoreRed}
                 key={field._id || index}
                 draggableId={field._id.toString() || index || Math.random()}
@@ -102,7 +113,6 @@ const SortableList = (props: Props) => {
               >
                 {(dragProvided, snapshot) => (
                   <SortItem
-                    id={field._id}
                     innerRef={dragProvided.innerRef}
                     {...dragProvided.draggableProps}
                     {...dragProvided.dragHandleProps}

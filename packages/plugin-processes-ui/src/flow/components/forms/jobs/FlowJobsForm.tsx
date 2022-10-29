@@ -1,12 +1,13 @@
 import Icon from '@erxes/ui/src/components/Icon';
 import React from 'react';
 import { __ } from '@erxes/ui/src/utils';
+import { FLOWJOB_TYPES, FLOWJOBS } from '../../../constants';
 import { FlowJobBox } from './styles';
-import { FLOWJOBS } from '../../../constants';
 import { IJob } from '../../../types';
 import { ScrolledContent } from '../../../styles';
 
 type Props = {
+  flowJobsOfEnd?: IJob;
   onClickFlowJob: (flowJob: IJob) => void;
 };
 
@@ -52,7 +53,10 @@ class FlowJobsForm extends React.Component<Props, State> {
   };
 
   renderBox(flowJob, index) {
-    const { onClickFlowJob } = this.props;
+    const { flowJobsOfEnd, onClickFlowJob } = this.props;
+    if (flowJobsOfEnd && flowJob.type === FLOWJOB_TYPES.ENDPOINT) {
+      return <></>;
+    }
 
     return (
       <FlowJobBox

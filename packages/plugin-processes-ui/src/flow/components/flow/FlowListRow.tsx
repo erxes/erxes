@@ -1,9 +1,12 @@
-import { FormControl } from '@erxes/ui/src/components/form';
-// import TextInfo from '@erxes/ui/src/components/TextInfo';
-import React from 'react';
-// import FormGroup from '@erxes/ui/src/components/form/Group';
-import { IFlowDocument } from '../../types';
+import ActionButtons from '@erxes/ui/src/components/ActionButtons';
+import Button from '@erxes/ui/src/components/Button';
+import Icon from '@erxes/ui/src/components/Icon';
 import Label from '@erxes/ui/src/components/Label';
+import React from 'react';
+import Tip from '@erxes/ui/src/components/Tip';
+import { __ } from '@erxes/ui/src/utils';
+import { FormControl } from '@erxes/ui/src/components/form';
+import { IFlowDocument } from '../../types';
 
 type Props = {
   flow: IFlowDocument;
@@ -34,7 +37,7 @@ class Row extends React.Component<Props> {
       history.push(`/processes/flows/details/${flow._id}`);
     };
 
-    const { name, status, jobs, flowJobStatus } = flow;
+    const { name, status, jobCount, flowValidation, product } = flow;
 
     return (
       <tr onClick={onTrClick}>
@@ -46,12 +49,22 @@ class Row extends React.Component<Props> {
           />
         </td>
         <td>{name}</td>
+        <td>{(product && `${product.code} - ${product.name}`) || ''}</td>
         <td>{status}</td>
         <td>
-          {flowJobStatus === true && renderLabelInfo('success', 'True')}
-          {flowJobStatus === false && renderLabelInfo('danger', 'False')}
+          {flowValidation === '' && renderLabelInfo('success', 'True')}
+          {flowValidation && renderLabelInfo('danger', flowValidation)}
         </td>
-        <td>{(jobs && jobs.length) || 0}</td>
+        <td>{jobCount || 0}</td>
+        <td onClick={onClick}>
+          <ActionButtons>
+            <Button btnStyle="link" onClick={onTrClick}>
+              <Tip text={__('Edit')} placement="bottom">
+                <Icon icon="edit" />
+              </Tip>
+            </Button>
+          </ActionButtons>
+        </td>
       </tr>
     );
   }

@@ -23,7 +23,8 @@ export default {
 
   async payment(invoice: IInvoice, {}, { models }: IContext) {
     return (
-      invoice.paymentId && models.Payments.findOne({ _id: invoice.paymentId })
+      invoice.selectedPaymentId &&
+      models.Payments.findOne({ _id: invoice.selectedPaymentId })
     );
   },
 

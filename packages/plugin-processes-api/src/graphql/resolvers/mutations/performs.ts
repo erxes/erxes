@@ -28,8 +28,6 @@ const performMutations = {
 
     const perform = await models.Performs.createPerform(docModifier(doc));
 
-    console.log(perform);
-
     await putCreateLog(
       models,
       subdomain,

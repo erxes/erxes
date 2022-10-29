@@ -27,8 +27,6 @@ router.get('/gateway', async (req, res) => {
     Buffer.from(params as string, 'base64').toString('ascii')
   );
 
-  console.log('data', data);
-
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
@@ -45,7 +43,9 @@ router.get('/gateway', async (req, res) => {
   res.render('index', {
     title: 'Payment gateway',
     payments,
-    invoiceData: data
+    invoiceData: data,
+    domain: process.env.DOMAIN || 'http://localhost:3000',
+    prefix: subdomain === 'localhost' ? '' : `/gateway`
   });
 });
 
@@ -59,6 +59,9 @@ router.post('/gateway', async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
 
+  const prefix = subdomain === 'localhost' ? '' : `/gateway`;
+  const domain = process.env.domain || 'http://localhost:3000';
+
   const filter: any = {};
 
   if (data.paymentIds) {
@@ -69,10 +72,10 @@ router.post('/gateway', async (req, res) => {
     type: 1
   });
 
-  const paymentId = req.body.paymentId;
+  const selectedPaymentId = req.body.selectedPaymentId;
 
   const paymentsModified = payments.map(p => {
-    if (p._id === paymentId) {
+    if (p._id === selectedPaymentId) {
       return {
         ...(p.toJSON() as any),
         selected: true
@@ -89,12 +92,18 @@ router.post('/gateway', async (req, res) => {
       title: 'Payment gateway',
       payments: payments,
       invoiceData: data,
-      invoice
+      invoice,
+      prefix,
+      domain
     });
   }
 
-  if (invoice && invoice.status !== 'paid' && invoice.paymentId !== paymentId) {
-    await models.Invoices.updateInvoice(invoice._id, { paymentId });
+  if (
+    invoice &&
+    invoice.status !== 'paid' &&
+    invoice.selectedPaymentId !== selectedPaymentId
+  ) {
+    await models.Invoices.updateInvoice(invoice._id, { selectedPaymentId });
 
     invoice = await models.Invoices.findOne({ _id: data._id });
   }
@@ -102,7 +111,7 @@ router.post('/gateway', async (req, res) => {
   if (!invoice) {
     invoice = await models.Invoices.createInvoice({
       ...data,
-      paymentId
+      selectedPaymentId
     });
   }
 
@@ -121,14 +130,18 @@ router.post('/gateway', async (req, res) => {
       title: 'Payment gateway',
       payments,
       invoiceData: data,
-      invoice
+      invoice,
+      prefix,
+      domain
     });
   } catch (e) {
     res.render('index', {
       title: 'Payment gateway',
       payments,
       invoiceData: data,
-      error: e.message
+      error: e.message,
+      prefix,
+      domain
     });
   }
 });

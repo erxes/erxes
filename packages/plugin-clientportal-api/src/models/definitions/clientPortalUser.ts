@@ -121,7 +121,7 @@ export const clientPortalUserSchema = new Schema({
 });
 
 clientPortalUserSchema.index(
-  { createdAt: 1, userName: 1, email: 1, phone: 1 },
+  { createdAt: 1 },
   {
     expireAfterSeconds: 24 * 60 * 60,
     partialFilterExpression: {

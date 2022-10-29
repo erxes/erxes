@@ -4,13 +4,16 @@ module.exports = {
   scope: 'block',
   exposes: {
     './routes': './src/routes.tsx',
-    './customerSidebar': './src/containers/CustomerSidebar.tsx'
+    './customerSidebar': './src/containers/CustomerSidebar.tsx',
+    './activityLog': './src/activityLogs/activityLog.tsx'
   },
   routes: {
     url: 'http://localhost:3017/remoteEntry.js',
     scope: 'block',
     module: './routes'
   },
+
+  activityLog: './activityLog',
   menus: [
     {
       text: 'Blocks',

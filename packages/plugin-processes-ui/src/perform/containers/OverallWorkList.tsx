@@ -25,8 +25,6 @@ type FinalProps = {
 class OverallWorkListContainer extends React.Component<FinalProps> {
   constructor(props) {
     super(props);
-
-    console.log('overallWorkList on container');
   }
 
   render() {

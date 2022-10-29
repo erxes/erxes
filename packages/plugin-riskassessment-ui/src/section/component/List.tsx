@@ -1,7 +1,14 @@
 import { SectionBodyItem, __ } from '@erxes/ui/src';
-import { Box, Button, EmptyState, Icon, ModalTrigger, Tip } from '@erxes/ui/src/components';
+import {
+  Box,
+  Button,
+  EmptyState,
+  Icon,
+  ModalTrigger,
+  Tip
+} from '@erxes/ui/src/components';
 import React from 'react';
-import { ICardRiskAssements } from '../../common/types';
+import { ICardRiskAssements, RiskAssessmentsType } from '../../common/types';
 import { ColorBox, ProductName } from '../../styles';
 import RiskAssessmentForm from '../container/Form';
 import Submissions from '../container/Submissions';
@@ -35,27 +42,35 @@ function RiskAssessmentSection(props: Props) {
     );
   };
 
-  const renderFormModal = (trigger: React.ReactNode, riskAssessmentId?: string) => {
+  const renderFormModal = (
+    trigger: React.ReactNode,
+    riskAssessmentId?: string
+  ) => {
     return (
       <ModalTrigger
         size="lg"
         trigger={trigger}
-        content={props => renderFormModalContent({ ...props, riskAssessmentId })}
+        content={props =>
+          renderFormModalContent({ ...props, riskAssessmentId })
+        }
         title="Risk Assessment"
       />
     );
   };
 
-  const renderItem = (text: string, color) => {
+  const renderItem = (item: RiskAssessmentsType) => {
     return (
       <ProductName>
-        {text}
-        <ColorBox color={color} />
+        {item && item?.name}
+        <ColorBox color={item && item?.statusColor} />
       </ProductName>
     );
   };
 
-  const renderSubmissionForm = (isSubmitted?: boolean, riskAssessmentId?: string) => {
+  const renderSubmissionForm = (
+    isSubmitted?: boolean,
+    riskAssessmentId?: string
+  ) => {
     const trigger = (
       <Button btnStyle="link">
         <Tip text={isSubmitted ? 'See Submitted Form' : 'Submission Form'}>
@@ -109,7 +124,7 @@ function RiskAssessmentSection(props: Props) {
             {list.map(item => (
               <SectionBodyItem key={item.riskAssessmentId}>
                 {renderFormModal(
-                  renderItem(item.name || '', item.statusColor || ''),
+                  renderItem(item.riskAssessment),
                   item.riskAssessmentId
                 )}
               </SectionBodyItem>
@@ -135,7 +150,10 @@ function RiskAssessmentSection(props: Props) {
               </SectionBodyItem>
             ))
           ) : (
-            <EmptyState icon="folder-2" text={`No risk assessment submissions`} />
+            <EmptyState
+              icon="folder-2"
+              text={`No risk assessment submissions`}
+            />
           )}
         </Box>
       )}

@@ -1,10 +1,20 @@
 import { QueryResponse } from '@erxes/ui/src/types';
-import {
-  IProduct,
-  IProductCategory as IProductCategoryC
-} from '@erxes/ui-products/src/types';
+import { IJobRefer } from '../job/types';
+import { IProduct } from '@erxes/ui-products/src/types';
 
-export type IProductCategory = IProductCategoryC & {};
+export type IFlowCategory = {
+  _id: string;
+  name: string;
+  order: string;
+  code: string;
+  description?: string;
+  attachment?: any;
+  status: string;
+  parentId?: string;
+  createdAt: Date;
+  flowCount: number;
+  isRoot: boolean;
+};
 
 interface IConfig {
   jobReferId?: string;
@@ -13,6 +23,8 @@ interface IConfig {
 
   quantity?: number;
 
+  durationType: string;
+  duration: number;
   inBranchId?: string;
   inDepartmentId?: string;
   outBranchId?: string;
@@ -40,7 +52,7 @@ export interface IFlow {
   productId?: string;
   product?: IProduct;
   status: string;
-  flowJobStatus?: boolean;
+  flowValidation?: string;
   jobs?: IJob[];
 }
 
@@ -50,34 +62,7 @@ export interface IFlowDocument extends IFlow, Document {
   createdBy?: string;
   updatedAt?: Date;
   updatedBy?: string;
-}
-
-export interface IJobCategory {
-  _id: string;
-  name: string;
-  code: string;
-  description?: string;
-  parentId?: string;
-  attachment?: any;
-  status?: string;
-  order: string;
-  createdAt: Date;
-  isRoot: boolean;
-  productCount: number;
-}
-
-export interface IJobRefer {
-  _id: string;
-  createdAt: Date;
-  code: string;
-  name: string;
-  type: string;
-  status?: string;
-  categoryId?: string;
-  duration: number;
-  durationType: string;
-  needProducts?: any[];
-  resultProducts?: any[];
+  jobCount: number;
 }
 
 // FLOW
@@ -107,7 +92,7 @@ export type flowTotalCountQueryResponse = {
 } & QueryResponse;
 
 export type FlowCategoriesQueryResponse = {
-  productCategories: IProductCategory[];
+  flowCategories: any[];
 } & QueryResponse;
 
 export type FlowCategoriesCountQueryResponse = {
@@ -119,18 +104,7 @@ export type flowsRemoveMutationResponse = {
   flowsRemove: (mutation: { variables: { flowIds: string[] } }) => Promise<any>;
 };
 
-export type FlowCategoriesRemoveMutationResponse = {
-  flowCategoriesRemove: (mutation: {
-    variables: { _id: string };
-  }) => Promise<any>;
-};
-
 export type DetailQueryResponse = {
   jobReferDetail: IJobRefer;
-  loading: boolean;
-};
-
-export type CategoryDetailQueryResponse = {
-  productCategoryDetail: IProductCategory;
   loading: boolean;
 };

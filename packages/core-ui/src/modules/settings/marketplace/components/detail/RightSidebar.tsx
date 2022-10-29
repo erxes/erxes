@@ -23,21 +23,28 @@ type Props = {
 
 export default class RightSidebar extends React.Component<Props> {
   renderCreator() {
+    const { creator } = this.props.plugin || {};
+    const { logo, address, description, email, name, phone } =
+      creator || ({} as any);
+
     return (
       <SidebarBox>
         <ColorHeader>Creater</ColorHeader>
         <DetailCard>
           <MemberPic>
-            <img src="/images/glyph_dark.png" alt="creator" />
+            <img src={logo ? logo : '/images/glyph_dark.png'} alt="creator" />
           </MemberPic>
           <CardInformation>
-            <b>Erxes Inc</b>
+            <b>{name || 'Erxes Inc'}</b>
             <SmallText withMargin={true}>
-              6525 Woodman Avenue, Los Angeles
+              {address ||
+                '6525 Woodman Avenue, Los Angeles California, USA, 91401'}
             </SmallText>
-            <SmallText>California, USA, 91401</SmallText>
-            <SmallText withMargin={true}>Tel: +1 617 506 9010</SmallText>
-            <SmallText>Email: info@erxes.io</SmallText>
+            <SmallText withMargin={true}>
+              Tel: {phone || '+1 617 506 9010'}
+            </SmallText>
+            <SmallText>Email: {email || 'info@erxes.io'}</SmallText>
+            <div dangerouslySetInnerHTML={{ __html: description }} />
           </CardInformation>
         </DetailCard>
       </SidebarBox>

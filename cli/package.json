@@ -1,6 +1,6 @@
 {
   "name": "erxes",
-  "version": "0.3.45",
+  "version": "0.3.58",
   "description": "Free and open fair-code licensed all-in-one growth marketing & management software",
   "homepage": "https://erxes.io",
   "repository": "https://github.com/erxes/erxes",
@@ -23,6 +23,7 @@
     "cli-progress": "^3.8.2",
     "colors": "^1.4.0",
     "commander": "^6.2.0",
+    "dotenv": "^16.0.3",
     "execa": "^4.1.0",
     "figlet": "^1.5.0",
     "fs-extra": "^9.0.1",

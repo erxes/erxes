@@ -20,8 +20,7 @@ import {
 
 import {
   types as flowCategoryTypes,
-  queries as flowCategoryQueries,
-  mutations as flowCategoryMutations
+  queries as flowCategoryQueries
 } from './schema/flowCategory';
 
 import {
@@ -80,7 +79,6 @@ const typeDefs = async _serviceDiscovery => {
       ${jobReferMutations}
       ${jobCategoryMutations}
       ${flowMutations}
-      ${flowCategoryMutations}
       ${workMutations}
       ${overallWorkMutations}
       ${performMutations}
