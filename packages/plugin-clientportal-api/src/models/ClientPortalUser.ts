@@ -103,6 +103,7 @@ export interface IUserModel extends Model<IUserDocument> {
   verifyUsers(userids: string[], type: string): Promise<IUserDocument>;
   confirmInvitation(params: IConfirmParams): Promise<IUserDocument>;
   updateSession(_id: string): Promise<IUserDocument>;
+  updateNotificationSettings(_id: string, doc: any): Promise<IUserDocument>;
 }
 
 export const loadClientPortalUserClass = (models: IModels) => {
@@ -862,6 +863,31 @@ export const loadClientPortalUserClass = (models: IModels) => {
 
       // updated customer
       return models.ClientPortalUsers.findOne({ _id });
+    }
+
+    /*
+     *Update notification settings
+     */
+    public static async updateNotificationSettings(
+      _id: string,
+      doc: any
+    ): Promise<IUser> {
+      const user = await models.ClientPortalUsers.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      await models.ClientPortalUsers.updateOne(
+        { _id },
+        {
+          $set: {
+            isAllowedNotifications: doc.isAllowedNotifications
+          }
+        }
+      );
+
+      return models.ClientPortalUsers.getUser({ _id });
     }
   }
 

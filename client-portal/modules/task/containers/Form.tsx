@@ -1,16 +1,16 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
-import React, { useContext } from "react";
-import { Config, IUser, Store, Task } from "../../types";
-import Form from "../components/Form";
-import { AppConsumer } from "../../appContext";
-import { Alert } from "../../utils";
+import { gql, useMutation, useQuery } from '@apollo/client';
+import React, { useContext } from 'react';
+import { Config, IUser, Store, Task } from '../../types';
+import Form from '../components/Form';
+import { AppConsumer } from '../../appContext';
+import { Alert } from '../../utils';
 
 type Props = {
   config: Config;
   currentUser: IUser;
 };
 
-export const clientPortalCreateTask = `
+export const clientPortalCreateTask = gql`
   mutation clientPortalCreateCard(
     $type: String!
     $stageId: String!
@@ -32,7 +32,7 @@ export const clientPortalCreateTask = `
   }
 `;
 
-export const getPipelineLabels = `
+export const getPipelineLabels = gql`
   query pipelineLabels($pipelineId: String!) {
     pipelineLabels(pipelineId: $pipelineId) {
       _id
@@ -43,29 +43,28 @@ export const getPipelineLabels = `
 `;
 
 function FormContainer({ config = {}, currentUser, ...props }: Props) {
-  useQuery(gql(getPipelineLabels), {
+  useQuery(getPipelineLabels, {
     variables: { pipelineId: config.taskPublicPipelineId },
     skip: !config.taskPublicPipelineId,
   });
 
-  const [createTask] = useMutation(gql(clientPortalCreateTask), {
-  });
+  const [createTask] = useMutation(clientPortalCreateTask, {});
 
   const handleSubmit = (doc: Task) => {
     if (!currentUser) {
-      return Alert.error("Log in first to create task");
+      return Alert.error('Log in first to create task');
     }
 
     createTask({
       variables: {
         ...doc,
-        type: "task",
+        type: 'task',
         stageId: config.taskStageId,
         email: currentUser.email,
-        priority: "Critical", // TODO: Add select in Form
+        priority: 'Critical', // TODO: Add select in Form
       },
     }).then(() => {
-      window.location.href = "/tasks";
+      window.location.href = '/tasks';
     });
   };
 

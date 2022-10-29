@@ -206,7 +206,7 @@ export const mutations = cardAvailable => `
         subject: String!
         description: String
         email: String!
-        priority: String
+        priority: String,
       ): Ticket
      `
       : ''

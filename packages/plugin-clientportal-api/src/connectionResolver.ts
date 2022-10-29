@@ -1,3 +1,7 @@
+import {
+  ICPNotificationModel,
+  loadNotificationClass
+} from './models/ClientPortalNotifications';
 import { IContext as IMainContext } from '@erxes/api-utils/src';
 import { createGenerateModels } from '@erxes/api-utils/src/core';
 import * as mongoose from 'mongoose';
@@ -12,10 +16,12 @@ import {
 } from './models/ClientPortalUser';
 import { IClientPortalDocument } from './models/definitions/clientPortal';
 import { IUserDocument } from './models/definitions/clientPortalUser';
+import { ICPNotificationDocument } from './models/definitions/clientPortalNotifications';
 
 export interface IModels {
   ClientPortals: IClientPortalModel;
   ClientPortalUsers: IUserModel;
+  ClientPortalNotifications: ICPNotificationModel;
 }
 
 export interface IContext extends IMainContext {
@@ -38,6 +44,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
     'client_portal_users',
     loadClientPortalUserClass(models)
   );
+
+  models.ClientPortalNotifications = db.model<
+    ICPNotificationDocument,
+    ICPNotificationModel
+  >('client_portal_notifications', loadNotificationClass(models));
 
   return models;
 };

@@ -22,13 +22,17 @@ const clientPortalMutations = {
   async clientPortalCreateCard(
     _root,
     { type, email, subject, priority, description, stageId },
-    { subdomain }: IContext
+    { subdomain, cpUser }: IContext
   ) {
+    if (!cpUser) {
+      throw new Error('You are not logged in');
+    }
+
     const customer = await sendContactsMessage({
       subdomain,
       action: 'customers.findOne',
       data: {
-        primaryEmail: email
+        _id: cpUser.erxesCustomerId
       },
       isRPC: true
     });
@@ -41,12 +45,13 @@ const clientPortalMutations = {
       subdomain,
       action: `${type}s.create`,
       data: {
-        userId: customer._id,
+        userId: cpUser._id,
         name: subject,
         description,
         priority,
         stageId,
-        status: 'active'
+        status: 'active',
+        customerId: customer._id
       },
       isRPC: true
     });
