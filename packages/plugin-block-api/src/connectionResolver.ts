@@ -7,11 +7,14 @@ import { IPackageModel, loadPackageClass } from './models/Packages';
 import { IInvestmentModel, loadInvestmentClass } from './models/Investments';
 import { ITransactionDocument } from './models/definitions/transactions';
 import { ITransactionModel, loadTransactionClass } from './models/Transactions';
+import { IBlockModel } from './models/Block';
+import { IBlockDocument } from './models/definitions/blocks';
 
 export interface IModels {
   Packages: IPackageModel;
   Investments: IInvestmentModel;
   Transactions: ITransactionModel;
+  Blocks: IBlockModel;
 }
 export interface IContext extends IMainContext {
   subdomain: string;
@@ -35,6 +38,11 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Transactions = db.model<ITransactionDocument, ITransactionModel>(
     'transactions',
+    loadTransactionClass(models)
+  );
+
+  models.Blocks = db.model<IBlockDocument, IBlockModel>(
+    'blocks',
     loadTransactionClass(models)
   );
 
