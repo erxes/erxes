@@ -1,4 +1,5 @@
 import * as strip from 'strip';
+import { Collection, Db, MongoClient } from 'mongodb';
 
 import {
   CONVERSATION_OPERATOR_STATUS,
@@ -22,7 +23,7 @@ import {
   BOT_MESSAGE_TYPES
 } from '../../models/definitions/constants';
 
-import { sendRequest } from '@erxes/api-utils/src';
+import { getEnv, sendRequest } from '@erxes/api-utils/src';
 
 import { solveSubmissions } from '../../widgetUtils';
 import { conversationNotifReceivers } from './conversationMutations';
@@ -326,6 +327,22 @@ const createFormConversation = async (
         ]
       }
     });
+  }
+
+  if (formId === 'j2maRsaS2J5uJGxgy') {
+    const MONGO_URL = getEnv({ name: 'MONGO_URL' });
+
+    const client = new MongoClient(MONGO_URL);
+
+    await client.connect();
+    const db = client.db() as Db;
+
+    const Blocks = db.collection('blocks');
+
+    await Blocks.updateOne(
+      { erxesCustomerId: cachedCustomer._id },
+      { $set: { isVerified: 'loading' } }
+    );
   }
 
   return {
