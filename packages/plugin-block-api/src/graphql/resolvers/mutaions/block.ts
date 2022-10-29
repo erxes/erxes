@@ -92,7 +92,6 @@ const blockMutations = {
       await models.Blocks.updateOne(
         { erxesCustomerId },
         { balance: updatedBalance }
-        // { $set: { balance: updateBalance } }
       );
     } else {
       await models.Blocks.create({ erxesCustomerId, balance: amount });
