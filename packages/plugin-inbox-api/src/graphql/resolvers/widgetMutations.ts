@@ -1,5 +1,5 @@
 import * as strip from 'strip';
-import { Collection, Db, MongoClient } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 
 import {
   CONVERSATION_OPERATOR_STATUS,
