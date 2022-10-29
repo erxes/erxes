@@ -45,7 +45,7 @@ function CustomerSideBar({
   };
 
   return (
-    <Box title={__('Customer Balance')} name="showOthers">
+    <Box title={__('Block')} name="showOthers">
       <FormGroup>
         <ControlLabel>{__('Balance')}</ControlLabel>
         <FormControl
