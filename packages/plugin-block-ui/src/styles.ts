@@ -39,4 +39,26 @@ const Description = styled.div`
   }
 `;
 
-export { Action, Name, Description };
+const List = styled(SidebarList)`
+  li {
+    border-bottom: 1px solid ${colors.borderPrimary};
+    color: ${colors.textPrimary};
+    white-space: normal;
+    padding: ${dimensions.unitSpacing}px ${dimensions.coreSpacing}px;
+
+    span {
+      color: ${colors.colorCoreLightGray};
+      margin: 0;
+    }
+
+    i {
+      margin-left: ${dimensions.unitSpacing / 2}px;
+    }
+
+    &:last-child {
+      border: none;
+    }
+  }
+`;
+
+export { Action, Name, Description, List };

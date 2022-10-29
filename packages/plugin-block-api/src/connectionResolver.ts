@@ -7,7 +7,7 @@ import { IPackageModel, loadPackageClass } from './models/Packages';
 import { IInvestmentModel, loadInvestmentClass } from './models/Investments';
 import { ITransactionDocument } from './models/definitions/transactions';
 import { ITransactionModel, loadTransactionClass } from './models/Transactions';
-import { IBlockModel } from './models/Block';
+import { IBlockModel, loadBlockClass } from './models/Block';
 import { IBlockDocument } from './models/definitions/blocks';
 
 export interface IModels {
@@ -43,7 +43,7 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   models.Blocks = db.model<IBlockDocument, IBlockModel>(
     'blocks',
-    loadTransactionClass(models)
+    loadBlockClass(models)
   );
 
   return models;

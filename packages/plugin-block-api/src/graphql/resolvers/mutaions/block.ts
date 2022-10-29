@@ -68,7 +68,7 @@ const blockMutations = {
     return investment;
   },
 
-  async updateBalance(
+  async addBalance(
     _root,
     doc: { erxesCustomerId: string; amount: number },
     { subdomain, models }: IContext
@@ -92,6 +92,7 @@ const blockMutations = {
       await models.Blocks.updateOne(
         { erxesCustomerId },
         { balance: updatedBalance }
+        // { $set: { balance: updateBalance } }
       );
     } else {
       await models.Blocks.create({ erxesCustomerId, balance: amount });

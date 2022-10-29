@@ -17,6 +17,6 @@ export const blockSchema = new Schema({
     type: String,
     label: 'Customer'
   }),
-  balance: field({ type: Number, label: 'Balance' }),
-  isVerified: field({ type: String, label: 'Verified' })
+  balance: field({ type: Number, label: 'Balance', optional: true }),
+  isVerified: field({ type: String, label: 'Verified', optional: true })
 });
