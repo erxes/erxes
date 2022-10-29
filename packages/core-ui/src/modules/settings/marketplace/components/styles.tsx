@@ -333,56 +333,6 @@ export const PluginBoxFooter = styled.div`
   padding-top: ${dimensions.unitSpacing}px;
 `;
 
-export const Ribbon = styled.div`
-  overflow: hidden;
-  position: absolute;
-  right: -5px;
-  top: -5px;
-  width: 100px;
-  height: 100px;
-
-  span {
-    position: absolute;
-    width: 130px;
-    color: ${colors.colorWhite};
-    font-size: ${dimensions.unitSpacing}px;
-    font-weight: bold;
-    text-transform: uppercase;
-    text-align: center;
-    line-height: ${dimensions.coreSpacing + 5}px;
-    transform: rotate(45deg);
-    background: linear-gradient(
-      ${colors.colorPrimary} 0%,
-      ${colors.colorSecondary} 100%
-    );
-    box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 1);
-    top: 25px;
-    right: -27px;
-
-    &:before {
-      content: '';
-      position: absolute;
-      left: 0px;
-      top: 100%;
-      border-left: 3px solid ${colors.colorPrimary};
-      border-right: 3px solid transparent;
-      border-bottom: 3px solid transparent;
-      border-top: 3px solid ${colors.colorPrimary};
-    }
-
-    &:after {
-      content: '';
-      position: absolute;
-      right: 0px;
-      top: 100%;
-      border-left: 3px solid transparent;
-      border-right: 3px solid ${colors.colorPrimary};
-      border-bottom: 3px solid transparent;
-      border-top: 3px solid ${colors.colorPrimary};
-    }
-  }
-`;
-
 export const PerPrice = styled.div`
   display: flex;
   align-items: center;
