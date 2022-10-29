@@ -23,7 +23,7 @@ function CustomerSideBar({
   addBalance,
   updateVerify
 }: Props) {
-  const [balance, SetBalance] = useState(getBalance);
+  const [balance, SetBalance] = useState(0);
   const [verify, SetVerify] = useState(verified);
 
   const onChangeBalance = e => {
