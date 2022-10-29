@@ -114,13 +114,17 @@ export interface IFormDoc {
 
 export interface ISaveFormResponse {
   status: string;
+  conversationId: string;
   errors?: IFieldError[];
-  invoiceType?: string;
-  invoiceResponse?: string;
 }
 
 export interface ILocationOption {
   lat: number;
   lng: number;
   description?: string;
+}
+
+
+export type EnabledServices = {
+  [key: string]: boolean;
 }
