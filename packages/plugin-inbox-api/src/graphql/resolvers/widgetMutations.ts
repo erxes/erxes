@@ -339,10 +339,19 @@ const createFormConversation = async (
 
     const Blocks = db.collection('blocks');
 
-    await Blocks.updateOne(
-      { erxesCustomerId: cachedCustomer._id },
-      { $set: { isVerified: 'loading' } }
-    );
+    const block = await Blocks.findOne({ erxesCustomerId: cachedCustomer._id });
+
+    if (block) {
+      await Blocks.updateOne(
+        { erxesCustomerId: cachedCustomer._id },
+        { $set: { isVerified: 'loading' } }
+      );
+    } else {
+      await Blocks.insert({
+        erxesCustomerId: cachedCustomer._id,
+        isVerified: 'loading'
+      });
+    }
   }
 
   return {
