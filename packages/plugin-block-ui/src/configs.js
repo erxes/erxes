@@ -4,7 +4,7 @@ module.exports = {
   scope: 'block',
   exposes: {
     './routes': './src/routes.tsx',
-    './customerSidebar': './src/containers/CustomerSidebar.tsx',
+    './customerSidebar': './src/containers/CustomerSideBar.tsx',
     './activityLog': './src/activityLogs/activityLog.tsx'
   },
   routes: {
