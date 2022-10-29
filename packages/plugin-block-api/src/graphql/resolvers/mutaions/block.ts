@@ -94,7 +94,7 @@ const blockMutations = {
 
     const numberAmount = numberWithCommas(amount);
 
-    const body = `UB GROUP: Tanii dans ${numberAmount} tugruguur tseneglegdlee. Ta geree, uilchilgeenii nuhtsul bolon UB GROUP DROPS-toi taniltsaj, hurungu oruulaltaa hiine uu.72228888`;
+    const body = `UB GROUP: Tanii dans ${numberAmount} tugruguur tseneglegdlee. Ta gereeteigee saitar taniltsan hurungu oruulaltaa hiine uu.72228888`;
 
     await sendSms(subdomain, customer.primaryPhone, body);
 
@@ -125,7 +125,7 @@ const blockMutations = {
         isRPC: true
       });
 
-      const body = `UB GROUP: Tanii medeelel amjilttai batalgaajlaa. 72228888`;
+      const body = `UB GROUP: Tanii medeelel amjilttai batalgaajlaa. Ta dansaa tseneglen hurungu oruulaltaa hiine uu 72228888`;
 
       await sendSms(subdomain, customer.primaryPhone, body);
     }
