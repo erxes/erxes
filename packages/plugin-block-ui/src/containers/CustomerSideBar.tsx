@@ -48,6 +48,7 @@ const CustomerSideBarContainer = (props: FinalProps) => {
       .then(() => {
         addBalanceMutation({ variables: { erxesCustomerId, amount } })
           .then(() => {
+            getBalanceQuery.refetch();
             Alert.success('You successfully add a balance');
           })
           .catch(e => {
