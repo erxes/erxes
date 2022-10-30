@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { IAttachmentPreview } from '@erxes/ui/src/types';
-import { ContenFooter, ContentBox } from '@erxes/ui/src/layout/styles';
+import { ContenFooter } from '@erxes/ui/src/layout/styles';
 
 import { __ } from 'coreui/utils';
 import RespondBox from '../../../containers/conversationDetail/RespondBox';
@@ -10,11 +10,11 @@ import {
   IConversation,
   IMessage
 } from '@erxes/ui-inbox/src/inbox/types';
-import Conversation from './conversation/Conversation';
-import { ConversationWrapper } from './styles';
+import { isEnabled } from '@erxes/ui/src/utils/core';
+
 import TypingIndicator from './TypingIndicator';
-import { isEnabled, loadDynamicComponent } from '@erxes/ui/src/utils/core';
 import ActionBar from './ActionBar';
+import Content from './Content';
 
 type Props = {
   queryParams?: any;
@@ -45,73 +45,11 @@ type State = {
 };
 
 export default class WorkArea extends React.Component<Props, State> {
-  private node;
-
   constructor(props: Props) {
     super(props);
 
     this.state = { attachmentPreview: null };
-
-    this.node = React.createRef();
   }
-
-  componentDidMount() {
-    this.scrollBottom();
-  }
-
-  // Calculating new messages's height to use later in componentDidUpdate
-  // So that we can retract cursor position to original place
-  getSnapshotBeforeUpdate(prevProps) {
-    const { conversationMessages } = this.props;
-
-    if (prevProps.conversationMessages.length < conversationMessages.length) {
-      const { current } = this.node;
-
-      if (current) {
-        return current.scrollHeight - current.scrollTop;
-      }
-    }
-
-    return null;
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    const { conversationMessages, typingInfo } = this.props;
-
-    const messageCount = conversationMessages.length;
-    const prevMessageCount = prevProps.conversationMessages.length;
-
-    if (snapshot !== null) {
-      const { current } = this.node;
-
-      if (current) {
-        current.scrollTop = current.scrollHeight - snapshot;
-      }
-    }
-
-    if (prevMessageCount + 1 === messageCount || typingInfo) {
-      this.scrollBottom();
-    }
-
-    return;
-  }
-
-  onScroll = () => {
-    const { current } = this.node;
-    const { loadMoreMessages } = this.props;
-
-    if (current.scrollTop === 0) {
-      loadMoreMessages();
-    }
-  };
-
-  scrollBottom = () => {
-    const { current } = this.node;
-
-    if (current) {
-      return (current.scrollTop = current.scrollHeight);
-    }
-  };
 
   setAttachmentPreview = attachmentPreview => {
     this.setState({ attachmentPreview });
@@ -128,7 +66,8 @@ export default class WorkArea extends React.Component<Props, State> {
       loading,
       typingInfo,
       refetchMessages,
-      refetchDetail
+      refetchDetail,
+      loadMoreMessages
     } = this.props;
 
     const { kind } = currentConversation.integration;
@@ -143,22 +82,6 @@ export default class WorkArea extends React.Component<Props, State> {
       <TypingIndicator>{typingInfo}</TypingIndicator>
     ) : null;
 
-    let content = (
-      <ConversationWrapper
-        id="conversationWrapper"
-        innerRef={this.node}
-        onScroll={this.onScroll}
-      >
-        <Conversation
-          conversation={currentConversation}
-          scrollBottom={this.scrollBottom}
-          conversationMessages={conversationMessages}
-          attachmentPreview={this.state.attachmentPreview}
-          loading={loading}
-        />
-      </ConversationWrapper>
-    );
-
     const respondBox = (
       <RespondBox
         showInternal={isEnabled('internalnotes') ? showInternal : false}
@@ -170,28 +93,20 @@ export default class WorkArea extends React.Component<Props, State> {
       />
     );
 
-    if (
-      ![
-        'messenger',
-        'facebook-post',
-        'lead',
-        'booking',
-        'webhook',
-        'callpro'
-      ].includes(currentConversation.integration.kind)
-    ) {
-      content = loadDynamicComponent('inboxConversationDetail', {
-        ...this.props
-      });
-    }
-
     return (
       <>
         <ActionBar
           currentConversation={currentConversation}
           conversationMessages={conversationMessages}
         />
-        <ContentBox>{content}</ContentBox>
+        <Content
+          currentConversation={currentConversation}
+          conversationMessages={conversationMessages}
+          loading={loading}
+          attachmentPreview={this.state.attachmentPreview}
+          loadMoreMessages={loadMoreMessages}
+          typingInfo={typingInfo}
+        />
         {currentConversation._id && (
           <ContenFooter>
             {typingIndicator}
