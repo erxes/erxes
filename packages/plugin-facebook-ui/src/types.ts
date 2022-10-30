@@ -31,3 +31,8 @@ export type MessagesQueryResponse = {
   facebookConversationMessages: IConversationMessage[];
   fetchMore: (variables) => void;
 } & QueryResponse;
+
+export type MessagesTotalCountQuery = {
+  loading: boolean;
+  facebookConversationMessagesCount: number;
+};

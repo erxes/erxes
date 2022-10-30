@@ -88,6 +88,12 @@ const facebookConversationMessages = `
   }
 `;
 
+const facebookConversationMessagesCount = `
+  query facebookConversationMessagesCount($conversationId: String!) {
+    facebookConversationMessagesCount(conversationId: $conversationId)
+  }
+`;
+
 export default {
   facebookGetConfigs,
   facebookGetIntegrations,
@@ -96,5 +102,6 @@ export default {
   facebookGetCommentCount,
   facebookGetPages,
   facebookGetAccounts,
-  facebookConversationMessages
+  facebookConversationMessages,
+  facebookConversationMessagesCount
 };

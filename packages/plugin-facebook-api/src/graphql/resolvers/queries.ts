@@ -1,4 +1,4 @@
-import { IContext } from '../../connectionResolver';
+import { IContext, IModels } from '../../connectionResolver';
 import { IConversationMessageDocument } from '../../models/definitions/conversationMessages';
 import { getPageList } from '../../utils';
 
@@ -26,7 +26,21 @@ interface IMessagesParams {
   getFirst?: boolean;
 }
 
-const integrationQueries = {
+const buildSelector = async (conversationId: string, models: IModels) => {
+  const query = { conversationId: '' };
+
+  const conversation = await models.Conversations.findOne({
+    erxesApiId: conversationId
+  });
+
+  if (conversation) {
+    query.conversationId = conversation._id;
+  }
+
+  return query;
+};
+
+const facebookQueries = {
   async facebookGetAccounts(_root, { kind }: IKind, { models }: IContext) {
     return models.Accounts.find({ kind });
   },
@@ -190,15 +204,7 @@ const integrationQueries = {
     const { conversationId, limit, skip, getFirst } = args;
 
     let messages: IConversationMessageDocument[] = [];
-    const query = { conversationId: '' };
-
-    const conversation = await models.Conversations.findOne({
-      erxesApiId: conversationId
-    });
-
-    if (conversation) {
-      query.conversationId = conversation._id;
-    }
+    const query = await buildSelector(conversationId, models);
 
     if (limit) {
       const sort = getFirst ? { createdAt: 1 } : { createdAt: -1 };
@@ -216,7 +222,20 @@ const integrationQueries = {
       .limit(50);
 
     return messages.reverse();
+  },
+
+  /**
+   *  Get all conversation messages count. We will use it in pager
+   */
+  async facebookConversationMessagesCount(
+    _root,
+    { conversationId }: { conversationId: string },
+    { models }: IContext
+  ) {
+    const selector = await buildSelector(conversationId, models);
+
+    return models.ConversationMessages.countDocuments(selector);
   }
 };
 
-export default integrationQueries;
+export default facebookQueries;

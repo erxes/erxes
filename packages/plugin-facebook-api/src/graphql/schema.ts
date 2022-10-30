@@ -61,6 +61,7 @@ export const queries = `
     limit: Int
     getFirst: Boolean
   ): [FacebookConversationMessage]
+  facebookConversationMessagesCount(conversationId: String!): Int
 `;
 
 export const mutations = `
