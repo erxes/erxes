@@ -99,7 +99,7 @@ const productParams = `
   excludeIds: Boolean,
   pipelineId: String,
   boardId: String,
-  subUoms: JSON
+  subUoms: JSON,
 `;
 
 const productCategoryParams = `
@@ -115,10 +115,8 @@ export const queries = `
   productCategories(parentId: String, searchValue: String, status: String): [ProductCategory]
   productCategoriesTotalCount: Int
   productCategoryDetail(_id: String): ProductCategory
-
   products(${productParams}): [Product]
-  productsMain(${productParams}): ProductsListResponse
-  productsTotalCount(type: String): Int
+  productsTotalCount(type: String, segment: String, segmentData: String): Int
   productsGroupCounts(${productParams}, only: String): JSON
   productDetail(_id: String): Product
   productCountByTags: JSON

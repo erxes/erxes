@@ -4,8 +4,6 @@ const productCategories = productQueries.productCategories;
 
 const products = productQueries.products;
 
-const productsMain = productQueries.productsMain;
-
 const productCountByTags = `
   query productCountByTags {
     productCountByTags
@@ -51,8 +49,8 @@ const productsGroupCounts = `
 `;
 
 const productsCount = `
-  query productsTotalCount($type: String) {
-    productsTotalCount(type: $type)
+  query productsTotalCount($type: String, $segment: String, $segmentData: String) {
+    productsTotalCount(type: $type, segment: $segment, segmentData: $segmentData)
   }
 `;
 
@@ -80,7 +78,6 @@ const productsConfigs = productQueries.productsConfigs;
 
 export default {
   products,
-  productsMain,
   productDetail,
   productsCount,
   productsGroupCounts,

@@ -62,39 +62,11 @@ const products = `
     $page: Int $ids: [String],
     $excludeIds: Boolean,
     $pipelineId: String,
-    $boardId: String
-  ) {
-    products(
-      type: $type,
-      categoryId: $categoryId,
-      tag: $tag,
-      searchValue: $searchValue,
-      perPage: $perPage,
-      page: $page ids: $ids,
-      excludeIds: $excludeIds,
-      pipelineId: $pipelineId,
-      boardId: $boardId
-    ) {
-      ${productFields}
-    }
-  }
-`;
-
-const productsMain = `
-  query productsMain(
-    $type: String,
-    $categoryId: String,
-    $tag: String,
-    $searchValue: String,
-    $perPage: Int,
-    $page: Int $ids: [String],
-    $excludeIds: Boolean,
-    $pipelineId: String,
     $boardId: String,
     $segment: String,
-    $segmentData: String,
+    $segmentData: String
   ) {
-    productsMain(
+    products(
       type: $type,
       categoryId: $categoryId,
       tag: $tag,
@@ -107,13 +79,9 @@ const productsMain = `
       segment: $segment,
       segmentData: $segmentData
     ) {
-      list {
-        ${productFields}
-      }
-      totalCount
+      ${productFields}
     }
   }
-
 `;
 
 const productDetail = `
@@ -182,7 +150,6 @@ const productsConfigs = `
 export default {
   productFields,
   products,
-  productsMain,
   productDetail,
   productCategories,
   productsConfigs,
