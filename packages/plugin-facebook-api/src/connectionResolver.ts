@@ -38,7 +38,8 @@ import {
   IIntegrationModel,
   loadIntegrationClass
 } from './models/Integrations';
-import { ILogDocument, ILogModel, loadLogClass } from './models/Logs';
+import { ILogModel, loadLogClass } from './models/Logs';
+import { ILogDocument } from './models/definitions/logs';
 
 export interface IModels {
   Comments: ICommentModel;

@@ -8,6 +8,7 @@ import {
   getPostLink
 } from './utils';
 import { IModels } from './connectionResolver';
+import { INTEGRATION_KINDS } from './constants';
 
 interface IDoc {
   postId?: string;
@@ -116,7 +117,10 @@ export const getOrCreatePost = async (
   let post = await models.Posts.findOne({ postId: postParams.post_id });
 
   const integration = await models.Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
+    $and: [
+      { facebookPageIds: { $in: pageId } },
+      { kind: INTEGRATION_KINDS.POST }
+    ]
   });
 
   const { facebookPageTokensMap = {} } = integration;
@@ -180,7 +184,10 @@ export const getOrCreateComment = async (
   });
 
   const integration = await models.Integrations.getIntegration({
-    $and: [{ facebookPageIds: { $in: pageId } }, { kind: 'facebook-post' }]
+    $and: [
+      { facebookPageIds: { $in: pageId } },
+      { kind: INTEGRATION_KINDS.POST }
+    ]
   });
 
   models.Accounts.getAccount({ _id: integration.accountId });

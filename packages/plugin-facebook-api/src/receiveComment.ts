@@ -1,6 +1,7 @@
 import { IModels } from './connectionResolver';
 import { getOrCreateComment, getOrCreateCustomer } from './store';
 import { ICommentParams } from './types';
+import { INTEGRATION_KINDS } from './constants';
 
 const receiveComment = async (
   models: IModels,
@@ -10,10 +11,14 @@ const receiveComment = async (
 ) => {
   const userId = params.from.id;
   const postId = params.post_id;
-  const kind = 'facebook-post';
-  const verb = params.verb || '';
 
-  await getOrCreateCustomer(models, subdomain, pageId, userId, kind);
+  await getOrCreateCustomer(
+    models,
+    subdomain,
+    pageId,
+    userId,
+    INTEGRATION_KINDS.POST
+  );
 
   const post = await models.Posts.findOne({ postId });
 
@@ -21,7 +26,14 @@ const receiveComment = async (
     throw new Error('Post not found');
   }
 
-  return getOrCreateComment(models, subdomain, params, pageId, userId, verb);
+  return getOrCreateComment(
+    models,
+    subdomain,
+    params,
+    pageId,
+    userId,
+    params.verb || ''
+  );
 };
 
 export default receiveComment;

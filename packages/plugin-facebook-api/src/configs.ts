@@ -6,6 +6,7 @@ import { initBroker } from './messageBroker';
 import { getSubdomain } from '@erxes/api-utils/src/core';
 import { generateModels } from './connectionResolver';
 import initApp from './index';
+import { INTEGRATION_KINDS } from './constants';
 
 export let mainDb;
 export let debug;
@@ -25,11 +26,11 @@ export default {
   meta: {
     inboxIntegrations: [
       {
-        kind: 'facebook-messenger',
+        kind: INTEGRATION_KINDS.MESSENGER,
         label: 'Facebook messenger'
       },
       {
-        kind: 'facebook-post',
+        kind: INTEGRATION_KINDS.POST,
         label: 'Facebook post'
       }
     ]

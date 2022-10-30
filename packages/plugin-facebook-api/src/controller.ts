@@ -8,7 +8,7 @@ import receiveComment from './receiveComment';
 import receiveMessage from './receiveMessage';
 import receivePost from './receivePost';
 
-import { FACEBOOK_POST_TYPES } from './constants';
+import { FACEBOOK_POST_TYPES, INTEGRATION_KINDS } from './constants';
 import {
   getPageAccessToken,
   getPageAccessTokenFromMap,
@@ -244,7 +244,7 @@ const init = async app => {
             const integration = await models.Integrations.getIntegration({
               $and: [
                 { facebookPageIds: { $in: pageId } },
-                { kind: 'facebook-messenger' }
+                { kind: INTEGRATION_KINDS.MESSENGER }
               ]
             });
 

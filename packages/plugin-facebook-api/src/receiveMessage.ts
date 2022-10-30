@@ -5,6 +5,7 @@ import { IModels } from './connectionResolver';
 import { sendInboxMessage } from './messageBroker';
 import { getOrCreateCustomer } from './store';
 import { IChannelData } from './types';
+import { INTEGRATION_KINDS } from './constants';
 
 const receiveMessage = async (
   models: IModels,
@@ -23,13 +24,13 @@ const receiveMessage = async (
   const integration = await models.Integrations.getIntegration({
     $and: [
       { facebookPageIds: { $in: [recipient.id] } },
-      { kind: 'facebook-messenger' }
+      { kind: INTEGRATION_KINDS.MESSENGER }
     ]
   });
 
   const userId = sender.id;
   const pageId = recipient.id;
-  const kind = 'facebook-messenger';
+  const kind = INTEGRATION_KINDS.MESSENGER;
 
   // get or create customer
   const customer = await getOrCreateCustomer(
